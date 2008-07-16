@@ -39,6 +39,7 @@ from utilities.constants import black
 from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
 from model.chem import Atom #for instance check only as of 2008-04-17
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 class Move_basicCommand(SelectChunks_basicCommand):
     """
@@ -502,7 +503,8 @@ class Move_basicCommand(SelectChunks_basicCommand):
 
         subControlAreaActionList =[]
 
-        self.exitMoveAction = QtGui.QWidgetAction(self.w)
+        self.exitMoveAction = NE1_QWidgetAction(self.w, 
+                                                  win = self.w)
         self.exitMoveAction.setText("Exit Move")
         self.exitMoveAction.setWhatsThis("Exits Move Mode")
         self.exitMoveAction.setCheckable(True)

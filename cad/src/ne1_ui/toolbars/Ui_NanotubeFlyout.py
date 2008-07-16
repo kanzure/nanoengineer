@@ -21,6 +21,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
 from utilities.Log import greenmsg
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 _theNanotubeFlyout = None
 
@@ -103,13 +104,15 @@ class NanotubeFlyout:
         return params
 
     def _createActions(self, parentWidget):
-        self.exitNanotubeAction = QtGui.QWidgetAction(parentWidget)
+        self.exitNanotubeAction = NE1_QWidgetAction(parentWidget, 
+                                                      win = self.win)
         self.exitNanotubeAction.setText("Exit NT")
         self.exitNanotubeAction.setIcon(
             geticon("ui/actions/Toolbars/Smart/Exit.png"))
         self.exitNanotubeAction.setCheckable(True)
         
-        self.insertNanotubeAction = QtGui.QWidgetAction(parentWidget)
+        self.insertNanotubeAction = NE1_QWidgetAction(parentWidget,
+                                                        win = self.win)
         self.insertNanotubeAction.setText("Insert NT")
         self.insertNanotubeAction.setCheckable(True)        
         self.insertNanotubeAction.setIcon(

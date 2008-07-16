@@ -69,6 +69,8 @@ from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandTool
 
 from PM.PM_Colors import getPalette
 
+from ne1_ui.toolbars.FlyoutToolbar import FlyoutToolBar
+
 #debug flag for bug 2633 (in Qt4.3 all control area buttons collapse into a 
 #single button. The following flag, if True, sets the controlarea as a 
 #QWidget instead of a QToolbar. As of 2008-02-20, we are not using any of the 
@@ -124,7 +126,7 @@ class Ui_CommandToolbar( QWidget ):
         self.cmdToolbarControlArea.setPalette(self.ctrlAreaPalette)
                 
         self.cmdToolbarControlArea.setMinimumHeight(62)
-        self.cmdToolbarControlArea.setMinimumWidth(310)
+        self.cmdToolbarControlArea.setMinimumWidth(380)
         self.cmdToolbarControlArea.setSizePolicy(QSizePolicy.Fixed, 
                                                  QSizePolicy.Fixed)  
         
@@ -166,13 +168,10 @@ class Ui_CommandToolbar( QWidget ):
         layout_cmdtoolbar.addWidget(self.cmdToolbarControlArea) 
         
         #Flyout Toolbar in the command toolbar  
-        self.flyoutToolBar = QToolBar_WikiHelp(self) 
-        self.flyoutToolBar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.flyoutToolBar.addSeparator()
-        self.flyoutToolBar.setAutoFillBackground(True)
+        self.flyoutToolBar = FlyoutToolBar(self) 
         
-        self.commandAreaPalette = self.getCmdMgrCommandAreaPalette()
-        self.flyoutToolBar.setPalette(self.commandAreaPalette)
+        
+        
         
         layout_cmdtoolbar.addWidget(self.flyoutToolBar)   
         
@@ -236,48 +235,8 @@ class Ui_CommandToolbar( QWidget ):
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
                 btn.setToolTip("Simulation Commands")
                 whatsThisTextForCommandToolbarSimulationButton(btn)
-                
-        #ninad 070125 Following creates Toolbuttons for flyout toolbars and
-        #sets proper QWidget actions to them 
-        for btn in self.cmdButtonGroup.buttons():
-            menu = btn.menu()
-            if menu:            
-                for action in menu.actions():
-                    #ninad 070125 must be a QWidgetAction
-                    if action.__class__.__name__ is \
-                       QtGui.QWidgetAction.__name__:
-                        btn = QToolButton()
-                        btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon) 
-                        btn.setMinimumWidth(68)
-                        btn.setMaximumWidth(68)
-                        btn.setMinimumHeight(62)                                            
-                        #ninad 070125: make sure to a) define *default action* 
-                        # of button to action and 
-                        #b) *default widget* of *action* to 'button' 
-                        #(a) ensures button has got action's signals, icon,  
-                        #    text and other properties
-                        #(b) ensures action has got button's geometry       
-                        btn.setDefaultAction(action)
-                        action.setDefaultWidget(btn)                    
-                        #ninad 070201 temporary solution -- truncate the 
-                        #toolbutton text if too long.           
-                        text = self.truncateText(action.text())
-                        btn.setText(text)
-                        
-                        #@@@ ninad070125 The following function 
-                        #adds a newline character after each word in toolbutton
-                        #text. But the changes are reflected only on 'mode' 
-                        #toolbuttons on the flyout toolbar (i.e. only Checkable
-                        #buttons... don't know why). Disabling its use for now.
-                        
-                        debug_wrapText = False
-                        
-                        if debug_wrapText:
-                            text = self.wrapToolButtonText(action.text())                       
-                            if text:    
-                                action.setText(text)    
-               
-                                                
+                                   
+                                                    
     def truncateText(self, text, length = 12, truncateSymbol = '...'):
         """
         Truncates the tooltip text with the given truncation symbol
@@ -359,7 +318,4 @@ class Ui_CommandToolbar( QWidget ):
         """ Return a palette for Command Manager 'Commands area'(flyout toolbar)
         (Palette for Tool Buttons in command toolbar command area)
         """
-        return getPalette(None,
-                          QPalette.Button,
-                          cmdTbarCmdAreaBtnColor
-                          )
+        return self.flyoutToolBar.getPalette()

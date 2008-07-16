@@ -21,6 +21,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
 from utilities.Log import greenmsg
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 _theProteinFlyout = None
 
@@ -100,27 +101,33 @@ class ProteinFlyout:
         return params
 
     def _createActions(self, parentWidget):
-        self.exitProteinAction = QtGui.QWidgetAction(parentWidget)
+        self.exitProteinAction = NE1_QWidgetAction(parentWidget,
+                                                     win = self.win)
         self.exitProteinAction.setText("Exit Protein")
         self.exitProteinAction.setIcon(
             geticon("ui/actions/Toolbars/Smart/Exit.png"))
         self.exitProteinAction.setCheckable(True)
 
-        self.buildPeptideAction = QtGui.QWidgetAction(parentWidget)
+        self.buildPeptideAction = NE1_QWidgetAction(parentWidget,
+                                                      win = self.win)
         self.buildPeptideAction.setText("Peptide")
         self.buildPeptideAction.setCheckable(True)  
         #set this icon path later
         self.buildPeptideAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/Peptide.png"))
 
-        self.editRotamersAction = QtGui.QWidgetAction(parentWidget)
+        
+
+        self.editRotamersAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.editRotamersAction.setText("Rotamers")
         self.editRotamersAction.setCheckable(True)  
         #set this icon path later
         self.editRotamersAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/Rotamer.png"))
+        
+        self.displayProteinStyleAction = NE1_QWidgetAction(parentWidget, 
+                                                           win = self.win)
 
-        self.displayProteinStyleAction = QtGui.QWidgetAction(parentWidget)
         self.displayProteinStyleAction.setText("Edit Style")
         self.displayProteinStyleAction.setCheckable(True)        
         self.displayProteinStyleAction.setIcon(

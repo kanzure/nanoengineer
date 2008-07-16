@@ -35,6 +35,7 @@ from commands.PlayMovie.MoviePropertyManager import MoviePropertyManager
 from utilities.icon_utilities import geticon
 
 from utilities.prefs_constants import workingDirectory_prefs_key
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 class MovieRewindDialog(QDialog):
 
@@ -217,7 +218,7 @@ class movieMode(basicMode):
 
         subControlAreaActionList =[]
 
-        self.exitMovieAction = QWidgetAction(self.w)
+        self.exitMovieAction = NE1_QWidgetAction(self.w, win = self.w)
         self.exitMovieAction.setText("Exit Movie")
         self.exitMovieAction.setWhatsThis("Exits Movie Mode")
         self.exitMovieAction.setCheckable(True)

@@ -20,6 +20,7 @@ from PyQt4 import QtGui
 from PyQt4.Qt import QToolButton
 from utilities.icon_utilities import geticon
 from utilities.prefs_constants import displayRulers_prefs_key
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 def setupUi(win):
     """
@@ -478,44 +479,53 @@ def setupUi(win):
     #win.referenceGeometryMenu = QtGui.QMenu(win.insertMenu)
     #win.referenceGeometryMenu.setObjectName("referenceGeometryMenu")
 
-    win.jigsAtomSetAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsAtomSetAction = NE1_QWidgetAction(MainWindow, 
+                                                win = MainWindow)
     win.jigsAtomSetAction.setIcon(geticon("ui/actions/Tools/Atom_Set.png"))
     win.jigsAtomSetAction.setObjectName("jigsAtomSetAction")
 
-    win.fileInsertMmpAction = QtGui.QWidgetAction(MainWindow)
+    win.fileInsertMmpAction = NE1_QWidgetAction(MainWindow, 
+                                                  win = MainWindow)
     win.fileInsertMmpAction.setObjectName("fileInsertMmpAction")
     win.fileInsertMmpAction.setIcon(
         geticon('ui/actions/Insert/MMP.png'))
 
-    win.fileInsertPdbAction = QtGui.QWidgetAction(MainWindow)
+    win.fileInsertPdbAction = NE1_QWidgetAction(MainWindow, 
+                                                  win = MainWindow)
     win.fileInsertPdbAction.setObjectName("fileInsertPdbAction")
     win.fileInsertPdbAction.setIcon(geticon('ui/actions/Insert/PDB.png'))
 
-    win.partLibAction = QtGui.QWidgetAction(MainWindow)
+    win.partLibAction = NE1_QWidgetAction(MainWindow, 
+                                            win = MainWindow)
     win.partLibAction.setObjectName("partLibAction")
     win.partLibAction.setIcon(geticon('ui/actions/Insert/Part_Library.png'))
 
-    win.insertCommentAction = QtGui.QWidgetAction(MainWindow)
+    win.insertCommentAction = NE1_QWidgetAction(MainWindow,
+                                                  win = MainWindow)
     win.insertCommentAction.setIcon(
         geticon("ui/actions/Insert/Comment.png"))
     win.insertCommentAction.setObjectName("insertCommentAction")
 
-    win.insertPovraySceneAction = QtGui.QWidgetAction(MainWindow)
+    win.insertPovraySceneAction = NE1_QWidgetAction(MainWindow, 
+                                                      win = MainWindow)
     win.insertPovraySceneAction.setIcon(
         geticon("ui/actions/Insert/POV-Ray_Scene.png"))
     win.insertPovraySceneAction.setObjectName("insertPovraySceneAction")
 
-    win.jigsGridPlaneAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsGridPlaneAction = NE1_QWidgetAction(MainWindow, 
+                                                  win = MainWindow)
     win.jigsGridPlaneAction.setIcon(
         geticon("ui/actions/Insert/Reference Geometry/Grid_Plane.png"))
     win.jigsGridPlaneAction.setObjectName("jigsGridPlaneAction")
 
-    win.referencePlaneAction = QtGui.QWidgetAction(MainWindow)
+    win.referencePlaneAction = NE1_QWidgetAction(MainWindow, 
+                                                   win = MainWindow)
     win.referencePlaneAction.setIcon(
         geticon("ui/actions/Insert/Reference Geometry/Plane.png"))
     win.referencePlaneAction.setObjectName("referencePlaneAction")
 
-    win.referenceLineAction = QtGui.QWidgetAction(MainWindow)
+    win.referenceLineAction = NE1_QWidgetAction(MainWindow, 
+                                                  win = MainWindow)
     win.referenceLineAction.setIcon(
         geticon("ui/actions/Insert/Reference Geometry/Plane.png"))
     win.referenceLineAction.setObjectName("referenceLineAction")
@@ -543,7 +553,8 @@ def setupUi(win):
     win.selectionMenu = QtGui.QMenu(win.toolsMenu)
     win.selectionMenu.setObjectName("selectionMenu")
 
-    win.editPrefsAction = QtGui.QWidgetAction(MainWindow)
+    win.editPrefsAction = NE1_QWidgetAction(MainWindow, 
+                                              win = MainWindow)
     win.editPrefsAction.setIcon(geticon("ui/actions/Tools/Options.png"))
     win.editPrefsAction.setObjectName("editPrefsAction")    
 
@@ -556,151 +567,155 @@ def setupUi(win):
     win.lightingSchemeAction.setIcon(geticon("ui/actions/View/LightingScheme.png"))
     win.lightingSchemeAction.setObjectName("lightingSchemeAction")
     
-    win.modifyAdjustSelAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyAdjustSelAction = NE1_QWidgetAction(MainWindow, 
+                                                    win = MainWindow)
     win.modifyAdjustSelAction.setEnabled(True)
     win.modifyAdjustSelAction.setIcon(
         geticon("ui/actions/Tools/Adjust_Selection.png"))
     win.modifyAdjustSelAction.setObjectName("modifyAdjustSelAction")
 
-    win.modifyAdjustAllAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyAdjustAllAction = NE1_QWidgetAction(MainWindow, 
+                                                    win = MainWindow)
     win.modifyAdjustAllAction.setIcon(
         geticon("ui/actions/Tools/Adjust_All.png"))
     win.modifyAdjustAllAction.setObjectName("modifyAdjustAllAction")
 
-    win.simMinimizeEnergyAction = QtGui.QWidgetAction(MainWindow)
+    win.simMinimizeEnergyAction = NE1_QWidgetAction(MainWindow, 
+                                                      win = MainWindow)
     win.simMinimizeEnergyAction.setIcon(
         geticon("ui/actions/Simulation/Minimize_Energy.png"))
     win.simMinimizeEnergyAction.setObjectName("simMinimizeEnergyAction")
 
-    win.toolsExtrudeAction = QtGui.QWidgetAction(MainWindow)
+    win.toolsExtrudeAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.toolsExtrudeAction.setCheckable(True)
     win.toolsExtrudeAction.setIcon(
         geticon("ui/actions/Insert/Features/Extrude.png"))
 
-    win.toolsFuseChunksAction = QtGui.QWidgetAction(MainWindow)
+    win.toolsFuseChunksAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.toolsFuseChunksAction.setCheckable(1) # make the Fuse Mode button checkable
     win.toolsFuseChunksAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Fuse_Chunks.png"))
 
-    win.modifyMirrorAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyMirrorAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyMirrorAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Mirror.png"))
     win.modifyMirrorAction.setObjectName("modifyMirrorAction")
 
-    win.modifyInvertAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyInvertAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyInvertAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Invert.png"))
     win.modifyInvertAction.setObjectName("modifyInvertAction")
 
-    win.modifyStretchAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyStretchAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyStretchAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Stretch.png"))
     win.modifyStretchAction.setObjectName("modifyStretchAction")
 
     #== "Tools > Build Structures" (menu and toolbar) widgets.
 
-    win.toolsDepositAtomAction = QtGui.QWidgetAction(MainWindow)
+    win.toolsDepositAtomAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.toolsDepositAtomAction.setCheckable(1) # make the build button checkable
     win.toolsDepositAtomAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Build Chunks.png"))
 
-    win.toolsCookieCutAction = QtGui.QWidgetAction(MainWindow)
+    win.toolsCookieCutAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.toolsCookieCutAction.setCheckable(1) # make the cookie button checkable
     win.toolsCookieCutAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Build Crystal.png"))
 
-    win.insertGrapheneAction = QtGui.QWidgetAction(MainWindow)
+    win.insertGrapheneAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.insertGrapheneAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Graphene.png"))
     win.insertGrapheneAction.setObjectName("insertGrapheneAction")
 
-    win.nanotubeGeneratorAction = QtGui.QWidgetAction(MainWindow)
+    win.nanotubeGeneratorAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.nanotubeGeneratorAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Nanotube.png"))
     win.nanotubeGeneratorAction.setObjectName("nanotubeGeneratorAction")
 
-    win.buildNanotubeAction = QtGui.QWidgetAction(MainWindow)
+    win.buildNanotubeAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.buildNanotubeAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Nanotube.png"))
     win.buildNanotubeAction.setObjectName("buildNanotubeAction")
 
-    win.buildDnaAction = QtGui.QWidgetAction(MainWindow)
+    win.buildDnaAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.buildDnaAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/DNA.png"))
     win.buildDnaAction.setObjectName("buildDnaAction")
 
     # Atom Generator (Developer Example). Mark 2007-06-08
-    win.insertAtomAction = QtGui.QWidgetAction(MainWindow)
+    win.insertAtomAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.insertAtomAction.setIcon(
         geticon("ui/actions/Toolbars/Smart/Deposit_Atoms.png"))
     win.insertAtomAction.setObjectName("insertAtomAction")
 
     # Peptide Generator, piotr 080304
-    win.insertPeptideAction = QtGui.QWidgetAction(MainWindow)
+    win.insertPeptideAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.insertPeptideAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Peptide.png"))
     win.insertPeptideAction.setObjectName("insertPeptideAction")
 
     #== "Tools > Build Tools" (menu and toolbar) widgets.
 
-    win.modifyHydrogenateAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyHydrogenateAction = NE1_QWidgetAction(MainWindow, 
+                                                    win = MainWindow)
     win.modifyHydrogenateAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Hydrogenate.png"))
     win.modifyHydrogenateAction.setObjectName("modifyHydrogenateAction")
 
-    win.modifyDehydrogenateAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyDehydrogenateAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyDehydrogenateAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Dehydrogenate.png"))
     win.modifyDehydrogenateAction.setObjectName("modifyDehydrogenateAction")
 
-    win.modifyPassivateAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyPassivateAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyPassivateAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Passivate.png"))
     win.modifyPassivateAction.setObjectName("modifyPassivateAction")
 
-    win.modifyDeleteBondsAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyDeleteBondsAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyDeleteBondsAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Delete_Bonds.png"))
     win.modifyDeleteBondsAction.setObjectName("modifyDeleteBondsAction")      
 
-    win.modifySeparateAction = QtGui.QWidgetAction(MainWindow)
+    win.modifySeparateAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifySeparateAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Separate.png"))
     win.modifySeparateAction.setObjectName("modifySeparateAction")
 
-    win.modifyMergeAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyMergeAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyMergeAction.setIcon(geticon(
         "ui/actions/Tools/Build Tools/Combine_Chunks.png"))
     win.modifyMergeAction.setObjectName("modifyMergeAction")
 
-    win.makeChunkFromSelectedAtomsAction = QtGui.QWidgetAction(MainWindow)
+    win.makeChunkFromSelectedAtomsAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.makeChunkFromSelectedAtomsAction.setIcon(geticon(
         "ui/actions/Tools/Build Tools/New_Chunk.png"))
     win.makeChunkFromSelectedAtomsAction.setObjectName(
         "makeChunkFromSelectedAtomsAction")
 
-    win.modifyAlignCommonAxisAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyAlignCommonAxisAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyAlignCommonAxisAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/AlignToCommonAxis.png"))
     win.modifyAlignCommonAxisAction.setObjectName("modifyAlignCommonAxisAction")
 
-    win.modifyCenterCommonAxisAction = QtGui.QWidgetAction(MainWindow)
+    win.modifyCenterCommonAxisAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyCenterCommonAxisAction.setObjectName(
         "modifyCenterCommonAxisAction")
 
     #= "Tools > Dimensions" (menu and toolbar) widgets.
 
-    win.jigsDistanceAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsDistanceAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsDistanceAction.setIcon(
         geticon("ui/actions/Tools/Dimensions/Measure_Distance.png"))
     win.jigsDistanceAction.setObjectName("jigsDistanceAction")
 
-    win.jigsAngleAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsAngleAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsAngleAction.setIcon(
         geticon("ui/actions/Tools/Dimensions/Measure_Angle.png"))
     win.jigsAngleAction.setObjectName("jigsAngleAction")
 
-    win.jigsDihedralAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsDihedralAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsDihedralAction.setIcon(
         geticon("ui/actions/Tools/Dimensions/Measure_Dihedral.png"))
     win.jigsDihedralAction.setObjectName("jigsDihedralAction")
@@ -761,7 +776,7 @@ def setupUi(win):
     win.measurementsMenu.setIcon(
         geticon("ui/actions/Toolbars/Smart/Dimension.png"))
 
-    win.simSetupAction = QtGui.QWidgetAction(MainWindow)
+    win.simSetupAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.simSetupAction.setCheckable(True)
     win.simSetupAction.setChecked(False)
     win.simSetupAction.setEnabled(True)
@@ -769,11 +784,11 @@ def setupUi(win):
         geticon("ui/actions/Simulation/Run_Dynamics.png"))
     win.simSetupAction.setObjectName("simSetupAction")
 
-    win.simMoviePlayerAction = QtGui.QWidgetAction(MainWindow)
+    win.simMoviePlayerAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.simMoviePlayerAction.setIcon(
         geticon("ui/actions/Simulation/Play_Movie.png"))
 
-    win.rosettaSetupAction = QtGui.QWidgetAction(MainWindow)
+    win.rosettaSetupAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.rosettaSetupAction.setCheckable(True)
     win.rosettaSetupAction.setChecked(False)
     win.rosettaSetupAction.setEnabled(True)
@@ -781,33 +796,32 @@ def setupUi(win):
         geticon("ui/actions/Simulation/Rosetta.png"))
     win.rosettaSetupAction.setObjectName("rosettaSetupAction")
     
-    win.simPlotToolAction = QtGui.QWidgetAction(MainWindow)
-    win.simPlotToolAction.setEnabled(True)
+    win.simPlotToolAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.simPlotToolAction.setIcon(
         geticon("ui/actions/Simulation/Make_Graphs.png"))
     win.simPlotToolAction.setObjectName("simPlotToolAction")
 
-    win.jigsMotorAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsMotorAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsMotorAction.setIcon(
         geticon("ui/actions/Simulation/Rotary_Motor.png"))
     win.jigsMotorAction.setObjectName("jigsMotorAction")
 
-    win.jigsLinearMotorAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsLinearMotorAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsLinearMotorAction.setIcon(
         geticon("ui/actions/Simulation/Linear_Motor.png"))
     win.jigsLinearMotorAction.setObjectName("jigsLinearMotorAction")
 
-    win.jigsStatAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsStatAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsStatAction.setIcon(
         geticon("ui/actions/Simulation/Thermostat.png"))
     win.jigsStatAction.setObjectName("jigsStatAction")
 
-    win.jigsThermoAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsThermoAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsThermoAction.setIcon(
         geticon("ui/actions/Simulation/Measurements/Thermometer.png"))
     win.jigsThermoAction.setObjectName("jigsThermoAction")
 
-    win.jigsAnchorAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsAnchorAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsAnchorAction.setIcon(
         geticon("ui/actions/Simulation/Anchor.png"))
     win.jigsAnchorAction.setObjectName("jigsAnchorAction")
@@ -817,13 +831,13 @@ def setupUi(win):
         geticon("ui/actions/Simulation/Simulation_Jigs.png"))
     win.simulationJigsAction.setObjectName("simulationJigsAction")
 
-    win.jigsGamessAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsGamessAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsGamessAction.setEnabled(True)
     win.jigsGamessAction.setIcon(
         geticon("ui/actions/Simulation/GAMESS.png"))
     win.jigsGamessAction.setObjectName("jigsGamessAction")
 
-    win.jigsESPImageAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsESPImageAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsESPImageAction.setIcon(
         geticon("ui/actions/Simulation/ESP_Image.png"))
     win.jigsESPImageAction.setObjectName("jigsESPImageAction")
@@ -887,12 +901,14 @@ def setupUi(win):
     win.toolsMoveRotateActionGroup = QtGui.QActionGroup(MainWindow)
     win.toolsMoveRotateActionGroup.setExclusive(True)
 
-    win.toolsMoveMoleculeAction = QtGui.QWidgetAction(win.toolsMoveRotateActionGroup)
+    win.toolsMoveMoleculeAction = NE1_QWidgetAction(win.toolsMoveRotateActionGroup, 
+                                                      win = MainWindow)
     win.toolsMoveMoleculeAction.setCheckable(1) # make the Move mode button checkable
     win.toolsMoveMoleculeAction.setIcon(
         geticon("ui/actions/Toolbars/Standard/Move_Chunks.png"))
 
-    win.rotateComponentsAction = QtGui.QWidgetAction(win.toolsMoveRotateActionGroup)
+    win.rotateComponentsAction = NE1_QWidgetAction(win.toolsMoveRotateActionGroup, 
+                                                     win = MainWindow)
     win.rotateComponentsAction.setCheckable(1) # make the Move mode button checkable
     win.rotateComponentsAction.setIcon(
         geticon("ui/actions/Toolbars/Standard/Rotate_Components.png"))
@@ -911,7 +927,7 @@ def setupUi(win):
     win.standardViewsMenu.addAction(win.viewBottomAction)
     win.standardViewsMenu.addAction(win.viewIsometricAction)
 
-    win.standardViewsAction = QtGui.QWidgetAction(MainWindow)
+    win.standardViewsAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.standardViewsAction.setEnabled(True)
     win.standardViewsAction.setIcon(
         geticon("ui/actions/View/Standard_Views.png"))

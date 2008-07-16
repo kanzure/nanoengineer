@@ -73,6 +73,7 @@ from utilities.constants import blue
 from utilities.constants import green
 
 from utilities.constants import common_prefix
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
@@ -433,7 +434,8 @@ class extrudeMode(basicMode):
 
         subControlAreaActionList =[]
 
-        self.exitExtrudeAction = QtGui.QWidgetAction(self.w)
+        self.exitExtrudeAction = NE1_QWidgetAction(self.w,
+                                                     win = self.win)
         self.exitExtrudeAction.setText("Exit Extrude")
         self.exitExtrudeAction.setCheckable(True)
         self.exitExtrudeAction.setChecked(True)

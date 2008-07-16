@@ -18,6 +18,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
 from utilities.Log import greenmsg
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 _theDnaFlyout = None
 
@@ -59,7 +60,7 @@ class DnaFlyout:
         self.parentWidget = parentWidget
         self.win = mainWindow
         self._isActive = False
-        self._createActions(self.parentWidget)
+        self._createActions(self.parentWidget)        
         self._addWhatsThisText()
         self._addToolTipText()
     
@@ -112,57 +113,67 @@ class DnaFlyout:
         return params
 
     def _createActions(self, parentWidget):
-        self.exitDnaAction = QtGui.QWidgetAction(parentWidget)
+        self.exitDnaAction = NE1_QWidgetAction(parentWidget, 
+                                               win = self.win)
         self.exitDnaAction.setText("Exit DNA")
         self.exitDnaAction.setIcon(
             geticon("ui/actions/Toolbars/Smart/Exit.png"))
         self.exitDnaAction.setCheckable(True)
         
-        self.dnaDuplexAction = QtGui.QWidgetAction(parentWidget)
+        self.dnaDuplexAction = NE1_QWidgetAction(parentWidget,
+                                                 win = self.win)
         self.dnaDuplexAction.setText("Insert DNA")
         self.dnaDuplexAction.setCheckable(True)        
         self.dnaDuplexAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/InsertDsDna.png"))
         
-        self.breakStrandAction = QtGui.QWidgetAction(parentWidget)
+        self.breakStrandAction = NE1_QWidgetAction(parentWidget,
+                                                   win = self.win)
         self.breakStrandAction.setText("Break Strand")
         self.breakStrandAction.setCheckable(True)        
         self.breakStrandAction.setIcon(
             geticon("ui/actions/Command Toolbar/Break_Strand.png"))
         
-        self.joinStrandsAction = QtGui.QWidgetAction(parentWidget)
+        self.joinStrandsAction = NE1_QWidgetAction(parentWidget,
+                                                   win = self.win)
         self.joinStrandsAction.setText("Join Strands")
         self.joinStrandsAction.setCheckable(True)        
         self.joinStrandsAction.setIcon(
             geticon("ui/actions/Command Toolbar/Join_Strands.png"))
         
-        self.makeCrossoversAction = QtGui.QWidgetAction(parentWidget)
+        self.makeCrossoversAction = NE1_QWidgetAction(parentWidget,
+                                                      win = self.win)
         self.makeCrossoversAction.setText("Crossovers")
         self.makeCrossoversAction.setCheckable(True)        
         self.makeCrossoversAction.setIcon(
             geticon("ui/actions/Command Toolbar/Crossover.png"))
 
-        self.dnaOrigamiAction = QtGui.QWidgetAction(parentWidget)
+        self.dnaOrigamiAction = NE1_QWidgetAction(parentWidget,
+                                                  win = self.win)
         self.dnaOrigamiAction.setText("Origami")
         self.dnaOrigamiAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/DNA_Origami.png"))
         
-        self.convertPAM3to5Action = QtGui.QWidgetAction(parentWidget)
+        self.convertPAM3to5Action = NE1_QWidgetAction(parentWidget,
+                                                      win = self.win)
         self.convertPAM3to5Action.setText("PAM3 to PAM5")
         self.convertPAM3to5Action.setIcon(
             geticon("ui/actions/Command Toolbar/Convert3to5.png"))
         
-        self.convertPAM5to3Action = QtGui.QWidgetAction(parentWidget)
+        self.convertPAM5to3Action = NE1_QWidgetAction(parentWidget,
+                                                      win = self.win)
         self.convertPAM5to3Action.setText("PAM5 to PAM3")
         self.convertPAM5to3Action.setIcon(
             geticon("ui/actions/Command Toolbar/Convert5to3.png"))
         
-        self.orderDnaAction = QtGui.QWidgetAction(parentWidget)
+        self.orderDnaAction = NE1_QWidgetAction(parentWidget,
+                                                win = self.win)
         self.orderDnaAction.setText("Order DNA")
         self.orderDnaAction.setIcon(
             geticon("ui/actions/Command Toolbar/Order_DNA.png"))
         
-        self.editDnaDisplayStyleAction = QtGui.QWidgetAction(parentWidget)
+        self.editDnaDisplayStyleAction = NE1_QWidgetAction(parentWidget,
+                                                           win = self.win)
         self.editDnaDisplayStyleAction.setText("Edit Style")
         self.editDnaDisplayStyleAction.setCheckable(True)        
         self.editDnaDisplayStyleAction.setIcon(

@@ -14,11 +14,11 @@ from this class to use common methods such as ok_btn_cliked.
 import foundation.env as env
 
 from PM.PM_Dialog import PM_Dialog
-from PyQt4.Qt import QWidgetAction
 from PyQt4.Qt import SIGNAL
 
 from command_support.GeneratorBaseClass import AbstractMethod
 from utilities.icon_utilities import geticon
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 class EditCommand_PM(PM_Dialog):
     """
@@ -219,7 +219,7 @@ class EditCommand_PM(PM_Dialog):
         pass
 
     def _createFlyoutActions(self):
-        self.exitEditCommandAction = QWidgetAction(self.win)
+        self.exitEditCommandAction = NE1_QWidgetAction(self.win, win = self.win)
         if self.editCommand:
             text = "Exit " + self.editCommand.cmdname
         else:

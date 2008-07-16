@@ -39,6 +39,7 @@ Ninad 2008-01-04: Created new Command and GraphicsMode classes from
 from PyQt4 import QtGui
 from PyQt4.Qt import QSize
 from PyQt4.Qt import SIGNAL
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 import foundation.env as env
 import foundation.changes as changes
@@ -710,7 +711,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         #cleanup commit(other modes still implement a method by same 
         #name)-ninad20070717
                 
-        self.exitModeAction = QtGui.QWidgetAction(self.w)
+        self.exitModeAction = NE1_QWidgetAction(self.propMgr, 
+                                                win = self.win)
         self.exitModeAction.setText("Exit Chunks")
         self.exitModeAction.setIcon(
             geticon('ui/actions/Toolbars/Smart/Exit.png'))
@@ -726,7 +728,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         #Defining them outside that method as those are being used
         #by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
                 
-        self.depositAtomsAction = QtGui.QWidgetAction(self.w)
+        self.depositAtomsAction = NE1_QWidgetAction(self.w, 
+                                                    win = self.w)
         self.depositAtomsAction.setText("Atoms Tool")
         self.depositAtomsAction.setIcon(
             geticon('ui/actions/Toolbars/Smart/Deposit_Atoms.png'))
@@ -739,7 +742,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
        Modeling Kit into the 3D Workspace
         </p>""")
                 
-        self.transmuteBondsAction = QtGui.QWidgetAction(self.w)
+        self.transmuteBondsAction = NE1_QWidgetAction(self.w, 
+                                                      win = self.w)
         self.transmuteBondsAction.setText("Bonds Tool")
         self.transmuteBondsAction.setIcon(
             geticon('ui/actions/Toolbars/Smart/Transmute_Bonds.png'))
@@ -760,7 +764,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         self.bondToolsActionGroup = QtGui.QActionGroup(self.w)
         self.bondToolsActionGroup.setExclusive(True)
                 
-        self.bond1Action = QtGui.QWidgetAction(self.w)  
+        self.bond1Action = NE1_QWidgetAction(self.w, 
+                                             win = self.w)  
         self.bond1Action.setText("Single")
         self.bond1Action.setIcon(
             geticon("ui/actions/Toolbars/Smart/bond1.png"))
@@ -770,7 +775,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
        Transmutes selected bond to a single bond if permitted 
         </p>""")
             
-        self.bond2Action = QtGui.QWidgetAction(self.w)  
+        self.bond2Action = NE1_QWidgetAction(self.w, 
+                                             win = self.w)  
         self.bond2Action.setText("Double")
         self.bond2Action.setIcon(
             geticon("ui/actions/Toolbars/Smart/bond2.png"))
@@ -780,7 +786,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
        Transmutes selected bond to a double bond if permitted 
         </p>""")
         
-        self.bond3Action = QtGui.QWidgetAction(self.w)  
+        self.bond3Action = NE1_QWidgetAction(self.w,
+                                             win = self.w)  
         self.bond3Action.setText("Triple")
         self.bond3Action.setIcon(
             geticon("ui/actions/Toolbars/Smart/bond3.png"))
@@ -790,7 +797,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
        Transmutes selected bond to a triple bond if permitted 
         </p>""")
         
-        self.bondaAction = QtGui.QWidgetAction(self.w)  
+        self.bondaAction = NE1_QWidgetAction(self.w, 
+                                             win = self.w)  
         self.bondaAction.setText("Aromatic")
         self.bondaAction.setIcon(
             geticon("ui/actions/Toolbars/Smart/bonda.png"))
@@ -801,7 +809,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         </p>""")
      
         
-        self.bondgAction = QtGui.QWidgetAction(self.w)  
+        self.bondgAction = NE1_QWidgetAction(self.w,
+                                             win = self.w)  
         self.bondgAction.setText("Graphitic")
         self.bondgAction.setIcon(
             geticon("ui/actions/Toolbars/Smart/bondg.png"))
@@ -811,7 +820,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
        Transmutes selected bond to an graphitic bond if permitted 
         </p>""")
         
-        self.cutBondsAction = QtGui.QWidgetAction(self.w)  
+        self.cutBondsAction = NE1_QWidgetAction(self.w,
+                                                win = self.w)  
         self.cutBondsAction.setText("Cut Bonds")
         self.cutBondsAction.setIcon(
             geticon("ui/actions/Tools/Build Tools/Cut_Bonds.png"))
@@ -833,7 +843,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             action.setCheckable(True)
                     
         
-        self.transmuteAtomsAction = QtGui.QWidgetAction(self.w)
+        self.transmuteAtomsAction = NE1_QWidgetAction(self.w, win = self.w)
         self.transmuteAtomsAction.setText("Transmute Atoms")
         self.transmuteAtomsAction.setIcon(
             geticon('ui/actions/Toolbars/Smart/Transmute_Atoms.png'))       

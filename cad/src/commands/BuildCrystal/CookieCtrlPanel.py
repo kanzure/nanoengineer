@@ -23,6 +23,7 @@ from PyQt4.Qt import QColorDialog
 from commands.BuildCrystal.CookiePropertyManager import CookiePropertyManager
 from utilities.icon_utilities import geticon
 from utilities.constants import dispLabel
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 
 class CookieCtrlPanel(CookiePropertyManager):
@@ -59,7 +60,8 @@ class CookieCtrlPanel(CookiePropertyManager):
         
         self.subControlAreaActionList =[] 
                 
-        self.exitCrystalAction = QtGui.QWidgetAction(self.w)
+        self.exitCrystalAction = NE1_QWidgetAction(self.w, 
+                                                     win = self.w)
         self.exitCrystalAction.setText("Exit Crystal")
         self.exitCrystalAction.setCheckable(True)
         self.exitCrystalAction.setChecked(True)
@@ -71,7 +73,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         separator.setSeparator(True)
         self.subControlAreaActionList.append(separator) 
         
-        self.DefaultSelAction = QWidgetAction(self.w)
+        self.DefaultSelAction = NE1_QWidgetAction(self.w, win = self.w)
         self.DefaultSelAction.setObjectName("DEFAULT")
         self.DefaultSelAction.setText("Default")        
         self.subControlAreaActionList.append(self.DefaultSelAction)
@@ -83,7 +85,7 @@ class CookieCtrlPanel(CookiePropertyManager):
        sides
         </p>""")
         
-        self.CircleSelAction = QWidgetAction(self.w)    
+        self.CircleSelAction = NE1_QWidgetAction(self.w, win = self.w)    
         self.CircleSelAction.setObjectName("CIRCLE")
         self.CircleSelAction.setText("Circle")  
         self.subControlAreaActionList.append(self.CircleSelAction)
@@ -94,7 +96,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         Draws the crystal geometry as a circle
         </p>""")
   
-        self.RectCtrSelAction = QWidgetAction(self.w)   
+        self.RectCtrSelAction = NE1_QWidgetAction(self.w, win = self.w)   
         self.RectCtrSelAction.setObjectName("RECTANGLE")
         self.RectCtrSelAction.setText("RectCenter")
         self.subControlAreaActionList.append(self.RectCtrSelAction)
@@ -106,7 +108,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         the center of the rectangle
         </p>""")
                 
-        self.HexagonSelAction = QWidgetAction(self.w)
+        self.HexagonSelAction = NE1_QWidgetAction(self.w, win = self.w)
         self.HexagonSelAction.setObjectName("HEXAGON")
         self.HexagonSelAction.setText("Hexagon")
         self.subControlAreaActionList.append(self.HexagonSelAction)
@@ -117,7 +119,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         Draws the crystal geometry as a hexagon
         </p>""")
                 
-        self.TriangleSelAction = QWidgetAction(self.w)
+        self.TriangleSelAction = NE1_QWidgetAction(self.w, win = self.w)
         self.TriangleSelAction.setObjectName("TRIANGLE")
         self.TriangleSelAction.setText("Triangle")
         self.subControlAreaActionList.append(self.TriangleSelAction)
@@ -129,7 +131,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         </p>""")
                 
                 
-        self.RectCornerSelAction = QWidgetAction(self.w)
+        self.RectCornerSelAction = NE1_QWidgetAction(self.w, win = self.w)
         self.RectCornerSelAction.setObjectName("RECT_CORNER")
         self.RectCornerSelAction.setText("RectCorners")
         self.subControlAreaActionList.append(self.RectCornerSelAction)
@@ -142,7 +144,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         </p>""")
         
                
-        self.LassoSelAction = QWidgetAction(self.w)     
+        self.LassoSelAction = NE1_QWidgetAction(self.w, win = self.w)     
         self.LassoSelAction.setObjectName("LASSO")
         self.LassoSelAction.setText("Lasso")
         self.subControlAreaActionList.append(self.LassoSelAction)
@@ -153,7 +155,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         Can be used to draw irregular crystal geometries 
         </p>""")
         
-        self.DiamondSelAction = QWidgetAction(self.w)
+        self.DiamondSelAction = NE1_QWidgetAction(self.w, win = self.w)
         self.DiamondSelAction.setObjectName("DIAMOND")
         self.DiamondSelAction.setText("Diamond")
         self.subControlAreaActionList.append(self.DiamondSelAction)
@@ -164,7 +166,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         Draws the crystal geometry as a diamond
         </p>""")
         
-        self.SquareSelAction = QWidgetAction(self.w)
+        self.SquareSelAction = NE1_QWidgetAction(self.w, win = self.w)
         self.SquareSelAction.setObjectName("SQUARE")
         self.SquareSelAction.setText("Square")
         self.subControlAreaActionList.append(self.SquareSelAction)
@@ -176,7 +178,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         </p>""")
         
         for action in self.subControlAreaActionList[1:]:
-            if action.__class__.__name__ is QtGui.QWidgetAction.__name__:               
+            if isinstance(action, QtGui.QWidgetAction):               
                 action.setCheckable(True)
                 self.cookieSelectionGroup.addAction(action)
                 iconpath = "ui/actions/Toolbars/Smart/" + str(action.text()) + ".png"
