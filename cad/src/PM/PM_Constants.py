@@ -53,7 +53,7 @@ if 0:
     print "PropMgr Max width = ", PM_MAXIMUM_WIDTH
 
 # PropMgr constants.
-PM_GROUPBOX_SPACING       = 5 # 5 pixels between groupboxes
+PM_GROUPBOX_SPACING       = 4 # 4 pixels between groupboxes
 PM_MAINVBOXLAYOUT_MARGIN  = 0 # PropMgr's master VboxLayout marging
 PM_MAINVBOXLAYOUT_SPACING = 0 # PropMgr's master VboxLayout spacing
 
@@ -69,7 +69,7 @@ PM_SPONSOR_FRAME_SPACING = 0 # has no effect.
 PM_GROUPBOX_VBOXLAYOUT_MARGIN  = 2 # Groupbox VboxLayout margin
 PM_GROUPBOX_VBOXLAYOUT_SPACING = 2 # Groupbox VboxLayout spacing
 PM_GROUPBOX_GRIDLAYOUT_MARGIN  = 2 # Grid contains all widgets in a grpbox
-PM_GROUPBOX_GRIDLAYOUT_SPACING = 4 # Grid contains all widgets in a grpbox
+PM_GROUPBOX_GRIDLAYOUT_SPACING = 2 # Grid contains all widgets in a grpbox
 
 # Top Row Buttons constants
 PM_TOPROWBUTTONS_MARGIN  = 5 # margin around buttons.
@@ -91,8 +91,8 @@ PM_ALL_BUTTONS = \
     PM_WHATS_THIS_BUTTON
 
 # Grid layout. Grid contains all widgets in a PM_GroupBox.
-PM_GRIDLAYOUT_MARGIN  = 2
-PM_GRIDLAYOUT_SPACING = 4
+PM_GRIDLAYOUT_MARGIN  = 1
+PM_GRIDLAYOUT_SPACING = 2
 
 # PM Label alignment constants used for layouts.
 PM_LABEL_RIGHT_ALIGNMENT = Qt.AlignRight | Qt.AlignVCenter
