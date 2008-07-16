@@ -118,8 +118,8 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         # will exit. The related code makes sure to first leave the temporary 
         # mode(s) before leaving the regular mode (the command with 
         # command_has_its_own_gui set to True). See also, flag 
-        #'exit_using_done_cancel' in basicCommand.Done used (= False) for a 
-        #typical exit of a temporary mode . See thart method for detailed 
+        # 'exit_using_done_cancel' in basicCommand.Done used (= False) for a 
+        # typical exit of a temporary mode . See that method for detailed 
         # comment. -- Ninad 2007-11-09
     
     
