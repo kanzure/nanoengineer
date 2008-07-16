@@ -31,30 +31,62 @@ from utilities.prefs_constants import rosetta_database_enabled_prefs_key, rosett
 from protein.model.Protein import write_rosetta_resfile
 
 
-def getScoreFromOutputFile(pdbFilePath):
-    
-    f = open(pdbFilePath, 'r')
-    if f:
-        doc = f.readlines()
-        for line in doc:
-            #first instance of score
-            valFind = line.find("score")
-            if valFind!=-1:
-            #process this line to read the total score
-                words = line[15:]
-                score = words.strip()
-                f.close()
-                return score
+def getScoreFromOutputFile(tmp_file_prefix, outfile, numSim):
+    scoreList = []
+    for i in range(numSim):
+        if len(str(i+1)) == 1:
+            extension = '000' + str(i+1)
+        elif  len(str(i+1)) == 2:
+            extension = '00' + str(i+1)
+        elif  len(str(i+1)) == 3:
+            extension = '0' + str(i+1)   
+        else:
+            #Urmi 20080716: what to do beyond 4 digits?
+            extension = str(i+1)
+        pdbFile = outfile + '_' + extension + '.pdb' 
+        dir = os.path.dirname(tmp_file_prefix)
+        pdbFilePath = os.path.join(dir, pdbFile)    
+            
+        f = open(pdbFilePath, 'r')
+        if f:
+            doc = f.readlines()
+            for line in doc:
+                #first instance of score
+                valFind = line.find("score")
+                if valFind!=-1:
+                    #process this line to read the total score
+                    words = line[15:]
+                    score = words.strip()
+                    print "For output pdb file " + pdbFile + ", score = ", score
+                    score1 = float(score) 
+                    f.close()
+                    scoreList.append(score1)
+                    break
+        else:
+            print "Output Pdb file cannot be read to obtain score"
+            f.close()
+            return None, None
+        
+    sortedList = sorted(scoreList)    
+    minScore = sortedList[0]
+    index = scoreList.index(minScore)
+    if len(str(index + 1)) == 1:
+            extension = '000' + str(index + 1)
+    elif  len(str(index)) == 2:
+        extension = '00' + str(index + 1)
+    elif  len(str(index + 1)) == 3:
+        extension = '0' + str(index + 1)   
     else:
-        print "Output Pdb file cannot be read to obtain score"
-    f.close()
-    return None
+        #Urmi 20080716: what to do beyond 4 digits?
+        extension = str(index + 1)
+    pdbFile = outfile + '_' + extension + '.pdb' 
+    return str(minScore), pdbFile
     
 
-def processFastaFile(fastaFilePath):
+def processFastaFile(fastaFilePath, bestSimOutFileName, inputProtein):
     proteinSeqTupleList = []
     f = open(fastaFilePath, 'r')
-
+    desiredOutProtein = bestSimOutFileName[0:len(bestSimOutFileName)-4]
     if f:
         doc = f.readlines()
         line1 = doc[0]
@@ -70,8 +102,9 @@ def processFastaFile(fastaFilePath):
             # in case of long sequences, these lines may have part of sequences
             i = i + 1
             if i >= len(doc):
-                tupleEntry = (proteinName, proteinSeq)
-                proteinSeqTupleList.append(tupleEntry)
+                if proteinName == desiredOutProtein or proteinName == inputProtein:
+                    tupleEntry = (proteinName, proteinSeq)
+                    proteinSeqTupleList.append(tupleEntry)
                 break
 
             line3 = doc[i]
@@ -79,8 +112,9 @@ def processFastaFile(fastaFilePath):
                 if line3.find(">")!= -1:
                     #indicates begining of new protein sequence
                     line1 = line3
-                    tupleEntry = (proteinName, proteinSeq)
-                    proteinSeqTupleList.append(tupleEntry)
+                    if proteinName == desiredOutProtein or proteinName == inputProtein:
+                        tupleEntry = (proteinName, proteinSeq)
+                        proteinSeqTupleList.append(tupleEntry)
                     break
                 
                 #part of the old sequence
@@ -88,8 +122,9 @@ def processFastaFile(fastaFilePath):
                 i = i + 1
                 #writing the last sequence
                 if i >= len(doc):
-                    tupleEntry = (proteinName, proteinSeq)
-                    proteinSeqTupleList.append(tupleEntry)
+                    if proteinName == desiredOutProtein or proteinName == inputProtein:
+                        tupleEntry = (proteinName, proteinSeq)
+                        proteinSeqTupleList.append(tupleEntry)
                     break
 
                 line3 = doc[i]
@@ -169,8 +204,8 @@ class RosettaRunner:
         
         fileName = pdbId + '.pdb'
         dir = os.path.dirname(self.tmp_file_prefix)
-        fileLocation = dir + '/' + fileName
-        writepdb(part, fileLocation) 
+        fileLocation = os.path.join(dir, fileName)
+        writepdb(part, str(fileLocation)) 
         
         return fileName
     
@@ -194,7 +229,8 @@ class RosettaRunner:
     def removeOldOutputPDBFiles(self):
         dir = os.path.dirname(self.tmp_file_prefix)
         infile = self.sim_input_file
-        outpath = infile[0:len(infile) - 4] + '*' + '_0001.pdb'
+        #remove all output files previously created for this pdb
+        outpath = infile[0:len(infile) - 4] + '*' + '_' + '*' + '.pdb'
         from fnmatch import fnmatch
         for file in os.listdir(dir):
             fullname = os.path.join( dir, file)
@@ -233,6 +269,7 @@ class RosettaRunner:
                     '-design',
                     '-fixbb',
                     '-profile',
+                    '-ndruns', str(self.numSim),
                     '-resfile', str(self.resFile),
                     '-pdbout', str(self.outfile),
                     '-s', infile]
@@ -501,8 +538,11 @@ class RosettaRunner:
         dataBase_path = errortext_or_path
         return dataBase_path
     
-    def run_using_old_movie_obj_to_hold_sim_params(self, movie):
+    def run_using_old_movie_obj_to_hold_sim_params(self, movie, args):
         self._movie = movie 
+        assert args >= 1
+        #for now args has number of simulations
+        self.numSim = args[0]
         #set the program path, database path and write the paths.txt in here
         self.errcode = self.set_options_errQ( )
         if self.errcode: # used to be a local var 'r'
@@ -530,8 +570,6 @@ class RosettaRunner:
             rosettaWorkingDir = rosettaFullBaseFileInfo.dir().absolutePath()
             rosettaBaseFileName = rosettaFullBaseFileInfo.fileName()
             
-            
-                 
             rosettaProcess = Process()
             rosettaProcess.setProcessName("rosetta")
             rosettaProcess.redirect_stdout_to_file("%s-rosetta-stdout.txt" %
@@ -574,18 +612,21 @@ class RosettaRunner:
                     env.history.message(self.cmdname + ": " + msg)
                     env.history.statusbar_msg("")
                 else:    
-                    env.history.message(self.cmdname + ": " + msg)
+                    #env.history.message(self.cmdname + ": " + msg)
                     outputFile = self.outfile + '_0001.pdb'
                     outPath = os.path.join(os.path.dirname(self.tmp_file_prefix), outputFile)
                     if os.path.exists(outPath):
                         msg = greenmsg("Rosetta sequence design succeeded")
                         env.history.message(self.cmdname + ": " + msg)
-                        insertpdb(self.assy, outPath, None)
+                        #find out best score from all the generated outputs
+                        score, bestSimOutFileName = getScoreFromOutputFile(self.tmp_file_prefix, self.outfile, self.numSim)
+                        chosenOutPath = os.path.join(os.path.dirname(self.tmp_file_prefix), bestSimOutFileName)
+                        insertpdb(self.assy, str(chosenOutPath), None)
                         env.history.statusbar_msg("")
                         fastaFile = self.outfile + "_design.fasta" 
                         fastaFilePath = os.path.join(os.path.dirname(self.tmp_file_prefix), fastaFile)
-                        proteinSeqList = processFastaFile(fastaFilePath)
-                        score = getScoreFromOutputFile(outPath)
+                        proteinSeqList = processFastaFile(fastaFilePath, bestSimOutFileName, self.sim_input_file[0:len(self.sim_input_file)-4])
+                        #score = getScoreFromOutputFile(outPath)
                         if score is not None and proteinSeqList is not []:
                             self.showResults(score, proteinSeqList)
                         
