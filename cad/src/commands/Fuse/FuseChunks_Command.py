@@ -15,8 +15,8 @@ Ninad 2008-01-25: Split Command and GraphicsMode classes
 
 
 from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import QWidgetAction
 from PyQt4.Qt import QAction
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 import foundation.env as env
 import foundation.changes as changes
@@ -431,7 +431,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         subControlAreaActionList =[]
 
-        self.exitFuseAction = QWidgetAction(self.w)
+        self.exitFuseAction = NE1_QWidgetAction(self.w, win = self.w)
         self.exitFuseAction.setText("Exit Fuse")
         self.exitFuseAction.setCheckable(True)
         self.exitFuseAction.setChecked(True)
