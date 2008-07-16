@@ -636,8 +636,11 @@ prefs_table = (
     ('', 'int',   haloWidth_prefs_key, 5),
     
     # Special colors. Mark 2008-07-10
-    ('', 'color', DarkBackgroundContrastColor_prefs_key, black),
-    ('', 'color', LightBackgroundContrastColor_prefs_key, white),
+    # DarkBackgroundContrastColor_prefs_key is the default color used for
+    # lassos and other line drawing colors the first time NE1 is run.
+    # These are both recomputed each time the background color is changed.
+    ('', 'color', DarkBackgroundContrastColor_prefs_key, gray),
+    ('', 'color', LightBackgroundContrastColor_prefs_key, gray),
 
     # stereo view settings added by piotr 080516
     ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1), 
