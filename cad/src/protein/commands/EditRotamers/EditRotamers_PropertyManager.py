@@ -104,6 +104,14 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                        SIGNAL("clicked()"),
                        self._expandPreviousRotamer)
         
+        change_connect(self.expandAllPushButton,
+                       SIGNAL("clicked()"),
+                       self._expandAllRotamers)
+        
+        change_connect(self.collapseAllPushButton,
+                       SIGNAL("clicked()"),
+                       self._collapseAllRotamers)
+        
         self.connect( self.aminoAcidsComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self._aminoAcidChanged)
@@ -170,7 +178,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 break
             
         self.aminoAcidsComboBox = PM_ComboBox( pmGroupBox,
-                                 label         =  "Residuum:",
+                                 label         =  "Residue:",
                                  choices       =  aa_list,
                                  setAsDefault  =  False)
 
@@ -191,10 +199,26 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          setAsDefault  =  True,
                          state         = Qt.Checked)
         
+        self.expandAllPushButton  = \
+            PM_PushButton( pmGroupBox,
+                         text         =  "Expand All",
+                         setAsDefault  =  True)
+        
+        self.collapseAllPushButton  = \
+            PM_PushButton( pmGroupBox,
+                         text         =  "Collapse All",
+                         setAsDefault  =  True)
+        
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box.
         """
+        
+        self.discreteStepsCheckBox  = \
+            PM_CheckBox( pmGroupBox,
+                         text          =  "Use discrete steps",
+                         setAsDefault  =  True,
+                         state         = Qt.Unchecked)
         
         self.chi1SpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
@@ -260,6 +284,24 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 self._display_and_recenter()
                 self._updateAminoAcidInfo(
                     chunk.protein.get_current_amino_acid_index())
+                return
+        
+    def _collapseAllRotamers(self):
+        """
+        """
+        for chunk in self.win.assy.molecules:
+            if chunk.isProteinChunk():
+                chunk.protein.collapse_all_rotamers()
+                self.win.glpane.gl_update()
+                return
+        
+    def _expandAllRotamers(self):
+        """
+        """
+        for chunk in self.win.assy.molecules:
+            if chunk.isProteinChunk():
+                chunk.protein.expand_all_rotamers()
+                self.win.glpane.gl_update()
                 return
         
     def _display_and_recenter(self):
