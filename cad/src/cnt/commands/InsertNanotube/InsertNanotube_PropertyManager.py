@@ -302,7 +302,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.chiralityNSpinBox = \
             PM_SpinBox( pmGroupBox,
-                        label        = "Chirality (n) :",
+                        label        = "Chirality (n):",
                         value        = self.nanotube.getChiralityN(),
                         minimum      =  2,
                         maximum      =  100,
@@ -310,7 +310,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.chiralityMSpinBox = \
             PM_SpinBox( pmGroupBox,
-                        label        = "Chirality (m) :",
+                        label        = "Chirality (m):",
                         value        = self.nanotube.getChiralityM(),
                         minimum      =  0,
                         maximum      =  100,
@@ -323,7 +323,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         # --Mark 2008-03-29
         self.bondLengthDoubleSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
-                              label        = "Bond length :",
+                              label        = "Bond length:",
                               value        = self.nanotube.getBondLength(),
                               setAsDefault = True,
                               minimum      = 1.0,
@@ -338,7 +338,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.endingsComboBox= \
             PM_ComboBox( pmGroupBox,
-                         label        = "Endings :",
+                         label        = "Endings:",
                          choices      = endingChoices,
                          index        = 0,
                          setAsDefault = True,
@@ -351,7 +351,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.zDistortionDoubleSpinBox = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Z-distortion :",
+                              label        = "Z-distortion:",
                               value        = 0.0,
                               setAsDefault = True,
                               minimum      = 0.0,
@@ -362,7 +362,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.xyDistortionDoubleSpinBox = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "XY-distortion :",
+                              label        = "XY-distortion:",
                               value        = 0.0,
                               setAsDefault = True,
                               minimum      = 0.0,
@@ -373,7 +373,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.twistSpinBox = \
             PM_SpinBox( inPmGroupBox,
-                        label        = "Twist :",
+                        label        = "Twist:",
                         value        = 0,
                         setAsDefault = True,
                         minimum      = 0,
@@ -382,7 +382,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.bendSpinBox = \
             PM_SpinBox( inPmGroupBox,
-                        label        = "Bend :",
+                        label        = "Bend:",
                         value        = 0,
                         setAsDefault = True,
                         minimum      = 0,
@@ -397,7 +397,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         # "Number of Nanotubes" SpinBox
         self.mwntCountSpinBox = \
             PM_SpinBox( inPmGroupBox,
-                        label        = "Number :",
+                        label        = "Number:",
                         value        = 1,
                         setAsDefault = True,
                         minimum      = 1,
@@ -409,7 +409,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         # "Spacing" lineedit.
         self.mwntSpacingDoubleSpinBox = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Spacing :",
+                              label        = "Spacing:",
                               value        = 2.46,
                               setAsDefault = True,
                               minimum      = 1.0,
@@ -429,7 +429,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         ntLineChoices = ['Ladder']
         self.ntRubberBandLineDisplayComboBox = \
             PM_ComboBox( self._rubberbandLineGroupBox ,
-                         label         =  " Display As:",
+                         label         =  " Display as:",
                          choices       =  ntLineChoices,
                          setAsDefault  =  True)
 
