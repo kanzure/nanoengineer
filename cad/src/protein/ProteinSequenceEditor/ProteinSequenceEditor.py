@@ -66,7 +66,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         self.isAlreadyDisconnected = False
         self._supress_textChanged_signal = False
         self.connect_or_disconnect_signals(isConnect = True)
-        
+        self.win = win
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -244,7 +244,8 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         #sequence each time. This needs to be cleaned up. - Ninad 2007-04-10
         
         cursor          =  self.sequenceTextEdit.textCursor()
-        cursorMate      =  self.secStrucTextEdit.textCursor()        
+        cursorMate      =  self.secStrucTextEdit.textCursor()   
+        cursorMate2      =  self.aaRulerTextEdit.textCursor() 
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
         seq = str(inSequence)
@@ -263,6 +264,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             cursorMate.setPosition( selectionStart, QTextCursor.MoveAnchor )
             cursorMate.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
             self.secStrucTextEdit.setTextCursor( cursorMate )
+            cursorMate2.setPosition( selectionStart, QTextCursor.MoveAnchor )
+            cursorMate2.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
+            self.aaRulerTextEdit.setTextCursor( cursorMate2 )
 
     def setSequence( self,
                      inSequence,
@@ -297,6 +301,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         
         cursor          =  self.sequenceTextEdit.textCursor()     
         cursorMate      =  self.secStrucTextEdit.textCursor()
+        cursorMate2     =  self.aaRulerTextEdit.textCursor()
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
         seq = str(inSequence)
@@ -321,9 +326,15 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             cursorMate.setPosition(selectionStart, QTextCursor.MoveAnchor)  
             cursorMate.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
             self.secStrucTextEdit.setTextCursor( cursorMate )
+            cursorMate2.setPosition(selectionStart, QTextCursor.MoveAnchor)  
+            cursorMate2.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
+            self.aaRulerTextEdit.setTextCursor( cursorMate2 )
         return
     
     def getFormattedSequence(self, inSequence):
+        """
+        Create formatted sequence to be used by secondary structure text edit
+        """
         colorList = ['Red','Blue', 'Green']
         secStrucList = ['H','E', '-']
         secStrucDict = dict(zip(secStrucList, colorList))
@@ -346,6 +357,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         """
         cursor          =  self.sequenceTextEdit.textCursor()     
         cursorMate      =  self.secStrucTextEdit.textCursor()
+        cursorMate2     =  self.aaRulerTextEdit.textCursor()
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
         fixedPitchSequence = self.getFormattedSequence(inSequence)
@@ -357,10 +369,62 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             cursorMate.setPosition(selectionStart, QTextCursor.MoveAnchor)  
             cursorMate.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
             self.secStrucTextEdit.setTextCursor( cursorMate )
+            cursorMate2.setPosition(selectionStart, QTextCursor.MoveAnchor)  
+            cursorMate2.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
+            self.aaRulerTextEdit.setTextCursor( cursorMate2 )
         return 
     
+    def setRuler(self, lengthOfSeq, inRestoreCursor  =  True):
+        """
+        Set the sequence ruler for upto three digits
+        """
+        cursor          =  self.sequenceTextEdit.textCursor()     
+        cursorMate      =  self.secStrucTextEdit.textCursor()
+        cursorMate2     =  self.aaRulerTextEdit.textCursor()
+        selectionStart  =  cursor.selectionStart()
+        selectionEnd    =  cursor.selectionEnd()
+        rulerText = ""
+        i = 0
+        while i < lengthOfSeq:
+            
+            if i == 0:
+                rulerText = "1"
+                i = i + 1
+            elif i % 10 == 0 and i % 5 == 0:
+                rulerText = rulerText + str(i+1)
+                if len(str(i+1)) == 2:
+                    i = i + 2
+                    continue
+                elif len(str(i+1)) == 3:
+                    i = i + 3
+                else:
+                    i = i + 1
+                    continue
+            elif i % 5 == 0 and i % 10 != 0:
+                rulerText = rulerText + "*"
+                i = i + 1
+            else:
+                rulerText = rulerText + "-"
+                i = i + 1
+        fixedPitchSequence  =  "<html><bold><font size=3 face=Courier New color=green>"  + rulerText
+        fixedPitchSequence +=  "</font></bold></html>"    
+        self.aaRulerTextEdit.insertHtml(fixedPitchSequence)
+        if inRestoreCursor:                      
+            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
+            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
+            self.sequenceTextEdit.setTextCursor( cursor )
+            cursorMate.setPosition(selectionStart, QTextCursor.MoveAnchor)  
+            cursorMate.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
+            self.secStrucTextEdit.setTextCursor( cursorMate )
+            cursorMate2.setPosition(selectionStart, QTextCursor.MoveAnchor)  
+            cursorMate2.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
+            self.aaRulerTextEdit.setTextCursor( cursorMate2 )
+        return
     
     def convertProteinSequenceToColoredSequence(self, inSequence):
+        """
+        Create formatted sequence to be used by the sequence editor
+        """
         outSequence = ""
         
         colorList = ['Crimson', 'CadetBlue', 'Coral', 'DarkCyan', 'DarkGray', 
@@ -427,13 +491,27 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         strandSequence = self.sequenceTextEdit.toPlainText() 
         cursor  =  self.sequenceTextEdit.textCursor()
         cursor_mate =  self.secStrucTextEdit.textCursor()
+        cursor_mate2 =  self.aaRulerTextEdit.textCursor()
         if cursor_mate.position() != cursor.position():
             cursor_mate.setPosition( cursor.position(), 
+                                    QTextCursor.MoveAnchor )
+            cursor_mate2.setPosition( cursor.position(), 
                                     QTextCursor.MoveAnchor )
             #After setting position, it is important to do setTextCursor 
             #otherwise no effect will be observed. 
             self.secStrucTextEdit.setTextCursor(cursor_mate)
-
+            self.aaRulerTextEdit.setTextCursor(cursor_mate2)
+        
+        #provide amino acid info as cursor position changes    
+        part = self.win.assy.part
+        from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
+        proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
+        position = cursor.position()
+        
+        toolTipText = proteinChunk.protein.get_amino_acid_id(position - 1)
+        self.sequenceTextEdit.setToolTip(str(toolTipText)) 
+        env.history.statusbar_msg(toolTipText)
+            
     def synchronizeLengths( self ):
         """
         Guarantees the values of the duplex length and strand length 
