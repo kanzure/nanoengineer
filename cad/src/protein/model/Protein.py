@@ -88,6 +88,7 @@ class Residuum:
         self.name = name[:3]
         self.id = id
         self.secondary_structure = SS_COIL
+        self.mutation_range = "ALLAA"
         
     def get_atom_name(self, atom):
         """
@@ -228,7 +229,13 @@ class Residuum:
                self.names[atom] != "HA3":
                 atom_list.append(atom)
         return atom_list
-            
+
+    def set_mutation_range(self, range):
+        self.mutation_range = range
+        
+    def get_mutation_range(self):
+        return self.mutation_range
+    
 # End of Residuum class.
 
 class Protein:
@@ -243,6 +250,7 @@ class Protein:
         self.chainId = ''
         self.pdbId = ""
         self.current_aa_idx = 0
+        self.mutation_range_list = []
         
     def set_chain_id(self, chainId):
         """
@@ -284,7 +292,7 @@ class Protein:
         
         if pdbname == "CA":
             self.ca_atom_list.append(atom)
-        
+
     def is_c_alpha(self, atom):
         """
         Check if this is a C-alpha atom.
@@ -476,7 +484,8 @@ class Protein:
     def set_current_amino_acid_index(self, index):
         """
         """
-        self.current_aa_idx = index
+        if index in range(len(self.sequence)):
+            self.current_aa_idx = index
         
 # end of Protein class
 
@@ -536,8 +545,9 @@ def write_rosetta_resfile(filename, chunk):
         out_str = " " + \
                 chunk.protein.get_chain_id() + \
                 "%5d" % int(index) + \
-                "%5d" % int(aa.get_id()) + \
-                " ALLAA\n"    
+                "%5d " % int(aa.get_id()) + \
+                aa.get_mutation_range() + "\n"
+        
         f.write(out_str)
         
     # Close the output file. 
