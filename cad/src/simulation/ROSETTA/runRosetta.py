@@ -28,6 +28,100 @@ from processes.Process import Process
 from processes.Plugins import checkPluginPreferences
 from utilities.prefs_constants import rosetta_enabled_prefs_key
 from utilities.prefs_constants import rosetta_path_prefs_key, rosetta_database_prefs_key
+from protein.model.Protein import write_rosetta_resfile
+
+
+def getScoreFromOutputFile(pdbFilePath):
+    
+    f = open(pdbFilePath, 'r')
+    if f:
+        doc = f.readlines()
+        for line in doc:
+            #first instance of score
+            valFind = line.find("score")
+            if valFind!=-1:
+            #process this line to read the total score
+                words = line[15:]
+                score = words.strip()
+                f.close()
+                return score
+    else:
+        print "Output Pdb file cannot be read to obtain score"
+    f.close()
+    return None
+    
+
+def processFastaFile(fastaFilePath):
+    proteinSeqTupleList = []
+    f = open(fastaFilePath, 'r')
+
+    if f:
+        doc = f.readlines()
+        line1 = doc[0]
+        i = 0
+        while i < len(doc):
+            proteinName = line1[2:len(line1)-1]
+            if proteinName.find(".pdb")!= -1:
+                proteinName = proteinName[0:len(proteinName)-4]
+            #this line is bound to be the sequence    
+            i = i + 1    
+            line2 = doc[i]    
+            proteinSeq = line2[0:len(line2)-1]
+            # in case of long sequences, these lines may have part of sequences
+            i = i + 1
+            if i >= len(doc):
+                tupleEntry = (proteinName, proteinSeq)
+                proteinSeqTupleList.append(tupleEntry)
+                break
+
+            line3 = doc[i]
+            while 1:
+                if line3.find(">")!= -1:
+                    #indicates begining of new protein sequence
+                    line1 = line3
+                    tupleEntry = (proteinName, proteinSeq)
+                    proteinSeqTupleList.append(tupleEntry)
+                    break
+                
+                #part of the old sequence
+                proteinSeq = proteinSeq + line3[0:len(line3)-1]
+                i = i + 1
+                #writing the last sequence
+                if i >= len(doc):
+                    tupleEntry = (proteinName, proteinSeq)
+                    proteinSeqTupleList.append(tupleEntry)
+                    break
+
+                line3 = doc[i]
+
+    else:
+        print "File cannot be read"
+    
+    f.close()
+
+    return proteinSeqTupleList
+
+def highlightDifferencesInSequence(proteinSeqList):
+    modList = [proteinSeqList[0][1]]
+    baseList = proteinSeqList[0][1]
+    count = 0
+    for i in range(1,len(proteinSeqList)):
+        currentProtSeq = proteinSeqList[i][1]
+        
+        tempSeq = ""
+        for j in range(0, len(baseList)):
+            if baseList[j] == currentProtSeq[j]:
+                tempSeq = tempSeq + baseList[j]
+                count = count + 1
+            else:
+                tempSeq = tempSeq + "<font color=red>" + currentProtSeq[j] + "</font>"
+        modList.append(tempSeq)
+        
+        #Similarity measurement for the original protein and protein with minimum 
+        #score
+        simMeasure = (float)((count * 100)/len(baseList))
+        similarity = str(simMeasure) + "%"
+    return modList, similarity
 
 class RosettaRunner:
     """
@@ -69,7 +163,7 @@ class RosettaRunner:
     #write the pdb for the part that is in the NE-1 window now and set the 
     #filename to that pdb
         
-        pdbId = self.getPDBIDFromChunk(part)
+        pdbId, chunk = self.getPDBIDFromChunk(part)
         if pdbId is None:
             return None
         
@@ -77,6 +171,7 @@ class RosettaRunner:
         dir = os.path.dirname(self.tmp_file_prefix)
         fileLocation = dir + '/' + fileName
         writepdb(part, fileLocation) 
+        
         return fileName
     
     def getPDBIDFromChunk(self, part):
@@ -90,11 +185,11 @@ class RosettaRunner:
                 pdbID = chunk.protein.get_pdb_id()   
                 chainID = chunk.protein.get_chain_id()
                 if chainID =='':
-                    return pdbID
+                    return pdbID, chunk
                 else:
                     pdbID = pdbID + chainID
-                    return pdbID
-        return None
+                    return pdbID, chunk
+        return None, None
     
     def removeOldOutputPDBFiles(self):
         dir = os.path.dirname(self.tmp_file_prefix)
@@ -137,6 +232,8 @@ class RosettaRunner:
                     '-paths',  str(self.path),
                     '-design',
                     '-fixbb',
+                    '-profile',
+                    '-resfile', str(self.resFile),
                     '-pdbout', str(self.outfile),
                     '-s', infile]
             
@@ -163,7 +260,27 @@ class RosettaRunner:
         # file names for sim input and output files as needed (e.g. mmp, xyz,
         # etc.)
         
-        pdbId = self.getPDBIDFromChunk(part)
+        pdbId, chunk = self.getPDBIDFromChunk(part)
+        #write the residue file
+        resFile = pdbId + ".resfile"
+        resFilePath = os.path.join(simFilesPath, resFile)
+        success = write_rosetta_resfile(resFilePath, chunk)
+        if success:
+            self.resFile = resFile
+        else:
+            print "Residue file could not be written"
+        
+        #remove all previously existing fasta files
+        fastaFile = pdbId + "_out_design.fasta"
+        checkPointFile = pdbId + "_out_design.checkpoint"
+        checkPointPath = os.path.join(simFilesPath, checkPointFile)
+        fastaFilePath = os.path.join(simFilesPath, fastaFile)
+        if os.path.exists(fastaFilePath):
+            os.remove(fastaFilePath)
+        
+        if os.path.exists(checkPointPath):
+            os.remove(checkPointPath)
+            
         if pdbId is None:
             basename = "Untitled"
         else:
@@ -465,6 +582,13 @@ class RosettaRunner:
                         env.history.message(self.cmdname + ": " + msg)
                         insertpdb(self.assy, outPath, None)
                         env.history.statusbar_msg("")
+                        fastaFile = self.outfile + "_design.fasta" 
+                        fastaFilePath = os.path.join(os.path.dirname(self.tmp_file_prefix), fastaFile)
+                        proteinSeqList = processFastaFile(fastaFilePath)
+                        score = getScoreFromOutputFile(outPath)
+                        if score is not None and proteinSeqList is not []:
+                            self.showResults(score, proteinSeqList)
+                        
                     else:
                         msg1 = redmsg("Rosetta sequence design failed. ")
                         msg2 = redmsg(" %s file was never created by Rosetta." % outputFile)
@@ -482,6 +606,26 @@ class RosettaRunner:
             return # success
         
         return # caller should look at self.errcode
+    
+    def showResults(self, score, proteinSeqList):
+        
+        from foundation.wiki_help import WikiHelpBrowser
+        html = "Score of this fixed backbone sequence design using starting"
+        html = html + " structure " + self.sim_input_file
+        html = html + " and residue file " + self.resFile
+        html = html + " is " + "<font face=Courier New color=red>" + score + "</font>"
+        html = html + "<p>The original protein sequence and the designed sequence"
+        html = html + " are shown below with differences in designed sequence "
+        html = html + "shown in red: <br>"
+        modSeqList, similarity = highlightDifferencesInSequence(proteinSeqList)
+        for i in range(len(proteinSeqList)):
+            html = html + "<font face=Courier New>" + proteinSeqList[i][0] + "</font> "+ "<br>"
+            html = html + "<font face=Courier New>" + modSeqList[i] + "</font>" + "<br>"
+        html = html + "</p>"
+        html = html + "<p>Sequence Similarity = " + similarity + "</p>"
+        w = WikiHelpBrowser(html, parent = self.win, caption = "Rosetta Results")
+        w.show()
+        return
     
     def checkErrorInStdOut(self, rosettaStdOut):
     
