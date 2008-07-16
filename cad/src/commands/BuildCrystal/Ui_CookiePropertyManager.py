@@ -254,7 +254,7 @@ class Ui_CookiePropertyManager(PM_Dialog):
         
         self.layerCellsSpinBox = \
              PM_SpinBox( inPmGroupBox,
-                        label         =  "Lattice Cells:",
+                        label         =  "Lattice cells:",
                         labelColumn   =  0,
                         value         =  2,
                         minimum       =  1,
@@ -281,15 +281,15 @@ class Ui_CookiePropertyManager(PM_Dialog):
         """
         self.snapGridCheckBox = \
             PM_CheckBox(inPmGroupBox, 
-                        text = "Snap to Grid",
+                        text = "Snap to grid",
                         state = Qt.Checked
                         )
         tooltip = "Snap selection point to a nearest cell grid point."
         self.snapGridCheckBox.setToolTip(tooltip)
-                
+        
         self.freeViewCheckBox = \
             PM_CheckBox(inPmGroupBox,
-                        text = "Enable Free View",
+                        text = "Enable free view",
                         state = Qt.Unchecked
                     )
 
