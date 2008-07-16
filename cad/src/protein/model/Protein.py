@@ -340,25 +340,35 @@ class Protein:
                 
         return ss_str
 
+    def get_amino_acid_id(self, index):
+        """
+        Create and return an amino acid ID (protein name, 
+        index, residuum name, residuum index).
+        """
+        aa_list = self.get_amino_acids()
+        if index in range(len(aa_list)):
+            aa = aa_list[index]
+            aa_id = self.get_pdb_id() + \
+                  self.get_chain_id() + \
+                  "[" + \
+                  repr(index+1) + \
+                  "] : " + \
+                  aa.get_three_letter_code() + \
+                  "[" + \
+                  repr(int(aa.get_id())) + \
+                  "]" 
+            return aa_id
+        return None
+    
     def get_amino_acid_id_list(self):
         """
         Create and return a list of amino acid IDs (protein name, 
         index, residuum name, residuum index).
         """
         id_list = []
-        idx = 1
-        for aa in self.get_amino_acids():
-            aa_id = self.get_pdb_id() + \
-                  self.get_chain_id() + \
-                  "[" + \
-                  repr(idx) + \
-                  "] : " + \
-                  aa.get_three_letter_code() + \
-                  "[" + \
-                  repr(int(aa.get_id())) + \
-                  "]" 
+        for idx in range(len(self.get_amino_acids())):
+            aa_id = self.get_amino_acid_id(idx)
             id_list.append(aa_id)
-            idx += 1
             
         return id_list
     
