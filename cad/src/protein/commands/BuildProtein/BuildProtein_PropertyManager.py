@@ -9,7 +9,7 @@ BuildProtein_PropertyManager.py
 """
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
-
+import foundation.env as env
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
 
@@ -88,12 +88,16 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     
     def close(self):
         self.sequenceEditor.hide() 
+        env.history.statusbar_msg("")
         EditCommand_PM.close(self)
         return
     
     
     
     def showProteinParametersAndSequenceEditor(self, win):
+        """
+        Show/ Hide protein parameters and sequence editor based
+        """
         part = win.assy.part
         from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
         proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
@@ -118,6 +122,7 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.sequenceEditor.setSequence(sequence)
             secStructure = proteinChunk.protein.get_secondary_structure_string()
             self.sequenceEditor.setSecondaryStructure(secStructure)
+            self.sequenceEditor.setRuler(len(secStructure))
             self.sequenceEditor.show()    
         else:
             self.sequenceEditor.hide()   
