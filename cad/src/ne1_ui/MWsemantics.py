@@ -1867,7 +1867,20 @@ class MWsemantics(QMainWindow,
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
         return
     
+        
+    def enterEditResiduesCommand(self, isChecked = False):
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "EDIT_RESIDUES":
+            commandSequencer.userEnterTemporaryCommand(
+                'EDIT_RESIDUES')
+        else:
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'EDIT_RESIDUES':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        return
     
+
     def enterStereoPropertiesCommand(self):
         """
         """
