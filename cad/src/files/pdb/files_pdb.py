@@ -365,6 +365,7 @@ def _readpdb_new(assy,
     numconects = 0
     
     comment_text = ""
+    _read_rosetta_info = False
     
     # Create a temporary PDB ID - it should be later extracted from the
     # file header.
@@ -373,6 +374,7 @@ def _readpdb_new(assy,
     atomname_exceptions = {
         "HB":"H", #k these are all guesses -- I can't find this documented 
                   # anywhere [bruce 070410]
+        "CA":"C", #k these are all guesses -- I can't find this documented 
         ## "HE":"H", ### REVIEW: I'm not sure about this one -- 
                     ###          leaving it out means it's read as Helium,
         # but including it erroneously might prevent reading an actual Helium 
@@ -603,7 +605,13 @@ def _readpdb_new(assy,
                 chainId = card[19]
                 for s in range(begin, end+1):
                     turn.append((s, chainId))            
-        
+        else:
+            if card[7:15] == "ntrials:":
+                _read_rosetta_info = True
+                comment_text += "Rosetta Scoring Analysis\n"
+            if _read_rosetta_info:
+                comment_text += card
+                
         if showProgressDialog: # Update the progress dialog.
             _progressValue += 1
             if _progressValue >= _progressFinishValue:
@@ -677,7 +685,7 @@ def read_or_insert_pdb(assy,
                 if mol is not None:
                     group.addchild(mol)
 
-            comment = Comment(assy, "PDB File Header", comment_text)
+            comment = Comment(assy, "Information", comment_text)
 
             group.addchild(comment)
             
