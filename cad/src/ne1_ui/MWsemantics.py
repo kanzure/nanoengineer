@@ -302,7 +302,8 @@ class MWsemantics(QMainWindow,
         self.commandSequencer.start_using_mode('$STARTUP_MODE')
 
         env.register_post_event_ui_updater( self.post_event_ui_updater) #bruce 070925
-
+        #Urmi 20080716: initiliaze the Rosetta simulation parameters
+        self.numRosettaSim = 0 
         return
 
     def _init_part_two(self):
@@ -1465,9 +1466,37 @@ class MWsemantics(QMainWindow,
         return
 
     def rosettaSetup(self):
+        from simulation.ROSETTA.RosettaSimulationPopUpDialog import RosettaSimulationPopUpDialog
+        form = RosettaSimulationPopUpDialog(self)
+        self.connect(form, SIGNAL('editingFinished()'), self.runRosetta)
+             
+        return
+    
+    def runRosetta(self):
+        
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
-        cmdrun = rosettaSetup_CommandRun(self)
-        cmdrun.run()        
+        if self.numRosettaSim > 0:
+            cmdrun = rosettaSetup_CommandRun(self, self.numRosettaSim)
+            cmdrun.run() 
+        
+        return
+    
+    def setRosettaParameters(self, numRuns):
+        try:
+            s = int(numRuns)
+        except ValueError:
+            self.numRosettaSim = 0
+            env.history.message(redmsg("Requested number of simulations is not an integer. Rosetta simulation cannot run."))
+            return 
+        if len(str(numRuns)) > 4:
+            self.numRosettaSim = 0
+            env.history.message(redmsg("Requested number of simulations is beyond the capability of the program"))
+            return 
+        if int(numRuns) <= 0: 
+            self.numRosettaSim = 0
+            env.history.message(redmsg("Not a valid number of simulations requested. Rosetta simulation cannot run."))
+            return
+        self.numRosettaSim = int(numRuns)
         return
     
     def simNanoHive(self):
