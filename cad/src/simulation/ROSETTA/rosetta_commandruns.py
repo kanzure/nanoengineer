@@ -31,6 +31,7 @@ def checkIfProteinChunkInPart(part):
     return False, None
 
 def writemovie(part,
+               args,
                movie,
                mflag = 0,
                simaspect = None,
@@ -57,7 +58,7 @@ def writemovie(part,
                        background = background,
                        )
     movie._simrun = simrun 
-    simrun.run_using_old_movie_obj_to_hold_sim_params(movie)
+    simrun.run_using_old_movie_obj_to_hold_sim_params(movie, args)
     
     return simrun.errcode
 
@@ -121,7 +122,8 @@ class rosettaSetup_CommandRun(CommandRun):
         
         self.simcntl = RosettaSetup(self.win, self.part, suffix = suffix)
         movie = self.simcntl.movie 
-        r = writemovie(self.part, movie, print_sim_warnings = True, cmdname = self.cmdname, useRosetta = True)
+        r = writemovie(self.part, self.args, movie, print_sim_warnings = True, 
+                       cmdname = self.cmdname, useRosetta = True)
             
         if not r:
             # Movie file created. 
