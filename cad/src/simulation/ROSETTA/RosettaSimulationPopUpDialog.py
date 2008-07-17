@@ -42,6 +42,7 @@ class RosettaSimulationPopUpDialog(QDialog):
         self.useElecRepCheckbox = QCheckBox("Use electrostatic repulsion")
         self.norepackDisulfCheckbox = QCheckBox("Don't re-pack disulphide bonds")
         
+        
         #self.lineEdit.setMaxLength(8) # Check with Piotr about this.
         idLayout1.addWidget(self.ex1Checkbox)
         idLayout1.addWidget(self.ex1aroCheckbox)
@@ -55,6 +56,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         idLayout1.addWidget(self.useElecRepCheckbox)
         idLayout1.addWidget(self.norepackDisulfCheckbox)
         
+        self.otherOptionsLabel = QLabel("Other command line options:")
+        self.otherCommandLineOptions = QLineEdit()
+        idLayout3 = QHBoxLayout()
+        idLayout3.addWidget(self.otherOptionsLabel)
+        idLayout3.addWidget(self.otherCommandLineOptions)
+        
         
         self.okButton = QPushButton("&OK")
         self.cancelButton = QPushButton("Cancel")
@@ -65,6 +72,7 @@ class RosettaSimulationPopUpDialog(QDialog):
         
         layout.addLayout(idLayout)
         layout.addLayout(idLayout1)
+        layout.addLayout(idLayout3)
         layout.addLayout(buttonLayout)
         self.setLayout(layout)
         
@@ -120,11 +128,13 @@ class RosettaSimulationPopUpDialog(QDialog):
             norepack_disulf = True
         else:
             norepack_disulf = False      
-        text = str(self.lineEdit.text())   
+        text = str(self.lineEdit.text())
+        otherOptionsText = str(self.otherCommandLineOptions.text())
         self.parentWidget.setRosettaParameters(text, ex1, ex1aro,
                                                ex2, ex2aro_only, ex3, ex4, rot_opt,
                                                try_both_his_tautomers, soft_rep_design,
-                                               use_electrostatic_repulsion, norepack_disulf)                                        
+                                               use_electrostatic_repulsion, norepack_disulf, 
+                                               otherOptionsText)                                        
         self.close()
         self.emit(SIGNAL("editingFinished()"))
         return
