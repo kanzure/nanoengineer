@@ -434,10 +434,13 @@ class ops_copy_Mixin:
                               moveOffset, which is L{[mousePosition} - 
                               node.center. This parameter is not used if its a 
                               single shot paste operation (Ctrl + V)
-        @type mousePosition:  Array containing the x, y, z positions on the 
-                              screen or 'None'
+        @type mousePosition:  Array containing the x, y, z position on the 
+                              screen, or None
         @see:L{self._pasteChunk}, L{self._pasteGroup}, L{self._pasteJig}
         @see:L{MWsemantics.editPaste}, L{MWsemantics.editPasteFromClipboard}
+
+        @return: (itemPasted, errorMsg)
+        @rtype: tuple of (node or None, string)
         """
         ###REVIEW: this has not been reviewed for DNA data model. No time to fix for .rc1. [bruce 080414 late]
         
@@ -499,9 +502,12 @@ class ops_copy_Mixin:
         
         @param mousePosition: These are the coordinates during mouse double 
                               click. 
-        @type mousePosition:  Array containing the x, y, z positions on the 
-                              screen or 'None'
+        @type mousePosition:  Array containing the x, y, z position on the 
+                              screen, or None
         @see: L{self.paste} for implementation notes.
+
+        @return: (itemPasted, errorMsg)
+        @rtype: tuple of (node or None, string)
         """
         assert isinstance(chunkToPaste, Chunk)
         
@@ -550,15 +556,19 @@ class ops_copy_Mixin:
     def _pasteGroup(self, groupToPaste, mousePosition = None):
         """
         Paste the given group (and all its members) in the 3D workspace.
+        
         @param groupToPaste: The group to be pasted in the 3D workspace
         @type  groupToPaste: L{Group}
         
         @param mousePosition: These are the coordinates during mouse 
                               double click. 
         @type mousePosition:  Array containing the x, y, z 
-                              positions on the screen or 'None'
+                              position on the screen, or None
         @see: L{self.paste} for implementation notes.
         @see: self. _getInitialPasteOffsetForPastableNodes()
+
+        @return: (itemPasted, errorMsg)
+        @rtype: tuple of (node or None, string)
         """
         #@TODO: REFACTOR and REVIEW this. 
         #Many changes made just before v1.1.0 codefreeze for a new must have
@@ -592,21 +602,28 @@ class ops_copy_Mixin:
         newGroup = Group(pastable.name, assy, None)
             # Review: should this use Group or groupToPaste.__class__,
             # e.g. re a DnaGroup or DnaSegment? [bruce 080314 question]
-        nodes = list(pastable.members)             
+            # (Yes, to fix bug 2919; or better, just copy the whole node
+            #  using the copy function now used on its members.
+            #  [bruce 080717 reply])
+        nodes = list(pastable.members)
         newNodeList = copied_nodes_for_DND(nodes, 
                                         autogroup_at_top = False, 
                                         assy = assy)
         
-        
-        
         if not newNodeList:
-            errorMsg = orangemsg("Clipboard item is probably an empty group."\
+            errorMsg = orangemsg("Clipboard item is probably an empty group. "\
                                  "Paste cancelled")
                 # review: is this claim about the cause always correct?
+                # review: is there any good reason to cancel the paste then?
+                # probably not; not only that, it appears that we *don't* cancel it,
+                # but return something that means we'll go ahead with it,
+                # i.e. the message is wrong. [bruce 080717 guess]
             return newGroup, errorMsg
                 
-                    
-        selection_has_dna_objects = self.__pasteGroup_nodeList_contains_Dna_objects(newNodeList)
+        # note: at this point, newGroup is still empty (newNodeList not yet added to it);
+        # they are added just before returning.
+        
+        selection_has_dna_objects = self._pasteGroup_nodeList_contains_Dna_objects(newNodeList)
         
         scale_when_dna_in_newNodeList =  env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key]
         scale_when_no_dna_in_newNodeList = env.prefs[pasteOffsetScaleFactorForChunks_prefs_key]  
@@ -697,26 +714,33 @@ class ops_copy_Mixin:
             
             for m in other_pastable_items:
                 m.move(moveOffset)
-                
+            pass
                 
         #Now add all the nodes in the newNodeList to the Group 
         for newNode in newNodeList:
             newGroup.addmember(newNode)
                     
-        assy.addnode(newGroup) 
+        assy.addnode(newGroup)
+            # review: is this the best place to add it?
+            # probably there is no other choice, since it comes from the clipboard
+            # (unless we introduce a "model tree cursor" or "current group").
+            # [bruce 080717 comment]
         
         return newGroup, errorMsg
     
     #Determine if the selection
-    def __pasteGroup_nodeList_contains_Dna_objects(self, nodeList):
+    def _pasteGroup_nodeList_contains_Dna_objects(self, nodeList): # by Ninad
         """
-        Private method, that tells if the given list has atleast one dna object
+        Private method, that tells if the given list has at least one dna object
         in it. e.g. a dnagroup or DnaSegment etc. 
         Used in self._pasteGroup as of 2008-06-06. 
         
         @TODO: May even be moved to a general utility class 
-        in dna pkg. (but needs self.assy for isinstance checkes
+        in dna pkg. (but needs self.assy for isinstance checks)
         """
+        # BUG: doesn't look inside Groups. Ignorable,
+        # since this method will be removed when paste method is refactored.
+        # [bruce 080717 comment]
         for node in nodeList:
             if isinstance(node, self.assy.DnaGroup) or \
                isinstance(node, self.assy.DnaStrandOrSegment):
@@ -726,7 +750,7 @@ class ops_copy_Mixin:
                     return True
         return False
     
-    def _getInitialPasteOffsetForPastableNodes(self, original_copied_nodes):
+    def _getInitialPasteOffsetForPastableNodes(self, original_copied_nodes): # by Ninad
         """
         @see: self._pasteGroup(), self._pasteChunk()
         What it supports:
@@ -740,7 +764,7 @@ class ops_copy_Mixin:
         This fixes bug 2890
         """
         #@TODO: Review this method. It was added just before v1.1.0 to fix a 
-        #copy-'paste-pasteagain-pasteagain bug -- Ninad 2008-06-06
+        #copy-paste-pasteagain-pasteagain bug -- Ninad 2008-06-06
         
         if same_vals(original_copied_nodes, self._previously_pasted_node_list):
             initial_offset_for_chunks = self._initial_paste_offset_for_chunks 
@@ -765,9 +789,12 @@ class ops_copy_Mixin:
         
         @param mousePosition: These are the coordinates during mouse double 
                               click. 
-        @type mousePosition:  Array containing the x, y, z positions on the 
-                              screen or 'None'
+        @type mousePosition:  Array containing the x, y, z position on the 
+                              screen, or None
         @see: L{self.paste} for implementation notes.
+
+        @return: (itemPasted, errorMsg)
+        @rtype: tuple of (node or None, string)
         """
         
         assert isinstance(jigToPaste, Jig)
