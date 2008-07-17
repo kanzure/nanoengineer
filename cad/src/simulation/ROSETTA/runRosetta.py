@@ -14,7 +14,7 @@ from files.pdb.files_pdb import insertpdb
 from model.chunk import Chunk
 from utilities.debug import print_compact_traceback
 from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
-import os, sys, time
+import os, sys, time, string
 from widgets.StatusBar import AbortHandler
 from datetime import datetime
 from PyQt4.Qt import QApplication, QCursor, Qt, QStringList
@@ -243,32 +243,13 @@ class RosettaRunner:
         argStringListFromPopUpDialog = []
         #argument 0 is for number of simulations, already handled
         #Index of each argument known ahead of time
-        if args[0][1]:
-            argStringListFromPopUpDialog.append('-ex1')
-        if args[0][2]:
-            argStringListFromPopUpDialog.append('-ex1aro')
-        if args[0][3]:
-            argStringListFromPopUpDialog.append('-ex2')
-        if args[0][4]:
-            argStringListFromPopUpDialog.append('-ex2aro_only')    
-        if args[0][5]:
-            argStringListFromPopUpDialog.append('-ex3')
-        if args[0][6]:
-            argStringListFromPopUpDialog.append('-ex4') 
-        if args[0][7]:
-            argStringListFromPopUpDialog.append('-rot_opt')
-        if args[0][8]:
-            argStringListFromPopUpDialog.append('-try_both_his_tautomers')
-        if args[0][9]:
-            argStringListFromPopUpDialog.append('-soft_rep_design')
-        if args[0][10]:
-            argStringListFromPopUpDialog.append('-use_electrostatic_repulsion')
-        if args[0][11]:
-            argStringListFromPopUpDialog.append('-norepack_disulf')        
-        if args[0][12] != "":
+             
+        if args[0][1] != "":
+            
             #break the string into individual words and make a list and extend 
             # the argument list
-            extraArgs = args[0][12].split(" ")
+            tempString = args[0][1].replace('\n', ' ')
+            extraArgs = tempString.split(" ")
             #strip extra space around each of these options
             extraArgs1 = []
             for i in range(len(extraArgs)):
