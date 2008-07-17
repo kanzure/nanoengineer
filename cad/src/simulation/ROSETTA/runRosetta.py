@@ -239,13 +239,42 @@ class RosettaRunner:
                     os.remove(fullname)
         return
     
-    def setup_sim_args(self):
+    def setupArgsFromPopUpDialog(self, args):
+        argStringListFromPopUpDialog = []
+        #argument 0 is for number of simulations, already handled
+        #Index of each argument known ahead of time
+        if args[0][1]:
+            argStringListFromPopUpDialog.append('-ex1')
+        if args[0][2]:
+            argStringListFromPopUpDialog.append('-ex1aro')
+        if args[0][3]:
+            argStringListFromPopUpDialog.append('-ex2')
+        if args[0][4]:
+            argStringListFromPopUpDialog.append('-ex2aro_only')    
+        if args[0][5]:
+            argStringListFromPopUpDialog.append('-ex3')
+        if args[0][5]:
+            argStringListFromPopUpDialog.append('-ex4') 
+        if args[0][6]:
+            argStringListFromPopUpDialog.append('-rot_opt')
+        if args[0][7]:
+            argStringListFromPopUpDialog.append('-try_both_his_tautomers')
+        if args[0][8]:
+            argStringListFromPopUpDialog.append('-soft_rep_design')
+        if args[0][9]:
+            argStringListFromPopUpDialog.append('-use_electrostatic_repulsion')
+        if args[0][10]:
+            argStringListFromPopUpDialog.append('-norepack_disulf')        
+            
+        return argStringListFromPopUpDialog
+    
+    def setup_sim_args(self, argsFromPopUpDialog):
         """
         Set up arguments for the simulator,
         by constructing a command line for the standalone executable simulator,
         
         """
-        
+        argListFromPopUpDialog = self.setupArgsFromPopUpDialog(argsFromPopUpDialog)
         use_command_line = True
         movie = self._movie # old-code compat kluge
         self.totalFramesRequested = movie.totalFramesRequested
@@ -274,6 +303,7 @@ class RosettaRunner:
                     '-pdbout', str(self.outfile),
                     '-s', infile]
             
+            args.extend(argListFromPopUpDialog)
             self._arguments = args
         
         return # from setup_sim_args    
@@ -542,7 +572,7 @@ class RosettaRunner:
         self._movie = movie 
         assert args >= 1
         #for now args has number of simulations
-        self.numSim = args[0]
+        self.numSim = args[0][0]
         #set the program path, database path and write the paths.txt in here
         self.errcode = self.set_options_errQ( )
         if self.errcode: # used to be a local var 'r'
@@ -559,7 +589,7 @@ class RosettaRunner:
 
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
             self.simProcess = None #bruce 051231
-            self.setup_sim_args()
+            self.setup_sim_args(args)
             progressBar.setRange(0, 0)
             progressBar.reset()
             progressBar.show()
