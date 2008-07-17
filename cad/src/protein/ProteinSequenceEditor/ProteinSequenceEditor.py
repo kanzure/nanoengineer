@@ -246,8 +246,13 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursor          =  self.sequenceTextEdit.textCursor()
         cursorMate      =  self.secStrucTextEdit.textCursor()   
         cursorMate2      =  self.aaRulerTextEdit.textCursor() 
-        selectionStart  =  cursor.selectionStart()
-        selectionEnd    =  cursor.selectionEnd()
+        if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
+            selectionStart  = 0
+            selectionEnd    = 0
+        else:
+            selectionStart  =  cursor.selectionStart()
+            selectionEnd    =  cursor.selectionEnd()
+        
         seq = str(inSequence)
         inSequence1 = self.convertProteinSequenceToColoredSequence(seq)
         inSequence1 = self._fixedPitchSequence(inSequence1)
@@ -302,8 +307,14 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursor          =  self.sequenceTextEdit.textCursor()     
         cursorMate      =  self.secStrucTextEdit.textCursor()
         cursorMate2     =  self.aaRulerTextEdit.textCursor()
-        selectionStart  =  cursor.selectionStart()
-        selectionEnd    =  cursor.selectionEnd()
+        if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
+            selectionStart  = 0
+            selectionEnd    = 0
+        else:
+            selectionStart  =  cursor.selectionStart()
+            selectionEnd    =  cursor.selectionEnd()
+        
+        
         seq = str(inSequence)
         inSequence1 = self.convertProteinSequenceToColoredSequence(seq)
         
@@ -358,8 +369,13 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursor          =  self.sequenceTextEdit.textCursor()     
         cursorMate      =  self.secStrucTextEdit.textCursor()
         cursorMate2     =  self.aaRulerTextEdit.textCursor()
-        selectionStart  =  cursor.selectionStart()
-        selectionEnd    =  cursor.selectionEnd()
+        if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
+            selectionStart  = 0
+            selectionEnd    = 0
+        else:
+            selectionStart  =  cursor.selectionStart()
+            selectionEnd    =  cursor.selectionEnd()
+        
         fixedPitchSequence = self.getFormattedSequence(inSequence)
         self.secStrucTextEdit.insertHtml(fixedPitchSequence)
         if inRestoreCursor:                      
@@ -381,8 +397,13 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursor          =  self.sequenceTextEdit.textCursor()     
         cursorMate      =  self.secStrucTextEdit.textCursor()
         cursorMate2     =  self.aaRulerTextEdit.textCursor()
-        selectionStart  =  cursor.selectionStart()
-        selectionEnd    =  cursor.selectionEnd()
+        if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
+            selectionStart  = 0
+            selectionEnd    = 0
+        else:
+            selectionStart  =  cursor.selectionStart()
+            selectionEnd    =  cursor.selectionEnd()
+        
         rulerText = ""
         i = 0
         while i < lengthOfSeq:
@@ -492,10 +513,14 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursor  =  self.sequenceTextEdit.textCursor()
         cursor_mate =  self.secStrucTextEdit.textCursor()
         cursor_mate2 =  self.aaRulerTextEdit.textCursor()
+        if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
+            curPos = 0
+        else:
+            curPos = cursor.position()
         if cursor_mate.position() != cursor.position():
-            cursor_mate.setPosition( cursor.position(), 
+            cursor_mate.setPosition( curPos, 
                                     QTextCursor.MoveAnchor )
-            cursor_mate2.setPosition( cursor.position(), 
+            cursor_mate2.setPosition( curPos, 
                                     QTextCursor.MoveAnchor )
             #After setting position, it is important to do setTextCursor 
             #otherwise no effect will be observed. 
