@@ -3,7 +3,6 @@
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "NanoEngineer-1"
 !define PRODUCT_VERSION "1.1.1"
-;!define PRODUCT_NICKNAME "(Rattlesnake)"
 !define PRODUCT_PUBLISHER "Nanorex, Inc."
 !define PRODUCT_WEB_SITE "http://www.nanoengineer-1.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}\${PRODUCT_VERSION}"
@@ -117,7 +116,7 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
-  ${registerExtension} "$INSTDIR\program\main.exe --initial-file " ".mmp" "NanoEngineer-1 File"
+  ${registerExtension} "$INSTDIR\program\main.exe " ".mmp" "NanoEngineer-1 File"
 SectionEnd
 
 
