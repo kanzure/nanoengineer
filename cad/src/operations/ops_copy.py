@@ -471,11 +471,12 @@ class ops_copy_Mixin:
             errorMsg = redmsg("Internal error pasting clipboard item [%s]") % \
                 pastable.name
         
-        #Do not do the following steps (based on a discussion with Russ) as its
-        #confusing -- ninad 2008-06-06 (just before v1.1.0 code freeze)
-        if not pos:
+        
+        if pos is None:
             self.assy.unpickall_in_GLPane()
             itemPasted.pick()
+            #Do not "zoom to selection" (based on a discussion with Russ) as 
+            #its confusing -- ninad 2008-06-06 (just before v1.1.0 code freeze)
             ##self.assy.o.setViewZoomToSelection(fast = True)
         
         self.assy.w.win_update()
