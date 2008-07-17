@@ -40,7 +40,7 @@ cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_USE_bsddb3 = .*:NE1_USE_bsddb
 mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
 cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_OFFICIAL_RELEASE_CANDIDATE = .*:NE1_OFFICIAL_RELEASE_CANDIDATE = $RC_NUMBER:" > cad/src/NE1_Build_Constants.ptmp
 mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
-exit 0
+
 #Make a tarball of the uncompiled source for later.
 tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
 

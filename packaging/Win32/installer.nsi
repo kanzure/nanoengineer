@@ -52,8 +52,8 @@ InstType "Full"
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "..\..\cad\src\build\NanoEngineer-1_${PRODUCT_VERSION}.exe"
-InstallDir "$PROGRAMFILES\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
+OutFile "..\..\cad\src\build\NanoEngineer-1_v${PRODUCT_VERSION}.exe"
+InstallDir "$PROGRAMFILES\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -146,7 +146,7 @@ Section Uninstall
 
   Delete "$DESKTOP\NanoEngineer-1.lnk"
 
-  RMDir /r "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
+  RMDir /r "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}"
   RMDir "$SMPROGRAMS\Nanorex"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"

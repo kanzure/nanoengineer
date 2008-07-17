@@ -12,7 +12,7 @@
 ;!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\babel.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
-!define NE1_INST_DIR "NanoEngineer-1 ${PRODUCT_VERSION}"
+!define NE1_INST_DIR "NanoEngineer-1 v${PRODUCT_VERSION}"
 
 ;QMX Defines
 !define PRODUCT_QMX_VERSION "0.5.1"
@@ -94,7 +94,7 @@ InstType "Full"
 
 Name "${PRODUCT_NAME} Version ${PRODUCT_VERSION}"
 ;Name "${PRODUCT_NAME} ${PRODUCT_VERSION} ${PRODUCT_NICKNAME}"
-OutFile "..\..\..\cad\src\build\NanoEngineer-1_Suite_${PRODUCT_VERSION}.exe"
+OutFile "..\..\..\cad\src\build\NanoEngineer-1_Suite_v${PRODUCT_VERSION}.exe"
 ;InstallDir "$PROGRAMFILES\Nanorex\NanoEngineer-1_${PRODUCT_VERSION}"
 InstallDir "$PROGRAMFILES\Nanorex"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
