@@ -340,7 +340,7 @@ class ProteinChunks(ChunkDisplayMode):
                 if style == PROTEIN_STYLE_CA_WIRE or \
                    style == PROTEIN_STYLE_CA_CYLINDER or \
                    style == PROTEIN_STYLE_CA_BALL_STICK:
-                    for n in range( 1, n_atoms-2 ):
+                    for n in range( 2, n_atoms-2 ):
                         pos0, ss0, aa0, idx0, dpos0, cbpos0 = sec[n - 1]
                         pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[n]
                         pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[n + 1]
@@ -1076,14 +1076,14 @@ class ProteinChunks(ChunkDisplayMode):
                 pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[2]
                 pos3, ss3, aa3, idx3, dpos3, cbpos3 = sec[3]
                 if pos1 == pos2:
-                    pos1 =  2.0 * pos2 - pos3
+                    pos1 =  None # 2.0 * pos2 - pos3
                     sec[1] = (pos1, ss1, aa1, idx1, dpos1, cbpos1)
 
                 pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[-2]
                 pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[-3]
                 pos3, ss3, aa3, idx3, dpos3, cbpos3 = sec[-4]
                 if pos1 == pos2:
-                    pos1 =  2.0 * pos2 - pos3
+                    pos1 =  None # 2.0 * pos2 - pos3
                     sec[-2] = (pos1, ss1, aa1, idx1, dpos1, cbpos1)                
 
                 # Make sure that the interior surface of helices 
