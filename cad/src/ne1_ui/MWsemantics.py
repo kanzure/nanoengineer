@@ -1481,26 +1481,9 @@ class MWsemantics(QMainWindow,
         
         return
     
-    def setRosettaParameters(self, numRuns, ex1, ex1aro,ex2, ex2aro_only, ex3, ex4, rot_opt,
-                            try_both_his_tautomers, soft_rep_design, use_electrostatic_repulsion, 
-                            norepack_disulf, otherOptionsText):
-        try:
-            s = int(str(numRuns))
-        except ValueError:
-            numRuns = 0
-            env.history.message(redmsg("Requested number of simulations is not an integer. Rosetta simulation cannot run."))
-            return 
-        if len(str(numRuns)) > 4:
-            numRuns = 0
-            env.history.message(redmsg("Requested number of simulations is beyond the capability of the program"))
-            return 
-        if int(numRuns) <= 0: 
-            numRuns = 0
-            env.history.message(redmsg("Not a valid number of simulations requested. Rosetta simulation cannot run."))
-            return
-        argList = [int(numRuns), ex1, ex1aro,ex2, ex2aro_only, ex3, ex4, rot_opt,
-                   try_both_his_tautomers, soft_rep_design, use_electrostatic_repulsion, 
-                   norepack_disulf, otherOptionsText]
+    def setRosettaParameters(self, numRuns, otherOptionsText):
+        
+        argList = [numRuns, otherOptionsText]
         self.rosettaArgs.extend(argList)
         return
     
