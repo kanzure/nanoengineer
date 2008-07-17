@@ -97,6 +97,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                 PM_WHATS_THIS_BUTTON)
 
         msg = "Edit residues."
+        
         self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, isConnect = True):
@@ -106,11 +107,55 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         else:
             change_connect = self.win.disconnect 
         
-        #change_connect(self.nextAAPushButton,
-        #               SIGNAL("clicked()"),
-        #               self._expandNextRotamer)
-        
+        change_connect(self.applyAnyPushButton,
+                         SIGNAL("clicked()"),
+                         self._applyAny)
 
+        change_connect(self.applySamePushButton,
+                         SIGNAL("clicked()"),
+                         self._applySame)
+
+        change_connect(self.applyLockedPushButton,
+                         SIGNAL("clicked()"),
+                         self._applyLocked)
+
+        change_connect(self.applyPolarPushButton,
+                         SIGNAL("clicked()"),
+                         self._applyPolar)
+
+        change_connect(self.applyApolarPushButton,
+                         SIGNAL("clicked()"),
+                         self._applyApolar)
+
+        change_connect(self.selectAllPushButton,
+                         SIGNAL("clicked()"),
+                         self._selectAll)
+        
+        change_connect(self.selectNonePushButton,
+                         SIGNAL("clicked()"),
+                         self._selectNone)
+        
+        change_connect(self.selectInvertPushButton,
+                         SIGNAL("clicked()"),
+                         self._invertSelection)
+
+        change_connect(self.applyDescriptorPushButton,
+                         SIGNAL("clicked()"),
+                         self._applyDescriptor)
+        
+        change_connect(self.applyDescriptorPushButton,
+                         SIGNAL("clicked()"),
+                         self._applyDescriptor)
+        
+        change_connect(self.sequenceTable,
+                         SIGNAL("cellClicked(int, int)"),
+                         self._sequenceTableCellChanged)
+        
+        change_connect(self.newDescriptorPushButton,
+                         SIGNAL("clicked()"),
+                         self._addNewDescriptor)
+        
+        
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -129,7 +174,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
+        
         self.sequenceEditor.hide()
+
         PM_Dialog.show(self)
 
         # Update all PM widgets, then establish their signal-slot connections.
@@ -138,10 +185,10 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         # the PM widgets (via updateDnaDisplayStyleWidgets()), causing
         # unneccessary repaints of the model view.
         
-        self._fillSequenceTable()
-        
         self.connect_or_disconnect_signals(isConnect = True)
 
+        self._fillSequenceTable()
+        
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
@@ -153,13 +200,18 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Add the Property Manager group boxes.
         """
+
+        self.labelfont = QFont("Helvetica", 12)
+        
+        self.descriptorfont = QFont("Courier New", 12)        
+
         self._pmGroupBox1 = PM_GroupBox( self,
-                                         title = "Sequence")
+                                         title = "Descriptors")
         self._loadGroupBox1( self._pmGroupBox1 )
 
-        #self._pmGroupBox2 = PM_GroupBox( self,
-        #                                 title = "Rotamer")
-        #self._loadGroupBox2( self._pmGroupBox2 )
+        self._pmGroupBox2 = PM_GroupBox( self,
+                                         title = "Sequence")
+        self._loadGroupBox2( self._pmGroupBox2 )
 
 
     def _loadGroupBox1(self, pmGroupBox):
@@ -167,26 +219,70 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Load widgets in group box.
         """
             
-        self.labelfont = QFont("Helvetica", 12)
-        self.descriptorfont = QFont("Courier New", 12)        
-
-        self.headerdata = ['', 'ID', 'Set', 'Descriptor']
-        
         self.set_names = ["Any", "Same", "Locked", "Polar", "Apolar"]
-        self.rosetta_set_names = ["ALLAA", "NATRO", "NATAA", "POLAR", "APOLA"]
-        self.descriptor_list = ["GAVILMFWCSTYNQDEHKRP", 
+        self.rosetta_set_names = ["ALLAA", "NATAA", "NATRO", "POLAR", "APOLA"]
+        self.descriptor_list = ["PGAVILMFWYCSTNQDEHKR", 
                                 "____________________", 
                                 "____________________", 
-                                "________CSTYNQDEHKR_", 
-                                "GAVILMFW___________P"]
+                                "_________YCSTNQDEHKR", 
+                                "PGAVILMFW___________"]
         
-        self.descriptorsTable = PM_TableWidget( pmGroupBox)
+        self.applyAnyPushButton = PM_PushButton( pmGroupBox,
+            text       =  "ALLAA",
+            setAsDefault  =  True)
+        
+        self.applySamePushButton = PM_PushButton( pmGroupBox,
+            text       =  "NATAA",
+            setAsDefault  =  True)
+        
+        self.applyLockedPushButton = PM_PushButton( pmGroupBox,
+            text       =  "NATRO",
+            setAsDefault  =  True)
+        
+        self.applyPolarPushButton = PM_PushButton( pmGroupBox,
+            text       =  "POLAR",
+            setAsDefault  =  True)
+        
+        self.applyApolarPushButton = PM_PushButton( pmGroupBox,
+            text       =  "APOLA",
+            setAsDefault  =  True)
+        
+        self.applyAnyPushButton.setFixedHeight(25)
+        #self.applyAnyPushButton.setFixedWidth(50)
+        
+        self.applySamePushButton.setFixedHeight(25)
+        #self.applySamePushButton.setFixedWidth(50)
+
+        self.applyLockedPushButton.setFixedHeight(25)
+        #self.applyLockedPushButton.setFixedWidth(50)
+
+        self.applyPolarPushButton.setFixedHeight(25)
+        #self.applyPolarPushButton.setFixedWidth(50)
+
+        self.applyApolarPushButton.setFixedHeight(25)
+        #self.applyApolarPushButton.setFixedWidth(50)
+        
+        applyButtonList = [('PM_PushButton', self.applyAnyPushButton, 0, 0),
+            ('PM_PushButton', self.applySamePushButton, 1, 0),
+            ('PM_PushButton', self.applyLockedPushButton, 2, 0),
+            ('PM_PushButton', self.applyPolarPushButton, 3, 0),
+            ('PM_PushButton', self.applyApolarPushButton, 4, 0) ]
+
+        self.applyButtonGrid = PM_WidgetGrid( pmGroupBox, 
+                                              label = "Apply standard set",
+                                              alignment = "Center", 
+                                              widgetList = applyButtonList)
+
+        self.descriptorsTable = PM_TableWidget( pmGroupBox,
+                                                label = "Custom descriptors")
+        
         self.descriptorsTable.setFixedHeight(100)
         self.descriptorsTable.setRowCount(len(self.set_names))
         self.descriptorsTable.setColumnCount(2)
         self.descriptorsTable.verticalHeader().setVisible(False)
         self.descriptorsTable.horizontalHeader().setVisible(False)
-        
+        self.descriptorsTable.setGridStyle(Qt.NoPen)
+
         for index in range(len(self.set_names)):
             item_widget = QTableWidgetItem(self.set_names[index])
             item_widget.setFont(self.labelfont)
@@ -201,59 +297,76 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.descriptorsTable.setItem(index, 1, item_widget)
 
             self.descriptorsTable.setRowHeight(index, 16)
-
             pass
         
         self.descriptorsTable.resizeColumnsToContents()
+
+        self.newDescriptorPushButton = PM_PushButton( pmGroupBox,
+            text         =  "New",
+            setAsDefault  =  True)
+
+        self.newDescriptorPushButton.setFixedHeight(25)
+
+        self.removeDescriptorPushButton = PM_PushButton( pmGroupBox,
+            text         =  "Remove",
+            setAsDefault  =  True)
+
+        self.removeDescriptorPushButton.setFixedHeight(25)
 
         self.applyDescriptorPushButton = PM_PushButton( pmGroupBox,
             text         =  "Apply",
             setAsDefault  =  True)
 
+        self.applyDescriptorPushButton.setFixedHeight(25)
+
+        addDescriptorButtonList = [('PM_PushButton', self.newDescriptorPushButton, 0, 0),
+            ('PM_PushButton', self.removeDescriptorPushButton, 1, 0),
+            ('PM_PushButton', self.applyDescriptorPushButton, 2, 0) ]
+
+        self.addDescriptorGrid = PM_WidgetGrid( pmGroupBox, 
+                                              alignment = "Center", 
+                                              widgetList = addDescriptorButtonList)
+                
+    def _loadGroupBox2(self, pmGroupBox):
+        """
+        Load widgets in second group box.
+        """
+            
+        self.headerdata = ['', 'ID', 'Set', 'Descriptor']
+
+        self.recenterViewCheckBox  = \
+            PM_CheckBox( pmGroupBox,
+                         text          =  "Re-center view on selected residue",
+                         setAsDefault  =  True,
+                         widgetColumn  = 0, 
+                         state         = Qt.Checked)
+        
         self.selectAllPushButton = PM_PushButton( pmGroupBox,
             text         =  "All",
             setAsDefault  =  True)
 
+        self.selectAllPushButton.setFixedHeight(25)
+        
         self.selectNonePushButton = PM_PushButton( pmGroupBox,
             text       =  "None",
             setAsDefault  =  True)
+
+        self.selectNonePushButton.setFixedHeight(25)
 
         self.selectInvertPushButton = PM_PushButton( pmGroupBox,
             text       =  "Invert",
             setAsDefault  =  True)
 
-        self.win.connect(self.applyDescriptorPushButton,
-                         SIGNAL("clicked()"),
-                         self._applyDescriptor)
-        
-        self.win.connect(self.selectAllPushButton,
-                         SIGNAL("clicked()"),
-                         self._selectAll)
-        
-        self.win.connect(self.selectNonePushButton,
-                         SIGNAL("clicked()"),
-                         self._selectNone)
-        
-        self.win.connect(self.selectInvertPushButton,
-                         SIGNAL("clicked()"),
-                         self._invertSelection)
-        
-        buttonList = [('PM_PushButton', self.applyDescriptorPushButton, 0, 0),
-                      ('QSpacerItem', 5, 5, 1, 0), 
-                      ('PM_PushButton', self.selectAllPushButton, 2, 0),
-                      ('PM_PushButton', self.selectNonePushButton, 3, 0),
-                      ('PM_PushButton', self.selectInvertPushButton, 4, 0)]
+        self.selectInvertPushButton.setFixedHeight(25)
+
+        buttonList = [ ('PM_PushButton', self.selectAllPushButton, 0, 0),
+                       ('PM_PushButton', self.selectNonePushButton, 1, 0),
+                       ('PM_PushButton', self.selectInvertPushButton, 2, 0)]
 
         self.buttonGrid = PM_WidgetGrid( pmGroupBox, 
                                          widgetList = buttonList)
                                          
         
-        self.recenterViewCheckBox  = \
-            PM_CheckBox( pmGroupBox,
-                         text          =  "Re-center view",
-                         setAsDefault  =  True,
-                         state         = Qt.Checked)
-
         self.sequenceTable = PM_TableWidget( pmGroupBox)
         #self.sequenceTable.setModel(self.tableModel)
         self.sequenceTable.resizeColumnsToContents()
@@ -265,6 +378,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         
         self.sequenceTable.setFixedHeight(345)
+        
+        self.sequenceTable.setGridStyle(Qt.NoPen)
         
         self.sequenceTable.setHorizontalHeaderLabels(self.headerdata) 
         ###self._fillSequenceTable()
@@ -311,10 +426,6 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
                     self.sequenceTable.setRowHeight(index, 16)
                     
-        self.win.connect(self.sequenceTable,
-                         SIGNAL("cellClicked(int, int)"),
-                         self._sequenceTableCellChanged)
-        
         self.sequenceTable.resizeColumnsToContents()
         
         self.sequenceTable.setColumnWidth(0, 35)
@@ -339,7 +450,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _get_mutation_descriptor(self, aa):
         """
         """
-        aa_string = "GAVILMFWCSTYNQDEHKRP"
+        aa_string = "PGAVILMFWYCSTNQDEHKR"
         
         range = aa.get_mutation_range()                    
         if range == "NATRO" or \
@@ -347,9 +458,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             code = aa.get_one_letter_code()                    
             aa_string = re.sub("[^"+code+"]",'_', aa_string)
         elif range == "POLAR":
-            aa_string = "________CSTYNQDEHKR_"
+            aa_string = "_________YCSTNQDEHKR"
         elif range == "APOLA":
-            aa_string = "GAVILMFW___________P"
+            aa_string = "PGAVILMFW___________"
 
         return aa_string
     
@@ -452,4 +563,39 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         item = self.sequenceTable.item(index, 0)
         if item:
             self.sequenceTable.scrollToItem(item)
+        
+    def _applyAny(self):
+        """
+        """
+        for row in range(self.sequenceTable.rowCount()):
+            self._setComboBoxIndexChanged(0, tablerow = row, selectedOnly = True)
+
+    def _applySame(self):
+        """
+        """
+        for row in range(self.sequenceTable.rowCount()):
+            self._setComboBoxIndexChanged(1, tablerow = row, selectedOnly = True)
+
+    def _applyLocked(self):
+        """
+        """
+        for row in range(self.sequenceTable.rowCount()):
+            self._setComboBoxIndexChanged(2, tablerow = row, selectedOnly = True)
+
+    def _applyPolar(self):
+        """
+        """
+        for row in range(self.sequenceTable.rowCount()):
+            self._setComboBoxIndexChanged(3, tablerow = row, selectedOnly = True)
+
+    def _applyApolar(self):
+        """
+        """
+        for row in range(self.sequenceTable.rowCount()):
+            self._setComboBoxIndexChanged(4, tablerow = row, selectedOnly = True)
+    
+    def _addNewDescriptor(self):
+        """
+        """
+        ### self.descriptorsTable.insertRow
         
