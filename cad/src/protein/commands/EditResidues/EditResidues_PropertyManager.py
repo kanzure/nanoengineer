@@ -178,7 +178,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                 "____________________", 
                                 "____________________", 
                                 "________CSTYNQDEHKR_", 
-                                "GAVILMFW____________"]
+                                "GAVILMFW___________P"]
         
         self.descriptorsTable = PM_TableWidget( pmGroupBox)
         self.descriptorsTable.setFixedHeight(100)
@@ -349,7 +349,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         elif range == "POLAR":
             aa_string = "________CSTYNQDEHKR_"
         elif range == "APOLA":
-            aa_string = "GAVILMFW____________"
+            aa_string = "GAVILMFW___________P"
 
         return aa_string
     
