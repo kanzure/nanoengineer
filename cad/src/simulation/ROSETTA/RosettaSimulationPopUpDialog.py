@@ -105,36 +105,36 @@ class RosettaSimulationPopUpDialog(QDialog):
     def update_ex1(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex1Checkbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -ex1  '
+            otherOptionsText = otherOptionsText + ' -ex1 '
         else:
-            otherOptionsText = otherOptionsText.replace(' -ex1 ', ' ')
+            otherOptionsText = otherOptionsText.replace(' -ex1 ', '')
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
     
     def update_ex1aro(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex1aroCheckbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -ex1aro  '
+            otherOptionsText = otherOptionsText + ' -ex1aro '
         else:
-            otherOptionsText = otherOptionsText.replace(' -ex1aro ', ' ')
+            otherOptionsText = otherOptionsText.replace(' -ex1aro ', '')
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
     
     def update_ex2(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex2Checkbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -ex2  '
+            otherOptionsText = otherOptionsText + ' -ex2 '
         else:
-            otherOptionsText = otherOptionsText.replace(' -ex2 ', ' ')
+            otherOptionsText = otherOptionsText.replace(' -ex2 ', '')
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
     
     def update_ex2aro_only(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex2aroOnlyCheckbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -ex2aro_only  '
+            otherOptionsText = otherOptionsText + ' -ex2aro_only '
         else:
-            otherOptionsText = otherOptionsText.replace(' -ex12aro_only ', ' ')    
+            otherOptionsText = otherOptionsText.replace(' -ex2aro_only ', '')    
             
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
@@ -142,9 +142,9 @@ class RosettaSimulationPopUpDialog(QDialog):
     def update_ex3(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex3Checkbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -ex3  '
+            otherOptionsText = otherOptionsText + ' -ex3 '
         else:
-            otherOptionsText = otherOptionsText.replace(' -ex3 ', ' ')
+            otherOptionsText = otherOptionsText.replace(' -ex3 ', '')
         
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
@@ -152,54 +152,54 @@ class RosettaSimulationPopUpDialog(QDialog):
     def update_ex4(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex4Checkbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -ex4  '
+            otherOptionsText = otherOptionsText + ' -ex4 '
         else:
-            otherOptionsText = otherOptionsText.replace(' -ex4 ', ' ')
+            otherOptionsText = otherOptionsText.replace(' -ex4 ', '')
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
     
     def update_rot_opt(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.rotOptCheckbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -rot_opt  '
+            otherOptionsText = otherOptionsText + ' -rot_opt '
         else:
-            otherOptionsText = otherOptionsText.replace(' -rot_opt ', ' ')
+            otherOptionsText = otherOptionsText.replace(' -rot_opt ', '')
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
     
     def update_try_both_his_tautomers(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.tryBothHisTautomersCheckbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -try_both_his_tautomers  '
+            otherOptionsText = otherOptionsText + ' -try_both_his_tautomers '
         else:
-            otherOptionsText = otherOptionsText.replace(' -try_both_his_tautomers ', ' ')
+            otherOptionsText = otherOptionsText.replace(' -try_both_his_tautomers ', '')
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
     
     def update_soft_rep_design(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.softRepDesignCheckbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -soft_rep_design  '
+            otherOptionsText = otherOptionsText + ' -soft_rep_design '
         else:
-            otherOptionsText = otherOptionsText.replace(' -soft_rep_design ', ' ')
+            otherOptionsText = otherOptionsText.replace(' -soft_rep_design ', '')
         self.otherCommandLineOptions.setText(otherOptionsText)    
         return
     
     def update_use_elec_rep(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.useElecRepCheckbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -use_electrostatic_repulsion  '
+            otherOptionsText = otherOptionsText + ' -use_electrostatic_repulsion '
         else:
-            otherOptionsText = otherOptionsText.replace(' -use_electrostatic_repulsion ', ' ')    
+            otherOptionsText = otherOptionsText.replace(' -use_electrostatic_repulsion ', '')    
         self.otherCommandLineOptions.setText(otherOptionsText)        
         return
     
     def update_norepack_disulf(self, state):
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.norepackDisulfCheckbox.isChecked() == True:
-            otherOptionsText = otherOptionsText + '  -norepack_disulf  '
+            otherOptionsText = otherOptionsText + ' -norepack_disulf '
         else:
-            otherOptionsText = otherOptionsText.replace(' -norepack_disulf ', ' ')      
+            otherOptionsText = otherOptionsText.replace(' -norepack_disulf ', '')      
         self.otherCommandLineOptions.setText(otherOptionsText)        
         return
     
