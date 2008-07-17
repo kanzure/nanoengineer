@@ -1484,6 +1484,7 @@ class MWsemantics(QMainWindow,
     def setRosettaParameters(self, numRuns, otherOptionsText):
         
         argList = [numRuns, otherOptionsText]
+        self.rosettaArgs = []
         self.rosettaArgs.extend(argList)
         return
     
