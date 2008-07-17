@@ -253,18 +253,29 @@ class RosettaRunner:
             argStringListFromPopUpDialog.append('-ex2aro_only')    
         if args[0][5]:
             argStringListFromPopUpDialog.append('-ex3')
-        if args[0][5]:
-            argStringListFromPopUpDialog.append('-ex4') 
         if args[0][6]:
-            argStringListFromPopUpDialog.append('-rot_opt')
+            argStringListFromPopUpDialog.append('-ex4') 
         if args[0][7]:
-            argStringListFromPopUpDialog.append('-try_both_his_tautomers')
+            argStringListFromPopUpDialog.append('-rot_opt')
         if args[0][8]:
-            argStringListFromPopUpDialog.append('-soft_rep_design')
+            argStringListFromPopUpDialog.append('-try_both_his_tautomers')
         if args[0][9]:
-            argStringListFromPopUpDialog.append('-use_electrostatic_repulsion')
+            argStringListFromPopUpDialog.append('-soft_rep_design')
         if args[0][10]:
+            argStringListFromPopUpDialog.append('-use_electrostatic_repulsion')
+        if args[0][11]:
             argStringListFromPopUpDialog.append('-norepack_disulf')        
+        if args[0][12] != "":
+            #break the string into individual words and make a list and extend 
+            # the argument list
+            extraArgs = args[0][12].split(" ")
+            #strip extra space around each of these options
+            extraArgs1 = []
+            for i in range(len(extraArgs)):
+                word = extraArgs[i].strip()
+                if word != '':
+                    extraArgs1.append(word)
+            argStringListFromPopUpDialog.extend(extraArgs1)
             
         return argStringListFromPopUpDialog
     
