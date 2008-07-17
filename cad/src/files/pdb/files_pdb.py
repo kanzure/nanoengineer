@@ -337,9 +337,10 @@ def _readpdb_new(assy,
                 if mol.atoms:
                     mollist.append(mol)                
         else:
-            env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
-            env.history.h_update() 
-                    
+            #env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
+            #env.history.h_update() 
+            pass
+        
     fi = open(filename,"rU")
     lines = fi.readlines()
     fi.close()
@@ -366,6 +367,7 @@ def _readpdb_new(assy,
     
     comment_text = ""
     _read_rosetta_info = False
+    comment_title = "PDB Header"
     
     # Create a temporary PDB ID - it should be later extracted from the
     # file header.
@@ -582,6 +584,8 @@ def _readpdb_new(assy,
             # piotr 080714
             model_id = int(card[6:20])
             if model_id > 1:
+                env.history.message( redmsg( "Warning: multi-model file; skipping remaining models."))
+                env.history.h_update() 
                 # Skip remaining part of the file.
                 break
             
@@ -609,6 +613,9 @@ def _readpdb_new(assy,
             if card[7:15] == "ntrials:":
                 _read_rosetta_info = True
                 comment_text += "Rosetta Scoring Analysis\n"
+            if card[9:15] == "score:":
+                score = float(card[16:])
+                comment_title = "Rosetta Score: %g" % score
             if _read_rosetta_info:
                 comment_text += card
                 
@@ -637,7 +644,7 @@ def _readpdb_new(assy,
         water.hide()
         mollist.append(water)
         
-    return (mollist, comment_text)
+    return (mollist, comment_text, comment_title)
     
 
 # read oa Protein DataBank-format file or insert it into a single Chunk
@@ -668,7 +675,7 @@ def read_or_insert_pdb(assy,
     
     if enableProteins:
         
-        molecules, comment_text  = _readpdb_new(assy, 
+        molecules, comment_text, comment_title  = _readpdb_new(assy, 
                         filename, 
                         isInsert = isInsert, 
                         showProgressDialog = showProgressDialog,
@@ -685,7 +692,7 @@ def read_or_insert_pdb(assy,
                 if mol is not None:
                     group.addchild(mol)
 
-            comment = Comment(assy, "Information", comment_text)
+            comment = Comment(assy, comment_title, comment_text)
 
             group.addchild(comment)
             
