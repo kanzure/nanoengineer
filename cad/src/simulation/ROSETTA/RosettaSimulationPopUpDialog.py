@@ -9,24 +9,31 @@ Qt Dialog for setting the arguments for a rosetta simulation
 
 from PyQt4.Qt import SIGNAL, SLOT
 from PyQt4.QtGui import QDialog, QLineEdit, QPushButton, QLabel, QCheckBox
-from PyQt4.QtGui import QHBoxLayout, QVBoxLayout, QApplication
-
+from PyQt4.QtGui import QHBoxLayout, QVBoxLayout, QApplication, QTextEdit
+from PyQt4.QtGui import QSpinBox
+import string
 
 class RosettaSimulationPopUpDialog(QDialog):
     def __init__(self, parent = None):
         self.parentWidget = parent
         super(RosettaSimulationPopUpDialog, self).__init__(parent)
-        self.text = ''
         self.setWindowTitle("Rosetta Simulation Parameters")
-        
-        layout = QVBoxLayout()
-        
+        self._loadWidgets()
+        self.connectSignals()
+        self.show()
+        return
+    
+    def _loadWidgets(self):
+        layout = QVBoxLayout()  
         idLayout = QHBoxLayout()
         self.label = QLabel("Enter number of simulations:")
-        self.lineEdit = QLineEdit()
-        #self.lineEdit.setMaxLength(8) # Check with Piotr about this.
+        self.numSimSpinBox = QSpinBox()
+        self.numSimSpinBox.setMinimum(1)
+        self.numSimSpinBox.setMaximum(999)
+        
+        
         idLayout.addWidget(self.label)
-        idLayout.addWidget(self.lineEdit)
+        idLayout.addWidget(self.numSimSpinBox)
         
         #rosetta simulation parameters checkboxes
         idLayout1 = QVBoxLayout()
@@ -42,8 +49,6 @@ class RosettaSimulationPopUpDialog(QDialog):
         self.useElecRepCheckbox = QCheckBox("Use electrostatic repulsion")
         self.norepackDisulfCheckbox = QCheckBox("Don't re-pack disulphide bonds")
         
-        
-        #self.lineEdit.setMaxLength(8) # Check with Piotr about this.
         idLayout1.addWidget(self.ex1Checkbox)
         idLayout1.addWidget(self.ex1aroCheckbox)
         idLayout1.addWidget(self.ex2Checkbox)
@@ -57,8 +62,9 @@ class RosettaSimulationPopUpDialog(QDialog):
         idLayout1.addWidget(self.norepackDisulfCheckbox)
         
         self.otherOptionsLabel = QLabel("Other command line options:")
-        self.otherCommandLineOptions = QLineEdit()
-        idLayout3 = QHBoxLayout()
+        self.otherCommandLineOptions = QTextEdit()
+        self.otherCommandLineOptions.setFixedHeight(80)
+        idLayout3 = QVBoxLayout()
         idLayout3.addWidget(self.otherOptionsLabel)
         idLayout3.addWidget(self.otherCommandLineOptions)
         
@@ -76,65 +82,131 @@ class RosettaSimulationPopUpDialog(QDialog):
         layout.addLayout(buttonLayout)
         self.setLayout(layout)
         
-        self.connect(self.lineEdit, SIGNAL("returnPressed()"), self.getRosettaParameters)
+        return
+    
+    def connectSignals(self):
+        
+        self.connect(self.ex1Checkbox, SIGNAL("stateChanged(int)"), self.update_ex1)
+        self.connect(self.ex1aroCheckbox, SIGNAL("stateChanged(int)"), self.update_ex1aro)
+        self.connect(self.ex2Checkbox, SIGNAL("stateChanged(int)"), self.update_ex2)
+        self.connect(self.ex2aroOnlyCheckbox, SIGNAL("stateChanged(int)"), self.update_ex2aro_only)
+        self.connect(self.ex3Checkbox, SIGNAL("stateChanged(int)"), self.update_ex3)
+        self.connect(self.ex4Checkbox, SIGNAL("stateChanged(int)"), self.update_ex4)
+        self.connect(self.rotOptCheckbox, SIGNAL("stateChanged(int)"), self.update_rot_opt)
+        self.connect(self.tryBothHisTautomersCheckbox, SIGNAL("stateChanged(int)"), self.update_try_both_his_tautomers)
+        self.connect(self.softRepDesignCheckbox, SIGNAL("stateChanged(int)"), self.update_soft_rep_design)
+        self.connect(self.useElecRepCheckbox, SIGNAL("stateChanged(int)"), self.update_use_elec_rep)
+        self.connect(self.norepackDisulfCheckbox, SIGNAL("stateChanged(int)"), self.update_norepack_disulf)
+        
         self.connect(self.okButton, SIGNAL("clicked()"), self.getRosettaParameters)
         self.connect(self.cancelButton, SIGNAL("clicked()"), self, SLOT("reject()"))
-        self.show()
         return
-        
-    def getRosettaParameters(self):
-        
+    
+    def update_ex1(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex1Checkbox.isChecked() == True:
-            ex1 = True
+            otherOptionsText = otherOptionsText + '  -ex1  '
         else:
-            ex1 = False
+            otherOptionsText = otherOptionsText.replace(' -ex1 ', ' ')
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_ex1aro(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex1aroCheckbox.isChecked() == True:
-            ex1aro = True
+            otherOptionsText = otherOptionsText + '  -ex1aro  '
         else:
-            ex1aro = False 
+            otherOptionsText = otherOptionsText.replace(' -ex1aro ', ' ')
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_ex2(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex2Checkbox.isChecked() == True:
-            ex2 = True
+            otherOptionsText = otherOptionsText + '  -ex2  '
         else:
-            ex2 = False     
+            otherOptionsText = otherOptionsText.replace(' -ex2 ', ' ')
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_ex2aro_only(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex2aroOnlyCheckbox.isChecked() == True:
-            ex2aro_only = True
+            otherOptionsText = otherOptionsText + '  -ex2aro_only  '
         else:
-            ex2aro_only = False      
+            otherOptionsText = otherOptionsText.replace(' -ex12aro_only ', ' ')    
+            
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_ex3(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex3Checkbox.isChecked() == True:
-            ex3 = True
+            otherOptionsText = otherOptionsText + '  -ex3  '
         else:
-            ex3 = False    
+            otherOptionsText = otherOptionsText.replace(' -ex3 ', ' ')
+        
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_ex4(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex4Checkbox.isChecked() == True:
-            ex4 = True
+            otherOptionsText = otherOptionsText + '  -ex4  '
         else:
-            ex4 = False    
+            otherOptionsText = otherOptionsText.replace(' -ex4 ', ' ')
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_rot_opt(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.rotOptCheckbox.isChecked() == True:
-            rot_opt = True
+            otherOptionsText = otherOptionsText + '  -rot_opt  '
         else:
-            rot_opt = False 
+            otherOptionsText = otherOptionsText.replace(' -rot_opt ', ' ')
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_try_both_his_tautomers(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.tryBothHisTautomersCheckbox.isChecked() == True:
-            try_both_his_tautomers = True
+            otherOptionsText = otherOptionsText + '  -try_both_his_tautomers  '
         else:
-            try_both_his_tautomers = False 
+            otherOptionsText = otherOptionsText.replace(' -try_both_his_tautomers ', ' ')
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_soft_rep_design(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.softRepDesignCheckbox.isChecked() == True:
-            soft_rep_design = True
+            otherOptionsText = otherOptionsText + '  -soft_rep_design  '
         else:
-            soft_rep_design = False 
+            otherOptionsText = otherOptionsText.replace(' -soft_rep_design ', ' ')
+        self.otherCommandLineOptions.setText(otherOptionsText)    
+        return
+    
+    def update_use_elec_rep(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.useElecRepCheckbox.isChecked() == True:
-            use_electrostatic_repulsion = True
+            otherOptionsText = otherOptionsText + '  -use_electrostatic_repulsion  '
         else:
-            use_electrostatic_repulsion = False    
+            otherOptionsText = otherOptionsText.replace(' -use_electrostatic_repulsion ', ' ')    
+        self.otherCommandLineOptions.setText(otherOptionsText)        
+        return
+    
+    def update_norepack_disulf(self, state):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.norepackDisulfCheckbox.isChecked() == True:
-            norepack_disulf = True
+            otherOptionsText = otherOptionsText + '  -norepack_disulf  '
         else:
-            norepack_disulf = False      
-        text = str(self.lineEdit.text())
-        otherOptionsText = str(self.otherCommandLineOptions.text())
-        self.parentWidget.setRosettaParameters(text, ex1, ex1aro,
-                                               ex2, ex2aro_only, ex3, ex4, rot_opt,
-                                               try_both_his_tautomers, soft_rep_design,
-                                               use_electrostatic_repulsion, norepack_disulf, 
-                                               otherOptionsText)                                        
+            otherOptionsText = otherOptionsText.replace(' -norepack_disulf ', ' ')      
+        self.otherCommandLineOptions.setText(otherOptionsText)        
+        return
+    
+    def getRosettaParameters(self):
+        otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
+        numSim = self.numSimSpinBox.value()
+        self.parentWidget.setRosettaParameters(numSim, otherOptionsText)                                        
         self.close()
         self.emit(SIGNAL("editingFinished()"))
         return
