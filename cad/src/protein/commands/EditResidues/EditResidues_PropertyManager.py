@@ -189,6 +189,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self._fillSequenceTable()
         
+
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
