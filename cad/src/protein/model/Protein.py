@@ -54,6 +54,140 @@ SS_TURN = 3
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
+chi_angles = { "GLY" : [ None, 
+                         None, 
+                         None, 
+                         None ],
+               "ALA" : [ None,
+                         None, 
+                         None,
+                         None ],
+               "SER" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+                         None,
+                         None,
+                         None ],
+               "GLU" : [ [ "N"  , "CA" , "CB" , "CG"  ],
+                         None,
+                         None,
+                         None ],
+               "CYS" : [ [ "N"  , "CA" , "CB" , "SG"  ],
+                         None,
+                         None,
+                         None ],
+               "THR" : [ [ "N"  , "CA" , "CB" , "CG2" ],
+                         None,
+                         None,
+                         None ],
+               "LEU" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+                         None,
+                         None,
+                         None ],
+               "ILE" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+                         None,
+                         None,
+                         None ],
+               "VAL" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+                         None,
+                         None,
+                         None ],
+               "TRP" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+                         None,
+                         None,
+                         None ],
+               "TYR" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+                         None,
+                         None,
+                         None ],
+               "LYS" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+                         None,
+                         None,
+                         None ],
+               "ARG" : [ [ "N"  , "CA" , "CB" , "CG"  ],
+                         None,
+                         None,
+                         None ],
+               "HIS" : [ [ "N"  , "CA" , "CB" , "CG"  ],
+                         None,
+                         None,
+                         None ],
+               "ASP" : [ [ "N"  , "CA" , "CB" , "CG"  ],
+                         None,
+                         None,
+                         None ],
+               "ASN" : [ [ "N"  , "CA" , "CB" , "CG"  ],
+                         None,
+                         None,
+                         None ],
+               "GLN" : [ [ "N"  , "CA" , "CB" , "CG"  ],
+                         None,
+                         None,
+                         None ],
+               "PHE" : [ [ "N"  , "CA" , "CB" , "CG"  ],
+                         [ "CA" , "CB" , "CG" , "CD1" ],
+                         None,
+                         None ] }
+
+chi_exclusions = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             [ "CB", "HB2", "HB3" ],
+                             None,
+                             None ],
+                   "THR" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "GLU" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "GLN" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "ASP" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "ASN" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "CYS" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "MET" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "ARG" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "LYS" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "HIS" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "LEU" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "ILE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "SER" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ],
+                   "TRP" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+                             None, 
+                             None,
+                             None ] }
+
 enableProteins =  debug_pref("Enable Proteins? (next session)",
     Choice_boolean_False,
     non_debug = True,
@@ -162,80 +296,201 @@ class Residuum:
         """
         return self.secondary_structure
         
+    def get_atom_by_name(self, name):
+        if self.atoms.has_key(name):
+            return self.atoms[name]
+        return None
+    
     def get_c_alpha_atom(self):
         """
         Return a CA atom (or None).
         """
-        if self.atoms.has_key("CA"):
-            return self.atoms["CA"]
-        return None
+        return self.get_atom_by_name("CA")
     
     def get_c_beta_atom(self):
         """
         Return a CB atom (or None).
         """
-        if self.atoms.has_key("CB"):
-            return self.atoms["CB"]
-        return None
+        return self.get_atom_by_name("CA")
     
     def get_n_atom(self):
         """
         Return a backbone nitrogen atom.
         """
-        if self.atoms.has_key("N"):
-            return self.atoms["N"]
-        return None
+        return self.get_atom_by_name("N")
         
     def get_c_atom(self):
         """
         Return a backbone carbon atom.
         """
-        if self.atoms.has_key("C"):
-            return self.atoms["C"]
-        return None
+        return self.get_atom_by_name("C")
         
     def get_o_atom(self):
         """
         Return a backbone oxygen atom.
         """
-        if self.atoms.has_key("O"):
-            return self.atoms["O"]
-        return None
+        return self.get_atom_by_name("O")
         
-    def get_chi1_axis(self):
-        """
-        Returs an axis corresponding to Chi1 angle.
-        """
-        if self.atoms.has_key("CA") and \
-           self.atoms.has_key("CB"):
-            ca_atom = self.atoms["CA"]
-            cb_atom = self.atoms["CB"]
-            return (cb_atom.posn() - ca_atom.posn())
-    
-    def get_chi1_rotation_atom_set(self):
-        """
-        Returns a list of atoms that can be rotated around Chi1 axis.
-        """
-        atom_list = []
-        for atom in self.atoms.values():
-            if self.names[atom] != "N" and \
-               self.names[atom] != "C" and \
-               self.names[atom] != "O" and \
-               self.names[atom] != "H" and \
-               self.names[atom] != "CA" and \
-               self.names[atom] != "HA" and \
-               self.names[atom] != "HA1" and \
-               self.names[atom] != "HA2" and \
-               self.names[atom] != "HA3":
-                atom_list.append(atom)
-        return atom_list
-
     def set_mutation_range(self, range):
         self.mutation_range = range
         
     def get_mutation_range(self):
         return self.mutation_range
     
+    def calc_torsion_angle(self, atom_list):
+        """
+        Calculates a torsion angle between four atoms.
+        """
+   
+        from Numeric import dot
+        from math import atan2, pi, sqrt
+        from geometry.VQT import cross
+        
+        if len(atom_list) != 4:
+            return 0.0
+        
+        v12 = atom_list[0].posn() - atom_list[1].posn()
+        v43 = atom_list[3].posn() - atom_list[2].posn()
+        v23 = atom_list[1].posn() - atom_list[2].posn()
+        
+        p = cross(v23, v12)
+        x = cross(v23, v43)
+        y = cross(v23, x)
+        
+        u1 = dot(x, x)
+        v1 = dot(y, y)
+        
+        if u1 < 0.0 or \
+           v1 < 0.0:
+            return 360.0
+        
+        u2 = dot(p, x) / sqrt(u1)
+        v2 = dot(p, y) / sqrt(v1)
+        
+        if u2 != 0.0 and \
+           v2 != 0.0:
+            return atan2(v2, u2) * (180.0 / pi)
+        else:
+            return 360.0
+         
+    def get_chi_atom_list(self, which):
+        """
+        """
+        if which in range(4):
+            if chi_angles.has_key(self.name):
+                chi_list = chi_angles[self.name]
+                #print "CHI LIST = ", chi_list
+                if chi_list[which]:
+                    chi_atom_names = chi_list[which]
+                    chi_atoms = []
+                    for name in chi_atom_names:
+                        atom = self.get_atom_by_name(name)
+                        #print "CHI ATOM = ", (name, atom)
+                        if atom:
+                            chi_atoms.append(atom)
+                    return chi_atoms
+        return None
+     
+    def get_chi_atom_exclusion_list(self, which):
+        """
+        """
+        if which in range(4):
+            if chi_exclusions.has_key(self.name):
+                chi_ex_list = chi_exclusions[self.name]
+                #print "CHI LIST = ", chi_list
+                ex_atoms = []
+                for w in range(0, which + 1):
+                    if chi_ex_list[w]:
+                        ex_atom_names = chi_ex_list[w]
+                        for name in ex_atom_names:
+                            atom = self.get_atom_by_name(name)
+                            #print "CHI ATOM = ", (name, atom)
+                            if atom:
+                                ex_atoms.append(atom)
+                return ex_atoms
+        return None
+     
+    def get_chi_angle(self, which):
+        """
+        Computes the side-chain Chi angle. Returns None if the angle
+        doesn't exist.
+        """
+        chi_atom_list = self.get_chi_atom_list(which)
+        if chi_atom_list:
+            return self.calc_torsion_angle(chi_atom_list)                    
+        return None
+
+    
+    def get_atom_list_to_rotate(self, which):
+        """
+        """
+        atom_list = []
+        
+        chi_atom_exclusion_list = self.get_chi_atom_exclusion_list(which)
+        
+        if chi_atom_exclusion_list:
+            all_atom_list = self.get_atom_list()
+            for atom in all_atom_list:
+                if atom not in chi_atom_exclusion_list:
+                    atom_list.append(atom)
+                  
+        return atom_list
+
+    def set_chi_angle(self, which, angle):
+        """
+        """
+        from geometry.VQT import norm, Q, V
+        from math import pi, cos, sin
+        
+        chi_atom_list = self.get_chi_atom_list(which)
+        if chi_atom_list:
+            angle0 = self.calc_torsion_angle(chi_atom_list)
+            dangle = angle - angle0
+            #if dangle < 0.0:
+            #    dangle += 360.0
+            #print "angle, angle0, dangle ", (angle, angle0, dangle)
+            vec = norm(chi_atom_list[2].posn() - chi_atom_list[1].posn())
+            atom_list = self.get_atom_list_to_rotate(which)
+            first_atom_posn = chi_atom_list[1].posn()
+            for atom in atom_list:
+                """
+                pos = atom.posn()
+                q1 = Q(0.0, pos[1], pos[1], pos[2])
+                halfangle = 0.5 * pi * (angle / 180.0)
+                hc = cos(halfangle)
+                hs = sin(halfangle)
+                q2 = Q(hc, hs * vec[0], hs * vec[1], hs * vec[2])
+                q3 = q2 * q1 * q2.conj()
+                atom.setposn(q3.x, q3.y, q3.z)
+                """
+                
+                
+                pos = atom.posn() - first_atom_posn
+                
+                cos_a = cos(pi * (dangle / 180.0))
+                sin_a = sin(pi * (dangle / 180.0))
+                
+                q = V(0, 0, 0)
+                
+                q[0] += (cos_a + (1.0 - cos_a) * vec[0] * vec[0]) * pos[0];
+                q[0] += ((1.0 - cos_a) * vec[0] * vec[1] - vec[2] * sin_a) * pos[1];
+                q[0] += ((1.0 - cos_a) * vec[0] * vec[2] + vec[1] * sin_a) * pos[2];
+             
+                q[1] += ((1.0 - cos_a) * vec[0] * vec[1] + vec[2] * sin_a) * pos[0];
+                q[1] += (cos_a + (1.0 - cos_a) * vec[1] * vec[1]) * pos[1];
+                q[1] += ((1.0 - cos_a) * vec[1] * vec[2] - vec[0] * sin_a) * pos[2];
+             
+                q[2] += ((1.0 - cos_a) * vec[0] * vec[2] - vec[1] * sin_a) * pos[0];
+                q[2] += ((1.0 - cos_a) * vec[1] * vec[2] + vec[0] * sin_a) * pos[1];
+                q[2] += (cos_a + (1.0 - cos_a) * vec[2] * vec[2]) * pos[2];
+
+                q += first_atom_posn
+                
+                ### print "ATOM TRANSFORM ", (pos, q)
+                atom.setposn(q)
+                
+        return None
+        
 # End of Residuum class.
 
 class Protein:
@@ -486,7 +741,7 @@ class Protein:
         """
         if index in range(len(self.sequence)):
             self.current_aa_idx = index
-        
+       
 # end of Protein class
 
 def write_rosetta_resfile(filename, chunk):
