@@ -110,8 +110,10 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         @see: L{self.restore_gui}
         """
         
-        # Gui actions such  Nanotubegenerator are disabled while in the 
-        # Build mode 
+        #GUI actions that need to be disabled (for some reason) while in 
+        #this command can be disabled by calling enable_gui_action with a proper
+        #boolean flag. Note that this method is also called in restore_gui
+        #which toggles the disabled actions 
         self.enable_gui_actions(False)
         
         self.dont_update_gui = True # redundant with Enter, 
@@ -168,14 +170,24 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         Enable or disable some gui actions depending on 
         whether user is entering or leaving the mode
         """
-        self.w.buildDnaAction.setEnabled(bool)
-        self.w.buildNanotubeAction.setEnabled(bool)
-        self.w.nanotubeGeneratorAction.setEnabled(bool)
-        self.w.insertGrapheneAction.setEnabled(bool)
-        self.w.toolsCookieCutAction.setEnabled(bool)
-        #@@This should also contain HeteroJunctionAction. (in general Plugin 
-        #actions)
-           
+        #UPDATE 2008-07-16: commenting out the call that disables 
+        #all structure generator actions while in Build Chunks command. 
+        #This was needed long ago perhaps before year 2007 and some tests 
+        #indicate that this is no longer needed. May be the disabling 
+        #other structure builders was intentionally done to ask user to finish 
+        #what he was doing but that was not consistent throughout the 
+        #program and is creating confusion. So simply allow entering different 
+        #commands from Build > Chunks mode. -[ Ninad comment]
+        #==========================
+        ###self.w.buildDnaAction.setEnabled(bool)
+        ###self.w.buildNanotubeAction.setEnabled(bool)
+        ###self.w.nanotubeGeneratorAction.setEnabled(bool)
+        ###self.w.insertGrapheneAction.setEnabled(bool)
+        ###self.w.toolsCookieCutAction.setEnabled(bool)
+        ####@@This should also contain HeteroJunctionAction. (in general Plugin 
+        ####actions)
+        #============================
+        pass
 
     def connect_or_disconnect_signals(self, connect): 
         """
