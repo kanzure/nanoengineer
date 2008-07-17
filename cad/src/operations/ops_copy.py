@@ -433,7 +433,7 @@ class ops_copy_Mixin:
                               If the node has a center it will be moved by the 
                               moveOffset, which is L{[mousePosition} - 
                               node.center. This parameter is not used if its a 
-                              singl shot paste operation (Ctrl + V)
+                              single shot paste operation (Ctrl + V)
         @type mousePosition:  Array containing the x, y, z positions on the 
                               screen or 'None'
         @see:L{self._pasteChunk}, L{self._pasteGroup}, L{self._pasteJig}
@@ -444,7 +444,7 @@ class ops_copy_Mixin:
         pastable = pastableNode 
         pos = mousePosition
         moveOffset = V( 0, 0, 0)
-        itemToPaste = None
+        itemPasted = None
 
         # TODO: refactor this so that the type-specific paste methods
         # can all be replaced by a single method that works for any kind
@@ -458,24 +458,24 @@ class ops_copy_Mixin:
         # [bruce 071011 comment]
         
         if isinstance(pastable, Chunk):
-            itemToPaste, errorMsg = self._pasteChunk(pastable, pos)         
+            itemPasted, errorMsg = self._pasteChunk(pastable, pos)         
         elif isinstance(pastable, Group):
-            itemToPaste, errorMsg = self._pasteGroup(pastable, pos)
+            itemPasted, errorMsg = self._pasteGroup(pastable, pos)
         elif isinstance(pastable, Jig):
             #NOTE: it never gets in here because an independent jig on the 
             #clipboard is not considered 'pastable' . This needs to change 
             # so that Planes etc , which are internally 'jigs' can be pasted 
             # when they exist as a single node -- ninad 2007-08-31
-            itemToPaste, errorMsg = self._pasteJig(pastable, pos)
+            itemPasted, errorMsg = self._pasteJig(pastable, pos)
         else:
             errorMsg = redmsg("Internal error pasting clipboard item [%s]") % \
                 pastable.name
         
         #Do not do the following steps (based on a discussion with Russ) as its
-        #confusing -- ninad 2008-06-06 (just before v1.1.0 code freeze        
+        #confusing -- ninad 2008-06-06 (just before v1.1.0 code freeze)
         if not pos:
             self.assy.unpickall_in_GLPane()
-            itemToPaste.pick()
+            itemPasted.pick()
             ##self.assy.o.setViewZoomToSelection(fast = True)
         
         self.assy.w.win_update()
@@ -488,11 +488,11 @@ class ops_copy_Mixin:
             
         env.history.message(msg)
         
-        return itemToPaste, "copy of %r" % pastable.name
+        return itemPasted, "copy of %r" % pastable.name
             
     def _pasteChunk(self, chunkToPaste, mousePosition = None):
         """
-        Paste the given chunk in the 3 D workspace. 
+        Paste the given chunk in the 3D workspace. 
         @param chunkToPaste: The chunk to be pasted in the 3D workspace
         @type  chunkToPaste: L{Chunk}
         
@@ -548,7 +548,7 @@ class ops_copy_Mixin:
         
     def _pasteGroup(self, groupToPaste, mousePosition = None):
         """
-        Paste the given group (and all its members) in the 3 D workspace.
+        Paste the given group (and all its members) in the 3D workspace.
         @param groupToPaste: The group to be pasted in the 3D workspace
         @type  groupToPaste: L{Group}
         
@@ -758,7 +758,7 @@ class ops_copy_Mixin:
         
     def _pasteJig(self, jigToPaste, mousePosition = None):
         """
-        Paste the given Jig in the 3 D workspace. 
+        Paste the given Jig in the 3D workspace. 
         @param jigToPaste: The chunk to be pasted in the 3D workspace
         @type  jigToPaste: L{Jig}
         
