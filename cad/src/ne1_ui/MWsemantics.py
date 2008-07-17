@@ -303,7 +303,7 @@ class MWsemantics(QMainWindow,
 
         env.register_post_event_ui_updater( self.post_event_ui_updater) #bruce 070925
         #Urmi 20080716: initiliaze the Rosetta simulation parameters
-        self.numRosettaSim = 0 
+        self.rosettaArgs = []
         return
 
     def _init_part_two(self):
@@ -1475,28 +1475,32 @@ class MWsemantics(QMainWindow,
     def runRosetta(self):
         
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
-        if self.numRosettaSim > 0:
-            cmdrun = rosettaSetup_CommandRun(self, self.numRosettaSim)
+        if self.rosettaArgs[0] > 0:
+            cmdrun = rosettaSetup_CommandRun(self, self.rosettaArgs)
             cmdrun.run() 
         
         return
     
-    def setRosettaParameters(self, numRuns):
+    def setRosettaParameters(self, numRuns, ex1, ex1aro,ex2, ex2aro_only, ex3, ex4, rot_opt,
+                            try_both_his_tautomers, soft_rep_design, use_electrostatic_repulsion, norepack_disulf):
         try:
-            s = int(numRuns)
+            s = int(str(numRuns))
         except ValueError:
-            self.numRosettaSim = 0
+            numRuns = 0
             env.history.message(redmsg("Requested number of simulations is not an integer. Rosetta simulation cannot run."))
             return 
         if len(str(numRuns)) > 4:
-            self.numRosettaSim = 0
+            numRuns = 0
             env.history.message(redmsg("Requested number of simulations is beyond the capability of the program"))
             return 
         if int(numRuns) <= 0: 
-            self.numRosettaSim = 0
+            numRuns = 0
             env.history.message(redmsg("Not a valid number of simulations requested. Rosetta simulation cannot run."))
             return
-        self.numRosettaSim = int(numRuns)
+        argList = [int(numRuns), ex1, ex1aro,ex2, ex2aro_only, ex3, ex4, rot_opt,
+                   try_both_his_tautomers, soft_rep_design, use_electrostatic_repulsion, 
+                   norepack_disulf]
+        self.rosettaArgs.extend(argList)
         return
     
     def simNanoHive(self):
