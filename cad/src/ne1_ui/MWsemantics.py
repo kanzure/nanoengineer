@@ -1482,7 +1482,8 @@ class MWsemantics(QMainWindow,
         return
     
     def setRosettaParameters(self, numRuns, ex1, ex1aro,ex2, ex2aro_only, ex3, ex4, rot_opt,
-                            try_both_his_tautomers, soft_rep_design, use_electrostatic_repulsion, norepack_disulf):
+                            try_both_his_tautomers, soft_rep_design, use_electrostatic_repulsion, 
+                            norepack_disulf, otherOptionsText):
         try:
             s = int(str(numRuns))
         except ValueError:
@@ -1499,7 +1500,7 @@ class MWsemantics(QMainWindow,
             return
         argList = [int(numRuns), ex1, ex1aro,ex2, ex2aro_only, ex3, ex4, rot_opt,
                    try_both_his_tautomers, soft_rep_design, use_electrostatic_repulsion, 
-                   norepack_disulf]
+                   norepack_disulf, otherOptionsText]
         self.rosettaArgs.extend(argList)
         return
     
