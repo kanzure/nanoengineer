@@ -299,7 +299,7 @@ class DnaStrand(DnaStrandOrSegment):
         Returns the total number of baseatoms of this DnaStrand. 
         """
 
-        numberOfBases = None
+        numberOfBases = 0
 
         strand_wholechain = self.get_strand_wholechain()
         if strand_wholechain:
