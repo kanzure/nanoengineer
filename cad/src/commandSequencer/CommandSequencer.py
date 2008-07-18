@@ -265,8 +265,8 @@ class modeMixin(object):
                     # or get one from this line
                 if id(mode) in map(id, mode_objects):
                     continue
-                entering_msg = self.__Entering_Mode_message( mode,
-                                                             resuming = resuming)
+                entering_msg = self._Entering_Mode_message( mode,
+                                                            resuming = resuming)
                     # return value saved in entering_msg only for error messages
                     #bruce 050515: moved this "Entering Mode" message to before
                     # _enterMode so it comes before any history messages that
@@ -308,13 +308,16 @@ class modeMixin(object):
         self.update_after_new_mode()
         return # from start_using_mode
     
-    def __Entering_Mode_message(self, mode, resuming = False):
+    def _Entering_Mode_message(self, mode, resuming = False):
+        featurename = mode.get_featurename()
+            # was mode.default_mode_status_text before revised;
+            # this revision has exposed a few incorrect featurenames
+            # (containing underscores, or not revised when command renamed)
+            # [bruce 080717]
         if resuming:
-            msg = "Resuming %s" % mode.default_mode_status_text
+            msg = "Resuming %s" % featurename
         else:
-            msg = "Entering %s" % mode.default_mode_status_text
-            # semi-kluge, since that text starts with "Mode: ..." by convention;
-            # also, not clear if we should use get_mode_status_text instead.
+            msg = "Entering %s" % featurename
         try: # bruce 050112
             # (could be made cleaner by defining too_early in HistoryWidget,
             #  or giving message() a too_early_ok option)
