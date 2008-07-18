@@ -417,7 +417,11 @@ class basicCommand(anyCommand):
                   (class0.__name__, res0)
             if not env.seen_before(msg):
                 print msg
-                
+
+        # turn underscores to blanks [bruce 080717, to work around
+        # erroneous underscores used in some featurename constants]
+        res = res.replace('_', ' ')
+        
         # if same as in any other class, *or* if the name starts with
         # "Undocumented ", print a warning and append classname
         # (todo: if this ever happens routinely, provide a way to turn
