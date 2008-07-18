@@ -273,8 +273,15 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         See more comments in the method.
         """        
 
-
-        assert self.struct
+        #It could happen that the self.struct is killed before this method 
+        #is called. For example: Enter Edit Dna strand, select the strand, hit 
+        #delete and then hit Done to exit strand edit. Whenever you hit Done, 
+        #modify structure gets called (if old params don't match new ones) 
+        #so it needs to return safely if the structure was not valid due
+        #to some previous operation 
+        if not self.hasValidStructure():
+            return 
+        
         # parameters have changed, update existing structure
         self._revertNumber()
 
