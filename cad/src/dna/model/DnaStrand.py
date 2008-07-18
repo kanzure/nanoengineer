@@ -296,7 +296,10 @@ class DnaStrand(DnaStrandOrSegment):
 
     def getNumberOfBases(self):
         """
-        Returns the total number of baseatoms of this DnaStrand. 
+        Returns the total number of baseatoms of this DnaStrand.
+        
+        @return: The total number of baseatoms of this DnaStrand
+        @rtype:  int
         """
 
         numberOfBases = 0
