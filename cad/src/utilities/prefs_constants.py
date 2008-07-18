@@ -502,6 +502,8 @@ proteinStyleHelixColor_prefs_key ='V111/Protein helix color'
 proteinStyleStrandColor_prefs_key ='V111/Protein strand color'
 proteinStyleCoilColor_prefs_key ='V111/Protein coil color'
 
+proteinCustomDescriptors_prefs_key ='V111/Protein custom mutation descriptors'
+
 #==
 
 # List of prefs keys (strings, not _prefs_key global variable names)
@@ -911,6 +913,9 @@ prefs_table = (
     ('', 'color', proteinStyleHelixColor_prefs_key, red),
     ('', 'color', proteinStyleStrandColor_prefs_key, blue),
     ('', 'color', proteinStyleCoilColor_prefs_key, gray),
+
+    # piotr 080718
+    ('', 'string', proteinCustomDescriptors_prefs_key, "Nonpolar:PGAVILMFWYC:"),
 
     # DNA angle and base indicators 080325 piotr
     ('', 'boolean', dnaStrandLabelsEnabled_prefs_key, False),
