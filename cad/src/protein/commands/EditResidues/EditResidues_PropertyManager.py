@@ -614,7 +614,15 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def resizeEvent(self, event):
         """
         """
-        width = event.size().width()
+        #width = event.size().width()
+        w = int(self.applyButtonGrid.width() / 5)
+        #self.applyAnyPushButton.setFixedWidth(w)
+        #self.applySamePushButton.setFixedWidth(w)
+        #self.applyLockedPushButton.setFixedWidth(w)
+        #self.applyPolarPushButton.setFixedWidth(w)
+        #self.applyApolarPushButton.setFixedWidth(w)
+        
+        #return
         
         self.descriptorsTable.setColumnWidth(1, 
             self.descriptorsTable.width()-self.descriptorsTable.columnWidth(0)-20)
@@ -623,15 +631,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.sequenceTable.width()-
             (self.sequenceTable.columnWidth(0) +
              self.sequenceTable.columnWidth(1) +
-             self.sequenceTable.columnWidth(2))-20)
+            self.sequenceTable.columnWidth(2))-20)
 
-        w = self.applyButtonGrid.width() / 5
-        
-        self.applyAnyPushButton.setFixedWidth(w)
-        self.applySamePushButton.setFixedWidth(w)
-        self.applyLockedPushButton.setFixedWidth(w)
-        self.applyPolarPushButton.setFixedWidth(w)
-        self.applyApolarPushButton.setFixedWidth(w)
         
     def _addNewDescriptorTableRow(self, name, descriptor):
         """
