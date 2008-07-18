@@ -172,6 +172,8 @@ class MWsemantics(QMainWindow,
         self.buildCntPropMgr = None
         self.cntSegmentPropMgr = None
         self.buildProteinPropMgr = None
+        self.editResiduesPropMgr = None
+        self.editRotamersPropMgr = None
 
         # These boolean flags, if True, stop the execution of slot
         # methods that are called because the state of 'self.viewFullScreenAction
@@ -2063,6 +2065,40 @@ class MWsemantics(QMainWindow,
             self.sequenceEditor.setObjectName("sequence_editor")
 
         return self.sequenceEditor
+    
+    def createEditResiduesPropMgr_if_needed(self):
+        """
+        Returns a Residues editor PM object.
+        If one doesn't already exists, it creates one .
+        (created only once and only when its first requested and then the
+        object is reused)
+        @return: The residues editor object (self.editResiduesPropMgr)
+        @rtype: B{EditResidues_PropertyManager}
+        
+        """
+        if not self.editResiduesPropMgr:
+            from protein.commands.EditResidues.EditResidues_PropertyManager import EditResidues_PropertyManager            
+            self.editResiduesPropMgr = EditResidues_PropertyManager(self)
+            self.editResiduesPropMgr.setObjectName("residues_editor")
+
+        return self.editResiduesPropMgr
+    
+    def createEditRotamersPropMgr_if_needed(self):
+        """
+        Returns a Rotamers editor PM object.
+        If one doesn't already exists, it creates one .
+        (created only once and only when its first requested and then the
+        object is reused)
+        @return: The residues editor object (self.editResiduesPropMgr)
+        @rtype: B{EditResidues_PropertyManager}
+        
+        """
+        if not self.editRotamersPropMgr:
+            from protein.commands.EditRotamers.EditRotamers_PropertyManager import EditRotamers_PropertyManager
+            self.editRotamersPropMgr = EditRotamers_PropertyManager(self)
+            self.editRotamersPropMgr.setObjectName("rotamers_editor")
+
+        return self.editRotamersPropMgr
     
     def createRotaryMotorPropMgr_if_needed(self, editCommand):
         """
