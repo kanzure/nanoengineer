@@ -598,30 +598,46 @@ class ops_copy_Mixin:
         moveOffset = V(0, 0, 0)
         
         assy = self.assy
-        
-        newGroup = Group(pastable.name, assy, None)
-            # Review: should this use Group or groupToPaste.__class__,
-            # e.g. re a DnaGroup or DnaSegment? [bruce 080314 question]
-            # (Yes, to fix bug 2919; or better, just copy the whole node
-            #  using the copy function now used on its members.
-            #  [bruce 080717 reply])
-        nodes = list(pastable.members)
-        newNodeList = copied_nodes_for_DND(nodes, 
-                                        autogroup_at_top = False, 
-                                        assy = assy)
-        
-        if not newNodeList:
-            errorMsg = orangemsg("Clipboard item is probably an empty group. "\
-                                 "Paste cancelled")
-                # review: is this claim about the cause always correct?
-                # review: is there any good reason to cancel the paste then?
-                # probably not; not only that, it appears that we *don't* cancel it,
-                # but return something that means we'll go ahead with it,
-                # i.e. the message is wrong. [bruce 080717 guess]
-            return newGroup, errorMsg
+
+        nodes = list(pastable.members) # used in several places below ### TODO: rename
+
+        newstuff = copied_nodes_for_DND( [pastable], 
+                                         autogroup_at_top = True, ###k
+                                         assy = assy )
+        if len(newstuff) == 1:
+            # new code (to fix bug 2919) worked, keep using it
+            use_new_code = True # to fix bug 2919, but fall back to old code on error [bruce 080718]
+            newGroup = newstuff[0]
+            newNodeList = list(newGroup.members)
+                # copying this is a precaution, probably not needed
+        else:
+            # new code failed, fall back to old code
+            print "bug in fix for bug 2919, falling back to older code " \
+                  "(len is %d, should be 1)" % len(newstuff)
+            use_new_code = False
+            newGroup = Group(pastable.name, assy, None)
+                # Review: should this use Group or groupToPaste.__class__,
+                # e.g. re a DnaGroup or DnaSegment? [bruce 080314 question]
+                # (Yes, to fix bug 2919; or better, just copy the whole node
+                #  using the copy function now used on its members
+                #  [bruce 080717 reply]. This is now attempted above.)
+            newNodeList = copied_nodes_for_DND( nodes, 
+                                                autogroup_at_top = False, 
+                                                assy = assy )
+            if not newNodeList:
+                errorMsg = orangemsg("Clipboard item is probably an empty group. "\
+                                     "Paste cancelled")
+                    # review: is this claim about the cause always correct?
+                    # review: is there any good reason to cancel the paste then?
+                    # probably not; not only that, it appears that we *don't* cancel it,
+                    # but return something that means we'll go ahead with it,
+                    # i.e. the message is wrong. [bruce 080717 guess]
+                return newGroup, errorMsg
+            pass
                 
-        # note: at this point, newGroup is still empty (newNodeList not yet added to it);
-        # they are added just before returning.
+        # note: at this point, if use_new_code is false,
+        # newGroup is still empty (newNodeList not yet added to it);
+        # in that case they are added just before returning.
         
         selection_has_dna_objects = self._pasteGroup_nodeList_contains_Dna_objects(newNodeList)
         
@@ -716,9 +732,10 @@ class ops_copy_Mixin:
                 m.move(moveOffset)
             pass
                 
-        #Now add all the nodes in the newNodeList to the Group 
-        for newNode in newNodeList:
-            newGroup.addmember(newNode)
+        #Now add all the nodes in the newNodeList to the Group, if needed
+        if not use_new_code:
+            for newNode in newNodeList:
+                newGroup.addmember(newNode)
                     
         assy.addnode(newGroup)
             # review: is this the best place to add it?
