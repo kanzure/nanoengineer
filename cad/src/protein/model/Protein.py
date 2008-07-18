@@ -223,6 +223,7 @@ class Residuum:
         self.id = id
         self.secondary_structure = SS_COIL
         self.mutation_range = "ALLAA"
+        self.mutation_descriptor = ""
         
     def get_atom_name(self, atom):
         """
@@ -332,10 +333,22 @@ class Residuum:
         return self.get_atom_by_name("O")
         
     def set_mutation_range(self, range):
+        """
+        """
         self.mutation_range = range
         
     def get_mutation_range(self):
+        """
+        """
         return self.mutation_range
+    
+    def set_mutation_descriptor(self, descriptor):
+        """
+        """
+        self.mutation_descriptor = descriptor
+        
+    def get_mutation_descriptor(self):
+        return self.mutation_descriptor
     
     def calc_torsion_angle(self, atom_list):
         """
@@ -797,12 +810,17 @@ def write_rosetta_resfile(filename, chunk):
     index = 0
     for aa in amino_acids:
         index += 1
+        mut = aa.get_mutation_range()
         out_str = " " + \
                 chunk.protein.get_chain_id() + \
                 "%5d" % int(index) + \
                 "%5d " % int(aa.get_id()) + \
-                aa.get_mutation_range() + "\n"
-        
+                mut 
+        if mut == "PIKAA":
+            out_str += "  " + aa.get_mutation_descriptor().replace("_","") + "\n"
+        else:
+            out_str += "\n"
+            
         f.write(out_str)
         
     # Close the output file. 

@@ -228,8 +228,14 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               minimum       =  -180.0,
                               maximum       =  180.0,
                               decimals      =  1,
-                              singleStep    =  1.0, 
+                              singleStep    =  30.0, 
                               spanWidth = False)
+        
+        self.chi1SpinBox.setEnabled(False)
+        
+        self.win.connect(self.chi1SpinBox,
+                         SIGNAL("valueChanged(double)"),
+                         self._rotateChi1)
         
         self.chi2SpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
@@ -239,8 +245,14 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               minimum       =  -180.0,
                               maximum       =  180.0,
                               decimals      =  1,
-                              singleStep    =  1.0, 
+                              singleStep    =  30.0, 
                               spanWidth = False)
+        
+        self.chi2SpinBox.setEnabled(False)
+        
+        self.win.connect(self.chi2SpinBox,
+                         SIGNAL("valueChanged(double)"),
+                         self._rotateChi2)
         
         self.chi3SpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
@@ -250,8 +262,23 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               minimum       =  -180.0,
                               maximum       =  180.0,
                               decimals      =  1,
-                              singleStep    =  1.0, 
+                              singleStep    =  60.0, 
                               spanWidth = False)
+        
+        self.chi3SpinBox.setEnabled(False)
+
+        self.chi4SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Chi4 angle:",
+                              value         =  0.000,
+                              setAsDefault  =  True,
+                              minimum       =  -180.0,
+                              maximum       =  180.0,
+                              decimals      =  1,
+                              singleStep    =  60.0, 
+                              spanWidth = False)
+        
+        self.chi4SpinBox.setEnabled(False)
         
     def _addWhatsThisText( self ):
         
@@ -313,12 +340,48 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 current_aa = chunk.protein.get_current_amino_acid()
                 if current_aa:
                     chunk.protein.expand_rotamer(current_aa)
+                    self._update_chi_angles(current_aa)
                     if self.recenterViewCheckBox.isChecked():
                         ca_atom = current_aa.get_c_alpha_atom()
                         if ca_atom:
                             self.win.glpane.pov = -ca_atom.posn()                            
                     #self.win.glpane.gl_update()
                     self.win.glpane.gl_update()
+        
+    def _update_chi_angles(self, aa):
+        """
+        """
+        angle = aa.get_chi_angle(0)
+        if angle:
+            self.chi1SpinBox.setEnabled(True)
+            self.chi1SpinBox.setValue(angle)
+        else:
+            self.chi1SpinBox.setEnabled(False)
+            self.chi1SpinBox.setValue(0.0)
+        
+        angle = aa.get_chi_angle(1)
+        if angle:
+            self.chi2SpinBox.setEnabled(True)
+            self.chi2SpinBox.setValue(angle)
+        else:
+            self.chi2SpinBox.setEnabled(False)
+            self.chi2SpinBox.setValue(0.0)
+        
+        angle = aa.get_chi_angle(2)
+        if angle:
+            self.chi3SpinBox.setEnabled(True)
+            self.chi3SpinBox.setValue(angle)
+        else:
+            self.chi3SpinBox.setEnabled(False)
+            self.chi3SpinBox.setValue(0.0)
+        
+        angle = aa.get_chi_angle(3)
+        if angle:
+            self.chi4SpinBox.setEnabled(True)
+            self.chi4SpinBox.setValue(angle)
+        else:
+            self.chi4SpinBox.setEnabled(False)
+            self.chi4SpinBox.setValue(0.0)
         
     def _updateAminoAcidInfo(self, index):
         """
@@ -333,3 +396,29 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 chunk.protein.set_current_amino_acid_index(index)
                 self._display_and_recenter()
                 
+                
+    def _rotateChi1(self, angle):
+        """
+        """
+        for chunk in self.win.assy.molecules:
+            if chunk.isProteinChunk():
+                current_aa = chunk.protein.get_current_amino_acid()
+                if current_aa:
+                    chunk.protein.expand_rotamer(current_aa)
+                    current_aa.set_chi_angle(0, angle)
+                    self.win.glpane.gl_update()
+                    return
+                
+    def _rotateChi2(self, angle):
+        """
+        """
+        for chunk in self.win.assy.molecules:
+            if chunk.isProteinChunk():
+                current_aa = chunk.protein.get_current_amino_acid()
+                if current_aa:
+                    chunk.protein.expand_rotamer(current_aa)
+                    current_aa.set_chi_angle(1, angle)
+                    self.win.glpane.gl_update()
+                    return
+                
+    
