@@ -123,10 +123,6 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         # comment. -- Ninad 2007-11-09
     
     
-    def get_mode_status_text(self):
-        # I think this will never be shown [bruce 040927]
-        return "(bug: command status text)"
-
     # (default methods that should be noops in both nullCommand and Command
     #  can be put here instead if desired; for docstrings, see basicCommand)
     
@@ -300,6 +296,9 @@ class basicCommand(anyCommand):
     commandName = "(bug: missing commandName)"
     msg_commandName = "(bug: unknown command)"
     default_mode_status_text = "(bug: missing command status text)"
+        # NOTE: I have just now removed all uses of default_mode_status_text.
+        # After testing, all assignments to it can be removed (gradually).
+        # [bruce 080717]
     featurename = "Undocumented Command"
 
     command_can_be_suspended = True # good default value for most commands [bruce 071011]
@@ -395,24 +394,6 @@ class basicCommand(anyCommand):
 
     # ==
     
-    def _user_commandName(self): # remove this and its only use in a couple days [bruce 071227]
-        """
-        Return a string such as "Move Mode" or "Build Atoms Mode" --
-        the name of this command for showing to users; or "" if unknown.
-
-        DEPRECATED. Will be removed soon. Used only in get_featurename
-        for debug messages to make sure it's implemented properly.
-        In new code use get_featurename instead. [bruce 071227]
-        """
-        #bruce 051130 (apparently this is new; it can be the official
-        # user-visible-commandName method for now)
-        if self.default_mode_status_text.startswith("Mode: "):
-            return self.default_mode_status_text[len("Mode: "):] + " Mode"
-        if self.default_mode_status_text.startswith("Tool: "): 
-            # Added for Pan, Rotate and Zoom Tools. Fixes bug 1298. mark 060323
-            return self.default_mode_status_text[len("Tool: "):] + " Tool"
-        return ""
-
     def get_featurename(self): #bruce 071227
         """
         Return the "feature name" to be used for the wiki help feature page
@@ -436,16 +417,7 @@ class basicCommand(anyCommand):
                   (class0.__name__, res0)
             if not env.seen_before(msg):
                 print msg
-        
-        # TEMPORARY: warn developers if different from _user_commandName;
-        # this is the last remaining use of self._user_commandName(), so
-        # remove that when this is removed, in a couple days [bruce 071227]
-        if res != self._user_commandName() and self._user_commandName():
-            msg = "developer warning (temporary): in class %r, %r != %r" % \
-                  (class0.__name__, res, self._user_commandName())
-            if not env.seen_before(msg):
-                print msg
-        
+                
         # if same as in any other class, *or* if the name starts with
         # "Undocumented ", print a warning and append classname
         # (todo: if this ever happens routinely, provide a way to turn
@@ -1001,7 +973,9 @@ class basicCommand(anyCommand):
     def is_default_command(self): #bruce 080709 refactoring
         return self.commandName == self.commandSequencer.default_commandName()
     
-    def update_mode_status_text(self):        
+    def update_mode_status_text(self):
+        # REVIEW: still needed after command stack refactoring? noop now.
+        # [bruce 080717 comment]
         """
         new method, bruce 040927; here is my guess at its doc
         [maybe already obs?]:
@@ -1015,15 +989,15 @@ class basicCommand(anyCommand):
         correct status text might have changed (e.g. after certain
         user events #nim).  It can also be called by modes
         themselves when they think the correct text might have
-        changed.  To actually *specify* that text, they should do
+        changed. To actually *specify* that text, they should do
         whatever they need to do (which might differ for each command)
         to change the value which would be returned by their
-        command-specific method get_mode_status_text().           
+        command-specific method get_mode_status_text()
+        [which no longer exists as of 080717 since all calls were removed].
         """
         self.w.update_mode_status( mode_obj = self)
-            # fyi: this gets the text from self.get_mode_status_text();
-            # mode_obj = self is needed in case glpane.currentCommand == nullMode
-            #  at the moment.
+            # note: mode_obj = self is needed in case
+            # glpane.currentCommand == nullMode at the moment.
 
     def model_changed(self): #bruce 070925 added this to Command API
         """
@@ -1184,29 +1158,6 @@ class basicCommand(anyCommand):
             self.something_changed()
         return
     
-    def get_mode_status_text(self):        
-        """
-        ##### new method, bruce 040927; doc is tentative [maybe
-        already obs?]; btw this overrides an AnyMode method:
-
-        Return the correct text to show right now in the
-        command-status widget (e.g."Mode: Build",
-        "Mode: Select Chunks").
-
-        The default implementation is suitable for modes in which this
-        text never varies, assuming they properly define the class
-        constant default_mode_status_text; other modes will need to
-        override this method to compute that text in the correct way,
-        and will *also* need to ensure that their update_mode_status_text()
-        method is called
-        whenever the correct command status text might have changed,
-        if it might not be called often enough by default. 
-        [### but how often it's called by default is not yet known
-        -- e.g. if we do it after every button or menu event, maybe no
-        special calls should be needed... we'll see.]            
-        """
-        return self.default_mode_status_text
-
     # methods for changing to some other command
     
     def _f_userEnterCommand(self, commandName, **options): # renamed from userSetMode [bruce 071011]

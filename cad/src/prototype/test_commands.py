@@ -100,7 +100,7 @@ class ExampleCommand(_superclass):
     """
     Abstract superclass for the example commands in this file.
     Specific command subclasses need to define the following class constants:
-    commandName, default_mode_status_text, and PM_class.
+    commandName, and PM_class.
     Some of them also need to override mode methods, such as Draw.
     """
     test_commands_start_as_temporary_command = False
@@ -152,7 +152,7 @@ class ExampleCommand1(ExampleCommand):
     [Which in future may inherit class Command.]
     """
     commandName = 'ExampleCommand1-commandName' # internal #e fix init code in basicMode to get it from classname?
-    default_mode_status_text = "ExampleCommand1"
+##    default_mode_status_text = "ExampleCommand1"
     featurename = "Prototype: Example Command 1"
     #e define msg_commandName, or fix init code in basicMode to get it from default_mode_status_text or classname or...
     # note: that init code won't even run now, since superclass defs it i think -- actually, not sure abt that, probably it doesn't
@@ -169,7 +169,7 @@ class ExampleCommand2( Example_TemporaryCommand_useParentPM): # WRONG: this has 
     (This difference shows up only in our PM class.)
     """
     commandName = 'ExampleCommand2-commandName'
-    default_mode_status_text = "ExampleCommand2"
+##    default_mode_status_text = "ExampleCommand2"
     featurename = "Prototype: Example Command 2"
     PM_class = ExampleCommand2_PM
     
@@ -186,7 +186,7 @@ class PM_WidgetDemo(ExampleCommand):
     # Note: this is no longer added to the UI. I don't know why it was removed.
     # I know that for awhile it was broken due to a bug. [bruce 071030 comment]
     commandName = 'PM_WidgetDemo-commandName'
-    default_mode_status_text = "PM_Widgets Demo"
+##    default_mode_status_text = "PM_Widgets Demo"
     featurename = "Test Command: PM_Widgets Demo"
     PM_class = PM_WidgetsDemoPropertyManager
     pass

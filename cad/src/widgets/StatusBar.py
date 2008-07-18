@@ -1,10 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 StatusBar.py - status bar widgets, AbortHandler, ProgressReporters
 
 @author: Mark, EricM
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 
 Module classification: [bruce 071228]
@@ -80,9 +80,6 @@ class StatusBar(QStatusBar):
         self.selectionLockButton.setDefaultAction(win.selectLockAction)
         self.addPermanentWidget(self.selectionLockButton)
 
-        # Only use of this appears to be commented out in MWsemantics as of 2007/12/14
-        self.modebarLabel = QLabel(win)
-        self.addPermanentWidget(self.modebarLabel)
         self.abortableCommands = {}
 
     def makeCommandNameUnique(self, commandName):

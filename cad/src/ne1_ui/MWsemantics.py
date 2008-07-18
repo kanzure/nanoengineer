@@ -758,10 +758,22 @@ class MWsemantics(QMainWindow,
         return
 
     def update_mode_status(self, mode_obj = None):
+        # REVIEW: still needed after command stack refactoring? noop now.
+        # [bruce 080717 comment]
         """
-        [by bruce 040927]
+        [by bruce 040927; revised/repurposed 080717]
 
-        Update the text shown in self.modebarLabel (if that widget
+        This method might be obsolete, but will not be fully removed
+        until after the ongoing command stack refactoring, in case
+        the calls to it prove useful for updates when command stack
+        changes. For now, its docstring and implem comment are
+        preserved, but its body is removed since it was only
+        meant to update a statusbar widget that no longer exists
+        (modebarLabel). [bruce 080717 comment]
+
+        old docstring:
+
+        Update the text shown in self.statusBar().modebarLabel (if that widget
         exists yet).  Get the text to use from mode_obj if supplied,
         otherwise from the current mode object
         (self.currentCommand). (The mode object has to be supplied when
@@ -769,9 +781,8 @@ class MWsemantics(QMainWindow,
         transition.)
 
         This method needs to be called whenever the mode status text
-        might need to change.  See a comment in the method to find out
+        might need to change. See a comment in the method to find out
         what code should call it.
-
         """
         # There are at least 3 general ways we could be sure to call
         # this method often enough; the initial implementation of
@@ -809,15 +820,7 @@ class MWsemantics(QMainWindow,
         # would be simpler and probably faster to just dispense with
         # the flag and always update, i.e. to use method (2).
 
-        try:
-            widget = self.statusBar().modebarLabel
-        except AttributeError:
-            print "Caught <AttributeError: self.statusBar().modebarLabel>, normal behavior, not a bug"
-            pass # this is normal, before the widget exists
-        else:
-            mode_obj = mode_obj or self.currentCommand
-            text = mode_obj.get_mode_status_text()
-            #widget.setText( text )
+        pass
 
 
     ##################################################
@@ -1183,12 +1186,10 @@ class MWsemantics(QMainWindow,
         """
         env.history.message(greenmsg("Select All:"))
         self.assy.selectAll()
-        self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectNone(self):
         env.history.message(greenmsg("Select None:"))
         self.assy.selectNone()
-        self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectInvert(self):
         """
@@ -1201,7 +1202,6 @@ class MWsemantics(QMainWindow,
         #env.history.message(greenmsg("Invert Selection:"))
         # assy method revised by bruce 041217 after discussion with Josh
         self.assy.selectInvert()
-        self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectConnected(self):
         """
