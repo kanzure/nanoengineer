@@ -114,21 +114,19 @@ class ProteinFlyout:
         self.buildPeptideAction.setText("Peptide")
         self.buildPeptideAction.setCheckable(True)  
         self.buildPeptideAction.setIcon(
-            geticon("ui/actions/Tools/Build Structures/Peptide.png"))
-
-        
+            geticon("ui/actions/Command Toolbar/BuildProtein/Peptide.png"))
 
         self.editRotamersAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.editRotamersAction.setText("Rotamers")
         self.editRotamersAction.setCheckable(True)  
         self.editRotamersAction.setIcon(
-            geticon("ui/actions/Tools/Build Structures/Rotamer.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/Rotamers.png"))
         
         self.editResiduesAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.editResiduesAction.setText("Residues")
         self.editResiduesAction.setCheckable(True)  
         self.editResiduesAction.setIcon(
-            geticon("ui/actions/Tools/Build Structures/Rotamer.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/Residues.png"))
         
         self.displayProteinStyleAction = NE1_QWidgetAction(parentWidget, 
                                                            win = self.win)
@@ -136,7 +134,7 @@ class ProteinFlyout:
         self.displayProteinStyleAction.setText("Edit Style")
         self.displayProteinStyleAction.setCheckable(True)        
         self.displayProteinStyleAction.setIcon(
-            geticon("ui/actions/Edit/EditProteinDisplayStyle.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/EditProteinDisplayStyle.png"))
 
     def _addWhatsThisText(self):
         """
