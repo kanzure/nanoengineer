@@ -86,7 +86,7 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
-        msg = "Compate protein structures."
+        msg = "Select protein structures to compare."
         self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, isConnect = True):
@@ -187,10 +187,23 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          SIGNAL("clicked()"),
                          self._compareProteins)
         
+        self.hidePushButton  = \
+            PM_PushButton( pmGroupBox,
+                         text         =  "Hide differences",
+                         setAsDefault  =  True)
+        
+        self.win.connect(self.hidePushButton,
+                         SIGNAL("clicked()"),
+                         self._hideDifferences)
+        
     def _compareProteins(self):
         """
         """
         from utilities.constants import red, orange, green, cyan
+        
+        if len(self.protein_chunk_list) == 0 or \
+           len(self.protein_chunk_list) == 0:
+            return
         
         protein_1 = self.protein_chunk_list[self.structure1ComboBox.currentIndex()].protein
         protein_2 = self.protein_chunk_list[self.structure2ComboBox.currentIndex()].protein
@@ -228,4 +241,23 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
             else:
                 env.history.redmsg("The lengths of compared proteins are not equal.")
 
+    def hideDifferences(self):
+        """
+        """
+        if len(self.protein_chunk_list) == 0 or \
+           len(self.protein_chunk_list) == 0:
+            return
         
+        protein_1 = self.protein_chunk_list[self.structure1ComboBox.currentIndex()].protein
+        protein_2 = self.protein_chunk_list[self.structure2ComboBox.currentIndex()].protein
+        
+        if protein_1 and \
+           protein_2:
+            aa_list_1 = protein_1.get_amino_acids()
+            aa_list_2 = protein_2.get_amino_acids()
+            if len(aa_list_1) == len(aa_list_2):
+                for aa1, aa2 in zip (aa_list_1, aa_list_2):
+                    aa1.color = None
+                    aa2.color = None
+                    aa1.collapse()
+                    aa2.collapse()
