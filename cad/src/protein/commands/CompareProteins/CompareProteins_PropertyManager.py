@@ -231,7 +231,8 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                             if angle1 and \
                                angle2:
                                 dev += (angle1 - angle2) * (angle1 - angle2)
-                        if dev > 0.0:
+                        if dev > 25.0:
+                            # This be a parameter.
                             aa1.set_color(green)
                             aa1.expand()
                             aa2.set_color(cyan)
@@ -241,7 +242,7 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
             else:
                 env.history.redmsg("The lengths of compared proteins are not equal.")
 
-    def hideDifferences(self):
+    def _hideDifferences(self):
         """
         """
         if len(self.protein_chunk_list) == 0 or \
