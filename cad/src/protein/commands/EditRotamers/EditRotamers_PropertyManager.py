@@ -146,6 +146,11 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         # unneccessary repaints of the model view.
         self.connect_or_disconnect_signals(isConnect = True)
 
+        for chunk in self.win.assy.molecules:
+            if chunk.isProteinChunk():
+                self.aminoAcidsComboBox.setCurrentIndex(chunk.protein.get_current_amino_acid_index())
+                break
+            
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
@@ -196,6 +201,12 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.recenterViewCheckBox  = \
             PM_CheckBox( pmGroupBox,
                          text          =  "Re-center view",
+                         setAsDefault  =  True,
+                         state         = Qt.Unchecked)
+        
+        self.lockEditedCheckBox  = \
+            PM_CheckBox( pmGroupBox,
+                         text          =  "Lock edited rotamers",
                          setAsDefault  =  True,
                          state         = Qt.Checked)
         
@@ -267,6 +278,10 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.chi3SpinBox.setEnabled(False)
 
+        self.win.connect(self.chi3SpinBox,
+                         SIGNAL("valueChanged(double)"),
+                         self._rotateChi3)
+        
         self.chi4SpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Chi4 angle:",
@@ -279,6 +294,10 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               spanWidth = False)
         
         self.chi4SpinBox.setEnabled(False)
+        
+        self.win.connect(self.chi4SpinBox,
+                         SIGNAL("valueChanged(double)"),
+                         self._rotateChi4)
         
     def _addWhatsThisText( self ):
         
@@ -394,31 +413,40 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         for chunk in self.win.assy.molecules:
             if chunk.isProteinChunk():
                 chunk.protein.set_current_amino_acid_index(index)
-                self._display_and_recenter()
+                self._display_and_recenter()                
                 
+    def _rotateChiAngle(self, chi, angle):
+        """
+        """
+        for chunk in self.win.assy.molecules:
+            if chunk.isProteinChunk():
+                current_aa = chunk.protein.get_current_amino_acid()
+                if current_aa:
+                    chunk.protein.expand_rotamer(current_aa)
+                    ###print "LOCK = ", self.lockEditedCheckBox.isChecked()
+                    current_aa.set_chi_angle(chi, angle, lock=self.lockEditedCheckBox.isChecked())
+                    self.win.glpane.gl_update()
+                    return
                 
     def _rotateChi1(self, angle):
         """
         """
-        for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
-                current_aa = chunk.protein.get_current_amino_acid()
-                if current_aa:
-                    chunk.protein.expand_rotamer(current_aa)
-                    current_aa.set_chi_angle(0, angle)
-                    self.win.glpane.gl_update()
-                    return
+        
+        self._rotateChiAngle(0, angle)
                 
     def _rotateChi2(self, angle):
         """
         """
-        for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
-                current_aa = chunk.protein.get_current_amino_acid()
-                if current_aa:
-                    chunk.protein.expand_rotamer(current_aa)
-                    current_aa.set_chi_angle(1, angle)
-                    self.win.glpane.gl_update()
-                    return
+        self._rotateChiAngle(1, angle)
+                
+    def _rotateChi3(self, angle):
+        """
+        """
+        self._rotateChiAngle(2, angle)
+                
+    def _rotateChi4(self, angle):
+        """
+        """
+        self._rotateChiAngle(3, angle)
                 
     

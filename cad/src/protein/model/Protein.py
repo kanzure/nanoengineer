@@ -222,7 +222,7 @@ class Residuum:
         self.name = name[:3]
         self.id = id
         self.secondary_structure = SS_COIL
-        self.mutation_range = "ALLAA"
+        self.mutation_range = "NATAA"
         self.mutation_descriptor = ""
         
     def get_atom_name(self, atom):
@@ -411,7 +411,7 @@ class Residuum:
             if chi_exclusions.has_key(self.name):
                 chi_ex_list = chi_exclusions[self.name]
                 #print "CHI LIST = ", chi_list
-                ex_atoms = []
+                ex_atoms = [self.get_atom_by_name("OXT")]
                 for w in range(0, which + 1):
                     if chi_ex_list[w]:
                         ex_atom_names = chi_ex_list[w]
@@ -449,7 +449,7 @@ class Residuum:
                   
         return atom_list
 
-    def set_chi_angle(self, which, angle):
+    def set_chi_angle(self, which, angle, lock=False):
         """
         """
         from geometry.VQT import norm, Q, V
@@ -459,48 +459,36 @@ class Residuum:
         if chi_atom_list:
             angle0 = self.calc_torsion_angle(chi_atom_list)
             dangle = angle - angle0
-            #if dangle < 0.0:
-            #    dangle += 360.0
-            #print "angle, angle0, dangle ", (angle, angle0, dangle)
-            vec = norm(chi_atom_list[2].posn() - chi_atom_list[1].posn())
-            atom_list = self.get_atom_list_to_rotate(which)
-            first_atom_posn = chi_atom_list[1].posn()
-            for atom in atom_list:
-                """
-                pos = atom.posn()
-                q1 = Q(0.0, pos[1], pos[1], pos[2])
-                halfangle = 0.5 * pi * (angle / 180.0)
-                hc = cos(halfangle)
-                hs = sin(halfangle)
-                q2 = Q(hc, hs * vec[0], hs * vec[1], hs * vec[2])
-                q3 = q2 * q1 * q2.conj()
-                atom.setposn(q3.x, q3.y, q3.z)
-                """
-                
-                
-                pos = atom.posn() - first_atom_posn
-                
-                cos_a = cos(pi * (dangle / 180.0))
-                sin_a = sin(pi * (dangle / 180.0))
-                
-                q = V(0, 0, 0)
-                
-                q[0] += (cos_a + (1.0 - cos_a) * vec[0] * vec[0]) * pos[0];
-                q[0] += ((1.0 - cos_a) * vec[0] * vec[1] - vec[2] * sin_a) * pos[1];
-                q[0] += ((1.0 - cos_a) * vec[0] * vec[2] + vec[1] * sin_a) * pos[2];
-             
-                q[1] += ((1.0 - cos_a) * vec[0] * vec[1] + vec[2] * sin_a) * pos[0];
-                q[1] += (cos_a + (1.0 - cos_a) * vec[1] * vec[1]) * pos[1];
-                q[1] += ((1.0 - cos_a) * vec[1] * vec[2] - vec[0] * sin_a) * pos[2];
-             
-                q[2] += ((1.0 - cos_a) * vec[0] * vec[2] - vec[1] * sin_a) * pos[0];
-                q[2] += ((1.0 - cos_a) * vec[1] * vec[2] + vec[0] * sin_a) * pos[1];
-                q[2] += (cos_a + (1.0 - cos_a) * vec[2] * vec[2]) * pos[2];
-
-                q += first_atom_posn
-                
-                ### print "ATOM TRANSFORM ", (pos, q)
-                atom.setposn(q)
+            if abs(dangle) > 0.0:
+                if lock:
+                    # Lock the edited amino acid.
+                    self.set_mutation_range("NATRO")
+                vec = norm(chi_atom_list[2].posn() - chi_atom_list[1].posn())
+                atom_list = self.get_atom_list_to_rotate(which)
+                first_atom_posn = chi_atom_list[1].posn()
+                for atom in atom_list:
+                    pos = atom.posn() - first_atom_posn
+                    
+                    cos_a = cos(pi * (dangle / 180.0))
+                    sin_a = sin(pi * (dangle / 180.0))
+                    
+                    q = V(0, 0, 0)
+                    
+                    q[0] += (cos_a + (1.0 - cos_a) * vec[0] * vec[0]) * pos[0];
+                    q[0] += ((1.0 - cos_a) * vec[0] * vec[1] - vec[2] * sin_a) * pos[1];
+                    q[0] += ((1.0 - cos_a) * vec[0] * vec[2] + vec[1] * sin_a) * pos[2];
+                 
+                    q[1] += ((1.0 - cos_a) * vec[0] * vec[1] + vec[2] * sin_a) * pos[0];
+                    q[1] += (cos_a + (1.0 - cos_a) * vec[1] * vec[1]) * pos[1];
+                    q[1] += ((1.0 - cos_a) * vec[1] * vec[2] - vec[0] * sin_a) * pos[2];
+                 
+                    q[2] += ((1.0 - cos_a) * vec[0] * vec[2] - vec[1] * sin_a) * pos[0];
+                    q[2] += ((1.0 - cos_a) * vec[1] * vec[2] + vec[0] * sin_a) * pos[1];
+                    q[2] += (cos_a + (1.0 - cos_a) * vec[2] * vec[2]) * pos[2];
+    
+                    q += first_atom_posn
+                    
+                    atom.setposn(q)
                 
         return None
         

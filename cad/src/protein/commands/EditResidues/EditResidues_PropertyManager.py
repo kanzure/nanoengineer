@@ -150,9 +150,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          SIGNAL("clicked()"),
                          self._applyDescriptor)
         
-        change_connect(self.applyDescriptorPushButton,
+        change_connect(self.removeDescriptorPushButton,
                          SIGNAL("clicked()"),
-                         self._applyDescriptor)
+                         self._removeDescriptor)
         
         change_connect(self.sequenceTable,
                          SIGNAL("cellClicked(int, int)"),
@@ -165,6 +165,14 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         change_connect(self.descriptorsTable, 
                          SIGNAL("itemChanged(QTableWidgetItem*)"),
                          self._descriptorsTableItemChanged)
+        
+        #change_connect(self.descriptorsTable, 
+        #                 SIGNAL("currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)"),
+        #                 self._descriptorsTableCurrentItemChanged)
+        
+        #change_connect(self.descriptorsTable, 
+        #                 SIGNAL("itemDoubleClicked(QTableWidgetItem*)"),
+        #                 self._descriptorsTableItemDoubleClicked)
         
         change_connect(self.newDescriptorPushButton,
                          SIGNAL("clicked()"),
@@ -258,11 +266,11 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             setAsDefault  =  True)
         
         self.applyPolarPushButton = PM_PushButton( pmGroupBox,
-            text       =  "POLAR",
+            text       =  "APOLA",
             setAsDefault  =  True)
         
         self.applyApolarPushButton = PM_PushButton( pmGroupBox,
-            text       =  "APOLA",
+            text       =  "POLAR",
             setAsDefault  =  True)
         
         self.applyAnyPushButton.setFixedHeight(25)
@@ -301,13 +309,16 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.descriptorsTable.setGridStyle(Qt.NoPen)
         self.descriptorsTable.setHorizontalHeaderLabels(self.headerdata_desc) 
 
-        dstr = env.prefs[proteinCustomDescriptors_prefs_key].split(":")
+        self._updateSetLists()
         
-        for i in range(len(dstr) / 2):
-            self.set_names.append(dstr[2*i])
-            self.descriptor_list.append(dstr[2*i+1])
-            self.rosetta_set_names.append("PIKAA")
-            self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
+        self._fillDescriptorsTable()
+        
+        #dstr = env.prefs[proteinCustomDescriptors_prefs_key].split(":")
+        #for i in range(len(dstr) / 2):
+        #    self.set_names.append(dstr[2*i])
+        #    self.descriptor_list.append(dstr[2*i+1])
+        #    self.rosetta_set_names.append("PIKAA")
+        #    self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
                     
         self.descriptorsTable.resizeColumnsToContents()
 
@@ -423,14 +434,14 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     item_widget.setTextAlignment(Qt.AlignCenter)
                     self.sequenceTable.setItem(index, 1, item_widget)
                     
-                    item_widget = QTableWidgetItem("Any")
+                    aa = self._get_aa_for_index(index)
+                    item_widget = QTableWidgetItem(self._get_descriptor_name(aa))
                     item_widget.setFont(self.labelfont)
                     item_widget.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                     item_widget.setTextAlignment(Qt.AlignCenter)
                     self.sequenceTable.setItem(index, 2, item_widget)
                     
-                    aa_string = self._get_mutation_descriptor(
-                        self._get_aa_for_index(index))
+                    aa_string = self._get_mutation_descriptor(aa)
 
                     item_widget = QTableWidgetItem(aa_string)
                     item_widget.setFont(self.descriptorfont)
@@ -445,6 +456,23 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.sequenceTable.setColumnWidth(0, 35)
         self.sequenceTable.setColumnWidth(2, 80)
         
+    def _get_descriptor_name(self, aa):
+        """
+        """
+        range_name = aa.get_mutation_range()
+        for i in range(len(self.rosetta_set_names)):
+            if range_name == self.rosetta_set_names[i]:
+                if range_name == "PIKAA":
+                    # Find a descriptor with a list of
+                    # custom descriptors.
+                    dstr = self._makeProperAAString(aa.get_mutation_descriptor())
+                    for i in range(5, len(self.descriptor_list)):
+                        if dstr == self.descriptor_list[i]:
+                            return self.set_names[i]
+                else:
+                    return self.set_names[i]
+        return "Custom"
+    
     def _selectAll(self):
         for row in range(self.sequenceTable.rowCount()):
             self.sequenceTable.item(row, 0).setCheckState(Qt.Checked)
@@ -498,10 +526,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         return None
     
     def _sequenceTableCellChanged(self, crow, ccol):
-        #print "CELL CHANGED: ", (crow, ccol)
         item = self.sequenceTable.item(crow, ccol)
-        #print "ITEM = ", item
-        
         for row in range(self.sequenceTable.rowCount()):
             self.sequenceTable.removeCellWidget(row, 2)
             self.sequenceTable.setRowHeight(row, 16)
@@ -532,7 +557,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         cdes = self.descriptorsTable.currentRow()
         for row in range(self.sequenceTable.rowCount()):
-            self._setComboBoxIndexChanged(cdes, tablerow = row, selectedOnly = True)
+            self._setComboBoxIndexChanged(cdes + 5, tablerow = row, selectedOnly = True)
             
     def _setComboBoxIndexChanged( self, index, tablerow = None, selectedOnly = False):
         """
@@ -663,18 +688,31 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         self._addNewDescriptorTableRow("New Set", "PGAVILMFWYCSTNQDEHKR")
         self._makeDescriptorUserPref()
+        self._updateSetLists()
         
+    def _removeDescriptor(self):
+        """
+        """
+        crow = self.descriptorsTable.currentRow()
+        if crow >= 0:
+            self.descriptorsTable.removeRow(crow)
+            self._makeDescriptorUserPref()
+            self._updateSetLists()
+            
     def _makeDescriptorUserPref(self):
         # Construct a custom descriptors string.
         """
         """
         dstr = ""
         for row in range(self.descriptorsTable.rowCount()):
-            dstr += self.descriptorsTable.item(row, 0).text() + \
-                 ":" + \
-                 self.descriptorsTable.item(row, 1).text() + \
-                 ":"
-            
+            item0 = self.descriptorsTable.item(row, 0)
+            item1 = self.descriptorsTable.item(row, 1)
+            if item0 and \
+               item1:
+                dstr += item0.text() + \
+                     ":" + \
+                     item1.text() + \
+                     ":"
         env.prefs[proteinCustomDescriptors_prefs_key] = dstr        
             
     def _makeProperAAString(self, string):
@@ -696,7 +734,16 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             return
         if self.sequenceTable.column(item) == 3:
             self.editingItem = True
-            item.setText(self._makeProperAAString(str(item.text()).upper()))
+            crow = self.sequenceTable.currentRow()
+            dstr = self._makeProperAAString(str(item.text()).upper())
+            item.setText(dstr)
+            aa = self._get_aa_for_index(crow)
+            if aa:                
+                aa.set_mutation_range("PIKAA")
+                aa.set_mutation_descriptor(dstr.replace("_",""))
+            item = self.sequenceTable.item(crow, 2)
+            if item:
+                item.setText("Custom")
             self.editingItem = False
     
     def _descriptorsTableItemChanged(self, item):
@@ -710,4 +757,25 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.editingItem = False
 
         self._makeDescriptorUserPref()
+
+    def _updateSetLists(self):
+        """
+        """
+        self.set_names = self.set_names[:5]
+        self.descriptor_list = self.descriptor_list[:5]
+        self.rosetta_set_names = self.rosetta_set_names[:5]
         
+        dstr = env.prefs[proteinCustomDescriptors_prefs_key].split(":")
+        for i in range(len(dstr) / 2):
+            self.set_names.append(dstr[2*i])
+            self.descriptor_list.append(dstr[2*i+1])
+            self.rosetta_set_names.append("PIKAA")
+            #self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
+
+    def _fillDescriptorsTable(self):
+        """
+        """
+        dstr = env.prefs[proteinCustomDescriptors_prefs_key].split(":")
+        for i in range(len(dstr) / 2):
+            self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
+
