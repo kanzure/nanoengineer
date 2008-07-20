@@ -87,6 +87,7 @@ class ProteinFlyout:
         subControlAreaActionList.append(self.buildPeptideAction)        
         subControlAreaActionList.append(self.editRotamersAction)        
         subControlAreaActionList.append(self.editResiduesAction)        
+        subControlAreaActionList.append(self.compareProteinsAction)        
         subControlAreaActionList.append(self.displayProteinStyleAction)
         allActionsList.extend(subControlAreaActionList)
 
@@ -127,6 +128,12 @@ class ProteinFlyout:
         self.editResiduesAction.setCheckable(True)  
         self.editResiduesAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Residues.png"))
+        
+        self.compareProteinsAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.compareProteinsAction.setText("Compare")
+        self.compareProteinsAction.setCheckable(True)  
+        self.compareProteinsAction.setIcon(
+            geticon("ui/actions/Command Toolbar/BuildProtein/Compare.png"))
         
         self.displayProteinStyleAction = NE1_QWidgetAction(parentWidget, 
                                                            win = self.win)
@@ -182,6 +189,10 @@ class ProteinFlyout:
         change_connect(self.editResiduesAction, 
                        SIGNAL("triggered(bool)"),
                        self.activateEditResidues_EditCommand)
+
+        change_connect(self.compareProteinsAction, 
+                       SIGNAL("triggered(bool)"),
+                       self.activateCompareProteins_EditCommand)
 
         change_connect(self.displayProteinStyleAction, 
                        SIGNAL("triggered(bool)"),
@@ -279,6 +290,17 @@ class ProteinFlyout:
 
         for action in self.subControlActionGroup.actions():
             if action is not self.editResiduesAction and action.isChecked():
+                action.setChecked(False)
+
+    def activateCompareProteins_EditCommand(self, isChecked):
+        """
+        Slot for B{CompareProteins} action.
+        """
+
+        self.win.enterCompareProteinsCommand(isChecked)
+
+        for action in self.subControlActionGroup.actions():
+            if action is not self.compareProteinsAction and action.isChecked():
                 action.setChecked(False)
 
     def activateProteinDisplayStyle_Command(self, isChecked):

@@ -1871,6 +1871,17 @@ class MWsemantics(QMainWindow,
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
         return
     
+    def enterCompareProteinsCommand(self, isChecked = False):
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "COMPARE_PROTEINS":
+            commandSequencer.userEnterTemporaryCommand(
+                'COMPARE_PROTEINS')
+        else:
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'COMPARE_PROTEINS':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        return
 
     def enterStereoPropertiesCommand(self):
         """

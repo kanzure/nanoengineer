@@ -78,23 +78,23 @@ chi_angles = { "GLY" : [ None,
                          None,
                          None,
                          None ],
-               "LEU" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+               "LEU" : [ [ "N"  , "CA" , "CB" , "CG"  ],
                          None,
                          None,
                          None ],
-               "ILE" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+               "ILE" : [ [ "N"  , "CA" , "CB" , "CG"  ],
                          None,
                          None,
                          None ],
-               "VAL" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+               "VAL" : [ [ "N"  , "CA" , "CB" , "CG"  ],
                          None,
                          None,
                          None ],
-               "TRP" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+               "TRP" : [ [ "N"  , "CA" , "CB" , "CG"  ],
                          None,
                          None,
                          None ],
-               "TYR" : [ [ "N"  , "CA" , "CB" , "OG"  ],
+               "TYR" : [ [ "N"  , "CA" , "CB" , "CG"  ],
                          None,
                          None,
                          None ],
@@ -224,6 +224,8 @@ class Residuum:
         self.secondary_structure = SS_COIL
         self.mutation_range = "NATAA"
         self.mutation_descriptor = ""
+        self.expanded = False
+        self.color = None
         
     def get_atom_name(self, atom):
         """
@@ -492,6 +494,18 @@ class Residuum:
                 
         return None
         
+    def expand(self):
+        self.expanded = True
+        
+    def collapse(self):
+        self.expanded = False
+        
+    def is_expanded(self):
+        return self.expanded
+    
+    def set_color(self, color):
+        self.color = color
+        
 # End of Residuum class.
 
 class Protein:
@@ -502,7 +516,6 @@ class Protein:
     def __init__(self):
         self.ca_atom_list = []
         self.sequence = {}
-        self.expanded_rotamers_list = []
         self.chainId = ''
         self.pdbId = ""
         self.current_aa_idx = 0
@@ -670,31 +683,27 @@ class Protein:
         """
         Expand a rotamer.
         """
-        if not aa in self.expanded_rotamers_list:
-            self.expanded_rotamers_list.append(aa)
-            
+        aa.expand()
+        
     def is_expanded(self, aa):
         """
         Check if a given amino acid's rotamer is expanded.
         """
-        if aa in self.expanded_rotamers_list:
-            return True
-    
-        return False
+        return aa.is_expanded()
     
     def collapse_all_rotamers(self):
         """
         Collapse all rotamers.
         """
-        self.expanded_rotamers_list = []
+        for aa in self.sequence.values():
+            aa.collapse()
         
     def expand_all_rotamers(self):
         """
         Expand all rotamers.
         """
-        self.expanded_rotamers_list = []
         for aa in self.sequence.values():
-            self.expanded_rotamers_list.append(aa)
+            aa.expand()
         
     def get_residuum(self, atom):
         """

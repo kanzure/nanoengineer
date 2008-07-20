@@ -82,6 +82,7 @@ from protein.commands.BuildProtein.BuildProtein_EditCommand import BuildProtein_
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
 from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Command
 from protein.commands.EditResidues.EditResidues_Command import EditResidues_Command
+from protein.commands.CompareProteins.CompareProteins_Command import CompareProteins_Command
 
 def preloaded_command_classes():
     """
@@ -137,7 +138,8 @@ def preloaded_command_classes():
         ProteinDisplayStyle_Command,
         LightingScheme_Command,
         EditRotamers_Command,
-        EditResidues_Command]
+        EditResidues_Command,
+        CompareProteins_Command]
     
     
     # note: we could extract each one's commandName (class constant)
