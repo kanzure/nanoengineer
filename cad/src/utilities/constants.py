@@ -712,9 +712,11 @@ GL_FAR_Z = 0.999
 # NE1's toplevel Python code, namely .../cad/src;
 # for users of a built release, this is the directory
 # containing the same toplevel Python modules as that does,
-# as they're built into NE1 and importable while running it
-# (not taking into account ALTERNATE_CAD_SRC_PATH even if it's defined).
-# [bruce 080111]
+# as they're built into NE1 and importable while running it.
+# Note that if ALTERNATE_CAD_SRC_PATH is defined, it will influence
+# the value of this constant (i.e. this constant always honors
+# that value).
+# [bruce 080111, comment revised 080721]
 
 try:
     __file__
@@ -735,6 +737,5 @@ else:
     # (spelling?) should also be available (only in a release and only on Mac),
     # and might make more sense to use then.]
     pass
-
-
+    
 # end
