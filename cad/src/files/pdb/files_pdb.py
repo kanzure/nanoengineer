@@ -377,6 +377,8 @@ def _readpdb_new(assy,
         "HB":"H", #k these are all guesses -- I can't find this documented 
                   # anywhere [bruce 070410]
         "CA":"C", #k these are all guesses -- I can't find this documented 
+        "NE":"N", #k these are all guesses -- I can't find this documented 
+        "HG":"H", #k these are all guesses -- I can't find this documented 
         ## "HE":"H", ### REVIEW: I'm not sure about this one -- 
                     ###          leaving it out means it's read as Helium,
         # but including it erroneously might prevent reading an actual Helium 
@@ -977,6 +979,7 @@ def writepdb(part,
                         resId = res.get_id()
                         resName = res.get_three_letter_code()
                         atomName = res.get_atom_name(a)
+                ### print "WRITING ATOM: ", (atomSerialNumber, atomName, resId, resName)
                 writepdb_atom(a, 
                               f, 
                               atomSerialNumber, 
