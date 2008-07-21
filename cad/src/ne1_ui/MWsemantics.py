@@ -1468,6 +1468,9 @@ class MWsemantics(QMainWindow,
         return
 
     def rosettaSetup(self):
+        """
+        Setup rosetta simulation.
+        """
         from simulation.ROSETTA.RosettaSimulationPopUpDialog import RosettaSimulationPopUpDialog
         form = RosettaSimulationPopUpDialog(self)
         self.connect(form, SIGNAL('editingFinished()'), self.runRosetta)
@@ -1475,7 +1478,9 @@ class MWsemantics(QMainWindow,
         return
     
     def runRosetta(self):
-        
+        """
+        Run a Rosetta simulation.
+        """
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
         if self.rosettaArgs[0] > 0:
             cmdrun = rosettaSetup_CommandRun(self, self.rosettaArgs)
@@ -1484,7 +1489,9 @@ class MWsemantics(QMainWindow,
         return
     
     def setRosettaParameters(self, numRuns, otherOptionsText):
-        
+        """
+        Set parameters for a Rosetta .
+        """
         argList = [numRuns, otherOptionsText]
         self.rosettaArgs = []
         self.rosettaArgs.extend(argList)
@@ -1812,7 +1819,7 @@ class MWsemantics(QMainWindow,
     
     def createBuildProteinPropMgr_if_needed(self, editCommand):
         """
-        Create Build Dna PM object (if one doesn't exist)
+        Create Build Protein PM object (if one doesn't exist)
         If this object is already present, then set its editCommand to this
         parameter
         @parameter editCommand: The edit controller object for this PM
@@ -1830,11 +1837,24 @@ class MWsemantics(QMainWindow,
         
     
     def insertPeptide(self, isChecked = False):
+        """
+        Inserts a peptide in NE-1 part
+        @param isChecked: If Build Protein button in the Protein Flyout toolbar is
+                          checked, enter BuildProteinMode. 
+        @type isChecked: bool
+        """
         self.ensureInCommand('SELECTMOLS')
         self.peptidecntl.show()
         return 
       
     def enterProteinDisplayStyleCommand(self, isChecked = False):
+        """
+        Enter protein display style command
+        @param isChecked: If enterProteinDisplayStyleCommand button in the 
+                          Protein Flyout toolbar is
+                          checked, enter ProteinDisplayStyleMode. 
+        @type isChecked: bool
+        """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "EDIT_PROTEIN_DISPLAY_STYLE":
