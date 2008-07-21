@@ -61,8 +61,7 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #Urmi 20080713: set the protein chunk name and its length
         #for the first available chunk and not the selected one, that's
         #not implemented as yet
-        
-        #self.showProteinParametersAndSequenceEditorForInit(win)
+        self.sequenceEditor = win.createProteinSequenceEditorIfNeeded() 
         
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
@@ -115,7 +114,8 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         else:
             self.nameLineEdit.setEnabled(False)
             
-        self.sequenceEditor = win.createProteinSequenceEditorIfNeeded() 
+        
+        
         #get the sequence for this protein chunk
         if proteinExists:
             sequence = proteinChunk.protein.get_sequence_string()
