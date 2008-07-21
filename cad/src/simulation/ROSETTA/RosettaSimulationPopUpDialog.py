@@ -14,6 +14,7 @@ from PyQt4.QtGui import QSpinBox
 import string
 
 class RosettaSimulationPopUpDialog(QDialog):
+    
     def __init__(self, parent = None):
         self.parentWidget = parent
         super(RosettaSimulationPopUpDialog, self).__init__(parent)
@@ -195,6 +196,11 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_norepack_disulf(self, state):
+        """
+        Update the command text edit depending on the state of the update_no_repack
+        checkbox
+        @param state:state of the update_no_repack checkbox
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.norepackDisulfCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -norepack_disulf '
@@ -204,6 +210,9 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def getRosettaParameters(self):
+        """
+        Get all the parameters from the Rosetta pop up dialog
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         numSim = self.numSimSpinBox.value()
         self.parentWidget.setRosettaParameters(numSim, otherOptionsText)                                        
