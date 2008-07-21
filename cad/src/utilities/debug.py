@@ -473,9 +473,13 @@ def print_exec_timing(mycode, ntimes, glob): #bruce 051117
 _commands = {}
 
 class menu_cmd: #bruce 050923 [committed 051006]. #e maybe the maker option should be turned into a subclass-choice... we'll see.
-    "public attrs: name, order"
+    """
+    @note: public attributes: name, order
+    """
     def __init__(self, name, func, order = None, maker = False, text = None):
-        "for doc of args see register_debug_menu_command"
+        """
+        for doc of args see register_debug_menu_command
+        """
         # public attrs: 
         self.name = name # self.name is used for replacement of previous same-named commands in client-maintained sets
             # (but the name arg is also used as default value for some other attrs, below)
@@ -520,6 +524,10 @@ def register_debug_menu_command( *args, **kws ):
        If maker is true [experimental feature], then func is not the command but the sub-menu-spec maker,
     which runs (with widget as arg) when menu is put up, and returns a menu-spec list;
     in this case name is ignored except perhaps for sorting purposes.
+
+    @param name: text for menu command
+
+    @param function: function which implements menu command (runs with one arg, the widget)
     """
     cmd = menu_cmd( *args, **kws )
     _commands[cmd.name] = ( cmd.order, cmd )
@@ -735,5 +743,76 @@ def profile(func, *args, **keywordArgs):
     _profile_function = None
     _profile_args = None
     _profile_keywordArgs = None
+
+# ==
+
+def import_all_modules_cmd(glpane): #bruce 080721 experimental
+    del glpane
+    
+    import os
+    from utilities.constants import CAD_SRC_PATH
+    
+    _original_cwd = os.getcwd() # so we can restore it before returning
+    
+    try:
+        os.chdir(CAD_SRC_PATH)
+        
+        # this doesn't work, don't know why:
+        ## pipe = os.popen("./tools/AllPyFiles.sh")
+        ## modules = pipe.readlines() # IOError: [Errno 4] Interrupted system call
+        ## pipe.close()
+        
+        # so try this instead:
+        from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
+        tmpdir = find_or_make_Nanorex_subdir("TemporaryFiles")
+        tmpfile = os.path.join( tmpdir, "_all_modules" )
+        os.system("./tools/AllPyFiles.sh > '%s'" % tmpfile)
+        file1 = file(tmpfile, "rU")
+        modules = file1.readlines()
+        file1.close
+        os.remove(tmpfile)
+        
+        print "will import %d modules" % len(modules) # 722 modules as of 080721!
+
+        modules.sort()
+
+        SKIP_THESE = ("_import_roots", "main", "ExecSubDir")
+
+        import_these = []
+        
+        for module in modules:
+            module = module.strip()
+            if module.startswith("./"):
+                module = module[2:]
+            basename = module
+            assert os.path.exists(module), "should exist: %r" % (module,)
+            assert module.endswith(".py"), "should end with .py: %r" % (module,)
+            module = module[:-3]
+            if module in SKIP_THESE or ' ' in module or '-' in module:
+                # those funny chars can happen when developers have junk files lying around
+                # todo: do a real regexp match, permit identifiers and '/' only;
+                # or, only do this for files known to svn?
+                print "skipping import of", basename
+                continue
+            import_these.append(module.replace('/', '.'))
+            continue
+
+        for module in import_these:
+            statement = "import " + module
+            try:
+                exec statement
+            except:
+                print_compact_traceback("ignoring exception in %r: " % statement)
+                pass
+
+        print "done importing all modules"
+        
+    except:
+        print_compact_traceback("ignoring exception: ")
+        
+    os.chdir(_original_cwd)
+    return
+
+register_debug_menu_command( "Import all source files", import_all_modules_cmd )
 
 # end
