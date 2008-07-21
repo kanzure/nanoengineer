@@ -146,9 +146,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          SIGNAL("clicked()"),
                          self._invertSelection)
 
-        change_connect(self.applyDescriptorPushButton,
-                         SIGNAL("clicked()"),
-                         self._applyDescriptor)
+        #change_connect(self.applyDescriptorPushButton,
+        #                 SIGNAL("clicked()"),
+        #                 self._applyDescriptor)
         
         change_connect(self.removeDescriptorPushButton,
                          SIGNAL("clicked()"),
@@ -553,6 +553,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         from PyQt4.Qt import QTextCursor   
         cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
+        #boundary condition
+        if crow == -1:
+            crow = 0
         cursor.setPosition(crow, QTextCursor.MoveAnchor)       
         cursor.setPosition(crow + 1, QTextCursor.KeepAnchor) 
         self.sequenceEditor.sequenceTextEdit.setTextCursor( cursor )
