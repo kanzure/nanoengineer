@@ -92,7 +92,7 @@ InstType "Full"
 
 ; MUI end ------
 
-Name "${PRODUCT_NAME} v${PRODUCT_VERSION}"
+Name "${PRODUCT_NAME} Version v${PRODUCT_VERSION}"
 OutFile "..\..\..\cad\src\build\NanoEngineer-1_Suite_v${PRODUCT_VERSION}.exe"
 InstallDir "$PROGRAMFILES\Nanorex"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
@@ -321,9 +321,9 @@ SectionGroupEnd
 
 Section -AdditionalIcons
   SetOutPath $INSTDIR
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\partlib"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\NanoEngineer-1 v${PRODUCT_VERSION}\partlib"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\NanoEngineer-1 v${PRODUCT_VERSION}\Licenses"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
 ;  WriteIniStr "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}-${PRODUCT_NV1_VERSION.url" "InternetShortcut" "URL" "${PRODUCT_NV1_WEB_SITE}"
 ;  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\Website.lnk" "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}.url"
   WriteIniStr "$INSTDIR\${QMX_INST_DIR}\${PRODUCT_QMX_NAME}-${PRODUCT_QMX_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_QMX_WEB_SITE}"

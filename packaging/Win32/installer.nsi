@@ -40,6 +40,7 @@ InstType "Full"
 ; Finish page
 !define MUI_FINISHPAGE_RUN "$INSTDIR\program\main.exe"
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\ReadMe.html"
+;!define MUI_FINISHPAGE_SHOWREADME "http://www.nanoengineer-1.net/mediawiki/index.php?title=Online_Readme"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -86,10 +87,10 @@ Section "MainSection" SEC01
   SetOverwrite off
   File "glut32.dll"
   File "gle32.dll"
-  CreateDirectory "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\NanoEngineer-1.lnk" "$INSTDIR\program\main.exe"
+  CreateDirectory "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}\NanoEngineer-1.lnk" "$INSTDIR\program\main.exe"
   CreateShortCut "$DESKTOP\NanoEngineer-1.lnk" "$INSTDIR\program\main.exe"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\ReadMe.html.lnk" "$INSTDIR\ReadMe.html"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}\ReadMe.html.lnk" "$INSTDIR\ReadMe.html"
 SectionEnd
 Section /o "Source" SEC_QMX_SRC
   SectionIn 2
@@ -102,9 +103,9 @@ SectionGroupEnd
 
 Section -AdditionalIcons
   SetOutPath $INSTDIR
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\partlib"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\Licenses"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\partlib"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\Licenses"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
 
 Section -Post
