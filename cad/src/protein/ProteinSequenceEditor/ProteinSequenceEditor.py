@@ -48,7 +48,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
     """
     Creates a dockable sequence editor. 
     """
-   
+    
     validSymbols  =  QString(' <>~!@#%&_+`=$*()[]{}|^\'"\\.;:,/?')
     sequenceFileName = None
     
@@ -60,14 +60,16 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         """
         Creates a dockable sequence editor
         """
-                       
-        Ui_ProteinSequenceEditor.__init__(self, win)  
+                     
+        Ui_ProteinSequenceEditor.__init__(self, win)   
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
         self._supress_textChanged_signal = False
         self.connect_or_disconnect_signals(isConnect = True)
         self.win = win
     
+    
+        
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -249,6 +251,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
             selectionStart  = 0
             selectionEnd    = 0
+        elif cursor.position() == -1:
+            selectionStart  = 0
+            selectionEnd    = 0
         else:
             selectionStart  =  cursor.selectionStart()
             selectionEnd    =  cursor.selectionEnd()
@@ -310,6 +315,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
             selectionStart  = 0
             selectionEnd    = 0
+        elif cursor.position() == -1:
+            selectionStart  = 0
+            selectionEnd    = 0    
         else:
             selectionStart  =  cursor.selectionStart()
             selectionEnd    =  cursor.selectionEnd()
@@ -372,6 +380,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
             selectionStart  = 0
             selectionEnd    = 0
+        elif cursor.position() == -1:
+            selectionStart  = 0
+            selectionEnd    = 0    
         else:
             selectionStart  =  cursor.selectionStart()
             selectionEnd    =  cursor.selectionEnd()
@@ -400,6 +411,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
             selectionStart  = 0
             selectionEnd    = 0
+        elif cursor.position() == -1:
+            selectionStart  = 0
+            selectionEnd    = 0    
         else:
             selectionStart  =  cursor.selectionStart()
             selectionEnd    =  cursor.selectionEnd()
@@ -513,10 +527,12 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursor  =  self.sequenceTextEdit.textCursor()
         cursor_mate =  self.secStrucTextEdit.textCursor()
         cursor_mate2 =  self.aaRulerTextEdit.textCursor()
+        
         if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
             curPos = 0
         else:
             curPos = cursor.position()
+            
         if cursor_mate.position() != cursor.position():
             cursor_mate.setPosition( curPos, 
                                     QTextCursor.MoveAnchor )
@@ -536,6 +552,12 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         toolTipText = proteinChunk.protein.get_amino_acid_id(position - 1)
         self.sequenceTextEdit.setToolTip(str(toolTipText)) 
         env.history.statusbar_msg(toolTipText)
+        
+        if self.win.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS':
+            self.win.commandSequencer.currentCommand.propMgr.aminoAcidsComboBox.setCurrentIndex(position - 1)
+        if self.win.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
+            self.win.commandSequencer.currentCommand.propMgr._sequenceTableCellChanged(position - 1, 0)    
+            self.win.commandSequencer.currentCommand.propMgr.sequenceTable.setCurrentCell(position - 1, 3) 
             
     def synchronizeLengths( self ):
         """
