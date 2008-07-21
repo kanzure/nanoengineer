@@ -71,7 +71,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Constructor for the property manager.
         """
-
+        
         self.parentMode = parentCommand
         self.w = self.parentMode.w
         self.win = self.parentMode.w
@@ -417,6 +417,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 self._display_and_recenter()
         
         cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
+        if index == -1:
+            index = 0
         cursor.setPosition(index, QTextCursor.MoveAnchor)       
         cursor.setPosition(index + 1, QTextCursor.KeepAnchor) 
         self.sequenceEditor.sequenceTextEdit.setTextCursor( cursor )
