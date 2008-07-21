@@ -520,6 +520,7 @@ class Protein:
         self.pdbId = ""
         self.current_aa_idx = 0
         self.mutation_range_list = []
+        self.residues_dl = None
         
     def set_chain_id(self, chainId):
         """
@@ -683,6 +684,7 @@ class Protein:
         """
         Expand a rotamer.
         """
+        self.residues_dl = None
         aa.expand()
         
     def is_expanded(self, aa):
@@ -695,6 +697,7 @@ class Protein:
         """
         Collapse all rotamers.
         """
+        self.residues_dl = None
         for aa in self.sequence.values():
             aa.collapse()
         
@@ -702,6 +705,7 @@ class Protein:
         """
         Expand all rotamers.
         """
+        self.residues_dl = None
         for aa in self.sequence.values():
             aa.expand()
         

@@ -93,7 +93,8 @@ PROTEIN_COLOR_SECONDARY   = 9
 PROTEIN_COLOR_SS_ORDER    = 10
 PROTEIN_COLOR_BFACTOR     = 11
 PROTEIN_COLOR_OCCUPANCY   = 12
-PROTEIN_COLOR_CUSTOM      = 13
+PROTEIN_COLOR_ENERGY      = 13
+PROTEIN_COLOR_CUSTOM      = 14
 
 # protein display styles
 PROTEIN_STYLE_CA_WIRE         = 1
@@ -799,29 +800,59 @@ class ProteinChunks(ChunkDisplayMode):
 
     def drawchunk_realtime(self, glpane, chunk, highlighted=False):
         from utilities.constants import yellow
-        
+        from graphics.drawing.CS_workers import drawcylinder_worker
+        from graphics.drawing.CS_workers import drawsphere_worker
+        from OpenGL.GL import glColor3fv
+        from OpenGL.GL import glMaterialfv
+        from OpenGL.GL import GL_FRONT_AND_BACK
+        from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
+        from OpenGL.GL import glCallList
+        from OpenGL.GL import glGenLists
+        from OpenGL.GL import glNewList
+        from OpenGL.GL import glEndList
+        from OpenGL.GL import GL_COMPILE
         if chunk.protein:
-            for aa in chunk.protein.get_amino_acids():
-                if chunk.protein.is_expanded(aa):
-                    for atom in aa.get_atom_list():
-                        pos1 = atom.posn()
-                        if highlighted:
-                            color = yellow
-                        else:
-                            pos1 = chunk.abs_to_base(pos1)
-                            color = atom.drawing_color()
-                        drawsphere(color, pos1, 0.25, 1)
-                        for bond in atom.bonds:
-                            if atom == bond.atom1:
-                                pos2 = bond.atom2.posn()
-                                if not highlighted:
-                                    pos2 = chunk.abs_to_base(pos2)
-                                drawcylinder(color, pos1, pos1 + 0.5*(pos2 - pos1), 0.2, 1)
+            if not chunk.protein.residues_dl:                    
+                chunk.protein.residues_dl = glGenLists(1)
+                glNewList(chunk.protein.residues_dl, GL_COMPILE)
+                aa_list = chunk.protein.get_amino_acids()
+                for aa in aa_list:
+                    if chunk.protein.is_expanded(aa):
+                        aa_atom_list = aa.get_atom_list()
+                        for atom in aa_atom_list:
+                            pos1 = atom.posn()
+                            if highlighted:
+                                color = yellow
                             else:
-                                pos2 = bond.atom1.posn()
-                                if not highlighted:
-                                    pos2 = chunk.abs_to_base(pos2)
-                                drawcylinder(color, pos1 + 0.5*(pos2 - pos1), pos1, 0.2, 1)
+                                pos1 = chunk.abs_to_base(pos1)
+                                if aa.color:
+                                    color = aa.color
+                                else:
+                                    color = atom.drawing_color()
+                            #drawsphere(color, pos1, 0.25, 1)
+                            glColor3fv(color[:3])
+                            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color[:3])
+    
+                            drawsphere_worker((pos1, 0.2, 1))
+                            for bond in atom.bonds:
+                                if atom == bond.atom1:
+                                    pos2 = bond.atom2.posn()
+                                    if not highlighted:
+                                        pos2 = chunk.abs_to_base(pos2)
+                                    drawcylinder_worker((pos1, pos1 + 0.5*(pos2 - pos1), 0.2, True))
+                                    #drawcylinder(color, pos1, pos1 + 0.5*(pos2 - pos1), 0.2, 1)
+                                    #drawline(color, pos1, pos1 + 0.5*(pos2 - pos1), width=3)
+                                else:
+                                    pos2 = bond.atom1.posn()
+                                    if not highlighted:
+                                        pos2 = chunk.abs_to_base(pos2)
+                                    drawcylinder_worker((pos1, pos1 + 0.5*(pos2 - pos1), 0.2, True))
+                                    #drawcylinder(color, pos1 + 0.5*(pos2 - pos1), pos1, 0.2, 1)
+                                    #drawline(color, pos1, pos1 + 0.5*(pos2 - pos1), width=3)
+                glEndList()
+                
+            glCallList(chunk.protein.residues_dl)
+            
         return
 
     def writepov(self, chunk, memo, file):
