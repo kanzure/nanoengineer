@@ -42,6 +42,7 @@ from PM.PM_Slider import PM_Slider
 from PM.PM_Constants import PM_DONE_BUTTON
 from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from PM.PM_ColorComboBox import PM_ColorComboBox
+from PyQt4.Qt import QTextCursor        
 
 class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
@@ -82,7 +83,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
 
         DebugMenuMixin._init1( self )
-
+        self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
@@ -135,8 +136,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
-        self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
-        self.sequenceEditor.hide()
+        self.sequenceEditor.show()
         PM_Dialog.show(self)
 
         # Update all PM widgets, then establish their signal-slot connections.
@@ -413,7 +413,14 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         for chunk in self.win.assy.molecules:
             if chunk.isProteinChunk():
                 chunk.protein.set_current_amino_acid_index(index)
-                self._display_and_recenter()                
+
+                self._display_and_recenter()
+        
+        cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
+        cursor.setPosition(index, QTextCursor.MoveAnchor)       
+        cursor.setPosition(index + 1, QTextCursor.KeepAnchor) 
+        self.sequenceEditor.sequenceTextEdit.setTextCursor( cursor )
+       
                 
     def _rotateChiAngle(self, chi, angle):
         """
@@ -449,4 +456,4 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         self._rotateChiAngle(3, angle)
                 
-    
+   
