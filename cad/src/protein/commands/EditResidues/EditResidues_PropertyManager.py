@@ -757,6 +757,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.editingItem = False
 
         self._makeDescriptorUserPref()
+        self._updateSetLists()
 
     def _updateSetLists(self):
         """
