@@ -79,6 +79,8 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.o = self.win.glpane                 
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
         
+        self.threshold = 10.0
+        
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
 
         DebugMenuMixin._init1( self )
@@ -178,6 +180,22 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                  choices       =  self.protein_name_list,
                                  setAsDefault  =  False)
 
+        self.thresholdDoubleSpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Threshold:",
+                              value         =  self.threshold,
+                              setAsDefault  =  True,
+                              minimum       =  0.0,
+                              maximum       =  180.0,
+                              decimals      =  1,
+                              singleStep    =  30.0,
+                              suffix        = " deg",
+                              spanWidth = False)
+
+        self.win.connect(self.thresholdDoubleSpinBox,
+                         SIGNAL("valueChanged(double)"),
+                         self._thresholdChanged)
+        
         self.comparePushButton  = \
             PM_PushButton( pmGroupBox,
                          text         =  "Compare",
@@ -212,6 +230,8 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
            protein_2:
             aa_list_1 = protein_1.get_amino_acids()
             aa_list_2 = protein_2.get_amino_acids()
+            protein_1.collapse_all_rotamers()
+            protein_2.collapse_all_rotamers()
             if len(aa_list_1) == len(aa_list_2):
                 for aa1, aa2 in zip (aa_list_1, aa_list_2):
                     aa1.color = None
@@ -224,14 +244,17 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                         aa2.set_color(orange)
                         aa2.expand()
                     else:
-                        dev = 0.0
+                        max = 0.0
+                    
                         for chi in range(0, 4):
                             angle1 = aa1.get_chi_angle(chi)
                             angle2 = aa2.get_chi_angle(chi)
                             if angle1 and \
                                angle2:
-                                dev += (angle1 - angle2) * (angle1 - angle2)
-                        if dev > 25.0:
+                                diff = abs(angle1 - angle2)
+                                if diff > max:
+                                    max = diff
+                        if max > self.threshold:
                             # This be a parameter.
                             aa1.set_color(green)
                             aa1.expand()
@@ -262,3 +285,8 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     aa2.color = None
                     aa1.collapse()
                     aa2.collapse()
+
+    def _thresholdChanged(self, value):
+        self.threshold = value
+        self._compareProteins()
+        
