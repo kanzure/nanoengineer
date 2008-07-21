@@ -97,7 +97,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
 
         DebugMenuMixin._init1( self )
-
+        self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
@@ -196,9 +196,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
-        self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         
-        self.sequenceEditor.hide()
+        self.sequenceEditor.show()
 
         PM_Dialog.show(self)
 
@@ -552,7 +551,14 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     self.win.glpane.pov = -ca_atom.posn()                            
             self.win.glpane.gl_update()
         
-    def _applyDescriptor(self):
+        from PyQt4.Qt import QTextCursor   
+        cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
+        cursor.setPosition(crow, QTextCursor.MoveAnchor)       
+        cursor.setPosition(crow + 1, QTextCursor.KeepAnchor) 
+        self.sequenceEditor.sequenceTextEdit.setTextCursor( cursor )
+        
+            
+    def applyDescriptor(self):
         """        
         """
         cdes = self.descriptorsTable.currentRow()
