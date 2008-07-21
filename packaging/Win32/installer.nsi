@@ -50,7 +50,7 @@ InstType "Full"
 
 ; MUI end ------
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Name "${PRODUCT_NAME} v${PRODUCT_VERSION}"
 OutFile "..\..\cad\src\build\NanoEngineer-1_v${PRODUCT_VERSION}.exe"
 InstallDir "$PROGRAMFILES\Nanorex\NanoEngineer-1 v${PRODUCT_VERSION}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
