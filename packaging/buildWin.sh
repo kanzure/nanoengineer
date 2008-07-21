@@ -41,6 +41,11 @@ mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
 cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_OFFICIAL_RELEASE_CANDIDATE = .*:NE1_OFFICIAL_RELEASE_CANDIDATE = $RC_NUMBER:" > cad/src/NE1_Build_Constants.ptmp
 mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
 
+#Remove the build directories
+cd $TOP_LEVEL/cad/src
+rm -rf dist build
+cd $TOP_LEVEL
+
 #Make a tarball of the uncompiled source for later.
 tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
 
@@ -55,8 +60,6 @@ fi
 
 # Start with the main build
 # Build the base .exe and directory contents
-cd $TOP_LEVEL/cad/src
-rm -rf dist build
 cp $TOP_LEVEL/packaging/Win32/setup.py .
 c:/python24/python setup.py py2exe --includes=sip,pkg_resources --packages=ctypes --excludes=OpenGL -d dist/program || exit 1
 cp c:/python24/Lib/site-packages/PyOpenGL-3.0.0a6-py2.4.egg dist/program/
