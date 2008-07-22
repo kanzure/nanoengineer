@@ -858,8 +858,8 @@ EXCLUDE_DNA_AXIS_BONDS = 16
 def writepdb(part, 
              filename, 
              mode = 'w', 
-             excludeFlags = EXCLUDE_BONDPOINTS | EXCLUDE_HIDDEN_ATOMS
-             ):
+             excludeFlags = EXCLUDE_BONDPOINTS | EXCLUDE_HIDDEN_ATOMS,
+             singleChunk = None):
     """
     Write a PDB file of the I{part}.
     
@@ -958,6 +958,8 @@ def writepdb(part,
         writePDB_Header(f)
         
     for mol in part.molecules:
+        if singleChunk:
+            mol = singleChunk
         if mol.hidden:
             # Atoms and bonds of hidden chunks are never written.
             continue
@@ -1034,7 +1036,10 @@ def writepdb(part,
         chainIdChar += 1
         if chainIdChar > 126: # ASCII "~", end of PDB-acceptable chain chars
             chainIdChar = 32 # Rollover to ASCII " "
-            
+        
+        if singleChunk:
+            break
+        
     for atomConnectList in connectLists:
         # Begin CONECT record ----------------------------------
         f.write("CONECT")
