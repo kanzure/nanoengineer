@@ -288,6 +288,9 @@ def _init_miscellaneous_commands():
 
     import model.virtual_site_indicators as virtual_site_indicators
     virtual_site_indicators.initialize() #bruce 080519
+
+    import operations.ops_debug as ops_debug
+    ops_debug.initialize() #bruce 080722
     
     return
 
