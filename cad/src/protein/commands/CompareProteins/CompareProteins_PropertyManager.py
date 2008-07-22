@@ -241,7 +241,7 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     if aa1.get_one_letter_code() != aa2.get_one_letter_code():
                         aa1.set_color(red)
                         aa1.expand()
-                        aa2.set_color(orange)
+                        aa2.set_color(yellow)
                         aa2.expand()
                     else:
                         max = 0.0
