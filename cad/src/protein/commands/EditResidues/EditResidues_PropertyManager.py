@@ -146,9 +146,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          SIGNAL("clicked()"),
                          self._invertSelection)
 
-        #change_connect(self.applyDescriptorPushButton,
-        #                 SIGNAL("clicked()"),
-        #                 self._applyDescriptor)
+        change_connect(self.applyDescriptorPushButton,
+                         SIGNAL("clicked()"),
+                         self._applyDescriptor)
         
         change_connect(self.removeDescriptorPushButton,
                          SIGNAL("clicked()"),
@@ -561,7 +561,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.sequenceEditor.sequenceTextEdit.setTextCursor( cursor )
         
             
-    def applyDescriptor(self):
+    def _applyDescriptor(self):
         """        
         """
         cdes = self.descriptorsTable.currentRow()
