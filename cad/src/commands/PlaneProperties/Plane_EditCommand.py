@@ -203,8 +203,10 @@ class Plane_EditCommand(EditCommand):
         creates) 
         """
         assert not self.struct
-
+               
+        self.win.assy.part.ensure_toplevel_group()        
         struct = Plane(self.win, self)
+        self.win.assy.place_new_geometry(struct)
 
         return struct
 

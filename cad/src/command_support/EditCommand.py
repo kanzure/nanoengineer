@@ -210,7 +210,7 @@ class EditCommand(Select_Command):
 
         self.struct = self._createStructure()
 
-        if not self.struct:
+        if not self.hasValidStructure():
             return
 
         self.create_and_or_show_PM_if_wanted(showPropMgr = showPropMgr)
@@ -225,8 +225,7 @@ class EditCommand(Select_Command):
             # self.preview_or_finalize_structure  -- Ninad 2007-10-11
             self.previousParams = self._gatherParameters()
             self.preview_or_finalize_structure(previewing = True)        
-            self.win.assy.place_new_geometry(self.struct)
-
+            
 
     def editStructure(self, struct = None):
         """
@@ -387,7 +386,7 @@ class EditCommand(Select_Command):
         #The following code is now used.  Need to improve comments and 
         # some refactoring -- Ninad 2007-10-24
 
-        if not self.hasValidStructure():                
+        if not self.hasValidStructure():  
             self.struct = self._createStructure()
             self.previousParams = self._gatherParameters()
             self.win.assy.changed()

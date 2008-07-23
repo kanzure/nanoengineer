@@ -134,8 +134,10 @@ class LinearMotor_EditCommand(EditCommand):
                                 self._checkMotorAtomLimits(len(atoms))
 
         if atomNumberRequirementMet:
+            self.win.assy.part.ensure_toplevel_group()
             motor = LinearMotor(self.win.assy)
             motor.findCenterAndAxis(atoms, self.win.glpane)
+            self.win.assy.place_new_jig(motor)
         else:
             motor = None
             env.history.message(redmsg(logMessage))
