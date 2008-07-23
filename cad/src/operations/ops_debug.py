@@ -161,11 +161,11 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
         print
 
     # find command descriptors in global_values
-    descriptors = []
+    descriptors = {}
     for thing in global_values.itervalues():
         d = find_or_make_descriptor_for_possible_feature_object( thing)
         if d is not None:
-            descriptors.append( d)
+            descriptors[d] = d # duplicates can occur
     
     items = [ ( descriptor.sort_key(), descriptor) for descriptor in descriptors]
         ### or call sort_by or sorted_by, if it exists?
