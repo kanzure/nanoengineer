@@ -545,8 +545,17 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         
         #provide amino acid info as cursor position changes    
         part = self.win.assy.part
-        from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
-        proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
+        
+        current_command = self.win.commandSequencer.currentCommand.commandName
+        if current_command == 'EDIT_ROTAMERS' or current_command == 'EDIT_RESIDUES' or current_command == 'BUILD_PROTEIN':
+            current_protein = self.win.commandSequencer.currentCommand.propMgr.current_protein
+            for mol in self.win.assy.molecules:
+                if mol.isProteinChunk and mol.name == current_protein:
+                    proteinChunk = mol
+                    break
+        else:
+            from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
+            proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
         position = cursor.position()
         
         toolTipText = proteinChunk.protein.get_amino_acid_id(position - 1)
