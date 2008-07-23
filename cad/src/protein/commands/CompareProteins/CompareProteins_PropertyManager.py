@@ -250,6 +250,10 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                             angle2 = aa2.get_chi_angle(chi)
                             if angle1 and \
                                angle2:
+                                if angle1 < 0.0:
+                                    angle1 += 360.0
+                                if angle2 < 0.0:
+                                    angle2 += 360.0
                                 diff = abs(angle1 - angle2)
                                 if diff > max:
                                     max = diff
