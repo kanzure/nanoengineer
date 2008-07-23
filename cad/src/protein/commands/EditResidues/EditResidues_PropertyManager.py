@@ -89,7 +89,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.parentMode = parentCommand
         self.w = self.parentMode.w
         self.win = self.parentMode.w
-
+        
         self.pw = self.parentMode.pw        
         self.o = self.win.glpane                 
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
@@ -196,8 +196,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
-        
-        self.sequenceEditor.show()
+        self.set_current_protein()
+        if self.current_protein != "":    
+            self.sequenceEditor.show()
 
         PM_Dialog.show(self)
 
@@ -211,7 +212,26 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self._fillSequenceTable()
         
-
+    def set_current_protein(self):
+        self.current_protein = ""
+        previousCommand = self.win.commandSequencer.prevMode
+        if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
+            self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
+        else:
+            #if the previous command was zoom or something, just set this to the
+            # first available protein chunk, since there's no way we can access
+            # the current protein in Build protein mode
+            for mol in self.win.assy.molecules:
+                if mol.isProteinChunk():
+                    self.current_protein = mol.name
+                    sequence = mol.protein.get_sequence_string()
+                    self.sequenceEditor.setSequence(sequence)
+                    secStructure = mol.protein.get_secondary_structure_string()
+                    self.sequenceEditor.setSecondaryStructure(secStructure)
+                    self.sequenceEditor.setRuler(len(secStructure))
+                    break
+        return
+        
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
@@ -418,7 +438,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.editingItem = True
         
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 aa_list = chunk.protein.get_amino_acids()
                 aa_list_len = len(aa_list)
                 self.sequenceTable.setRowCount(aa_list_len)
@@ -518,7 +538,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         # Center on a selected amino acid.
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.set_current_amino_acid_index(index)
                 current_aa = chunk.protein.get_current_amino_acid()
                 if expand:
