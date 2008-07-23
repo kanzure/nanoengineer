@@ -227,6 +227,7 @@ class Residuum:
         """
         self.atoms = {} # dictionary for name -> atom mapping
         self.names = {} # inverse dictionary for atom -> name mapping
+        self.atom_list = []
         self.name = name[:3]
         self.id = id
         self.secondary_structure = SS_COIL
@@ -249,12 +250,13 @@ class Residuum:
         """
         self.atoms[pdbname] = atom
         self.names[atom] = pdbname
+        self.atom_list.append(atom)
         
     def get_atom_list(self):
         """
         Return a list of atoms of residuum object.
         """
-        return self.atoms.itervalues()
+        return self.atom_list
     
     def get_three_letter_code(self):
         """

@@ -975,6 +975,9 @@ def writepdb(part,
                     if res:
                         resId = res.get_id()
                         resName = res.get_three_letter_code()
+                        # fix for selenomethionine
+                        if resName == "MSE":
+                            resName = "MET"
                         atomName = res.get_atom_name(a)
                     writepdb_atom(a, 
                                   f, 
