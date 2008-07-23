@@ -132,11 +132,49 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #TODO: Cancel button needs to be removed. See comment at the top
         self.win.toolsDone()
 
+    def update_residue_combobox(self):
+        self.current_protein = ""
+        previousCommand = self.win.commandSequencer.prevMode
+        if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
+            self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
+        else:
+            #if the previous command was zoom or something, just set this to the
+            # first available protein chunk, since there's no way we can access
+            # the current protein in Build protein mode
+            for mol in self.win.assy.molecules:
+                if mol.isProteinChunk():
+                    self.current_protein = mol.name
+                    sequence = mol.protein.get_sequence_string()
+                    self.sequenceEditor.setSequence(sequence)
+                    secStructure = mol.protein.get_secondary_structure_string()
+                    self.sequenceEditor.setSecondaryStructure(secStructure)
+                    self.sequenceEditor.setRuler(len(secStructure))
+                    break
+        #if the current protein has changed, need to update the residue combo box
+        # as well
+        
+        if self.current_protein != self.previous_protein:
+            self.previous_protein = self.current_protein
+            count = self.aminoAcidsComboBox.count()    
+            for i in range(count):
+                self.aminoAcidsComboBox.removeItem(0)
+          
+            for mol in self.win.assy.molecules:
+                if mol.isProteinChunk() and mol.name == self.current_protein:
+                    aa_list = mol.protein.get_amino_acid_id_list()
+                    break
+            for j in range(len(aa_list)):
+                self.aminoAcidsComboBox.addItem(aa_list[j])
+        return
+        
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
-        self.sequenceEditor.show()
+        
+        self.update_residue_combobox()        
+        if self.current_protein != "":  
+            self.sequenceEditor.show()
         PM_Dialog.show(self)
 
         # Update all PM widgets, then establish their signal-slot connections.
@@ -147,7 +185,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.connect_or_disconnect_signals(isConnect = True)
 
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 self.aminoAcidsComboBox.setCurrentIndex(chunk.protein.get_current_amino_acid_index())
                 break
             
@@ -175,10 +213,20 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Load widgets in group box.
         """
-
+        self.current_protein = ""
+        
+        previousCommand = self.win.commandSequencer.prevMode
+        if previousCommand.commandName == 'BUILD_PROTEIN':
+            self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
+        else:
+            for mol in self.win.assy.molecules:
+                if mol.isProteinChunk():
+                    self.current_protein = mol.name
+                    break
+        self.previous_protein = self.current_protein            
         aa_list = []
         for mol in self.win.assy.molecules:
-            if mol.isProteinChunk():
+            if mol.isProteinChunk() and mol.name == self.current_protein:
                 aa_list = mol.protein.get_amino_acid_id_list()
                 break
             
@@ -316,7 +364,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.traverse_forward()
                 self._display_and_recenter()
                 self._updateAminoAcidInfo(
@@ -327,7 +375,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.traverse_backward()
                 self._display_and_recenter()
                 self._updateAminoAcidInfo(
@@ -338,7 +386,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.collapse_all_rotamers()
                 self.win.glpane.gl_update()
                 return
@@ -347,7 +395,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.expand_all_rotamers()
                 self.win.glpane.gl_update()
                 return
@@ -356,7 +404,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.collapse_all_rotamers()
                 current_aa = chunk.protein.get_current_amino_acid()
                 if current_aa:
@@ -413,7 +461,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.set_current_amino_acid_index(index)
 
                 self._display_and_recenter()
@@ -430,7 +478,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk():
+            if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 current_aa = chunk.protein.get_current_amino_acid()
                 if current_aa:
                     chunk.protein.expand_rotamer(current_aa)
