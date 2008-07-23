@@ -1490,7 +1490,12 @@ class MWsemantics(QMainWindow,
         """
         Set parameters for a Rosetta .
         """
-        argList = [numRuns, otherOptionsText]
+        protein = ""
+        if self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN' or self.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS' or self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
+            protein = self.commandSequencer.currentCommand.propMgr.current_protein
+        if self.commandSequencer.prevMode is not None and self.commandSequencer.prevMode.commandName == 'BUILD_PROTEIN': 
+            protein = self.commandSequencer.prevMode.propMgr.current_protein
+        argList = [numRuns, otherOptionsText, protein]
         self.rosettaArgs = []
         self.rosettaArgs.extend(argList)
         return
