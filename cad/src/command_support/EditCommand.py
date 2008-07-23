@@ -378,7 +378,7 @@ class EditCommand(Select_Command):
         (self.previousParams)
         @see: self.preview_or_finalize_structure
         """
-
+        
         #For certain edit commands, it is possible that self.struct is 
         #not created. If so simply return (don't use assert self.struct)
         ##This is a commented out stub code for the edit controllers 
@@ -387,9 +387,11 @@ class EditCommand(Select_Command):
         #The following code is now used.  Need to improve comments and 
         # some refactoring -- Ninad 2007-10-24
 
-        if self.struct is None:                
+        if not self.hasValidStructure():                
             self.struct = self._createStructure()
             self.previousParams = self._gatherParameters()
+            self.win.assy.changed()
+            self.win.win_update()
             return  
 
         self.win.assy.current_command_info(cmdname = self.cmdname) 
