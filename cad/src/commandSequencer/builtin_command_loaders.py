@@ -84,6 +84,8 @@ from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Comm
 from protein.commands.EditResidues.EditResidues_Command import EditResidues_Command
 from protein.commands.CompareProteins.CompareProteins_Command import CompareProteins_Command
 
+#Graphene commands 
+from commands.InsertGraphene.Graphene_EditCommand import Graphene_EditCommand
 def preloaded_command_classes():
     """
     Return a list of command classes for the commands which are always loaded
@@ -128,6 +130,7 @@ def preloaded_command_classes():
         BuildNanotube_EditCommand,
         InsertNanotube_EditCommand,
         NanotubeSegment_EditCommand, 
+        Graphene_EditCommand,
         RotateChunks_Command,
         TranslateChunks_Command, 
         FuseChunks_Command,

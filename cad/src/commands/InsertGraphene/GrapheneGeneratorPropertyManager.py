@@ -1,7 +1,7 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-
-$Id$
+@author: Mark
+@version:$Id$
 
 History:
 
@@ -9,19 +9,25 @@ Mark 2007-05-17: This used to be generated from its .ui file. Now it uses PropMg
   to construct its property manager dialog.
 Mark 2007-07-24: Now uses new PM module.
 Mark 2007-08-06: Renamed GrapheneGeneratorDialog to GrapheneGeneratorPropertyManager.
+Ninad 2008-07-22/23: ported this to EditCommand API (new superclass 
+                   Editcommand_PM)
 
 """
-        
-__author__ = "Mark"
+
 
 from model.bonds import CC_GRAPHITIC_BONDLENGTH
 
-from PM.PM_Dialog         import PM_Dialog
 from PM.PM_GroupBox       import PM_GroupBox
 from PM.PM_DoubleSpinBox  import PM_DoubleSpinBox
 from PM.PM_ComboBox       import PM_ComboBox
+from command_support.EditCommand_PM import EditCommand_PM
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
+from PM.PM_Constants     import PM_CANCEL_BUTTON
+from PM.PM_Constants     import PM_PREVIEW_BUTTON
 
-class GrapheneGeneratorPropertyManager(PM_Dialog):
+_superclass = EditCommand_PM
+class GrapheneGeneratorPropertyManager(EditCommand_PM):
     """
     The GrapheneGeneratorPropertyManager class provides a Property Manager
     for the "Build > Graphene (Sheet)" command.
@@ -34,22 +40,24 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
     # The relative path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Graphene.png"
     
-    def __init__(self):
+    def __init__( self, win, editCommand ):
         """
         Construct the "Build Graphene" Property Manager.
         """
-        PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
-        #@self._addGroupBoxes() 
-        #@self.add_whats_this_text()
+        _superclass.__init__( self, win, editCommand )
+               
+        msg = "Edit the Graphene sheet parameters and select <b>Preview</b> to" \
+            "preview the structure. Click <b>Done</b> to insert it into the model."
         
-        msg = "Edit the Graphene sheet parameters and select <b>Preview</b> to \
-        preview the structure. Click <b>Done</b> to insert it into the model."
+        self.updateMessage(msg = msg)
         
-        # This causes the "Message" box to be displayed as well.
-        # setAsDefault=True causes this message to be reset whenever
-        # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
-        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_CANCEL_BUTTON | \
+                                PM_PREVIEW_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
+        
+                
     def _addGroupBoxes(self):
         """
         Add the group boxes to the Graphene Property Manager dialog.
@@ -106,6 +114,42 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
                          index        = 0, 
                          setAsDefault = True,
                          spanWidth    = False )
+        
+        
+    def getParameters(self):
+        """
+        Return the parameters from this property manager
+        to be used to create the graphene sheet.
+        @return: A tuple containing the parameters
+        @rtype: tuple
+        @see: L{Graphene_EditCommand._gatherParameters()} where this is used
+        """
+        
+        height = self.heightField.value()
+        width = self.widthField.value()
+        self.bond_length = bond_length = self.bondLengthField.value()
+        endings = self.endingsComboBox.currentIndex()
+        
+        return (height, width, bond_length, endings)
+    
+    
+    def ok_btn_clicked(self):
+        """
+        Slot for the OK button
+        """
+        if self.editCommand:
+            self.editCommand.preview_or_finalize_structure(previewing = False)
+            ##env.history.message(self.editCommand.logMessage)
+        self.win.toolsDone()
+
+    def cancel_btn_clicked(self):
+        """
+        Slot for the Cancel button.
+        """
+        if self.editCommand:
+            self.editCommand.cancelStructure()
+        self.win.toolsCancel()
+            
         
     def _addWhatsThisText(self):
         """

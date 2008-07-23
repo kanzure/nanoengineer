@@ -172,6 +172,7 @@ class MWsemantics(QMainWindow,
         self.buildCntPropMgr = None
         self.cntSegmentPropMgr = None
         self.buildProteinPropMgr = None
+        self.buildGraphenePropMgr = None        
         self.editResiduesPropMgr = None
         self.editRotamersPropMgr = None
 
@@ -209,9 +210,7 @@ class MWsemantics(QMainWindow,
         # (it might need to be moved into main.py at some point)
         self.tmpFilePath = find_or_make_Nanorex_directory()
 
-        # Load additional icons to QAction iconsets.
-        # self.load_icons_to_iconsets() # Uncomment this line to test if Redo button has custom icon when disabled. mark 060427
-
+        
         # Load all NE1 custom cursors.
         from ne1_ui.cursors import loadCursors
         loadCursors(self)
@@ -340,9 +339,7 @@ class MWsemantics(QMainWindow,
         from ne1_ui.help.help import Ne1HelpDialog
         self.help = Ne1HelpDialog()
 
-        from commands.InsertGraphene.GrapheneGenerator import GrapheneGenerator
-        self.graphenecntl = GrapheneGenerator(self)
-
+        
         #  New Nanotube Builder or old Nanotube Generator?
         if debug_pref("Use new 'Build > Nanotube' builder? (next session)",
                       Choice_boolean_True,
@@ -539,6 +536,7 @@ class MWsemantics(QMainWindow,
 
         return menu
 
+
     def showFullScreen(self):
         """
         Full screen mode. (maximize the glpane real estate by hiding/ collapsing
@@ -668,7 +666,7 @@ class MWsemantics(QMainWindow,
         fileSlotsMixin.closeEvent(self, ce)
 
     def sponsoredList(self):
-        return (self.graphenecntl,
+        return (
                 self.nanotubecntl,
                 self.dnacntl,
                 self.povrayscenecntl,
@@ -1589,9 +1587,14 @@ class MWsemantics(QMainWindow,
     #    self.ensureInCommand('SELECTMOLS')
     #    self.peptidecntl.show()
 
-    def insertGraphene(self):
-        self.ensureInCommand('SELECTMOLS')
-        self.graphenecntl.show()
+    def insertGraphene(self):               
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "BUILD_GRAPHENE":
+            commandSequencer.userEnterCommand(
+                'BUILD_GRAPHENE')
+
+        self.commandSequencer.currentCommand.runCommand()
 
     def generateNanotube(self):
         self.ensureInCommand('SELECTMOLS')
@@ -1667,6 +1670,26 @@ class MWsemantics(QMainWindow,
             self.buildCntPropMgr.setEditCommand(editCommand)
 
         return self.buildCntPropMgr
+    
+    
+    def createBuildGraphenePropMgr_if_needed(self, editCommand):
+        """
+        Create Graphene PM object (if one doesn't exist)
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM
+        @type editCommand: B{BuildNanotube_EditCommand}
+        @see: B{BuildNanotube_EditCommand._createPropMgrObject}
+        """
+        from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
+        if self.buildGraphenePropMgr is None:
+            self.buildGraphenePropMgr = \
+                GrapheneGeneratorPropertyManager(self, editCommand)
+        else:
+            self.buildGraphenePropMgr.setEditCommand(editCommand)
+
+        return self.buildGraphenePropMgr
+        
 
     def createNanotubeSegmentPropMgr_if_needed(self, editCommand):
         """
@@ -2407,23 +2430,7 @@ class MWsemantics(QMainWindow,
         # implem passes it either to "central widget" (just guessing that's the GLPane) or to
         # the last widget we clicked on (or more likely, the one with the keyfocus).
         return
-
-    # Load IconSets #########################################
-
-    def load_icons_to_iconsets(self): ### REVIEW (Mark): is this still needed? [bruce 070820]
-        """
-        Load additional icons to QAction icon sets that are used in MainWindow
-        toolbars and menus. This is experimental. mark 060427.
-        """
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        small_disabled_on_icon_fname = filePath + "/../images/redoAction_small_disabled_off.png"
-
-        # Add the small "disabled/off" icon for the Redo QAction, displayed when editRedoAction.setDisabled(1).
-        editRedoIconSet = self.editRedoAction.iconSet()
-        editRedoIconSet.setPixmap ( small_disabled_on_icon_fname, QIcon.Small, QIcon.Disabled, QIcon.Off )
-        self.editRedoAction.setIcon ( editRedoIconSet )
-        return
-
+    
     # Methods for temporarily disabling QActions in toolbars/menus ##########
 
     def enableViews(self, enableFlag = True):
