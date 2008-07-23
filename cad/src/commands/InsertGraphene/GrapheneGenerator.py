@@ -19,7 +19,6 @@ while creatigng the structure.
 
 from math import atan2, pi
 
-from geometry.VQT import V
 from model.chem import Atom
 
 import model.bonds as bonds # for bond_atoms
@@ -31,8 +30,7 @@ from utilities.debug import Stopwatch
 from model.elements import PeriodicTable
 from utilities.Log import greenmsg
 
-from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
-from command_support.GeneratorBaseClass import GeneratorBaseClass
+
 from geometry.VQT import V
 sqrt3 = 3 ** 0.5
 quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
