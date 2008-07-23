@@ -106,8 +106,13 @@ prefs.update(prefstmp) # modifies bsddb-shelf
 # also write the key/value pair to a text file next to the prefs db
 # for later use by NE1 [bruce 080505 for v1.0.1]
 
-newver = NE1_Build_Constants.NE1_RELEASE_VERSION.replace(".","-")
-DEFAULT_PREFS_BASENAME = "default_prefs_v"+newver+".txt"
+_tmpary = NE1_Build_Constants.NE1_RELEASE_VERSION.split(".")
+if len(_tmpary) >= 3:
+    DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s-%s.txt" % \
+                             (_tmpary[0], _tmpary[1], _tmpary[2])
+else:
+    DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s.txt" % \
+                             (_tmpary[0], _tmpary[1])
 
 try:
     from preferences import find_or_make_Nanorex_directory
