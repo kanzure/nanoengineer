@@ -963,74 +963,95 @@ def writepdb(part,
         if mol.hidden:
             # Atoms and bonds of hidden chunks are never written.
             continue
-        for a in mol.atoms.itervalues():
-            if exclude(a):
-                excluded += 1
-                continue
-            atomConnectList = []
-            
-            atomsTable[a.key] = atomSerialNumber
-            if enableProteins:
-                # piotr 080709 : Use more robust ATOM output code for Proteins.
-                resId = 1
-                resName = "UNK"
-                atomName = a.element.symbol
-                if mol.protein:
+        if mol.protein:
+            aa_list = mol.protein.get_amino_acids()
+            for aa in aa_list:
+                atom_list = aa.get_atom_list()
+                for a in atom_list:
+                    resId = 1
+                    resName = "UNK"
+                    atomName = a.element.symbol
                     res = mol.protein.get_residuum(a)
                     if res:
                         resId = res.get_id()
                         resName = res.get_three_letter_code()
                         atomName = res.get_atom_name(a)
-                ### print "WRITING ATOM: ", (atomSerialNumber, atomName, resId, resName)
-                writepdb_atom(a, 
-                              f, 
-                              atomSerialNumber, 
-                              atomName, 
-                              chr(chainIdChar), 
-                              resId, 
-                              resName)
-            else:
-                a.writepdb(f, atomSerialNumber, chr(chainIdChar))
-            atomConnectList.append(a)
+                    writepdb_atom(a, 
+                                  f, 
+                                  atomSerialNumber, 
+                                  atomName, 
+                                  chr(chainIdChar), 
+                                  resId, 
+                                  resName)
+                    
+        else:
+            for a in mol.atoms.itervalues():
+                if exclude(a):
+                    excluded += 1
+                    continue
+                atomConnectList = []
+                atomsTable[a.key] = atomSerialNumber
+                if enableProteins:
+                    # piotr 080709 : Use more robust ATOM output code for Proteins.
+                    resId = 1
+                    resName = "UNK"
+                    atomName = a.element.symbol
+                    if mol.protein:
+                        res = mol.protein.get_residuum(a)
+                        if res:
+                            resId = res.get_id()
+                            resName = res.get_three_letter_code()
+                            atomName = res.get_atom_name(a)
+                    ### print "WRITING ATOM: ", (atomSerialNumber, atomName, resId, resName)
+                    writepdb_atom(a, 
+                                  f, 
+                                  atomSerialNumber, 
+                                  atomName, 
+                                  chr(chainIdChar), 
+                                  resId, 
+                                  resName)
+                else:
+                    a.writepdb(f, atomSerialNumber, chr(chainIdChar))
+                atomConnectList.append(a)
+        
+                for b in a.bonds:
+                    a2 = b.other(a)
+                    # The following removes bonds b/w PAM3 axis atoms.
+                    if excludeFlags & EXCLUDE_DNA_AXIS_BONDS:
+    ##                    if a.element.symbol in ('Ax3', 'Ae3'):
+    ##                        if a2.element.symbol in ('Ax3', 'Ae3'):
+    ##                            continue
+                        #bruce 080320 bugfix: revise to cover new elements and PAM5.
+                        if a.element.role == 'axis' and a2.element.role == 'axis':
+                                continue
+                            
+                    if a2.key in atomsTable:
+                        assert not exclude(a2) # see comment below
+                        atomConnectList.append(a2)
+                    #bruce 050318 comment: the old code wrote every bond twice
+                    # (once from each end). I doubt we want that, so now I only
+                    # write them from the 2nd-seen end. (This also serves to
+                    # not write bonds to excluded atoms, without needing to check
+                    # that directly. The assert verifies this claim.)
+                
+                atomSerialNumber += 1
+                if len(atomConnectList) > 1:
+                    connectLists.append(atomConnectList)
+                    # bruce 050318 comment: shouldn't we leave it out if 
+                    # len(atomConnectList) == 1?
+                    # I think so, so I'm doing that (unlike the previous code).
     
-            for b in a.bonds:
-                a2 = b.other(a)
-                # The following removes bonds b/w PAM3 axis atoms.
-                if excludeFlags & EXCLUDE_DNA_AXIS_BONDS:
-##                    if a.element.symbol in ('Ax3', 'Ae3'):
-##                        if a2.element.symbol in ('Ax3', 'Ae3'):
-##                            continue
-                    #bruce 080320 bugfix: revise to cover new elements and PAM5.
-                    if a.element.role == 'axis' and a2.element.role == 'axis':
-                            continue
-                        
-                if a2.key in atomsTable:
-                    assert not exclude(a2) # see comment below
-                    atomConnectList.append(a2)
-                #bruce 050318 comment: the old code wrote every bond twice
-                # (once from each end). I doubt we want that, so now I only
-                # write them from the 2nd-seen end. (This also serves to
-                # not write bonds to excluded atoms, without needing to check
-                # that directly. The assert verifies this claim.)
-            
-            atomSerialNumber += 1
-            if len(atomConnectList) > 1:
-                connectLists.append(atomConnectList)
-                # bruce 050318 comment: shouldn't we leave it out if 
-                # len(atomConnectList) == 1?
-                # I think so, so I'm doing that (unlike the previous code).
-
-        # Write the chain TER-minator record
-        #
-        # COLUMNS     DATA TYPE         FIELD           DEFINITION
-        # ------------------------------------------------------
-        #  1 - 6      Record name       "TER     "
-        #  7 - 11     Integer           serial          Serial number.
-        # 18 - 20     Residue name      resName         Residue name.
-        # 22          Character         chainID         Chain identifier.
-        # 23 - 26     Integer           resSeq          Residue sequence number.
-        # 27          AChar             iCode           Insertion code.
-        f.write("TER   %5d          %1s\n" % (molnum, chr(chainIdChar)))
+            # Write the chain TER-minator record
+            #
+            # COLUMNS     DATA TYPE         FIELD           DEFINITION
+            # ------------------------------------------------------
+            #  1 - 6      Record name       "TER     "
+            #  7 - 11     Integer           serial          Serial number.
+            # 18 - 20     Residue name      resName         Residue name.
+            # 22          Character         chainID         Chain identifier.
+            # 23 - 26     Integer           resSeq          Residue sequence number.
+            # 27          AChar             iCode           Insertion code.
+            f.write("TER   %5d          %1s\n" % (molnum, chr(chainIdChar)))
 
         molnum += 1
         chainIdChar += 1
