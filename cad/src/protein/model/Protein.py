@@ -612,6 +612,16 @@ class Protein:
         for aa in self.get_amino_acids():
             seq += aa.get_one_letter_code()
         return seq
+    
+    def set_rosetta_protein_secondary_structure(self, inProtein):
+        
+        aa_list_for_rosetta = self.get_amino_acids()
+        i = 0
+        for aa in inProtein.protein.get_amino_acids():
+            ss = aa.get_secondary_structure()
+            aa_list_for_rosetta[i].set_secondary_structure(ss)
+            i = i + 1
+        return
 
     def get_secondary_structure_string(self):
         """
