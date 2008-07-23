@@ -12,12 +12,14 @@ from PyQt4.QtGui import QDialog, QLineEdit, QPushButton, QLabel, QCheckBox
 from PyQt4.QtGui import QHBoxLayout, QVBoxLayout, QApplication, QTextEdit
 from PyQt4.QtGui import QSpinBox
 import string
+from utilities.icon_utilities import geticon, getpixmap
 
 class RosettaSimulationPopUpDialog(QDialog):
     
     def __init__(self, parent = None):
         self.parentWidget = parent
         super(RosettaSimulationPopUpDialog, self).__init__(parent)
+        self.setWindowIcon(geticon('ui/border/Rosetta.png'))
         self.setWindowTitle("Rosetta Simulation Parameters")
         self._loadWidgets()
         self.connectSignals()
@@ -27,12 +29,15 @@ class RosettaSimulationPopUpDialog(QDialog):
     def _loadWidgets(self):
         layout = QVBoxLayout()  
         idLayout = QHBoxLayout()
+        self.imageLabel = QLabel()
+        self.imageLabel.setPixmap(
+                getpixmap("ui/images/Rosetta.png"))
         self.label = QLabel("Enter number of simulations:")
         self.numSimSpinBox = QSpinBox()
         self.numSimSpinBox.setMinimum(1)
         self.numSimSpinBox.setMaximum(999)
         
-        
+        layout.addWidget(self.imageLabel)
         idLayout.addWidget(self.label)
         idLayout.addWidget(self.numSimSpinBox)
         
