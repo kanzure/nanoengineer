@@ -182,7 +182,14 @@ class EditCommand_PM(PM_Dialog):
         """
         if self.editCommand:
             self.editCommand.preview_or_finalize_structure(previewing = False)
-            env.history.message(self.editCommand.logMessage)
+            #This should be cleaned up in a refactoring. There should be a central
+            #updater which should ask when to print a message etc. There could be
+            #mab=ny subclasses without a logMessage. Also, I am not removing 
+            #the call that prints history message as some subclasses might be 
+            #using it. For now, just do a hasattr test -- Ninad 2008-07-23
+            if hasattr(self.editCommand, 'logMessage'):
+                env.history.message(self.editCommand.logMessage)
+                
         self.win.toolsDone()
 
     def cancel_btn_clicked(self):
