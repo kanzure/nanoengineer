@@ -160,21 +160,21 @@ class MWsemantics(QMainWindow,
                                     #for details
 
         # Initialize all Property Manager attrs.
-        self.rotaryMotorPropMgr = None
-        self.linearMotorPropMgr = None
-        self.planePropMgr = None
-        self.dnaDuplexPropMgr = None
-        self.dnaSegmentPropMgr = None
-        self.multipleDnaSegmentPropMgr = None
-        self.makeCrossoversPropMgr = None
-        self.dnaStrandPropMgr = None
-        self.buildDnaPropMgr = None
-        self.buildCntPropMgr = None
-        self.cntSegmentPropMgr = None
-        self.buildProteinPropMgr = None
-        self.buildGraphenePropMgr = None        
-        self.editResiduesPropMgr = None
-        self.editRotamersPropMgr = None
+        self._rotaryMotorPropMgr = None
+        self._linearMotorPropMgr = None
+        self._planePropMgr = None
+        self._dnaDuplexPropMgr = None
+        self._dnaSegmentPropMgr = None
+        self._multipleDnaSegmentPropMgr = None
+        self._makeCrossoversPropMgr = None
+        self._dnaStrandPropMgr = None
+        self._buildDnaPropMgr = None
+        self._buildCntPropMgr = None
+        self._cntSegmentPropMgr = None
+        self._buildProteinPropMgr = None
+        self._buildGraphenePropMgr = None        
+        self._editResiduesPropMgr = None
+        self._editRotamersPropMgr = None
 
         # These boolean flags, if True, stop the execution of slot
         # methods that are called because the state of 'self.viewFullScreenAction
@@ -1668,13 +1668,13 @@ class MWsemantics(QMainWindow,
         @see: B{BuildNanotube_EditCommand._createPropMgrObject}
         """
         from cnt.commands.BuildNanotube.BuildNanotube_PropertyManager import BuildNanotube_PropertyManager
-        if self.buildCntPropMgr is None:
-            self.buildCntPropMgr = \
+        if self._buildCntPropMgr is None:
+            self._buildCntPropMgr = \
                 BuildNanotube_PropertyManager(self, editCommand)
         else:
-            self.buildCntPropMgr.setEditCommand(editCommand)
+            self._buildCntPropMgr.setEditCommand(editCommand)
 
-        return self.buildCntPropMgr
+        return self._buildCntPropMgr
     
     
     def createBuildGraphenePropMgr_if_needed(self, editCommand):
@@ -1687,13 +1687,13 @@ class MWsemantics(QMainWindow,
         @see: B{BuildNanotube_EditCommand._createPropMgrObject}
         """
         from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
-        if self.buildGraphenePropMgr is None:
-            self.buildGraphenePropMgr = \
+        if self._buildGraphenePropMgr is None:
+            self._buildGraphenePropMgr = \
                 GrapheneGeneratorPropertyManager(self, editCommand)
         else:
-            self.buildGraphenePropMgr.setEditCommand(editCommand)
+            self._buildGraphenePropMgr.setEditCommand(editCommand)
 
-        return self.buildGraphenePropMgr
+        return self._buildGraphenePropMgr
         
 
     def createNanotubeSegmentPropMgr_if_needed(self, editCommand):
@@ -1706,14 +1706,14 @@ class MWsemantics(QMainWindow,
         @see: B{NanotubeSegment_EditCommand._createPropMgrObject}
         """
         from cnt.commands.NanotubeSegment.NanotubeSegment_PropertyManager import NanotubeSegment_PropertyManager
-        if self.cntSegmentPropMgr is None:
-            self.cntSegmentPropMgr = \
+        if self._cntSegmentPropMgr is None:
+            self._cntSegmentPropMgr = \
                 NanotubeSegment_PropertyManager(self, editCommand)
 
         else:
-            self.cntSegmentPropMgr.setEditCommand(editCommand)
+            self._cntSegmentPropMgr.setEditCommand(editCommand)
 
-        return self.cntSegmentPropMgr
+        return self._cntSegmentPropMgr
 
     def activateDnaTool_OLD_NOT_USED(self):
         """
@@ -1855,13 +1855,13 @@ class MWsemantics(QMainWindow,
         @see: B{BuildDna_EditCommand._createPropMgrObject}
         """
         from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager
-        if self.buildProteinPropMgr is None:
-            self.buildProteinPropMgr = \
+        if self._buildProteinPropMgr is None:
+            self._buildProteinPropMgr = \
                 BuildProtein_PropertyManager(self, editCommand)
         else:
-            self.buildProteinPropMgr.setEditCommand(editCommand)
+            self._buildProteinPropMgr.setEditCommand(editCommand)
     
-        return self.buildProteinPropMgr
+        return self._buildProteinPropMgr
         
     
     def insertPeptide(self, isChecked = False):
@@ -2131,16 +2131,16 @@ class MWsemantics(QMainWindow,
         If one doesn't already exists, it creates one .
         (created only once and only when its first requested and then the
         object is reused)
-        @return: The residues editor object (self.editResiduesPropMgr)
+        @return: The residues editor object (self._editResiduesPropMgr)
         @rtype: B{EditResidues_PropertyManager}
         
         """
-        if not self.editResiduesPropMgr:
+        if not self._editResiduesPropMgr:
             from protein.commands.EditResidues.EditResidues_PropertyManager import EditResidues_PropertyManager            
-            self.editResiduesPropMgr = EditResidues_PropertyManager(self)
-            self.editResiduesPropMgr.setObjectName("residues_editor")
+            self._editResiduesPropMgr = EditResidues_PropertyManager(self)
+            self._editResiduesPropMgr.setObjectName("residues_editor")
 
-        return self.editResiduesPropMgr
+        return self._editResiduesPropMgr
     
     def createEditRotamersPropMgr_if_needed(self):
         """
@@ -2148,16 +2148,16 @@ class MWsemantics(QMainWindow,
         If one doesn't already exists, it creates one .
         (created only once and only when its first requested and then the
         object is reused)
-        @return: The residues editor object (self.editResiduesPropMgr)
+        @return: The residues editor object (self._editResiduesPropMgr)
         @rtype: B{EditResidues_PropertyManager}
         
         """
-        if not self.editRotamersPropMgr:
+        if not self._editRotamersPropMgr:
             from protein.commands.EditRotamers.EditRotamers_PropertyManager import EditRotamers_PropertyManager
-            self.editRotamersPropMgr = EditRotamers_PropertyManager(self)
-            self.editRotamersPropMgr.setObjectName("rotamers_editor")
+            self._editRotamersPropMgr = EditRotamers_PropertyManager(self)
+            self._editRotamersPropMgr.setObjectName("rotamers_editor")
 
-        return self.editRotamersPropMgr
+        return self._editRotamersPropMgr
     
     def createRotaryMotorPropMgr_if_needed(self, editCommand):
         """
@@ -2169,13 +2169,13 @@ class MWsemantics(QMainWindow,
         @see: B{RotaryMotor_EditCommand._createPropMgrObject}
         """
         from commands.RotaryMotorProperties.RotaryMotorPropertyManager import RotaryMotorPropertyManager
-        if self.rotaryMotorPropMgr is None:
-            self.rotaryMotorPropMgr = \
+        if self._rotaryMotorPropMgr is None:
+            self._rotaryMotorPropMgr = \
                 RotaryMotorPropertyManager(self, editCommand)
         else:
-            self.rotaryMotorPropMgr.setEditCommand(editCommand)
+            self._rotaryMotorPropMgr.setEditCommand(editCommand)
 
-        return self.rotaryMotorPropMgr
+        return self._rotaryMotorPropMgr
 
 
     def createLinearMotorPropMgr_if_needed(self, editCommand):
@@ -2188,13 +2188,13 @@ class MWsemantics(QMainWindow,
         @see: B{LinearMotor_EditCommand._createPropMgrObject}
         """
         from commands.LinearMotorProperties.LinearMotorPropertyManager import LinearMotorPropertyManager
-        if self.linearMotorPropMgr is None:
-            self.linearMotorPropMgr = \
+        if self._linearMotorPropMgr is None:
+            self._linearMotorPropMgr = \
                 LinearMotorPropertyManager( self, editCommand)
         else:
-            self.linearMotorPropMgr.setEditCommand(editCommand)
+            self._linearMotorPropMgr.setEditCommand(editCommand)
 
-        return self.linearMotorPropMgr
+        return self._linearMotorPropMgr
 
     def createPlanePropMgr_if_needed(self, editCommand):
         """
@@ -2206,13 +2206,13 @@ class MWsemantics(QMainWindow,
         @see: B{Plane_EditCommand._createPropMgrObject}
         """
         from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
-        if self.planePropMgr is None:
-            self.planePropMgr = \
+        if self._planePropMgr is None:
+            self._planePropMgr = \
                 PlanePropertyManager(self, editCommand)
         else:
-            self.planePropMgr.setEditCommand(editCommand)
+            self._planePropMgr.setEditCommand(editCommand)
 
-        return self.planePropMgr
+        return self._planePropMgr
 
     def createDnaDuplexPropMgr_if_needed(self, editCommand):
         """
@@ -2231,13 +2231,13 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{DnaDuplex_EditCommand}
         """
         from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager
-        if self.dnaDuplexPropMgr is None:
-            self.dnaDuplexPropMgr = \
+        if self._dnaDuplexPropMgr is None:
+            self._dnaDuplexPropMgr = \
                 DnaDuplexPropertyManager(self, editCommand)
         else:
-            self.dnaDuplexPropMgr.setEditCommand(editCommand)
+            self._dnaDuplexPropMgr.setEditCommand(editCommand)
 
-        return self.dnaDuplexPropMgr
+        return self._dnaDuplexPropMgr
 
     def createBuildDnaPropMgr_if_needed(self, editCommand):
         """
@@ -2249,13 +2249,13 @@ class MWsemantics(QMainWindow,
         @see: B{BuildDna_EditCommand._createPropMgrObject}
         """
         from dna.commands.BuildDna.BuildDna_PropertyManager import BuildDna_PropertyManager
-        if self.buildDnaPropMgr is None:
-            self.buildDnaPropMgr = \
+        if self._buildDnaPropMgr is None:
+            self._buildDnaPropMgr = \
                 BuildDna_PropertyManager(self, editCommand)
         else:
-            self.buildDnaPropMgr.setEditCommand(editCommand)
+            self._buildDnaPropMgr.setEditCommand(editCommand)
 
-        return self.buildDnaPropMgr
+        return self._buildDnaPropMgr
 
     def createDnaSegmentPropMgr_if_needed(self, editCommand):
         """
@@ -2268,14 +2268,14 @@ class MWsemantics(QMainWindow,
         """
 
         from dna.commands.DnaSegment.DnaSegment_PropertyManager import DnaSegment_PropertyManager
-        if self.dnaSegmentPropMgr is None:
-            self.dnaSegmentPropMgr = \
+        if self._dnaSegmentPropMgr is None:
+            self._dnaSegmentPropMgr = \
                 DnaSegment_PropertyManager(self, editCommand)
 
         else:
-            self.dnaSegmentPropMgr.setEditCommand(editCommand)
+            self._dnaSegmentPropMgr.setEditCommand(editCommand)
 
-        return self.dnaSegmentPropMgr
+        return self._dnaSegmentPropMgr
 
 
     def createMultipleDnaSegmentPropMgr_if_needed(self, editCommand):
@@ -2290,14 +2290,14 @@ class MWsemantics(QMainWindow,
         """
 
         from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_PropertyManager import MultipleDnaSegmentResize_PropertyManager
-        if self.multipleDnaSegmentPropMgr is None:
-            self.multipleDnaSegmentPropMgr = \
+        if self._multipleDnaSegmentPropMgr is None:
+            self._multipleDnaSegmentPropMgr = \
                 MultipleDnaSegmentResize_PropertyManager(self, editCommand)
 
         else:
-            self.multipleDnaSegmentPropMgr.setEditCommand(editCommand)
+            self._multipleDnaSegmentPropMgr.setEditCommand(editCommand)
 
-        return self.multipleDnaSegmentPropMgr
+        return self._multipleDnaSegmentPropMgr
 
 
     def createMakeCrossoversPropMgr_if_needed(self, editCommand):
@@ -2312,14 +2312,14 @@ class MWsemantics(QMainWindow,
         """
 
         from dna.commands.MakeCrossovers.MakeCrossovers_PropertyManager import MakeCrossovers_PropertyManager
-        if self.makeCrossoversPropMgr is None:
-            self.makeCrossoversPropMgr = \
+        if self._makeCrossoversPropMgr is None:
+            self._makeCrossoversPropMgr = \
                 MakeCrossovers_PropertyManager(self, editCommand)
 
         else:
-            self.makeCrossoversPropMgr.setEditCommand(editCommand)
+            self._makeCrossoversPropMgr.setEditCommand(editCommand)
 
-        return self.makeCrossoversPropMgr
+        return self._makeCrossoversPropMgr
 
 
 
@@ -2334,14 +2334,14 @@ class MWsemantics(QMainWindow,
         """
 
         from dna.commands.DnaStrand.DnaStrand_PropertyManager import DnaStrand_PropertyManager
-        if self.dnaStrandPropMgr is None:
-            self.dnaStrandPropMgr = \
+        if self._dnaStrandPropMgr is None:
+            self._dnaStrandPropMgr = \
                 DnaStrand_PropertyManager(self, editCommand)
 
         else:
-            self.dnaStrandPropMgr.setEditCommand(editCommand)
+            self._dnaStrandPropMgr.setEditCommand(editCommand)
 
-        return self.dnaStrandPropMgr
+        return self._dnaStrandPropMgr
 
 
     def insertPovrayScene(self):
