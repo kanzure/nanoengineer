@@ -15,6 +15,8 @@ from utilities.debug import print_compact_traceback
 from utilities.debug import register_debug_menu_command
 from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 
+from foundation.FeatureDescriptor import find_or_make_descriptor_for_possible_feature_object
+
 # ==
 
 def _tempfilename( basename): # todo: rename, refile
@@ -94,6 +96,7 @@ def import_all_modules_cmd(glpane): #bruce 080721
                 pass
 
         print "done importing all modules"
+        print
         
     except:
         print_compact_traceback("ignoring exception: ")
@@ -104,11 +107,25 @@ def import_all_modules_cmd(glpane): #bruce 080721
 
 # ==
 
-def export_command_table_cmd(glpane): #bruce 080721, unfinished
+def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfinished
     """
     @note: since this only covers loaded commands, you might want to
            run "Import all source files" before running this.
     """
+    if _might_reload:
+        try:
+            import operations.ops_debug as _this_module
+                # (to be precise: new version of this module)
+            reload(_this_module)
+            _this_module.export_command_table_cmd # make sure it's there
+        except:
+            print_compact_traceback("fyi: auto-reload failed: ")
+            pass
+        else:
+            _this_module.export_command_table_cmd(glpane, _might_reload = False)
+            return
+        pass
+    
     del glpane
 
     global_values = {} # id(val) -> val (not all vals are hashable)
@@ -129,7 +146,7 @@ def export_command_table_cmd(glpane): #bruce 080721, unfinished
     print "found %d distinct global values in %d modules" % ( len(global_values), mcount)
 
     if 1:
-        # not needed, just curious
+        # not needed, just curious how many types there are
         global_value_types = {} # maps type -> type (I assume all types are hashable)
         for v in global_values.itervalues():
             t = type(v)
@@ -143,32 +160,26 @@ def export_command_table_cmd(glpane): #bruce 080721, unfinished
         # print global_value_types.values() # just to see it...
         print
 
-    # now look for Python classes of certain kinds.
-    # note that issubclass has an exception for a non-class.
-
-    # TODO: replace this with a registration scheme:
-
-    from command_support.Command import basicCommand
-    CLASSES = (basicCommand, ) # needs to be a tuple, not a list, for issubclass 2nd arg
-
-    commands = [] # commands
+    # find command descriptors in global_values
+    descriptors = []
+    for thing in global_values.itervalues():
+        d = find_or_make_descriptor_for_possible_feature_object( thing)
+        if d is not None:
+            descriptors.append( d)
     
-    for val in global_values.itervalues():
-        try:
-            if issubclass(val, CLASSES):
-                commands.append(val)
-        except:
-            pass # issubclass has exception for non-class
+    items = [ ( descriptor.sort_key(), descriptor) for descriptor in descriptors]
+        ### or call sort_by or sorted_by, if it exists?
+    items.sort()
+    descriptors = [ descriptor for junk, descriptor in items ]
 
-    print "found %d commands:" % len(commands)
+    print "found %d commands:" % len(descriptors)
     print
+
+    for descriptor in descriptors:
+        descriptor.print_plain() # todo: add more info to that; print into a file
+        print
     
-    printlines = ['%r' % command for command in commands]
-    printlines.sort()
-    
-    print '\n'.join(printlines)
-    print
-    print "done (mostly nim)"
+    print "done"
 
     return # from export_command_table_cmd
 

@@ -36,7 +36,10 @@ from platform_dependent.PlatformDependent import shift_name
 from platform_dependent.PlatformDependent import control_name
 from platform_dependent.PlatformDependent import context_menu_prefix
 
-import foundation.env as env
+from foundation.FeatureDescriptor import find_or_make_FeatureDescriptor
+from foundation.FeatureDescriptor import basicCommand_Descriptor
+from foundation.FeatureDescriptor import register_abstract_feature_class
+
 from foundation.state_utils import StateMixin
 
 from utilities.constants import noop, GLPANE_IS_COMMAND_SEQUENCER
@@ -270,7 +273,7 @@ class nullCommand(anyCommand):
     
     pass # end of class nullCommand
 
-_featurename_to_command_class = {}
+# ==
 
 class basicCommand(anyCommand):
     """
@@ -394,62 +397,29 @@ class basicCommand(anyCommand):
 
     # ==
     
-    def get_featurename(self): #bruce 071227
+    def get_featurename(clas): #bruce 071227, revised into classmethod 080722
         """
         Return the "feature name" to be used for the wiki help feature page
-        (not including the initial "Feature:" prefix).
+        (not including the initial "Feature:" prefix), for this basicCommand
+        concrete subclass.
 
         Usually, this is one or a few space-separated capitalized words.
         """
-        
         # (someday: add debug command to list all known featurenames,
-        #  by object type -- optionally as wiki help links, for testing)
+        #  by object type -- optionally as wiki help links, for testing;
+        #  later: see "export command table", which does part of this)
 
-        res = self.featurename
-        class0 = self.__class__
-        
-        # make sure no surrounding whitespace
-        res0 = res
-        res = res.strip()
-        if res != res0:
-            msg = "developer warning: in class %r, .featurename %r had " \
-                  "whitespace we had to strip" % \
-                  (class0.__name__, res0)
-            if not env.seen_before(msg):
-                print msg
+        my_command_descriptor = find_or_make_FeatureDescriptor( clas)
+            # note: this knows how to look up clas.featurename;
+            # and that it might need to use basicCommand_Descriptor,
+            # because that's been registered for use with all
+            # subclasses of basicCommand (below).
 
-        # turn underscores to blanks [bruce 080717, to work around
-        # erroneous underscores used in some featurename constants]
-        res = res.replace('_', ' ')
-        
-        # if same as in any other class, *or* if the name starts with
-        # "Undocumented ", print a warning and append classname
-        # (todo: if this ever happens routinely, provide a way to turn
-        #  off the print and appended classname -- or (easier) just
-        #  require the affected class to override this method)
-        
-        same = False # might be changed below
-        undoc = res.startswith("Undocumented ")
-        if undoc:
-            msg = "developer warning: class %r needs a featurename assigned" % \
-                  (class0.__name__, )
-            if not env.seen_before(msg):
-                print msg
-        else:
-            class1 = _featurename_to_command_class.setdefault( res, class0)
-            if class1.__name__ != class0.__name__:
-                # (permit different class with same name, in case of reloading)
-                same = True
-                msg = "developer warning: in class %r, .featurename %r is same"\
-                      " as in class %r (override, or assign uniquely)" % \
-                      (class0.__name__, res, class1.__name__)
-                if not env.seen_before(msg):
-                    print msg
-        
-        if same or undoc:
-            res = res + " (%s)" % class0.__name__
-        
-        return res # from get_featurename
+        assert my_command_descriptor, "probably an abstract class: %r" % (clas,)
+
+        return my_command_descriptor.featurename
+
+    get_featurename = classmethod( get_featurename)
     
     # ==
     
@@ -1665,6 +1635,8 @@ class basicCommand(anyCommand):
 
     pass # end of class basicCommand
 
+register_abstract_feature_class( basicCommand, basicCommand_Descriptor )
+
 # ==
 
 class Command(basicCommand):
@@ -1693,7 +1665,7 @@ class Command(basicCommand):
     GraphicsMode_class = None        
         # Each Command subclass must override this class constant with the
         # most abstract GraphicsMode subclass which they are able to work with.
-        # In concrete Command subclassses, it must be a subclass of
+        # In concrete Command subclasses, it must be a subclass of
         # GraphicsMode_API, whose constructor takes a single argument,
         # which will be the command instance.
         #
