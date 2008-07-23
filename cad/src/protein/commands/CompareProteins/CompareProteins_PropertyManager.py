@@ -186,7 +186,7 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               value         =  self.threshold,
                               setAsDefault  =  True,
                               minimum       =  0.0,
-                              maximum       =  180.0,
+                              maximum       =  360.0,
                               decimals      =  1,
                               singleStep    =  30.0,
                               suffix        = " deg",
@@ -245,8 +245,7 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                         aa2.expand()
                     else:
                         max = 0.0
-                    
-                        for chi in range(0, 4):
+                        for chi in range(0, 3):
                             angle1 = aa1.get_chi_angle(chi)
                             angle2 = aa2.get_chi_angle(chi)
                             if angle1 and \
@@ -254,7 +253,7 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                 diff = abs(angle1 - angle2)
                                 if diff > max:
                                     max = diff
-                        if max > self.threshold:
+                        if max >= self.threshold:
                             # This be a parameter.
                             aa1.set_color(green)
                             aa1.expand()

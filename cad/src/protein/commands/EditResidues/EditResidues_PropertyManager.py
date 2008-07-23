@@ -11,7 +11,7 @@ Build > Protein mode.
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 """
-import os, time, fnmatch, string, re
+import os, sys, time, fnmatch, string, re
 import foundation.env as env
 
 from widgets.DebugMenuMixin import DebugMenuMixin
@@ -223,11 +223,15 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Add the Property Manager group boxes.
         """
-
-        self.labelfont = QFont("Helvetica", 12)
         
-        self.descriptorfont = QFont("Courier New", 12)        
-
+        if sys.platform == "darwin":
+            # Workaround for table font size difference between Mac/Win
+            self.labelfont = QFont("Helvetica", 12)
+            self.descriptorfont = QFont("Courier New", 12)        
+        else:
+            self.labelfont = QFont("Helvetica", 9)
+            self.descriptorfont = QFont("Courier New", 9)        
+            
         self._pmGroupBox1 = PM_GroupBox( self,
                                          title = "Descriptors")
         self._loadGroupBox1( self._pmGroupBox1 )

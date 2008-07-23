@@ -295,6 +295,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.chi4SpinBox.setEnabled(False)
         
+        self.chi4SpinBox.hide()
+        
         self.win.connect(self.chi4SpinBox,
                          SIGNAL("valueChanged(double)"),
                          self._rotateChi4)
