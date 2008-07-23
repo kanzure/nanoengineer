@@ -8,9 +8,10 @@ Qt Dialog for setting the arguments for a rosetta simulation
 """
 
 from PyQt4.Qt import SIGNAL, SLOT
+from PyQt4.Qt import QSizePolicy
 from PyQt4.QtGui import QDialog, QLineEdit, QPushButton, QLabel, QCheckBox
 from PyQt4.QtGui import QHBoxLayout, QVBoxLayout, QApplication, QTextEdit
-from PyQt4.QtGui import QSpinBox
+from PyQt4.QtGui import QSpinBox, QSpacerItem
 import string
 from utilities.icon_utilities import geticon, getpixmap
 
@@ -28,16 +29,27 @@ class RosettaSimulationPopUpDialog(QDialog):
     
     def _loadWidgets(self):
         layout = QVBoxLayout()  
-        idLayout = QHBoxLayout()
+        
+        logoLayout = QHBoxLayout()
         self.imageLabel = QLabel()
         self.imageLabel.setPixmap(
                 getpixmap("ui/images/Rosetta.png"))
+        # Horizontal spacer
+        hSpacer = QSpacerItem(1, 1, 
+                              QSizePolicy.Expanding, 
+                              QSizePolicy.Minimum)
+        logoLayout.addItem(hSpacer)
+        logoLayout.addWidget(self.imageLabel)
+        logoLayout.addItem(hSpacer)
+        
+        idLayout = QHBoxLayout()
+        
         self.label = QLabel("Enter number of simulations:")
         self.numSimSpinBox = QSpinBox()
         self.numSimSpinBox.setMinimum(1)
         self.numSimSpinBox.setMaximum(999)
         
-        layout.addWidget(self.imageLabel)
+        
         idLayout.addWidget(self.label)
         idLayout.addWidget(self.numSimSpinBox)
         
@@ -67,7 +79,7 @@ class RosettaSimulationPopUpDialog(QDialog):
         idLayout1.addWidget(self.useElecRepCheckbox)
         idLayout1.addWidget(self.norepackDisulfCheckbox)
         
-        self.otherOptionsLabel = QLabel("Other command line options:")
+        self.otherOptionsLabel = QLabel("Command line options:")
         self.otherCommandLineOptions = QTextEdit()
         self.otherCommandLineOptions.setFixedHeight(80)
         idLayout3 = QVBoxLayout()
@@ -82,6 +94,7 @@ class RosettaSimulationPopUpDialog(QDialog):
         buttonLayout.addWidget(self.okButton)
         buttonLayout.addWidget(self.cancelButton)
         
+        layout.addLayout(logoLayout)
         layout.addLayout(idLayout)
         layout.addLayout(idLayout1)
         layout.addLayout(idLayout3)
