@@ -1,13 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 selectMolsMode.py
 
 $Id$
 
-
 History:
-
-
 
 Ninad 2007-02-16:   Split class selectMolsMode out of selectMode.py
 Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
@@ -25,10 +22,8 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_basicGr
 class selectMolsMode(SelectChunks_basicCommand,
                      SelectChunks_basicGraphicsMode):
     """
-    Select Chunks Mode
+    Select Chunks Mode (compatibility version for unsplit modes; deprecated)
     """
-
-
     def __init__(self, glpane):
         assert GLPANE_IS_COMMAND_SEQUENCER
 

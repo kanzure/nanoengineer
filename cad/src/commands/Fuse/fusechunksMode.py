@@ -1,6 +1,6 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-fusechunksMode.py
+fusechunksMode.py - helpers for Fuse Chunks command and related functionality
 
 @author: Mark
 @version: $Id$
@@ -288,13 +288,4 @@ class fusechunksBase:
 
     pass # end of class fusechunksBase
 
-# ==
-
-class fusechunksMode(modifyMode, fusechunksBase):
-    """
-    This class is deprecated. Scheduled for deletion. 
-    @see: B{FuseChunks_Command}, B{FuseChunks_GraphicsMode} for new 
-    implementation
-    """
-    pass
 # end

@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 FuseChunks_GraphicsMode.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Originally by Mark as class 'fuseChunksMode'.
@@ -24,7 +24,10 @@ from commands.Move.Move_GraphicsMode import Move_GraphicsMode
 from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
 
-class FuseChunks_GraphicsMode_preMixin:
+class _FuseChunks_GraphicsMode_preMixin:
+    # REVIEW: this should probably inherit from Move_GraphicsMode,
+    # since it often calls its methods as if they were superclass methods.
+    # [bruce comment 080722]
     """
     The pre- Mixin class for various graphics modes that will be used for the
     FuseChunks_Command. This should strictly be a pre-Mixin class. 
@@ -75,7 +78,7 @@ class FuseChunks_GraphicsMode_preMixin:
     def Enter_GraphicsMode(self):
         Move_GraphicsMode.Enter_GraphicsMode(self)
         self.recompute_fusables = True	
-        
+        return
     
     def Draw(self):
         """
@@ -87,14 +90,13 @@ class FuseChunks_GraphicsMode_preMixin:
             self.recompute_fusables = False
 
         # 'recompute_fusables' is set to False when the bondable pairs or 
-        # overlapping atoms don't
-        # need to be recomputed.  Scenerios when 'recompute_fusables' 
-        # is set to False:
+        # overlapping atoms don't need to be recomputed.
+        # Scenerios when 'recompute_fusables' is set to False:
         #   1. animating between views. Done above, boolean attr 
         #      'self.o.is_animating' is checked.
         #   2. zooming, panning and rotating with MMB. Done above, 
         #      check if self.o.button == 'MMB'
-        #   3. Zooming with mouse wheel, done in fusechunksMode.Wheel().
+        #   3. Zooming with mouse wheel, done in self.Wheel().
         # If 'recompute_fusables' is False here, it is immediately reset to 
         # True below. mark 060405
         if self.recompute_fusables:
@@ -128,8 +130,8 @@ class FuseChunks_GraphicsMode_preMixin:
 
         elif self.command.overlapping_atoms:
             self.draw_overlapping_atoms()
-    
-        
+
+        return
     
     def draw_bondable_pairs(self):
         """
@@ -169,43 +171,47 @@ class FuseChunks_GraphicsMode_preMixin:
 
     def Wheel(self, event):
         """
-        Mouse wheel event handler.  This overrides modifyMode.Wheel() to 
-        optimizeredraws by setting 'recompute_fusables' to False so that Draw()
+        Mouse wheel event handler.  This overrides Move_GraphicsMode.Wheel() to 
+        optimize redraws by setting 'recompute_fusables' to False so that Draw()
         will not recompute fusables while zooming in/out.
         """
         Move_GraphicsMode.Wheel(self, event)
         self.recompute_fusables = False
 
+    pass # end of class _FuseChunks_GraphicsMode_preMixin
+
            
-class FuseChunks_GraphicsMode(FuseChunks_GraphicsMode_preMixin, 
+class FuseChunks_GraphicsMode(_FuseChunks_GraphicsMode_preMixin, 
                               Move_GraphicsMode):
     """
     The default Graphics mode for the FuseChunks_Command
-    @see: FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
+    @see: _FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
     @see: B{FuseChunks_Command} where it is used as a default graphics mode 
          class
     @see: B{FuseChunks_Command._createGraphicsMode} 
     """    
     pass
 
-class Translate_in_FuseChunks_GraphicsMode(FuseChunks_GraphicsMode_preMixin,
+class Translate_in_FuseChunks_GraphicsMode(_FuseChunks_GraphicsMode_preMixin,
                                            TranslateChunks_GraphicsMode):
     """
     When the translate groupbox of the FuseChunks Command  property manager is 
     active, the graphics mode for the command will be 
     Translate_in_FuseChunks_GraphicsMode. 
-    @see: FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
+    @see: _FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
     @see: B{FuseChunks_Command._createGraphicsMode} 
     """
     pass
 
-class Rotate_in_FuseChunks_GraphicsMode(FuseChunks_GraphicsMode_preMixin,
+class Rotate_in_FuseChunks_GraphicsMode(_FuseChunks_GraphicsMode_preMixin,
                                         RotateChunks_GraphicsMode):
     """
     When the translate groupbox of the FuseChunks Command  property manager is 
     active, the graphics mode for the command will be 
     Rotate_in_FuseChunks_GraphicsMode. 
-    @see: FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
+    @see: _FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
     @see: B{FuseChunks_Command._createGraphicsMode} 
     """
     pass
+
+# end
