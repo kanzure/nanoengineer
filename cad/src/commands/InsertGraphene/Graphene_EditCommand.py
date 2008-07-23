@@ -110,17 +110,7 @@ class Graphene_EditCommand(EditCommand):
 
         return propMgr
     
-    def hasValidStructure(self):
-        """
-        Tells the caller if this edit command has a valid structure. 
-        Overrides EditCommand.hasValidStructure()
-        """
-        
-        isValid = _superclass.hasValidStructure(self)
-
-        if not isValid:
-            return isValid 
-        
+            
     def _getStructureType(self):
         """
         Subclasses override this method to define their own structure type. 
