@@ -31,6 +31,8 @@ from utilities.prefs_constants import rosetta_database_enabled_prefs_key, rosett
 from protein.model.Protein import write_rosetta_resfile
 
 
+count = 1
+
 def getScoreFromOutputFile(tmp_file_prefix, outfile, numSim):
     scoreList = []
     for i in range(numSim):
@@ -194,18 +196,27 @@ class RosettaRunner:
         self.cmd_type = cmd_type #060705
         return
     
-    def sim_input_filename(self, part):
+    def sim_input_filename(self, part, args):
     #write the pdb for the part that is in the NE-1 window now and set the 
     #filename to that pdb
-        
-        pdbId, chunk = self.getPDBIDFromChunk(part)
-        if pdbId is None:
-            return None
+    
+        # if we run rosetta from within build protein mode, then we can run
+        # rosetta for the current protein
+        if args != "":
+            pdbId = args
+            for mol in self.win.assy.molecules:
+                if mol.name == args:
+                    chunk = mol
+                    break
+        else:    
+            pdbId, chunk = self.getPDBIDFromChunk(part)
+            if pdbId is None:
+                return None
         
         fileName = pdbId + '.pdb'
         dir = os.path.dirname(self.tmp_file_prefix)
         fileLocation = os.path.join(dir, fileName)
-        writepdb(part, str(fileLocation)) 
+        writepdb(part, str(fileLocation), singleChunk = chunk) 
         
         return fileName
     
@@ -275,6 +286,17 @@ class RosettaRunner:
         path = self.path
         infile = self.sim_input_file
         self.outfile = infile[0:len(infile) - 4] + '_out'
+        #if any of the protein chunks in NE-1 part matches the outfile name,
+        #rename the outfile
+        tempPdb = infile[0:len(infile) - 5] + '([A-Z]|[a-z])' + '_out' + '_' + '[0-9][0-9][0-9][0-9]' + '([A-Z]|[a-z])'
+        
+        for mol in self.win.assy.molecules:
+            
+            if mol.isProteinChunk and re.match(tempPdb, mol.name) is not None:
+                global count 
+                self.outfile = infile[0:len(infile) - 4] + '_' + str(count) + '_out'
+                count = count + 1
+        
         mflag = self.mflag
         self._simopts = self._simobj = self._arguments = None # appropriate subset of these is set below
         #bug in rosetta: simulation does not work in  pdbID_0001.pdb exists in 
@@ -300,7 +322,7 @@ class RosettaRunner:
         
         return # from setup_sim_args    
     
-    def set_options_errQ(self): #e maybe split further into several setup methods? #bruce 051115 removed unused 'options' arg
+    def set_options_errQ(self, args): #e maybe split further into several setup methods? #bruce 051115 removed unused 'options' arg
         """
         Figure out and set filenames, including sim executable path.
         All inputs and outputs are self attrs or globals or other obj attrs...
@@ -318,8 +340,14 @@ class RosettaRunner:
         # We'll be appending various extensions to tmp_file_prefix to make temp
         # file names for sim input and output files as needed (e.g. mmp, xyz,
         # etc.)
-        
-        pdbId, chunk = self.getPDBIDFromChunk(part)
+        if args != "":
+            pdbId = args
+            for mol in self.win.assy.molecules:
+                if mol.name == args:
+                    chunk = mol
+                    break
+        else:    
+            pdbId, chunk = self.getPDBIDFromChunk(part)
         #write the residue file
         resFile = pdbId + ".resfile"
         resFilePath = os.path.join(simFilesPath, resFile)
@@ -566,10 +594,11 @@ class RosettaRunner:
         #for now args has number of simulations
         self.numSim = args[0][0]
         #set the program path, database path and write the paths.txt in here
-        self.errcode = self.set_options_errQ( )
+        self.errcode = self.set_options_errQ( args[0][2])
         if self.errcode: # used to be a local var 'r'
             return
-        self.sim_input_file = self.sim_input_filename(self.part)
+            
+        self.sim_input_file = self.sim_input_filename(self.part, args[0][2])
         if self.sim_input_file is None:
             return
            
@@ -585,7 +614,7 @@ class RosettaRunner:
             progressBar.setRange(0, 0)
             progressBar.reset()
             progressBar.show()
-            env.history.statusbar_msg("Running Rosetta")
+            env.history.statusbar_msg("Running Rosetta on " + self.sim_input_file[0:len(self.sim_input_file) - 4])
             
             rosettaFullBaseFileName = self.tmp_file_prefix 
             rosettaFullBaseFileInfo = QFileInfo(rosettaFullBaseFileName)
@@ -644,6 +673,15 @@ class RosettaRunner:
                         score, bestSimOutFileName = getScoreFromOutputFile(self.tmp_file_prefix, self.outfile, self.numSim)
                         chosenOutPath = os.path.join(os.path.dirname(self.tmp_file_prefix), bestSimOutFileName)
                         insertpdb(self.assy, str(chosenOutPath), None)
+                        #set the secondary structure of the rosetta output protein
+                        #to that of the inpput protein
+                        for mol in self.win.assy.molecules:
+                            if mol.isProteinChunk and mol.name == self.sim_input_file[0:len(self.sim_input_file)-4]:
+                                inProtein = mol
+                            if mol.isProteinChunk and mol.name == (bestSimOutFileName[0:len(bestSimOutFileName)-4].lower() + 'A'):
+                                outProtein = mol
+                        outProtein.protein.set_rosetta_protein_secondary_structure(inProtein)
+                        
                         env.history.statusbar_msg("")
                         fastaFile = self.outfile + "_design.fasta" 
                         fastaFilePath = os.path.join(os.path.dirname(self.tmp_file_prefix), fastaFile)
