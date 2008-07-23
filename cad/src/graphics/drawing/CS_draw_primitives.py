@@ -324,3 +324,61 @@ def drawTag(color, basePoint, endPoint, pointSize = 20.0):
     """
     drawline(color, basePoint, endPoint)
     drawPoint(color, endPoint, pointSize = 20.0)
+    
+def draw3DFlag(glpane,
+              color, 
+              basePoint, 
+              cylRadius, 
+              cylHeight,
+              direction = None,
+              opacity = 1.0):
+    """
+    Draw a 3D flag with its base as a 'cylinder' and the head as a sphere. 
+    
+    @param glpane: The GLPane object
+    @type glpane: B{GLPane}
+    
+    @param color: color of the tag 
+    @type color: A
+    
+    @param basePoint: The base point of the tag 
+    @type basePoint: V
+    
+    @param cylRadius: Radius of the base cylinder  of the flag
+    @type  cylRadius: float
+    
+    @param cylHeight: Height of the base cylinder of the flag
+    @type  clyHeight: float
+    
+    @param direction: direction in which to draw the 3D flag. If this is not 
+                      spcified, it draws the flag using glpane.up
+    @type direction: V  (or None)
+    
+    @param opacity: Flag opacity (a value bet 0.0 to 1.0)
+    @type opacity: float
+    """
+    if direction is None:
+        direction = glpane.up
+        
+    scale = glpane.scale
+    
+    height = cylHeight
+    endPoint = basePoint + direction*height
+        
+    sphereRadius = cylHeight*0.7
+    sphereCenter = endPoint + direction*0.8*sphereRadius
+    SPHERE_DRAWLEVEL = 2
+    
+    drawcylinder(color, 
+                 basePoint,
+                 endPoint,
+                 cylRadius, 
+                 capped = True,
+                 opacity = opacity)
+    
+    drawsphere(color, 
+               sphereCenter, 
+               sphereRadius,
+               SPHERE_DRAWLEVEL,
+               opacity = opacity)
+
