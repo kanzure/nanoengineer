@@ -18,7 +18,6 @@ as of 080414.
 
 from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from utilities.constants import diINVISIBLE, diDEFAULT
-from model.jigs import Jig
 from model.global_model_changedicts import _changed_picked_Atoms
 from model.chunk import Chunk
 from model.elements import Singlet
@@ -170,11 +169,23 @@ class ops_select_Mixin:
         """
         selJigs = []
         def addSelectedJig(obj, jigs=selJigs):
-            if obj.picked and isinstance(obj, Jig):
+            if obj.picked and isinstance(obj, self.win.assy.Jig):
                 jigs += [obj]
 
         self.topnode.apply2all(addSelectedJig)
         return selJigs
+    
+    def getSelectedPlanes(self):
+        """
+        Returns a list of selected planes. 
+        @see: self.getSelectedJigs()
+        """
+        selectedJigs = self.getSelectedJigs()
+        
+        selectedPlanes = filter(lambda p: 
+                                isinstance(p, self.win.assy.Plane), 
+                                selectedJigs)
+        return selectedPlanes
     
     def getSelectedDnaGroups(self):
         """
