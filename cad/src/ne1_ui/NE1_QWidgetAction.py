@@ -17,8 +17,6 @@ from PyQt4.Qt import QWidgetAction
 from PyQt4.Qt import QToolButton
 from PyQt4.Qt import Qt
 
-import foundation.env as env
-
 
 def truncateText(text, length = 12, truncateSymbol = '...'):
     """
@@ -44,25 +42,25 @@ def truncateText(text, length = 12, truncateSymbol = '...'):
     
     
 def wrapToolButtonText(text):
-        """
-        Add a newline character at the end of each word in the toolbutton text
-        """
-        #ninad 070126 QToolButton lacks this method. This is not really a 
-        #'word wrap' but OK for now. 
-        
-        #@@@ ninad 070126. Not calling this method as it is creating an annoying
-        #resizing problem in the Command toolbar layout. Possible solution is 
-        #to add a spacer item in a vbox layout to the command toolbar layout
-        
-        stringlist = text.split(" ", QString.SkipEmptyParts)
-        text2 = QString()
-        if len(stringlist) > 1:
-            for l in stringlist:
-                text2.append(l)
-                text2.append("\n")
-            return text2
-                
-        return None
+    """
+    Add a newline character at the end of each word in the toolbutton text
+    """
+    #ninad 070126 QToolButton lacks this method. This is not really a 
+    #'word wrap' but OK for now. 
+    
+    #@@@ ninad 070126. Not calling this method as it is creating an annoying
+    #resizing problem in the Command toolbar layout. Possible solution is 
+    #to add a spacer item in a vbox layout to the command toolbar layout
+    
+    stringlist = text.split(" ", QString.SkipEmptyParts)
+    text2 = QString()
+    if len(stringlist) > 1:
+        for l in stringlist:
+            text2.append(l)
+            text2.append("\n")
+        return text2
+            
+    return None
     
     
 
