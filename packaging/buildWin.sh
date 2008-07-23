@@ -60,6 +60,7 @@ fi
 
 # Start with the main build
 # Build the base .exe and directory contents
+cd $TOP_LEVEL/cad/src
 cp $TOP_LEVEL/packaging/Win32/setup.py .
 c:/python24/python setup.py py2exe --includes=sip,pkg_resources --packages=ctypes --excludes=OpenGL -d dist/program || exit 1
 cp c:/python24/Lib/site-packages/PyOpenGL-3.0.0a6-py2.4.egg dist/program/
