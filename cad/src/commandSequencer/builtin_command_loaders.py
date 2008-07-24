@@ -78,6 +78,7 @@ from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand 
 from dna.temporary_commands.DnaLineMode             import DnaLineMode
 
 # Protein command imports
+from commands.InsertPeptide.Peptide_EditCommand import Peptide_EditCommand
 from protein.commands.BuildProtein.BuildProtein_EditCommand import BuildProtein_EditCommand
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
 from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Command
@@ -137,6 +138,7 @@ def preloaded_command_classes():
         RotateAboutPoint_Command,        
         StereoProperties_Command,
         ColorScheme_Command,
+        Peptide_EditCommand,
         BuildProtein_EditCommand,
         ProteinDisplayStyle_Command,
         LightingScheme_Command,

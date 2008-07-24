@@ -25,7 +25,8 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 
-from PM.PM_Dialog         import PM_Dialog
+from command_support.EditCommand_PM import EditCommand_PM
+
 from PM.PM_GroupBox       import PM_GroupBox
 from PM.PM_CheckBox       import PM_CheckBox
 from PM.PM_ComboBox       import PM_ComboBox
@@ -34,6 +35,11 @@ from PM.PM_SpinBox        import PM_SpinBox
 from PM.PM_PushButton     import PM_PushButton
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 from PM.PM_TextEdit       import PM_TextEdit
+
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
+from PM.PM_Constants     import PM_CANCEL_BUTTON
+from PM.PM_Constants     import PM_PREVIEW_BUTTON
 
 from utilities.debug import print_compact_traceback
 
@@ -64,8 +70,8 @@ AA_BUTTON_LIST = [
     ( "QToolButton", 18, "Tyr", "", "Tyrosine",      "Y", 3, 3   ),
     ( "QToolButton", 19, "Val", "", "Valine",        "V", 4, 3   )
 ]
-
-class PeptideGeneratorPropertyManager(PM_Dialog):
+_superclass = EditCommand_PM
+class PeptideGeneratorPropertyManager(EditCommand_PM):
     """
     The PeptideGeneratorPropertyManager class provides a Property Manager 
     for the "Build > Peptide" command.
@@ -78,10 +84,17 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
     # The relative path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Peptide.png"
 
-    def __init__(self):
-        """Construct the Peptide Property Manager.
+    def __init__( self, win, editCommand ):
         """
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+        Construct the "Build Graphene" Property Manager.
+        """
+        _superclass.__init__( self, win, editCommand )
+               
+               
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_CANCEL_BUTTON | \
+                                PM_PREVIEW_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
 
         # phi psi angles will define the secondary structure of the peptide chain
         self.phi = -57.0
@@ -91,17 +104,28 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         self.peptide_cache = []
 
         self.updateMessageGroupBox()
-
+        
     def updateMessageGroupBox(self):
-        msg = ""
-
-        msg = msg + "Click on the Amino Acid buttons to add a new residuum to\
-            the polypeptide chain. Click <b>Done</b> to insert it into the project."
+       
+        msg = "Click on the Amino Acid buttons to add a new residuum to " \
+            "the polypeptide chain. Click <b>Done</b> to insert it into the project."
 
         # This causes the "Message" box to be displayed as well.
         # setAsDefault=True causes this message to be reset whenever
         # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
-        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
+        self.updateMessage(msg)
+        
+    def getParameters(self):
+        """
+        Return the parameters from this property manager
+        to be used to create the  peptide.
+        @return: A tuple containing the parameters
+        @rtype: tuple
+        @see: L{Peptide_EditCommand._gatherParameters()} where this is used
+        
+        """
+        
+        return (self.peptide_cache, self.ss_idx)
 
     def _addGroupBoxes(self):
         """
@@ -214,6 +238,17 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         self.connect( self.startOverButton,
                       SIGNAL("clicked()"),
                       self._startOverClicked)
+        
+    def addAminoAcid(self, index):
+        """
+        Adds a new amino acid to the peptide molecule.
+        This is going to be displayed after user accepts or previews the structure.
+        """
+
+        # add a new amino acid and chain conformation to the peptide cache
+        self.peptide_cache.append((index,self.phi,self.psi))
+
+        return
 
     def _addWhatsThisText(self):
         """

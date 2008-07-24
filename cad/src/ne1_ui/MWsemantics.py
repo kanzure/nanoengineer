@@ -172,7 +172,8 @@ class MWsemantics(QMainWindow,
         self._buildCntPropMgr = None
         self._cntSegmentPropMgr = None
         self._buildProteinPropMgr = None
-        self._buildGraphenePropMgr = None        
+        self._buildGraphenePropMgr = None  
+        self._buildPeptidePropMgr = None
         self._editResiduesPropMgr = None
         self._editRotamersPropMgr = None
 
@@ -383,10 +384,6 @@ class MWsemantics(QMainWindow,
         # Atom Generator example for developers. Mark and Jeff. 2007-06-13
         from commands.BuildAtom.AtomGenerator import AtomGenerator
         self.atomcntl = AtomGenerator(self)
-
-        # Peptide Generator. piotr 080304
-        from commands.InsertPeptide.PeptideGenerator import PeptideGenerator
-        self.peptidecntl = PeptideGenerator(self)
 
         # QuteMolX Property Manager. Mark 2007-12-02.
         from commands.QuteMol.QuteMolPropertyManager import QuteMolPropertyManager
@@ -1588,11 +1585,10 @@ class MWsemantics(QMainWindow,
         self.ensureInCommand('SELECTMOLS')
         self.atomcntl.show()
 
-    #def insertPeptide(self): # piotr 080304
-    #    self.ensureInCommand('SELECTMOLS')
-    #    self.peptidecntl.show()
-
-    def insertGraphene(self):               
+    def insertGraphene(self):   
+        """
+        Invokes the graphene command ('BUILD_GRAPHNE')
+        """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "BUILD_GRAPHENE":
@@ -1683,8 +1679,8 @@ class MWsemantics(QMainWindow,
         If this object is already present, then set its editCommand to this
         parameter
         @parameter editCommand: The edit controller object for this PM
-        @type editCommand: B{BuildNanotube_EditCommand}
-        @see: B{BuildNanotube_EditCommand._createPropMgrObject}
+        @type editCommand: B{BuildGraphene_EditCommand}
+        @see: B{BuildGraphene_EditCommand._createPropMgrObject}
         """
         from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
         if self._buildGraphenePropMgr is None:
@@ -1694,6 +1690,24 @@ class MWsemantics(QMainWindow,
             self._buildGraphenePropMgr.setEditCommand(editCommand)
 
         return self._buildGraphenePropMgr
+    
+    def createBuildPeptidePropMgr_if_needed(self, editCommand):
+        """
+        Create Peptide PM object (if one doesn't exist)
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM
+        @type editCommand: B{BuildPeptide_EditCommand}
+        @see: B{BuildPeptide_EditCommand._createPropMgrObject}
+        """
+        from commands.InsertPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager
+        if self._buildPeptidePropMgr is None:
+            self._buildPeptidePropMgr = \
+                PeptideGeneratorPropertyManager(self, editCommand)
+        else:
+            self._buildPeptidePropMgr.setEditCommand(editCommand)
+
+        return self._buildPeptidePropMgr
         
 
     def createNanotubeSegmentPropMgr_if_needed(self, editCommand):
@@ -1864,17 +1878,23 @@ class MWsemantics(QMainWindow,
         return self._buildProteinPropMgr
         
     
-    def insertPeptide(self, isChecked = False):
+    def insertPeptide(self, isChecked = False):  
         """
-        Inserts a peptide in NE-1 part
-        @param isChecked: If Build Protein button in the Protein Flyout toolbar is
-                          checked, enter BuildProteinMode. 
-        @type isChecked: bool
+        Invokes the peptide command (BUILD_PEPTIDE)
         """
-        self.ensureInCommand('SELECTMOLS')
-        self.peptidecntl.show()
-        return 
-      
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand        
+        
+        if currentCommand.commandName != "BUILD_PEPTIDE":
+            commandSequencer.userEnterTemporaryCommand(
+                'BUILD_PEPTIDE')
+            self.commandSequencer.currentCommand.runCommand()
+        else:
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'BUILD_PEPTIDE':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+
+              
     def enterProteinDisplayStyleCommand(self, isChecked = False):
         """
         Enter protein display style command
