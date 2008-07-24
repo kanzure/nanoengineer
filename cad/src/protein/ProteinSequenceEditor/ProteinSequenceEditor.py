@@ -67,7 +67,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         self._supress_textChanged_signal = False
         self.connect_or_disconnect_signals(isConnect = True)
         self.win = win
-    
+        self.maxSeqLength = 0
     
         
     def connect_or_disconnect_signals(self, isConnect):
@@ -111,7 +111,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
                      self.saveStrandSequence)
         
         change_connect( self.sequenceTextEdit,
-                      SIGNAL("textChanged()"),
+                      SIGNAL("editingFinished()"),
                       self.sequenceChanged )
         
         change_connect( self.sequenceTextEdit,
@@ -171,14 +171,17 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursorPosition  =  self.getCursorPosition()
         theSequence     =  self.getPlainSequence()
         
-        ### Disconnect while we edit the sequence.            
-        ##self.disconnect( self.sequenceTextEdit,
-                         ##SIGNAL("textChanged()"),
-                         ##self.sequenceChanged )        
-   
         # How has the text changed?
-        if theSequence.length() != 0:  
+        if theSequence.length() != 0 and theSequence.length() == self.maxSeqLength:  
             self._updateSequenceAndItsComplement(theSequence)
+        else:
+            #pop up a message saying that you are not allowed to change the length
+            #of the sequence
+            msg = "Cannot change the length of the sequence."\
+                "You need to have exactly" + str(self.maxSeqLength) + " amino acids."
+            QMessageBox.warning(self.win, "Warning!", msg)
+            self._supress_textChanged_signal = False
+            return
         
         ### Reconnect to respond when the sequence is changed.
         ##self.connect( self.sequenceTextEdit,
@@ -192,7 +195,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         self.synchronizeLengths()
         
         self._supress_textChanged_signal = False
-        
+        return
     
     def getPlainSequence( self, inOmitSymbols = False ):
         """
@@ -309,6 +312,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         #Apparently PM_TextEdit.insertHtml replaces the the whole 
         #sequence each time. This needs to be cleaned up. - Ninad 2007-11-27
         
+        self.maxSeqLength = len(inSequence)
         cursor          =  self.sequenceTextEdit.textCursor()     
         cursorMate      =  self.secStrucTextEdit.textCursor()
         cursorMate2     =  self.aaRulerTextEdit.textCursor()
@@ -547,16 +551,18 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         part = self.win.assy.part
         
         current_command = self.win.commandSequencer.currentCommand.commandName
+        position = cursor.position()
         if current_command == 'EDIT_ROTAMERS' or current_command == 'EDIT_RESIDUES' or current_command == 'BUILD_PROTEIN':
             current_protein = self.win.commandSequencer.currentCommand.propMgr.current_protein
             for mol in self.win.assy.molecules:
                 if mol.isProteinChunk and mol.name == current_protein:
                     proteinChunk = mol
+                    self._display_and_recenter(current_protein, position - 1)
                     break
         else:
             from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
             proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
-        position = cursor.position()
+        
         
         toolTipText = proteinChunk.protein.get_amino_acid_id(position - 1)
         self.sequenceTextEdit.setToolTip(str(toolTipText)) 
@@ -568,6 +574,21 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             self.win.commandSequencer.currentCommand.propMgr._sequenceTableCellChanged(position - 1, 0)    
             self.win.commandSequencer.currentCommand.propMgr.sequenceTable.setCurrentCell(position - 1, 3) 
             
+    def _display_and_recenter(self, current_protein, index):
+        """
+        """
+        for chunk in self.win.assy.molecules:
+            if chunk.isProteinChunk() and chunk.name == current_protein:
+                chunk.protein.collapse_all_rotamers()
+                current_aa = chunk.protein.get_amino_acid_at_index(index)
+                if current_aa:
+                    chunk.protein.expand_rotamer(current_aa)
+                    ca_atom = current_aa.get_c_alpha_atom()
+                    if ca_atom:
+                        self.win.glpane.pov = -ca_atom.posn()                            
+                    self.win.glpane.gl_update()
+                    
+                    
     def synchronizeLengths( self ):
         """
         Guarantees the values of the duplex length and strand length 
