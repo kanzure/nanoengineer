@@ -169,7 +169,11 @@ class BuildProtein_EditCommand(EditCommand):
             showPropMgr = showPropMgr)
         
         self.propMgr.updateMessage("Use appropriate command in the command "\
-                                   "toolbar to create or modify a Protein Object"\
+                                   "toolbar to modify a Protein."\
+                                   "<br>"\
+                                   "If you change the sequence, make sure to "\
+                                   "hit Enter key at the end so that the changes "
+                                   "can be saved."
                                    "<br>"
                                )
 
