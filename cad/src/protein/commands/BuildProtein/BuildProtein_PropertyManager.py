@@ -167,7 +167,8 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             secStructure = proteinChunk.protein.get_secondary_structure_string()
             self.sequenceEditor.setSecondaryStructure(secStructure)
             self.sequenceEditor.setRuler(len(secStructure))
-            self.sequenceEditor.show()    
+            self.sequenceEditor.show()  
+            
         else:
             self.sequenceEditor.hide()   
             
@@ -214,7 +215,8 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 self.sequenceEditor.setSecondaryStructure(secStructure)
                 self.sequenceEditor.setRuler(len(secStructure))
                 break
-        self.set_current_protein_chunk_name(mol.name)    
+        self.set_current_protein_chunk_name(mol.name) 
+        env.history.statusbar_msg("")
         return
     
     def set_current_protein_chunk_name(self, name):
