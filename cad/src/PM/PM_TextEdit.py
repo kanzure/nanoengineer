@@ -26,6 +26,7 @@ from PyQt4.Qt import QTextEdit
 ##from PyQt4.Qt import QPalette
 from PyQt4.Qt import QWidget
 from PyQt4.Qt import QTextCharFormat
+from PyQt4.Qt import SIGNAL
 
 class PM_TextEdit( QTextEdit ):
     """
@@ -148,6 +149,8 @@ class PM_TextEdit( QTextEdit ):
         """
         #If user hits 'Enter' key (return key), don't do anything. 
         if event.key() == Qt.Key_Return:
+            #Urmi 20080724: emit a signal to indicate end of processing
+            self.emit(SIGNAL("editingFinished()"))
             #there is no obvious way to allow only a single line in a 
             #QTextEdit (we can use some methods that restrict the columnt width
             #, line wrapping etc but this is untested when the line contains 
