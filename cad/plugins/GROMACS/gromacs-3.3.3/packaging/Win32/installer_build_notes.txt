@@ -1,0 +1,27 @@
+The directory tree for the build is as follows:
+Top_level
+|
++-dist (a directory to hold the compiled gromacs binary tree:
+|       ftp://ftp.gromacs.org/pub/gromacs/gromacs-3.3.2.tar.gz)
+|
++-mcpp (mcpp binary distribution which can be gotten from: 
+        http://mcpp.sourceforge.net/download.html
+
+ReadMe.html,License.txt and GMX_installer.nsi should all reside in the top level directory
+
+
+
+--==compiling gromacs from original sources==--
+
+- Untar the sources into a temporary directory.
+
+- Make the following modifications:
+  * comment out the eof() function in include/futil.h and src/gmxlib/futil.c
+  * add #undef HAVE_UNISTD_H right before #ifdef HAVE_UNISTD_H in src/gmxlib/statutil.c,main.c
+  * comment out blocks and lines with SIGUSR1 references in src/kernal/md.c
+
+- re-make the tar as gromacs-3.3.3-modified.tar.gz
+
+- copy that tar file into C:\modified_sources
+
+- You are now ready to run the build script located in the packaging directory

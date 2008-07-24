@@ -1,0 +1,52 @@
+<html>
+<!-- Copyright 2008 Nanorex, Inc.  See LICENSE file for details. -->
+<head>
+<title>
+GROMACS 3.3.3 (Double Precision)
+</title>
+</head>
+
+<body>
+
+<h1>GROMACS 3.3.3</h1>
+<a href="http://www.gromacs.org/">GROMACS</a> (GMX) is an extremely high performance, open source, and cross-platform package used to perform molecular dynamics simulation of systems with hundreds to millions of particles. NE1 currently uses GROMACS as an energy minimization engine option. Also included with the binary installers is <a href="http://mcpp.sourceforge.net/"><tt>mcpp</tt></a>, a free, open source, portable C preprocessor. A C preprocessor is required for GROMACS use, so we've included one since some platforms don't come with one.
+<p>
+This is GROMACS 3.3.3 as of April 25, 2008.
+<p>
+<ul>
+  <li><a href="#InstallationInstructions">Installation Instructions</a>
+  <li><a href="#Copyright">Copyrights and Licensing</a>
+</ul>
+
+<a name="InstallationInstructions"></a>
+<h2>Installation Instructions</h2>
+
+<h3>Windows</h3>
+Run the GROMACS self-extracting installer "GROMACS_3.3.3.exe". 
+
+<h3>Mac OS X</h3>
+Run the GROMACS self-extracting installer "GROMACS_3.3.3.dmg".
+
+<h3>Linux and Developers</h3>
+GROMACS must be compiled from sources for Linux users and developers. Download the GROMACS source distribution "GROMACS_3.3.3.tar.gz" and follow the instructions.
+
+<h3>Post-install Notes</h3>
+If you have not installed this from the NanoEngineer-1 Suite installer you will have to modify your preferences to enable NanoEngineer-1 to use this plugin.
+<ol>
+  <li> Launch NanoEngineer-1
+  <li> Choose Tools -> Preferences -> Plug-ins
+  <li> Check the box for GROMACS and input the full path to the mdrun executable including its file name. For example, on Windows it may be C:\GROMACS_3.3.3\bin\mdrun.exe)
+  <li> Check the box for cpp and input the full path to the mcpp executable including its file name. For example, on Windows it may be C:\GROMACS_3.3.3\MCPP\bin\mcpp.exe)
+  <li> Click Ok.
+</ol>
+
+<a name="Copyright"></a>
+<h2>Copyrights and Licensing</h2>
+GROMACS is <i>Free Software</i>, available under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU General Public License</a>.
+<p>
+Our modifications to the GROMACS code are Copyright 2007-2008 Nanorex, Inc. and fall under GROMACS's GPL license.
+<p>
+<tt>mcpp</tt> is open source software released under a BSD-style license. See MCPP/LICENSE for details.
+
+</body>
+</html>
