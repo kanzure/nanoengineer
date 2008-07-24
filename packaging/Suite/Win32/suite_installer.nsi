@@ -230,7 +230,7 @@ SectionGroupEnd
 ;SectionGroupEnd
 
 SectionGroup /e "GROMACS"
-Section "GROMACS+HDF5 (Required)" SEC_GMX_BASE
+Section "GROMACS (Required)" SEC_GMX_BASE
   SectionIn 1 2
 ;  SetOutPath "$INSTDIR"
   SetOutPath "c:\${GMX_INST_DIR}"
