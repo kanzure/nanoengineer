@@ -242,14 +242,6 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             
         return params 
     
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """   
-        if self.editCommand:
-            self.editCommand.preview_or_finalize_structure(previewing = False)
-        self.win.toolsDone()
-  
     
     def close(self):
         """

@@ -121,23 +121,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
                        SIGNAL('stateChanged(int)'),
                        self._update_state_of_cursorTextGroupBox)
 
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """
-        if self.editCommand:
-            self.editCommand.preview_or_finalize_structure(previewing = False)
-            ##env.history.message(self.editCommand.logMessage)
-        self.win.toolsDone()
-
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """
-        if self.editCommand:
-            self.editCommand.cancelStructure()
-        self.win.toolsCancel()
-
+    
 
     def _update_widgets_in_PM_before_show(self):
         """
