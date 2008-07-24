@@ -583,9 +583,18 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
                 current_aa = chunk.protein.get_amino_acid_at_index(index)
                 if current_aa:
                     chunk.protein.expand_rotamer(current_aa)
-                    ca_atom = current_aa.get_c_alpha_atom()
-                    if ca_atom:
-                        self.win.glpane.pov = -ca_atom.posn()                            
+                    if self.win.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS':
+                        checked = self.win.commandSequencer.currentCommand.propMgr.recenterViewCheckBox.isChecked()
+                        if checked:
+                            ca_atom = current_aa.get_c_alpha_atom()
+                            if ca_atom:
+                                self.win.glpane.pov = -ca_atom.posn()  
+                    if self.win.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
+                        checked = self.win.commandSequencer.currentCommand.propMgr.recenterViewCheckBox.isChecked()
+                        if checked:
+                            ca_atom = current_aa.get_c_alpha_atom()
+                            if ca_atom:
+                                self.win.glpane.pov = -ca_atom.posn()              
                     self.win.glpane.gl_update()
                     
                     
@@ -595,9 +604,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         spinboxes agree with the strand sequence (textedit).
         
         @TODO: synchronizeLengths doesn't do anything for now
-        """
-        ##self.updateStrandLength()
-        ##self.updateDuplexLength()   
+        """  
         return
     
     def openStrandSequenceFile(self):
