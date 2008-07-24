@@ -1973,13 +1973,16 @@ class MWsemantics(QMainWindow,
         """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != 'QUTEMOL_PROPERTIES':
+        if currentCommand.commandName != 'QUTEMOL':
             commandSequencer.userEnterTemporaryCommand(
-                'QUTEMOL_PROPERTIES')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'QUTEMOL_PROPERTIES':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
+                'QUTEMOL')
+        #commented out code below can be used in future, if we make the 
+        #Qutemol action a 'ckeckable action' . (so when it is unchecked by the 
+        #user, it will exit the QuteMol command) 
+        ##else:
+            ##currentCommand = self.commandSequencer.currentCommand
+            ##if currentCommand.commandName == 'QUTEMOL':
+                ##currentCommand.Done(exit_using_done_or_cancel_button = False)
                 
 
     def insertDna_OLD_NOT_USED(self, isChecked = False):

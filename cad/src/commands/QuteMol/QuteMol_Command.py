@@ -18,9 +18,9 @@ from commands.QuteMol.QuteMolPropertyManager import QuteMolPropertyManager
 _superclass = SelectChunks_Command
 class QuteMol_Command(SelectChunks_Command):
 
-    commandName = 'QUTEMOL_PROPERTIES'
+    commandName = 'QUTEMOL'
     default_mode_status_text = ""
-    featurename = "QuteMol Properties"
+    featurename = "QuteMol"
     
     GraphicsMode_class = SelectChunks_GraphicsMode
 
