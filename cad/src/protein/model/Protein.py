@@ -768,6 +768,11 @@ class Protein:
             return self.sequence.values()[self.current_aa_idx]
         return None
     
+    def get_amino_acid_at_index(self, index):
+        if index in range(len(self.sequence)):
+            return self.sequence.values()[index]
+        return None
+    
     def get_current_amino_acid_index(self):
         """
         """
