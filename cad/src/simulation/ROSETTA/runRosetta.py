@@ -681,7 +681,22 @@ class RosettaRunner:
                             if mol.isProteinChunk and mol.name == (bestSimOutFileName[0:len(bestSimOutFileName)-4].lower() + 'A'):
                                 outProtein = mol
                         outProtein.protein.set_rosetta_protein_secondary_structure(inProtein)
-                        
+                        command = self.win.commandSequencer.currentCommand
+                        prevCommand = self.win.commandSequencer.prevMode
+                        if prevCommand is not None:
+                            prevCommandName = prevCommand.commandName
+                        else:
+                            prevCommandName = ''
+                        if  prevCommandName == 'BUILD_PROTEIN' or command.commandName == 'BUILD_PROTEIN':
+                            #add the new chunk to the combo box in build protein mode
+                            if prevCommandName == '':
+                                command.propMgr.structureComboBox.addItem(outProtein.name)
+                                command.propMgr.protein_name_list.append(outProtein.name)
+                                command.propMgr.protein_chunk_list.append(outProtein)
+                            else:
+                                prevCommand.propMgr.structureComboBox.addItem(outProtein.name)
+                                prevCommand.propMgr.protein_name_list.append(outProtein.name)
+                                prevCommand.propMgr.protein_chunk_list.append(outProtein)
                         env.history.statusbar_msg("")
                         fastaFile = self.outfile + "_design.fasta" 
                         fastaFilePath = os.path.join(os.path.dirname(self.tmp_file_prefix), fastaFile)
