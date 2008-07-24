@@ -44,7 +44,7 @@ from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckB
 from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key
 from utilities.prefs_constants import insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key
 
-
+_superclass = EditCommand
 class InsertNanotube_EditCommand(EditCommand):
     """
     InsertNanotube_EditCommand that provides an editCommand object for 
@@ -86,7 +86,7 @@ class InsertNanotube_EditCommand(EditCommand):
         Constructor for InsertNanotube_EditCommand
         """
 
-        EditCommand.__init__(self, commandSequencer)        
+        _superclass.__init__(self, commandSequencer)        
 
         #Maintain a list of segments created while this command was running. 
         self._segmentList = []
@@ -106,7 +106,7 @@ class InsertNanotube_EditCommand(EditCommand):
 
         @see: L{self.restore_gui}
         """
-        EditCommand.init_gui(self)  
+        _superclass.init_gui(self)  
 
         if isinstance(self.graphicsMode, NanotubeLine_GM):
             self._setParamsForCntLineGraphicsMode()
@@ -142,7 +142,7 @@ class InsertNanotube_EditCommand(EditCommand):
         command toolbar is handled in those classes.
         @see: L{self.init_gui}
         """                    
-        EditCommand.restore_gui(self)
+        _superclass.restore_gui(self)
 
         if isinstance(self.graphicsMode, NanotubeLine_GM):
             self.mouseClickPoints = []
@@ -173,7 +173,7 @@ class InsertNanotube_EditCommand(EditCommand):
         @see: Command.keep_empty_group() which is overridden here. 
         """
 
-        bool_keep = EditCommand.keep_empty_group(self, group)
+        bool_keep = _superclass.keep_empty_group(self, group)
 
         if not bool_keep: 
             #Don't delete any CntSegements or NanotubeGroups at all while 
@@ -196,7 +196,7 @@ class InsertNanotube_EditCommand(EditCommand):
         @param showPropMgr: If True, show the property manager 
         @type showPropMgr: boolean
         """
-        EditCommand.create_and_or_show_PM_if_wanted(
+        _superclass.create_and_or_show_PM_if_wanted(
             self,
             showPropMgr = showPropMgr)
 
@@ -248,16 +248,7 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         return self.win.assy.NanotubeSegment
 
-    def _createStructure(self):
-        """
-        creates and returns the structure (in this case a L{Group} object that 
-        contains the nanotube. 
-        @return : group containing the carbon nanotube chunks.
-        @rtype: L{Group}  
-        @note: This needs to return a CNT object once that model is implemented        
-        """
-        return self._createSegment()
-
+    
     def _finalizeStructure(self):
         """
         Finalize the structure. This is a step just before calling Done method.
@@ -281,7 +272,7 @@ class InsertNanotube_EditCommand(EditCommand):
         if len(self.mouseClickPoints) == 1:
             return
         else:
-            EditCommand._finalizeStructure(self)
+            _superclass._finalizeStructure(self)
 
 
     def _gatherParameters(self):
@@ -301,7 +292,7 @@ class InsertNanotube_EditCommand(EditCommand):
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Cnt, Nanotube etc) . .
         See more comments in the method.
-        @see: a note in self._createSegment() about use of ntSegment.setProps 
+        @see: a note in self._createStructure() about use of ntSegment.setProps 
         """    
         assert self.struct
         # parameters have changed, update existing structure
@@ -340,7 +331,7 @@ class InsertNanotube_EditCommand(EditCommand):
         deletes all the segments created while this command was running
         @see: B{EditCommand.cancelStructure}
         """
-        EditCommand.cancelStructure(self)
+        _superclass.cancelStructure(self)
         self._removeSegments()
 
     def _removeSegments(self):
@@ -363,7 +354,7 @@ class InsertNanotube_EditCommand(EditCommand):
         self._segmentList = []	
         self.win.win_update()
 
-    def _createSegment(self):
+    def _createStructure(self):
         """
         Creates and returns the structure (in this case a L{Group} object that 
         contains the nanotube chunk. 
@@ -412,8 +403,8 @@ class InsertNanotube_EditCommand(EditCommand):
             #it can be retrieved while editing this object. 
 
             #WARNING 2008-03-05: Since self._modifyStructure calls 
-            #self._createStructure() (which in turn calls self._createSegment() 
-            #in this case) If in the near future, we actually permit modifying a
+            #self._createStructure() If in the near future, we actually permit 
+            #modifying a
             #structure (such as a nanotube) without actually recreating the  
             #entire structure, then the following properties must be set in 
             #self._modifyStructure as well. Needs more thought.

@@ -38,7 +38,7 @@ from dna.model.DnaGroup import DnaGroup
 from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
-from geometry.VQT import V, Veq, vlen, planeXline
+from geometry.VQT import V, Veq, vlen
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM5
 
@@ -59,6 +59,9 @@ from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_le
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key
+
+
+_superclass = EditCommand
 
 class DnaDuplex_EditCommand(EditCommand):
     """
@@ -110,7 +113,7 @@ class DnaDuplex_EditCommand(EditCommand):
         Constructor for DnaDuplex_EditCommand
         """
 
-        EditCommand.__init__(self, commandSequencer)        
+        _superclass.__init__(self, commandSequencer)        
 
         #_fallbackDnaGroup stores the DnaSegments created while in 
         #this command. This temporary dnaGroup is created IF AND ONLY IF 
@@ -164,7 +167,7 @@ class DnaDuplex_EditCommand(EditCommand):
 
         @see: L{self.restore_gui}
         """
-        EditCommand.init_gui(self)        
+        _superclass.init_gui(self)        
 
 
         if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
@@ -216,7 +219,7 @@ class DnaDuplex_EditCommand(EditCommand):
         command toolbar is handled in those classes.
         @see: L{self.init_gui}
         """                    
-        EditCommand.restore_gui(self)
+        _superclass.restore_gui(self)
 
         if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
             self.mouseClickPoints = []
@@ -249,7 +252,7 @@ class DnaDuplex_EditCommand(EditCommand):
         @see: Command.keep_empty_group() which is overridden here. 
         """
 
-        bool_keep = EditCommand.keep_empty_group(self, group)
+        bool_keep = _superclass.keep_empty_group(self, group)
 
         if not bool_keep: 
             #Don't delete any DnaSegements or DnaGroups at all while 
@@ -272,7 +275,7 @@ class DnaDuplex_EditCommand(EditCommand):
         @param showPropMgr: If True, show the property manager 
         @type showPropMgr: boolean
         """
-        EditCommand.create_and_or_show_PM_if_wanted(
+        _superclass.create_and_or_show_PM_if_wanted(
             self,
             showPropMgr = showPropMgr)
 
@@ -352,17 +355,6 @@ class DnaDuplex_EditCommand(EditCommand):
         return self.win.assy.DnaSegment
 
 
-
-    def _createStructure(self):
-        """
-        creates and returns the structure (in this case a L{Group} object that 
-        contains the DNA strand and axis chunks. 
-        @return : group containing that contains the DNA strand and axis chunks.
-        @rtype: L{Group}  
-        @note: This needs to return a DNA object once that model is implemented        
-        """
-        return self._createSegment()
-
     def _finalizeStructure(self):
         """
         Finalize the structure. This is a step just before calling Done method.
@@ -386,7 +378,7 @@ class DnaDuplex_EditCommand(EditCommand):
         if len(self.mouseClickPoints) == 1:
             return
         else:
-            EditCommand._finalizeStructure(self)
+            _superclass._finalizeStructure(self)
 
 
     def _gatherParameters(self):
@@ -412,7 +404,7 @@ class DnaDuplex_EditCommand(EditCommand):
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
-        @see: a note in self._createSegment() about use of dnaSegment.setProps 
+        @see: a note in self._createSStructure() about use of dnaSegment.setProps 
         """    
         assert self.struct
         # parameters have changed, update existing structure
@@ -452,7 +444,7 @@ class DnaDuplex_EditCommand(EditCommand):
         @see: B{EditCommand.cancelStructure}
         """
 
-        EditCommand.cancelStructure(self)
+        _superclass.cancelStructure(self)
         self._removeSegments()
 
     def _removeSegments(self):
@@ -487,7 +479,7 @@ class DnaDuplex_EditCommand(EditCommand):
         self._segmentList = []	
         self.win.win_update()
 
-    def _createSegment(self):
+    def _createStructure(self):
         """
         Creates and returns the structure (in this case a L{Group} object that 
         contains the DNA strand and axis chunks. 
@@ -608,8 +600,8 @@ class DnaDuplex_EditCommand(EditCommand):
             #make() method to fit in the dna data model. --Ninad 2008-03-05
 
             #WARNING 2008-03-05: Since self._modifyStructure calls 
-            #self._createStructure() (which in turn calls self._createSegment() 
-            #in this case) If in the near future, we actually permit modifying a
+            #self._createStructure() If in the near future, we actually permit 
+            #modifying a
             #structure (such as dna) without actually recreating the whole 
             #structre, then the following properties must be set in 
             #self._modifyStructure as well. Needs more thought.
