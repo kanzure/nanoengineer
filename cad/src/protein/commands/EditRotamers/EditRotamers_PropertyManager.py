@@ -414,7 +414,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                         ca_atom = current_aa.get_c_alpha_atom()
                         if ca_atom:
                             self.win.glpane.pov = -ca_atom.posn()                            
-                    #self.win.glpane.gl_update()
+                    
                     self.win.glpane.gl_update()
         
     def _update_chi_angles(self, aa):
