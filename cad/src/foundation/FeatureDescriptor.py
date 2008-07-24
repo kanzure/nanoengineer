@@ -291,16 +291,66 @@ class FeatureDescriptor(object):
         self.featurename = featurename
     pass
 
-# ==
+# ===
 
-class basicCommand_Descriptor( FeatureDescriptor): # refile with basicCommand?
+def command_package_part_of_module_name(name):
+    """
+    Given a module name like "dna.commands.InsertDna.InsertDna_EditCommand",
+    return the command package part, "dna.commands.InsertDna".
+    Return a command package name itself unchanged.
+    For module names, not inside a command package (or equalling one),
+    return None.
+    """
+    command_package = None # default return value
+    name_parts = name.split('.')
+    if 'commands' in name_parts:
+        where = name_parts.index('commands')
+        if where not in (0, 1):
+            print "unusual location for 'commands' in module name:", name
+        if where < len(name_parts) - 1:
+            command_package = '.'.join(name_parts[0:where+2])
+    return command_package
+
+
+class CommandDescriptor(FeatureDescriptor):
+    """
+    Abstract superclass for descriptors for various kinds of comands.
+    """
+    command_package = None
+    pass
+
+
+class otherCommandPackage_Descriptor( CommandDescriptor):
+    """
+    Descriptor for a command presumed to exist in a given command_package
+    in which no actual command was found.
+    """
+    def __init__(self, command_package):
+        CommandDescriptor.__init__( self, None, None )
+        self.command_package = command_package
+        return
+
+    def sort_key(self):
+        return ( 0, self.command_package )
+
+    def print_plain(self):
+        print "command_package:", self.command_package
+        print "type: command package (no command found)"
+    pass
+
+
+class basicCommand_Descriptor( CommandDescriptor): # refile with basicCommand?
     """
     Descriptor for a command feature defined by any basicCommand subclass.
     """
     def __init__(self, command_class, featurename):
-        FeatureDescriptor.__init__( self, command_class, featurename )
-        ### TODO: initialize various metainfo
-
+        CommandDescriptor.__init__( self, command_class, featurename )
+        # initialize various metainfo
+        modulename = command_class.__module__
+        self.command_package = command_package_part_of_module_name( modulename)
+        # todo: more
+        return
+    
     def _get_command_class(self):
         return self.thing
     command_class = property( _get_command_class)
@@ -309,12 +359,14 @@ class basicCommand_Descriptor( FeatureDescriptor): # refile with basicCommand?
         # revise to group dna commands together, etc? or subcommands of one main command?
         # yes, when we have the metainfo to support that.
         
-        return ( self.featurename, short_class_name( self.command_class) ) #e more?
+        return ( 1, self.featurename, short_class_name( self.command_class) ) #e more?
 
     def print_plain(self):
         print "featurename:", self.featurename
         print "classname:", short_class_name( self.command_class)
-        ### TODO: more
+        print "command_package:", self.command_package
+        print "type: basicCommand subclass"
+        # todo: more
         
     pass
 

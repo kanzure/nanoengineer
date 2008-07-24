@@ -16,6 +16,8 @@ from utilities.debug import register_debug_menu_command
 from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 
 from foundation.FeatureDescriptor import find_or_make_descriptor_for_possible_feature_object
+from foundation.FeatureDescriptor import command_package_part_of_module_name
+from foundation.FeatureDescriptor import otherCommandPackage_Descriptor
 
 # ==
 
@@ -131,6 +133,8 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
     global_values = {} # id(val) -> val (not all vals are hashable)
     mcount = 0
 
+    all_command_packages_dict = {}
+
     for module in sys.modules.itervalues():
         if module:
             # Note: this includes built-in and extension modules.
@@ -142,8 +146,27 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
             for name in dir(module):
                 value = getattr(module, name)
                 global_values[id(value)] = value # also store module and name?
+            if 0:
+                print module # e.g. <module 'commands.Move' from '/Nanorex/trunk/cad/src/commands/Move/__init__.pyc'>
+                print getattr(module, '__file__', '<no file>') # e.g. /Nanorex/trunk/cad/src/commands/Move/__init__.pyc
+                    # e.g. <module 'imp' (built-in)> has no file; name is 'imp'
+                print getattr(module, '__name__', '<no name>') # e.g. commands.Move
+                    # all modules have a name.
+                print
+            cp = command_package_part_of_module_name( module.__name__)
+            if cp:
+                all_command_packages_dict[ cp] = cp
+            pass
+        continue
 
     print "found %d distinct global values in %d modules" % ( len(global_values), mcount)
+
+    print "found %d command_packages" % len(all_command_packages_dict) # a dict, from and to their names
+    all_command_packages_list = all_command_packages_dict.values()
+    all_command_packages_list.sort()
+    
+    # print "\n".join( all_command_packages_list)
+    # print
 
     if 1:
         # not needed, just curious how many types there are
@@ -166,12 +189,32 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
         d = find_or_make_descriptor_for_possible_feature_object( thing)
         if d is not None:
             descriptors[d] = d # duplicates can occur
+
+    # add notes about the command packages in which we didn't find any commands,
+    # and warn about those in which we found more than one
+    command_packages_with_commands = {}
+    for d in descriptors:
+        cp = d.command_package
+        if cp:
+            if cp not in all_command_packages_dict:
+                print "bug: command package not found in initial scan:", cp
+            if command_packages_with_commands.has_key(cp):
+                print "warning: command package with more than one command:", cp
+            command_packages_with_commands[ cp] = cp
+
+    for cp in all_command_packages_list:
+        if not cp in command_packages_with_commands:
+            d = otherCommandPackage_Descriptor(cp)
+            descriptors[d] = d
     
+    # change descriptors into a list, and sort it
     items = [ ( descriptor.sort_key(), descriptor) for descriptor in descriptors]
         ### or call sort_by or sorted_by, if it exists?
     items.sort()
     descriptors = [ descriptor for junk, descriptor in items ]
 
+    # print results
+    
     print "found %d commands:" % len(descriptors)
     print
 
