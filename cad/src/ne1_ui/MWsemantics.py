@@ -1490,8 +1490,14 @@ class MWsemantics(QMainWindow,
         protein = ""
         if self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN' or self.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS' or self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
             protein = self.commandSequencer.currentCommand.propMgr.current_protein
-        if self.commandSequencer.prevMode is not None and self.commandSequencer.prevMode.commandName == 'BUILD_PROTEIN': 
-            protein = self.commandSequencer.prevMode.propMgr.current_protein
+        
+        #run Rosetta for the first selected protein
+        if protein == "" and len(self.assy.selmols) >=1:
+            for chunk in self.assy.selmols:
+                if chunk.isProteinChunk():
+                    protein = chunk.name
+                    break
+                
         argList = [numRuns, otherOptionsText, protein]
         self.rosettaArgs = []
         self.rosettaArgs.extend(argList)
