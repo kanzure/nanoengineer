@@ -488,7 +488,7 @@ class viewSlotsMixin:
         cmd = greenmsg("QuteMolX : ")
 
         if self.assy.molecules:
-            self.qutemolPM.show()
+            self.enterQuteMolCommand()
         else:
             msg = orangemsg("No atoms in the current part.")
             env.history.message(cmd + msg)

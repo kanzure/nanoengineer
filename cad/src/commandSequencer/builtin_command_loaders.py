@@ -50,6 +50,7 @@ from commands.StereoProperties.StereoProperties_Command import StereoProperties_
 from commands.ColorScheme.ColorScheme_Command import ColorScheme_Command
 from commands.LightingScheme.LightingScheme_Command import LightingScheme_Command
 from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
+from commands.QuteMol.QuteMol_Command import QuteMol_Command
 
 from temporary_commands.ZoomToAreaMode import ZoomToAreaMode
 from temporary_commands.ZoomInOutMode import ZoomInOutMode
@@ -87,6 +88,7 @@ from protein.commands.CompareProteins.CompareProteins_Command import CompareProt
 
 #Graphene commands 
 from commands.InsertGraphene.Graphene_EditCommand import Graphene_EditCommand
+
 def preloaded_command_classes():
     """
     Return a list of command classes for the commands which are always loaded
@@ -137,6 +139,7 @@ def preloaded_command_classes():
         FuseChunks_Command,
         RotateAboutPoint_Command,        
         StereoProperties_Command,
+        QuteMol_Command,
         ColorScheme_Command,
         Peptide_EditCommand,
         BuildProtein_EditCommand,

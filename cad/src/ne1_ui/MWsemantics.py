@@ -385,10 +385,6 @@ class MWsemantics(QMainWindow,
         from commands.BuildAtom.AtomGenerator import AtomGenerator
         self.atomcntl = AtomGenerator(self)
 
-        # QuteMolX Property Manager. Mark 2007-12-02.
-        from commands.QuteMol.QuteMolPropertyManager import QuteMolPropertyManager
-        self.qutemolPM = QuteMolPropertyManager(self)
-
         # We must enable keyboard focus for a widget if it processes
         # keyboard events. [Note added by bruce 041223: I don't know if this is
         # needed for this window; it's needed for some subwidgets, incl. glpane,
@@ -1969,6 +1965,22 @@ class MWsemantics(QMainWindow,
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'STEREO_PROPERTIES':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
+                
+                
+    def enterQuteMolCommand(self):
+        """
+        Show the QuteMol property manager. 
+        """
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != 'QUTEMOL_PROPERTIES':
+            commandSequencer.userEnterTemporaryCommand(
+                'QUTEMOL_PROPERTIES')
+        else:
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'QUTEMOL_PROPERTIES':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+                
 
     def insertDna_OLD_NOT_USED(self, isChecked = False):
         """
