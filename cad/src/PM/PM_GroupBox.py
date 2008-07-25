@@ -48,8 +48,16 @@ from PyQt4.Qt import SIGNAL
 from widgets.widget_helpers import QColor_to_Hex
 from utilities.icon_utilities import geticon, getpixmap
 
+from utilities.GlobalPreferences import debug_pref_support_Qt_4point2
+
 #This import is only used in isinstance check--
 from PM.PM_CheckBox import PM_CheckBox
+
+# ==
+
+_SUPPORT_QT_4point2 = debug_pref_support_Qt_4point2() #bruce 080725
+
+# ==
 
 class PM_GroupBox( QGroupBox ):
     """
@@ -733,6 +741,10 @@ class PM_GroupBox( QGroupBox ):
                               QColor_to_Hex(pmGrpBoxButtonTextColor),
                               pmGrpBoxCollapsedIconPath
                               )
+        
+        if _SUPPORT_QT_4point2:
+            styleSheet = styleSheet.replace("text-align: left; ", "")
+        
         return styleSheet
             
     def toggleExpandCollapse(self):

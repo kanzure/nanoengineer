@@ -454,4 +454,13 @@ def pref_skip_redraws_requested_only_by_Qt():
 
 pref_skip_redraws_requested_only_by_Qt()
 
+# ==
+
+def debug_pref_support_Qt_4point2(): #bruce 080725
+    res = debug_pref("support Qt 4.2 (next session)?",
+                     Choice_boolean_False,
+                     prefs_key = True
+                    )
+    return res
+
 # end
