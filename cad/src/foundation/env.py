@@ -387,11 +387,17 @@ def do_post_event_updates( warn_if_needed = False ):
 
     @see: _master_model_updater
     """
-    # do all model updaters before any ui updaters
-    for function in _post_event_model_updaters:
-        (function)(warn_if_needed)
-    for function in _post_event_ui_updaters:
-        (function)()
+    from utilities.debug import print_compact_traceback #bruce 080725
+        ### TODO: fix import cycle this causes by moving this and nearby functions into new module
+    try:
+        # do all model updaters before any ui updaters
+        for function in _post_event_model_updaters:
+            (function)(warn_if_needed)
+        for function in _post_event_ui_updaters:
+            (function)()
+    except:
+        #bruce 080725
+        print_compact_traceback("exception in some post-event updater, skipping remaining ones: ")
     return
 
 # ==
