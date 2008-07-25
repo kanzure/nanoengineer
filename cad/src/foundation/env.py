@@ -387,12 +387,23 @@ def do_post_event_updates( warn_if_needed = False ):
 
     @see: _master_model_updater
     """
-    # Note: catching exceptions here and not propogating them upwards
-    # can make some bugs worse by turning them into infinite recursions
-    # (for reasons not yet analyzed). Exceptions here can prevent redrawing
+    # Note: exceptions in one of these updaters can prevent redrawing
     # for the rest of the session, so better protection is needed,
-    # but it doesn't work if added right here (at least for an AttributeError
+    # but it doesn't fully work if added right here (at least for an AttributeError
     # in the dna sequence editor in Edit Dna Strand Properties).
+    # It would be good to add it at a higher level at some point.
+    #
+    # Details: catching exceptions here and not propogating them upwards
+    # may make some bugs worse by turning them into infinite recursions
+    # (for reasons not yet analyzed). Or it may be that those bugs were
+    # *already* infinite recursions, since at least one such case is known
+    # (though it's not testable in current code, since Ninad fixed it thismorning).
+    # To reproduce that bug, this might work (untested):
+    # - remove def setComplementSequence from DnaSequenceEditor
+    #   (what was tested was having a ProteinSequenceEditor erroneously residing
+    #    in the private win attr meant for the DnaSequenceEditor)
+    # - edit a dna strand using the PM button of that name in Build DNA.
+    # 
     # [bruce 080725 comment]
 
     # note: importing from utilities.debug here adds an import cycle.
