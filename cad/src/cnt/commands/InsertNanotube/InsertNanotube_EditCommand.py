@@ -294,22 +294,6 @@ class InsertNanotube_EditCommand(EditCommand):
         See more comments in the method.
         @see: a note in self._createStructure() about use of ntSegment.setProps 
         """    
-        assert self.struct
-        # parameters have changed, update existing structure
-        self._revertNumber()
-
-        # self.name needed for done message
-        if self.create_name_from_prefix:
-            # create a new name
-            name = self.name = gensym(self.prefix, self.win.assy) # (in _build_struct)
-            self._gensym_data_for_reusing_name = (self.prefix, name)
-        else:
-            # use externally created name
-            self._gensym_data_for_reusing_name = None
-                # (can't reuse name in this case -- not sure what prefix it was
-                #  made with)
-            name = self.name
-
         #@NOTE: Unlike editcommands such as Plane_EditCommand, this 
         #editCommand actually removes the structure and creates a new one 
         #when its modified. We don't yet know if the CNT object model 
