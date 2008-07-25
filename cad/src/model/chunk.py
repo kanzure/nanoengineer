@@ -476,7 +476,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         """
         # TODO: See make_selobj_cmenu_items in other classes. This method is very
-        # similar to  that method. But it's not named the same because the chunk
+        # similar to that method. But it's not named the same because the chunk
         # may not be a glpane.selobj (as it may get highlighted in SelectChunks
         # mode even when, for example, the cursor is over one of its atoms 
         # (i.e. selobj = an Atom). So ideally, that old method should be renamed
@@ -499,10 +499,18 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 try:
                     segment = self.parent_node_of_class(self.assy.NanotubeSegment)
                 except:
-                    # A graphene sheet or a simple chunk that thinks its a nanotube.
+                    # A graphene sheet or a simple chunk that thinks it's a nanotube.
+
+                    # REVIEW: the above comment (and this code) must be wrong,
+                    # because parent_node_of_class never has exceptions unless
+                    # it has bugs. So I'm adding this debug print. The return
+                    # statement below was already there. If the intent
+                    # was to return when segment is None, that was not there
+                    # and is not there now, and needs adding separately.
+                    # [bruce 080723 comment and debug print]
+                    print_compact_traceback("exception in %r.parent_node_of_class: " % self)
                     return
                 if segment is not None:
-
                     # Self is a member of a Nanotube group, so add this 
                     # info to a disabled menu item in the context menu.
                     item = (("%s" % (segment.name)),
@@ -534,18 +542,20 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     item = (("%s of [%s]" % (strand.name, dnaGroup.name)),
                             noop,
                             'disabled')	
-                contextMenuList.append(None) #adds a separator in the contextmenu
+                contextMenuList.append(None) # adds a separator in the contextmenu
                 contextMenuList.append(item)	    
                 item = (("Edit DnaStrand Properties..."), 
                         strand.edit) 			  
                 contextMenuList.append(item)
-                contextMenuList.append(None) #adds a separator in the contextmenu
+                contextMenuList.append(None) # separator
                 
                 addDnaGroupMenuItems(dnaGroup)
                 
                 # add menu commands from our DnaLadder [bruce 080407]
-                if 0: #self.ladder: # in case dna updater failed or is not enabled
+                if self.ladder:
                     menu_spec = self.ladder.dnaladder_menu_spec(self)
+                        # note: this is empty when self (the arg) is a Chunk.
+                        # [bruce 080723 refactoring a recent Mark change]
                     if menu_spec:
                         # append separator?? ## contextMenuList.append(None)
                         contextMenuList.extend(menu_spec)
@@ -554,7 +564,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 segment = self.parent_node_of_class(self.assy.DnaSegment)
                 dnaGroup = segment.parent_node_of_class(self.assy.DnaGroup)
                 if segment is not None:
-                    contextMenuList.append(None)#adds a separator in the contextmenu
+                    contextMenuList.append(None) # separator
                     if dnaGroup is not None:
                         item = (("%s of [%s]" % (segment.name, dnaGroup.name)),
                                 noop,
@@ -568,7 +578,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     item = (("Edit DnaSegment Properties..."), 
                             segment.edit)
                     contextMenuList.append(item)
-                    contextMenuList.append(None) #adds a separator in the contextmenu
+                    contextMenuList.append(None) # separator
                     # add menu commands from our DnaLadder [bruce 080407]
                     if segment.picked:       
                         selectedDnaSegments = self.assy.getSelectedDnaSegments()
@@ -578,7 +588,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                                     self.assy.win.resizeSelectedDnaSegments)
                             contextMenuList.append(item)
                             contextMenuList.append(None)
-                    if 0: # self.ladder:
+                    if self.ladder:
                         menu_spec = self.ladder.dnaladder_menu_spec(self)
                         if menu_spec:
                             contextMenuList.extend(menu_spec)
@@ -2778,31 +2788,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     print "Source of current atom:", atom_source
         return # from standard_draw_atoms (submethod of _draw_for_main_display_list)
 
-    def overdraw_hotspot(self, glpane, disp): # bruce 050131 (atom_debug only); [unknown later date] now always active
+    def overdraw_hotspot(self, glpane, disp): #bruce 050131
         """
         If this chunk is a (toplevel) clipboard item with a hotspot
         (i.e. if pasting it onto a bond will work and use its hotspot),
         display its hotspot in a special form.
         As with selatom, we do this outside of the display list.        
-        # bruce 050416 warning: the conditions here need to match those in depositMode's
-        # methods for mentioning hotspot in statusbar, and for deciding whether a clipboard
-        # item is pastable. All this duplicated hardcoded conditioning is bad; needs cleanup. #e
         """
-        try:
-            # if any of this fails (which is normal), it means don't use this feature for self.
-            # We need these checks because some code removes singlets from a chunk (by move or kill)
-            # without checking whether they are that chunk's hotspot.
+        if self._should_draw_hotspot(glpane):
             hs = self.hotspot
-            assert hs is not None and hs.is_singlet() and hs.key in self.atoms
-##            if hs is glpane.selatom and debug_flags.atom_debug:
-##                print "atom_debug: fyi: hs is glpane.selatom"
-# will removing this assert fix bug 703 and not cause trouble? bruce 050614 guess -- seems to work.
-# All selatom code still needs review and cleanup, though, now that it comes from selobj. ####@@@@
-##            assert hs is not glpane.selatom
-            assert (self in self.assy.shelf.members) or glpane.always_draw_hotspot #bruce 060627 added always_draw_hotspot re bug 2028
-        except:
-            pass
-        else:
             try:
                 color = env.prefs[bondpointHotspotColor_prefs_key] #bruce 050808
 
@@ -2814,11 +2808,39 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 hs.draw_atom_sphere(color, pos1, drawrad1, level, None, abs_coords = False)
                     #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
             except:
-                if 1 or debug_flags.atom_debug: ###@@@ decide which
-                    print_compact_traceback("atom_debug: ignoring exception in overdraw_hotspot %r, %r: " % (self, hs))
+                print_compact_traceback("atom_debug: ignoring exception in overdraw_hotspot %r, %r: " % (self, hs))
                 pass
             pass
-        pass
+        return
+
+    def _should_draw_hotspot(self, glpane): #bruce 080723 split this out, cleaned it up
+        """
+        Determine whether self has a valid hotspot and wants to draw it specially.
+        """
+        # bruce 050416 warning: the conditions here need to match those in depositMode's
+        # methods for mentioning hotspot in statusbar, and for deciding whether a clipboard
+        # item is pastable. All this duplicated hardcoded conditioning is bad; needs cleanup. #e
+        
+        # We need these checks because some code removes singlets from a chunk (by move or kill)
+        # without checking whether they are that chunk's hotspot.
+
+        # review/cleanup: some of these checks might be redundant with checks
+        # in the get method run by accessing self.hotspot.
+            
+        hs = self.hotspot ### todo: move lower, after initial tests
+
+        wanted = (self in self.assy.shelf.members) or glpane.always_draw_hotspot
+            #bruce 060627 added always_draw_hotspot re bug 2028
+        if not wanted:
+            return False
+
+        if hs is None:
+            return False
+        if not hs.is_singlet():
+            return False
+        if not hs.key in self.atoms:
+            return False
+        return True
 
     # == methods related to mmp format (reading or writing)
 
@@ -4509,19 +4531,22 @@ def shakedown_poly_evals_evecs_axis(basepos):
 
 # ==
 
-def mol_copy_name(name, assy = None): # bruce 041124; added assy arg, 080407
+def mol_copy_name(name, assy = None):
     """
-    turn xxx or xxx-copy<n> into xxx-copy<m> for a new number <m>
+    turn xxx or xxx-copy or xxx-copy<n> into xxx-copy<m> for a new number <m>
     """
-    try:
-        parts = name.split("-copy")
-        assert parts[-1] and (parts[-1].isdigit()) # often fails, that's ok
-    except: # lots of kinds of exceptions are possible, that's ok
+    # bruce 041124; added assy arg, 080407; rewrote/bugfixed, 080723
+    
+    # if name looks like xxx-copy or xxx-copy<nnn>, remove the -copy<nnn> part
+    parts = name.split("-copy")
+    if len(parts) > 1:
+        nnn = parts[-1]
+        if not nnn or nnn.isdigit():
+            name = "-copy".join(parts[:-1]) # everything but -copy<nnn>
+            # (note: this doesn't contain '-copy' unless original name
+            #  contained it twice)
         pass
-    else:
-        # name must look like xxx-copy<n>
-        name = "-copy".join(parts[:-1]) # this is the xxx part
-            # (fyi: it doesn't contain '-copy' unless original name contained it twice)
+    
     return gensym(name + "-copy", assy) # (in mol_copy_name)
         # note: we assume this adds a number to the end
 

@@ -1261,6 +1261,10 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
 
         (Other kinds of selobj might be permitted later.)
         """
+        if isinstance(selobj, self.assy.Chunk):
+            # don't add these entries to Chunk's cmenu.
+            # [bruce 080723 refactoring of recent Mark change in Chunk.py]
+            return
         res = []
         nwhats = self._n_bases_or_basepairs_string()
         if self.error or not self.valid:

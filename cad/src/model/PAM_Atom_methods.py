@@ -201,7 +201,7 @@ class PAM_Atom_methods:
         assert self.element.pam
         ladder = self.molecule.ladder
         res = []
-        if ladder: # in case dna updater failed or is not enabled
+        if ladder:
             dnaladder_menu_spec = ladder.dnaladder_menu_spec(self)
             if dnaladder_menu_spec:
                 if res: # never happens yet
