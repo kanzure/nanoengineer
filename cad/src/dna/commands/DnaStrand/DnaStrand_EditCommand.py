@@ -76,7 +76,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     prefix           =  'Strand '   # used for gensym
     cmdname          = "DNA_STRAND"
     commandName       = 'DNA_STRAND'
-    featurename       = 'Edit_Dna_Strand'
+    featurename       = 'Edit Dna Strand'
 
 
     command_should_resume_prevMode = True

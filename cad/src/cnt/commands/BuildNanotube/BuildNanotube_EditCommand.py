@@ -48,7 +48,7 @@ class BuildNanotube_EditCommand(EditCommand):
     prefix           =  'NanotubeGroup' # used for gensym
     cmdname          = "Build Nanotube"
     commandName       = 'BUILD_NANOTUBE'
-    featurename       = 'Build_Nanotube'
+    featurename       = 'Build Nanotube'
 
     GraphicsMode_class = BuildNanotube_GraphicsMode
 

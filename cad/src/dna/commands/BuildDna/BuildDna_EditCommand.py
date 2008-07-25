@@ -48,7 +48,7 @@ class BuildDna_EditCommand(EditCommand):
     prefix           =  'DnaGroup'   # used for gensym
     cmdname          = "Build Dna"
     commandName       = 'BUILD_DNA'
-    featurename       = 'Build_Dna'
+    featurename       = 'Build Dna'
 
     GraphicsMode_class = BuildDna_GraphicsMode
 

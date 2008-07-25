@@ -29,7 +29,7 @@ class BuildProtein_EditCommand(EditCommand):
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Build Protein"
     commandName       = 'BUILD_PROTEIN'
-    featurename       = 'Build_Protein'
+    featurename       = 'Build Protein'
 
     #GraphicsMode_class = BuildDna_GraphicsMode
 
