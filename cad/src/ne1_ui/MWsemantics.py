@@ -156,8 +156,10 @@ class MWsemantics(QMainWindow,
         self.orientationWindow = None
 
 
-        self.sequenceEditor = None  #see self.createSequenceEditrIfNeeded
+        self._dnaSequenceEditor = None  #see self.createSequenceEditrIfNeeded
                                     #for details
+                                    
+        self._proteinSequenceEditor = None
 
         # Initialize all Property Manager attrs.
         self._rotaryMotorPropMgr = None
@@ -2130,7 +2132,7 @@ class MWsemantics(QMainWindow,
         If one doesn't already exists, it creates one .
         (created only once and only when its first requested and then the
         object is reused)
-        @return: The sequence editor object (self.sequenceEditor
+        @return: The sequence editor object (self._dnaSequenceEditor
         @rtype: B{DnaSequenceEditor}
         @see: DnaDuplexPropertyManager._loadSequenceEditor
         @WARNING: QMainwindow.restoreState prints a warning message because its
@@ -2140,14 +2142,14 @@ class MWsemantics(QMainWindow,
         object when MainWindow is created. (This is a small object so may
         be thats the best way)
         """
-        if not self.sequenceEditor:
+        if self._dnaSequenceEditor is None:
             from dna.DnaSequenceEditor.DnaSequenceEditor import DnaSequenceEditor
-            self.sequenceEditor = DnaSequenceEditor(self)
-            self.sequenceEditor.setObjectName("sequence_editor")
+            self._dnaSequenceEditor = DnaSequenceEditor(self)
+            self._dnaSequenceEditor.setObjectName("sequence_editor")
             #Should changes.keep_forevenr be called here?
             #doesn't look necessary at the moment -- ninad 2007-11-21
 
-        return self.sequenceEditor
+        return self._dnaSequenceEditor
 
     def createProteinSequenceEditorIfNeeded(self):
         """
@@ -2155,16 +2157,16 @@ class MWsemantics(QMainWindow,
         If one doesn't already exists, it creates one .
         (created only once and only when its first requested and then the
         object is reused)
-        @return: The sequence editor object (self.sequenceEditor
+        @return: The sequence editor object (self._proteinSequenceEditor
         @rtype: B{ProteinSequenceEditor}
         
         """
-        if not self.sequenceEditor:
+        if self._proteinSequenceEditor is None:
             from protein.ProteinSequenceEditor.ProteinSequenceEditor import ProteinSequenceEditor
-            self.sequenceEditor = ProteinSequenceEditor(self)
-            self.sequenceEditor.setObjectName("sequence_editor")
+            self._proteinSequenceEditor = ProteinSequenceEditor(self)
+            self._proteinSequenceEditor.setObjectName("sequence_editor")
 
-        return self.sequenceEditor
+        return self._proteinSequenceEditor
     
     def createEditResiduesPropMgr_if_needed(self):
         """
