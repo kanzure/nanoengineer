@@ -181,7 +181,6 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         #==========================
         ###self.w.buildDnaAction.setEnabled(bool)
         ###self.w.buildNanotubeAction.setEnabled(bool)
-        ###self.w.nanotubeGeneratorAction.setEnabled(bool)
         ###self.w.insertGrapheneAction.setEnabled(bool)
         ###self.w.toolsCookieCutAction.setEnabled(bool)
         ####@@This should also contain HeteroJunctionAction. (in general Plugin 

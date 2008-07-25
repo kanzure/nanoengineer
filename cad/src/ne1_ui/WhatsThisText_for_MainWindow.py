@@ -909,24 +909,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.insertGrapheneAction.setWhatsThis(insertGrapheneActionText )
 
-    # Nanotube Generator (old)
-
-    _text = \
-        "<u><b>Nanotube Generator</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Tools/Build Structures/Nanotube.png\"> <br>"\
-        "Inserts a carbon nanotube in "\
-        "the model based on the current parameters in "\
-        "the Property Manager. To preview the structure "\
-        "based on the current parameters, click the "\
-        "Preview button located at the top of the "\
-        "Property Manager :<br> "\
-        "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
-        "</p>"
-
-    win.nanotubeGeneratorAction.setWhatsThis( _text )
-    
-    # Build Nanotube (new)
+        
+    # Build Nanotube 
 
     _text = \
         "<u><b>Build Nanotube</b></u>"\

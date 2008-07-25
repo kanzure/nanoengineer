@@ -343,36 +343,6 @@ class MWsemantics(QMainWindow,
         self.help = Ne1HelpDialog()
 
         
-        #  New Nanotube Builder or old Nanotube Generator?
-        if debug_pref("Use new 'Build > Nanotube' builder? (next session)",
-                      Choice_boolean_True,
-                      prefs_key = "A10 devel/Old Nanotube Generator"):
-            # New "Build > CNT", experimental. --Mark 2008-03-10
-            from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
-            self.InsertNanotubeEditCommand = InsertNanotube_EditCommand(self.glpane)
-            self.nanotubecntl = self.InsertNanotubeEditCommand
-                # Needed for sponsoredList
-
-        else:
-            from commands.InsertNanotube.NanotubeGenerator import NanotubeGenerator
-            self.nanotubecntl = NanotubeGenerator(self)
-
-        # Use old DNA generator or new DNA Duplex generator?
-        if debug_pref("Use old 'Build > DNA' generator? (next session)",
-                      Choice_boolean_False,
-                      non_debug = True,
-                      prefs_key = "A9 devel/DNA Duplex"):
-
-            print "Using original DNA generator (supports PAM5)."
-            from dna.commands.BuildDuplex_old.DnaGenerator import DnaGenerator
-            self.dnacntl = DnaGenerator(self)
-        else:
-            # This might soon become the usual case, with the debug_pref
-            # removed. - Mark
-            from dna.commands.BuildDuplex.DnaDuplex_EditCommand import DnaDuplex_EditCommand
-            self.dnaEditCommand = DnaDuplex_EditCommand(self.glpane)
-            self.dnacntl = self.dnaEditCommand
-
         from commands.PovraySceneProperties.PovraySceneProp import PovraySceneProp
         self.povrayscenecntl = PovraySceneProp(self)
 
@@ -661,9 +631,7 @@ class MWsemantics(QMainWindow,
         fileSlotsMixin.closeEvent(self, ce)
 
     def sponsoredList(self):
-        return (
-                self.nanotubecntl,
-                self.dnacntl,
+        return (               
                 self.povrayscenecntl,
                 self.minimize_energy)
 
@@ -1987,36 +1955,6 @@ class MWsemantics(QMainWindow,
                 ##currentCommand.Done(exit_using_done_or_cancel_button = False)
                 
 
-    def insertDna_OLD_NOT_USED(self, isChecked = False):
-        """
-        THIS IS DEPRECATED. THIS METHOD WILL BE REMOVED AFTER SOME
-        MORE TESTING AND WHEN WE FEEL COMFORTABLE ABOUT THE NEW BUILD DNA
-        MODE. -- NINAD - 2008-01-11
-
-        @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is
-                          checked, enter DnaLineMode. (provided you are
-                          using the new DNADuplexEditCommand command.
-        @type  isChecked: boolean
-        @see: B{Ui_DnaFlyout.activateDnaDuplex_EditCommand}
-        """
-
-        if debug_pref("Use old 'Build > DNA' generator? (next session)",
-                      Choice_boolean_False,
-                      non_debug = True,
-                      prefs_key = "A9 devel/DNA Duplex"):
-            if isChecked:
-                self.dnacntl.show()
-        else:
-            commandSequencer = self.commandSequencer
-            currentCommand = commandSequencer.currentCommand
-            if currentCommand.commandName != "DNA_LINE_MODE":
-                commandSequencer.userEnterTemporaryCommand(
-                    'DNA_LINE_MODE')
-            else:
-                currentCommand = self.commandSequencer.currentCommand
-                if currentCommand.commandName == 'DNA_LINE_MODE':
-                    currentCommand.Done(exit_using_done_or_cancel_button = False)
-
     def insertDna(self, isChecked = False):
         """
         @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is
@@ -2024,25 +1962,18 @@ class MWsemantics(QMainWindow,
                           using the new DNADuplexEditCommand command.
         @type  isChecked: boolean
         @see: B{Ui_DnaFlyout.activateDnaDuplex_EditCommand}
-        """
-        if debug_pref("Use old 'Build > DNA' generator? (next session)",
-                      Choice_boolean_False,
-                      non_debug = True,
-                      prefs_key = "A9 devel/DNA Duplex"):
-            if isChecked:
-                self.dnacntl.show()
+        """       
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "DNA_DUPLEX":
+            commandSequencer.userEnterTemporaryCommand(
+                'DNA_DUPLEX')
+            assert commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
+            commandSequencer.currentCommand.runCommand()
         else:
-            commandSequencer = self.commandSequencer
-            currentCommand = commandSequencer.currentCommand
-            if currentCommand.commandName != "DNA_DUPLEX":
-                commandSequencer.userEnterTemporaryCommand(
-                    'DNA_DUPLEX')
-                assert commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
-                commandSequencer.currentCommand.runCommand()
-            else:
-                currentCommand = self.commandSequencer.currentCommand
-                if currentCommand.commandName == 'DNA_DUPLEX':
-                    currentCommand.Done(exit_using_done_or_cancel_button = False)
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'DNA_DUPLEX':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
 
     def orderDna(self, dnaGroupList = ()):
         """
@@ -2145,9 +2076,10 @@ class MWsemantics(QMainWindow,
         if self._dnaSequenceEditor is None:
             from dna.DnaSequenceEditor.DnaSequenceEditor import DnaSequenceEditor
             self._dnaSequenceEditor = DnaSequenceEditor(self)
-            self._dnaSequenceEditor.setObjectName("sequence_editor")
+            self._dnaSequenceEditor.setObjectName("dna_sequence_editor")
             #Should changes.keep_forevenr be called here?
-            #doesn't look necessary at the moment -- ninad 2007-11-21
+            #Answer : No because python references to these objects are kept in 
+            #the MainWindow attrs
 
         return self._dnaSequenceEditor
 
@@ -2164,7 +2096,7 @@ class MWsemantics(QMainWindow,
         if self._proteinSequenceEditor is None:
             from protein.ProteinSequenceEditor.ProteinSequenceEditor import ProteinSequenceEditor
             self._proteinSequenceEditor = ProteinSequenceEditor(self)
-            self._proteinSequenceEditor.setObjectName("sequence_editor")
+            self._proteinSequenceEditor.setObjectName("protein_sequence_editor")
 
         return self._proteinSequenceEditor
     

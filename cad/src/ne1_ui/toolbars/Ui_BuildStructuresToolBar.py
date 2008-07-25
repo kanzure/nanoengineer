@@ -24,18 +24,9 @@ def setupUi(win, toolbarArea):
     # Populate the "Build Structures" toolbar.
     # Begin with "Builders", then add single shot "Generators".
     win.buildStructuresToolBar.addAction(win.toolsDepositAtomAction)
-    win.buildStructuresToolBar.addAction(win.buildDnaAction)
+    win.buildStructuresToolBar.addAction(win.buildDnaAction)   
     
-    #  New Nanotube Builder or old Nanotube Generator?
-    if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
-                  Choice_boolean_True, 
-                  prefs_key = "A10 devel/Old Nanotube Generator"):
-        # New "Build > CNT", experimental. --Mark 2008-03-10
-        win.buildStructuresToolBar.addAction(win.buildNanotubeAction) 
-    else:
-        # Original "Build > Nanotube"
-        win.buildStructuresToolBar.addAction(win.nanotubeGeneratorAction)
-        
+    win.buildStructuresToolBar.addAction(win.buildNanotubeAction) 
     win.buildStructuresToolBar.addAction(win.toolsCookieCutAction)
     
     win.buildStructuresToolBar.addSeparator() # Generators after this.

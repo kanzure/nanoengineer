@@ -19,15 +19,7 @@ def setupUi(win):
     win.buildStructuresMenu.addAction(win.toolsDepositAtomAction)
     win.buildStructuresMenu.addAction(win.buildDnaAction)
     
-    #  New Nanotube Builder or old Nanotube Generator?
-    if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
-                      Choice_boolean_True, 
-                      prefs_key = "A10 devel/Old Nanotube Generator"):
-        win.buildStructuresMenu.addAction(win.buildNanotubeAction) 
-    else:
-        # Original "Build > Nanotube"
-        win.buildStructuresMenu.addAction(win.nanotubeGeneratorAction)
-        
+    win.buildStructuresMenu.addAction(win.buildNanotubeAction) 
     win.buildStructuresMenu.addAction(win.toolsCookieCutAction)
     
     win.buildStructuresMenu.addSeparator() # Generators after this separator.

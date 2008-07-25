@@ -478,8 +478,6 @@ packageMapping_for_files = {
     "NanoHiveUtils"                    : "?|ESP", # Mostly control & io code. Some model & ui code (via assy arg & assy.w).
     "NanoHive_SimParameters"           : "model|ESP",
 
-    "NanotubeGenerator"                : "command|commands/InsertNanotube",
-    "NanotubeGeneratorPropertyManager" : "ui/propmgr|commands/InsertNanotube",
     "NE1ToolBar"                       : "widget", # Variant of QToolBar
     "NE1_QToolBar"                     : "widget", # New main toolbar class for the NE1 main window.
     "Node_as_MT_DND_Target"            : "controller|modelTree",
