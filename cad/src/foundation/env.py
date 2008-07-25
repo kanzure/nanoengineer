@@ -387,17 +387,25 @@ def do_post_event_updates( warn_if_needed = False ):
 
     @see: _master_model_updater
     """
-    from utilities.debug import print_compact_traceback #bruce 080725
-        ### TODO: fix import cycle this causes by moving this and nearby functions into new module
-    try:
-        # do all model updaters before any ui updaters
-        for function in _post_event_model_updaters:
-            (function)(warn_if_needed)
-        for function in _post_event_ui_updaters:
-            (function)()
-    except:
-        #bruce 080725
-        print_compact_traceback("exception in some post-event updater, skipping remaining ones: ")
+    # Note: catching exceptions here and not propogating them upwards
+    # can make some bugs worse by turning them into infinite recursions
+    # (for reasons not yet analyzed). Exceptions here can prevent redrawing
+    # for the rest of the session, so better protection is needed,
+    # but it doesn't work if added right here (at least for an AttributeError
+    # in the dna sequence editor in Edit Dna Strand Properties).
+    # [bruce 080725 comment]
+
+    # note: importing from utilities.debug here adds an import cycle.
+    # This is not needed now (see above comment), but if ever needed,
+    # it could be fixed by moving this and nearby functions into a new module.
+    # [bruce 080725 comment]
+
+    # do all model updaters before any ui updaters
+    for function in _post_event_model_updaters:
+        (function)(warn_if_needed)
+    for function in _post_event_ui_updaters:
+        (function)()
+    
     return
 
 # ==
