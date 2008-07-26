@@ -79,7 +79,7 @@ from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand 
 from dna.temporary_commands.DnaLineMode             import DnaLineMode
 
 # Protein command imports
-from commands.InsertPeptide.Peptide_EditCommand import Peptide_EditCommand
+from protein.commands.BuildPeptide.Peptide_EditCommand import Peptide_EditCommand
 from protein.commands.BuildProtein.BuildProtein_EditCommand import BuildProtein_EditCommand
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
 from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Command

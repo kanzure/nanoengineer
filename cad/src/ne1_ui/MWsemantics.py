@@ -1672,7 +1672,7 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{BuildPeptide_EditCommand}
         @see: B{BuildPeptide_EditCommand._createPropMgrObject}
         """
-        from commands.InsertPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager
+        from protein.commands.BuildPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager
         if self._buildPeptidePropMgr is None:
             self._buildPeptidePropMgr = \
                 PeptideGeneratorPropertyManager(self, editCommand)
