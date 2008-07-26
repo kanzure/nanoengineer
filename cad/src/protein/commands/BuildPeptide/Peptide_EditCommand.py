@@ -13,7 +13,7 @@ TODO:
 
 from utilities.Log  import greenmsg
 from command_support.EditCommand import EditCommand
-from commands.InsertPeptide.PeptideGenerator import PeptideGenerator
+from protein.commands.BuildPeptide.PeptideGenerator import PeptideGenerator
 from utilities.constants import gensym
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
