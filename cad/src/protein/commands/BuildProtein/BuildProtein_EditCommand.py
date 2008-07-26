@@ -3,7 +3,7 @@
 BuildProtein_EditCommand.py
 
 @author: Urmi
-@version: $Id$: 
+@version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
@@ -28,8 +28,11 @@ class BuildProtein_EditCommand(EditCommand):
     sponsor_keyword  =  'Protein'
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Build Protein"
+
     commandName       = 'BUILD_PROTEIN'
-    featurename       = 'Build Protein'
+    featurename       = "Build Protein"
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
 
     #GraphicsMode_class = BuildDna_GraphicsMode
 

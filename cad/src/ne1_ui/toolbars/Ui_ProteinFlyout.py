@@ -180,7 +180,7 @@ class ProteinFlyout:
 
         change_connect(self.buildPeptideAction, 
                        SIGNAL("triggered(bool)"),
-                       self.activateInsertPeptide_EditCommand)
+                       self.activateBuildPeptide_EditCommand)
 
         change_connect(self.editRotamersAction, 
                        SIGNAL("triggered(bool)"),
@@ -257,7 +257,7 @@ class ProteinFlyout:
             if not isChecked:
                 self.parentWidget.ok_btn_clicked()
 
-    def activateInsertPeptide_EditCommand(self, isChecked):
+    def activateBuildPeptide_EditCommand(self, isChecked):
         """
         Slot for B{Duplex} action.
         """

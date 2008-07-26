@@ -167,8 +167,8 @@ class test_connectWithState(State_preMixin, ExampleCommand):
 
     # class constants needed by mode API for example commands
     commandName = 'test_connectWithState-commandName'
-    default_mode_status_text = "test_connectWithState"
     featurename = "Prototype: Test connectWithState"
+    
     PM_class = test_connectWithState_PM
 
     # tracked state -- this initializes specially defined instance variables

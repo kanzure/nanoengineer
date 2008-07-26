@@ -512,7 +512,6 @@ class LineMode(Select_Command):
     # class constants
 
     commandName = 'LineMode'
-    default_mode_status_text = ""
     featurename = "Line Mode"
         # (I don't know if this featurename is ever user-visible;
         #  if it is, it's probably wrong -- consider overriding
@@ -521,6 +520,8 @@ class LineMode(Select_Command):
         #  The default implementation returns this constant
         #  or (if it's not overridden in subclasses) something
         #  derived from it. [bruce 071227])
+    from utilities.constants import CL_UNUSED
+    command_level = CL_UNUSED
 
     hover_highlighting_enabled = True
     GraphicsMode_class = LineMode_GM

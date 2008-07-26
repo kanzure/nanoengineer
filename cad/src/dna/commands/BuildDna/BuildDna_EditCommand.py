@@ -47,8 +47,11 @@ class BuildDna_EditCommand(EditCommand):
     sponsor_keyword  =  'DNA'
     prefix           =  'DnaGroup'   # used for gensym
     cmdname          = "Build Dna"
+    
     commandName       = 'BUILD_DNA'
-    featurename       = 'Build Dna'
+    featurename       = "Build Dna"
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
 
     GraphicsMode_class = BuildDna_GraphicsMode
 

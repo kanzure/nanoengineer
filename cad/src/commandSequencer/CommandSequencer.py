@@ -310,10 +310,6 @@ class modeMixin(object):
     
     def _Entering_Mode_message(self, mode, resuming = False):
         featurename = mode.get_featurename()
-            # was mode.default_mode_status_text before revised;
-            # this revision has exposed a few incorrect featurenames
-            # (containing underscores, or not revised when command renamed)
-            # [bruce 080717]
         if resuming:
             msg = "Resuming %s" % featurename
         else:

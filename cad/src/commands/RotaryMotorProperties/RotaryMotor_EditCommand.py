@@ -4,7 +4,7 @@ RotaryMotor_EditCommand.py
 
 @author: Ninad
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 ninad 2007-10-09: Created. This deprecates 'RotoryMotorGenerator'
@@ -36,8 +36,11 @@ class RotaryMotor_EditCommand(EditCommand):
     #See Command.anyCommand for details about the following flags
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
+    
     commandName = 'ROTARY_MOTOR'
     featurename = "Rotary Motor"
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
 
     GraphicsMode_class = SelectAtoms_GraphicsMode
 

@@ -2,9 +2,12 @@
 """
 BuildAtoms_Command.py 
 
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+
 The 'Command' part of the BuildAtoms Mode (BuildAtoms_basicCommand and 
 BuildAtoms_basicGraphicsMode are the two split classes of the old 
-depositMode)  It provides the command object for its GraphicsMode class. 
+depositMode). It provides the command object for its GraphicsMode class. 
 The Command class defines anything related to the 'command half' of the mode -- 
 For example: 
 - Anything related to its current Property Manager, its settings or state
@@ -12,10 +15,6 @@ For example:
   that the mouse event bindings in the _GM half can do them directly
   and the code is still clean, *and* no command-half subclass needs
   to override them).
-
-                        
-@version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: [as of 2008-01-04]
 - Flyout toolbar related code needs to go in a file like Ui_BuildAtomsFlyout. 
@@ -66,10 +65,11 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     """
     """
     commandName = 'DEPOSIT'
-    msg_commandName = "Build Mode" 
-    default_mode_status_text = "Mode: Build Atoms"
-    featurename = "Build Atoms Mode"    
-   
+    msg_commandName = "Build Mode" ### REVIEW: still used?
+    featurename = "Build Atoms Mode" ### REVIEW: probably wrong, was renamed to Build Chunks  
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
+
     highlight_singlets = True     
     water_enabled = False # Fixes bug 1583. mark 060301.    
     # methods related to entering this mode         

@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Mark
 @version:   $Id$
@@ -31,9 +31,10 @@ class DnaDisplayStyle_Command(EditCommand):
     # class constants
     
     commandName = 'EDIT_DNA_DISPLAY_STYLE'
-    default_mode_status_text = ""
     featurename = "DNA Display Style"
-         
+    from utilities.constants import CL_GLOBAL_PROPERTIES
+    command_level = CL_GLOBAL_PROPERTIES
+
     hover_highlighting_enabled = True
     GraphicsMode_class = DnaDisplayStyle_GraphicsMode
    

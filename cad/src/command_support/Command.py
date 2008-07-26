@@ -298,11 +298,9 @@ class basicCommand(anyCommand):
     # and pass the CommandSequencer in which this command can run.
     commandName = "(bug: missing commandName)"
     msg_commandName = "(bug: unknown command)"
-    default_mode_status_text = "(bug: missing command status text)"
-        # NOTE: I have just now removed all uses of default_mode_status_text.
-        # After testing, all assignments to it can be removed (gradually).
-        # [bruce 080717]
     featurename = "Undocumented Command"
+    from utilities.constants import CL_ABSTRACT
+    command_level = CL_ABSTRACT
 
     command_can_be_suspended = True # good default value for most commands [bruce 071011]
 
@@ -1170,7 +1168,7 @@ class basicCommand(anyCommand):
     # methods for leaving this command (from a dashboard tool or an
     # internal request).
 
-    # Notes on state-accumulating modes, e.g. cookie extrude revolve
+    # Notes on state-accumulating modes, e.g. cookie, extrude,
     # deposit [bruce 040923]:
     #
     # Each command which accumulates state, meant to be put into its

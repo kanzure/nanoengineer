@@ -51,8 +51,9 @@ class PanMode(TemporaryCommand_Overdrawing): # TODO: rename to PanTool or PanCom
     # class constants
     
     commandName = 'PAN'
-    default_mode_status_text = "Tool: Pan"
     featurename = "Pan Tool"
+    from utilities.constants import CL_VIEW_CHANGE
+    command_level = CL_VIEW_CHANGE
 
     GraphicsMode_class = PanMode_GM
 

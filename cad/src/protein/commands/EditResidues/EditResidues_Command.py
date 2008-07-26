@@ -1,7 +1,7 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Piotr
-@version:   $Id:$
+@version:   $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
@@ -31,8 +31,10 @@ class EditResidues_Command(EditCommand):
     # class constants
     
     commandName = 'EDIT_RESIDUES'
-    default_mode_status_text = ""
     featurename = "Edit Residues"
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_PROTEIN'
          
     hover_highlighting_enabled = True
     GraphicsMode_class = EditResidues_GraphicsMode

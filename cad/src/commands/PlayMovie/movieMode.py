@@ -90,8 +90,9 @@ class movieMode(basicMode):
 
     # class constants
     commandName = 'MOVIE'
-    default_mode_status_text = "Mode: Movie Player"
     featurename = "Movie Player Mode"
+    from utilities.constants import CL_MISC_TOPLEVEL
+    command_level = CL_MISC_TOPLEVEL
 
     # methods related to entering this mode
 

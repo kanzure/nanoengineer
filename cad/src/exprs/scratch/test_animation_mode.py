@@ -1214,8 +1214,9 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
     # class constants needed by mode API
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
     commandName = 'TEST_ANIMATION'
-    default_mode_status_text = "Mode: test animation"
     featurename = "Prototype: Example Animation Mode"
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
 
     # other class constants
     PM_class = test_animation_mode_PM

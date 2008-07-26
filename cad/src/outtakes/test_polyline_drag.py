@@ -2,7 +2,8 @@
 """
 test_polyline_drag.py
 
-$Id$
+@author: Bruce
+@version: $Id$
 
 Simple test/example code for making a polyline.
 Goal is just to demonstrate intercepting mouse events
@@ -13,7 +14,6 @@ Doesn't yet store the polyline anywhere.
 
 Just a stub for now.
 """
-__author__ = "bruce"
 
 from prototype.test_connectWithState import State_preMixin
 
@@ -42,7 +42,6 @@ NullDrawable = Spacer() # kluge; should refile
 class test_polyline_drag(State_preMixin, ExampleCommand):
     # class constants needed by mode API for example commands
     commandName = 'test_polyline_drag-commandName'
-    default_mode_status_text = "test_polyline_drag"
     featurename = "Prototype: Example Polyline Drag Command"
 ##    PM_class = test_polyline_drag_PM
 

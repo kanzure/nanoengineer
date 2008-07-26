@@ -16,7 +16,7 @@ This is an initial implementation of default Cnt edit mode.
 
 BUGS:
 - Has bugs such as -- Flyout toolbar doesn't get updated when you return to 
-  BuildNanotube_EditCommand from a a temporary command. 
+  BuildNanotube_EditCommand from a temporary command. 
 - Just entering and leaving BuildNanotube_EditCommand creates an empty NanotubeGroup
 """
 
@@ -47,8 +47,11 @@ class BuildNanotube_EditCommand(EditCommand):
     sponsor_keyword  =  'Nanotube'
     prefix           =  'NanotubeGroup' # used for gensym
     cmdname          = "Build Nanotube"
+
     commandName       = 'BUILD_NANOTUBE'
     featurename       = 'Build Nanotube'
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
 
     GraphicsMode_class = BuildNanotube_GraphicsMode
 

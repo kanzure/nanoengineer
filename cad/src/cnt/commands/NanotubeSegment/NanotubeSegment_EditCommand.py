@@ -2,6 +2,10 @@
 """
 NanotubeSegment_EditCommand provides a way to edit an existing NanotubeSegment. 
 
+@author: Ninad, Mark
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@version: $Id$
+
 To edit a segment, first enter BuildNanotube_EditCommand (accessed using Build > Cnt) 
 then, select an axis chunk of an existing NanotubeSegment  within the NanotubeGroup you
 are editing. When you select the axis chunk, it enters NanotubeSegment_Editcommand
@@ -20,11 +24,6 @@ While in this command, user can
     handles to do these oprations. 
     See also: NanotubeSegment_GraphicsMode .. the default graphics mode for this 
     command
-
-
-@author: Ninad, Mark
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$
 
 History:
 Mark 2008-03-10: Created from copy of DnaSegment_EditCommand.py
@@ -98,8 +97,12 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     sponsor_keyword  =  'Nanotube'
     prefix           =  'NanotubeSegment' # used for gensym
     cmdname          = "NANOTUBE_SEGMENT"
+
     commandName      = 'NANOTUBE_SEGMENT'
     featurename      = 'Edit Nanotube Segment'
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_NANOTUBE'
 
     command_should_resume_prevMode = True
     command_has_its_own_gui = True

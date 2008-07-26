@@ -3,7 +3,7 @@
 BuildProtein_PropertyManager.py
 
 @author: Urmi
-@version: $Id$: 
+@version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """

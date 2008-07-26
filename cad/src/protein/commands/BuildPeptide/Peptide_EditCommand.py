@@ -3,7 +3,7 @@
 
 @author: Piotr, Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 2008-07-24: Created
@@ -23,8 +23,13 @@ class Peptide_EditCommand(EditCommand):
     sponsor_keyword  =  'Peptide'
     prefix           =  'Peptide'   # used for gensym
     cmdname          = 'Build Peptide'
+
     commandName      = 'BUILD_PEPTIDE'
-    featurename      = 'Build Peptide'
+    featurename      = "Build Peptide"
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_PROTEIN'
+
     create_name_from_prefix  =  True 
     
     GraphicsMode_class = SelectChunks_GraphicsMode

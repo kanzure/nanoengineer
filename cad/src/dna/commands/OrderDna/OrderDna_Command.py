@@ -30,8 +30,9 @@ class OrderDna_Command(EditCommand):
     # class constants
     
     commandName = 'ORDER_DNA'
-    default_mode_status_text = ""
     featurename = "Order DNA"
+    from utilities.constants import CL_EXTERNAL_ACTION
+    command_level = CL_EXTERNAL_ACTION
          
     hover_highlighting_enabled = True
     GraphicsMode_class = OrderDna_GraphicsMode

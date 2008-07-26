@@ -45,8 +45,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
     """
     """
     commandName = 'MODIFY'
-    default_mode_status_text = "Mode: Move Chunks"
     featurename = "Move Chunks Mode"
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
+
     propMgr = None
     pw = None
 

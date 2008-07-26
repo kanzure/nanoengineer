@@ -1,17 +1,18 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+RotateChunks_Command.py
 
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
-Created while splititng class modifyMode into command and GraphicsMode. 
+Created while splitting class modifyMode into Command and GraphicsMode. 
 
 NOTE:
-As of 2008-01-25, this command is not yet used however its graphics mode class
+As of 2008-01-25, this command is not yet used, however its graphics mode class
 (RotateChunks_GraphicsMode) is used as an alternative graphics mode in 
-Move_Command
+Move_Command.
 """
 from commands.Move.Move_Command import Move_Command
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
@@ -21,7 +22,8 @@ class RotateChunks_Command(Move_Command):
      
     commandName = 'ROTATE_CHUNKS'
     featurename = "Rotate Chunks"
-    default_mode_status_text = "Rotate Chunks"
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 

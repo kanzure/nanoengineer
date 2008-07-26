@@ -2,9 +2,9 @@
 """
 Plane_EditCommand.py
 
-@author: Ninad,
+@author: Ninad
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 ninad 20070606: Created.
@@ -70,6 +70,8 @@ class Plane_EditCommand(EditCommand):
 
     commandName = 'REFERENCE_PLANE'
     featurename = "Reference Plane"
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
 
     GraphicsMode_class = SelectAtoms_GraphicsMode
 

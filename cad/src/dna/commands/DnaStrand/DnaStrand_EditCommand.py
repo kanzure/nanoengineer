@@ -50,6 +50,7 @@ from command_support.EditCommand import EditCommand
 
 from utilities.constants import noop
 from utilities.constants import red, black
+
 from utilities.Comparison import same_vals
 
 from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key
@@ -75,9 +76,12 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     sponsor_keyword  =  'DNA'
     prefix           =  'Strand '   # used for gensym
     cmdname          = "DNA_STRAND"
+    
     commandName       = 'DNA_STRAND'
-    featurename       = 'Edit Dna Strand'
-
+    featurename       = "Edit Dna Strand"
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_DNA'
 
     command_should_resume_prevMode = True
     command_has_its_own_gui = True

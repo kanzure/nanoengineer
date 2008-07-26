@@ -71,8 +71,8 @@ from graphics.drawables.handles import niceoffsetsHandleSet
 from graphics.drawables.handles import draggableHandle_HandleSet
 from utilities.constants import blue
 from utilities.constants import green
-
 from utilities.constants import common_prefix
+
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 
@@ -152,9 +152,11 @@ class extrudeMode(basicMode):
     """
     # class constants
     is_revolve = 0
+    
     commandName = 'EXTRUDE'
-    default_mode_status_text = "Mode: Extrude"
     featurename = "Extrude Mode"
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
 
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
 
@@ -2335,7 +2337,6 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
 ##    # class constants
 ##    commandName = 'REVOLVE'
 ##    msg_commandName = "revolve mode" #e need to fix up anything else?
-##    default_mode_status_text = "Mode: Revolve"
 ##    featurename = "Revolve Mode"
 ##    is_revolve = 1
 ##    pass

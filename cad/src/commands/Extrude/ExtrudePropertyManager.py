@@ -31,7 +31,9 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{depositMode} 
         """
-        self.extrudeSpinBox_circle_n = None         
+        self.extrudeSpinBox_circle_n = None
+            # REVIEW: I suspect extrudeSpinBox_circle_n is obsolete
+            # and can be completely removed. [bruce 080725 comment]
         self.suppress_valuechanged = 0
         
         Ui_ExtrudePropertyManager.__init__(self, parentMode)

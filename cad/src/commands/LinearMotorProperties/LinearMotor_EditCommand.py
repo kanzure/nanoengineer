@@ -4,7 +4,7 @@ LinearMotor_EditCommand.py
 
 @author: Ninad
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 ninad 2007-10-09: Created.
@@ -36,8 +36,11 @@ class LinearMotor_EditCommand(EditCommand):
     #See Command.anyCommand for details about the following flags
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
+    
     commandName = 'LINEAR_MOTOR'
     featurename = "Linear Motor"
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
 
     GraphicsMode_class = SelectAtoms_GraphicsMode    
 

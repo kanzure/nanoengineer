@@ -51,8 +51,9 @@ class SelectChunks_basicCommand(Select_basicCommand):
       to override them).
     """
     commandName = 'SELECTMOLS'
-    default_mode_status_text = "Mode: Select Chunks"
     featurename = "Select Chunks Mode"
+    from utilities.constants import CL_DEFAULT_MODE
+    command_level = CL_DEFAULT_MODE # error if command subclass fails to override this
 
     hover_highlighting_enabled = True
     

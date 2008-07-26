@@ -1,9 +1,10 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+QuteMol_Command.py
 
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 2008-07-24 : Created
@@ -15,12 +16,14 @@ from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from commands.QuteMol.QuteMolPropertyManager import QuteMolPropertyManager
 
+
 _superclass = SelectChunks_Command
 class QuteMol_Command(SelectChunks_Command):
 
     commandName = 'QUTEMOL'
-    default_mode_status_text = ""
     featurename = "QuteMol"
+    from utilities.constants import CL_EXTERNAL_ACTION
+    command_level = CL_EXTERNAL_ACTION
     
     GraphicsMode_class = SelectChunks_GraphicsMode
 

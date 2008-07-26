@@ -28,11 +28,10 @@ class StereoProperties_Command(SelectChunks_Command):
 
     """
     # class constants
-
-
     commandName = 'STEREO_PROPERTIES'
-    default_mode_status_text = ""
     featurename = "Stereo View Properties"
+    from utilities.constants import CL_GLOBAL_PROPERTIES
+    command_level = CL_GLOBAL_PROPERTIES
 
     hover_highlighting_enabled = True
     GraphicsMode_class = StereoProperties_GraphicsMode

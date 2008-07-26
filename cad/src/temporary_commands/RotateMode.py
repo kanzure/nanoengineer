@@ -60,8 +60,9 @@ class RotateMode(TemporaryCommand_Overdrawing): # TODO: rename to RotateTool or 
     
     # class constants
     commandName = 'ROTATE'
-    default_mode_status_text = "Tool: Rotate"
     featurename = "Rotate Tool"
+    from utilities.constants import CL_VIEW_CHANGE
+    command_level = CL_VIEW_CHANGE
 
     GraphicsMode_class = RotateMode_GM
 

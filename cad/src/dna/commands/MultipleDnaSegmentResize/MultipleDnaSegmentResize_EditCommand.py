@@ -18,6 +18,7 @@ History:
 from Numeric import dot
 from geometry.VQT import V, norm, vlen
 
+from utilities.constants import black
 from utilities.constants import applegreen
 
 from dna.commands.DnaSegment.DnaSegment_EditCommand import DnaSegment_EditCommand
@@ -36,7 +37,6 @@ from exprs.ExprsConstants   import Width, Point
 from widgets.prefs_widgets  import ObjAttr_StateRef
 
 from dna.commands.DnaSegment.DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
-from utilities.constants import black
 from utilities.debug import print_compact_stack
 from dna.command_support.DnaSegmentList import DnaSegmentList
 
@@ -48,9 +48,13 @@ ORIGIN = V(0, 0, 0)
 _superclass = DnaSegment_EditCommand
 class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
 
+    cmdname = 'MULTIPLE_DNA_SEGMENT_RESIZE' # REVIEW: needed? correct?
+
     commandName = 'MULTIPLE_DNA_SEGMENT_RESIZE'
-    cmdname          = 'MULTIPLE_DNA_SEGMENT_RESIZE'    
-    featurename       = 'Edit Multiple Dna Segments'  
+    featurename = "Edit Multiple Dna Segments"
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_DNA'
 
     #This command operates on (resizes) multiple DnaSegments at once. 
     #It does that by  looping through the DnaSegments and resizing them 

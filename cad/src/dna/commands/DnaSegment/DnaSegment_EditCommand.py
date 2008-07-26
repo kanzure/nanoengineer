@@ -58,7 +58,6 @@ from model.chunk import Chunk
 from model.chem import Atom
 from model.bonds import Bond
 
-
 from utilities.constants   import noop
 from utilities.constants    import black, applegreen
 
@@ -104,8 +103,12 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     sponsor_keyword  =  'DNA'
     prefix           =  'Segment '   # used for gensym
     cmdname          = "DNA_SEGMENT"
+    
     commandName       = 'DNA_SEGMENT'
-    featurename       = 'Edit Dna Segment'
+    featurename       = "Edit Dna Segment"
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_DNA'
 
 
     command_should_resume_prevMode = True

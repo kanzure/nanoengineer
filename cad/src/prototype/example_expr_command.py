@@ -141,7 +141,6 @@ class ExampleCommand2E( ExampleCommand2, object):
     # (maybe could fix using def __init__ -- not tried, since object coming last works ok)
 
     commandName = 'ExampleCommand2E-commandName'
-    default_mode_status_text = "ExampleCommand2E"
     PM_class = ExampleCommand2E_PM
     featurename = "Prototype: ExampleCommand2E"
 

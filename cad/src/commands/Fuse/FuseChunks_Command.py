@@ -56,8 +56,13 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
     """
     # class constants
     commandName = 'FUSECHUNKS'
-    default_mode_status_text = "Mode: Fuse Chunks"
     featurename = "Fuse Chunks Mode"
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
+
+    ### REVIEW: are the folowing all default values of instance variables?
+    # Note that they are all dangerously mutable -- if they can correctly
+    # be changed to None or (), that would be better. [bruce 080725 comment]
     bondable_pairs = [] # List of bondable singlets
     ways_of_bonding = {} # Number of bonds each singlet found
     bondable_pairs_atoms = [] # List of atom pairs that can be bonded

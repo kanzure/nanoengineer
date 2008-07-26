@@ -46,8 +46,9 @@ class PartLibraryMode(PasteMode):
     """
     commandName = 'PARTLIB'
     msg_commandName = "Part Library" 
-    default_mode_status_text = "Part Library"
     featurename = "Part Library"
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
 
     def __init__(self, glpane):
         """

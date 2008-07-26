@@ -143,9 +143,11 @@ class JoinStrands_Command(BuildAtoms_Command):
     # class constants
     
     commandName = 'JOIN_STRANDS'
-    default_mode_status_text = ""
     featurename = "Join Strands"
-         
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_DNA'
+
     hover_highlighting_enabled = True
     GraphicsMode_class = JoinStrands_GraphicsMode
    

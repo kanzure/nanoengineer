@@ -118,7 +118,6 @@ class RotateAboutPoint_Command(LineMode):
     GraphicsMode_class = RotateAboutPoint_GraphicsMode
 
     commandName = 'RotateAboutPoint'
-    default_mode_status_text = ""
     featurename = "Rotate About Point"
         # (I don't know if this featurename is ever user-visible;
         #  if it is, it's probably wrong -- consider overriding
@@ -127,6 +126,8 @@ class RotateAboutPoint_Command(LineMode):
         #  The default implementation returns this constant
         #  or (if it's not overridden in subclasses) something
         #  derived from it. [bruce 071227])
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
 
     def rotateAboutPoint(self):
         """

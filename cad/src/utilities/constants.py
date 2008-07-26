@@ -698,7 +698,25 @@ DELETE_SELECTION = 'Delete'
 
 # ==
 
-# Keys for user preferences for A6 [moved into prefs_constants.py by Bruce 050805]
+# command level constants [bruce 080725]
+
+CL_DEFAULT_MODE = 'CL_DEFAULT_MODE'
+CL_ENVIRONMENT_PROVIDING = 'CL_ENVIRONMENT_PROVIDING'
+CL_MISC_TOPLEVEL = 'CL_MISC_TOPLEVEL'
+CL_SUBCOMMAND = 'CL_SUBCOMMAND'
+CL_EDIT_GENERIC = 'CL_EDIT_GENERIC'
+CL_EXTERNAL_ACTION = 'CL_EXTERNAL_ACTION'
+CL_GLOBAL_PROPERTIES = 'CL_GLOBAL_PROPERTIES'
+CL_VIEW_CHANGE = 'CL_VIEW_CHANGE'
+
+CL_ABSTRACT = 'CL_ABSTRACT' # for abstract command classes
+    # (warning if instantiated directly)
+
+CL_UNUSED = 'CL_UNUSED' # for command classes thought to be presently unused
+    # (warning if instantiated directly, or (if practical) if a subclass is
+    #  instantiated)
+
+# ==
 
 # The far clipping plane normalized z value, actually it's a little closer than the actual far clipping 
 # plane to the eye. This is used to draw the blue sky backround polygon, and also used to check if user

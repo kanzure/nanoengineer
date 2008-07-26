@@ -60,8 +60,12 @@ class InsertNanotube_EditCommand(EditCommand):
     sponsor_keyword  =  'Nanotube'
     prefix           =  'Nanotube'   # used for gensym
     cmdname          = "Insert Nanotube"
+
     commandName      = 'INSERT_NANOTUBE'
     featurename      = 'Insert Nanotube'
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_NANOTUBE'
 
     command_should_resume_prevMode = True
     command_has_its_own_gui = True

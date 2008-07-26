@@ -208,7 +208,8 @@ class DnaLineMode(LineMode):
         # (This featurename is sometimes user-visible,
         #  but is probably not useful. See comments in LineMode
         #  for more info and how to fix. [bruce 071227])
-    
+    from utilities.constants import CL_UNUSED
+    command_level = CL_UNUSED
             
     GraphicsMode_class = DnaLine_GM
         

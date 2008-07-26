@@ -54,6 +54,11 @@ class Select_basicCommand(basicCommand):
           which inherits this class
 
     """
+    # class constants
+    
+    from utilities.constants import CL_ABSTRACT
+    command_level = CL_ABSTRACT
+
     hover_highlighting_enabled = True
     # Set this to False if you want to disable hover highlighting.
 

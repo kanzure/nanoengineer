@@ -42,9 +42,11 @@ class MakeCrossovers_Command(SelectChunks_Command,
     # class constants
     
     commandName = 'MAKE_CROSSOVERS'
-    default_mode_status_text = ""
-    featurename = 'Make Crossovers'
-         
+    featurename = "Make Crossovers"
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_DNA'
+
     hover_highlighting_enabled = True
     GraphicsMode_class = MakeCrossovers_Graphicsmode
    

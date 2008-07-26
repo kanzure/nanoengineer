@@ -58,8 +58,9 @@ class testmode(superclass):
     # for Command
     
     commandName = 'TEST'
-    default_mode_status_text = "Mode: Test"
     featurename = "Test Command: Exprs Package"
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
 
     # for GraphicsMode
 

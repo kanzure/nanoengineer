@@ -72,9 +72,10 @@ class EditCommand(Select_Command):
     cmdname  =  "" 
     _gensym_data_for_reusing_name = None
     commandName = 'EditCommand'
-    default_mode_status_text = ""
     featurename = "Undocumented Edit Command" # default wiki help featurename
-
+    from utilities.constants import CL_ABSTRACT
+    command_level = CL_ABSTRACT
+    
     propMgr = None
     flyoutToolbar = None
 

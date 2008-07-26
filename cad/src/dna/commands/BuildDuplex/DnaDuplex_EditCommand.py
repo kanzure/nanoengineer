@@ -48,7 +48,6 @@ from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyM
 from utilities.constants import gensym
 from utilities.constants import black
 
-
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength
 from dna.model.Dna_Constants import getDuplexLength
 
@@ -78,8 +77,12 @@ class DnaDuplex_EditCommand(EditCommand):
     sponsor_keyword  =  'DNA'
     prefix           =  'DnaSegment'   # used for gensym
     cmdname          = "Duplex"
+
     commandName       = 'DNA_DUPLEX'
-    featurename       = 'Build Dna Duplex'
+    featurename       = "Build Dna Duplex"
+    from utilities.constants import CL_SUBCOMMAND
+    command_level = CL_SUBCOMMAND
+    command_parent = 'BUILD_DNA'
 
     command_should_resume_prevMode = True
     command_has_its_own_gui = True

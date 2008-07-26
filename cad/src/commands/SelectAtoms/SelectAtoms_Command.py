@@ -52,8 +52,9 @@ class SelectAtoms_basicCommand(Select_basicCommand):
       to override them).
     """
     commandName = 'SELECTATOMS'
-    default_mode_status_text = "Mode: Select Atoms"
     featurename = "Select Atoms Mode"
+    from utilities.constants import CL_ABSTRACT
+    command_level = CL_ABSTRACT #??
     
     # Don't highlight singlets in selectAtomsMode. Fixes bug 1540.mark 060220.
     highlight_singlets = False         
@@ -67,8 +68,7 @@ class SelectAtoms_basicCommand(Select_basicCommand):
             # [bruce comment 050517]
 
         self.dont_update_gui = True # until changed in init_gui
-        
-            
+        return
     
     call_makeMenus_for_each_event = True     
     

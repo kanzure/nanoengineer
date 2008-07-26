@@ -70,12 +70,14 @@ class cookieMode(basicMode):
     Build Crystal
     """
     # class constants
+    commandName = 'COOKIE'
+    featurename = "Build Crystal Mode"
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING
+
     backgroundColor = 0/255.0, 0/255.0, 0/255.0
     backgroundGradient = False # Mark 051029.
     gridColor = 222/255.0, 148/255.0, 0/255.0
-    commandName = 'COOKIE'
-    default_mode_status_text = "Mode: Build Crystal"
-    featurename = "Build Crystal Mode"
 
     displayMode = diTUBES 
         # displayMode isn't used except for updating the 'Display Mode' combobox in the Preference dialog.

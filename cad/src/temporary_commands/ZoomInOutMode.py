@@ -62,8 +62,9 @@ class ZoomInOutMode(TemporaryCommand_Overdrawing):
     # class constants
     
     commandName = 'ZOOMINOUT'
-    default_mode_status_text = "Tool: Zoom In/Out"
     featurename = "Zoom In/Out Tool"
+    from utilities.constants import CL_VIEW_CHANGE
+    command_level = CL_VIEW_CHANGE
 
     GraphicsMode_class = ZoomInOutMode_GM
 

@@ -47,8 +47,9 @@ class PasteMode(depositMode):
     """
     commandName = 'PASTE' 
     msg_commandName = "Paste" 
-    default_mode_status_text = "Paste Command"
-    featurename = "Paste"
+    featurename = "Paste" # REVIEW: should this be changed to "Paste From Clipboard"?
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
 
     command_can_be_suspended = True #bruce 071011, 
                                     #GUESS ### REVIEW whether correct when 

@@ -1,9 +1,10 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+Graphene_EditCommand.py
 
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 2008-07-22: Ported the old graphene generator to the Editcommand API
@@ -26,8 +27,12 @@ class Graphene_EditCommand(EditCommand):
     sponsor_keyword  =  'Graphene'
     prefix           =  'Graphene'   # used for gensym
     cmdname          = 'Build Graphene'
+
     commandName      = 'BUILD_GRAPHENE'
-    featurename      = 'Build Graphene'
+    featurename      = "Build Graphene"
+    from utilities.constants import CL_ENVIRONMENT_PROVIDING
+    command_level = CL_ENVIRONMENT_PROVIDING # for now; later might be subcommand of Build Nanotube??
+
     create_name_from_prefix  =  True 
     
     GraphicsMode_class = SelectChunks_GraphicsMode

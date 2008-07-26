@@ -34,8 +34,9 @@ class LightingScheme_Command(EditCommand):
     # not sure which class should it inherit
     
     commandName = 'LIGHTING_SCHEME'
-    default_mode_status_text = ""
     featurename = "Lighting Scheme"
+    from utilities.constants import CL_GLOBAL_PROPERTIES
+    command_level = CL_GLOBAL_PROPERTIES
          
     hover_highlighting_enabled = True
     GraphicsMode_class = LightingScheme_GraphicsMode

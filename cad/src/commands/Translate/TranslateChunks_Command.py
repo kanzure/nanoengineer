@@ -1,15 +1,17 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+TranslateChunks_Command.py
+
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 
 NOTE:
-As of 2008-01-25, this command is not yet used however its graphics mode class
+As of 2008-01-25, this command is not yet used, however its graphics mode class
 (TranslateChunks_GraphicsMode) is used as an alternative graphics mode in 
-Move_Command
+Move_Command.
 """
 from commands.Move.Move_Command import Move_Command
 from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode
@@ -21,7 +23,8 @@ class TranslateChunks_Command(Move_Command):
     """
     commandName = 'TRANSLATE_CHUNKS'
     featurename = "Translate Chunks"
-    default_mode_status_text = "Translate Chunks"
+    from utilities.constants import CL_EDIT_GENERIC
+    command_level = CL_EDIT_GENERIC
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 

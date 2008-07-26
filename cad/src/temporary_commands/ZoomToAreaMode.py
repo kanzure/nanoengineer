@@ -1,5 +1,4 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
-
 """
 Zoom to Area functionality.
 
@@ -202,8 +201,9 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
     
     # class constants
     commandName = 'ZOOMTOAREA'
-    default_mode_status_text = "Tool: Zoom to Area"
     featurename = "Zoom to Area Tool"
+    from utilities.constants import CL_VIEW_CHANGE
+    command_level = CL_VIEW_CHANGE
 
     GraphicsMode_class = ZoomToAreaMode_GM
     
