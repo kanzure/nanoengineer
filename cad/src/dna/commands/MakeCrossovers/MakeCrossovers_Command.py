@@ -66,7 +66,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
         """
         Initialize GUI for this mode 
         """
-        previousCommand = self.commandSequencer.prevMode 
+        previousCommand = self.commandSequencer.prevMode # init_gui: flyoutToolbar
         if previousCommand.commandName == 'BUILD_DNA':
             try:
                 self.flyoutToolbar = previousCommand.flyoutToolbar

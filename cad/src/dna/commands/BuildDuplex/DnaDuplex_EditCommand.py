@@ -181,7 +181,7 @@ class DnaDuplex_EditCommand(EditCommand):
         #from the previous run of the command. 
         self._segmentList = []
 
-        prevMode = self.commandSequencer.prevMode 
+        prevMode = self.commandSequencer.prevMode # init_gui: flyoutToolbar, provideParamsForTemporaryMode
         if prevMode.commandName == 'BUILD_DNA':
             params = prevMode.provideParamsForTemporaryMode(self.commandName)
             self.callback_addSegments, self._parentDnaGroup = params

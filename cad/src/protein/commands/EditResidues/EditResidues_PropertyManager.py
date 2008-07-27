@@ -214,7 +214,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
     def set_current_protein(self):
         self.current_protein = ""
-        previousCommand = self.win.commandSequencer.prevMode
+        previousCommand = self.win.commandSequencer.prevMode # set_current_protein: previousCommand.propMgr.get_current_protein_chunk_name
         if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:

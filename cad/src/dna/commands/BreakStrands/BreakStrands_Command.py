@@ -44,7 +44,7 @@ class BreakStrands_Command(BuildAtoms_Command):
         """
         Initialize GUI for this mode
         """
-        previousCommand = self.commandSequencer.prevMode
+        previousCommand = self.commandSequencer.prevMode # init_gui: flyoutToolbar
         if previousCommand.commandName == 'BUILD_DNA':
             try:
                 self.flyoutToolbar = previousCommand.flyoutToolbar
@@ -101,7 +101,7 @@ class BreakStrands_Command(BuildAtoms_Command):
                 bool_keep = True
             #Commented out code that shows what I was planning to implement
             #earlier.
-            ##previousCommand = self.commandSequencer.prevMode
+            ##previousCommand = self.commandSequencer.prevMode # keep_empty_group: .struct
             ##if previousCommand.commandName == 'BUILD_DNA':
                 ##if group is previousCommand.struct:
                     ##bool_keep = True

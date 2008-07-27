@@ -120,7 +120,7 @@ class InsertNanotube_EditCommand(EditCommand):
         #from the previous run of the command. 
         self._segmentList = []
 
-        prevMode = self.commandSequencer.prevMode 
+        prevMode = self.commandSequencer.prevMode # init_gui: flyoutToolbar
         if prevMode.commandName == 'BUILD_NANOTUBE':
             #Following won't be necessary after Command Toolbar is 
             #properly integrated into the Command/CommandSequencer API

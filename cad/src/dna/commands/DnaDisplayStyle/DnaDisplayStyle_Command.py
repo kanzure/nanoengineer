@@ -49,7 +49,7 @@ class DnaDisplayStyle_Command(EditCommand):
         """
         Initialize GUI for this mode 
         """
-        previousCommand = self.commandSequencer.prevMode 
+        previousCommand = self.commandSequencer.prevMode # for flyout toolbar maintenance in init_gui
         if previousCommand.commandName == 'BUILD_DNA':
             try:
                 self.flyoutToolbar = previousCommand.flyoutToolbar
@@ -106,7 +106,7 @@ class DnaDisplayStyle_Command(EditCommand):
                 bool_keep = True
             #Commented out code that shows what I was planning to implement 
             #earlier. 
-            ##previousCommand = self.commandSequencer.prevMode 
+            ##previousCommand = self.commandSequencer.prevMode # keep_empty_group: .struct
             ##if previousCommand.commandName == 'BUILD_DNA':
                 ##if group is previousCommand.struct:
                     ##bool_keep = True                                

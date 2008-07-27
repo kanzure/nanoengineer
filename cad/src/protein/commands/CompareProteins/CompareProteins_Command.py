@@ -50,7 +50,7 @@ class CompareProteins_Command(EditCommand):
         """
         Initialize GUI for this mode 
         """
-        previousCommand = self.commandSequencer.prevMode 
+        previousCommand = self.commandSequencer.prevMode # init_gui: flyoutToolbar
         if previousCommand.commandName == 'BUILD_PROTEIN':
             try:
                 self.flyoutToolbar = previousCommand.flyoutToolbar

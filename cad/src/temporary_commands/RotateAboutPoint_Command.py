@@ -190,10 +190,10 @@ class RotateAboutPoint_Command(LineMode):
         Restore the GUI
         """
 
-        prevMode = self.commandSequencer.prevMode
+        prevMode = self.commandSequencer.prevMode # restore_gui: acceptParamsFromTemporaryMode
         #Clean this up -- acceptParamsFromTemporaryMode is only needed for the
-        #unchecking the 'RotateAboutPoint checkbox in the previous mode
-        #(ie in the Mov Property Manager. )
+        #unchecking the RotateAboutPoint checkbox in the previous mode
+        #(i.e. in the Move Property Manager. )
 
         if hasattr(prevMode, 'acceptParamsFromTemporaryMode'):
             params = ()

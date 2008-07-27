@@ -542,7 +542,7 @@ class LineMode(Select_Command):
         """
         Initialize GUI for this mode 
         """
-        prevMode = self.commandSequencer.prevMode        
+        prevMode = self.commandSequencer.prevMode # init_gui: provideParamsForTemporaryMode
         #clear the list (for safety) which may still have old data in it
         self.mouseClickPoints = []
         self.glpane.gl_update()
@@ -563,7 +563,7 @@ class LineMode(Select_Command):
         """
         Restore the GUI 
         """
-        prevMode = self.commandSequencer.prevMode
+        prevMode = self.commandSequencer.prevMode # restore_gui: acceptParamsFromTemporaryMode
         if hasattr(prevMode, 'acceptParamsFromTemporaryMode'): 
             prevMode.acceptParamsFromTemporaryMode(
                 self.commandName, 
@@ -580,7 +580,7 @@ class LineMode(Select_Command):
         Not implemented/ or used. Experimental method.  
         code in self.graphicsmode.leftUp. 
         """
-        prevMode = self.commandSequencer.prevMode
+        prevMode = self.commandSequencer.prevMode # EXPERIMENTAL_restore_gui_for_adding_dna_segment: addSegment
         if hasattr(prevMode, 'addSegment'):
             prevMode.addSegment(
                 self.mouseClickPoints)

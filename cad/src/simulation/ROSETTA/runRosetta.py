@@ -682,7 +682,7 @@ class RosettaRunner:
                                 outProtein = mol
                         outProtein.protein.set_rosetta_protein_secondary_structure(inProtein)
                         command = self.win.commandSequencer.currentCommand
-                        prevCommand = self.win.commandSequencer.prevMode
+                        prevCommand = self.win.commandSequencer.prevMode # run_...: add new chunk to combobox in BUILD_PROTEIN
                         if prevCommand is not None:
                             prevCommandName = prevCommand.commandName
                         else:

@@ -134,7 +134,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
     def update_residue_combobox(self):
         self.current_protein = ""
-        previousCommand = self.win.commandSequencer.prevMode
+        previousCommand = self.win.commandSequencer.prevMode # update_residue_combobox: get_current_protein_chunk_name
         if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
@@ -215,7 +215,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         self.current_protein = ""
         
-        previousCommand = self.win.commandSequencer.prevMode
+        previousCommand = self.win.commandSequencer.prevMode # _loadGroupBox1: previousCommand.propMgr.get_current_protein_chunk_name
         if previousCommand.commandName == 'BUILD_PROTEIN':
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
