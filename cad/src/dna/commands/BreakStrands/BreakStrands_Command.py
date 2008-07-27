@@ -44,17 +44,8 @@ class BreakStrands_Command(BuildAtoms_Command):
         """
         Initialize GUI for this mode
         """
-        previousCommand = self.commandSequencer.prevMode # init_gui: flyoutToolbar
-        if previousCommand.commandName == 'BUILD_DNA':
-            try:
-                self.flyoutToolbar = previousCommand.flyoutToolbar
-                #Need a better way to deal with changing state of the
-                #corresponding action in the flyout toolbar. To be revised
-                #during command toolbar cleanup
-                self.flyoutToolbar.breakStrandAction.setChecked(True)
-            except AttributeError:
-                self.flyoutToolbar = None
-
+        self._init_gui_flyout_action( 'breakStrandAction' )
+        
         if self.propMgr is None:
             self.propMgr = BreakStrands_PropertyManager(self)
             #@bug BUG: following is a workaround for bug 2494.

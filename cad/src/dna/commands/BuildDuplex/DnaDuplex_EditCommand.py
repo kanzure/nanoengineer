@@ -172,7 +172,6 @@ class DnaDuplex_EditCommand(EditCommand):
         """
         _superclass.init_gui(self)        
 
-
         if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
             self._setParamsForDnaLineGraphicsMode()
             self.mouseClickPoints = []
@@ -181,28 +180,17 @@ class DnaDuplex_EditCommand(EditCommand):
         #from the previous run of the command. 
         self._segmentList = []
 
-        prevMode = self.commandSequencer.prevMode # init_gui: flyoutToolbar, provideParamsForTemporaryMode
-        if prevMode.commandName == 'BUILD_DNA':
-            params = prevMode.provideParamsForTemporaryMode(self.commandName)
+        parentCommand_if_BUILD_DNA = self._init_gui_flyout_action( 'dnaDuplexAction' )
+        if parentCommand_if_BUILD_DNA:
+            params = parentCommand_if_BUILD_DNA.provideParamsForTemporaryMode(self.commandName)
             self.callback_addSegments, self._parentDnaGroup = params
-
             #@TODO: self.callback_addSegments is not used as of 2008-02-24 
             #due to change in implementation. Not removing it for now as the 
             #new implementation (which uses the dnaGroup object of 
             #BuildDna_EditCommand is still being tested) -- Ninad 2008-02-24
 
-            #Following won't be necessary after Command Toolbar is 
-            #properly integrated into the Command/CommandSequencer API
-            try:
-                self.flyoutToolbar = prevMode.flyoutToolbar
-                #Need a better way to deal with changing state of the 
-                #corresponding action in the flyout toolbar. To be revised 
-                #during command toolbar cleanup 
-                self.flyoutToolbar.dnaDuplexAction.setChecked(True)
-            except AttributeError:
-                self.flyoutToolbar = None
-
-
+            # REVIEW: is the following ever needed? If so, should
+            # _init_gui_flyout_action do it itself? [bruce 080726 question]
             if self.flyoutToolbar:
                 if not self.flyoutToolbar.dnaDuplexAction.isChecked():
                     self.flyoutToolbar.dnaDuplexAction.setChecked(True)

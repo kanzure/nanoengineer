@@ -850,6 +850,56 @@ class basicCommand(anyCommand):
         update_gui()).
         """
         pass
+
+    def _init_gui_flyout_action( self, action_attr, parentCommandName = None ):
+        """
+        If parent command has the expected commandName, copy self.flyoutToolbar
+        from it and call setChecked on the specified action in it (if it has
+        that action) (setting self.flyoutToolbar = None if any of this fails
+        by raising AttributeError, with no error message) and return the parent
+        command. Otherwise return None.
+
+        @param action_attr: attribute name of this command's action in
+                            this or parent command's flyout toolbar.
+                            Example: 'breakStrandAction'
+        @type: string
+
+        @param parentCommandName: commandName of expected parent command;
+                                  if not provided or None, we use
+                                  self.command_parent for this.
+                                  Example: 'BUILD_DNA'
+        @type: string
+
+        @return: parent command, if it has expected commandName, otherwise None.
+        @rtype: Command or None
+        
+        [helper method for use in init_gui implementations;
+         might need refactoring]
+        """
+        #bruce 080726 split this out of init_gui methods (by Ninad)
+        # of several Commands.
+        if parentCommandName is None:
+            parentCommandName = self.command_parent
+            assert self.command_parent, \
+                   "_init_gui_flyout_action in %r requires " \
+                   "self.command_parent assignment" % self
+        parentCommand = self.commandSequencer.prevMode # _init_gui_flyout_action: flyoutToolbar
+        if parentCommand.commandName == parentCommandName:
+            try:
+                self.flyoutToolbar = parentCommand.flyoutToolbar
+                #Need a better way to deal with changing state of the 
+                #corresponding action in the flyout toolbar. To be revised 
+                #during command toolbar cleanup
+                action = getattr(self.flyoutToolbar, action_attr)
+                action.setChecked(True)
+            except AttributeError:
+                # REVIEW: this could have several causes; would any of them
+                # be bugs and deserve an error message? [bruce 080726 questions]
+                self.flyoutToolbar = None
+            return parentCommand
+        else:
+            return None
+        pass
     
     def resume_gui(self):
         """
