@@ -9,25 +9,22 @@ Build > Protein mode.
 @author: Urmi
 @version: $Id$ 
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
+History: Urmi copied this from DnaDisplayStyle_PropertyManager.py and modified
+         it to suit the needs of protein display.
 
 """
 import os, time, fnmatch, string
 import foundation.env as env
-
 from widgets.DebugMenuMixin import DebugMenuMixin
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
-
 from utilities.prefs_constants import getDefaultWorkingDirectory
 from utilities.prefs_constants import workingDirectory_prefs_key
-
 from utilities.Log import greenmsg
 from utilities.constants import yellow, orange, red, magenta 
 from utilities.constants import cyan, blue, white, black, gray
-
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 from PyQt4 import QtGui
-
 from PyQt4.Qt import QFileDialog, QString, QMessageBox, QSlider
 from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
@@ -40,11 +37,6 @@ from PM.PM_Slider import PM_Slider
 from PM.PM_Constants import PM_DONE_BUTTON
 from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from PM.PM_ColorComboBox import PM_ColorComboBox
-
-
-# UM 20080623: the constants below need to be removed
-from utilities.constants import diDNACYLINDER
-
 from utilities.prefs_constants import proteinStyle_prefs_key
 from utilities.prefs_constants import proteinStyleSmooth_prefs_key
 from utilities.prefs_constants import proteinStyleQuality_prefs_key
@@ -75,7 +67,6 @@ proteinDisplayStylePrefsList = \
                           proteinStyleCoilColor_prefs_key ]
 
 # Protein Display Style Favorite File I/O functions. 
-
 def writeProteinDisplayStyleSettingsToFavoritesFile( basename ):
     
     """
@@ -88,16 +79,12 @@ def writeProteinDisplayStyleSettingsToFavoritesFile( basename ):
     @note: The favorite file is written to the directory
             $HOME/Nanorex/Favorites/ProteinDisplayStyle.
     """
-
     if not basename:
         return 0, "No name given."
 
     # Get filename and write the favorite file.
     favfilepath = getFavoritePathFromBasename(basename)
     writeDnaFavoriteFile(favfilepath)
-
-    # msg = "Problem writing file [%s]" % favfilepath
-
     return 1, basename
 
 
@@ -122,7 +109,6 @@ def writeDnaFavoriteFile( filename ):
     """
     Writes a favorite file to I{filename}.
     """
-
     f = open(filename, 'w')
 
     # Write header
@@ -156,9 +142,7 @@ def loadFavoriteFile( filename ):
 
     @param filename: The full path for the favorite file.
     @type  filename: string
-
     """
-
     if os.path.exists(filename):
         favoriteFile = open(filename, 'r')
     else:
@@ -167,8 +151,6 @@ def loadFavoriteFile( filename ):
 
     # do syntax checking on the file to figure out whether this is a valid
     # favorite file
-
-
     line = favoriteFile.readline()
     line = favoriteFile.readline()
 
@@ -179,11 +161,9 @@ def loadFavoriteFile( filename ):
 
     while 1:
         line = favoriteFile.readline()
-
         # marks the end of file
         if line == "":
             break
-
 
         # process each line to obtain pref_keys and their corresponding values
         if line[0] != '!':
@@ -194,40 +174,28 @@ def loadFavoriteFile( filename ):
 
             # check if pref_value is an integer or float. Booleans currently
             # stored as integer as well.
-
             try:
                 int(pref_value)
                 pref_valueToStore = int(pref_value)
-
             except ValueError:
                 pref_valueToStore = float(pref_value)
 
-
             # match pref_keyString with its corresponding variable name in the
             # preference key list
-
             pref_key = findPrefKey( pref_keyString )
-
             #add preference key and its corresponding value to the dictionary
-
             if pref_key:
                 env.prefs[pref_key] = pref_valueToStore
-
-
-
     favoriteFile.close()
 
     #check if a copy of this file exists in the favorites directory. If not make
     # a copy of it in there
-
-
     favName = os.path.basename(str(filename))
     name = favName[0:len(favName)-4]
     favfilepath = getFavoritePathFromBasename(name)
 
     if not os.path.exists(favfilepath):
         saveFavoriteFile(favfilepath, filename)
-
     return 1
 
 
@@ -235,7 +203,6 @@ def findPrefKey( pref_keyString ):
     """
     Matches prefence key in the proteinDisplayStylePrefsList with pref_keyString
     from the favorte file that we intend to load.
-
 
     @param pref_keyString: preference from the favorite file to be loaded.
     @type  pref_keyString: string
@@ -248,25 +215,20 @@ def findPrefKey( pref_keyString ):
 
     for keys in proteinDisplayStylePrefsList:
         #split keys in dnaDisplayStylePrefList into version number and pref_key
-
         pref_array= keys.split("/")
         if pref_array[1] == pref_keyString:
             return keys
-
     return None
 
 def saveFavoriteFile( savePath, fromPath ):
-
     """
     Save favorite file to anywhere in the disk
-
 
     @param savePath: full path for the location where the favorite file is to be saved.
     @type  savePath: string
 
     @param savePath: ~/Nanorex/Favorites/DnaDisplayStyle/$FAV_NAME.txt
     @type  fromPath: string
-
     """
     if savePath:
         saveFile = open(savePath, 'w')
@@ -304,7 +266,6 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     title         =  "Edit Protein Display Style"
     pmName        =  title
     iconPath      =  "ui/actions/Edit/EditProteinDisplayStyle.png"
-
     
     def __init__( self, parentCommand ):
         """
@@ -330,7 +291,14 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, isConnect = True):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
         
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
         if isConnect:
             change_connect = self.win.connect
         else:
@@ -412,14 +380,27 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     #Protein Display methods         
         
     def  changeProteinDisplayStyle(self, idx):
+        """
+        Change protein display style
+        
+        @param idx: index of the protein display style combo box
+        @type idx: int
+        """
         env.prefs[proteinStyle_prefs_key] = idx
         return
     
     def  changeProteinDisplayQuality(self, idx):
+        
         env.prefs[proteinStyleQuality_prefs_key] = idx
         return
     
     def  smoothProteinDisplay(self, state):
+        """
+        Smoooth protein display.
+        
+        @param state: state of the smooth protein display check box.
+        @type state: int
+        """
         if state == Qt.Checked:
             env.prefs[proteinStyleSmooth_prefs_key] = True
         else:
@@ -427,52 +408,102 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         return
     
     def  changeProteinDisplayScale(self, idx):
+        """
+        Change protein display scale
+        
+        @param idx: index of the protein display scaling choices combo box
+        @type idx: int
+        """
         env.prefs[proteinStyleScaling_prefs_key] = idx
         return
     
     def changeProteinSplineValue(self, val):
+        """
+        Change protein display resolution
+        @param val: value in the protein display resolution double spinbox
+        @type val: double
+        """
         env.prefs[proteinStyleQuality_prefs_key] = val
         return
     
     def changeProteinScaleFactor(self, val):
+        """
+        Change protein display scale factor
+        
+        @param val: value in the protein display scale factor double spinbox
+        @type val: double
+        """
         env.prefs[proteinStyleScaleFactor_prefs_key] = val
         return
     
     def chooseProteinComponent(self, idx):
+        """
+        Choose protein component to set the color of 
+        
+        @param idx: index of the protein component choices combo box
+        @type idx: int
+        """
         env.prefs[proteinStyleColors_prefs_key] = idx
         return
     
     def chooseAuxilliaryProteinComponent(self, idx):
+        """
+        Choose auxilliary protein component to set the color of 
+        
+        @param idx: index of the auxilliary protein component choices combo box
+        @type idx: int
+        """
         env.prefs[proteinStyleAuxColors_prefs_key] = idx - 1
         return
     
     def chooseCustomColor(self):
+        """
+        Choose custom color of the chosen protein component
+        """
         color = self.customColorComboBox.getColor()
         env.prefs[proteinStyleCustomColor_prefs_key] = color
         return
     
     def chooseAuxilliaryColor(self):
+        """
+        Choose custom color of the chosen auxilliary protein component
+        """
         color = self.auxColorComboBox.getColor()
         env.prefs[proteinStyleAuxCustomColor_prefs_key] = color
         return  
     
         
     def chooseHelixColor(self):
+        """
+        Choose helix color
+        """
         color = self.helixColorComboBox.getColor()
         env.prefs[proteinStyleHelixColor_prefs_key] = color
         return
     
     def chooseStrandColor(self):
+        """
+        Choose strand color
+        """
         color = self.strandColorComboBox.getColor()
         env.prefs[proteinStyleStrandColor_prefs_key] = color
         return     
     
     def chooseCoilColor(self):
+        """
+        Choose coil color
+        """
         color = self.coilColorComboBox.getColor()
         env.prefs[proteinStyleCoilColor_prefs_key] = color
         return     
     
     def setDiscreteColors(self, state):
+        """
+        Set discrete colors.
+        
+        @param state: state of the set discrete colors check box.
+        @type state: int
+        """
         if state == Qt.Checked:
             env.prefs[proteinStyleColorsDiscrete_prefs_key] = True
         else:
@@ -499,20 +530,6 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.sequenceEditor.hide()
         PM_Dialog.show(self)
-
-        #Not required for Proteins
-        # Force the Global Display Style to "DNA Cylinder" so the user
-        # can see the display style setting effects on any DNA in the current
-        # model. The current global display style will be restored when leaving
-        # this command (via self.close()).
-        #self.originalDisplayStyle = self.o.getGlobalDisplayStyle()
-        #self.o.setGlobalDisplayStyle(diDNACYLINDER)
-
-        # Update all PM widgets, then establish their signal-slot connections.
-        # note: It is important to update the widgets *first* since doing
-        # it in the reverse order will generate signals when updating
-        # the PM widgets (via updateDnaDisplayStyleWidgets()), causing
-        # unneccessary repaints of the model view.
         self.updateProteinDisplayStyleWidgets()
         self.connect_or_disconnect_signals(isConnect = True)
 
@@ -522,10 +539,6 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         self.connect_or_disconnect_signals(False)
         PM_Dialog.close(self)
-
-        #Not required for proteins
-        # Restore the original global display style.
-        #self.o.setGlobalDisplayStyle(self.originalDisplayStyle)
 
     def _addGroupBoxes( self ):
         """
@@ -546,11 +559,12 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box.
+        @param pmGroupBox: group box that contains various favorite buttons
+        @see: L{PM_GroupBox}  
         """
         # Other info
         # Not only loads the factory default settings but also all the favorite
         # files stored in the ~/Nanorex/Favorites/ProteinDisplayStyle directory
-
         favoriteChoices = ['Factory default settings']
 
         #look for all the favorite files in the favorite folder and add them to
@@ -558,23 +572,18 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
         _dir = find_or_make_Nanorex_subdir('Favorites/ProteinDisplayStyle')
 
-
         for file in os.listdir(_dir):
             fullname = os.path.join( _dir, file)
             if os.path.isfile(fullname):
                 if fnmatch.fnmatch( file, "*.txt"):
-
                     # leave the extension out
                     favoriteChoices.append(file[0:len(file)-4])
-
         self.favoritesComboBox  = \
             PM_ComboBox( pmGroupBox,
                          choices       =  favoriteChoices,
                          spanWidth  =  True)
-
         self.favoritesComboBox.setWhatsThis(
             """<b> List of Favorites </b>
-
             <p>
             Creates a list of favorite Protein display styles. Once favorite
             styles have been added to the list using the Add Favorite button,
@@ -617,7 +626,6 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               )
 
         self.favsButtonGroup.buttonGroup.setExclusive(False)
-
         self.applyFavoriteButton  = self.favsButtonGroup.getButtonById(1)
         self.addFavoriteButton    = self.favsButtonGroup.getButtonById(2)
         self.deleteFavoriteButton = self.favsButtonGroup.getButtonById(3)
@@ -627,6 +635,10 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box.
+        
+        @param pmGroupBox: group box that contains protein display choices
+        @see: L{PM_GroupBox}  
+        
         """
         proteinStyleChoices = ['CA trace (wire)', 
                                'CA trace (cylinders)', 
@@ -684,6 +696,8 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _loadGroupBox3(self, pmGroupBox):
         """
         Load widgets in group box.
+        @param pmGroupBox: group box that contains various color choices
+        @see: L{PM_GroupBox} 
         """
         colorChoices = ['Chunk', 'Chain', 'Order', 'Hydropathy', 'Polarity',
                         'Acidity', 'Size', 'Character', 'Number of contacts',
@@ -780,7 +794,6 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Updates all the Protein Display style widgets based on the current pref keys
         values
-        
         """
         self.proteinStyleComboBox.setCurrentIndex(env.prefs[proteinStyle_prefs_key]) 
         self.splineDoubleSpinBox.setValue(env.prefs[proteinStyleQuality_prefs_key])  
@@ -800,16 +813,13 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.discColorCheckBox.setCheckState(Qt.Unchecked)   
         self.helixColorComboBox.setColor(env.prefs[proteinStyleHelixColor_prefs_key])
         self.strandColorComboBox.setColor(env.prefs[proteinStyleStrandColor_prefs_key])
-        self.coilColorComboBox.setColor(env.prefs[proteinStyleCoilColor_prefs_key])    
-                
+        self.coilColorComboBox.setColor(env.prefs[proteinStyleCoilColor_prefs_key])      
         return
 
     def applyFavorite(self):
-        
-        # Rules and other info:
-        # The user has to press the button related to this method when he loads
-        # a previously saved favorite file
-
+        """
+        Apply a favorite to the current display chosen in the favorites combo box
+        """
         current_favorite = self.favoritesComboBox.currentText()
         if current_favorite == 'Factory default settings':
             env.prefs.restore_defaults(proteinDisplayStylePrefsList)
@@ -821,25 +831,23 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         return
 
     def addFavorite(self):
-        
-        # Rules and other info:
-
-        # - The new favorite is defined by the current Protein display style 
-
-        #  settings.
-
-        # - The user is prompted to type in a name for the new
-        #    favorite.
-        # - The DNA display style settings are written to a file in a special
-        #    directory on the disk
-        # (i.e. $HOME/Nanorex/Favorites/ProteinDisplayStyle/$FAV_NAME.txt).
-        # - The name of the new favorite is added to the list of favorites in
-        #    the combobox, which becomes the current option.
-
-        # Existence of a favorite with the same name is checked in the above
-        # mentioned location and if a duplicate exists, then the user can either
-        # overwrite and provide a new name.
-
+        """
+        create and add favorite to favorites directory and favorites combo box
+        in PM
+        @note: Rules and other info:
+         - The new favorite is defined by the current Protein display style 
+           settings.
+         - The user is prompted to type in a name for the new
+           favorite.
+         - The Protein display style settings are written to a file in a special
+           directory on the disk
+          (i.e. $HOME/Nanorex/Favorites/ProteinDisplayStyle/$FAV_NAME.txt).
+         - The name of the new favorite is added to the list of favorites in
+           the combobox, which becomes the current option.
+           Existence of a favorite with the same name is checked in the above
+           mentioned location and if a duplicate exists, then the user can either
+           overwrite and provide a new name.
+        """
 
 
         # Prompt user for a favorite name to add.
@@ -897,44 +905,37 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         return
 
     def deleteFavorite(self):
-        
+        """
+        Delete favorite file from the favorites directory
+        """
         currentIndex = self.favoritesComboBox.currentIndex()
         currentText = self.favoritesComboBox.currentText()
         if currentIndex == 0:
             msg = "Cannot delete '%s'." % currentText
         else:
             self.favoritesComboBox.removeItem(currentIndex)
-
-
             # delete file from the disk
-
             deleteFile= getFavoritePathFromBasename( currentText )
             os.remove(deleteFile)
-
             msg = "Deleted favorite named [%s].\n" \
                 "and the favorite file [%s.txt]." \
                 % (currentText, currentText)
-
         env.history.message(msg)
         return
 
     def saveFavorite(self):
-        
-
+        """
+        Save favorite file in a user chosen location
+        """
         cmd = greenmsg("Save Favorite File: ")
         env.history.message(greenmsg("Save Favorite File:"))
         current_favorite = self.favoritesComboBox.currentText()
         favfilepath = getFavoritePathFromBasename(current_favorite)
-
         formats = \
                 "Favorite (*.txt);;"\
                 "All Files (*.*)"
-                    
-         
         directory = self.currentWorkingDirectory
         saveLocation = directory + "/" + current_favorite + ".txt"
-        
-
         fn = QFileDialog.getSaveFileName(
             self,
             "Save Favorite As", # caption
@@ -944,7 +945,6 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             )
         if not fn:
             env.history.message(cmd + "Cancelled")
-
         else:
             dir, fil = os.path.split(str(fn))
             self.setCurrentWorkingDirectory(dir)
@@ -952,17 +952,28 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         return
 
     def setCurrentWorkingDirectory(self, dir = None):
+        """
+        Set dir as current working diretcory
+        
+        @param dir: dirname
+        @type dir: str
+        """
         if os.path.isdir(dir):
             self.currentWorkingDirectory = dir
             self._setWorkingDirectoryInPrefsDB(dir)
         else:
             self.currentWorkingDirectory =  getDefaultWorkingDirectory()
+        return    
     
     def _setWorkingDirectoryInPrefsDB(self, workdir = None):
+        """
+        Set workdir as current working diretcory in prefDB
         
+        @param workdir: dirname
+        @type workdir: str
+        """
         if not workdir:
-            return
-        
+            return    
         workdir = str(workdir)
         if os.path.isdir(workdir):
             workdir = os.path.normpath(workdir)
@@ -973,7 +984,9 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         return
     
     def loadFavorite(self):
-        
+        """
+        Load a favorite file
+        """ 
         # If the file already exists in the favorites folder then the user is
         # given the option of overwriting it or renaming it
 
@@ -985,32 +998,23 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         directory = self.currentWorkingDirectory
         if directory == '':
             directory= getDefaultWorkingDirectory()
-
         fname = QFileDialog.getOpenFileName(self,
                                          "Choose a file to load",
                                          directory,
                                          formats)
-
         if not fname:
             env.history.message("User cancelled loading file.")
             return
-
         else:
             dir, fil = os.path.split(str(fname))
             self.setCurrentWorkingDirectory(dir)
             canLoadFile=loadFavoriteFile(fname)
-
             if canLoadFile == 1:
-
-
                 #get just the name of the file for loading into the combobox
-
                 favName = os.path.basename(str(fname))
                 name = favName[0:len(favName)-4]
                 indexOfDuplicateItem = self.favoritesComboBox.findText(name)
-
                 #duplicate exists in combobox
-
                 if indexOfDuplicateItem != -1:
                     ret = QMessageBox.warning( self, "Warning!",
                                                "The favorite file \"" + name +
@@ -1020,7 +1024,6 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                                0,    # Enter == button 0
                                                1   # button 1
                                                )
-
                     if ret == 0:
                         self.favoritesComboBox.removeItem(indexOfDuplicateItem)
                         self.favoritesComboBox.addItem(name)
@@ -1029,14 +1032,11 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                         ok2, text = writeProteinDisplayStyleSettingsToFavoritesFile(name)
                         msg = "Overwrote favorite [%s]." % (text)
                         env.history.message(msg)
-
                     elif ret == 1:
                         # add new item to favorites folder as well as combobox
                         self.addFavorite()
-
                     else:
                         #reset the display setting values to factory default
-
                         factoryIndex = self.favoritesComboBox.findText(
                                              'Factory default settings')
                         self.favoritesComboBox.setCurrentIndex(factoryIndex)
@@ -1049,21 +1049,21 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     _lastItem = self.favoritesComboBox.count()
                     self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
                     msg = "Loaded favorite [%s]." % (name)
-
                     env.history.message(msg) 
-         
                 self.updateProteinDisplayStyleWidgets()  
-
         return
 
     def _addWhatsThisText( self ):
-        
+        """
+        Add what's this text for this PM
+        """
         from ne1_ui.WhatsThisText_for_PropertyManagers import WhatsThis_EditDnaDisplayStyle_PropertyManager
         WhatsThis_EditDnaDisplayStyle_PropertyManager(self)
 
     def _addToolTipText(self):
-        
-
+        """
+        Add tool tip text to all widgets.
+        """
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_EditProteinDisplayStyle_PropertyManager 
         ToolTip_EditProteinDisplayStyle_PropertyManager(self)
 
