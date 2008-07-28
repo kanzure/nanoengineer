@@ -93,9 +93,10 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         self.hover_highlighting_enabled = \
             env.prefs[buildModeHighlightingEnabled_prefs_key]
         
-    def Enter(self):      
-        self._init_flyoutActions()        
-        _superclass.Enter(self) 
+        #Initialize flyout actions to be used in Flyout toolbar 
+        self._init_flyoutActions() 
+        
+   
         
     def init_gui(self):
         """
@@ -133,6 +134,10 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         self.propMgr.show()
         
         self.updateCommandToolbar(bool_entering = True)
+        
+        #Check the 'Exit Chunks' action in the flyout toolbar 
+        # while in this command 
+        self.exitModeAction.setChecked(True)
         
         if self.depositAtomsAction.isChecked():
             self.activateAtomsTool()
