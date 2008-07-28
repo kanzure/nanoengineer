@@ -188,12 +188,7 @@ class DnaDuplex_EditCommand(EditCommand):
             #due to change in implementation. Not removing it for now as the 
             #new implementation (which uses the dnaGroup object of 
             #BuildDna_EditCommand is still being tested) -- Ninad 2008-02-24
-
-            # REVIEW: is the following ever needed? If so, should
-            # _init_gui_flyout_action do it itself? [bruce 080726 question]
-            if self.flyoutToolbar:
-                if not self.flyoutToolbar.dnaDuplexAction.isChecked():
-                    self.flyoutToolbar.dnaDuplexAction.setChecked(True)
+            
         else:
             #Should this be an assertion? Should we always kill _parentDnaGroup
             #if its not None? ..not a good idea. Lets just make it to None. 
