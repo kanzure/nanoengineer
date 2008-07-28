@@ -1,7 +1,6 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-InsertNanotube_EditCommand.py
-InsertNanotube_EditCommand that provides an editCommand object for 
+InsertNanotube_EditCommand.py provides an editCommand object for 
 generating a nanotube (CNT or BNNT).  This command should be invoked only from 
 NanotubeProperties_EditCommand
 
@@ -62,7 +61,7 @@ class InsertNanotube_EditCommand(EditCommand):
     cmdname          = "Insert Nanotube"
 
     commandName      = 'INSERT_NANOTUBE'
-    featurename      = 'Insert Nanotube'
+    featurename      = "Insert Nanotube"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_NANOTUBE'

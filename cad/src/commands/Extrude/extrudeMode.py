@@ -275,7 +275,7 @@ class extrudeMode(basicMode):
             whynot = mol
             if warn:
                 from utilities.Log import redmsg
-                env.history.message(redmsg("%s refused: %r" % (self.msg_commandName, whynot,)))
+                env.history.message(redmsg("%s refused: %r" % (self.get_featurename(), whynot,)))
                     # Fixes bug 444. mark 060323
             self.w.toolsExtrudeAction.setChecked(False)
             return 1
@@ -285,7 +285,7 @@ class extrudeMode(basicMode):
         pass
 
     def Enter(self):
-        self.status_msg("preparing to enter %s..." % self.msg_commandName)
+        self.status_msg("preparing to enter %s..." % self.get_featurename())
             # this msg won't last long enough to be seen, if all goes well
         self.clear() ##e see comment there
         self.initial_down = self.o.down
@@ -311,7 +311,7 @@ class extrudeMode(basicMode):
         if not ok:
             # after 041222 this should no longer happen, since checked in refuseEnter
             whynot = mol
-            self.status_msg("%s refused: %r" % (self.msg_commandName, whynot,))
+            self.status_msg("%s refused: %r" % (self.get_featurename(), whynot,))
             return 1 # refused!
         assert isinstance(mol, fake_merged_mol) #bruce 070412
         self.basemol = mol
@@ -367,7 +367,7 @@ class extrudeMode(basicMode):
         except:
             msg = "in Enter, exception in recompute_for_new_unit"
             print_compact_traceback(msg + ": ")
-            self.status_msg("%s refused: %s" % (self.msg_commandName, msg,))
+            self.status_msg("%s refused: %s" % (self.get_featurename(), msg,))
             return 1 # refused!
 
         #e is this obs? or just nim?? [041017 night]
@@ -1134,7 +1134,6 @@ class extrudeMode(basicMode):
     def init_gui(self):
 
         self.propMgr.show()
-        ##print "hi my msg_commandName is",self.msg_commandName
         self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
 
         # Disable some QActions that will conflict with this mode.
@@ -1203,18 +1202,20 @@ class extrudeMode(basicMode):
         return None
 
     def finalize_product(self, cancelling = 0): #bruce 050228 adding cancelling=0 to help fix bug 314 and unreported bugs
-        "if requested, make bonds and/or join units into one part; cancelling = 1 means just do cleanup, use diff msgs"
-
+        """
+        if requested, make bonds and/or join units into one part;
+        cancelling = 1 means just do cleanup, use diff msgs
+        """
         if not cancelling:
             desc = " (N = %d)" % self.ncopies  #e later, also include circle_n if different and matters; and more for other product_types
             ##self.final_msg_accum = "extrude done: "
-            self.final_msg_accum = "%s making %s%s: " % (self.msg_commandName.split()[0], self.product_type, desc) # first word of commandName
+            self.final_msg_accum = "%s making %s%s: " % (self.get_featurename().split()[0], self.product_type, desc) # first word of commandName
             msg0 = "leaving mode, finalizing product..." # if this lasts long enough to read, something went wrong
             self.status_msg(self.final_msg_accum + msg0)
             # bruce 070407 not printing this anymore:
             ## print "fyi: extrude params not mentioned in statusbar: offset = %r, tol = %r" % (self.offset, self.bond_tolerance)
         else:
-            msg = "%s cancelled (alpha warning: might not fully restore initial state)" % (self.msg_commandName.split()[0],)
+            msg = "%s cancelled (warning: might not fully restore initial state)" % (self.get_featurename().split()[0],)
             self.status_msg( msg)
 
         if self.whendone_make_bonds and not cancelling:
@@ -2336,7 +2337,6 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
 ##
 ##    # class constants
 ##    commandName = 'REVOLVE'
-##    msg_commandName = "revolve mode" #e need to fix up anything else?
 ##    featurename = "Revolve Mode"
 ##    is_revolve = 1
 ##    pass

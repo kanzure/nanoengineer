@@ -99,7 +99,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     cmdname          = "NANOTUBE_SEGMENT"
 
     commandName      = 'NANOTUBE_SEGMENT'
-    featurename      = 'Edit Nanotube Segment'
+    featurename      = "Edit Nanotube Segment"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_NANOTUBE'

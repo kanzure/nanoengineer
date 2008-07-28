@@ -155,8 +155,8 @@ class ExampleCommand1(ExampleCommand):
     """
     commandName = 'ExampleCommand1-commandName' # internal #e fix init code in basicMode to get it from classname?
     featurename = "Prototype: Example Command 1"
-    #e define msg_commandName, or fix init code in basicMode to get it from classname or...
-    # note: that init code won't even run now, since superclass defs it i think -- actually, not sure abt that, probably it doesn't
+    # note: init code in basicMode won't even run now, since superclass defs it i think --
+    # actually, not sure abt that, probably it doesn't
     PM_class = ExampleCommand1_PM
     
     # note: ok_btn_clicked, etc, must be defined in our PM class (elsewhere),
@@ -172,7 +172,6 @@ class ExampleCommand2( Example_TemporaryCommand_useParentPM): # WRONG: this has 
     commandName = 'ExampleCommand2-commandName'
     featurename = "Prototype: Example Command 2"
     PM_class = ExampleCommand2_PM
-    
     pass
 
 # ==

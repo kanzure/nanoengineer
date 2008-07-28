@@ -49,7 +49,7 @@ class BuildNanotube_EditCommand(EditCommand):
     cmdname          = "Build Nanotube"
 
     commandName       = 'BUILD_NANOTUBE'
-    featurename       = 'Build Nanotube'
+    featurename       = "Build Nanotube"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
 

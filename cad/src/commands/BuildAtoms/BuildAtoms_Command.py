@@ -1,9 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 BuildAtoms_Command.py 
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 The 'Command' part of the BuildAtoms Mode (BuildAtoms_basicCommand and 
 BuildAtoms_basicGraphicsMode are the two split classes of the old 
@@ -65,7 +65,6 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     """
     """
     commandName = 'DEPOSIT'
-    msg_commandName = "Build Mode" ### REVIEW: still used?
     featurename = "Build Atoms Mode" ### REVIEW: probably wrong, was renamed to Build Chunks  
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
@@ -1048,7 +1047,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         change_desc = "your changes are"
         msg = "%s Cancel not implemented -- %s still there.\n\
         You can only leave this mode via Done." % \
-              ( self.msg_commandName, change_desc )
+              ( self.get_featurename(), change_desc )
         self.warning( msg, bother_user_with_dialog = 1)
         return True # refuse the Cancel
     

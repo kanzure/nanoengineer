@@ -1,4 +1,4 @@
-#Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+#Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 PartLibraryMode.py 
 
@@ -11,7 +11,7 @@ button in the Part Library mode.
 
 @author: Bruce, Huaicai, Mark, Ninad
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 The Partlib existed as a tab in the MMKit of Build Atoms Mode. (MMKit has been 
@@ -45,7 +45,6 @@ class PartLibraryMode(PasteMode):
     key or pressing 'Done' button in this mode. 
     """
     commandName = 'PARTLIB'
-    msg_commandName = "Part Library" 
     featurename = "Part Library"
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC

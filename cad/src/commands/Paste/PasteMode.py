@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PasteMode.py
 
@@ -9,7 +9,7 @@ hitting 'Escape' key or pressing 'Done' button in the Paste mode.
 
 @author: Ninad
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Ninad 2007-08-29: Created. 
@@ -46,7 +46,6 @@ class PasteMode(depositMode):
     by hitting 'Escape' key  or pressing 'Done' button in the Paste mode. 
     """
     commandName = 'PASTE' 
-    msg_commandName = "Paste" 
     featurename = "Paste" # REVIEW: should this be changed to "Paste From Clipboard"?
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC

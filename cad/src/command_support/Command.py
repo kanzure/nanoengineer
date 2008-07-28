@@ -65,10 +65,10 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     is_null = False # overridden only in nullCommand
     
     # internal name of command, e.g. 'DEPOSIT',
-    # only seen by users in "debug" error messages
+    # only seen by users in "debug" error messages;
+    # might be used to create some prefs_keys and/or in some prefs values
+    # [but I don't know if any such uses remain -- bruce 080727 comment]
     commandName = "(bug: missing commandName 1)" 
-    # name of command to be shown to users, as a phrase, e.g. 'sketch command'
-    msg_commandName = "(bug: unknown command)"
 
     featurename = ""
     
@@ -155,7 +155,7 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         return False
 
     def get_featurename(self):
-        return ""
+        return "null command" # should never be seen [revised, bruce 080727]
 
     def keep_empty_group(self, group): #bruce 080305
         """
@@ -259,9 +259,9 @@ class nullCommand(anyCommand):
     is_null = True
     
     commandName = 'nullCommand'
-    msg_commandName = 'nullCommand'
         # this will be overwritten in the nullCommand instance
         # when the currentCommand is changing [bruce 050106]
+        # [not sure if that was about commandName or msg_commandName or both]
     
     # Command-specific null methods
     
@@ -297,7 +297,6 @@ class basicCommand(anyCommand):
     # If they have an __init__ method, it must call Command.__init__
     # and pass the CommandSequencer in which this command can run.
     commandName = "(bug: missing commandName)"
-    msg_commandName = "(bug: unknown command)"
     featurename = "Undocumented Command"
     from utilities.constants import CL_ABSTRACT
     command_level = CL_ABSTRACT
@@ -323,26 +322,15 @@ class basicCommand(anyCommand):
         REVIEW: are there ever more args, or if the UI wants this to immediately
         do something, does it call some other method immediately? Guess: the latter.
         """
-
         assert GLPANE_IS_COMMAND_SEQUENCER
         glpane = commandSequencer ### TODO: clean this up, and use commandSequencer below
         
         self.pw = None # pw = part window
             # TODO: remove this, or at least rename it -- most code uses .win for the same thing
-
-        #} got to here in this method
-        
-        # init or verify commandName and msg_commandName
-        name = self.commandName
-        assert not name.startswith('('), \
+                
+        # verify self.commandName is set for our subclass
+        assert not self.commandName.startswith('('), \
             "bug: commandName class constant missing from subclass %s" % self.__class__.__name__
-        if self.msg_commandName.startswith('('):
-            self.msg_commandName = name[0:1].upper() + name[1:].lower() + ' Mode'
-                # Capitalized 'Mode'. Fixes bug 612. mark 060323
-                # [bruce 050106 capitalized first letter above]
-            if 0: # bruce 040923 never mind this suggestion
-                print "fyi: it might be better to define 'msg_commandName = %r' as a class constant in %s" % \
-                  (self.msg_commandName, self.__class__.__name__)
         
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
@@ -1578,7 +1566,7 @@ class basicCommand(anyCommand):
         """
         if self.haveNontrivialState():
             msg = "%s with changes is being forced to abandon those changes!\n" \
-                  "Sorry, no choice for now." % (self.msg_commandName,)
+                  "Sorry, no choice for now." % (self.get_featurename(),)
             self.o.warning( msg, bother_user_with_dialog = 1 )
         # don't do self._exitMode(), since it sets a new current command and
         #ultimately asks command sequencer to update for that... which is
@@ -1669,7 +1657,7 @@ class basicCommand(anyCommand):
         Backup tool in dashboard; subclasses should override this
         """
         # note: it looks like only cookieMode tries to do this [bruce 040923]
-        print "%s: Backup not implemented yet" % self.msg_commandName
+        print "%s: Backup not implemented yet" % self.get_featurename()
 
     # compatibility methods -- remove these after we fix
     # MWSemantics.py to use only their new names

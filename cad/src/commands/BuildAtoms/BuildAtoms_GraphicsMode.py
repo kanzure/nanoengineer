@@ -318,7 +318,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                          increase_bond_order = True)
 
         # we ignore flag, which says whether it's ok, warning, or error
-        env.history.message("%s: %s" % (self.command.msg_commandName, status))
+        env.history.message("%s: %s" % (self.command.get_featurename(), status))
         return
            
     def setBond1(self, state):
