@@ -1,11 +1,13 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
-
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-$Id$
-The Ui_ExtrudePropertyManager class defines UI elements for the Property
-Manager of the B{Extrude mode}.
+Ui_ExtrudePropertyManager.py - UI elements for the B{Extrude Mode} Property
+Manager.
+
+@version: $Id$
+@copyight: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
+
 ninad 2007-01-10: Split the ui code out of extrudeMode while converting
 extrude dashboard to extrude property manager.
 ninad 2007-09-10: Code clean up to use PM module classes

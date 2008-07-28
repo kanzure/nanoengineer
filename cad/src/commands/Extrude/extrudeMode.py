@@ -98,9 +98,6 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
 
     self.propMgr.extrudeSpinBox_n.setValue(dflt_ncopies)
 
-    if self.propMgr.extrudeSpinBox_circle_n:
-        self.propMgr.extrudeSpinBox_circle_n.setValue(0) #e for true Revolve the initial value would be small but positive...\
-
     x,y,z = 5,5,5 # default dir in modelspace, to be used as a last resort
     if glpane:
         # use it to set direction
@@ -150,9 +147,7 @@ class extrudeMode(basicMode):
     """
     Extrude mode.
     """
-    # class constants
-    is_revolve = 0
-    
+    # class constants    
     commandName = 'EXTRUDE'
     featurename = "Extrude Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
@@ -370,8 +365,9 @@ class extrudeMode(basicMode):
             self.status_msg("%s refused: %s" % (self.get_featurename(), msg,))
             return 1 # refused!
 
-        #e is this obs? or just nim?? [041017 night]
-        self.recompute_for_new_bend() # ... and whatever depends on the bend from each repunit to the next (varies only in Revolve)
+        self.recompute_for_new_bend() # ... and whatever depends on the bend
+            # from each repunit to the next (varies only in ring mode)
+            # (still nim as of 080727)
 
         return # from Enter
 
@@ -488,33 +484,8 @@ class extrudeMode(basicMode):
         assert self.molcopies[0] == self.basemol
 
     circle_n = 0 # we also do this in clear()
-
-    def circle_n_value_changed(self, valjunk): # note: will not be used when first committed, but will be used later
-        del valjunk
-        # see also "closed ring"
-        ###### 041017 night: i suspect this will go away and the signal will just go to "update_from_controls".
-        # at the moment, it is never called since the spinbox for it is never made or connected.
-        # even if that changes, this routine looks harmless if update_from_controls is written to grab value
-        # from spinbox directly, as long as update_from_controls overwrites self.circle_n again before anything can use it.
-        val = "arg not used"
-        if self.propMgr.suppress_valuechanged:
-            return
-        if not self.isCurrentCommand():
-            return
-        assert self.is_revolve ###k for now
-        spinbox = self.propMgr.extrudeSpinBox_circle_n
-        if not spinbox:
-            #k should never happen??
-            return #k?
-        val = spinbox.value()
-        old = self.circle_n
-        if old != val:
-            print "will use circle_n of %d (nim)" % val
-            self.circle_n = val
-            #e recompute... ###@@@ this is what needs doing... maybe also switch memoized data *right here*... this_bend thisbend
-            self.update_from_controls() ###k guess -- this control is not even present as i write this line, tho it might be soon
-            self.w.win_update() # or just repaint [this is redundant]
-        return
+        # note: circle_n is still used (in ring mode), even though "revolve"
+        # as separate mode is nim/obs/removed [bruce 080727 comment]
 
     def spinbox_value_changed(self, valjunk):
         """
@@ -583,7 +554,7 @@ class extrudeMode(basicMode):
             centerii = basemol.center + ii * offset
             # quatii = Q(1,0,0,0)
             quatii = basemol.quat
-        elif ptype == "closed ring": # default for Revolve
+        elif ptype == "closed ring":
             self.update_ring_geometry()
                 # TODO: only call this once, for all ii in a loop of calls of this method
             # extract some of the results saved by update_ring_geometry
@@ -687,14 +658,7 @@ class extrudeMode(basicMode):
         # get control values
         want_n = self.propMgr.extrudeSpinBox_n.value()
 
-        our_dashboard_has_extrudeSpinBox_circle_n = 0 # for now; later this is a class constant, until we split the dashboards
-
-
-        if self.propMgr.extrudeSpinBox_circle_n and our_dashboard_has_extrudeSpinBox_circle_n:
-            want_cn = self.propMgr.extrudeSpinBox_circle_n.value()
-            #k redundant with the slot function for this?? yes, that will go away, see its comments [041017 night].\
-        else:
-            want_cn = 0
+        want_cn = 0 # sometimes changed below
 
         # limit N for safety
         ncopies_wanted = want_n
@@ -994,7 +958,7 @@ class extrudeMode(basicMode):
                 else:
                     excluded += 1
             else:
-                print "fyi: singlet %d is mergeable with itself (should never happen for extrude; ok for revolve)" % i1
+                print "fyi: singlet %d is mergeable with itself (should never happen, except maybe in ring mode)" % i1
             # handle has dual purposes: click to change the offset to the ideal,
             # or find (i1,i2) from an offset inside the (pos, radius) ball.
         msg = "scanned %d open-bond pairs; %d pairs could bond at some offset (as shown by bond-offset spheres)" % \
@@ -1007,23 +971,25 @@ class extrudeMode(basicMode):
     def recompute_for_new_bend(self):
         """
         Recompute things which depend on the choice of bend between units
-        (for revolve).
+        (for ring mode).
         """
-        ##print "recompute_for_new_bend(): pass" ######
         pass
 
     have_offset_specific_data = 0 # we do this in clear() too
 
     def recompute_offset_specific_data(self):
         """
-        Recompute whatever depends on offset but not on tol or bonds
-        -- nothing at the moment.
+        Recompute whatever depends on offset but not on tol or bonds --
+        nothing at the moment.
         """
         pass
 
     def redo_look_of_bond_offset_spheres(self):
         # call to us moved from recompute_offset_specific_data to recompute_bonds
-        "#doc; depends on offset and tol and len(bonds)"
+        """
+        #doc;
+        depends on offset and tol and len(bonds)
+        """
         # kluge:
         try:
             # teensy magenta ball usually shows position of offset rel to the white balls (it's also draggable btw)
@@ -1139,12 +1105,7 @@ class extrudeMode(basicMode):
         # Disable some QActions that will conflict with this mode.
         self.w.disable_QActions_for_extrudeMode(True)
 
-
-        if self.is_revolve:
-            assert 0 #bruce 070613
-##            self.w.toolsRevolveAction.setChecked(1)
-        else:
-            self.w.toolsExtrudeAction.setChecked(1) # make the Extrude tool icon look pressed (and the others not)
+        self.w.toolsExtrudeAction.setChecked(1) # make the Extrude tool icon look pressed (and the others not)
 
         # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
@@ -1625,14 +1586,9 @@ class extrudeMode(basicMode):
         self.dragdist = 0.0
         self.have_offset_specific_data = 0 #### also clear that data itself...
         self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
-        self.offset_for_bonds = None
-        if self.is_revolve:
-            self.product_type = "closed ring"
-            self.circle_n = 30 ###e should take this from the array [3,30] in some init function
-            #e should vary default offset too
-        else:
-            self.product_type = "straight rod" #e someday have a combobox for this
-            self.circle_n = 0
+        self.offset_for_bonds = None        
+        self.product_type = "straight rod" #e someday have a combobox for this
+        self.circle_n = 0
         self.__old_ptype = None
         self.singlet_color = {}
         #e lots more ivars too
@@ -1793,7 +1749,7 @@ class extrudeMode(basicMode):
 
     call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes bug 971]
 
-    def makeMenus(self): #e not yet reviewed for being good choices of what needs including in extrude or revolve cmenu
+    def makeMenus(self): #e not yet reviewed for being good choices of what needs including in extrude cmenu
 
         self.Menu_spec = [
             ('Cancel', self.Cancel),
@@ -2329,16 +2285,5 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
             mol.set_basecenter_and_quat(orig.basecenter + c1, q)
         return
     pass # end of class fake_copied_mol
-
-# ==
-
-##class revolveMode(extrudeMode):
-##    "revolve, a slightly different version of Extrude, someday with a different dashboard"
-##
-##    # class constants
-##    commandName = 'REVOLVE'
-##    featurename = "Revolve Mode"
-##    is_revolve = 1
-##    pass
 
 # end

@@ -1,8 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-$Id$
-The ExtrudePropertyManager class provides the Property Manager for the
+ExtrudePropertyManager.py - Property Manager for
 B{Extrude mode}.  The UI is defined in L{Ui_ExtrudePropertyManager}
+
+@version: $Id$
+@copyight: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History: 
 
@@ -10,7 +12,6 @@ ninad 2007-01-10: Split the ui code out of extrudeMode while converting
 extrude dashboard to extrude property manager. 
 ninad 2007-07-25: code cleanup to create a propMgr object for extrude mode. Also
 moved many ui helper methods defined globally in extrudeMode.py to this class.
-
 """
 
 import math
@@ -31,9 +32,6 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{depositMode} 
         """
-        self.extrudeSpinBox_circle_n = None
-            # REVIEW: I suspect extrudeSpinBox_circle_n is obsolete
-            # and can be completely removed. [bruce 080725 comment]
         self.suppress_valuechanged = 0
         
         Ui_ExtrudePropertyManager.__init__(self, parentMode)
@@ -98,11 +96,6 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
                        SIGNAL("valueChanged(int)"), 
                        self.parentMode.slider_value_changed)
         
-        if self.extrudeSpinBox_circle_n and self.parentMode.is_revolve: ###k??
-            change_connect(self.extrudeSpinBox_circle_n,
-                           SIGNAL("valueChanged(int)"),
-                           self.parentMode.circle_n_value_changed)
-            
         change_connect(self.extrude_productTypeComboBox,
                        SIGNAL("activated(int)"), 
                        self.parentMode.ptype_value_changed)
