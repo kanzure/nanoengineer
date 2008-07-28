@@ -1427,7 +1427,8 @@ class MWsemantics(QMainWindow,
         cmdrun = simSetup_CommandRun( self)
         cmdrun.run()
         return
-
+    
+    #Urmi 20080725: Methods for running Rosetta Simulation
     def rosettaSetup(self):
         """
         Setup rosetta simulation.
@@ -1452,6 +1453,11 @@ class MWsemantics(QMainWindow,
     def setRosettaParameters(self, numRuns, otherOptionsText):
         """
         Set parameters for a Rosetta .
+        @param numRuns: number of Rosetta simulations.
+        @type numRuns: int
+        @param otherOptionsText: string of all the other options, including the 
+                                ones in Rosett pop up dialog.
+        @type otherOptionsText: str
         """
         protein = ""
         if self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN' or self.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS' or self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
@@ -1468,6 +1474,8 @@ class MWsemantics(QMainWindow,
         self.rosettaArgs = []
         self.rosettaArgs.extend(argList)
         return
+    
+    #end of Rosetta simulation methods
     
     def simNanoHive(self):
         """
@@ -1836,7 +1844,7 @@ class MWsemantics(QMainWindow,
         Create Build Protein PM object (if one doesn't exist)
         If this object is already present, then set its editCommand to this
         parameter
-        @parameter editCommand: The edit controller object for this PM
+        @param editCommand: The edit controller object for this PM
         @type editCommand: B{BuildDna_EditCommand}
         @see: B{BuildDna_EditCommand._createPropMgrObject}
         """
@@ -1853,6 +1861,10 @@ class MWsemantics(QMainWindow,
     def insertPeptide(self, isChecked = False):  
         """
         Invokes the peptide command (BUILD_PEPTIDE)
+        @param isChecked: If insertPeptide button in the 
+                          Protein Flyout toolbar is
+                          checked, enter insertPeptideMode. 
+        @type isChecked: bool
         """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand        
@@ -1887,6 +1899,13 @@ class MWsemantics(QMainWindow,
         return
     
     def enterEditRotamersCommand(self, isChecked = False):
+        """
+        Enter edit rotamers command
+        @param isChecked: If enterEditRotamersCommand button in the 
+                          Protein Flyout toolbar is
+                          checked, enter enterEditRotamersMode. 
+        @type isChecked: bool
+        """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "EDIT_ROTAMERS":
@@ -1900,6 +1919,13 @@ class MWsemantics(QMainWindow,
     
         
     def enterEditResiduesCommand(self, isChecked = False):
+        """
+        Enter edit residues command
+        @param isChecked: If enterEditResiduesCommand button in the 
+                          Protein Flyout toolbar is
+                          checked, enter enterEditResiduesMode. 
+        @type isChecked: bool
+        """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "EDIT_RESIDUES":
@@ -1912,6 +1938,13 @@ class MWsemantics(QMainWindow,
         return
     
     def enterCompareProteinsCommand(self, isChecked = False):
+        """
+        Enter compare proteins command
+        @param isChecked: If enterCompareProteinsCommand button in the 
+                          Protein Flyout toolbar is
+                          checked, enter enterCompareProteinsMode. 
+        @type isChecked: bool
+        """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "COMPARE_PROTEINS":
@@ -1925,6 +1958,7 @@ class MWsemantics(QMainWindow,
 
     def enterStereoPropertiesCommand(self):
         """
+        Enter Stereo Properties Command
         """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
