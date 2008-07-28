@@ -614,7 +614,15 @@ class Protein:
         return seq
     
     def set_rosetta_protein_secondary_structure(self, inProtein):
+        """
+        Set the secondary structure of the protein outputted from rosetta to that
+        of the inProtein
         
+        @param inProtein:input protein chunk
+        @type inProtein: L{Chunk}
+        """
+        #Urmi 20080728: created to set the secondary structure of the rosetta
+        #outputted protein
         aa_list_for_rosetta = self.get_amino_acids()
         i = 0
         for aa in inProtein.protein.get_amino_acids():
@@ -769,6 +777,14 @@ class Protein:
         return None
     
     def get_amino_acid_at_index(self, index):
+        """
+        Return the amino acid at the given index
+        @param index: index of amino acid requested
+        @type index: int
+        @return: amino acid
+        """
+        #Urmi 20080728: created to do the two way connection between protein
+        #sequence editor and residue combo box
         if index in range(len(self.sequence)):
             return self.sequence.values()[index]
         return None
