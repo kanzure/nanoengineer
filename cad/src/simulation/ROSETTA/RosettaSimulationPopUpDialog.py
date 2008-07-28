@@ -18,6 +18,9 @@ from utilities.icon_utilities import geticon, getpixmap
 class RosettaSimulationPopUpDialog(QDialog):
     
     def __init__(self, parent = None):
+        """
+        Constructor for Rosetta simulation parameters dialog
+        """
         self.parentWidget = parent
         super(RosettaSimulationPopUpDialog, self).__init__(parent)
         self.setWindowIcon(geticon('ui/border/Rosetta.png'))
@@ -27,9 +30,10 @@ class RosettaSimulationPopUpDialog(QDialog):
         self.show()
         return
     
-    def _loadWidgets(self):
-        layout = QVBoxLayout()  
-        
+    def _loadLogoWidget(self):
+        """
+        load logo widget
+        """
         logoLayout = QHBoxLayout()
         self.imageLabel = QLabel()
         self.imageLabel.setPixmap(
@@ -41,19 +45,25 @@ class RosettaSimulationPopUpDialog(QDialog):
         logoLayout.addItem(hSpacer)
         logoLayout.addWidget(self.imageLabel)
         logoLayout.addItem(hSpacer)
-        
+        return logoLayout
+    
+    def _loadNumSimWidget(self):
+        """
+        Load number of simulations widget
+        """
         idLayout = QHBoxLayout()
-        
         self.label = QLabel("Enter number of simulations:")
         self.numSimSpinBox = QSpinBox()
         self.numSimSpinBox.setMinimum(1)
         self.numSimSpinBox.setMaximum(999)
-        
-        
         idLayout.addWidget(self.label)
         idLayout.addWidget(self.numSimSpinBox)
-        
-        #rosetta simulation parameters checkboxes
+        return idLayout
+    
+    def _loadParameterCheckBoxWidget(self):
+        """
+        load rosetta simulation parameters checkboxes 
+        """
         idLayout1 = QVBoxLayout()
         self.ex1Checkbox = QCheckBox("Expand rotamer library for chi1 angle")
         self.ex1aroCheckbox = QCheckBox("Use large chi1 library for aromatic residues")
@@ -78,22 +88,43 @@ class RosettaSimulationPopUpDialog(QDialog):
         idLayout1.addWidget(self.softRepDesignCheckbox)
         idLayout1.addWidget(self.useElecRepCheckbox)
         idLayout1.addWidget(self.norepackDisulfCheckbox)
-        
+        return idLayout1
+    
+    def _loadCommandLineOptionWidget(self):
+        """
+        Load command line options text edit
+        """
         self.otherOptionsLabel = QLabel("Command line options:")
         self.otherCommandLineOptions = QTextEdit()
         self.otherCommandLineOptions.setFixedHeight(80)
         idLayout3 = QVBoxLayout()
         idLayout3.addWidget(self.otherOptionsLabel)
         idLayout3.addWidget(self.otherCommandLineOptions)
-        
-        
+        return idLayout3
+    
+    def _loadButtonLayoutWidget(self):
+        """
+        Load OK/Cancel buttons
+        """
         self.okButton = QPushButton("&OK")
         self.cancelButton = QPushButton("Cancel")
         buttonLayout = QHBoxLayout()
         buttonLayout.addStretch()
         buttonLayout.addWidget(self.okButton)
         buttonLayout.addWidget(self.cancelButton)
-        
+        return buttonLayout
+    
+    def _loadWidgets(self):
+        """
+        Load all the widgets for this dialog
+        """
+        layout = QVBoxLayout()  
+        logoLayout = self._loadLogoWidget()
+        idLayout = self._loadNumSimWidget()
+        idLayout1 = self._loadParameterCheckBoxWidget()
+        idLayout3 = self._loadCommandLineOptionWidget()
+        buttonLayout = self._loadButtonLayoutWidget()
+    
         layout.addLayout(logoLayout)
         layout.addLayout(idLayout)
         layout.addLayout(idLayout1)
@@ -104,7 +135,10 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def connectSignals(self):
-        
+        """
+        Signal slot connections for rosetta simulation parameters dialog
+        """
+        #signal slot connections for various parameter checkboxes
         self.connect(self.ex1Checkbox, SIGNAL("stateChanged(int)"), self.update_ex1)
         self.connect(self.ex1aroCheckbox, SIGNAL("stateChanged(int)"), self.update_ex1aro)
         self.connect(self.ex2Checkbox, SIGNAL("stateChanged(int)"), self.update_ex2)
@@ -116,12 +150,18 @@ class RosettaSimulationPopUpDialog(QDialog):
         self.connect(self.softRepDesignCheckbox, SIGNAL("stateChanged(int)"), self.update_soft_rep_design)
         self.connect(self.useElecRepCheckbox, SIGNAL("stateChanged(int)"), self.update_use_elec_rep)
         self.connect(self.norepackDisulfCheckbox, SIGNAL("stateChanged(int)"), self.update_norepack_disulf)
-        
+        #signal slot connections for the push buttons
         self.connect(self.okButton, SIGNAL("clicked()"), self.getRosettaParameters)
         self.connect(self.cancelButton, SIGNAL("clicked()"), self, SLOT("reject()"))
         return
     
     def update_ex1(self, state):
+        """
+        Update the command text edit depending on the state of the update_ex1
+        checkbox
+        @param state:state of the update_ex1 checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex1Checkbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -ex1 '
@@ -131,6 +171,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_ex1aro(self, state):
+        """
+        Update the command text edit depending on the state of the update_ex1aro
+        checkbox
+        @param state:state of the update_ex1aro checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex1aroCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -ex1aro '
@@ -140,6 +186,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_ex2(self, state):
+        """
+        Update the command text edit depending on the state of the update_ex2
+        checkbox
+        @param state:state of the update_ex2 checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex2Checkbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -ex2 '
@@ -149,6 +201,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_ex2aro_only(self, state):
+        """
+        Update the command text edit depending on the state of the update_ex2aro_only
+        checkbox
+        @param state:state of the update_ex2aro_only checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex2aroOnlyCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -ex2aro_only '
@@ -159,6 +217,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_ex3(self, state):
+        """
+        Update the command text edit depending on the state of the update_ex3
+        checkbox
+        @param state:state of the update_ex3 checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex3Checkbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -ex3 '
@@ -169,6 +233,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_ex4(self, state):
+        """
+        Update the command text edit depending on the state of the update_ex4
+        checkbox
+        @param state:state of the update_ex4 checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.ex4Checkbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -ex4 '
@@ -178,6 +248,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_rot_opt(self, state):
+        """
+        Update the command text edit depending on the state of the update_rot_opt
+        checkbox
+        @param state:state of the update_rot_opt checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.rotOptCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -rot_opt '
@@ -187,6 +263,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_try_both_his_tautomers(self, state):
+        """
+        Update the command text edit depending on the state of the update_try_both_his_tautomers
+        checkbox
+        @param state:state of the update_try_both_his_tautomers checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.tryBothHisTautomersCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -try_both_his_tautomers '
@@ -196,6 +278,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_soft_rep_design(self, state):
+        """
+        Update the command text edit depending on the state of the update_soft_rep_design
+        checkbox
+        @param state:state of the update_soft_rep_design checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.softRepDesignCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -soft_rep_design '
@@ -205,6 +293,12 @@ class RosettaSimulationPopUpDialog(QDialog):
         return
     
     def update_use_elec_rep(self, state):
+        """
+        Update the command text edit depending on the state of the update_use_elec_rep
+        checkbox
+        @param state:state of the update_use_elec_rep checkbox
+        @type state: int
+        """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.useElecRepCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -use_electrostatic_repulsion '
@@ -218,6 +312,7 @@ class RosettaSimulationPopUpDialog(QDialog):
         Update the command text edit depending on the state of the update_no_repack
         checkbox
         @param state:state of the update_no_repack checkbox
+        @type state: int
         """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         if self.norepackDisulfCheckbox.isChecked() == True:
