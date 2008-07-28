@@ -5,33 +5,27 @@ BuildProtein_PropertyManager.py
 @author: Urmi
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+History: Urmi initially copied from BuildDna_PropertyManager.py but this version
+         used for proteins is much more simple.
 
 """
-from utilities import debug_flags
-from utilities.debug import print_compact_stack
 import foundation.env as env
 from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import QString
 from PM.PM_ComboBox      import PM_ComboBox
 from PM.PM_GroupBox      import PM_GroupBox
-from PM.PM_PushButton    import PM_PushButton
-from PM.PM_SelectionListWidget import PM_SelectionListWidget
-from PM.PM_LineEdit import PM_LineEdit
 from PM.PM_SpinBox import PM_SpinBox
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
-
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_Constants     import PM_CANCEL_BUTTON
-from PM.PM_Colors        import pmReferencesListWidgetColor
-from utilities.Comparison import same_vals
+from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
 
 _superclass = EditCommand_PM
 class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
     The BuildDna_PropertyManager class provides a Property Manager 
-    for the B{Build > DNA } command.
+    for the B{Build > Protein } command.
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -74,14 +68,16 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                 PM_WHATS_THIS_BUTTON)
         
     def _updateProteinListForShow(self):
+        """
+        Update the list of proteins in the combo box in the PM.
+        """
         #first remove from combo box all the proteins that do not exist in NE-1
         #part anymore
         currentProteinNameList = []
         for mol in self.win.assy.molecules:
             currentProteinNameList.append(mol.name)
          
-        for name in self.protein_name_list:
-            
+        for name in self.protein_name_list:   
             try:
                 index = currentProteinNameList.index(name) 
             except ValueError:    
@@ -91,8 +87,7 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 self.protein_name_list.pop(i)
                 j = self.structureComboBox.findText(name)
                 self.structureComboBox.removeItem(j)
-            
-            
+        
         for mol in self.win.assy.molecules:
             #if molecules does not already exist in combo box list, need to add 
             #them
@@ -106,13 +101,18 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         return
         
     def show(self):
+        """
+        Overrides superclass show method
+        """
         self._updateProteinListForShow()
-        self.showProteinParametersAndSequenceEditor(self.win)
-        EditCommand_PM.show(self)        
-        
+        self._showProteinParametersAndSequenceEditor()
+        EditCommand_PM.show(self)         
         return
     
     def close(self):
+        """
+        Overrides superclass close method
+        """
         self.sequenceEditor.hide() 
         env.history.statusbar_msg("")
         EditCommand_PM.close(self)
@@ -120,6 +120,8 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     
     def _updateProteinList(self):
         """
+        Update the list of proteins so that the protein name combo box in this 
+        PM can be populated.
         """
         self.protein_chunk_list = []
         self.protein_name_list = []
@@ -127,14 +129,15 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             if mol.isProteinChunk():
                 self.protein_chunk_list.append(mol)
                 self.protein_name_list.append(mol.name)
-                        
-                
-    def showProteinParametersAndSequenceEditor(self, win):
+        return
+    
+    
+    def _showProteinParametersAndSequenceEditor(self):
         """
-        Show/ Hide protein parameters and sequence editor based
+        Show/ Hide protein parameters and sequence editor based on if there's
+        any protein in NE-1 part.
         """
-        part = win.assy.part
-        from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
+        part = self.win.assy.part  
         proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
         if proteinExists:
             #check to see if current_protein is still in part, otherwise set 
@@ -154,7 +157,7 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             #remove all items from the combo box
             count = self.structureComboBox.count()
             for i in range(count):
-                self.structureComboBox.removeItem(i)
+                self.structureComboBox.removeItem(0)
             self._numberOfAA = 0
             self.set_current_protein_chunk_name("")
         self.numberOfAASpinBox.setValue(self._numberOfAA)
@@ -168,9 +171,9 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.sequenceEditor.setSecondaryStructure(secStructure)
             self.sequenceEditor.setRuler(len(secStructure))
             self.sequenceEditor.show()  
-            
         else:
-            self.sequenceEditor.hide()   
+            self.sequenceEditor.hide()  
+        return    
             
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -181,7 +184,6 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @type  isConnect: boolean
         """
         
-                
         if isConnect and self.isAlreadyConnected:
             return 
         
@@ -197,13 +199,15 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect = self.win.disconnect 
         change_connect(self.structureComboBox,
                       SIGNAL("currentIndexChanged(int)"),
-                       self.updateProteinParameters)
+                       self._updateProteinParameters)
         
-    def updateProteinParameters(self, index):
+    def _updateProteinParameters(self, index):
         """
         Update number of amino acids and sequence editor, as well as set the
         current protein pdb id which will be used in the child commands and for
         rosetta simulation from inside the build protein mode.
+        @param index: index of the protein combo box
+        @type index: int
         """
         for mol in self.protein_chunk_list:
             if  mol.name == self.structureComboBox.currentText():
@@ -222,6 +226,8 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def set_current_protein_chunk_name(self, name):
         """
         Sets the current protein name
+        @param name: pdb id of the protein currently selected in the combo box
+        @type name: str
         """
         self.current_protein = name
         return
@@ -230,6 +236,7 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def get_current_protein_chunk_name(self):
         """
         gets the current protein name
+        @return: pdb id of the protein currently selected in the combo box
         """
         return self.current_protein
         
@@ -238,13 +245,10 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Enable or disable some gui actions when this property manager is 
         opened or closed, depending on the bool_enable. 
+        @param bool_enable: enables/disables some gui action
+        @type bool_enable: bool
         
         """
-        #TODO: This is bad. It would have been much better to enable/disable 
-        #gui actions using a API method in command/commandSequencer which gets 
-        #called when you enter another command exiting or suspending the 
-        #previous one. . At present. it doesn't exist (first needs cleanup in 
-        #command/command sequencer (Done and other methods._)-- Ninad 2008-01-09
         if hasattr(self.editCommand, 'flyoutToolbar') and \
            self.editCommand.flyoutToolbar:            
             self.editCommand.flyoutToolbar.exitProteinAction.setEnabled(not bool_enable)
@@ -275,24 +279,21 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         pass
 
-    def _addGroupBoxes( self ):
+    def _addGroupBoxes(self):
         """
         Add the DNA Property Manager group boxes.
-        """
-        """
-        Add the DNA Property Manager group boxes.
-        """        
-                
-        self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
-        self._loadGroupBox1( self._pmGroupBox1 )
-        
-        pass
+        """  
+        self._pmGroupBox1 = PM_GroupBox(self, title = "Parameters")
+        self._loadGroupBox1(self._pmGroupBox1)
+        return
     
     def _loadGroupBox1(self, pmGroupBox):
         """
-        Load widgets in group box 4.
+        Load widgets in group box 1.
+        @param pmGroupBox: group box that contains protein name combo box and 
+                        number of amino acids spin box
+        @see: L{PM_GroupBox}                
         """
-        
         self._updateProteinList()
         if len(self.protein_name_list) >= 1:
             self.set_current_protein_chunk_name(self.protein_name_list[0]) 
@@ -302,6 +303,8 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                  setAsDefault  =  False)
         
         #Urmi 20080713: May be useful to set the minimum value to not zero
+        #Now it does not matter, since its disabled. But zero as the minimum 
+        #value in a spinbox does not work otherwise. 
         self.numberOfAASpinBox = \
             PM_SpinBox( pmGroupBox, 
                         label         =  "Number of amino acids:", 
