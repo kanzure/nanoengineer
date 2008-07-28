@@ -50,7 +50,8 @@ class ProteinDisplayStyle_Command(EditCommand):
         Initialize GUI for this mode 
         """
         
-        self._init_gui_flyout_action( 'displayProteinStyleAction' ) 
+        self._init_gui_flyout_action( 'displayProteinStyleAction' , 
+                                      'BUILD_PROTEIN') 
       
         if self.propMgr is None:
             self.propMgr = ProteinDisplayStyle_PropertyManager(self)

@@ -57,6 +57,11 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     abstract superclass for all Command objects, including nullCommand
     """
     
+    command_parent = None
+    #The 'parent command' of this command. Example: BuildDna is a parent_command
+    #of BreakStrands_Command. This attr is used in a revised command stack 
+    #sceheme as of 2008-07-28 (still being developed)
+    
     # default values for command-object attributes.  external code
     # assumes every command has these attributes, but it should pretend
     # they're read-only; command-related code (in this file) can override
