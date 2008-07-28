@@ -51,6 +51,7 @@ from ne1_ui.ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 
 from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
+from utilities.constants import str_or_unicode
 
 from ne1_ui.Ui_MainWindow import Ui_MainWindow
 from ne1_ui.Ui_PartWindow import Ui_PartWindow
@@ -2665,7 +2666,7 @@ class MWsemantics(QMainWindow,
             # Warning: Potential bug if number of recent files >= 10
             # (i.e. LIST_CAPACITY >= 10). See fileSlotsMixin.openRecentFile().
 
-        fileName = os.path.normpath(str(fileName))
+        fileName = os.path.normpath(str_or_unicode(fileName))
 
         fileList, prefsSetting = self.getRecentFilesListAndPrefsSetting()
 
@@ -2673,7 +2674,7 @@ class MWsemantics(QMainWindow,
             # If filename is already in fileList, delete it from the list.
             # filename will be added to the top of the list later.
             for ii in range(len(fileList)):
-                if str(fileName) == str(fileList[ii]):
+                if str_or_unicode(fileName) == str_or_unicode(fileList[ii]):
                     del fileList[ii]
                     break
 
@@ -2694,7 +2695,7 @@ class MWsemantics(QMainWindow,
                 fileListTest = map(str, list(fileListTest))
                 assert len(fileListTest) == len(fileList)
                 for i in range(len(fileList)):
-                    assert str(fileList[i]) == str(fileListTest[i])
+                    assert str_or_unicode(fileList[i]) == str_or_unicode(fileListTest[i])
         else:
             prefsSetting[_RECENTFILES_KEY] = fileList
 
@@ -2722,7 +2723,7 @@ class MWsemantics(QMainWindow,
 
         self.openRecentFilesMenu.clear()
         for ii in range(len(fileList)):
-            _recent_filename = os.path.normpath(str(fileList[ii])) # Fixes bug 2193. Mark 060808.
+            _recent_filename = os.path.normpath(str_or_unicode(fileList[ii])) # Fixes bug 2193. Mark 060808.
             self.openRecentFilesMenu.addAction(
                 QtGui.QApplication.translate(
                     "Main Window",
