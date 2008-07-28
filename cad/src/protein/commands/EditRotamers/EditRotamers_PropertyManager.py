@@ -133,12 +133,17 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.win.toolsDone()
 
     def update_residue_combobox(self):
+        """
+        Update the residue combo box with residues belonging to the same protein
+        """
+        #Urmi 20080728: Update the residue combo box with amino acids for the
+        #currently selected protein in build protein mode
         self.current_protein = ""
         previousCommand = self.win.commandSequencer.prevMode # update_residue_combobox: get_current_protein_chunk_name
         if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
-            #if the previous command was zoom or something, just set this to the
+            #Urmi 20080728: if the previous command was zoom or something, just set this to the
             # first available protein chunk, since there's no way we can access
             # the current protein in Build protein mode
             for mol in self.win.assy.molecules:
@@ -150,15 +155,16 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     self.sequenceEditor.setSecondaryStructure(secStructure)
                     self.sequenceEditor.setRuler(len(secStructure))
                     break
-        #if the current protein has changed, need to update the residue combo box
-        # as well
+        # Urmi 20080728: if the current protein has changed, need to update the residue combo box
+        # as well between two entries into this mode
         
         if self.current_protein != self.previous_protein:
             self.previous_protein = self.current_protein
-            count = self.aminoAcidsComboBox.count()    
+            count = self.aminoAcidsComboBox.count() 
+            #remove all the old residues
             for i in range(count):
                 self.aminoAcidsComboBox.removeItem(0)
-          
+            #add all the new residues
             for mol in self.win.assy.molecules:
                 if mol.isProteinChunk() and mol.name == self.current_protein:
                     aa_list = mol.protein.get_amino_acid_id_list()
@@ -170,18 +176,12 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
-        """
-        
+        """  
         self.update_residue_combobox()        
         if self.current_protein != "":  
             self.sequenceEditor.show()
         PM_Dialog.show(self)
 
-        # Update all PM widgets, then establish their signal-slot connections.
-        # note: It is important to update the widgets *first* since doing
-        # it in the reverse order will generate signals when updating
-        # the PM widgets (via updateDnaDisplayStyleWidgets()), causing
-        # unneccessary repaints of the model view.
         self.connect_or_disconnect_signals(isConnect = True)
 
         for chunk in self.win.assy.molecules:
@@ -214,7 +214,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Load widgets in group box.
         """
         self.current_protein = ""
-        
+        #Urmi 20080728: fill up the combo box with amino acids belonging to the
+        # current protein in build protein mode
         previousCommand = self.win.commandSequencer.prevMode # _loadGroupBox1: previousCommand.propMgr.get_current_protein_chunk_name
         if previousCommand.commandName == 'BUILD_PROTEIN':
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
@@ -351,19 +352,17 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
     def _addWhatsThisText( self ):
         
-        #from ne1_ui.WhatsThisText_for_PropertyManagers import WhatsThis_EditRotamers_PropertyManager
-        #WhatsThis_EditRotamers_PropertyManager(self)
         pass
     
     def _addToolTipText(self):
-        #from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_EditProteinDisplayStyle_PropertyManager 
-        #ToolTip_EditProteinDisplayStyle_PropertyManager(self)
+        
         pass
     
     def _expandNextRotamer(self):
         """
         """
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: slot method for the current protein from build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.traverse_forward()
                 self._display_and_recenter()
@@ -375,6 +374,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: slot method for the current protein from build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.traverse_backward()
                 self._display_and_recenter()
@@ -386,6 +386,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: slot method for the current protein from build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.collapse_all_rotamers()
                 self.win.glpane.gl_update()
@@ -395,6 +396,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: slot method for the current protein from build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.expand_all_rotamers()
                 self.win.glpane.gl_update()
@@ -404,6 +406,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: display and recenter for the current protein 
+            #from build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.collapse_all_rotamers()
                 current_aa = chunk.protein.get_current_amino_acid()
@@ -461,11 +465,14 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: slot method for the current protein from build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.set_current_amino_acid_index(index)
 
                 self._display_and_recenter()
         
+        #Urmi 20080728: change the cursor position in the sequence editor 
+        # when current amino acid in the amino acid combo box is changed
         cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
         if index == -1:
             index = 0
@@ -478,6 +485,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         """
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: slot method for the current protein from build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 current_aa = chunk.protein.get_current_amino_acid()
                 if current_aa:
