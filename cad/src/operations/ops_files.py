@@ -1071,7 +1071,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 # once rather than twice. The speedup from this has been
                 # verified. [bruce & ericm 080225/082229]
             
-            fn = str(fn)
+            fn = str_or_unicode(fn)
             if not os.path.exists(fn):
                 return
                 #k Can that return ever happen? Does it need an error message?
@@ -1405,7 +1405,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # [bruce question: when and why can this differ from fn?]
         # IIRC, fileparse() doesn't (or didn't) handle QString types. 
         # mark 2008-01-23
-        fn = str(fn)
+        fn = str_or_unicode(fn)
         dir, fil, ext2 = _fileparse(fn)
         del fn #bruce 050927
         ext = str(sfilter[-5:-1]) 
@@ -2023,7 +2023,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         Slot method for the "Open Recent File" menu, 
         a submenu of the "File" menu.
         """
-        text = str(idx.text())
+        text = str_or_unicode(idx.text())
         selectedFile = text[text.index("  ") + 2:] 
             # Warning: Potential bug if number of recent files >= 10
             # (i.e. LIST_CAPACITY >= 10)

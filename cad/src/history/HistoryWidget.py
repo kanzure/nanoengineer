@@ -316,7 +316,7 @@ class HistoryWidget:
         """
         ## something = str(something) # usually something should already be a string
         if self.file:
-            self.file.write(something)
+            self.file.write(something.encode("utf_8"))
             self.file.write('\n') # file gets \n after each line, not before
             if debug_flags.atom_debug:
                 # (we also flush in self.h_update(), whether or not debugging)

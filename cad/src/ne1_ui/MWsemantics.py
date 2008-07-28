@@ -2610,7 +2610,7 @@ class MWsemantics(QMainWindow,
         ##e [bruce 050811 comment:] perhaps we should move prefix to the beginning, rather than just before "[";
         # and in any case the other stuff here, self.name() + " - " + "[" + "]", should also be user-changeable, IMHO.
         #print "****self.accessibleName *****=" , self.accessibleName()
-        self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " +prefix + "[" + partname + "]" + suffix))
+        self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " + prefix + "[" + partname.encode("utf_8") + "]" + suffix))
 
         return
 
@@ -2723,11 +2723,11 @@ class MWsemantics(QMainWindow,
 
         self.openRecentFilesMenu.clear()
         for ii in range(len(fileList)):
-            _recent_filename = os.path.normpath(str_or_unicode(fileList[ii])) # Fixes bug 2193. Mark 060808.
+            _recent_filename = os.path.normpath(str_or_unicode(fileList[ii]).encode("utf_8")) # Fixes bug 2193. Mark 060808.
             self.openRecentFilesMenu.addAction(
                 QtGui.QApplication.translate(
                     "Main Window",
-                    "&" + str(ii + 1) + "  " + _recent_filename, None))
+                    "&" + str(ii + 1) + "  " + _recent_filename, None, QtGui.QApplication.UnicodeUTF8))
 
         # Insert the "Open Recent Files" menu above "File > Close".
         self.openRecentFilesMenuAction = \

@@ -236,7 +236,7 @@ def safe_repr(obj, maxlen = 1000):
 # traceback / stack utilities (see also print_verbose_traceback)
 
 def print_compact_traceback(msg = "exception ignored: "):
-    print >> sys.__stderr__, msg + compact_traceback() # bruce 061227 changed this back to old form
+    print >> sys.__stderr__, msg.encode("utf_8") + compact_traceback() # bruce 061227 changed this back to old form
     return
     ## import traceback
     ## print >> sys.__stderr__, msg
