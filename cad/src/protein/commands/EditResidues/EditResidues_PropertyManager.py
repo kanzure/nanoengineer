@@ -196,25 +196,25 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
+        #Urmi 20080728: Set the current protein and this will be used for accessing
+        #various properties of this protein
         self.set_current_protein()
         if self.current_protein != "":    
             self.sequenceEditor.show()
-
         PM_Dialog.show(self)
-
-        # Update all PM widgets, then establish their signal-slot connections.
-        # note: It is important to update the widgets *first* since doing
-        # it in the reverse order will generate signals when updating
-        # the PM widgets (via updateDnaDisplayStyleWidgets()), causing
-        # unneccessary repaints of the model view.
-        
         self.connect_or_disconnect_signals(isConnect = True)
-
         self._fillSequenceTable()
         
     def set_current_protein(self):
+        """
+        Set the current protein for which all the properties are displayed to the
+        one chosen in the build protein combo box
+        """
+        #Urmi 20080728: created this method to update accessing properties of
+        #"current protein" in this mode.
         self.current_protein = ""
         previousCommand = self.win.commandSequencer.prevMode # set_current_protein: previousCommand.propMgr.get_current_protein_chunk_name
+        #Urmi 20080728: get the protein currently selected in the combo box
         if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
@@ -223,6 +223,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             # the current protein in Build protein mode
             for mol in self.win.assy.molecules:
                 if mol.isProteinChunk():
+                    #Urmi 20080728: set the current protein to first available
+                    #protein in NE-1 part
                     self.current_protein = mol.name
                     sequence = mol.protein.get_sequence_string()
                     self.sequenceEditor.setSequence(sequence)
@@ -438,6 +440,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.editingItem = True
         
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: slot connection for current protein in build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 aa_list = chunk.protein.get_amino_acids()
                 aa_list_len = len(aa_list)
@@ -538,6 +541,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         # Center on a selected amino acid.
         for chunk in self.win.assy.molecules:
+            #Urmi 20080728: slot connection for current protein in build protein mode
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
                 chunk.protein.set_current_amino_acid_index(index)
                 current_aa = chunk.protein.get_current_amino_acid()
