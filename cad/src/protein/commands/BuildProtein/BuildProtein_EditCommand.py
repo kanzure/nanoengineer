@@ -8,16 +8,9 @@ BuildProtein_EditCommand.py
 
 """
 from command_support.EditCommand import EditCommand
-#from dna.model.DnaGroup import DnaGroup
 from utilities.Log  import greenmsg
-from command_support.GeneratorBaseClass import PluginBug, UserError
 from utilities.constants import gensym
 from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
-
-
-##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
-
-#from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 
 class BuildProtein_EditCommand(EditCommand):
     """
@@ -33,29 +26,16 @@ class BuildProtein_EditCommand(EditCommand):
     featurename       = "Build Protein"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
-
-    #GraphicsMode_class = BuildDna_GraphicsMode
-
     command_should_resume_prevMode = False
     command_has_its_own_gui = True
     command_can_be_suspended = True
-
-    # Generators for DNA, nanotubes and graphene have their MT name
-    # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True
-
-    #The following class constant is used in creating dynamic menu items (using self.makeMenus)
-    #if this flag is not defined, the menu doesn't get created
-    #or use of self.graphicsMode in self.makeMenus throws errors.
-    #See also other examples of its use in older Commands such as
-    #BuildAtoms_Command (earlier depositmode)
     call_makeMenus_for_each_event = True
 
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for BuildDna_EditCommand
         """
-
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
 
@@ -75,7 +55,6 @@ class BuildProtein_EditCommand(EditCommand):
         EditCommand.init_gui(self)
         if self.flyoutToolbar is None:
             self.flyoutToolbar = ProteinFlyout(self.win, self.propMgr)
-
         self.flyoutToolbar.activateFlyoutToolbar()
 
     def resume_gui(self):
@@ -93,14 +72,6 @@ class BuildProtein_EditCommand(EditCommand):
         @see: Command.resume_gui
         @see: Command._enterMode where this method is called.
         """
-        #NOTE: Doing command toolbar updates in this method doesn't alwayswork.
-        #consider this situation : You are in a) BuildDna_EditCommand, then you
-        #b) enter DnaDuplex_EditCommand(i.e. Dna line) and from this temporary
-        #command, you directly c) enter BreakStrands_Command
-        #-- During b to c, 1) it first exits (b) , 2) resumes (a)
-        #and then 3)enters (c)
-        #This method is called during operation #2 and any changes to flyout
-        #toolbar are reset during #3  --- Ninad 2008-01-14
         
         if self.flyoutToolbar:
             self.flyoutToolbar.resetStateOfActions()
@@ -188,6 +159,4 @@ class BuildProtein_EditCommand(EditCommand):
         assert not self.propMgr
         propMgr = self.win.createBuildProteinPropMgr_if_needed(self)
         return propMgr
-        
-
-    
+ 
