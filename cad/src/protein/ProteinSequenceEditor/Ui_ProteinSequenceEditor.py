@@ -20,7 +20,6 @@ from PyQt4.Qt import Qt, QColor
 from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_Colors    import getPalette
 from PM.PM_Colors    import sequenceEditStrandMateBaseColor
-
 from PM.PM_DockWidget import PM_DockWidget
 from PM.PM_WidgetRow  import PM_WidgetRow
 from PM.PM_ToolButton import PM_ToolButton
@@ -28,7 +27,6 @@ from PM.PM_ComboBox   import PM_ComboBox
 from PM.PM_TextEdit   import PM_TextEdit
 from PM.PM_LineEdit   import PM_LineEdit
 from PM.PM_PushButton import PM_PushButton
-
 from utilities.icon_utilities import geticon, getpixmap
 
 _superclass = PM_DockWidget
@@ -47,17 +45,9 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         Constructor for the Ui_DnaSequenceEditor 
         @param win: The parentWidget (MainWindow) for the sequence editor 
         """
-        
         self.win = win
-        # Should parentWidget for a docwidget always be win? 
-        #Not necessary but most likely it will be the case.        
         parentWidget = win 
-        
         _superclass.__init__(self, parentWidget, title = self._title)
-        
-        #A flag used to restore the state of the Reports dock widget 
-        #(which can be accessed through View  >  Reports) see self.show() and
-        #self.closeEvent() for more details. 
         self._reportsDockWidget_closed_in_show_method = False
         self.setFixedHeight(90)
 
@@ -69,7 +59,6 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         @see:self.closeEvent()
         """
         self._reportsDockWidget_closed_in_show_method = False
-        
         if self.win.viewFullScreenAction.isChecked() or \
            self.win.viewSemiFullScreenAction.isChecked():
             pass
@@ -77,7 +66,6 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
             if self.win.reportsDockWidget.isVisible():
                 self.win.reportsDockWidget.close()
                 self._reportsDockWidget_closed_in_show_method = True
-
         _superclass.show(self)  
         
     def closeEvent(self, event):
@@ -110,8 +98,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         Load the various menu widgets (e.g. Open, save sequence options, 
         Find and replace widgets etc. 
         """
-        #Note: Find and replace widgets might be moved to their own class.
-
+        
         self.loadSequenceButton = PM_ToolButton(
             self,
             iconPath = "ui/actions/Properties Manager/Open.png")  
@@ -123,14 +110,12 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.loadSequenceButton.setAutoRaise(True)
         self.saveSequenceButton.setAutoRaise(True)
 
-        
         #Find and replace widgets --
         self.findLineEdit = \
             PM_LineEdit( self, 
                          label        = "",
                          spanWidth    = False)
         self.findLineEdit.setMaximumWidth(60)
-
 
         self.replaceLineEdit = \
             PM_LineEdit( self, 
@@ -167,8 +152,6 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.phraseNotFoundLabel.setText("Sequence Not Found")
         self.phraseNotFoundLabel.hide()
 
-        
-
         #Widgets to include in the widget row. 
         widgetList = [('PM_ToolButton', self.loadSequenceButton, 0),
                       ('PM_ToolButton', self.saveSequenceButton, 1),
@@ -189,9 +172,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                                  widgetList = widgetList,
                                  label = "",
                                  spanWidth = True )
-        
-        
-
+    
     def _loadTextEditWidget(self):
         """
         Load the SequenceTexteditWidgets.         
@@ -262,9 +243,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                    "QLineEdit {\
                    background-color: rgb(255, 102, 102)\
                    }"
-        #Not used:
-        #  background-color: rgb(217, 255, 216)\       
-
+        
         return styleSheet
 
     def _setFindOptionsToolButtonMenu(self):
@@ -273,27 +252,23 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         menu button next to the findLineEdit.
         """
         self.findOptionsMenu = QMenu(self.findOptionsToolButton)
-
         self.caseSensitiveFindAction = QAction(self.findOptionsToolButton)
         self.caseSensitiveFindAction.setText('Match Case')
         self.caseSensitiveFindAction.setCheckable(True)
         self.caseSensitiveFindAction.setChecked(False)
-
         self.findOptionsMenu.addAction(self.caseSensitiveFindAction)
         self.findOptionsMenu.addSeparator()
-
         self.findOptionsToolButton.setMenu(self.findOptionsMenu)
 
     def _addToolTipText(self):
         """
-            What's Tool Tip text for widgets in this Property Manager.  
-            """ 
+        What's Tool Tip text for widgets in this Property Manager.  
+        """ 
         pass
 
     def _addWhatsThisText(self):
         """
-            What's This text for widgets in this Property Manager.  
-
-            """
+        What's This text for widgets in this Property Manager.  
+        """
         pass
     
