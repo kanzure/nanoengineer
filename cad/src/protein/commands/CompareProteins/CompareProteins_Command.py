@@ -50,16 +50,9 @@ class CompareProteins_Command(EditCommand):
         """
         Initialize GUI for this mode 
         """
-        previousCommand = self.commandSequencer.prevMode # init_gui: flyoutToolbar
-        if previousCommand.commandName == 'BUILD_PROTEIN':
-            try:
-                self.flyoutToolbar = previousCommand.flyoutToolbar
-                self.flyoutToolbar.CompareProteinsAction.setChecked(True)
-            except AttributeError:
-                self.flyoutToolbar = None
-            if self.flyoutToolbar:
-                if not self.flyoutToolbar.CompareProteinsAction.isChecked():
-                    self.flyoutToolbar.CompareProteinsAction.setChecked(True)         
+        
+        self._init_gui_flyout_action( 'CompareProteinsAction' )
+               
             
         if self.propMgr is None:
             self.propMgr = CompareProteins_PropertyManager(self)

@@ -50,18 +50,8 @@ class EditResidues_Command(EditCommand):
         """
         Initialize GUI for this mode 
         """
-        previousCommand = self.commandSequencer.prevMode # init_gui: flyoutToolbar
-        if previousCommand.commandName == 'BUILD_PROTEIN':
-            try:
-                self.flyoutToolbar = previousCommand.flyoutToolbar
-                self.flyoutToolbar.editResiduesAction.setChecked(True)
-            except AttributeError:
-                self.flyoutToolbar = None
-            if self.flyoutToolbar:
-                if not self.flyoutToolbar.editResiduesAction.isChecked():
-                    self.flyoutToolbar.editResiduesAction.setChecked(True)         
-            
-                
+        self._init_gui_flyout_action( 'editResiduesAction' )
+     
         if self.propMgr is None:
             self.propMgr = EditResidues_PropertyManager(self)
             #@bug BUG: following is a workaround for bug 2494.

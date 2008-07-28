@@ -118,23 +118,8 @@ class InsertNanotube_EditCommand(EditCommand):
         #Clear the segmentList as it may still be maintaining a list of segments
         #from the previous run of the command. 
         self._segmentList = []
-
-        prevMode = self.commandSequencer.prevMode # init_gui: flyoutToolbar
-        if prevMode.commandName == 'BUILD_NANOTUBE':
-            #Following won't be necessary after Command Toolbar is 
-            #properly integrated into the Command/CommandSequencer API
-            try:
-                self.flyoutToolbar = prevMode.flyoutToolbar
-                #Need a better way to deal with changing state of the 
-                #corresponding action in the flyout toolbar. To be revised 
-                #during command toolbar cleanup 
-                self.flyoutToolbar.insertNanotubeAction.setChecked(True)
-            except AttributeError:
-                self.flyoutToolbar = None
-
-            if self.flyoutToolbar:
-                if not self.flyoutToolbar.insertNanotubeAction.isChecked():
-                    self.flyoutToolbar.insertNanotubeAction.setChecked(True)
+        
+        self._init_gui_flyout_action( 'insertNanotubeAction' ) 
 
 
     def restore_gui(self):
