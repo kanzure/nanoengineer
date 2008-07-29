@@ -98,7 +98,7 @@ class BuildDna_EditCommand(EditCommand):
         @see: EditCommand.command_exit_flyout()
         """
         if self.flyoutToolbar:
-            self.flyoutToolbar.resetStateOfActions()
+            self.flyoutToolbar.deActivateFlyoutToolbar()
     #=== END   NEW COMMAND API methods  ========================================
 
 
