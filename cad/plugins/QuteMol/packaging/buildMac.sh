@@ -7,10 +7,33 @@ QUTEMOLX_VERSION="0.5.1"
 cd ..
 TOP_LEVEL=`pwd`
 if [ ! -e "qutemol/src/osx-build" ]
+then
   echo "Improper build environment"
   exit 1
 fi
-cd qutemol
+if [ -e "qutemol/src/osx-build/local" ]
+then
+  cd qutemol/src/osx-build
+  make clean
+  cd $TOP_LEVEL
+  cd qutemol
+  rm -rf glew
+  cd src
+  rm -rf wrap
+  rm -rf vcg
+fi
+cd $TOP_LEVEL/packaging/MacOSX
+rm -rf install
+mkdir $TOP_LEVEL/packaging/MacOSX/install
+cd $TOP_LEVEL
+cp -R qutemol $TOP_LEVEL/packaging/MacOSX/install
+cd  $TOP_LEVEL/packaging/MacOSX/install/qutemol
+find . -depth -type d -name ".svn" -print -exec rm -rf {} \;
+cd ..
+tar -czf QuteMolX.tar.gz qutemol
+rm -rf qutemol
+cd $TOP_LEVEL/qutemol
+
 tar -xzf ~/QMX_support/glew.tar.gz
 cd src
 tar -xzf ~/QMX_support/wrap.tar.gz
@@ -23,4 +46,9 @@ cp $TOP_LEVEL/packaging/MacOSX/Makefile .
 make clean
 make
 
- Next step is to build the package
+cd $TOP_LEVEL/qutemol/src/osx-build
+cp -R QuteMolX.app $TOP_LEVEL/packaging/MacOSX/install
+cd $TOP_LEVEL
+cp packaging/MacOSX/License.txt packaging/MacOSX/install
+
+# Next step is to build the package
