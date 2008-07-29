@@ -16,6 +16,10 @@ piotr 080709: Making the file compliant with a Protein class.
 
 piotr 080710: Minor fixes.
 
+piotr 080723: Improved rotamer rendering speed.
+
+piotr 080729: Code cleanup.
+
 """
 
 import foundation.env as env
@@ -817,38 +821,35 @@ class ProteinChunks(ChunkDisplayMode):
         """
         if chunk.protein:
             if highlighted:
-                #if not chunk.protein.residues_hi_dl:                    
-                chunk.protein.residues_hi_dl = glGenLists(1)
-                #glNewList(chunk.protein.residues_hi_dl, GL_COMPILE)
                 aa_list = chunk.protein.get_amino_acids()
                 color = yellow
-                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color[:3])                    
+                glMaterialfv(
+                    GL_FRONT_AND_BACK, 
+                    GL_AMBIENT_AND_DIFFUSE, 
+                    color[:3])                    
                 for aa in aa_list:
                     if chunk.protein.is_expanded(aa):
-                        aa_atom_list = aa.get_atom_list()
+                        aa_atom_list = aa.get_side_chain_atom_list()
                         for atom in aa_atom_list:
                             pos1 = atom.posn()
                             drawsphere_worker((pos1, 0.2, 1))
                             for bond in atom.bonds:
                                 if atom == bond.atom1:
-                                    pos2 = bond.atom2.posn()
-                                    drawcylinder_worker((pos1, pos1 + 0.5*(pos2 - pos1), 0.2, True))
-                                else:
-                                    pos2 = bond.atom1.posn()
-                                    drawcylinder_worker((pos1, pos1 + 0.5*(pos2 - pos1), 0.2, True))
-                #glEndList()
-                
-            #from OpenGL.GL import glPushMatrix
-            #from OpenGL.GL import glPopMatrix
-            #from OpenGL.GL import glTranslatef
-            
-            #glPushMatrix()
-            ###print "chunk translate: ", (chunk.basepos[0], chunk.basepos[1], chunk.basepos[2])
-            #glTranslatef(chunk.basecenter[0], chunk.basecenter[1], chunk.basecenter[2])
-            #glCallList(chunk.protein.residues_hi_dl)
-            #glTranslatef(-chunk.basecenter[0], -chunk.basecenter[1], -chunk.basecenter[2])
-            #glPopMatrix()
-                
+                                    if bond.atom2 in aa_atom_list:
+                                        pos2 = bond.atom2.posn()
+                                        drawcylinder_worker((
+                                            pos1, 
+                                            pos1 + 0.5*(pos2 - pos1), 
+                                            0.2, 
+                                            True))
+                                else: 
+                                    if bond.atom1 in aa_atom_list:
+                                        pos2 = bond.atom1.posn()
+                                        drawcylinder_worker((
+                                            pos1, 
+                                            pos1 + 0.5*(pos2 - pos1), 
+                                            0.2, 
+                                            True))
             else:
                 if not chunk.protein.residues_dl:                    
                     chunk.protein.residues_dl = glGenLists(1)
@@ -856,22 +857,38 @@ class ProteinChunks(ChunkDisplayMode):
                     aa_list = chunk.protein.get_amino_acids()
                     for aa in aa_list:
                         if chunk.protein.is_expanded(aa):
-                            aa_atom_list = aa.get_atom_list()
+                            aa_atom_list = aa.get_side_chain_atom_list()
                             for atom in aa_atom_list:
                                 pos1 = chunk.abs_to_base(atom.posn())
                                 if aa.color:
                                     color = aa.color
                                 else:
                                     color = atom.drawing_color()
-                                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color[:3])        
+                                glMaterialfv(
+                                    GL_FRONT_AND_BACK, 
+                                    GL_AMBIENT_AND_DIFFUSE, 
+                                    color[:3])        
                                 drawsphere_worker((pos1, 0.2, 1))
                                 for bond in atom.bonds:
-                                    if atom == bond.atom1:
-                                        pos2 = chunk.abs_to_base(bond.atom2.posn())
-                                        drawcylinder_worker((pos1, pos1 + 0.5*(pos2 - pos1), 0.2, True))
-                                    else:
-                                        pos2 = chunk.abs_to_base(bond.atom1.posn())
-                                        drawcylinder_worker((pos1, pos1 + 0.5*(pos2 - pos1), 0.2, True))
+                                    if bond.atom2 in aa_atom_list:
+                                        if atom == bond.atom1:
+                                            if bond.atom2 in aa_atom_list:
+                                                pos2 = chunk.abs_to_base(
+                                                    bond.atom2.posn())
+                                                drawcylinder_worker((
+                                                    pos1, 
+                                                    pos1 + 0.5*(pos2 - pos1), 
+                                                    0.2, 
+                                                    True))
+                                        else:
+                                            if bond.atom1 in aa_atom_list:
+                                                pos2 = chunk.abs_to_base(
+                                                    bond.atom1.posn())
+                                                drawcylinder_worker((
+                                                    pos1, 
+                                                    pos1 + 0.5*(pos2 - pos1), 
+                                                    0.2, 
+                                                    True))
                     glEndList()
                     
                 glCallList(chunk.protein.residues_dl)
@@ -1140,14 +1157,14 @@ class ProteinChunks(ChunkDisplayMode):
                 pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[2]
                 pos3, ss3, aa3, idx3, dpos3, cbpos3 = sec[3]
                 if pos1 == pos2:
-                    pos1 =  None # 2.0 * pos2 - pos3
+                    pos1 =  pos2
                     sec[1] = (pos1, ss1, aa1, idx1, dpos1, cbpos1)
 
                 pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[-2]
                 pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[-3]
                 pos3, ss3, aa3, idx3, dpos3, cbpos3 = sec[-4]
                 if pos1 == pos2:
-                    pos1 =  None # 2.0 * pos2 - pos3
+                    pos1 =  pos2
                     sec[-2] = (pos1, ss1, aa1, idx1, dpos1, cbpos1)                
 
                 # Make sure that the interior surface of helices 

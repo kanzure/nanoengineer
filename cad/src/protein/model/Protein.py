@@ -254,9 +254,16 @@ class Residuum:
         
     def get_atom_list(self):
         """
-        Return a list of atoms of residuum object.
+        Return a list of atoms of residue object.
         """
         return self.atom_list
+    
+    def get_side_chain_atom_list(self):
+        """
+        Return a list of side chain atoms of residue object.
+        """
+        return [atom for atom in self.atom_list \
+                if self.names[atom] not in ["C", "N", "O", "H", "HA"]]
     
     def get_three_letter_code(self):
         """
