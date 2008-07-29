@@ -46,6 +46,10 @@ DIAMOND_BOND_LENGTH = 1.544
 
 # ==
 
+RECENTFILES_QSETTINGS_KEY = '/Nanorex/NE1/recentFiles'
+
+# ==
+
 # note: these Button constants might be no longer used [bruce 070601 comment]
 leftButton = 1
 rightButton = 2

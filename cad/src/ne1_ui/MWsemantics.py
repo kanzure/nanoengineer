@@ -52,12 +52,12 @@ from ne1_ui.ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 from utilities.constants import str_or_unicode
+from utilities.constants import RECENTFILES_QSETTINGS_KEY
 
 from ne1_ui.Ui_MainWindow import Ui_MainWindow
 from ne1_ui.Ui_PartWindow import Ui_PartWindow
 
 from utilities.Log import greenmsg, redmsg, orangemsg
-
 
 from operations.ops_files import fileSlotsMixin
 from operations.ops_view import viewSlotsMixin
@@ -106,7 +106,6 @@ for i, elno in zip(range(len(eCCBtab1)), eCCBtab1):
 # Debugging for "Open Recent Files" menu. Mark 2007-12-28
 debug_recent_files = False  # Do not commit with True
 recentfiles_use_QSettings = True # bruce 050919 debug flag
-_RECENTFILES_KEY = '/Nanorex/NE1/recentFiles' # key for QSettings
 
 if debug_recent_files:
     def debug_fileList(fileList):
@@ -2646,10 +2645,10 @@ class MWsemantics(QMainWindow,
         """
         if recentfiles_use_QSettings:
             prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
-            fileList = prefsSetting.value(_RECENTFILES_KEY).toStringList()
+            fileList = prefsSetting.value(RECENTFILES_QSETTINGS_KEY).toStringList()
         else:
             prefsSetting = preferences.prefs_context()
-            fileList = prefsSetting.get(_RECENTFILES_KEY, [])
+            fileList = prefsSetting.get(RECENTFILES_QSETTINGS_KEY, [])
 
         return fileList, prefsSetting
 
@@ -2687,17 +2686,17 @@ class MWsemantics(QMainWindow,
 
         if recentfiles_use_QSettings:
             assert isinstance(prefsSetting, QSettings)
-            prefsSetting.setValue(_RECENTFILES_KEY, QVariant(fileList))
+            prefsSetting.setValue(RECENTFILES_QSETTINGS_KEY, QVariant(fileList))
 
             if 0: #debug_recent_files:
                 # confirm that the information really made it into the QSetting.
-                fileListTest = prefsSetting.value(_RECENTFILES_KEY).toStringList()
+                fileListTest = prefsSetting.value(RECENTFILES_QSETTINGS_KEY).toStringList()
                 fileListTest = map(str, list(fileListTest))
                 assert len(fileListTest) == len(fileList)
                 for i in range(len(fileList)):
                     assert str_or_unicode(fileList[i]) == str_or_unicode(fileListTest[i])
         else:
-            prefsSetting[_RECENTFILES_KEY] = fileList
+            prefsSetting[RECENTFILES_QSETTINGS_KEY] = fileList
 
         del prefsSetting
 

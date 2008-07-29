@@ -2037,8 +2037,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 ## Test code -- By cleaning the recent files list of QSettings
 if __name__ == '__main__':
     prefs = QSettings()
+    from utilities.constants import RECENTFILES_QSETTINGS_KEY
     emptyList = QStringList()
-    prefs.writeEntry("/Nanorex/NE1/recentFiles", emptyList)
+    prefs.writeEntry(RECENTFILES_QSETTINGS_KEY, emptyList)
+        # todo: make a user-accessible way to erase the recent files list.
+        # [bruce 080727 suggestion]
     
     del prefs
 
