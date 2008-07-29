@@ -77,6 +77,29 @@ class BuildDna_EditCommand(EditCommand):
 
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
+        
+        
+    #=== START   NEW COMMAND API methods  ======================================
+    # UNUSED as of 2008-07-29. See EditCommand.py
+        
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_enter_flyout()
+        """
+        if self.flyoutToolbar is None:
+            self.flyoutToolbar = DnaFlyout(self.win, self.propMgr)
+
+        self.flyoutToolbar.activateFlyoutToolbar()
+                
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_exit_flyout()
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.resetStateOfActions()
+    #=== END   NEW COMMAND API methods  ========================================
 
 
     def init_gui(self):

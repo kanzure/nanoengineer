@@ -142,12 +142,53 @@ class EditCommand(Select_Command):
         ##if self.struct:
             ##self.struct = None                    
         Select_Command.Enter(self)
+        
+    #=== START   NEW command API methods  ======================================
+    # UNUSED as of 2008-07-29
+    def command_enter_flyout(self):
+        """
+        Setup GUI related to the Flyout Toolbar when this command enters
+        the command stack.
+        May be overridden in subclasses. Default implementation does nothing.
+        @see: self.command_exit_flyout()
+        @see: self.command_enter_PM()
+        """
+        pass
+    
+    def command_enter_PM(self):
+        """
+        Setup GUI related to the Property Manager when this command enters
+        the command stack.
+        
+        Default implementation, may be overridden in subclasses.         
+        """
+        self.create_and_or_show_PM_if_wanted() 
+            
+    def command_exit_flyout(self):
+        """
+        Reset/ change GUI related to the Flyout Toolbar when this command exits
+        the command stack.
+        May be overridden in subclasses. Default implementation does nothing.
+        """
+        pass
+        
+    def command_exit_PM(self):
+        """
+        Reset/ change GUI related to the Property Manager when this command 
+        exits the command stack.
+        Default implementation, may be overridden in subclasses. 
+        """
+        if self.propMgr:
+            self.propMgr.close()        
+    
+    #=== END   NEW command API methods  ========================================
 
     def init_gui(self):
         """
         """
         self.create_and_or_show_PM_if_wanted()  
-
+        
+    
     def restore_gui(self):
         """
         """
