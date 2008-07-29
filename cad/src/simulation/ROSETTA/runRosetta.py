@@ -6,8 +6,8 @@ runRosetta.py -- setting up and running rosetta simulations
 
 History:
 Urmi copied this file from runSim.py and then modified it.
-
-To do: implement rosetta design for highlighted protein chunk
+This file is very different from runSim.py, partly because rosetta simulation
+is quite different from gromacs simulation
 """
 from files.pdb.files_pdb import writepdb
 from files.pdb.files_pdb import insertpdb
@@ -29,11 +29,28 @@ from processes.Plugins import checkPluginPreferences
 from utilities.prefs_constants import rosetta_enabled_prefs_key, rosetta_path_prefs_key
 from utilities.prefs_constants import rosetta_database_enabled_prefs_key, rosetta_dbdir_prefs_key
 from protein.model.Protein import write_rosetta_resfile
+from foundation.wiki_help import WikiHelpBrowser
 
-
+#global counter so that repeat run of rosetta can produce uniquely named
+#output file.
 count = 1
 
 def getScoreFromOutputFile(tmp_file_prefix, outfile, numSim):
+    """
+    Extract the best score from the output file
+    
+    @param tmp_file_prefix: directory path for the pdb files
+    @type tmp_file_prefix: str
+    
+    @param outfile: Name of the outfile file (pdb file)
+    @type outfile: str
+    
+    @param numSim: number of simulation
+    @type numSim: int
+    
+    @return: best score from the pdb file, name of the pdb file with the best
+             score
+    """
     scoreList = []
     for i in range(numSim):
         if len(str(i+1)) == 1:
@@ -86,6 +103,22 @@ def getScoreFromOutputFile(tmp_file_prefix, outfile, numSim):
     
 
 def processFastaFile(fastaFilePath, bestSimOutFileName, inputProtein):
+    """
+    Process fasta file to extract output protein sequence
+    
+    @param fastaFilePath: path of the fasta file containing all the protein pdb 
+                          ids and their corresponding sequences
+    @type fastaFilePath: str
+    
+    @param bestSimOutFileName: pdb id with the lowest score
+    @type bestSimoutFileName: str
+    
+    @param inputProtein: pdb id of the protein, input to the Rosetta simulation
+    @type inputProtein: str
+    
+    @return: a list of (protein name, protein sequence) tuples
+    """
+    
     proteinSeqTupleList = []
     f = open(fastaFilePath, 'r')
     desiredOutProtein = bestSimOutFileName[0:len(bestSimOutFileName)-4]
@@ -102,7 +135,11 @@ def processFastaFile(fastaFilePath, bestSimOutFileName, inputProtein):
             line2 = doc[i]    
             proteinSeq = line2[0:len(line2)-1]
             # in case of long sequences, these lines may have part of sequences
+            #fasta files do that for better readability
             i = i + 1
+            #but you can reach EOF while doing increments within a loop
+            #hence you need to write the last protein (name, sequence) tuple
+            #before you exit the loop
             if i >= len(doc):
                 if proteinName == desiredOutProtein or proteinName == inputProtein:
                     tupleEntry = (proteinName, proteinSeq)
@@ -119,26 +156,35 @@ def processFastaFile(fastaFilePath, bestSimOutFileName, inputProtein):
                         proteinSeqTupleList.append(tupleEntry)
                     break
                 
-                #part of the old sequence
+                #part of the old sequence, since the sequence spans over multiple lines
                 proteinSeq = proteinSeq + line3[0:len(line3)-1]
                 i = i + 1
-                #writing the last sequence
+                #writing the last sequence, see comment for similar situation above
                 if i >= len(doc):
                     if proteinName == desiredOutProtein or proteinName == inputProtein:
                         tupleEntry = (proteinName, proteinSeq)
                         proteinSeqTupleList.append(tupleEntry)
                     break
-
                 line3 = doc[i]
-
     else:
         print "File cannot be read"
-    
     f.close()
-
     return proteinSeqTupleList
 
 def highlightDifferencesInSequence(proteinSeqList):
+    """
+    Highlight the differences between input rosetta protein sequence and output
+    rosetta protein sequence with the lowest score.
+    
+    @param proteinSeqList: List of size 2 containing input protein and output
+                           protein pdb ids and their corresponding sequences
+                           in a tuple
+    @type proteinSeqList: list
+    
+    @return: a list of amino acids, some of which have been colored red, to 
+             indicate that they are different from that of the input protein,
+             percentage sequence similarity 
+    """
     modList = [proteinSeqList[0][1]]
     baseList = proteinSeqList[0][1]
     count = 0
@@ -177,8 +223,36 @@ class RosettaRunner:
                  ):
             
         """
+        Constructor for Rosetta Runner
         set up external relations from the part we'll operate on;
-        take mflag arg, since someday it'll specify the subclass to use.
+        
+        @param part: NE-1 part
+        @type part: L{Part}
+    
+        @param mflag: Movie flag
+        @type mflag: int
+        @note: mflag is not used at all since we are running only one type of 
+               simulation for now
+    
+        @param simaspect: simulation aspect
+        @type simaspect: 
+    
+        @param cmdname: name of the command
+        @type cmdname: str
+    
+        @param cmd_type: name of type of command
+        @type cmd_type: str
+        
+        @param useRosetta: whether we should use rosetta or not
+        @type useRosetta: bool
+        @note: Since we are using only Rosetta to run protein simlations, this 
+               is unnecessary for now. May be we will use it some day when we 
+               are using multiple simulators
+               
+        @param background: dictates whether a rosetta simulation should run in
+                           the background or not
+        @type useRosetta: bool
+        @note: Rosetta is running in the foreground only for now.       
         """
         self.assy = assy = part.assy #
         self.win = assy.w  
@@ -196,51 +270,77 @@ class RosettaRunner:
         self.cmd_type = cmd_type #060705
         return
     
-    def sim_input_filename(self, part, args):
-    #write the pdb for the part that is in the NE-1 window now and set the 
-    #filename to that pdb
+    def sim_input_filename(self, args):
+        """    
+        write the pdb for the part that is in the NE-1 window now and set the 
+        filename to that pdb
+        
+        @param part: NE-1 part
+        @type part: L{Part}
     
+        @param args: name of the protein for which simulation should be run
+        @type args: str
+        
+        @return: name of the pdb file which is going to be the starting structure 
+                 for the current rosetta simulation
+        """
         # if we run rosetta from within build protein mode, then we can run
-        # rosetta for the current protein
+        # rosetta for the current protein which is args
+        #if we are outside this mode, we can run rosetta for a selected protein
+        #chunk, if there's one
         if args != "":
             pdbId = args
             for mol in self.win.assy.molecules:
                 if mol.name == args:
                     chunk = mol
-                    break
+                    break     
         else:    
-            pdbId, chunk = self.getPDBIDFromChunk(part)
+            #run it for the first available protein in chunklist
+            pdbId, chunk = self.getPDBIDFromChunk()
             if pdbId is None:
                 return None
-        
+        #input filename
         fileName = pdbId + '.pdb'
         dir = os.path.dirname(self.tmp_file_prefix)
         fileLocation = os.path.join(dir, fileName)
-        writepdb(part, str(fileLocation), singleChunk = chunk) 
-        
+        #since the starting structure could be in arbitrary location in users
+        #hard disk, we write a pdb file for the imported/inserted/fetched protein
+        #chunk in RosettaDesignFiles directory under Nanorex
+        writepdb(self.part, str(fileLocation), singleChunk = chunk) 
         return fileName
     
-    def getPDBIDFromChunk(self, part):
-        chunkList = []     
-        def getAllChunks(node):
-            if isinstance(node, Chunk):
-                chunkList.append(node)
-        part.topnode.apply2all(getAllChunks)    
-        for chunk in chunkList:
+    def getPDBIDFromChunk(self):
+        """
+        Get the first available protein chunk from NE-1 part
+        
+        @return: pdb id of the first protein chunk and the chunk as well
+        """
+        for chunk in self.win.assy.molecules:
             if chunk.isProteinChunk():
-                pdbID = chunk.protein.get_pdb_id()   
-                chainID = chunk.protein.get_chain_id()
-                if chainID =='':
-                    return pdbID, chunk
-                else:
-                    pdbID = pdbID + chainID
-                    return pdbID, chunk
-        return None, None
+                return chunk.name, chunk
+        return None, None    
+    
     
     def removeOldOutputPDBFiles(self):
+        """
+        remove all the old output files for rosetta simulatiosn run on the same
+        starting structure before running a new rosetta simulation
+        
+        @note: bug in rosetta: a new simulation refuses to run if there's 
+               pdbid_0001.pdb or any other parameters you have have provided with
+               -pdbout in rosetta simulation. We think that pdbid_0001.pdb is 
+               created first as the main output file at the end of the simulation
+               and then its copied to parameter with -pdbout. Hence we need to 
+               remove all output files related to starting structure pdbid.pdb
+               before running a new simulation.
+        """
         dir = os.path.dirname(self.tmp_file_prefix)
         infile = self.sim_input_file
         #remove all output files previously created for this pdb
+        #In this regular expression match, the first * is for any pdbout name, 
+        #we generate based on the input name and the second * is for 
+        #all the numbers of output pdb files that are generated based on the
+        #number of simulations        
         outpath = infile[0:len(infile) - 4] + '*' + '_' + '*' + '.pdb'
         from fnmatch import fnmatch
         for file in os.listdir(dir):
@@ -251,15 +351,23 @@ class RosettaRunner:
         return
     
     def setupArgsFromPopUpDialog(self, args):
+        """
+        Besides the default set of arguments there are many command line options
+        that the user can specify. This parses the user input and generates a list
+        of those options
+        
+        @param args: a string of various command line options
+                                    for running rosetta separated by space(s)
+        @type args: str  
+        """
         argStringListFromPopUpDialog = []
         #argument 0 is for number of simulations, already handled
         #Index of each argument known ahead of time
              
-        if args[0][1] != "":
-            
+        if args != "": 
             #break the string into individual words and make a list and extend 
             # the argument list
-            tempString = args[0][1].replace('\n', ' ')
+            tempString = args.replace('\n', ' ')
             extraArgs = tempString.split(" ")
             #strip extra space around each of these options
             extraArgs1 = []
@@ -276,6 +384,9 @@ class RosettaRunner:
         Set up arguments for the simulator,
         by constructing a command line for the standalone executable simulator,
         
+        @param argsFromPopUpDialog: a string of various command line options
+                                    for running rosetta separated by space(s)
+        @type argsFromPopUpDialog: str                            
         """
         argListFromPopUpDialog = self.setupArgsFromPopUpDialog(argsFromPopUpDialog)
         use_command_line = True
@@ -288,24 +399,22 @@ class RosettaRunner:
         self.outfile = infile[0:len(infile) - 4] + '_out'
         #if any of the protein chunks in NE-1 part matches the outfile name,
         #rename the outfile
+        #this is necessary, otherwise two chunks with the same name will be
+        #created in the model tree and its not easy to figure out in the build
+        #protein mode which rosetta run generated it
         tempPdb = infile[0:len(infile) - 5] + '([A-Z]|[a-z])' + '_out' + '_' + '[0-9][0-9][0-9][0-9]' + '([A-Z]|[a-z])'
         
         for mol in self.win.assy.molecules:
-            
+            #if an output protein chunk with the same name exists, we need to 
+            #rename the output protein
             if mol.isProteinChunk and re.match(tempPdb, mol.name) is not None:
                 global count 
                 self.outfile = infile[0:len(infile) - 4] + '_' + str(count) + '_out'
                 count = count + 1
-        
-        mflag = self.mflag
-        self._simopts = self._simobj = self._arguments = None # appropriate subset of these is set below
         #bug in rosetta: simulation does not work in  pdbID_0001.pdb exists in 
         #this directory, hence always remove it
         self.removeOldOutputPDBFiles()
-        
-            
         if use_command_line:
-            
             #Urmi 20080709 Support for fixed backbone sequence design for now
             args = [
                     '-paths',  str(self.path),
@@ -316,30 +425,28 @@ class RosettaRunner:
                     '-resfile', str(self.resFile),
                     '-pdbout', str(self.outfile),
                     '-s', infile]
-            
             args.extend(argListFromPopUpDialog)
             self._arguments = args
-        
         return # from setup_sim_args    
     
-    def set_options_errQ(self, args): #e maybe split further into several setup methods? #bruce 051115 removed unused 'options' arg
+    def set_options_errQ(self, args):  
         """
         Figure out and set filenames, including sim executable path.
         All inputs and outputs are self attrs or globals or other obj attrs...
         except, return error code if sim executable missing
         or on other errors detected by subrs.
-        """
-        part = self.part
-        movie = self._movie
         
-        # simFilesPath = "~/Nanorex/RosettaDesignFiles".
+        @param args: name of the protein for which rosetta simulation is run and 
+                     if its empty then it is run for the first available chunk
+        @type args: str
+        """
+        movie = self._movie
         simFilesPath = find_or_make_Nanorex_subdir('RosettaDesignFiles')
 
         # Create temporary part-specific filename, for example:
         # "partname-minimize-pid1000".
         # We'll be appending various extensions to tmp_file_prefix to make temp
-        # file names for sim input and output files as needed (e.g. mmp, xyz,
-        # etc.)
+        # file names for sim input and output files as needed 
         if args != "":
             pdbId = args
             for mol in self.win.assy.molecules:
@@ -347,7 +454,7 @@ class RosettaRunner:
                     chunk = mol
                     break
         else:    
-            pdbId, chunk = self.getPDBIDFromChunk(part)
+            pdbId, chunk = self.getPDBIDFromChunk()
         #write the residue file
         resFile = pdbId + ".resfile"
         resFilePath = os.path.join(simFilesPath, resFile)
@@ -355,19 +462,20 @@ class RosettaRunner:
         if success:
             self.resFile = resFile
         else:
+            #Shall we refuse to run the program if we cannot write the residue file?
             print "Residue file could not be written"
-        
+            return -1
         #remove all previously existing fasta files
+        #may not be needed. But we are doing with out pdb, might as well do it 
+        #fasta and design files as well
         fastaFile = pdbId + "_out_design.fasta"
         checkPointFile = pdbId + "_out_design.checkpoint"
         checkPointPath = os.path.join(simFilesPath, checkPointFile)
         fastaFilePath = os.path.join(simFilesPath, fastaFile)
         if os.path.exists(fastaFilePath):
             os.remove(fastaFilePath)
-        
         if os.path.exists(checkPointPath):
             os.remove(checkPointPath)
-            
         if pdbId is None:
             basename = "Untitled"
         else:
@@ -376,14 +484,13 @@ class RosettaRunner:
         if (self.background):
             # Add a timestamp to the pid so that multiple backgrounded
             # calculations don't clobber each other's files.
+            #We are not running Rosetta in the background now, so may not be useful
             timestamp = datetime.today()
             timestampString = timestamp.strftime(".%y%m%d%H%M%S")
         self.tmp_file_prefix = \
             os.path.join(simFilesPath,
                          "%s-rosetta-design-pid%d%s" % (basename, os.getpid(),
-                                                  timestampString))
-
-        
+                                                  timestampString))      
         #get program path, database path and write path.txt
         self.program = self.getExecutablePluginPath()
         if self.program is None:
@@ -396,10 +503,21 @@ class RosettaRunner:
             env.history.message(self.cmdname + ": " + msg)
             return -1
         self.path = self.getPathLocation(databasePath, simFilesPath)
-        
         return None # no error
     
-    def getPathLocation(self,dataBasePath, simFilesPath):
+    def getPathLocation(self, dataBasePath, simFilesPath):
+        """
+        Write the paths.txt file required for a rosetta simulation
+        
+        @param dataBasePath: path for rosetta databae
+        @type dataBasePath: str
+        
+        @param simFilesPath: path for rosetta executable
+        @type simFilesPath: str
+        
+        @see: rosetta documentation on explanation of the paths.txt file
+        @return: paths.txt file path
+        """
         #simplest would be to overwrite the path's file everytime, instead of
         #doing text processing to figure out if the file has changed
         # paths.txt is small enough to do so
@@ -414,10 +532,9 @@ class RosettaRunner:
         f.write(line)
         word = ["Temp", "Temp"]
         
-        # input files wil always be in this directory
+        # input files will always be in this directory
         tempWord = "pdb1"
         word[0] = "%-32s" % tempWord
-        #simFilesPath = "/Users/marksims/Nanorex/RosettaDesignFiles/"
         tempWord = simFilesPath + "\n"
         word[1] = tempWord
         line = ''.join(word)
@@ -557,10 +674,13 @@ class RosettaRunner:
         return pathFile
     
     def getExecutablePluginPath(self):
+        """
+        Get the path of the rosetta executable from the preferences dialog
         
+        @return: path for the rosetta executable
+        """
         plugin_name = "ROSETTA"
-        plugin_prefs_keys = (rosetta_enabled_prefs_key, rosetta_path_prefs_key)
-            
+        plugin_prefs_keys = (rosetta_enabled_prefs_key, rosetta_path_prefs_key)    
         errorcode, errortext_or_path = \
                  checkPluginPreferences(plugin_name, plugin_prefs_keys)
         if errorcode:
@@ -568,17 +688,19 @@ class RosettaRunner:
             env.history.message(msg)
             return None
         program_path = errortext_or_path
-        
         return program_path
     
     
     def getDatabasePluginPath(self):
+        """
+        Get the path of the rosetta database from the preferences dialog
         
+        @return: path for the rosetta database
+        """
         plugin_name = "ROSETTA_DATABASE"
         #Urmi 20080710: using the same code as exectuables. Its kind of bad
         # but probably ok before RosettaCon
-        plugin_prefs_keys = (rosetta_database_enabled_prefs_key, rosetta_dbdir_prefs_key)
-            
+        plugin_prefs_keys = (rosetta_database_enabled_prefs_key, rosetta_dbdir_prefs_key)     
         errorcode, errortext_or_path = \
                  checkPluginPreferences(plugin_name, plugin_prefs_keys)
         if errorcode:
@@ -588,34 +710,51 @@ class RosettaRunner:
         dataBase_path = errortext_or_path
         return dataBase_path
     
-    def run_using_old_movie_obj_to_hold_sim_params(self, movie, args):
+    def run_rosetta(self, movie, args):
+        """
+        Main method that executes the rosetta simulation
+        
+        @param movie: simulation object
+        @type movie: L{Movie}
+        
+        @param args: list of simulation arguments
+        @type args: list
+        """
         self._movie = movie 
         assert args >= 1
-        #for now args has number of simulations
+        #we have set it up such that the first element in arg[0] is number of simulations
         self.numSim = args[0][0]
         #set the program path, database path and write the paths.txt in here
+        #we have set it up such that the third argument in args[0] always have
+        # the name of the protein we are running rosetta simulation for
+        #also we say that an error has occurred if we cannot write the resfile.
+        #not sure if this should be the case
         self.errcode = self.set_options_errQ( args[0][2])
         if self.errcode: # used to be a local var 'r'
             return
-            
-        self.sim_input_file = self.sim_input_filename(self.part, args[0][2])
+        #get the starting pdb structure for rosetta simulation 
+        self.sim_input_file = self.sim_input_filename(args[0][2])
         if self.sim_input_file is None:
             return
-           
+        #this marks the beginning of the simulation. Although technically we are yet
+        # to call QProcess, it seems like a good place to set the waitcursor to True
         self.set_waitcursor(True)
         progressBar = self.win.statusBar().progressBar
-        
         # Disable some QActions (menu items/toolbar buttons) while the sim is running.
         self.win.disable_QActions_for_sim(True)
 
-        try: #bruce 050325 added this try/except wrapper, to always restore cursor
-            self.simProcess = None #bruce 051231
-            self.setup_sim_args(args)
+        try: 
+            self.simProcess = None 
+            #sets up the argument list for running rosetta including the ones
+            #that were provided in the pop up dialog
+            self.setup_sim_args(args[0][1])
             progressBar.setRange(0, 0)
             progressBar.reset()
             progressBar.show()
             env.history.statusbar_msg("Running Rosetta on " + self.sim_input_file[0:len(self.sim_input_file) - 4])
-            
+            #this is used to name all the files related to this simulation
+            #we make sure that the pdb id is there in the filename so that it is
+            #easy to identify for which protein chunk we are running the simulation
             rosettaFullBaseFileName = self.tmp_file_prefix 
             rosettaFullBaseFileInfo = QFileInfo(rosettaFullBaseFileName)
             rosettaWorkingDir = rosettaFullBaseFileInfo.dir().absolutePath()
@@ -628,6 +767,7 @@ class RosettaRunner:
             rosettaProcess.redirect_stderr_to_file("%s-rosetta-stderr.txt" %
                 rosettaFullBaseFileName)
             rosettaStdOut = rosettaFullBaseFileName + "-rosetta-stdout.txt"
+            #rosetta files are all put in RosettaDesignFiles under Nanorex
             rosettaProcess.setWorkingDirectory(rosettaWorkingDir)
             environmentVariables = rosettaProcess.environment()
             rosettaProcess.setEnvironment(environmentVariables)
@@ -638,24 +778,26 @@ class RosettaRunner:
                  rosettaFullBaseFileInfo.completeBaseName()))
             
             abortHandler = AbortHandler(self.win.statusBar(), "rosetta")
+            #main rosetta simulation call
             errorCode = rosettaProcess.run(self.program, self._arguments, False, abortHandler)
-            
             abortHandler = None
             if (errorCode != 0):
                 if errorCode == -2: # User pressed Abort button in progress dialog.
                     msg = redmsg("Aborted.")
                     env.history.message(self.cmdname + ": " + msg)
                     env.history.statusbar_msg("")
-                    if self.simProcess: #bruce 051231 added condition (since won't be there when use_dylib)
+                    if self.simProcess: 
                         self.simProcess.kill()
                 else: 
+                    #the stdout will tell the user for what other reason,
+                    #the simulation may fail
                     msg = redmsg("Rosetta sequence design failed. For details check" + rosettaStdOut)
                     env.history.message(self.cmdname + ": " + msg)
                     self.errcode = 2;
                     env.history.statusbar_msg("")
             else:
-                #run has been successful
-                #open pdb file
+                #Error code is not zero but there's in reality error in stdout
+                #check if that be the case 
                 env.history.statusbar_msg("")
                 errorInStdOut = self.checkErrorInStdOut(rosettaStdOut)
                 if errorInStdOut:
@@ -663,55 +805,54 @@ class RosettaRunner:
                     env.history.message(self.cmdname + ": " + msg)
                     env.history.statusbar_msg("")
                 else:    
-                    #env.history.message(self.cmdname + ": " + msg)
+                    #bug in rosetta: often for some reason or the other rosetta
+                    #run does not produce an o/p file. One instance is that if
+                    # you already have an output file for this starting structure
+                    #already in the directory rosetta refuses to optimize the 
+                    #structue again even if your residue file has changed
+                    #since we remove all related output files before any run on
+                    #the same protein, this is not a possible source of error
+                    #in our case but there can be other similar problems
+                    #Hence we always check the desired output file actually exists 
+                    #in the RosettaDesignFiles directory before we actually declare
+                    #that it has been a successful run
                     outputFile = self.outfile + '_0001.pdb'
                     outPath = os.path.join(os.path.dirname(self.tmp_file_prefix), outputFile)
                     if os.path.exists(outPath):
+                        #if there's the o/p pdb file, then rosetta design "really"
+                        #succeeded
                         msg = greenmsg("Rosetta sequence design succeeded")
                         env.history.message(self.cmdname + ": " + msg)
                         #find out best score from all the generated outputs
+                        #may be we will do it some day, but for now we only output
+                        #the chunk with the lowest energy (Score)
                         score, bestSimOutFileName = getScoreFromOutputFile(self.tmp_file_prefix, self.outfile, self.numSim)
                         chosenOutPath = os.path.join(os.path.dirname(self.tmp_file_prefix), bestSimOutFileName)
                         insertpdb(self.assy, str(chosenOutPath), None)
                         #set the secondary structure of the rosetta output protein
                         #to that of the inpput protein
-                        for mol in self.win.assy.molecules:
-                            if mol.isProteinChunk and mol.name == self.sim_input_file[0:len(self.sim_input_file)-4]:
-                                inProtein = mol
-                            if mol.isProteinChunk and mol.name == (bestSimOutFileName[0:len(bestSimOutFileName)-4].lower() + 'A'):
-                                outProtein = mol
-                        outProtein.protein.set_rosetta_protein_secondary_structure(inProtein)
-                        command = self.win.commandSequencer.currentCommand
-                        prevCommand = self.win.commandSequencer.prevMode # run_...: add new chunk to combobox in BUILD_PROTEIN
-                        if prevCommand is not None:
-                            prevCommandName = prevCommand.commandName
-                        else:
-                            prevCommandName = ''
-                        if  prevCommandName == 'BUILD_PROTEIN' or command.commandName == 'BUILD_PROTEIN':
-                            #add the new chunk to the combo box in build protein mode
-                            if prevCommandName == '':
-                                command.propMgr.structureComboBox.addItem(outProtein.name)
-                                command.propMgr.protein_name_list.append(outProtein.name)
-                                command.propMgr.protein_chunk_list.append(outProtein)
-                            else:
-                                prevCommand.propMgr.structureComboBox.addItem(outProtein.name)
-                                prevCommand.propMgr.protein_name_list.append(outProtein.name)
-                                prevCommand.propMgr.protein_chunk_list.append(outProtein)
+                        outProtein = self._set_secondary_structure_of_rosetta_output_protein(bestSimOutFileName)
+                        #update the protein combo box in build protein mode with
+                        #newly created protein chunk
+                        self._updateProteinComboBoxInBuildProteinMode(outProtein)
                         env.history.statusbar_msg("")
                         fastaFile = self.outfile + "_design.fasta" 
                         fastaFilePath = os.path.join(os.path.dirname(self.tmp_file_prefix), fastaFile)
+                        #process th fasta file to find the sequence of the protein
+                        #with lowest score
                         proteinSeqList = processFastaFile(fastaFilePath, bestSimOutFileName, self.sim_input_file[0:len(self.sim_input_file)-4])
-                        #score = getScoreFromOutputFile(outPath)
+                        #show a pop up dialog to show the best score and most
+                        #optimized sequence
                         if score is not None and proteinSeqList is not []:
                             self.showResults(score, proteinSeqList)
-                        
                     else:
+                        #even when there's nothing in stderr or errocode is zero,
+                        #rosetta may not output anything. 
                         msg1 = redmsg("Rosetta sequence design failed. ")
                         msg2 = redmsg(" %s file was never created by Rosetta." % outputFile)
                         msg = msg1 + msg2
                         env.history.message(self.cmdname + ": " + msg)
                         env.history.statusbar_msg("")
-        
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
@@ -720,12 +861,74 @@ class RosettaRunner:
         env.history.statusbar_msg("")
         if not self.errcode:
             return # success
-        
         return # caller should look at self.errcode
     
-    def showResults(self, score, proteinSeqList):
+    def _updateProteinComboBoxInBuildProteinMode(self, outProtein):
+        """
+        update protein combo box in build protein mode with the newly generated
+        output protein
         
-        from foundation.wiki_help import WikiHelpBrowser
+        @param outProtein: rosetta outputted protein chunk
+        @type outProtein: L{Chunk}
+        """
+        command = self.win.commandSequencer.currentCommand
+        prevCommand = self.win.commandSequencer.prevMode # run_...: add new chunk to combobox in BUILD_PROTEIN
+        if prevCommand is not None:
+            prevCommandName = prevCommand.commandName
+        else:
+            prevCommandName = ''
+        if  prevCommandName == 'BUILD_PROTEIN' or command.commandName == 'BUILD_PROTEIN':
+            #add the new chunk to the combo box in build protein mode
+            if prevCommandName == '':
+                command.propMgr.structureComboBox.addItem(outProtein.name)
+                command.propMgr.protein_name_list.append(outProtein.name)
+                command.propMgr.protein_chunk_list.append(outProtein)
+            else:
+                prevCommand.propMgr.structureComboBox.addItem(outProtein.name)
+                prevCommand.propMgr.protein_name_list.append(outProtein.name)
+                prevCommand.propMgr.protein_chunk_list.append(outProtein)
+        return
+    
+    
+    def _set_secondary_structure_of_rosetta_output_protein(self, bestSimOutFileName):
+        """
+        Set the secondary struture of the rosetta protein to that of the input
+        protein
+        
+        @param bestSimOutFileName: output pdb id with lowest energy score
+        @type bestSimOutFileName: str
+        
+        @return: output protein chunk with its secondary structure set
+        
+        @note: rosetta fixed bb sequence design does not do anything to the secondary
+               structure of the output protein. As it remains constant, we simply
+               copy it from the input protein
+        """
+        #since this method is called only if a simulation be successful,
+        #input and output protein are both bound to be there and hence there's
+        #no else block
+        for mol in self.win.assy.molecules:
+            if mol.isProteinChunk and mol.name == self.sim_input_file[0:len(self.sim_input_file)-4]:
+                inProtein = mol
+            if mol.isProteinChunk and mol.name == (bestSimOutFileName[0:len(bestSimOutFileName)-4].lower() + 'A'):
+                outProtein = mol
+        outProtein.protein.set_rosetta_protein_secondary_structure(inProtein)
+        return outProtein
+    
+    def showResults(self, score, proteinSeqList):
+        """
+        Display the rosetta simulation results in a pop up dialog at the end
+        of a successful simulation
+        
+        @param score: Score from the most optimized sequence
+        @type score: str
+        
+        @param proteinSeqList: list of size 2, with (protein, sequence) tuple, 
+                                containing the input protein and its sequence
+                                and the output protein and its corresponding
+                                sequence
+        @type proteinSeqList: list
+        """
         html = "Score of this fixed backbone sequence design using starting"
         html = html + " structure " + self.sim_input_file
         html = html + " and residue file " + self.resFile
@@ -733,6 +936,8 @@ class RosettaRunner:
         html = html + "<p>The original protein sequence and the designed sequence"
         html = html + " are shown below with differences in designed sequence "
         html = html + "shown in red: <br>"
+        #highlight the differences in sequence between the original protein
+        #and the new protein
         modSeqList, similarity = highlightDifferencesInSequence(proteinSeqList)
         for i in range(len(proteinSeqList)):
             html = html + "<font face=Courier New>" + proteinSeqList[i][0] + "</font> "+ "<br>"
@@ -744,7 +949,14 @@ class RosettaRunner:
         return
     
     def checkErrorInStdOut(self, rosettaStdOut):
-    
+        """
+        check for error in Rosetta outputted pdb file
+        
+        @param rosettaStdOut: rosetta outputted pdb file
+        @type rosettaStdOut: str
+        
+        @return: 1 if there's an error and if not, then 0
+        """
         f = open(rosettaStdOut, 'r')
         doc = f.read()
         if doc.find("ERROR") == -1:
