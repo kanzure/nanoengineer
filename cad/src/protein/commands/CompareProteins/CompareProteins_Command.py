@@ -51,7 +51,7 @@ class CompareProteins_Command(EditCommand):
         Initialize GUI for this mode 
         """
         
-        self._init_gui_flyout_action( 'CompareProteinsAction' )
+        self._init_gui_flyout_action( 'compareProteinsAction' )
                
             
         if self.propMgr is None:
@@ -69,7 +69,7 @@ class CompareProteins_Command(EditCommand):
         """
         EditCommand.restore_gui(self)
         if self.flyoutToolbar:
-            self.flyoutToolbar.CompareProteinsAction.setChecked(False)    
+            self.flyoutToolbar.compareProteinsAction.setChecked(False)    
         
     def keep_empty_group(self, group):
         """
