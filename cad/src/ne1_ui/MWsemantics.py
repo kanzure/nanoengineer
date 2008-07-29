@@ -917,9 +917,15 @@ class MWsemantics(QMainWindow,
 
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand
-
+            
+            #pre-commandstack refactoring/cleanup comment: 
+            #Make 'paste' as a general command to fix this bug: Enter Dna command
+            #, invoke paste command, exit paste, enter Dna again -- the flyout
+            #toolbar for dna is not visible . This whole thing will get revised 
+            #after the command stack cleanup (to be coded soon)
+            # -- Ninad 2008-07-29
             if currentCommand.commandName != "PASTE":
-                commandSequencer.userEnterTemporaryCommand('PASTE') #bruce 071011 guess ### REVIEW
+                commandSequencer.userEnterCommand('PASTE') 
                 return
         else:
             msg = orangemsg("Clipboard is empty. Paste Command cancelled.")
