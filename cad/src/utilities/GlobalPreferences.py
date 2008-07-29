@@ -465,13 +465,13 @@ def debug_pref_support_Qt_4point2(): #bruce 080725
 
 # ==
 
-def debug_pref_use_command_stack(): #bruce 080728
+def _debug_pref_use_command_stack(): #bruce 080728
     res = debug_pref("use command stack (NIM) (next session)?",
                      Choice_boolean_False,
                      prefs_key = True
                     )
     return res
 
-debug_pref_use_command_stack()
+USE_COMMAND_STACK = _debug_pref_use_command_stack()
 
 # end
