@@ -36,7 +36,7 @@ from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_LineEdit import PM_LineEdit
 from PM.PM_StackedWidget import PM_StackedWidget
 from PM.PM_CheckBox import PM_CheckBox
-from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_Dial import PM_Dial
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
 from PM.PM_Slider import PM_Slider
 from PM.PM_Constants import PM_DONE_BUTTON
@@ -280,73 +280,70 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          setAsDefault  =  True,
                          state         = Qt.Unchecked)
         
-        self.chi1SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Chi1 angle:",
+        self.chi1Dial  =  \
+            PM_Dial( pmGroupBox,
+                              label         =  "Chi1:",
                               value         =  0.000,
                               setAsDefault  =  True,
                               minimum       =  -180.0,
                               maximum       =  180.0,
-                              decimals      =  1,
-                              singleStep    =  30.0, 
+                              wrapping      =  True,
+                              suffix        =  "deg",
                               spanWidth = False)
         
-        self.chi1SpinBox.setEnabled(False)
-        
-        self.win.connect(self.chi1SpinBox,
-                         SIGNAL("valueChanged(double)"),
+        self.chi1Dial.setEnabled(False)
+
+        self.win.connect(self.chi1Dial,
+                         SIGNAL("valueChanged(int)"),
                          self._rotateChi1)
         
-        self.chi2SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Chi2 angle:",
+        self.chi2Dial  =  \
+            PM_Dial( pmGroupBox,
+                              label         =  "Chi2:",
                               value         =  0.000,
                               setAsDefault  =  True,
                               minimum       =  -180.0,
                               maximum       =  180.0,
-                              decimals      =  1,
-                              singleStep    =  30.0, 
+                              suffix        =  "deg",
                               spanWidth = False)
         
-        self.chi2SpinBox.setEnabled(False)
+        self.chi2Dial.setEnabled(False)
         
-        self.win.connect(self.chi2SpinBox,
-                         SIGNAL("valueChanged(double)"),
+        self.win.connect(self.chi2Dial,
+                         SIGNAL("valueChanged(int)"),
                          self._rotateChi2)
         
-        self.chi3SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Chi3 angle:",
+        self.chi3Dial  =  \
+            PM_Dial( pmGroupBox,
+                              label         =  "Chi3:",
                               value         =  0.000,
                               setAsDefault  =  True,
                               minimum       =  -180.0,
                               maximum       =  180.0,
-                              decimals      =  1,
-                              singleStep    =  60.0, 
+                              suffix        =  "deg",
                               spanWidth = False)
         
-        self.chi3SpinBox.setEnabled(False)
+        self.chi3Dial.setEnabled(False)
 
-        self.win.connect(self.chi3SpinBox,
-                         SIGNAL("valueChanged(double)"),
+        self.win.connect(self.chi3Dial,
+                         SIGNAL("valueChanged(int)"),
                          self._rotateChi3)
         
-        self.chi4SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Chi4 angle:",
+        self.chi4Dial  =  \
+            PM_Dial( pmGroupBox,
+                              label         =  "Chi4:",
                               value         =  0.000,
                               setAsDefault  =  True,
                               minimum       =  -180.0,
                               maximum       =  180.0,
-                              decimals      =  1,
-                              singleStep    =  60.0, 
+                              suffix        =  "deg",
                               spanWidth = False)
         
-        self.chi4SpinBox.setEnabled(False)
+        self.chi4Dial.setEnabled(False)
         
-        self.chi4SpinBox.hide()
+        self.chi4Dial.hide()
         
-        self.win.connect(self.chi4SpinBox,
+        self.win.connect(self.chi4Dial,
                          SIGNAL("valueChanged(double)"),
                          self._rotateChi4)
         
@@ -426,38 +423,39 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         angle = aa.get_chi_angle(0)
         if angle:
-            self.chi1SpinBox.setEnabled(True)
-            self.chi1SpinBox.setValue(angle)
+            self.chi1Dial.setEnabled(True)
+            self.chi1Dial.setValue(angle)
         else:
-            self.chi1SpinBox.setEnabled(False)
-            self.chi1SpinBox.setValue(0.0)
+            self.chi1Dial.setEnabled(False)
+            self.chi1Dial.setValue(0.0)
         
         angle = aa.get_chi_angle(1)
         if angle:
-            self.chi2SpinBox.setEnabled(True)
-            self.chi2SpinBox.setValue(angle)
+            self.chi2Dial.setEnabled(True)
+            self.chi2Dial.setValue(angle)
         else:
-            self.chi2SpinBox.setEnabled(False)
-            self.chi2SpinBox.setValue(0.0)
+            self.chi2Dial.setEnabled(False)
+            self.chi2Dial.setValue(0.0)
         
         angle = aa.get_chi_angle(2)
         if angle:
-            self.chi3SpinBox.setEnabled(True)
-            self.chi3SpinBox.setValue(angle)
+            self.chi3Dial.setEnabled(True)
+            self.chi3Dial.setValue(angle)
         else:
-            self.chi3SpinBox.setEnabled(False)
-            self.chi3SpinBox.setValue(0.0)
+            self.chi3Dial.setEnabled(False)
+            self.chi3Dial.setValue(0.0)
         
         angle = aa.get_chi_angle(3)
         if angle:
-            self.chi4SpinBox.setEnabled(True)
-            self.chi4SpinBox.setValue(angle)
+            self.chi4Dial.setEnabled(True)
+            self.chi4Dial.setValue(angle)
         else:
-            self.chi4SpinBox.setEnabled(False)
-            self.chi4SpinBox.setValue(0.0)
+            self.chi4Dial.setEnabled(False)
+            self.chi4Dial.setValue(0.0)
         
     def _updateAminoAcidInfo(self, index):
         """
+        Update position of Amino Acid combo box.
         """
         self.aminoAcidsComboBox.setCurrentIndex(index)
         
@@ -483,6 +481,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 
     def _rotateChiAngle(self, chi, angle):
         """
+        Rotate around chi1 angle.
         """
         for chunk in self.win.assy.molecules:
             #Urmi 20080728: slot method for the current protein from build protein mode
@@ -490,26 +489,28 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 current_aa = chunk.protein.get_current_amino_acid()
                 if current_aa:
                     chunk.protein.expand_rotamer(current_aa)
-                    ###print "LOCK = ", self.lockEditedCheckBox.isChecked()
                     current_aa.set_chi_angle(chi, angle, lock=self.lockEditedCheckBox.isChecked())
                     self.win.glpane.gl_update()
                     return
                 
     def _rotateChi1(self, angle):
         """
-        """
         
+        """
         self._rotateChiAngle(0, angle)
-                
+        self.chi1Dial.updateValueLabel()
+        
     def _rotateChi2(self, angle):
         """
         """
         self._rotateChiAngle(1, angle)
+        self.chi2Dial.updateValueLabel()
                 
     def _rotateChi3(self, angle):
         """
         """
         self._rotateChiAngle(2, angle)
+        self.chi3Dial.updateValueLabel()
                 
     def _rotateChi4(self, angle):
         """
