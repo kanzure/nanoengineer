@@ -14,9 +14,10 @@ DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT
 
 # Set up version information
-VERSION_NUM="1.1.1"
+VERSION_NUM="1.1.1.2"
 RC_NUMBER="0"
 GROMACS_VERSION="3.3.3"
+QUTEMOLX_VERSION="0.5.1"
 
 # Do a basic check for sanity in the build area.
 if [ ! -e "$TOP_LEVEL/cad/src" ]
@@ -51,7 +52,7 @@ then
   if [ $BUILD_IF_UNBUILT -ne 0 ]
   then
     cd $TOP_LEVEL/cad/plugins/QuteMol/packaging
-    ./buildWin.sh
+    ./buildWin.sh QUTEMOLX_VERSION
     if [ "$?" != "0" ]
     then
       echo "Error in the QuteMolX build, investigate."
