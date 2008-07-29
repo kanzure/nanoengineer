@@ -87,7 +87,6 @@ from PyQt4.Qt import Qt, QCursor
 
 shiftButton = Qt.ShiftModifier
 controlButton = Qt.ControlModifier
-cntlButton = controlButton
 
 # from experiment, 070813, intel macbook pro
 _key_control = 16777250
@@ -885,7 +884,7 @@ class guy(shelvable_graphic):
         but = -1
         
         self.shift = but & shiftButton # not set correctly at the moment; used to control whether to makeonehere
-        self.control = but & cntlButton # not yet used
+        self.control = but & controlButton # not yet used
         try:
             chrkey = chr(key)
         except:

@@ -280,7 +280,7 @@ class DebugMenuMixin:
         Linux: <cntrl><shift><alt><left click>
         Windows: probably same as linux
         """
-        # In constants.py: debugModifiers = cntlButton | shiftButton | altButton
+        # In constants.py: debugModifiers = cntlModifier | shiftModifier | altModifier
         # On the mac, this really means command-shift-alt [alt == option].
         if debug_menu_enabled and permit_debug_menu_popup and \
            int(event.modifiers() & debugModifiers) == debugModifiers:

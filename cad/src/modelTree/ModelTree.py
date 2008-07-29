@@ -873,7 +873,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         """
         put the selected subtrees (one or more than one) into a new Group (and update)
         """
-        ##e I wonder if option/alt/midButton should be like a "force" or "power" flag
+        ##e I wonder if option/alt/middleButton should be like a "force" or "power" flag
         # for cmenus; in this case, it would let this work even for a single element,
         # making a 1-item group. That idea can wait. [bruce 050126]
         #bruce 050420 making this work inside clipboard items too

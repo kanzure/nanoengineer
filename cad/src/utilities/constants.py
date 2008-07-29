@@ -50,26 +50,25 @@ RECENTFILES_QSETTINGS_KEY = '/Nanorex/NE1/recentFiles'
 
 # ==
 
-# note: these Button constants might be no longer used [bruce 070601 comment]
-leftButton = 1
-rightButton = 2
-# in Qt/Mac, control key with left mouse button simulates right mouse button.
-midButton = 4
 shiftModifier = 33554432
 cntlModifier = 67108864
-# in Qt/Mac, this flag indicates the command key rather than the control key.
+    # note: in Qt/Mac, this flag indicates the command key rather than the control key.
+altModifier = 134217728
+    # note: in Qt/Mac, this flag indicates the Alt/Option modifier key.
 
-altModifier = 134217728 # in Qt/Mac, this flag indicates the Alt/Option modifier key.
-
-# Note: it would be better if we replaced the above by the equivalent
-# named constants provided by Qt. Before doing this, we have to find
-# out how they correspond on each platform -- for example, I don't
-# know whether Qt's named constant for the control key will have the
-# same numeric value on Windows and Mac, as our own named constant
-# 'cntlButton' does. So no one should replace the above numbers by
-# Qt's declared names before they check this out on each platform. --
-# bruce 040916
-
+# Todo: it would be better if we replaced the above by the equivalent
+# named constants provided by Qt.
+# [namely, Qt.ShiftModifier, Qt.ControlModifier, Qt.AltModifier.]
+# [later, before 080728: This has been done for all of their uses in the code
+# except in the definition of debugModifiers (below), probably during the port
+# to Qt4.]
+#
+# Before doing this, we should find out how they correspond on each platform --
+# for example, I don't know whether Qt's named constant for the control key
+# will have the same numeric value on Windows and Mac, as our own named constant
+# 'cntlModifier' does. So no one should replace the above numbers by
+# Qt's declared names before they check this out on each platform.
+# [bruce 040916]
 
 # debugModifiers should be an unusual combination of modifier keys, used
 # to bring up an undocumented debug menu intended just for developers
@@ -81,7 +80,7 @@ altModifier = 134217728 # in Qt/Mac, this flag indicates the Alt/Option modifier
 # depending on the python installation.)  -- bruce 040916
 
 debugModifiers = cntlModifier | shiftModifier | altModifier
-# on the mac, this really means command-shift-alt
+    # note: on the mac, this really means command-shift-alt
 
 # ==
 

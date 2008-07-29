@@ -226,8 +226,8 @@ def fix_buttons_helper(self, but, mod, when):
     Option+Qt.LeftButton to middleButton, so that the Option key
     (also called the Alt key) simulates the middle mouse button.
     (Note that Qt/Mac, by default, lets Control key simulate
-    rightButton and remaps Command key to the same flag we call
-    cntlButton; we like this and don't change it here.
+    right button and remaps Command key to the same flag we call
+    Qt.ControlModifier; we like this and don't change it here.
     In Qt4.2.2/Mac, the Control key is no longer simulating right button --
     in fact, right button is simulating control key! So we fix that here.)
     """
