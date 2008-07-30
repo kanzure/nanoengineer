@@ -502,16 +502,19 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
             proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
         
+        if proteinExists:
+            toolTipText = proteinChunk.protein.get_amino_acid_id(position - 1)
+            self.sequenceTextEdit.setToolTip(str(toolTipText)) 
+            env.history.statusbar_msg(toolTipText)
         
-        toolTipText = proteinChunk.protein.get_amino_acid_id(position - 1)
-        self.sequenceTextEdit.setToolTip(str(toolTipText)) 
-        env.history.statusbar_msg(toolTipText)
-        
-        if self.win.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS':
-            self.win.commandSequencer.currentCommand.propMgr.aminoAcidsComboBox.setCurrentIndex(position - 1)
-        if self.win.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
-            self.win.commandSequencer.currentCommand.propMgr._sequenceTableCellChanged(position - 1, 0)    
-            self.win.commandSequencer.currentCommand.propMgr.sequenceTable.setCurrentCell(position - 1, 3) 
+            if self.win.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS':
+                self.win.commandSequencer.currentCommand.propMgr.aminoAcidsComboBox.setCurrentIndex(position - 1)
+            if self.win.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
+                self.win.commandSequencer.currentCommand.propMgr._sequenceTableCellChanged(position - 1, 0)    
+                self.win.commandSequencer.currentCommand.propMgr.sequenceTable.setCurrentCell(position - 1, 3) 
+        else:
+            env.history.statusbar_msg("")
+            
             
     def _display_and_recenter(self, current_protein, index):
         """
