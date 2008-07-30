@@ -2,8 +2,8 @@
 
 # Usage: Run ./buildMac.sh from the packaging directory.
 
-VERSION_NUM=1.1.1
-DIST_VERSION=NanoEngineer-1_$VERSION_NUM
+VERSION_NUM="1.1.1.2"
+DIST_VERSION=NanoEngineer-1_v$VERSION_NUM
 MAJOR=`echo $VERSION_NUM | cut -d "." -f 1`
 MINOR=`echo $VERSION_NUM | cut -d "." -f 2`
 TINY=`echo $VERSION_NUM | cut -d "." -f 3`
@@ -44,7 +44,7 @@ cat packaging/Suite/MacOSX/Welcome_template.rtf | sed -e "s:VERSION_GOES_HERE:$V
 # Build the base .app directory contents
 if [ ! -e "$TOP_LEVEL/cad/src" ]; then exit; fi
 cd $TOP_LEVEL/cad/src
-sudo rm -rf dist build
+sudo rm -rf dist build $TOP_LEVEL/packaging/MacOSX/rec
 cp $TOP_LEVEL/packaging/MacOSX/setup.py .
 python setup.py py2app --frameworks=/usr/local/BerkeleyDB.4.5/lib/libdb-4.5.dylib,/usr/local/lib/libopenbabel.1.0.2.dylib,/usr/local/lib/openbabel/APIInterface.so,/usr/local/lib/openbabel/CSRformat.so,/usr/local/lib/openbabel/PQSformat.so,/usr/local/lib/openbabel/alchemyformat.so,/usr/local/lib/openbabel/amberformat.so,/usr/local/lib/openbabel/balstformat.so,/usr/local/lib/openbabel/bgfformat.so,/usr/local/lib/openbabel/boxformat.so,/usr/local/lib/openbabel/cacaoformat.so,/usr/local/lib/openbabel/cacheformat.so,/usr/local/lib/openbabel/carformat.so,/usr/local/lib/openbabel/cccformat.so,/usr/local/lib/openbabel/chem3dformat.so,/usr/local/lib/openbabel/chemdrawformat.so,/usr/local/lib/openbabel/chemtoolformat.so,/usr/local/lib/openbabel/cmlreactlformat.so,/usr/local/lib/openbabel/copyformat.so,/usr/local/lib/openbabel/crkformat.so,/usr/local/lib/openbabel/cssrformat.so,/usr/local/lib/openbabel/dmolformat.so,/usr/local/lib/openbabel/fastsearchformat.so,/usr/local/lib/openbabel/featformat.so,/usr/local/lib/openbabel/fhformat.so,/usr/local/lib/openbabel/fingerprintformat.so,/usr/local/lib/openbabel/freefracformat.so,/usr/local/lib/openbabel/gamessformat.so,/usr/local/lib/openbabel/gaussformat.so,/usr/local/lib/openbabel/ghemicalformat.so,/usr/local/lib/openbabel/gromos96format.so,/usr/local/lib/openbabel/hinformat.so,/usr/local/lib/openbabel/inchiformat.so,/usr/local/lib/openbabel/jaguarformat.so,/usr/local/lib/openbabel/mdlformat.so,/usr/local/lib/openbabel/mmodformat.so,/usr/local/lib/openbabel/mmpformat.so,/usr/local/lib/openbabel/mol2format.so,/usr/local/lib/openbabel/mopacformat.so,/usr/local/lib/openbabel/mpdformat.so,/usr/local/lib/openbabel/mpqcformat.so,/usr/local/lib/openbabel/nwchemformat.so,/usr/local/lib/openbabel/pcmodelformat.so,/usr/local/lib/openbabel/pdbformat.so,/usr/local/lib/openbabel/povrayformat.so,/usr/local/lib/openbabel/pubchem.so,/usr/local/lib/openbabel/qchemformat.so,/usr/local/lib/openbabel/reportformat.so,/usr/local/lib/openbabel/rxnformat.so,/usr/local/lib/openbabel/shelxformat.so,/usr/local/lib/openbabel/smilesformat.so,/usr/local/lib/openbabel/tinkerformat.so,/usr/local/lib/openbabel/turbomoleformat.so,/usr/local/lib/openbabel/unichemformat.so,/usr/local/lib/openbabel/viewmolformat.so,/usr/local/lib/openbabel/xcmlformat.so,/usr/local/lib/openbabel/xedformat.so,/usr/local/lib/openbabel/xmlformat.so,/usr/local/lib/openbabel/xyzformat.so,/usr/local/lib/openbabel/yasaraformat.so,/usr/local/lib/openbabel/zindoformat.so --includes=sip --packages=ctypes,bsddb3 --iconfile ../../packaging/MacOSX/nanorex.icns || exit 1
 if [ ! -e "$DIST_CONTENTS/Resources/lib/python2.4/lib-dynload/PyQt4/QtOpenGL.so" ]; then
@@ -216,13 +216,19 @@ cd $DIST_ROOT/$DIST_VERSION
 echo "Removing:"
 sudo find . -depth -type d -name ".svn" -print -exec rm -rf {} \;
 cd $TOP_LEVEL
-# Create package
 
-sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg -r $DIST_ROOT -v -e $TOP_LEVEL/packaging/MacOSX -f $TOP_LEVEL/packaging/MacOSX/NE1-package-info.plist
+# Create package
+mkdir $TOP_LEVEL/packaging/MacOSX/rec
+for name in `echo NE1-package-* Welcome.rtf background.jpg License.txt nanorex.icns`
+do
+  cp $TOP_LEVEL/packaging/MacOSX/$name $TOP_LEVEL/packaging/MacOSX/rec
+done
+sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg -r $DIST_ROOT -v -e $TOP_LEVEL/packaging/MacOSX/rec -f $TOP_LEVEL/packaging/MacOSX/NE1-package-info.plist
 
 # Create the disk image
 sudo mkdir $TOP_LEVEL/cad/src/build/$DIST_VERSION
 sudo mv $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg $TOP_LEVEL/cad/src/build/$DIST_VERSION/
+sudo sync
 sudo hdiutil create -srcfolder $TOP_LEVEL/cad/src/build/$DIST_VERSION -fs HFS+ -format UDZO $TOP_LEVEL/cad/src/build/${DIST_VERSION}.dmg
 
 cd $TOP_LEVEL/packaging
