@@ -134,7 +134,7 @@ class ExampleCommand(_superclass):
 
 class Example_TemporaryCommand_useParentPM(ExampleCommand):
     # BUGS:
-    # - doesn't call prior_command_Draw; should use something from TemporaryCommand.py ####
+    # - doesn't call parentCommand_Draw; should use something from TemporaryCommand.py ####
     #
     # Note: this works if you have your own PM; perhaps untested when you don't.
     # Warning: currently only one level of temporary commands is permitted;
