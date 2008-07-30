@@ -116,9 +116,21 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.connect( self.aminoAcidsComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self._aminoAcidChanged)
+        change_connect(self.showSequencePushButton, 
+                       SIGNAL("clicked()"),
+                       self._showSeqEditor)
         
+    
     #Protein Display methods         
 
+    def _showSeqEditor(self):
+        """
+        Show sequence editor
+        """
+        if self.showSequencePushButton.isEnabled():
+            self.sequenceEditor.show()
+        return
+    
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -165,9 +177,10 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
             for i in range(count):
                 self.aminoAcidsComboBox.removeItem(0)
             #add all the new residues
+            aa_list = []
             for mol in self.win.assy.molecules:
                 if mol.isProteinChunk() and mol.name == self.current_protein:
-                    aa_list = mol.protein.get_amino_acid_id_list()
+                    aa_list.append(mol.protein.get_amino_acid_id_list())
                     break
             for j in range(len(aa_list)):
                 self.aminoAcidsComboBox.addItem(aa_list[j])
@@ -179,7 +192,10 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """  
         self.update_residue_combobox()        
         if self.current_protein != "":  
-            self.sequenceEditor.show()
+            self.showSequencePushButton.setEnabled(True)
+        else:
+            self.showSequencePushButton.setEnabled(False)
+        self.sequenceEditor.hide()    
         PM_Dialog.show(self)
 
         self.connect_or_disconnect_signals(isConnect = True)
@@ -268,6 +284,11 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_PushButton( pmGroupBox,
                          text         =  "Collapse All",
                          setAsDefault  =  True)
+        
+        self.showSequencePushButton = PM_PushButton( pmGroupBox,
+            text       =  "Show Sequence",
+            setAsDefault  =  True
+            )
         
     def _loadGroupBox2(self, pmGroupBox):
         """
