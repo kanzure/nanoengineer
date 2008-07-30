@@ -177,6 +177,18 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         change_connect(self.newDescriptorPushButton,
                          SIGNAL("clicked()"),
                          self._addNewDescriptor)
+        change_connect(self.showSequencePushButton, 
+                       SIGNAL("clicked()"),
+                       self._showSeqEditor)
+        
+        
+    def _showSeqEditor(self):
+        """
+        Show sequence editor
+        """
+        if self.showSequencePushButton.isEnabled():
+            self.sequenceEditor.show()
+        return
         
         
     def ok_btn_clicked(self):
@@ -200,7 +212,10 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #various properties of this protein
         self.set_current_protein()
         if self.current_protein != "":    
-            self.sequenceEditor.show()
+            self.showSequencePushButton.setEnabled(True)
+        else:
+            self.showSequencePushButton.setEnabled(False)
+        self.sequenceEditor.hide()    
         PM_Dialog.show(self)
         self.connect_or_disconnect_signals(isConnect = True)
         self._fillSequenceTable()
@@ -429,6 +444,10 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.sequenceTable.setHorizontalHeaderLabels(self.headerdata_seq) 
         ###self._fillSequenceTable()
+        self.showSequencePushButton = PM_PushButton( pmGroupBox,
+            text       =  "Show Sequence",
+            setAsDefault  =  True,
+            spanWidth = True)
         
 
     def _fillSequenceTable(self):
