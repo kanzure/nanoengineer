@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 jigmakers_Mixin.py -- provides a mixin class to be inherited by class Part,
 for providing operations for making specific kinds of Jigs, and associated
 public helper functions.
  
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -41,18 +41,15 @@ class jigmakers_Mixin:
         #This check fixes bug 2697. Simply don't enter the command (to create 
         #a new motor), if the there aren't enough atoms selected.
         if len(atoms) < 2:
-            logMessage = "To create a rotary motor, you muse select at least"\
-            " two atoms. Rotary motor not created "
+            logMessage = "To create a rotary motor, you must select at least" \
+                " two atoms. Rotary motor not created"
             env.history.message(redmsg(logMessage))
             return
         
         commandSequencer = self.assy.w.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "ROTARY_MOTOR":
-            commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR')
-            
-        assert self.assy.w.commandSequencer.currentCommand.commandName == "ROTARY_MOTOR"      
-        self.assy.w.commandSequencer.currentCommand.runCommand()	        
+        commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR')
+        assert commandSequencer.currentCommand.commandName == 'ROTARY_MOTOR'
+        commandSequencer.currentCommand.runCommand()
       
     def makeLinearMotor(self):
         """
@@ -66,19 +63,15 @@ class jigmakers_Mixin:
         #a new motor), if the there aren't enough atoms selected.
         
         if len(atoms) < 1:
-            logMessage = "To create a linear motor, you muse select atleast"\
-            " one atom. Linear motor not created "
+            logMessage = "To create a linear motor, you must select at least" \
+                " one atom. Linear motor not created"
             env.history.message(redmsg(logMessage))
             return
                     
         commandSequencer = self.assy.w.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "LINEAR_MOTOR":
-            commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR')
-            
-        assert self.assy.w.commandSequencer.currentCommand.commandName == "LINEAR_MOTOR"      
-        self.assy.w.commandSequencer.currentCommand.runCommand()
-        
+        commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR')
+        assert commandSequencer.currentCommand.commandName == 'LINEAR_MOTOR'
+        commandSequencer.currentCommand.runCommand()
 
     def makegamess(self):
         """

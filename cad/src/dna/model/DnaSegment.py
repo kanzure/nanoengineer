@@ -88,15 +88,10 @@ class DnaSegment(DnaStrandOrSegment):
         Edit this DnaSegment. 
         @see: DnaSegment_EditCommand
         """
-        
         commandSequencer = self.assy.w.commandSequencer       
-        
-        if commandSequencer.currentCommand.commandName != "DNA_SEGMENT":
-            commandSequencer.userEnterTemporaryCommand('DNA_SEGMENT')
-            
+        commandSequencer.userEnterTemporaryCommand('DNA_SEGMENT')
         assert commandSequencer.currentCommand.commandName == 'DNA_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
-        
         
     def draw_highlighted(self, glpane, color):
         """

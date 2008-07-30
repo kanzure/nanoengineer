@@ -60,13 +60,11 @@ class DnaStrand(DnaStrandOrSegment):
 
     def edit(self):
         """
-        Edit this DnaSegment. 
-        @see: DnaSegment_EditCommand
+        Edit this DnaStrand. 
+        @see: DnaStrand_EditCommand
         """
         commandSequencer = self.assy.w.commandSequencer
-        if commandSequencer.currentCommand.commandName != "DNA_STRAND":
-            commandSequencer.userEnterTemporaryCommand('DNA_STRAND')
-
+        commandSequencer.userEnterTemporaryCommand('DNA_STRAND')
         assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
         commandSequencer.currentCommand.editStructure(self)
 
@@ -276,7 +274,7 @@ class DnaStrand(DnaStrandOrSegment):
         if atom:
             dnaSegment = self.get_DnaSegment_with_content_atom(atom)
 
-        return dnaSegment     
+        return dnaSegment
 
     def getStrandEndAtomAtPosition(self, position):
         """

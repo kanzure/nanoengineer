@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_view.py provides viewSlotsMixin for MWsemantics,
 with view slot methods and related helper methods.
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 Note: most other ops_*.py files provide mixin classes for Part,
 not for MWsemantics like this one.
@@ -185,8 +185,9 @@ class viewSlotsMixin:
             # which is overridden in these commands to do that).
             command = commandSequencer.currentCommand
 
-            if command.commandName == commandName: #bruce 071011 change, an educated guess, may increase prints, may cause bugs ### TEST
             ## if command.commandName in modes_we_are_called_for:
+            if command.commandName == commandName:
+                #bruce 071011 change, an educated guess, may increase prints, may cause bugs ### TEST
                 # we're now in the command being turned off, as expected.
                 command.Done(exit_using_done_or_cancel_button = False)
                 ### REVIEW: Can this ever happen if we just now entered that command,
@@ -207,7 +208,7 @@ class viewSlotsMixin:
         else:
             # The Zoom/Pan/Rotate button was toggled on.
 
-            commandSequencer.userEnterTemporaryCommand(commandName)
+            commandSequencer.userEnterTemporaryCommand(commandName, always_update = True)
                 #bruce 071011, encapsulating the prevMode code that was here before
 
             # Emit a help message on entering the new temporary command. Ideally this
@@ -215,7 +216,8 @@ class viewSlotsMixin:
             # appear before the green "Entering Mode: Zoom" msg. So I put it here.
             # [Mark 050130; comment paraphrased by bruce 070814]
             # TODO: do this in a new postEnter command-specific method which is called
-            # late enough to have the desired effect.
+            # late enough to have the desired effect (later: such as command_entered,
+            # after the ongoing command stack refactoring).
             env.history.message("You may hit the Esc key to exit %s." % user_mode_name)
                 ###REVIEW: put this in statusbar instead?
         return

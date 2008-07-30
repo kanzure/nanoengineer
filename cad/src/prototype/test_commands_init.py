@@ -44,7 +44,12 @@ def start_cmdrun( cmdrun):
         # bruce 071011
         # note: was written for commands with no PM of their own, but was only tested for a command that has one (and works)...
         # also do we need the Draw delegation to prevMode as in TemporaryCommand_Overdrawing? ### REVIEW
-        glpane.userEnterTemporaryCommand( cmdrun)
+        #
+        # update, bruce 080730:
+        # TODO: print a warning if cmdrun.command_level is not something
+        # we'd consider "nestable", per the likely intent of starting it
+        # as a temporary command.
+        glpane.userEnterTemporaryCommand( cmdrun, always_update = True)
     else:
         glpane.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
     print "done with start_cmdrun for", cmdrun

@@ -143,7 +143,10 @@ class Example_TemporaryCommand_useParentPM(ExampleCommand):
     command_can_be_suspended = False #bruce 071011
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
     test_commands_start_as_temporary_command = True # enter in different way
-        ### TODO: set up a similar thing in Command API? it would replace all calls of userEnterTemporaryCommand
+        ### maybe todo: set up a similar thing in Command API?
+        # it would replace all calls of userEnterTemporaryCommand.
+        # [later, 080730: that idea might be obsolete or invalid in its details.
+        #  revisit after ongoing command stack refactoring.]
     pass
 
 # ==

@@ -277,28 +277,20 @@ class Move_basicCommand(SelectChunks_basicCommand):
         #@TODO: clean this up. This was written just after Rattlesnake rc2
         #for FNANO presentation -- Ninad 2008-04-17
 
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-
         if isChecked:
             self.propMgr.rotateStartCoordLineEdit.setEnabled(isChecked)
             msg = "Click inside the 3D workspace to define two points" \
                 "of a line. The selection will be rotated about the first point"\
                 " in the direction specified by that line"
 
-
             self.propMgr.updateMessage(msg)
-            if currentCommand.commandName != "RotateAboutPoint":
-                commandSequencer.userEnterTemporaryCommand(
-                    'RotateAboutPoint')
-                return
+            self.commandSequencer.userEnterTemporaryCommand('RotateAboutPoint')
         else:
+            currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == "RotateAboutPoint":
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
             self.propMgr.rotateStartCoordLineEdit.setEnabled(False)
             self.propMgr.updateMessage()
-
-
 
     def moveFromToTemporaryMode(self, isChecked = False):
         """
@@ -320,21 +312,15 @@ class Move_basicCommand(SelectChunks_basicCommand):
                 "vector defined by these line endpoints."
 
             self.propMgr.updateMessage(msg)
-
-            commandSequencer = self.commandSequencer
-            currentCommand = commandSequencer.currentCommand
-
-            if currentCommand.commandName != "LineMode":
-                commandSequencer.userEnterTemporaryCommand(
-                    'LineMode')
-                return
+            self.commandSequencer.userEnterTemporaryCommand('LineMode')
         else:
             self.propMgr.startCoordLineEdit.setEnabled(False)
             self.propMgr.updateMessage()
 
     def rotateThetaPlus(self):
-        "Rotate the selected chunk(s) by theta (plus)"
-
+        """
+        Rotate the selected chunk(s) by theta (plus)
+        """
         button = self.propMgr.rotateAroundAxisButtonRow.checkedButton()
         if button:
             rotype = str(button.text())
@@ -346,7 +332,9 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.rotateTheta( rotype, theta)
 
     def rotateThetaMinus(self):
-        "Rotate the selected chunk(s) by theta (minus)"
+        """
+        Rotate the selected chunk(s) by theta (minus)
+        """
         button = self.propMgr.rotateAroundAxisButtonRow.checkedButton()
         if button:
             rotype = str(button.text())
@@ -358,11 +346,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.rotateTheta( rotype, theta)
 
     def rotateTheta(self, rotype, theta):
-        """"
+        """
         Rotate the selected chunk(s) /jig(s) around the specified axis
         by theta (degrees)
         """
-
         movables = self.graphicsMode.getMovablesForLeftDragging()
         if not movables:
             env.history.message(redmsg("No chunks or movable jigs selected."))

@@ -115,9 +115,7 @@ class PeptideSegment(Group):
         
         commandSequencer = self.assy.w.commandSequencer       
         
-        if commandSequencer.currentCommand.commandName != "Peptide_SEGMENT":
-            commandSequencer.userEnterTemporaryCommand('Peptide_SEGMENT')
-            
+        commandSequencer.userEnterTemporaryCommand('Peptide_SEGMENT')
         assert commandSequencer.currentCommand.commandName == 'Peptide_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
     

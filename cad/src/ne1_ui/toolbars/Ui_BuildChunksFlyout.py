@@ -477,9 +477,7 @@ class BuildChunksFlyout:
         
         commandSequencer = self.win.commandSequencer
         currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != commandName:
-            commandSequencer.userEnterTemporaryCommand(
-                commandName)
+        commandSequencer.userEnterTemporaryCommand( commandName)
                 
     def _activateAtomsTool(self):
         """

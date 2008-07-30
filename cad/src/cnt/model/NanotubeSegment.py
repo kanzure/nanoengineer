@@ -123,15 +123,11 @@ class NanotubeSegment(Group):
         Edit this NanotubeSegment. 
         @see: NanotubeSegment_EditCommand
         """
-        
-        commandSequencer = self.assy.w.commandSequencer       
-        
-        if commandSequencer.currentCommand.commandName != "NANOTUBE_SEGMENT":
-            commandSequencer.userEnterTemporaryCommand('NANOTUBE_SEGMENT')
-            
+        commandSequencer = self.assy.w.commandSequencer
+        commandSequencer.userEnterTemporaryCommand('NANOTUBE_SEGMENT')
         assert commandSequencer.currentCommand.commandName == 'NANOTUBE_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
-    
+        return
 
     #Following methods are likely to be revised in a fully functional dna data 
     # model. These methods are mainly created to get working many core UI 

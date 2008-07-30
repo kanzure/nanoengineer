@@ -396,6 +396,7 @@ class modeMixin(object):
 
     def userEnterCommand(self, commandName, always_update = False, **options):
         # TODO: needs revision or replacement for USE_COMMAND_STACK
+        # todo: remove always_update from callers if ok.
         """
         Public method, called from the UI when the user asks to enter
         a specific command (named by commandName), e.g. using a toolbutton
@@ -437,7 +438,7 @@ class modeMixin(object):
         [Note, that's now in GLPane but should probably move into this class.]
         
         @see: userEnterTemporaryCommand (which is the only caller that passes
-              us any options, as of before 080730)
+              us any options (aside from always_update), as of before 080730)
 
         @see: MWsemantics.ensureInCommand
         """
@@ -491,7 +492,8 @@ class modeMixin(object):
             self.start_using_mode( '$DEFAULT_MODE' )
         return
 
-    def userEnterTemporaryCommand(self, commandName): #bruce 071011;  # needs revision or replacement for USE_COMMAND_STACK
+    def userEnterTemporaryCommand(self, commandName, always_update = False):
+        #bruce 071011;  # needs revision or replacement for USE_COMMAND_STACK
         """
         Temporarily enter the command with the given commandName
         [TODO: or the given command object?],
@@ -571,7 +573,10 @@ class modeMixin(object):
         # Set self.prevMode (our depth-1 suspended command stack)
         self.prevMode = prior_command
             # bruce 070813 save command object, not commandName
-        self.userEnterCommand(commandName, suspend_old_mode = True, always_update = True) ## todo: remove always_update if ok.
+        self.userEnterCommand(commandName,
+                              suspend_old_mode = True,
+                              always_update = always_update)
+                # todo: remove always_update from callers if ok.
             # TODO: if this can become the only use of suspend_old_mode,
             # make it a private option _suspend_old_mode.
             # Indeed, it's now the only use except for internal and

@@ -1,8 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 jigs_motors.py -- Classes for motors.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History: 
 
@@ -292,12 +293,12 @@ class RotaryMotor(Motor):
         Overrides jig.edit. 
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR')
+        commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'ROTARY_MOTOR'
-        #When a Plane object read from an mmp file is edited, we need to assign 
+        #When a Motor object read from an mmp file is edited, we need to assign 
         #it an editCommand. So, when it is resized, the propMgr spinboxes
-        #are properly updated. See self.resizeGeometry. 
+        #are properly updated. See also Plane.resizeGeometry. 
         if self.editCommand is None:
             self.editCommand = currentCommand
             
@@ -632,12 +633,12 @@ class LinearMotor(Motor):
         Overrides jig.edit. 
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR')
+        commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'LINEAR_MOTOR'
-        #When a Plane object read from an mmp file is edited, we need to assign 
+        #When a Motor object read from an mmp file is edited, we need to assign 
         #it an editCommand. So, when it is resized, the propMgr spinboxes
-        #are properly updated. See self.resizeGeometry. 
+        #are properly updated. See also Plane.resizeGeometry. 
         if self.editCommand is None:
             self.editCommand = currentCommand
             

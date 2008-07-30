@@ -750,8 +750,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #post dna_model implementation .
         if self.isStrandChunk():
             commandSequencer = self.assy.w.commandSequencer
-            if commandSequencer.currentCommand.commandName != "DNA_STRAND":
-                commandSequencer.userEnterTemporaryCommand('DNA_STRAND')                
+            commandSequencer.userEnterTemporaryCommand('DNA_STRAND')                
             assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
             commandSequencer.currentCommand.editStructure(self)
         else:

@@ -182,14 +182,13 @@ class BuildDna_GraphicsMode(
 
         commandSequencer = self.win.commandSequencer
 
-        if commandSequencer.currentCommand.commandName != "JOIN_STRANDS":
-            commandSequencer.userEnterTemporaryCommand('JOIN_STRANDS')
+        commandSequencer.userEnterTemporaryCommand('JOIN_STRANDS')
 
         assert commandSequencer.currentCommand.commandName == 'JOIN_STRANDS'
 
         #Make sure that the glpane selobj is set to 's' (this bondpoint)
         #when we enter a different command, all that information is probably
-        #lost , so its important to set it explicitely here.
+        #lost , so its important to set it explicitly here.
         self.glpane.set_selobj(s)
 
         #'gm' is the graphics mode of JoinStrands_Command

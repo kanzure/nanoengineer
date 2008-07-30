@@ -936,10 +936,7 @@ class MWsemantics(QMainWindow,
         a part from the partlib into the 3D workspace. It also stores the command
         NE1 should return to after exiting this temporary command.
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "PARTLIB":
-            commandSequencer.userEnterTemporaryCommand('PARTLIB') #bruce 071011 guess ### REVIEW
+        self.commandSequencer.userEnterTemporaryCommand('PARTLIB') #bruce 071011 guess ### REVIEW
         return
 
     # TODO: rename killDo to editDelete
@@ -962,13 +959,10 @@ class MWsemantics(QMainWindow,
         selectedSegments = self.assy.getSelectedDnaSegments()
         if len(selectedSegments) > 0:
             commandSequencer = self.commandSequencer
-
-            if commandSequencer.currentCommand.commandName != "MULTIPLE_DNA_SEGMENT_RESIZE":
-                commandSequencer.userEnterTemporaryCommand('MULTIPLE_DNA_SEGMENT_RESIZE')
-
+            commandSequencer.userEnterTemporaryCommand('MULTIPLE_DNA_SEGMENT_RESIZE')
             assert commandSequencer.currentCommand.commandName == 'MULTIPLE_DNA_SEGMENT_RESIZE'
             commandSequencer.currentCommand.editStructure(list(selectedSegments))
-
+        return
 
     def editAddSuffix(self):
         """
@@ -1235,12 +1229,8 @@ class MWsemantics(QMainWindow,
 
     def createPlane(self):
         commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "REFERENCE_PLANE":
-            commandSequencer.userEnterTemporaryCommand(
-                'REFERENCE_PLANE')
-
-        self.commandSequencer.currentCommand.runCommand()
+        commandSequencer.userEnterTemporaryCommand('REFERENCE_PLANE')
+        commandSequencer.currentCommand.runCommand()
 
     def makeGridPlane(self):
         self.assy.makeGridPlane()
@@ -1609,22 +1599,21 @@ class MWsemantics(QMainWindow,
         @type  isChecked: boolean
         @see: B{Ui_NanotubeFlyout.activateInsertNanotubeLine_EditCommand}
         """
-        #  New Nanotube Builder or old Nanotube Generator?
+        # New Nanotube Builder or old Nanotube Generator?
         if debug_pref("Use new 'Build > Nanotube' builder? (next session)",
                       Choice_boolean_True,
                       prefs_key = "A10 devel/Old Nanotube Generator"):
 
+            # REVIEW: the following could probably be turned into a call of
+            # self.enterOrExitTemporaryCommand. [bruce 080730 comment]
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand
             if currentCommand.commandName != "INSERT_NANOTUBE":
-                commandSequencer.userEnterTemporaryCommand(
-                    'INSERT_NANOTUBE')
+                commandSequencer.userEnterTemporaryCommand('INSERT_NANOTUBE')
                 assert commandSequencer.currentCommand.commandName == 'INSERT_NANOTUBE'
                 commandSequencer.currentCommand.runCommand()
             else:
-                currentCommand = self.commandSequencer.currentCommand
-                if currentCommand.commandName == 'INSERT_NANOTUBE':
-                    currentCommand.Done(exit_using_done_or_cancel_button = False)
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
         else:
             if isChecked:
                 self.nanotubecntl.show()
@@ -1767,14 +1756,18 @@ class MWsemantics(QMainWindow,
 ##            if currentCommand.commandName == 'BREAK_STRANDS':
 ##                currentCommand.Done(exit_using_done_or_cancel_button = False)
 
+    # REVIEW: I think most method bodies below this point, which now
+    # call userEnterTemporaryCommand (of which there are 10 or 12),
+    # could be entirely replaced by calls of self.enterOrExitTemporaryCommand,
+    # as I did for this method. [bruce 080730 comment]
+    
     def enterJoinStrandsCommand(self, isChecked = False):
         """
         """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "JOIN_STRANDS":
-            commandSequencer.userEnterTemporaryCommand(
-                'JOIN_STRANDS')
+            commandSequencer.userEnterTemporaryCommand('JOIN_STRANDS')
         else:
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'JOIN_STRANDS':
@@ -1788,8 +1781,7 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "MAKE_CROSSOVERS":
-            commandSequencer.userEnterTemporaryCommand(
-                'MAKE_CROSSOVERS')
+            commandSequencer.userEnterTemporaryCommand('MAKE_CROSSOVERS')
         else:
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'MAKE_CROSSOVERS':
@@ -1802,8 +1794,7 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "ORDER_DNA":
-            commandSequencer.userEnterTemporaryCommand(
-                'ORDER_DNA')
+            commandSequencer.userEnterTemporaryCommand('ORDER_DNA')
         else:
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'ORDER_DNA':
@@ -1815,8 +1806,7 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "EDIT_DNA_DISPLAY_STYLE":
-            commandSequencer.userEnterTemporaryCommand(
-                'EDIT_DNA_DISPLAY_STYLE')
+            commandSequencer.userEnterTemporaryCommand('EDIT_DNA_DISPLAY_STYLE')
         else:
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'EDIT_DNA_DISPLAY_STYLE':
@@ -1838,10 +1828,9 @@ class MWsemantics(QMainWindow,
         else:
             commandSequencer = self.commandSequencer
             commandSequencer.userEnterCommand('BUILD_PROTEIN')
-                
-            assert self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
-            self.commandSequencer.currentCommand.runCommand()
-            return
+            assert commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
+            commandSequencer.currentCommand.runCommand()
+        return
     
     def createBuildProteinPropMgr_if_needed(self, editCommand):
         """
@@ -1980,19 +1969,11 @@ class MWsemantics(QMainWindow,
         Show the QuteMol property manager. 
         """
         commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != 'QUTEMOL':
-            commandSequencer.userEnterTemporaryCommand(
-                'QUTEMOL')
-        #commented out code below can be used in future, if we make the 
-        #Qutemol action a 'ckeckable action' . (so when it is unchecked by the 
-        #user, it will exit the QuteMol command) 
-        ##else:
-            ##currentCommand = self.commandSequencer.currentCommand
-            ##if currentCommand.commandName == 'QUTEMOL':
-                ##currentCommand.Done(exit_using_done_or_cancel_button = False)
-                
-
+        commandSequencer.userEnterTemporaryCommand('QUTEMOL')
+        # note: if we make the Qutemol action a 'ckeckable action'
+        # (so when unchecked by the user, it should exit the QuteMol command),
+        # then replace the above by a call to self.enterOrExitTemporaryCommand.
+        
     def insertDna(self, isChecked = False):
         """
         @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is
@@ -2004,8 +1985,7 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "DNA_DUPLEX":
-            commandSequencer.userEnterTemporaryCommand(
-                'DNA_DUPLEX')
+            commandSequencer.userEnterTemporaryCommand('DNA_DUPLEX')
             assert commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
             commandSequencer.currentCommand.runCommand()
         else:
@@ -2750,8 +2730,7 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "COLOR_SCHEME":
-            commandSequencer.userEnterTemporaryCommand(
-                'COLOR_SCHEME')
+            commandSequencer.userEnterTemporaryCommand('COLOR_SCHEME')
         else:
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'COLOR_SCHEME':
@@ -2766,8 +2745,7 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "LIGHTING_SCHEME":
-            commandSequencer.userEnterTemporaryCommand(
-                'LIGHTING_SCHEME')
+            commandSequencer.userEnterTemporaryCommand('LIGHTING_SCHEME')
         else:
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'LIGHTING_SCHEME':

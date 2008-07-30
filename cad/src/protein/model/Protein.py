@@ -815,10 +815,7 @@ class Protein:
                model. May be we'll take care of that when we move to the new model
         
         """ 
-        commandName = win.commandSequencer.currentCommand.commandName 
-        if commandName != "BUILD_PROTEIN":
-            win.commandSequencer.userEnterTemporaryCommand('BUILD_PROTEIN')
-
+        win.commandSequencer.userEnterTemporaryCommand('BUILD_PROTEIN')
         assert win.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
         win.commandSequencer.currentCommand.runCommand()
         
