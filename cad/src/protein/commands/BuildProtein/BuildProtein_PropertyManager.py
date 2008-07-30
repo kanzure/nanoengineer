@@ -14,6 +14,7 @@ from PyQt4.Qt import SIGNAL
 from PM.PM_ComboBox      import PM_ComboBox
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_SpinBox import PM_SpinBox
+from PM.PM_PushButton import PM_PushButton
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 from PM.PM_Constants     import PM_DONE_BUTTON
@@ -169,10 +170,11 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.sequenceEditor.setSequence(sequence)
             secStructure = proteinChunk.protein.get_secondary_structure_string()
             self.sequenceEditor.setSecondaryStructure(secStructure)
-            self.sequenceEditor.setRuler(len(secStructure))
-            self.sequenceEditor.show()  
+            self.sequenceEditor.setRuler(len(secStructure)) 
+            self.editPropertiesPushButton.setEnabled(True)
         else:
-            self.sequenceEditor.hide()  
+            self.editPropertiesPushButton.setEnabled(False)
+        self.sequenceEditor.hide()  
         return    
             
     def connect_or_disconnect_signals(self, isConnect):
@@ -200,6 +202,17 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect(self.structureComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                        self._updateProteinParameters)
+        change_connect(self.editPropertiesPushButton, 
+                       SIGNAL("clicked()"),
+                       self._showSeqEditor)
+        
+    def _showSeqEditor(self):
+        """
+        Show sequence editor
+        """
+        if self.editPropertiesPushButton.isEnabled():
+            self.sequenceEditor.show()
+        return
         
     def _updateProteinParameters(self, index):
         """
@@ -298,7 +311,7 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if len(self.protein_name_list) >= 1:
             self.set_current_protein_chunk_name(self.protein_name_list[0]) 
         self.structureComboBox = PM_ComboBox( pmGroupBox,
-                                 label         =  "Protein chunk name:",
+                                 label         =  "Name:",
                                  choices       =  self.protein_name_list,
                                  setAsDefault  =  False)
         
@@ -307,10 +320,14 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #value in a spinbox does not work otherwise. 
         self.numberOfAASpinBox = \
             PM_SpinBox( pmGroupBox, 
-                        label         =  "Number of amino acids:", 
+                        label         =  "Amino Acids:", 
                         value         =  0,
                         setAsDefault  =  False,
                         minimum       =  0,
                         maximum       =  10000 )
         #for now we do not allow changing number of residues
         self.numberOfAASpinBox.setEnabled(False)
+        self.editPropertiesPushButton = PM_PushButton( pmGroupBox,
+            text       =  "Edit Sequence",
+            setAsDefault  =  True
+            )
