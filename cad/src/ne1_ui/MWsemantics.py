@@ -1558,8 +1558,7 @@ class MWsemantics(QMainWindow,
         (That happens in current code [071011], and ought to be cleared up somehow,
          but maybe not using this method in particular.)
         """
-        commandSequencer = self.commandSequencer
-        commandSequencer.userEnterCommand(commandName)
+        self.commandSequencer.userEnterCommand(commandName)
             # note: this changes the value of .currentCommand
         return
 
@@ -1571,9 +1570,7 @@ class MWsemantics(QMainWindow,
         """
         Invokes the graphene command ('BUILD_GRAPHENE')
         """
-        commandSequencer = self.commandSequencer
-        commandSequencer.userEnterCommand('BUILD_GRAPHENE')
-
+        self.commandSequencer.userEnterCommand('BUILD_GRAPHENE')
         self.commandSequencer.currentCommand.runCommand()
 
     def generateNanotube(self):
@@ -1745,18 +1742,30 @@ class MWsemantics(QMainWindow,
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_DNA'
             self.commandSequencer.currentCommand.runCommand()
 
+    def enterOrExitTemporaryCommand(self, commandName): #bruce 080730 split this out of several methods
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != commandName:
+            # enter command, if not already in it
+            commandSequencer.userEnterTemporaryCommand( commandName)
+        else:
+            # exit command, if already in it
+            currentCommand.Done(exit_using_done_or_cancel_button = False)
+        return
+        
     def enterBreakStrandCommand(self, isChecked = False):
         """
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "BREAK_STRANDS":
-            commandSequencer.userEnterTemporaryCommand(
-                'BREAK_STRANDS')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'BREAK_STRANDS':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        self.enterOrExitTemporaryCommand( 'BREAK_STRANDS' )
+##        commandSequencer = self.commandSequencer
+##        currentCommand = commandSequencer.currentCommand
+##        if currentCommand.commandName != "BREAK_STRANDS":
+##            commandSequencer.userEnterTemporaryCommand(
+##                'BREAK_STRANDS')
+##        else:
+##            currentCommand = self.commandSequencer.currentCommand
+##            if currentCommand.commandName == 'BREAK_STRANDS':
+##                currentCommand.Done(exit_using_done_or_cancel_button = False)
 
     def enterJoinStrandsCommand(self, isChecked = False):
         """
