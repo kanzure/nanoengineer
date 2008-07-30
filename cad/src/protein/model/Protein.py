@@ -806,6 +806,22 @@ class Protein:
         """
         if index in range(len(self.sequence)):
             self.current_aa_idx = index
+            
+    def edit(self, win):
+        """
+        Edit the protein chunk
+        
+        @note: Probably should not reside here since this file is for the actual 
+               model. May be we'll take care of that when we move to the new model
+        
+        """ 
+        commandName = win.commandSequencer.currentCommand.commandName 
+        if commandName != "BUILD_PROTEIN":
+            win.commandSequencer.userEnterTemporaryCommand('BUILD_PROTEIN')
+
+        assert win.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
+        win.commandSequencer.currentCommand.runCommand()
+        
        
 # end of Protein class
 
