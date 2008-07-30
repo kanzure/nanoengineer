@@ -1,10 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 modes.py -- provides basicMode, the superclass for old modes
 which haven't yet been split into subclasses of Command and GraphicsMode.
 
-$Id$
-
+@author: Bruce
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -25,7 +26,7 @@ Command.py and GraphicsMode.py (see their module docstrings for details).
 Refactor the subclasses of basicMode, then get rid of it.
 Same with the other classes in this file.
 
-Notes on how we'll do that:
+Notes on how we'll do that [later: some of this has been done]:
 
 At some point soon we'll have one currentCommand attr in glpane,
 later moved to a separate object, the command sequencer.

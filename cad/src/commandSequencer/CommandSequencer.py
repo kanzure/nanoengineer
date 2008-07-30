@@ -674,60 +674,9 @@ class modeMixin(object):
 
     graphicsMode = property( _get_graphicsMode, _set_graphicsMode)
 
-    # mode (only used by old code; in theory, no longer needed as of 071011)
-    # TODO: remove this after v1.1.1 goes out [bruce comment 080711]
-    
-    def _get_mode(self):
-        """
-        Old code is trying to get self.mode,
-        which it might want for either the Command API (self.currentCommand)
-        or GraphicsMode API (self.graphicsMode). We don't know which it wants.
-        (TODO, if worthwhile: deduce which, print a map of code line vs
-         which one of these to change it to.)
-
-        This can only be supported if the currentCommand is also old, so that
-        it handles both APIs.
-        Print a warning if not (or assert 0?), and return the currentCommand
-        in either case (but don't wrap it with an API enforcer).
-        """
-        # Note: when we think there are not many uses of this left,
-        # we'll make every use print_compact_stack to aid in finding the rest
-        # and replacing them with one or the other of currentCommand and
-        # graphicsMode. Or we might print a once-per-line-number message when
-        # it's called... ### TODO
-        #
-        # hmm, this is true now! [bruce 071011]
-        print_compact_stack("fyi: this old code still accesses glpane.mode " \
-                            "by that deprecated name: ")
-        
-        raw_currentCommand = self._raw_currentCommand
-        graphicsMode = self._raw_currentCommand.graphicsMode
-        if raw_currentCommand is not graphicsMode:
-            print "old code warning: %r is not %r and we don't know " \
-                  "which one %r.mode should return" % \
-                  (raw_currentCommand, graphicsMode, self)
-            # TODO: print_compact_stack?
-        return raw_currentCommand
-            # probably not the best guess! Who knows.
-            # Note, not wrapped with API enforcer.
-
-    def _set_mode(self, new_mode):
-        """
-        Old code is trying to set self.mode.
-        Assume it wants to set _raw_currentCommand, and do that, after complaining.
-        Soon, this will be illegal.
-        """
-        # TODO: a search for 'self.mode =' reveals no remaining calls,
-        # so make it an assert 0 soon
-        print_compact_stack("bug: old code is trying to set glpane.mode directly: ")
-        self._raw_currentCommand = new_mode
-        return
-
-    mode = property(_get_mode, _set_mode)
-
     # ==
 
-    # custom mode methods [bruce 080209 moved these here from GLPane]
+    # custom command methods [bruce 080209 moved these here from GLPane]
     
     def custom_modes_menuspec(self): 
         """

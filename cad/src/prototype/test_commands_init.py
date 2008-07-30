@@ -70,7 +70,6 @@ def enter_example_command(widget, example_command_classname):
                 import commands.SelectAtoms.selectAtomsMode as selectAtomsMode
                 reload(selectAtomsMode)
             
-            ## glpane.mode = glpane.nullmode = modes.nullMode()
             # revised 071010 (glpane == commandSequencer == modeMixin), new code UNTESTED:
             glpane._recreate_nullmode()
             glpane.use_nullmode()

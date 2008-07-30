@@ -927,7 +927,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             #
             # Note: I'm mostly guessing that this should be found in (and unique to) graphicsMode
             # rather than currentCommand, in spite of being set only in testmode by current code.
-            # That does make this code simpler, since graphicsMode is self. So replacing glpane.mode with self.
+            # That does make this code simpler, since graphicsMode is self.
             # [bruce 071010, same comment and change done in both duplications of this code, and in other places]
             if hasattr(self, 'UNKNOWN_SELOBJ'):
                 glpane.selobj = getattr(self, 'UNKNOWN_SELOBJ')

@@ -407,20 +407,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     # into our superclass GLPane_minimal
 
     # Note: classes GLPane and ThumbView share lots of code,
-    # which ought to be merged into their common superclass GLPane_minimal
-    # (currently empty). [bruce 070914 comment]
+    # which ought to be merged into their common superclass GLPane_minimal.
+    # [bruce 070914 comment]
 
     # Note: external code expects self.graphicsMode to always be a working
     # GraphicsMode object, which has certain callable methods [which should
     # be formalized as a new class GraphicsMode_API or so]. Similarly, it
-    # expects self.currentCommand to be a Command object, and self.mode
-    # to be an object that meets both APIs (for compatibility with old modes
-    # which are basicMode subclasses). The Command API of self.mode (and
-    # some private aspects of our commands/modes) are used by self.modeMixin
-    # to "switch between modes". Soon, the modeMixin part will become part of
-    # the planned Command Sequencer and be removed from this class GLPane
+    # expects self.currentCommand to be a Command object (more precisely,
+    # a basicCommand subclass). The Command API of self.currentCommand (and
+    # some private aspects of our commands) are used by self.modeMixin
+    # to "switch between commands". Soon, the modeMixin part will become part of
+    # the planned CommandSequencer and be removed from this class GLPane
     # [that's partly done as of 071030, since it's now in CommandSequencer.py],
-    # and the Command and GraphicsMode class hierarchies will be separated.
+    # and the Command and GraphicsMode class hierarchies will be separated
+    # [later: mostly done].
     # Of the attributes mentioned, only self.graphicsMode will remain in GLPane.
     # [bruce 071011]
 
@@ -1486,8 +1486,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     def update_after_new_mode(self): ### TODO: this will be split between GLPane and CommandSequencer
         """
-        do whatever updates are needed after self.mode might have changed
-        (ok if this is called more than needed, except it might be slower)
+        Do whatever updates are needed after self.currentCommand and/or
+        self.graphicsMode might have changed.
+
+        #doc: need to clarify whether those updates involve UI elements
+        unrelated to the GLPane.
+        
+        @note: it's ok if this is called more than needed, except it
+               might be too slow.
         """
         self.update_after_new_graphicsMode()
         self.update_after_new_currentCommand()
@@ -1522,7 +1528,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.graphicsMode.update_cursor()
             # do this always (since set_mouse_event_handler only does it if the handler changed) [bruce 070628]
             # Note: the above updates are a good idea,
-            # but they don't help with generators [which as of this writing don't change self.mode],
+            # but they don't help with generators [which as of this writing don't change self.currentCommand],
             # thus the need for other parts of that bugfix -- and given those, I don't know if this is needed.
             # But it seems a good precaution even if not. [bruce 070628]
 
@@ -2011,7 +2017,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # [bruce 070328]
         but, mod = fix_event_helper(self, event, when, target)
             # fix_event_helper has several known bugs as of 060220, including:
-            # - target is not currently used, and it's not clear what it might be for [in this method, it's self.mode ###REVIEW WHAT IT IS]
+            # - target is not currently used, and it's not clear what it might be for
+            #   [in this method, it's self.mode ###REVIEW WHAT IT IS]
             # - it's overly bothered by dialogs that capture press and not release;
             # - maybe it can't be called for key events, but self.modkeys needs update then [might be fixed using in_drag #k];
             # - not sure it's always ok when user moves from one widget to another during a drag;
