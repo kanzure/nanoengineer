@@ -1,6 +1,6 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Command.py -- 
+Command.py -- provides class basicCommand, superclass for commands
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
@@ -52,10 +52,12 @@ from command_support.GraphicsMode_API import GraphicsMode_API
 
 # ==
 
-class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071009 split anyMode -> anyCommand
+class anyCommand(object, StateMixin):
     """
     abstract superclass for all Command objects, including nullCommand
     """
+    #bruce 071008 added object superclass; 071009 split anyMode -> anyCommand
+
     # Default values for command-object or command-subclass attributes.
     # External code assumes every command has these attributes, but it should
     # treat them as read-only; command-related code (in this file) can override
@@ -255,14 +257,16 @@ class nullCommand(anyCommand):
     
     def noop_method(self, *args, **kws):
         if debug_flags.atom_debug:
-            print "fyi: atom_debug: nullCommand noop method called -- probably ok; ignored"
+            print "fyi: atom_debug: nullCommand noop method called -- " \
+                  "probably ok; ignored"
         return None #e print a warning?
     def __getattr__(self, attr): # in class nullCommand
         # note: this is not inherited by other Command classes,
         # since we are not their superclass
         if not attr.startswith('_'):
             if debug_flags.atom_debug:
-                print "fyi: atom_debug: nullCommand.__getattr__(%r) -- probably ok; returned noop method" % attr
+                print "fyi: atom_debug: nullCommand.__getattr__(%r) -- " \
+                      "probably ok; returned noop method" % attr
             return self.noop_method
         else:
             raise AttributeError, attr #e args?
@@ -282,7 +286,8 @@ class nullCommand(anyCommand):
     
     # Command-specific null methods
     
-    def Done(self, *args, **kws): #bruce 060316 added this to remove frequent harmless debug print
+    def Done(self, *args, **kws):
+        #bruce 060316 added this to remove frequent harmless debug print
         pass
 
     def autodelete_empty_groups(self, topnode):
@@ -343,17 +348,19 @@ class basicCommand(anyCommand):
         glpane = commandSequencer ### TODO: clean this up, and use commandSequencer below
         
         self.pw = None # pw = part window
-            # TODO: remove this, or at least rename it -- most code uses .win for the same thing
+            # TODO: remove this, or rename it -- most code uses .win for the same thing
                 
         # verify self.commandName is set for our subclass
         assert not self.commandName.startswith('('), \
-            "bug: commandName class constant missing from subclass %s" % self.__class__.__name__
+            "bug: commandName class constant missing from subclass %s" % \
+            self.__class__.__name__
         
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
         ### bruce 050130 removing 'Done' temporarily; see PanMode.Done for why.
-        # later note: as of 070521, we always get warned "subclass movieMode overrides basicMode._exitMode".
-        # I am not sure whether this override is legitimate so I'm not removing the warning for now. [bruce 070521]
+        # later note: as of 070521, we always get warned "subclass movieMode
+        # overrides basicMode._exitMode". I am not sure whether this override is
+        # legitimate, so I'm not removing the warning for now. [bruce 070521]
         weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
                              '_f_userEnterCommand', '_exitMode', 'Abandon', '_cleanup']
             # not 'modifyTransmute', 'keyPress', they are normal to override;
@@ -366,7 +373,8 @@ class basicCommand(anyCommand):
                 # not where func is defined), so only test im_func
                 return m1.im_func == m2.im_func
             if not same_method( getattr(self,attr) , getattr(basicCommand,attr) ):
-                print "fyi (for developers): subclass %s overrides basicCommand.%s; this is deprecated after mode changes of 040924." % \
+                print "fyi (for developers): subclass %s overrides basicCommand.%s; " \
+                      "this is deprecated after mode changes of 040924." % \
                       (self.__class__.__name__, attr)
 
         # other inits
@@ -470,12 +478,16 @@ class basicCommand(anyCommand):
         """
         self.win.assy.current_command_info(cmdname = name)
 
-    ### TODO: move this up, and rename to indicate it's about the graphics area's empty space context menus
-    call_makeMenus_for_each_event = False # default value of class attribute; subclasses can override
+    ### TODO: move this up, and rename to indicate it's about the graphics area's
+    # empty space context menus
+    
+    call_makeMenus_for_each_event = False
+        # default value of class attribute; subclasses can override
 
     def setup_graphics_menu_specs(self):
         ### TODO: make this more easily customized, esp the web help part;
-        ### TODO if possible: fix the API (also of makeMenus) to not depend on setting attrs as side effect
+        ### TODO if possible: fix the API (also of makeMenus) to not depend
+        # on setting attrs as side effect
         """
         Call self.makeMenus(), then postprocess the menu_spec attrs
         it sets on self, namely some or all of
@@ -507,10 +519,14 @@ class basicCommand(anyCommand):
             if hasattr(self, attr):
                 del self.__dict__[attr]
         
-        #bruce 050416: give it a default menu; for modes we have now, this won't ever be seen unless there are bugs
-        #bruce 060407 update: improve the text, re bug 1739 comment #3, since it's now visible for zoom/pan/rotate tools
+        #bruce 050416: give it a default menu; for modes we have now,
+        # this won't ever be seen unless there are bugs
+        #bruce 060407 update: improve the text, re bug 1739 comment #3,
+        # since it's now visible for zoom/pan/rotate tools
         self.Menu_spec = [("%s" % self.get_featurename(), noop, 'disabled')]
-        self.makeMenus() # bruce 040923 moved this here, from the subclasses; for most modes, it replaces self.Menu_spec
+        self.makeMenus()
+            # bruce 040923 moved this here, from the subclasses;
+            # for most modes, it replaces self.Menu_spec
         # bruce 041103 changed details of what self.makeMenus() should do
         
         # self.makeMenus should have set self.Menu_spec, and maybe some sister attrs
@@ -533,14 +549,19 @@ class basicCommand(anyCommand):
         if debug_flags.atom_debug and self.debug_Menu_spec:
             # put the debug items into the main menu
             self.Menu_spec.extend( [None] + self.debug_Menu_spec )
-            # [note, bruce 050914, re bug 971: [edited 071009, 'mode' -> 'command']
-            #  for commands that don't remake their menus on each use,
-            #  the user who turns on ATOM-DEBUG won't see the menu items defined by debug_Menu_spec
-            #  until they remake all command objects (lazily?) by opening a new file. This might change if we remake command objects
-            #  more often (like whenever the command is entered), but the best fix would be to remake all menus on each use.
-            #  But this requires review of the menu-spec making code for each command (for correctness when run often),
-            #  so for now, it has to be enabled per-command by setting command.call_makeMenus_for_each_event for that command.
-            #  It's worth doing this in the commands that define command.debug_Menu_spec.]
+            # note: [bruce 050914, re bug 971; edited 071009, 'mode' -> 'command']
+            # for commands that don't remake their menus on each use,
+            # the user who turns on ATOM-DEBUG won't see the menu items
+            # defined by debug_Menu_spec until they remake all command objects
+            # (lazily?) by opening a new file. This might change if we remake
+            # command objects more often (like whenever the command is entered),
+            # but the best fix would be to remake all menus on each use.
+            # But this requires review of the menu-spec making code for
+            # each command (for correctness when run often), so for now,
+            # it has to be enabled per-command by setting
+            # command.call_makeMenus_for_each_event for that command.
+            # It's worth doing this in the commands that define
+            # command.debug_Menu_spec.]
         
         # new feature, bruce 041103:
         # add submenus to Menu_spec for each modifier-key menu which is
@@ -568,7 +589,8 @@ class basicCommand(anyCommand):
             # if it does, put it on the Jig's cmenu maker, not here, if possible;
             # if it doesn't, also put it there if NFR 1740 remains undone and desired.
             # [bruce comment 071009]
-            ##print "fyi: basicCommand.setup_graphics_menu_specs sees isinstance(selobj, Jig)" # see if this can ever happen
+            ##print "fyi: basicCommand.setup_graphics_menu_specs sees isinstance(selobj, Jig)"
+            ##    # see if this can ever happen
             ##    # yes, this happened when I grabbed an RMotor's GLPane cmenu. [bruce 071025]
             from foundation.wiki_help import wiki_help_menuspec_for_object
             ms = wiki_help_menuspec_for_object( self.o.selobj )
@@ -582,14 +604,17 @@ class basicCommand(anyCommand):
                 ms = wiki_help_menuspec_for_featurename( featurename )
                 if ms:
                     self.Menu_spec.append( None ) # there's a bug in this separator, for cookiemode...
-                        # [did I fix that? I vaguely recall fixing a separator logic bug in the menu_spec processor... bruce 071009]
+                        # [did I fix that? I vaguely recall fixing a separator
+                        #  logic bug in the menu_spec processor... bruce 071009]
                     # might this look better before the above submenus, with no separator?
-                    ## self.Menu_spec.append( ("web help: " + self.get_featurename(), self.menucmd_open_wiki_help_page) )
+                    ## self.Menu_spec.append( ("web help: " + self.get_featurename(),
+                    ##                         self.menucmd_open_wiki_help_page ) )
                     self.Menu_spec.extend( ms )
         return # from setup_graphics_menu_specs
 
     def makeMenus(self):
-        ### TODO: rename to indicate it's about the graphics area's empty space context menus; move above setup_graphics_menu_specs
+        ### TODO: rename to indicate it's about the graphics area's empty space context menus;
+        # move above setup_graphics_menu_specs
         """
         [Subclasses can override this to assign menu_spec lists (describing
         the context menus they want to have) to self.Menu_specs (and related attributes).
@@ -625,7 +650,8 @@ class basicCommand(anyCommand):
             return res
         except:
             # I don't know if this can happen
-            print_compact_traceback("ignoring exception in %r.KLUGE_current_PropertyManager(): " % (pw,))
+            msg = "ignoring exception in %r.KLUGE_current_PropertyManager()" % (pw,)
+            print_compact_traceback(msg + ": ")
             return None
         pass
 
@@ -661,23 +687,33 @@ class basicCommand(anyCommand):
 
     def want_confirmation_corner_type(self):
         """
-        Subclasses should return the type of confirmation corner they currently want,
-        typically computed from their current state. The return value can be one of the
-        strings 'Done+Cancel' or 'Done' or 'Cancel', or None (for no conf. corner).
+        Subclasses should return the type of confirmation corner they
+        currently want, typically computed from their current state.
+
+        The return value can be one of the strings 'Done+Cancel' or
+        'Done' or 'Cancel', or None (for no conf. corner).
         Later we may add another possible value, 'Exit'.
         [See confirmation_corner.py for related info.]
-        [Many subclasses will need to override this; we might also revise the default
-         to be computed in a more often correct manner.]
+        
+        [Many subclasses will need to override this; we might also revise
+         the default to be computed in a more often correct manner.]
         """
         # What we do:
-        # find the current PM (self or an active generator, at the moment -- very klugy),
-        # and ask which of these buttons are visible to it (rather than using self.haveNontrivialState()):
+        # find the current PM (self or an active generator, at the moment --
+        # very klugy), and ask which of these buttons are visible to it
+        # (rather than using self.haveNontrivialState()):
         #   pm.done_btn.isVisibleTo(pm)
         #   pm.abort_btn.isVisibleTo(pm).
-        # WE also use them to perform the actions (they are QToolButtons). KLUGE: we do this in
-        # other code which finds them again redundantly (calling the same kluge helper function).
-        if debug_pref("Conf corner test: use haveNontrivialState", Choice_boolean_False, prefs_key = True):
-            # old code, works, but not correct for default command or when generators active
+        # We also use them to perform the actions (they are QToolButtons).
+        # KLUGE: we do this in other code which finds them again redundantly
+        # (calling the same kluge helper function).
+        if debug_pref("Conf corner test: use haveNontrivialState",
+                      Choice_boolean_False,
+                      prefs_key = True ):
+            # old code, works, but not correct for default command or when
+            # generators active.
+            # REVIEW: after command stack refactoring circa 080730,
+            # will this be correct?
             if self.haveNontrivialState():
                 return 'Done+Cancel'
             else:
@@ -685,7 +721,8 @@ class basicCommand(anyCommand):
                 return 'Done' # in future this will sometimes or always be 'Exit'
         else:
             done_button_vis, cancel_button_vis = self._KLUGE_visible_PM_buttons()
-                # each one is either None, or a QToolButton (a true value) currently displayed on the current PM
+                # each one is either None, or a QToolButton (a true value)
+                # currently displayed on the current PM
 
             res = []
             if done_button_vis:
@@ -755,7 +792,8 @@ class basicCommand(anyCommand):
                 # this method is still allowed to refuse, as well
                 refused = self.Enter() 
                 if refused:
-                    print "fyi: late refusal by %r, better if it had been in refuseEnter" % self # (but sometimes it might be necessary)
+                    print "fyi: late refusal by %r, better if it had been " \
+                          "in refuseEnter" % self # (but sometimes it might be necessary)
         else:
             refused = False
         if not refused:
@@ -766,7 +804,8 @@ class basicCommand(anyCommand):
                      # This fixes bug 2566 which used to reconnect signals in the 
                      # PM of the previous mode upon re-entering it. 
             else:
-                self.init_gui() ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
+                self.init_gui()
+                    ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
                 self.resume_gui()
                 self.update_gui() # see also UpdateDashboard
                 self.update_mode_status_text()
@@ -802,7 +841,7 @@ class basicCommand(anyCommand):
         it's better if you can figure this out earlier, in
         refuseEnter().        
         """
-        self.UpdateDashboard() # Added to hide Done button for Default command. Mark 050922.
+        self.UpdateDashboard() # hide Done button for Default command. Mark 050922.
         
         # TODOs: [2007-12-28]
         # - We are likely to create a Enter_Command method instaed of just
@@ -984,8 +1023,9 @@ class basicCommand(anyCommand):
         # this will then be the invalidation routine, in spite of the name.
         # We *don't* also call update_mode_status_text -- that's separate.
         
-        # This shows the Done button on the dashboard unless the current command is the 
-        # Default command. Resolves bug #958 and #959. Mark 050922.
+        # This shows the Done button on the dashboard unless the current
+        # command is the Default command. Resolves bug #958 and #959.
+        # [Mark 050922]
         if self.is_default_command(): #bruce 060403, 080709 revised this
             self.w.toolsDoneAction.setVisible(0)
         else:
@@ -1064,10 +1104,12 @@ class basicCommand(anyCommand):
         similar new methods for other kinds of state) should eventually
         replace update_gui.
         """
-        ### REVIEW: Decide whether highlighting (selobj) is covered by it (guess yes -- all kinds of selection).
-        ### maybe TODO: call when entering/resuming the command, and say so, and document order of call
-        # relative to update_gui. And deprecate update_gui or make it more efficient.
-        # And add other methods that only use usage-tracked state and are only called as needed.
+        ### REVIEW: Decide whether highlighting (selobj) is covered by it
+        # (guess yes -- all kinds of selection).
+        ### maybe: call when entering/resuming the command, and say so,
+        # and document order of call relative to update_gui. And deprecate
+        # update_gui or make it more efficient. And add other methods that only
+        # use usage-tracked state and are only called as needed.
         if self.propMgr:
             if hasattr( self.propMgr, 'selection_changed'):
                 self.propMgr.selection_changed()
@@ -1309,7 +1351,8 @@ class basicCommand(anyCommand):
             # TODO: review whether to do this somewhere else, so it also covers Cancel;
             # and/or refactor it further so the Command Sequencer fully handles it
             # (as said just above). # [bruce 071011 change and comment]
-            ##assert not suspend_old_mode # bruce 071011 added this; old code just pretended it was false
+            ##assert not suspend_old_mode
+            ##    # bruce 071011 added this; old code just pretended it was false
             
             if new_mode is None:
                 try:
@@ -1361,10 +1404,13 @@ class basicCommand(anyCommand):
                 assert new_mode_options.get('resuming', False) == False
                     # bruce 071011 added this; old code just pretended it was false
         if not suspend_old_mode:
-            if self.haveNontrivialState(): # use this (tho it should be just an optim), to make sure it's not giving false negatives
+            if self.haveNontrivialState():
+                # use this (tho it should be just an optim), to make sure
+                # it's not giving false negatives
                 refused = self.StateDone()
                 if refused:
-                    # subclass says not to honor the Done request (and it already emitted an appropriate message)
+                    # subclass says not to honor the Done request
+                    # (and it already emitted an appropriate message)
                     return
         new_mode_options['suspend_old_mode'] = suspend_old_mode
         
@@ -1377,7 +1423,8 @@ class basicCommand(anyCommand):
             if new_mode is self.commandSequencer._raw_currentCommand:
                 # note: this private access is a sign we belong inside CommandSequencer
                 self.commandSequencer.prevMode = None
-                    #bruce 071011 added this behavior; in theory it might fix bugs; if not then I think it has no effect
+                    #bruce 071011 added this behavior; in theory it might fix bugs;
+                    # if not then I think it has no effect
             else:
                 print "warning: failed to enter", new_mode # remove if fully redundant
         return
@@ -1421,7 +1468,8 @@ class basicCommand(anyCommand):
         event be honored, they should instead (not changing the
         model) emit an error message and return True.
         """
-        assert 0, "bug: command subclass %r needs custom StateDone method, since its haveNontrivialState() apparently returned True" % \
+        assert 0, "bug: command subclass %r needs custom StateDone method, " \
+                  "since its haveNontrivialState() apparently returned True" % \
                self.__class__.__name__
     
     def Cancel(self, 
@@ -1440,7 +1488,8 @@ class basicCommand(anyCommand):
         if self.haveNontrivialState():
             refused = self.StateCancel()
             if refused:
-                # subclass says not to honor the Cancel request (and it already emitted an appropriate message)
+                # subclass says not to honor the Cancel request
+                # (and it already emitted an appropriate message)
                 return      
         
         #TODO: Following code is mostly duplicated from self.Done. Need to 
@@ -1525,7 +1574,8 @@ class basicCommand(anyCommand):
         """
         return None # this is correct for all existing modes except depositMode
                     # -- bruce 040923
-        ## assert 0, "bug: command subclass %r needs custom StateCancel method, since its haveNontrivialState() apparently returned True" % \
+        ## assert 0, "bug: command subclass %r needs custom StateCancel method, " \
+        ##           "since its haveNontrivialState() apparently returned True" % \
         ##       self.__class__.__name__
 
     def haveNontrivialState(self):
@@ -1741,13 +1791,15 @@ class Command(basicCommand):
         basicCommand.__init__(self, commandSequencer)
         # also create and save our GraphicsMode,
         # so command sequencer can find it inside us for use by the glpane
-        # (and how does it know when we change it or we get changed, which means its GM changed?)
+        # (and how does it know when we change it or we get changed,
+        #  which means its GM changed?)
         self._create_GraphicsMode()
         self._post_init_modify_GraphicsMode()
         return
     
     def _create_GraphicsMode(self):
-        GM_class = self.GraphicsMode_class # TODO: let caller pass something to replace this?
+        GM_class = self.GraphicsMode_class
+            # maybe: let caller pass something to replace this?
         assert issubclass(GM_class, GraphicsMode_API)
 
         args = [self] # the command is the only ordinary init argument
@@ -1782,6 +1834,7 @@ class Command(basicCommand):
 
     pass
 
-commonCommand = basicCommand # use this for mixin classes that need to work in both basicCommand and Command
+commonCommand = basicCommand
+    # use this for mixin classes that need to work in both basicCommand and Command
 
 # end
