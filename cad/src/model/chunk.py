@@ -493,7 +493,26 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     dnaGroup.edit) 
             contextMenuList.append(item)
             return
-
+        
+        #Urmi 20080730: edit properties for protein for context menu in gl pane
+        if command.commandName in ('SELECTMOLS', 'BUILD_PROTEIN'):
+            if self.isProteinChunk():
+                try:
+                    protein = self.protein
+                except:
+                    print_compact_traceback("exception in protein class")
+                    return
+                if protein is not None:
+                    item = (("%s" % (self.name)),
+                            noop, 'disabled')
+                    contextMenuList.append(item)
+                    #We cannot pass methods with arguments and hence this is 
+                    #commented for now and we will allow this in the new protein
+                    #implementation where edit does not require an argument
+                    #item = (("Edit Protein Properties..."), 
+                    #        protein.edit, self.assy.w)
+                    #contextMenuList.append(item)
+                    
         if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'NANOTUBE_SEGMENT'):
             if self.isNanotubeChunk():
                 try:
