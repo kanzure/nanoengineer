@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>pkmk-token-16</key>
+	<array>
+		<dict>
+			<key>identifier</key>
+			<string>org.wxwindows..</string>
+			<key>path</key>
+			<string>/Applications/Nanorex/QuteMolX.app</string>
+			<key>searchPlugin</key>
+			<string>CommonAppSearch</string>
+		</dict>
+	</array>
+</dict>
+</plist>
+
