@@ -44,6 +44,13 @@ class baseCommand(object):
 
     parentCommand = property( _get_parentCommand )
 
+    def command_is_active(self):
+        """
+        @return: whether self is presently on the command stack (whether or not
+                 it's on top (aka current)).
+        @rtype: boolean
+        """
+        return self._parentCommand is not None
     
     # == exit-related methods
     
@@ -100,8 +107,21 @@ class baseCommand(object):
     
     def command_will_exit(self):
         """
-        [subclasses should extend this as needed]
+        Perform side effects on self and the UI, needed when self
+        is about to be exited for any reason.
+
+        @note: when this is called, self is on top of the command stack,
+               but it may or may not have been on top when the current user
+               event handler started (e.g. some other command may have already
+               exited during the same user event).
+               
+        @note: base class implementation calls self methods
+               command_exit_misc_actions and command_exit_flyout.
+        
+        [subclasses should extend this as needed. typically calling
+         superclass implementation at the end]
         """
+        self.command_exit_misc_actions()
         self.command_exit_flyout()
         return
 
@@ -114,13 +134,24 @@ class baseCommand(object):
         """
         return
     
+    def command_exit_misc_actions(self):
+        """
+        Undo whatever was done
+        by self.command_enter_misc_actions() when this command was entered.
+
+        [subclasses should override this as needed]
+        """
+        return
+    
     def _command_do_exit(self):
         """
         [private]
         pop self from the top of the command stack
         """
         assert self is self.commandSequencer._f_currentCommand ###k
+        assert self._parentCommand is not None # would fail for default command
         self.commandSequencer._f_set_currentCommand( self._parentCommand )
+        self._parentCommand = None
         return
 
     # == enter-related methods 
@@ -191,35 +222,50 @@ class baseCommand(object):
         push self on command stack
         """
         ### guess
+        assert self._parentCommand is None
         self._parentCommand = self.commandSequencer._f_currentCommand ###k
         self.commandSequencer._f_set_currentCommand( self)
         return
 
     def command_entered(self, args):
         """
-        update self's command state and ui as needed, when self has just been
+        Update self's command state and ui as needed, when self has just been
         pushed onto command stack.
 
         @note: self may or may not still be the current command by the time
                the current user event is fully handled. It might be immediately
                "suspended upon entry" by a subcommand being pushed on top of it.
 
-        @note: similar to old methods Enter and in some cases init_gui.
+        @note: base class implementation calls other methods of self,
+               command_enter_flyout and command_enter_misc_actions.
 
-        [subclasses should extend as needed]
+        @note: similar to old methods Enter and parts of init_gui.
+
+        [subclasses should extend as needed, typically calling superclass
+         implementation at the start]
         """
         self.command_enter_flyout()
+        self.command_enter_misc_actions()
         return
 
     def command_enter_flyout(self):
         """
         incrementally modify flyout toolbar of parent command
-        (available as self.XXX); self has already been pushed onto command stack
-        and is presently on top of it, but other commands might be pushed
-        on top of self by the time the current user event is fully processed.
+        (available as self.parentCommand).
+
+        @note: Called by base class implementation of command_entered.
         """
         return
 
+    def command_enter_misc_actions(self):
+        """
+        incrementally modify the state of miscellaneous UI actions
+        upon entry to this command.
+
+        @note: Called by base class implementation of command_entered.
+        """
+        return
+    
     # == other methods
 
     def _command_log(self, msg):
