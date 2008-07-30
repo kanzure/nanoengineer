@@ -92,7 +92,7 @@ class anyCommand(object, StateMixin):
     featurename = ""
     
     # Command's property manager. Subclasses should initialize the propMgr object 
-    # if they need one.     
+    # if they need one.
     propMgr = None
 
     hover_highlighting_enabled = False
@@ -100,6 +100,9 @@ class anyCommand(object, StateMixin):
         # the Command and GraphicsMode APIs; a separate GraphicsMode delegates it
         # as state to its Command [bruce 071011]
 
+    # note: the following 3 command_ attributes may be ignored or revised
+    # after the current command stack refactoring is complete [070830]:
+    
     command_can_be_suspended = False
         # Boolean; whether this command can be suspended while temporary commands run,
         # to be resumed when they finish. Should be True for most real commands

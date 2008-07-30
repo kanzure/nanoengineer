@@ -103,6 +103,9 @@ class baseCommand(object):
         """
         [subclasses should extend this as needed]
         """
+        # note: someday this may call a renamed self.haveNontrivialState() method,
+        # and if that returns true, check a user pref to decide what to do.
+        # Initially it's ok if it always returns False.
         return False
     
     def command_will_exit(self):
