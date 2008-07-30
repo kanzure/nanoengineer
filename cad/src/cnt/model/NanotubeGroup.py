@@ -131,7 +131,7 @@ class NanotubeGroup(Group):
         @see: Group.edit()
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterCommand('BUILD_NANOTUBE')
+        commandSequencer.userEnterCommand('BUILD_NANOTUBE', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'BUILD_NANOTUBE'
         currentCommand.editStructure(self)

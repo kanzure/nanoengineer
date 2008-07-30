@@ -95,8 +95,10 @@ def enter_example_command(widget, example_command_classname):
 def enter_example_command_doit(glpane, example_command_classname):
     example_command_class = globals()[example_command_classname]
     example_command_class.commandName += 'x'
-        # kluge to defeat _f_userEnterCommand comparison of commandName -- not sure if it works; pretty sure it's needed for now
-        # TODO: replace it with a new option to pass to that method
+        # kluge to defeat _f_userEnterCommand (and now userEnterCommand)
+        # comparison of commandName -- not sure if it works; pretty sure
+        # it's needed for now
+        # TODO: replace it with a new option to pass to that method.
     cmdrun = construct_cmdrun(example_command_class, glpane)
     start_cmdrun(cmdrun)
     return

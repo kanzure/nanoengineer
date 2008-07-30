@@ -131,7 +131,7 @@ class PeptideGroup(Group):
         @see: Group.edit()
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterCommand('BUILD_Peptide')
+        commandSequencer.userEnterCommand('BUILD_Peptide', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'BUILD_Peptide'
         currentCommand.editStructure(self)

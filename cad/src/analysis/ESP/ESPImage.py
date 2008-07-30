@@ -306,8 +306,7 @@ class ESPImage(RectGadget):
         #bruce 060403 changes: force Build, not Select Atoms as before; only do this if current mode is not Build.
         # (But why do we need to force it into any particular mode? I don't know. [bruce 070608])
         commandSequencer = self.assy.w.commandSequencer #bruce 071008
-        if commandSequencer.currentCommand.commandName != 'DEPOSIT':
-            commandSequencer.userEnterCommand('DEPOSIT')
+        commandSequencer.userEnterCommand('DEPOSIT')
         Jig.edit(self)
 
     def make_selobj_cmenu_items(self, menu_spec):

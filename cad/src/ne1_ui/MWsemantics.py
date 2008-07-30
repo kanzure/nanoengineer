@@ -924,9 +924,7 @@ class MWsemantics(QMainWindow,
             #toolbar for dna is not visible . This whole thing will get revised 
             #after the command stack cleanup (to be coded soon)
             # -- Ninad 2008-07-29
-            if currentCommand.commandName != "PASTE":
-                commandSequencer.userEnterCommand('PASTE') 
-                return
+            commandSequencer.userEnterCommand('PASTE')
         else:
             msg = orangemsg("Clipboard is empty. Paste Command cancelled.")
             env.history.message(msg)
@@ -1376,11 +1374,11 @@ class MWsemantics(QMainWindow,
 
     # get into Select Atoms mode
     def toolsSelectAtoms(self): # note: this can NO LONGER be called from update_select_mode [as of bruce 060403]
-        self.commandSequencer.userEnterCommand('SELECTATOMS')
+        self.commandSequencer.userEnterCommand('SELECTATOMS', always_update = True)
 
     # get into Select Chunks mode
     def toolsSelectMolecules(self):# note: this can also be called from update_select_mode [bruce 060403 comment]
-        self.commandSequencer.userEnterCommand('SELECTMOLS')
+        self.commandSequencer.userEnterCommand('SELECTMOLS', always_update = True)
 
     # get into Move Chunks (or Translate Components) command
     def toolsMoveMolecule(self):
@@ -1397,19 +1395,19 @@ class MWsemantics(QMainWindow,
     # get into Build mode
     def toolsBuildAtoms(self): # note: this can now be called from update_select_mode [as of bruce 060403]
         self.depositState = 'Atoms'
-        self.commandSequencer.userEnterCommand('DEPOSIT')
+        self.commandSequencer.userEnterCommand('DEPOSIT', always_update = True)
 
     # get into cookiecutter mode
     def toolsCookieCut(self):
-        self.commandSequencer.userEnterCommand('COOKIE')
+        self.commandSequencer.userEnterCommand('COOKIE', always_update = True)
 
     # get into Extrude mode
     def toolsExtrude(self):
-        self.commandSequencer.userEnterCommand('EXTRUDE')
+        self.commandSequencer.userEnterCommand('EXTRUDE', always_update = True)
 
     # get into Fuse Chunks mode
     def toolsFuseChunks(self):
-        self.commandSequencer.userEnterCommand('FUSECHUNKS')
+        self.commandSequencer.userEnterCommand('FUSECHUNKS', always_update = True)
 
     ###################################
     # Simulator Toolbar Slots
@@ -1547,11 +1545,10 @@ class MWsemantics(QMainWindow,
         If the current command's .commandName differs from the one given, change
         to that command.
 
-        @note: it's likely that this method is not needed since
-        userEnterCommand has the same special case of doing nothing
-        if we're already in the named command. If so, the special case
-        could be removed with no effect, and this method could be
-        inlined to just userEnterCommand.
+        @note: As of 080730, userEnterCommand has the same special case
+               of doing nothing if we're already in the named command.
+               So we just call it. (Even before, it had almost that
+               special case; see its docstring for details.)
 
         @note: all uses of this method are causes for suspicion, about
         whether some sort of refactoring or generalization is called for,
@@ -1562,8 +1559,7 @@ class MWsemantics(QMainWindow,
          but maybe not using this method in particular.)
         """
         commandSequencer = self.commandSequencer
-        if commandSequencer.currentCommand.commandName != commandName:
-            commandSequencer.userEnterCommand(commandName)
+        commandSequencer.userEnterCommand(commandName)
             # note: this changes the value of .currentCommand
         return
 
@@ -1573,13 +1569,10 @@ class MWsemantics(QMainWindow,
 
     def insertGraphene(self):   
         """
-        Invokes the graphene command ('BUILD_GRAPHNE')
+        Invokes the graphene command ('BUILD_GRAPHENE')
         """
         commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "BUILD_GRAPHENE":
-            commandSequencer.userEnterCommand(
-                'BUILD_GRAPHENE')
+        commandSequencer.userEnterCommand('BUILD_GRAPHENE')
 
         self.commandSequencer.currentCommand.runCommand()
 
@@ -1606,8 +1599,7 @@ class MWsemantics(QMainWindow,
             selNanotubeGroup.edit()
         else:
             commandSequencer = self.commandSequencer
-            if commandSequencer.currentCommand.commandName != 'BUILD_NANOTUBE':
-                commandSequencer.userEnterCommand('BUILD_NANOTUBE')
+            commandSequencer.userEnterCommand('BUILD_NANOTUBE')
 
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_NANOTUBE'
             self.commandSequencer.currentCommand.runCommand()
@@ -1725,8 +1717,7 @@ class MWsemantics(QMainWindow,
         @see:B{self.insertDna}
         """
         commandSequencer = self.commandSequencer
-        if commandSequencer.currentCommand.commandName != 'DNA_DUPLEX':
-            commandSequencer.userEnterCommand('DNA_DUPLEX')
+        commandSequencer.userEnterCommand('DNA_DUPLEX')
 
         assert self.commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
 
@@ -1749,8 +1740,7 @@ class MWsemantics(QMainWindow,
             selDnaGroup.edit()
         else:
             commandSequencer = self.commandSequencer
-            if commandSequencer.currentCommand.commandName != 'BUILD_DNA':
-                commandSequencer.userEnterCommand('BUILD_DNA')
+            commandSequencer.userEnterCommand('BUILD_DNA')
 
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_DNA'
             self.commandSequencer.currentCommand.runCommand()
@@ -1838,8 +1828,7 @@ class MWsemantics(QMainWindow,
             self.insertPeptide()
         else:
             commandSequencer = self.commandSequencer
-            if commandSequencer.currentCommand.commandName != 'BUILD_PROTEIN':
-                commandSequencer.userEnterCommand('BUILD_PROTEIN')
+            commandSequencer.userEnterCommand('BUILD_PROTEIN')
                 
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
             self.commandSequencer.currentCommand.runCommand()

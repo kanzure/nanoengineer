@@ -404,7 +404,7 @@ def simMoviePlayer(assy):
         return
 
     if assy.current_movie and assy.current_movie.might_be_playable():
-        win.commandSequencer.userEnterCommand('MOVIE')
+        win.commandSequencer.userEnterCommand('MOVIE', always_update = True)
         return
 
     # no valid current movie, look for saved one with same name as assy
@@ -431,14 +431,14 @@ def simMoviePlayer(assy):
             # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
             # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
             env.history.message("Movie Player: %s previously saved movie for this part." % ("playing" or "loading"))
-            win.commandSequencer.userEnterCommand('MOVIE')
+            win.commandSequencer.userEnterCommand('MOVIE', always_update = True)
             return
     # else if no assy.filename or no movie found from that:
     # bruce 050327 comment -- do what the old code did, except for the moviePlay
     # which seems wrong and tracebacks now.
     assy.current_movie = Movie(assy)
         # temporary kluge until bugs in movieMode for no assy.current_movie are fixed
-    win.commandSequencer.userEnterCommand('MOVIE')
+    win.commandSequencer.userEnterCommand('MOVIE', always_update = True)
     return
 
 # end

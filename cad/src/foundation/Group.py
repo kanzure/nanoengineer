@@ -1163,7 +1163,10 @@ class Group(NodeWithAtomContents):
         """
         if self.editCommand:
             commandSequencer = self.assy.w.commandSequencer
-            commandSequencer.userEnterCommand('DNA_DUPLEX')
+            commandSequencer.userEnterCommand('DNA_DUPLEX', always_update = True)
+                ### REVIEW: is this special treatment of DNA_DUPLEX justified
+                # in this class? Same question for the getProps and setProps
+                # methods below. [bruce 080730 question]
             currentCommand = commandSequencer.currentCommand
             assert currentCommand.commandName == 'DNA_DUPLEX'
             currentCommand.editStructure(self)

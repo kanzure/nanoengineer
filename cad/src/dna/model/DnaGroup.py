@@ -153,7 +153,7 @@ class DnaGroup(Group):
         @see: Group.edit()
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterCommand('BUILD_DNA')
+        commandSequencer.userEnterCommand('BUILD_DNA', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'BUILD_DNA'
         currentCommand.editStructure(self)

@@ -394,7 +394,8 @@ class modeMixin(object):
 
     # user requests a specific new command.
 
-    def userEnterCommand(self, commandName, **options): # needs revision or replacement for USE_COMMAND_STACK
+    def userEnterCommand(self, commandName, always_update = False, **options):
+        # TODO: needs revision or replacement for USE_COMMAND_STACK
         """
         Public method, called from the UI when the user asks to enter
         a specific command (named by commandName), e.g. using a toolbutton
@@ -405,6 +406,14 @@ class modeMixin(object):
         or a symbolic name like '$DEFAULT_MODE', or [### VERIFY THIS]
         a command instance object. (Details of commandName, and all options,
         are documented in Command._f_userEnterCommand.)
+
+        If commandName is a command name string and we are already in that
+        command, then do nothing unless always_update is true [new feature,
+        080730; prior code did nothing except self.update_after_new_mode(),
+        equivalent to passing always_update = True to new code].
+        Note: all calls which pass always_update as of 080730 do so only
+        to preserve old code behavior; passing it is probably not needed
+        for most of them. [###REVIEW those calls]
 
         The current command has to exit (or be suspended) before the new one
         can be entered, but it's allowed to refuse to exit, and if it does
@@ -427,22 +436,34 @@ class modeMixin(object):
         self.update_after_new_mode().
         [Note, that's now in GLPane but should probably move into this class.]
         
-        See also: userEnterTemporaryCommand
-        """
-        # Note: we don't have a special case for already being in the same
-        # command; individual commands can implement that if they wish.
-        try:
-            self.currentCommand._f_userEnterCommand(commandName, **options)
+        @see: userEnterTemporaryCommand (which is the only caller that passes
+              us any options, as of before 080730)
 
-            # REVIEW: the following update_after_new_mode looks redundant with
-            # the one at the end of start_using_mode, if that one has always
-            # run at this point (which I think, but didn't prove).
-            # [bruce 070813 comment]
+        @see: MWsemantics.ensureInCommand
+        """
+        # Note: _f_userEnterCommand has a special case for already being in
+        # the same-named command, provided that is a basicCommand subclass
+        # (i.e. not nullCommand). A lot of callers have a test for this
+        # before the call, but they don't need it, except that it
+        # avoids the call herein of self.update_after_new_mode().
+        # CHANGING THIS NOW: avoid that update here too, and simplify the callers.
+        # [bruce 080730]
+        try:
+            already_in_command = (self.currentCommand.commandName == commandName)
             
-            # TODO, maybe: let current command decide whether/how to do
-            # this update:
-            self.update_after_new_mode()
-                # might be unnecessary if command didn't change -- that's ok
+            if not already_in_command:
+                self.currentCommand._f_userEnterCommand(commandName, **options)
+
+            if always_update or not already_in_command:
+                # REVIEW: the following update_after_new_mode looks redundant with
+                # the one at the end of start_using_mode, if that one has always
+                # run at this point (which I think, but didn't prove).
+                # [bruce 070813 comment]
+                
+                # TODO, maybe: let current command decide whether/how to do
+                # this update:
+                self.update_after_new_mode()
+            pass
         except:
             # This should never happen unless there's a bug in some command --
             # so don't bother trying to get into the user's requested
@@ -482,9 +503,9 @@ class modeMixin(object):
         (This means a series of temporary commands can be run,
         after which the prior non-temporary one will be resumed.)
 
-        Note: semantics/API is likely to be revised; see code comments.
+        @note: semantics/API is likely to be revised; see code comments.
 
-        See also: userEnterCommand
+        @see: userEnterCommand
         """
         # REVIEW: do we need to generalize command.command_can_be_suspended
         # to a relation between two commands
@@ -550,7 +571,7 @@ class modeMixin(object):
         # Set self.prevMode (our depth-1 suspended command stack)
         self.prevMode = prior_command
             # bruce 070813 save command object, not commandName
-        self.userEnterCommand(commandName, suspend_old_mode = True)
+        self.userEnterCommand(commandName, suspend_old_mode = True, always_update = True) ## todo: remove always_update if ok.
             # TODO: if this can become the only use of suspend_old_mode,
             # make it a private option _suspend_old_mode.
             # Indeed, it's now the only use except for internal and
@@ -798,7 +819,7 @@ class modeMixin(object):
         self._commandTable[commandName] = modeobj
             # also put it in under this name, if different
             ### [will this cause bugs?]
-        self.userEnterCommand(commandName)
+        self.userEnterCommand(commandName, always_update = True)
             # note: self is acting as the command sequencer here
         return
 
