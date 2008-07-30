@@ -257,11 +257,11 @@ class BuildChunksFlyout:
         
         change_connect(self.transmuteBondsAction, 
                        SIGNAL("triggered()"), 
-                       self.command.activateBondsTool)
+                       self._activateBondsTool)
         
         change_connect(self.depositAtomsAction, 
                        SIGNAL("triggered()"), 
-                       self.command.activateAtomsTool)
+                       self._activateAtomsTool)
     
     
     def activateFlyoutToolbar(self):
@@ -280,10 +280,10 @@ class BuildChunksFlyout:
         
         self.connect_or_disconnect_signals(True)
         
-        if self.depositAtomsAction.isChecked():
-            self.command.activateAtomsTool()
-        elif self.transmuteBondsAction.isChecked():
-            self.command.activateBondsTool()
+        ##if self.depositAtomsAction.isChecked():
+            ##self.command.activateAtomsTool()
+        ##elif self.transmuteBondsAction.isChecked():
+            ##self.command.activateBondsTool()
             
     
     def deActivateFlyoutToolbar(self):
@@ -447,22 +447,22 @@ class BuildChunksFlyout:
         delete_bonds_bet_selected_atoms = False
         state = action.isChecked()
         if action ==  self.bond1Action:
-            self._enterBondToolCommand('SINGLE_BOND_TOOL')            
+            self._enterToolsCommand('SINGLE_BOND_TOOL')            
             bondTypeString = 'single bonds.'
         elif action == self.bond2Action:
-            self._enterBondToolCommand('DOUBLE_BOND_TOOL')  
+            self._enterToolsCommand('DOUBLE_BOND_TOOL')  
             bondTypeString = 'double bonds.'
         elif action == self.bond3Action:
-            self._enterBondToolCommand('TRIPLE_BOND_TOOL')  
+            self._enterToolsCommand('TRIPLE_BOND_TOOL')  
             bondTypeString = 'triple bonds.'
         elif action == self.bondaAction:
-            self._enterBondToolCommand('AROMATIC_BOND_TOOL')  
+            self._enterToolsCommand('AROMATIC_BOND_TOOL')  
         elif action == self.bondgAction:            
-            self._enterBondToolCommand('GRAPHITIC_BOND_TOOL')  
+            self._enterToolsCommand('GRAPHITIC_BOND_TOOL')  
             bondTypeString = 'graphitic bonds.'
         elif action == self.cutBondsAction:
             delete_bonds_bet_selected_atoms = True
-            self._enterBondToolCommand('DELETE_BOND_TOOL') 
+            self._enterToolsCommand('DELETE_BOND_TOOL') 
                             
         #When the bond tool is changed, also make sure to apply the new 
         #bond tool, to the bonds between the selected atoms if any.
@@ -471,7 +471,7 @@ class BuildChunksFlyout:
                 delete_bonds_bet_selected_atoms = delete_bonds_bet_selected_atoms,
                 bondTypeString = bondTypeString)
         
-    def _enterBondToolCommand(self, commandName = ''):
+    def _enterToolsCommand(self, commandName = ''):
         if not commandName:
             return 
         
@@ -480,8 +480,30 @@ class BuildChunksFlyout:
         if currentCommand.commandName != commandName:
             commandSequencer.userEnterTemporaryCommand(
                 commandName)
+                
+    def _activateAtomsTool(self):
+        """
+        Activate the atoms tool of the build chunks mode 
+        hide only the Atoms Tools groupbox in the Build chunks Property manager
+        and show all others the others.
+        """
+        self.command.activateAtomsTool()
+        self._enterToolsCommand('ATOMS_TOOL')
+        
+    def _activateBondsTool(self):
+        """
+        Activate the bond tool of the build chunks mode 
+        Show only the Bond Tools groupbox in the Build chunks Property manager
+        and hide the others.
+        @see:self._convert_bonds_bet_selected_atoms()
+        """  
+        self.command.activateBondsTool()
+        checked_action = self.bondToolsActionGroup.checkedAction()
+        if checked_action:
+            self.changeBondTool(action = checked_action)
         else:
-            currentCommand = commandSequencer.currentCommand
-            if currentCommand.commandName == commandName:
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
+            self._enterToolsCommand('BOND_TOOL')
+            
+            
+    
         

@@ -14,6 +14,9 @@ TODO:
 - Classes created to refactor BuildAtoms_Command (rather 'BuildChunks' command)
 to be revised further. 
 - document
+- REVIEW: _reusePropMgr_of_parentCommand -- this is an experimental method 
+that will fit in the NEW command API (2008-07-30) . to be revised/ renamed. 
+e.g. command_reuse_PM etc.
 """
 
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
@@ -43,6 +46,19 @@ class BondTool_Command(BuildAtoms_Command):
     command_level = CL_SUBCOMMAND
     command_parent = 'DEPOSIT'
     
+    def Enter(self):
+        BuildAtoms_Command.Enter(self)
+        #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
+        self._reusePropMgr_of_parentCommand()
+        
+    def _reusePropMgr_of_parentCommand(self):
+        """
+        #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
+        """
+        commandSequencer = self.win.commandSequencer
+        previousCommand = commandSequencer.prevMode
+        if  previousCommand and  previousCommand.commandName == self.command_parent:
+            self.propMgr = previousCommand.propMgr
     
     def init_gui(self):
         pass
@@ -52,7 +68,31 @@ class BondTool_Command(BuildAtoms_Command):
     
     def getBondType(self):
         return V_SINGLE
+    
+    #TEMPORARILY override the is*ToolActive methods in BuildAtoms_Command. 
+    #These methods will go away when BuildAtoms command starts treating 
+    #each tool as a subcommand. 
+    def isAtomsToolActive(self):
+        """
+        Tells whether the Atoms Tool is active (boolean)          
+        """        
+        return False
+    
+    def isBondsToolActive(self):
+        """
+        Tells whether the Bonds Tool is active (boolean)          
+        """        
+        return True
+    
+    def isDeletBondsToolActive(self):
+        """
+        Tells whether the Delete Bonds Tool is active (boolean)          
+        """        
+        return False
+    
+#####################
 
+#classes need to be in their own module
 class SingleBondTool(BondTool_Command):
     commandName = 'SINGLE_BOND_TOOL'            
     def getBondType(self):
