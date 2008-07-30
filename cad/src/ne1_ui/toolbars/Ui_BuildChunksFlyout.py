@@ -241,7 +241,7 @@ class BuildChunksFlyout:
             
         #Atom , Bond Tools Groupbox
         change_connect(self.bondToolsActionGroup,
-                       SIGNAL("triggered(QAction *)"), self.command.changeBondTool)
+                       SIGNAL("triggered(QAction *)"), self.changeBondTool)
                 
         
         change_connect(self.transmuteAtomsAction,
@@ -434,3 +434,54 @@ class BuildChunksFlyout:
             cursor_id = 0 
                     
         return cursor_id
+    
+    
+    def changeBondTool(self, action):
+        """
+        Change the bond tool (e.g. single, double, triple, aromatic 
+        and graphitic) depending upon the checked action.
+        @param: action is the checked bond tool action in the 
+        bondToolsActionGroup
+        """       
+        bondTypeString = ''
+        delete_bonds_bet_selected_atoms = False
+        state = action.isChecked()
+        if action ==  self.bond1Action:
+            self._enterBondToolCommand('SINGLE_BOND_TOOL')            
+            bondTypeString = 'single bonds.'
+        elif action == self.bond2Action:
+            self._enterBondToolCommand('DOUBLE_BOND_TOOL')  
+            bondTypeString = 'double bonds.'
+        elif action == self.bond3Action:
+            self._enterBondToolCommand('TRIPLE_BOND_TOOL')  
+            bondTypeString = 'triple bonds.'
+        elif action == self.bondaAction:
+            self._enterBondToolCommand('AROMATIC_BOND_TOOL')  
+        elif action == self.bondgAction:            
+            self._enterBondToolCommand('GRAPHITIC_BOND_TOOL')  
+            bondTypeString = 'graphitic bonds.'
+        elif action == self.cutBondsAction:
+            delete_bonds_bet_selected_atoms = True
+            self._enterBondToolCommand('DELETE_BOND_TOOL') 
+                            
+        #When the bond tool is changed, also make sure to apply the new 
+        #bond tool, to the bonds between the selected atoms if any.
+        if bondTypeString:
+            self.command._convert_bonds_bet_selected_atoms(
+                delete_bonds_bet_selected_atoms = delete_bonds_bet_selected_atoms,
+                bondTypeString = bondTypeString)
+        
+    def _enterBondToolCommand(self, commandName = ''):
+        if not commandName:
+            return 
+        
+        commandSequencer = self.win.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != commandName:
+            commandSequencer.userEnterTemporaryCommand(
+                commandName)
+        else:
+            currentCommand = commandSequencer.currentCommand
+            if currentCommand.commandName == commandName:
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        
