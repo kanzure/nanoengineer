@@ -862,7 +862,11 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 # (internal error, not user error)
         else:
             node = nodeset[0]
-            res = node.edit() #e rename method!
+            #UM 20080730: if its a protein chunk, enter build protein mode
+            if hasattr(node, 'isProteinChunk') and node.isProteinChunk():
+                res = node.protein.edit(self.win)
+            else:
+                res = node.edit() #e rename method!
             if res:
                 env.history.message(res) # added by bruce 050121 for error messages
             else:
