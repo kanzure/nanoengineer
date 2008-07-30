@@ -1,10 +1,12 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 GeneratorBaseClass.py -- base class for generator dialogs or their controllers
 which supplies ok/cancel/preview logic and some other common behavior.
 Sometimes abbreviated as GBC in docstrings, comments, or identifier prefixes.
 
-$Id$
+@author: Will
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -52,8 +54,6 @@ Also needs generalization in several ways (mentioned but not fully explained):
 
 """
 
-__author__ = "Will"
-
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QApplication
 from PyQt4.Qt import QCursor
@@ -68,24 +68,21 @@ from utilities.debug import print_compact_traceback
 from utilities.constants import gensym
 from utilities.constants import permit_gensym_to_reuse_name
 
-# == private definitions
+# == public exception classes for use by our client subclasses
 
-# REVIEW: AbstractMethod should either be renamed to look private, or
-# (preferably) moved to a more general place and used more widely
-# (but ideally merged with the other 2 or 3 variants of this idea,
-#  including the exception built into Python for this purpose).
+# (these are also used independently, so they ought to be moved
+#  to constants.py or so [bruce 080730 comment])
+
+# REVIEW: AbstractMethod should ideally be merged with the other
+# 2 or 3 variants of this idea, or replaced with the exception built into
+# Python for this purpose.
 # [070724 code review]
 
 class AbstractMethod(Exception):
     def __init__(self):
         Exception.__init__(self, 'Abstract method - must be overloaded')
 
-# == public exception classes for use by our client subclasses
-
-# REVIEW: These might benefit from being renamed with a Generator_ prefix,
-# unless we decide they're more general and can be used in any Command,
-# in which case they should be moved, and some other prefix would be better.
-# They should also be taught to help print messages about themselves, so that
+# REVIEW: These should be taught to help print messages about themselves, so that
 # handlePluginExceptions doesn't need to catch each one individually. This
 # should be revisited after our overall error handling code is revised.
 # [070724 code review]
@@ -138,6 +135,10 @@ class GeneratorBaseClass:
     ### REVIEW: docstring needs reorganization, and clarification re whether all
     # generators have to inherit it
     """
+    DEPRECATED, and no longer used for supported commands as of circa 080727.
+    (Still used for some test commands, and module contains other globals
+    still in use.)
+    
     Mixin-superclass for use in the property managers of generator commands.
     In spite of the class name, this class only works when inherited *after*
     a property manager class (e.g. PM_Dialog) in a class's list of superclasses.

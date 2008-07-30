@@ -80,7 +80,7 @@ class selectMolsMode(SelectChunks_basicCommand,
         The temporary mode sends this information to the method defined in
         the previous mode called acceptParamsFromTemporaryMode and then the
         previous mode (selectMolsMode) can use it further to create a dna
-        @see: DnaLineMode, B{BuildDna_Command}, B{DnaDuplex_Command}
+        @see: DnaLineMode, B{BuildDna_EditCommand}, B{DnaDuplex_Command}
         @see: self.provideParamsForTemporaryMode
         TODO:
         - This needs to be a more general method in Command API.

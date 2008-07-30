@@ -56,17 +56,29 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     """
     abstract superclass for all Command objects, including nullCommand
     """
-    
-    command_parent = None
-    #The 'parent command' of this command. Example: BuildDna is a parent_command
-    #of BreakStrands_Command. This attr is used in a revised command stack 
-    #sceheme as of 2008-07-28 (still being developed)
-    
-    # default values for command-object attributes.  external code
-    # assumes every command has these attributes, but it should pretend
-    # they're read-only; command-related code (in this file) can override
+    # Default values for command-object or command-subclass attributes.
+    # External code assumes every command has these attributes, but it should
+    # treat them as read-only; command-related code (in this file) can override
     # them in subclasses and/or instances, and modify them directly.
 
+    # note: soon, command_level and command_parent will be inherited from
+    # a new superclass baseCommand.
+
+    from utilities.constants import CL_ABSTRACT
+    command_level = CL_ABSTRACT
+        # command_level is not yet documented, part of command stack refactoring
+    
+    command_parent = None
+        # Subclasses should set this to the commandName of the parent command
+        # they require, if any (and if that is not the default command).
+        # (Whether they require a parent command at all is determined by
+        #  their command_level attribute.)
+        #
+        # For example, BreakStrands_Command requires parent command "Build Dna",
+        # so it sets this to 'BUILD_DNA' == BuildDna_EditCommand.commandName.
+        # This attr is used in a revised command stack scheme as of 2008-07-28
+        # (still being developed).
+    
     is_null = False # overridden only in nullCommand
     
     # internal name of command, e.g. 'DEPOSIT',
