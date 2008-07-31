@@ -30,6 +30,10 @@ When no longer needed, they should be removed.
 # or any script which imports anything from NE1, such as certain
 # build scripts).
 #
+# (The problem can even occur for a non-toplevel package name,
+# but only if NE1 itself wants to import the builtin or Python library
+# module of the same basename.)
+#
 # In the long run, this ought to be cleaned up, perhaps by renaming
 # our toplevel packages to avoid those conflicts, and/or making use
 # of new import features in later versions of Python, e.g. the new
