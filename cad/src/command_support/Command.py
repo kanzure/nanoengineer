@@ -154,19 +154,24 @@ class anyCommand(object, StateMixin):
     def model_changed(self): #bruce 070925
         return
     
-    def selection_changed(self): #bruce 070925
+    def selection_changed(self): #bruce 070925 [not used outside this file as of 080731, except in docstrings/comments]
         return
 
-    def selobj_changed(self): #bruce 071116
+    def selobj_changed(self): #bruce 071116 [not mentioned outside this file as of 080731]
         return
 
-    def view_changed(self): #bruce 071116
+    def view_changed(self): #bruce 071116 [not mentioned outside this file as of 080731]
         return
 
-    def something_changed(self): #bruce 071116
+    def something_changed(self): #bruce 071116 [not used outside this file as of 080731, except in comments]
         return
     
     def state_may_have_changed(self): #bruce 070925
+        """
+        This is called after every user event (###verify).
+        Overridden only in basicCommand as of 080731 (###describe).
+        """
+        # note: called by MWsemantics.post_event_ui_updater [080731 comment]
         return
 
     def isCurrentCommand(self): #bruce 071008
@@ -1156,7 +1161,7 @@ class basicCommand(anyCommand):
     _last_selobj = -1 # not None, since that's a legal value of selobj
     _last_view_change_counter = None
     
-    def state_may_have_changed(self): #bruce 070925 added this to command API
+    def state_may_have_changed(self): #bruce 070925 added this to command API; update 080731: WILL BE REVISED SOON
         """
         Call whichever we need to of the methods
         model_changed, selection_changed, selobj_changed, view_changed,
@@ -1177,7 +1182,7 @@ class basicCommand(anyCommand):
         experimental debug_pref is set, but it should become the usual case.
 
         FYI: This is called by env.do_post_event_updates() by a registered
-        "post_event_ui_updater" set up by MWsemantics. [still true 071115]
+        "post_event_ui_updater" set up by MWsemantics. [still true 080731]
         """
         if debug_pref("call model_changed (etc) only when needed?",
                       Choice_boolean_False,
