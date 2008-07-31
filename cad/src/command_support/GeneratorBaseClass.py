@@ -1,8 +1,9 @@
 # Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-GeneratorBaseClass.py -- base class for generator dialogs or their controllers
-which supplies ok/cancel/preview logic and some other common behavior.
-Sometimes abbreviated as GBC in docstrings, comments, or identifier prefixes.
+GeneratorBaseClass.py -- DEPRECATED base class for generator dialogs
+or their controllers, which supplies ok/cancel/preview logic and some
+other common behavior. Sometimes abbreviated as GBC in docstrings,
+comments, or identifier prefixes.
 
 @author: Will
 @version: $Id$
@@ -68,66 +69,7 @@ from utilities.debug import print_compact_traceback
 from utilities.constants import gensym
 from utilities.constants import permit_gensym_to_reuse_name
 
-# == public exception classes for use by our client subclasses
-
-# (these are also used independently, so they ought to be moved
-#  to constants.py or so [bruce 080730 comment])
-
-# REVIEW: AbstractMethod should ideally be merged with the other
-# 2 or 3 variants of this idea, or replaced with the exception built into
-# Python for this purpose.
-# [070724 code review]
-
-class AbstractMethod(Exception):
-    def __init__(self):
-        Exception.__init__(self, 'Abstract method - must be overloaded')
-
-# REVIEW: These should be taught to help print messages about themselves, so that
-# handlePluginExceptions doesn't need to catch each one individually. This
-# should be revisited after our overall error handling code is revised.
-# [070724 code review]
-#
-# REVIEW: I suspect these exceptions are not handled in the best way, and in
-# particular, I am not sure it's useful to have a CadBug exception class,
-# given that any unexpected exception (of any class) also counts as a "bug
-# in the cad code".
-# [bruce 070719 comments]
-
-class CadBug(Exception):
-    """
-    Useful for distinguishing between an exception from subclass
-    code which is a bug in the cad, a report of an error in the
-    plugin, or a report of a user error.
-    """
-    def __init__(self, arg = None):
-        if arg is not None:
-            Exception.__init__(self, arg)
-        else:
-            Exception.__init__(self)
-
-class PluginBug(Exception):
-    """
-    Useful for distinguishing between an exception from subclass
-    code which is a bug in the cad, a report of an error in the
-    plugin, or a report of a user error.
-    """
-    def __init__(self, arg = None):
-        if arg is not None:
-            Exception.__init__(self, arg)
-        else:
-            Exception.__init__(self)
-
-class UserError(Exception):
-    """
-    Useful for distinguishing between an exception from subclass
-    code which is a bug in the cad, a report of an error in the
-    plugin, or a report of a user error.
-    """
-    def __init__(self, arg = None):
-        if arg is not None:
-            Exception.__init__(self, arg)
-        else:
-            Exception.__init__(self)
+from utilities.exception_classes import CadBug, PluginBug, UserError, AbstractMethod
 
 # ==
 
@@ -136,8 +78,7 @@ class GeneratorBaseClass:
     # generators have to inherit it
     """
     DEPRECATED, and no longer used for supported commands as of circa 080727.
-    (Still used for some test commands, and module contains other globals
-    still in use.)
+    (Still used for some test/example commands.)
     
     Mixin-superclass for use in the property managers of generator commands.
     In spite of the class name, this class only works when inherited *after*

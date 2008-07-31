@@ -28,7 +28,7 @@ import utilities.Initialize as Initialize
 from utilities.Log import quote_html, redmsg ##, orangemsg, greenmsg
 from command_support.ParameterDialog import ParameterDialog, ParameterPane
 from command_support.GeneratorController import GeneratorController
-from command_support.GeneratorBaseClass import UserError, PluginBug ##, CadBug
+from utilities.exception_classes import UserError, PluginBug
 from utilities.debug import print_compact_traceback
 from platform_dependent.PlatformDependent import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
 import utilities.EndUser as EndUser

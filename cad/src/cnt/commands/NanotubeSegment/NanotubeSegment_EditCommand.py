@@ -31,7 +31,7 @@ Mark 2008-03-10: Created from copy of DnaSegment_EditCommand.py
 
 import foundation.env as env
 from command_support.EditCommand       import EditCommand 
-from command_support.GeneratorBaseClass import PluginBug, UserError
+from utilities.exception_classes import PluginBug, UserError
 
 from geometry.VQT import V, Veq, vlen
 from geometry.VQT import cross, norm

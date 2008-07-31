@@ -1,9 +1,9 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-PM_MolecularModelingKit.py
+PM_MolecularModelingKit.py - Atom Chooser widget
 
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  All rights reserved.
+@copyright: 2006-2008 Nanorex, Inc.  All rights reserved.
 
 """
 
@@ -15,7 +15,7 @@ from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 from utilities.constants import diTUBES
 from utilities.debug import print_compact_traceback
 
-from command_support.GeneratorBaseClass import AbstractMethod
+from utilities.exception_classes import AbstractMethod
 
 
 class PM_MolecularModelingKit( PM_GroupBox ):

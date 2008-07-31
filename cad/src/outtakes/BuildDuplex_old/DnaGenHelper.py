@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaGenHelper.py -- DNA generator helper classes, based on empirical data.
 
@@ -7,7 +7,7 @@ It is used only in DnaGenerator.py, also superseded.
 
 @author: Will Ware
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -52,7 +52,7 @@ from files.mmp.files_mmp import readmmp
 from geometry.VQT import V
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log import orangemsg
-from command_support.GeneratorBaseClass import PluginBug
+from utilities.exception_classes import PluginBug
 
 from dna.model.Dna_Constants import basesDict, dnaDict
 

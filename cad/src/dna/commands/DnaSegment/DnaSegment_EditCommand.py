@@ -24,7 +24,7 @@ While in this command, user can
 
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 Ninad 2008-01-18: Created
@@ -37,7 +37,7 @@ TODO:
 
 import foundation.env as env
 from command_support.EditCommand       import EditCommand 
-from command_support.GeneratorBaseClass import PluginBug, UserError
+from utilities.exception_classes import PluginBug, UserError
 
 from geometry.VQT import V, Veq, vlen
 from geometry.VQT import cross, norm

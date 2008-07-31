@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 MotorPropertyManager.py
 
 @author: Ninad
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 from PyQt4.Qt import QColorDialog
@@ -15,9 +15,8 @@ from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_Constants     import PM_PREVIEW_BUTTON, PM_RESTORE_DEFAULTS_BUTTON
 from widgets.widget_helpers import QColor_to_RGBf
 
-from command_support.GeneratorBaseClass import AbstractMethod
+from utilities.exception_classes import AbstractMethod
 from command_support.EditCommand_PM import EditCommand_PM
-
 
 from utilities.debug import print_compact_traceback
 

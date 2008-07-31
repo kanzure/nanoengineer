@@ -4,6 +4,7 @@ EditCommand.py
 
 @author: Bruce Smith, Mark Sims, Ninad Sathaye, Will Ware
 @version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -37,7 +38,7 @@ import foundation.changes as changes
 from utilities.Comparison import same_vals
 
 from utilities.constants import permit_gensym_to_reuse_name
-from command_support.GeneratorBaseClass import AbstractMethod
+from utilities.exception_classes import AbstractMethod
 
 from commands.Select.Select_Command import Select_Command
 from utilities.debug import print_compact_stack

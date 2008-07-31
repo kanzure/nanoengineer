@@ -1,9 +1,8 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
-
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 @author: Ninad
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 This is a superclass for the property managers of various objects that use
 EditCommand for generating the object. e.g. PlanePropertyManager inherits
@@ -16,7 +15,7 @@ import foundation.env as env
 from PM.PM_Dialog import PM_Dialog
 from PyQt4.Qt import SIGNAL
 
-from command_support.GeneratorBaseClass import AbstractMethod
+from utilities.exception_classes import AbstractMethod
 from utilities.icon_utilities import geticon
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 

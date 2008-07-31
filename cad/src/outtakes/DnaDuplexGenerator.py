@@ -1,10 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaDuplexGenerator.py
 
 @author: Mark Sims
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -12,14 +12,13 @@ Mark 2007-10-18:
 - Created. Major rewrite of DnaGenerator.py.
 """
 
-__author__ = "Mark"
-
 from foundation.Group import Group
 from utilities.Log  import redmsg, greenmsg
 from geometry.VQT import V, Veq
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
 
-from command_support.GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
+from command_support.GeneratorBaseClass import GeneratorBaseClass
+from utilities.exception_classes import CadBug, PluginBug, UserError
 from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
 ############################################################################

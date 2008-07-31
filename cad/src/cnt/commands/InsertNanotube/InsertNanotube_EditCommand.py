@@ -31,7 +31,7 @@ from cnt.model.NanotubeSegment import NanotubeSegment
 from utilities.Log  import greenmsg
 from geometry.VQT import V, vlen
 
-from command_support.GeneratorBaseClass import PluginBug, UserError
+from utilities.exception_classes import PluginBug, UserError
 from cnt.commands.InsertNanotube.InsertNanotube_PropertyManager import InsertNanotube_PropertyManager
 
 from utilities.constants import gensym

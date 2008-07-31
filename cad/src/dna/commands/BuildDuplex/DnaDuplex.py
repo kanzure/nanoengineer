@@ -22,7 +22,7 @@ from files.mmp.files_mmp import readmmp
 from geometry.VQT import Q, V, angleBetween, cross, vlen
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
-from command_support.GeneratorBaseClass import PluginBug
+from utilities.exception_classes import PluginBug
 from utilities.constants import gensym
 from utilities.prefs_constants import dnaDefaultStrand1Color_prefs_key
 from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key

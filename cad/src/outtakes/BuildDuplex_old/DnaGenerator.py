@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaGenerator.py
 
@@ -6,7 +6,7 @@ WARNING: this file has been mostly superseded by DnaDuplexGenerator.py.
 
 @author: Will Ware
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -42,7 +42,8 @@ from dna.model.Dna_Constants import basesDict, getReverseSequence
 from dna.commands.BuildDuplex_old.DnaGenHelper import B_Dna_PAM3, B_Dna_PAM5
 from dna.commands.BuildDuplex_old.DnaGenHelper import basepath_ok
 
-from command_support.GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
+from command_support.GeneratorBaseClass import GeneratorBaseClass
+from utilities.exception_classes import CadBug, PluginBug, UserError
 from dna.commands.BuildDuplex_old.DnaGeneratorPropertyManager import DnaGeneratorPropertyManager
 
 ############################################################################

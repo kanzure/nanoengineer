@@ -24,7 +24,7 @@ BUGS:
 from command_support.EditCommand import EditCommand
 from dna.model.DnaGroup import DnaGroup
 from utilities.Log  import greenmsg
-from command_support.GeneratorBaseClass import PluginBug, UserError
+from utilities.exception_classes import PluginBug, UserError
 
 from utilities.constants import gensym
 

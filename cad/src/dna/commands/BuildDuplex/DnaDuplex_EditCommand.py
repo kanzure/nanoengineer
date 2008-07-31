@@ -42,7 +42,7 @@ from geometry.VQT import V, Veq, vlen
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM5
 
-from command_support.GeneratorBaseClass import PluginBug, UserError
+from utilities.exception_classes import PluginBug, UserError
 from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
 from utilities.constants import gensym
