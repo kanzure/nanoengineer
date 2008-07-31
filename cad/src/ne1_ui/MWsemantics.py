@@ -1563,10 +1563,6 @@ class MWsemantics(QMainWindow,
         self.commandSequencer.userEnterCommand('BUILD_GRAPHENE')
         self.commandSequencer.currentCommand.runCommand()
 
-    def generateNanotube(self):
-        self.ensureInCommand('SELECTMOLS')
-        self.nanotubecntl.show()
-
     # Build > CNT related slots and methods. ######################
 
     def activateNanotubeTool(self):
@@ -1599,24 +1595,13 @@ class MWsemantics(QMainWindow,
         @type  isChecked: boolean
         @see: B{Ui_NanotubeFlyout.activateInsertNanotubeLine_EditCommand}
         """
-        # New Nanotube Builder or old Nanotube Generator?
-        if debug_pref("Use new 'Build > Nanotube' builder? (next session)",
-                      Choice_boolean_True,
-                      prefs_key = "A10 devel/Old Nanotube Generator"):
-
-            # REVIEW: the following could probably be turned into a call of
-            # self.enterOrExitTemporaryCommand. [bruce 080730 comment]
-            commandSequencer = self.commandSequencer
-            currentCommand = commandSequencer.currentCommand
-            if currentCommand.commandName != "INSERT_NANOTUBE":
-                commandSequencer.userEnterTemporaryCommand('INSERT_NANOTUBE')
-                assert commandSequencer.currentCommand.commandName == 'INSERT_NANOTUBE'
-                commandSequencer.currentCommand.runCommand()
-            else:
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-        else:
-            if isChecked:
-                self.nanotubecntl.show()
+        
+        self.enterOrExitTemporaryCommand('INSERT_NANOTUBE')
+        
+        currentCommand = self.commandSequencer.currentCommand
+        if currentCommand.commandName == "INSERT_NANOTUBE":
+            currentCommand.runCommand()
+            
 
     def createBuildNanotubePropMgr_if_needed(self, editCommand):
         """
@@ -1745,91 +1730,40 @@ class MWsemantics(QMainWindow,
     def enterBreakStrandCommand(self, isChecked = False):
         """
         """
+        #REVIEW- arg isChecked is unused. Need to revise this this in several 
+        #methods-- Ninad 2008-07-31
         self.enterOrExitTemporaryCommand( 'BREAK_STRANDS' )
-##        commandSequencer = self.commandSequencer
-##        currentCommand = commandSequencer.currentCommand
-##        if currentCommand.commandName != "BREAK_STRANDS":
-##            commandSequencer.userEnterTemporaryCommand(
-##                'BREAK_STRANDS')
-##        else:
-##            currentCommand = self.commandSequencer.currentCommand
-##            if currentCommand.commandName == 'BREAK_STRANDS':
-##                currentCommand.Done(exit_using_done_or_cancel_button = False)
-
-    # REVIEW: I think most method bodies below this point, which now
-    # call userEnterTemporaryCommand (of which there are 10 or 12),
-    # could be entirely replaced by calls of self.enterOrExitTemporaryCommand,
-    # as I did for this method. [bruce 080730 comment]
     
     def enterJoinStrandsCommand(self, isChecked = False):
         """
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "JOIN_STRANDS":
-            commandSequencer.userEnterTemporaryCommand('JOIN_STRANDS')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'JOIN_STRANDS':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-
+        self.enterOrExitTemporaryCommand( 'JOIN_STRANDS' )       
 
     def enterMakeCrossoversCommand(self, isChecked = False):
         """
         Enter make crossovers command.
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "MAKE_CROSSOVERS":
-            commandSequencer.userEnterTemporaryCommand('MAKE_CROSSOVERS')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'MAKE_CROSSOVERS':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-
+        self.enterOrExitTemporaryCommand( 'MAKE_CROSSOVERS' )        
 
     def enterOrderDnaCommand(self, isChecked = False):
         """
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "ORDER_DNA":
-            commandSequencer.userEnterTemporaryCommand('ORDER_DNA')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'ORDER_DNA':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        self.enterOrExitTemporaryCommand('ORDER_DNA')        
 
     def enterDnaDisplayStyleCommand(self, isChecked = False):
         """
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "EDIT_DNA_DISPLAY_STYLE":
-            commandSequencer.userEnterTemporaryCommand('EDIT_DNA_DISPLAY_STYLE')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'EDIT_DNA_DISPLAY_STYLE':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-
-    #UM 063008: protein flyout toolbar commands
-    
+        self.enterOrExitTemporaryCommand('EDIT_DNA_DISPLAY_STYLE')
+        
+    #UM 063008: protein flyout toolbar commands    
     def activateProteinTool(self):
         """
         Activates the Protein toolbar.
         """
-        
-        # piotr 080710
-        # If "Enable Proteins" is set to False, use old Peptide Generator instead.
-        from protein.model.Protein import enableProteins 
-        
-        if not enableProteins:
-            self.insertPeptide()
-        else:
-            commandSequencer = self.commandSequencer
-            commandSequencer.userEnterCommand('BUILD_PROTEIN')
-            assert commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
-            commandSequencer.currentCommand.runCommand()
+        commandSequencer = self.commandSequencer
+        commandSequencer.userEnterCommand('BUILD_PROTEIN')
+        assert commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
+        commandSequencer.currentCommand.runCommand()
         return
     
     def createBuildProteinPropMgr_if_needed(self, editCommand):
@@ -1859,19 +1793,13 @@ class MWsemantics(QMainWindow,
                           checked, enter insertPeptideMode. 
         @type isChecked: bool
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand        
         
-        if currentCommand.commandName != "BUILD_PEPTIDE":
-            commandSequencer.userEnterTemporaryCommand(
-                'BUILD_PEPTIDE')
-            self.commandSequencer.currentCommand.runCommand()
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'BUILD_PEPTIDE':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-
-              
+        self.enterOrExitTemporaryCommand('BUILD_PEPTIDE')     
+        
+        currentCommand = self.commandSequencer.currentCommand      
+        if currentCommand.commandName == "BUILD_PEPTIDE":
+            currentCommand.runCommand()
+        
     def enterProteinDisplayStyleCommand(self, isChecked = False):
         """
         Enter protein display style command
@@ -1880,16 +1808,8 @@ class MWsemantics(QMainWindow,
                           checked, enter ProteinDisplayStyleMode. 
         @type isChecked: bool
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "EDIT_PROTEIN_DISPLAY_STYLE":
-            commandSequencer.userEnterTemporaryCommand(
-                'EDIT_PROTEIN_DISPLAY_STYLE')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'EDIT_PROTEIN_DISPLAY_STYLE':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-        return
+        self.enterOrExitTemporaryCommand('EDIT_PROTEIN_DISPLAY_STYLE')
+        
     
     def enterEditRotamersCommand(self, isChecked = False):
         """
@@ -1899,17 +1819,8 @@ class MWsemantics(QMainWindow,
                           checked, enter enterEditRotamersMode. 
         @type isChecked: bool
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "EDIT_ROTAMERS":
-            commandSequencer.userEnterTemporaryCommand(
-                'EDIT_ROTAMERS')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'EDIT_ROTAMERS':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-        return
-    
+        self.enterOrExitTemporaryCommand('EDIT_ROTAMERS')
+            
         
     def enterEditResiduesCommand(self, isChecked = False):
         """
@@ -1919,17 +1830,8 @@ class MWsemantics(QMainWindow,
                           checked, enter enterEditResiduesMode. 
         @type isChecked: bool
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "EDIT_RESIDUES":
-            commandSequencer.userEnterTemporaryCommand(
-                'EDIT_RESIDUES')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'EDIT_RESIDUES':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-        return
-    
+        self.enterOrExitTemporaryCommand('EDIT_RESIDUES')
+            
     def enterCompareProteinsCommand(self, isChecked = False):
         """
         Enter compare proteins command
@@ -1938,31 +1840,15 @@ class MWsemantics(QMainWindow,
                           checked, enter enterCompareProteinsMode. 
         @type isChecked: bool
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "COMPARE_PROTEINS":
-            commandSequencer.userEnterTemporaryCommand(
-                'COMPARE_PROTEINS')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'COMPARE_PROTEINS':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-        return
+        self.enterOrExitTemporaryCommand('COMPARE_PROTEINS')
+       
 
     def enterStereoPropertiesCommand(self):
         """
         Enter Stereo Properties Command
         """
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "STEREO_PROPERTIES":
-            commandSequencer.userEnterTemporaryCommand(
-                'STEREO_PROPERTIES')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'STEREO_PROPERTIES':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-                
+        self.enterOrExitTemporaryCommand('STEREO_PROPERTIES')
+                        
                 
     def enterQuteMolCommand(self):
         """
@@ -1981,17 +1867,12 @@ class MWsemantics(QMainWindow,
                           using the new DNADuplexEditCommand command.
         @type  isChecked: boolean
         @see: B{Ui_DnaFlyout.activateDnaDuplex_EditCommand}
-        """       
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "DNA_DUPLEX":
-            commandSequencer.userEnterTemporaryCommand('DNA_DUPLEX')
-            assert commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
-            commandSequencer.currentCommand.runCommand()
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'DNA_DUPLEX':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        """   
+        self.enterOrExitTemporaryCommand('DNA_DUPLEX')
+        
+        currentCommand = self.commandSequencer.currentCommand
+        if currentCommand.commandName == 'DNA_DUPLEX':
+            currentCommand.runCommand()
 
     def orderDna(self, dnaGroupList = ()):
         """
@@ -2726,31 +2607,14 @@ class MWsemantics(QMainWindow,
         """
         This is a slot method for invoking the B{Color Scheme} command.
         """
-
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "COLOR_SCHEME":
-            commandSequencer.userEnterTemporaryCommand('COLOR_SCHEME')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'COLOR_SCHEME':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-        return
+        self.enterOrExitTemporaryCommand('COLOR_SCHEME') 
                 
     def lightingSchemeCommand(self):
         """
         This is a slot method for invoking the B{Lighting Scheme} command.
         """
+        self.enterOrExitTemporaryCommand('LIGHTING_SCHEME')
         
-        commandSequencer = self.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "LIGHTING_SCHEME":
-            commandSequencer.userEnterTemporaryCommand('LIGHTING_SCHEME')
-        else:
-            currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'LIGHTING_SCHEME':
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
-        return
                 
     def toggleRulers(self, isChecked):
         """

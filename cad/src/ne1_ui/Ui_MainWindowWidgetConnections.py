@@ -157,7 +157,6 @@ def setupUi(win):
     win.connect(win.buildDnaAction,SIGNAL("triggered()"),win.activateDnaTool)
     win.connect(win.buildNanotubeAction,SIGNAL("triggered()"),win.activateNanotubeTool)
     win.connect(win.insertCommentAction,SIGNAL("triggered()"),win.insertComment)
-    win.connect(win.nanotubeGeneratorAction,SIGNAL("triggered()"),win.generateNanotube)
     win.connect(win.insertGrapheneAction,SIGNAL("triggered()"),win.insertGraphene)
 
     win.connect(win.jigsAnchorAction,SIGNAL("triggered()"),win.makeAnchor)
