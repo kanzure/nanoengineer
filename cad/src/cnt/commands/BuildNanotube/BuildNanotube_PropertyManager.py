@@ -146,20 +146,8 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def model_changed(self):
         """       
         When the editCommand is treated as a 'command' by the 
-        commandSequencer. this method will override basicCommand.model_changed.
-        
-        @WARNING: Ideally this property manager should implement both
-               model_changed and selection_changed methods in the mode/command
-               API. 
-               model_changed method will be used here when the selected atom is 
-               dragged, transmuted etc. The selection_changed method will be 
-               used when the selection (picking/ unpicking) changes. 
-               At present, selection_changed and model_changed methods are 
-               called too frequently that it doesn't matter which one you use. 
-               Its better to use only a single method for preformance reasons 
-               (at the moment). This should change when the original 
-               methods in the API are revised to be called at appropiraite 
-               time. 
+        commandSequencer, this method will override basicCommand.model_changed.
+        For more info, see BuildAtomsPropertyManager.model_changed docstring.
         """  
         newSelectionParams = self._currentSelectionParams()          
         if same_vals(newSelectionParams, self.previousSelectionParams):
@@ -179,15 +167,9 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #Update the segmment list widgets. 
         #Ideally it should only update when the structure is modified 
         #example --when structure is deleted. But as of 2008-02-21
-        #this feature is not easily available in the API method. 
-        #see Command class for some proposed methods such as 'something_changed'
-        #etc. The list widgets are updated even when selection changes.         
-        #NOTE: If this is called before listwidget's 'updateSelection' call, 
-        #done above, it 'may give' (as of 2008-02-25, it is unlikely to happen 
-        #because of a better implementation)  C/C++ object deleted errors. 
-        #So better to do it in the end. Cause -- unknown. 
-        #Guess : something to do with clearing the widget list and them readding
-        #items (done by self.updateListWidgets)
+        #this feature is not easily available in the API method.
+        # For more info, see similar comment in BuildDna_PropertyManager.model_changed.
+        # ...
         #..This probably interferes with the selection
         #within that list. So better to do it after updating the selection.
         #if not same_vals(self.strandListWidget.count(), 
@@ -196,10 +178,6 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                       
     def _currentSelectionParams(self):
         """
-        This needs commandSequencer to treat various 
-        edit controllers as commands. Until then, the 'model_changed' method 
-        (and thus this method) will never be called.
-        
         Returns a tuple containing current selection parameters. These 
         parameters are then used to decide whether updating widgets
         in this property manager is needed when L{self.model_changed} or 
@@ -210,7 +188,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                    - Position vector of the single selected atom or None
         @rtype:  tuple
         @NOTE: The method name may be renamed in future. 
-        Its possible that there are other groupboxes in the PM that need to be 
+        It's possible that there are other groupboxes in the PM that need to be 
         updated when something changes in the glpane.        
         """
          
@@ -225,9 +203,9 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Return current structure parameters of interest to self.model_changed. 
         Right now it only returns the number of strands within the structure
-        (or None) .  This is a good enough check (and no need to compare 
-        each and evry strand within the structure with a previously stored 
-        set of strands)         
+        (or None). This is a good enough check (and no need to compare 
+        each and every strand within the structure with a previously stored 
+        set of strands).     
         """
         #Can it happen that the total number of strands remains the same even 
         #after some alterations to the strands? Unlikely. (Example: a single

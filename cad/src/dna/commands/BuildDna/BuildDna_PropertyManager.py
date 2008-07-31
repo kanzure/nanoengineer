@@ -157,20 +157,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def model_changed(self):
         """       
         When the editCommand is treated as a 'command' by the 
-        commandSequencer. this method will override basicCommand.model_changed.
-        
-        @WARNING: Ideally this property manager should implement both
-               model_changed and selection_changed methods in the mode/command
-               API. 
-               model_changed method will be used here when the selected atom is 
-               dragged, transmuted etc. The selection_changed method will be 
-               used when the selection (picking/ unpicking) changes. 
-               At present, selection_changed and model_changed methods are 
-               called too frequently that it doesn't matter which one you use. 
-               Its better to use only a single method for preformance reasons 
-               (at the moment). This should change when the original 
-               methods in the API are revised to be called at appropiraite 
-               time. 
+        commandSequencer, this method will override basicCommand.model_changed.
+        For more info, see BuildAtomsPropertyManager.model_changed docstring.
         """  
         
         newSelectionParams = self._currentSelectionParams()   
@@ -236,10 +224,6 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                       
     def _currentSelectionParams(self):
         """
-        This needs commandSequencer to treat various 
-        edit controllers as commands. Until then, the 'model_changed' method 
-        (and thus this method) will  never be called.
-        
         Returns a tuple containing current selection parameters. These 
         parameters are then used to decide whether updating widgets
         in this property manager is needed when L{self.model_changed} or 
@@ -250,7 +234,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                    - Position vector of the single selected atom or None
         @rtype:  tuple
         @NOTE: The method name may be renamed in future. 
-        Its possible that there are other groupboxes in the PM that need to be 
+        It's possible that there are other groupboxes in the PM that need to be 
         updated when something changes in the glpane.        
         """
          
@@ -266,9 +250,9 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Return current structure parameters of interest to self.model_changed. 
         Right now it only returns the number of strands within the structure
-        (or None) .  This is a good enough check (and no need to compare 
-        each and evry strand within the structure with a previously stored 
-        set of strands)         
+        (or None). This is a good enough check (and no need to compare 
+        each and every strand within the structure with a previously stored 
+        set of strands).
         """
         #Can it happen that the total number of strands remains the same even 
         #after some alterations to the strands? Unlikely. (Example: a single
