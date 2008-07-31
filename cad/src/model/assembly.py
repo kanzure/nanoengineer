@@ -199,6 +199,18 @@ class Assembly( StateMixin, Assembly_API):
         """
         return self._model_change_counter, self._selection_change_counter, self._view_change_counter
 
+    def model_change_counter(self): #bruce 080731
+        # todo: ensure it's up to date
+        return self._model_change_counter
+
+    def selection_change_counter(self): #bruce 080731
+        # todo: ensure it's up to date
+        return self._selection_change_counter
+
+    def view_change_counter(self): #bruce 080731
+        # todo: ensure it's up to date
+        return self._view_change_counter
+    
     # state declarations:
     # (the change counters above should not have ordinary state decls -- for now, they should have none)
     
