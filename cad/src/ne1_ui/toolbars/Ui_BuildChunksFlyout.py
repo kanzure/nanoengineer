@@ -241,7 +241,7 @@ class BuildChunksFlyout:
             
         #Atom , Bond Tools Groupbox
         change_connect(self.bondToolsActionGroup,
-                       SIGNAL("triggered(QAction *)"), self.changeBondTool)
+                       SIGNAL("triggered(QAction *)"), self._changeBondTool)
                 
         
         change_connect(self.transmuteAtomsAction,
@@ -435,46 +435,34 @@ class BuildChunksFlyout:
                     
         return cursor_id
     
-    
-    def changeBondTool(self, action):
+    def _changeBondTool(self, action):
         """
         Change the bond tool (e.g. single, double, triple, aromatic 
         and graphitic) depending upon the checked action.
         @param: action is the checked bond tool action in the 
         bondToolsActionGroup
-        """       
-        bondTypeString = ''
-        delete_bonds_bet_selected_atoms = False
-        state = action.isChecked()
-        if action ==  self.bond1Action:
-            self._enterToolsCommand('SINGLE_BOND_TOOL')            
-            bondTypeString = 'single bonds.'
-        elif action == self.bond2Action:
-            self._enterToolsCommand('DOUBLE_BOND_TOOL')  
-            bondTypeString = 'double bonds.'
-        elif action == self.bond3Action:
-            self._enterToolsCommand('TRIPLE_BOND_TOOL')  
-            bondTypeString = 'triple bonds.'
-        elif action == self.bondaAction:
-            self._enterToolsCommand('AROMATIC_BOND_TOOL')  
-        elif action == self.bondgAction:            
-            self._enterToolsCommand('GRAPHITIC_BOND_TOOL')  
-            bondTypeString = 'graphitic bonds.'
-        elif action == self.cutBondsAction:
-            delete_bonds_bet_selected_atoms = True
-            self._enterToolsCommand('DELETE_BOND_TOOL') 
-                            
-        #When the bond tool is changed, also make sure to apply the new 
-        #bond tool, to the bonds between the selected atoms if any.
-        if bondTypeString:
-            self.command._convert_bonds_bet_selected_atoms(
-                delete_bonds_bet_selected_atoms = delete_bonds_bet_selected_atoms,
-                bondTypeString = bondTypeString)
-        
+        """   
+
+        bondTool_commandName = 'BOND_TOOL'
+    
+        if action is self.bond1Action:
+            bondTool_commandName = 'SINGLE_BOND_TOOL'
+        elif action is self.bond2Action:
+            bondTool_commandName = 'DOUBLE_BOND_TOOL'            
+        elif action is self.bond3Action:
+            bondTool_commandName = 'TRIPLE_BOND_TOOL' 
+        elif action is self.bondaAction:
+            bondTool_commandName = 'AROMATIC_BOND_TOOL' 
+        elif action is self.bondgAction:            
+            bondTool_commandName = 'GRAPHITIC_BOND_TOOL'  
+        elif action is self.cutBondsAction:
+            bondTool_commandName = 'DELETE_BOND_TOOL'
+            
+        self.command.enterToolsCommand(bondTool_commandName)
+   
     def _enterToolsCommand(self, commandName = ''):
         if not commandName:
-            return 
-        
+            return         
         commandSequencer = self.win.commandSequencer
         currentCommand = commandSequencer.currentCommand
         commandSequencer.userEnterTemporaryCommand( commandName)
@@ -486,7 +474,7 @@ class BuildChunksFlyout:
         and show all others the others.
         """
         self.command.activateAtomsTool()
-        self._enterToolsCommand('ATOMS_TOOL')
+        self.command.enterToolsCommand('ATOMS_TOOL')
         
     def _activateBondsTool(self):
         """
@@ -495,12 +483,14 @@ class BuildChunksFlyout:
         and hide the others.
         @see:self._convert_bonds_bet_selected_atoms()
         """  
+        
         self.command.activateBondsTool()
+        self._supress_apply_bondTool_on_selected_atoms = True
+        
         checked_action = self.bondToolsActionGroup.checkedAction()
-        if checked_action:
-            self.changeBondTool(action = checked_action)
-        else:
-            self._enterToolsCommand('BOND_TOOL')
+        #note: its okay if the check_action is None
+        self._changeBondTool(action = checked_action)
+        self._supress_apply_bondTool_on_selected_atoms = False
             
             
     
