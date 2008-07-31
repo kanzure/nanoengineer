@@ -8,7 +8,7 @@ GMX_VERSION="3.3.3"
 QMX_VERSION="0.5.1"
 NE1_VERSION="1.1.1"
 TAR_DIR="/tmp/dist_tars"
-FORCE_REMOVE=1
+FORCE_REMOVE=0
 cd ..
 TOP_LEVEL=`pwd`
 
