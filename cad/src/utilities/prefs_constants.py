@@ -796,7 +796,7 @@ prefs_table = (
     ('', 'boolean', breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key, True),
     ('', 'color', breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
-    ('', 'color', breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
+    ('', 'color', breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),
     
     ('', 'int', breakStrandsCommand_numberOfBasesBeforeNextBreak_prefs_key, 5),
 
