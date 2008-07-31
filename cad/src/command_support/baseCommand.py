@@ -26,7 +26,7 @@ class baseCommand(object):
     command_level = CL_ABSTRACT
         #doc
     
-    command_parent = None # TODO: rename this to command_parent_commandName or command_parent_name or ... ###
+    command_parent = None # TODO: rename this to command_parentName or ... ###
         # Subclasses should set this to the commandName of the parent command
         # they require, if any (and if that is not the default command).
         # (Whether they require a parent command at all is determined by
@@ -267,6 +267,51 @@ class baseCommand(object):
 
         @note: Called by base class implementation of command_entered.
         """
+        return
+
+    # == update methods
+
+    def command_update_state(self): ### tentative; details under discussion;
+        ### need to figure out how to call it (see calls of model_changed etc, also undo system, also win_update etc)
+        """
+        This is called by the command sequencer at the end of any user event
+        that may have changed the command stack, model, or selection.
+        
+        [### Under discussion [see comment for initial outcome]:
+         Do we retain separate methods model_changed, selection_changed?
+         If so, are they also called at the ends of user events (guess yes)?
+         If so, before this method (guess yes)?]
+
+        Specific commands should override this to update their state
+        (and that of their property manager, if any)
+        based on the current model and selection, their prior state, etc.
+        For any command that has a "state machine", its logic should be
+        implemented within this method.
+
+        This method can itself modify the command stack, either by exiting
+        this command or entering another command (normally or as a
+        request command) (#doc the specific methods to be used in each case).
+        
+        If this method changes the command stack, the command sequencer calls
+        this method again on the new current command. But to protect against
+        infinite recursion, it never calls it twice on the same command
+        (even after intervening calls on other commands) during the same user
+        event. [###discuss -- are exceptions to that ever needed? will it call
+        model_changed etc on all the commands it calls this on? maybe simplest
+        if we eliminate those other changed methods... let commands query
+        change counters if they want to optimize for those things not changing. ###]
+
+        [many subclasses must override or extend this method; when extending,
+         see superclass documentation to decide when to call the superclass
+         method]
+        """
+        ### discuss: should basicCommand implem (in basicCommand, not in this class)
+        # call any similar update method on self.propMgr?
+
+        # note: initial discussion outcome: just have this called in place of (or for now, by)
+        # existing method state_may_have_changed, and rename model_changed to it,
+        # or (for now) have it call that, and discard the other methods like selection_changed
+        # and 4 or so others, and have this method in subclasses look at change counters on its own.
         return
     
     # == other methods
