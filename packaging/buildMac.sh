@@ -8,6 +8,12 @@ MAJOR=`echo $VERSION_NUM | cut -d "." -f 1`
 MINOR=`echo $VERSION_NUM | cut -d "." -f 2`
 TINY=`echo $VERSION_NUM | cut -d "." -f 3`
 
+# set up a directory to store pre-built stuff
+if [ ! -e ~/MacOSX_Installers ]
+then
+  mkdir ~/MacOSX_Installers
+fi
+
 # Set up path variables
 cd ..
 TOP_LEVEL=`pwd`
@@ -247,3 +253,8 @@ cd $TOP_LEVEL/packaging
 # For the plain-Jane installer
 #hdiutil create -srcfolder $DIST_ROOT/$DIST_VERSION -format UDZO $DIST_ROOT/${DIST_VERSION}.dmg
 
+if [ ! -e ~/MacOSX_Installers/$DIST_NAME.pkg ]
+then
+  sudo cp -R $TOP_LEVEL/cad/src/build/$DIST_VERSION/$DIST_VERSION.pkg ~/MacOSX_Installers
+  cp $TOP_LEVEL/cad/src/build/${DIST_VERSION}.dmg ~/MacOSX_Installers
+fi
