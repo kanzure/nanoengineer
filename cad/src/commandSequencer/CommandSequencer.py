@@ -585,7 +585,7 @@ class modeMixin(object):
 
     # ==
 
-    def find_innermost_command_named(commandName, starting_from = None):
+    def find_innermost_command_named(self, commandName, starting_from = None):
         """
         @return: the innermost command with the given commandName attribute,
                  or None if no such command is found.
