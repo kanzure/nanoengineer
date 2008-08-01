@@ -98,6 +98,8 @@ class Group(NodeWithAtomContents):
             self.addchild(ob)
 
         #@Note: subclasses use this argument in self.edit()
+        # REVIEW: is defining this in the superclass Group,
+        # which no longer uses it, still justified? [bruce 080801 question]
         self.editCommand = editCommand
 
         return
@@ -972,19 +974,6 @@ class Group(NodeWithAtomContents):
         # default implem, for subclasses meant for new model objects
         del mapping
         return self.__class__
-
-# probably not needed (based on Ninad reply to Bruce email query, 080414 late;
-#  if this is confirmed, we can remove it entirely after the release --
-#  and maybe we can remove everything about editCommand from this class?
-#  I don't know...):
-##    def _copy_editCommand_to_copy_of_self_if_desirable(self, new): #bruce 080414, total guess
-##        """
-##        New is a copy or partial copy of self. If it is a good idea to do so,
-##        copy self.editCommand to new.editCommand.
-##        """
-##        if not new.editCommand and self.editCommand and new.assy is self.assy:
-##            new.editCommand = self.editCommand
-##        return
 
     def copy_with_provided_copied_partial_contents( self, name, assy, dad, members): #bruce 080414
         """
