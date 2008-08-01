@@ -35,7 +35,9 @@ class baseCommand(object):
         # For example, BreakStrands_Command requires parent command "Build Dna",
         # so it sets this to 'BUILD_DNA' == BuildDna_EditCommand.commandName.
 
-    # default values of instance variables
+    # default values of instance variables; properties; access methods
+
+    # - related to parentCommand
     
     _parentCommand = None # parent command object, when self is on command stack
     
@@ -51,6 +53,22 @@ class baseCommand(object):
         @rtype: boolean
         """
         return self._parentCommand is not None
+
+    # - related to a command's property manager (PM)
+    
+    command_has_its_own_gui = True ### note: this might be renamed, or removed
+    
+    propMgr = None ### note: this might be renamed, and probably ought to be private
+
+    def get_propertyManager(self): ### note: might become a get method for self.propertyManager
+        """
+        @return: the property manager object to use when this command is current
+                 (or when its subcommands don't have a PM of their own).
+        """
+        if self.command_has_its_own_gui:
+            return self.propMgr # might be None
+        else:
+            return self.parentCommand and self.parentCommand.get_propertyManager()
     
     # == exit-related methods
     
@@ -124,10 +142,23 @@ class baseCommand(object):
         [subclasses should extend this as needed. typically calling
          superclass implementation at the end]
         """
+        # note: we call these in the reverse order of how
+        # command_entered calls the corresponding _enter_ methods.
         self.command_exit_misc_actions()
         self.command_exit_flyout()
+        self.command_exit_PM()
         return
+    
+    def command_exit_PM(self):
+        """
+        Do whatever needs to be done to a command's PM
+        when the command is about to exit. (Usually,
+        nothing needs to be done.)
 
+        [subclasses should override this as needed]
+        """
+        return
+    
     def command_exit_flyout(self):
         """
         Undo whatever was done (to the parent command's flyout toolbar)
@@ -145,7 +176,7 @@ class baseCommand(object):
         [subclasses should override this as needed]
         """
         return
-    
+
     def _command_do_exit(self):
         """
         [private]
@@ -247,8 +278,34 @@ class baseCommand(object):
         [subclasses should extend as needed, typically calling superclass
          implementation at the start]
         """
+        self.command_enter_PM()
         self.command_enter_flyout()
         self.command_enter_misc_actions()
+        return
+
+    def command_enter_PM(self):
+        """
+        Do whatever needs to be done to a command's PM object (self.propMgr)
+        when a command has just been entered (but don't show that PM).
+        
+        (Often, nothing needs to be done, since signals should typically
+        be connected just once when the PM is first created. But it's legal
+        for the PM to not yet exist, and be created and connected and have
+        its state initialized by this method, the first time this method
+        is called for a given command object.)
+
+        @note: Called by base class implementation of command_entered.
+               Assuming command_entered, if extended, still calls this method,
+               then each time self is entered, this method will always be called
+               before the first call of self.get_propertyManager().
+
+        @note: a command which uses its parentCommand's PM is allowed to
+               perform side effects on that PM during this method, but this
+               is only safe if the parent command and PM are of the expected
+               class and have been coded with this in mind.
+
+        [subclasses should override as needed]
+        """
         return
 
     def command_enter_flyout(self):
@@ -257,6 +314,8 @@ class baseCommand(object):
         (available as self.parentCommand).
 
         @note: Called by base class implementation of command_entered.
+
+        [subclasses should override as needed]
         """
         return
 
@@ -266,6 +325,8 @@ class baseCommand(object):
         upon entry to this command.
 
         @note: Called by base class implementation of command_entered.
+
+        [subclasses should override as needed]
         """
         return
 
