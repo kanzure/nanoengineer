@@ -26,7 +26,7 @@ from model.bond_constants import V_DOUBLE, V_AROMATIC
 from operations.bonds_from_atoms import inferBonds
 
 from Numeric import zeros, sqrt, pi, sin, cos, Float
-from geometry.VQT import norm, V
+from geometry.VQT import Q, V, norm, vlen, cross, angleBetween
 
 # Internal coordinate sets for amino acids
 # Converted from AMBER all_amino94.in file
@@ -551,17 +551,64 @@ class PeptideGenerator:
     length = 0
     prev_psi = 0
     
+    def _orient(self, chunk, pt1, pt2):
+        """
+        Orients the Peptide I{chunk} based on two points. I{pt1} is
+        the first endpoint (origin) of the Peptide. The vector I{pt1}, I{pt2}
+        defines the direction and central axis of the Peptide.
+        
+        piotr 080801: I copied this method from Nanotube Builder.
+        
+        @param pt1: The starting endpoint (origin) of the Peptide.
+        @type  pt1: L{V}
+        
+        @param pt2: The second point of a vector defining the direction
+                    and central axis of the Peptide.
+        @type  pt2: L{V}
+        """
+        
+        a = V(0.0, 0.0, -1.0)
+        # <a> is the unit vector pointing down the center axis of the default
+        # structure which is aligned along the Z axis.
+        bLine = pt2 - pt1
+        bLength = vlen(bLine)
+        b = bLine/bLength
+        # <b> is the unit vector parallel to the line (i.e. pt1, pt2).
+        axis = cross(a, b)
+        # <axis> is the axis of rotation.
+        theta = angleBetween(a, b)
+        # <theta> is the angle (in degress) to rotate about <axis>.
+        scalar = bLength * 0.5
+        rawOffset = b * scalar
+        
+        if theta == 0.0 or theta == 180.0:
+            axis = V(0, 1, 0)
+            # print "Now cross(a,b) =", axis
+            
+        rot =  (pi / 180.0) * theta  # Convert to radians
+        qrot = Q(axis, rot) # Quat for rotation delta.
+        
+        # Move and rotate the Peptide into final orientation.
+        chunk.move(qrot.rot(chunk.center) - chunk.center + rawOffset + pt1)
+        chunk.rot(qrot)
+        
+        # Bruce suggested I add this. It works here, but not if its 
+        # before move() and rot() above. Mark 2008-04-11
+        chunk.full_inval_and_update() 
+ 
     def make(self, assy, name, params, position, mol=None, createPrinted=False):
         """
         Build a peptide from a sequence entered through the Property Manager.
         """
+                 
+        ###return self.make_aligned(assy, name, 0, 135, -135, V(0.0, 0.0, 0.0), V(20.0, 0.0, 0.0))
+        
         
         peptide_cache, ss_idx = params
 
         if len(peptide_cache) == 0:
             return None
-        
-        
+                
         # Create a molecule
         mol = Chunk(assy,name)
 
@@ -627,6 +674,105 @@ class PeptideGenerator:
             del atom._is_aromatic
             del atom._is_single
 
+        return mol          
+        
+        
+    def get_unit_length(self, phi, psi):
+        """
+        Calculate a length of single amino acid in particular 
+        secondary conformation.
+        """
+        return 3.5
+    
+    def get_number_of_res(self, pos1, pos2, phi, psi):
+        """
+        Calculate a number of residues necessary to fill 
+        the pos1-pos2 vector.
+        """
+        return vlen(pos2 - pos1) / self.get_unit_length(phi, psi)
+    
+    def make_aligned(self, assy, name, aa_idx, phi, psi, pos1, pos2, 
+                     mol=None, createPrinted=False):
+        """
+        Build a homo-peptide aligned to a pos2-pos1 vector. 
+        """
+
+        phi = 135
+        psi = -135
+        
+        self.length = self.get_number_of_res(pos1, pos2, phi, psi)
+        if self.length == 0:
+            return None
+        
+        # Create a molecule
+        mol = Chunk(assy,name)
+
+        # Generate dummy atoms positions
+        self.prev_coords[0][0] = pos1[0] + 1.0
+        self.prev_coords[0][1] = pos1[1] 
+        self.prev_coords[0][2] = pos1[2] 
+
+        self.prev_coords[1][0] = pos1[0] + 2.5
+        self.prev_coords[1][1] = pos1[1] - 1.5
+        self.prev_coords[1][2] = pos1[2] - 4.0
+
+        self.prev_coords[2][0] = pos1[0]
+        self.prev_coords[2][1] = pos1[1]
+        self.prev_coords[2][2] = pos1[2]
+
+        # Add a N-terminal hydrogen
+        atom = Atom("H", pos1, mol)
+        atom._is_aromatic = False
+        atom._is_single = False
+        self.nterm_hydrogen = atom
+
+        # Generate the peptide chain.
+        name, short_name, symbol, zmatrix, size = AMINO_ACIDS[aa_idx]
+        for idx in range(self.length):
+            self._buildResiduum(mol, zmatrix, size, phi, psi, None, symbol)
+
+        # Add a C-terminal OH group
+        self._buildResiduum(mol, CTERM_ZMATRIX, 5, 0.0, 0.0, None, symbol)        
+        
+        # Compute bonds (slow!)
+        # This should be replaced by a proper bond assignment.
+        
+        inferBonds(mol)
+
+        mol._protein_helix = []
+        mol._protein_sheet = []
+        
+        # Assign proper bond orders.
+        i = 1
+        for atom in mol.atoms.itervalues():
+            """
+            if ss_idx == 1:
+                mol._protein_helix.append(i) 
+            elif ss_idx == 2:
+                mol._protein_sheet.append(i)  
+            """
+            if atom.bonds:
+                for bond in atom.bonds:
+                    if bond.atom1.getAtomTypeName()=="sp2" and \
+                       bond.atom2.getAtomTypeName()=="sp2":
+                        if (bond.atom1._is_aromatic and
+                            bond.atom2._is_aromatic):
+                            bond.set_v6(V_AROMATIC)
+                        elif ((bond.atom1._is_aromatic == False and
+                               bond.atom1._is_aromatic == False) and
+                               not (bond.atom1._is_single and
+                                    bond.atom2._is_single)):
+                            bond.set_v6(V_DOUBLE)
+            i += 1
+                            
+        # Remove temporary attributes.
+        for atom in mol.atoms.itervalues():
+            del atom._is_aromatic
+            del atom._is_single
+
+        if mol:
+            self._orient(mol, pos1, pos2)
+            
         return mol          
 
     def _buildResiduum(self, mol, zmatrix, n_atoms, phi, psi, init_pos, symbol):
@@ -784,10 +930,11 @@ class PeptideGenerator:
                 self.coords[n][2] = zqd + self.coords[atom_c][2]
 
                 if self.nterm_hydrogen:
-                    # It is a hack for the first hydrogen atom
+                    # This is a hack for the first hydrogen atom
                     # to make sure the bond length is correct.
                     self.nterm_hydrogen.setposn(
-                        self.nterm_hydrogen.posn() + 0.325 * norm(V(xqd, yqd, zqd)))
+                        self.nterm_hydrogen.posn() + \
+                        0.325 * norm(V(xqd, yqd, zqd)))
                     self.nterm_hydrogen = None
 
                 ax = self.coords[n][0]
