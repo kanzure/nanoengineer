@@ -48,35 +48,7 @@ class BondTool_GraphicsMode(BuildAtoms_GraphicsMode):
                 self.o.gl_update()
                 return        
         _superclass.bondLeftUp(self, b, event)
-                
-    ##def _get_hover_highlighting_enabled(self):
-        ##print "### in _get_hover_highlighting_enabled"
-        ##parent_command = self.commandSequencer.prevMode
-        ##if parent_command:
-            ##print "***parent_command = ", parent_command
-            ##return parent_command.graphicsMode._get_hover_highlighting_enabled
-        ###fallback --         
-        ##return self.command.hover_highlighting_enabled
-
-    ##def _set_hover_highlighting_enabled(self, val):
-        ##print "### in _set_hover_highlighting_enabled"
-        ##parent_command = self.commandSequencer.prevMode
-        ##if parent_command:
-            ##print "***parent_command = ", parent_command
-            ##parent_command.graphicsMode._set_hover_highlighting_enabled(val)
-            ##return
-        ###fallback -- 
-        ##self.command.hover_highlighting_enabled = val
-        
-    ##def _get_hover_highlighting_enabled(self):
-        
-        ##return env.prefs[buildModeHighlightingEnabled_prefs_key]
-
-    ##def _set_hover_highlighting_enabled(self, val):        
-        ##self.command.hover_highlighting_enabled = val
-        
-    ##hover_highlighting_enabled = property(_get_hover_highlighting_enabled, 
-                                          ##_set_hover_highlighting_enabled)    
+                    
     pass
 
 

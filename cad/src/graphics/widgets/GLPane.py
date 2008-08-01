@@ -2115,8 +2115,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             ## but it's not enough, since it doesn't cover mouseEnter (or mode Enter),
             ## where we need that even if modkeys didn't change. [bruce 060220]
             self.graphicsMode.update_cursor()
-
-            if self.selobj and self.graphicsMode.hover_highlighting_enabled:
+            
+            
+            highlighting_enabled = self.graphicsMode.command.isHighlightingEnabled()
+            if self.selobj and highlighting_enabled:
                 if self.modkeys == 'Shift+Control' or oldmodkeys == 'Shift+Control':
                     # If something is highlighted under the cursor and we just pressed or released 
                     # "Shift+Control", repaint to update its correct highlight color.

@@ -35,7 +35,6 @@ class ProteinDisplayStyle_Command(EditCommand):
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
          
-    hover_highlighting_enabled = True
     GraphicsMode_class = ProteinDisplayStyle_GraphicsMode
    
     

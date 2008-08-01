@@ -523,7 +523,6 @@ class LineMode(Select_Command):
     from utilities.constants import CL_UNUSED
     command_level = CL_UNUSED
 
-    hover_highlighting_enabled = True
     GraphicsMode_class = LineMode_GM
 
     # Initial value for the instance variable. (Note that although it is assigned 

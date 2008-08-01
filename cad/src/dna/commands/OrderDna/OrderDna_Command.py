@@ -34,7 +34,6 @@ class OrderDna_Command(EditCommand):
     from utilities.constants import CL_EXTERNAL_ACTION
     command_level = CL_EXTERNAL_ACTION
          
-    hover_highlighting_enabled = True
     GraphicsMode_class = OrderDna_GraphicsMode
    
     command_can_be_suspended = False

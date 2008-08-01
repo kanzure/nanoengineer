@@ -1215,14 +1215,6 @@ class GraphicsMode(basicGraphicsMode):
         self.command.set_cmdname(name)
         return
 
-    def _get_hover_highlighting_enabled(self):
-        return self.command.hover_highlighting_enabled
-
-    def _set_hover_highlighting_enabled(self, val):
-        self.command.hover_highlighting_enabled = val
-
-    hover_highlighting_enabled = property(_get_hover_highlighting_enabled, _set_hover_highlighting_enabled)
-
     pass
 
 commonGraphicsMode = basicGraphicsMode # use this for mixin classes that need to work in both basicGraphicsMode and GraphicsMode

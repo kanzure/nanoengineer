@@ -54,20 +54,9 @@ class SelectChunks_basicCommand(Select_basicCommand):
     featurename = "Select Chunks Mode"
     from utilities.constants import CL_DEFAULT_MODE
     command_level = CL_DEFAULT_MODE # error if command subclass fails to override this
-
-    hover_highlighting_enabled = True
     
-    def __init__(self, commandSequencer):
-        """
-        ...
-        """
-        Select_basicCommand.__init__(self, commandSequencer)
-        return
-    
-    def Enter(self): 
-        Select_basicCommand.Enter(self)           
-        self.hover_highlighting_enabled = True
-
+            
+        
     def init_gui(self):
         """
         """

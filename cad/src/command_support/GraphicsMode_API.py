@@ -44,10 +44,6 @@ class GraphicsMode_API(object):
         # callable) which is compatible with GLPane.render_scene()
         # but which receives a single argument which will be the GLPane.
     
-    hover_highlighting_enabled = False
-        # note: hover_highlighting_enabled is a settable instance variable in both
-        # the Command and GraphicsMode APIs; a separate GraphicsMode delegates it
-        # as state to its Command [bruce 071011]
 
     check_target_depth_fudge_factor = 0.0001
         # affects GLPane's algorithm for finding objectUnderMouse (selobj)

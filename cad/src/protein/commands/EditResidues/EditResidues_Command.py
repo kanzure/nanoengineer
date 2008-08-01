@@ -36,7 +36,6 @@ class EditResidues_Command(EditCommand):
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
          
-    hover_highlighting_enabled = True
     GraphicsMode_class = EditResidues_GraphicsMode
    
     

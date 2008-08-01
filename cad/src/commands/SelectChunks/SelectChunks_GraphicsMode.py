@@ -815,7 +815,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # This will be turned ON again in leftUp method.
         # [update, bruce 071121: it looks like it's turned back on
         #  in bareMotion instead.]
-        ##self.hover_highlighting_enabled = False
+        
         self._supress_highlighting = True
 
         # This flag is required in various leftUp methods. It helps them
@@ -862,13 +862,6 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.update_selobj(event) # Fixes bug 1467. mark 060307.
             return
 
-
-        #Enable the highlighting which might be turned off during left drag
-        #@warning: When we add the chunk highlighting to the preferences,
-        #the following should set the user preferences value instead of
-        #setting this to 'True' -- ninad 20070720
-        ##if not self.hover_highlighting_enabled:
-            ##self.hover_highlighting_enabled = True
 
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.emptySpaceLeftUp(event)
@@ -931,7 +924,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #sure that the object is not highlighted. The value of elapsed time
         #is selected as 2.0 seconds arbitrarily. Based on some tests, this value
         #seems OK. Following fixes bug 2536. Note, another fix would be to
-        #set self.hover_highlighting_enabled to False. But this fix looks more
+        #set self._supress_highlighting to True. But this fix looks more
         #appropriate at the moment -- Ninad 2007-09-19
         #
         # Note: I think 2.0 is too long -- this should probably be more like 0.5.
@@ -1243,14 +1236,3 @@ class SelectChunks_GraphicsMode(SelectChunks_basicGraphicsMode):
     def set_cmdname(self, name):
         self.command.set_cmdname(name)
         return
-
-    def _get_hover_highlighting_enabled(self):
-        return self.command.hover_highlighting_enabled
-
-    def _set_hover_highlighting_enabled(self, val):
-        self.command.hover_highlighting_enabled = val
-
-    hover_highlighting_enabled = property(_get_hover_highlighting_enabled,
-                                          _set_hover_highlighting_enabled)
-
-

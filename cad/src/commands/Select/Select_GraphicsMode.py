@@ -1169,31 +1169,6 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
     #==HIGHLIGHTING  ===========================================================
 
-    def set_hoverHighlighting(self, val):
-        """
-        Turn hover highlighting (in our graphicsMode) on/off.
-        if <val> is True, atoms and bonds are highlighted as the cursor passes
-        over them.
-        if <val> is False, atoms are not highlighted until they are selected
-        (with LMB click).
-
-        Bonds are not highlighted either, but they cannot be selected when
-        highlighting is turned off.
-        """
-        self._set_hover_highlighting_enabled(val)
-
-    def _set_hover_highlighting_enabled(self, val):
-        """
-        Subclasses should override this method.
-        @see: depositMode._set_hover_highlighting_enabled
-        """
-        print_compact_stack("bug in setting highlighting"\
-                            "subclass of Select_basicGraphicsMode should"\
-                            "override method _set_hover_highlighting_enabled"\
-                            "nut it didn't" )
-        pass
-
-
     def selobj_highlight_color(self, selobj):
         """
         [mode API method]
@@ -1220,7 +1195,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # (so it can highlight just the things it might let you
         # DND its selobj to, for example),
         # even for Atom/Bondpoint/Bond/Jig, maybe even when not
-        # self.hover_highlighting_enabled. [bruce 060726 comment]
+        # self.command.isHighlightingEnabled(). [bruce 060726 comment]
 
         if isinstance(selobj, Atom):
             return self._getAtomHighlightColor(selobj)
@@ -1457,11 +1432,4 @@ class Select_GraphicsMode(Select_basicGraphicsMode):
         self.command.set_cmdname(name)
         return
 
-    def _get_hover_highlighting_enabled(self):
-        return self.command.hover_highlighting_enabled
-
-    def _set_hover_highlighting_enabled(self, val):
-        self.command.hover_highlighting_enabled = val
-
-    hover_highlighting_enabled = property(_get_hover_highlighting_enabled,
-                                          _set_hover_highlighting_enabled)
+    

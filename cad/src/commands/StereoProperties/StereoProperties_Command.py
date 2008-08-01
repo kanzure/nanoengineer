@@ -33,7 +33,6 @@ class StereoProperties_Command(SelectChunks_Command):
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
 
-    hover_highlighting_enabled = True
     GraphicsMode_class = StereoProperties_GraphicsMode
 
     command_can_be_suspended = False

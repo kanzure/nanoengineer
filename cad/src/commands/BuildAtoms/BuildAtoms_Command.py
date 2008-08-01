@@ -85,8 +85,6 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         #bond tool. See self._convert_bonds_bet_selected_atoms() for details
         self._supress_convert_bonds_bet_selected_atoms = False
         
-        self.hover_highlighting_enabled = \
-            env.prefs[buildModeHighlightingEnabled_prefs_key]
     
     #START new command API methods =============================================
     #currently [2008-08-01 ] also called in by self,init_gui and 

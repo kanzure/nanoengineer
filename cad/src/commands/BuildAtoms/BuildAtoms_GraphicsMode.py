@@ -1308,15 +1308,7 @@ class BuildAtoms_GraphicsMode(BuildAtoms_basicGraphicsMode):
     def set_cmdname(self, name):
         self.command.set_cmdname(name)
         return
-
-    def _get_hover_highlighting_enabled(self):
-        return self.command.hover_highlighting_enabled
-
-    def _set_hover_highlighting_enabled(self, val):
-        self.command.hover_highlighting_enabled = val
-
-    hover_highlighting_enabled = property(_get_hover_highlighting_enabled, 
-                                          _set_hover_highlighting_enabled)    
+  
     
     def _get_highlight_singlets(self):
         return self.command.highlight_singlets

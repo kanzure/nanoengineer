@@ -35,7 +35,6 @@ class DnaDisplayStyle_Command(EditCommand):
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
 
-    hover_highlighting_enabled = True
     GraphicsMode_class = DnaDisplayStyle_GraphicsMode
    
     
@@ -49,19 +48,7 @@ class DnaDisplayStyle_Command(EditCommand):
         """
         Initialize GUI for this mode 
         """
-        self._init_gui_flyout_action( 'breakStrandAction', 'BUILD_DNA')
-            ### BUG: wrong action name (copied from the old code below)
-        
-##        previousCommand = self.commandSequencer.prevMode # init_gui: flyoutToolbar
-##        if previousCommand.commandName == 'BUILD_DNA':
-##            try:
-##                self.flyoutToolbar = previousCommand.flyoutToolbar
-##                #Need a better way to deal with changing state of the 
-##                #corresponding action in the flyout toolbar. To be revised 
-##                #during command toolbar cleanup 
-##                self.flyoutToolbar.breakStrandAction.setChecked(True)
-##            except AttributeError:
-##                self.flyoutToolbar = None
+        self._init_gui_flyout_action( 'editDnaDisplayStyleAction', 'BUILD_DNA')
         
         if self.propMgr is None:
             self.propMgr = DnaDisplayStyle_PropertyManager(self)

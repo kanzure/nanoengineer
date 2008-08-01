@@ -95,11 +95,7 @@ class anyCommand(object, StateMixin):
     # if they need one.
     propMgr = None
 
-    hover_highlighting_enabled = False
-        # note: hover_highlighting_enabled is a settable instance variable in both
-        # the Command and GraphicsMode APIs; a separate GraphicsMode delegates it
-        # as state to its Command [bruce 071011]
-
+    
     # note: the following 3 command_ attributes may be ignored or revised
     # after the current command stack refactoring is complete [070830]:
     

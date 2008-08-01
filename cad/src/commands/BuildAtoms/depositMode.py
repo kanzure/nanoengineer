@@ -56,15 +56,3 @@ class depositMode( BuildAtoms_basicCommand,
 
     graphicsMode = property(__get_graphicsMode)
     
-    def _get_hover_highlighting_enabled(self):
-        return self.command.hover_highlighting_enabled
-
-    def _set_hover_highlighting_enabled(self, val):
-        self.command.hover_highlighting_enabled = val
-    
-    def _get_highlight_singlets(self):
-        return self.command.highlight_singlets
-
-    def _set_highlight_singlets(self, val):
-        self.command.highlight_singlets = val
-
