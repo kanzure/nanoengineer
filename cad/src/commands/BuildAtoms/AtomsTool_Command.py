@@ -26,7 +26,7 @@ from utilities.constants import CL_SUBCOMMAND
 _superclass = BuildAtoms_Command
 class AtomsTool_Command(BuildAtoms_Command):
     
-    featureName = 'Build Atoms Mode/AtomsTool'
+    featurename = 'Build Atoms Mode/AtomsTool'
     commandName = 'ATOMS_TOOL'
     
     command_can_be_suspended = False
