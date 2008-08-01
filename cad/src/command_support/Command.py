@@ -1761,6 +1761,43 @@ class basicCommand(anyCommand):
     def Restart(self):
         self.StartOver()
 
+    # ==
+
+    def find_self_or_parent_command_named(self, commandName): #bruce 080801; maybe untested
+        """
+        Return the first command of self and its parentCommands (if any)
+        which has the given commandName, or None if none does
+        (often an error, but no error message is printed).
+        """
+        # note: this implem ought to work both before and after the
+        # command stack refactoring related to USE_COMMAND_STACK;
+        # after it, it could be rewritten to not use self.commandSequencer
+        # at all (a nice cleanup, but not urgent or required).
+        cseq = self.commandSequencer
+        res = cseq.find_innermost_command_named( commandName,
+                                                 starting_from = self )
+        return res
+
+    def find_parent_command_named(self, commandName): #bruce 080801; maybe untested
+        """
+        Return the first of self's parentCommands (if any)
+        which has the given commandName, or None if none does
+        (often an error, but no error message is printed).
+
+        @note: we expect at most one active command to have a given
+               commandName (at a given time), but this may not be checked
+               or enforced.
+        """
+        # note: this implem ought to work both before and after the
+        # command stack refactoring related to USE_COMMAND_STACK;
+        # after it, it should be reviewed for possible simplification.
+        cseq = self.commandSequencer
+        commands = cseq.all_active_commands( starting_from = self )
+        for command in commands[1:]: # only look at our parent commands
+            if command.commandName == commandName:
+                return command
+        return None
+        
     pass # end of class basicCommand
 
 register_abstract_feature_class( basicCommand, basicCommand_Descriptor )

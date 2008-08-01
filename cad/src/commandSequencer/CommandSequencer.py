@@ -617,10 +617,14 @@ class modeMixin(object):
         # (the command stack is never very deep).
         if not USE_COMMAND_STACK:
             # current code (maybe untested)
-            assert starting_from is None # could support this, but no need to bother
             commands = [self.currentCommand]
             if self.prevMode is not None:
                 commands.append(self.prevMode)
+            if starting_from is not None:
+                assert starting_from in commands
+                where = commands.index(starting_from)
+                commands = commands[where:]
+                    # include starting_from, but not what's before it
         else:
             # new code (untested)
             if starting_from is None:

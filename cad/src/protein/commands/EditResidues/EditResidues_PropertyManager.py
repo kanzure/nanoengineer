@@ -230,6 +230,19 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.current_protein = ""
         previousCommand = self.win.commandSequencer.prevMode # set_current_protein: previousCommand.propMgr.get_current_protein_chunk_name
         #Urmi 20080728: get the protein currently selected in the combo box
+
+        # note [bruce 080801]:
+        # I think this code (here and in two places in EditRotamers_PropertyManager)
+        # could be revised to use either
+        #    previousCommand = self.parentMode.find_self_or_parent_command_named('BUILD_PROTEIN')
+        # or previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN'),
+        # to find the Build Protein command, and then:
+        # if previousCommand:
+        #     # same code as before, both cases.
+        # I also think the 2nd case will never run, either now,
+        # with the old or proposed code (not 100% sure of this),
+        # or after command stack refactoring (pretty sure).
+        
         if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
