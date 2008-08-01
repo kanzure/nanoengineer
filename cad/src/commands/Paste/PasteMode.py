@@ -35,7 +35,8 @@ from operations.pastables import find_hotspot_for_pasting
 from model.bonds import bond_at_singlets
 
 from commands.Paste.PastePropertyManager import PastePropertyManager
-
+from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
+from utilities.icon_utilities import geticon
 _superclass = depositMode
 
 class PasteMode(depositMode):
@@ -73,6 +74,7 @@ class PasteMode(depositMode):
         self.pastables_list = [] #@note: not needed here?
         
         _superclass.__init__(self, glpane)
+        self._init_flyoutActions()
     
     def Enter(self):
         """
@@ -94,7 +96,6 @@ class PasteMode(depositMode):
 
         @see: L{self.restore_gui}
         """
-        self.enable_gui_actions(False)
         self.dont_update_gui = True
         self.pastable = None 
 
@@ -106,6 +107,8 @@ class PasteMode(depositMode):
 
         self.connect_or_disconnect_signals(True)
         self.updateCommandToolbar(bool_entering = True)
+        
+        self.exitModeAction.setChecked(True)
 
         #Following is required to make sure that the 
         #clipboard groupbox in paste mode is updated 
@@ -144,7 +147,7 @@ class PasteMode(depositMode):
         """
         self.propMgr.close()
         self.connect_or_disconnect_signals(False)
-        self.enable_gui_actions(True)
+        self.exitModeAction.setChecked(False)
         self.updateCommandToolbar(bool_entering = False)
 
     def update_gui(self):
@@ -239,17 +242,30 @@ class PasteMode(depositMode):
         #that way.) ###@@@ good idea...
 
         return
+    
+    def updateCommandToolbar(self, bool_entering = True):
+        """
+        Update the command toolbar.
+        """        
+        obj = self
+        self.win.commandToolbar.updateCommandToolbar(
+            self.win.toolsDepositAtomAction,
+            obj, 
+            entering = bool_entering)
+        
+        return
 
     
     def _init_flyoutActions(self):
         """
         Defines the actions to be added in the flyout toolbar section of the 
         Command Explorer.
-        """
-
-        depositMode._init_flyoutActions(self)        
-
+        """    
+        self.exitModeAction = NE1_QWidgetAction(self.propMgr, win = self.win)
         self.exitModeAction.setText("Exit Paste")
+        self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit.png'))
+        self.exitModeAction.setCheckable(True)
+        self.exitModeAction.setChecked(True) 
 
 
     def getFlyoutActionList(self):
