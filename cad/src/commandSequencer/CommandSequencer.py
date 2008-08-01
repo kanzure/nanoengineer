@@ -621,10 +621,17 @@ class modeMixin(object):
             if self.prevMode is not None:
                 commands.append(self.prevMode)
             if starting_from is not None:
-                assert starting_from in commands
-                where = commands.index(starting_from)
-                commands = commands[where:]
-                    # include starting_from, but not what's before it
+                if starting_from in commands:
+                    where = commands.index(starting_from)
+                    commands = commands[where:]
+                        # include starting_from, but not what's before it
+                else:
+                    # this can happen during command transitions
+                    # when current command is nullMode; for now, ignore this
+                    # error if nullmode is in the list -- hopefully it'll
+                    # go away after USE_COMMAND_STACK. [bruce 080801]
+                    if not commands[0].is_null:
+                        print "error: %r is not in %r" % (starting_from, commands)
         else:
             # new code (untested)
             if starting_from is None:
