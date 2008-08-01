@@ -3725,13 +3725,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         ### drawwiresphere(white, center, radius, 2)
 
         if self._frustum_planes_available:
+            c0 = center[0]
+            c1 = center[1]
+            c2 = center[2]
             for p in range(0, 6): # go through all frustum planes
                 # calculate a distance to the frustum plane 'p'
                 # the sign corresponds to the plane normal direction
-                dist =  (self.fplanes[p][0] * center[0] + 
-                         self.fplanes[p][1] * center[1] + 
-                         self.fplanes[p][2] * center[2] + 
-                         self.fplanes[p][3])
+                # piotr 080801: getting the frustum plane equation
+                # before performing the test gives about 30% performance 
+                # improvement
+                fp = self.fplanes[p]
+                dist =  (fp[0] * c0 + 
+                         fp[1] * c1 + 
+                         fp[2] * c2 + 
+                         fp[3])
                 # sphere outside of the plane - exit
                 if dist < -radius:
                     return False
