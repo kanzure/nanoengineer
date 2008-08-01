@@ -585,6 +585,57 @@ class modeMixin(object):
 
     # ==
 
+    def find_innermost_command_named(commandName, starting_from = None):
+        """
+        @return: the innermost command with the given commandName attribute,
+                 or None if no such command is found.
+        @rtype: an active command object, or None
+
+        @param commandName: name of command we're searching for (e.g. 'BUILD_PROTEIN')
+        @type: string
+
+        @param starting_from: if provided, start the search at this command
+        @type: an active command object (*not* a command name), or None.
+        """
+        for command in self.all_active_commands(starting_from = starting_from):
+            if command.commandName == commandName:
+                return command
+        return None
+
+    def all_active_commands(self, starting_from = None):
+        """
+        @return: all active commands, innermost (current) first
+        @rtype: list of one or more active command objects
+
+        @param starting_from: if provided, must be an active command,
+                              and the return value only includes it and
+                              its parent commands (recursively).
+                              Note that passing the current command is
+                              equivalent to not providing this argument.
+        """
+        # note: could be written as a generator, but there's no need
+        # (the command stack is never very deep).
+        if not USE_COMMAND_STACK:
+            # current code (maybe untested)
+            assert starting_from is None # could support this, but no need to bother
+            commands = [self.currentCommand]
+            if self.prevMode is not None:
+                commands.append(self.prevMode)
+        else:
+            # new code (untested)
+            if starting_from is None:
+                starting_from = self.currentCommand
+            # maybe: assert starting_from is an active command
+            commands = [starting_from]
+            command = starting_from.parentCommand # might be None
+            while command is not None:
+                commands.append(command)
+                command = command.parentCommand
+            pass
+        return commands
+        
+    # ==
+    
     # delegation to parentCommands
 
     def parentCommand_Draw(self, calling_command):

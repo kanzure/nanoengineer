@@ -871,6 +871,11 @@ class RosettaRunner:
         @param outProtein: rosetta outputted protein chunk
         @type outProtein: L{Chunk}
         """
+        # note [bruce 080801]: this could probably be simplified as (untested):
+        # command = self.win.commandSequencer.find_innermost_command_named('BUILD_PROTEIN')
+        # if command:
+        #     command.propMgr....
+        
         command = self.win.commandSequencer.currentCommand
         prevCommand = self.win.commandSequencer.prevMode # run_...: add new chunk to combobox in BUILD_PROTEIN
         if prevCommand is not None:
