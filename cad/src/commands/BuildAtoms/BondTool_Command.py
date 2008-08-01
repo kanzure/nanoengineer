@@ -78,36 +78,38 @@ class BondTool_Command(BuildAtoms_Command):
         such that it fits the new method names in command API.         
         """
         self._reuse_attr_of_parentCommand('flyoutToolbar')
-                   
-            
-    def _reuse_attr_of_parentCommand(self, attr_name = ''):
+    
+    def _reuse_attr_of_parentCommand(self, attr_name = ''): 
         """
-        Reuse the attr of the parent command. 
-        Example: reuse 'fylouttoolbar' or propMgr attrs in self. 
+        Reuse the given attr of the parent command. 
+        Example: reuse 'flyoutToolbar' or 'propMgr' attrs in self. 
         @see: self.command_enter_flyout()
         """
-        #@TODO: this chould be a new command API method. That gets automatically
-        #called based on some CL_* flags that decides whether to use certain 
-        #attrs such as flyouttoolbar or PM of the parent command
-        #-- Ninad 2008-08-01
+        # WARNING: this code is duplicated in other places.
+        # For comments about it, see one of them.
         
         if not attr_name:
-            print_compact_stack("bug: trying to set an attr with no name "\
-                                "in this command")
+            print_compact_stack("bug: trying to set an attr with no name "
+                                "in this command: ")
+            return
         
-        commandSequencer = self.win.commandSequencer
-        previousCommand = commandSequencer.prevMode
+        previousCommand = self.find_parent_command_named( self.command_parent)
         
-        if previousCommand and  previousCommand.commandName == self.command_parent:
+        if previousCommand:
             try:
                 parent_attr = getattr(previousCommand, attr_name)
             except:
-                print_compact_traceback("bug: parent command %s doesn't have an"\
-                                    "attr by name %s"%(previousCommand, attr_name))
+                msg = "bug: parent command %s doesn't have an " \
+                      "attr named %r" % (previousCommand, attr_name)
+                print_compact_traceback( msg + ": " )
                 return                
                 
-        setattr(self, attr_name, parent_attr)
-                    
+            setattr(self, attr_name, parent_attr)
+
+        else:
+            msg = "bug: parent command %s not found" % self.command_parent
+            print_compact_stack( msg + ": " )
+        return
 
     def command_enter_PM(self):
         """
