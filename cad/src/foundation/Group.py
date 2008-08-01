@@ -97,11 +97,7 @@ class Group(NodeWithAtomContents):
         for ob in members:
             self.addchild(ob)
 
-        #@WARNING: Following (self.editCommand) is a temporary code that
-        # allows editing of DNA Duplex which is, at the moment, same as a
-        # group in the MT. Once we have a DNA object model ready,
-        # the following should be removed/ revised .
-        # See also self.edit where this is being used. -- Ninad 2007-10-26
+        #@Note: subclasses use this argument in self.edit()
         self.editCommand = editCommand
 
         return
@@ -1160,34 +1156,26 @@ class Group(NodeWithAtomContents):
     def edit(self):
         """
         [this is overridden in some subclasses of Group]
+        @see: DnaGroup.edit() for an example (overrides this method)
         """
-        if self.editCommand:
-            commandSequencer = self.assy.w.commandSequencer
-            commandSequencer.userEnterCommand('DNA_DUPLEX', always_update = True)
-                ### REVIEW: is this special treatment of DNA_DUPLEX justified
-                # in this class? Same question for the getProps and setProps
-                # methods below. [bruce 080730 question]
-            currentCommand = commandSequencer.currentCommand
-            assert currentCommand.commandName == 'DNA_DUPLEX'
-            currentCommand.editStructure(self)
-        else:
-            cntl = GroupProp(self) # Normal group prop
-            cntl.exec_()
-            self.assy.mt.mt_update()
+        cntl = GroupProp(self) # Normal group prop
+        cntl.exec_()
+        self.assy.mt.mt_update()
 
     def getProps(self):
         """
-        Temporary method to support Dna duplex editing. see Group.__init__ for
-        a comment
+        Get specific properties of the Group (if it is editable) Overridden in 
+        subclasses. Default implementation returns an empty tuple
+        @see: DnaSegment.getProps() for an example. 
         """
-        if self.editCommand:
-            props = ()
-            return props
+        return ()
 
     def setProps(self, props):
         """
-        Temporary method to support Dna duplex editing. see Group.__init__ for
-        a comment
+        Set certain properties (set vals for some attrs of this group) 
+        Overridden in subclasses, default implementation doesn nothing. 
+        @see: self.getProps()
+        @see: DnaSegment.setProps() for an example
         """
         pass
 
