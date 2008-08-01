@@ -30,7 +30,6 @@ class BreakStrands_Command(BuildAtoms_Command):
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
 
-    hover_highlighting_enabled = True
     GraphicsMode_class = BreakStrands_GraphicsMode
 
 
