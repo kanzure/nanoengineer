@@ -77,7 +77,6 @@ class PartLibraryMode(PasteMode):
 
         @see: L{self.restore_gui}
         """
-        self.enable_gui_actions(False)
         self.dont_update_gui = True
         if not self.propMgr:
             self.propMgr = PartLibPropertyManager(self)
