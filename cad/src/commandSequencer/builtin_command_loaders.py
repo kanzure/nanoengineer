@@ -86,8 +86,18 @@ from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Comm
 from protein.commands.EditResidues.EditResidues_Command import EditResidues_Command
 from protein.commands.CompareProteins.CompareProteins_Command import CompareProteins_Command
 
+
 #Graphene commands 
 from commands.InsertGraphene.Graphene_EditCommand import Graphene_EditCommand
+
+from commands.BuildAtoms.BondTool_Command import SingleBondTool
+from commands.BuildAtoms.BondTool_Command import DoubleBondTool
+from commands.BuildAtoms.BondTool_Command import TripleBondTool
+from commands.BuildAtoms.BondTool_Command import AromaticBondTool
+from commands.BuildAtoms.BondTool_Command import GraphiticBondTool
+from commands.BuildAtoms.BondTool_Command import DeleteBondTool
+from commands.BuildAtoms.BondTool_Command import BondTool_Command
+from commands.BuildAtoms.AtomsTool_Command import AtomsTool_Command
 
 def preloaded_command_classes():
     """
@@ -147,7 +157,17 @@ def preloaded_command_classes():
         LightingScheme_Command,
         EditRotamers_Command,
         EditResidues_Command,
-        CompareProteins_Command]
+        CompareProteins_Command, 
+        #Tools in Build chunks command --
+        SingleBondTool,
+        DoubleBondTool,
+        TripleBondTool,
+        AromaticBondTool,
+        GraphiticBondTool,
+        DeleteBondTool, 
+        AtomsTool_Command, 
+        BondTool_Command
+    ]
     
     
     # note: we could extract each one's commandName (class constant)

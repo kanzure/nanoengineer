@@ -115,8 +115,14 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         """
         self._addPreviewGroupBox()  
         self._addAtomChooserGroupBox()
-        self._addBondToolsGroupBox()        
-        self._addSelectionOptionsGroupBox()
+        self._addBondToolsGroupBox() 
+        
+        #@@@TODO HIDE the bonds tool groupbox initially as the 
+        #by default, the atoms tool is active when BuildAtoms command is 
+        #finist invoked. 
+        self.bondToolsGroupBox.hide()        
+        
+        self._addSelectionOptionsGroupBox()        
         self._addAdvancedOptionsGroupBox()       
        
     def _addPreviewGroupBox(self):
@@ -379,7 +385,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
                 inPmGroupBox, 
                 title        = "",
                 buttonList   = BOND_TOOL_BUTTONS,
-                checkedId    = 0,
+                checkedId    = None,
                 setAsDefault = True )
     
     def _addWhatsThisText(self):

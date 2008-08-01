@@ -968,7 +968,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                           (self, time_since_wheel_event)
                 return True
 
-        if not self.hover_highlighting_enabled:
+        if not self.command.isHighlightingEnabled():
             self.hover_highlighting_enabled = True
 
         _superclass.bareMotion(self, event)

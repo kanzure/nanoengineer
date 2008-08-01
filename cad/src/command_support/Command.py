@@ -248,6 +248,13 @@ class anyCommand(object, StateMixin):
             pass
         return
     
+    def isHighlightingEnabled(self):
+        """
+        Should be overridden in subclasses. 
+        @see: BuildAtoms_Command.isHighlightingEnabled()
+        """
+        return True
+    
     pass # end of class anyCommand
 
 

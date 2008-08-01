@@ -27,12 +27,15 @@ from commands.BuildAtoms.Ui_BuildAtomsPropertyManager import Ui_BuildAtomsProper
 from model.bond_constants import btype_from_v6
 from geometry.VQT import V
 from utilities.Comparison import same_vals
-
+from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
+from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 NOBLEGASES = ["He", "Ne", "Ar", "Kr"]
 PAMATOMS = ["Gv5", "Ax3"]
 ALL_PAM_ATOMS = ["Gv5", "Ss5", "Pl5", "Ax3", "Ss3", "Ub3", "Ux3", "Uy3"]
 
+_superclass = Ui_BuildAtomsPropertyManager
 class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
     """
     The BuildAtomsPropertyManager class provides the Property Manager for the
@@ -64,6 +67,14 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         PM_Dialog)
         """
         self.w.toolsDone()
+        
+        
+    def show(self):
+        _superclass.show(self)
+        self.connect_or_disconnect_signals(isConnect = True)
+    def close(self):
+        self.connect_or_disconnect_signals(isConnect = False)
+        _superclass.close(self)
     
     def connect_or_disconnect_signals(self, isConnect): 
         """
@@ -103,8 +114,12 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         change_connect(self.zCoordOfSelectedAtom,
                      SIGNAL("valueChanged(double)"), 
                      self._moveSelectedAtom)
-            
-    
+        
+        connect_checkbox_with_boolean_pref(self.waterCheckBox,
+                                               buildModeWaterEnabled_prefs_key)                   
+        
+        connect_checkbox_with_boolean_pref(self.highlightingCheckBox, 
+                                           buildModeHighlightingEnabled_prefs_key)
     def model_changed(self):
         """
         Overrides basicMode.model_changed. 
@@ -291,17 +306,12 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                     msg ="Note: this pseudoatom can only be deposited onto a strand sugar"\
                         " and will disappear if deposited in free space"
         else: # Bonds Tool is selected
-            if self.parentMode.cutBondsAction.isChecked():
-                msg = "<b> Cut Bonds </b> tool is active. \
-                Click on bonds in order to delete them."
+            if self.parentMode.isDeleteBondsToolActive():
+                msg = "<b> Cut Bonds </b> tool is active. " \
+                    "Click on bonds in order to delete them."
                 self.MessageGroupBox.insertHtmlMessage(msg)
-                return          
-            if not hasattr(self.parentMode, 'bondclick_v6'): 
-                return
-            if self.parentMode.bondclick_v6:
-                name = btype_from_v6(self.parentMode.bondclick_v6)
-                msg = "Click bonds or bondpoints to make them %s bonds." % name 
-            
+                return   
+                        
         # Post message.
         self.MessageGroupBox.insertHtmlMessage(msg)    
     

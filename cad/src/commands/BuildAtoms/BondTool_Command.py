@@ -55,8 +55,17 @@ class BondTool_Command(BuildAtoms_Command):
     def Enter(self):
         BuildAtoms_Command.Enter(self)
         #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
-        self._reusePropMgr_of_parentCommand()
+        self._reusePropMgr_of_parentCommand()     
         self._apply_bondTool_on_selected_atoms()
+        
+        name = self.getBondTypeString()
+        if name:
+            msg = "Click bonds or bondpoints to make them %ss." % name 
+        else:
+            msg = "Select a bond tool and then click on bonds or "\
+                "bondpoints to convert them to a specific bond type."
+        self.propMgr.updateMessage(msg)
+        
         
     def _reusePropMgr_of_parentCommand(self):
         """
@@ -76,11 +85,11 @@ class BondTool_Command(BuildAtoms_Command):
     def getBondType(self):
         return V_SINGLE
     
-    def _getBondTypeString(self):
+    def getBondTypeString(self):
         """
         Overridden in subclasses. 
         """
-        return 'Single Bond'
+        return ''
     
     
     def _apply_bondTool_on_selected_atoms(self):
@@ -101,7 +110,7 @@ class BondTool_Command(BuildAtoms_Command):
         if self._supress_apply_bondTool_on_selected_atoms:
             return
         
-        bondTypeString = self._getBondTypeString()
+        bondTypeString = self.getBondTypeString()
                 
                
         #For the history message
@@ -185,18 +194,18 @@ class SingleBondTool(BondTool_Command):
     def getBondType(self):
         return V_SINGLE
     
-    def _getBondTypeString(self):
+    def getBondTypeString(self):
         """
-        Overridden in subclasses. 
+        Overrides superclass method. 
         """
-        return ''
+        return 'Single Bond'
 
 class DoubleBondTool(BondTool_Command):
     commandName = 'DOUBLE_BOND_TOOL'
     def getBondType(self):
         return V_DOUBLE
     
-    def _getBondTypeString(self):
+    def getBondTypeString(self):
         """
         Overridden in subclasses. 
         """
@@ -207,7 +216,7 @@ class TripleBondTool(BondTool_Command):
     def getBondType(self):
         return V_TRIPLE
     
-    def _getBondTypeString(self):
+    def getBondTypeString(self):
         """
         Overridden in subclasses. 
         """
@@ -219,7 +228,7 @@ class AromaticBondTool(BondTool_Command):
     def getBondType(self):
         return V_AROMATIC
     
-    def _getBondTypeString(self):
+    def getBondTypeString(self):
         """
         Overridden in subclasses. 
         """
@@ -231,7 +240,7 @@ class GraphiticBondTool(BondTool_Command):
     def getBondType(self):
         return V_GRAPHITE
     
-    def _getBondTypeString(self):
+    def getBondTypeString(self):
         """
         Overridden in subclasses. 
         """

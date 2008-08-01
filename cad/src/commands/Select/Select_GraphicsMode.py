@@ -712,7 +712,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # It may be that it's not called when highlighting is on, and it has no
         # excuse to be, but I suspect it is anyway.
         # [bruce 060726 comment]
-        if self.hover_highlighting_enabled:
+        if self.command.isHighlightingEnabled():
             self.update_selatom(event) #bruce 041130 in case no update_selatom
                                        #happened yet
             # update_selatom() updates self.o.selatom and self.o.selobj.
@@ -1216,7 +1216,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # Mode API method originally by bruce 050612.
         # This has been refactored further and moved to the superclass
         # from selectAtomsMode. -- Ninad 2007-10-14
-        if not self.hover_highlighting_enabled:
+        if not self.command.isHighlightingEnabled():
             return None
 
         #####@@@@@ if self.drag_handler, we should probably let it

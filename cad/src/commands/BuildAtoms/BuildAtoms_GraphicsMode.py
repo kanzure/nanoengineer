@@ -193,37 +193,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         _superclass.leftDouble(self, event)
         
         return
-    
-    def bondLeftUp(self, b, event): 
-        # was bondClicked(). mark 060220. 
-        #[WARNING: docstring appears to be out of date -- bruce 060702]
-        """
-        Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
-        based on the current modkey.
-        - If no modkey is pressed, clear the selection and pick <b>\'s two atoms.
-        - If Shift is pressed, pick <b>\'s two atoms, adding them to the 
-          current selection.
-        - If Ctrl is pressed,  unpick <b>\'s two atoms, removing them from the 
-          current selection.
-        - If Shift+Control (Delete) is pressed, delete bond <b>.
-        <event> is a LMB release event.
-        """
-
-        if self.o.modkeys is None:           
-            if self.command.isBondsToolActive():                        
-            #Following fixes bug 2425 (implements single click bond deletion 
-            #in Build Atoms. -- ninad 20070626
-                if self.command.isDeleteBondsToolActive():
-                    self.bondDelete(event)
-                    #@ self.o.gl_update() # Not necessary since win_update()
-                                          # is called in bondDelete(). 
-                                          # Mark 2007-10-19
-                    return                
-                self.bond_change_type(b, allow_remake_bondpoints = True)
-                self.o.gl_update()
-                return        
-        _superclass.bondLeftUp(self, b, event)
-    
+        
     # == end of LMB event handler methods
     
     #====KeyPress =================
@@ -376,25 +346,6 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         
         return
     
-    
-    #==== Water ====
-    def setWater(self, bool_enable):
-        """
-        Turn water surface on/off.
-        if <bool_enable> is True, only atoms and bonds above the water surface 
-        can be  highlighted and selected.
-        if <bool_enable> is False, all atoms and bonds can be highlighted and 
-        selected, and the water surface is not displayed.
-        """
-        if bool_enable:
-            self.water_enabled = True
-            msg = "Water surface enabled."
-        else:
-            self.water_enabled = False
-            msg = "Water surface disabled."
-        env.history.message(msg)
-        self.o.gl_update() # REVIEW (possible optim): can we make 
-        #gl_update_highlight cover this? [bruce 070626]
 
     #== Draw methods
     
@@ -440,7 +391,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
         which also prevents (some kinds of) selection of objects behind it.
         """
-        if not self.water_enabled:
+        if not env.prefs[buildModeWaterEnabled_prefs_key]:
             return
             
         glDisable(GL_LIGHTING)
@@ -1329,8 +1280,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             cursor_id = self.w.current_bondtool_button.index
         
         if hasattr(self.command, 'get_cursor_id_for_active_tool' ):
-            cursor_id = self.command.get_cursor_id_for_active_tool()
-       
+            cursor_id = self.command.get_cursor_id_for_active_tool()       
    
         if self.o.modkeys is None:             
             self.o.setCursor(self.w.BondToolCursor[cursor_id])

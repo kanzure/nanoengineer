@@ -26,6 +26,8 @@ from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 from PyQt4.Qt import Qt, SIGNAL
 from PyQt4.Qt import QAction
 from PyQt4.Qt import QActionGroup
+from PyQt4.Qt import QSize
+
 from utilities.icon_utilities import geticon
 
 
@@ -38,12 +40,12 @@ class BuildChunksFlyout:
         """
         self.command = command
         self.parentWidget = self.command.propMgr
+        self.propMgr = self.command.propMgr        
         
-        self.win =self.command.win
-                       
+        self.win =self.command.win                       
         self._isActive = False
         self._createActions(self.parentWidget)
-
+        
     def getFlyoutActionList(self): 
         """
         Returns a tuple that contains mode spcific actionlists in the 
@@ -166,6 +168,7 @@ class BuildChunksFlyout:
             'ui/actions/Toolbars/Smart/Deposit_Atoms.png'))
         self.depositAtomsAction.setCheckable(True)
         self.depositAtomsAction.setChecked(True)
+        self.depositAtomsAction.setObjectName('ACTION_ATOMS_TOOL')
         
                 
         self.transmuteBondsAction = NE1_QWidgetAction(parentWidget, win = self.win)
@@ -173,6 +176,7 @@ class BuildChunksFlyout:
         self.transmuteBondsAction.setIcon(geticon(
             'ui/actions/Toolbars/Smart/Transmute_Bonds.png'))
         self.transmuteBondsAction.setCheckable(True)
+        self.transmuteBondsAction.setObjectName('ACTION_BOND_TOOL')
         
         self.subControlActionGroup = QActionGroup(parentWidget)
         self.subControlActionGroup.setExclusive(True)   
@@ -180,32 +184,55 @@ class BuildChunksFlyout:
         ##self.subControlActionGroup.addAction(self.propMgr.transmuteAtomsAction)
         self.subControlActionGroup.addAction(self.transmuteBondsAction)
         
+        self.transmuteAtomsAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.transmuteAtomsAction.setText("Transmute Atoms")
+        self.transmuteAtomsAction.setIcon(geticon(
+            'ui/actions/Toolbars/Smart/Transmute_Atoms.png'))       
+        self.transmuteAtomsAction.setCheckable(False)
+        
+        
+        self._createBondToolActions(parentWidget)
+        
+    def _createBondToolActions(self, parentWidget): 
+        """
+        Create the actions to be included in flyout toolbar , when the 'bonds
+        tool' is active. Note that the object names of these action will be 
+        be used to find the Bond Tool type to which each action corresponds to.
+        
+        @see: self._createActions() where this is called. 
+        """
         self.bondToolsActionGroup = QActionGroup(parentWidget)
         self.bondToolsActionGroup.setExclusive(True)
                 
         self.bond1Action = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond1Action.setText("Single")
         self.bond1Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond1.png"))
+        self.bond1Action.setObjectName('ACTION_SINGLE_BOND_TOOL')
             
         self.bond2Action = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond2Action.setText("Double")
         self.bond2Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond2.png"))
+        self.bond2Action.setObjectName('ACTION_DOUBLE_BOND_TOOL')
         
         self.bond3Action = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond3Action.setText("Triple")
         self.bond3Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond3.png"))
+        self.bond3Action.setObjectName('ACTION_TRIPLE_BOND_TOOL')
         
         self.bondaAction = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bondaAction.setText("Aromatic")
         self.bondaAction.setIcon(geticon("ui/actions/Toolbars/Smart/bonda.png"))
+        self.bondaAction.setObjectName('ACTION_AROMATIC_BOND_TOOL')
         
         self.bondgAction = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bondgAction.setText("Graphitic")
         self.bondgAction.setIcon(geticon("ui/actions/Toolbars/Smart/bondg.png"))
+        self.bondgAction.setObjectName('ACTION_GRAPHITIC_BOND_TOOL')
         
         self.cutBondsAction = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.cutBondsAction.setText("Cut Bonds")
         self.cutBondsAction.setIcon(geticon("ui/actions/Tools/Build Tools/Cut_Bonds.png"))
+        self.cutBondsAction.setObjectName('ACTION_DELETE_BOND_TOOL')
         
         for action in [self.bond1Action, 
                        self.bond2Action, 
@@ -218,11 +245,7 @@ class BuildChunksFlyout:
             action.setCheckable(True)
                     
         
-        self.transmuteAtomsAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.transmuteAtomsAction.setText("Transmute Atoms")
-        self.transmuteAtomsAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Transmute_Atoms.png'))       
-        self.transmuteAtomsAction.setCheckable(False)
+        
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -241,7 +264,7 @@ class BuildChunksFlyout:
             
         #Atom , Bond Tools Groupbox
         change_connect(self.bondToolsActionGroup,
-                       SIGNAL("triggered(QAction *)"), self._changeBondTool)
+                       SIGNAL("triggered(QAction *)"), self.command.changeBondTool)
                 
         
         change_connect(self.transmuteAtomsAction,
@@ -281,9 +304,9 @@ class BuildChunksFlyout:
         self.connect_or_disconnect_signals(True)
         
         ##if self.depositAtomsAction.isChecked():
-            ##self.command.activateAtomsTool()
+            ##self._activateAtomsTool()
         ##elif self.transmuteBondsAction.isChecked():
-            ##self.command.activateBondsTool()
+            ##self._activateBondsTool()
             
     
     def deActivateFlyoutToolbar(self):
@@ -311,91 +334,6 @@ class BuildChunksFlyout:
         if hasattr(self.parentWidget, 'ok_btn_clicked'):
             if not isChecked:
                 self.parentWidget.ok_btn_clicked()
-        
-    
-    def _init_flyoutActions(self):
-        """
-        Define flyout toolbar actions for this mode.
-        """
-        #@NOTE: In Build mode, some of the actions defined in this method are also 
-        #used in Build Atoms PM. (e.g. bond actions) So probably better to rename 
-        #it as _init_modeActions. Not doing that change in mmkit code cleanup 
-        #commit(other modes still implement a method by same name)-ninad20070717
-                
-        self.exitModeAction = NE1_QWidgetAction(self.win, win = self.win)
-        self.exitModeAction.setText("Exit Atoms")
-        self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
-        self.exitModeAction.setCheckable(True)
-        self.exitModeAction.setChecked(True)    
-        
-        #Following Actions are added in the Flyout toolbar. 
-        #Defining them outside that method as those are being used
-        #by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
-                
-        self.depositAtomsAction = NE1_QWidgetAction(self.win, win = self.win)
-        self.depositAtomsAction.setText("Atoms Tool")
-        self.depositAtomsAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Deposit_Atoms'))
-        self.depositAtomsAction.setCheckable(True)
-        self.depositAtomsAction.setChecked(True)
-        
-                
-        self.transmuteBondsAction = NE1_QWidgetAction(self.win, win = self.win)
-        self.transmuteBondsAction.setText("Bonds Tool")
-        self.transmuteBondsAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Transmute_Bonds'))
-        self.transmuteBondsAction.setCheckable(True)
-        
-        self.subControlActionGroup = QActionGroup(self.win)
-        self.subControlActionGroup.setExclusive(True)   
-        self.subControlActionGroup.addAction(self.depositAtomsAction)   
-        ##self.subControlActionGroup.addAction(self.propMgr.transmuteAtomsAction)
-        self.subControlActionGroup.addAction(self.transmuteBondsAction)
-        
-        self.bondToolsActionGroup = QActionGroup(self.win)
-        self.bondToolsActionGroup.setExclusive(True)
-                
-        self.bond1Action = NE1_QWidgetAction(self.win, win = self.win)  
-        self.bond1Action.setText("Single")
-        self.bond1Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond1.png"))
-            
-        self.bond2Action = NE1_QWidgetAction(self.win, win = self.win)  
-        self.bond2Action.setText("Double")
-        self.bond2Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond2.png"))
-        
-        self.bond3Action = NE1_QWidgetAction(self.win, win = self.win)  
-        self.bond3Action.setText("Triple")
-        self.bond3Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond3.png"))
-        
-        self.bondaAction = NE1_QWidgetAction(self.win, win = self.win)  
-        self.bondaAction.setText("Aromatic")
-        self.bondaAction.setIcon(geticon("ui/actions/Toolbars/Smart/bonda.png"))
-        
-        self.bondgAction = NE1_QWidgetAction(self.win, win = self.win)  
-        self.bondgAction.setText("Graphitic")
-        self.bondgAction.setIcon(geticon("ui/actions/Toolbars/Smart/bondg.png"))
-        
-        self.cutBondsAction = NE1_QWidgetAction(self.win, win = self.win)  
-        self.cutBondsAction.setText("Cut Bonds")
-        self.cutBondsAction.setIcon(geticon("ui/actions/Tools/Build Tools/Cut_Bonds"))
-        
-        for action in [self.bond1Action, 
-                       self.bond2Action, 
-                       self.bond3Action,
-                       self.bondaAction,
-                       self.bondgAction,
-                       self.cutBondsAction  
-                       ]:
-            self.bondToolsActionGroup.addAction(action)
-            action.setCheckable(True)
-                    
-        
-        self.transmuteAtomsAction = NE1_QWidgetAction(self.win, win = self.win)
-        self.transmuteAtomsAction.setText("Transmute Atoms")
-        self.transmuteAtomsAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Transmute_Atoms'))       
-        self.transmuteAtomsAction.setCheckable(False)
-        
         
     def updateCommandToolbar(self, bool_entering = True):
         """
@@ -435,38 +373,7 @@ class BuildChunksFlyout:
                     
         return cursor_id
     
-    def _changeBondTool(self, action):
-        """
-        Change the bond tool (e.g. single, double, triple, aromatic 
-        and graphitic) depending upon the checked action.
-        @param: action is the checked bond tool action in the 
-        bondToolsActionGroup
-        """   
-
-        bondTool_commandName = 'BOND_TOOL'
     
-        if action is self.bond1Action:
-            bondTool_commandName = 'SINGLE_BOND_TOOL'
-        elif action is self.bond2Action:
-            bondTool_commandName = 'DOUBLE_BOND_TOOL'            
-        elif action is self.bond3Action:
-            bondTool_commandName = 'TRIPLE_BOND_TOOL' 
-        elif action is self.bondaAction:
-            bondTool_commandName = 'AROMATIC_BOND_TOOL' 
-        elif action is self.bondgAction:            
-            bondTool_commandName = 'GRAPHITIC_BOND_TOOL'  
-        elif action is self.cutBondsAction:
-            bondTool_commandName = 'DELETE_BOND_TOOL'
-            
-        self.command.enterToolsCommand(bondTool_commandName)
-   
-    def _enterToolsCommand(self, commandName = ''):
-        if not commandName:
-            return         
-        commandSequencer = self.win.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        commandSequencer.userEnterTemporaryCommand( commandName)
-                
     def _activateAtomsTool(self):
         """
         Activate the atoms tool of the build chunks mode 
@@ -483,15 +390,14 @@ class BuildChunksFlyout:
         and hide the others.
         @see:self._convert_bonds_bet_selected_atoms()
         """  
-        
         self.command.activateBondsTool()
-        self._supress_apply_bondTool_on_selected_atoms = True
+            
         
-        checked_action = self.bondToolsActionGroup.checkedAction()
-        #note: its okay if the check_action is None
-        self._changeBondTool(action = checked_action)
-        self._supress_apply_bondTool_on_selected_atoms = False
-            
-            
+    def getBondToolActions(self):
+        return self.bondToolsActionGroup.actions()
+    
+    def getCheckedBondToolAction(self):
+        return self.bondToolsActionGroup.checkedAction()
+        
     
         
