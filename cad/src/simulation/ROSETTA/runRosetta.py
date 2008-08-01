@@ -878,23 +878,6 @@ class RosettaRunner:
             command.propMgr.protein_name_list.append(outProtein.name)
             command.propMgr.protein_chunk_list.append(outProtein)
         
-        #command = self.win.commandSequencer.currentCommand
-        #prevCommand = self.win.commandSequencer.prevMode # run_...: add new chunk to combobox in BUILD_PROTEIN
-        #if prevCommand is not None:
-            #prevCommandName = prevCommand.commandName
-        #else:
-            #prevCommandName = ''
-        #if  prevCommandName == 'BUILD_PROTEIN' or command.commandName == 'BUILD_PROTEIN':
-            ##add the new chunk to the combo box in build protein mode
-            #if prevCommandName == '':
-                #command.propMgr.structureComboBox.addItem(outProtein.name)
-                #command.propMgr.protein_name_list.append(outProtein.name)
-                #command.propMgr.protein_chunk_list.append(outProtein)
-            #else:
-                #prevCommand.propMgr.structureComboBox.addItem(outProtein.name)
-                #prevCommand.propMgr.protein_name_list.append(outProtein.name)
-                #prevCommand.propMgr.protein_chunk_list.append(outProtein)
-               
         return
     
     
