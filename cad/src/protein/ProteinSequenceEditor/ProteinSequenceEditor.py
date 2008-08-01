@@ -497,6 +497,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
                 if mol.isProteinChunk and mol.name == current_protein:
                     proteinChunk = mol
                     self._display_and_recenter(current_protein, position - 1)
+                    proteinExists = True
                     break
         else:
             from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
