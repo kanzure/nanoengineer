@@ -43,18 +43,58 @@ class AtomsTool_Command(BuildAtoms_Command):
     def Enter(self):
         _superclass.Enter(self)
         #NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
-        self._reusePropMgr_of_parentCommand()
+        self.command_enter_PM()
         
-    def _reusePropMgr_of_parentCommand(self):
+        self.command_enter_flyout()
+        
+        
+    def command_enter_flyout(self):
+        """
+        REUSE the flyout toolbar from the parent_command (BuildAtoms_command 
+        in this case)
+        @TODO: 
+        - may need cleanup in command stack refactoring. But the method name is 
+        such that it fits the new method names in command API.         
+        """
+        self._reuse_attr_of_parentCommand('flyoutToolbar')
+        
+    def command_enter_PM(self):
         """
         #NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
+        @see: self._reuse_attr_of_parentCommand()
         """
+        self._reuse_attr_of_parentCommand('propMgr')
+   
+    def _reuse_attr_of_parentCommand(self, attr_name = ''):
+        """
+        Reuse the attr of the parent command. 
+        Example: reuse 'fylouttoolbar' or propMgr attrs in self. 
+        @see: self.command_enter_flyout()
+        
+        """
+        #@TODO: this chould be a new command API method. That gets automatically
+        #called based on some CL_* flags that decides whether to use certain 
+        #attrs such as flyouttoolbar or PM of the parent command
+        #-- Ninad 2008-08-01
+        
+        if not attr_name:
+            print_compact_stack("bug: trying to set an attr with no name "\
+                                "in this command")
+        
         commandSequencer = self.win.commandSequencer
         previousCommand = commandSequencer.prevMode
-        if  previousCommand and  previousCommand.commandName == self.command_parent:
-            self.propMgr = previousCommand.propMgr
         
-    
+        if previousCommand and  previousCommand.commandName == self.command_parent:
+            try:
+                parent_attr = getattr(previousCommand, attr_name)
+            except:
+                print_compact_traceback("bug: parent command %s doesn't have an"\
+                                    "attr by name %s"%(previousCommand, attr_name))
+                return                
+                
+        setattr(self, attr_name, parent_attr)
+        
+
     
     def init_gui(self):
         pass
