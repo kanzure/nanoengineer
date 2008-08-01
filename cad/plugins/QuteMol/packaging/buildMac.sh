@@ -1,5 +1,5 @@
 #!/bin/sh -x
-# This build depends on pre-requisite files that are stored in ~/QMX_support.
+# This build depends on pre-requisite files that are stored in ~/build_prereqs.
 # These files are also backed up on the nanoengineer-1.com server
 
 # Set version information
@@ -15,20 +15,20 @@ DIST_NAME="QuteMolX_$QUTEMOLX_VERSION"
 cd .. || exit 1
 TOP_LEVEL=`pwd`
 
-if [ ! -e "qutemol/src/osx-build" ]
+if [ ! -e qutemol/src/osx-build ]
 then
   echo "Improper build environment"
   exit 1
 fi
 
 # set up a directory to store pre-built stuff
-if [ ! -e "~/MacOSX_Installers" ]
+if [ ! -e ~/MacOSX_Installers ]
 then
   mkdir ~/MacOSX_Installers
 fi
 
 # if it looks like there was already a build in this tree, clean it out
-if [ -e "qutemol/src/osx-build/local" ]
+if [ -e qutemol/src/osx-build/local ]
 then
   cd qutemol/src/osx-build
   sudo make clean
@@ -62,10 +62,10 @@ rm -rf qutemol
 cd $TOP_LEVEL/qutemol || exit 1
 
 # extract the libraries needed to do the build
-tar -xzf ~/QMX_support/glew.tar.gz || exit 1
+tar -xzf ~/build_prereqs/glew.tar.gz || exit 1
 cd src || exit 1
-tar -xzf ~/QMX_support/wrap.tar.gz || exit 1
-tar -xzf ~/QMX_support/vcg.tar.gz || exit 1
+tar -xzf ~/build_prereqs/wrap.tar.gz || exit 1
+tar -xzf ~/build_prereqs/vcg.tar.gz || exit 1
 
 # change the version information compiled into QuteMolX
 cat MyTab.cpp | sed -e "s:Version [0-9]*\.[0-9]*\.[0-9]*:Version $QUTEMOLX_VERSION:" > MyTab.cpp.btmp
