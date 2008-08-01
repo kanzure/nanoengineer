@@ -37,6 +37,8 @@ class BondTool_Command(BuildAtoms_Command):
     default command.
     """
     GraphicsMode_class = BondTool_GraphicsMode
+    
+    featureName = 'Build Atoms Mode/BondTool'
     commandName = 'BOND_TOOL'
     
     command_can_be_suspended = False
@@ -232,7 +234,10 @@ class BondTool_Command(BuildAtoms_Command):
 
 #classes need to be in their own module
 class SingleBondTool(BondTool_Command):
+    
+    featureName = 'Build Atoms Mode/SingleBondTool'    
     commandName = 'SINGLE_BOND_TOOL'            
+    
     def getBondType(self):
         return V_SINGLE
     
@@ -243,6 +248,7 @@ class SingleBondTool(BondTool_Command):
         return 'Single Bond'
 
 class DoubleBondTool(BondTool_Command):
+    featureName = 'Build Atoms Mode/DoubleBondTool'
     commandName = 'DOUBLE_BOND_TOOL'
     def getBondType(self):
         return V_DOUBLE
@@ -254,6 +260,7 @@ class DoubleBondTool(BondTool_Command):
         return 'Double Bond'
 
 class TripleBondTool(BondTool_Command):
+    featureName = 'Build Atoms Mode/TripleBondTool'
     commandName = 'TRIPLE_BOND_TOOL'
     def getBondType(self):
         return V_TRIPLE
@@ -265,6 +272,7 @@ class TripleBondTool(BondTool_Command):
         return 'Triple Bond'
     
 class AromaticBondTool(BondTool_Command):
+    featureName = 'Build Atoms Mode/AromaticBondTool'
     commandName = 'AROMATIC_BOND_TOOL'
     
     def getBondType(self):
@@ -277,6 +285,7 @@ class AromaticBondTool(BondTool_Command):
         return 'Aromatic Bond'
 
 class GraphiticBondTool(BondTool_Command):
+    featureName = 'Build Atoms Mode/GraphiticBondTool'
     commandName = 'GRAPHITIC_BOND_TOOL'
     
     def getBondType(self):
@@ -290,6 +299,7 @@ class GraphiticBondTool(BondTool_Command):
 
 class DeleteBondTool(BondTool_Command):
     GraphicsMode_class = DeleteBondTool_GraphicsMode
+    featureName = 'Build Atoms Mode/DeleteBondTool'
     commandName = 'DELETE_BOND_TOOL'
     
     def _apply_bondTool_on_selected_atoms(self):
