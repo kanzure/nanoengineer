@@ -35,11 +35,10 @@ Ninad 2008-01-04: Created new Command and GraphicsMode classes from
                   depositMode.py
 """
 from PyQt4.Qt import QSize
-from PyQt4.Qt import SIGNAL
+
 
 import foundation.env as env
 import foundation.changes as changes
-from utilities.debug import print_compact_stack
 from utilities.debug import print_compact_traceback
 from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
 from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
@@ -51,7 +50,6 @@ from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_basicCommand
 from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from ne1_ui.toolbars.Ui_BuildChunksFlyout import BuildChunksFlyout
-from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 _superclass = SelectAtoms_basicCommand
 
@@ -89,7 +87,75 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         self.hover_highlighting_enabled = \
             env.prefs[buildModeHighlightingEnabled_prefs_key]
+    
+    #START new command API methods =============================================
+    #currently [2008-08-01 ] also called in by self,init_gui and 
+    #self.restore_gui.
+    
+    def command_enter_PM(self):
+        """
+        Overrides superclass method. 
         
+        @see: baseCommand.command_enter_PM()  for documentation
+        """
+        #important to check for old propMgr object. Reusing propMgr object 
+        #significantly improves the performance.
+        if not self.propMgr:
+            self.propMgr = BuildAtomsPropertyManager(self)
+            #@bug BUG: following is a workaround for bug 2494.
+            #This bug is mitigated as propMgr object no longer gets recreated
+            #for modes -- ninad 2007-08-29
+            changes.keep_forever(self.propMgr)  
+            
+        self.propMgr.show()
+    
+    def command_exit_PM(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_PM() for documentation
+        """
+        
+        if self.propMgr:
+            self.propMgr.close()
+            
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_flyout()  for documentation
+        """
+        if self.flyoutToolbar is None:
+            self.flyoutToolbar = BuildChunksFlyout(self)    
+        self.flyoutToolbar.activateFlyoutToolbar()  
+            
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_flyout()  for documentation
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.deActivateFlyoutToolbar()
+            
+    def command_enter_misc_actions(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_misc_actions()  for documentation
+        """
+        self.w.toolsDepositAtomAction.setChecked(True)
+            
+    def command_exit_misc_actions(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_misc_actions()  for documentation
+        """
+        self.w.toolsDepositAtomAction.setChecked(False)        
+    
+    #END new command API methods ==============================================
+    
     
     def init_gui(self):
         """
@@ -110,33 +176,19 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         #  methods is badly in need of documentation, if not cleanup...
         #  [says bruce 050121, who is to blame for this])
         
-        #important to check for old propMgr object. Reusing propMgr object 
-        #significantly improves the performance.
-        if not self.propMgr:
-            self.propMgr = BuildAtomsPropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
-            changes.keep_forever(self.propMgr)  
-            
-        self.propMgr.show()
-        self.connect_or_disconnect_signals(True)  
-        
-        self.w.toolsDepositAtomAction.setChecked(True)
-        
-        
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = BuildChunksFlyout(self)
-            
-    
-        self.flyoutToolbar.activateFlyoutToolbar()   
-        
+        self.command_enter_misc_actions()
+        self.command_enter_PM() 
+        self.command_enter_flyout()
+  
         self.dont_update_gui = False
         
+        #@TODO: check if its safe to move this in self.command_enter_gui()
+        #-- Ninad 2008-08-01
         self.propMgr.updateMessage()
         
         # The caller will now call update_gui(); we rely on that [bruce 050122]
         return
+    
     
 
     def restore_gui(self):
@@ -146,14 +198,10 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         disconnecting widget slots etc. 
         @see: L{self.init_gui}
         """
-        self.w.toolsDepositAtomAction.setChecked(False)
-       
-        if self.propMgr:
-            self.propMgr.close()
-            
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
-        
+        self.command_exit_misc_actions()
+        self.command_exit_flyout()
+        self.command_exit_PM()
+
     def enterToolsCommand(self, commandName = ''): #REVIEW
         """
         Enter the given tools subcommand (e.g. Atoms tool or one of the bond 
