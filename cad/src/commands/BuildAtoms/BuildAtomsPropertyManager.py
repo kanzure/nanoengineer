@@ -24,16 +24,15 @@ import foundation.env as env
 
 from PyQt4.Qt import SIGNAL
 from commands.BuildAtoms.Ui_BuildAtomsPropertyManager import Ui_BuildAtomsPropertyManager
-from model.bond_constants import btype_from_v6
 from geometry.VQT import V
 from utilities.Comparison import same_vals
 from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
 from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
-NOBLEGASES = ["He", "Ne", "Ar", "Kr"]
-PAMATOMS = ["Gv5", "Ax3"]
-ALL_PAM_ATOMS = ["Gv5", "Ss5", "Pl5", "Ax3", "Ss3", "Ub3", "Ux3", "Uy3"]
+NOBLEGASES = ("He", "Ne", "Ar", "Kr")
+PAMATOMS = ("Gv5", "Ax3")
+ALL_PAM_ATOMS = ("Gv5", "Ss5", "Pl5", "Ax3", "Ss3", "Ub3", "Ux3", "Uy3")
 
 _superclass = Ui_BuildAtomsPropertyManager
 class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
@@ -50,7 +49,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @type  parentMode: L{depositMode} 
         """
         self.previousSelectionParams = None
-        Ui_BuildAtomsPropertyManager.__init__(self, parentMode)
+        _superclass.__init__(self, parentMode)
         
         # It is essential to make the following flag 'True' instead of False. 
         # Program enters self._moveSelectedAtom method first after init, and 
@@ -72,6 +71,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
     def show(self):
         _superclass.show(self)
         self.connect_or_disconnect_signals(isConnect = True)
+        
     def close(self):
         self.connect_or_disconnect_signals(isConnect = False)
         _superclass.close(self)
