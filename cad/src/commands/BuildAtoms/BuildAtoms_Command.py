@@ -63,8 +63,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
 
-    highlight_singlets = True     
-    water_enabled = False # Fixes bug 1583. mark 060301.    
+    highlight_singlets = True         
     # methods related to entering this mode         
     dont_update_gui = True
     
@@ -476,9 +475,17 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         """
         overrides superclass method.  
         Note that this deprecates use of self.hover_highlighiting_enabled
-        @see: BuildAtoms_Command.isHighlightingEnabled()
+        @see: anyCommand.isHighlightingEnabled()
         """
         return env.prefs[buildModeHighlightingEnabled_prefs_key]
+    
+    def isWaterSurfaceEnabled(self):
+        """
+        overrides superclass method.  
+        @see: BuildAtoms_Command.isWaterSurfaceEnabled()
+        
+        """
+        return env.prefs[buildModeWaterEnabled_prefs_key]
         
     def isAtomsToolActive(self):
         """

@@ -767,6 +767,9 @@ class ops_select_Mixin:
         #  external callers which pass their own water_enabled flag to it.
         #  So we can't just inline this into it.)
         # [bruce 071008]
+        #UPDATE 2008-08-01: Water surface is currently an aspect of the 
+        #command class rather than graphicsMode class. The graphicsmode checks
+        #it by calling self.command.isWaterSurfaceEnabled() --[ Ninad comment]
         commandSequencer = self.win.commandSequencer
         if commandSequencer.currentCommand.commandName == 'DEPOSIT':
             return True

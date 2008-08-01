@@ -193,9 +193,6 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
     selShape = SELSHAPE_RECT
         # <selShape> the current selection shape.
 
-
-    water_enabled  = None # see self.update_selobj for a detailed comment
-
     ignore_next_leftUp_event = False
         # Set to True in leftDouble() and checked by the left*Up()
         # event handlers to determine whether they should ignore the
@@ -761,7 +758,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
         else: # No hover highlighting
             obj = self.o.assy.findAtomUnderMouse(event,
-                                                 self.water_enabled,
+                                                 self.command.isWaterSurfaceEnabled(),
                                                  singlet_ok = True)
             # Note: findAtomUnderMouse() only returns atoms and singlets, not
             # bonds or jigs.
@@ -885,12 +882,9 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             # far depth (this happens when no object is touched)
             new_selobj = None
         else:
-            #For selectMolsMode, 'water' is not defined. So self.water_enabled
-            # is initialized to None in this class. This is one of the things
-            # needed to do for moving selectAtomsMode.update_selobj to here
-            # and getting rid of mostly duplicated code in selectMolsMode and
-            # selectAtomsMode -- Ninad 2007-10-12.
-            if self.water_enabled:
+            #For commands like SelectChunks_Command,  the 'water surface' 
+            #is not defined.
+            if self.command.isWaterSurfaceEnabled():
                 # compare to water surface depth
                 cov = - glpane.pov # center_of_view (kluge: we happen to know this is where the water surface is drawn)
                 try:

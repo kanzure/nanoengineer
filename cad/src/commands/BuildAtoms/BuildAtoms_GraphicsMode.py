@@ -107,17 +107,6 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
     #Command will be set in BuildAtoms_GraphicsMode.__init__ . 
     command = None
         
-    def __init__(self, glpane):
-        """
-        """       
-        _superclass.__init__(self, glpane)
-        
-        self.water_enabled = env.prefs[buildModeWaterEnabled_prefs_key] 
-            # if True, only atoms and bonds above the water surface can be 
-            # highlighted and selected.
-            # if False, all atoms and bonds can be highlighted and selected, 
-            # and the water surface is not displayed.
-
     def reset_drag_vars(self):
         # called in Enter and at start of (super's) leftDown
         _superclass.reset_drag_vars(self)
@@ -1280,8 +1269,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             cursor_id = self.w.current_bondtool_button.index
         
         if hasattr(self.command, 'get_cursor_id_for_active_tool' ):
-            cursor_id = self.command.get_cursor_id_for_active_tool()       
-   
+            cursor_id = self.command.get_cursor_id_for_active_tool() 
         if self.o.modkeys is None:             
             self.o.setCursor(self.w.BondToolCursor[cursor_id])
         elif self.o.modkeys == 'Shift':

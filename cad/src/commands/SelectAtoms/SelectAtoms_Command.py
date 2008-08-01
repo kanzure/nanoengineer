@@ -58,8 +58,7 @@ class SelectAtoms_basicCommand(Select_basicCommand):
     
     # Don't highlight singlets in selectAtomsMode. Fixes bug 1540.mark 060220.
     highlight_singlets = False         
-    water_enabled = False # Fixes bug 1583. mark 060301.
-    
+        
     def Enter(self): 
         Select_basicCommand.Enter(self)        
         

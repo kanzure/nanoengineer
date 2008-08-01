@@ -250,10 +250,20 @@ class anyCommand(object, StateMixin):
     
     def isHighlightingEnabled(self):
         """
-        Should be overridden in subclasses. 
+        Should be overridden in subclasses. Default implementation returns True
         @see: BuildAtoms_Command.isHighlightingEnabled()
         """
         return True
+    
+    def isWaterSurfaceEnabled(self):
+        """
+        Should be overridden in subclasses. Default implementation returns True
+        The graphicsMode of current command calls this method to enable/disable
+        water surface and for deciding whther to highlight object under cursor. 
+        @see: BuildAtoms_Command.isWaterSurfaceEnabled()
+        @see: BuildAtoms_GraphicsMode. 
+        """
+        return False
     
     pass # end of class anyCommand
 
