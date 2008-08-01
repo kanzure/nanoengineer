@@ -63,6 +63,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
     #A list of movables that will be moved while dragging.
     #@seeself.getMovablesForLeftDragging()
     _leftDrag_movables = []
+    
+    
 
     def Enter_GraphicsMode(self):
         """
@@ -813,7 +815,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # This will be turned ON again in leftUp method.
         # [update, bruce 071121: it looks like it's turned back on
         #  in bareMotion instead.]
-        self.hover_highlighting_enabled = False
+        ##self.hover_highlighting_enabled = False
+        self._supress_highlighting = True
 
         # This flag is required in various leftUp methods. It helps them
         # decide what to do upon left up. The flag value is set in
@@ -968,8 +971,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                           (self, time_since_wheel_event)
                 return True
 
-        if not self.command.isHighlightingEnabled():
-            self.hover_highlighting_enabled = True
+        #Turn the highlighting back on if it was supressed during, 
+        #for example, leftDrag
+        if self._supress_highlighting:
+            self._supress_highlighting = False
 
         _superclass.bareMotion(self, event)
 
