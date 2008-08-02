@@ -1,8 +1,8 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Ninad
 @version:   $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 
 TODOs:
@@ -41,21 +41,21 @@ class LineMode_GM( Select_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of LineMode.
 
-    Its a temporary mode that draws temporary line with mouse click points 
+    It's a temporary mode that draws temporary line with mouse click points 
     as endpoints and then returns to the previous mode when the  
     mouseClickLimit specified by the user is reached.
 
-    Example use:
-    User is working in selectMolsMode, Now he enters a temporary mode 
-    called DnaLine mode, where, he clicks two points in the 3Dworkspace 
-    and expects to create a DNA using the points he clicked as endpoints. 
-    Internally, the program returns to the previous mode after two clicks. 
-    The temporary mode sends this information to the method defined in 
-    the previous mode called acceptParamsFromTemporaryMode and then the
-    previous mode (selectMolsMode) can use it further to create a dna 
+##    Example use: [note: the following info is out of date as of before 080801]
+##    User is working in selectMolsMode, Now he enters a temporary mode 
+##    called DnaLine mode, where, he clicks two points in the 3Dworkspace 
+##    and expects to create a DNA using the points he clicked as endpoints. 
+##    Internally, the program returns to the previous mode after two clicks. 
+##    The temporary mode sends this information to the method defined in 
+##    the previous mode called acceptParamsFromTemporaryMode and then the
+##    previous mode (selectMolsMode) can use it further to create a dna 
     @see: L{DnaLineMode}
-    @see: selectMolsMode.provideParamsForTemporaryMode comments for 
-          related  TODOs. 
+##    @see: selectMolsMode.provideParamsForTemporaryMode comments for 
+##          related  TODOs. 
 
     TODO: 
     -Need further documentation. 
@@ -520,8 +520,8 @@ class LineMode(Select_Command):
         #  The default implementation returns this constant
         #  or (if it's not overridden in subclasses) something
         #  derived from it. [bruce 071227])
-    from utilities.constants import CL_UNUSED
-    command_level = CL_UNUSED
+    from utilities.constants import CL_REQUEST
+    command_level = CL_REQUEST
 
     GraphicsMode_class = LineMode_GM
 
@@ -536,53 +536,89 @@ class LineMode(Select_Command):
     command_should_resume_prevMode = True 
     command_has_its_own_gui = False
 
-
+    _results_callback = None #bruce 080801
+    
     def init_gui(self):
         """
         Initialize GUI for this mode 
         """
-        prevMode = self.commandSequencer.prevMode # init_gui: provideParamsForTemporaryMode
         #clear the list (for safety) which may still have old data in it
         self.mouseClickPoints = []
         self.glpane.gl_update()
 
-        if hasattr(prevMode, 'provideParamsForTemporaryMode'):
-            params = prevMode.provideParamsForTemporaryMode(self.commandName)
+##        prevMode = self.commandSequencer.prevMode # init_gui: provideParamsForTemporaryMode
+##        if hasattr(prevMode, 'provideParamsForTemporaryMode'):
+##            params = prevMode.provideParamsForTemporaryMode(self.commandName)
+##            self.setParams(params)
+        #bruce 080801 revision of above:
+        params, results_callback = self._args_and_callback_for_request_command()
+        if params is not None:
             self.setParams(params)
-        return   
+            self._results_callback = results_callback
+            # otherwise we were not called as a request command;
+            # method above prints something in that case, for now ###
+        else:
+            # maybe: set default params?
+            self._results_callback = None
+        return
 
     def setParams(self, params):
         """
-        Assign values obtained from the previouse mode to the instance variables
+        Assign values obtained from the parent mode to the instance variables
         of this command object. 
         """
-        self.mouseClickLimit = params        
+        # REVIEW: I think this is only called from self.init_gui,
+        # and ought to be private or inlined. I revised it to accept a tuple
+        # of length 1 rather than an int. If old code had bugs of calling it
+        # from the wrong places (which pass tuples of length 5), those are
+        # now tracebacks, but before were perhaps silent errors (probably
+        # harmless). So if my analysis of possible callers is wrong, this
+        # change might cause bugs. [bruce 080801]
+        assert len(params) == 1 #bruce 080801
+        (self.mouseClickLimit,) = params
 
     def restore_gui(self):
         """
         Restore the GUI 
         """
-        prevMode = self.commandSequencer.prevMode # restore_gui: acceptParamsFromTemporaryMode
-        if hasattr(prevMode, 'acceptParamsFromTemporaryMode'): 
-            prevMode.acceptParamsFromTemporaryMode(
-                self.commandName, 
-                self.mouseClickPoints)
-            #clear the list
-            self.mouseClickPoints = []       
-
-        self.graphicsMode.resetVariables()               
+##        prevMode = self.commandSequencer.prevMode # restore_gui: acceptParamsFromTemporaryMode
+##        if hasattr(prevMode, 'acceptParamsFromTemporaryMode'): 
+##            prevMode.acceptParamsFromTemporaryMode(
+##                self.commandName, 
+##                self.mouseClickPoints)
+        #bruce 080801 revision of above:
+        if self._results_callback:
+            # note: _results_callback comes from an argument to
+            # callRequestCommand.
+            params = self._results_for_request_command_caller()
+            self._results_callback( params)
+        
+        #clear the list [bruce 080801 revision, not fully analyzed: always do this]
+        self.mouseClickPoints = []
+        
+        self.graphicsMode.resetVariables()
         return
 
+    def _results_for_request_command_caller(self):
+        """
+        @return: tuple of results to return to whatever "called"
+                 self as a "request command"
+        
+        [overridden in subclasses]
+        """
+        #bruce 080801 split this out of restore_gui
+        ### REVIEW: make this a Request Command API method??
+        return (self.mouseClickPoints,)
 
-    def EXPERIMENTAL_restore_gui_for_adding_dna_segment(self):
-        """
-        Not implemented/ or used. Experimental method.  
-        code in self.graphicsmode.leftUp. 
-        """
-        prevMode = self.commandSequencer.prevMode # EXPERIMENTAL_restore_gui_for_adding_dna_segment: addSegment
-        if hasattr(prevMode, 'addSegment'):
-            prevMode.addSegment(
-                self.mouseClickPoints)
-            #clear the list
-            self.mouseClickPoints = [] 
-            self.graphicsMode.resetVariables()
+##    def EXPERIMENTAL_restore_gui_for_adding_dna_segment(self):
+##        """
+##        Not implemented/ or used. Experimental method.  
+##        code in self.graphicsmode.leftUp. 
+##        """
+##        prevMode = self.commandSequencer.prevMode # EXPERIMENTAL_restore_gui_for_adding_dna_segment: addSegment
+##        if hasattr(prevMode, 'addSegment'):
+##            prevMode.addSegment(
+##                self.mouseClickPoints)
+##            #clear the list
+##            self.mouseClickPoints = [] 
+##            self.graphicsMode.resetVariables()

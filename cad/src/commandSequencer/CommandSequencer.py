@@ -704,6 +704,96 @@ class modeMixin(object):
         return False
 
     # ==
+
+    _entering_request_command = False
+    _request_arguments = None
+    _accept_request_results = None
+    _fyi_request_data_was_accessed = False
+
+    def callRequestCommand(self,
+                           commandName,
+                           arguments = None,
+                           provide_arguments = None,
+                           accept_results = None
+                          ): #bruce 080801
+        """
+        "Call" the specified request command (asynchronously -- push it on the
+        command stack and return immediately).
+
+        As it's entered (during this method call), it will record the given
+        arguments, or call provide_arguments to get them (exactly one of
+        aeguments or provide_arguments must be passed to this method).
+
+        When it eventually exits (never during this method call, and almost
+        always in a separate user event handler from this method call),
+        it will call accept_results with the request results
+        (or with None if it was cancelled and has no results ### DECIDE whether it
+        might instead just not bother to call it if canceled).
+
+        The format and nature of its arguments and results depend on
+        the particular request command.
+
+        The callbacks are usually bound methods in the command which
+        is calling this method.
+        
+        @param commandName: commandName of request command to call
+        @type commandName: string
+
+        @param arguments: tuple of request arguments
+        @type arguments: tuple, or None if provide_arguments should be called
+
+        @param provide_arguments: callback for getting request arguments
+        @type provide_arguments: callable, takes no arguments (or None)
+
+        @param accept_results: callback for returning request results
+        @type accept_results: callable (required argument, can't be None)
+        """
+        if arguments is None:
+            arguments = provide_arguments()
+                # if this fails when called this early,
+                # save callback and have command call it
+                # (change this only in our own method,
+                #  _f_get_arguments_for_request_command)
+        assert type(arguments) == type(())
+
+        assert accept_results is not None
+        
+        if not USE_COMMAND_STACK:
+            assert self._entering_request_command == False
+            assert self._request_arguments is None
+            assert self._accept_request_results is None
+
+            self._entering_request_command = True
+            self._request_arguments = arguments
+            self._accept_request_results = accept_results
+            self._fyi_request_data_was_accessed = False
+            
+            try:
+                self.userEnterTemporaryCommand(commandName)
+                if not self._fyi_request_data_was_accessed:
+                    print "forgot to access request data" ### more info if it happens; see: _args_and_callback_for_request_command
+            finally:
+                self._entering_request_command = False
+                self._request_arguments = None
+                self._accept_request_results = None
+                self._fyi_request_data_was_accessed = False
+            pass            
+        else:
+            assert 0, "nim"
+        return
+
+    def _f_get_data_while_entering_request_command(self): #bruce 080801
+        if self._entering_request_command:
+            assert self._request_arguments is not None
+            assert self._accept_request_results is not None
+            res = ( self._request_arguments, self._accept_request_results )
+            self._fyi_request_data_was_accessed = True
+        else:
+            res = (None, None)
+            print "fyi: entering a possible request command which was not called that way" ### more info if it happens
+        return res
+    
+    # ==
     
     # new code, mostly for the transition to a real command sequencer
     # and a separate currentCommand and graphicsMode

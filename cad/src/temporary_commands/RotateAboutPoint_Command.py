@@ -3,7 +3,7 @@
 
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 
@@ -126,8 +126,8 @@ class RotateAboutPoint_Command(LineMode):
         #  The default implementation returns this constant
         #  or (if it's not overridden in subclasses) something
         #  derived from it. [bruce 071227])
-    from utilities.constants import CL_EDIT_GENERIC
-    command_level = CL_EDIT_GENERIC
+    from utilities.constants import CL_REQUEST
+    command_level = CL_REQUEST
 
     def rotateAboutPoint(self):
         """
@@ -171,10 +171,9 @@ class RotateAboutPoint_Command(LineMode):
         cross_prod_2 = norm(cross(lineVector, rot_axis))
 
         if dot(cross_prod_1, cross_prod_2) < 0:
-            quat2 = Q(rot_axis,  theta)
+            quat2 = Q(rot_axis, theta)
         else:
-            quat2 = Q(rot_axis,  - theta)
-
+            quat2 = Q(rot_axis, - theta)
 
         movables = self.graphicsMode.getMovablesForLeftDragging()
         self.assy.rotateSpecifiedMovables(
@@ -183,25 +182,20 @@ class RotateAboutPoint_Command(LineMode):
             commonCenter = startPoint)
 
         self.glpane.gl_update()
-
-
-    def restore_gui(self):
-        """
-        Restore the GUI
-        """
-
-        prevMode = self.commandSequencer.prevMode # restore_gui: acceptParamsFromTemporaryMode
-        #Clean this up -- acceptParamsFromTemporaryMode is only needed for the
-        #unchecking the RotateAboutPoint checkbox in the previous mode
-        #(i.e. in the Move Property Manager. )
-
-        if hasattr(prevMode, 'acceptParamsFromTemporaryMode'):
-            params = ()
-            prevMode.acceptParamsFromTemporaryMode(
-                self.commandName,
-                params)
-            #clear the list
-            self.mouseClickPoints = []
-
-        self.graphicsMode.resetVariables()
         return
+
+    def _results_for_request_command_caller(self):
+        """
+        @return: tuple of results to return to whatever "called"
+                 self as a "request command"
+        
+        [overrides LineMode method]
+        """
+        #bruce 080801 split this out of restore_gui (now inherited).
+        # note: superclass LineMode.init_gui sets self._results_callback,
+        # and superclass restore_gui calls it with this method's return value
+        return ()
+
+    pass # end of class RotateAboutPoint_Command
+
+# end

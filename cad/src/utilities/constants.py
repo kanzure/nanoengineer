@@ -712,6 +712,8 @@ CL_EXTERNAL_ACTION = 'CL_EXTERNAL_ACTION'
 CL_GLOBAL_PROPERTIES = 'CL_GLOBAL_PROPERTIES'
 CL_VIEW_CHANGE = 'CL_VIEW_CHANGE'
 
+CL_REQUEST = 'CL_REQUEST' # for a request command (only one level?)
+
 CL_ABSTRACT = 'CL_ABSTRACT' # for abstract command classes
     # (warning if instantiated directly)
 

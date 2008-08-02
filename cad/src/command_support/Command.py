@@ -44,6 +44,8 @@ from foundation.state_utils import StateMixin
 
 from utilities.constants import noop, GLPANE_IS_COMMAND_SEQUENCER
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 from model.jigs import Jig
     # this is used only for cmenu making
     # TODO: probably it should be factored into a method on the object being tested
@@ -1793,7 +1795,17 @@ class basicCommand(anyCommand):
             if command.commandName == commandName:
                 return command
         return None
-        
+
+    # ==
+
+    def _args_and_callback_for_request_command(self): #bruce 080801, might be revised/renamed
+        """
+        ###doc
+        """
+        assert not USE_COMMAND_STACK # nim otherwise
+        cseq = self.commandSequencer
+        return cseq._f_get_data_while_entering_request_command()
+    
     pass # end of class basicCommand
 
 register_abstract_feature_class( basicCommand, basicCommand_Descriptor )

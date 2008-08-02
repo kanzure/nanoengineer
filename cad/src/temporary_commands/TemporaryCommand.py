@@ -1,12 +1,11 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
-
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 TemporaryCommand.py -- provides several kinds of TemporaryCommand superclasses
 (so far, just TemporaryCommand_Overdrawing, used for Zoom/Pan/Rotate).
 
 @author:    Mark, Bruce
 @version:   $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 """
 
@@ -76,7 +75,7 @@ class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
      Same one as in extrudeMode, maybe other commands.))
     """
     def Draw(self):
-        drew = self.commandSequencer.parentCommand_Draw( self.command) # see also .prevMode
+        drew = self.commandSequencer.parentCommand_Draw( self.command)
             # doing this fixes the bug in which Pan etc doesn't show the right things
             # for Cookie or Extrude modes (e.g. bond-offset spheres in Extrude)
         if not drew:
@@ -115,9 +114,10 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
     Provides the declarations that make a command temporary,
     a binding from the Escape key to the Done method,
     and a Draw method which delegates to the Draw method
-    of the saved prior command (commandSequencer.prevMode).
-    Otherwise inherits directly from Command, and its
-    GraphicsMode component from GraphicsMode.
+    of the saved parentCommand.
+    
+    In other respects, inherits behavior from Command
+    and GraphicsMode.
     """
     GraphicsMode_class = _TemporaryCommand_Overdrawing_GM
     featurename = "Undocumented Temporary Command"

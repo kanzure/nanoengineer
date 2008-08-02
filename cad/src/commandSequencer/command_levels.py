@@ -28,6 +28,8 @@ from utilities.constants import CL_EXTERNAL_ACTION
 from utilities.constants import CL_GLOBAL_PROPERTIES
 from utilities.constants import CL_VIEW_CHANGE
 
+from utilities.constants import CL_REQUEST ##### BUG: not yet used below
+
 # level constants not allowed for actual commands:
 from utilities.constants import CL_ABSTRACT # for abstract command classes
     # (warning if instantiated directly)

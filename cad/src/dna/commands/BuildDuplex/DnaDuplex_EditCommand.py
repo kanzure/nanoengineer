@@ -182,13 +182,13 @@ class DnaDuplex_EditCommand(EditCommand):
 
         parentCommand_if_BUILD_DNA = self._init_gui_flyout_action( 'dnaDuplexAction' )
         if parentCommand_if_BUILD_DNA:
-            params = parentCommand_if_BUILD_DNA.provideParamsForTemporaryMode(self.commandName)
+            params = parentCommand_if_BUILD_DNA.provideParamsForTemporaryMode_in_BuildDna()
+                #bruce 080801 revised this; that method should be renamed
             self.callback_addSegments, self._parentDnaGroup = params
             #@TODO: self.callback_addSegments is not used as of 2008-02-24 
             #due to change in implementation. Not removing it for now as the 
             #new implementation (which uses the dnaGroup object of 
             #BuildDna_EditCommand is still being tested) -- Ninad 2008-02-24
-            
         else:
             #Should this be an assertion? Should we always kill _parentDnaGroup
             #if its not None? ..not a good idea. Lets just make it to None. 

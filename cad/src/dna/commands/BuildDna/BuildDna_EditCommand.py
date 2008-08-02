@@ -417,22 +417,33 @@ class BuildDna_EditCommand(EditCommand):
                 self._removeStructure()
 
 
-    def provideParamsForTemporaryMode(self, temporaryModeName):
+    def provideParamsForTemporaryMode_in_BuildDna(self, temporaryModeName = None):
+        # REVIEW: this is called directly by our subcommand DnaDuplex_EditCommand.
+        # I'm not sure if it's ever called by a request command
+        # (but I guess not, due to its old-code check on
+        #  temporaryModeName == 'DNA_DUPLEX').
+        # If not, it should be removed in favor of direct access to
+        # methods or attrs of interest. See comment near its call in
+        # DnaDuplex_EditCommand.py.
+        #
+        # For now, I just renamed it and its call, to verify this theory.
+        # Later it should be renamed better and its argument removed.
+        # [bruce 080801 comment]
         """
-        NOTE: This needs to be a general API method. There are situations when
-        user enters a temporary mode , does something there and returns back to
-        the previous mode he was in. He also needs to send some data from
-        previous mode to the temporary mode .
-        @see: B{DnaLineMode}
-        @see: self.acceptParamsFromTemporaryMode
+##        NOTE: This needs to be a general API method. There are situations when
+##        user enters a temporary mode , does something there and returns back to
+##        the previous mode he was in. He also needs to send some data from
+##        previous mode to the temporary mode .
+##        @see: B{DnaLineMode}
+##        @see: self.acceptParamsFromTemporaryMode
 
         @see DnaDuplex_EditCommand._createSegment(),
         @see: DnaDuplex_EditCommand.createStructure()
         @see: DnaDuplex_EditCommand.restore_gui()
         """
-        params = None
+        params = ()
 
-        if temporaryModeName == 'DNA_DUPLEX':
+        if temporaryModeName in ('DNA_DUPLEX', None):
             #Pass the self.struct to the DnaDuplex_EdiCommand
             #This deprecates use of self.callback_addSegments (in which
             #segments created while in DnaDuplex command are added after

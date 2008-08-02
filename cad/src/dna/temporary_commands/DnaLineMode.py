@@ -173,33 +173,33 @@ class DnaLine_GM( LineMode_GM ):
                     
 
 # == Command part
-class DnaLineMode(LineMode): 
+class DnaLineMode(LineMode): # not used as of 080111, see docstring
     """
+    [no longer used as of 080111, see details below]
     Encapsulates the LineMode functionality.
-    Example:
-    User is working in selectMolsMode, Now he enters a temporary mode 
-    called DnaLine mode, where, he clicks two points in the 3Dworkspace 
-    and expects to create a DNA using the points he clicked as endpoints. 
-    Internally, the program returns to the previous mode after two clicks. 
-    The temporary mode sends this information to the method defined in 
-    the previous mode called acceptParamsFromTemporaryMode and then the
-    previous mode (selectMolsMode) can use it further to create a dna 
+##    Example: [the following info is out of date as of before 080801]
+##    User is working in selectMolsMode, Now he enters a temporary mode 
+##    called DnaLine mode, where, he clicks two points in the 3Dworkspace 
+##    and expects to create a DNA using the points he clicked as endpoints. 
+##    Internally, the program returns to the previous mode after two clicks. 
+##    The temporary mode sends this information to the method defined in 
+##    the previous mode called acceptParamsFromTemporaryMode and then the
+##    previous mode (selectMolsMode) can use it further to create a dna 
     @see: L{LineMode}
-    @see: selectMolsMode.provideParamsForTemporaryMode comments for 
-          related  TODOs.
-    @see: DnaDuplex_EditCommand.provideParamsForTemporaryMode
+##    @see: selectMolsMode.provideParamsForTemporaryMode comments for 
+##          related  TODOs.
+##    @see: DnaDuplex_EditCommand.provideParamsForTemporaryMode
     @see: DnaDuplex_EditCommand.getCursorText
     
     NOTE: [2008-01-11]
     The default DnaLineMode (command) part is not used as of 2008-01-11
     Instead, the interested commands use its GraphicsMode class. 
-    However, its still possible to use and implement the default command 
+    However, it's still possible to use and implement the default command 
     part. (The old implementation of generating Dna using endpoints of a 
     line used this default command class (DnaLineMode). so the method in this
     class  such as self.createStructure does nothing . 
     @see: DnaDuplex_EditCommand where the GraphicsMode class of this command is 
           used
-        
     """
     
     # class constants    
