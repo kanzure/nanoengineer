@@ -217,7 +217,9 @@ sudo mkdir build/GROMACS
 sudo mv build/$DIST_NAME.pkg build/GROMACS
 
 # Build the dmg file
+sleep 10
 sudo sync
+sleep 10
 sudo hdiutil create -srcfolder $TOP_LEVEL/packaging/build/GROMACS -fs HFS+ -format UDZO $TOP_LEVEL/packaging/build/${DIST_NAME}.dmg || exit 1
 
 if [ ! -e ~/MacOSX_Installers/$DIST_NAME.pkg ]

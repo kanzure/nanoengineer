@@ -12,6 +12,11 @@ PKNG_DIR=`pwd`
 cd ../..
 TOP_LEVEL=`pwd`
 
+# set up a directory to store pre-built stuff
+if [ ! -e ~/MacOSX_Installers ]
+then
+  mkdir ~/MacOSX_Installers
+fi
 
 # Set up version information
 VERSION_NUM="1.1.1.2"
@@ -138,10 +143,10 @@ then
   cd metapackage/packages
   sudo cp -R ~/MacOSX_Installers/NanoEngineer-1_v$VERSION_NUM.pkg .
   sudo mv NanoEngineer-1_v$VERSION_NUM.pkg NanoEngineer-1.pkg
-  sudo cp -R ~/MacOSX_Installers/GROMACS_3.3.3.pkg .
-  sudo mv GROMACS_3.3.3.pkg GROMACS.pkg
-  sudo cp -R ~/MacOSX_Installers/QuteMolX_0.5.1.pkg .
-  sudo mv QuteMolX_0.5.1.pkg QuteMolX.pkg
+  sudo cp -R ~/MacOSX_Installers/GROMACS_$GROMACS_VERSION.pkg .
+  sudo mv GROMACS_$GROMACS_VERSION.pkg GROMACS.pkg
+  sudo cp -R ~/MacOSX_Installers/QuteMolX_$QUTEMOLX_VERSION.pkg .
+  sudo mv QuteMolX_$QUTEMOLX_VERSION.pkg QuteMolX.pkg
   sudo cp -R ~/MacOSX_Installers/pref_modifier.pkg .
 else
 # To be replaced later with something that searches for the pkg files
@@ -149,14 +154,26 @@ else
 fi
 cd $PKNG_DIR/MacOSX
 sudo rm -rf NanoEngineer-1_Suite
-sudo rm -rf build
+sudo rm -rf build rec
 sudo mkdir build
 sudo mkdir build/NanoEngineer-1_Suite
 sudo rm -rf NE1_Suite.pmdoc
 tar -xzvf NE1_Suite.pmdoc.tar.gz
+cd NE1_Suite.pmdoc
+GROM_FILE=`ls *gromacs.xml`
+cat $GROM_FILE | sed -e "s:/Applications/GROMACS:/Applications/GROMACS_$GROMACS_VERSION:" > $GROM_FILE.tmp
+mv $GROM_FILE.tmp $GROM_FILE || exit 1
+cd ..
+mkdir rec
+cp background.jpg rec
+cp Welcome.rtf rec
+cp License.txt rec
+cp post_*.sh rec
 sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o build/NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc
+sleep 10
 sudo sync
-sudo sudo hdiutil create -srcfolder build/NanoEngineer-1_Suite -fs HFS+ -format UDZO build/NanoEngineer-1_Suite_v$VERSION_NUM.dmg
+sleep 10
+sudo hdiutil create -srcfolder build/NanoEngineer-1_Suite -fs HFS+ -format UDZO build/NanoEngineer-1_Suite_v$VERSION_NUM.dmg
 
 if [ -e ~/MacOSX_Installers ]
 then
