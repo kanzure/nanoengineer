@@ -20,6 +20,8 @@ piotr 080723: Improved rotamer rendering speed.
 
 piotr 080729: Code cleanup.
 
+piotr 080804: Further code cleanup, adding docstrings.
+
 """
 
 import foundation.env as env
@@ -44,6 +46,15 @@ from OpenGL.GL import glColor3f
 from OpenGL.GL import glEnd
 from OpenGL.GL import GL_QUADS
 from OpenGL.GL import glVertex3fv
+from OpenGL.GL import glColor3fv
+from OpenGL.GL import glMaterialfv
+from OpenGL.GL import GL_FRONT_AND_BACK
+from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
+from OpenGL.GL import glCallList
+from OpenGL.GL import glGenLists
+from OpenGL.GL import glNewList
+from OpenGL.GL import glEndList
+from OpenGL.GL import GL_COMPILE
 
 import colorsys
 
@@ -54,15 +65,6 @@ from utilities.constants import blue, cyan, green, orange, red, white, black, gr
 from utilities.constants import yellow
 from graphics.drawing.CS_workers import drawcylinder_worker
 from graphics.drawing.CS_workers import drawsphere_worker
-from OpenGL.GL import glColor3fv
-from OpenGL.GL import glMaterialfv
-from OpenGL.GL import GL_FRONT_AND_BACK
-from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
-from OpenGL.GL import glCallList
-from OpenGL.GL import glGenLists
-from OpenGL.GL import glNewList
-from OpenGL.GL import glEndList
-from OpenGL.GL import GL_COMPILE
 
 try:
     from OpenGL.GLE import glePolyCone
@@ -284,6 +286,10 @@ def get_rainbow_color_in_range(pos, count, saturation, value):
     return get_rainbow_color(hue, saturation, value)
 
 class ProteinChunks(ChunkDisplayMode):
+    """
+    This class implements drawing of reduced representations of protein 
+    structures. General class structure is copied from DnaCylinderChunks.py
+    """
 
     # mmp_code must be a unique 3-letter code, distinct from the values in 
     # constants.dispNames or in other display modes
@@ -304,21 +310,27 @@ class ProteinChunks(ChunkDisplayMode):
         color = gray
 
         if self.proteinStyleColors == PROTEIN_COLOR_ORDER:
+            # Color according to order of amino acids.
             color = get_rainbow_color_in_range(pos, n_pos, 1.0, 1.0)
         elif self.proteinStyleColors == PROTEIN_COLOR_CHUNK:
+            # Assign chunk color
             if chunk.color:
                 color = chunk.color
             pass
-        elif self.proteinStyleColors == PROTEIN_COLOR_POLARITY:            
+        elif self.proteinStyleColors == PROTEIN_COLOR_POLARITY:         
+            # Color according to amino acid polarity.
             if aa in AA_COLORS_POLARITY:
                 color = AA_COLORS_POLARITY[aa]
-        elif self.proteinStyleColors == PROTEIN_COLOR_ACIDITY:            
+        elif self.proteinStyleColors == PROTEIN_COLOR_ACIDITY:  
+            # Color according to amino acid acidity.
             if aa in AA_COLORS_ACIDITY:
                 color = AA_COLORS_ACIDITY[aa]
-        elif self.proteinStyleColors == PROTEIN_COLOR_HYDROPATHY: 
+        elif self.proteinStyleColors == PROTEIN_COLOR_HYDROPATHY:
+            # Color according to amino acid hydropathy index.
             if aa in AA_COLORS_HYDROPATHY:
                 color = AA_COLORS_HYDROPATHY[aa]
         elif self.proteinStyleColors == PROTEIN_COLOR_SECONDARY:
+            # Color according to protein secondary structure.
             if sec == 1:
                 color = self.proteinStyleHelixColor
             elif sec == 2:
@@ -326,6 +338,7 @@ class ProteinChunks(ChunkDisplayMode):
             else:
                 color = self.proteinStyleCoilColor
         elif self.proteinStyleColors == PROTEIN_COLOR_SS_ORDER:
+            # Color according to the order of secondary structure elements.
             if sec > 0:
                 color = get_rainbow_color_in_range(c_sec, n_sec-1, 1.0, 1.0)
             else:
@@ -335,7 +348,10 @@ class ProteinChunks(ChunkDisplayMode):
 
     def drawchunk(self, glpane, chunk, memo, highlighted):
         """
-        Draws reduced representation of a protein chunk.
+        Draws reduced representation of a protein chunk. This method is called
+        per chunk, but in fact draws individual secondary structure elements, 
+        i.e. consecutive part of the protein chain composed of a single type 
+        of secondary structure.
         """
 
         structure, total_length, ca_list, n_sec = memo
@@ -346,8 +362,10 @@ class ProteinChunks(ChunkDisplayMode):
         scaling = self.proteinStyleScaling
         smooth = self.proteinStyleSmooth
 
+        # Set nice joint style for gle Polycone primitives.
         gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED ) 
 
+        # Iterate over consecutive secondary structure elements.
         current_sec = 0
         for sec, secondary in structure:
             # Number of atoms in SS element including dummy atoms.
@@ -370,6 +388,7 @@ class ProteinChunks(ChunkDisplayMode):
                                                    current_sec,
                                                    n_sec)
                         if style == PROTEIN_STYLE_CA_WIRE:
+                            # Wire - use line.
                             if pos0:
                                 drawline(color, 
                                          pos1 + 0.5 * (pos0 - pos1), 
@@ -383,6 +402,7 @@ class ProteinChunks(ChunkDisplayMode):
                                          width=5, 
                                          isSmooth=True)
                         else:
+                            # Cylinder and B&S - use cylinders.
                             if pos0:
                                 drawcylinder(color, 
                                              pos1 + 0.5 * (pos0 - pos1), 
@@ -403,6 +423,7 @@ class ProteinChunks(ChunkDisplayMode):
                                              capped=1)
 
                 elif style == PROTEIN_STYLE_PEPTIDE_TILES:
+                    # Peptide tiles (not implemented yet)
                     for n in range( 1, n_atoms-2 ):
                         pos0, ss0, aa0, idx0, dpos0, cbpos0 = sec[n - 1]
                         pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[n]
@@ -425,7 +446,14 @@ class ProteinChunks(ChunkDisplayMode):
                      style == PROTEIN_STYLE_SOLID_RIBBON or \
                      style == PROTEIN_STYLE_SIMPLE_CARTOONS or \
                      style == PROTEIN_STYLE_FANCY_CARTOONS:
+                    
+                    # All these styles use the same interpolated cubic spline
+                    # that connects alpha carbon atoms.
 
+                    # The following lists store positions, colors, radii and 
+                    # peptide bond vectors for consecutive main chain 
+                    # positions.
+                    
                     tube_pos = []
                     tube_col = []
                     tube_rad = []
@@ -462,7 +490,6 @@ class ProteinChunks(ChunkDisplayMode):
                                 tube_col.append(V(color))
                                 tube_rad.append(rad)
                                 tube_dpos.append(dpos1)
-
 
                         if style == PROTEIN_STYLE_LADDER:
                             drawcylinder(color, pos1, cbpos1, rad * 0.75)
@@ -576,6 +603,9 @@ class ProteinChunks(ChunkDisplayMode):
                                     nor_arr3 = []
                                     col_arr3 = []
 
+                            # This should be done faster... are separate 
+                            # copies of the tobe positions really necessary?
+                            
                             from copy import copy
                             new_tube_dpos = copy(tube_dpos)
 
@@ -673,10 +703,14 @@ class ProteinChunks(ChunkDisplayMode):
                                                 tri_arr1.append(pos + dpos2 + dn2)
 
                                                 if secondary == 1:
-                                                    col_arr1.append(0.5 * col + 0.5 * V(white))
-                                                    col_arr1.append(0.5 * col + 0.5 * V(white))
-                                                    col_arr1.append(0.5 * col2 + 0.5 * V(white))
-                                                    col_arr1.append(0.5 * col2 + 0.5 * V(white))
+                                                    col_arr1.append(
+                                                        0.5 * col + 0.5 * V(white))
+                                                    col_arr1.append(
+                                                        0.5 * col + 0.5 * V(white))
+                                                    col_arr1.append(
+                                                        0.5 * col2 + 0.5 * V(white))
+                                                    col_arr1.append(
+                                                        0.5 * col2 + 0.5 * V(white))
                                                 else:
                                                     col_arr1.append(col)
                                                     col_arr1.append(col)
@@ -732,8 +766,6 @@ class ProteinChunks(ChunkDisplayMode):
 
                                 new_tube_dpos[n] = width * tube_dpos[n]
 
-                        ###drawcylinder(white, tube_pos[0], tube_pos[10], 1.0)
-
                         if self.proteinStyle == PROTEIN_STYLE_FLAT_RIBBON:
                             drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr0, nor_arr0, col_arr0)
 
@@ -768,6 +800,8 @@ class ProteinChunks(ChunkDisplayMode):
                                     drawtriangle_strip([1.0,1.0,1.0,-2.0],quad_tri,quad_nor,quad_col)
 
                                 if (secondary == 1 and self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS):
+                                    # Draw smooth tubes at the edges of the
+                                    # helices.
                                     drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr0, nor_arr0, col_arr0)
                                     drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr1, nor_arr1, col_arr1)
                                     tube_pos_left = []
@@ -783,17 +817,15 @@ class ProteinChunks(ChunkDisplayMode):
                                     drawpolycone_multicolor([0,0,0,-2], tube_pos_left, tube_col, tube_rad)
                                     drawpolycone_multicolor([0,0,0,-2], tube_pos_right, tube_col, tube_rad)
 
-#                    else:                               
                     if (secondary == 1 and style == PROTEIN_STYLE_SIMPLE_CARTOONS):
                         drawcylinder(tube_col[0][0], tube_pos[1], tube_pos[-3], 2.5, capped=1)
-                        #print "hopsa"
 
                     if style == PROTEIN_STYLE_LADDER or \
                        style == PROTEIN_STYLE_TUBE:
-                        # Draw tube.
+                        # Draw the tube.
                         drawpolycone_multicolor([0,0,0,-2], tube_pos, tube_col, tube_rad)
 
-            # increase Sec. Str. element counter
+            # increase secondary structure element counter
             current_sec += 1
 
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
@@ -811,16 +843,28 @@ class ProteinChunks(ChunkDisplayMode):
         hover-highlighted. And if that's fixed, then just as for drawchunk, 
         we might be called twice when we're highlighted, once with 
         highlighted = False and then later with highlighted = True.
+        
+        This method seems to be obsolete. piotr 080803
         """
         drawchunk(self, glpane, chunk, selection_frame_color, memo, highlighted)
         return
 
     def drawchunk_realtime(self, glpane, chunk, highlighted=False):
         """
-        Draw protein rotamers.
+        Draws protein rotamers. 
+        
+        This is a hack for having atomistic and reduced models displayed
+        simultenaously. This method creates its own display list to store
+        "expanded" rotamers drawn as tubes. Different colors can be assigned
+        to individual rotamers. 
+        
+        piotr 080801: Backbone atoms are omitted.
+        
         """
         if chunk.protein:
             if highlighted:
+                # If highlighhting, just draw everything without using
+                # the display list.
                 aa_list = chunk.protein.get_amino_acids()
                 color = yellow
                 glMaterialfv(
@@ -851,6 +895,7 @@ class ProteinChunks(ChunkDisplayMode):
                                             0.2, 
                                             True))
             else:
+                # Draw rotamers using a display list. Create it if necessary.
                 if not chunk.protein.residues_dl:                    
                     chunk.protein.residues_dl = glGenLists(1)
                     glNewList(chunk.protein.residues_dl, GL_COMPILE)
@@ -898,6 +943,8 @@ class ProteinChunks(ChunkDisplayMode):
     def writepov(self, chunk, memo, file):
         """
         Renders the chunk to a POV-Ray file.
+        
+        Not implemented yet.
         """
         return
 

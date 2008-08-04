@@ -361,9 +361,9 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                        SIGNAL("editingFinished()"),
                        self.chooseAuxilliaryColor)
         
-        change_connect(self.discColorCheckBox,
-                       SIGNAL("stateChanged(int)"),
-                       self.setDiscreteColors)
+        #change_connect(self.discColorCheckBox,
+        #               SIGNAL("stateChanged(int)"),
+        #               self.setDiscreteColors)
         
         change_connect(self.helixColorComboBox,
                        SIGNAL("editingFinished()"),
@@ -659,9 +659,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          choices       =  proteinStyleChoices,
                          setAsDefault  =  True)
             
-        
         scaleChoices = ['Constant', 'Secondary structure', 'B-factor']
-
 
         self.scaleComboBox  = \
             PM_ComboBox( pmGroupBox,
@@ -681,7 +679,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.splineDoubleSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Resolution:",
-                              value         =  4,
+                              value         =  3,
                               setAsDefault  =  True,
                               minimum       =  2,
                               maximum       =  8,
@@ -724,10 +722,8 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                             color      = orange,
                             setAsDefault  =  True)
                             
-        colorChoices1 = [ 'Same as main color', 'Chunk', 'Chain', 'Order', 'Hydropathy', 'Polarity',
-                        'Acidity', 'Size', 'Character', 'Number of contacts',
-                        'Secondary structure type', 'Secondary structure order',
-                        'B-factor', 'Occupancy', 'Custom']
+        colorChoices1 = [ 'Same as main color', 'Lighter', 'Darker', 
+                          'Gray', 'Custom']
         
         self.proteinAuxComponentComboBox  = \
             PM_ComboBox( pmGroupBox,
@@ -748,12 +744,12 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                              color = gray,
                              setAsDefault  =  True)
 
-        self.discColorCheckBox = \
-            PM_CheckBox( pmGroupBox,
-                         text = "Discretize colors",
-                         setAsDefault = True
-                         )
-
+        #self.discColorCheckBox = \
+        #    PM_CheckBox( pmGroupBox,
+        #                 text = "Discretize colors",
+        #                 setAsDefault = True
+        #                 )
+        # 
         colorListHelix = [red, yellow, gray, magenta, 
                           cyan, blue, white, black, orange]
         
@@ -807,10 +803,10 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.customColorComboBox.setColor(env.prefs[proteinStyleCustomColor_prefs_key])
         self.proteinAuxComponentComboBox.setCurrentIndex(env.prefs[proteinStyleAuxColors_prefs_key])        
         self.auxColorComboBox.setColor(env.prefs[proteinStyleAuxCustomColor_prefs_key])
-        if env.prefs[proteinStyleColorsDiscrete_prefs_key] == True:        
-            self.discColorCheckBox.setCheckState(Qt.Checked)  
-        else:
-            self.discColorCheckBox.setCheckState(Qt.Unchecked)   
+        #if env.prefs[proteinStyleColorsDiscrete_prefs_key] == True:        
+        #    self.discColorCheckBox.setCheckState(Qt.Checked)  
+        #else:
+        #    self.discColorCheckBox.setCheckState(Qt.Unchecked)   
         self.helixColorComboBox.setColor(env.prefs[proteinStyleHelixColor_prefs_key])
         self.strandColorComboBox.setColor(env.prefs[proteinStyleStrandColor_prefs_key])
         self.coilColorComboBox.setColor(env.prefs[proteinStyleCoilColor_prefs_key])      
