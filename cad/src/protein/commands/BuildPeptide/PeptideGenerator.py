@@ -634,7 +634,13 @@ class PeptideGenerator:
 
         # Generate the peptide chain.
         self.length = 1
+        #hardcoding length
         for index, phi, psi in peptide_cache:
+        #i = 0
+        #for i in range(10):
+            #index = peptide_cache[0][0]
+            #phi = peptide_cache[0][1]
+            #psi = peptide_cache[0][2]
             name, short_name, symbol, zmatrix, size = AMINO_ACIDS[index]
             self._buildResiduum(mol, zmatrix, size, phi, psi, None, symbol)
 
@@ -728,7 +734,7 @@ class PeptideGenerator:
 
         # Generate the peptide chain.
         name, short_name, symbol, zmatrix, size = AMINO_ACIDS[aa_idx]
-        for idx in range(self.length):
+        for idx in range(int(self.length)):
             self._buildResiduum(mol, zmatrix, size, phi, psi, None, symbol)
 
         # Add a C-terminal OH group
