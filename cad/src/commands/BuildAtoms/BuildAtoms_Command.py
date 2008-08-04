@@ -99,7 +99,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         #important to check for old propMgr object. Reusing propMgr object 
         #significantly improves the performance.
         if not self.propMgr:
-            self.propMgr = BuildAtomsPropertyManager(self)
+            self.propMgr = self._createPropMgrObject()
             #@bug BUG: following is a workaround for bug 2494.
             #This bug is mitigated as propMgr object no longer gets recreated
             #for modes -- ninad 2007-08-29
@@ -124,8 +124,23 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         @see: baseCommand.command_enter_flyout()  for documentation
         """
         if self.flyoutToolbar is None:
-            self.flyoutToolbar = BuildChunksFlyout(self)    
+            self.flyoutToolbar = self._createFlyoutToolBarObject() 
         self.flyoutToolbar.activateFlyoutToolbar()  
+        
+    def _createFlyoutToolBarObject(self):
+        """
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteMode._createFlyouttoolBar()
+        @see: self.command_enter_flyout()
+        """
+        flyoutToolbar = BuildChunksFlyout(self) 
+        return flyoutToolbar
+    
+    def _createPropMgrObject(self):
+        propMgr = BuildAtomsPropertyManager(self)
+        return propMgr
+        
             
     def command_exit_flyout(self):
         """

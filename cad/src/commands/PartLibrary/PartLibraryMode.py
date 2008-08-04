@@ -21,12 +21,9 @@ ninad 2007-09-06: Created. Split out some methods originally in depositMode.py
                   to this file. 
 
 """
-import foundation.changes as changes
-import foundation.env as env
+
 import os
-
-from utilities.Log import orangemsg, greenmsg, quote_html, redmsg
-
+from utilities.Log import  greenmsg, quote_html, redmsg
 from model.chem import Atom
 from model.elements import Singlet
 from geometry.VQT import Q
@@ -34,6 +31,8 @@ from operations.ops_copy import copied_nodes_for_DND
 
 from commands.Paste.PasteMode import PasteMode
 from commands.PartLibrary.PartLibPropertyManager import PartLibPropertyManager
+from ne1_ui.toolbars.Ui_PartLibraryFlyout import PartLibraryFlyout
+from commands.PartLibrary.PartLibrary_GraphicsMode import PartLibrary_GraphicsMode
 
 class PartLibraryMode(PasteMode):
     """
@@ -48,92 +47,25 @@ class PartLibraryMode(PasteMode):
     featurename = "Part Library"
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
+    
+    GraphicsMode_class = PartLibrary_GraphicsMode
 
-    def __init__(self, glpane):
+    def _createFlyoutToolBarObject(self):
         """
-        Constructor for the class PartLibraryMode. This mode allows 
-        depositing parts from the partlib into the 3D workspace. Its property 
-        manager shows the current selected part in its 'Preview' box. The part 
-        can be deposited by doubleclicking on empty space in 3D workspace or if
-        it has a hotspot, it can be deposited on a bondpoint of an existing 
-        model.  User can return to previous mode by hitting  'Escape' key  
-        or pressing 'Done' button in the Part Library mode. 
-
-        @param glpane: GLPane object 
-        @type  glpane: L{GLPane} 
-
-        @see: L{PasteMode} , L{depositMode}
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteMode._createFlyouttoolBar()
+        @see: self.command_enter_flyout()
         """
-        PasteMode.__init__(self, glpane)
-
-    def init_gui(self):
+        flyoutToolbar = PartLibraryFlyout(self) 
+        return flyoutToolbar
+    
+    def _createPropMgrObject(self):
         """
-        Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command toolbar, connecting widget 
-        slots, etc. 
-
-        Called once each time the mode is entered; should be called only by code 
-        in modes.py.
-
-        @see: L{self.restore_gui}
         """
-        self.dont_update_gui = True
-        if not self.propMgr:
-            self.propMgr = PartLibPropertyManager(self)
-            changes.keep_forever(self.propMgr)
-
-        self.propMgr.show()     
-
-        self.connect_or_disconnect_signals(True)
-        self.updateCommandToolbar(bool_entering = True)
-
-        self.dont_update_gui = False
-
-    def _init_flyoutActions(self):
-        """
-        Defines the actions to be added in the flyout toolbar section of the 
-        Command Toolbar.
-        """
-        PasteMode._init_flyoutActions(self)
-        self.exitModeAction.setText("Exit Partlib")
-
-    def deposit_from_MMKit(self, atom_or_pos):
-        """
-        Deposit the library part being previewed into the 3D workspace
-        Calls L{self.deposit_from_Library_page}
-
-        @param atom_or_pos: If user clicks on a bondpoint in 3D workspace,
-                            this is that bondpoint. NE1 will try to bond the 
-                            part to this bondpoint, by Part's hotspot(if exists)
-                            If user double clicks on empty space, this gives 
-                            the coordinates at that point. This data is then 
-                            used to deposit the item.
-        @type atom_or_pos: Array (vector) of coordinates or L{Atom}
-
-        @return: (deposited_stuff, status_msg_text) Object deposited in the 3 D 
-                workspace. (Deposits the selected  part as a 'Group'. The status
-                message text tells whether the Part got deposited.
-        @rtype: (L{Group} , str)
-
-        @attention: This method needs renaming. L{depositMode} still uses it 
-        so simply overriden here. B{NEEDS CLEANUP}.
-        @see: L{self.deposit_from_Library_page} 
-
-        """
-        deposited_stuff, status = self.deposit_from_Library_page(atom_or_pos)
-        deposited_obj = 'Part'
-        if deposited_stuff and self.pickit():
-            for d in deposited_stuff[:]:
-                d.pickatoms() 
-
-        if deposited_stuff:
-            self.w.win_update()                
-            status = self.ensure_visible( deposited_stuff, status) 
-            env.history.message(status)
-        else:
-            env.history.message(orangemsg(status)) 
-
-        return deposited_obj
+        propMgr = PartLibPropertyManager(self)
+        return propMgr
+    
 
     def deposit_from_Library_page(self, atom_or_pos): 
         """

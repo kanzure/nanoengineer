@@ -7,7 +7,6 @@ Its property manager lists the'pastable' clipboard items and also shows the
 current selected item in its 'Preview' box. User can return to previous mode by 
 hitting 'Escape' key or pressing 'Done' button in the Paste mode. 
 
-@author: Ninad
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -15,31 +14,32 @@ History:
 Ninad 2007-08-29: Created. 
 Ninad 2008-01-02: Moved several methods originally in class depositMode to 
                   PasteMode. 
+Ninad 2008-08-02: refactored into command and graphics mode classes, other things
+needed for the command stack refactoring project. 
+
+TODO:
+- some methods in Command and GraphicsMode part are not appropriate in those classes
+eg. deposit_from_MMKit method in the Graphicsmode class. This will need further 
+clanup.
+- rename PasteMode to PastFromClipboard_Command
 """
 
-from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import Qt
-
-import foundation.env as env
-import foundation.changes as changes
-
-from utilities.Log import orangemsg, redmsg
 from foundation.Group import Group
 from model.chem import Atom
 from model.chunk import Chunk
 from model.elements import Singlet
 from operations.pastables import is_pastable
-from commands.BuildAtoms.depositMode import depositMode
 
 from operations.pastables import find_hotspot_for_pasting
 from model.bonds import bond_at_singlets
 
 from commands.Paste.PastePropertyManager import PastePropertyManager
-from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
-from utilities.icon_utilities import geticon
-_superclass = depositMode
+from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
+from ne1_ui.toolbars.Ui_PasteFromClipboardFlyout import PasteFromClipboardFlyout
+from commands.Paste.PasteFromClipboard_GraphicsMode import PasteFromClipboard_GraphicsMode
+_superclass = BuildAtoms_Command
 
-class PasteMode(depositMode):
+class PasteMode(BuildAtoms_Command):
     """
     PasteMode allows depositing clipboard items into the 3D workspace. 
     Its property manager lists the 'pastable' clipboard items and also shows the 
@@ -47,7 +47,7 @@ class PasteMode(depositMode):
     by hitting 'Escape' key  or pressing 'Done' button in the Paste mode. 
     """
     commandName = 'PASTE' 
-    featurename = "Paste" # REVIEW: should this be changed to "Paste From Clipboard"?
+    featurename = "Paste From Clipboard" 
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
 
@@ -60,22 +60,21 @@ class PasteMode(depositMode):
 
     #See Command.anyCommand for details about the following flag
     command_has_its_own_gui = True
+    
+    GraphicsMode_class = PasteFromClipboard_GraphicsMode
 
-    def __init__(self, glpane):
+    def __init__(self, commandSequencer):
         """
         Constructor for the class PasteMode. PasteMode allows depositing 
         clipboard items into the 3D workspace. Its property manager lists the
         'pastable' clipboard items and also shows the current selected item 
         in its 'Preview' box. User can return to previous mode by hitting 
         'Escape' key  or pressing 'Done' button in the Paste mode. 
-        @param glpane: GLPane object 
-        @type  glpane: L{GLPane} 
+        @param commandSequencer: The command sequencer (GLPane) object 
         """
         self.pastables_list = [] #@note: not needed here?
-        
-        _superclass.__init__(self, glpane)
-        self._init_flyoutActions()
-    
+        _superclass.__init__(self, commandSequencer) 
+           
     def Enter(self):
         """
         """
@@ -96,59 +95,26 @@ class PasteMode(depositMode):
 
         @see: L{self.restore_gui}
         """
-        self.dont_update_gui = True
         self.pastable = None 
+        _superclass.init_gui(self)
 
-        if not self.propMgr:
-            self.propMgr = PastePropertyManager(self)
-            changes.keep_forever(self.propMgr)
 
-        self.propMgr.show()     
-
-        self.connect_or_disconnect_signals(True)
-        self.updateCommandToolbar(bool_entering = True)
+    def _createFlyoutToolBarObject(self):
+        """
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteMode._createFlyouttoolBar()
+        @see: self.command_enter_flyout()
+        """
+        flyoutToolbar = PasteFromClipboardFlyout(self) 
+        return flyoutToolbar
+    
+    def _createPropMgrObject(self):
+        """
+        """
+        propMgr = PastePropertyManager(self)
+        return propMgr
         
-        self.exitModeAction.setChecked(True)
-
-        #Following is required to make sure that the 
-        #clipboard groupbox in paste mode is updated 
-        #(This is done by calling depositeMode.update_gui method 
-        #Not only that, but the above mentioned method also defines 
-        #self.pastable_list which is needed to paste items! This needs a 
-        #separate code clean up in depositmode.py -- Ninad 20070827
-        self.dont_update_gui = False
-
-
-    def connect_or_disconnect_signals(self, isConnect): 
-        """
-        Connect or disconnect widget signals sent to their slot methods.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
-        @type  isConnect: boolean
-        """
-        if isConnect:
-            change_connect = self.w.connect
-        else:
-            change_connect = self.w.disconnect
-
-        change_connect(self.exitModeAction, 
-                       SIGNAL("triggered()"), 
-                       self.w.toolsDone)
-
-        self.propMgr.connect_or_disconnect_signals(isConnect)
-
-
-    def restore_gui(self):
-        """
-        Do changes to the GUI while exiting this mode. This includes closing 
-        this mode's property manager, updating the command toolbar, 
-        disconnecting widget slots etc. 
-        @see: L{self.init_gui}
-        """
-        self.propMgr.close()
-        self.connect_or_disconnect_signals(False)
-        self.exitModeAction.setChecked(False)
-        self.updateCommandToolbar(bool_entering = False)
 
     def update_gui(self):
         """
@@ -242,85 +208,34 @@ class PasteMode(depositMode):
         #that way.) ###@@@ good idea...
 
         return
-    
-    def updateCommandToolbar(self, bool_entering = True):
-        """
-        Update the command toolbar.
-        """        
-        obj = self
-        self.win.commandToolbar.updateCommandToolbar(
-            self.win.toolsDepositAtomAction,
-            obj, 
-            entering = bool_entering)
-        
-        return
 
     
-    def _init_flyoutActions(self):
+
+    def update_pastable(self):
         """
-        Defines the actions to be added in the flyout toolbar section of the 
-        Command Explorer.
-        """    
-        self.exitModeAction = NE1_QWidgetAction(self.propMgr, win = self.win)
-        self.exitModeAction.setText("Exit Paste")
-        self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit.png'))
-        self.exitModeAction.setCheckable(True)
-        self.exitModeAction.setChecked(True) 
-
-
-    def getFlyoutActionList(self):
-        """ 
-        Returns a tuple that contains mode spcific actionlists in the 
-        added in the flyout toolbar of the mode. 
-
-        @return: A tuple that contains 3 lists: subControlAreaActionList, 
-               commandActionLists and allActionsList
-        @rtype: tuple
-        @see: L{CommandToolbar._createFlyoutToolBar} which calls this. 
+        Update self.pastable based on current selected pastable 
+        in the clipboard
         """
+        members = self.o.assy.shelf.members[:]
+        self.pastables_list = filter( is_pastable, members)
 
-        subControlAreaActionList = []
-        commandActionLists   = []
-        allActionsList  = []
+        try:
+            cx = self.propMgr.clipboardGroupBox.currentRow()
+            self.pastable = self.pastables_list[cx] 
+        except: # various causes, mostly not errors
+            self.pastable = None        
+        return 
 
-        subControlAreaActionList.append(self.exitModeAction)   
-
-        lst = []
-        commandActionLists.append(lst)      
-        allActionsList.append(self.exitModeAction)
-
-        params = (subControlAreaActionList, commandActionLists, allActionsList)
-
-        return params
-
-    def deposit_from_MMKit(self, atom_or_pos):
+    def MMKit_clipboard_part(self): #bruce 060412; implem is somewhat of a 
+        #guess, based on the code of self.deposit_from_MMKit
         """
-        Deposit the clipboard item being previewed into the 3D workspace
-        Calls L{self.deposit_from_Clipboard_page}
-        @attention: This method needs renaming. L{depositMode} still uses it 
-        so simply overriden here. B{NEEDS CLEANUP}.
-        @see: L{self.deposit_from_Clipboard_page}
+        If the MMKit is currently set to a clipboard item, return that item's 
+        Part, else return None.
         """
-
-        if self.o.modkeys is None: # no Shift or Ctrl modifier key.
-            self.o.assy.unpickall_in_GLPane()
-
-        deposited_stuff, status = \
-                       self.deposit_from_Clipboard_page(atom_or_pos) 
-        deposited_obj = 'Chunk'
-
-        self.o.selatom = None 
-
-        if deposited_stuff:
-            self.w.win_update()                
-            status = self.ensure_visible( deposited_stuff, status) 
-            env.history.message(status)
-        else:
-            env.history.message(orangemsg(status)) 
-
-        return deposited_obj
-
-
+        if not self.pastable:
+            return None
+        return self.pastable.part
+    
     def deposit_from_Clipboard_page(self, atom_or_pos):
         """
         Deposit the clipboard item being previewed into the 3D workspace
@@ -328,7 +243,7 @@ class PasteMode(depositMode):
         @attention: This method needs renaming. L{depositMode} still uses this 
         so simply overriden here. B{NEEDS CLEANUP}.
         @see: L{self.deposit_from_MMKit}        
-        """     
+        """   
         self.update_pastable()
 
         if isinstance(atom_or_pos, Atom):
@@ -357,50 +272,7 @@ class PasteMode(depositMode):
 
         return chunk, status
 
-    def update_pastable(self):
-        """
-        Update self.pastable based on current selected pastable 
-        in the clipboard
-        """
-        members = self.o.assy.shelf.members[:]
-        self.pastables_list = filter( is_pastable, members)
-
-        try:
-            cx = self.propMgr.clipboardGroupBox.currentRow()
-            self.pastable = self.pastables_list[cx] 
-        except: # various causes, mostly not errors
-            self.pastable = None        
-        return 
-
-    def MMKit_clipboard_part(self): #bruce 060412; implem is somewhat of a 
-        #guess, based on the code of self.deposit_from_MMKit
-        """
-        If the MMKit is currently set to a clipboard item, return that item's 
-        Part, else return None.
-        """
-        if not self.pastable:
-            return None
-        return self.pastable.part
-
-    def transdepositPreviewedItem(self, singlet):
-        """
-        Trans-deposit the current object in the preview groupbox of the 
-        property manager  on all singlets reachable through 
-        any sequence of bonds to the singlet <singlet>.
-        """
-
-        # bruce 060412: fix bug 1677 (though this fix's modularity should be 
-        # improved; perhaps it would be better to detect this error in 
-        # deposit_from_MMKit).
-        # See also other comments dated today about separate fixes of some 
-        # parts of that bug.
-        mmkit_part = self.MMKit_clipboard_part() # a Part or None
-        if mmkit_part and self.o.assy.part is mmkit_part:
-            env.history.message(redmsg("Can't transdeposit the MMKit's current"\
-                                       " clipboard item onto itself."))
-            return
-
-        _superclass.transdepositPreviewedItem(self, singlet)
+    
 
     def resubscribe_to_clipboard_members_changed(self):
         try:
@@ -522,7 +394,7 @@ class PasteMode(depositMode):
             # every time the
             # hotspot is retrieved (since it can become invalid in many other
             # ways too),so there's no need to explicitly forget it here.
-            if self.pickit():
+            if self.graphicsMode.pickit():
                 numol.pickatoms()
                 #bruce 060412 worries whether pickatoms is illegal or 
                 #ineffective (in both pasteBond and pasteFree)
