@@ -461,37 +461,11 @@ class BuildDna_EditCommand(EditCommand):
 
             if not self.hasValidStructure():
                 self.struct = self._createStructure()
-            params = (self.callback_addSegments, self.struct)
+            params = (self.struct)
 
         return params
 
-    def callback_addSegments(self, segmentList):
-        """
-        Call back method supplied to the temporary command DnaDuplex_EditCommand.
-        The DnaDuplex_EditCommand gives it a list of segments created
-        while that command was active.
-        To be revised and renamed.
-
-        @see: DnaDuplex_EditCommand.restore_gui
-
-        @TODO: Remove this method when safe. DEPRECATED AS OF 2008-02-24
-               See self.provideParametersForTemporaryMode which pass on
-               self.struct (a DnaGroup) to be used in DnaDuplex_EditCommand
-               (which adds created DnaSegments to it )
-        """
-
-        if self.struct is None:
-            self.struct = self._createStructure()
-
-        assert self.struct is not None
-        for segment in segmentList:
-            self.struct.addSegment(segment)
-        ##self.win.assy.place_new_geometry(dnaGroup)
-        self.propMgr.updateListWidgets()
-
-        self.previousParams = self._gatherParameters()
-
-        self.win.win_update()
+    
 
     def makeMenus(self):
         """

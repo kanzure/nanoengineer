@@ -23,10 +23,10 @@ renamed to BuildChunks_Command match with the feature name in NE1
 
 """
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
-from PyQt4.Qt import Qt, SIGNAL
+from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QAction
 from PyQt4.Qt import QActionGroup
-from PyQt4.Qt import QSize
+
 
 from utilities.icon_utilities import geticon
 
@@ -40,8 +40,7 @@ class BuildChunksFlyout:
         """
         self.command = command
         self.parentWidget = self.command.propMgr
-        self.propMgr = self.command.propMgr        
-        
+            
         self.win =self.command.win                       
         self._isActive = False
         self._createActions(self.parentWidget)
@@ -77,7 +76,6 @@ class BuildChunksFlyout:
         subControlAreaActionList.append(separator1) 
         
         subControlAreaActionList.append(self.depositAtomsAction)        
-        ##subControlAreaActionList.append(self.propMgr.transmuteAtomsAction)
         subControlAreaActionList.append(self.transmuteBondsAction)      
         separator = QAction(self.win)
         separator.setSeparator(True)
@@ -181,7 +179,6 @@ class BuildChunksFlyout:
         self.subControlActionGroup = QActionGroup(parentWidget)
         self.subControlActionGroup.setExclusive(True)   
         self.subControlActionGroup.addAction(self.depositAtomsAction)   
-        ##self.subControlActionGroup.addAction(self.propMgr.transmuteAtomsAction)
         self.subControlActionGroup.addAction(self.transmuteBondsAction)
         
         self.transmuteAtomsAction = NE1_QWidgetAction(parentWidget, win = self.win)
@@ -264,7 +261,8 @@ class BuildChunksFlyout:
             
         #Atom , Bond Tools Groupbox
         change_connect(self.bondToolsActionGroup,
-                       SIGNAL("triggered(QAction *)"), self.command.changeBondTool)
+                       SIGNAL("triggered(QAction *)"), 
+                       self.command.changeBondTool)
                 
         
         change_connect(self.transmuteAtomsAction,
