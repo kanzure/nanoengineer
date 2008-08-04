@@ -546,11 +546,6 @@ class LineMode(Select_Command):
         self.mouseClickPoints = []
         self.glpane.gl_update()
 
-##        prevMode = self.commandSequencer.prevMode # init_gui: provideParamsForTemporaryMode
-##        if hasattr(prevMode, 'provideParamsForTemporaryMode'):
-##            params = prevMode.provideParamsForTemporaryMode(self.commandName)
-##            self.setParams(params)
-        #bruce 080801 revision of above:
         params, results_callback = self._args_and_callback_for_request_command()
         if params is not None:
             self.setParams(params)
@@ -581,12 +576,6 @@ class LineMode(Select_Command):
         """
         Restore the GUI 
         """
-##        prevMode = self.commandSequencer.prevMode # restore_gui: acceptParamsFromTemporaryMode
-##        if hasattr(prevMode, 'acceptParamsFromTemporaryMode'): 
-##            prevMode.acceptParamsFromTemporaryMode(
-##                self.commandName, 
-##                self.mouseClickPoints)
-        #bruce 080801 revision of above:
         if self._results_callback:
             # note: _results_callback comes from an argument to
             # callRequestCommand.
@@ -609,16 +598,3 @@ class LineMode(Select_Command):
         #bruce 080801 split this out of restore_gui
         ### REVIEW: make this a Request Command API method??
         return (self.mouseClickPoints,)
-
-##    def EXPERIMENTAL_restore_gui_for_adding_dna_segment(self):
-##        """
-##        Not implemented/ or used. Experimental method.  
-##        code in self.graphicsmode.leftUp. 
-##        """
-##        prevMode = self.commandSequencer.prevMode # EXPERIMENTAL_restore_gui_for_adding_dna_segment: addSegment
-##        if hasattr(prevMode, 'addSegment'):
-##            prevMode.addSegment(
-##                self.mouseClickPoints)
-##            #clear the list
-##            self.mouseClickPoints = [] 
-##            self.graphicsMode.resetVariables()
