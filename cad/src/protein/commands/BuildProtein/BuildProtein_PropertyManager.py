@@ -105,6 +105,7 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Overrides superclass show method
         """
+        env.history.statusbar_msg("")
         self._updateProteinListForShow()
         self._showProteinParametersAndSequenceEditor()
         EditCommand_PM.show(self)         
