@@ -487,7 +487,6 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             self.aaRulerTextEdit.setTextCursor(cursor_mate2)
         
         #provide amino acid info as cursor position changes    
-        part = self.win.assy.part
         env.history.statusbar_msg("")
         current_command = self.win.commandSequencer.currentCommand.commandName
         commandSet = ('EDIT_ROTAMERS', 'EDIT_RESIDUES', 'BUILD_PROTEIN')
@@ -515,7 +514,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             if self.win.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
                 self.win.commandSequencer.currentCommand.propMgr._sequenceTableCellChanged(position - 1, 0)    
                 self.win.commandSequencer.currentCommand.propMgr.sequenceTable.setCurrentCell(position - 1, 3) 
-        
+        return
             
             
     def _display_and_recenter(self, current_protein, index):
