@@ -151,8 +151,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #Urmi 20080728: Update the residue combo box with amino acids for the
         #currently selected protein in build protein mode
         self.current_protein = ""
-        previousCommand = self.win.commandSequencer.prevMode # update_residue_combobox: get_current_protein_chunk_name
-        if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
+        previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+        if previousCommand:
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
             #Urmi 20080728: if the previous command was zoom or something, just set this to the
@@ -180,8 +180,9 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
             aa_list = []
             for mol in self.win.assy.molecules:
                 if mol.isProteinChunk() and mol.name == self.current_protein:
-                    aa_list.append(mol.protein.get_amino_acid_id_list())
+                    aa_list = mol.protein.get_amino_acid_id_list()
                     break
+            
             for j in range(len(aa_list)):
                 self.aminoAcidsComboBox.addItem(aa_list[j])
         return
@@ -190,6 +191,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """  
+        env.history.statusbar_msg("")
         self.update_residue_combobox()        
         if self.current_protein != "":  
             self.showSequencePushButton.setEnabled(True)
@@ -232,8 +234,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.current_protein = ""
         #Urmi 20080728: fill up the combo box with amino acids belonging to the
         # current protein in build protein mode
-        previousCommand = self.win.commandSequencer.prevMode # _loadGroupBox1: previousCommand.propMgr.get_current_protein_chunk_name
-        if previousCommand.commandName == 'BUILD_PROTEIN':
+        previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+        if previousCommand:
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
             for mol in self.win.assy.molecules:
