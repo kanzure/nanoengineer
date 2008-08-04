@@ -246,15 +246,8 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
     def _gatherParameters(self):
         """
-        Return the parameters from the property manager UI.
-
-        @return: All the parameters (get those from the property manager):
-                 - numberOfBases
-                 - dnaForm
-                 - basesPerTurn
-                 - endPoint1
-                 - endPoint2
-        @rtype:  tuple
+        Return the parameters from the property manager UI. Delegates this to
+        self.propMgr
         """     
         return self.propMgr.getParameters()
 
@@ -307,8 +300,6 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         numberOfBases, \
                      dnaForm, \
                      dnaModel, \
-                     basesPerTurn, \
-                     duplexRise, \
                      color_junk = params
         #see a note about color_junk in DnaSegment_EditCommand._modifyStructure()
 
@@ -322,21 +313,28 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             if resizeEndAxisAtom:
                 dnaSegment = resizeEndAxisAtom.molecule.parent_node_of_class(
                     self.assy.DnaSegment)
-
-                resizeEnd_final_position = self._get_resizeEnd_final_position(
-                    resizeEndAxisAtom, 
-                    abs(numberOfBasesToAddOrRemove),
-                    duplexRise )
-
-                self.dna.modify(dnaSegment, 
-                                resizeEndAxisAtom,
-                                numberOfBasesToAddOrRemove, 
-                                basesPerTurn, 
-                                duplexRise,
-                                resizeEndAxisAtom.posn(),
-                                resizeEnd_final_position,
-                                resizeEndStrandAtom = resizeEndStrandAtom
-                            )                        
+                
+                if dnaSegment:
+                    #A DnaStrand can have multiple DNA Segments with different 
+                    #basesPerTurn and duplexRise so make sure that while 
+                    #resizing the strand, use the dna segment of the 
+                    #resizeEndAxisAtom. Fixes bug 2922 - Ninad 2008-08-04
+                    basesPerTurn = dnaSegment.getBasesPerTurn()                
+                    duplexRise = dnaSegment.getDuplexRise() 
+                                            
+                    resizeEnd_final_position = self._get_resizeEnd_final_position(
+                        resizeEndAxisAtom, 
+                        abs(numberOfBasesToAddOrRemove),
+                        duplexRise )
+    
+                    self.dna.modify(dnaSegment, 
+                                    resizeEndAxisAtom,
+                                    numberOfBasesToAddOrRemove, 
+                                    basesPerTurn, 
+                                    duplexRise,
+                                    resizeEndAxisAtom.posn(),
+                                    resizeEnd_final_position,
+                                    resizeEndStrandAtom = resizeEndStrandAtom )                        
 
         return  
 
@@ -493,8 +491,6 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                 #numberOfBases, 
                 #dnaForm,
                 #dnaModel,
-                #basesPerTurn,
-                #duplexRise, 
                 #color
 
         self._previousNumberOfBases = self.struct.getNumberOfBases()
@@ -503,9 +499,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
         params_for_propMgr = ( numberOfBases,
                                None, 
-                               None,
-                               None, 
-                               None,                               
+                               None,                          
                                color )
 
 

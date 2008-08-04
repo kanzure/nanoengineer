@@ -76,8 +76,6 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         
         self._numberOfBases = 0 
         self._conformation = 'B-DNA'
-        self.duplexRise = 3.18
-        self.basesPerTurn = 10
         self.dnaModel = 'PAM3'
         
         
@@ -127,26 +125,8 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
                         minimum       =  2,
                         maximum       =  10000 )
         
-        self.basesPerTurnDoubleSpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Bases per turn:",
-                              value         =  self.basesPerTurn,
-                              setAsDefault  =  True,
-                              minimum       =  8.0,
-                              maximum       =  20.0,
-                              decimals      =  2,
-                              singleStep    =  0.1 )
-        
-        self.duplexRiseDoubleSpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Rise:",
-                              value         =  self.duplexRise,
-                              setAsDefault  =  True,
-                              minimum       =  2.0,
-                              maximum       =  4.0,
-                              decimals      =  3,
-                              singleStep    =  0.01 )
-        
+                
+               
         self.disableStructHighlightingCheckbox = \
             PM_CheckBox( pmGroupBox,
                          text         = "Don't highlight while editing DNA",
@@ -159,10 +139,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         #As of 2008-03-31, the properties such as number of bases will be 
         #editable only by using the resize handles. post FNANO we will support 
         #the 
-        self.numberOfBasesSpinBox.setEnabled(False)
-        self.basesPerTurnDoubleSpinBox.setEnabled(False)
-        self.duplexRiseDoubleSpinBox.setEnabled(False)
-        
+        self.numberOfBasesSpinBox.setEnabled(False)        
     
             
     def _loadSequenceEditor(self):
@@ -228,15 +205,11 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         numberOfBases = self.numberOfBasesSpinBox.value()
         dnaForm  = self._conformation
         dnaModel = self.dnaModel
-        basesPerTurn = self.basesPerTurn
-        duplexRise = self.duplexRise
         color = self._colorChooser.getColor()
               
         return (numberOfBases, 
                 dnaForm,
                 dnaModel,
-                basesPerTurn,
-                duplexRise, 
                 color
                 )
     
@@ -250,13 +223,10 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         - See also the routines GraphicsMode.setParams or object.setProps
         ..better to name them all in one style?  
         """
-        #Set the duplex rise and bases per turn spinbox values. 
-        
+                
         numberOfBases, \
                      dnaForm, \
                      dnaModel, \
-                     basesPerTurn, \
-                     duplexRise, \
                      color  = params 
         
         if numberOfBases is not None:
@@ -265,10 +235,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             self._conformation = dnaForm
         if dnaModel is not None:
             self.dnaModel = dnaModel
-        if duplexRise is not None:
-            self.duplexRiseDoubleSpinBox.setValue(duplexRise)
-        if basesPerTurn is not None:
-            self.basesPerTurnDoubleSpinBox.setValue(basesPerTurn)    
+         
         if color is not None:
             self._colorChooser.setColor(color)
     
