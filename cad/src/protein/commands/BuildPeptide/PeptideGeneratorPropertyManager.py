@@ -3,7 +3,7 @@
 
 This is a Property Manager dialog of the Peptide Generator.
 
-@author: Piotr
+@author: Piotr, Urmi
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -16,6 +16,9 @@ Piotr 2008-03-02: Re-written the Property Manager dialogs to allow it working in
                   the interactive mode.
 
 Piotr 080407: Fixed minor bugs in sequence text editor window.
+
+Urmi 20080731: Property Manager updated to support drawing proteins by
+               clicking on two point
 
 """
 
@@ -102,6 +105,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         self.chirality = 1
         self.ss_idx = 1
         self.peptide_cache = []
+        self.peptide_cache.append((0, 0, 0))
 
         self.updateMessageGroupBox()
         
@@ -219,25 +223,25 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
                       SIGNAL("buttonClicked(int)"),
                       self._setAminoAcidType)
 
-        self.sequenceEditor = \
-            PM_TextEdit( inPmGroupBox, 
-                         label      = "Sequence",
-                         spanWidth = True )
+        #self.sequenceEditor = \
+        #    PM_TextEdit( inPmGroupBox, 
+        #                 label      = "Sequence",
+        #                 spanWidth = True )
 
-        self.sequenceEditor.insertHtml("", False, 4, 10, True)
+        #self.sequenceEditor.insertHtml("", False, 4, 10, True)
 
-        self.sequenceEditor.setReadOnly(True)
+        #self.sequenceEditor.setReadOnly(True)
 
-        self.startOverButton = \
-            PM_PushButton( inPmGroupBox,
-                           label     = "",
-                           text      = "Start Over",
-                           spanWidth = True,
-                           setAsDefault = True )
+        #self.startOverButton = \
+        #    PM_PushButton( inPmGroupBox,
+        #                   label     = "",
+        #                   text      = "Start Over",
+        #                   spanWidth = True,
+        #                   setAsDefault = True )
 
-        self.connect( self.startOverButton,
-                      SIGNAL("clicked()"),
-                      self._startOverClicked)
+        #self.connect( self.startOverButton,
+        #              SIGNAL("clicked()"),
+        #              self._startOverClicked)
         
     def addAminoAcid(self, index):
         """
@@ -246,23 +250,26 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         """
 
         # add a new amino acid and chain conformation to the peptide cache
-        self.peptide_cache.append((index,self.phi,self.psi))
-
+        #self.peptide_cache.append((index,self.phi,self.psi))
+        self.peptide_cache[0] = (index,self.phi,self.psi)
+        
         return
 
     def _addWhatsThisText(self):
         """
         What's This text for widgets in this Property Manager.  
         """
-        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_PeptideGeneratorPropertyManager
-        whatsThis_PeptideGeneratorPropertyManager(self)
+        #from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_PeptideGeneratorPropertyManager
+        #whatsThis_PeptideGeneratorPropertyManager(self)
+        pass
 
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_PeptideGeneratorPropertyManager
-        ToolTip_PeptideGeneratorPropertyManager(self)
+        #from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_PeptideGeneratorPropertyManager
+        #ToolTip_PeptideGeneratorPropertyManager(self)
+        pass
 
     def _aaChiralityChanged(self):
         """
@@ -330,6 +337,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         """
         Adds a new amino acid to the peptide molecule.
         """
+        """
         button, idx, short_name, dum, name, symbol, x, y = AA_BUTTON_LIST[aaTypeIndex]
         if self.ss_idx==1:
             aa_txt = "<font color=red>"
@@ -347,14 +355,17 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
             aa_txt = "<font color=black>"
 
         aa_txt += symbol+"</font>"
-        self.sequenceEditor.insertHtml(aa_txt, False, 4, 10, False)
+        #self.sequenceEditor.insertHtml(aa_txt, False, 4, 10, False)
+        """
         self.addAminoAcid(aaTypeIndex)
-        pass
+        return
 
-    def _startOverClicked(self):
-        """
-        Resets a sequence in the sequence editor window.
-        """
-        self.sequenceEditor.clear()
-        self.peptide_cache = []
-        pass
+    
+    #def _startOverClicked(self):
+    #    """
+    #    Resets a sequence in the sequence editor window.
+    #    """
+    #    self.sequenceEditor.clear()
+    #    self.peptide_cache = []
+    #    pass
+     
