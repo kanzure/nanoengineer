@@ -208,6 +208,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
+        env.history.statusbar_msg("")
         #Urmi 20080728: Set the current protein and this will be used for accessing
         #various properties of this protein
         self.set_current_protein()
@@ -228,7 +229,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #Urmi 20080728: created this method to update accessing properties of
         #"current protein" in this mode.
         self.current_protein = ""
-        previousCommand = self.win.commandSequencer.prevMode # set_current_protein: previousCommand.propMgr.get_current_protein_chunk_name
+        previousCommand = self.win.commandSequencer.prevMode 
         #Urmi 20080728: get the protein currently selected in the combo box
 
         # note [bruce 080801]:
@@ -243,7 +244,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         # with the old or proposed code (not 100% sure of this),
         # or after command stack refactoring (pretty sure).
         
-        if previousCommand is not None and previousCommand.commandName == 'BUILD_PROTEIN':
+        previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+        if  previousCommand:   
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
             #if the previous command was zoom or something, just set this to the
