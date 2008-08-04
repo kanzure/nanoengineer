@@ -52,7 +52,7 @@ then
   if [ $BUILD_IF_UNBUILT -ne 0 ]
   then
     cd $TOP_LEVEL/cad/plugins/QuteMol/packaging
-    ./buildMac.sh QUTEMOLX_VERSION
+    ./buildMac.sh $QUTEMOLX_VERSION
     if [ "$?" != "0" ]
     then
       echo "Error in the QuteMolX build, investigate."
@@ -149,16 +149,18 @@ else
 fi
 cd $PKNG_DIR/MacOSX
 sudo rm -rf NanoEngineer-1_Suite
-sudo mkdir NanoEngineer-1_Suite
+sudo rm -rf build
+sudo mkdir build
+sudo mkdir build/NanoEngineer-1_Suite
 sudo rm -rf NE1_Suite.pmdoc
 tar -xzvf NE1_Suite.pmdoc.tar.gz
-sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc
+sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o build/NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc
 sudo sync
-sudo sudo hdiutil create -srcfolder NanoEngineer-1_Suite -fs HFS+ -format UDZO NanoEngineer-1_Suite_v$VERSION_NUM.dmg
+sudo sudo hdiutil create -srcfolder build/NanoEngineer-1_Suite -fs HFS+ -format UDZO build/NanoEngineer-1_Suite_v$VERSION_NUM.dmg
 
 if [ -e ~/MacOSX_Installers ]
 then
-  cd NanoEngineer-1_Suite
+  cd build/NanoEngineer-1_Suite
   sudo cp -R NanoEngineer-1_Suite_V$VERSION_NUM.mpkg ~/MacOSX_Installers
   cd ..
   sudo cp NanoEngineer-1_Suite_v$VERSION_NUM.dmg ~/MacOSX_Installers

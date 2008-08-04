@@ -1,5 +1,12 @@
 #!/bin/sh -x
-GMX_VERSION="3.3.3"
+
+if [ "$1" = "" ]
+then
+  GMX_VERSION="3.3.3"
+else
+  GMX_VERSION="$1"
+fi
+
 DIST_NAME="GROMACS_$GMX_VERSION"
 
 # set up a directory to store pre-built stuff
