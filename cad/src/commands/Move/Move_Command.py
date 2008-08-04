@@ -91,151 +91,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
         if self.propMgr:
             self.propMgr.close()
 
-##    def NEWER_acceptParamsFromTemporaryMode(self, temporaryModeName, params):
-##        """
-##        NOTE: see selectMolsMode.acceptParamsFromTemporaryMode for detailed
-##        comment. This needs to be a API method. This is a temporary
-##        implementation
-##        """
-##
-##        if len(params) == 2:
-##            mouseClickPoints, pivotAtom = params
-##
-##            #Mouseclick points should contain 2 points. But if user abruptly
-##            #terminates  the temporary mode, this might not be true. So rotate
-##            #only when the it has 2 points!
-##
-##            if len(mouseClickPoints) < 2:
-##                self.propMgr.rotateAboutPointButton.setChecked(False)
-##                return
-##
-##
-##            startPoint = mouseClickPoints[0]
-##            endPoint = mouseClickPoints[1]
-##            #initial assignment of reference_vec. The selected movables will be
-##            #rotated by the angle between this vector and the lineVector
-##            reference_vec = self.glpane.right
-##            if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk() :
-##                reference_vec, node_junk = pivotAtom.molecule.getAxis_of_self_or_eligible_parent_node()
-##                del node_junk
-##            else:
-##                reference_vec = self.glpane.right
-##
-##            lineVector = endPoint - startPoint
-##
-##            quat1 = Q(lineVector, reference_vec)
-##
-##            print "***angle =", (quat1.angle)*180/math.pi
-##            print "***dot(lineVector, reference_vec)=", dot(lineVector, reference_vec)
-##
-##            if dot(lineVector, reference_vec) < 0:
-##                theta = math.pi - quat1.angle
-##            else:
-##                theta = quat1.angle
-##
-##            print "*** new angle =", theta*180/math.pi
-##
-##
-##            rot_axis = cross(lineVector, reference_vec)
-##
-##            cross_prod_1 = norm(cross(reference_vec, rot_axis))
-##            cross_prod_2 = norm(cross(lineVector, rot_axis))
-##
-##            print "***dot(cross_prod_1, cross_prod_2) =", dot(cross_prod_1, cross_prod_2)
-##
-##            if dot(cross_prod_1, cross_prod_2) < 0:
-##                quat2 = Q(rot_axis,  theta)
-##            else:
-##                quat2 = Q(rot_axis,  - theta)
-##
-##            movables = self.graphicsMode.getMovablesForLeftDragging()
-##            self.assy.rotateSpecifiedMovables(
-##                quat2,
-##                movables = movables,
-##                commonCenter = startPoint)
-##
-##            self.o.gl_update()
-##
-##        self.propMgr.rotateAboutPointButton.setChecked(False)
-##
-##    def EXPERIMENTAL_acceptParamsFromTemporaryMode(self, temporaryModeName, params):
-##        """
-##        NOTE: see electMolsMode.acceptParamsFromTemporaryMode for detail
-##        comment. This needs to be a API method. This is a temporary
-##        implementation
-##        """
-##        DEBUG_ROTATE_ABOUT_POINT = False
-##
-##        if DEBUG_ROTATE_ABOUT_POINT:
-##            if len(params) == 2:
-##                mouseClickPoints, pivotAtom = params
-##
-##                #Mouseclick points should contain 2 points. But if user abruptly
-##                #terminates  the temporary mode, this might not be true. So rotate
-##                #only when the it has 2 points!
-##
-##                if len(mouseClickPoints) < 2:
-##                    self.propMgr.rotateAboutPointButton.setChecked(False)
-##                    return
-##
-##
-##                startPoint = mouseClickPoints[0]
-##                endPoint = mouseClickPoints[1]
-##                #initial assignment of reference_vec. The selected movables will be
-##                #rotated by the angle between this vector and the lineVector
-##                reference_vec = self.glpane.right
-##                if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk():
-##                    mol = pivotAtom.molecule
-##                    reference_vec, node_junk = mol.getAxis_of_self_or_eligible_parent_node(
-##                        atomAtVectorOrigin = pivotAtom)
-##                    del node_junk
-##                else:
-##                    reference_vec = self.glpane.right
-##
-##                lineVector = endPoint - startPoint
-##
-##                quat1 = Q(lineVector, reference_vec)
-##
-##                #DEBUG Disabled temporarily . will not be used
-##                ##if dot(lineVector, reference_vec) < 0:
-##                    ##theta = math.pi - quat1.angle
-##                ##else:
-##                    ##theta = quat1.angle
-##
-##                #TEST_DEBUG-- Works fine
-##                theta = quat1.angle
-##
-##                rot_axis = cross(lineVector, reference_vec)
-##
-##                if dot(lineVector, reference_vec) < 0:
-##                    rot_axis = - rot_axis
-##
-##                cross_prod_1 = norm(cross(reference_vec, rot_axis))
-##                cross_prod_2 = norm(cross(lineVector, rot_axis))
-##
-##                if dot(cross_prod_1, cross_prod_2) < 0:
-##                    quat2 = Q(rot_axis,  theta)
-##                else:
-##                    quat2 = Q(rot_axis,  - theta)
-##
-##
-##                movables = self.graphicsMode.getMovablesForLeftDragging()
-##                self.assy.rotateSpecifiedMovables(
-##                    quat2,
-##                    movables = movables,
-##                    commonCenter = startPoint)
-##
-##                self.o.gl_update()
-##
-##        self.propMgr.rotateAboutPointButton.setChecked(False)
-
-##    def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
-##        """
-##        NOTE: see selectMolsMode.acceptParamsFromTemporaryMode for detailed
-##        comment. This needs to be an API method. This is a temporary
-##        implementation.
-##        """
-
     def _acceptLineModePoints(self, params): #bruce 080801, revises acceptParamsFromTemporaryMode
         """
         Accept returned points from the LineMode request command.
@@ -277,23 +132,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
         ### REVIEW: can this be called with params == None
         # if RotateAboutPoint is terminated early?
         del params
-        self.propMgr.moveFromToButton.setChecked(False) #k needed?
+        self.propMgr.moveFromToButton.setChecked(False)  # above needed? 
         self.propMgr.rotateAboutPointButton.setChecked(False)
         return
 
-##    def provideParamsForTemporaryMode(self, temporaryModeName = None):
-##        """
-##        NOTE: See selectMolsMode.provideParamsForTemporaryMode
-##        for detailed comment. This is a temporary implementation.
-##        @see: LineMode_GM._drawCursorText
-##        """
-##        temporaryModeNames = ('LineMode', 'RotateAboutPoint', None)
-##
-##        if temporaryModeName in temporaryModeNames:
-##            #This is the number of mouse clicks that the temporary mode accepts
-##            mouseClickLimit = 2
-##            return (mouseClickLimit,)
-##        return ()
 
     def rotateAboutPointTemporaryCommand(self, isChecked = False):
         """
@@ -309,7 +151,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
                 " in the direction specified by that line"
 
             self.propMgr.updateMessage(msg)
-            ## self.commandSequencer.userEnterTemporaryCommand('RotateAboutPoint')
+            
             # following was revised by bruce 080801
             self.commandSequencer.callRequestCommand( 'RotateAboutPoint',
                  ## provide_arguments = self.provideParamsForTemporaryMode,
@@ -361,8 +203,9 @@ class Move_basicCommand(SelectChunks_basicCommand):
         if button:
             rotype = str(button.text())
         else:
-            env.history.message(redmsg("Rotate By Specified Angle: Please press the button \
-                                   corresponding to the axis of rotation"))
+            env.history.message(redmsg("Rotate By Specified Angle:" 
+                                       "Please press the button "\
+                                       "corresponding to the axis of rotation"))
             return
         theta = self.propMgr.rotateThetaSpinBox.value()
         self.rotateTheta( rotype, theta)
@@ -375,8 +218,9 @@ class Move_basicCommand(SelectChunks_basicCommand):
         if button:
             rotype = str(button.text())
         else:
-            env.history.message(redmsg("Rotate By Specified Angle: Please press the button \
-                                   corresponding to the axis of rotation"))
+            env.history.message(redmsg("Rotate By Specified Angle:"\
+                                       " Please press the button "\
+                                       "corresponding to the axis of rotation"))
             return
         theta = self.propMgr.rotateThetaSpinBox.value() * -1.0
         self.rotateTheta( rotype, theta)
