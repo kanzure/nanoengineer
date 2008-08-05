@@ -374,10 +374,11 @@ for tutorials and other information.</p>
 See <A HREF="http://www.nanorex.com/">www.nanorex.com</A> for more information
 about Nanorex.</p>
 """
-
+from utilities.icon_utilities import image_directory
+_sponsorImagePath = os.path.join( image_directory(), "ui/sponsors/nanorex.png")
 _defaultSponsor = _Sponsor('Nanorex', 
-                           _fixHtml(_nanorexText), 
-                           "ui/sponsors/nanorex.png")
+                           _fixHtml(_nanorexText), _sponsorImagePath)
+                           
 
 ###############################################
 
