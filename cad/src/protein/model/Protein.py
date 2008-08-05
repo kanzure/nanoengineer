@@ -14,6 +14,10 @@ Piotr 2008-07-09:
 
 """
 
+import foundation.env as env
+
+from utilities.prefs_constants import rosetta_backrub_enabled_prefs_key
+
 # 3-letter to 1-letter conversion
 AA_3_TO_1 = {
     "ALA" : "A",
@@ -235,6 +239,8 @@ class Residuum:
         self.mutation_descriptor = ""
         self.expanded = False
         self.color = None
+        self.bfactor = 1.0
+        self.backrub = False
         
     def get_atom_name(self, atom):
         """
@@ -512,17 +518,42 @@ class Residuum:
         return None
         
     def expand(self):
+        """
+        Expand a rotamer.
+        """
+        
         self.expanded = True
         
     def collapse(self):
+        """
+        Collapse a rotamer.
+        """
         self.expanded = False
         
     def is_expanded(self):
+        """
+        Return True if the rotamer is expanded.
+        """
         return self.expanded
     
     def set_color(self, color):
+        """
+        Sets a rotamer color for current amino acid.
+        """
         self.color = color
         
+    def set_backrub_mode(self, enable_backrub):
+        """
+        Sets Rosetta backrub mode (True or False).
+        """
+        self.backrub = backrub
+        
+    def get_backrub_mode(self):
+        """ 
+        Gets Rosetta backrub mode (True or False).
+        """
+        return self.backrub
+    
 # End of Residuum class.
 
 class Protein:
@@ -833,6 +864,10 @@ def write_rosetta_resfile(filename, chunk):
        chunk.protein is None:
         return False
 
+    # Check if this is a backrub mode
+    
+    use_backrub = env[rosetta_backrub_enabled_prefs_key]
+    
     # Get a list of amino acids.
     amino_acids = chunk.protein.get_amino_acids()
 
@@ -881,6 +916,9 @@ def write_rosetta_resfile(filename, chunk):
                 "%5d" % int(index) + \
                 "%5d " % int(aa.get_id()) + \
                 mut 
+        if use_backrub and \
+           aa.backrub:
+            out_str += "B"
         if mut == "PIKAA":
             out_str += "  " + aa.get_mutation_descriptor().replace("_","") + "\n"
         else:
