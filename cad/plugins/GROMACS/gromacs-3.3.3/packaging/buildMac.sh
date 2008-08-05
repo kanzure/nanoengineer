@@ -117,7 +117,7 @@ for name in `find . -type f`
 do
   if [ -x "$name" ]
   then
-    file $name | grep Mach-O > /tmp/stitch_gromacs_junk || exit 1
+    file $name | grep Mach-O > /tmp/stitch_gromacs_junk
     if [ "$?" == "0" ]
     then
       cp $name ../gromacs-$GMX_VERSION-joined/$name-i386 || exit 1
@@ -133,7 +133,7 @@ for name in `find . -type f`
 do
   if [ -x "$name" ]
   then
-    file $name | grep Mach-O > /tmp/stitch_gromacs_junk || exit 1
+    file $name | grep Mach-O > /tmp/stitch_gromacs_junk
     if [ "$?" == "0" ]
     then
       cp $name ../gromacs-$GMX_VERSION-joined/$name-ppc || exit 1
@@ -150,7 +150,7 @@ echo "Starting joining process"
 for name in `find . -type f ! -name "*-i386" ! -name "*-ppc" -print`
 do
   rm $name || exit 1
-  lipo -create $name-i386 $name-ppc -output $name || exit 1
+  lipo -create $name-i386 $name-ppc -output $name
   rm $name-i386 $name-ppc || exit 1
 done
 sudo -v
@@ -158,7 +158,7 @@ sudo -v
 mkdir ../gromacs-$GMX_VERSION-univ || exit 1
 # Populate the universal version of the tree with a tree structure that looks
 # like one of the ones we compiled with
-cd gromacs-$GMX_VERSION-i386 || exit 1
+cd ../gromacs-$GMX_VERSION-i386 || exit 1
 find . -print | cpio -pudvm ../gromacs-$GMX_VERSION-univ || exit 1
 # Now replace all binary versions with the universal versions
 cd ../gromacs-$GMX_VERSION-joined || exit 1

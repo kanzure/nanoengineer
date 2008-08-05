@@ -185,7 +185,7 @@ cp License.txt rec
 # copy in the post install scripts
 cp post_*.sh rec
 
-Run the package builder
+# Run the package builder
 sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o build/NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc
 
 # Code added to get around the race condition that seems to be a problem where
