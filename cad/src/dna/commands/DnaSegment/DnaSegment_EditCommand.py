@@ -100,7 +100,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     selected segment.
     """
     cmd              =  'Dna Segment'
-    sponsor_keyword  =  'DNA'
     prefix           =  'Segment '   # used for gensym
     cmdname          = "DNA_SEGMENT"
     

@@ -58,6 +58,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     title         =  "Build DNA"
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/DNA.png"
+    sponsor_keyword = None # Nanorex is the sponsor. Change to 'DNA' to the
+                             # the NUPACK logo.
 
     def __init__( self, win, editCommand ):
         """

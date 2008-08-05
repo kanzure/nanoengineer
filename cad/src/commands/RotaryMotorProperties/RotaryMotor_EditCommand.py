@@ -30,7 +30,6 @@ class RotaryMotor_EditCommand(EditCommand):
     # All jigs like rotary and linear motors already created their
     # name, so do not (re)create it from the prefix.
     create_name_from_prefix = False 
-    sponsor_keyword = 'Rotary Motor'
     propMgr = None
 
     #See Command.anyCommand for details about the following flags

@@ -24,7 +24,6 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 _superclass = EditCommand
 class Graphene_EditCommand(EditCommand):
     cmd              =  greenmsg("Build Graphene: ")
-    sponsor_keyword  =  'Graphene'
     prefix           =  'Graphene'   # used for gensym
     cmdname          = 'Build Graphene'
 

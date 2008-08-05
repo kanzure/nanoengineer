@@ -44,7 +44,6 @@ class BuildNanotube_EditCommand(EditCommand):
     a NanotubeGroup object     
     """
     cmd              =  greenmsg("Build Nanotube: ")
-    sponsor_keyword  =  'Nanotube'
     prefix           =  'NanotubeGroup' # used for gensym
     cmdname          = "Build Nanotube"
 

@@ -56,7 +56,6 @@ class InsertNanotube_EditCommand(EditCommand):
     GraphicsMode 
     """
     cmd              =  greenmsg("Insert Nanotube: ")
-    sponsor_keyword  =  'Nanotube'
     prefix           =  'Nanotube'   # used for gensym
     cmdname          = "Insert Nanotube"
 

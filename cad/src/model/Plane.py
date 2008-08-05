@@ -87,8 +87,7 @@ class Plane(ReferenceGeometry):
     mutable_attrs   = ('center', 'quat', 'gridColor', 'gridLineType',  
                        'gridXSpacing', 'gridYSpacing')
     
-    icon_names      = ["modeltree/Plane.png", "modeltree/Plane-hide.png"]
-    sponsor_keyword = 'Plane'    
+    icon_names      = ["modeltree/Plane.png", "modeltree/Plane-hide.png"] 
     copyable_attrs  = ReferenceGeometry.copyable_attrs + mutable_attrs
     cmdname         = 'Plane'
     mmp_record_name = "plane"

@@ -9,7 +9,7 @@ methods:  __init__, gather_parameters and build_struct.
 They all **must always** be overridden when a new structure generator 
 class is defined.
 
-The class variables cmd, prefix and sponsor_keyword should be changed 
+The class variables cmd and prefix should be changed 
 to fit the new structure generator's role.
 
 @author: Jeff Birac
@@ -68,11 +68,6 @@ class AtomGenerator( AtomGeneratorPropertyManager, GeneratorBaseClass ):
     # Generators for DNA, nanotubes and graphene have their MT name generated 
     # (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
-
-    # We now support multiple keywords 
-    # We now support multiple keywords in a list or tuple
-    # sponsor_keyword = ('Graphenes', 'Carbon')
-    sponsor_keyword  =  'Atom'
 
     # pass window arg to constructor rather than use a global.
     def __init__( self, win ):

@@ -73,7 +73,6 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     resize handles if any.
     """
     cmd              =  'Dna Strand'
-    sponsor_keyword  =  'DNA'
     prefix           =  'Strand '   # used for gensym
     cmdname          = "DNA_STRAND"
     

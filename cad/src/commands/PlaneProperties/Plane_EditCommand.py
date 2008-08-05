@@ -48,9 +48,6 @@ class Plane_EditCommand(EditCommand):
     # All jigs like rotary and linear motors already created their
     # name, so do not (re)create it (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix = False 
-    # We now support multiple keywords in a list or tuple
-    # sponsor_keyword = ('Graphenes', 'Carbon')
-    sponsor_keyword = 'Plane'
     #See Command.anyCommand for details about the following flags
 
     #command_can_be_suspended = False mitigates bug similar to bug 2699

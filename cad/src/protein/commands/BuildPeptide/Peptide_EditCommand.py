@@ -21,7 +21,6 @@ from protein.temporary_commands.PeptideLineMode import PeptideLine_GM
 _superclass = EditCommand
 class Peptide_EditCommand(EditCommand):
     cmd              =  greenmsg("Build Peptide: ")
-    sponsor_keyword  =  'Peptide'
     prefix           =  'Peptide'   # used for gensym
     cmdname          = 'Build Peptide'
 

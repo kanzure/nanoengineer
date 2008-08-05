@@ -94,7 +94,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     widgets showing the properties of selected segment.
     """
     cmd              =  'Nanotube Segment'
-    sponsor_keyword  =  'Nanotube'
     prefix           =  'NanotubeSegment' # used for gensym
     cmdname          = "NANOTUBE_SEGMENT"
 

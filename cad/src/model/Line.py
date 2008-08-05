@@ -32,7 +32,6 @@ class Line(ReferenceGeometry):
     sym = "Line" 
     is_movable = True 
     icon_names = ["modeltree/plane.png", "modeltree/plane-hide.png"]
-    sponsor_keyword = 'Line' 
     copyable_attrs = ReferenceGeometry.copyable_attrs 
     mmp_record_name = "line"
     

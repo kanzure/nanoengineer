@@ -52,7 +52,6 @@ class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
 
     cmdname = greenmsg("Minimize Energy: ") # WARNING: self.cmdname might be used by one of the superclasses
     plain_cmdname = "Minimize Energy"
-    #@sponsor_keyword = None
 
     def __init__(self, win):
         QDialog.__init__(self, win)  # win is parent.

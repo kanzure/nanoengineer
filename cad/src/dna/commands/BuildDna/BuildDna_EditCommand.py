@@ -44,7 +44,6 @@ class BuildDna_EditCommand(EditCommand):
     a DnaGroup object
     """
     cmd              =  greenmsg("Build DNA: ")
-    sponsor_keyword  =  'DNA'
     prefix           =  'DnaGroup'   # used for gensym
     cmdname          = "Build Dna"
     

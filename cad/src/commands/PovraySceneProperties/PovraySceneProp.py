@@ -21,7 +21,6 @@ from utilities.Comparison import same_vals
 class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScenePropDialog):
 
     cmdname = greenmsg("Insert POV-Ray Scene: ")
-    sponsor_keyword = 'DNA'
     prefix = 'POVRayScene'
     extension = ".pov"
 

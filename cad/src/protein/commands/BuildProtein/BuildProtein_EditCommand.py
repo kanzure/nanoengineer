@@ -18,7 +18,6 @@ class BuildProtein_EditCommand(EditCommand):
     a Protein object
     """
     cmd              =  greenmsg("Build Protein: ")
-    sponsor_keyword  =  'Protein'
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Build Protein"
 

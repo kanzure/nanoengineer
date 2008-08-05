@@ -74,7 +74,6 @@ class DnaDuplex_EditCommand(EditCommand):
     GraphicsMode 
     """
     cmd              =  greenmsg("Build DNA: ")
-    sponsor_keyword  =  'DNA'
     prefix           =  'DnaSegment'   # used for gensym
     cmdname          = "Duplex"
 
