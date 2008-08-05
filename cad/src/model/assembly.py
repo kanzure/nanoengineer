@@ -185,9 +185,10 @@ class Assembly( StateMixin, Assembly_API):
 
     _selection_change_counter = 0
     
-    _view_change_counter = 0 # also includes changing current part, glpane display mode [mostly nim as of 060228]
+    _view_change_counter = 0 # also includes changing current part, glpane display mode
+        # [mostly nim as of 060228, 080805]
 
-    def all_change_counters(self): #bruce 060227; 071116 added guarantees to docstring
+    def all_change_counters(self): #bruce 060227; 071116 & 080805, revised docstring  ### TODO: fix docstring after tests
         """
         Return a tuple of all our change counters, suitable for later passing
         to self.reset_changed_for_undo(). The order is guaranteed to be:
@@ -196,19 +197,56 @@ class Assembly( StateMixin, Assembly_API):
 
         and if we add new elements, we guarantee we'll add them at the end
         (so indices of old elements won't change).
+
+        @note: view_change_counter is mostly NIM (as of 080805)
+
+        @note: these are not really "counters" -- they might increase by more
+               than 1 for one change, or only once for several changes,
+               or decrease after Undo. All the numbers mean is that, if they
+               don't differ, no change occurred in the corresponding state.
+               They might be renamed to "change indicators" to reflect this.
+
+        @note: model_change_counter only changes when assy.changed() is called,
+               and at most once per potential undoable operation. For example,
+               during a drag, some model component's position changes many times,
+               but model_change_counter only changes once during that time,
+               when the user operation that does the drag happens to call
+               assy.changed() for the first time during that undoable operation.
+
+        @note: I don't know whether model_change_counter works properly when
+               automatic Undo checkpointing is turned off -- needs review.
+               (The issue is whether it changes at most once during any one
+               *potential* or *actual* undoable operation.) This relates to
+               whether env.change_counter_checkpoint() is called when Undo
+               checkpointing is turned off. I am planning to try a fix to this
+               today [080805], and also to the "changing only once during drag"
+               issue noted above, by adding a call to that function sometime
+               during every user event -- probably after all ui updaters are called.
         """
         return self._model_change_counter, self._selection_change_counter, self._view_change_counter
 
     def model_change_counter(self): #bruce 080731
+        """
+        @see: all_change_counters
+        """
         # todo: ensure it's up to date
         return self._model_change_counter
 
     def selection_change_counter(self): #bruce 080731
+        """
+        @see: all_change_counters
+        """
         # todo: ensure it's up to date
         return self._selection_change_counter
 
     def view_change_counter(self): #bruce 080731
+        """
+        NOT YET IMPLEMENTED
+        
+        @see: all_change_counters
+        """
         # todo: ensure it's up to date
+        assert 0, "don't use this yet, the counter attr is mostly NIM" #bruce 080805
         return self._view_change_counter
     
     # state declarations:
