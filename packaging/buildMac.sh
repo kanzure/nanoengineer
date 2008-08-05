@@ -2,7 +2,7 @@
 
 # Usage: Run ./buildMac.sh from the packaging directory.
 
-VERSION_NUM="1.1.1.2"
+VERSION_NUM="1.1.1"
 DIST_VERSION=NanoEngineer-1_v$VERSION_NUM
 MAJOR=`echo $VERSION_NUM | cut -d "." -f 1`
 MINOR=`echo $VERSION_NUM | cut -d "." -f 2`
@@ -21,12 +21,16 @@ DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT/NanoEngineer-1.app/Contents
 
 # Do required exports for building on MacOSX 10.5
-export MACOSX_DEPLOYMENT_TARGET=10.3
-export CFLAGS="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
-export LDFLAGS="-arch i386 -arch ppc -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -isysroot /Developer/SDKs/MacOSX10.4u.sdk -L/usr/local/lib"
-export CPPFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
-export CXXFLAGS="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
-
+if [ "$MACOSX_DEPLOYMENT_TARGET" = "" ]
+then
+  echo "exporting my own environment"
+  sleep 10
+  export MACOSX_DEPLOYMENT_TARGET=10.3
+  export CFLAGS="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
+  export LDFLAGS="-arch i386 -arch ppc -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -isysroot /Developer/SDKs/MacOSX10.4u.sdk -L/usr/local/lib"
+  export CPPFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
+  export CXXFLAGS="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
+fi
 
 cd $TOP_LEVEL
 # Modifying the foundation/preferences.py file for version
@@ -45,7 +49,6 @@ mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
 
 #Modifying the welcome screen (to avoid manual editing)
 cat packaging/MacOSX/Welcome_template.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > packaging/MacOSX/Welcome.rtf
-cat packaging/Suite/MacOSX/Welcome_template.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > packaging/Suite/MacOSX/Welcome.rtf
 
 # Build the base .app directory contents
 if [ ! -e "$TOP_LEVEL/cad/src" ]; then exit; fi
@@ -234,7 +237,9 @@ sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMa
 # Create the disk image
 sudo mkdir $TOP_LEVEL/cad/src/build/$DIST_VERSION
 sudo mv $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg $TOP_LEVEL/cad/src/build/$DIST_VERSION/
+sleep 10
 sudo sync
+sleep 10
 sudo hdiutil create -srcfolder $TOP_LEVEL/cad/src/build/$DIST_VERSION -fs HFS+ -format UDZO $TOP_LEVEL/cad/src/build/${DIST_VERSION}.dmg
 
 cd $TOP_LEVEL/packaging

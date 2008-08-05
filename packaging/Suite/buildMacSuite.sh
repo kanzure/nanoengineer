@@ -19,7 +19,7 @@ then
 fi
 
 # Set up version information
-VERSION_NUM="1.1.1.2"
+VERSION_NUM="1.1.1"
 RC_NUMBER="0"
 GROMACS_VERSION="3.3.3"
 QUTEMOLX_VERSION="0.5.1"
@@ -166,6 +166,7 @@ mv $GROM_FILE.tmp $GROM_FILE || exit 1
 cd ..
 mkdir rec
 cp background.jpg rec
+cat Welcome_template.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > Welcome.rtf
 cp Welcome.rtf rec
 cp License.txt rec
 cp post_*.sh rec
