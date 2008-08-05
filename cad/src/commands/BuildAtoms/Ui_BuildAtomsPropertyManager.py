@@ -16,7 +16,7 @@ this functionality was integrated into a Property Manager. Since then
 several changes have been made. 
 ninad 2007-08-29: Created: Rewrote all UI to make it use the 'PM' module 
                   classes. This deprecates class MMKitDialog.
-                  Split out old 'clipboard' functionality into new L{PasteMode}
+                  Split out old 'clipboard' functionality into new L{PasteFromClipboard_Command}
 
 """
 
