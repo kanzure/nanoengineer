@@ -866,7 +866,7 @@ def write_rosetta_resfile(filename, chunk):
 
     # Check if this is a backrub mode
     
-    use_backrub = env[rosetta_backrub_enabled_prefs_key]
+    use_backrub = env.prefs[rosetta_backrub_enabled_prefs_key]
     
     # Get a list of amino acids.
     amino_acids = chunk.protein.get_amino_acids()

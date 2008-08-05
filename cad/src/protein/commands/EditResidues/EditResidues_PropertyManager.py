@@ -2,6 +2,8 @@
 """
 EditResidues_PropertyManager.py
 
+B{Edit Residues} is a front-end for 
+
 The EditResidues_PropertyManager class provides a Property Manager 
 for the B{Edit Residues} command on the flyout toolbar in the 
 Build > Protein mode. 
@@ -166,14 +168,6 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          SIGNAL("itemChanged(QTableWidgetItem*)"),
                          self._descriptorsTableItemChanged)
         
-        #change_connect(self.descriptorsTable, 
-        #                 SIGNAL("currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)"),
-        #                 self._descriptorsTableCurrentItemChanged)
-        
-        #change_connect(self.descriptorsTable, 
-        #                 SIGNAL("itemDoubleClicked(QTableWidgetItem*)"),
-        #                 self._descriptorsTableItemDoubleClicked)
-        
         change_connect(self.newDescriptorPushButton,
                          SIGNAL("clicked()"),
                          self._addNewDescriptor)
@@ -184,7 +178,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
     def _showSeqEditor(self):
         """
-        Show sequence editor
+        Shows sequence editor
         """
         if self.showSequencePushButton.isEnabled():
             self.sequenceEditor.show()
@@ -285,7 +279,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
     def _loadGroupBox1(self, pmGroupBox):
         """
-        Load widgets in group box.
+        Load widgets in the first group box.
         """
             
         self.headerdata_desc = ['Name', 'Descriptor']
@@ -318,6 +312,10 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             text       =  "POLAR",
             setAsDefault  =  True)
         
+        #self.applyBackrubPushButton = PM_PushButton( pmGroupBox,
+        #    text       =  "BACKRUB",
+        #    setAsDefault  =  True)
+        
         self.applyAnyPushButton.setFixedHeight(25)
         self.applyAnyPushButton.setFixedWidth(60)
         
@@ -333,11 +331,12 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.applyApolarPushButton.setFixedHeight(25)
         self.applyApolarPushButton.setFixedWidth(60)
         
-        applyButtonList = [('PM_PushButton', self.applyAnyPushButton, 0, 0),
+        applyButtonList = [
+            ('PM_PushButton', self.applyAnyPushButton, 0, 0),
             ('PM_PushButton', self.applySamePushButton, 1, 0),
             ('PM_PushButton', self.applyLockedPushButton, 2, 0),
             ('PM_PushButton', self.applyPolarPushButton, 3, 0),
-            ('PM_PushButton', self.applyApolarPushButton, 4, 0) ]
+            ('PM_PushButton', self.applyApolarPushButton, 4, 0)  ]
 
         self.applyButtonGrid = PM_WidgetGrid( pmGroupBox, 
                                               label = "Apply standard set",
@@ -358,13 +357,6 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self._fillDescriptorsTable()
         
-        #dstr = env.prefs[proteinCustomDescriptors_prefs_key].split(":")
-        #for i in range(len(dstr) / 2):
-        #    self.set_names.append(dstr[2*i])
-        #    self.descriptor_list.append(dstr[2*i+1])
-        #    self.rosetta_set_names.append("PIKAA")
-        #    self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
-                    
         self.descriptorsTable.resizeColumnsToContents()
 
         self.newDescriptorPushButton = PM_PushButton( pmGroupBox,
@@ -395,10 +387,10 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 
     def _loadGroupBox2(self, pmGroupBox):
         """
-        Load widgets in second group box.
+        Load widgets in the second group box.
         """
             
-        self.headerdata_seq = ['', 'ID', 'Set', 'Descriptor']
+        self.headerdata_seq = ['', 'ID', 'Set', 'BR', 'Descriptor']
 
         self.recenterViewCheckBox  = \
             PM_CheckBox( pmGroupBox,
@@ -438,7 +430,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.sequenceTable.resizeColumnsToContents()
         self.sequenceTable.verticalHeader().setVisible(False)
         #self.sequenceTable.setRowCount(0)
-        self.sequenceTable.setColumnCount(4)
+        self.sequenceTable.setColumnCount(5)
         
         self.checkbox = QCheckBox()
         
@@ -454,12 +446,21 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             setAsDefault  =  True,
             spanWidth = True)
         
+        
+    def _addWhatsThisText( self ):        
+        #from ne1_ui.WhatsThisText_for_PropertyManagers import WhatsThis_EditResidues_PropertyManager
+        #WhatsThis_EditResidues_PropertyManager(self)
+        pass
+    
+    def _addToolTipText(self):
+        #from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_EditProteinDisplayStyle_PropertyManager 
+        #ToolTip_EditProteinDisplayStyle_PropertyManager(self)
+        pass
 
     def _fillSequenceTable(self):
         """
+        Fills in the sequence table.
         """        
-        
-        ###self.setComboBox = QComboBox()
         
         self.editingItem = True
         
@@ -469,33 +470,55 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 aa_list = chunk.protein.get_amino_acids()
                 aa_list_len = len(aa_list)
                 self.sequenceTable.setRowCount(aa_list_len)
-                for index in range(aa_list_len):                    
+                for index in range(aa_list_len):          
+                    # Selection checkbox column
                     item_widget = QTableWidgetItem("")
                     item_widget.setFont(self.labelfont)
                     item_widget.setCheckState(Qt.Checked)
                     item_widget.setTextAlignment(Qt.AlignLeft)
                     item_widget.setSizeHint(QSize(20,12))
-                    item_widget.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+                    item_widget.setFlags(
+                        Qt.ItemIsSelectable | 
+                        Qt.ItemIsEnabled | 
+                        Qt.ItemIsUserCheckable)
                     self.sequenceTable.setItem(index, 0, item_widget)
                 
+                    # Amino acid index column
                     item_widget = QTableWidgetItem(str(index+1))
                     item_widget.setFont(self.labelfont)
-                    item_widget.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)            
+                    item_widget.setFlags(
+                        Qt.ItemIsSelectable | 
+                        Qt.ItemIsEnabled)            
                     item_widget.setTextAlignment(Qt.AlignCenter)
                     self.sequenceTable.setItem(index, 1, item_widget)
                     
+                    # Mutation descriptor name column
                     aa = self._get_aa_for_index(index)
                     item_widget = QTableWidgetItem(self._get_descriptor_name(aa))
                     item_widget.setFont(self.labelfont)
-                    item_widget.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                    item_widget.setFlags(
+                        Qt.ItemIsSelectable | 
+                        Qt.ItemIsEnabled)
                     item_widget.setTextAlignment(Qt.AlignCenter)
                     self.sequenceTable.setItem(index, 2, item_widget)
                     
-                    aa_string = self._get_mutation_descriptor(aa)
+                    # Backrub checkbox column
+                    item_widget = QTableWidgetItem("")
+                    item_widget.setFont(self.labelfont)
+                    item_widget.setCheckState(Qt.Unchecked)
+                    item_widget.setTextAlignment(Qt.AlignLeft)
+                    item_widget.setSizeHint(QSize(20,12))
+                    item_widget.setFlags(
+                        Qt.ItemIsSelectable | 
+                        Qt.ItemIsEnabled | 
+                        Qt.ItemIsUserCheckable)
+                    self.sequenceTable.setItem(index, 3, item_widget)
 
+                    # Mutation descriptor column
+                    aa_string = self._get_mutation_descriptor(aa)
                     item_widget = QTableWidgetItem(aa_string)
                     item_widget.setFont(self.descriptorfont)
-                    self.sequenceTable.setItem(index, 3, item_widget)
+                    self.sequenceTable.setItem(index, 4, item_widget)
         
                     self.sequenceTable.setRowHeight(index, 16)
                     
@@ -505,33 +528,34 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.sequenceTable.setColumnWidth(0, 35)
         self.sequenceTable.setColumnWidth(2, 80)
+        self.sequenceTable.setColumnWidth(3, 35)
         
-    def _get_descriptor_name(self, aa):
+    def _fillDescriptorsTable(self):
         """
+        Fills in the descriptors table from descriptors user pref.
         """
-        range_name = aa.get_mutation_range()
-        for i in range(len(self.rosetta_set_names)):
-            if range_name == self.rosetta_set_names[i]:
-                if range_name == "PIKAA":
-                    # Find a descriptor with a list of
-                    # custom descriptors.
-                    dstr = self._makeProperAAString(aa.get_mutation_descriptor())
-                    for i in range(5, len(self.descriptor_list)):
-                        if dstr == self.descriptor_list[i]:
-                            return self.set_names[i]
-                else:
-                    return self.set_names[i]
-        return "Custom"
-    
+        dstr = env.prefs[proteinCustomDescriptors_prefs_key].split(":")
+        for i in range(len(dstr) / 2):
+            self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
+
     def _selectAll(self):
+        """
+        Select all rows in the sequence table.
+        """
         for row in range(self.sequenceTable.rowCount()):
             self.sequenceTable.item(row, 0).setCheckState(Qt.Checked)
             
     def _selectNone(self):
+        """
+        Unselect all rows in the sequence table.
+        """
         for row in range(self.sequenceTable.rowCount()):
             self.sequenceTable.item(row, 0).setCheckState(Qt.Unchecked)
             
     def _invertSelection(self):
+        """
+        Inverto row selection range in the sequence table.
+        """
         for row in range(self.sequenceTable.rowCount()):
             item_widget = self.sequenceTable.item(row, 0)
             if item_widget.checkState() == Qt.Checked:
@@ -541,6 +565,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 
     def _get_mutation_descriptor(self, aa):
         """
+        Get mutation descriptor string for a given amino acid.
         """
         aa_string = self.rosetta_all_set
         
@@ -560,8 +585,27 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         return aa_string
     
+    def _get_descriptor_name(self, aa):
+        """
+        Returns a mutation descriptor name for an amino acid.
+        """
+        range_name = aa.get_mutation_range()
+        for i in range(len(self.rosetta_set_names)):
+            if range_name == self.rosetta_set_names[i]:
+                if range_name == "PIKAA":
+                    # Find a descriptor with a list of
+                    # custom descriptors.
+                    dstr = self._makeProperAAString(aa.get_mutation_descriptor())
+                    for i in range(5, len(self.descriptor_list)):
+                        if dstr == self.descriptor_list[i]:
+                            return self.set_names[i]
+                else:
+                    return self.set_names[i]
+        return "Custom"
+    
     def _get_aa_for_index(self, index, expand=False):
         """
+        Get amino acid by index.
         """
         # Center on a selected amino acid.
         for chunk in self.win.assy.molecules:
@@ -577,6 +621,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         return None
     
     def _sequenceTableCellChanged(self, crow, ccol):
+        """
+        Slot for sequence table CellChanged event.
+        """
         item = self.sequenceTable.item(crow, ccol)
         for row in range(self.sequenceTable.rowCount()):
             self.sequenceTable.removeCellWidget(row, 2)
@@ -603,6 +650,14 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     self.win.glpane.pov = -ca_atom.posn()                            
             self.win.glpane.gl_update()
         
+            # Update backrub status for selected amino acid.
+            if ccol == 3:
+                cbox = self.sequenceTable.item(crow, 3)
+                if cbox.checkState() == Qt.Checked:
+                    current_aa.set_backrub(True)
+                else:
+                    current_aa.set_backrub(False)
+        
         from PyQt4.Qt import QTextCursor   
         cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
         #boundary condition
@@ -615,6 +670,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             
     def _applyDescriptor(self):
         """        
+        Apply mutation descriptor to the selected amino acids.
         """
         cdes = self.descriptorsTable.currentRow()
         for row in range(self.sequenceTable.rowCount()):
@@ -622,6 +678,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             
     def _setComboBoxIndexChanged( self, index, tablerow = None, selectedOnly = False):
         """
+        Slot for mutation descriptor combo box (in third column of the sequence
+        table.)
         """
         if tablerow is None: 
             crow = self.sequenceTable.currentRow()
@@ -635,7 +693,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             if not selectedOnly or \
                cbox.checkState() == Qt.Checked:
                 item.setText(self.set_names[index])
-                item = self.sequenceTable.item(crow, 3)
+                item = self.sequenceTable.item(crow, 4)
                 aa = self._get_aa_for_index(crow)
                 set_name = self.rosetta_set_names[index]
                 aa.set_mutation_range(set_name)
@@ -648,17 +706,6 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             
             self.editingItem = False
         
-    def _addWhatsThisText( self ):
-        
-        #from ne1_ui.WhatsThisText_for_PropertyManagers import WhatsThis_EditResidues_PropertyManager
-        #WhatsThis_EditResidues_PropertyManager(self)
-        pass
-    
-    def _addToolTipText(self):
-        #from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_EditProteinDisplayStyle_PropertyManager 
-        #ToolTip_EditProteinDisplayStyle_PropertyManager(self)
-        pass
-        
     def scrollToPosition(self, index):
         """
         Scrolls the Sequence Table to a given sequence position.
@@ -669,66 +716,67 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
     def _applyAny(self):
         """
+        Apply "ALLAA" descriptor.
         """
         for row in range(self.sequenceTable.rowCount()):
             self._setComboBoxIndexChanged(0, tablerow = row, selectedOnly = True)
 
     def _applySame(self):
         """
+        Apply "NATAA" descriptor.
         """
         for row in range(self.sequenceTable.rowCount()):
             self._setComboBoxIndexChanged(1, tablerow = row, selectedOnly = True)
 
     def _applyLocked(self):
         """
+        Apply "NATRO" descriptor.
         """
         for row in range(self.sequenceTable.rowCount()):
             self._setComboBoxIndexChanged(2, tablerow = row, selectedOnly = True)
 
     def _applyPolar(self):
         """
+        Apply "POLAR" descriptor.
         """
         for row in range(self.sequenceTable.rowCount()):
             self._setComboBoxIndexChanged(3, tablerow = row, selectedOnly = True)
 
     def _applyApolar(self):
         """
+        Apply "APOLA" descriptor.
         """
         for row in range(self.sequenceTable.rowCount()):
             self._setComboBoxIndexChanged(4, tablerow = row, selectedOnly = True)
     
     def resizeEvent(self, event):
         """
+        Called whenever PM width has changed. Sets correct width of the
+        rows in descriptor and sequence tables.
         """
-        #width = event.size().width()
-        w = int(self.applyButtonGrid.width() / 5)
-        #self.applyAnyPushButton.setFixedWidth(w)
-        #self.applySamePushButton.setFixedWidth(w)
-        #self.applyLockedPushButton.setFixedWidth(w)
-        #self.applyPolarPushButton.setFixedWidth(w)
-        #self.applyApolarPushButton.setFixedWidth(w)
-        
-        #return
-        
         self.descriptorsTable.setColumnWidth(1, 
             self.descriptorsTable.width()-self.descriptorsTable.columnWidth(0)-20)
 
-        self.sequenceTable.setColumnWidth(3, 
+        self.sequenceTable.setColumnWidth(4, 
             self.sequenceTable.width()-
             (self.sequenceTable.columnWidth(0) +
              self.sequenceTable.columnWidth(1) +
-            self.sequenceTable.columnWidth(2))-20)
+             self.sequenceTable.columnWidth(2) +
+            self.sequenceTable.columnWidth(3))-20)
 
         
     def _addNewDescriptorTableRow(self, name, descriptor):
         """
+        Adds a new row to the descriptor table.
         """
         row = self.descriptorsTable.rowCount()
         self.descriptorsTable.insertRow(row)
         
         item_widget = QTableWidgetItem(name)
         item_widget.setFont(self.labelfont)
-        item_widget.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
+        item_widget.setFlags(Qt.ItemIsSelectable | 
+                             Qt.ItemIsEnabled | 
+                             Qt.ItemIsEditable)
         item_widget.setTextAlignment(Qt.AlignLeft)
         self.descriptorsTable.setItem(row, 0, item_widget)
         self.descriptorsTable.resizeColumnToContents(0)
@@ -736,7 +784,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         s = self._makeProperAAString(descriptor)
         item_widget = QTableWidgetItem(s)
         item_widget.setFont(self.descriptorfont)
-        item_widget.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
+        item_widget.setFlags(Qt.ItemIsSelectable | 
+                             Qt.ItemIsEnabled | 
+                             Qt.ItemIsEditable)
         item_widget.setTextAlignment(Qt.AlignLeft)
         self.descriptorsTable.setItem(row, 1, item_widget)
         self.descriptorsTable.setColumnWidth(1, 
@@ -746,6 +796,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
     def _addNewDescriptor(self):
         """
+        Adds a new descriptor to the descriptor table.
         """
         self._addNewDescriptorTableRow("New Set", "PGAVILMFWYCSTNQDEHKR")
         self._makeDescriptorUserPref()
@@ -753,6 +804,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
     def _removeDescriptor(self):
         """
+        Removes a highlighted descriptor from the descriptors table.
         """
         crow = self.descriptorsTable.currentRow()
         if crow >= 0:
@@ -761,8 +813,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self._updateSetLists()
             
     def _makeDescriptorUserPref(self):
-        # Construct a custom descriptors string.
         """
+        Constructs a custom descriptors string.
         """
         dstr = ""
         for row in range(self.descriptorsTable.rowCount()):
@@ -778,6 +830,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             
     def _makeProperAAString(self, string):
         """
+        Creates a proper amino acid string from an arbitrary string.
         """
         aa_string = str(string).upper()
         new_aa_string = ""
@@ -790,10 +843,11 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
     def _sequenceTableItemChanged(self, item):
         """
+        Called when an item in the sequence table has changed.
         """
         if self.editingItem:
             return
-        if self.sequenceTable.column(item) == 3:
+        if self.sequenceTable.column(item) == 4:
             self.editingItem = True
             crow = self.sequenceTable.currentRow()
             dstr = self._makeProperAAString(str(item.text()).upper())
@@ -809,6 +863,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
     
     def _descriptorsTableItemChanged(self, item):
         """
+        Called when an item in the descriptors table has changed.
         """
         if self.editingItem:
             return
@@ -822,6 +877,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
     def _updateSetLists(self):
         """
+        Updates lists of descriptor sets and descriptor set names.
         """
         self.set_names = self.set_names[:5]
         self.descriptor_list = self.descriptor_list[:5]
@@ -833,11 +889,4 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.descriptor_list.append(dstr[2*i+1])
             self.rosetta_set_names.append("PIKAA")
             #self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
-
-    def _fillDescriptorsTable(self):
-        """
-        """
-        dstr = env.prefs[proteinCustomDescriptors_prefs_key].split(":")
-        for i in range(len(dstr) / 2):
-            self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
 
