@@ -25,21 +25,16 @@ import foundation.env as env
 import math
 from Numeric import dot
 import foundation.changes as changes
-from PyQt4 import QtGui
-from PyQt4.Qt import SIGNAL
 from commands.Move.MovePropertyManager import MovePropertyManager
-from utilities.icon_utilities import geticon
 from commands.SelectChunks.SelectChunks_Command import SelectChunks_basicCommand
 from command_support.GraphicsMode_API import GraphicsMode_API
 from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
-from geometry.VQT import V, Q, cross, norm
+from geometry.VQT import V, Q
 from utilities.debug import print_compact_traceback
-from utilities.constants import black
 from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
-from model.chem import Atom #for instance check only as of 2008-04-17
-from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
+from ne1_ui.toolbars.Ui_MoveFlyout import MoveFlyout
 
 class Move_basicCommand(SelectChunks_basicCommand):
     """
@@ -55,41 +50,122 @@ class Move_basicCommand(SelectChunks_basicCommand):
     command_can_be_suspended = True
     command_should_resume_prevMode = False
     command_has_its_own_gui = True
-
-    def init_gui(self):
+    
+    flyoutToolbar = None
+    
+    #START new command API methods =============================================
+    #currently [2008-08-01 ] also called in by self,init_gui and 
+    #self.restore_gui.
+    
+    def command_enter_PM(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_PM()  for documentation
+        """
+        #important to check for old propMgr object. Reusing propMgr object 
+        #significantly improves the performance.
         if not self.propMgr:
-            self.propMgr = MovePropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494
-            changes.keep_forever(self.propMgr)
-
-        self.propMgr.show()
-        self.updateCommandToolbar(bool_entering = True)
-
-        # connect signals (these all need to be disconnected in restore_gui)
-        self.connect_or_disconnect_signals(True)
-
+            self.propMgr = self._createPropMgrObject()
+            #@bug BUG: following is a workaround for bug 2494.
+            #This bug is mitigated as propMgr object no longer gets recreated
+            #for modes -- ninad 2007-08-29
+            changes.keep_forever(self.propMgr)  
+            
+        self.propMgr.show()        
         self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
         self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
-
-    def connect_or_disconnect_signals(self, connect): # mark 060304.
-        if connect:
-            change_connect = self.w.connect
-        else:
-            change_connect = self.w.disconnect
-
-        change_connect(self.exitMoveAction, SIGNAL("triggered()"),
-                       self.w.toolsDone)
-
-        self.propMgr.connect_or_disconnect_signals(connect)
-
-    def restore_gui(self):
-        # disconnect signals which were connected in init_gui [bruce 050728]
-        self.updateCommandToolbar(bool_entering = False)
-        self.w.toolsMoveMoleculeAction.setChecked(False) # toggle on the Move Chunks icon
-        self.w.rotateComponentsAction.setChecked(False)
-        self.connect_or_disconnect_signals(False)
+        
+    
+    def command_exit_PM(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_PM() for documentation
+        """
+        
         if self.propMgr:
             self.propMgr.close()
+            
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_flyout()  for documentation
+        """
+        if self.flyoutToolbar is None:
+            self.flyoutToolbar = self._createFlyoutToolBarObject() 
+        self.flyoutToolbar.activateFlyoutToolbar()  
+        
+    def _createFlyoutToolBarObject(self):
+        """
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteFromClipboard_Command._createFlyouttoolBar()
+        @see: self.command_enter_flyout()
+        """
+        flyoutToolbar = MoveFlyout(self) 
+        return flyoutToolbar
+    
+    def _createPropMgrObject(self):
+        propMgr = MovePropertyManager(self)
+        return propMgr
+        
+            
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_flyout()  for documentation
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.deActivateFlyoutToolbar()
+            
+    def command_enter_misc_actions(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_misc_actions()  for documentation
+        """
+        pass
+                
+            
+    def command_exit_misc_actions(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_misc_actions()  for documentation
+        """
+        self.w.toolsMoveMoleculeAction.setChecked(False) 
+        self.w.rotateComponentsAction.setChecked(False)       
+    
+    #END new command API methods ==============================================
+
+    def init_gui(self):
+        """
+        Do changes to the GUI while entering this mode. This includes opening 
+        the property manager, updating the command toolbar, connecting widget 
+        slots etc. 
+        
+        Called once each time the mode is entered; should be called only by code 
+        in modes.py
+        
+        @see: L{self.restore_gui}
+        """        
+        self.command_enter_misc_actions()
+        self.command_enter_PM() 
+        self.command_enter_flyout()
+
+    def restore_gui(self):
+        """
+        Do changes to the GUI while exiting this mode. This includes closing 
+        this mode's property manager, updating the command toolbar, 
+        disconnecting widget slots etc. 
+        @see: L{self.init_gui}
+        """
+        self.command_exit_misc_actions()
+        self.command_exit_flyout()
+        self.command_exit_PM()
 
     def _acceptLineModePoints(self, params): #bruce 080801, revises acceptParamsFromTemporaryMode
         """
@@ -329,83 +405,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
         env.history.message(msg)
         self.o.gl_update()
         return
-
-    #Command Toolbar related methods to be revised==============================
-    def updateCommandToolbar(self, bool_entering = True):#Ninad 20070618
-        """
-        Update the command toolbar.
-        """
-        if bool_entering:
-            try:
-                action = self.w.toolsMoveRotateActionGroup.checkedAction()
-            except:
-                print_compact_traceback("bug: no move action checked?")
-                action = None
-        else:
-            action = None
-
-        # object that needs its own flyout toolbar. In this case it is just
-        #the mode itself.
-        obj = self
-
-        self.w.commandToolbar.updateCommandToolbar(action,
-                                                   obj,
-                                                   entering = bool_entering)
-
-    def getFlyoutActionList(self): #Ninad 20070618
-        """
-        Returns a tuple that contains mode spcific actionlists in the
-        added in the flyout toolbar of the mode.
-        CommandToolbar._createFlyoutToolBar method calls this
-        @return: params: A tuple that contains 3 lists:
-        (subControlAreaActionList, commandActionLists, allActionsList)
-        """
-        #'allActionsList' returns all actions in the flyout toolbar
-        #including the subcontrolArea actions
-        allActionsList = []
-
-        #Action List for  subcontrol Area buttons.
-        #In this mode, there is really no subcontrol area.
-        #We will treat subcontrol area same as 'command area'
-        #(subcontrol area buttons will have an empty list as their command area
-        #list). We will set  the Comamnd Area palette background color to the
-        #subcontrol area.
-
-        subControlAreaActionList =[]
-
-        self.exitMoveAction = NE1_QWidgetAction(self.w, 
-                                                  win = self.w)
-        self.exitMoveAction.setText("Exit Move")
-        self.exitMoveAction.setWhatsThis("Exits Move Mode")
-        self.exitMoveAction.setCheckable(True)
-        self.exitMoveAction.setChecked(True)
-        self.exitMoveAction.setIcon(
-            geticon("ui/actions/Toolbars/Smart/Exit.png"))
-        subControlAreaActionList.append(self.exitMoveAction)
-
-        separator = QtGui.QAction(self.w)
-        separator.setSeparator(True)
-        subControlAreaActionList.append(separator)
-
-        subControlAreaActionList.append(self.w.toolsMoveMoleculeAction)
-        subControlAreaActionList.append(self.w.rotateComponentsAction)
-        subControlAreaActionList.append(self.w.modifyAlignCommonAxisAction)
-
-        allActionsList.extend(subControlAreaActionList)
-
-        #Empty actionlist for the 'Command Area'
-        commandActionLists = []
-
-        #Append empty 'lists' in 'commandActionLists equal to the
-        #number of actions in subControlArea
-        for i in range(len(subControlAreaActionList)):
-            lst = []
-            commandActionLists.append(lst)
-
-        params = (subControlAreaActionList, commandActionLists, allActionsList)
-
-        return params
-
 
 class Move_Command(Move_basicCommand):
     """

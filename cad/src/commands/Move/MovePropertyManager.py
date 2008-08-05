@@ -33,12 +33,12 @@ class MovePropertyManager(Ui_MovePropertyManager):
         self.lastCheckedTranslateButton = None                     
         self.updateMessage()
         
-    def connect_or_disconnect_signals(self, connect):
+    def connect_or_disconnect_signals(self, isConnect):
         """
         Connect the slots in Move Property Manager. 
         @see: modifyMode.connect_or_disconnect_signals.
         """
-        if connect:
+        if isConnect:
             change_connect = self.w.connect
         else:
             change_connect = self.w.disconnect
@@ -51,11 +51,11 @@ class MovePropertyManager(Ui_MovePropertyManager):
         #lots  of bugs. This needs more general fix in Temporary mode API. 
         # -- Ninad 2007-10-29
 
-        if connect and self.isAlreadyConnected:
+        if isConnect and self.isAlreadyConnected:
             return
         
 
-        self.isAlreadyConnected = connect
+        self.isAlreadyConnected = isConnect
 
         change_connect(self.translateGroupBox.titleButton,
                        SIGNAL("clicked()"),
@@ -576,6 +576,10 @@ class MovePropertyManager(Ui_MovePropertyManager):
             return (delX, delY, delZ) # Plus
         else: 
             return (-delX, -delY, -delZ) # Minus
+        
+    def show(self):
+        Ui_MovePropertyManager.show(self)
+        self.connect_or_disconnect_signals(isConnect = True)
 
     def close(self):
         """
@@ -593,6 +597,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         self.translateGroupBox.collapse()
         self.rotateGroupBox.collapse()
+        self.connect_or_disconnect_signals(isConnect = False)
         Ui_MovePropertyManager.close(self)
 
     def updateMessage(self, msg = ''): # Mark 2007-06-23
