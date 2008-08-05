@@ -1,7 +1,7 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Urmi
-@version:   $Id: ColorScheme_Command.py 12835 2008-05-19 18:58:51Z urmim $
+@version:   $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 

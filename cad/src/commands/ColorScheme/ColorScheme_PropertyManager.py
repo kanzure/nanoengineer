@@ -6,7 +6,7 @@ ColorScheme_PropertyManager.py
  for choosing various colors (example: background)
 
 @author: Urmi
-@version: $Id: ColorScheme_PropertyManager.py 12867 2008-05-20 20:29:44Z urmim $
+@version: $Id$
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 To do:

@@ -6,7 +6,7 @@ LightingScheme_PropertyManager.py
  for controlling light settings and creating favorites.
  
 @author: Kyle
-@version: $Id: $
+@version: $Id$
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 """

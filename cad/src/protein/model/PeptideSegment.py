@@ -3,7 +3,7 @@
 PeptideSegment.py - ... 
 
 @author: Bruce, Mark
-@version: $Id: PeptideSegment.py 12741 2008-05-13 15:38:04Z ninadsathaye $
+@version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 import foundation.env as env

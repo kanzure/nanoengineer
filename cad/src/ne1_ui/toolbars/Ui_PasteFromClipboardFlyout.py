@@ -14,7 +14,7 @@ from ne1_ui.toolbars.Ui_AbstractFlyout import Ui_AbstractFlyout
 
 class PasteFromClipboardFlyout(Ui_AbstractFlyout):    
     """
-    Define Flyout toolbar for the PasteFromClipboard command (PasteMode)
+    Define Flyout toolbar for the PasteFromClipboard command (PasteFromClipboard_Command)
     """
     def _action_in_controlArea_to_show_this_flyout(self):
         """

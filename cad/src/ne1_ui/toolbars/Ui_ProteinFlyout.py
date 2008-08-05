@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-$Id: Ui_DnaFlyout.py 13022 2008-06-02 03:12:00Z ninadsathaye $
+$Id$
 
 TODO: 
 - Does the parentWidget for the DnaFlyout always needs to be a propertyManager
