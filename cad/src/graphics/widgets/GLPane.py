@@ -3265,10 +3265,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         env.do_post_event_updates( warn_if_needed = False)
             # WARNING: this calls command-specific ui updating methods
-            # like model_changed and selection_changed, even when it
-            # doesn't need to (still true 071115). That needs to be fixed,
-            # or they all need to be fast when no changes are needed,
-            # or this will make redraw needlessly slow. [bruce 071115 comment]
+            # like model_changed, even when it doesn't need to (still true
+            # 080804). They all need to be revised to be fast when no changes
+            # are needed, or this will make redraw needlessly slow.
+            # [bruce 071115/080804 comment]
 
         # Note: at one point we surrounded this repaint with begin/end undo
         # checkpoints, to fix bugs from missing mouseReleases (like bug 1411)

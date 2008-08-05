@@ -180,14 +180,16 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Returns a tuple containing current selection parameters. These 
         parameters are then used to decide whether updating widgets
-        in this property manager is needed when L{self.model_changed} or 
-        L{self.selection_changed} methods are called. 
+        in this property manager is needed when L{self.model_changed}
+        method is called.
+        
         @return: A tuple that contains following selection parameters
                    - Total number of selected atoms (int)
                    - Selected Atom if a single atom is selected, else None
                    - Position vector of the single selected atom or None
         @rtype:  tuple
-        @NOTE: The method name may be renamed in future. 
+        
+        @NOTE: The method may be renamed in future. 
         It's possible that there are other groupboxes in the PM that need to be 
         updated when something changes in the glpane.        
         """

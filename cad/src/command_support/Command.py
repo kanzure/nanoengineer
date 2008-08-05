@@ -149,22 +149,10 @@ class anyCommand(object, StateMixin):
     # (default methods that should be noops in both nullCommand and Command
     #  can be put here instead if desired; for docstrings, see basicCommand)
     
-    def model_changed(self): #bruce 070925
+    def model_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename
         return
     
-    def selection_changed(self): #bruce 070925 [not used outside this file as of 080731, except in docstrings/comments]
-        return
-
-    def selobj_changed(self): #bruce 071116 [not mentioned outside this file as of 080731]
-        return
-
-    def view_changed(self): #bruce 071116 [not mentioned outside this file as of 080731]
-        return
-
-    def something_changed(self): #bruce 071116 [not used outside this file as of 080731, except in comments]
-        return
-    
-    def state_may_have_changed(self): #bruce 070925
+    def state_may_have_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename
         """
         This is called after every user event (###verify).
         Overridden only in basicCommand as of 080731 (###describe).
@@ -920,11 +908,13 @@ class basicCommand(anyCommand):
 
     def _init_gui_flyout_action( self, action_attr, parentCommandName = None ):
         """
-        If parent command has the expected commandName, copy self.flyoutToolbar
-        from it and call setChecked on the specified action in it (if it has
-        that action) (setting self.flyoutToolbar = None if any of this fails
-        by raising AttributeError, with no error message) and return the parent
-        command. Otherwise return None.
+        [helper method for command entry]
+        
+        If our direct parent command has the expected commandName,
+        copy self.flyoutToolbar from it and call setChecked on the specified
+        action in it (if it has that action) (setting self.flyoutToolbar = None
+        if any of this fails by raising AttributeError, with no error message)
+        and return the parent command. Otherwise return None.
 
         @param action_attr: attribute name of this command's action in
                             this or parent command's flyout toolbar.
@@ -950,7 +940,12 @@ class basicCommand(anyCommand):
             assert self.command_parent, \
                    "_init_gui_flyout_action in %r requires " \
                    "self.command_parent assignment" % self
-        parentCommand = self.commandSequencer.prevMode # _init_gui_flyout_action: flyoutToolbar
+        if not USE_COMMAND_STACK:
+            parentCommand = self.commandSequencer.prevMode # _init_gui_flyout_action: flyoutToolbar
+        else:
+            #bruce 080804
+            parentCommand = self.parentCommand
+            assert parentCommand # should be already set by now (during command_entered)
         if parentCommand.commandName == parentCommandName:
             try:
                 self.flyoutToolbar = parentCommand.flyoutToolbar
@@ -965,10 +960,13 @@ class basicCommand(anyCommand):
                 self.flyoutToolbar = None
             return parentCommand
         else:
+            if USE_COMMAND_STACK:
+                print "fyi: _init_gui_flyout_action in %r found wrong kind " \
+                      "of parent command" % self # not sure if this ever happens; might be a bug if so
             return None
         pass
     
-    def resume_gui(self):
+    def resume_gui(self): # TODO [bruce 080804]: replace, or revise docstring
         """
         Called when this command, that was suspended earlier, is being resumed. 
         The temporary command (which was entered by suspending this command)
@@ -985,8 +983,7 @@ class basicCommand(anyCommand):
         """
         pass
     
-    
-    def update_gui(self):
+    def update_gui(self): # TODO [bruce 080804]: replace, or revise docstring
         """
         Subclasses should define this to update their dashboard to reflect state
         that might have changed in the rest of the program, e.g. selection state
@@ -995,7 +992,7 @@ class basicCommand(anyCommand):
         """
         pass
 
-    def UpdateDashboard(self):
+    def UpdateDashboard(self): # TODO [bruce 080804]: replace, or revise docstring
         """
         Public method, meant to be called only on the current command object:
 
@@ -1014,11 +1011,11 @@ class basicCommand(anyCommand):
         than dashboards, but it applies to any sort of UI except the GLPane.
 
         @note: overriding update_gui is now deprecated -- new Commands
-        should define one of selection_changed, model_changed, or related
-        new methods, instead -- but until we revise depositMode and its
-        subclasses to define one or more of those instead of update_gui
-        (which is a good cleanup to do when we have time),
-        we can't remove updateDashboard or existing calls to it. [bruce 071221]
+        should define model_changed (to be renamed) instead -- but until we revise
+        depositMode and its subclasses to define one or more of those instead
+        of update_gui (which is a good cleanup to do when we have time),
+        we can't remove updateDashboard or existing calls to it.
+        [bruce 071221, revised 080804]
         """
         # @attention: Need to ask Bruce whether this method can be removed since
         # there are no longer any dashboards. [--mark]
@@ -1089,165 +1086,53 @@ class basicCommand(anyCommand):
             # note: mode_obj = self is needed in case
             # glpane.currentCommand == nullMode at the moment.
 
-    def model_changed(self): #bruce 070925 added this to Command API
+    def state_may_have_changed(self): #bruce 080804 revision
+        """
+        #doc
+
+        FYI: This is called by env.do_post_event_updates() by a registered
+        "post_event_ui_updater" set up by MWsemantics. [still true 080804]
+        """
+        self.model_changed() # TODO: revise or rename this
+        return
+
+    def model_changed(self): #bruce 070925 added this to Command API.
+        # bruce 080804 revised docstring
+        # TODO [bruce 080804]: replace, or rename.
         """
         Subclasses should extend this (or make sure their self.propMgr defines
-        it) to check whether any model state has changed that should be
+        it) to check whether any program state has changed that should be
         reflected in their UI, and if so, update their UI accordingly.
 
-        Model state or selection state should NOT be updated by
-        this method.
+        Program state checked by any implem of this method should NOT be
+        updated by this method. (At least, not normally, and doing so might
+        cause bugs of a variety of kinds unless carefully analyzed --
+        for example, bugs in the division of changes into undoable commands,
+        or in the consistency of state which requires update calls after
+        it's changed (due to relative ordering of calls of this, updaters,
+        drawing, and other user events).)
+        
+        Program state checked by an implem of this method might include:
+        - model state (see Assembly.model_change_counter)
+        - selection state (see Assembly.selection_change_counter)
+        - view state (see Assembly.view_change_counter)
+          - should include Ortho/Perspective, but I guess it doesn't ###FIX
+          - includes view center, direction, scale(?)
+        - hover-highlighted object (glpane.selobj)
 
-        See selection_changed docstring for more info.
+        This method will be called at most approximately once per user mouse or key
+        event. The calling code should try to only call it when needed,
+        but needn't guarantee this, so implementations should try to be fast
+        when the call was not needed, e.g. by checking applicable change
+        counters, or diffing old and new state.
+
+        See also update_gui; this method is typically implemented
+        more efficiently and called much more widely, and should eventually
+        replace update_gui.
         """
-        ### maybe TODO: same as for selection_changed.
         if self.propMgr:
             if hasattr( self.propMgr, 'model_changed'):
                 self.propMgr.model_changed()
-        return
-
-    def selection_changed(self): #bruce 070925 added this to Command API
-        """
-        Subclasses should extend this (or make sure their self.propMgr defines
-        it) to check whether any selection state has changed that should be
-        reflected in their UI, and if so, update their UI accordingly.
-        It will be called at most approximately once per user mouse or key
-        event. The calling code should try not to call it when not needed,
-        but needn't guarantee this, so implementations should try to be fast
-        when the call was not needed.
-
-        Model state or other selection state should NOT be updated by
-        this method -- doing so may cause bugs of a variety of kinds,
-        for example in the division of changes into undoable commands
-        or in the consistency of state which requires update calls after
-        it's changed.
-
-        See also update_gui; this method is typically implemented
-        more efficiently and called much more widely, and (together with
-        similar new methods for other kinds of state) should eventually
-        replace update_gui.
-        """
-        ### REVIEW: Decide whether highlighting (selobj) is covered by it
-        # (guess yes -- all kinds of selection).
-        ### maybe: call when entering/resuming the command, and say so,
-        # and document order of call relative to update_gui. And deprecate
-        # update_gui or make it more efficient. And add other methods that only
-        # use usage-tracked state and are only called as needed.
-        if self.propMgr:
-            if hasattr( self.propMgr, 'selection_changed'):
-                self.propMgr.selection_changed()
-        return
-    
-    def selobj_changed(self):
-        """
-        Called whenever the glpane.selobj (object under mouse)
-        may have changed, so that self can do UI updates in response to that. 
-        """
-        if self.propMgr:
-            if hasattr( self.propMgr, 'selobj_changed'):
-                self.propMgr.selobj_changed()
-        return
-
-    def view_changed(self):
-        """
-        Called whenever the glpane's view (view center, direction, projection)
-        may have changed, so that self can do UI updates in response to that.
-        """
-        # REVIEW: I'm not sure this gets called for Ortho/Perspective change,
-        # but it should be! [bruce 071116]
-        if self.propMgr:
-            if hasattr( self.propMgr, 'view_changed'):
-                self.propMgr.view_changed()
-        return
-
-    def something_changed(self):
-        """
-        Called once, immediately after any or all of the methods
-        model_changed, selection_changed, selobj_changed, or view_changed
-        were called.
-        """
-        if self.propMgr:
-            if hasattr( self.propMgr, 'something_changed'):
-                self.propMgr.something_changed()
-        return
-    
-    _last_model_change_counter = None
-    _last_selection_change_counter = None
-    _last_selobj = -1 # not None, since that's a legal value of selobj
-    _last_view_change_counter = None
-    
-    def state_may_have_changed(self): #bruce 070925 added this to command API; update 080731: WILL BE REVISED SOON
-        """
-        Call whichever we need to of the methods
-        model_changed, selection_changed, selobj_changed, view_changed,
-        in that order. The need is determined by whether the associated
-        change counters or state has changed since this method
-        (state_may_have_changed) was last called on self.
-
-        Then if any of those was called, also call something_changed.
-        This permits subclasses which just want to update after any change
-        to define only one method, and be sure it's not called more than
-        once per change. Or they can set specific change flags in the
-        specific change methods, and then respond to those all at once
-        or in a different order, in something_changed.
-
-        Note: this method should not normally be overridden by subclasses.
-
-        Note: the "only as needed" aspect is NIM, except when an
-        experimental debug_pref is set, but it should become the usual case.
-
-        FYI: This is called by env.do_post_event_updates() by a registered
-        "post_event_ui_updater" set up by MWsemantics. [still true 080731]
-        """
-        if debug_pref("call model_changed (etc) only when needed?",
-                      Choice_boolean_False,
-                      ## non_debug = True,
-                          #bruce 080416 hide this since the commands can't yet
-                          # handle it properly, so it causes bugs
-                          # (this change didn't make it into .rc2)
-                      prefs_key = True):
-            ### experimental, but will become the usual case soon [bruce 071116]:
-            # call each method only when needed, using assy change counters, and a selobj test.
-            counters = self.assy.all_change_counters()
-            model_change_counter = counters[0] # MAYBE: make assy break them out for us?
-            selection_change_counter = counters[1] # note: doesn't cover selobj changes
-            view_change_counter = counters[2]
-            selobj = self.glpane.selobj
-            something_changed = False # will be updated if something changed
-
-            # the following order must be maintained,
-            # so that updating methods can assume it:
-
-            if model_change_counter != self._last_model_change_counter:
-                self._last_model_change_counter = model_change_counter
-                self.model_changed()
-                something_changed = True
-
-            if selection_change_counter != self._last_selection_change_counter:
-                self._last_selection_change_counter = selection_change_counter
-                self.selection_changed()
-                something_changed = True
-
-            if selobj is not self._last_selobj:
-                self._last_selobj = selobj
-                self.selobj_changed() # will be renamed
-                something_changed = True
-
-            if view_change_counter != self._last_view_change_counter:
-                self._last_view_change_counter = view_change_counter
-                self.view_changed()
-                something_changed = True
-
-            if something_changed:
-                self.something_changed()
-            pass
-        else:
-            # current bad code: always call every method.
-            self.model_changed()
-            self.selection_changed()
-            self.selobj_changed()
-            self.view_changed()
-            self.something_changed()
         return
     
     # methods for changing to some other command
@@ -1452,17 +1337,16 @@ class basicCommand(anyCommand):
                 print "warning: failed to enter", new_mode # remove if fully redundant
         return
     
-    
-    def _exit_previous_command(self, exit_using_done_or_cancel_button):
+    def _exit_previous_command(self, exit_using_done_or_cancel_button): # has exactly one call, in Done, as of 080804
         """
-        
-        NEEDS CLEANUP. Called in self.Done, When a new command to enter 
-        is specified Example: when a temporary command is not going to resume
+        NEEDS CLEANUP. Called in self.Done, when a new command to enter 
+        is specified. Example: when a temporary command is not going to resume
         a previous command but rather enter a new command invoked by the user, 
         this function first exits any pending previous mode commands. 
         @see: comment in self.Done. 
         """
-        previous_command = self.commandSequencer.prevMode 
+        assert not USE_COMMAND_STACK # this method will be replaced when USE_COMMAND_STACK is true
+        previous_command = self.commandSequencer.prevMode
         #Fixed bug 2800. The original if conditional was as follows --
         #if previous_command and not self.command_has_its_own_gui
         #But it could happen that the current command is a temporary command 
@@ -1478,8 +1362,8 @@ class basicCommand(anyCommand):
                     #new Command is a temporary mode with no special
                     #ui to exit it.
                     previous_command.Done(
-                        exit_using_done_or_cancel_button = False)    
-    
+                        exit_using_done_or_cancel_button = False)
+        return
         
     def StateDone(self):
         """

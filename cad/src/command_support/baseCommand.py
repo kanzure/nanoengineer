@@ -339,7 +339,7 @@ class baseCommand(object):
         that may have changed the command stack, model, or selection.
         
         [### Under discussion [see comment for initial outcome]:
-         Do we retain separate methods model_changed, selection_changed?
+         Do we retain separate methods model_changed, other_things_changed?
          If so, are they also called at the ends of user events (guess yes)?
          If so, before this method (guess yes)?]
 
@@ -371,8 +371,8 @@ class baseCommand(object):
 
         # note: initial discussion outcome: just have this called in place of (or for now, by)
         # existing method state_may_have_changed, and rename model_changed to it,
-        # or (for now) have it call that, and discard the other methods like selection_changed
-        # and 4 or so others, and have this method in subclasses look at change counters on its own.
+        # or (for now) have it call that, and discard the other 4 or 5 methods like whatever_changed,
+        # and have this method in subclasses look at change counters on its own.
         return
     
     # == other methods

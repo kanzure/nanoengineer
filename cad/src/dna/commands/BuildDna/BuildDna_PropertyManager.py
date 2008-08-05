@@ -163,11 +163,11 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         newSelectionParams = self._currentSelectionParams()   
         
-        selection_params_unchanged = same_vals(newSelectionParams, 
-                                                  self._previousSelectionParams)
+        selection_params_unchanged = same_vals(newSelectionParams,
+                                               self._previousSelectionParams)
         
-        #introduing self._previousStructureParams and adding structure_params_unchanged
-        #check to the if condition below fixes bug 2910. 
+        #introducing self._previousStructureParams and adding structure_params_unchanged
+        #check to the 'if' condition below fixes bug 2910. 
         structure_params_unchanged = same_vals(self._previousStructureParams, 
                                                 self._currentStructureParams())
         
@@ -196,7 +196,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 self.editSegmentPropertiesButton.setText("Edit Properties...")
                 self.editSegmentPropertiesButton.setEnabled(True)
             elif len(selectedSegments) > 1:
-                resizeString = "Resize Selected Segments (%d)..."%len(selectedSegments)
+                resizeString = "Resize Selected Segments (%d)..." % len(selectedSegments)
                 self.editSegmentPropertiesButton.setText(resizeString)
                 self.editSegmentPropertiesButton.setEnabled(True)
                 self.searchForCrossoversButton.setEnabled(True)
@@ -206,18 +206,19 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 self.searchForCrossoversButton.setEnabled(False)
                          
         #Update the strand and segmment list widgets. 
-        #Ideally it should only update when the structure is modified 
+        #Ideally it should only update when the structure is modified
         #example --when structure is deleted. But as of 2008-02-21
         #this feature is not easily available in the API method. 
-        #see Command class for some proposed methods such as 'something_changed'
-        #etc. The list widgets are updated even when selection changes.         
+        #The list widgets are updated even when selection changes.
+        # [bruce 080804 addendum: use of change counters could fix that.]
+        #
         #NOTE: If this is called before listwidget's 'updateSelection' call, 
         #done above, it 'may give' (as of 2008-02-25, it is unlikely to happen 
         #because of a better implementation)  C/C++ object deleted errors. 
         #So better to do it in the end. Cause -- unknown. 
-        #Guess : something to do with clearing the widget list and them readding
-        #items (done by self.updateListWidgets)
-        #..This probably interferes with the selection
+        #Guess : something to do with clearing the widget list and then reading
+        #items (done by self.updateListWidgets).
+        #...This probably interferes with the selection
         #within that list. So better to do it after updating the selection.
         if not structure_params_unchanged:  
             self.updateListWidgets()   
@@ -226,14 +227,16 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Returns a tuple containing current selection parameters. These 
         parameters are then used to decide whether updating widgets
-        in this property manager is needed when L{self.model_changed} or 
-        L{self.selection_changed} methods are called. 
+        in this property manager is needed when L{self.model_changed}
+        method is called.
+        
         @return: A tuple that contains following selection parameters
                    - Total number of selected atoms (int)
                    - Selected Atom if a single atom is selected, else None
                    - Position vector of the single selected atom or None
         @rtype:  tuple
-        @NOTE: The method name may be renamed in future. 
+        
+        @NOTE: This method may be renamed in future. 
         It's possible that there are other groupboxes in the PM that need to be 
         updated when something changes in the glpane.        
         """

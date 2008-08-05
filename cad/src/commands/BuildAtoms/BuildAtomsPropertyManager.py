@@ -122,18 +122,13 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                                            buildModeHighlightingEnabled_prefs_key)
     def model_changed(self):
         """
-        Overrides basicMode.model_changed. 
-        @WARNING: Ideally this property manager should implement both
-               model_changed and selection_changed methods in the mode API. 
-               model_changed method will be used here when the selected atom is 
-               dragged, transmuted etc. The selection_changed method will be 
-               used when the selection (picking/ unpicking) changes. 
-               At present, selection_changed and model_changed methods are 
-               called too frequently that it doesn't matter which one you use. 
-               Its better to use only a single method for preformance reasons 
-               (at the moment). This should change when the original 
-               methods in the API are revised to be called at appropiraite 
-               time. 
+        Overrides basicMode.model_changed.
+
+        @warning: This is called frequently, even when nothing has changed.
+                  It's used to respond to other kinds of changes as well
+                  (e.g. to the selection). So it needs to be fast
+                  when nothing has changed.
+                  (It will be renamed accordingly in the API.)
         """  
         newSelectionParams = self._currentSelectionParams()
         
@@ -151,17 +146,19 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         """
         Returns a tuple containing current selection parameters. These 
         parameters are then used to decide whether updating widgets
-        in this property manager is needed when L{self.model_changed} or 
-        L{self.selection_changed} methods are called. In this case, the 
+        in this property manager is needed when L{self.model_changed}
+        method is called. In this case, the 
         Seletion Options groupbox is updated when atom selection changes 
-        or when the selected atom is moved. 
+        or when the selected atom is moved.
+        
         @return: A tuple that contains following selection parameters
                    - Total number of selected atoms (int)
                    - Selected Atom if a single atom is selected, else None
                    - Position vector of the single selected atom or None
         @rtype:  tuple
-        @NOTE: The method name may be renamed in future. 
-        Its possible that there are other groupboxes in the PM that need to be 
+        
+        @NOTE: The method may be renamed in future. 
+        It's possible that there are other groupboxes in the PM that need to be 
         updated when something changes in the glpane.        
         """
         

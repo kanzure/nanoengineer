@@ -229,28 +229,18 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #Urmi 20080728: created this method to update accessing properties of
         #"current protein" in this mode.
         self.current_protein = ""
-        previousCommand = self.win.commandSequencer.prevMode 
-        #Urmi 20080728: get the protein currently selected in the combo box
-
-        # note [bruce 080801]:
-        # I think this code (here and in two places in EditRotamers_PropertyManager)
-        # could be revised to use either
-        #    previousCommand = self.parentMode.find_self_or_parent_command_named('BUILD_PROTEIN')
-        # or previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN'),
-        # to find the Build Protein command, and then:
-        # if previousCommand:
-        #     # same code as before, both cases.
-        # I also think the 2nd case will never run, either now,
-        # with the old or proposed code (not 100% sure of this),
-        # or after command stack refactoring (pretty sure).
-        
         previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
-        if  previousCommand:   
+        if  previousCommand:
+            #Urmi 20080728: get the protein currently selected in the combo box
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
-            #if the previous command was zoom or something, just set this to the
+            # If the previous command was zoom or something, just set this to the
             # first available protein chunk, since there's no way we can access
-            # the current protein in Build protein mode
+            # the current protein in Build protein mode. [Urmi]
+            #
+            # Note [bruce 080801]:
+            # I think this 2nd case will never run, either now (not 100% sure
+            # of this), or after command stack refactoring (pretty sure).
             for mol in self.win.assy.molecules:
                 if mol.isProteinChunk():
                     #Urmi 20080728: set the current protein to first available

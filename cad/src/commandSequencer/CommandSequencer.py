@@ -73,18 +73,25 @@ class modeMixin(object):
     # attributes of self which we maintain, namely mode, graphicsMode,
     # currentCommand.
 
-    prevMode = None #bruce 071011 added this initialization
+    if not USE_COMMAND_STACK:
+        prevMode = None #bruce 071011 added this initialization
+    else:
+        prevMode = property() # hopefully this causes errors on any access of it ### check this
     
     def _init_modeMixin(self):
         """
         call this near the start of __init__ in a subclass that mixes us in
         (i.e. GLPane)
         """
-        self._recreate_nullmode()
-        self.use_nullmode()
+        if not USE_COMMAND_STACK:
+            self._recreate_nullmode()
+            self.use_nullmode()
+        else:
+            nim ###IMPLEM
         return
 
     def _recreate_nullmode(self):
+        assert not USE_COMMAND_STACK # otherwise obsolete
         self.nullmode = nullMode()
             # TODO: rename self.nullmode; note that it's semi-public
             # a safe place to absorb events that come at the wrong time
@@ -116,6 +123,7 @@ class modeMixin(object):
         state (like user preferences), which is probably also bad
         for them to do. So we can ignore this for now.)
         """
+        assert not USE_COMMAND_STACK # otherwise NIM #### IMPLEM in that case
         if not self._raw_currentCommand.is_null:
             ###e need to give current mode a chance to exit cleanly,
             ###or refuse -- but callers have no provision for our
@@ -177,6 +185,7 @@ class modeMixin(object):
         Stop sending events to the given command (or to any actual command
         object besides the nullCommand).
         """
+        assert not USE_COMMAND_STACK # otherwise obsolete #### TODO: fix calls
         if not self.is_this_command_current(command):
             # we weren't sending you events anyway, what are you
             # talking about?!?" #k not sure this is an error
@@ -186,6 +195,7 @@ class modeMixin(object):
         self.use_nullmode()
 
     def use_nullmode(self):
+        assert not USE_COMMAND_STACK # otherwise obsolete
         self._raw_currentCommand = self.nullmode
 
     def is_this_command_current(self, command):
@@ -197,9 +207,6 @@ class modeMixin(object):
         # has been wrapped by an API-enforcement (or any other) proxy.
         return self._raw_currentCommand is command
 
-##    def isNullCommand(self, command):
-##        return command.is_null
-    
     def start_using_mode(self, mode, resuming = False, has_its_own_gui = True):
         """
         Semi-internal method (meant to be called only from self
@@ -213,6 +220,7 @@ class modeMixin(object):
         @param resuming: see _enterMode method. ###TODO: describe it here,
                          and fix rest of docstring re this.
         """
+        assert not USE_COMMAND_STACK # other case nim #### IMPLEM, or FIX CALLS (DECIDE)
         #bruce 070813 added resuming option
         # note: resuming option often comes from **new_mode_options in callers
         #bruce 050317: do update_parts to insulate new mode from prior one's bugs
@@ -342,7 +350,8 @@ class modeMixin(object):
         pre-050911 code, never return some other mode than asked for --
         let caller do that if desired.
         """
-        #bruce 050911 and 060403 revised this
+        #bruce 050911 and 060403 revised this;
+        # as of 080804, looks ok for USE_COMMAND_STACK but needs renaming/rewrite for terminology mode -> Command ###TODO
         assert commandName_or_obj, "mode arg should be a mode object " \
                "or mode name, not None or whatever it is here: %r" % \
                (commandName_or_obj,)
@@ -442,6 +451,7 @@ class modeMixin(object):
 
         @see: MWsemantics.ensureInCommand
         """
+        assert not USE_COMMAND_STACK # other case nim ### IMPLEM
         # Note: _f_userEnterCommand has a special case for already being in
         # the same-named command, provided that is a basicCommand subclass
         # (i.e. not nullCommand). A lot of callers have a test for this
@@ -509,6 +519,8 @@ class modeMixin(object):
 
         @see: userEnterCommand
         """
+        assert not USE_COMMAND_STACK # other case nim ### IMPLEM
+
         # REVIEW: do we need to generalize command.command_can_be_suspended
         # to a relation between two commands
         # that says whether one can be suspended by another,
@@ -779,7 +791,7 @@ class modeMixin(object):
                 self._fyi_request_data_was_accessed = False
             pass            
         else:
-            assert 0, "nim"
+            assert 0, "nim" ### IMPLEM
         return
 
     def _f_get_data_while_entering_request_command(self): #bruce 080801
@@ -867,6 +879,7 @@ class modeMixin(object):
     # ==
 
     # custom command methods [bruce 080209 moved these here from GLPane]
+    ## TODO: review/rewrite for USE_COMMAND_STACK
     
     def custom_modes_menuspec(self): 
         """
