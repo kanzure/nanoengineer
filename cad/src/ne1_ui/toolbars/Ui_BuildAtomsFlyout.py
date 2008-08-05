@@ -29,21 +29,28 @@ from PyQt4.Qt import QActionGroup
 
 from utilities.icon_utilities import geticon
 
+from ne1_ui.toolbars.Ui_AbstractFlyout import Ui_AbstractFlyout
 
-class BuildAtomsFlyout:    
-    def __init__(self, command):
+_superclass = Ui_AbstractFlyout
+
+class BuildAtomsFlyout(Ui_AbstractFlyout):    
+    
+    def _action_in_controlArea_to_show_this_flyout(self):
         """
-        Create necessary flyout action list and update the flyout toolbar in
-        the command toolbar with the actions provided by the object of this
-        class.                             
+        Required action in the 'Control Area' as a reference for this 
+        flyout toolbar. See superclass method for documentation and todo note.
         """
-        self.command = command
-        self.parentWidget = self.command.propMgr
-            
-        self.win =self.command.win                       
-        self._isActive = False
-        self._createActions(self.parentWidget)
+        return self.win.toolsDepositAtomAction
         
+    
+    def _getExitActionText(self):
+        """
+        Overrides superclass method. 
+        @see: self._createActions()
+        """
+        return "Exit Atoms"
+    
+            
     def getFlyoutActionList(self): 
         """
         Returns a tuple that contains mode spcific actionlists in the 
@@ -149,11 +156,7 @@ class BuildAtomsFlyout:
         #it as _init_modeActions. Not doing that change in mmkit code cleanup 
         #commit(other modes still implement a method by same name)-ninad20070717
                 
-        self.exitModeAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.exitModeAction.setText("Exit Atoms")
-        self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit.png'))
-        self.exitModeAction.setCheckable(True)
-        self.exitModeAction.setChecked(True)    
+        _superclass._createActions(self, parentWidget)
         
         #Following Actions are added in the Flyout toolbar. 
         #Defining them outside that method as those are being used
@@ -257,6 +260,9 @@ class BuildAtomsFlyout:
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
+        
+        #Ui_AbstractFlyout connects the self.exitmodeAction, so call it first.
+        _superclass.connect_or_disconnect_signals(self, isConnect = isConnect)
             
         #Atom , Bond Tools Groupbox
         change_connect(self.bondToolsActionGroup,
@@ -267,10 +273,6 @@ class BuildAtomsFlyout:
         change_connect(self.transmuteAtomsAction,
                         SIGNAL("triggered()"),self.command.transmutePressed)
                        
-                
-        change_connect(self.exitModeAction, SIGNAL("triggered()"), 
-                       self.win.toolsDone)
-        
         change_connect(self.subControlActionGroup, 
                        SIGNAL("triggered(QAction *)"),
                        self.updateCommandToolbar)
@@ -281,69 +283,9 @@ class BuildAtomsFlyout:
         
         change_connect(self.depositAtomsAction, 
                        SIGNAL("triggered()"), 
-                       self._activateAtomsTool)
-    
-    
-    def activateFlyoutToolbar(self):
-        """
-        Updates the flyout toolbar with the actions this class provides. 
-        """    
-        if self._isActive:
-            return
+                       self._activateAtomsTool)    
         
-        self._isActive = True
         
-        self.win.commandToolbar.updateCommandToolbar(
-            self.win.toolsDepositAtomAction,
-            self)
-        self.exitModeAction.setChecked(True)
-        
-        self.connect_or_disconnect_signals(True)
-        
-        ##if self.depositAtomsAction.isChecked():
-            ##self._activateAtomsTool()
-        ##elif self.transmuteBondsAction.isChecked():
-            ##self._activateBondsTool()
-            
-    
-    def deActivateFlyoutToolbar(self):
-        """
-        Updates the flyout toolbar with the actions this class provides.
-        """
-        if not self._isActive:
-            return 
-        
-        self._isActive = False
-        
-                    
-        self.connect_or_disconnect_signals(False)    
-        self.win.commandToolbar.updateCommandToolbar(
-            self.win.toolsDepositAtomAction,
-            self,
-            entering = False)
-
-    def exitBuildAtoms(self, isChecked):
-        """
-        Slot for B{Exit DNA} action.
-        """     
-        #@TODO: This needs to be revised. 
-        
-        if hasattr(self.parentWidget, 'ok_btn_clicked'):
-            if not isChecked:
-                self.parentWidget.ok_btn_clicked()
-        
-    def updateCommandToolbar(self, bool_entering = True):
-        """
-        Update the command toolbar.
-        """        
-        obj = self
-        self.win.commandToolbar.updateCommandToolbar(
-            self.win.toolsDepositAtomAction,
-            obj, 
-            entering = bool_entering)
-        
-        return
-    
     def get_cursor_id_for_active_tool(self):
         """
         Provides a cursor id (int) for updating cursor in graphics mode, 
