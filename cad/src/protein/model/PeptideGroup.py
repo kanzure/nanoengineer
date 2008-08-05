@@ -3,7 +3,7 @@
 PeptideGroup.py - ... 
 
 @author: Bruce, Mark
-@version: $Id: PeptideGroup.py 12414 2008-04-09 05:22:11Z marksims $
+@version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
