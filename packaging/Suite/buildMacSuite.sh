@@ -178,7 +178,7 @@ sudo hdiutil create -srcfolder build/NanoEngineer-1_Suite -fs HFS+ -format UDZO 
 if [ -e ~/MacOSX_Installers ]
 then
   cd build/NanoEngineer-1_Suite
-  sudo cp -R NanoEngineer-1_Suite_V$VERSION_NUM.mpkg ~/MacOSX_Installers
+  sudo cp -R NanoEngineer-1_Suite_v$VERSION_NUM.mpkg ~/MacOSX_Installers
   cd ..
   sudo cp NanoEngineer-1_Suite_v$VERSION_NUM.dmg ~/MacOSX_Installers
 fi
