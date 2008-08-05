@@ -585,7 +585,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         self.connect(self.logosDownloadPermissionBtnGroup, SIGNAL("buttonClicked(int)"), self.setPrefsLogoDownloadPermissions)
 
-        # Build Chunks option connections.
+        # Build Atoms option connections.
         connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )

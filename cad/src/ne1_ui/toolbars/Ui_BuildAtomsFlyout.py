@@ -373,8 +373,8 @@ class BuildAtomsFlyout:
     
     def _activateAtomsTool(self):
         """
-        Activate the atoms tool of the build chunks mode 
-        hide only the Atoms Tools groupbox in the Build chunks Property manager
+        Activate the atoms tool of the Build Atoms mode 
+        hide only the Atoms Tools groupbox in the Build Atoms Property manager
         and show all others the others.
         """
         self.command.activateAtomsTool()
@@ -382,8 +382,8 @@ class BuildAtomsFlyout:
         
     def _activateBondsTool(self):
         """
-        Activate the bond tool of the build chunks mode 
-        Show only the Bond Tools groupbox in the Build chunks Property manager
+        Activate the bond tool of the Build Atoms mode 
+        Show only the Bond Tools groupbox in the Build Atoms Property manager
         and hide the others.
         @see:self._convert_bonds_bet_selected_atoms()
         """  

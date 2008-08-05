@@ -81,7 +81,7 @@ def whatsThisTextForCommandToolbarSimulationButton(button):
 
 def whatsThisTextForAtomsCommandToolbar(commandToolbar):
     """
-    "What's This" text for widgets in the Build Chunks Command Toolbar.
+    "What's This" text for widgets in the Build Atoms Command Toolbar.
     
     @note: This is a placeholder function. Currenly, all the tooltip text is 
            defined in BuildAtoms_Command.py.

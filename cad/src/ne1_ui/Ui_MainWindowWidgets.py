@@ -1670,11 +1670,11 @@ def retranslateUi(win):
     #= Tools > Build Structures (menu and toolbar) actions.
     win.toolsDepositAtomAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Chunks", 
+            "MainWindow", "Atoms", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.toolsDepositAtomAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
-        "Build Chunks", 
+        "Build Atoms", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
     win.toolsCookieCutAction.setText(QtGui.QApplication.translate(

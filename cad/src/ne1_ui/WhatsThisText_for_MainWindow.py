@@ -1542,13 +1542,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.toolsSelectMoleculesAction.setWhatsThis\
        ( toolsSelectMoleculesActionText )
 
-    # Build Chunks
+    # Build Atoms
 
     toolsDepositAtomActionText = \
-        "<u><b>Build Chunks</b></u><!-- [[Feature:Build Chunks]] -->"\
+        "<u><b>Build Atoms</b></u><!-- [[Feature:Build Atoms]] -->"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/Atoms.png\"><br> "\
-        "<b>Build Chunks</b> provides an interactive molecular modeler "\
+        "<b>Build Atoms</b> provides an interactive molecular modeler "\
         "that allows the user to easily build molecular structures one "\
         "atom at a time.</p>"
 

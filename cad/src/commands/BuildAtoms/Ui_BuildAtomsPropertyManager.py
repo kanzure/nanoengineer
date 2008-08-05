@@ -64,7 +64,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
     """
        
     # The title that appears in the Property Manager header        
-    title = "Build Chunks"
+    title = "Build Atoms"
     # The name of this Property Manager. This will be set to
     # the name of the PM_Dialog object via setObjectName().
     pmName = title

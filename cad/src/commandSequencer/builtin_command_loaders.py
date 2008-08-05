@@ -158,7 +158,7 @@ def preloaded_command_classes():
         EditRotamers_Command,
         EditResidues_Command,
         CompareProteins_Command, 
-        #Tools in Build chunks command --
+        #Tools in Build Atoms command --
         SingleBondTool,
         DoubleBondTool,
         TripleBondTool,

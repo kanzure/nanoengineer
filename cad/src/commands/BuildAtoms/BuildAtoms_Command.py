@@ -57,7 +57,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     """
     """
     commandName = 'DEPOSIT'
-    featurename = "Build Atoms Mode" ### REVIEW: probably wrong, was renamed to Build Chunks  
+    featurename = "Build Atoms Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
 
@@ -595,8 +595,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     
     def activateAtomsTool(self):
         """
-        Activate the atoms tool of the build chunks mode 
-        hide only the Atoms Tools groupbox in the Build chunks Property manager
+        Activate the atoms tool of the Build Atoms mode 
+        hide only the Atoms Tools groupbox in the Build Atoms Property manager
         and show all others the others.
         """
                 
@@ -623,8 +623,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     
     def activateBondsTool(self):
         """
-        Activate the bond tool of the build chunks mode 
-        Show only the Bond Tools groupbox in the Build chunks Property manager
+        Activate the bond tool of the Build Atoms mode 
+        Show only the Bond Tools groupbox in the Build Atoms Property manager
         and hide the others.
         @see:self._convert_bonds_bet_selected_atoms()
         """        

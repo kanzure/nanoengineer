@@ -6,7 +6,7 @@
 @version:$Id$
 
 History:
-2008-07-30: Created to refactor Build Chunks command (currently called
+2008-07-30: Created to refactor Build Atoms command (currently called
 BuildAtoms_Command).  
 
 TODO:
@@ -33,7 +33,7 @@ class BondTool_Command(BuildAtoms_Command):
     """
     Each of the subclass of this class represent a temporary command that 
     will act like 'activating a tool'. Example: when user clicks on single Bonds 
-    tool, it will enter Single Bond Tool command. , suspending the Build Chunks
+    tool, it will enter Single Bond Tool command. , suspending the Build Atoms
     default command.
     """
     GraphicsMode_class = BondTool_GraphicsMode

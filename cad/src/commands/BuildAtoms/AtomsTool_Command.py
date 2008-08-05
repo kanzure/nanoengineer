@@ -6,7 +6,7 @@
 @version:$Id$
 
 History:
-2008-07-30: Created to refactor Build Chunks command (currently called
+2008-07-30: Created to refactor Build Atoms command (currently called
 BuildAtoms_Command).  
 
 TODO:
