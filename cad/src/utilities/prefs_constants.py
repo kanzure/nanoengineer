@@ -446,6 +446,7 @@ rosetta_path_prefs_key = 'V111/Rosetta Path'
 rosetta_enabled_prefs_key = 'V111/Rosetta Enabled'
 rosetta_dbdir_prefs_key = 'V111/Rosetta Database'
 rosetta_database_enabled_prefs_key = 'V111/Rosetta Database Enabled'
+rosetta_backrub_enabled_prefs_key = 'V120/Rosetta Backrub Enabled'
 cpp_path_prefs_key = 'A10/cpp Path'
 cpp_enabled_prefs_key = 'A10/cpp Enabled'
 nv1_path_prefs_key = 'A10/NanoVision-1 Path'
@@ -981,6 +982,7 @@ prefs_table = (
     ('rosetta_enabled', 'boolean', rosetta_enabled_prefs_key, False ),
     ('rosetta_database_dir', 'string', rosetta_dbdir_prefs_key, ""),
     ('rosetta_database_enabled', 'boolean', rosetta_database_enabled_prefs_key, False ),
+    ('rosetta_backrub_enabled', 'boolean', rosetta_backrub_enabled_prefs_key, False ),
     ('cpp_exe_path', 'string', cpp_path_prefs_key, "" ),
     ('cpp_enabled', 'boolean', cpp_enabled_prefs_key, False ),
     ('nv1_exe_path', 'string', nv1_path_prefs_key, "" ),
