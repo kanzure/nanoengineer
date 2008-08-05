@@ -72,8 +72,8 @@ PM_GROUPBOX_GRIDLAYOUT_MARGIN  = 2 # Grid contains all widgets in a grpbox
 PM_GROUPBOX_GRIDLAYOUT_SPACING = 2 # Grid contains all widgets in a grpbox
 
 # Top Row Buttons constants
-PM_TOPROWBUTTONS_MARGIN  = 5 # margin around buttons.
-PM_TOPROWBUTTONS_SPACING = 5 # space between buttons.
+PM_TOPROWBUTTONS_MARGIN  = 2 # margin around buttons.
+PM_TOPROWBUTTONS_SPACING = 2 # space between buttons.
 
 # Top Row Button flags.
 PM_NO_BUTTONS = 0

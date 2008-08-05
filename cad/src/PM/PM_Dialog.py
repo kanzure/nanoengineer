@@ -13,6 +13,8 @@ file and renamed it PM_Dialog.
 
 """
 
+import foundation.env as env
+
 from utilities.debug import print_compact_traceback
 from utilities import debug_flags
 
@@ -60,9 +62,12 @@ from PyQt4.Qt import QVBoxLayout
 from PyQt4.Qt import QSize
 from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QWhatsThis
+from PyQt4.Qt import QWidget
 
 from PM.PM_GroupBox         import PM_GroupBox
 from PM.PM_MessageGroupBox  import PM_MessageGroupBox
+
+from utilities.prefs_constants import sponsor_download_permission_prefs_key
 
 from sponsors.Sponsors import SponsorableMixin
 
@@ -198,6 +203,13 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         Shows the Property Manager.
         """
         self.setSponsor()
+        
+        # Show or hide the sponsor logo based on whether the user gave 
+        # permission to download sponsor logos.
+        if env.prefs[sponsor_download_permission_prefs_key]:
+            self.sponsorButtonContainer.show()
+        else:
+            self.sponsorButtonContainer.hide()
         
         if not self.pw or self:            
             self.pw = self.win.activePartWindow()
@@ -402,29 +414,26 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         """
         
         # Sponsor button (inside a frame)
-        self.sponsor_frame = QFrame(self)
-        self.sponsor_frame.setFrameShape(QFrame.NoFrame)
-        self.sponsor_frame.setFrameShadow(QFrame.Plain)
+        self.sponsorButtonContainer = QWidget(self)
 
-        SponsorFrameGrid = QGridLayout(self.sponsor_frame)
+        SponsorFrameGrid = QGridLayout(self.sponsorButtonContainer)
         SponsorFrameGrid.setMargin(PM_SPONSOR_FRAME_MARGIN)
         SponsorFrameGrid.setSpacing(PM_SPONSOR_FRAME_SPACING) # Has no effect.
 
-        self.sponsor_btn = QPushButton(self.sponsor_frame)
-        self.sponsor_btn.setAutoDefault(False)
-        self.sponsor_btn.setFlat(True)
+        self.sponsor_btn = QToolButton(self.sponsorButtonContainer)
+        self.sponsor_btn.setAutoRaise(True)
         self.connect(self.sponsor_btn,
                      SIGNAL("clicked()"),
                      self.open_sponsor_homepage)
         
         SponsorFrameGrid.addWidget(self.sponsor_btn, 0, 0, 1, 1)
         
-        self.vBoxLayout.addWidget(self.sponsor_frame)
+        self.vBoxLayout.addWidget(self.sponsorButtonContainer)
 
         button_whatsthis_widget = self.sponsor_btn
         #bruce 070615 bugfix -- put tooltip & whatsthis on self.sponsor_btn, 
         # not self.
-        # [self.sponsor_frame might be another possible place to put them.]
+        # [self.sponsorButtonContainer might be another possible place to put them.]
         
         button_whatsthis_widget.setWhatsThis("""<b>Sponsor Button</b>
             <p>When clicked, this sponsor logo will display a short 
@@ -443,6 +452,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         Creates the Done, Cancel, Preview, Restore Defaults and What's This 
         buttons row at the top of the Property Manager.
         """        
+        topBtnSize = QSize(22, 22) # button images should be 16 x 16, though.
         
         # Main "button group" widget (but it is not a QButtonGroup).
         self.pmTopRowBtns = QHBoxLayout()
@@ -454,32 +464,24 @@ class PM_Dialog( QDialog, SponsorableMixin ):
                                 QSizePolicy.Expanding, 
                                 QSizePolicy.Minimum)
         
-        # Frame containing all the buttons.
-        self.topRowBtnsFrame = QFrame()
-                
-        self.topRowBtnsFrame.setFrameShape(QFrame.NoFrame)
-        self.topRowBtnsFrame.setFrameShadow(QFrame.Plain)
+        # Widget containing all the buttons.
+        self.topRowBtnsContainer = QWidget()
         
         # Create Hbox layout for main frame.
-        topRowBtnsHLayout = QHBoxLayout(self.topRowBtnsFrame)
+        topRowBtnsHLayout = QHBoxLayout(self.topRowBtnsContainer)
         topRowBtnsHLayout.setMargin(PM_TOPROWBUTTONS_MARGIN)
         topRowBtnsHLayout.setSpacing(PM_TOPROWBUTTONS_SPACING)
         
-        topRowBtnsHLayout.addItem(horizontalSpacer)
-        
-        # Set button type.
-        if 1: # Mark 2007-05-30
-            # Needs to be QToolButton for MacOS. Fine for Windows, too.
-            buttonType = QToolButton 
-            # May want to use QToolButton.setAutoRaise(1) below. Mark 2007-05-29
-        else:
-            buttonType = QPushButton # Do not use.
+        # Set to True to center align the buttons in the PM
+        if False: # Left aligns the buttons.
+            topRowBtnsHLayout.addItem(horizontalSpacer)
         
         # Done (OK) button.
-        self.done_btn = buttonType(self.topRowBtnsFrame)
+        self.done_btn = QToolButton(self.topRowBtnsContainer)
         self.done_btn.setIcon(
-            geticon("ui/actions/Properties Manager/Done.png"))
-        self.done_btn.setIconSize(QSize(22, 22))  
+            geticon("ui/actions/Properties Manager/Done_16x16.png"))
+        self.done_btn.setIconSize(topBtnSize)  
+        self.done_btn.setAutoRaise(True) 
         self.connect(self.done_btn,
                      SIGNAL("clicked()"),
                      self.doneButtonClicked)
@@ -488,10 +490,11 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         topRowBtnsHLayout.addWidget(self.done_btn)
         
         # Cancel (Abort) button.
-        self.cancel_btn = buttonType(self.topRowBtnsFrame)
+        self.cancel_btn = QToolButton(self.topRowBtnsContainer)
         self.cancel_btn.setIcon(
-            geticon("ui/actions/Properties Manager/Abort.png"))
-        self.cancel_btn.setIconSize(QSize(22, 22))
+            geticon("ui/actions/Properties Manager/Abort_16x16.png"))
+        self.cancel_btn.setIconSize(topBtnSize) 
+        self.cancel_btn.setAutoRaise(True) 
         self.connect(self.cancel_btn,
                      SIGNAL("clicked()"),
                      self.cancelButtonClicked)
@@ -503,10 +506,11 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.abort_btn = self.cancel_btn
         
         # Restore Defaults button.
-        self.restore_defaults_btn = buttonType(self.topRowBtnsFrame)
+        self.restore_defaults_btn = QToolButton(self.topRowBtnsContainer)
         self.restore_defaults_btn.setIcon(
-            geticon("ui/actions/Properties Manager/Restore.png"))
-        self.restore_defaults_btn.setIconSize(QSize(22, 22))
+            geticon("ui/actions/Properties Manager/Restore_16x16.png"))
+        self.restore_defaults_btn.setIconSize(topBtnSize) 
+        self.restore_defaults_btn.setAutoRaise(True) 
         self.connect(self.restore_defaults_btn,
                      SIGNAL("clicked()"),
                      self.restoreDefaultsButtonClicked)
@@ -514,10 +518,11 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         topRowBtnsHLayout.addWidget(self.restore_defaults_btn)
         
         # Preview (glasses) button.
-        self.preview_btn = buttonType(self.topRowBtnsFrame)
+        self.preview_btn = QToolButton(self.topRowBtnsContainer)
         self.preview_btn.setIcon(
-            geticon("ui/actions/Properties Manager/Preview.png"))
-        self.preview_btn.setIconSize(QSize(22, 22))
+            geticon("ui/actions/Properties Manager/Preview_16x16.png"))
+        self.preview_btn.setIconSize(topBtnSize) 
+        self.preview_btn.setAutoRaise(True) 
         self.connect(self.preview_btn,
                      SIGNAL("clicked()"),
                      self.previewButtonClicked)
@@ -526,10 +531,11 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         topRowBtnsHLayout.addWidget(self.preview_btn)        
         
         # What's This (?) button.
-        self.whatsthis_btn = buttonType(self.topRowBtnsFrame)
+        self.whatsthis_btn = QToolButton(self.topRowBtnsContainer)
         self.whatsthis_btn.setIcon(
-            geticon("ui/actions/Properties Manager/WhatsThis.png"))
-        self.whatsthis_btn.setIconSize(QSize(22, 22))
+            geticon("ui/actions/Properties Manager/WhatsThis_16x16.png"))
+        self.whatsthis_btn.setIconSize(topBtnSize) 
+        self.whatsthis_btn.setAutoRaise(True) 
         self.connect(self.whatsthis_btn,
                      SIGNAL("clicked()"),
                      self.whatsThisButtonClicked)
@@ -540,7 +546,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         topRowBtnsHLayout.addItem(horizontalSpacer)
         
         # Create Button Row
-        self.pmTopRowBtns.addWidget(self.topRowBtnsFrame)
+        self.pmTopRowBtns.addWidget(self.topRowBtnsContainer)
         
         self.vBoxLayout.addLayout(self.pmTopRowBtns)
         
@@ -548,27 +554,27 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         self.done_btn.setWhatsThis("""<b>Done</b>
             <p>
-            <img source=\"ui/actions/Properties Manager/Done.png\"><br>
+            <img source=\"ui/actions/Properties Manager/Done_16x16.png\"><br>
             Completes and/or exits the current command.</p>""")
         
         self.cancel_btn.setWhatsThis("""<b>Cancel</b>
             <p>
-            <img source=\"ui/actions/Properties Manager/Abort.png\"><br>
+            <img source=\"ui/actions/Properties Manager/Abort_16x16.png\"><br>
             Cancels the current command.</p>""")
         
         self.restore_defaults_btn.setWhatsThis("""<b>Restore Defaults</b>
-            <p><img source=\"ui/actions/Properties Manager/Restore.png\"><br>
+            <p><img source=\"ui/actions/Properties Manager/Restore_16x16.png\"><br>
             Restores the defaut values of the Property Manager.</p>""")
         
         self.preview_btn.setWhatsThis("""<b>Preview</b>
             <p>
-            <img source=\"ui/actions/Properties Manager/Preview.png\"><br>
+            <img source=\"ui/actions/Properties Manager/Preview_16x16.png\"><br>
             Preview the structure based on current Property Manager settings.
             </p>""")
 
         self.whatsthis_btn.setWhatsThis("""<b>What's This</b> 
             <p>
-            <img source=\"ui/actions/Properties Manager/WhatsThis.png\"><br>
+            <img source=\"ui/actions/Properties Manager/WhatsThis_16x16.png\"><br>
             This invokes \"What's This?\" help mode which is part of 
             NanoEngineer-1's online help system, and provides users with 
             information about the functionality and usage of a particular 
