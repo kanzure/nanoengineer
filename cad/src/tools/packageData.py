@@ -502,11 +502,11 @@ packageMapping_for_files = {
     "parse_utils"                      : "utilities",
     "part"                             : "model", #? - foundation (if clipboard is), but knows lots of model & operations too
     "PartLibPropertyManager"           : "ui/propmgr|commands/PartLibrary",
-    "PartLibraryMode"                  : "unsplit_mode|commands/PartLibrary",
+    "PartLibrary_Command"              : "command|commands/PartLibrary",
     "PartProp"                         : "ui/dialog|commands/PartProperties?",
     "PartPropDialog"                   : "ui/dialog|commands/PartProperties?",
     "pastables"                        : "operations", # supports pasting operations
-    "PasteMode"                        : "unsplit_mode|commands/Paste",
+    "PasteFromClipboard_Command"                        : "command|commands/Paste",
     "PastePropertyManager"             : "ui/propmgr|commands/Paste",
     
     "pi_bond_sp_chain"                 : "model",

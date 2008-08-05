@@ -904,7 +904,7 @@ class MWsemantics(QMainWindow,
 
     def editPasteFromClipboard(self):
         """
-        Invokes the L{PasteMode}, a temporary command to paste items in the
+        Invokes the L{PasteFromClipboard_Command}, a temporary command to paste items in the
         clipboard, into the 3D workspace. It also stores the command NE1 should
         return to after exiting this temporary command.
         """
@@ -932,7 +932,7 @@ class MWsemantics(QMainWindow,
 
     def insertPartFromPartLib(self):
         """
-        Sets the current command to L{PartLibraryMode}, for inserting (pasting)
+        Sets the current command to L{PartLibrary_Command}, for inserting (pasting)
         a part from the partlib into the 3D workspace. It also stores the command
         NE1 should return to after exiting this temporary command.
         """

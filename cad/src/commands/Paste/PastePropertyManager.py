@@ -47,7 +47,7 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         its UI.
         
         @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{PasteMode}    
+        @type  parentMode: L{PasteFromClipboard_Command}    
         """    
         self.clipboardGroupBox = None
         BuildAtomsPropertyManager.__init__(self, parentMode)

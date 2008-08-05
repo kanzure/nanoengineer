@@ -1,8 +1,8 @@
 #Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-PartLibraryMode.py 
+PartLibrary_Command.py 
 
-Class PartLibraryMode allows depositing parts from the partlib into the 3D 
+Class PartLibrary_Command allows depositing parts from the partlib into the 3D 
 workspace.Its property manager shows the current selected part in its 'Preview' 
 box. The part can be deposited by doubleclicking on empty space in 3D workspace 
 or if it has a hotspot, it can be deposited on a bondpoint of an existing model.  
@@ -29,14 +29,14 @@ from model.elements import Singlet
 from geometry.VQT import Q
 from operations.ops_copy import copied_nodes_for_DND
 
-from commands.Paste.PasteMode import PasteMode
+from commands.Paste.PasteFromClipboard_Command import PasteFromClipboard_Command
 from commands.PartLibrary.PartLibPropertyManager import PartLibPropertyManager
 from ne1_ui.toolbars.Ui_PartLibraryFlyout import PartLibraryFlyout
 from commands.PartLibrary.PartLibrary_GraphicsMode import PartLibrary_GraphicsMode
 
-class PartLibraryMode(PasteMode):
+class PartLibrary_Command(PasteFromClipboard_Command):
     """
-    The PartLibraryMode allows depositing parts from the partlib into the 3D 
+    The PartLibrary_Command allows depositing parts from the partlib into the 3D 
     workspace. Its property manager shows the current selected part in its 
     'Preview' box. The part can be deposited by doubleclicking on empty space 
     in 3D workspace or if it has a hotspot, it can be deposited on a bondpoint 
@@ -54,7 +54,7 @@ class PartLibraryMode(PasteMode):
         """
         Create a flyout toolbar to be shown when this command is active. 
         Overridden in subclasses. 
-        @see: PasteMode._createFlyouttoolBar()
+        @see: PasteFromClipboard_Command._createFlyouttoolBar()
         @see: self.command_enter_flyout()
         """
         flyoutToolbar = PartLibraryFlyout(self) 

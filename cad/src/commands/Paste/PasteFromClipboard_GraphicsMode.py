@@ -5,7 +5,7 @@
 @version:$Id$
 
 History:
-Ninad 2008-08-04: Created by splitting PasteMode class into command and 
+Ninad 2008-08-04: Created by splitting PasteFromClipboard_Command class into command and 
 GraphicsMode. 
 
 TODO:

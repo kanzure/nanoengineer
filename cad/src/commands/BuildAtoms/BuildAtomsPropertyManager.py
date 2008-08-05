@@ -16,7 +16,7 @@ this functionality was integrated into a Property Manager. Since then
 several changes have been made. 
 ninad 2007-08-29: Created to use PM module classes, thus deprecating old 
                   Property Manager class MMKit. Split out old 'clipboard' 
-                  functionality into new L{PasteMode} 
+                  functionality into new L{PasteFromClipboard_Command} 
 """
 
 

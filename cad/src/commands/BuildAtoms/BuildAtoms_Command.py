@@ -131,7 +131,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         """
         Create a flyout toolbar to be shown when this command is active. 
         Overridden in subclasses. 
-        @see: PasteMode._createFlyouttoolBar()
+        @see: PasteFromClipboard_Command._createFlyouttoolBar()
         @see: self.command_enter_flyout()
         """
         flyoutToolbar = BuildChunksFlyout(self) 
@@ -278,7 +278,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     def update_gui_0(self): 
         """
         Overridden in some subclasses. Default implementation does nothing
-        @see: B{PasteMode}
+        @see: B{PasteFromClipboard_Command}
         """        
         pass
     

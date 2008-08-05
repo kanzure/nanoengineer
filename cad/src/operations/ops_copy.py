@@ -420,7 +420,7 @@ class ops_copy_Mixin:
              (i.e. the offset is constant)
         
         B. Implemetation notes for 'Paste from clipboard' operation:
-           - Enter L{PasteMode}, select a pastable from the PM and then
+           - Enter L{PasteFromClipboard_Command}, select a pastable from the PM and then
              double click inside the 3D workspace to paste that object. 
              This function uses the mouse coordinates during double click for 
              pasting.         

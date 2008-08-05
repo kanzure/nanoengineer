@@ -32,8 +32,8 @@ some commands lazily.
 
 from commands.BuildCrystal.cookieMode import cookieMode 
 from commands.Extrude.extrudeMode import extrudeMode
-from commands.Paste.PasteMode import PasteMode
-from commands.PartLibrary.PartLibraryMode import PartLibraryMode
+from commands.Paste.PasteFromClipboard_Command import PasteFromClipboard_Command
+from commands.PartLibrary.PartLibrary_Command import PartLibrary_Command
 from commands.PlayMovie.movieMode import movieMode
 from commands.PlaneProperties.Plane_EditCommand import Plane_EditCommand
 from commands.RotaryMotorProperties.RotaryMotor_EditCommand import RotaryMotor_EditCommand
@@ -123,8 +123,8 @@ def preloaded_command_classes():
         ZoomInOutMode,
         PanMode, 
         RotateMode, 
-        PasteMode, 
-        PartLibraryMode, 
+        PasteFromClipboard_Command, 
+        PartLibrary_Command, 
         LineMode, 
         DnaLineMode, 
         DnaDuplex_EditCommand,

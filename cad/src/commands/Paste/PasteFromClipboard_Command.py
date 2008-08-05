@@ -1,8 +1,8 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-PasteMode.py
+PasteFromClipboard_Command.py
 
-PasteMode allows depositing clipboard items into the 3D workspace. 
+PasteFromClipboard_Command allows depositing clipboard items into the 3D workspace. 
 Its property manager lists the'pastable' clipboard items and also shows the 
 current selected item in its 'Preview' box. User can return to previous mode by 
 hitting 'Escape' key or pressing 'Done' button in the Paste mode. 
@@ -13,7 +13,7 @@ hitting 'Escape' key or pressing 'Done' button in the Paste mode.
 History:
 Ninad 2007-08-29: Created. 
 Ninad 2008-01-02: Moved several methods originally in class depositMode to 
-                  PasteMode. 
+                  PasteFromClipboard_Command. 
 Ninad 2008-08-02: refactored into command and graphics mode classes, other things
 needed for the command stack refactoring project. 
 
@@ -21,7 +21,7 @@ TODO:
 - some methods in Command and GraphicsMode part are not appropriate in those classes
 eg. deposit_from_MMKit method in the Graphicsmode class. This will need further 
 clanup.
-- rename PasteMode to PastFromClipboard_Command
+- rename PasteFromClipboard_Command to PastFromClipboard_Command
 """
 
 from foundation.Group import Group
@@ -39,9 +39,9 @@ from ne1_ui.toolbars.Ui_PasteFromClipboardFlyout import PasteFromClipboardFlyout
 from commands.Paste.PasteFromClipboard_GraphicsMode import PasteFromClipboard_GraphicsMode
 _superclass = BuildAtoms_Command
 
-class PasteMode(BuildAtoms_Command):
+class PasteFromClipboard_Command(BuildAtoms_Command):
     """
-    PasteMode allows depositing clipboard items into the 3D workspace. 
+    PasteFromClipboard_Command allows depositing clipboard items into the 3D workspace. 
     Its property manager lists the 'pastable' clipboard items and also shows the 
     current selected item in its 'Preview' box. User can return to previous mode 
     by hitting 'Escape' key  or pressing 'Done' button in the Paste mode. 
@@ -65,7 +65,7 @@ class PasteMode(BuildAtoms_Command):
 
     def __init__(self, commandSequencer):
         """
-        Constructor for the class PasteMode. PasteMode allows depositing 
+        Constructor for the class PasteFromClipboard_Command. PasteFromClipboard_Command allows depositing 
         clipboard items into the 3D workspace. Its property manager lists the
         'pastable' clipboard items and also shows the current selected item 
         in its 'Preview' box. User can return to previous mode by hitting 
@@ -103,7 +103,7 @@ class PasteMode(BuildAtoms_Command):
         """
         Create a flyout toolbar to be shown when this command is active. 
         Overridden in subclasses. 
-        @see: PasteMode._createFlyouttoolBar()
+        @see: PasteFromClipboard_Command._createFlyouttoolBar()
         @see: self.command_enter_flyout()
         """
         flyoutToolbar = PasteFromClipboardFlyout(self) 
@@ -137,7 +137,7 @@ class PasteMode(BuildAtoms_Command):
         # Subclasses update the contents of self.propMgr.clipboardGroupBox
         # (Note; earlier depositMode used to update self.w.pasteComboBox items,
         # but this implementation has been changed since 2007-09-04 after 
-        # introduction of L{PasteMode}) 
+        # introduction of L{PasteFromClipboard_Command}) 
         # to match the set of pastable objects on the clipboard,
         # which is cached in pastables_list for use,
         # and update the current item to be what it used to be (if that is

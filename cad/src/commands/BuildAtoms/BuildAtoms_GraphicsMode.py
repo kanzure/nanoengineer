@@ -949,7 +949,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             'Part' - a library part from the Library page was deposited.
 
         Note: 
-        This is overridden in some subclasses (e.g. PasteMode, PartLibraryMode),
+        This is overridden in some subclasses (e.g. PasteFromClipboard_Command, PartLibrary_Command),
         but the default implementation is also still used [as of 071025].
         """
         

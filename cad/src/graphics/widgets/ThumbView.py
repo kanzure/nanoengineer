@@ -849,7 +849,7 @@ class MMKitView(ThumbView):
     # note: as of 080403 this is constructed only by PM_PreviewGroupBox.py
     # and required (assert isinstance(self.elementViewer, MMKitView)) by
     # PM_Clipboard.py, PM_MolecularModelingKit.py, and PM_PartLib.py.
-    # I think that means it is used for MMKit atoms, PasteMode clipboard,
+    # I think that means it is used for MMKit atoms, PasteFromClipboard_Command clipboard,
     # and PartLib parts. [bruce 080403 comment]
     always_draw_hotspot = True
         #bruce 060627 to help with bug 2028
