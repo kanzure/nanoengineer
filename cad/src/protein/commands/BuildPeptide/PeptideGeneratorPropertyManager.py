@@ -106,9 +106,8 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         self.ss_idx = 1
         self.peptide_cache = []
         self.peptide_cache.append((0, 0, 0))
-
         self.updateMessageGroupBox()
-        
+                
     def updateMessageGroupBox(self):
        
         msg = "Click on the Amino Acid buttons to add a new residuum to " \
@@ -128,7 +127,8 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         @see: L{Peptide_EditCommand._gatherParameters()} where this is used
         
         """
-        
+        #return (self.a1, self.a2, self.a3, self.a4, self.a5, self.a6)
+    
         return (self.peptide_cache, self.ss_idx)
 
     def _addGroupBoxes(self):
@@ -223,26 +223,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
                       SIGNAL("buttonClicked(int)"),
                       self._setAminoAcidType)
 
-        #self.sequenceEditor = \
-        #    PM_TextEdit( inPmGroupBox, 
-        #                 label      = "Sequence",
-        #                 spanWidth = True )
-
-        #self.sequenceEditor.insertHtml("", False, 4, 10, True)
-
-        #self.sequenceEditor.setReadOnly(True)
-
-        #self.startOverButton = \
-        #    PM_PushButton( inPmGroupBox,
-        #                   label     = "",
-        #                   text      = "Start Over",
-        #                   spanWidth = True,
-        #                   setAsDefault = True )
-
-        #self.connect( self.startOverButton,
-        #              SIGNAL("clicked()"),
-        #              self._startOverClicked)
-        
+    
     def addAminoAcid(self, index):
         """
         Adds a new amino acid to the peptide molecule.

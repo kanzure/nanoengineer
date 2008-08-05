@@ -589,8 +589,16 @@ class PeptideGenerator:
         qrot = Q(axis, rot) # Quat for rotation delta.
         
         # Move and rotate the Peptide into final orientation.
-        chunk.move(qrot.rot(chunk.center) - chunk.center + rawOffset + pt1)
+        #chunk.move(rawOffset + qrot.rot(chunk.center) - chunk.center + rawOffset + pt1)
+        
+        #chunk.move(qrot.rot(chunk.center) - chunk.center + rawOffset + pt1)
+        #chunk.rot(qrot)
+        
+        chunk.move(-chunk.center)
+
         chunk.rot(qrot)
+        
+        chunk.move(pt1+0.5*(pt2-pt1))
         
         # Bruce suggested I add this. It works here, but not if its 
         # before move() and rot() above. Mark 2008-04-11
@@ -601,9 +609,8 @@ class PeptideGenerator:
         Build a peptide from a sequence entered through the Property Manager.
         """
                  
-        ###return self.make_aligned(assy, name, 0, 135, -135, V(0.0, 0.0, 0.0), V(20.0, 0.0, 0.0))
-        
-        
+        return self.make_aligned(assy, name, 3, -57, -47, V(0.0, 0.0, 0.0), V(20.0, 0.0, 0.0))
+    
         peptide_cache, ss_idx = params
 
         if len(peptide_cache) == 0:
@@ -697,7 +704,7 @@ class PeptideGenerator:
         """
         return vlen(pos2 - pos1) / self.get_unit_length(phi, psi)
     
-    def make_aligned(self, assy, name, aa_idx, phi, psi, pos1, pos2, 
+    def make_aligned(self, assy, name, aa_idx, phi, psi, pos2, pos1, 
                      mol=None, createPrinted=False):
         """
         Build a homo-peptide aligned to a pos2-pos1 vector. 
@@ -711,8 +718,11 @@ class PeptideGenerator:
             return None
         
         # Create a molecule
-        mol = Chunk(assy,name)
+        mol = Chunk(assy, name)
 
+        #pos1 = mol.base_to_abs(pos1);
+        #pos2 = mol.base_to_abs(pos2);
+        
         # Generate dummy atoms positions
         self.prev_coords[0][0] = pos1[0] + 1.0
         self.prev_coords[0][1] = pos1[1] 
