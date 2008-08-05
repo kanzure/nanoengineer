@@ -49,7 +49,7 @@ from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_basicCommand
 
 from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
-from ne1_ui.toolbars.Ui_BuildChunksFlyout import BuildChunksFlyout
+from ne1_ui.toolbars.Ui_BuildAtomsFlyout import BuildAtomsFlyout
 
 _superclass = SelectAtoms_basicCommand
 
@@ -134,7 +134,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         @see: PasteFromClipboard_Command._createFlyouttoolBar()
         @see: self.command_enter_flyout()
         """
-        flyoutToolbar = BuildChunksFlyout(self) 
+        flyoutToolbar = BuildAtomsFlyout(self) 
         return flyoutToolbar
     
     def _createPropMgrObject(self):

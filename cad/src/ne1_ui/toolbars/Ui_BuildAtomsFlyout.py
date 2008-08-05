@@ -17,9 +17,8 @@ TODO:
 - This may be revised heavily during the command toolbar cleanup project. 
 The current class refactors the related code from class BuildAtoms_Command
 
-@Note: The class name is BuildChunksFlyout -- this provides the flyout toolbar
-for class BuildAtoms_Command .. the old class BuildAtoms_Command should be 
-renamed to BuildChunks_Command match with the feature name in NE1 
+@Note: The class name is BuildAtomsFlyout -- this provides the flyout toolbar
+for class BuildAtoms_Command 
 
 """
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
@@ -31,7 +30,7 @@ from PyQt4.Qt import QActionGroup
 from utilities.icon_utilities import geticon
 
 
-class BuildChunksFlyout:    
+class BuildAtomsFlyout:    
     def __init__(self, command):
         """
         Create necessary flyout action list and update the flyout toolbar in
@@ -151,7 +150,7 @@ class BuildChunksFlyout:
         #commit(other modes still implement a method by same name)-ninad20070717
                 
         self.exitModeAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.exitModeAction.setText("Exit Chunks")
+        self.exitModeAction.setText("Exit Atoms")
         self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit.png'))
         self.exitModeAction.setCheckable(True)
         self.exitModeAction.setChecked(True)    
