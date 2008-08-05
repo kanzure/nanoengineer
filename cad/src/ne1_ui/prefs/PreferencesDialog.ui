@@ -114,7 +114,7 @@
        <item row="0" column="1" >
         <widget class="QStackedWidget" name="prefsStackedWidget" >
          <property name="currentIndex" >
-          <number>12</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="General" >
           <layout class="QGridLayout" >
@@ -778,7 +778,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="ModelView" >
+         <widget class="QWidget" name="GraphicsArea" >
           <layout class="QGridLayout" >
            <property name="leftMargin" >
             <number>9</number>
@@ -8271,7 +8271,7 @@
          </item>
          <item>
           <property name="text" >
-           <string>Model View</string>
+           <string>Graphics Area</string>
           </property>
           <item>
            <property name="text" >

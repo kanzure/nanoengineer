@@ -227,7 +227,7 @@ from widgets.prefs_widgets import connect_doubleSpinBox_with_pref
 # Preferences widgets constants. I suggest that these be moved to another
 # file (i.e. prefs_constants.py or another file). Discuss with Bruce. -Mark
 
-# Widget constants for the "Model View" page.
+# Widget constants for the "Graphics Area" page.
 
 BG_EVENING_SKY = 0
 BG_BLUE_SKY = 1
@@ -500,7 +500,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self._setupDialog_TopLevelWidgets()
         self._setupPage_General()
         self._setupPage_Color()
-        self._setupPage_ModelView()
+        self._setupPage_GraphicsArea()
         self._setupPage_ZoomPanRotate()
         self._setupPage_Rulers()
         self._setupPage_Atoms()
@@ -645,10 +645,10 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         return
 
-    def _setupPage_ModelView(self):
+    def _setupPage_GraphicsArea(self):
         """
         Setup widgets to initial (default or defined) values on the
-        'Model View' page.
+        'Graphics Area' page.
         """
         # Setup the Global Display Style at start-up combobox
         self._setupGlobalDisplayStyleAtStartup_ComboBox()
@@ -1468,7 +1468,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             self.selectionStyleComboBox.addItem(selectionStyle)
         return
 
-    # = Methods for the "Model View" page.
+    # = Methods for the "Graphics Area" page.
 
     def _setupGlobalDisplayStyleAtStartup_ComboBox(self):
         """

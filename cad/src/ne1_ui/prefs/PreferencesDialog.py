@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PreferencesDialog.ui'
 #
-# Created: Wed Jul 16 00:54:05 2008
+# Created: Tue Aug 05 18:39:24 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -306,10 +306,10 @@ class Ui_PreferencesDialog(object):
         self.gridlayout4.addLayout(self.vboxlayout3,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.Color)
 
-        self.ModelView = QtGui.QWidget()
-        self.ModelView.setObjectName("ModelView")
+        self.GraphicsArea = QtGui.QWidget()
+        self.GraphicsArea.setObjectName("GraphicsArea")
 
-        self.gridlayout8 = QtGui.QGridLayout(self.ModelView)
+        self.gridlayout8 = QtGui.QGridLayout(self.GraphicsArea)
         self.gridlayout8.setMargin(9)
         self.gridlayout8.setSpacing(6)
         self.gridlayout8.setObjectName("gridlayout8")
@@ -324,17 +324,17 @@ class Ui_PreferencesDialog(object):
         self.hboxlayout7.setMargin(0)
         self.hboxlayout7.setObjectName("hboxlayout7")
 
-        self.label_9 = QtGui.QLabel(self.ModelView)
+        self.label_9 = QtGui.QLabel(self.GraphicsArea)
         self.label_9.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_9.setObjectName("label_9")
         self.hboxlayout7.addWidget(self.label_9)
 
-        self.globalDisplayStyleStartupComboBox = QtGui.QComboBox(self.ModelView)
+        self.globalDisplayStyleStartupComboBox = QtGui.QComboBox(self.GraphicsArea)
         self.globalDisplayStyleStartupComboBox.setObjectName("globalDisplayStyleStartupComboBox")
         self.hboxlayout7.addWidget(self.globalDisplayStyleStartupComboBox)
         self.vboxlayout4.addLayout(self.hboxlayout7)
 
-        self.compassGroupBox = QtGui.QGroupBox(self.ModelView)
+        self.compassGroupBox = QtGui.QGroupBox(self.GraphicsArea)
         self.compassGroupBox.setCheckable(True)
         self.compassGroupBox.setChecked(True)
         self.compassGroupBox.setObjectName("compassGroupBox")
@@ -374,7 +374,7 @@ class Ui_PreferencesDialog(object):
         self.gridlayout9.addLayout(self.vboxlayout5,0,0,1,1)
         self.vboxlayout4.addWidget(self.compassGroupBox)
 
-        self.groupBox7_2 = QtGui.QGroupBox(self.ModelView)
+        self.groupBox7_2 = QtGui.QGroupBox(self.GraphicsArea)
         self.groupBox7_2.setObjectName("groupBox7_2")
 
         self.gridlayout10 = QtGui.QGridLayout(self.groupBox7_2)
@@ -393,7 +393,7 @@ class Ui_PreferencesDialog(object):
         self.gridlayout10.addWidget(self.display_origin_axis_checkbox,0,0,1,1)
         self.vboxlayout4.addWidget(self.groupBox7_2)
 
-        self.display_confirmation_corner_checkbox = QtGui.QCheckBox(self.ModelView)
+        self.display_confirmation_corner_checkbox = QtGui.QCheckBox(self.GraphicsArea)
         self.display_confirmation_corner_checkbox.setChecked(False)
         self.display_confirmation_corner_checkbox.setObjectName("display_confirmation_corner_checkbox")
         self.vboxlayout4.addWidget(self.display_confirmation_corner_checkbox)
@@ -404,7 +404,7 @@ class Ui_PreferencesDialog(object):
 
         spacerItem8 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.gridlayout8.addItem(spacerItem8,0,1,1,1)
-        self.prefsStackedWidget.addWidget(self.ModelView)
+        self.prefsStackedWidget.addWidget(self.GraphicsArea)
 
         self.ZoomPanandRotate = QtGui.QWidget()
         self.ZoomPanandRotate.setObjectName("ZoomPanandRotate")
@@ -3129,7 +3129,7 @@ class Ui_PreferencesDialog(object):
 
         self.retranslateUi(PreferencesDialog)
         self.prefsTabWidget.setCurrentIndex(0)
-        self.prefsStackedWidget.setCurrentIndex(12)
+        self.prefsStackedWidget.setCurrentIndex(2)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(PreferencesDialog)
 
@@ -3475,7 +3475,7 @@ class Ui_PreferencesDialog(object):
         item1.setText(0,QtGui.QApplication.translate("PreferencesDialog", "Color", None, QtGui.QApplication.UnicodeUTF8))
 
         item2 = QtGui.QTreeWidgetItem(self.categoryTreeWidget)
-        item2.setText(0,QtGui.QApplication.translate("PreferencesDialog", "Model View", None, QtGui.QApplication.UnicodeUTF8))
+        item2.setText(0,QtGui.QApplication.translate("PreferencesDialog", "Graphics Area", None, QtGui.QApplication.UnicodeUTF8))
 
         item3 = QtGui.QTreeWidgetItem(item2)
         item3.setText(0,QtGui.QApplication.translate("PreferencesDialog", "Zoom, Pan and Rotate", None, QtGui.QApplication.UnicodeUTF8))
