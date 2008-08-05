@@ -110,6 +110,7 @@ then
     cat packaging/buildMac.sh | sed -e "s:^VERSION_NUM=.*:VERSION_NUM=\\\"$VERSION_NUM\\\":" | sed -e "s:^RC_NUMBER=.*:RC_NUMBER=\\\"$RC_NUMBER\\\":" > packaging/buildMac.sh.tmp
     mv packaging/buildMac.sh.tmp packaging/buildMac.sh || exit 1
     cd packaging
+#   Set up the environment variables for the build 
     export CPPFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include -I/Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include"
     export CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include -I/Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include"
     export LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -isysroot /Developer/SDKs/MacOSX10.4u.sdk -L/usr/local/lib -L/Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/lib"
@@ -134,48 +135,70 @@ cd $TOP_LEVEL
 # Made it this far, continue building the suite.  Mod the suite installer files
 cd $PKNG_DIR
 cd MacOSX
+# create a blank metapackages directory directory for the build
 sudo rm -rf metapackage
-mkdir metapackage
-mkdir metapackage/packages
-mkdir metapackage/extras
+mkdir metapackage || exit 1
+mkdir metapackage/packages || exit 1
+mkdir metapackage/extras || exit 1
+# grab the packages that make up the build and rename them to what the build 
+# expects them to be.  Basically stripping off version numbers
 if [ -e ~/MacOSX_Installers ]
 then
-  cd metapackage/packages
-  sudo cp -R ~/MacOSX_Installers/NanoEngineer-1_v$VERSION_NUM.pkg .
-  sudo mv NanoEngineer-1_v$VERSION_NUM.pkg NanoEngineer-1.pkg
-  sudo cp -R ~/MacOSX_Installers/GROMACS_$GROMACS_VERSION.pkg .
-  sudo mv GROMACS_$GROMACS_VERSION.pkg GROMACS.pkg
-  sudo cp -R ~/MacOSX_Installers/QuteMolX_$QUTEMOLX_VERSION.pkg .
-  sudo mv QuteMolX_$QUTEMOLX_VERSION.pkg QuteMolX.pkg
-  sudo cp -R ~/MacOSX_Installers/pref_modifier.pkg .
+# use the versions in the pre-built area if possible
+  cd metapackage/packages || exit 1
+  sudo cp -R ~/MacOSX_Installers/NanoEngineer-1_v$VERSION_NUM.pkg . || exit 1
+  sudo mv NanoEngineer-1_v$VERSION_NUM.pkg NanoEngineer-1.pkg || exit 1
+  sudo cp -R ~/MacOSX_Installers/GROMACS_$GROMACS_VERSION.pkg . || exit 1
+  sudo mv GROMACS_$GROMACS_VERSION.pkg GROMACS.pkg || exit 1
+  sudo cp -R ~/MacOSX_Installers/QuteMolX_$QUTEMOLX_VERSION.pkg . || exit 1
+  sudo mv QuteMolX_$QUTEMOLX_VERSION.pkg QuteMolX.pkg || exit 1
+  sudo cp -R ~/MacOSX_Installers/pref_modifier.pkg . || exit 1
 else
 # To be replaced later with something that searches for the pkg files
+  echo "Couldn't find pre-build packages"
   exit 1
 fi
+
 cd $PKNG_DIR/MacOSX
-sudo rm -rf NanoEngineer-1_Suite
-sudo rm -rf build rec
+sudo rm -rf NanoEngineer-1_Suite build rec
+# create the build directory area
 sudo mkdir build
 sudo mkdir build/NanoEngineer-1_Suite
+# remove any old version of the doc used by package make to build the distro
 sudo rm -rf NE1_Suite.pmdoc
+# expand the doc we need to build the distro
 tar -xzvf NE1_Suite.pmdoc.tar.gz
+# insert the gromacs version into the default install directory
 cd NE1_Suite.pmdoc
 GROM_FILE=`ls *gromacs.xml`
 cat $GROM_FILE | sed -e "s:/Applications/GROMACS:/Applications/GROMACS_$GROMACS_VERSION:" > $GROM_FILE.tmp
 mv $GROM_FILE.tmp $GROM_FILE || exit 1
 cd ..
+
+# create and populate the resources directory
 mkdir rec
 cp background.jpg rec
+# make a welcome file for the installer
 cat Welcome_template.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > Welcome.rtf
 cp Welcome.rtf rec
 cp License.txt rec
+# copy in the post install scripts
 cp post_*.sh rec
+
+Run the package builder
 sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o build/NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc
+
+# Code added to get around the race condition that seems to be a problem where
+# hdiutil doesn't see the srcfolder unless the drive has been completely 
+# sync'd up
 sleep 10
 sudo sync
 sleep 10
+
+# Create the distribution dmg file
 sudo hdiutil create -srcfolder build/NanoEngineer-1_Suite -fs HFS+ -format UDZO build/NanoEngineer-1_Suite_v$VERSION_NUM.dmg
 
+# Store the installers for use later or for upload
 if [ -e ~/MacOSX_Installers ]
 then
   cd build/NanoEngineer-1_Suite
