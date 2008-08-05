@@ -380,7 +380,9 @@ class BuildDna_GraphicsMode(
             #a the following axis atoms --strand atoms axis_neighbors and
             #axis atom centers directly connected to this axis atom.
             #  -- Ninad 2008-03-25
-            self._commonCenterForRotation = obj.axis_neighbor().posn()
+            axis_neighbor = obj.axis_neighbor()
+            if axis_neighbor is not None:
+                self._commonCenterForRotation = axis_neighbor.posn()
         else:
             self._translateAlongAxis = False
             self._rotateAboutAxis = False
