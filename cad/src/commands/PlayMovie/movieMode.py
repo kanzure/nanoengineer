@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 movieMode.py -- movie player mode.
 
 @author: Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -37,8 +37,12 @@ from utilities.icon_utilities import geticon
 from utilities.prefs_constants import workingDirectory_prefs_key
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
-class MovieRewindDialog(QDialog):
-
+class _MovieRewindDialog(QDialog):
+    """
+    Warn the user that a given movie is not rewound,
+    explain why that matters, and offer to rewind it
+    (by calling its _reset method).
+    """
     def __init__(self, movie):
         self.movie = movie
         QDialog.__init__(self, None)
@@ -48,11 +52,12 @@ class MovieRewindDialog(QDialog):
         self.text_browser.setMinimumSize(400, 40)
         self.setWindowTitle('Rewind your movie?')
         self.text_browser.setPlainText(
-            "You may want to rewind the movie now. If you save the part without " +
-            "rewinding the movie, the movie file will become invalid because it " +
-            "depends upon the initial atom positions. The atoms move as the movie " +
-            "progresses, and saving the part now will save the final positions, " +
-            "which are incorrect for the movie you just watched.")
+            "You may want to rewind the movie now. If you save the part without "
+            "rewinding the movie, the movie file will become invalid because it "
+            "depends upon the initial atom positions. The atoms move as the movie "
+            "progresses, and saving the part without rewinding will save the "
+            "current positions, which is sometimes useful, but will make the "
+            "movie invalid." )
         self.ok_button = QPushButton(self)
         self.ok_button.setObjectName("ok_button")
         self.ok_button.setText("Rewind movie")
@@ -60,20 +65,17 @@ class MovieRewindDialog(QDialog):
         self.cancel_button.setObjectName("cancel_button")
         self.cancel_button.setText("No thanks")
         layout = QGridLayout(self)
-        layout.addWidget(self.text_browser,0,0,0,1)
-        layout.addWidget(self.ok_button,1,0)
-        layout.addWidget(self.cancel_button,1,1)
-        self.connect(self.ok_button,SIGNAL("clicked()"),self.rewindMovie)
-        self.connect(self.cancel_button,SIGNAL("clicked()"),self.noThanks)
+        layout.addWidget(self.text_browser, 0, 0, 0, 1)
+        layout.addWidget(self.ok_button, 1, 0)
+        layout.addWidget(self.cancel_button, 1, 1)
+        self.connect(self.ok_button, SIGNAL("clicked()"), self.rewindMovie)
+        self.connect(self.cancel_button, SIGNAL("clicked()"), self.noThanks)
     def rewindMovie(self):
         self.movie._reset()
         self.accept()
     def noThanks(self):
         self.accept()
-
-####@@@@ It might need removing from other places in the code, as well, like entering the mode.
-
-###doc
+    pass
 
 class movieMode(basicMode):
     """
@@ -105,18 +107,54 @@ class movieMode(basicMode):
         self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
         self.o.assy.permit_pick_atoms()
 
-    def _exitMode(self, *args, **kws):
+    def _exitMode(self, *args, **kws): # for not-USE_COMMAND_STACK case; happens for Done or Cancel; remove when USE_COMMAND_STACK
         # note: this definition generates the debug print
         ## fyi (for developers): subclass movieMode overrides basicMode._exitMode; this is deprecated after mode changes of 040924.
         # because it's an API violation to override this method; what should be done instead is to do this in one of the other cleanup
         # functions documented in modes.py. Sometime that doc should be clarified and this method should be redone properly.
         # [bruce 070613 comment]
-        movie = self.o.assy.current_movie
-        if movie and movie.currentFrame is not 0:
-            mrd = MovieRewindDialog(movie)
-            mrd.exec_()
-        basicMode._exitMode(self, *args, **kws)
 
+        self._offer_to_rewind_if_necessary()
+        
+        basicMode._exitMode(self, *args, **kws)
+        return
+
+    def command_will_exit(self): # for USE_COMMAND_STACK case; happens for any exit [bruce 080806]
+        """
+        Extends superclass method, to offer to rewind the movie
+        if it's not at the beginning. (Doesn't offer to prevent
+        exit, only to rewind or not when exit is done.)
+        """
+        self._offer_to_rewind_if_necessary()
+        
+        basicMode.command_will_exit(self)
+        return
+
+    def _offer_to_rewind_if_necessary(self): #bruce 080806 split this out
+        # TODO: add an option to the PM to always say yes or no to this,
+        # e.g. a 3-choice combobox for what to do if not rewound on exit
+        # (rewind, don't rewind, or ask). [bruce 080806 suggestion]
+
+        # REVIEW: are any bugs caused by rewinding self when opening a new file?
+        # The issue is that this might happen *after* the check for whether
+        # to offer to save changes in the old file -- but it creates such changes.
+        # (This probably can't happen until USE_COMMAND_STACK is true,
+        #  because before that, this is only called for Done or Cancel,
+        #  not Abandon, I think.)
+        #
+        # A possible fix is for Open to first exit all current commands,
+        # before even doing the check. There are better, more complex fixes,
+        # e.g. checking for changes to ask about saving (or for the need to
+        # ask other questions before exit) by asking all commands on the stack.
+        # [bruce 080806 comment]
+        
+        movie = self.o.assy.current_movie
+        if movie and movie.currentFrame != 0:
+            mrd = _MovieRewindDialog(movie)
+                # rewind (by calling movie._reset()), if user desires it
+            mrd.exec_()
+        return
+    
     def init_gui(self):
 
         if not self.propMgr:
@@ -273,17 +311,9 @@ class movieMode(basicMode):
         movie = self.o.assy.current_movie
         return movie and movie.might_be_playable()
 
-    def update_dashboard_OBS(self): #bruce 050426 pieced this together from other code ####@@@@ call it
-        """
-        Update our dashboard to reflect the state of assy.current_movie.
-        """
-        self.enableMovieControls( self.might_be_playable() )
-        ###e need to do more here, like the stuff in init_gui and maybe elsewhere
-        return
-
     def restore_patches_by_Command(self):
         """
-        This is run when we exit the mode for any reason.
+        This is run when we exit self for any reason.
         """
         #bruce 050426 added this, to hold the side effect formerly
         # done illegally by haveNontrivialState.
@@ -374,7 +404,7 @@ class movieMode(basicMode):
         if key == Qt.Key_Right or key == Qt.Key_Up:
             movie._playToFrame(movie.currentFrame + 1)
 
-        basicMode.keyPress(self,key) # So F1 Help key works. mark 060321
+        basicMode.keyPress(self, key) # So F1 Help key works. mark 060321
 
         return
 
