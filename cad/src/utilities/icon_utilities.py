@@ -44,13 +44,17 @@ UI_SUBDIRECTORY_COMPONENT = "ui"
 _pixmaps = {}
 _icons = {}
 
-_iconprefix = "."
+_INITIAL_ICONPREFIX = "."
+_iconprefix = _INITIAL_ICONPREFIX
     # This will be set by initialize() to the pathname of the directory that
     # contains ui/... icon files, for private use. Note that if the
     # ALTERNATE_CAD_SRC_PATH feature is being used, this will be set to
     # a different value than otherwise (new feature, bruce 070831).
 
-def initialize():
+def initialize_icon_utilities():
+    """
+    [must be called during startup, before image_directory() is ever called]
+    """
     if (Initialize.startInitialization(__name__)):
         return
     
@@ -72,8 +76,6 @@ def initialize():
     Initialize.endInitialization(__name__)
     return
 
-#initialize() ### TODO: call this from another file, not from first import of this one
-
 def image_directory(): #bruce 070604
     """
     Return the full pathname of the directory in which the image files
@@ -85,6 +87,8 @@ def image_directory(): #bruce 070604
     build-system-dependent.
     """
     global _iconprefix
+    assert _iconprefix != _INITIAL_ICONPREFIX, \
+           "too early to call image_directory()" #bruce 080805
     return _iconprefix
 
 def geticon(name, print_errors = True):
@@ -113,7 +117,7 @@ def geticon(name, print_errors = True):
             print_compact_stack(msg)
         name = name + '.png'
     
-    iconPath = os.path.join(_iconprefix, name)
+    iconPath = os.path.join(image_directory(), name)
     iconPath = os.path.normpath(iconPath)      
     
     if not os.path.exists(iconPath):
@@ -168,7 +172,7 @@ def getpixmap(name, print_errors = True):
     if not ext:
         name = name + '.png'
         
-    pixmapPath = os.path.join(_iconprefix, name)
+    pixmapPath = os.path.join(image_directory(), name)
     pixmapPath = os.path.normpath(pixmapPath)
     
     if os.path.exists(pixmapPath):
@@ -203,7 +207,7 @@ def imagename_to_pixmap(imagename): #bruce 050108
             #UI_SUBDIRECTORY_COMPONENT
             imagename = imagename[3:]          
         
-        pixmappath = os.path.join( _iconprefix, 
+        pixmappath = os.path.join( image_directory(), 
                                    UI_SUBDIRECTORY_COMPONENT,
                                    imagename)
         if not os.path.exists(pixmappath):
@@ -228,7 +232,7 @@ def imagename_to_icon(imagename):
     try:
         return _icons[imagename]
     except KeyError:
-        iconpath = os.path.join( _iconprefix, UI_SUBDIRECTORY_COMPONENT,
+        iconpath = os.path.join( image_directory(), UI_SUBDIRECTORY_COMPONENT,
                                  imagename)
         if not os.path.exists(iconpath):
             print 'icon does not exist: ' + iconpath

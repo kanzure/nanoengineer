@@ -82,16 +82,18 @@ def startup_script( main_globals):
         # window rather than before creating the app? [bruce 071008 comment]
     
 
+    # do some imports used for putting up splashscreen
+
+    # (this must be done before any code that loads images from cad/src/ui)
+    import utilities.icon_utilities as icon_utilities
+    icon_utilities.initialize_icon_utilities()
+
+
     # Create the application object (an instance of QApplication).
     QApplication.setColorSpec(QApplication.CustomColor)
     #russ 080505: Make it global so it can be run under debugging below.
     global app
     app = QApplication(sys.argv)
-
-    # do some imports used for putting up splashscreen
-    
-    import utilities.icon_utilities as icon_utilities
-    icon_utilities.initialize() 
 
 
     # Put up the splashscreen (if its image file can be found in cad/images).
