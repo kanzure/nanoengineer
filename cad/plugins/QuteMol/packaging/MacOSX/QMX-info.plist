@@ -19,7 +19,7 @@
 	<key>IFPkgFlagBackgroundScaling</key>
 	<string>none</string>
 	<key>IFPkgFlagDefaultLocation</key>
-	<string>/Applications/Nanorex</string>
+	<string>/Applications/Nanorex/QuteMolX 0.5.1</string>
 	<key>IFPkgFlagFollowLinks</key>
 	<true/>
 	<key>IFPkgFlagInstallFat</key>

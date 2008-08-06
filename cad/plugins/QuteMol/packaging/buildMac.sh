@@ -88,10 +88,22 @@ sudo find install -exec chown root:admin {} \;
 
 # Next step is to build the package
 mkdir -p build/QuteMolX || exit 1
-sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o $TOP_LEVEL/packaging/MacOSX/build/QuteMolX/QuteMolX_$QUTEMOLX_VERSION.pkg -r ./install -v -e $TOP_LEVEL/packaging/MacOSX -f QMX-info.plist || exit 1
+cat QMX-info.plist | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" > QMX-info.plist.tmp
+# The previous replace is done this way so that if you run the package builder
+# separately, you will still get something that will still make a viable
+# package.
+mv QMX-info.plist.tmp QMX-info.plist || exit 1
+sudo rm -rf rec
+mkdir rec
+cp background.jpg rec
+cp Welcome.rtf rec
+cp License.txt rec
+sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o $TOP_LEVEL/packaging/MacOSX/build/QuteMolX/QuteMolX_$QUTEMOLX_VERSION.pkg -r ./install/QuteMolX_0.5.1 -t "QuteMolX $QUTEMOLX_VERSION" -v -e $TOP_LEVEL/packaging/MacOSX/rec -f QMX-info.plist || exit 1
 
 # Build the dmg file
+sleep 10
 sudo sync
+sleep 10
 sudo hdiutil create -srcfolder $TOP_LEVEL/packaging/MacOSX/build/QuteMolX -fs HFS+ -format UDZO $TOP_LEVEL/packaging/MacOSX/build/${DIST_NAME}.dmg || exit 1
 
 if [ ! -e ~/MacOSX_Installers/$DIST_NAME.pkg ]

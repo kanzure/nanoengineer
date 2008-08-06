@@ -1,8 +1,13 @@
 #!/bin/sh -x
+
 # The same checks for a stored version in /c/<something> are not in Pref_Mod 
 # as they are for gromacs and qutemol.  This is because pref_modifier changes
-# with every version number.  Plus, it only adds to the build time be about 
-# two minutes
+# with every version number.  Plus, it only adds about two minutes to the build
+# time.  Also, this file uses the NE1_Build_Constants for the version number.
+# The NE1 and Suite Installers modify this, so if this script is run manually,
+# Make sure to make the necessary changes.
+
+PREF_VERSION="0.0.1"
 
 TOP_LEVEL=`pwd`
 echo $TOP_LEVEL | grep "Pref_Mod"
