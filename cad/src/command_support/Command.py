@@ -1527,7 +1527,6 @@ class basicCommand(anyCommand):
             # for now -- save it for when we have a real command-sequencer.
             # [bruce 070814 comment]
         return
-        
 
     def Abandon(self):
         """
@@ -1549,14 +1548,16 @@ class basicCommand(anyCommand):
         #probably not...
         self._cleanup()
 
-    def _cleanup(self):
+    def _cleanup(self): # note: mentioned only in this file as of long before 080805; called only from _exitMode & Abandon
         # (the following are probably only called together, but it's
         # good to split up their effects as documented in case we
         # someday call them separately, and also just for code
         # clarity. -- bruce 040923)
-        self.o.stop_sending_us_events( self)
-            # stop receiving events from our command sequencer or glpane (i.e. use nullMode)
-        self.restore_gui()
+        if not USE_COMMAND_STACK: #bruce 080805 guess ### REVIEW
+            self.commandSequencer.stop_sending_us_events( self)
+                # stop receiving events from our command sequencer or glpane
+                # (i.e. change current command to nullMode)
+            self.restore_gui()
         self.w.setFocus() #bruce 041010 bugfix (needed in two places)
             # (I think that was needed to prevent key events from being sent to
             #  no-longer-shown command dashboards. [bruce 041220])

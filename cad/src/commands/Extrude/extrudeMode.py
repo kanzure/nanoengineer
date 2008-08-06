@@ -1785,39 +1785,60 @@ class extrudeMode(basicMode):
         [But it did work at least once!]
         """
         global extrudeMode
-        print "extrude_reload: here goes...."
-        print "WARNING: extrude_reload has not yet been ported to revision of mode_classes, may be broken" #bruce 080209
+        print "extrude_reload: here goes.... (not fully working as of 080805)"
+
+##        print "WARNING: extrude_reload has not yet been ported to revision of mode_classes, may be broken" #bruce 080209
+        # status as of 080805: mostly works, but:
+        # - warns about duplicate featurename;
+        # - extrude refuses entry since nothing is selected (should select repunit to fix);
+        # - has some dna updater errors if it was extruding dna (might be harmless).
+
         try:
             self.propMgr.extrudeSpinBox_n.setValue(1)
             self.update_from_controls()
             print "reset ncopies to 1, to avoid dialog from Abandon, and ease next use of the mode"
         except:
-            print_compact_traceback("exc in resetting ncopies to 1 and updating, ignored: ")
-        try:
-            self.restore_gui()
-        except:
-            print_compact_traceback("exc in self.restore_gui(), ignored: ")
-        for clas in [extrudeMode]:
-            try:
-                self.commandSequencer.mode_classes.remove(clas) # was: self.__class__
-            except ValueError:
-                print "a mode class was not in _commandTable (normal if last reload of it had syntax error)"
+            print_compact_traceback("exception in resetting ncopies to 1 and updating, ignored: ")
+
+##        try:
+##            self.restore_gui()
+##        except:
+##            print_compact_traceback("exception in self.restore_gui(), ignored: ")
+
+        self.commandSequencer.exit_all_commands() #bruce 080805
+        
+##        for clas in [extrudeMode]:
+##            try:
+##                self.commandSequencer.mode_classes.remove(clas) # was: self.__class__
+##            except ValueError:
+##                print "a mode class was not in _commandTable (normal if last reload of it had syntax error)"
+        self.commandSequencer.remove_command_object( self.commandName) #bruce 080805
+        
         import graphics.drawables.handles as handles
         reload(handles)
         import commands.Extrude.extrudeMode as _exm
         reload(_exm)
-        from commands.Extrude.extrudeMode import extrudeMode
+        from commands.Extrude.extrudeMode import extrudeMode # note global declaration above
+        
 ##        try:
 ##            do_what_MainWindowUI_should_do(self.w) # remake interface (dashboard), in case it's different [041014]
 ##        except:
 ##            print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
-        ## self.commandSequencer._commandTable['EXTRUDE'] = extrudeMode
-        self.commandSequencer.mode_classes.append(extrudeMode)
-        print "about to reinit modes"
+
+##        ## self.commandSequencer._commandTable['EXTRUDE'] = extrudeMode
+##        self.commandSequencer.mode_classes.append(extrudeMode)
+
+        self.commandSequencer.register_command_class( self.commandName, extrudeMode ) #bruce 080805
+            # note: this does NOT do whatever recreation of a cached command
+            # object might be needed (that's done only in _reinit_modes)
+        
+        print "about to reset command sequencer"
+        # need to revise following to use some cleaner interface
         self.commandSequencer._reinit_modes() # leaves mode as nullmode as of 050911
         self.commandSequencer.start_using_mode( '$DEFAULT_MODE' )
             ###e or could use commandName of prior self.commandSequencer.currentCommand
-        print "done with reinit modes, now see if you can select the reloaded mode"
+        print "done with _reinit_modes, now we'll try to reenter extrudeMode"
+        self.commandSequencer.userEnterCommand( self.commandName) #bruce 080805
         return
 
     pass # end of class extrudeMode

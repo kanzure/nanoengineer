@@ -83,14 +83,15 @@ class modeMixin(object):
         call this near the start of __init__ in a subclass that mixes us in
         (i.e. GLPane)
         """
+        self._registered_command_classes = {} #bruce 080805
         if not USE_COMMAND_STACK:
             self._recreate_nullmode()
-            self.use_nullmode()
+            self._use_nullmode()
         else:
             nim ###IMPLEM
         return
 
-    def _recreate_nullmode(self):
+    def _recreate_nullmode(self): # only called from this file, as of 080805
         assert not USE_COMMAND_STACK # otherwise obsolete
         self.nullmode = nullMode()
             # TODO: rename self.nullmode; note that it's semi-public
@@ -99,6 +100,10 @@ class modeMixin(object):
         return
     
     def _reinit_modes(self): #revised, bruce 050911, 080209
+        # note: called from:
+        # - GLPane.setAssy (end of function)
+        # - extrudeMode.extrude_reload (followed by .start_using_mode( '$DEFAULT_MODE' )) --
+        #   should encapsulate that pair into a reset_command_sequencer method, or make it per-command-class, or ... ###
         """
         [bruce comment 040922, when I split this out from GLPane's
         setAssy method; comment is fairly specific to GLPane:]
@@ -133,7 +138,7 @@ class modeMixin(object):
                 self.currentCommand.Abandon()
             except:
                 print "bug, error while abandoning old mode; ignore it if we can..." #e
-        self.use_nullmode()
+        self._use_nullmode()
             # not sure what bgcolor nullmode has, but it won't last long...
         self._commandTable = {}
             # this discards any mode objects that already existed
@@ -151,12 +156,26 @@ class modeMixin(object):
         # (might help with bug 2614?)
         from commandSequencer.builtin_command_loaders import preloaded_command_classes # don't move this import to toplevel!
         for command_class in preloaded_command_classes():
-            command_class(self)
-                # kluge: new mode object passes itself to
-                # self.store_commandObject; it would be better for us to store
-                # it ourselves
-                # (to implement that, first add code to assert every command
-                #  does this in the name we expect)
+            commandName = command_class.commandName
+            assert not self._commandTable.has_key(commandName)
+            # use preloaded_command_classes for ordering, even when
+            # instantiating registered classes that replace them
+            actual_class = self._registered_command_classes.get(
+                commandName, command_class )
+            if actual_class is not command_class:
+                print "fyi: instantiating replacement command %r" % (actual_class,)
+                assert actual_class.commandName == commandName
+                    # always true, due to how these are stored and looked up
+            self._instantiate_cached_command( actual_class)
+        # now do the rest of the registered classes
+        # (in order of their commandNames, so bugs are more likely
+        #  to be deterministic)
+        more_items = self._registered_command_classes.items()
+        more_items.sort()
+        for commandName, actual_class in more_items:
+            if not self._commandTable.has_key(commandName):
+                print "fyi: instantiating registered non-built-in command %r" % (actual_class,)
+                self._instantiate_cached_command( actual_class)
 
         # todo: something to support lazily loaded/instantiated commands
         # (make self._commandTable a dictlike object that loads on demand?)
@@ -169,32 +188,73 @@ class modeMixin(object):
         
         return # from _reinit_modes
 
+    def _instantiate_cached_command( self, command_class): #bruce 080805 split this out
+        new_command = command_class(self)
+            # kluge: new mode object passes itself to
+            # self.store_commandObject; it would be better for us to store
+            # it ourselves
+            # (to implement that, first add code to assert every command
+            #  does this in the name we expect)
+        assert new_command is self._commandTable[command_class.commandName]
+        return new_command
+
     def store_commandObject(self, commandName, commandObject): #bruce 080209
         """
         Store a command object to use (i.e. enter) for the given commandName.
         (If a prior one is stored for the same commandName, replace it.)
+
+        @note: commands call this in their __init__ methods. (Unfortunately.)
         """
+        assert commandObject.commandName == commandName #bruce 080805
         self._commandTable[commandName] = commandObject
+
+    def exit_all_commands(self): #bruce 080805; for now, used only in extrude_reload; maybe should use in setAssy or whatever ### REVIEW
+        """
+        Exit all currently active commands (except the default command,
+        if USE_COMMAND_STACK is true). (Use whichever is simpler of Done or Cancel
+        for each command, and force it to work immediately. [#doc more precisely])
+        """
+        assert not USE_COMMAND_STACK # nim for other case ### IMPLEM
+        self._reinit_modes() # this is overkill -- only its Abandon and _use_nullmode is needed
+        self.prevMode = None ### REVIEW: is this needed in other methods here as well, or instead?
+        return
+    
+    def remove_command_object(self, commandName): #bruce 080805
+        try:
+            del self._commandTable[commandName]
+        except KeyError:
+            print "fyi: no command object for %r in prepare_to_reload_commandClass" % commandName
+        return
+
+    def register_command_class(self, commandName, command_class): #bruce 080805
+        """
+        Cause this command class to be instantiated by the next call
+        of self._reinit_modes, or [nim] the next time something needs
+        to look up a command object for commandName.
+        """
+        assert command_class.commandName == commandName
+        self._registered_command_classes[commandName] = command_class
+        return
     
     # methods for starting to use a given mode (after it's already
     # chosen irrevocably, and any prior mode has been cleaned up)
 
-    def stop_sending_us_events(self, command):
+    def stop_sending_us_events(self, command): # note: called only from basicCommand._cleanup as of long before 080805
         """
         Semi-internal method (called by command instances):
         Stop sending events to the given command (or to any actual command
         object besides the nullCommand).
         """
-        assert not USE_COMMAND_STACK # otherwise obsolete #### TODO: fix calls
+        assert not USE_COMMAND_STACK # otherwise obsolete
         if not self.is_this_command_current(command):
             # we weren't sending you events anyway, what are you
             # talking about?!?" #k not sure this is an error
             print "fyi (for developers): stop_sending_us_events called " \
                   "from %r which is not currentCommand %r" % \
                   (command, self._raw_currentCommand)
-        self.use_nullmode()
+        self._use_nullmode()
 
-    def use_nullmode(self):
+    def _use_nullmode(self): # note: 4 calls, all in this file, as of before 080805; making it private
         assert not USE_COMMAND_STACK # otherwise obsolete
         self._raw_currentCommand = self.nullmode
 
@@ -246,7 +306,7 @@ class modeMixin(object):
         #   needn't worry about its state if the new mode won't even
         #   accept.)
         if not resuming:
-            self.use_nullmode()
+            self._use_nullmode()
             # temporary (prevent bug-risk of reentrant event processing by
             # current mode)
 

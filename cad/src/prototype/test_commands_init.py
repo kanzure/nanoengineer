@@ -61,38 +61,38 @@ def start_cmdrun( cmdrun):
 def enter_example_command(widget, example_command_classname):
 ##    assert isinstance(widget, GLPane) # assumed by _reinit_modes; assertion disabled to fix an import cycle
     glpane = widget
-    if 0 and EndUser.enableDeveloperFeatures(): ###during devel only; broken due to file splitting
-        # reload before use (this module only)
-        if 0 and 'try reloading preqs too': ### can't work easily, glpane stores all the mode classes (not just their names)...
-            glpane._reinit_modes() # just to get out of current mode safely
-            import command_support.modes as modes
-            reload(modes)
-            ## from selectAtomsMode import selectAtomsMode # commented so it doesn't affect import dependency tools
-            _superclass = 'Undefined variable' # FIX
-            if _superclass is selectAtomsMode:
-                import commands.Select.selectMode as selectMode
-                reload(selectMode)
-                import commands.SelectAtoms.selectAtomsMode as selectAtomsMode
-                reload(selectAtomsMode)
-            
-            # revised 071010 (glpane == commandSequencer == modeMixin), new code UNTESTED:
-            glpane._recreate_nullmode()
-            glpane.use_nullmode()
-
-            glpane._reinit_modes() # try to avoid problems with changing to other modes later, caused by those reloads
-                # wrong: uses old classes from glpane
-        import prototype.test_command_PMs as test_command_PMs
-        reload(test_command_PMs)
-        Initialize.forgetInitialization(__name__)
-        import prototype.test_commands_init as test_commands_init
-        reload(test_commands_init)
-        test_commands_init.initialize()
-            # (note: reload code is untested since the change [bruce 071030]
-            #  to call initialize explicitly rather than as import side effect,
-            #  done together with splitting this module out of test_commands)
-        from prototype.test_commands_init import enter_example_command_doit
-    else:
-        from prototype.test_commands_init import enter_example_command_doit
+##    if 0 and EndUser.enableDeveloperFeatures(): ###during devel only; broken due to file splitting
+##        # reload before use (this module only)
+##        if 0 and 'try reloading preqs too': ### can't work easily, glpane stores all the mode classes (not just their names)...
+##            glpane._reinit_modes() # just to get out of current mode safely
+##            import command_support.modes as modes
+##            reload(modes)
+##            ## from selectAtomsMode import selectAtomsMode # commented so it doesn't affect import dependency tools
+##            _superclass = 'Undefined variable' # FIX
+##            if _superclass is selectAtomsMode:
+##                import commands.Select.selectMode as selectMode
+##                reload(selectMode)
+##                import commands.SelectAtoms.selectAtomsMode as selectAtomsMode
+##                reload(selectAtomsMode)
+##            
+##            # revised 071010 (glpane == commandSequencer == modeMixin), new code UNTESTED:
+##            glpane._recreate_nullmode()
+##            glpane._use_nullmode()
+##
+##            glpane._reinit_modes() # try to avoid problems with changing to other modes later, caused by those reloads
+##                # wrong: uses old classes from glpane
+##        import prototype.test_command_PMs as test_command_PMs
+##        reload(test_command_PMs)
+##        Initialize.forgetInitialization(__name__)
+##        import prototype.test_commands_init as test_commands_init
+##        reload(test_commands_init)
+##        test_commands_init.initialize()
+##            # (note: reload code is untested since the change [bruce 071030]
+##            #  to call initialize explicitly rather than as import side effect,
+##            #  done together with splitting this module out of test_commands)
+##        pass
+    
+    prototype.test_commands_init import enter_example_command_doit
         
     enter_example_command_doit(glpane, example_command_classname)
     return
