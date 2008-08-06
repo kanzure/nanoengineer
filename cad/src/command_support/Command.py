@@ -377,7 +377,7 @@ class basicCommand(anyCommand):
         # later note: as of 070521, we always get warned "subclass movieMode
         # overrides basicMode._exitMode". I am not sure whether this override is
         # legitimate, so I'm not removing the warning for now. [bruce 070521]
-        weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
+        weird_to_override = ['Cancel', 'StartOver', ## 'Flush', 'Restart',
                              '_f_userEnterCommand', '_exitMode', 'Abandon', '_cleanup',
                              'clear', #bruce 080806
                             ]
@@ -1009,7 +1009,7 @@ class basicCommand(anyCommand):
             return None
         pass
     
-    def resume_gui(self): # TODO [bruce 080804]: replace, or revise docstring
+    def resume_gui(self): # TODO [bruce 080804]: replace, or revise docstring; called in _enterMode; used in 3 commands [080806]
         """
         Called when this command, that was suspended earlier, is being resumed. 
         The temporary command (which was entered by suspending this command)
@@ -1026,16 +1026,17 @@ class basicCommand(anyCommand):
         """
         pass
     
-    def update_gui(self): # TODO [bruce 080804]: replace, or revise docstring
+    def update_gui(self): # TODO [bruce 080806]: replace the 2 defs with general update method defs; called in _enterMode and UpdateDashboard
         """
         Subclasses should define this to update their dashboard to reflect state
         that might have changed in the rest of the program, e.g. selection state
         in the model tree. Not intended to be called directly by external code;
         for that, see UpdateDashboard().
         """
-        pass
+        assert not USE_COMMAND_STACK # obsolete in that case
+        return
 
-    def UpdateDashboard(self): # TODO [bruce 080804]: replace, or revise docstring
+    def UpdateDashboard(self): # TODO [bruce 080806]: replace defs with general update method; called by 2 commands, and basicCommand.Enter.
         """
         Public method, meant to be called only on the current command object:
 
@@ -1662,13 +1663,13 @@ class basicCommand(anyCommand):
     
     # The preceding and following methods, StartOver Cancel Backup
     # Done, handle the common tools on the dashboards.  (Before
-    # 040923, Cancel was called Flush and StartOver was called
-    # Restart. Now the internal names match the user-visible names.)
+    # 040923, Cancel was called ... and StartOver was called
+    # .... Now the internal names match the user-visible names.)
     #
     # Each dashboard uses instances of the same tools, for a uniform
     # look and action; the tool itself does not know which command it
     # belongs to -- its action just calls glpane.currentCommand.method for the
-    # current glpane (ie command sequencer) and for one of the specified methods (or Flush,
+    # current glpane (ie command sequencer) and for one of the specified methods (or ...,
     # the old name of Cancel, until we fix MWSemantics).
     #
     # Of these methods, Done and Cancel should never be customized
@@ -1685,32 +1686,34 @@ class basicCommand(anyCommand):
 
     # other dashboard tools
     
-    def StartOver(self):
+    def StartOver(self): # may work; only callable from UI of extrude & cookie [bruce 080806 comment]
         # it looks like only cookieMode tried to do this [bruce 040923];
         # now we do it generically here [bruce 040924]
         """
-        Start Over tool in dashboard (used to be called Restart);
+        Start Over tool in dashboard (used to be called ...);
         subclasses should NOT override this
         """
         self.Cancel(new_mode = self.commandName)
             #### works, but has wrong error message when nim in sketch command -- fix later
 
-    def Backup(self):
+    def Backup(self): # might be obs... only call (verify) is in cookiemode cmenu;
+        # works there but private to that cmd; uncallable def in fuse [bruce 080806 comment]
         """
         Backup tool in dashboard; subclasses should override this
         """
         # note: it looks like only cookieMode tries to do this [bruce 040923]
         print "%s: Backup not implemented yet" % self.get_featurename()
 
-    # compatibility methods -- remove these after we fix
-    # MWSemantics.py to use only their new names
-    # (unfortunately these old names still appear there as of 071010)
-    
-    def Flush(self):
-        self.Cancel()
-
-    def Restart(self):
-        self.StartOver()
+##    # compatibility methods -- remove these after we fix
+##    # MWsemantics.py to use only their new names
+##    # (unfortunately these old names still appear there as of 071010)
+##    # [doing this, bruce 080806]
+##    
+##    def Flush(self):
+##        self.Cancel()
+##
+##    def Restart(self):
+##        self.StartOver()
 
     # ==
 

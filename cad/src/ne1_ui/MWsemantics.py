@@ -2247,16 +2247,20 @@ class MWsemantics(QMainWindow,
     # carbon atoms in a diamond lattice (including bonds)
     # this works for all modes, not just add atom
     def toolsDone(self):
+        # note: this is apparently still called from several places [bruce 080806 comment]
         self.currentCommand.Done()
 
-    def toolsStartOver(self):
-        self.currentCommand.Restart()
+    # toolsStartOver is not called in any .py or .ui files, so I think it's obsolete. [bruce 080806]
+##    def toolsStartOver(self):
+##        self.currentCommand.StartOver() #bruce 080806 changed this from calling synonym Restart, nothing else calls it
 
-    def toolsBackUp(self):
-        self.currentCommand.Backup()
+    # toolsBackUp is not called in any .py or .ui files, so I think it's obsolete. [bruce 080806]
+##    def toolsBackUp(self):
+##        self.currentCommand.Backup()
 
     def toolsCancel(self):
-        self.currentCommand.Flush()
+        # note: this is apparently still called from several places [bruce 080806 comment]
+        self.currentCommand.Cancel()
 
     ######################################
     # Show View > Orientation Window

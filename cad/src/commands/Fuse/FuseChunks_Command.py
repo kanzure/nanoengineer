@@ -140,7 +140,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         return
 
-    def Backup(self):
+    def Backup(self): # REVIEW: I suspect there is no way to call this method. [bruce 080806 comment]
         """
         Undo any bonds made between chunks.
         """
