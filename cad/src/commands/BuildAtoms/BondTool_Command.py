@@ -43,7 +43,7 @@ class BondTool_Command(BuildAtoms_Command):
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True
-    command_has_its_own_gui = False
+    command_has_its_own_PM = False
     
     currentActiveTool = 'BONDS_TOOL'
     

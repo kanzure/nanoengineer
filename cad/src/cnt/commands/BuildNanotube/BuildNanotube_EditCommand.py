@@ -55,7 +55,7 @@ class BuildNanotube_EditCommand(EditCommand):
     GraphicsMode_class = BuildNanotube_GraphicsMode
 
     command_should_resume_prevMode = False
-    command_has_its_own_gui = True
+    command_has_its_own_PM = True
     command_can_be_suspended = True
 
     # Generators for DNA, nanotubes and graphene have their MT name 

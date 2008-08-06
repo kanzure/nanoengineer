@@ -104,7 +104,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     command_parent = 'BUILD_NANOTUBE'
 
     command_should_resume_prevMode = True
-    command_has_its_own_gui = True
+    command_has_its_own_PM = True
     command_can_be_suspended = False
 
     create_name_from_prefix  =  True 

@@ -43,7 +43,7 @@ class LightingScheme_Command(EditCommand):
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
-    command_has_its_own_gui = True
+    command_has_its_own_PM = True
     
     flyoutToolbar = None
 

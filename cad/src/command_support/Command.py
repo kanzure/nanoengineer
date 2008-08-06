@@ -94,11 +94,11 @@ class anyCommand(object, StateMixin):
     featurename = ""
     
     # Command's property manager. Subclasses should initialize the propMgr object 
-    # if they need one.
+    # if they need one. [in command_enter_PM (after refactoring) or __init__]
     propMgr = None
 
     
-    # note: the following 3 command_ attributes may be ignored or revised
+    # note: the following 2 command_ attributes may be ignored or revised
     # after the current command stack refactoring is complete [070830]:
     
     command_can_be_suspended = False
@@ -116,8 +116,13 @@ class anyCommand(object, StateMixin):
         # commandSequencer.userEnterTemporaryCommand.
         # [bruce 071011, to be revised (replaces need for customized Done methods)]
     
-    command_has_its_own_gui = True 
-        #command_has_its_own_gui means, for example, the command has its own PM,
+    command_has_its_own_PM = True
+        # note: following comment predates the command stack refactoring circa 080806.
+        # This flag now means only that the command should create its own PM
+        # in self.propMgr rather than letting one from the parent (if any)
+        # remain visible.
+        #
+        #command_has_its_own_PM means, for example, the command has its own PM,
         #and flyout toolbar and/or the Done/Cancel button corner (confirmation 
         #corner). 
         #For most of the commands, this is True (e.g. BuildAtoms mode , 
@@ -140,7 +145,7 @@ class anyCommand(object, StateMixin):
         # previous mode (while in a temporary mode) , then 'that previous mode'
         # will exit. The related code makes sure to first leave the temporary 
         # mode(s) before leaving the regular mode (the command with 
-        # command_has_its_own_gui set to True). See also, flag 
+        # command_has_its_own_PM set to True). See also, flag 
         # 'exit_using_done_cancel' in basicCommand.Done used (= False) for a 
         # typical exit of a temporary mode . See that method for detailed 
         # comment. -- Ninad 2007-11-09
@@ -774,7 +779,7 @@ class basicCommand(anyCommand):
                 #For temporary commands with their own gui (the commands that
                 #are expected to return to the previous command when done), 
                 #use the 'Transient-Done' confirmation corner images. 
-                if self.command_has_its_own_gui and \
+                if self.command_has_its_own_PM and \
                    self.command_should_resume_prevMode:
                     res.append('Transient-Done')
                 else:
@@ -1303,7 +1308,7 @@ class basicCommand(anyCommand):
             if new_mode is None:
                 try:
                     new_mode = self.commandSequencer.prevMode 
-                    if new_mode and not self.command_has_its_own_gui:
+                    if new_mode and not self.command_has_its_own_PM:
                         if exit_using_done_or_cancel_button:                           
                             # This fixes bugs like 2566, 2565 
                             # @bug: But it doesn't fix the
@@ -1313,7 +1318,7 @@ class basicCommand(anyCommand):
                             # Because of this, there is a bug in this 
                             # conditional. The bug and related NFR is documented
                             # in bug 2583 
-                            if new_mode.command_has_its_own_gui:
+                            if new_mode.command_has_its_own_PM:
                                 #Example: command has a PM which in turn has a 
                                 #done/cancel button or a formal way to exit a 
                                 #regular mode. 
@@ -1345,7 +1350,7 @@ class basicCommand(anyCommand):
                     self._exit_previous_command(exit_using_done_or_cancel_button)
             if resuming:
                 new_mode_options['resuming'] = True
-                new_mode_options['has_its_own_gui'] = self.command_has_its_own_gui
+                new_mode_options['has_its_own_gui'] = self.command_has_its_own_PM
             else:
                 assert new_mode_options.get('resuming', False) == False
                     # bruce 071011 added this; old code just pretended it was false
@@ -1386,15 +1391,15 @@ class basicCommand(anyCommand):
         assert not USE_COMMAND_STACK # this method will be replaced when USE_COMMAND_STACK is true
         previous_command = self.commandSequencer.prevMode
         #Fixed bug 2800. The original if conditional was as follows --
-        #if previous_command and not self.command_has_its_own_gui
+        #if previous_command and not self.command_has_its_own_PM
         #But it could happen that the current command is a temporary command 
         #that usually resumes the previous mode and it still has its own gui.
-        #(e.g. Join Strand command). So 'if not self.command_has_its_own_gui
+        #(e.g. Join Strand command). So 'if not self.command_has_its_own_PM
         #is incorrect. -- Ninad 2008-04-12. See also bug 2583
         
         if previous_command:           
             if exit_using_done_or_cancel_button:
-                if previous_command.command_has_its_own_gui:
+                if previous_command.command_has_its_own_PM:
                     previous_command.Done()
                 else:
                     #new Command is a temporary mode with no special
@@ -1444,7 +1449,7 @@ class basicCommand(anyCommand):
             if new_mode is None:
                 try:
                     new_mode = self.commandSequencer.prevMode
-                    if new_mode and not self.command_has_its_own_gui:
+                    if new_mode and not self.command_has_its_own_PM:
                         if exit_using_done_or_cancel_button:
                             # This fixes bugs like 2566, 2565 
                             # @bug: But it doesn't fix the
@@ -1454,7 +1459,7 @@ class basicCommand(anyCommand):
                             # Because of this, there is a bug in this 
                             # conditional. The bug and related NFR is documented
                             # in bug 2583    
-                            if new_mode.command_has_its_own_gui:
+                            if new_mode.command_has_its_own_PM:
                                 new_mode.Cancel()
                             else:
                                 new_mode.Cancel(exit_using_don_or_cancel = False)
@@ -1480,9 +1485,9 @@ class basicCommand(anyCommand):
                 #parameter, This fixes bugs like 2593.  
                 previous_command = self.commandSequencer.prevMode
                 if previous_command is not new_mode: 
-                    if previous_command and not self.command_has_its_own_gui:            
+                    if previous_command and not self.command_has_its_own_PM:            
                         if exit_using_done_or_cancel_button:
-                            if previous_command.command_has_its_own_gui:
+                            if previous_command.command_has_its_own_PM:
                                 previous_command.Cancel()
                             else:
                                 #new Command is a temporary mode with no special
@@ -1491,7 +1496,7 @@ class basicCommand(anyCommand):
                                     exit_using_done_or_cancel_button = False)                                        
             if resuming:
                 new_mode_options['resuming'] = True
-                new_mode_options['has_its_own_gui'] = self.command_has_its_own_gui
+                new_mode_options['has_its_own_gui'] = self.command_has_its_own_PM
             else:
                 assert new_mode_options.get('resuming', False) == False
                     # bruce 071011 added this; old code just pretended it was false

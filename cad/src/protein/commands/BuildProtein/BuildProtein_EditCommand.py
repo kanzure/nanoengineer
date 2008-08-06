@@ -26,7 +26,7 @@ class BuildProtein_EditCommand(EditCommand):
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
     command_should_resume_prevMode = False
-    command_has_its_own_gui = True
+    command_has_its_own_PM = True
     command_can_be_suspended = True
     create_name_from_prefix  =  True
     call_makeMenus_for_each_event = True

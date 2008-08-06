@@ -49,7 +49,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
 
     command_can_be_suspended = True
     command_should_resume_prevMode = False
-    command_has_its_own_gui = True
+    command_has_its_own_PM = True
     
     flyoutToolbar = None
     

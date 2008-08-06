@@ -56,7 +56,7 @@ class baseCommand(object):
 
     # - related to a command's property manager (PM)
     
-    command_has_its_own_gui = True ### note: this might be renamed, or removed
+    command_has_its_own_PM = True
     
     propMgr = None # will be set to the PM to use with self (whether or not created by self)
 
@@ -65,7 +65,7 @@ class baseCommand(object):
 ##        @return: the property manager object to use when this command is current
 ##                 (or when its subcommands don't have a PM of their own).
 ##        """
-##        if self.command_has_its_own_gui:
+##        if self.command_has_its_own_PM:
 ##            return self.propMgr # might be None
 ##        else:
 ##            return self.parentCommand and self.parentCommand.get_propertyManager()
@@ -288,7 +288,7 @@ class baseCommand(object):
         [subclasses should extend as needed, typically calling superclass
          implementation at the start]
         """
-        if not self.command_has_its_own_gui: # rename?
+        if not self.command_has_its_own_PM:
             self.propMgr = self.parentCommand.propMgr
         self.command_enter_PM()
         self.command_enter_flyout()
@@ -303,7 +303,7 @@ class baseCommand(object):
         For commands which use their parent command's PM, it has already
         been assigned to self.propMgr, assuming this method is called by
         the base class implementation of command_entered (as usual)
-        and that self.command_has_its_own_gui is false.
+        and that self.command_has_its_own_PM is false.
         
         In that case, this method is allowed to perform side effects on
         that "parent PM" (and this is the best place to do them),
@@ -323,7 +323,7 @@ class baseCommand(object):
 
         @note: base class implementation of command_entered calls this,
                after setting self.propMgr to PM from parent command if
-               self.command_has_its_own_gui is false. 
+               self.command_has_its_own_PM is false. 
 
         [subclasses should override as needed]
         """

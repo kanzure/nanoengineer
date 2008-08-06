@@ -89,7 +89,7 @@ class EditCommand_PM(PM_Dialog):
         """
         #First exit temporary modes (e.g. Pan mode) if any.
         currentCommand = self.win.commandSequencer.currentCommand
-        if not currentCommand.command_has_its_own_gui:
+        if not currentCommand.command_has_its_own_PM:
             currentCommand.Done()
         self.connect_or_disconnect_signals(False)
         self.enable_or_disable_gui_actions(bool_enable = True)

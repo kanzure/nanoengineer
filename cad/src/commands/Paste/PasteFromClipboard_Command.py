@@ -59,7 +59,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
     command_should_resume_prevMode = False
 
     #See Command.anyCommand for details about the following flag
-    command_has_its_own_gui = True
+    command_has_its_own_PM = True
     
     GraphicsMode_class = PasteFromClipboard_GraphicsMode
 

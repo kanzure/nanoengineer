@@ -27,7 +27,7 @@ class RotateChunks_Command(Move_Command):
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
-    command_has_its_own_gui = False
+    command_has_its_own_PM = False
     
     GraphicsMode_class = RotateChunks_GraphicsMode
     

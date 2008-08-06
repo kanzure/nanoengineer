@@ -56,8 +56,8 @@ class Plane_EditCommand(EditCommand):
     #-- Ninad 2008-04-15
     command_can_be_suspended = False 
     command_should_resume_prevMode = True
-    command_has_its_own_gui = True
-        # When <command_should_resume_prevMode> and <command_has_its_own_gui>
+    command_has_its_own_PM = True
+        # When <command_should_resume_prevMode> and <command_has_its_own_PM>
         # are both set to True (like here), want_confirmation_corner_type()
         # will determine that the confirmation corner should include the
         # Transient-Done image, which is sometimes OK and sometimes not OK.
