@@ -241,8 +241,9 @@ class CookieShape(shape):
             
     def combineLayers(self):
         """
-        Experimental code to add all curves and bbox together to make the molmake working. It may be removed later.
         """
+        # Experimental code to add all curves and bbox together
+        # to make the molmake working. It may be removed later.
         for cbs in self.layeredCurves.values():
             if cbs:
                 self.bbox.merge(cbs[0])
