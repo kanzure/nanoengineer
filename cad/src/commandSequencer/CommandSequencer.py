@@ -129,17 +129,9 @@ class modeMixin(object):
         for them to do. So we can ignore this for now.)
         """
         assert not USE_COMMAND_STACK # otherwise NIM #### IMPLEM in that case
-        if not self._raw_currentCommand.is_null:
-            ###e need to give current mode a chance to exit cleanly,
-            ###or refuse -- but callers have no provision for our
-            ###refusing (which is a bug); so for now just abandon
-            # work, with a warning if necessary
-            try:
-                self.currentCommand.Abandon()
-            except:
-                print "bug, error while abandoning old mode; ignore it if we can..." #e
-        self._use_nullmode()
-            # not sure what bgcolor nullmode has, but it won't last long...
+
+        self.exit_all_commands()
+
         self._commandTable = {}
             # this discards any mode objects that already existed
             # (it probably doesn't destroy them -- they are likely
@@ -208,15 +200,30 @@ class modeMixin(object):
         assert commandObject.commandName == commandName #bruce 080805
         self._commandTable[commandName] = commandObject
 
-    def exit_all_commands(self): #bruce 080805; for now, used only in extrude_reload; maybe should use in setAssy or whatever ### REVIEW
+    def exit_all_commands(self): #bruce 080806 split this out; used in _reinit_modes and extrude_reload
         """
         Exit all currently active commands (except the default command,
-        if USE_COMMAND_STACK is true). (Use whichever is simpler of Done or Cancel
-        for each command, and force it to work immediately. [#doc more precisely])
+        if USE_COMMAND_STACK is true, or nullMode, if not).
+        (Use Abandon, or whichever is simpler of Done or Cancel for each
+         command, and force it to work immediately. [#doc more precisely])
         """
         assert not USE_COMMAND_STACK # nim for other case ### IMPLEM
-        self._reinit_modes() # this is overkill -- only its Abandon and _use_nullmode is needed
-        self.prevMode = None ### REVIEW: is this needed in other methods here as well, or instead?
+
+        if not self._raw_currentCommand.is_null:
+            # old comment from when this was inlined into _reinit_modes --
+            # might be wrong now:
+            ###e need to give current mode a chance to exit cleanly,
+            ###or refuse -- but callers have no provision for our
+            ###refusing (which is a bug); so for now just abandon
+            # work, with a warning if necessary
+            try:
+                self.currentCommand.Abandon()
+            except:
+                msg = "bug: error while abandoning old mode; trying to ignore"
+                print_compact_traceback( msg + ": " )
+        self._use_nullmode()
+            # not sure what glpane bgcolor nullmode has, but it won't last long...
+        self.prevMode = None #bruce 080806
         return
     
     def remove_command_object(self, commandName): #bruce 080805
@@ -234,6 +241,7 @@ class modeMixin(object):
         """
         assert command_class.commandName == commandName
         self._registered_command_classes[commandName] = command_class
+        # REVIEW: also remove_command_object? only safe when it can be recreated lazily.
         return
     
     # methods for starting to use a given mode (after it's already
@@ -267,22 +275,7 @@ class modeMixin(object):
         # has been wrapped by an API-enforcement (or any other) proxy.
         return self._raw_currentCommand is command
 
-    def start_using_mode(self, mode, resuming = False, has_its_own_gui = True):
-        """
-        Semi-internal method (meant to be called only from self
-        (typically a GLPane) or from one of our mode objects):
-        Start using the given mode (name or object), ignoring any prior mode.
-        If the new mode refuses to become current
-        (e.g. if it requires certain kinds of selection which are not present),
-        it should emit an appropriate message and return True; we'll then
-        start using our default mode, or if that fails, some always-safe mode.
-
-        @param resuming: see _enterMode method. ###TODO: describe it here,
-                         and fix rest of docstring re this.
-        """
-        assert not USE_COMMAND_STACK # other case nim #### IMPLEM, or FIX CALLS (DECIDE)
-        #bruce 070813 added resuming option
-        # note: resuming option often comes from **new_mode_options in callers
+    def _update_model_between_commands(self): #bruce 080806 split this out
         #bruce 050317: do update_parts to insulate new mode from prior one's bugs
         try:
             self.assy.update_parts()
@@ -297,6 +290,46 @@ class modeMixin(object):
         else:
             if debug_flags.atom_debug:
                 self.assy.checkparts() #bruce 050315 assy/part debug code
+        return
+        
+    def start_using_mode_for_USE_COMMAND_STACK(self, command): #bruce 080806 prototype; @@@ CALL ME
+        """
+        Try to enter the given (or named) command: push it onto command stack,
+        and have it do any necessary side effects on entry.
+
+        @return: whether enter succeeded well enough that caller should continue
+                 entering subcommands if it wants to.
+        """
+        assert USE_COMMAND_STACK
+
+        self._update_model_between_commands()
+
+        command = self._find_command_instance( command)
+            # note: exception if this fails to find command (never returns false)
+        
+        entered = command._command_do_enter_if_ok()
+
+        return entered
+        
+    def start_using_mode(self, mode, resuming = False, has_its_own_gui = True):
+        """
+        Semi-internal method (meant to be called only from self
+        (typically a GLPane) or from one of our mode objects,
+        but this is not strictly obeyed):
+        Start using the given mode (name or object), ignoring any prior mode.
+        If the new mode refuses to become current
+        (e.g. if it requires certain kinds of selection which are not present),
+        it should emit an appropriate message and return True; we'll then
+        start using our default mode, or if that fails, some always-safe mode.
+
+        @param resuming: see _enterMode method. ###TODO: describe it here,
+                         and fix rest of docstring re this.
+        """
+        assert not USE_COMMAND_STACK # other case nim #### IMPLEM, or FIX CALLS (DECIDE)
+        #bruce 070813 added resuming option
+        # note: resuming option often comes from **new_mode_options in callers
+
+        self._update_model_between_commands()
         
         #e (Q: If the new mode refuses to start,
         #   would it be better to go back to using the immediately
@@ -329,7 +362,7 @@ class modeMixin(object):
                 commandName = '???'
                     # in case of exception before (or when) we set it from
                     # mode object
-                mode = self._find_mode(mode) # figure out which mode object to use
+                mode = self._find_command_instance(mode)
                     # [#k can this ever fail?? should it know default mode?##]
                 commandName = mode.commandName
                     # store this now, so we can handle exceptions later,
@@ -395,49 +428,55 @@ class modeMixin(object):
             from utilities.Log import greenmsg
             env.history.message( greenmsg( msg), norepeat_id = msg )
         return msg
-    
-    def _find_mode(self, commandName_or_obj = None):
-        """
-        Internal method: look up the specified internal mode name
-        (e.g. 'MODIFY' for Move mode)
-        or mode-role symbolic name (e.g. '$DEFAULT_MODE')
-        in self._commandTable, and return the mode object found.
-        Or if a mode object is provided, return the same-named object
-        in self._commandTable (warning if it's not the same object,
-        since this might indicate a bug).
 
-        Exception if requested mode object is not found -- unlike
-        pre-050911 code, never return some other mode than asked for --
-        let caller do that if desired.
+    def _find_command_instance(self, commandName_or_obj = None): # note: only used in this file [080806]
+        """
+        Internal method: look up the specified commandName
+        (e.g. 'MODIFY' for Move)
+        or command-role symbolic name (e.g. '$DEFAULT_MODE')
+        in self._commandTable, and return the command object found.
+        Or if a command object is passed, return it unchanged.
+
+        Exception if requested command object is not found -- unlike
+        pre-050911 code, never return some other command than asked for;
+        let caller use a different one if desired.
         """
         #bruce 050911 and 060403 revised this;
         # as of 080804, looks ok for USE_COMMAND_STACK but needs renaming/rewrite for terminology mode -> Command ###TODO
-        assert commandName_or_obj, "mode arg should be a mode object " \
-               "or mode name, not None or whatever it is here: %r" % \
+        assert commandName_or_obj, "commandName_or_obj arg should be a command object " \
+               "or commandName, not None or whatever false value it is here: %r" % \
                (commandName_or_obj,)
         if type(commandName_or_obj) == type(''):
             # usual case - internal or symbolic commandName string
+            # TODO: a future refactoring should cause caller to do
+            # the symbol replacements, so this is either a commandName
+            # or object, since caller will need to match this to currently
+            # active commands anyway. [bruce 080806 comment]
             commandName = commandName_or_obj
             if commandName == '$SAFE_MODE':
                 commandName = 'SELECTMOLS'
                     # todo: SELECTMOLS should be a defined constant, SAFE_MODE
-            elif commandName == '$STARTUP_MODE':
-                commandName = self.startup_commandName()
-                if commandName == '$DEFAULT_MODE':
-                    commandName = self.default_commandName()
-            elif commandName == '$DEFAULT_MODE':
+            if commandName == '$STARTUP_MODE':
+                commandName = self.startup_commandName() # might be '$DEFAULT_MODE'
+            if commandName == '$DEFAULT_MODE':
                 commandName = self.default_commandName()
+            # todo: provision for lazy instantiation, if not already in _commandTable
             return self._commandTable[ commandName]
         else:
-            # assume it's a mode object; make sure it's legit
-            mode0 = commandName_or_obj
-            commandName = mode0.commandName
-            mode1 = self._commandTable[commandName] # the one we'll return
-            if mode1 is not mode0:
-                # this should never happen
-                print "bug: invalid internal mode; using mode %r" % \
-                      (commandName,)
-            return mode1
+            # assume it's a command object; make sure it's legit
+            command = commandName_or_obj
+            commandName = command.commandName # make sure it has this attr
+            # (todo: rule out error of it's being a command class)
+
+            #bruce 080806 removed the following:
+##            mode1 = self._commandTable[commandName] # the one we'll return
+##            if mode1 is not command:
+##                # this should never happen
+##                print "bug: invalid internal command; using %r" % \
+##                      (commandName,)
+##            return mode1
+            
+            return command
         pass
 
     # default and startup command name methods.
@@ -559,7 +598,7 @@ class modeMixin(object):
             except:
                 print "(...even the old mode's restore_gui method, " \
                       "run by itself, had a bug...)"
-            self.start_using_mode( '$DEFAULT_MODE' )
+            self.start_using_mode( '$DEFAULT_MODE' ) # at end of userEnterCommand, in case of bug
         return
 
     def userEnterTemporaryCommand(self, commandName, always_update = False):

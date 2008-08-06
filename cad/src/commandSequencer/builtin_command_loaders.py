@@ -1,6 +1,6 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-builtin_command_loaders.py -- loaders for NE1 builtin commands.
+builtin_command_loaders.py -- loaders for NE1 builtin commands, used in order.
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
@@ -108,6 +108,14 @@ def preloaded_command_classes():
     @note: currently this includes all loadable builtin commands,
            but soon we will implement a way for some commands to be
            loaded lazily, and remove many commands from this list.
+
+    @note: commands should be initialized in this order, in case this makes
+           some bugs deterministic. In theory, any order should work (and it's
+           a bug if it doesn't), but in practice, we have found that some
+           mysterious Qt bugs (C crashes) depend on which command classes are
+           instantiated at startup, so it seems safest to keep all this
+           deterministic, even at the cost of failing to detect our own
+           order-dependency bugs if any creep in.
     """
     # classes for builtin commands (or unsplit modes) which were preloaded
     # by toplevel imports above, in order of desired instantiation:
@@ -168,7 +176,6 @@ def preloaded_command_classes():
         AtomsTool_Command, 
         BondTool_Command
     ]
-    
     
     # note: we could extract each one's commandName (class constant)
     # if we wanted to return them as commandName, commandClass pairs

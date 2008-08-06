@@ -58,17 +58,17 @@ class baseCommand(object):
     
     command_has_its_own_gui = True ### note: this might be renamed, or removed
     
-    propMgr = None ### note: this might be renamed, and probably ought to be private
+    propMgr = None # will be set to the PM to use with self (whether or not created by self)
 
-    def get_propertyManager(self): ### note: might become a get method for self.propertyManager
-        """
-        @return: the property manager object to use when this command is current
-                 (or when its subcommands don't have a PM of their own).
-        """
-        if self.command_has_its_own_gui:
-            return self.propMgr # might be None
-        else:
-            return self.parentCommand and self.parentCommand.get_propertyManager()
+##    def get_propertyManager(self): ### note: might become a get method for self.propertyManager
+##        """
+##        @return: the property manager object to use when this command is current
+##                 (or when its subcommands don't have a PM of their own).
+##        """
+##        if self.command_has_its_own_gui:
+##            return self.propMgr # might be None
+##        else:
+##            return self.parentCommand and self.parentCommand.get_propertyManager()
     
     # == exit-related methods
     
@@ -139,7 +139,7 @@ class baseCommand(object):
         @note: base class implementation calls self methods
                command_exit_misc_actions and command_exit_flyout.
         
-        [subclasses should extend this as needed. typically calling
+        [subclasses should extend this as needed, typically calling
          superclass implementation at the end]
         """
         # note: we call these in the reverse order of how
@@ -200,7 +200,7 @@ class baseCommand(object):
         @note: caller must only call this if this command *should* enter if possible.
 
         @note: always called on an instance, even if a command class alone
-               could decide to refuse entry.
+               could (in principle) decide to refuse entry.
         """
         try:
             ok = self.command_ok_to_enter(args) # must explain to user if not
@@ -278,6 +278,8 @@ class baseCommand(object):
         [subclasses should extend as needed, typically calling superclass
          implementation at the start]
         """
+        if not self.command_has_its_own_gui: # rename?
+            self.propMgr = self.parentCommand.propMgr
         self.command_enter_PM()
         self.command_enter_flyout()
         self.command_enter_misc_actions()
@@ -287,22 +289,31 @@ class baseCommand(object):
         """
         Do whatever needs to be done to a command's PM object (self.propMgr)
         when a command has just been entered (but don't show that PM).
+
+        For commands which use their parent command's PM, it has already
+        been assigned to self.propMgr, assuming this method is called by
+        the base class implementation of command_entered (as usual)
+        and that self.command_has_its_own_gui is false.
         
-        (Often, nothing needs to be done, since signals should typically
-        be connected just once when the PM is first created. But it's legal
-        for the PM to not yet exist, and be created and connected and have
-        its state initialized by this method, the first time this method
-        is called for a given command object.)
+        In that case, this method is allowed to perform side effects on
+        that "parent PM" (and this is the best place to do them),
+        but this is only safe if the parent command and PM are of the expected
+        class and have been coded with this in mind.
 
-        @note: Called by base class implementation of command_entered.
-               Assuming command_entered, if extended, still calls this method,
-               then each time self is entered, this method will always be called
-               before the first call of self.get_propertyManager().
+        For commands which create their own PM, typically they either do it
+        in __init__, or in this method (when their PM doesn't already exist).
+        A created PM is conventionally stored in self.propMgr, and publicly
+        accessed from there. It will persist there even when self is not on
+        the command stack.
 
-        @note: a command which uses its parentCommand's PM is allowed to
-               perform side effects on that PM during this method, but this
-               is only safe if the parent command and PM are of the expected
-               class and have been coded with this in mind.
+        For many commands, nothing needs to be done by this method.
+
+        PM signal/slot connections should typically be created just once
+        when the PM is first created.
+
+        @note: base class implementation of command_entered calls this,
+               after setting self.propMgr to PM from parent command if
+               self.command_has_its_own_gui is false. 
 
         [subclasses should override as needed]
         """
