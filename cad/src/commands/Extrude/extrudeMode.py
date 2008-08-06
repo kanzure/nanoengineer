@@ -260,7 +260,7 @@ class extrudeMode(basicMode):
             pass
         self.repaint_if_needed()
 
-    def refuseEnter(self, warn):
+    def _refuseEnter(self, warn):
         """
         If we'd refuse to enter this mode, then (iff warn) tell user why,
         and (always) return true.
@@ -273,12 +273,17 @@ class extrudeMode(basicMode):
                 env.history.message(redmsg("%s refused: %r" % (self.get_featurename(), whynot,)))
                     # Fixes bug 444. mark 060323
             self.w.toolsExtrudeAction.setChecked(False)
+                # this needs to be refactored away, somehow,
+                # but is tolerable for now [bruce 080806 comment]
             return 1
         else:
             # mol is nonsense, btw
             return 0
         pass
 
+    def command_ok_to_enter(self):
+        return not self._refuseEnter(warn = True)
+    
     def Enter(self):
         self.status_msg("preparing to enter %s..." % self.get_featurename())
             # this msg won't last long enough to be seen, if all goes well
@@ -300,11 +305,11 @@ class extrudeMode(basicMode):
         ###
         # find out what's selected, which if ok will be the repeating unit we will extrude... explore its atoms, bonds, externs...
         # what's selected should be its own molecule if it isn't already...
-        # for now let's hope it is exactly one (was checked in refuseEnter, but not anymore).
+        # for now let's hope it is exactly one (was checked in command_ok_to_enter, but not anymore).
 
         ok, mol = assy_extrude_unit(self.o.assy)
         if not ok:
-            # after 041222 this should no longer happen, since checked in refuseEnter
+            # after 041222 this should no longer happen, since checked in command_ok_to_enter
             whynot = mol
             self.status_msg("%s refused: %r" % (self.get_featurename(), whynot,))
             return 1 # refused!
@@ -1909,7 +1914,7 @@ def assy_extrude_unit(assy, really_make_mol = 1):
     [as of 070412 bugfixes, mol is always a fake_merged_mol];
     else return (False, whynot).
     Note: we might modify assy even if we return False in the end!!!
-    To mitigate that (for use in refuseEnter), caller can pass
+    To mitigate that (for use in command_ok_to_enter), caller can pass
     really_make_mol = 0, and then we will not change anything in assy
     (unless it has bugs caught by assy_fix_selmol_bugs),
     and we'll return either (True, "not a mol") or (False, whynot).

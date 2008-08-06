@@ -203,7 +203,7 @@ class baseCommand(object):
                could (in principle) decide to refuse entry.
         """
         try:
-            ok = self.command_ok_to_enter(args) # must explain to user if not
+            ok = self.command_ok_to_enter() # must explain to user if not
         except:
             _pct()
             ok = True
@@ -232,13 +232,23 @@ class baseCommand(object):
 
         return True
 
-    def command_ok_to_enter(self, args):
+    def command_ok_to_enter(self):
         """
-        #doc
-        
-        [some subclasses should override or extend, most don't need to]
-        
-        @note: must explain to user if not
+        Determine whether it's ok to enter self (assuming the user has
+        explicitly asked to enter self), given the current state
+        of the model and command stack. If not ok, explain to user
+        why not (using redmsg or dialog) and return False.
+        If ok, have no visible effect and return True.
+        Should never have a side effect on the model.
+
+        @return: True if ok to enter (usual case).
+        @rtype: boolean
+
+        @note: overriding this should be rare, and is always a UI design flaw.
+               Instead, commands should enter, then help the user make it ok
+               to use them (e.g. help them select an appropriate argument).
+                
+        [a few subclasses should override or extend, most don't need to]
         """
         return True
 

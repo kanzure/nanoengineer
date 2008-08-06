@@ -149,7 +149,7 @@ class anyCommand(object, StateMixin):
     # (default methods that should be noops in both nullCommand and Command
     #  can be put here instead if desired; for docstrings, see basicCommand)
     
-    def model_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename
+    def model_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename (in Commands and their PMs)
         return
     
     def state_may_have_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename
@@ -380,15 +380,35 @@ class basicCommand(anyCommand):
             # not 'draw_selection_curve', 'Wheel', they are none of my business;
             # not 'makemenu' since no relation to new mode changes per se.
             # [bruce 040924]
+        if USE_COMMAND_STACK and 0: # only enable this once we'll never go back...
+            # also complain about commands not fully ported to the new API
+            for methodname, howtofix in (
+##                ('refuseEnter', ""), # only used in extrudeMode -- removed, 080806
+                ('Enter', ""),
+                ('init_gui', ""),
+                ('resume_gui', ""),
+                ('update_gui', ""),
+                ('UpdateDashboard', ""),
+                ('Done', ""),
+                ('StateDone', ""),
+                ('StateCancel', ""),
+                ('restore_gui', ""),
+                ('Backup', ""),
+            ):
+                weird_to_override += [methodname]
+                # todo: print howtofix when needed
+                continue
+            pass
         for attr in weird_to_override:
-            def same_method(m1,m2):
+            def same_method(m1, m2):
                 # m1/m2.im_class will differ (it's the class of the query,
                 # not where func is defined), so only test im_func
                 return m1.im_func == m2.im_func
-            if not same_method( getattr(self,attr) , getattr(basicCommand,attr) ):
+            if not same_method( getattr(self, attr) ,
+                                getattr(basicCommand, attr) ):
                 print "fyi (for developers): subclass %s overrides basicCommand.%s; " \
                       "this is deprecated after mode changes of 040924." % \
-                      (self.__class__.__name__, attr)
+                      (self.__class__.__name__, attr) # todo: print howtofix as well
 
         # other inits
         self.glpane = glpane # REVIEW: needed?
@@ -419,6 +439,14 @@ class basicCommand(anyCommand):
             
         return # from basicCommand.__init__
 
+    # ==
+
+    # remove these once we always inherit from baseCommand,
+    # from which they're copied; see it for their docstrings: ###
+
+    def command_ok_to_enter(self):
+        return True
+    
     # ==
     
     def get_featurename(clas): #bruce 071227, revised into classmethod 080722
@@ -497,7 +525,7 @@ class basicCommand(anyCommand):
     call_makeMenus_for_each_event = False
         # default value of class attribute; subclasses can override
 
-    def setup_graphics_menu_specs(self):
+    def setup_graphics_menu_specs(self): # review: rename/revise for new command api? not urgent. [080806]
         ### TODO: make this more easily customized, esp the web help part;
         ### TODO if possible: fix the API (also of makeMenus) to not depend
         # on setting attrs as side effect
@@ -625,7 +653,7 @@ class basicCommand(anyCommand):
                     self.Menu_spec.extend( ms )
         return # from setup_graphics_menu_specs
 
-    def makeMenus(self):
+    def makeMenus(self): # review: rename/revise for new command api? not urgent. [080806]
         ### TODO: rename to indicate it's about the graphics area's empty space context menus;
         # move above setup_graphics_menu_specs
         """
@@ -659,7 +687,11 @@ class basicCommand(anyCommand):
             return None
         try:
             res = pw.KLUGE_current_PropertyManager()
-            # print "debug note: _KLUGE_current_PM returns %r" % (res,)
+            if res is not self.propMgr:
+                # I think this should now be rare, now that Ninad removed
+                # all official "guest PM" commands; let's find out: [bruce 080806]
+                print "debug note: _KLUGE_current_PM returns %r, but %r.propMgr is %r" % \
+                      (res, self, self.propMgr) ### if happens, fix; if not, clean up all calls
             return res
         except:
             # I don't know if this can happen
@@ -698,7 +730,7 @@ class basicCommand(anyCommand):
             return res
         return ( examine('done_btn'), examine('abort_btn') )
 
-    def want_confirmation_corner_type(self):
+    def want_confirmation_corner_type(self): # review: rename for new Command API? not urgent. [080806]
         """
         Subclasses should return the type of confirmation corner they
         currently want, typically computed from their current state.
@@ -759,14 +791,16 @@ class basicCommand(anyCommand):
     
     # ==
 
-    def warning(self, *args, **kws):
+    def warning(self, *args, **kws): # review: rename/revise for new Command API? Not urgent. [080806]
         self.o.warning(*args, **kws)
 
     # == methods related to entering this command
     
-    def _enterMode(self, resuming = False, has_its_own_gui = True): #bruce 070813 added resuming option
+    def _enterMode(self, resuming = False, has_its_own_gui = True): #### obsolete after USE_COMMAND_STACK;
+        # called only by self.commandSequencer.start_using_mode
+        #bruce 070813 added resuming option
         """
-        Private method (called only by our command sequencer) -- immediately
+        Friend method for command sequencer -- immediately
         enter this command, i.e. prepare it for use, not worrying at
         all about any prior current command.  Return something false
         (e.g. None) normally, or something true if you want to
@@ -793,20 +827,22 @@ class basicCommand(anyCommand):
                                  
         @type has_its_own_gui: boolean
         
-        @see: self.Done, self._exitMode, CommandSequencer.start_using_command
+        @see: self.Done, self._exitMode, CommandSequencer.start_using_mode
         
         TODO: This and the other methods mentioned in 'See Also' need cleanup. 
               Need to be simplified. 
         """
+        assert not USE_COMMAND_STACK # obsolete otherwise [080806]
         if not resuming:
-            refused = self.refuseEnter(warn = 1)
+##            refused = self.refuseEnter(warn = 1)
+            refused = not self.command_ok_to_enter()
             if not refused:
                 # do command-specific entry initialization;
                 # this method is still allowed to refuse, as well
                 refused = self.Enter() 
                 if refused:
                     print "fyi: late refusal by %r, better if it had been " \
-                          "in refuseEnter" % self # (but sometimes it might be necessary)
+                          "in command_ok_to_enter" % self # (but sometimes it might be necessary)
         else:
             refused = False
         if not refused:
@@ -826,17 +862,17 @@ class basicCommand(anyCommand):
         # but only if we return false
         return refused
 
-    def refuseEnter(self, warn):
-        """
-        Subclasses should override this: examine the current
-        selection state of your command's model, and anything else you care
-        about, and decide whether you would refuse to become the
-        new current command, if asked to. If you would refuse, and if
-        warn = true, then emit an error message explaining this.
-        In any case, return whether you refuse entry (i.e. true if
-        you do, false if you don't).         
-        """
-        return 0
+##    def refuseEnter(self, warn):
+##        """
+##        Subclasses should override this: examine the current
+##        selection state of your command's model, and anything else you care
+##        about, and decide whether you would refuse to become the
+##        new current command, if asked to. If you would refuse, and if
+##        warn = true, then emit an error message explaining this.
+##        In any case, return whether you refuse entry (i.e. true if
+##        you do, false if you don't).         
+##        """
+##        return 0
     
     def Enter(self):
         """
@@ -852,30 +888,30 @@ class basicCommand(anyCommand):
         new current command, emit an error message explaining why
         (perhaps in a dialog or status bar), and return True -- but
         it's better if you can figure this out earlier, in
-        refuseEnter().        
+        command_ok_to_enter().        
         """
         self.UpdateDashboard() # hide Done button for Default command. Mark 050922.
         
-        # TODOs: [2007-12-28]
-        # - We are likely to create a Enter_Command method instaed of just
-        #  the 'Enter' method
+        # TODOs:
+        # - We are likely to create a Enter_Command method instead of just
+        #   the 'Enter' method
         # - An example of the worry in current scheme -- what if that 
-        #   update_cursorcall in basicGraphicsMode.Enter_GraphicsMode tries to 
+        #   update_cursor call in basicGraphicsMode.Enter_GraphicsMode tries to 
         #   use some Command attrs to decide on the cursor which are only 
-        #  initialized in the subclass command.Enter? 
-        # - May be we should call Enter_GraphicsMode in or after method 
-        #  CommandSequencer.start_using_mode? Not sure if that method actually 
-        #  uses some things from graphicsMode.Enter. 
+        #   initialized in the subclass command.Enter? 
+        # - Maybe we should call Enter_GraphicsMode in or after method 
+        #   CommandSequencer.start_using_mode? Not sure if that method actually 
+        #   uses some things from graphicsMode.Enter. 
         # - [bruce writes]: If calls to methods such as update_cursor (done in 
-        #   Enter_GraphicsMode part)  need some command attrs to be set, then,
+        #   Enter_GraphicsMode part) need some command attrs to be set, then,
         #   maybe in the Enter_Command scheme, the default Enter would do 
-        #   3 things: 
-        #  Enter_Command, Enter_GM, and whatever update calls are then needed, 
-        #  like update_cursor . Or whoever calls Enter could do it. 
-        # - NOTE, the split Enter method (Enter_GreaphicsMode and proposed 
+        #   3 things: Enter_Command, Enter_GM, and whatever update calls are
+        #   then needed, like update_cursor . Or whoever calls Enter could do it.
+        # - NOTE, the split Enter method (Enter_GraphicsMode and proposed 
         #   Enter_Command method) scheme doesn't consider the effect 
-        #  on the non-split modes such as modifyMode. But some basic tests 
-        #  indicate that this may not be an issue. (looks safe) 
+        #   on the non-split modes such as modifyMode. But some basic tests 
+        #   indicate that this may not be an issue. (looks safe)
+        # [Ninad 2007-12-28 comment]
                 
         self.graphicsMode.Enter_GraphicsMode()
         
