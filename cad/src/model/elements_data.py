@@ -43,7 +43,7 @@ flat = A([[-0.5,0.866,0], [-0.5,-0.866,0], [1,0,0]])
 onebond = A([[1,0,0]]) # for use with valence-1 elements
 
 # mark 060129. New default colors for Alpha 7.
-_defaultRad_Color = {
+_defaultRadiusAndColor = {
     "X": (1.1,  [0.8, 0.0, 0.0]),
     "H" : (1.2,  [0.78, 0.78, 0.78]),
     "He" : (1.4,  [0.42, 0.45, 0.55]),
@@ -87,7 +87,7 @@ _defaultRad_Color = {
     "Xe" : (1.9,  [0.4, 0.45, 0.55]),
     }
   
-_altRad_Color = {
+_alternateRadiusAndColor = {
     "Al" : (2.050,),
     "As" : (2.050,),
     "B" :  (1.461,),
@@ -249,7 +249,7 @@ _mendeleev = [
 # ==
 
 def init_chemical_elements( periodicTable):
-    periodicTable.addElements( _mendeleev, _defaultRad_Color, _altRad_Color,
+    periodicTable.addElements( _mendeleev, _defaultRadiusAndColor, _alternateRadiusAndColor,
                                _DIRECTIONAL_BOND_ELEMENTS_chemical )
     return
 

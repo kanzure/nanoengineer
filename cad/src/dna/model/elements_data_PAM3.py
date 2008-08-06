@@ -20,7 +20,7 @@ _DIRECTIONAL_BOND_ELEMENTS_PAM3 = ('Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
 # ==
 
 # mark 060129. New default colors for Alpha 7.
-_defaultRad_Color = {
+_defaultRadiusAndColor = {
     "Ax3" : (4.5, [0.4, 0.4, 0.8]),
     "Ss3" : (4.5, [0.4, 0.8, 0.4]),
     "Sj3" : (4.5, [0.4, 0.8, 0.8]),
@@ -34,7 +34,7 @@ _defaultRad_Color = {
     "Uy3" : (2.3, [0.812, 0.428, 0.808]), #bruce 080410 stub
     }
   
-_altRad_Color = {}
+_alternateRadiusAndColor = {}
                  
 # Format of _mendeleev: see elements_data.py
 
@@ -94,7 +94,7 @@ _mendeleev = [
 # ==
 
 def init_PAM3_elements( periodicTable):
-    periodicTable.addElements( _mendeleev, _defaultRad_Color, _altRad_Color,
+    periodicTable.addElements( _mendeleev, _defaultRadiusAndColor, _alternateRadiusAndColor,
                                _DIRECTIONAL_BOND_ELEMENTS_PAM3,
                                default_options = dict(pam = MODEL_PAM3)
                               )

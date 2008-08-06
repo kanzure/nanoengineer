@@ -63,8 +63,8 @@ class _ElementPeriodicTable(object):
         self._eltName2Num = {} # maps elem.name to elem.eltnum
         self._eltSym2Num = {} # maps elem.symbol to elem.eltnum
         #bruce 071105 added the color tables:
-        self._defaultRad_Color = {} # maps elem.symbol to (radius, color) pairs
-        self._altRad_Color = {} # alternate rad/color values (ok if incomplete)
+        self._defaultRadiusAndColor = {} # maps elem.symbol to (radius, color) pairs
+        self._alternateRadiusAndColor = {} # alternate rad/color values (ok if incomplete)
                 
         # bruce 050419 add public attributes to count changes
         # to any element's color or rvdw; the only requirement is that
@@ -74,7 +74,7 @@ class _ElementPeriodicTable(object):
         self.rvdw_change_counter = 1
         return
 
-    def addElements(self, elmTable, _defaultRad_Color, _altRad_Color,
+    def addElements(self, elmTable, _defaultRadiusAndColor, _alternateRadiusAndColor,
                     directional_bond_elements = (),
                     default_options = {}
                    ):
@@ -86,24 +86,24 @@ class _ElementPeriodicTable(object):
         
         Use preference value for radius and color of each element,
         if available (using element symbol as prefs key);
-        otherwise, use values from _defaultRad_Color dictionary,
+        otherwise, use values from _defaultRadiusAndColor dictionary,
         which must have values for all element symbols in elmTable.
         (Make sure it has the value, even if we don't need it due to prefs.)
 
-        Also store all values in _defaultRad_Color, _altRad_Color tables
+        Also store all values in _defaultRadiusAndColor, _alternateRadiusAndColor tables
         for later use by loadDefaults or loadAlternates methods.
         
         @param elmTable: a list of elements to create, as tuples of a format
                          documented in elements_data.py.
 
-        @param _defaultRad_Color: a dictionary of radius, color pairs,
+        @param _defaultRadiusAndColor: a dictionary of radius, color pairs,
                                   indexed by element symbol. Must be complete.
                                   Used now when not overridden by prefs.
                                   Stored for optional later use by loadDefaults.
 
-        @param _altRad_Color: an alternate dictionary of radius, color pairs.
+        @param _alternateRadiusAndColor: an alternate dictionary of radius, color pairs.
                               Need not be complete; missing entries are
-                              effectively taken from _defaultRad_Color.
+                              effectively taken from _defaultRadiusAndColor.
                               Stored for optional later use by loadAlternates.
 
         @param directional_bond_elements: a list of elements in elmTable
@@ -117,7 +117,7 @@ class _ElementPeriodicTable(object):
             if len(elm) >= 6:
                 options.update(elm[5])
             symbols[elm[0]] = 1 # record element symbols seen in this call
-            rad_color = prefs.get(elm[0], _defaultRad_Color[elm[0]])
+            rad_color = prefs.get(elm[0], _defaultRadiusAndColor[elm[0]])
             el = Elem(elm[2], elm[0], elm[1], elm[3],
                       rad_color[0], rad_color[1], elm[4],
                       ** options)
@@ -138,12 +138,12 @@ class _ElementPeriodicTable(object):
             assert el.bonds_can_be_directional == (el.symbol == 'X' or el.role == 'strand')
                 # once this works, we can clean up the code to not hardcode those list args
                 # [bruce 080117]
-        for key in _defaultRad_Color.iterkeys():
+        for key in _defaultRadiusAndColor.iterkeys():
             assert key in symbols
-        for key in _altRad_Color.iterkeys():
+        for key in _alternateRadiusAndColor.iterkeys():
             assert key in symbols
-        self._defaultRad_Color.update(_defaultRad_Color)
-        self._altRad_Color.update(_altRad_Color)
+        self._defaultRadiusAndColor.update(_defaultRadiusAndColor)
+        self._alternateRadiusAndColor.update(_alternateRadiusAndColor)
         return
     
     def _loadTableSettings(self, elSym2rad_color ):
@@ -152,9 +152,9 @@ class _ElementPeriodicTable(object):
 
         @param elSym2rad_color: A dictionary of (eleSym : (rvdw, [r,g,b])).
                 [r,g,b] can be None or missing, in which case use color from
-                self._defaultRad_Color; or the entire entry for eleSym
+                self._defaultRadiusAndColor; or the entire entry for eleSym
                 can be missing, in which case use both color and radius
-                from self._defaultRad_Color.
+                from self._defaultRadiusAndColor.
         """
         self.rvdw_change_counter += 1
         self.color_change_counter += 1
@@ -165,11 +165,11 @@ class _ElementPeriodicTable(object):
                 rad_color = elSym2rad_color[e_symbol]
                 elm.rvdw = rad_color[0]
                 if len(rad_color) == 1:
-                    rad_color = self._defaultRad_Color[e_symbol]
+                    rad_color = self._defaultRadiusAndColor[e_symbol]
                 elm.color = rad_color[1]
                     # guess: this is what will routinely fail if [r,g,b] is None
             except:                
-                rad_color = self._defaultRad_Color[e_symbol]
+                rad_color = self._defaultRadiusAndColor[e_symbol]
                 elm.rvdw = rad_color[0]
                 elm.color = rad_color[1]
                 pass
@@ -177,16 +177,16 @@ class _ElementPeriodicTable(object):
     
     def loadDefaults(self):
         """
-        Update the elements properties in self from self._defaultRad_Color.
+        Update the elements properties in self from self._defaultRadiusAndColor.
         """
-        self. _loadTableSettings( self._defaultRad_Color)
+        self. _loadTableSettings( self._defaultRadiusAndColor)
         
     def loadAlternates(self):
         """
-        Update the elements properties in self from self._altRad_Color;
-        for missing or partly-missing values, use self._defaultRad_Color.
+        Update the elements properties in self from self._alternateRadiusAndColor;
+        for missing or partly-missing values, use self._defaultRadiusAndColor.
         """
-        self. _loadTableSettings( self._altRad_Color)
+        self. _loadTableSettings( self._alternateRadiusAndColor)
         
     def deepCopy(self):
         """

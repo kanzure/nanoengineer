@@ -18,11 +18,11 @@ _DIRECTIONAL_BOND_ELEMENTS_OTHER = ()
 
 # ==
 
-_defaultRad_Color = {
+_defaultRadiusAndColor = {
     "Vs0" : (1.0, [0.8, 0.8, 0.8]), #bruce 080515 guess, "very light gray"
     }
   
-_altRad_Color = {
+_alternateRadiusAndColor = {
     }
                  
 # Format of _mendeleev: see elements_data.py
@@ -38,7 +38,7 @@ _mendeleev = [
 # ==
 
 def init_other_elements( periodicTable):
-    periodicTable.addElements( _mendeleev, _defaultRad_Color, _altRad_Color,
+    periodicTable.addElements( _mendeleev, _defaultRadiusAndColor, _alternateRadiusAndColor,
                                _DIRECTIONAL_BOND_ELEMENTS_OTHER,
                                default_options = dict()
                               )

@@ -22,7 +22,7 @@ _DIRECTIONAL_BOND_ELEMENTS_PAM5 = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5')
 # ==
 
 # mark 060129. New default colors for Alpha 7.
-_defaultRad_Color = {
+_defaultRadiusAndColor = {
     "Ax5" : (5.0, [0.4, 0.4, 0.8]),
     "Ss5" : (4.0, [0.4, 0.8, 0.4]),
     "Pl5" : (3.2, [0.4, 0.1, 0.5]),
@@ -39,7 +39,7 @@ _defaultRad_Color = {
     "Ah5" : (2.5, [0.8, 0.8, 0.8]), #bruce 080515 guess, "very light gray"
     }
   
-_altRad_Color = {
+_alternateRadiusAndColor = {
     }
                  
 # Format of _mendeleev: see elements_data.py
@@ -104,7 +104,7 @@ _mendeleev = [
 # ==
 
 def init_PAM5_elements( periodicTable):
-    periodicTable.addElements( _mendeleev, _defaultRad_Color, _altRad_Color,
+    periodicTable.addElements( _mendeleev, _defaultRadiusAndColor, _alternateRadiusAndColor,
                                _DIRECTIONAL_BOND_ELEMENTS_PAM5,
                                default_options = dict(pam = MODEL_PAM5)
                               )
