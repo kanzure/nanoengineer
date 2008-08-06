@@ -27,7 +27,7 @@ basicCommand._exitMode and CommandSequencer.start_using_mode need cleanup.
 
 from PyQt4.Qt import QToolButton
 
-from utilities.debug import print_compact_traceback
+from utilities.debug import print_compact_traceback, print_compact_stack
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
 
@@ -373,7 +373,9 @@ class basicCommand(anyCommand):
         # overrides basicMode._exitMode". I am not sure whether this override is
         # legitimate, so I'm not removing the warning for now. [bruce 070521]
         weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
-                             '_f_userEnterCommand', '_exitMode', 'Abandon', '_cleanup']
+                             '_f_userEnterCommand', '_exitMode', 'Abandon', '_cleanup',
+                             'clear', #bruce 080806
+                            ]
             # not 'modifyTransmute', 'keyPress', they are normal to override;
             # not 'draw_selection_curve', 'Wheel', they are none of my business;
             # not 'makemenu' since no relation to new mode changes per se.
@@ -1490,7 +1492,7 @@ class basicCommand(anyCommand):
         Subclasses which accumulate state (either in the command
         object or in their model (assembly), or both) should
         override this appropriately (see long comment above for
-        details).  False positive is annoying, but permitted (its
+        details). False positive is annoying, but permitted (its
         only harm is forcing the user to explicitly Cancel or Done
         when switching directly into some other command); but false
         negative would be a bug, and would cause lost state after
@@ -1499,21 +1501,23 @@ class basicCommand(anyCommand):
         """
         return False
     
-    def _exitMode(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
+    def _exitMode(self, new_mode = None, suspend_old_mode = False, **new_mode_options): # called from Done & Cancel
         """
         Internal method -- immediately leave this command, discarding
         any internal state it might have without checking whether
         that's ok (if that check might be needed, we assume it
-        already happened).  Ask our command sequencer to change to new_mode
+        already happened). Ask our command sequencer to change to new_mode
         (which might be a commandName or a command object or None), if provided
         (and if that command accepts being the new currentCommand), otherwise to
-        its default command.  Unlikely to be overridden by subclasses.
+        its default command.
+
+        [Unlikely to be overridden by subclasses.]
         """
         if not suspend_old_mode:
             self._cleanup()
         if new_mode is None:
             new_mode = '$DEFAULT_MODE'
-        self.commandSequencer.start_using_mode(new_mode, **new_mode_options)
+        self.commandSequencer.start_using_mode(new_mode, **new_mode_options) # in _exitMode
             ## REVIEW: is suspend_old_mode needed in start_using_mode?
             # Tentative conclusion: its only effects would be:
             # - help us verify expected relations between flags in new mode class
@@ -1548,11 +1552,18 @@ class basicCommand(anyCommand):
         #probably not...
         self._cleanup()
 
-    def _cleanup(self): # note: mentioned only in this file as of long before 080805; called only from _exitMode & Abandon
+    def _cleanup(self): # called only from _exitMode & Abandon, in this file; only caller of stop_sending_us_events [080805]
+        """
+        [guess at doc, 080806:]
+        Do some things needed by all ways of exiting a command.
+
+        [private; should not be overridden]
+        """
         # (the following are probably only called together, but it's
         # good to split up their effects as documented in case we
         # someday call them separately, and also just for code
         # clarity. -- bruce 040923)
+        
         if not USE_COMMAND_STACK: #bruce 080805 guess ### REVIEW
             self.commandSequencer.stop_sending_us_events( self)
                 # stop receiving events from our command sequencer or glpane
@@ -1562,9 +1573,17 @@ class basicCommand(anyCommand):
             # (I think that was needed to prevent key events from being sent to
             #  no-longer-shown command dashboards. [bruce 041220])
 ##        self.restore_patches()
+
+        #### TODO: either rename the following for new command API,
+        # or copy their code into new command API methods and abandon them.
+        # Guess: just do them from per-subclass overrides of command_will_exit.
+        # [bruce 080806 comment]
+        
         self.graphicsMode.restore_patches_by_GraphicsMode() # move earlier?
         self.restore_patches_by_Command()
-        self.clear() # clear our internal state, if any
+        self.clear_command_state() # clear our internal state, if any
+        
+        return # from _cleanup
         
     def restore_gui(self):
         """
@@ -1583,12 +1602,20 @@ class basicCommand(anyCommand):
         """
         pass
     
-    def clear(self):
+    def clear(self): #bruce 080806 deprecated this (old name of clear_command_state) ### rename in subs, in calls
+        print_compact_stack("%r is calling clear, should use new name clear_command_state: " % self)
+        self.clear_command_state()
+        return
+    
+    def clear_command_state(self):
+        #bruce 080806 renamed clear -> clear_command_state;
+        # semantics are tentative (call during enter too, like in Extrude? fold into command_will_exit?);
+        # will be renamed again (to start with 'command_') if it remains in new Command API
         """
         subclasses with internal state should reset it to null values
         (somewhat redundant with Enter; best to clear things now)
         """
-        pass
+        return
         
     # [bruce comment 040923]
     

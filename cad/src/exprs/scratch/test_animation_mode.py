@@ -1271,21 +1271,21 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         ## in Draw: add         self._expr_instance.draw()
 
         if TESTING_KLUGES:
-            self.clear() ###### FOR TESTING
-            print "clear in init, testing kluge"####
+            self.clear_command_state() ###### FOR TESTING
+            print "clear_command_state in init, testing kluge"####
 
         return
 
-    def clear(self):
+    def clear_command_state(self):
         """
-        (part of mode API)
+        (part of command API)
         """
         self.cmd_Stop()
         if TESTING_KLUGES:
             print "KLUGE FOR TESTING: set cannonWidth in cmd_Stop"
             self.cannonWidth = 2.0########### DOES IT FIX THE BUG? THEN ZAP.
         ## this line seems to mess up the reload of test_animation_mode when i reenter it when in itself:
-        ## super(test_animation_mode, self).clear()
+        ## super(test_animation_mode, self).clear_command_state()
         return
     
     def Enter(self):
@@ -1407,7 +1407,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
                 # times the redraw (and the other event processing) in glpane._repaint_start_time, glpane._repaint_end_time,
                 # and sets glpane._repaint_duration =  max(MIN_REPAINT_TIME, duration), where MIN_REPAINT_TIME = 0.01.
                 #
-                # If any of those events exit this mode, that will happen right away, but our clear method
+                # If any of those events exit this mode, that will happen right away, but our clear_command_state method
                 # will run cmd_Stop so that this loop will exit ASAP. To make this exit faster,
                 # we also test _please_exit_loop just below. (REVIEW: do we need to set such a flag to be tested
                 # inside gl_update_duration itself??)

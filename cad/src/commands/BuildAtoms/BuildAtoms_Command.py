@@ -714,7 +714,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     #            # bug 133
     #        self.o.selatom = None
 
-    def clear(self):
+    def clear_command_state(self):
         self.new = None
     
     #=== Cursor id

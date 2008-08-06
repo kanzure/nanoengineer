@@ -282,7 +282,7 @@ class extrudeMode(basicMode):
     def Enter(self):
         self.status_msg("preparing to enter %s..." % self.get_featurename())
             # this msg won't last long enough to be seen, if all goes well
-        self.clear() ##e see comment there
+        self.clear_command_state() ##e see comment there
         self.initial_down = self.o.down
         self.initial_out = self.o.out
 
@@ -474,7 +474,7 @@ class extrudeMode(basicMode):
                                                    entering = bool_entering)
         return
 
-    singlet_color = {} # we also do this in clear()
+    singlet_color = {} # we also do this in clear_command_state()
 
     def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol._colorfunc
         return self.singlet_color.get(atom.info) # ok if this is None
@@ -483,7 +483,7 @@ class extrudeMode(basicMode):
         assert len(self.molcopies) == self.ncopies
         assert self.molcopies[0] == self.basemol
 
-    circle_n = 0 # we also do this in clear()
+    circle_n = 0 # we also do this in clear_command_state()
         # note: circle_n is still used (in ring mode), even though "revolve"
         # as separate mode is nim/obs/removed [bruce 080727 comment]
 
@@ -639,7 +639,7 @@ class extrudeMode(basicMode):
         spoke_vec = quatii_rel.rot( radius_vec )
         return (quatii_rel, spoke_vec)
 
-    __old_ptype = None # hopefully not needed in clear(), but i'm not sure, so i added it
+    __old_ptype = None # hopefully not needed in clear_command_state(), but i'm not sure, so i added it
 
     def update_from_controls(self):
         """
@@ -975,7 +975,7 @@ class extrudeMode(basicMode):
         """
         pass
 
-    have_offset_specific_data = 0 # we do this in clear() too
+    have_offset_specific_data = 0 # we do this in clear_command_state() too
 
     def recompute_offset_specific_data(self):
         """
@@ -1008,7 +1008,7 @@ class extrudeMode(basicMode):
         # don't call recompute_bonds, our callers do that if nec.
         return
 
-    bonds_for_current_offset_and_tol = (17,) # we do this in clear() too
+    bonds_for_current_offset_and_tol = (17,) # we do this in clear_command_state() too
     offset_for_bonds = None
 
     def recompute_bonds(self):
@@ -1580,7 +1580,8 @@ class extrudeMode(basicMode):
     mergeables = {} # in case not yet initialized when we Draw (maybe not needed)
     moused_over = None
 
-    def clear(self): ###e should modes.py also call this before calling Enter? until it does, call it in Enter ourselves
+    def clear_command_state(self):
+        ### REVIEW: should modes.py also call this before calling Enter? until it does, call it in Enter ourselves
         self.mergeables = {}
         self.moused_over = None #k?
         self.dragdist = 0.0
