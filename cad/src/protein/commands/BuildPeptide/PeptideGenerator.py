@@ -705,7 +705,7 @@ class PeptideGenerator:
         """
         return vlen(pos2 - pos1) / get_unit_length(phi, psi)
     
-    def make_aligned(self, assy, name, aa_idx, phi, psi, pos1, pos2, 
+    def make_aligned(self, assy, name, aa_idx, phi, psi, pos2, pos1, 
                      mol=None, createPrinted=False):
         """
         Build a homo-peptide aligned to a pos2-pos1 vector. 
