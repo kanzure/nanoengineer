@@ -25,9 +25,8 @@
 # The following was extracted and modified from gle[GS]etNumSides in
 #    /Library/Python/2.5/site-packages/PyOpenGL-3.0.0a6-py2.5.egg/
 #        OpenGL/raw/GLE/__init__.py
-from OpenGL.raw.GLE.constants import *
 
-from ctypes import *
+from ctypes import c_int
 from OpenGL import platform, arrays
 from OpenGL.constant import Constant
 from OpenGL import constants as GLconstants
