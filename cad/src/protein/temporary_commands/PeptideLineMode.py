@@ -11,7 +11,7 @@
 
 from temporary_commands.LineMode import LineMode
 
-from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
+from graphics.drawing.drawPeptideTrace import drawPeptideTrace
 
 from utilities.constants import gray, black, darkred, blue, white
 
@@ -79,12 +79,12 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
             #placeholder for now. May be Piotr can implement a better representation
             #for drawing protein secondary structure
             # Draw the ladder. 
-            drawNanotubeLadder(self.endPoint1,
+            drawPeptideTrace(self.endPoint1,
                           self.endPoint2, 
-                          get_unit_length(135,-135),
+                          135,
+                          -135,
                           self.glpane.scale,
                           self.glpane.lineOfSight,
-                          ladderWidth = 3.0,
                           beamThickness = 4.0 
-                           ) 
+                          ) 
 
