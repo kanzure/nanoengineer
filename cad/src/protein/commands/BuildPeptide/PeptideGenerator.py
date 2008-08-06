@@ -542,6 +542,13 @@ def enablePeptideGenerator(enable):
     """
     win = env.mainwindow()
     win.insertPeptideAction.setVisible(enable)
+
+def get_unit_length(phi, psi):
+    """
+    Calculate a length of single amino acid in particular 
+    secondary conformation.
+    """
+    return 3.5
     
 class PeptideGenerator:
     coords = zeros([30,3], Float)
@@ -598,7 +605,8 @@ class PeptideGenerator:
 
         chunk.rot(qrot)
         
-        chunk.move(pt1+0.5*(pt2-pt1))
+        chunk.move(pt1+rawOffset)
+                   #0.5*(pt2-pt1))
         
         # Bruce suggested I add this. It works here, but not if its 
         # before move() and rot() above. Mark 2008-04-11
@@ -690,21 +698,14 @@ class PeptideGenerator:
         return mol          
         
         
-    def get_unit_length(self, phi, psi):
-        """
-        Calculate a length of single amino acid in particular 
-        secondary conformation.
-        """
-        return 3.5
-    
     def get_number_of_res(self, pos1, pos2, phi, psi):
         """
         Calculate a number of residues necessary to fill 
         the pos1-pos2 vector.
         """
-        return vlen(pos2 - pos1) / self.get_unit_length(phi, psi)
+        return vlen(pos2 - pos1) / get_unit_length(phi, psi)
     
-    def make_aligned(self, assy, name, aa_idx, phi, psi, pos2, pos1, 
+    def make_aligned(self, assy, name, aa_idx, phi, psi, pos1, pos2, 
                      mol=None, createPrinted=False):
         """
         Build a homo-peptide aligned to a pos2-pos1 vector. 

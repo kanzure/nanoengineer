@@ -15,6 +15,7 @@ from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
 
 from utilities.constants import gray, black, darkred, blue, white
 
+from protein.commands.BuildPeptide.PeptideGenerator import get_unit_length
 
 # == GraphicsMode part
 
@@ -80,10 +81,10 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
             # Draw the ladder. 
             drawNanotubeLadder(self.endPoint1,
                           self.endPoint2, 
-                          3.0,
+                          get_unit_length(135,-135),
                           self.glpane.scale,
                           self.glpane.lineOfSight,
-                          ladderWidth = 6.4,
-                          beamThickness = 4.0,
+                          ladderWidth = 3.0,
+                          beamThickness = 4.0 
                            ) 
 
