@@ -220,7 +220,7 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
             if enabled:
                 # store current projection mode
                 self.o.last_ortho = self.o.ortho
-                if self.o.ortho is not 0:
+                if self.o.ortho:
                     # dont use glpane.setViewProjection
                     # because we don't want to modify 
                     # default projection setting 
