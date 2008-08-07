@@ -1018,6 +1018,21 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         dnaStrand = self.parent_node_of_class(self.assy.DnaStrand)
         
         return dnaStrand
+    
+    def getDnaSegment(self):
+        """
+        Returns the DnaStrand(group) node to which this chunk belongs to. 
+        
+        Returns None if there isn't a parent DnaStrand group.
+        
+        @see: Atom.getDnaStrand()
+        """
+        if self.isNullChunk():
+            return None
+        
+        dnaSegment = self.parent_node_of_class(self.assy.DnaSegment)
+        
+        return dnaSegment
 
 
     #END of Dna-Strand-or-Axis chunk specific code ========================

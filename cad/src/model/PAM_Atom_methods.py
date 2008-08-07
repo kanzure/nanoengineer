@@ -927,6 +927,20 @@ class PAM_Atom_methods:
                     
         return None
     
+    def getDnaSegment(self):
+        """
+        Returns the DnaSegment(group) node to which this atom belongs to. 
+        
+        Returns None if there isn't a parent DnaSegment group.
+        @see: Chunk.getDnaSegment() which is used here. 
+        """
+        chunk = self.molecule
+        
+        if chunk and not chunk.isNullChunk():
+            return chunk.getDnaSegment()
+                    
+        return None
+    
 
     def getDnaStrandId_for_generators(self):
         """
