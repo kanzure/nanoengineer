@@ -667,7 +667,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def renderTextAtPosition(self,                               
                              position,
                              textString,
-                             textColor = black
+                             textColor = black,
+                             textFont =  None
                              ):
         """
         Renders the text at the specified position (x, y , z coordinates)
@@ -688,6 +689,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         define a background text slightly offset to the x.y z to get a nicer
         text. Need to see how to acheve that
         """
+        
+        if textFont is not None:
+            font = textFont
+        else:
+            font = self._getFontForTextNearCursor()
 
 
         x = position[0]
@@ -726,7 +732,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.renderText(x1 ,
                             y1,
                             QString(textString),
-                            self._getFontForTextNearCursor())
+                            font)
             self.qglClearColor(RGBf_to_QColor(fg_color))
                 # question: is this related to glClearColor? [bruce 071214 question]
             glEnable(GL_LIGHTING)        
