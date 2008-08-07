@@ -619,15 +619,115 @@ class Dna:
         else:
             print_compact_stack("Bug: unable to bond atoms %s and %s"%(atm1, 
                                                                        atm2))
-        
-    
+      
     def _remove_bases_from_duplex(self,
+                                    group, 
+                                    resizeEndAxisAtom, 
+                                    numberOfBasePairsToRemove):
+        """
+        Remove the specified number of base pairs from the duplex. 
+        
+        @param group: The DnaGroup which contains this duplex
+        @type group: DnaGroup
+        
+        @param resizeEndAxisAtom: The end axis base atom at a DnaLadder end of 
+        the duplex. This end base atom is used as a starting base atom while 
+        determining which base atoms to remove. 
+        @type resizeEndAxisAtom: Atom
+        
+        @param numberOfBasePairsToRemove: The total number of base paris to 
+        remove from the duplex. 
+        @type numberOfBasePairsToRemove: int
+        """
+        
+        #Use whole_chain.get_all_baseatoms_in_order() and then remove the 
+        #the number of bases from the resize end given by 
+        #numberOfBasePairsToRemove (including the resize end axis atom. 
+        #this fixes bug 2924 -- Ninad 2008-08-07
+        
+        segment = resizeEndAxisAtom.getDnaSegment()
+        
+        atomsScheduledForDeletionDict = {}
+        if not segment:
+            print_compact_stack ("bug: can't resize dna segment")
+            return 
+        
+        whole_chain = segment.get_wholechain()
+        if whole_chain is None:
+            return
+        baseatoms = whole_chain.get_all_baseatoms_in_order()
+        
+        if len(baseatoms) < 2:
+            print_compact_stack("WARNING: resizing a dna segment with < 2 "\
+                                "base atoms is not supported")
+            return 
+            
+        atomsScheduledForDeletionDict = {}
+          
+        atm = resizeEndAxisAtom    
+        strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
+        
+        try:        
+            resizeEndAtom_baseindex = baseatoms.index(resizeEndAxisAtom)
+        except:            
+            print_compact_traceback("bug resize end axis atom not in " \
+                                    "segments baseatoms!")
+            return
+        
+             
+                
+        if resizeEndAtom_baseindex == 0:
+            axisAtomsToRemove = baseatoms[:numberOfBasePairsToRemove]
+            
+        elif resizeEndAtom_baseindex == len(baseatoms) - 1:
+            num = len(baseatoms) - numberOfBasePairsToRemove
+            axisAtomsToRemove = baseatoms[num:]
+                    
+        for atm in axisAtomsToRemove:
+            if not atomsScheduledForDeletionDict.has_key(id(atm)):
+                atomsScheduledForDeletionDict[id(atm)] = atm
+            
+            strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
+                
+            for a in strand_neighbors_to_delete:
+                if not atomsScheduledForDeletionDict.has_key(id(a)):
+                    atomsScheduledForDeletionDict[id(a)] = a
+                    
+        #Now kill all the atoms. Before killing them, set a flag on them so that
+        #the code knowns not to create new bondpoints on neighbor after killing
+        #the atoms ..This flag prevents that by telling the code not to create 
+        #bondpoints if the neighbor lies in the list of atoms to kill (thus
+        #neighbor will also be killed) . Fixes a memory leak 
+        #See bug 2880 for details.
+        val = Atom_prekill_prep()
+        for a in atomsScheduledForDeletionDict.values():
+            a._will_kill = val # inlined a._prekill(val), for speed
+        
+        for atm in atomsScheduledForDeletionDict.values():
+            if atm:
+                try:                   
+                    atm.kill()    
+                except:
+                    print_compact_traceback("bug in deleting atom while "\
+                                            "resizing the segment")
+                                            
+        atomsScheduledForDeletionDict.clear()                                    
+
+        #IMPORTANT TO RUN DNA UPDATER after deleting these atoms! Otherwise we
+        #will have to wait for next event to finish before the dna updater runs
+        #There are things like resize handle positions that depend on the 
+        #axis end atoms of a dna segment. Those update method may be called 
+        #before dna updater is run again , thereby spitting ut errors.
+        self.assy.update_parts()
+        
+
+    def ORIG_remove_bases_from_duplex(self,
                                     group, 
                                     resizeEndAxisAtom, 
                                     numberOfBasePairsToRemove): 
         """
                 
-        Remove the spcified number of base pairs from the duplex. 
+        Remove the specified number of base pairs from the duplex. 
         
         @param group: The DnaGroup which contains this duplex
         @type group: DnaGroup
@@ -642,10 +742,9 @@ class Dna:
         @type numberOfBasePairsToRemove: int
         
         """
-        #Needs cleanup
-        
-        
-                
+        #THIS METHOD IS NOT USED. See self._remove_bases_from_duplex() instead
+        #To be removed after more testing  -- Ninad 2008-08-07
+ 
         ladder = resizeEndAxisAtom.molecule.ladder
         
         atomsScheduledForDeletionDict = {}
@@ -703,6 +802,9 @@ class Dna:
         #as there is no use of this variable later. 
         
         while numberOfBasePairsToRemove > 1:  
+            if numberOfBasePairsToRemove == 6:
+                print "***starting debug"
+                
             rail = atm.molecule.get_ladder_rail()                
             baseindex = rail.baseatoms.index(atm)      
             
@@ -775,7 +877,7 @@ class Dna:
         val = Atom_prekill_prep()
         for a in atomsScheduledForDeletionDict.values():
             a._will_kill = val # inlined a._prekill(val), for speed
-            
+        print "*** len(atomsScheduledForDeletionDict.values()) ", len(atomsScheduledForDeletionDict.values())
         for atm in atomsScheduledForDeletionDict.values():
             if atm:
                 try:                   
