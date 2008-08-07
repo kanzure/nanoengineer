@@ -863,6 +863,21 @@ class Protein:
                 nbr += 1
         return nbr
         
+    def is_backrub_setup_correctly(self):
+        """
+        Returns True if backrub table is set properly.
+        """
+        last_aa = None
+        # Check if at least two consecutive amino acids have backrub flag
+        # set as True.
+        for aa in self.get_amino_acids():
+            if last_aa and \
+               last_aa.get_backrub_mode() and \
+               aa.get_backrub_mode():
+                return True
+            last_aa = aa            
+        return False
+        
     def edit(self, win):
         """
         Edit the protein chunk
