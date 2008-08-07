@@ -225,6 +225,7 @@ def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feat
     return "%s %s%s%s %s" % (a1s, arrows[0], bondletter, arrows[1], a2s)
     
 def bond_left_atom(bond, quat = Q(1,0,0,0)): #bruce 070415, modified from bonded_atoms_summary, which ought to call this now ##e
+    # TODO: make this method name clearer: bond_leftmost_atom? bond_get_atom_on_left? [bruce 080807 comment]
     """
     Given a bond, and an optional quat describing the orientation it's shown in,
     order the atoms left to right based on that quat
