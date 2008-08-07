@@ -693,9 +693,23 @@ class basicCommand(anyCommand):
             res = pw.KLUGE_current_PropertyManager()
             if res is not self.propMgr:
                 # I think this should now be rare, now that Ninad removed
-                # all official "guest PM" commands; let's find out: [bruce 080806]
-                print "debug note: _KLUGE_current_PM returns %r, but %r.propMgr is %r" % \
-                      (res, self, self.propMgr) ### if happens, fix; if not, clean up all calls
+                # all official "guest PM" commands; let's find out...
+                # unfortunately it's common, apparently due to a logic bug
+                # in terms of when we access this vs. when various things are
+                # updated, since the PMs don't match the command objects in the
+                # debug prints (see below, when entering or exiting Break Strands) --
+                # or maybe it's a side effect of an exception in entering it, in
+                # current code? Try again when that bug is fixed... #### DOIT
+                #
+                ## debug note: _KLUGE_current_PM returns
+                ## <dna.commands.BreakStrands.BreakStrands_PropertyManager.BreakStrands_PropertyManager
+                ## object at 0xb333858>, but <commands.SelectChunks.SelectChunks_Command.SelectChunks_Command
+                ## object at 0x9f66870>.propMgr is None
+                #
+                # [bruce 080806]
+                pass
+                ## print "debug note: _KLUGE_current_PM returns %r, but %r.propMgr is %r" % \
+                ##       (res, self, self.propMgr) ### if happens, fix; if not, clean up all calls
             return res
         except:
             # I don't know if this can happen
