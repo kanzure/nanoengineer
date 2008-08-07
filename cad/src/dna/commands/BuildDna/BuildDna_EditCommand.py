@@ -162,18 +162,6 @@ class BuildDna_EditCommand(EditCommand):
         if self.flyoutToolbar:
             self.flyoutToolbar.deActivateFlyoutToolbar()
 
-    def StateDone(self):
-        """
-        @see: Command.StateDone
-        """
-        return None
-
-    def StateCancel(self):
-        """
-        @see Command.StateCancel
-        """
-        return None
-
     def runCommand(self):
         """
         Overrides EditCommand.runCommand

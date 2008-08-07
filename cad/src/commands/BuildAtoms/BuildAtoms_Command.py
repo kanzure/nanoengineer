@@ -683,27 +683,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         
     #======================    
-    # methods related to exiting this mode [bruce 040922 made these from
-    # old Done method, and added new code; there was no Flush method]
-    def haveNontrivialState(self):
-        return False
-    
-    def StateDone(self):
-        return None
-    # we never have undone state, but we have to implement this method,
-    # since our haveNontrivialState can return True
-
-    def StateCancel(self):
-        # to do this correctly, we'd need to remove the atoms we added
-        # to the assembly; we don't attempt that yet [bruce 040923,
-        # verified with Josh]
-        change_desc = "your changes are"
-        msg = "%s Cancel not implemented -- %s still there.\n\
-        You can only leave this mode via Done." % \
-              ( self.get_featurename(), change_desc )
-        self.warning( msg, bother_user_with_dialog = 1)
-        return True # refuse the Cancel
-    
+    # methods related to exiting this mode    
     
     # Now uses superclass method selectAtomsMode.restore_patches(). mark 060207.
     # [not true anymore, evidently -- so what does it use? bruce 071011]

@@ -327,14 +327,15 @@ class movieMode(basicMode):
             # and that redundant _close is ok.
         return
 
-    def haveNontrivialState(self):
-        ##bruce 050426: This used to call self.o.assy.current_movie._close()
-        # but that's wrong (this method shouldn't have side effects),
-        # so I moved that to our custom restore_patches_by_Command() method.
-        # Also, this used to always return False; that's still ok as long as we continually modify
-        # the model and tell it so (assy.changed) -- but I'm not sure we do; this needs review. ###k ####@@@@
-        # (Current strategy, 050426 eve: ignore this and assy.changed issues, until done.)
-        return False
+#bruce 080806 commenting this out since same as base class method
+##    def haveNontrivialState(self):
+##        ##bruce 050426: This used to call self.o.assy.current_movie._close()
+##        # but that's wrong (this method shouldn't have side effects),
+##        # so I moved that to our custom restore_patches_by_Command() method.
+##        # Also, this used to always return False; that's still ok as long as we continually modify
+##        # the model and tell it so (assy.changed) -- but I'm not sure we do; this needs review. ###k ####@@@@
+##        # (Current strategy, 050426 eve: ignore this and assy.changed issues, until done.)
+##        return False
 
     ##bruce 050426: maybe Done should store the movie changes and Cancel should revert to prior state?? If so, revise this. ####@@@@
 ##    def StateDone(self):

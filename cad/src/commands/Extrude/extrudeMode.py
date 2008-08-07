@@ -1129,7 +1129,7 @@ class extrudeMode(basicMode):
         self.update_from_controls()
         return
 
-    # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
+    # methods related to exiting this mode
 
     def haveNontrivialState(self):
         return self.ncopies != 1 # more or less...
