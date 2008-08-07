@@ -38,7 +38,9 @@ from widgets.prefs_widgets import connect_comboBox_with_pref
 class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     
     _baseNumberLabelGroupBox = None
-    
+    _baseNumberLabelColorChooser = None
+    _baseNumberingOrderComboBox = None
+        
     def __init__( self, parentCommand ):
         """
         Constructor for the property manager.
@@ -93,9 +95,10 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
                        SIGNAL("toggled(bool)"),
                        self.allowChoosingColorsOnThreePrimeEnd)
         
-        change_connect(self._baseNumberLabelColorChooser,
-                      SIGNAL("editingFinished()"),         
-                      self._colorChanged_dnaBaseNumberLabel)
+        if self._baseNumberLabelColorChooser:
+            change_connect(self._baseNumberLabelColorChooser,
+                          SIGNAL("editingFinished()"),         
+                          self._colorChanged_dnaBaseNumberLabel)
         
         if self._baseNumberLabelGroupBox:
             prefs_key = self.get_prefs_key_dnaBaseNumberLabelChoice()

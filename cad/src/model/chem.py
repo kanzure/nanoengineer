@@ -2348,6 +2348,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 pickedrad = drawrad * 1.1
             return pickedrad
         return drawrad
+    
+    def highlighting_radius(self): 
+        """
+        Returns the highlighting radius of the atom. This is larger than the 
+        normal drawing_radius. This method is provided for convenence, it just 
+        returns self.selatom_radius()
+        """                
+        return self.selatom_radius()
    
     def selatom_radius(self, dispdef = None): #bruce 041207, should integrate with draw_as_selatom
         if dispdef is None:
