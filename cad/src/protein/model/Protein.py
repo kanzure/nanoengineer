@@ -474,6 +474,19 @@ class Residuum:
                   
         return atom_list
 
+    
+    def get_atom_list_to_rotate(self, atom1, atom2):
+        """
+        """
+        """
+        atom_list = []
+
+        def recurse_bonds
+        for bond in atom2.bonds:
+            pass
+            
+        """     
+
     def set_chi_angle(self, which, angle, lock=False):
         """
         """
@@ -555,6 +568,8 @@ class Residuum:
         return self.backrub
     
 # End of Residuum class.
+
+
 
 class Protein:
     """
@@ -838,6 +853,16 @@ class Protein:
         if index in range(len(self.sequence)):
             self.current_aa_idx = index
             
+    def get_number_of_backrub_aa(self):
+        """
+        Returns a number of backrub amino acids.
+        """
+        nbr = 0
+        for aa in self.get_amino_acids():
+            if aa.get_backrub_mode():
+                nbr += 1
+        return nbr
+        
     def edit(self, win):
         """
         Edit the protein chunk
