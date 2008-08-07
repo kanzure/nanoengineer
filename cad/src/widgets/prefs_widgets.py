@@ -399,6 +399,26 @@ def connect_spinBox_with_pref(qSpinBox, prefs_key):
     widget_connectWithState( qSpinBox, stateref, QSpinBox_ConnectionWithState)
     return
 
+
+def connect_comboBox_with_pref(qComboBox, prefs_key):
+    """
+    Cause the QComboBox to track the value of the given preference key AND
+    causes changes to the combobox  to change the value of that prefs_key.
+    
+    @param qComboBox: QComboBox  object which needs to be 'connected'
+        to the given <prefs_key> (preference key)
+    @type qComboBox B{QComboBox}
+    
+    @param prefs_key: The preference key to be assocuated with <qSpinBox>
+
+    @see: B{connect_checkbox_with_boolean_pref()}
+    @see: B{QComboBox_ConnectionWithState}    
+    @see: connect_doubleSpinBox_with_pref()
+    """
+    stateref = Preferences_StateRef( prefs_key) # note: no default value specified
+    widget_connectWithState( qComboBox, stateref, QComboBox_ConnectionWithState)
+    return
+
     
 
 # ==
@@ -525,6 +545,18 @@ class QPushButton_ConnectionWithAction(destroyable_Qt_connection):
         slot = wrap_callable_for_undo( aCallable, cmdname = cmdname) # need to keep a ref to this
         destroyable_Qt_connection.__init__( self, sender, signal, slot) # this keeps a ref to slot
         return
+    
+class QComboBox_ConnectionWithState( _twoway_Qt_connection):
+    def __init__(self, qcombobox, stateref):
+        widget_setter = qcombobox.setCurrentIndex           
+        self.qcombobox = qcombobox
+        _twoway_Qt_connection.__init__(self, 
+                                       qcombobox, 
+                                       SIGNAL("currentIndexChanged(int)"),
+                                       stateref,
+                                       widget_setter)
+        return
+    
     pass
 
 # still needed:
