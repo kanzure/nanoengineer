@@ -24,6 +24,8 @@ RC_NUMBER="0"
 GROMACS_VERSION="3.3.3"
 QUTEMOLX_VERSION="0.5.1"
 
+DATECODE=`date "+%B %d, %Y"`
+
 # Do a basic check for sanity in the build area.
 if [ ! -e "$TOP_LEVEL/cad/src" ]
 then
@@ -176,6 +178,9 @@ mv $GROM_FILE.tmp $GROM_FILE || exit 1
 QMX_FILE=`ls *qutemolx.xml`
 cat $QMX_FILE | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" > $QMX_FILE.tmp
 mv $QMX_FILE.tmp $QMX_FILE
+#cat index.xml | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" | sed -e "s:/Applications/GROMACS:/Applications/GROMACS_$GROMACS_VERSION:" | sed -e "s:/Applications/Nanorex/NanoEngineer-1:/Applications/Nanorex/NanoEngineer-1_v$VERSION_NUM:" > index.xml.tmp
+cat index.xml | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" | sed -e "s:/Applications/GROMACS:/Applications/GROMACS_$GROMACS_ERSION:" > index.xml.tmp
+mv index.xml.tmp index.xml
 cd ..
 
 # create and populate the resources directory
