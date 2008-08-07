@@ -72,14 +72,12 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
         else:
             leftMouseButtonString = 'left mouse button'
             
-                
-        # Note: 
-        msg = ("To join two strands, highlight a 3' arrowhead of one "\
-               "strand, hold down the %s and then release it when the cursor "\
-               "is over the 5' end of a different strand.") % \
-            (leftMouseButtonString)
+        msg = "To <b>join</b> two strands, drag an arrowhead of one strand "\
+            "and drop it onto the end (arrowhead or pseudo atom) of another "\
+            "strand."
         
         self.updateMessage(msg)
+        return
         
  
     def _addGroupBoxes( self ):
