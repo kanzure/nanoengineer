@@ -140,41 +140,39 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         return
 
-    def Backup(self): # REVIEW: I suspect there is no way to call this method. [bruce 080806 comment]
-        """
-        Undo any bonds made between chunks.
-        """
-        # This undoes only the last fused chunks.  Will work on supporting
-        # multiple undos when we get a single undo working.   Mark 050326
-
-        # Bust bonds between last pair/set of fused chunks.
-        if self.bondable_pairs_atoms:
-            for a1, a2 in self.bondable_pairs_atoms:
-                b = a1.get_neighbor_bond(a2)
-                if b: b.bust()
-
-
-            if self.merged_chunks:
-                nchunks_str = "%d" % (len(self.merged_chunks) + 1,)
-                msg = "Fuse Chunks: Bonds broken between %s chunks." % (nchunks_str)
-                env.history.message(msg)
-                msg = "Warning: Cannot separate the original chunks. You can " \
-                "do this yourself using <b>Modify > Separate</b>."
-                env.history.message(orangemsg(msg))
-
-                cnames = "Their names were: "
-                # Here are the original names...
-                for chunk in self.merged_chunks:
-                    cnames += '[' + chunk.name + '] '
-                env.history.message(cnames)
-
-            self.o.gl_update()
-
-        else:
-            msg = "Fuse Chunks: No bonds have been made yet.  Undo ignored."
-            env.history.message(redmsg(msg))
-
-
+##    def Backup(self): # REVIEW: I suspect there is no way to call this method, so I commented it out. [bruce 080806 comment]
+##        """
+##        Undo any bonds made between chunks.
+##        """
+##        # This undoes only the last fused chunks.  Will work on supporting
+##        # multiple undos when we get a single undo working.   Mark 050326
+##
+##        # Bust bonds between last pair/set of fused chunks.
+##        if self.bondable_pairs_atoms:
+##            for a1, a2 in self.bondable_pairs_atoms:
+##                b = a1.get_neighbor_bond(a2)
+##                if b: b.bust()
+##
+##
+##            if self.merged_chunks:
+##                nchunks_str = "%d" % (len(self.merged_chunks) + 1,)
+##                msg = "Fuse Chunks: Bonds broken between %s chunks." % (nchunks_str)
+##                env.history.message(msg)
+##                msg = "Warning: Cannot separate the original chunks. You can " \
+##                "do this yourself using <b>Modify > Separate</b>."
+##                env.history.message(orangemsg(msg))
+##
+##                cnames = "Their names were: "
+##                # Here are the original names...
+##                for chunk in self.merged_chunks:
+##                    cnames += '[' + chunk.name + '] '
+##                env.history.message(cnames)
+##
+##            self.o.gl_update()
+##
+##        else:
+##            msg = "Fuse Chunks: No bonds have been made yet.  Undo ignored."
+##            env.history.message(redmsg(msg))
 
     def tolerance_changed(self, val):
         """

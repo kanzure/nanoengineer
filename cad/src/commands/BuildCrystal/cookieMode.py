@@ -328,7 +328,7 @@ class cookieMode(basicMode):
         self.selCurve_List = []
         self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2])
     
-    def Backup(self): # called from our glpane context menu 
+    def _Backup(self): # called only from our glpane context menu [made private by bruce 080806]
         if self.o.shape:
             self.o.shape.undo(self.currentLayer)
             # If no curves left, let users do what they can just like
@@ -981,7 +981,7 @@ class cookieMode(basicMode):
         self.Menu_spec = [
             ('Cancel', self.Cancel),
             ('Start Over', self.StartOver),
-            ('Backup', self.Backup),
+            ('Backup', self._Backup),
             ('Done', self.Done), # bruce 041217
             #None,
             #('Add New Layer', self.addLayer),

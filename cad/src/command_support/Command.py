@@ -377,7 +377,7 @@ class basicCommand(anyCommand):
         # later note: as of 070521, we always get warned "subclass movieMode
         # overrides basicMode._exitMode". I am not sure whether this override is
         # legitimate, so I'm not removing the warning for now. [bruce 070521]
-        weird_to_override = ['Cancel', 'StartOver', ## 'Flush', 'Restart',
+        weird_to_override = ['Cancel', 'StartOver',
                              '_f_userEnterCommand', '_exitMode', 'Abandon', '_cleanup',
                              'clear', #bruce 080806
                             ]
@@ -398,7 +398,6 @@ class basicCommand(anyCommand):
                 ('StateDone', ""),
                 ('StateCancel', ""),
                 ('restore_gui', ""),
-                ('Backup', ""),
             ):
                 weird_to_override += [methodname]
                 # todo: print howtofix when needed
@@ -1659,12 +1658,10 @@ class basicCommand(anyCommand):
         """
         return
         
-    # [bruce comment 040923]
-    
-    # The preceding and following methods, StartOver Cancel Backup
-    # Done, handle the common tools on the dashboards.  (Before
-    # 040923, Cancel was called ... and StartOver was called
-    # .... Now the internal names match the user-visible names.)
+    # [bruce comment 040923; trimmed, 080806]
+    #
+    # The preceding and following methods, StartOver Cancel
+    # Done, handle the common tools on the dashboards.
     #
     # Each dashboard uses instances of the same tools, for a uniform
     # look and action; the tool itself does not know which command it
@@ -1679,41 +1676,19 @@ class basicCommand(anyCommand):
     #
     # StartOver should also never be customized, since the generic
     # method here should always work.
-    #
-    # For Backup, I [bruce 040923] have not yet revised it in any
-    # way. Some subclasses override it, but AFAIK mostly don't do so
-    # properly yet.
 
     # other dashboard tools
     
-    def StartOver(self): # may work; only callable from UI of extrude & cookie [bruce 080806 comment]
-        # it looks like only cookieMode tried to do this [bruce 040923];
-        # now we do it generically here [bruce 040924]
+    def StartOver(self):
+        # may work (not tested recently); only callable from UI of extrude & cookie;
+        # needs rename ### [bruce 080806 comment]
+        #### works, but has wrong error message when nim in sketch command -- fix later [older comment]
         """
-        Start Over tool in dashboard (used to be called ...);
-        subclasses should NOT override this
+        Support Start Over action for a few commands which implement this
+
+        [subclasses should NOT override this]
         """
         self.Cancel(new_mode = self.commandName)
-            #### works, but has wrong error message when nim in sketch command -- fix later
-
-    def Backup(self): # might be obs... only call (verify) is in cookiemode cmenu;
-        # works there but private to that cmd; uncallable def in fuse [bruce 080806 comment]
-        """
-        Backup tool in dashboard; subclasses should override this
-        """
-        # note: it looks like only cookieMode tries to do this [bruce 040923]
-        print "%s: Backup not implemented yet" % self.get_featurename()
-
-##    # compatibility methods -- remove these after we fix
-##    # MWsemantics.py to use only their new names
-##    # (unfortunately these old names still appear there as of 071010)
-##    # [doing this, bruce 080806]
-##    
-##    def Flush(self):
-##        self.Cancel()
-##
-##    def Restart(self):
-##        self.StartOver()
 
     # ==
 

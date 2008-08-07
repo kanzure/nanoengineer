@@ -2240,23 +2240,12 @@ class MWsemantics(QMainWindow,
         env.history.message(redmsg("Mirror Circular Boundary Tool: Not implemented yet."))
 
     ###################################
-    # Slots for Dashboard widgets
+    # Slots for Done and Cancel actions for current command
     ###################################
 
-    # fill the shape created in the cookiecutter with actual
-    # carbon atoms in a diamond lattice (including bonds)
-    # this works for all modes, not just add atom
     def toolsDone(self):
         # note: this is apparently still called from several places [bruce 080806 comment]
         self.currentCommand.Done()
-
-    # toolsStartOver is not called in any .py or .ui files, so I think it's obsolete. [bruce 080806]
-##    def toolsStartOver(self):
-##        self.currentCommand.StartOver() #bruce 080806 changed this from calling synonym Restart, nothing else calls it
-
-    # toolsBackUp is not called in any .py or .ui files, so I think it's obsolete. [bruce 080806]
-##    def toolsBackUp(self):
-##        self.currentCommand.Backup()
 
     def toolsCancel(self):
         # note: this is apparently still called from several places [bruce 080806 comment]
