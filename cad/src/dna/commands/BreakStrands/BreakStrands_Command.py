@@ -13,8 +13,9 @@ from dna.command_support.BreakOrJoinStrands_Command import BreakOrJoinStrands_Co
 from dna.commands.BreakStrands.BreakStrands_PropertyManager import BreakStrands_PropertyManager
 from dna.commands.BreakStrands.BreakStrands_GraphicsMode import BreakStrands_GraphicsMode
 
-DEBUG_BREAK_OPTIONS_FEATURE = False #debug flag for experimental code Ninad is
-#working on (various break strands options). Don't commit it with True! 
+#debug flag for experimental code Ninad is
+#working on (various break strands options)
+from dna.commands.BreakStrands.BreakStrands_PropertyManager import DEBUG_BREAK_OPTIONS_FEATURE
 
 _superclass = BreakOrJoinStrands_Command
 class BreakStrands_Command(BreakOrJoinStrands_Command):

@@ -11,13 +11,12 @@ History:
 
 2008-07-01:
 Split this out of BreakStrands_Command.py into its own module. 
-The class was originally in January 2008
+The class was originally created in January 2008
 
 TODO: [ as of 2008-07-01]
 - bondLeftup deletes any bonds -- it should only break strands.?
 """
 
-from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 
 from utilities.constants import red
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
@@ -26,7 +25,6 @@ from utilities.prefs_constants import useCustomColorForThreePrimeArrowheads_pref
 from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_prefs_key
 from utilities.prefs_constants import useCustomColorForFivePrimeArrowheads_prefs_key
 from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
-
 from utilities.prefs_constants import breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key
 from utilities.prefs_constants import breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key
@@ -35,9 +33,12 @@ from utilities.prefs_constants import breakStrandsCommand_useCustomColorForFiveP
 from utilities.prefs_constants import breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
 
 
-_superclass = BuildAtoms_GraphicsMode
+from dna.command_support.BreakOrJoinStrands_GraphicsMode import BreakOrJoinstrands_GraphicsMode
 
-class BreakStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
+_superclass = BreakOrJoinstrands_GraphicsMode
+
+
+class BreakStrands_GraphicsMode(BreakOrJoinstrands_GraphicsMode ):
     """
     Graphics mode for Break Strands command.
     """
@@ -71,21 +72,20 @@ class BreakStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
         """
         pass
 
-
     _GLOBAL_TO_LOCAL_PREFS_KEYS = {
         arrowsOnThreePrimeEnds_prefs_key:
-            breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key,
+        breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key,
         arrowsOnFivePrimeEnds_prefs_key:
-            breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key,
+        breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key,
         useCustomColorForThreePrimeArrowheads_prefs_key:
-            breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key,
+        breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key,
         useCustomColorForFivePrimeArrowheads_prefs_key:
-            breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key,
+        breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key,
         dnaStrandThreePrimeArrowheadsCustomColor_prefs_key:
-            breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key,
+        breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key,
         dnaStrandFivePrimeArrowheadsCustomColor_prefs_key:
-            breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key,
-     }
+        breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key,
+    }
 
     def get_prefs_value(self, prefs_key): #bruce 080605
         """
