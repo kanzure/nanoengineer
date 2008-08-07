@@ -92,7 +92,7 @@ def enter_example_command(widget, example_command_classname):
 ##            #  done together with splitting this module out of test_commands)
 ##        pass
     
-    prototype.test_commands_init import enter_example_command_doit
+    from prototype.test_commands_init import enter_example_command_doit
         
     enter_example_command_doit(glpane, example_command_classname)
     return
