@@ -303,6 +303,30 @@ class DnaSegment(DnaStrandOrSegment):
                     ladderList.append(ladder)
         
         return ladderList
+    
+    def get_wholechain(self):
+        """
+        Return the 'wholechain' of this DnaSegment. Method provided for 
+        convenience.
+        Delegates this to self.get_segment_wholechain()
+        """
+        return self.get_segment_wholechain()
+    
+    def get_segment_wholechain(self):
+        """
+        Return the 'wholechain' of this DnaSegment. 
+        @see: Wholechain
+        """
+        member = None
+        segment_wholechain  = None
+        for member in self.members:
+            if isinstance(member, DnaAxisChunk):
+                break
+        if member:
+            segment_wholechain = member.wholechain
+
+        return segment_wholechain
+    
 
     def get_all_content_chunks(self):
         """

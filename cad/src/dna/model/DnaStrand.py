@@ -16,13 +16,16 @@ from dna.model.DnaStrandOrSegment import DnaStrandOrSegment
 from dna.model.DnaLadderRailChunk import DnaStrandChunk
 from utilities.icon_utilities import imagename_to_pixmap
 
-from utilities.debug import print_compact_stack
+from utilities.debug import print_compact_stack, print_compact_traceback
 from dna.model.Dna_Constants import getComplementSequence
 
 from operations.bond_chains import grow_directional_bond_chain
 from dna.model.Dna_Constants import MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
 from utilities.constants import MODEL_PAM3
 from utilities.constants import MODEL_PAM5
+
+from model.bond_constants import bond_left_atom
+
 
 class DnaStrand(DnaStrandOrSegment):
     """
@@ -369,6 +372,13 @@ class DnaStrand(DnaStrandOrSegment):
         
         return ladderList
     
+    def get_wholechain(self):
+        """
+        Return the 'wholechain' of this DnaStrand. Method provided for 
+        convenience.
+        Delegates this to self.get_strand_wholechain()
+        """
+        return self.get_strand_wholechain()
     
     def get_strand_wholechain(self):
         """
@@ -693,7 +703,9 @@ class DnaStrand(DnaStrandOrSegment):
                                 if cc.get_dispdef() == diDNACYLINDER:
                                     cc.inval_display_list()
 
-    def get_strand_atoms_in_bond_direction(self, inputAtomList = ()): 
+    def get_strand_atoms_in_bond_direction(self, 
+                                           inputAtomList = (), 
+                                           filterBondPoints = False): 
         """
         Return a list of atoms in a fixed direction -- from 5' to 3'
         
@@ -878,7 +890,12 @@ class DnaStrand(DnaStrandOrSegment):
                 atomList.extend(atomList_direction_1)
 
         #TODO: could zap first and/or last element if they are bondpoints 
-        #[bruce 080205 comment]        
+        #[bruce 080205 comment]  
+       
+        
+        if filterBondPoints:            
+            atomList = filter(lambda atm: not atm.is_singlet(), atomList)
+                        
         return atomList   
 
 
