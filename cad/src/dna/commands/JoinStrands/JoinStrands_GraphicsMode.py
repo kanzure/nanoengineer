@@ -106,7 +106,7 @@ class JoinStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
                     
                 i = 1
                 for atm in baseatoms:
-                    text = "(%d)" %(i)
+                    text = "%d" %(i)
                     pos = atm.posn() + out ##+ (self.glpane.right + self.glpane.up)
                     
                     self.glpane.renderTextAtPosition(pos, 

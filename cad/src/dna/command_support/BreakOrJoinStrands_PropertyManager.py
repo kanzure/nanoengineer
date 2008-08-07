@@ -102,7 +102,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
             connect_comboBox_with_pref(self._baseNumberComboBox, 
                                        prefs_key
                                        )
-            
+        if self._baseNumberingOrderComboBox:
             prefs_key = self.get_prefs_key_dnaBaseNumberingOrder()
             connect_comboBox_with_pref(self._baseNumberingOrderComboBox ,
                                        prefs_key
