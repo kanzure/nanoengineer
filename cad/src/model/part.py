@@ -1000,6 +1000,37 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if debug_flags.atom_debug:
             self.assy.checkparts()
         return self.topnode
+    
+    
+    def get_topmost_subnodes_of_class(self, class_or_classname): #bruce 080115
+        """
+        Return a list of the topmost (direct or indirect)
+        children of self (Nodes or Groups), but never self itself,
+        with the given class_or_classname (known to self.assy),
+        or with a subclass of the class that refers to.
+
+        That is, scanning depth-first into our child nodes,
+        for each child we include in our return value, we won't
+        include any of its children.
+
+        @param class_or_classname: a class or registered classname.
+                                   (The classname case is NIM in
+                                    self.assy.class_or_classname_to_class
+                                    except for a few hardcoded examples,
+                                    as of 080115. String args can be useful
+                                    for avoiding import cycles.)
+        """
+        #NOTE: This is method is copied over from class Group , with some minor
+        # changes
+        #-- Ninad 2008-08-06
+        class1 = self.assy.class_or_classname_to_class(class_or_classname)
+        res = []
+        for child in self.topnode.members:
+            if isinstance( child, class1): ## was: issubclass( child.__class__, class1)
+                res.append(child)
+            elif child.is_group():
+                res.extend( child.get_topmost_subnodes_of_class( class1) )
+        return res
 
     # ==
 

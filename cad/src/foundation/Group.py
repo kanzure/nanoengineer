@@ -291,6 +291,8 @@ class Group(NodeWithAtomContents):
                                     as of 080115. String args can be useful
                                     for avoiding import cycles.)
         """
+        #NOTE: this method is duplicated in class Part (see Part.py) 
+        #-- Ninad 2008-08-06
         class1 = self.assy.class_or_classname_to_class(class_or_classname)
         res = []
         for child in self.members:
