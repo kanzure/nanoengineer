@@ -444,8 +444,13 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         a complimentary sequence to the mate strand.
         @see: Chunk.setStrandSequence
         """
+        if not self.hasValidStructure(): 
+            #Fixes bug 2923            
+            return
+        
         sequenceString = self.propMgr.sequenceEditor.getPlainSequence()
-        sequenceString = str(sequenceString)      
+        sequenceString = str(sequenceString)     
+        
         #assign strand sequence only if it not the same as the current sequence
         seq = self.struct.getStrandSequence()
         
