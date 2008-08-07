@@ -24,8 +24,6 @@ from dna.model.Dna_Constants import MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
 from utilities.constants import MODEL_PAM3
 from utilities.constants import MODEL_PAM5
 
-from model.bond_constants import bond_left_atom
-
 
 class DnaStrand(DnaStrandOrSegment):
     """
@@ -98,8 +96,6 @@ class DnaStrand(DnaStrandOrSegment):
                     break
 
         return color
-        
-    
         
     def setColor(self, color):
         """
@@ -230,7 +226,6 @@ class DnaStrand(DnaStrandOrSegment):
 
         return axisEndAtom
 
-
     def get_all_content_chunks(self):
         """
         Return all the chunks including 
@@ -250,7 +245,6 @@ class DnaStrand(DnaStrandOrSegment):
                 all_content_chunk_list.extend(ladder.all_chunks())
 
         return all_content_chunk_list
-
 
     def getDnaSegment_at_three_prime_end(self): 
         """
@@ -297,12 +291,9 @@ class DnaStrand(DnaStrandOrSegment):
 
     def getNumberOfBases(self):
         """
-        Returns the total number of baseatoms of this DnaStrand.
-        
         @return: The total number of baseatoms of this DnaStrand
         @rtype:  int
         """
-
         numberOfBases = 0
 
         strand_wholechain = self.get_strand_wholechain()
@@ -341,7 +332,6 @@ class DnaStrand(DnaStrandOrSegment):
         @see: DnaStrand_EditCommand.hasResizableStructure()
         @see: DnaSegment.is_PAM3_DnaSegment() (similar implementation)
         """
-                
         is_PAM3 = False
         
         ladderList = self.getDnaLadders()        
@@ -382,21 +372,24 @@ class DnaStrand(DnaStrandOrSegment):
     
     def get_strand_wholechain(self):
         """
-        Return the 'wholechain' of the strand chunk within this dna group. 
-        This essentially means the whole 'strand' that gets selected when the 
-        user clicks on a strand group in the model tree. 
+        @return: the 'wholechain' of this DnaStrand
+                 (same as wholechain of each of its DnaStrandChunks),
+                 or None if it doesn't have one
+                 (i.e. if it's empty -- should never happen
+                 if called on a live DnaStrand not modified since
+                 the last dna updater run).
+
+        @note: the return value contains the same chunks which
+               get selected when the user clicks on a strand group
+               in the model tree.
+
         @see: Wholechain
+        @see: get_segment_wholechain
         """
-        member = None
-        strand_wholechain  = None
         for member in self.members:
             if isinstance(member, DnaStrandChunk):
-                break
-        if member:
-            strand_wholechain = member.wholechain
-
-        return strand_wholechain
-
+                return member.wholechain
+        return None
 
     def getStrandChunks(self): 
         """
@@ -406,21 +399,6 @@ class DnaStrand(DnaStrandOrSegment):
         for m in self.members:
             if isinstance(m, self.assy.Chunk) and m.isStrandChunk():
                 strandChunkList.append(m)
-
-        #@TODO: when pre dna data model code is deprecated, check if the following 
-        #looks correct. I think the following is NOT right. Because 
-        #a DnaStrand group can encompass many ladders correct? -- Ninad 2008-03-26
-        ##if 0:
-            ##strandChunk = None
-
-            ##for m in self.members:
-                ##if isinstance(m, self.assy.Chunk) and m.isStrandChunk():
-                    ##strandChunk = m
-                    ##break
-            ##if strandChunk is not None:
-                ##ladder = strandChunk.ladder
-                ##strandChunkList = ladder.strand_chunks()
-
         return strandChunkList
 
     def _get_commandNames_honoring_highlightPolicy(self):
@@ -432,7 +410,6 @@ class DnaStrand(DnaStrandOrSegment):
         commandNames_that_honor_highlightPolicy = ('BUILD_DNA', 
                                                    'DNA_STRAND', 
                                                    'DNA_SEGMENT')
-
         return commandNames_that_honor_highlightPolicy 
 
     def setHighlightPolicy(self, highlight = True):

@@ -301,27 +301,27 @@ class WholeChain(object):
     
     def get_all_baseatoms(self):
         """
-        Returns a list of all base atoms within the whole chain. 
-        The atoms are IN ARBITRARY ORDER because self.rails() returns the rails
-        in arbitrary order.
+        @return: a list of all baseatoms within self, IN ARBITRARY ORDER
+        @rtype: list
+        
         @see: self.get_all_baseatoms_in_order() which returns the base atoms
-        in a fixed order 
+              in a fixed order
         """
         baseAtomList = []
         for rail in self.rails():
             baseAtomList.extend(rail.baseatoms)
         return baseAtomList
     
-    def get_all_baseatoms_in_order(self): 
+    def get_all_baseatoms_in_order(self): #Ninad 2008-08-06
         """
-        Returns a list of all base atoms within the whole chain, in a fixed 
-        order -- form first baseatom of first rail to last base atom 
-        of the last rail. 
+        @return: a list of all baseatoms within self, in a fixed
+                 order -- from first baseatom of first rail to
+                 last base atom of last rail, in same order as
+                 wholechain_baseindex indices.
+        @rtype: list
+        
         @see: self.get_rails_in_order()
         """
-        #This can even be an argument in self.get_all_basatoms()
-        #By Ninad 2008-08-06. (Bruce: Feel free to remove this sign and comment
-        #when you think its ok to do so)
         rails = self.get_rails_in_order()   
         atomList = []
         for rail in rails:            
@@ -334,7 +334,6 @@ class WholeChain(object):
             atomList.extend(baseatoms)
             
         return atomList
-                
         
     def __repr__(self):
         classname = self.__class__.__name__.split('.')[-1]
@@ -793,33 +792,30 @@ class WholeChain(object):
         last  = self.wholechain_baseindex(rail, len(rail) - 1)
         return first, last
     
-    def get_rails_in_order(self):
+    def get_rails_in_order(self): #Ninad 2008-08-06
         """
-        
-        
-        @see: self.get_all_baseatoms_in_order() 
-        
-        @return: A list containing self's rails that are sorted in the 
-                 increasing order of the index of each rail's first baseatom.
+        @return: a list containing self's rails, in increasing
+                 order of the index of each rail's baseatoms,
+                 according to wholechain_baseindex_range_for_rail.
         @rtype: list
+        
+        @see: self.get_all_baseatoms_in_order()
+        @see: self.rails() (much faster when order doesn't matter)
         """
-        #This can even be an argument in self.rails()
-        #By Ninad 2008-08-06. (Bruce: Feel free to remove this sign and comment
-        #when you think its ok to do so)       
-    
         rails = self.rails()
         lst = []
         
         for rail in rails:
-            first_baseindex, last_baseindex = self.wholechain_baseindex_range_for_rail(rail)            
-            lst.append( (first_baseindex, rail))
+            first_baseindex, last_baseindex = self.wholechain_baseindex_range_for_rail(rail)
+            lst.append( (first_baseindex, rail) )
         
-        #Sort the list so that the rails are arranged in increasing order 
-        #of the baseindex of the first baseatom of each rail.
+        # Sort the list so that the rails are arranged in increasing order 
+        # of the baseindex of the first (or any) baseatom of each rail.
+        # (Which baseatom is used in each rail doesn't matter, since within
+        #  any single rail the indices are contiguous.)
         lst.sort()            
         
-        return [sorted_rails for (baseindex, sorted_rails) in lst]
-          
+        return [rail for (baseindex, rail) in lst]
 
     def _compute_wholechain_baseindices(self): #bruce 080421 (not in rc2)
         """

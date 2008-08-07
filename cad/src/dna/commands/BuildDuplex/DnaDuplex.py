@@ -617,8 +617,8 @@ class Dna:
         if bondPoint1 and bondPoint2:
             bond_at_singlets(bondPoint1, bondPoint2, move = False)
         else:
-            print_compact_stack("Bug: unable to bond atoms %s and %s"%(atm1, 
-                                                                       atm2))
+            print_compact_stack("Bug: unable to bond atoms %s and %s: " %
+                                (atm1, atm2) )
       
     def _remove_bases_from_duplex(self,
                                     group, 
@@ -635,31 +635,31 @@ class Dna:
         determining which base atoms to remove. 
         @type resizeEndAxisAtom: Atom
         
-        @param numberOfBasePairsToRemove: The total number of base paris to 
+        @param numberOfBasePairsToRemove: The total number of base pairs to 
         remove from the duplex. 
         @type numberOfBasePairsToRemove: int
         """
         
         #Use whole_chain.get_all_baseatoms_in_order() and then remove the 
-        #the number of bases from the resize end given by 
-        #numberOfBasePairsToRemove (including the resize end axis atom. 
+        #requested number of bases from the resize end given by 
+        #numberOfBasePairsToRemove (including the resize end axis atom). 
         #this fixes bug 2924 -- Ninad 2008-08-07
         
-        segment = resizeEndAxisAtom.getDnaSegment()
-        
-        atomsScheduledForDeletionDict = {}
+        segment = resizeEndAxisAtom.getDnaSegment()        
         if not segment:
-            print_compact_stack ("bug: can't resize dna segment")
+            print_compact_stack("bug: can't resize dna segment: ")
             return 
         
         whole_chain = segment.get_wholechain()
         if whole_chain is None:
+            print_compact_stack("bug: can't resize dna segment: ") #bruce 080807 added this
             return
+        
         baseatoms = whole_chain.get_all_baseatoms_in_order()
         
         if len(baseatoms) < 2:
             print_compact_stack("WARNING: resizing a dna segment with < 2 "\
-                                "base atoms is not supported")
+                                "base atoms is not supported: ")
             return 
             
         atomsScheduledForDeletionDict = {}
@@ -669,55 +669,76 @@ class Dna:
         
         try:        
             resizeEndAtom_baseindex = baseatoms.index(resizeEndAxisAtom)
+            # note: this is an index in a list of baseatoms, which is not
+            # necessary equal to the atom's "baseindex" (since that can be
+            # negative for some atoms), but should be in the same order.
+            # [bruce 080807 comment]
         except:            
             print_compact_traceback("bug resize end axis atom not in " \
-                                    "segments baseatoms!")
+                                    "segments baseatoms!: ")
             return
         
              
                 
         if resizeEndAtom_baseindex == 0:
             axisAtomsToRemove = baseatoms[:numberOfBasePairsToRemove]
-            
         elif resizeEndAtom_baseindex == len(baseatoms) - 1:
-            num = len(baseatoms) - numberOfBasePairsToRemove
-            axisAtomsToRemove = baseatoms[num:]
-                    
+##            num = len(baseatoms) - numberOfBasePairsToRemove
+##            axisAtomsToRemove = baseatoms[num:]
+            axisAtomsToRemove = baseatoms[-numberOfBasePairsToRemove:]
+        else:
+            print_compact_stack("bug: end axis atom not at either end of list: ") #bruce 080807 added this
+
+        assert len(axisAtomsToRemove) == min(numberOfBasePairsToRemove, len(baseatoms)) #bruce 080807 added this
+        
         for atm in axisAtomsToRemove:
             if not atomsScheduledForDeletionDict.has_key(id(atm)):
                 atomsScheduledForDeletionDict[id(atm)] = atm
+            else:
+                print "unexpected: atom %r already in atomsScheduledForDeletionDict" % atm #bruce 080807 added this
             
             strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
                 
             for a in strand_neighbors_to_delete:
                 if not atomsScheduledForDeletionDict.has_key(id(a)):
                     atomsScheduledForDeletionDict[id(a)] = a
+
+            # REVIEW: if any atom can be added twice to that dict above without
+            # this being a bug, then the has_key tests can simply be removed
+            # (as an optimization). If adding it twice is a bug, then we should
+            # print a warning when it happens, as I added in one case above
+            # (but would be good in both cases). [bruce 080807 comment]
                     
-        #Now kill all the atoms. Before killing them, set a flag on them so that
-        #the code knowns not to create new bondpoints on neighbor after killing
-        #the atoms ..This flag prevents that by telling the code not to create 
-        #bondpoints if the neighbor lies in the list of atoms to kill (thus
-        #neighbor will also be killed) . Fixes a memory leak 
-        #See bug 2880 for details.
+        #Now kill all the atoms.
+
+        # [TODO: the following ought to be encapsulated in a helper method to
+        #  efficiently kill any set of atoms; similar code may exist in
+        #  several places. [bruce 080807 comment]]
+        #
+        #Before killing them, set a flag on each atom so that
+        #Atom.kill knows not to create new bondpoints on its neighbors if they
+        #will also be killed right now (it notices this by noticing that
+        #a._will_kill has the same value on both atoms). Fixes a memory leak
+        #(at least in some code where it's done). See bug 2880 for details.
         val = Atom_prekill_prep()
-        for a in atomsScheduledForDeletionDict.values():
+        for a in atomsScheduledForDeletionDict.itervalues():
             a._will_kill = val # inlined a._prekill(val), for speed
         
         for atm in atomsScheduledForDeletionDict.values():
-            if atm:
+            if atm: # this test is probably not needed [bruce 080807 comment]
                 try:                   
                     atm.kill()    
                 except:
                     print_compact_traceback("bug in deleting atom while "\
-                                            "resizing the segment")
-                                            
-        atomsScheduledForDeletionDict.clear()                                    
+                                            "resizing the segment: ")
+        
+        atomsScheduledForDeletionDict.clear()
 
         #IMPORTANT TO RUN DNA UPDATER after deleting these atoms! Otherwise we
-        #will have to wait for next event to finish before the dna updater runs
+        #will have to wait for next event to finish before the dna updater runs.
         #There are things like resize handle positions that depend on the 
-        #axis end atoms of a dna segment. Those update method may be called 
-        #before dna updater is run again , thereby spitting ut errors.
+        #axis end atoms of a dna segment. Those update methods may be called 
+        #before dna updater is run again, thereby spitting out errors.
         self.assy.update_parts()
         
 
@@ -884,7 +905,7 @@ class Dna:
                     atm.kill()    
                 except:
                     print_compact_traceback("bug in deleting atom while "\
-                                            "resizing the segment")
+                                            "resizing the segment: ")
                                             
         atomsScheduledForDeletionDict.clear()                                    
 
@@ -1091,8 +1112,8 @@ class Dna:
         except:
             if env.debug():
                 print_compact_traceback( 
-                    "debug: exception in %r._postProcess(self.baseList = %r) \
-                    (reraising): " % (self, self.baseList,))
+                    "debug: exception in %r._postProcess(self.baseList = %r) " \
+                    "(reraising): " % (self, self.baseList,))
             raise
 
 
@@ -1194,7 +1215,7 @@ class Dna:
         """
 
         if self.assy is None:
-            print_compact_stack("bug:self.assy not defined.Unable to fusebases")
+            print_compact_stack("bug: self.assy not defined. Unable to fuse bases: ")
             return 
 
         # Fuse the base-pair chunks together into continuous strands.
@@ -1707,8 +1728,8 @@ class B_Dna_PAM3(B_Dna_PAM5):
         
         if len(baseList) < 1:
             print_compact_stack("bug? (ignoring) DnaDuplex._postProcess called but "\
-                                " baseList is empty. May be dna_updater was "\
-                                "run? ")
+                                "baseList is empty. Maybe dna_updater was "\
+                                "run?: ")
             return
 
         start_basepair_atoms = baseList[0].atoms.values()

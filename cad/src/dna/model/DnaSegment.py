@@ -314,19 +314,20 @@ class DnaSegment(DnaStrandOrSegment):
     
     def get_segment_wholechain(self):
         """
-        Return the 'wholechain' of this DnaSegment. 
+        @return: the 'wholechain' of this DnaSegment
+                 (same as wholechain of each of its DnaAxisChunks),
+                 or None if it doesn't have one
+                 (i.e. if it's empty -- should never happen
+                 if called on a live DnaSegment not modified since
+                 the last dna updater run).
+        
         @see: Wholechain
+        @see: get_strand_wholechain
         """
-        member = None
-        segment_wholechain  = None
         for member in self.members:
             if isinstance(member, DnaAxisChunk):
-                break
-        if member:
-            segment_wholechain = member.wholechain
-
-        return segment_wholechain
-    
+                return member.wholechain
+        return None
 
     def get_all_content_chunks(self):
         """
