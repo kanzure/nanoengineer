@@ -26,8 +26,8 @@ key attrs and widgets (i.e. pwLeftArea and pwBottomArea)
 
 import os
 
-from PyQt4.Qt import Qt, QWidget, QFrame, QVBoxLayout, QSplitter
-from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy
+from PyQt4.Qt import Qt, QWidget, QFrame, QVBoxLayout, QSplitter, QTimer
+from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy, SIGNAL
 from graphics.widgets.GLPane import GLPane
 from PM.PM_Constants import PM_DEFAULT_WIDTH, PM_MAXIMUM_WIDTH, PM_MINIMUM_WIDTH
 from utilities.icon_utilities import geticon
@@ -64,6 +64,7 @@ class _pwProjectTabWidget(QTabWidget):
         return res
     pass
 
+        
 class Ui_PartWindow(QWidget):
     """
     The Ui_PartWindow class provides a Part Window UI object composed of three
@@ -95,6 +96,9 @@ class Ui_PartWindow(QWidget):
     <http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_Main_Window_Framework>}
     """
     widgets = [] # For debugging purposes.
+    _leftAreaWidth = PM_DEFAULT_WIDTH
+    _previous_pwLeftAreaWidth = PM_DEFAULT_WIDTH
+        # Used in expanding or collapsing the Model Tree/ PM area
 
     def __init__(self, assy, parent):
         """
@@ -115,10 +119,7 @@ class Ui_PartWindow(QWidget):
             # [bruce 080216 comment]
         self.setWindowIcon(geticon("ui/border/Part.png"))
         self.updateWindowTitle()
-
-        # Used in expanding or collapsing the Model Tree/ PM area
-        self._previous_pwLeftAreaWidth = PM_DEFAULT_WIDTH
-
+        
         # The main layout for the part window is a VBoxLayout <pwVBoxLayout>.
         self.pwVBoxLayout = QVBoxLayout(self)
         pwVBoxLayout = self.pwVBoxLayout
@@ -127,7 +128,7 @@ class Ui_PartWindow(QWidget):
 
         # ################################################################
         # <pwSplitter> is the horizontal splitter b/w the
-        # pwProjectTabWidget and the glpane.
+        # pwLeftArea (mt and pm) and the glpane.
         self.pwSplitter = QSplitter(Qt.Horizontal)
         pwSplitter = self.pwSplitter
         pwSplitter.setObjectName("pwSplitter")
@@ -147,9 +148,6 @@ class Ui_PartWindow(QWidget):
         pwLeftArea.setObjectName("pwLeftArea")
         pwLeftArea.setMinimumWidth(PM_MINIMUM_WIDTH)
         pwLeftArea.setMaximumWidth(PM_MAXIMUM_WIDTH)
-        pwLeftArea.setSizePolicy(
-            QSizePolicy(QSizePolicy.Policy(QSizePolicy.Fixed),
-                        QSizePolicy.Policy(QSizePolicy.Expanding)))
 
         # Setting the frame style like this is nice since it clearly
         # defines the splitter at the top-left corner.
@@ -247,9 +245,6 @@ class Ui_PartWindow(QWidget):
         pwBottomArea = self.pwBottomArea
         pwBottomArea.setObjectName("pwBottomArea")
         pwBottomArea.setMaximumHeight(50)
-        pwBottomArea.setSizePolicy(
-            QSizePolicy(QSizePolicy.Policy(QSizePolicy.Expanding),
-                        QSizePolicy.Policy(QSizePolicy.Fixed)))
 
         # Add a frame border to see what it looks like.
         pwBottomArea.setFrameStyle( QFrame.Panel | QFrame.Sunken )
@@ -259,6 +254,16 @@ class Ui_PartWindow(QWidget):
         # Hide the bottom frame for now. Later this might be used for the
         # sequence editor.
         pwBottomArea.hide()
+        
+        # Resize Timer: This is used as a workaround for a Qt bug in which
+        #               there is no way to get the current position of the
+        #               pwSplitter. 
+        #
+        # See the resizeEvent() docstring for more information.
+        self.resizeTimer = QTimer(self)
+        self.resizeTimer.setSingleShot(True)
+        self.connect(self.resizeTimer, SIGNAL('timeout()'), self._resizeTimeout)
+        return
 
     def updateWindowTitle(self, changed = False):
         #by mark; bruce 050810 revised this in several ways, fixed bug 785
@@ -305,13 +310,15 @@ class Ui_PartWindow(QWidget):
         self.setWindowModified(changed)
         return
 
-    def collapseLeftArea(self):
+    def collapseLeftArea(self, hideLeftArea = True):
         """
         Collapse the left area.
         """
         self._previous_pwLeftAreaWidth = self.pwLeftArea.width()
-        self.pwLeftArea.setFixedWidth(0)
-        self.pwSplitter.setMaximumWidth(self.pwLeftArea.width())
+        if hideLeftArea:
+            self.pwSplitter.setCollapsible(0, True)
+            self.setSplitterPosition(pos = 0)
+        return
 
     def expandLeftArea(self):
         """
@@ -320,11 +327,11 @@ class Ui_PartWindow(QWidget):
         @see: L{MWsemantics._showFullScreenCommonCode()} for an example
         showing how it is used.
         """
-        if self._previous_pwLeftAreaWidth == 0:
-            self._previous_pwLeftAreaWidth = PM_DEFAULT_WIDTH
-        self.pwLeftArea.setMaximumWidth(
-            self._previous_pwLeftAreaWidth)
-        self.pwSplitter.setMaximumWidth(self.pwLeftArea.width())
+        self.setSplitterPosition(pos = self._previous_pwLeftAreaWidth)
+        self.pwSplitter.setCollapsible(0, False)
+        self.pwLeftArea.setMinimumWidth(PM_MINIMUM_WIDTH)
+        self.pwLeftArea.setMaximumWidth(PM_MAXIMUM_WIDTH)
+        return
 
     def updatePropertyManagerTab(self, tab): #Ninad 061207
         "Update the Properties Manager tab with 'tab' "
@@ -367,6 +374,7 @@ class Ui_PartWindow(QWidget):
 
         self.pwProjectTabWidget.setCurrentIndex(
             self.pwProjectTabWidget.indexOf(self.propertyManagerScrollArea))
+        return
 
     def KLUGE_current_PropertyManager(self):
         #bruce 070627; revised 070829 as part of fixing bug 2523
@@ -417,40 +425,66 @@ class Ui_PartWindow(QWidget):
 
     def dismiss(self):
         self.parent.removePartWindow(self)
+        return
     
-    def setSplitterPosition(self, leftAreaWidth = PM_DEFAULT_WIDTH): 
+    def setSplitterPosition(self, pos = PM_DEFAULT_WIDTH, setDefault = True): 
         """
         Set the position of the splitter between the left area and graphics area
-        so that the starting width of the model tree/property manager is 
-        I{leftAreaWdith} pixels wide.
+        so that the width of the container holding the model tree (and 
+        property manager) is I{pos} pixels wide.
+        
+        @param pos: The splitter position (in pixel units).
+        @type  pos: int
+        
+        @param setDefault: If True (the default), I{pos} becomes the new default
+                           position.
+        @type  setDefault: boolean
         """
-        # This code fixes bug 2424. Mark 2007-06-27.
-        #
-        # Bug 2424 was difficult to fix for many reasons:
-        #
-        # - QSplitter.sizes() does not return valid values until the main window
-        #   is displayed. Specifically, the value of the second index (the glpane
-        #   width) is always zero until the main window is displayed. I suspect 
-        #   that the initial size of the glpane (in its constructor) is not set
-        #   (or set to 0) and may be contributing to the confusion. This is only
-        #   a theory.
-        #
-        # - QSplitter.setSizes() only works if width1 (the PropMgr width) and
-        #   width2 (the glpane width) equal a "magic combined width". See 
-        #   more about this in the Method description below.
-        #
-        # - Qt's QSplitter.moveSplitter() function doesn't work.
-        #   
-        # Method for bug fix:
-        #
-        # Get the widths of the left area and the glpane using QSplitter.sizes().
-        # These (2) widths add up and equal a total width. You can only
-        # feed QSplitter.setSizes() two values that add up to the total width
-        # or it will do nothing.
-    
-        pw = self
-        w1, w2 = pw.pwSplitter.sizes()
-        total_combined_width = w1 + w2
-        new_glpane_width = total_combined_width - leftAreaWidth
-        pw.pwSplitter.setSizes([leftAreaWidth, new_glpane_width])
+        self.pwSplitter.moveSplitter(pos, 1)
+        if setDefault:
+            self._leftAreaWidth = pos
         return
+    
+    def resizeEvent(self, event):
+        """
+        This reimplementation of QWidget.resizeEvent is here to deal with the
+        undesired behavior of the splitter while resizing the part window.
+        Normally, the splitter will drift back and forth while resizing
+        the part window. This forces the splitter to stay fixed during
+        resize operations.
+        
+        @note: This works well when resizing the window using border handles, 
+               but does'nt work at all for maximize/restore resizing (i.e. via
+               the maximize/restore size buttons on the window border
+              (or using F11/F12)). This is a bug.
+        
+        @see: L{_resizeTimeout()}
+        """
+        if self.resizeTimer.isActive():
+            self.resizeTimer.stop() # Stop the timer.
+        else:
+            # We have no way to know if/when the user moved the splitter 
+            # position recently since QSplitter does not send the 
+            # 'splitterMoved' signal as advertized in the Qt documentation.
+            # So we simply update _leftAreaWidth, which does the job
+            # (sort of).
+            # This works well when resizing the window using border handles, 
+            # but does'nt work at all for maximize/restore resizing (i.e. via
+            # the maximize/restore size buttons on the window border
+            # (or using F11/F12)).
+            self._leftAreaWidth = self.pwLeftArea.width()
+        self.resizeTimer.start( 500 ) # (Re)start a .5 second singleshot timer.
+        self.setSplitterPosition(self._leftAreaWidth, setDefault = False)
+        QWidget.resizeEvent(self, event)
+        return
+        
+    def _resizeTimeout(self):
+        """
+        Update _leftAreaWidth after the user finishes their resize operation.
+        """
+        self._leftAreaWidth = self.pwLeftArea.width()
+        if 0:
+            print "_resizeTimeout(): Timer expired! _leftAreaWidth=", \
+                  self._leftAreaWidth
+        return
+        
