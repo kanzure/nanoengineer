@@ -26,13 +26,16 @@ Break and JoinStrands PMs into new module BreakOrJoinStrands_PropertyManager
 import sys
 from PM.PM_GroupBox import PM_GroupBox
 
+import foundation.env as env
 from utilities.prefs_constants import joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
-
+from utilities.prefs_constants import joinStrandsCommand_dnaBaseNumberLabelChoice_prefs_key
+from utilities.prefs_constants import joinStrandsCommand_dnaBaseNumberingOrder_prefs_key
+from utilities.prefs_constants import joinStrandsCommand_dnaBaseNumberLabelColor_prefs_key
 from dna.command_support.BreakOrJoinStrands_PropertyManager import BreakOrJoinStrands_PropertyManager
 
 _superclass = BreakOrJoinStrands_PropertyManager
@@ -84,7 +87,9 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
         Add the DNA Property Manager group boxes.
         """                  
         self._displayOptionsGroupBox = PM_GroupBox( self, title = "Display options" )
-        self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )  
+        self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox ) 
+        self._baseNumberLabelGroupBox = PM_GroupBox( self, title = "Base number labels" )
+        self._loadBaseNumberLabelGroupBox(self._baseNumberLabelGroupBox)
         return
     
     
@@ -135,6 +140,30 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
         """
         return joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
     
+            
+    
+    def get_prefs_key_dnaBaseNumberLabelColor(self):
+        """
+        
+        """
+        return joinStrandsCommand_dnaBaseNumberLabelColor_prefs_key
+    
+    def get_prefs_key_dnaBaseNumberLabelChoice(self):
+        """
+        Return the preference key whose value will give the 
+        choice for Dna base numbering order for number labels in the
+        3D workspace. 
+        @see: JoinStrands_Command.
+        """
+        return joinStrandsCommand_dnaBaseNumberLabelChoice_prefs_key
+        
+    def get_prefs_key_dnaBaseNumberingOrder(self):
+        """
+        Return the preference key whose value will give the 
+        choice for displaying the Dna base numbers in the 3D workspace. 
+        @see: JoinStrands_Command.
+        """
+        return joinStrandsCommand_dnaBaseNumberingOrder_prefs_key
 
     def _addWhatsThisText( self ):
         """

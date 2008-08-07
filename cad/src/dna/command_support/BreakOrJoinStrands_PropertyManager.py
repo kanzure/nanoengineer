@@ -17,6 +17,7 @@ from PM.PM_Dialog import PM_Dialog
 from widgets.DebugMenuMixin import DebugMenuMixin
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_CheckBox import PM_CheckBox
+from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_ColorComboBox import PM_ColorComboBox
 
 from PM.PM_Constants     import PM_DONE_BUTTON
@@ -31,8 +32,12 @@ from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_p
 from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
 
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+from utilities.exception_classes import AbstractMethod
+from widgets.prefs_widgets import connect_comboBox_with_pref
 
 class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
+    
+    _baseNumberLabelGroupBox = None
     
     def __init__( self, parentCommand ):
         """
@@ -51,6 +56,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
+        
         return
     
     def connect_or_disconnect_signals(self, isConnect):
@@ -86,6 +92,23 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         change_connect(self.strandThreePrimeArrowheadsCustomColorCheckBox,
                        SIGNAL("toggled(bool)"),
                        self.allowChoosingColorsOnThreePrimeEnd)
+        
+        change_connect(self._baseNumberLabelColorChooser,
+                      SIGNAL("editingFinished()"),         
+                      self._colorChanged_dnaBaseNumberLabel)
+        
+        if self._baseNumberLabelGroupBox:
+            prefs_key = self.get_prefs_key_dnaBaseNumberLabelChoice()
+            connect_comboBox_with_pref(self._baseNumberComboBox, 
+                                       prefs_key
+                                       )
+            
+            prefs_key = self.get_prefs_key_dnaBaseNumberingOrder()
+            connect_comboBox_with_pref(self._baseNumberingOrderComboBox ,
+                                       prefs_key
+                                       )
+            
+        
         return
     
     def show(self):
@@ -141,7 +164,34 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         return
         
     #Load various widgets ====================
+    
+    def _loadBaseNumberLabelGroupBox(self, pmGroupBox):
+        baseNumberChoices = ('None (default)',  
+                             'Strands and segments',
+                             'Strands only', 
+                             'Segments only')
         
+        self._baseNumberComboBox = \
+            PM_ComboBox( pmGroupBox,
+                         label         =  "Base numbers:",
+                         choices       =  baseNumberChoices,
+                         setAsDefault  =  True)
+        
+        numberingOrderChoices = ('5\' to 3\' (default)', 
+                           '3\' to 5\'' )         
+                           
+        self._baseNumberingOrderComboBox = \
+            PM_ComboBox( pmGroupBox,
+                         label         =  "Base numbers:",
+                         choices       =  numberingOrderChoices,
+                         setAsDefault  =  True)
+        
+        prefs_key = self.get_prefs_key_dnaBaseNumberLabelColor()
+        self._baseNumberLabelColorChooser = \
+            PM_ColorComboBox(pmGroupBox,
+                             color      = env.prefs[prefs_key])
+        
+          
     def _loadDisplayOptionsGroupBox(self, pmGroupBox):
         """
         Load widgets in the display options groupbox
@@ -167,18 +217,13 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
                                                             widgetColumn  = 0,
                                                             setAsDefault = True,
                                                             spanWidth = True )
-        
-        prefs_key = self._prefs_key_arrowsOnThreePrimeEnds()
-        if env.prefs[prefs_key]:
-            self.arrowsOnThreePrimeEnds_checkBox.setCheckState(Qt.Checked) 
-        else:
-            self.arrowsOnThreePrimeEnds_checkBox.setCheckState(Qt.Unchecked)
-            
+                    
         self.strandThreePrimeArrowheadsCustomColorCheckBox = PM_CheckBox( self.pmGroupBox3,
                                                             text         = "Display custom color",
                                                             widgetColumn  = 0,
                                                             setAsDefault = True,
                                                             spanWidth = True)
+        
         prefs_key = self._prefs_key_dnaStrandThreePrimeArrowheadsCustomColor()
         self.threePrimeEndColorChooser = \
             PM_ColorComboBox(self.pmGroupBox3,
@@ -206,12 +251,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
                                                             spanWidth = True
                                                             )
         
-        prefs_key = self._prefs_key_arrowsOnFivePrimeEnds()
-        if env.prefs[prefs_key]:
-            self.arrowsOnFivePrimeEnds_checkBox.setCheckState(Qt.Checked) 
-        else:
-            self.arrowsOnFivePrimeEnds_checkBox.setCheckState(Qt.Unchecked)
-            
+                   
         self.strandFivePrimeArrowheadsCustomColorCheckBox = PM_CheckBox( self.pmGroupBox2,
                                                             text         = "Display custom color",
                                                             widgetColumn  = 0,
@@ -245,12 +285,6 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
                                                        setAsDefault = True,
                                                        spanWidth = True
                                                        )
-        
-        prefs_key = arrowsOnBackBones_prefs_key
-        if env.prefs[prefs_key] == True:
-            self.arrowsOnBackBones_checkBox.setCheckState(Qt.Checked) 
-        else:
-            self.arrowsOnBackBones_checkBox.setCheckState(Qt.Unchecked)
         return
             
     def allowChoosingColorsOnFivePrimeEnd(self, state):
@@ -342,3 +376,38 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         return dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
     
+    def _colorChanged_dnaBaseNumberLabel(self):
+        """
+        Choose custom color for 5' ends
+        """
+        color = self._baseNumberLabelColorChooser.getColor()
+        prefs_key = self.get_prefs_key_dnaBaseNumberLabelColor()
+        env.prefs[prefs_key] = color
+        self.win.glpane.gl_update() 
+        return
+    
+    
+    def get_prefs_key_dnaBaseNumberLabelColor(self):
+        """
+        
+        """
+        raise AbstractMethod()
+               
+        
+    def get_prefs_key_dnaBaseNumberLabelChoice(self):
+        """
+        Return the preference key whose value will give the 
+        choice for displaying the Dna base numbers in the 3D workspace. 
+        Abstract method, must be overridden in subclasses. 
+        """
+        raise AbstractMethod()
+    
+    def get_prefs_key_dnaBaseNumberingOrder(self):
+        """
+        Return the preference key whose value will give the 
+        choice for displaying the Dna base numbers in the 3D workspace. 
+        @see: JoinStrands_Command.
+        """
+        raise AbstractMethod()
+    
+            
