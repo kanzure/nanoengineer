@@ -859,7 +859,6 @@ class BuildAtoms_Command(BuildAtoms_basicCommand):
         
         BuildAtoms_basicCommand.__init__(self, commandSequencer)
         self._create_GraphicsMode()
-        self._post_init_modify_GraphicsMode()
         return
         
     def _create_GraphicsMode(self):
@@ -869,9 +868,6 @@ class BuildAtoms_Command(BuildAtoms_basicCommand):
         kws = {} 
         self.graphicsMode = GM_class(*args, **kws)
         return
-
-    def _post_init_modify_GraphicsMode(self):
-        pass
     
     ##### END of code copied from SelectAtoms_Command
 

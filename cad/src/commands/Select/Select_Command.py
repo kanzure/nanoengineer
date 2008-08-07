@@ -224,7 +224,6 @@ class Select_Command(Select_basicCommand):
     def __init__(self, commandSequencer):
         Select_basicCommand.__init__(self, commandSequencer)
         self._create_GraphicsMode()
-        self._post_init_modify_GraphicsMode()
         return
 
     def _create_GraphicsMode(self):
@@ -234,8 +233,4 @@ class Select_Command(Select_basicCommand):
         kws = {}
         self.graphicsMode = GM_class(*args, **kws)
         pass
-
-    def _post_init_modify_GraphicsMode(self):
-        pass
-
 

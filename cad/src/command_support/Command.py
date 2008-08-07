@@ -1809,7 +1809,6 @@ class Command(basicCommand):
         # (and how does it know when we change it or we get changed,
         #  which means its GM changed?)
         self._create_GraphicsMode()
-        self._post_init_modify_GraphicsMode()
         return
     
     def _create_GraphicsMode(self):
@@ -1831,20 +1830,6 @@ class Command(basicCommand):
         # so NEVERMIND. Instead, just share anything expensive that a GM sets up.
         
         self.graphicsMode = GM_class(*args, **kws)
-        pass
-
-    def _post_init_modify_GraphicsMode(self):
-        """
-        Subclasses should perform post-init side effects as needed
-        on their GraphicsMode instance, in super-to-subclass order
-        (which means, first call the super method, then add
-         your own code).
-        """
-        # TODO: modify this scheme, so that if we might not have created it
-        # ourselves, only do this if we did. But still call from __init__
-        # rather than from _create_GraphicsMode.
-        # REVIEW: could side effects intended to be done by this
-        # just be part of _create_GraphicsMode instead?
         pass
 
     pass

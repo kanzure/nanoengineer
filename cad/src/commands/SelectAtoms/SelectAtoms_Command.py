@@ -163,7 +163,6 @@ class SelectAtoms_Command(SelectAtoms_basicCommand):
     def __init__(self, commandSequencer):
         SelectAtoms_basicCommand.__init__(self, commandSequencer)
         self._create_GraphicsMode()
-        self._post_init_modify_GraphicsMode()
         return
         
     def _create_GraphicsMode(self):
@@ -173,6 +172,3 @@ class SelectAtoms_Command(SelectAtoms_basicCommand):
         kws = {} 
         self.graphicsMode = GM_class(*args, **kws)
 
-    def _post_init_modify_GraphicsMode(self):
-        pass
-    

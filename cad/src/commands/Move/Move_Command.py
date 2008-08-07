@@ -416,7 +416,6 @@ class Move_Command(Move_basicCommand):
     def __init__(self, commandSequencer):
         Move_basicCommand.__init__(self, commandSequencer)
         self._create_GraphicsMode()
-        self._post_init_modify_GraphicsMode()
         return
 
     def _create_GraphicsMode(self):
@@ -428,9 +427,6 @@ class Move_Command(Move_basicCommand):
 
         self.translate_graphicsMode = TranslateChunks_GraphicsMode(*args, **kws)
         self.rotate_graphicsMode  = RotateChunks_GraphicsMode(*args, **kws)
-
-    def _post_init_modify_GraphicsMode(self):
-        pass
 
     def switchGraphicsModeTo(self, newGraphicsMode = 'TRANSLATE_CHUNKS'):
         """
