@@ -88,11 +88,10 @@ sudo find install -exec chown root:admin {} \;
 
 # Next step is to build the package
 mkdir -p build/QuteMolX || exit 1
-cat QMX-info.plist | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" > QMX-info.plist.tmp
+cat QMX-info_template.plist | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" > QMX-info.plist
 # The previous replace is done this way so that if you run the package builder
 # separately, you will still get something that will still make a viable
 # package.
-mv QMX-info.plist.tmp QMX-info.plist || exit 1
 sudo rm -rf rec
 mkdir rec
 cp background.jpg rec

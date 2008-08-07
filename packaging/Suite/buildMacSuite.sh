@@ -179,7 +179,7 @@ QMX_FILE=`ls *qutemolx.xml`
 cat $QMX_FILE | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" > $QMX_FILE.tmp
 mv $QMX_FILE.tmp $QMX_FILE
 #cat index.xml | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" | sed -e "s:/Applications/GROMACS:/Applications/GROMACS_$GROMACS_VERSION:" | sed -e "s:/Applications/Nanorex/NanoEngineer-1:/Applications/Nanorex/NanoEngineer-1_v$VERSION_NUM:" > index.xml.tmp
-cat index.xml | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" | sed -e "s:/Applications/GROMACS:/Applications/GROMACS_$GROMACS_ERSION:" > index.xml.tmp
+cat index.xml | sed -e "s:/Applications/Nanorex/QuteMolX:/Applications/Nanorex/QuteMolX $QUTEMOLX_VERSION:" | sed -e "s:/Applications/GROMACS:/Applications/GROMACS_$GROMACS_VERSION:" > index.xml.tmp
 mv index.xml.tmp index.xml
 cd ..
 
@@ -194,7 +194,7 @@ cp License.txt rec
 cp post_*.sh rec
 
 # Run the package builder
-sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o build/NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc
+sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -v -o build/NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc
 
 # Code added to get around the race condition that seems to be a problem where
 # hdiutil doesn't see the srcfolder unless the drive has been completely 
