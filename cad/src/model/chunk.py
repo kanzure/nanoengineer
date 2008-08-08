@@ -2836,7 +2836,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 level = self.assy.drawLevel #e or always use best level??
                 ## code copied from selatom.draw_as_selatom(glpane, disp, color, level)
                 pos1 = hs.baseposn()
-                drawrad1 = hs.selatom_radius(disp)
+                drawrad1 = hs.highlighting_radius(disp)
                 ## drawsphere(color, pos1, drawrad1, level) # always draw, regardless of disp
                 hs.draw_atom_sphere(color, pos1, drawrad1, level, None, abs_coords = False)
                     #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
@@ -3818,7 +3818,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # need to patch for selatom, and warn subr of its smaller radii too
             seli = selatom.index
             unpatched_seli_radius2 = radii_2[seli]
-            radii_2[seli] = selatom.selatom_radius() ** 2
+            radii_2[seli] = selatom.highlighting_radius() ** 2
             # (note: selatom is drawn even if "invisible")
             if unpatched_seli_radius2 > 0.0:
                 kws['alt_radii'] = [(seli, unpatched_seli_radius2)]

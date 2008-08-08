@@ -1854,7 +1854,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 otherpos = other.baseposn()
                     # note: this is only correct since self and other are guaranteed to belong to the same chunk --
                     # if they didn't, their baseposns (pos and otherpos) would be in different coordinate systems.
-            rad = other.selatom_radius(dispdef) # ok to pass None
+            rad = other.highlighting_radius(dispdef) # ok to pass None
             out = norm(pos - otherpos)
             buried = max(0, rad - vlen(pos - otherpos))
             inpos = pos - 0.015 * out
@@ -2069,7 +2069,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         Return an estimate (upper bound) of the maximum distance
         from self's center to any pixel drawn for self.
         """
-        res = self.selatom_radius() + 0.2
+        res = self.highlighting_radius() + 0.2
         if self._draw_atom_style(special_drawing_prefs = USE_CURRENT).startswith('arrowhead-'):
             res *= 3
         return res
@@ -2238,7 +2238,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if level is None:
             level = self.molecule.assy.drawLevel
         pos = self.posn() # note, unlike for draw_as_selatom, this is in main model coordinates
-        drawrad = self.selatom_radius() # slightly larger than normal drawing radius
+        drawrad = self.highlighting_radius() # slightly larger than normal drawing radius
         drawrad *= factor #bruce 080214 new feature
         ## drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
         self.draw_atom_sphere(color, pos, drawrad, level, None,
@@ -2269,11 +2269,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
 
         if useSmallAtomRadius:
-            drawrad = self.selatom_small_radius()
+            drawrad = self.radius_for_chunk_highlighting()
             # review: does this need to be bigger when self.bond_geometry_error_string
             # to make tooltip work on self?
         else:
-            drawrad = self.selatom_radius() # slightly larger than normal drawing radius
+            drawrad = self.highlighting_radius() # slightly larger than normal drawing radius
             if self.bond_geometry_error_string:
                 drawrad *= self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER * 1.02
         ## drawsphere(color, pos, drawrad, level)
@@ -2349,15 +2349,17 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return pickedrad
         return drawrad
     
-    def highlighting_radius(self): 
+    def highlighting_radius(self, dispdef = None):
+        #bruce 041207; ninad & bruce 080807 renamed it from selatom_radius
+        # maybe: integrate with draw_as_selatom
         """
-        Returns the highlighting radius of the atom. This is larger than the 
-        normal drawing_radius. This method is provided for convenence, it just 
-        returns self.selatom_radius()
-        """                
-        return self.selatom_radius()
-   
-    def selatom_radius(self, dispdef = None): #bruce 041207, should integrate with draw_as_selatom
+        @return: the radius to use for highlighting this atom (self),
+                 in the given display style (by default, in the style
+                 it would currently be drawn in). This is larger than
+                 self's drawing_radius.
+
+        @see: radius_for_chunk_highlighting
+        """
         if dispdef is None:
             dispdef = self.molecule.get_dispdef()
         disp, drawrad = self.howdraw(dispdef)
@@ -2373,7 +2375,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 drawrad *= 1.02
         return drawrad
 
-    def selatom_small_radius(self, dispdef = None): #ninad070213 for chunk highlighting
+    def radius_for_chunk_highlighting(self, dispdef = None):
+        #ninad070213 for chunk highlighting
+        #bruce 080807 renamed it from selatom_small_radius
+        """
+        @see: highlighting_radius
+        """
         if dispdef is None:
             dispdef = self.molecule.get_dispdef()
         disp, drawrad = self.howdraw(dispdef)
