@@ -543,7 +543,7 @@ class MWsemantics(QMainWindow,
 
         self.commandToolbar.hide()
 
-    def _showFullScreenCommonCode(self):
+    def _showFullScreenCommonCode(self, hideLeftArea = True):
         """
         The common code for making the Mainwindow full screen (maximimzing the
         3D workspace area) This is used by both, View > Full Screen and
@@ -560,7 +560,7 @@ class MWsemantics(QMainWindow,
                     widget.hide()
                     self._widgetToHideDuringFullScreenMode.append(widget)
 
-        self.activePartWindow().collapseLeftArea()
+        self.activePartWindow().collapseLeftArea(hideLeftArea)
         self.reportsDockWidget.hide()
 
     def showSemiFullScreen(self):
@@ -568,9 +568,8 @@ class MWsemantics(QMainWindow,
         Semi-Full Screen mode. (maximize the glpane real estate by hiding/ collapsing
         other widgets. This is different than the 'Full Screen mode' as it hides
         or collapses only the following widgets --
-         - MainWindow Title bar
-         - ModelTree/PM area,
-         - History Widget,
+         - MainWindow Title bar and border
+         - Report Widget
          - Statusbar
 
         @param val: The state of the QAction (checked or uncheced) If True, it
@@ -592,7 +591,7 @@ class MWsemantics(QMainWindow,
             self.viewFullScreenAction.setChecked(False)
             self._block_viewFullScreenAction_event = False
 
-        self._showFullScreenCommonCode()
+        self._showFullScreenCommonCode(hideLeftArea = False)
 
     def showNormal(self):
         QMainWindow.showNormal(self)

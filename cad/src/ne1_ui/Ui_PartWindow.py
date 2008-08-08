@@ -353,7 +353,9 @@ class Ui_PartWindow(QWidget):
 
     def collapseLeftArea(self, hideLeftArea = True):
         """
-        Collapse the left area.
+        Make the left area collapsible (via the splitter). The left area
+        will be hidden (collapsed,actually) if I{hideLeftArea} is True 
+        (the default).
         """
         self._previous_splitterPosition = self.pwLeftArea.width()
         if hideLeftArea:
