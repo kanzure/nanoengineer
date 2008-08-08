@@ -1001,36 +1001,34 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self.assy.checkparts()
         return self.topnode
     
-    
-    def get_topmost_subnodes_of_class(self, class_or_classname): #bruce 080115
+    def get_topmost_subnodes_of_class(self, clas): #Ninad 2008-08-06, revised by bruce 080807
         """
         Return a list of the topmost (direct or indirect)
-        children of self (Nodes or Groups), but never self itself,
-        with the given class_or_classname (known to self.assy),
-        or with a subclass of the class that refers to.
-
-        That is, scanning depth-first into our child nodes,
-        for each child we include in our return value, we won't
+        children of self.topnode (Nodes or Groups), or
+        self.topnode itself, which are instances of the
+        given class (or of a subclass).
+        
+        That is, scanning depth-first into self's tree of nodes,
+        for each node we include in our return value, we won't
         include any of its children.
 
-        @param class_or_classname: a class or registered classname.
-                                   (The classname case is NIM in
-                                    self.assy.class_or_classname_to_class
-                                    except for a few hardcoded examples,
-                                    as of 080115. String args can be useful
-                                    for avoiding import cycles.)
+        @param clas: a class.
+
+        @note: to avoid import cycles, it's often desirable to
+               specify the class as an attribute of a convenient
+               Assembly object (e.g. xxx.assy.DnaSegment)
+               rather than as a global value that needs to be imported
+               (e.g. DnaSegment, after "from xxx import DnaSegment").
+
+        @see: same-named method on class Group.
         """
-        #NOTE: This is method is copied over from class Group , with some minor
-        # changes
-        #-- Ninad 2008-08-06
-        class1 = self.assy.class_or_classname_to_class(class_or_classname)
-        res = []
-        for child in self.topnode.members:
-            if isinstance( child, class1): ## was: issubclass( child.__class__, class1)
-                res.append(child)
-            elif child.is_group():
-                res.extend( child.get_topmost_subnodes_of_class( class1) )
-        return res
+        node = self.topnode # not necessarily a Group
+        if isinstance( node, clas):
+            return node
+        elif node.is_group():
+            return node.get_topmost_subnodes_of_class( clas)
+        else:
+            return []
 
     # ==
 
