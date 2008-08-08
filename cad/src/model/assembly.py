@@ -166,7 +166,14 @@ class Assembly( StateMixin, Assembly_API):
     # (note that a few changes are saved but don't mark it as needing save, like "last view" (always equals current view))
     
     _model_change_counter = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
-        #bruce 060227 renamed this from _change_counter to _model_change_counter, but don't plan to rename self.changed()
+        #bruce 060227 renamed this from _change_counter to
+        # _model_change_counter, but don't plan to rename self.changed().
+        #
+        # maybe: add a separate change counter for drag changes vs other kinds
+        # of changes (less frequent), to help optimize some PM updates;
+        # not necessary unless we notice drag being too slow due to PM updates
+        # (or diffs which prevent them but take time), which this would fix
+        # [bruce 080808 comment]
 
     _selection_change_counter = 0
     
