@@ -2,6 +2,8 @@
 """
 BreakSite_Marker object wraps the functionality of identifying
 the potential break sites within a DnaStrand.
+
+NOTE: This class has nothing to do with DnaMarker class.
     
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -12,16 +14,17 @@ July 2008: created.
 
 TODO:
 This is not used as of 2008-08-08. (to be used for new Break options
-feature0
+features)
 """
 from model.bond_constants import find_bond
 DEBUG_DRAW_SPHERES_AROUND_ATOMS_AT_BREAK_SITES = False
 import time
-class BreakSite_Marker:
+class BreakSite_Marker(object):
     """
     BreakSite_Marker object wraps the functionality of identifying
     the potential break sites within a DnaStrand.
     @see: BreakStrands_GraphicsMode
+    @NOTE: This class has nothing to do with DnaMarker class.
     """
 
     def __init__(self, graphicsMode):
