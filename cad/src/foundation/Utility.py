@@ -329,33 +329,27 @@ class Node( StateMixin):
             # important to do this in subclass, not in self or Node
         return
 
-    def parent_node_of_class(self, class_or_classname):
+    def parent_node_of_class(self, clas):
         """
         If self has a parent Node in the current part
-        with the given class_or_classname (known to self.assy
-         via Assembly.register_classname),
-        or a subclass of the class that refers to,
+        (or a grandparent node, etc, but not self)
+        which is an instance of clas,
         return the innermost such node; otherwise return None.
 
-        @param class_or_classname: a class or registered classname.
-                                   (The classname case is NIM in
-                                    self.assy.class_or_classname_to_class
-                                    except for a few hardcoded examples,
-                                    as of 080115. String args can be useful
-                                    for avoiding import cycles. But it's better
-                                    to use the class Assembly attributes which
-                                    are named after classes and whose values are
-                                    those classes, in order to pass actual classes
-                                    to this method, and to extend that list as
-                                    needed.
-                                    )
+        @rtype: a Group (an instance of clas), or None
+
+        @param clas: a class (only useful if it's Group or a subclass of Group)
+
+        @see: get_topmost_subnodes_of_class (method in Group and Part)
+
+        @note: for advice on avoiding import cycles when passing a class,
+               see docstring of Group.get_topmost_subnodes_of_class.
         """
-        #bruce 071206; revised docstring 080310
+        #bruce 071206; revised 080808
         part = self.part
         node = self.dad
-        class1 = self.assy.class_or_classname_to_class(class_or_classname)
         while node and node.part is part:
-            if isinstance( node, class1): ## was: issubclass( node.__class__, class1)
+            if isinstance( node, clas):
                 # assert not too high in internal MT
                 assy = self.assy
                 assert node.assy is assy

@@ -106,18 +106,6 @@ from model.prefsTree import MainPrefsGroupPart
 import foundation.undo_manager as undo_manager
 from files.mmp.files_mmp_writing import writemmpfile_assy
 
-# kluge for register_classname -- should use a
-# registration scheme: [bruce 080115]
-#update, bruce 080310: extending this list is
-# deprecated and it will be removed soon --
-# see comments in register_classname.
-from dna.model.DnaGroup import DnaGroup
-from dna.model.Block import Block
-from dna.model.DnaSegment import DnaSegment
-from dna.model.DnaStrand import DnaStrand
-from cnt.model.NanotubeGroup import NanotubeGroup # --mark 2008-03-09
-from cnt.model.NanotubeSegment import NanotubeSegment # --mark 2008-03-09
-
 # ==
 
 debug_assy_changes = 0 #bruce 050429
@@ -144,13 +132,10 @@ class Assembly( StateMixin, Assembly_API):
     # (e.g. isinstance( node, assy.DnaGroup)) and also as arguments
     # to Node.parent_node_of_class. Using them can avoid import cycles
     # (compared to other code importing these classes directly)
-    # and avoids the need for registering and passing their names
-    # as strings (in register_classname and parent_node_of_class).
-    # Once existing code is converted to use this, register_classname
-    # (and the toplevel imports of these classes) can be removed.
-    #
+    # 
     # Note that these imports must not be moved to toplevel,
-    # and are not redundant with toplevel imports if they exist. [bruce 080310]
+    # and are not redundant with toplevel imports of the same symbols,
+    # if they exist. [bruce 080310]
     from foundation.Group import Group
     from model.chunk      import Chunk
     from model.chem       import Atom
@@ -452,26 +437,6 @@ class Assembly( StateMixin, Assembly_API):
             # See its docstring for details.]
             pass
 
-        self._classnames = {}
-
-        if 'kluge, should be a registration scheme': #bruce 080115
-            # note: as of 080115, of these, only DnaSegment is needed externally;
-            # see also files_mmp._GROUP_CLASSIFICATIONS (unclear if it would be a good
-            # idea to incorporate that directly or use it instead -- probably not)
-            #update, bruce 080310: we also import these directly into the class
-            # definition namespace to support isinstance( object, assy.classname),
-            # which may make register_classname unnecessary at some point.
-            # So extending this list is
-            # deprecated and it will be removed soon.
-            # See also the comments in register_classname.
-            self.register_classname('DnaGroup',   DnaGroup)
-            self.register_classname('Block',      Block)
-            self.register_classname('DnaSegment', DnaSegment)
-            self.register_classname('DnaStrand',  DnaStrand)
-            # Experimental CNT groups. --mark 2008-03-09.
-            self.register_classname('NanotubeGroup',   NanotubeGroup)
-            self.register_classname('NanotubeSegment', NanotubeSegment)
-
         # could remove these when they work, but no need:
         # test node_depth method: [bruce 080116]
         assert self.root.node_depth() == 0
@@ -619,13 +584,6 @@ class Assembly( StateMixin, Assembly_API):
 
     # ==
 
-    def register_classname(self, classname, class1):
-        """
-        [MIGHT BE DEPRECATED; if possible, use class-level imports
-         and assy attrs instead -- bruce 080310]
-        """
-        self._classnames[classname] = class1
-        
     def kluge_patch_toplevel_groups(self, assert_this_was_not_needed = False): #bruce 050109
         #bruce 071026 moved this here from helper function kluge_patch_assy_toplevel_groups in Utility.py
         """
@@ -691,33 +649,6 @@ class Assembly( StateMixin, Assembly_API):
 
     # ==
 
-    def class_or_classname_to_class(self, class_or_classname): #bruce 071206, revised 080115
-        """
-        If class_or_classname is a class, return it.
-
-        If it's a string, it should be a model class nickname registered with
-        self via register_classname; return the corresponding class.
-        (As of 080115, only a few classnames are registered that way,
-         by hardcoding in self.__init__.)
-        """
-        try:
-            # handle registered classnames
-            res = self._classnames[class_or_classname]
-        except KeyError:
-            pass
-        else:
-            #bruce 080310 deprecated this and removed all known uses
-            print_compact_stack( "\n*** DEPRECATED: use of string classname %r: " % class_or_classname)
-            return res
-        assert type(class_or_classname) != type(""), \
-               "bug: class_or_classname_to_class: " \
-               "classname %r not registered" % (class_or_classname,)
-        # maybe: assert that class_or_classname is a class?
-        assert callable(class_or_classname)
-        return class_or_classname
-
-    # ==
-    
     #bruce 051031: keep counter of selection commands in assy (the model object), not Part,
     # to avoid any chance of confusion when atoms (which will record this as their selection time)
     # move between Parts (though in theory, they should be deselected then, so this might not matter).

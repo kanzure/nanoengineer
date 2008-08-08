@@ -47,19 +47,18 @@ class EditCommand_StructureList:
         self.updateAverageEndPoints()
 
 
-    def parent_node_of_class(self, class_or_class_name):
+    def parent_node_of_class(self, clas):
         """
-        Returns parent node of the class <class_or_class_name> for the 
+        Returns parent node of the class <clas> for the 
         'currentStructure' of self's editcommand being edited. If there is no
         currentStructure, it returns the parent node of specified class 
-        of the 'first structure' in the self._sturctList.
+        of the 'first structure' in the self._structList.
         """
         if self.editCommand.currentStruct:     
             if self.editCommand.currentStruct.killed():
                 return None
 
-            return self.editCommand.currentStruct.parent_node_of_class(
-                class_or_class_name)
+            return self.editCommand.currentStruct.parent_node_of_class(clas)
 
         if not self._structList:
             return None
@@ -72,7 +71,7 @@ class EditCommand_StructureList:
         if firstStruct.killed():
             return None
 
-        return firstStruct.parent_node_of_class(class_or_class_name)
+        return firstStruct.parent_node_of_class(clas)
 
     def killed(self):
         """
