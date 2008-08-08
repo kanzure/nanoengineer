@@ -617,15 +617,16 @@ class PeptideGenerator:
         Build a peptide from a sequence entered through the Property Manager.
         """
                  
-        return self.make_aligned(assy, name, 3, -57, -47, V(0.0, 0.0, 0.0), V(20.0, 0.0, 0.0))
     
         peptide_cache, ss_idx = params
 
         if len(peptide_cache) == 0:
             return None
                 
+        return self.make_aligned(assy, name, 3, -57, -47, V(0.0, 0.0, 0.0), V(20.0, 0.0, 0.0))
+
         # Create a molecule
-        mol = Chunk(assy,name)
+        mol = Chunk(assy, name)
 
         # Generate dummy atoms positions
 
@@ -711,9 +712,6 @@ class PeptideGenerator:
         Build a homo-peptide aligned to a pos2-pos1 vector. 
         """
 
-        phi = 135
-        psi = -135
-        
         self.length = self.get_number_of_res(pos1, pos2, phi, psi)
         if self.length == 0:
             return None
@@ -725,13 +723,13 @@ class PeptideGenerator:
         #pos2 = mol.base_to_abs(pos2);
         
         # Generate dummy atoms positions
-        self.prev_coords[0][0] = pos1[0] + 1.0
-        self.prev_coords[0][1] = pos1[1] 
+        self.prev_coords[0][0] = pos1[0] - 1.0
+        self.prev_coords[0][1] = pos1[1] - 1.0
         self.prev_coords[0][2] = pos1[2] 
 
-        self.prev_coords[1][0] = pos1[0] + 2.5
-        self.prev_coords[1][1] = pos1[1] - 1.5
-        self.prev_coords[1][2] = pos1[2] - 4.0
+        self.prev_coords[1][0] = pos1[0] - 1.0
+        self.prev_coords[1][1] = pos1[1] 
+        self.prev_coords[1][2] = pos1[2] 
 
         self.prev_coords[2][0] = pos1[0]
         self.prev_coords[2][1] = pos1[1]
@@ -787,12 +785,19 @@ class PeptideGenerator:
             del atom._is_aromatic
             del atom._is_single
 
+        ax = V(0.,0.,1.) # Axis of first selected chunk
+        mol.rot(Q(mol.getaxis(),ax))
+        
+        print "PEPTIDE AXIS PRE : ", mol.axis
+        
         if mol:
             self._orient(mol, pos1, pos2)
             
+        print "PEPTIDE AXIS POST : ", mol.axis
+        
         return mol          
 
-    def _buildResiduum(self, mol, zmatrix, n_atoms, phi, psi, init_pos, symbol):
+    def _buildResiduum(self, mol, zmatrix, n_atoms, phi, psi, init_pos, symbol, fake_chain=False):
         """
         Builds cartesian coordinates for an amino acid from the internal
         coordinates table.
@@ -974,57 +979,59 @@ class PeptideGenerator:
                         self.prev_coords[2][2] = self.coords[n][2]
 
                 # Add a new atom to the molecule
-                atom = Atom(
-                    atom_name,
-                    V(self.coords[n][0], self.coords[n][1], self.coords[n][2]),
-                    mol)
+                if not fake_chain or \
+                   name == "CA ":
+                    atom = Atom(
+                        atom_name,
+                        V(self.coords[n][0], self.coords[n][1], self.coords[n][2]),
+                        mol)
 
-                # Create temporary attributes for proper bond assignment.
-                atom._is_aromatic = False
-                atom._is_single = False
-
-                if atom_type == "sp2a":
-                    atom_type = "sp2"
-                    atom._is_aromatic = True
-
-                if atom_type == "sp2s":
-                    atom_type = "sp2"
-                    atom._is_single = True
-
-                atom.set_atomtype_but_dont_revise_singlets(atom_type)
-
-                if name == "CA ":
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_ca = True
-                else:
-                    atom._protein_ca = False
-
-                if name == "CB ":
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_cb = True
-                else:
-                    atom._protein_cb = False
-
-                if name == "N  ": 
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_n = True
-                else:
-                    atom._protein_n = False
-
-                if name == "C  ": 
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_c = True
-                else:
-                    atom._protein_c = False
-
-                if name == "O  ": 
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_o = True
-                else:
-                    atom._protein_o = False
-
-                # debug - output in PDB format	
-                # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])	
+                    # Create temporary attributes for proper bond assignment.
+                    atom._is_aromatic = False
+                    atom._is_single = False
+    
+                    if atom_type == "sp2a":
+                        atom_type = "sp2"
+                        atom._is_aromatic = True
+    
+                    if atom_type == "sp2s":
+                        atom_type = "sp2"
+                        atom._is_single = True
+    
+                    atom.set_atomtype_but_dont_revise_singlets(atom_type)
+    
+                    if name == "CA ":
+                        # Set c-alpha flag for protein main chain visualization.
+                        atom._protein_ca = True
+                    else:
+                        atom._protein_ca = False
+    
+                    if name == "CB ":
+                        # Set c-alpha flag for protein main chain visualization.
+                        atom._protein_cb = True
+                    else:
+                        atom._protein_cb = False
+    
+                    if name == "N  ": 
+                        # Set c-alpha flag for protein main chain visualization.
+                        atom._protein_n = True
+                    else:
+                        atom._protein_n = False
+    
+                    if name == "C  ": 
+                        # Set c-alpha flag for protein main chain visualization.
+                        atom._protein_c = True
+                    else:
+                        atom._protein_c = False
+    
+                    if name == "O  ": 
+                        # Set c-alpha flag for protein main chain visualization.
+                        atom._protein_o = True
+                    else:
+                        atom._protein_o = False
+    
+                    # debug - output in PDB format	
+                    # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])	
 
         self.prev_psi = psi # Remember previous psi angle.
 

@@ -223,6 +223,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
                       SIGNAL("buttonClicked(int)"),
                       self._setAminoAcidType)
 
+        self.addAminoAcid(0)
     
     def addAminoAcid(self, index):
         """
