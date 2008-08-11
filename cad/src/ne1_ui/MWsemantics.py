@@ -1438,7 +1438,7 @@ class MWsemantics(QMainWindow,
         """
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
         if self.rosettaArgs[0] > 0:
-            cmdrun = rosettaSetup_CommandRun(self, self.rosettaArgs)
+            cmdrun = rosettaSetup_CommandRun(self, self.rosettaArgs, "ROSETTA_FIXED_BACKBONE_SEQUENCE_DESIGN")
             cmdrun.run() 
         
         return
@@ -1760,9 +1760,15 @@ class MWsemantics(QMainWindow,
         Activates the Protein toolbar.
         """
         commandSequencer = self.commandSequencer
-        commandSequencer.userEnterCommand('BUILD_PROTEIN')
-        assert commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
-        commandSequencer.currentCommand.runCommand()
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            commandSequencer.userEnterCommand('MODEL_AND_SIMULATE_PROTEIN')
+            #assert commandSequencer.currentCommand.commandName == 'MODEL_AND_SIMULATE_PROTEIN'
+            #commandSequencer.currentCommand.runCommand()
+        else:    
+            commandSequencer.userEnterCommand('BUILD_PROTEIN')
+            assert commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
+            commandSequencer.currentCommand.runCommand()
         return
     
     def createBuildProteinPropMgr_if_needed(self, editCommand):
