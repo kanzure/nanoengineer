@@ -34,7 +34,121 @@ from foundation.wiki_help import WikiHelpBrowser
 #global counter so that repeat run of rosetta can produce uniquely named
 #output file.
 count = 1
+#same with backrub
+count_backrub = 1
 
+def showRosettaScore(tmp_file_prefix, scorefile, win):
+    dir1 = os.path.dirname(tmp_file_prefix)
+    scorefile = scorefile + '.sc'
+    scoreFilePath = os.path.join(dir1, scorefile)   
+    fileObject1 = open(scoreFilePath, 'r')
+    if fileObject1:
+        doc = fileObject1.readlines()
+        copied_lines = []
+        for line in doc:
+            #put a comma after each word
+            i = 0
+            firstSpace = True
+            for c in line: 
+                if i > 0 and c == ' ' and firstSpace == True:
+                    line = line[0:i] + ',' + line[i+1:]
+                    firstSpace = False
+                if c != ' ' and firstSpace == False:
+                    firstSpace = True
+                i = i + 1    
+                if i == len(line):
+                    copied_lines.append(line)
+        
+        array_Name = copied_lines[0].split(',')
+        array_Score = copied_lines[1].split(',')
+        i = 0 
+        for i in range(len(array_Name)):
+            array_Name[i] = array_Name[i].strip()
+            array_Score[i] = array_Score[i].strip()
+        i = 0 
+        html = ""
+        for i in range(len(array_Name)):
+            html = html + "<p><b>" + array_Name[i].upper() + "</b> = "
+            html = html + "<font color = red> " + array_Score[i] + "</font></p>"
+        w = WikiHelpBrowser(html, parent = win, caption = "Rosetta Scoring Results", size = 1)
+        w.show()    
+    return
+
+def createUniquePDBOutput(tmp_file_prefix, proteinName, win):
+    """
+    Create a uniquely named output file for rosetta scores
+    """
+    pdbFile = 'backrub_low.pdb' 
+    dir1 = os.path.dirname(tmp_file_prefix)
+    pdbFilePath = os.path.join(dir1, pdbFile)   
+    fileObject1 = open(pdbFilePath, 'r')
+    outFile = proteinName + '_' + pdbFile
+    #make sure that this outfile does not already exists, 
+    #if it exists, then we should assign the out protein a unique name such that
+    # its easy to browse through the set of available proteins in the model tree
+    for mol in win.assy.molecules:
+        #if an output protein chunk with the same name exists, we need to 
+        #rename the output protein
+        tempPdb = outFile[0:len(outFile)-4].lower() + ' '
+        if mol.isProteinChunk() and tempPdb == mol.name:
+            global count_backrub 
+            outFile = tempPdb + '_' + str(count_backrub) + '.pdb'
+            count_backrub = count_backrub + 1
+            print "using global count backrub", count_backrub
+    
+    outputPdbFilePath = os.path.join(dir1, outFile) 
+    if fileObject1:
+        fileObject2 = open(outputPdbFilePath, 'w+')  
+    else:
+        return None
+    doc = fileObject1.readlines()
+    fileObject2.writelines(doc)
+    fileObject1.close()
+    fileObject2.close()
+    
+    outProteinName = outFile[0:len(outFile)-4]
+    return outProteinName, outputPdbFilePath
+
+def getScoreFromBackrubOutFile(outputPdbFilePath):
+    #a separate function for this is needed since we have only one pdb file 
+    #with backrub that is backrub_low and hence the score is much more easily
+    #obtainable from the header
+    fileObject1 = open(outputPdbFilePath, 'r')
+    if fileObject1:     
+        doc = fileObject1.readlines()
+    else:
+        return None
+    for line in doc:
+        #first instance of score
+        valFind = line.find("SCORE")
+        if valFind!=-1:
+            #process this line to read the total score
+            words = line[16:]
+            score = words.strip()
+            pdbFile = os.path.basename(outputPdbFilePath)
+            print "For output pdb file " + pdbFile + ", score = ", score
+            fileObject1.close()
+            return score
+    return None
+
+def getProteinNameAndSeq(inProtein, outProtein, win):
+    proteinSeqTupleList = []
+    seqList1 = ""
+    seqList2 = ""
+    #no idea what insert pdb does to put a space at the end of the chunk name!
+    outProtein = outProtein.lower() + ' '
+    for mol in win.assy.molecules:
+        if mol.isProteinChunk() and inProtein == mol.name:
+            seqList1 = mol.protein.get_sequence_string()
+            tupleEntry1 =  (inProtein, seqList1) 
+        if mol.isProteinChunk() and outProtein == mol.name:
+            seqList2 = mol.protein.get_sequence_string()
+            tupleEntry2 =  (outProtein, seqList2)
+    proteinSeqTupleList = [tupleEntry1, tupleEntry2]   
+    if seqList1 is "":
+        return []
+    return proteinSeqTupleList
+    
 def getScoreFromOutputFile(tmp_file_prefix, outfile, numSim):
     """
     Extract the best score from the output file
@@ -397,6 +511,7 @@ class RosettaRunner:
         path = self.path
         infile = self.sim_input_file
         self.outfile = infile[0:len(infile) - 4] + '_out'
+        self.scorefile = infile[0:len(infile) - 4] + '_score'
         #if any of the protein chunks in NE-1 part matches the outfile name,
         #rename the outfile
         #this is necessary, otherwise two chunks with the same name will be
@@ -407,16 +522,18 @@ class RosettaRunner:
         for mol in self.win.assy.molecules:
             #if an output protein chunk with the same name exists, we need to 
             #rename the output protein
-            if mol.isProteinChunk and re.match(tempPdb, mol.name) is not None:
+            if mol.isProteinChunk() and re.match(tempPdb, mol.name) is not None:
                 global count 
                 self.outfile = infile[0:len(infile) - 4] + '_' + str(count) + '_out'
                 count = count + 1
         #bug in rosetta: simulation does not work in  pdbID_0001.pdb exists in 
         #this directory, hence always remove it
         self.removeOldOutputPDBFiles()
+        args = []
         if use_command_line:
             #Urmi 20080709 Support for fixed backbone sequence design for now
-            args = [
+            if self.cmd_type == "ROSETTA_FIXED_BACKBONE_SEQUENCE_DESIGN":
+                args = [
                     '-paths',  str(self.path),
                     '-design',
                     '-fixbb',
@@ -425,7 +542,23 @@ class RosettaRunner:
                     '-resfile', str(self.resFile),
                     '-pdbout', str(self.outfile),
                     '-s', infile]
-            args.extend(argListFromPopUpDialog)
+                args.extend(argListFromPopUpDialog)
+            elif self.cmd_type == "BACKRUB_PROTEIN_SEQUENCE_DESIGN":
+                args = [
+                    '-paths',  str(self.path),
+                    '-ntrials', str(self.numSim),
+                    '-pose1',
+                    '-backrub_mc',
+                    '-resfile', str(self.resFile),
+                    '-s', infile]
+            elif self.cmd_type == "ROSETTA_SCORE":
+                args =[
+                    '-paths',  str(self.path),
+                    '-scorefile', str(self.scorefile),
+                    '-score',
+                    '-s', infile]
+            else:
+                args = []
             self._arguments = args
         return # from setup_sim_args    
     
@@ -455,6 +588,16 @@ class RosettaRunner:
                     break
         else:    
             pdbId, chunk = self.getPDBIDFromChunk()
+            
+        if self.cmd_type == "BACKRUB_PROTEIN_SEQUENCE_DESIGN":
+            backrubSetupCorrect = chunk.protein.is_backrub_setup_correctly()
+            #Urmi 20080807: The backrub motion is so poorly documented that
+            #I do not have any idea what is the threshold value
+            #my experiments with 2gb1 seems to show that its 3, but I dont know for sure
+            if not backrubSetupCorrect:
+                msg = redmsg("Rosetta sequence design with backrub motion failed. Please edit your residues properly from Edit REsidues command.")
+                env.history.message(self.cmdname + "," + self.cmd_type + ": " + msg)
+                return -1
         #write the residue file
         resFile = pdbId + ".resfile"
         resFilePath = os.path.join(simFilesPath, resFile)
@@ -802,7 +945,7 @@ class RosettaRunner:
                 errorInStdOut = self.checkErrorInStdOut(rosettaStdOut)
                 if errorInStdOut:
                     msg = redmsg("Rosetta sequence design failed, Rosetta returned %d" % errorCode)
-                    env.history.message(self.cmdname + ": " + msg)
+                    env.history.message(self.cmdname + "," + self.cmd_type + ": " + msg)
                     env.history.statusbar_msg("")
                 else:    
                     #bug in rosetta: often for some reason or the other rosetta
@@ -816,43 +959,72 @@ class RosettaRunner:
                     #Hence we always check the desired output file actually exists 
                     #in the RosettaDesignFiles directory before we actually declare
                     #that it has been a successful run
-                    outputFile = self.outfile + '_0001.pdb'
-                    outPath = os.path.join(os.path.dirname(self.tmp_file_prefix), outputFile)
-                    if os.path.exists(outPath):
-                        #if there's the o/p pdb file, then rosetta design "really"
-                        #succeeded
-                        msg = greenmsg("Rosetta sequence design succeeded")
-                        env.history.message(self.cmdname + ": " + msg)
-                        #find out best score from all the generated outputs
-                        #may be we will do it some day, but for now we only output
-                        #the chunk with the lowest energy (Score)
-                        score, bestSimOutFileName = getScoreFromOutputFile(self.tmp_file_prefix, self.outfile, self.numSim)
-                        chosenOutPath = os.path.join(os.path.dirname(self.tmp_file_prefix), bestSimOutFileName)
-                        insertpdb(self.assy, str(chosenOutPath), None)
-                        #set the secondary structure of the rosetta output protein
-                        #to that of the inpput protein
-                        outProtein = self._set_secondary_structure_of_rosetta_output_protein(bestSimOutFileName)
-                        #update the protein combo box in build protein mode with
-                        #newly created protein chunk
-                        self._updateProteinComboBoxInBuildProteinMode(outProtein)
-                        env.history.statusbar_msg("")
-                        fastaFile = self.outfile + "_design.fasta" 
-                        fastaFilePath = os.path.join(os.path.dirname(self.tmp_file_prefix), fastaFile)
-                        #process th fasta file to find the sequence of the protein
-                        #with lowest score
-                        proteinSeqList = processFastaFile(fastaFilePath, bestSimOutFileName, self.sim_input_file[0:len(self.sim_input_file)-4])
-                        #show a pop up dialog to show the best score and most
-                        #optimized sequence
-                        if score is not None and proteinSeqList is not []:
-                            self.showResults(score, proteinSeqList)
-                    else:
-                        #even when there's nothing in stderr or errocode is zero,
-                        #rosetta may not output anything. 
-                        msg1 = redmsg("Rosetta sequence design failed. ")
-                        msg2 = redmsg(" %s file was never created by Rosetta." % outputFile)
-                        msg = msg1 + msg2
-                        env.history.message(self.cmdname + ": " + msg)
-                        env.history.statusbar_msg("")
+                    if self.cmd_type == "ROSETTA_FIXED_BACKBONE_SEQUENCE_DESIGN":
+                        outputFile = self.outfile + '_0001.pdb'
+                        outPath = os.path.join(os.path.dirname(self.tmp_file_prefix), outputFile)
+                        if os.path.exists(outPath): 
+                            #if there's the o/p pdb file, then rosetta design "really"
+                            #succeeded
+                            msg = greenmsg("Rosetta sequence design succeeded")
+                            env.history.message(self.cmdname + "," + self.cmd_type + ": " + msg)
+                            #find out best score from all the generated outputs
+                            #may be we will do it some day, but for now we only output
+                            #the chunk with the lowest energy (Score)
+                            score, bestSimOutFileName = getScoreFromOutputFile(self.tmp_file_prefix, self.outfile, self.numSim)
+                            chosenOutPath = os.path.join(os.path.dirname(self.tmp_file_prefix), bestSimOutFileName)
+                            insertpdb(self.assy, str(chosenOutPath), None)
+                            #set the secondary structure of the rosetta output protein
+                            #to that of the inpput protein
+                            outProtein = self._set_secondary_structure_of_rosetta_output_protein(bestSimOutFileName)
+                            #update the protein combo box in build protein mode with
+                            #newly created protein chunk
+                            self._updateProteinComboBoxInBuildProteinMode(outProtein)
+                            env.history.statusbar_msg("")
+                            fastaFile = self.outfile + "_design.fasta" 
+                            fastaFilePath = os.path.join(os.path.dirname(self.tmp_file_prefix), fastaFile)
+                            #process th fasta file to find the sequence of the protein
+                            #with lowest score
+                            proteinSeqList = processFastaFile(fastaFilePath, bestSimOutFileName, self.sim_input_file[0:len(self.sim_input_file)-4])
+                            #show a pop up dialog to show the best score and most
+                            #optimized sequence
+                            if score is not None and proteinSeqList is not []:
+                                self.showResults(score, proteinSeqList)
+                        else:
+                            #even when there's nothing in stderr or errocode is zero,
+                            #rosetta may not output anything. 
+                            msg1 = redmsg("Rosetta sequence design failed. ")
+                            msg2 = redmsg(" %s file was never created by Rosetta." % outputFile)
+                            msg = msg1 + msg2
+                            env.history.message(self.cmdname + ": " + msg)
+                            env.history.statusbar_msg("")
+                            
+                    if self.cmd_type == "BACKRUB_PROTEIN_SEQUENCE_DESIGN":
+                        from utilities.prefs_constants import rosetta_backrub_enabled_prefs_key    
+                        env.prefs[rosetta_backrub_enabled_prefs_key] = False  
+                        print "Pref key=", env.prefs[rosetta_backrub_enabled_prefs_key] 
+                        #Urmi 20080807: first copy the backrub_low.pdb to a new pdb
+                        #file with the pdb info also added there
+                        outProteinName, outPath = createUniquePDBOutput(self.tmp_file_prefix, self.sim_input_file[0:len(self.sim_input_file)-4], self.win)
+                        if outProteinName is None:
+                            msg1 = redmsg("Rosetta sequence design with backrub motion has failed. ")
+                            msg2 = redmsg(" backrub_low.pdb was never created by Rosetta.")
+                            msg = msg1 + msg2
+                            env.history.message(self.cmdname + "," + self.cmd_type + ": " + msg)
+                            env.history.statusbar_msg("")
+                        else:
+                            env.history.statusbar_msg("")
+                            print "Out path for insert pdb", outPath
+                            insertpdb(self.assy, str(outPath), None)
+                            outProtein = self._set_secondary_structure_of_rosetta_output_protein(outProteinName + ".pdb")
+                            self._updateProteinComboBoxInBuildProteinMode(outProtein)  
+                            inProteinName = self.sim_input_file[0:len(self.sim_input_file)-4]
+                            proteinSeqList = getProteinNameAndSeq(inProteinName, outProteinName, self.win)
+                            score = getScoreFromBackrubOutFile(outPath)
+                            if score is not None and proteinSeqList is not []:
+                                self.showResults(score, proteinSeqList)
+
+                    if self.cmd_type == "ROSETTA_SCORE":
+                        showRosettaScore(self.tmp_file_prefix, self.scorefile, self.win)
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
@@ -872,7 +1044,11 @@ class RosettaRunner:
         @type outProtein: L{Chunk}
         """
         # note [bruce 080801]: this could probably be simplified as (untested):
-        command = self.win.commandSequencer.find_innermost_command_named('BUILD_PROTEIN')
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            command = self.win.commandSequencer.find_innermost_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        else:    
+            command = self.win.commandSequencer.find_innermost_command_named('BUILD_PROTEIN')
         if command:
             command.propMgr.structureComboBox.addItem(outProtein.name)
             command.propMgr.protein_name_list.append(outProtein.name)
@@ -898,12 +1074,21 @@ class RosettaRunner:
         #since this method is called only if a simulation be successful,
         #input and output protein are both bound to be there and hence there's
         #no else block
+        matchForFixedBB = bestSimOutFileName[0:len(bestSimOutFileName)-4].lower() + 'A'
+        matchForBackRub = bestSimOutFileName[0:len(bestSimOutFileName)-4].lower() + ' '
+        outMatch = ""
+        if self.cmd_type == "ROSETTA_FIXED_BACKBONE_SEQUENCE_DESIGN":
+            outMatch = matchForFixedBB
+        if self.cmd_type == "BACKRUB_PROTEIN_SEQUENCE_DESIGN":
+            outMatch = matchForBackRub
+        outProtein = None
         for mol in self.win.assy.molecules:
-            if mol.isProteinChunk and mol.name == self.sim_input_file[0:len(self.sim_input_file)-4]:
+            if mol.isProteinChunk() and mol.name == self.sim_input_file[0:len(self.sim_input_file)-4]:
                 inProtein = mol
-            if mol.isProteinChunk and mol.name == (bestSimOutFileName[0:len(bestSimOutFileName)-4].lower() + 'A'):
+            if mol.isProteinChunk() and mol.name == outMatch:
                 outProtein = mol
-        outProtein.protein.set_rosetta_protein_secondary_structure(inProtein)
+        if outProtein:        
+            outProtein.protein.set_rosetta_protein_secondary_structure(inProtein)
         return outProtein
     
     def showResults(self, score, proteinSeqList):
@@ -935,7 +1120,7 @@ class RosettaRunner:
             html = html + "<font face=Courier New>" + modSeqList[i] + "</font>" + "<br>"
         html = html + "</p>"
         html = html + "<p>Sequence Similarity = " + similarity + "</p>"
-        w = WikiHelpBrowser(html, parent = self.win, caption = "Rosetta Results")
+        w = WikiHelpBrowser(html, parent = self.win, caption = "Rosetta Sequence Design Results", size = 2)
         w.show()
         return
     
