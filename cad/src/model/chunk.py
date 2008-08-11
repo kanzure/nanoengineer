@@ -1053,7 +1053,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         for atom in self.atoms.itervalues():
             if atom.element.symbol == 'C':
-                if atom.atomtype.spX == 2:
+                if atom.atomtype.is_planar():
                     found_carbon_atom = True
                 else:
                     return False

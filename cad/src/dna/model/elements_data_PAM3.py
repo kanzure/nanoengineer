@@ -12,7 +12,7 @@ Bruce 071105 revised init code, and split PAM3 and PAM5 data
 out of elements_data.py into separate files.
 """
 
-from model.elements_data import tetra4, flat, tetra2, tetra3
+from model.elements_data import tetra4, flat, tetra2, tetra3, onebond
 from utilities.constants import MODEL_PAM3
 
 _DIRECTIONAL_BOND_ELEMENTS_PAM3 = ('Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
@@ -91,10 +91,41 @@ _mendeleev = [
     
  ]
 
+# Since these are not real chemical bonds, the electron accounting
+# need not be based on filled shells.  We just specify that each atom
+# provides the same number of electrons as the bond count, and that it
+# needs twice that many.
+
+# symbol name
+# hybridization name
+# formal charge
+# number of electrons needed to fill shell
+# number of valence electrons provided
+# covalent radius (pm)
+# geometry (array of vectors, one for each available bond)
+
+#    symb   hyb   FC   need prov c-rad geometry
+_PAM3AtomTypeData = [
+    ["Ax3", None,  0,    8,  4,  2.00, tetra4],
+    ["Ss3", None,  0,    6,  3,  2.10, flat],
+    ["Pl3", None,  0,    4,  2,  2.10, tetra2],
+    ["Sj3", None,  0,    6,  3,  2.10, flat],
+    ["Ae3", None,  0,    6,  3,  2.00, tetra3],
+    ["Se3", None,  0,    4,  2,  2.10, tetra2],
+    ["Sh3", None,  0,    2,  1,  2.10, None],
+    ["Hp3", None,  0,    4,  2,  2.10, tetra2],
+    ["Ub3", None,  0,    8,  4,  2.00, tetra4],
+    ["Ux3", None,  0,    8,  4,  2.00, tetra4],
+    ["Uy3", None,  0,    8,  4,  2.00, tetra4],
+]
+
 # ==
 
 def init_PAM3_elements( periodicTable):
-    periodicTable.addElements( _mendeleev, _defaultRadiusAndColor, _alternateRadiusAndColor,
+    periodicTable.addElements( _mendeleev,
+                               _defaultRadiusAndColor,
+                               _alternateRadiusAndColor,
+                               _PAM3AtomTypeData,
                                _DIRECTIONAL_BOND_ELEMENTS_PAM3,
                                default_options = dict(pam = MODEL_PAM3)
                               )

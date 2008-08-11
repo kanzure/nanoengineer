@@ -51,7 +51,14 @@ class AtomType(IdentityCopyMixin):
        The name of an atomtype might be reused for more than one element (e.g. 'sp2')
     but the atomtype itself is element-specific. (Related atomtype objects might share code or data, of course.)
     """
-    def __init__(self, elem, bn_triple, valence):
+    def __init__(self,
+                 elem,
+                 name,
+                 formalCharge,
+                 electronsNeeded,
+                 electronsProvided,
+                 covalentRadius,
+                 bondvectors):
         """
         #doc...
         Set some public members, including element, name, fullname,
@@ -60,12 +67,13 @@ class AtomType(IdentityCopyMixin):
         num_pi_electrons.
         """
         self.element = elem
-        self.valence = valence
-        if len(bn_triple) == 3:
-            numbonds, rcovalent, bondvectors = bn_triple
-            name = None
-        else:
-            numbonds, rcovalent, bondvectors, name = bn_triple
+
+        # electronsProvided + formalCharge should equal group number
+
+        # these are shared from another atom (half of an order 1 covalent bond)
+        electronsShared = electronsNeeded - electronsProvided
+
+        self.valence = electronsShared # total bond order for all bonds to this atomtype
         self.name = name = name or "?"
             # default name won't show up except for bugs, provided it's only used for elements with only one atomtype
         self.fullname = elem.name + '/' + self.name #ok? [see also self.fullname_for_msg()]
@@ -82,143 +90,156 @@ class AtomType(IdentityCopyMixin):
         self.spX = spX
         if 0 and debug_flags.atom_debug and (spX != 3 or self.openbond):
             print "atom_debug: fyi: %r has spX == %d" % (self.fullname, spX)
-        
-        # bondvectors might be None or a list of vectors whose length should be numbonds (except for two buggy elements);
-        # if None it means the old code would not set self.base and self.quats... not sure all effects or reasons, but imitate for now
-        if bondvectors is not None:
-            ## doesn't work, don't know why: assert type(bondvectors) == type(()) or type(bondvectors) == type([])
-            if len(bondvectors) != numbonds:
-                if elem.name not in ["Arsenic", "Selenium"]: # known bugs
-                    print "warning: len(bondvectors) != numbonds:", bondvectors, numbonds, elem # known to happen for at least 2 elements
-                numbonds = len(bondvectors) # fix it up this way for now
-        self.numbonds = numbonds
-        self.rcovalent = rcovalent/100.0
-            # (Note: rcovalent used to be None for nonbonding elements like Helium,
-            # which made most uses of it errors (e.g. when drawing bonds to Helium).
-            # Once we decided such bonds should be allowed to exist, we made it act
-            # like 0.0 in the drawing code, then replaced that with this more
-            # general change to 0.0, hoping to avoid possible other (hypothetical)
-            # bugs. As far as I know this is ok, but I have not fully analyzed every
-            # possible consequence of this change. [bruce 041217])
+        self.rcovalent = covalentRadius
+
         self.base = None
         self.quats = [] # ends up one shorter than self.numbonds [bruce 041217]
-        self.bondvectors = bondvectors or [] # not sure if [] (in place of None) matters
-        if bondvectors:
+        if (bondvectors):
+            # number of distinct bonds to different other atoms (a
+            # double bond is counted as 1)
+            self.numbonds = len(bondvectors)
+
             s = bondvectors[0]
             self.base = s
             for v in bondvectors[1:]:
                 self.quats += [Q(s,v)]
+        else:
+            self.numbonds = 0
+        self.bondvectors = bondvectors or [] # not sure if [] (in place of None) matters
         
-        self.charge = 0 # only uncharged atomtypes are supported, for now.
-            #e later we'll have some charged atomtypes, but there are some UI issues
-            # with how to keep the menus of atomtypes short (separate menus for hybridization and charge), maybe more.
-        self._init_electronic_structure() # this uses self.numbonds, so don't call it too early
+        self.charge = formalCharge
+        #self._init_electronic_structure() # this uses self.numbonds, so don't call it too early
         self._init_permitted_v6_list()
         return # from __init__
 
-    def _init_electronic_structure(self): #bruce 050707
-        """
-        [private method]
-        Figure out situation with valence electrons, etc, and store it in
-        attributes. Only works for low-enough-atomic-number elements.
-        """
-        # Figure out situation with valence electrons (available for pi orbitals), lone pairs, etc.
-        # This might be only supported for non-sp3 atomtypes (which presently go no higher than sulfur) so far.
-        # And for now it might be mostly hardcoded rather than principled. [bruce 050706]
+#     def _init_electronic_structure(self): #bruce 050707
+#         """
+#         [private method]
+#         Figure out situation with valence electrons, etc, and store it in
+#         attributes. Only works for low-enough-atomic-number elements.
+#         """
+#         # Figure out situation with valence electrons (available for pi orbitals), lone pairs, etc.
+#         # This might be only supported for non-sp3 atomtypes (which presently go no higher than sulfur) so far.
+#         # And for now it might be mostly hardcoded rather than principled. [bruce 050706]
 
-        total_es = self.element.eltnum + self.charge # total number of electrons
-        # shell 1 is 1s, 2 es in all. shell 2 is 2s, 2px, 2py, 2pz, 8 electrons in all. shell 3 starts out 3s, 3px, 3py, 3pz...
-        unassigned_es = total_es
-        for shellsize in [2,8,8,-1]:
-            if shellsize < 0:
-                return # don't yet bother to figure out any of this for more than 18 electrons
-                    # (should be ok, since this info is only needed for sp2 or sp atomtypes,
-                    #  and those don't yet go above Sulfur (elt 16)
-            if unassigned_es <= shellsize:
-                num_outer_shell_es = unassigned_es
-                break
-            # try the next shell
-            unassigned_es -= shellsize
-        del unassigned_es
-        self.total_es = total_es # not yet used for anything
-        self.num_outer_shell_es = num_outer_shell_es # (this might only be used in this routine)
-        if shellsize != 8:
-            return # don't go beyond this point for H or He.
-            # BTW, H is considered sp3 to simplify the bond-inference code, but technically that's nonsense.
-        spX = self.spX
-        numbonds = self.numbonds # we'll check this for consistency, or maybe use it to distinguish graphitic N from other sp2 N...
-        # now figure out number of lone pairs, available pi electrons
-        nlp = npi = 0 # num_spX_lonepairs (just those in spX orbitals, not p orbitals), num_pi_electrons
-            # 0 is default value for both, but following cases modify one or both values;
-            # then they're stored in attrs before we return.
-        nlp_p = 0 # num_p_lonepairs (number of lone pairs in p orbitals)
-        if spX == 3:
-            # There are 4 available bonding (or LP) positions or AOs (atomic orbitals), hybridized from s,p,p,p.
-            # The first 4 electrons just offer themselves for sigma bonds, one per orbital.
-            # Additional electrons pair up with those one by one to form lone pairs, reducing numbonds.
-            if num_outer_shell_es <= 4:
-                assert numbonds == num_outer_shell_es
-            else: # 5 thru 8
-                assert numbonds == shellsize - num_outer_shell_es
-                nlp = num_outer_shell_es - 4
-        elif spX == 2:
-            # There are 3 bonding (or LP) positions,
-            # plus one p orbital which might help form a pi bond or contain an LP or contain nothing.
-            # The first 3 electrons offer themselves for sigma bonds
-            # (I don't know what happens for fewer than 3,
-            #  and we have no non-sp3 atomtypes for those anyway -- maybe they're impossible.)
-            assert 3 <= num_outer_shell_es <= 6 # (the upper limit of 6 is commented on implicitly below)
-            # The 4th electron offers itself for a pi bond (which is not counted in numbonds).
-            # The next one can either pair up with that one (e.g. in N/sp2(graphitic))
-            # or with one of the "sigma electrons" (reducing numbonds).
-            # Likewise, for more electrons, 0 or 1 can pair with the "pi electron",
-            # and the rest reduce numbonds (down to 1 for Oxygen -- any more and I doubt sp2 is possible).
-            # (I don't know how many of those combinations are possible,
-            #  but I don't need to know in this code, since numbonds tells me what happened.)
-            if num_outer_shell_es <= 3:
-                assert numbonds == num_outer_shell_es
-            else:
-                npi = 1 # the 4th electron (this value might be changed again below)
-                if num_outer_shell_es > 4:
-                    # find out what happens to the 5th and optional 6th electrons
-                    more_es = num_outer_shell_es - 4 # (1 or 2 of them)
-                    # some of them (0 to 2, all or all but one) paired with sigma electrons to form lone pairs and reduce numbonds
-                    nlp = 3 - numbonds
-                    leftover = more_es - nlp
-                    assert leftover in [0,1]
-                    # the leftover electron (if any) paired with that 4th "pi electron"
-                    # (forming another lone pair in the p orbital -- I'll store that separately to avoid confusion)
-                    npi -= leftover
-                    nlp_p += leftover
-        else:
-            assert spX == 1
-            # There are two bonding (or LP) positions, plus 2 p orbitals.
-            # I'll use similar code to the above, though I think many combinations of values won't be possible.
-            # In fact, I think 4 <= num_outer_shell_es <= 6, so I won't worry much about correctness of the following outside of that.
-            if num_outer_shell_es <= 2:
-                assert numbonds == num_outer_shell_es
-            else:
-                more_es = min(2, num_outer_shell_es - 2) # no higher than 2
-                # for C(sp), num_outer_shell_es == 4, and these 2 offer themselves for pi bonds
-                npi += more_es
-                # now if there are more than 4, what do they pair up with?
-                # I'm not sure, so figure it out from numbonds (though I suspect only one answer is ever possible).
-                if num_outer_shell_es > 4:
-                    more_es = num_outer_shell_es - 4
-                    nlp = 2 - numbonds # lone pairs in the sp AOs
-                    leftover = more_es - nlp
-                    assert leftover in [0,1,2] # since only 2 p orbitals (occupied by 1 e each) they can go into
-                    npi -= leftover
-                    nlp_p += leftover
-        self.num_spX_lonepairs = nlp
-        self.num_p_lonepairs = nlp_p
-        self.num_lonepairs = nlp + nlp_p # more useful to the outside code, though not yet used as of 050707
-        self.num_pi_electrons = npi
-        assert 2 * (nlp + nlp_p) + npi + numbonds == num_outer_shell_es # double check all this by counting the electrons
-        if 0 and debug_flags.atom_debug:
-            print "atom_debug: (%d) %s has %d bonds, and %d,%d,%d  pi electrons, LPs in spX, LPs in p" % \
-                  (self.element.eltnum, self.fullname, numbonds, npi, nlp, nlp_p)
-        return # from _init_electronic_structure
+#         _debug = 0
+#         if (self.element.eltnum == 15 or self.element.eltnum == 33 or self.element.eltnum == 34):
+#             _debug = 1
+#             print "_init_electronic_structure(%d)" % self.element.eltnum
+#         total_es = self.element.eltnum + self.charge # total number of electrons
+#         # shell 1 is 1s, 2 es in all. shell 2 is 2s, 2px, 2py, 2pz, 8 electrons in all. shell 3 starts out 3s, 3px, 3py, 3pz...
+#         unassigned_es = total_es
+#         for shellsize in [2,8,8,-1]:
+#             if shellsize < 0:
+#                 return # don't yet bother to figure out any of this for more than 18 electrons
+#                     # (should be ok, since this info is only needed for sp2 or sp atomtypes,
+#                     #  and those don't yet go above Sulfur (elt 16)
+#             if unassigned_es <= shellsize:
+#                 num_outer_shell_es = unassigned_es
+#                 break
+#             # try the next shell
+#             unassigned_es -= shellsize
+#         del unassigned_es
+#         if (_debug): print "num_outer_shell_es: %d" % num_outer_shell_es
+#         if (_debug): print "shellsize: %d" % shellsize
+#         self.total_es = total_es # not yet used for anything
+#         self.num_outer_shell_es = num_outer_shell_es # (this might only be used in this routine)
+#         if shellsize != 8:
+#             return # don't go beyond this point for H or He.
+#             # BTW, H is considered sp3 to simplify the bond-inference code, but technically that's nonsense.
+#         spX = self.spX
+#         numbonds = self.numbonds # we'll check this for consistency, or maybe use it to distinguish graphitic N from other sp2 N...
+#         # now figure out number of lone pairs, available pi electrons
+#         nlp = npi = 0 # num_spX_lonepairs (just those in spX orbitals, not p orbitals), num_pi_electrons
+#             # 0 is default value for both, but following cases modify one or both values;
+#             # then they're stored in attrs before we return.
+#         nlp_p = 0 # num_p_lonepairs (number of lone pairs in p orbitals)
+#         if spX == 3:
+#             # There are 4 available bonding (or LP) positions or AOs (atomic orbitals), hybridized from s,p,p,p.
+#             # The first 4 electrons just offer themselves for sigma bonds, one per orbital.
+#             # Additional electrons pair up with those one by one to form lone pairs, reducing numbonds.
+#             if num_outer_shell_es <= 4:
+#                 assert numbonds == num_outer_shell_es
+#             else: # 5 thru 8
+#                 if (numbonds != shellsize - num_outer_shell_es):
+#                     return # this is true for sp3(phosphate), currently ok to bail, as none of this is actually used.
+#                 nlp = num_outer_shell_es - 4
+#         elif spX == 2:
+#             # There are 3 bonding (or LP) positions,
+#             # plus one p orbital which might help form a pi bond or contain an LP or contain nothing.
+#             # The first 3 electrons offer themselves for sigma bonds
+#             # (I don't know what happens for fewer than 3,
+#             #  and we have no non-sp3 atomtypes for those anyway -- maybe they're impossible.)
+#             assert 3 <= num_outer_shell_es <= 6 # (the upper limit of 6 is commented on implicitly below)
+#             # The 4th electron offers itself for a pi bond (which is not counted in numbonds).
+#             # The next one can either pair up with that one (e.g. in N/sp2(graphitic))
+#             # or with one of the "sigma electrons" (reducing numbonds).
+#             # Likewise, for more electrons, 0 or 1 can pair with the "pi electron",
+#             # and the rest reduce numbonds (down to 1 for Oxygen -- any more and I doubt sp2 is possible).
+#             # (I don't know how many of those combinations are possible,
+#             #  but I don't need to know in this code, since numbonds tells me what happened.)
+#             if num_outer_shell_es <= 3:
+#                 assert numbonds == num_outer_shell_es
+#             else:
+#                 npi = 1 # the 4th electron (this value might be changed again below)
+#                 if num_outer_shell_es > 4:
+#                     # find out what happens to the 5th and optional 6th electrons
+#                     more_es = num_outer_shell_es - 4 # (1 or 2 of them)
+#                     # some of them (0 to 2, all or all but one) paired with sigma electrons to form lone pairs and reduce numbonds
+#                     nlp = 3 - numbonds
+#                     leftover = more_es - nlp
+#                     assert leftover in [0,1]
+#                     # the leftover electron (if any) paired with that 4th "pi electron"
+#                     # (forming another lone pair in the p orbital -- I'll store that separately to avoid confusion)
+#                     npi -= leftover
+#                     nlp_p += leftover
+#         else:
+#             assert spX == 1
+#             # There are two bonding (or LP) positions, plus 2 p orbitals.
+#             # I'll use similar code to the above, though I think many combinations of values won't be possible.
+#             # In fact, I think 4 <= num_outer_shell_es <= 6, so I won't worry much about correctness of the following outside of that.
+#             if num_outer_shell_es <= 2:
+#                 assert numbonds == num_outer_shell_es
+#             else:
+#                 more_es = min(2, num_outer_shell_es - 2) # no higher than 2
+#                 # for C(sp), num_outer_shell_es == 4, and these 2 offer themselves for pi bonds
+#                 npi += more_es
+#                 # now if there are more than 4, what do they pair up with?
+#                 # I'm not sure, so figure it out from numbonds (though I suspect only one answer is ever possible).
+#                 if num_outer_shell_es > 4:
+#                     more_es = num_outer_shell_es - 4
+#                     nlp = 2 - numbonds # lone pairs in the sp AOs
+#                     leftover = more_es - nlp
+#                     assert leftover in [0,1,2] # since only 2 p orbitals (occupied by 1 e each) they can go into
+#                     npi -= leftover
+#                     nlp_p += leftover
+#         self.num_spX_lonepairs = nlp
+#         self.num_p_lonepairs = nlp_p
+#         self.num_lonepairs = nlp + nlp_p # more useful to the outside code, though not yet used as of 050707
+#         self.num_pi_electrons = npi
+#         assert 2 * (nlp + nlp_p) + npi + numbonds == num_outer_shell_es # double check all this by counting the electrons
+#         if 0 and debug_flags.atom_debug:
+#             print "atom_debug: (%d) %s has %d bonds, and %d,%d,%d  pi electrons, LPs in spX, LPs in p" % \
+#                   (self.element.eltnum, self.fullname, numbonds, npi, nlp, nlp_p)
+#         return # from _init_electronic_structure
+
+    def potential_pi_bond(self):
+        """
+        Returns true if atoms of this type can be involved in a pi bond.
+        """
+        return self.spX < 3
+
+    def is_linear(self):
+        """
+        Returns true if atoms of this type have two bonds in a linear arrangement.
+        """
+        return self.spX == 1
+
+    def is_planar(self):
+        """
+        Returns true if atoms of this type have three bonds in a planar arrangement.
+        """
+        return self.spX == 2
         
     def apply_to(self, atom): # how is this used? do we transmute the elt too? (why not? why? when would that be called?)
         """
@@ -290,28 +311,52 @@ class AtomType(IdentityCopyMixin):
         self.bond1_is_bad = (self.is_S_sp2 or self.is_O_sp2)
         self.is_N_sp = (self.element.symbol == 'N' and self.spX == 1) # used for a special case, below
         
-        spX = self.spX
-        if spX == 3:
-            return # only single bonds are allowed for sp3
         res = [] # build a list of bond types to allow
-##        if not self.element.symbol in "OS":
-##            res.append(V_SINGLE) ## what about H bonded to O(sp2)? no bond type would be legal... need to treat as valence error...
-        if self.element.symbol in "CNOSX": # (X means open bond)
-            # double bonds are ok for those elements (for either sp or sp2, of the supported atomtypes for them? almost...)
-            if not self.is_N_sp:
+        spX = self.spX
+
+        if (spX == 3):
+            if (self.valence > 4):
                 res.append(V_DOUBLE)
-        if self.element.symbol in "CNX" and spX == 1:
-            res.append(V_TRIPLE)
-        if self.element.symbol in "CNX": ###@@@ and maybe B too? ok for sp or sp2? almost...
-            if not self.is_N_sp:
                 res.append(V_AROMATIC)
                 res.append(V_GRAPHITE)
-        if self.element.symbol in "CX" and spX == 1:
-            res.append(V_CARBOMERIC)
+                if (self.valence > 5):
+                    res.append(V_TRIPLE)
+                    res.append(V_CARBOMERIC)
+            else:
+                return # only single bonds are allowed for sp3 with 4 or fewer bonds
+
+        if (spX ==  2): # currently C, N, O, S
+            if (self.valence > 1):
+                res.append(V_AROMATIC)
+                res.append(V_GRAPHITE)
+                if (self.valence > 1.9):
+                    res.append(V_DOUBLE)
+
+        if (spX == 1): # currently X, C, N
+            if (self.element.symbol == "X"):
+                res.append(V_DOUBLE)
+                res.append(V_AROMATIC)
+                res.append(V_GRAPHITE)
+                res.append(V_TRIPLE)
+                res.append(V_CARBOMERIC)
+            elif (self.element.symbol == "N"):
+                res.append(V_TRIPLE)
+            elif (self.valence > 1):
+                res.append(V_AROMATIC)
+                res.append(V_GRAPHITE)
+                if (self.valence > 1.9):
+                    res.append(V_DOUBLE)
+                    if (self.valence > 2.1):
+                        res.append(V_CARBOMERIC)
+                        if (self.valence > 2.9):
+                            res.append(V_TRIPLE)
+
         if not res:
             return
+
         if 0 and debug_flags.atom_debug:
             print "atom_debug: (%d) %s permits these v6's besides single(6): %r" % (self.element.eltnum, self.fullname, res)
+
         res.append(V_SINGLE)
             # Note: we do this even for O(sp2) and S(sp2), even though a bond1 as their sole bond is always a valence error.
             # Valence errors have to be treated separately anyway, so it's probably ok to not catch these special cases here.

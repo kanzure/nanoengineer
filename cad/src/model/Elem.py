@@ -22,7 +22,6 @@ to help permit specialized modules and Elem/Atom subclasses
 for PAM3 and PAM5 (etc). (Should we define new Elem subclasses for them?)
 """
 
-from model.atomtypes import AtomType
 from foundation.state_utils import IdentityCopyMixin
 
 class Elem(IdentityCopyMixin):
@@ -92,18 +91,22 @@ class Elem(IdentityCopyMixin):
         self.deprecated_to = deprecated_to
         if not deprecated_to and deprecated_to is not None:
             print "WARNING: we don't yet know what element %r should be deprecated_to" % sym
+        self.atomtypes = []
         ## self.bonds = bn # not needed anymore, I hope
-        if not bn: # e.g. Helium
-            bn = [[0, 0, None]]
-        valence = bn[0][0]
-        assert type(valence) == type(1)
-        assert valence in [0,1,2,3,4,5,6,7] # in fact only up to 4 is properly supported
-        self.atomtypes = map( lambda bn_triple: AtomType( self, bn_triple, valence ), bn ) # creates cyclic refs, that's ok
-            # This is a public attr. Client code should not generally modify it!
-            # But if we someday have add_atomtype method, it can append or insert,
-            # as long as it remembers that client code treats index 0 as the default atomtype for this element.
-            # Client code is not allowed to assume a given atomtype's position in this list remains constant!
+#         if not bn: # e.g. Helium
+#             bn = [[0, 0, None]]
+#         valence = bn[0][0]
+#         assert type(valence) == type(1)
+#         assert valence in [0,1,2,3,4,5,6,7] # in fact only up to 4 is properly supported
+#         self.atomtypes = map( lambda bn_triple: AtomType( self, bn_triple, valence ), bn ) # creates cyclic refs, that's ok
+#             # This is a public attr. Client code should not generally modify it!
+#             # But if we someday have add_atomtype method, it can append or insert,
+#             # as long as it remembers that client code treats index 0 as the default atomtype for this element.
+#             # Client code is not allowed to assume a given atomtype's position in this list remains constant!
         return
+
+    def addAtomType(self, aType):
+        self.atomtypes += [aType]
 
     def find_atomtype(self, atomtype_name): #bruce 050511
         """

@@ -39,6 +39,7 @@ and then access the attribute directly.
 from foundation.preferences import prefs_context
 
 from model.Elem import Elem
+from model.atomtypes import AtomType
 
 from model.elements_data import init_chemical_elements
 from model.elements_data_other import init_other_elements
@@ -74,7 +75,11 @@ class _ElementPeriodicTable(object):
         self.rvdw_change_counter = 1
         return
 
-    def addElements(self, elmTable, _defaultRadiusAndColor, _alternateRadiusAndColor,
+    def addElements(self,
+                    elmTable,
+                    defaultRadiusAndColor,
+                    alternateRadiusAndColor,
+                    atomTypeData,
                     directional_bond_elements = (),
                     default_options = {}
                    ):
@@ -86,25 +91,28 @@ class _ElementPeriodicTable(object):
         
         Use preference value for radius and color of each element,
         if available (using element symbol as prefs key);
-        otherwise, use values from _defaultRadiusAndColor dictionary,
+        otherwise, use values from defaultRadiusAndColor dictionary,
         which must have values for all element symbols in elmTable.
         (Make sure it has the value, even if we don't need it due to prefs.)
 
-        Also store all values in _defaultRadiusAndColor, _alternateRadiusAndColor tables
+        Also store all values in defaultRadiusAndColor, alternateRadiusAndColor tables
         for later use by loadDefaults or loadAlternates methods.
         
         @param elmTable: a list of elements to create, as tuples of a format
                          documented in elements_data.py.
 
-        @param _defaultRadiusAndColor: a dictionary of radius, color pairs,
+        @param defaultRadiusAndColor: a dictionary of radius, color pairs,
                                   indexed by element symbol. Must be complete.
                                   Used now when not overridden by prefs.
                                   Stored for optional later use by loadDefaults.
 
-        @param _alternateRadiusAndColor: an alternate dictionary of radius, color pairs.
+        @param alternateRadiusAndColor: an alternate dictionary of radius, color pairs.
                               Need not be complete; missing entries are
-                              effectively taken from _defaultRadiusAndColor.
+                              effectively taken from defaultRadiusAndColor.
                               Stored for optional later use by loadAlternates.
+
+        @param atomTypeData: array of initialization data for each
+                             AtomType.  See description in elements_data.py.
 
         @param directional_bond_elements: a list of elements in elmTable
                                            which support directional bonds.
@@ -117,7 +125,7 @@ class _ElementPeriodicTable(object):
             if len(elm) >= 6:
                 options.update(elm[5])
             symbols[elm[0]] = 1 # record element symbols seen in this call
-            rad_color = prefs.get(elm[0], _defaultRadiusAndColor[elm[0]])
+            rad_color = prefs.get(elm[0], defaultRadiusAndColor[elm[0]])
             el = Elem(elm[2], elm[0], elm[1], elm[3],
                       rad_color[0], rad_color[1], elm[4],
                       ** options)
@@ -138,12 +146,32 @@ class _ElementPeriodicTable(object):
             assert el.bonds_can_be_directional == (el.symbol == 'X' or el.role == 'strand')
                 # once this works, we can clean up the code to not hardcode those list args
                 # [bruce 080117]
-        for key in _defaultRadiusAndColor.iterkeys():
+        for key in defaultRadiusAndColor.iterkeys():
             assert key in symbols
-        for key in _alternateRadiusAndColor.iterkeys():
+        for key in alternateRadiusAndColor.iterkeys():
             assert key in symbols
-        self._defaultRadiusAndColor.update(_defaultRadiusAndColor)
-        self._alternateRadiusAndColor.update(_alternateRadiusAndColor)
+        self._defaultRadiusAndColor.update(defaultRadiusAndColor)
+        self._alternateRadiusAndColor.update(alternateRadiusAndColor)
+
+        for aType in atomTypeData:
+            at_symbol = aType[0]
+            at_hybridizationName = aType[1]
+            at_formalCharge = aType[2]
+            at_electronsNeeded = aType[3]
+            at_electronsProvided = aType[4]
+            at_covalentRadius = aType[5]
+            at_geometry = aType[6]
+
+            elt = self.getElement(at_symbol)
+
+            elt.addAtomType(AtomType(elt,
+                                     at_hybridizationName,
+                                     at_formalCharge,
+                                     at_electronsNeeded,
+                                     at_electronsProvided,
+                                     at_covalentRadius,
+                                     at_geometry));
+
         return
     
     def _loadTableSettings(self, elSym2rad_color ):

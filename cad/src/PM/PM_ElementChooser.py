@@ -52,11 +52,12 @@ ELEMENTS_BUTTON_LIST = [ \
 ELEMENT_ATOM_TYPES = { \
     6: ("sp3", "sp2", "sp"                  ), 
     7: ("sp3", "sp2", "sp", "sp2(graphitic)"),
-    8: ("sp3", "sp2"                        ),
+    8: ("sp3", "sp2", "sp2(-)", "sp2(-.5)"  ),
+   15: ("sp3", "sp3(phosphate)"             ),
    16: ("sp3", "sp2"                        )
 }
 
-ATOM_TYPES = ("sp3", "sp2", "sp", "sp2(graphitic)")
+ATOM_TYPES = ("sp3", "sp2", "sp", "sp2(graphitic)", "sp3(phosphate)", "sp2(-)", "sp2(-.5)")
             
 # Atom types (hybrids) button list to create atom types tool button group.
 # Format: 
@@ -73,8 +74,24 @@ ATOM_TYPES_BUTTON_LIST = [ \
     ( "QToolButton", 1, "sp2", "", "sp2", None, 1, 0 ),
     ( "QToolButton", 2, "sp",  "", "sp",  None, 2, 0 ),
     ( "QToolButton", 3, "sp2(graphitic)", "ui/modeltree/N_graphitic.png", 
-      "Graphitic", None, 3, 0 ) #@ Icon lives in a poorly chosen location.
+      "Graphitic", None, 3, 0 ), #@ Icon lives in a poorly chosen location.
+    ( "QToolButton", 4, "sp3(phosphate)",  "", "sp3p",  None, 4, 0 ),
+    ( "QToolButton", 5, "sp2(-)",  "", "sp2(-)",  None, 5, 0 ),
+    ( "QToolButton", 6, "sp2(-.5)",  "", "sp2(-.5)",  None, 6, 0 ),
 ]
+
+# How to add a new hybridization of an element to the UI:
+
+# First, create the hybridization in model/elements_data.py.  See the
+# comments there for how to do this.
+
+# Next, add the hybridization to ELEMENT_ATOM_TYPES above.  The
+# indices are the element numbers in the ELEMENTS_BUTTON_LIST.
+
+# Next, make sure the hybridization appears in the ATOM_TYPES list and
+# the ATOM_TYPES_BUTTON_LIST.  There are two indices that should
+# increment by one for each line.  You may wish to add an icon graphic
+# if the string does not fit entirely within the button.
 
 class PM_ElementChooser( PM_MolecularModelingKit ):
     """

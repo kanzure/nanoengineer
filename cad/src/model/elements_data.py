@@ -216,7 +216,8 @@ _mendeleev = [
     ("Mg", "Magnesium",   12,  40.356,  [[2, 160, None]]),
     ("Al", "Aluminum",    13,  44.7997, [[3, 143, flat]]),
     ("Si", "Silicon",     14,  46.6245, [[4, 111, tetra4]]),
-    ("P",  "Phosphorus",  15,  51.429,  [[3, 108, tetra3]]),
+    ("P",  "Phosphorus",  15,  51.429,  [[3, 108, tetra3, 'sp3'],
+                                         [5, 100, tetra4, 'sp3(phosphate)']]), # 100 is made up
     ("S",  "Sulfur",      16,  53.233,  [[2, 107, tetra2, 'sp3'],
                                          [1, 88, onebond, 'sp2']]), #bruce 050706 added this, and both names; length chgd by Josh
     ("Cl", "Chlorine",    17,  58.867,  [[1, 102, onebond]]),
@@ -246,10 +247,99 @@ _mendeleev = [
     ("Xe", "Xenon",       54, 134.429,  None),
  ]
 
+# How to add a new hybridization type for an element:
+#
+# First, add it to the table below (or one of the similar ones
+# wherever the element definition is found).  If an element has more
+# than one hybridization, the hybridization name must be specified so
+# they can be distinguished.  In general, hybridization names should
+# start with the string "sp", possibly followed by a digit 2 or 3.  In
+# general, the formal charge plus the number of electrons provided
+# should equal the group number of the element.  The total bond order
+# will be the electrons needed minus the electrons provided (this is
+# the number of electrons shared with other atoms).  The number of
+# individual bonds to distinct atoms is specified by the length of the
+# geometry array.  The geometry array specifies how these bonds are
+# arranged around the central atom.
+#
+# Next, check _init_permitted_v6_list() in class AtomType in
+# atomtypes.py.  Make any adjustments necessary so that the correct
+# list of available bond types is generated for the new hybridization.
+#
+# Next, add the new hybridization to the UI in PM_ElementChooser.py.
+# See the comments there for how to do that.
+
+# symbol name
+# hybridization name
+# formal charge
+# number of electrons needed to fill shell
+# number of valence electrons provided
+# covalent radius (pm)
+# geometry (array of vectors, one for each available bond)
+
+#    symb  hybridization     FC   need prov c-rad geometry
+_chemicalAtomTypeData = [
+    ["X",  'sp',              0,    2,  1,  0.00, None],
+    ["H",  None,              0,    2,  1,  0.31, onebond],
+    ["He", None,              0,    2,  2,  0.00, None],
+    ["Li", None,              0,    2,  1,  1.52, None],
+    ["Be", None,              0,    4,  2,  1.14, None],
+    ["B",  None,              0,    6,  3,  0.80, flat],
+    ["C",  'sp3',             0,    8,  4,  DIAMOND_BOND_LENGTH / 2, tetra4],
+    ["C",  'sp2',             0,    8,  4,  0.71, flat],
+    ["C",  'sp',              0,    8,  4,  0.66, straight],
+    ["N",  'sp3',             0,    8,  5,  0.73, tetra3],
+    ["N",  'sp2',             0,    8,  5,  0.61, flat[:2]],
+    ["N",  'sp',              0,    8,  5,  0.56, onebond],
+    ["N",  'sp2(graphitic)',  0,    8,  5,  0.62, flat],
+    ["O",  'sp3',             0,    8,  6,  0.69, oxy2],
+    ["O",  'sp2',             0,    8,  6,  0.60, onebond],
+    ["O",  'sp2(-)',         -1,    8,  7,  0.60, onebond], # bogus rcovalent
+    ["O",  'sp2(-.5)',     -0.5,    8,6.5,  0.60, onebond], # bogus rcovalent
+    ["F",  None,              0,    8,  7,  0.70, onebond],
+    ["Ne", None,              0,    8,  8,  0.00, None],
+    ["Na", None,              0,    2,  1,  1.86, None],
+    ["Mg", None,              0,    4,  2,  1.60, None],
+    ["Al", None,              0,    6,  3,  1.43, flat],
+    ["Si", None,              0,    8,  4,  1.11, tetra4],
+    ["P",  'sp3',             0,    8,  5,  1.08, tetra3],
+    ["P",  'sp3(phosphate)',  0,   10,  5,  1.00, tetra4], # bogus rcovalent
+    ["S",  'sp3',             0,    8,  6,  1.07, tetra2],
+    ["S",  'sp2',             0,    8,  6,  0.88, onebond],
+    ["Cl", None,              0,    8,  7,  1.02, onebond],
+    ["Ar", None,              0,    8,  8,  0.00, None],
+    ["K",  None,              0,    2,  1,  2.31, None],
+    ["Ca", None,              0,    4,  2,  1.97, tetra2],
+    ["Sc", None,              0,    6,  3,  1.60, tetra3],
+    ["Ti", None,              0,    8,  4,  1.47, tetra4],
+    ["V",  None,              0,   10,  5,  1.32, None],
+    ["Cr", None,              0,   12,  6,  1.25, None],
+    ["Mn", None,              0,   14,  7,  1.12, None],
+    ["Fe", None,              0,    6,  3,  1.24, None],
+    ["Co", None,              0,    6,  3,  1.25, None],
+    ["Ni", None,              0,    6,  3,  1.25, None],
+    ["Cu", None,              0,    4,  2,  1.28, None],
+    ["Zn", None,              0,    4,  2,  1.33, None],
+    ["Ga", None,              0,    6,  3,  1.35, None],
+    ["Ge", None,              0,    8,  4,  1.22, tetra4],
+    ["As", None,              0,    8,  5,  1.19, tetra3],
+    ["Se", None,              0,    8,  6,  1.20, tetra2],
+    ["Br", None,              0,    8,  7,  1.19, onebond],
+    ["Kr", None,              0,    8,  8,  0.00, None],
+
+    ["Sb", None,              0,    8,  5,  1.19, tetra3],
+    ["Te", None,              0,    8,  6,  1.20, tetra2],
+    ["I",  None,              0,    8,  7,  1.19, onebond],
+    ["Xe", None,              0,    8,  8,  0.00, None],
+]
+
 # ==
 
 def init_chemical_elements( periodicTable):
-    periodicTable.addElements( _mendeleev, _defaultRadiusAndColor, _alternateRadiusAndColor,
+    periodicTable.addElements( _mendeleev,
+                               _defaultRadiusAndColor,
+                               _alternateRadiusAndColor,
+                               _chemicalAtomTypeData,
                                _DIRECTIONAL_BOND_ELEMENTS_chemical )
     return
 

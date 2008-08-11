@@ -1499,7 +1499,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         Given our atomtypes, are we a potential pi bond?
         """
-        return self.atom1.atomtype.spX < 3 and self.atom2.atomtype.spX < 3
+        return (self.atom1.atomtype.potential_pi_bond() and
+                self.atom2.atomtype.potential_pi_bond())
     
     # ==
     

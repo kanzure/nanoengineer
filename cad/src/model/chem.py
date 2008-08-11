@@ -2176,10 +2176,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     def min_max_actual_valence(self): #bruce 051215 split this out of .bad and .bad_valence
         """
-        Return the pair (minv, maxv) of the min and max reasonable interpretations of self's current valence,
-        based on bond types.
+        Return the pair (minv, maxv) of the min and max reasonable
+        values for the sum of all bond orders for all of the bonds to
+        self, based on bond types.  Single, double, and triple bonds
+        give exact floating point values, while aromatic and graphitic
+        allow ranges.  This allows complex resonance structures to be
+        deemed ok even without an exact match.
 
-        Note: these are actual valence numbers (ints or floats, but single bond is 1.0), NOT v6 values.
+        Note: these are actual float bond orders, NOT v6 values.
         """
         minv = maxv = 0
         for bond in self.bonds:
@@ -4542,7 +4546,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # [bruce 041215 comment: might need revision if numbonds > 4]
             a1 = self.bonds[0].other(self) # our real neighbor
             if len(a1.bonds)>1:
-                if not (a1.atomtype.spX == 1 and atype.spX < 3): #bruce 050729 added (and atype.spX < 3) to fix bug 840
+                if not (a1.atomtype.is_linear() and atype.potential_pi_bond()):
                     # figure out how to line up one arbitrary bond from each of self and a1.
                     # a2 = a neighbor of a1 other than self
                     if self is a1.bonds[0].other(a1):
@@ -4594,7 +4598,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     # Note that we presently don't plan to store pi system alignment in the mmp file,
                     # which means it will be arbitrarily re-guessed for chains of sp atoms as needed.
                     # (I'm hoping other people will be as annoyed by that as I will be, and come to favor fixing it.)
-                if atype.spX < 3 and a1.atomtype.spX < 3: # for now, same behavior for sp2 or sp atoms [revised 050630]
+                if (atype.potential_pi_bond() and
+                    a1.atomtype.potential_pi_bond()): # for now, same behavior for sp2 or sp atoms [revised 050630]
                     pass # no extra spin
                 else:
                     spin = spin + Q(r, math.pi/3.0) # 60 degrees of extra spin

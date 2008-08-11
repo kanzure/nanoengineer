@@ -477,18 +477,11 @@ def make_pi_bond_obj(bond): # see also find_chain_or_ring_from_bond, which gener
     lista1.reverse()
     return PiBondSpChain( listb1 + [bond] + listb2, lista1 + [atom1, atom2] + lista2 ) # one more atom than bond
 
-def potential_pi_bond(bond):
-    """
-    given our atomtypes, are we a potential pi bond?
-    """
-    return bond.potential_pi_bond()
-    ## return bond.atom1.atomtype.spX < 3 and bond.atom2.atomtype.spX < 3
-
 def sp_atom_2bonds(atom):
     """
     """
     ## warning: this being true is *not* enough to know that a pi bond containing atom has an sp-chain length > 1.
-    return atom.atomtype.spX == 1 and len(atom.bonds) == 2 and atom.atomtype.numbonds == 2
+    return atom.atomtype.is_linear() and len(atom.bonds) == 2 and atom.atomtype.numbonds == 2
 
 def next_bond_in_sp_chain(bond, atom):
     """
@@ -499,7 +492,7 @@ def next_bond_in_sp_chain(bond, atom):
     of a potential pi bond) is the definitive condition for that bond
     not being the only one in its sp-chain.
     """
-    assert potential_pi_bond(bond)
+    assert bond.potential_pi_bond()
     if not sp_atom_2bonds(atom):
         return None #k retval
     bonds = atom.bonds
@@ -509,7 +502,7 @@ def next_bond_in_sp_chain(bond, atom):
     else:
         assert bond is bonds[1]
         obond = bonds[0]
-    if potential_pi_bond(obond):
+    if obond.potential_pi_bond():
         return obond
     return None
 
@@ -637,7 +630,7 @@ def p_vector_from_sp2_atom(atom, bond, out = DFLT_OUT, up = DFLT_UP):
     return its p orbital vector for use in thinking about that pi bond,
     or None if this atom (considering its other bonds) doesn't constrain that direction.
     """
-    if atom.atomtype.spX != 2:
+    if not atom.atomtype.is_planar():
         return None # helps make initial stub code simpler
     nbonds = len(atom.bonds)
     if nbonds == 3:

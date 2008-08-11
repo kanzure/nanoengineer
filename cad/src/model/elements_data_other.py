@@ -35,10 +35,18 @@ _mendeleev = [
 
  ]
 
+#    symb   hybridization     FC   need prov c-rad geometry
+_otherAtomTypeData = [
+    ["Vs0", None,              0,    0,  0,  0.00, None],
+]
+
 # ==
 
 def init_other_elements( periodicTable):
-    periodicTable.addElements( _mendeleev, _defaultRadiusAndColor, _alternateRadiusAndColor,
+    periodicTable.addElements( _mendeleev,
+                               _defaultRadiusAndColor,
+                               _alternateRadiusAndColor,
+                               _otherAtomTypeData,
                                _DIRECTIONAL_BOND_ELEMENTS_OTHER,
                                default_options = dict()
                               )
