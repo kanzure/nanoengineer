@@ -43,6 +43,9 @@ from utilities.exception_classes import AbstractMethod
 from commands.Select.Select_Command import Select_Command
 from utilities.debug import print_compact_stack
 
+#for debugging new command stack API 
+from utilities.GlobalPreferences import USE_COMMAND_STACK 
+
 
 class EditCommand(Select_Command):
     """
@@ -186,8 +189,9 @@ class EditCommand(Select_Command):
         @see: baseCommand.command_exit_PM() 
         @see: self.command_exit_flyout()
         """
-        if self.propMgr:
-            self.propMgr.close()
+        if not USE_COMMAND_STACK:
+            if self.propMgr:
+                self.propMgr.close()
     
     def command_enter_misc_actions(self):
         pass
@@ -248,11 +252,14 @@ class EditCommand(Select_Command):
             self.propMgr = self._createPropMgrObject()
             #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
             changes.keep_forever(self.propMgr)
-
-        if not showPropMgr:
-            return     
-
-        self.propMgr.show()
+            
+            
+        if not USE_COMMAND_STACK:
+            
+            if not showPropMgr:
+                return   
+            
+            self.propMgr.show()
 
     def createStructure(self, showPropMgr = True):
         """

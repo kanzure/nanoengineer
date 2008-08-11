@@ -36,6 +36,9 @@ from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_Grap
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
 from ne1_ui.toolbars.Ui_MoveFlyout import MoveFlyout
 
+#for debugging new command stack API 
+from utilities.GlobalPreferences import USE_COMMAND_STACK 
+
 class Move_basicCommand(SelectChunks_basicCommand):
     """
     """
@@ -72,7 +75,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
             #for modes -- ninad 2007-08-29
             changes.keep_forever(self.propMgr)  
             
-        self.propMgr.show()        
+        
+        if not USE_COMMAND_STACK:
+            self.propMgr.show()        
+            
         self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
         self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
         
@@ -83,9 +89,9 @@ class Move_basicCommand(SelectChunks_basicCommand):
         
         @see: baseCommand.command_exit_PM() for documentation
         """
-        
-        if self.propMgr:
-            self.propMgr.close()
+        if not USE_COMMAND_STACK:
+            if self.propMgr:
+                self.propMgr.close()
             
     def command_enter_flyout(self):
         """

@@ -51,6 +51,8 @@ from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from ne1_ui.toolbars.Ui_BuildAtomsFlyout import BuildAtomsFlyout
 
+#for debugging new command stack API 
+from utilities.GlobalPreferences import USE_COMMAND_STACK 
 _superclass = SelectAtoms_basicCommand
 
 class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
@@ -105,7 +107,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             #for modes -- ninad 2007-08-29
             changes.keep_forever(self.propMgr)  
             
-        self.propMgr.show()
+        if not USE_COMMAND_STACK:    
+            self.propMgr.show()
     
     def command_exit_PM(self):
         """
@@ -113,9 +116,9 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         @see: baseCommand.command_exit_PM() for documentation
         """
-        
-        if self.propMgr:
-            self.propMgr.close()
+        if not USE_COMMAND_STACK:
+            if self.propMgr:
+                self.propMgr.close()
             
     def command_enter_flyout(self):
         """
