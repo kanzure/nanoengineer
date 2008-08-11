@@ -11,7 +11,8 @@ None other than system imports should be used without good reason.
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 
-NE1_RELEASE_VERSION = "1.1.0"
-NE1_RELEASE_DATE = "July 3, 2008"
+NE1_RELEASE_VERSION = "1.1.1.3"
+NE1_RELEASE_DATE = "August 11, 2008"
 NE1_OFFICIAL_RELEASE_CANDIDATE = 0
-NE1_USE_bsddb3 = False
+NE1_USE_bsddb3 = True
+NE1_CONSOLE_REDIRECT = False

@@ -16,7 +16,7 @@ and split out of main.py into this file (main_startup.py)
 by bruce 070704.
 """
 
-import sys, time, NE1_Build_Constants
+import sys, time, os, NE1_Build_Constants
 
 from ne1_startup import startup_before_most_imports
 
@@ -52,6 +52,56 @@ def startup_script( main_globals):
     # functions that need to be careful to do very few or no imports,
     # and functions that are free to do any imports.
     
+    #Windows machines spawn and remove the shell, so no info is normally
+    #captured
+    if NE1_Build_Constants.NE1_CONSOLE_REDIRECT and os.name=="nt":
+        capture_console = False
+        capture_file = ""
+        # if it's not reporting as python is the executable
+        if not sys.executable.upper().endswith("PYTHON.EXE") and \
+           not sys.executable.upper().endswith("PYTHON"):
+            try:
+                capture_file = u"".join((sys.executable[:-4], "_console.log"))
+                sys.stdout = open(capture_file, 'w')
+                capture_console = True # already trapped, don't try more.
+            except:
+                pass
+        if not capture_console:
+            # Haven't captured the console log yet.  Find the default user
+            # path and try to capture there this happens if we can't write to
+            # the normal log location, or if python.exe is the executable.
+            tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/"))
+            if not os.path.exists(tmpFilePath): #If it doesn't exist
+                try:
+                    os.mkdir(tmpFilePath) #Try making one
+                    capture_console = True 
+                except:
+                    pass
+                    # we tried, but there's no easy way to capture the console
+            if capture_console or os.path.isdir(tmpFilePath):
+                try: # We made the directory or it already existed, try
+                     # creating the log file.
+                    capture_file = os.path.normpath(u"".join((tmpFilePath,\
+                                             "/NE1_console.log")))
+                    sys.stdout = open(capture_file, 'w')
+                    capture_console = True
+                except:
+                    print >> sys.__stderr__, \
+                          "Failed to create any console log file."
+                    capture_console = False
+        if capture_console:
+            # Next two lines are specifically printed to the original console
+            print >> sys.__stdout__, "The console has been redirected into:"
+            print >> sys.__stdout__, capture_file.encode("utf_8")
+            print
+            print "starting NanoEngineer-1 in [%s]," % os.getcwd(), time.asctime()
+            print "using Python: " + sys.version
+            try:
+                print "on path: " + sys.executable
+            except:
+                pass
+            
+
     # print the version information including official release candidate if it
     # is not 0 (false)
     if NE1_Build_Constants.NE1_OFFICIAL_RELEASE_CANDIDATE:
