@@ -17,9 +17,14 @@ from protein.commands.BuildPeptide.PeptideGenerator import PeptideGenerator
 from utilities.constants import gensym
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from protein.temporary_commands.PeptideLineMode import PeptideLine_GM
+from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+from utilities.debug import print_compact_stack, print_compact_traceback
 
+from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
+#_superclass = ModelAndSimulateProtein_Command
 _superclass = EditCommand
 class Peptide_EditCommand(EditCommand):
+#class Peptide_EditCommand(ModelAndSimulateProtein_Command):
     cmd              =  greenmsg("Build Peptide: ")
     prefix           =  'Peptide'   # used for gensym
     cmdname          = 'Build Peptide'
@@ -29,6 +34,9 @@ class Peptide_EditCommand(EditCommand):
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
+    
+    if modelAndSimulateProteins:
+        command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
 
     create_name_from_prefix  =  True 
     
@@ -75,8 +83,11 @@ class Peptide_EditCommand(EditCommand):
         #Clear the segmentList as it may still be maintaining a list of segments
         #from the previous run of the command. 
         self._segmentList = []
-        self._init_gui_flyout_action( 'buildPeptideAction' ) 
-
+        if modelAndSimulateProteins:
+            self._init_gui_flyout_action( 'buildPeptideAction', 'MODEL_AND_SIMULATE_PROTEIN' ) 
+        else:
+            self._init_gui_flyout_action( 'buildPeptideAction')
+    
 
     def restore_gui(self):
         """
