@@ -151,8 +151,9 @@ class rosettaSetup_CommandRun(CommandRun):
         
         self.simcntl = RosettaSetup(self.win, self.part, suffix = suffix)
         movie = self.simcntl.movie 
+        self.cmd_type = self.args[1]
         r = writemovie(self.part, self.args, movie, print_sim_warnings = True, 
-                       cmdname = self.cmdname, useRosetta = True)
+                       cmdname = self.cmdname, cmd_type = self.cmd_type, useRosetta = True)
             
         if not r:
             # Movie file created. 
