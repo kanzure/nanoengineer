@@ -223,7 +223,12 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #Urmi 20080728: created this method to update accessing properties of
         #"current protein" in this mode.
         self.current_protein = ""
-        previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+        
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            previousCommand = self.parentMode.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        else:    
+            previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
         if  previousCommand:
             #Urmi 20080728: get the protein currently selected in the combo box
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
@@ -654,9 +659,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             if ccol == 3:
                 cbox = self.sequenceTable.item(crow, 3)
                 if cbox.checkState() == Qt.Checked:
-                    current_aa.set_backrub(True)
+                    current_aa.set_backrub_mode(True)
                 else:
-                    current_aa.set_backrub(False)
+                    current_aa.set_backrub_mode(False)
         
         from PyQt4.Qt import QTextCursor   
         cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
