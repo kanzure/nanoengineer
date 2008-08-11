@@ -35,7 +35,10 @@ class CompareProteins_Command(EditCommand):
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
-         
+    from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+    if modelAndSimulateProteins:
+        command_parent = 'MODEL_PROTEIN'
+        
     GraphicsMode_class = CompareProteins_GraphicsMode
    
     
@@ -49,9 +52,11 @@ class CompareProteins_Command(EditCommand):
         """
         Initialize GUI for this mode 
         """
-        
-        self._init_gui_flyout_action( 'compareProteinsAction' )
-               
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            self._init_gui_flyout_action( 'compareProteinsAction', 'MODEL_AND_SIMULATE_PROTEIN' )
+        else:
+            self._init_gui_flyout_action( 'compareProteinsAction')
             
         if self.propMgr is None:
             self.propMgr = CompareProteins_PropertyManager(self)
