@@ -219,11 +219,10 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.grabbedHandle = None
 
 
-    def init_gui(self):
+    def command_enter_PM(self):
         """
-        Initialize gui. 
+        See superclass dor documentation.
         """
-
         #Note that DnaSegment_EditCommand only act as an edit command for an 
         #existing structure. The call to self.propMgr.show() is done only during
         #the call to self.editStructure ..i .e. only after self.struct is 

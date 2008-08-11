@@ -169,9 +169,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #whether to update the sequence. 
         self._previousNumberOfBases = None
 
-    def init_gui(self):
+    def command_enter_PM(self):
         """
-        Initialize gui. 
+        See superclass dor documentation.
         """
         #@see DnaSegment_EditCommand.init_gui() for a detailed note. 
         #This command implements similar thing 

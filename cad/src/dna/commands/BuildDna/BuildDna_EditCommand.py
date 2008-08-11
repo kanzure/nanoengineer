@@ -34,8 +34,6 @@ from model.chem import Atom
 from model.chunk import Chunk
 from model.bonds import Bond
 
-##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
-
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 
 class BuildDna_EditCommand(EditCommand):
@@ -79,8 +77,7 @@ class BuildDna_EditCommand(EditCommand):
         
         
     #=== START   NEW COMMAND API methods  ======================================
-    # UNUSED as of 2008-07-29. See EditCommand.py
-        
+    #Used in self.init_gui and self.restore_gui as of 2008-08-11        
     def command_enter_flyout(self):
         """
         Overrides superclass method. 
@@ -98,28 +95,10 @@ class BuildDna_EditCommand(EditCommand):
         """
         if self.flyoutToolbar:
             self.flyoutToolbar.deActivateFlyoutToolbar()
+            
+            
     #=== END   NEW COMMAND API methods  ========================================
-
-
-    def init_gui(self):
-        """
-        Do changes to the GUI while entering this command. This includes opening
-        the property manager, updating the command toolbar , connecting widget
-        slots (if any) etc. Note: The slot connection in property manager and
-        command toolbar is handled in those classes.
-
-        Called once each time the command is entered; should be called only
-        by code in modes.py
-
-        @see: L{self.restore_gui}
-        """
-        EditCommand.init_gui(self)
-
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = DnaFlyout(self.win, self.propMgr)
-
-        self.flyoutToolbar.activateFlyoutToolbar()
-
+   
     def resume_gui(self):
         """
         Called when this command, that was suspended earlier, is being resumed.
@@ -149,18 +128,6 @@ class BuildDna_EditCommand(EditCommand):
         if self.flyoutToolbar:
             self.flyoutToolbar.resetStateOfActions()
 
-
-    def restore_gui(self):
-        """
-        Do changes to the GUI while exiting this command. This includes closing
-        this mode's property manager, updating the command toolbar ,
-        Note: The slot connection/disconnection in property manager and
-        command toolbar is handled in those classes.
-        @see: L{self.init_gui}
-        """
-        EditCommand.restore_gui(self)
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
 
     def runCommand(self):
         """

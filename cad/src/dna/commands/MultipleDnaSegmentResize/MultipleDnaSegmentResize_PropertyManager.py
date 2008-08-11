@@ -207,11 +207,15 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         @type  enable: bool
         """
         if enable:
+            if not self.addSegmentsToolButton.isChecked():
+                self.addSegmentsToolButton.setChecked(True)
             if self.removeSegmentsToolButton.isChecked():
                 self.removeSegmentsToolButton.setChecked(False)
             self.segmentListWidget.setAlternatingRowColors(False)
             self.segmentListWidget.setColor(lightgreen_2)            
         else:
+            if self.addSegmentsToolButton.isChecked():
+                self.addSegmentsToolButton.setChecked(False)
             self.segmentListWidget.setAlternatingRowColors(True)
             self.segmentListWidget.resetColor()
                 
@@ -225,12 +229,16 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         @type  enable: bool
         """
         if enable:
+            if not self.removeSegmentsToolButton.isChecked():
+                self.removeSegmentsToolButton.setChecked(True)
             if self.addSegmentsToolButton.isChecked():
                 self.addSegmentsToolButton.setChecked(False)
             self.segmentListWidget.setAlternatingRowColors(False)
             
             self.segmentListWidget.setColor(lightred_1)            
         else:
+            if self.removeSegmentsToolButton.isChecked():
+                self.removeSegmentsToolButton.setChecked(False)
             self.segmentListWidget.setAlternatingRowColors(True)
             self.segmentListWidget.resetColor()
             
@@ -320,7 +328,7 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         @see: self._deactivateAddRemoveSegmentsTool
         """
         _superclass.show(self)
-        self.updateListWidgets()       
+        ##self.updateListWidgets()       
         self._deactivateAddRemoveSegmentsTool()
         
     def _deactivateAddRemoveSegmentsTool(self):

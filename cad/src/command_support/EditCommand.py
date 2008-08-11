@@ -145,7 +145,8 @@ class EditCommand(Select_Command):
         Select_Command.Enter(self)
         
     #=== START   NEW COMMAND API methods  ======================================
-    # UNUSED as of 2008-07-29
+    #Used in self.init_gui and self.restore_gui as of 2008-08-11 
+    
     def command_enter_flyout(self):
         """
         Setup GUI related to the Flyout Toolbar when this command enters
@@ -164,22 +165,62 @@ class EditCommand(Select_Command):
         May be overridden in subclasses. Default implementation does nothing.
         """
         pass
-               
+    
+    def command_enter_PM(self):
+        """
+        Setup GUI related to the  Property Manager (PM)
+        May be overridden in subclasses. Default implementation creates and 
+        shows PM (if requested)
+        Overrides the superclass method.       
+        @see: baseCommand.command_enter_PM()  
+        @see: self.command_exit_PM()
+        @see: self.command_enter_flyout()
+        """
+        self.create_and_or_show_PM_if_wanted() 
+    
+    def command_exit_PM(self):
+        """
+        Reset/ change GUI related to the Property Manager (PM)
+        May be overridden in subclasses.
+        @see: self.command_enter_PM()  
+        @see: baseCommand.command_exit_PM() 
+        @see: self.command_exit_flyout()
+        """
+        if self.propMgr:
+            self.propMgr.close()
+    
+    def command_enter_misc_actions(self):
+        pass
+    
+    def command_exit_misc_actions(self):
+        pass                   
     
     #=== END   NEW command API methods  ========================================
 
     def init_gui(self):
-        """
-        """
-        self.create_and_or_show_PM_if_wanted()  
         
-    
+        """
+        Do changes to the GUI while entering this command. This includes opening
+        the property manager, updating the command toolbar , connecting widget
+        slots (if any) etc. Note: The slot connection in property manager and
+        command toolbar is handled in those classes.
+
+        Called once each time the command is entered; should be called only
+        by code in modes.py
+
+        @see: L{self.restore_gui}
+        """
+        self.command_enter_PM()
+        self.command_enter_flyout()
+        self.command_enter_misc_actions()
+            
     def restore_gui(self):
         """
         """
-        if self.propMgr:
-            self.propMgr.close()
-
+        self.command_exit_PM()
+        self.command_exit_flyout()
+        self.command_exit_misc_actions()
+        
     def runCommand(self):
         """        
         Used to run this editCommand . Depending upon the
