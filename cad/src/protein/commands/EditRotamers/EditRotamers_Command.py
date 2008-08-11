@@ -35,7 +35,10 @@ class EditRotamers_Command(EditCommand):
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
-         
+    from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+    if modelAndSimulateProteins:
+        command_parent = 'MODEL_PROTEIN'
+        
     GraphicsMode_class = EditRotamers_GraphicsMode
    
     
@@ -49,7 +52,11 @@ class EditRotamers_Command(EditCommand):
         """
         Initialize GUI for this mode 
         """
-        self._init_gui_flyout_action( 'editRotamersAction' )   
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            self._init_gui_flyout_action( 'editRotamersAction', 'MODEL_AND_SIMULATE_PROTEIN' )  
+        else:
+            self._init_gui_flyout_action( 'editRotamersAction')
         if self.propMgr is None:
             self.propMgr = EditRotamers_PropertyManager(self)
             #@bug BUG: following is a workaround for bug 2494.
