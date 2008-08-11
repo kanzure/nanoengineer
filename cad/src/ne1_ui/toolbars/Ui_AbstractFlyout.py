@@ -22,7 +22,7 @@ from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
 
-class Ui_AbstractFlyout:
+class Ui_AbstractFlyout(object):
     
     def __init__(self, command):
         """

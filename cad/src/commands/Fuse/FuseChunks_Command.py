@@ -13,20 +13,13 @@ Ninad 2008-01-25: Split Command and GraphicsMode classes
                  found in FuseChunks_GraphicsMode.py
 """
 
-
-from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import QAction
-from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
-
 import foundation.env as env
-import foundation.changes as changes
 from geometry.VQT import vlen
-
 from model.elements import Singlet
-from utilities.Log import redmsg, orangemsg
+
 from platform_dependent.PlatformDependent import fix_plurals
 from commands.Fuse.FusePropertyManager import FusePropertyManager
-from utilities.icon_utilities import geticon
+
 from utilities.constants import diINVISIBLE
 
 from commands.Move.Move_Command import Move_Command
@@ -44,6 +37,8 @@ from commands.Fuse.FuseChunks_GraphicsMode import FuseChunks_GraphicsMode
 from commands.Fuse.FuseChunks_GraphicsMode import Translate_in_FuseChunks_GraphicsMode
 from commands.Fuse.FuseChunks_GraphicsMode import Rotate_in_FuseChunks_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
+
+from ne1_ui.toolbars.Ui_FuseFlyout import FuseFlyout
 
 class FuseChunks_Command(Move_Command, fusechunksBase):
     """
@@ -87,59 +82,63 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         self.translate_graphicsMode = Translate_in_FuseChunks_GraphicsMode(*args, **kws)
         self.rotate_graphicsMode  = Rotate_in_FuseChunks_GraphicsMode(*args, **kws)
-
-
+        
+    
+    def _createPropMgrObject(self):
+        return FusePropertyManager(self)
+    
+    def _createFlyoutToolBarObject(self):
+        """
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteFromClipboard_Command._createFlyoutToolBar()
+        @see: self.command_enter_flyout()
+        """
+        flyoutToolbar = FuseFlyout(self) 
+        return flyoutToolbar
+    
+    
     def init_gui(self):
-        if self.propMgr is None:
-            self.propMgr = FusePropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494
-            changes.keep_forever(self.propMgr)
-
-        self.propMgr.show()
-
+        """
+        Do changes to the GUI while entering this mode. This includes opening 
+        the property manager, updating the command toolbar, connecting widget 
+        slots etc. 
+        
+        Called once each time the mode is entered; should be called only by code 
+        in modes.py
+        
+        @see: L{self.restore_gui}
+        """        
+        self.command_enter_misc_actions()
+        self.command_enter_PM() 
+        self.command_enter_flyout()
+        
         self.change_fuse_mode(str(self.propMgr.fuseComboBox.currentText()))
             # This maintains state of fuse mode when leaving/reentering mode,
             # and syncs the PM and glpane (and does a gl_update).
-
-        self.w.toolsFuseChunksAction.setChecked(1)
-
-        self.updateCommandToolbar(bool_entering = True)
-
-        # connect signals
-        #(these all need to be disconnected in restore_gui) [mark 050901]
-        self.connect_or_disconnect_signals(True)
-
+            
         if self.o.assy.selmols:
             self.graphicsMode.something_was_picked = True
-
-        #if self.propMgr.isTranslateGroupBoxActive:
-            ## toggle on the Move Free action in the Property Manager
-            #self.propMgr.transFreeButton.setChecked(True)
-            #self.graphicsMode.moveOption = 'MOVEDEFAULT'
-        #else:
-            #self.propMgr.rotateFreeButton.setChecked(True)
-            #self.graphicsrotateOption = 'ROTATEDEFAULT'
+            
 
     def restore_gui(self):
-        self.updateCommandToolbar(bool_entering = False)
-        self.connect_or_disconnect_signals(False)
-        self.w.toolsFuseChunksAction.setChecked(False)
-        self.propMgr.close()
-
-    def connect_or_disconnect_signals(self, connect):
-        if connect:
-            change_connect = self.w.connect
-        else:
-            change_connect = self.w.disconnect
-
-        change_connect(self.exitFuseAction, SIGNAL("triggered()"),
-                       self.w.toolsDone)
-
-        #Connect or disconnect signals in property manager
-        self.propMgr.connect_or_disconnect_signals(connect)
-
-        return
-
+        """
+        Do changes to the GUI while exiting this mode. This includes closing 
+        this mode's property manager, updating the command toolbar, 
+        disconnecting widget slots etc. 
+        @see: L{self.init_gui}
+        """
+        self.command_exit_misc_actions()
+        self.command_exit_flyout()
+        self.command_exit_PM()
+        
+    def command_enter_misc_actions(self):
+        self.w.toolsFuseChunksAction.setChecked(1)
+            
+    def command_exit_misc_actions(self):
+        self.w.toolsFuseChunksAction.setChecked(0)
+            
+    
 ##    def Backup(self): # REVIEW: I suspect there is no way to call this method, so I commented it out. [bruce 080806 comment]
 ##        """
 ##        Undo any bonds made between chunks.
@@ -285,7 +284,9 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         ######### Overlapping Atoms methods #############
 
-    def find_overlapping_atoms(self):
+    def find_overlapping_atoms(self, 
+                               skip_hidden = True,
+                               ignore_chunk_picked_state = False):
         """
         Checks atoms of the selected chunk to see if they overlap atoms
         in other chunks of the same type (element).  Hidden chunks are skipped.
@@ -362,6 +363,65 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
         tol_str = fusechunks_lambda_tol_natoms(self.tol, natoms)
         tolerenceLabel = tol_str
         self.propMgr.toleranceSlider.labelWidget.setText(tolerenceLabel)
+        
+    
+    def find_overlapping_atoms_to_delete_from_atomlists(self, 
+                                              atomlist_to_keep, 
+                                              atomlist_with_overlapping_atoms, 
+                                              tolerance = 1.1
+                                              ):
+        """
+        @param atomlist_to_keep: Atomlist which will be used as a reference atom
+               list. The atoms in this list will be used to find the atoms 
+               in the *other list* which overlap atom positions in *this list*.
+               Thus, the atoms in 'atomlist_to_keep' will be preserved (and thus
+               won't be appended to self.overlapping_atoms)
+        @type atomlist_to_keep: list
+        @param atomlist_with_overlapping_atoms: This list will be checked with 
+               the first list (atom_list_to_keep) to find overlapping atoms.
+               The atoms in this list that overlap with the atoms from the 
+               original list will be appended to self.overlapping_atoms
+               (and will be eventually deleted)
+        
+	"""
+        
+        overlapping_atoms_to_delete = []
+        
+        # Remember: chunk = a selected chunk  = atomlist to keep
+        # mol = a non-selected -- to find overlapping atoms from
+               
+        
+        # Loop through all the atoms in the selected chunk.
+        # Use values() if the loop ever modifies chunk or mol--
+        for a1 in atomlist_to_keep: 
+            # Singlets can't be overlapping atoms. SKIP those
+            if a1.is_singlet(): 
+                continue
+            
+            # Loop through all the atoms in atomlist_with_overlapping_atoms.
+            for a2 in atomlist_with_overlapping_atoms:
+                # Only atoms of the same type can be overlapping.
+                # This also screens singlets, since a1 can't be a 
+                # singlet.
+                if a1.element is not a2.element: 
+                    continue
+
+                # Compares the distance between a1 and a2.  
+                # If the distance
+                # is <= tol, then we have an overlapping atom.  
+                # I know this isn't a proper use of tol, 
+                # but it works for now.   Mark 050901
+                if vlen (a1.posn() - a2.posn()) <= tolerance:
+                    # Add this pair to the list--
+                    overlapping_atoms_to_delete.append( (a1,a2) ) 
+                    # No need to check other atoms in this chunk--
+                    break 
+                
+        return overlapping_atoms_to_delete
+
+    def _delete_overlapping_atoms(self):
+        pass
+            
 
 
     def fuse_atoms(self):
@@ -411,68 +471,3 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
             # overlapping atoms again, which generates errors.
 
         self.w.win_update()
-
-
-    #Command Toolbar to be revised ============================================
-
-    def getFlyoutActionList(self): #Ninad 20070618
-        """
-        Returns a tuple that contains mode spcific actionlists in the
-        added in the flyout toolbar of the mode.
-        CommandToolbar._createFlyoutToolBar method calls this
-        @return: params: A tuple that contains 3 lists:
-        (subControlAreaActionList, commandActionLists, allActionsList)
-        """
-
-        #'allActionsList' returns all actions in the flyout toolbar
-        #including the subcontrolArea actions
-        allActionsList = []
-
-        #Action List for  subcontrol Area buttons.
-        #In this mode, there is really no subcontrol area.
-        #We will treat subcontrol area same as 'command area'
-        #(subcontrol area buttons will have an empty list as their command area
-        #list). We will set  the Comamnd Area palette background color to the
-        #subcontrol area.
-
-        subControlAreaActionList =[]
-
-        self.exitFuseAction = NE1_QWidgetAction(self.w, win = self.w)
-        self.exitFuseAction.setText("Exit Fuse")
-        self.exitFuseAction.setCheckable(True)
-        self.exitFuseAction.setChecked(True)
-        self.exitFuseAction.setIcon(
-            geticon("ui/actions/Toolbars/Smart/Exit.png"))
-        subControlAreaActionList.append(self.exitFuseAction)
-
-        separator = QAction(self.w)
-        separator.setSeparator(True)
-        subControlAreaActionList.append(separator)
-
-        allActionsList.extend(subControlAreaActionList)
-
-        #Empty actionlist for the 'Command Area'
-        commandActionLists = []
-
-        #Append empty 'lists' in 'commandActionLists equal to the
-        #number of actions in subControlArea
-        for i in range(len(subControlAreaActionList)):
-            lst = []
-            commandActionLists.append(lst)
-
-        params = (subControlAreaActionList, commandActionLists, allActionsList)
-
-        return params
-
-    def updateCommandToolbar(self, bool_entering = True):#Ninad 20070618
-        """
-        Update the command toolbar
-        """
-        # object that needs its own flyout toolbar. In this case it is just
-        #the mode itself.
-
-        action = self.w.toolsFuseChunksAction
-        obj = self
-        self.w.commandToolbar.updateCommandToolbar(action,
-                                                   obj,
-                                                   entering =bool_entering)
