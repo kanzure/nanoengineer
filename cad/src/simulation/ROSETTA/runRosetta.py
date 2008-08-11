@@ -966,7 +966,7 @@ class RosettaRunner:
                             #if there's the o/p pdb file, then rosetta design "really"
                             #succeeded
                             msg = greenmsg("Rosetta sequence design succeeded")
-                            env.history.message(self.cmdname + "," + self.cmd_type + ": " + msg)
+                            env.history.message(self.cmdname + "> " + self.cmd_type + ": " + msg)
                             #find out best score from all the generated outputs
                             #may be we will do it some day, but for now we only output
                             #the chunk with the lowest energy (Score)
@@ -1013,7 +1013,8 @@ class RosettaRunner:
                             env.history.statusbar_msg("")
                         else:
                             env.history.statusbar_msg("")
-                            print "Out path for insert pdb", outPath
+                            msg = greenmsg("Rosetta sequence design with backrub motion allowed, succeeded")
+                            env.history.message(self.cmdname + "> " + self.cmd_type + ": " + msg)
                             insertpdb(self.assy, str(outPath), None)
                             outProtein = self._set_secondary_structure_of_rosetta_output_protein(outProteinName + ".pdb")
                             self._updateProteinComboBoxInBuildProteinMode(outProtein)  
@@ -1024,6 +1025,8 @@ class RosettaRunner:
                                 self.showResults(score, proteinSeqList)
 
                     if self.cmd_type == "ROSETTA_SCORE":
+                        msg = greenmsg("Rosetta scoring has succeeded")
+                        env.history.message(self.cmdname + "> " + self.cmd_type + ": " + msg)
                         showRosettaScore(self.tmp_file_prefix, self.scorefile, self.win)
         except:
             print_compact_traceback("bug in simulator-calling code: ")
