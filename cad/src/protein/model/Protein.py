@@ -559,7 +559,7 @@ class Residuum:
         """
         Sets Rosetta backrub mode (True or False).
         """
-        self.backrub = backrub
+        self.backrub = enable_backrub
         
     def get_backrub_mode(self):
         """ 
