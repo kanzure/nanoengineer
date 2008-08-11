@@ -151,7 +151,11 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #Urmi 20080728: Update the residue combo box with amino acids for the
         #currently selected protein in build protein mode
         self.current_protein = ""
-        previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            previousCommand = self.parentMode.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        else:    
+            previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
         if previousCommand:
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
@@ -234,7 +238,11 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.current_protein = ""
         #Urmi 20080728: fill up the combo box with amino acids belonging to the
         # current protein in build protein mode
-        previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            previousCommand = self.parentMode.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        else:    
+            previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
         if previousCommand:
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
