@@ -52,8 +52,10 @@ def startup_script( main_globals):
     # functions that need to be careful to do very few or no imports,
     # and functions that are free to do any imports.
     
-    #Windows machines spawn and remove the shell, so no info is normally
-    #captured
+    # Windows machines spawn and remove the shell, so no info is normally
+    # captured.  This is a first attempt to try to capture some of the console
+    # prints that would normally be lost.  The default for this code is that
+    # it's turned off, and should remain that way until it's improved.
     if NE1_Build_Constants.NE1_CONSOLE_REDIRECT and os.name=="nt":
         capture_console = False
         capture_file = ""
