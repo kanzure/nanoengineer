@@ -52,10 +52,24 @@ class BuildProtein_EditCommand(EditCommand):
         @see: L{self.restore_gui}
         """
         EditCommand.init_gui(self)
+        self.command_enter_flyout()
+        
+    def command_enter_flyout(self):
         if self.flyoutToolbar is None:
-            self.flyoutToolbar = ProteinFlyout(self.win, self.propMgr)
+            self.flyoutToolbar = self._createFlyoutToolBarObject()
         self.flyoutToolbar.activateFlyoutToolbar()
 
+    def _createFlyoutToolBarObject(self):
+        """
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteFromClipboard_Command._createFlyouttoolBar()
+        @see: self.command_enter_flyout()
+        """
+        #from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
+        flyoutToolbar = ProteinFlyout(self.win, self.propMgr) 
+        return flyoutToolbar    
+        
     def resume_gui(self):
         """
         Called when this command, that was suspended earlier, is being resumed.
