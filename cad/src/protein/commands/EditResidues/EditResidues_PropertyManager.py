@@ -510,7 +510,10 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     # Backrub checkbox column
                     item_widget = QTableWidgetItem("")
                     item_widget.setFont(self.labelfont)
-                    item_widget.setCheckState(Qt.Unchecked)
+                    if aa.get_backrub_mode():
+                        item_widget.setCheckState(Qt.Checked)
+                    else:
+                        item_widget.setCheckState(Qt.Unchecked)
                     item_widget.setTextAlignment(Qt.AlignLeft)
                     item_widget.setSizeHint(QSize(20,12))
                     item_widget.setFlags(
