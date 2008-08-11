@@ -38,6 +38,7 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 
+DEBUG_CHANGE_COUNTERS =  False
 class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
     The BuildDna_PropertyManager class provides a Property Manager 
@@ -61,7 +62,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     sponsor_keyword = None # Nanorex is the sponsor. Change to 'DNA' to the
                              # the NUPACK logo.
 
-    def __init__( self, win, editCommand ):
+    def __init__( self, win, command ):
         """
         Constructor for the Build DNA property manager.
         """
@@ -77,7 +78,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         EditCommand_PM.__init__( self, 
                                     win,
-                                    editCommand)
+                                    command)
 
 
         DebugMenuMixin._init1( self )
@@ -151,17 +152,22 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #called when you enter another command exiting or suspending the 
         #previous one. . At present. it doesn't exist (first needs cleanup in 
         #command/command sequencer (Done and other methods._)-- Ninad 2008-01-09
-        if hasattr(self.editCommand, 'flyoutToolbar') and \
-           self.editCommand.flyoutToolbar:            
-            self.editCommand.flyoutToolbar.exitDnaAction.setEnabled(not bool_enable)
+        if hasattr(self.command, 'flyoutToolbar') and \
+           self.command.flyoutToolbar:            
+            self.command.flyoutToolbar.exitDnaAction.setEnabled(not bool_enable)
             
                     
     def model_changed(self):
         """       
-        When the editCommand is treated as a 'command' by the 
+        When the command is treated as a 'command' by the 
         commandSequencer, this method will override basicCommand.model_changed.
         For more info, see BuildAtomsPropertyManager.model_changed docstring.
         """  
+                
+        if DEBUG_CHANGE_COUNTERS:
+            print "model_change = %d\nselection_change = %d\n "%(
+                self.win.assy.model_change_counter(),
+                self.win.assy.selection_change_counter())
         
         newSelectionParams = self._currentSelectionParams()   
         
@@ -245,9 +251,9 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
          
         selectedStrands = []
         selectedSegments = []
-        if self.editCommand is not None and self.editCommand.hasValidStructure():
-            selectedStrands = self.editCommand.struct.getSelectedStrands()
-            selectedSegments = self.editCommand.struct.getSelectedSegments()             
+        if self.command is not None and self.command.hasValidStructure():
+            selectedStrands = self.command.struct.getSelectedStrands()
+            selectedSegments = self.command.struct.getSelectedSegments()             
                     
         return (selectedStrands, selectedSegments)
     
@@ -265,9 +271,9 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #Or Join strands decrease it by 1)
         params = None
         
-        if self.editCommand and self.editCommand.hasValidStructure():
+        if self.command and self.command.hasValidStructure():
             strandList = []
-            strandList = self.editCommand.struct.getStrands()
+            strandList = self.command.struct.getStrands()
             params = len(strandList)
             
         return params 
@@ -300,10 +306,10 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Enter the DnaStrand_EditCommand to edit the selected strand. 
         """
         
-        if not self.editCommand.hasValidStructure():
+        if not self.command.hasValidStructure():
             return
         
-        selectedStrandList = self.editCommand.struct.getSelectedStrands()
+        selectedStrandList = self.command.struct.getSelectedStrands()
         
         if len(selectedStrandList) == 1:     
             strand = selectedStrandList[0]
@@ -313,8 +319,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def _editDnaSegment(self):
         """
         """
-        if self.editCommand is not None and self.editCommand.hasValidStructure(): 
-            selectedSegments = self.editCommand.struct.getSelectedSegments()
+        if self.command is not None and self.command.hasValidStructure(): 
+            selectedSegments = self.command.struct.getSelectedSegments()
             if len(selectedSegments) == 1:
                 selectedSegments[0].edit()
             elif len(selectedSegments) > 1:
@@ -375,8 +381,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #will do an isinstance(node, Chunk) check . Note that it includes both  
         #Strands and Axis chunks -- Ninad 2008-01-09
         
-        if self.editCommand and self.editCommand.hasValidStructure():
-            strandChunkList = self.editCommand.struct.getStrands()
+        if self.command and self.command.hasValidStructure():
+            strandChunkList = self.command.struct.getStrands()
                         
             self.strandListWidget.insertItems(
                 row = 0,
@@ -391,12 +397,12 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         
         segmentList = []
-        if self.editCommand and self.editCommand.hasValidStructure(): 
+        if self.command and self.command.hasValidStructure(): 
             def func(node):
                 if isinstance(node, self.win.assy.DnaSegment):
                     segmentList.append(node)    
                     
-            self.editCommand.struct.apply2all(func)
+            self.command.struct.apply2all(func)
             self.segmentListWidget.insertItems(
                 row = 0,
                 items = segmentList)

@@ -94,17 +94,17 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show where it is called. 
         """       
-        if self.editCommand and self.editCommand.struct:            
-            torque = self.editCommand.struct.torque
-            initial_speed = self.editCommand.struct.initial_speed
-            final_speed = self.editCommand.struct.speed
-            dampers_enabled = self.editCommand.struct.dampers_enabled
-            enable_minimize = self.editCommand.struct.enable_minimize
+        if self.command and self.command.struct:            
+            torque = self.command.struct.torque
+            initial_speed = self.command.struct.initial_speed
+            final_speed = self.command.struct.speed
+            dampers_enabled = self.command.struct.dampers_enabled
+            enable_minimize = self.command.struct.enable_minimize
             
-            length = self.editCommand.struct.length
-            radius = self.editCommand.struct.radius
-            spoke_radius = self.editCommand.struct.sradius
-            normcolor = self.editCommand.struct.normcolor
+            length = self.command.struct.length
+            radius = self.command.struct.radius
+            spoke_radius = self.command.struct.sradius
+            normcolor = self.command.struct.normcolor
         else:
             torque = 0.0
             initial_speed = 0.0
@@ -132,12 +132,12 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         Slot method to change the jig's length, radius and/or spoke radius.
         """
-        if self.editCommand and self.editCommand.struct:
-            self.editCommand.struct.length = \
+        if self.command and self.command.struct:
+            self.command.struct.length = \
                 self.motorLengthDblSpinBox.value()# motor length
-            self.editCommand.struct.radius = \
+            self.command.struct.radius = \
                 self.motorRadiusDblSpinBox.value() # motor radius
-            self.editCommand.struct.sradius = \
+            self.command.struct.sradius = \
                 self.spokeRadiusDblSpinBox.value() # spoke radius
             
             if gl_update:
@@ -148,12 +148,12 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         Load widgets in MotorParamsGroupBox.
         """    
-        if self.editCommand and self.editCommand.struct:
-            torque = self.editCommand.struct.torque
-            initial_speed = self.editCommand.struct.initial_speed
-            final_speed = self.editCommand.struct.speed
-            dampers_enabled = self.editCommand.struct.dampers_enabled
-            enable_minimize = self.editCommand.struct.enable_minimize
+        if self.command and self.command.struct:
+            torque = self.command.struct.torque
+            initial_speed = self.command.struct.initial_speed
+            final_speed = self.command.struct.speed
+            dampers_enabled = self.command.struct.dampers_enabled
+            enable_minimize = self.command.struct.enable_minimize
         else:
             torque = 0.0
             initial_speed = 0.0
@@ -221,11 +221,11 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         Load widgets in groubox 2.
         """
-        if self.editCommand and self.editCommand.struct:
-            length = self.editCommand.struct.length
-            radius = self.editCommand.struct.radius
-            spoke_radius = self.editCommand.struct.sradius
-            normcolor = self.editCommand.struct.normcolor
+        if self.command and self.command.struct:
+            length = self.command.struct.length
+            radius = self.command.struct.radius
+            spoke_radius = self.command.struct.sradius
+            normcolor = self.command.struct.normcolor
         else:
             length = 10
             radius = 1

@@ -48,7 +48,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
     @see: DnaDuplexPropertyManager (subclass)
     """
 
-    def __init__( self, win, editCommand ):
+    def __init__( self, win, command ):
         """
         Constructor for the DNA Duplex property manager.
         """
@@ -60,7 +60,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
 
         _superclass.__init__( self, 
                               win,
-                              editCommand)
+                              command)
 
         DebugMenuMixin._init1( self )
         
@@ -316,10 +316,10 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
         if self._colorChooser is None:
             return
         
-        if self.editCommand and self.editCommand.hasValidStructure():
+        if self.command and self.command.hasValidStructure():
             color = self._colorChooser.getColor()
-            if hasattr(self.editCommand.struct, 'setColor'):
-                self.editCommand.struct.setColor(color)
+            if hasattr(self.command.struct, 'setColor'):
+                self.command.struct.setColor(color)
                 self.win.glpane.gl_update()
             
 

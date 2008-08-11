@@ -714,15 +714,15 @@ class PlanePropertyManager(EditCommand_PM):
         else:
             pass
 
-        self.editCommand.struct.glpane.gl_update()
+        self.command.struct.glpane.gl_update()
 
 
     def toggleHeightfield(self, checked):
         """
         Enables 3D relief drawing mode.
         """
-        if self.editCommand and self.editCommand.struct:
-            plane = self.editCommand.struct
+        if self.command and self.command.struct:
+            plane = self.command.struct
             plane.display_heightfield = checked
             if checked:
                 self.heightfieldHQDisplayCheckBox.setEnabled(True)
@@ -740,8 +740,8 @@ class PlanePropertyManager(EditCommand_PM):
         """
         Enables high quality rendering in 3D relief mode.
         """
-        if self.editCommand and self.editCommand.struct:
-            plane = self.editCommand.struct
+        if self.command and self.command.struct:
+            plane = self.command.struct
             plane.heightfield_hq = checked
             plane.computeHeightfield()
             plane.glpane.gl_update()
@@ -750,8 +750,8 @@ class PlanePropertyManager(EditCommand_PM):
         """
         Enables texturing in 3D relief mode.
         """
-        if self.editCommand and self.editCommand.struct:
-            plane = self.editCommand.struct
+        if self.command and self.command.struct:
+            plane = self.command.struct
             plane.heightfield_use_texture = checked
             #if plane.display_heightfield and plane.image:
             #    plane.computeHeightfield()
@@ -766,10 +766,10 @@ class PlanePropertyManager(EditCommand_PM):
         # spinbox.valueChanged() 	 
         # signal is not emitted after calling spinbox.setValue(). 	 
         # This flag is used in change_plane_size method.-- Ninad 20070601 	 
-        if self.editCommand and self.editCommand.hasValidStructure(): 	 
+        if self.command and self.command.hasValidStructure(): 	 
             self.resized_from_glpane = True 	 
-            self.heightDblSpinBox.setValue(self.editCommand.struct.height) 	 
-            self.widthDblSpinBox.setValue(self.editCommand.struct.width) 	 
+            self.heightDblSpinBox.setValue(self.command.struct.height) 	 
+            self.widthDblSpinBox.setValue(self.command.struct.width) 	 
             self.win.glpane.gl_update() 	 
             self.resized_from_glpane = False
 
@@ -787,7 +787,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.heightfieldTextureCheckBox.setEnabled(False)
         self.vScaleSpinBox.setEnabled(False)
 
-        plane = self.editCommand.struct
+        plane = self.command.struct
         plane.deleteImage()
         plane.heightfield = None
         plane.display_image = self.imageDisplayCheckBox.isChecked()
@@ -828,9 +828,9 @@ class PlanePropertyManager(EditCommand_PM):
         #when you are editing an existing plane. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
 
-        if self.editCommand.struct:
+        if self.command.struct:
 
-            plane = self.editCommand.struct 
+            plane = self.command.struct 
             plane.updateCosmeticProps(previewing = True)
             if plane.imagePath:
                 self.imageDisplayFileChooser.setText(plane.imagePath)
@@ -884,8 +884,8 @@ class PlanePropertyManager(EditCommand_PM):
         @type  newWidth: float
         """        
         if self.aspectRatioCheckBox.isChecked():
-            self.editCommand.struct.width   =  newWidth
-            self.editCommand.struct.height  =  self.editCommand.struct.width / \
+            self.command.struct.width   =  newWidth
+            self.command.struct.height  =  self.command.struct.width / \
                 self.aspectRatioSpinBox.value() 
             self.update_spinboxes()
         else:
@@ -900,8 +900,8 @@ class PlanePropertyManager(EditCommand_PM):
         @type  newHeight: float
         """        
         if self.aspectRatioCheckBox.isChecked():
-            self.editCommand.struct.height  =  newHeight 
-            self.editCommand.struct.width   =  self.editCommand.struct.height * \
+            self.command.struct.height  =  newHeight 
+            self.command.struct.width   =  self.command.struct.height * \
                 self.aspectRatioSpinBox.value()
             self.update_spinboxes()
         else:
@@ -916,17 +916,17 @@ class PlanePropertyManager(EditCommand_PM):
         @type  gl_update: bool
         """
         if not self.resized_from_glpane:
-            self.editCommand.struct.width   =  self.widthDblSpinBox.value()
-            self.editCommand.struct.height  =  self.heightDblSpinBox.value() 
+            self.command.struct.width   =  self.widthDblSpinBox.value()
+            self.command.struct.height  =  self.heightDblSpinBox.value() 
         if gl_update:
-            self.editCommand.struct.glpane.gl_update()
+            self.command.struct.glpane.gl_update()
 
     def change_vertical_scale(self, scale):
         """
         Changes vertical scaling of the heightfield.
         """
-        if self.editCommand and self.editCommand.struct:
-            plane = self.editCommand.struct
+        if self.command and self.command.struct:
+            plane = self.command.struct
             plane.heightfield_scale = scale
             plane.computeHeightfield()
             plane.glpane.gl_update()
@@ -945,23 +945,23 @@ class PlanePropertyManager(EditCommand_PM):
                 "With <b>Parallel to Screen</b> plane placement option, the "\
                 "center of the plane is always (0,0,0)" 
             self.updateMessage(msg)
-            self.editCommand.placePlaneParallelToScreen()            
+            self.command.placePlaneParallelToScreen()            
         elif buttonId == 1:
             msg = "Create a Plane with center coinciding with the common center "\
                 "of <b> 3 or more selected atoms </b>. If exactly 3 atoms are "\
                 "selected, the Plane will pass through those atoms."        
             self.updateMessage(msg)            
-            self.editCommand.placePlaneThroughAtoms()
-            if self.editCommand.logMessage:
-                env.history.message(self.editCommand.logMessage)
+            self.command.placePlaneThroughAtoms()
+            if self.command.logMessage:
+                env.history.message(self.command.logMessage)
         elif buttonId == 2:
             msg = "Create a Plane at an <b>offset</b> to the selected plane "\
                 "indicated by the direction arrow. "\
                 "you can click on the direction arrow to reverse its direction."
             self.updateMessage(msg)            
-            self.editCommand.placePlaneOffsetToAnother()
-            if self.editCommand.logMessage:
-                env.history.message(self.editCommand.logMessage)
+            self.command.placePlaneOffsetToAnother()
+            if self.command.logMessage:
+                env.history.message(self.command.logMessage)
         elif buttonId == 3:
             #'Custom' plane placement. Do nothing (only update message box)
             # Fixes bug 2439
@@ -986,7 +986,7 @@ class PlanePropertyManager(EditCommand_PM):
         """
         Updates the Aspect Ratio spin box based on the current width and height.
         """
-        aspectRatio = self.editCommand.struct.width / self.editCommand.struct.height
+        aspectRatio = self.command.struct.width / self.command.struct.height
         self.aspectRatioSpinBox.setValue(aspectRatio)
 
 
@@ -1012,10 +1012,10 @@ class PlanePropertyManager(EditCommand_PM):
         EditCommand_PM.update_props_if_needed_before_closing(self)
 
         #Don't draw the direction arrow when the object is finalized. 
-        if self.editCommand.struct and \
-           self.editCommand.struct.offsetParentGeometry:
+        if self.command.struct and \
+           self.command.struct.offsetParentGeometry:
 
-            dirArrow = self.editCommand.struct.offsetParentGeometry.directionArrow 
+            dirArrow = self.command.struct.offsetParentGeometry.directionArrow 
             dirArrow.setDrawRequested(False)
 
     def updateMessage(self, msg = ''):
@@ -1033,30 +1033,30 @@ class PlanePropertyManager(EditCommand_PM):
         """
         Rotate the image clockwise.
         """
-        if self.editCommand.hasValidStructure():
-            self.editCommand.struct.rotateImage(0)
+        if self.command.hasValidStructure():
+            self.command.struct.rotateImage(0)
         return
 
     def rotate_neg_90(self):
         """
         Rotate the image counterclockwise.
         """
-        if self.editCommand.hasValidStructure():
-            self.editCommand.struct.rotateImage(1)
+        if self.command.hasValidStructure():
+            self.command.struct.rotateImage(1)
         return
 
     def flip_image(self):
         """ 
         Flip the image horizontally.
         """
-        if self.editCommand.hasValidStructure():
-            self.editCommand.struct.mirrorImage(1)
+        if self.command.hasValidStructure():
+            self.command.struct.mirrorImage(1)
         return
 
     def mirror_image(self):
         """
         Flip the image vertically.
         """
-        if self.editCommand.hasValidStructure():
-            self.editCommand.struct.mirrorImage(0)
+        if self.command.hasValidStructure():
+            self.command.struct.mirrorImage(0)
         return

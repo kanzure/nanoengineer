@@ -60,7 +60,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     pmName        =  title
     iconPath      =  "ui/actions/Properties Manager/Strand.png"
 
-    def __init__( self, win, editCommand ):
+    def __init__( self, win, command ):
         """
         Constructor for the Build DNA property manager.
         """
@@ -81,7 +81,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         
         _superclass.__init__( self, 
                                     win,
-                                    editCommand)
+                                    command)
 
 
         
@@ -295,18 +295,18 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         @see: DnaStrand_EditCommand.model_changed()
         @see: DnaStrand_EditCommand.hasResizableStructure()
         """
-        isStructResizable, why_not = self.editCommand.hasResizableStructure()
+        isStructResizable, why_not = self.command.hasResizableStructure()
         if not isStructResizable:
             #disable all widgets
             if self._pmGroupBox1.isEnabled():
                 self._pmGroupBox1.setEnabled(False)
-                msg1 = ("Viewing properties of %s <br>") %(self.editCommand.struct.name) 
+                msg1 = ("Viewing properties of %s <br>") %(self.command.struct.name) 
                 msg2 = redmsg("DnaStrand is not resizable. Reason: %s"%(why_not))                    
                 self.updateMessage(msg1 + msg2)
         else:
             if not self._pmGroupBox1.isEnabled():
                 self._pmGroupBox1.setEnabled(True)
-                msg1 = ("Viewing properties of %s <br>") %(self.editCommand.struct.name) 
+                msg1 = ("Viewing properties of %s <br>") %(self.command.struct.name) 
                 msg2 = "Use resize handles to resize the strand. Use sequence editor"\
                     "to assign a new sequence or the current one to a file."
                 self.updateMessage(msg1 + msg2)
@@ -317,29 +317,29 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         As of 2007-11-20, it also shows the Sequence Editor widget and hides 
         the history widget. This implementation may change in the near future
         This method also retrives the name information from the 
-        editCommand's structure for its name line edit field. 
+        command's structure for its name line edit field. 
         @see: DnaStrand_EditCommand.getStructureName()
         @see: self.close()
         """
         _superclass.show(self) 
         self._showSequenceEditor()
     
-        if self.editCommand is not None:
-            name = self.editCommand.getStructureName()
+        if self.command is not None:
+            name = self.command.getStructureName()
             if name is not None:
                 self.nameLineEdit.setText(name)     
            
     def close(self):
         """
         Close this property manager. 
-        Also sets the name of the self.editCommand's structure to the one 
+        Also sets the name of the self.command's structure to the one 
         displayed in the line edit field.
         @see self.show()
         @see: DnaSegment_EditCommand.setStructureName
         """
-        if self.editCommand is not None:
+        if self.command is not None:
             name = str(self.nameLineEdit.text())
-            self.editCommand.setStructureName(name)
+            self.command.setStructureName(name)
             
         if self.sequenceEditor:
             self.sequenceEditor.close()
@@ -370,10 +370,10 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         #show it in the text edit in the sequence editor.
         ##strand = self.strandListWidget.getPickedItem()
         
-        if not self.editCommand.hasValidStructure():
+        if not self.command.hasValidStructure():
             return
         
-        strand = self.editCommand.struct
+        strand = self.command.struct
         
         titleString = 'Sequence Editor for ' + strand.name
                            
@@ -397,16 +397,16 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     def change_struct_highlightPolicy(self,checkedState = False):
         """
         Change the 'highlight policy' of the structure being edited 
-        (i.e. self.editCommand.struct) . 
+        (i.e. self.command.struct) . 
         @param checkedState: The checked state of the checkbox that says 
                              'Don't highlight while editing DNA'. So, it 
                              its True, the structure being edited won't get
                              highlighted. 
         @see: DnaStrand.setHighlightPolicy for more comments        
         """        
-        if self.editCommand and self.editCommand.hasValidStructure():
+        if self.command and self.command.hasValidStructure():
             highlight = not checkedState
-            self.editCommand.struct.setHighlightPolicy(highlight = highlight)
+            self.command.struct.setHighlightPolicy(highlight = highlight)
 
     def _addWhatsThisText(self):
         """

@@ -40,11 +40,11 @@ class GrapheneGeneratorPropertyManager(EditCommand_PM):
     # The relative path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Graphene.png"
     
-    def __init__( self, win, editCommand ):
+    def __init__( self, win, command ):
         """
         Construct the "Build Graphene" Property Manager.
         """
-        _superclass.__init__( self, win, editCommand )
+        _superclass.__init__( self, win, command )
                
         msg = "Edit the Graphene sheet parameters and select <b>Preview</b> to" \
             "preview the structure. Click <b>Done</b> to insert it into the model."

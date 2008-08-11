@@ -55,7 +55,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/DNA.png"
 
-    def __init__( self, win, editCommand ):
+    def __init__( self, win, command ):
         """
         Constructor for the Build DNA property manager.
         """
@@ -79,7 +79,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         self.basesPerTurn = 10
         self.dnaModel = 'PAM3'
 
-        _superclass.__init__( self,  win, editCommand)
+        _superclass.__init__( self,  win, command)
 
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
@@ -167,8 +167,8 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         """
         params = None
 
-        if self.editCommand:   
-            isStructResizable, why_not = self.editCommand.hasResizableStructure()
+        if self.command:   
+            isStructResizable, why_not = self.command.hasResizableStructure()
             params = (isStructResizable, why_not)
 
         return params 
@@ -178,27 +178,27 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         """
         Show this property manager. Overrides EditCommand_PM.show()
         This method also retrives the name information from the 
-        editCommand's structure for its name line edit field. 
+        command's structure for its name line edit field. 
         @see: DnaSegment_EditCommand.getStructureName()
         @see: self.close()
         """
         _superclass.show(self)
-        if self.editCommand is not None:
-            name = self.editCommand.getStructureName()
+        if self.command is not None:
+            name = self.command.getStructureName()
             if name is not None:
                 self.nameLineEdit.setText(name)
 
     def close(self):
         """
         Close this property manager. 
-        Also sets the name of the self.editCommand's structure to the one 
+        Also sets the name of the self.command's structure to the one 
         displayed in the line edit field.
         @see self.show()
         @see: DnaSegment_EditCommand.setStructureName
         """
-        if self.editCommand is not None:
+        if self.command is not None:
             name = str(self.nameLineEdit.text())
-            self.editCommand.setStructureName(name)
+            self.command.setStructureName(name)
         _superclass.close(self)
 
     def setParameters(self, params):
@@ -249,8 +249,8 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         #separate parameter for the reasons mentioned in bug 2802
         #-- Ninad 2008-04-12
         number_of_basePairs_from_struct = None
-        if self.editCommand.hasValidStructure():
-            number_of_basePairs_from_struct = self.editCommand.struct.getNumberOfBasePairs()
+        if self.command.hasValidStructure():
+            number_of_basePairs_from_struct = self.command.struct.getNumberOfBasePairs()
         numberOfBases = self.numberOfBasePairsSpinBox.value()
         dnaForm  = self._conformation
         dnaModel = self.dnaModel

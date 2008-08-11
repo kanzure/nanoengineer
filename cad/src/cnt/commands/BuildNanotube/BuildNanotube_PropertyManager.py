@@ -62,7 +62,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
 
-    def __init__( self, win, editCommand ):
+    def __init__( self, win, command ):
         """
         Constructor for the Build Nanotube property manager.
         """
@@ -78,7 +78,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         EditCommand_PM.__init__( self, 
                                     win,
-                                    editCommand)
+                                    command)
 
 
         DebugMenuMixin._init1( self )
@@ -139,13 +139,13 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #called when you enter another command exiting or suspending the 
         #previous one. . At present. it doesn't exist (first needs cleanup in 
         #command/command sequencer (Done and other methods._)-- Ninad 2008-01-09
-        if hasattr(self.editCommand, 'flyoutToolbar') and \
-           self.editCommand.flyoutToolbar:            
-            self.editCommand.flyoutToolbar.exitNanotubeAction.setEnabled(not bool_enable)
+        if hasattr(self.command, 'flyoutToolbar') and \
+           self.command.flyoutToolbar:            
+            self.command.flyoutToolbar.exitNanotubeAction.setEnabled(not bool_enable)
         
     def model_changed(self):
         """       
-        When the editCommand is treated as a 'command' by the 
+        When the command is treated as a 'command' by the 
         commandSequencer, this method will override basicCommand.model_changed.
         For more info, see BuildAtomsPropertyManager.model_changed docstring.
         """  
@@ -196,8 +196,8 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
          
         selectedSegments = []
         selectedSegments = self.win.assy.getSelectedNanotubeSegments()
-        ##if self.editCommand is not None and self.editCommand.hasValidStructure():
-            ##selectedSegments = self.editCommand.struct.getSelectedSegments()             
+        ##if self.command is not None and self.command.hasValidStructure():
+            ##selectedSegments = self.command.struct.getSelectedSegments()             
                     
         return (selectedSegments)
     
@@ -215,9 +215,9 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #Or Join strands decrease it by 1)
         params = None
         
-        if self.editCommand and self.editCommand.hasValidStructure():
+        if self.command and self.command.hasValidStructure():
             strandList = []
-            strandList = self.editCommand.struct.getStrands()
+            strandList = self.command.struct.getStrands()
             params = len(strandList)
             
         return params 
@@ -252,8 +252,8 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             selectedSegments[0].edit()
         #Earlier implementation which used the segments in the 
         #'current Nanotube Group'. Deprecated as of 2008-05-05
-        ##if self.editCommand is not None and self.editCommand.hasValidStructure(): 
-            ##selectedSegments = self.editCommand.struct.getSelectedSegments()
+        ##if self.command is not None and self.command.hasValidStructure(): 
+            ##selectedSegments = self.command.struct.getSelectedSegments()
             ##if len(selectedSegments) == 1:
                 ##selectedSegments[0].edit()
     

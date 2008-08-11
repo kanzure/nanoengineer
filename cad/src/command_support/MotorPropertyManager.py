@@ -62,8 +62,8 @@ class MotorPropertyManager(EditCommand_PM):
         #EditCommand_PM.show, the 'preview' properties are not updated
         #when you are editing an existing R.Motor. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
-        if self.editCommand and self.editCommand.struct:
-            self.editCommand.struct.updateCosmeticProps(previewing = True)
+        if self.command and self.command.struct:
+            self.command.struct.updateCosmeticProps(previewing = True)
 
         self.updateAttachedAtomListWidget()
 
@@ -120,8 +120,8 @@ class MotorPropertyManager(EditCommand_PM):
         @note: This overrides change_jig_color in class MotorPropertyManager.
         """
         color = self.motorColorComboBox.getColor()
-        self.editCommand.struct.color = color
-        self.editCommand.struct.normcolor = color
+        self.command.struct.color = color
+        self.command.struct.normcolor = color
         self.glpane.gl_update()
         return
 
@@ -137,8 +137,8 @@ class MotorPropertyManager(EditCommand_PM):
         Slot for reverse direction button.
         Reverses the direction of the motor.
         """
-        if self.editCommand.struct:
-            self.editCommand.struct.reverse_direction()
+        if self.command.struct:
+            self.command.struct.reverse_direction()
             self.glpane.gl_update()
 
     def updateAttachedAtomListWidget(self, atomList = None):
@@ -147,8 +147,8 @@ class MotorPropertyManager(EditCommand_PM):
         """
 
         if atomList is None:
-            if self.editCommand.struct:
-                atomList = self.editCommand.struct.atoms[:]
+            if self.command.struct:
+                atomList = self.command.struct.atoms[:]
 
         if atomList is not None:
             self.attachedAtomsListWidget.insertItems(row = 0,

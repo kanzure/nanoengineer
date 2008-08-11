@@ -33,7 +33,7 @@ class EditCommand_PM(PM_Dialog):
     # The relative path to the PNG file that appears in the header
     iconPath = ""
 
-    def __init__(self, win, editCommand = None):
+    def __init__(self, win, command = None):
         """
         Constructor for the EditCommand_PM
         """
@@ -46,9 +46,9 @@ class EditCommand_PM(PM_Dialog):
         # When we begin supporting that, lots of things will change and this
         # might be one of them .--- ninad 20070613
 
-        self.editCommand = editCommand
-        if editCommand:
-            self.struct = self.editCommand.struct
+        self.command = command
+        if command:
+            self.struct = self.command.struct
         else:
             self.struct = None
 
@@ -66,12 +66,12 @@ class EditCommand_PM(PM_Dialog):
 
         self._createFlyoutActions()
 
-    def setEditCommand(self, editCommand):
+    def setEditCommand(self, command):
         """
         """
-        assert editCommand
-        self.editCommand = editCommand
-        self.struct = self.editCommand.struct
+        assert command
+        self.command = command
+        self.struct = self.command.struct
 
     def show(self):
         """
@@ -119,7 +119,7 @@ class EditCommand_PM(PM_Dialog):
         Update various widgets  in this Property manager. The default
         implementation does nothing. Overridden in subclasses. The various
         widgets , (e.g. spinboxes) will get values from the structure for which
-        this propMgr is constructed for (seelf.editCommand.struct)
+        this propMgr is constructed for (seelf.command.struct)
 
         @see: RotaryMotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show where it is called.
@@ -179,15 +179,15 @@ class EditCommand_PM(PM_Dialog):
         """
         Slot for the OK button
         """
-        if self.editCommand:
-            self.editCommand.preview_or_finalize_structure(previewing = False)
+        if self.command:
+            self.command.preview_or_finalize_structure(previewing = False)
             #This should be cleaned up in a refactoring. There should be a central
             #updater which should ask when to print a message etc. There could be
             #mab=ny subclasses without a logMessage. Also, I am not removing 
             #the call that prints history message as some subclasses might be 
             #using it. For now, just do a hasattr test -- Ninad 2008-07-23
-            if hasattr(self.editCommand, 'logMessage'):
-                env.history.message(self.editCommand.logMessage)
+            if hasattr(self.command, 'logMessage'):
+                env.history.message(self.command.logMessage)
                 
         self.win.toolsDone()
 
@@ -195,16 +195,16 @@ class EditCommand_PM(PM_Dialog):
         """
         Slot for the Cancel button.
         """
-        if self.editCommand:
-            self.editCommand.cancelStructure()
+        if self.command:
+            self.command.cancelStructure()
         self.win.toolsCancel()
 
     def preview_btn_clicked(self):
         """
         Slot for the Preview button.
         """
-        self.editCommand.preview_or_finalize_structure(previewing = True)
-        env.history.message(self.editCommand.logMessage)
+        self.command.preview_or_finalize_structure(previewing = True)
+        env.history.message(self.command.logMessage)
 
     def abort_btn_clicked(self):
         """
@@ -226,8 +226,8 @@ class EditCommand_PM(PM_Dialog):
 
     def _createFlyoutActions(self):
         self.exitEditCommandAction = NE1_QWidgetAction(self.win, win = self.win)
-        if self.editCommand:
-            text = "Exit " + self.editCommand.cmdname
+        if self.command:
+            text = "Exit " + self.command.cmdname
         else:
             text = "Exit"
         self.exitEditCommandAction.setText(text)

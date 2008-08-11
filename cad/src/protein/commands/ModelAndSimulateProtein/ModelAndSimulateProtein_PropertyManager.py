@@ -43,7 +43,7 @@ class ModelAndSimulateProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     #change this ico path later
     iconPath      =  "ui/actions/Tools/Build Structures/Peptide.png"
 
-    def __init__( self, win, editCommand):
+    def __init__( self, win, command):
         """
         Constructor for the Build DNA property manager.
         """
@@ -57,7 +57,7 @@ class ModelAndSimulateProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         EditCommand_PM.__init__( self, 
                                     win,
-                                    editCommand)
+                                    command)
 
 
         DebugMenuMixin._init1( self )
@@ -261,9 +261,9 @@ class ModelAndSimulateProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @type bool_enable: bool
         
         """
-        #if hasattr(self.editCommand, 'flyoutToolbar') and \
-           #self.editCommand.flyoutToolbar:            
-            #self.editCommand.flyoutToolbar.exitProteinAction.setEnabled(not bool_enable)
+        #if hasattr(self.command, 'flyoutToolbar') and \
+           #self.command.flyoutToolbar:            
+            #self.command.flyoutToolbar.exitProteinAction.setEnabled(not bool_enable)
     
     def ok_btn_clicked(self):
         """

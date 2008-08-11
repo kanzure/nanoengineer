@@ -77,7 +77,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/InsertDsDna.png"
 
-    def __init__( self, win, editCommand ):
+    def __init__( self, win, command ):
         """
         Constructor for the DNA Duplex property manager.
         """
@@ -94,7 +94,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
 
         _superclass.__init__( self,
                               win,
-                              editCommand)
+                              command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
@@ -442,7 +442,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         """
         Slot for the B{Bases per turn} spinbox.
         """
-        self.editCommand.basesPerTurn = basesPerTurn
+        self.command.basesPerTurn = basesPerTurn
         self._basesPerTurn = basesPerTurn
         return
 
@@ -450,7 +450,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         """
         Slot for the B{Rise} spinbox.
         """
-        self.editCommand.duplexRise = rise
+        self.command.duplexRise = rise
         self._duplexRise = rise
         return
 

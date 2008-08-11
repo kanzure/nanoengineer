@@ -38,7 +38,7 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
     isAlreadyConnected = False
     isAlreadyDisconnected = False
     
-    def __init__( self, win, editCommand ):
+    def __init__( self, win, command ):
         """
         Constructor for the Build DNA property manager.
         """
@@ -63,7 +63,7 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         
         _superclass.__init__( self, 
                                     win,
-                                    editCommand)
+                                    command)
 
 
         DebugMenuMixin._init1( self )
@@ -150,7 +150,7 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
             self.updateMessage(msg)
                     
         self.updateListWidgets() 
-        ##self.editCommand.updateHandlePositions()
+        ##self.command.updateHandlePositions()
             
                 
     def _current_model_changed_params(self):
@@ -163,11 +163,11 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         """
         params = None
         
-        if self.editCommand:
+        if self.command:
             #update the list first. 
-            self.editCommand.updateResizeSegmentList()
-            number_of_segments = len(self.editCommand.getResizeSegmentList())     
-            isStructResizable, why_not = self.editCommand.hasResizableStructure()
+            self.command.updateResizeSegmentList()
+            number_of_segments = len(self.command.getResizeSegmentList())     
+            isStructResizable, why_not = self.command.hasResizableStructure()
             params = (number_of_segments, isStructResizable, why_not)
         
         return params 
@@ -254,7 +254,7 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         """
         self.segmentListWidget.deleteSelection()
         itemDict = self.segmentListWidget.getItemDictonary()           
-        self.editCommand.setResizeStructList(itemDict.values())
+        self.command.setResizeStructList(itemDict.values())
         self.updateListWidgets()            
         self.win.win_update()
         
@@ -375,7 +375,7 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         """
         segmentList = []
         
-        segmentList = self.editCommand.getResizeSegmentList()                        
+        segmentList = self.command.getResizeSegmentList()                        
                
         self.segmentListWidget.insertItems(
             row = 0,
