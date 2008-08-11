@@ -1,15 +1,8 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-$Id$
-
-TODO: 
-- Does the parentWidget for the DnaFlyout always needs to be a propertyManager
-  The parentWidget is the propertyManager object of the currentCommand on the 
-  commandSequencer. What if the currentCommand doesn't have a PM but it wants 
-  its own commandToolbar?  Use the mainWindow as its parentWidget? 
-- The implementation may change after Command Manager (Command toolbar) code 
-  cleanup. The implementation as of 2007-12-20 is an attempt to define 
-  flyouttoolbar object in the 'Command.
+@author: Urmi
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@version $Id$
 
 piotr 080713: Added editRotamers action.
 
