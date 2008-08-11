@@ -23,8 +23,11 @@ class ProteinDisplayStyle_GraphicsMode(SelectChunks_GraphicsMode ):
     
 # == Command part
 
-
+from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
+#_superclass = ModelAndSimulateProtein_Command
+_superclass = EditCommand
 class ProteinDisplayStyle_Command(EditCommand): 
+#class ProteinDisplayStyle_Command(ModelAndSimulateProtein_Command): 
     """
     
     """
@@ -43,15 +46,19 @@ class ProteinDisplayStyle_Command(EditCommand):
     command_has_its_own_PM = True
     
     flyoutToolbar = None
-
+    
+    
     def init_gui(self):
         """
         Initialize GUI for this mode 
         """
-        
-        self._init_gui_flyout_action( 'displayProteinStyleAction' , 
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            self._init_gui_flyout_action( 'displayProteinStyleAction' , 
+                                      'MODEL_AND_SIMULATE_PROTEIN') 
+        else:
+            self._init_gui_flyout_action( 'displayProteinStyleAction' , 
                                       'BUILD_PROTEIN') 
-      
         if self.propMgr is None:
             self.propMgr = ProteinDisplayStyle_PropertyManager(self)
             #@bug BUG: following is a workaround for bug 2494.
