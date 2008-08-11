@@ -283,6 +283,8 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
             aa_list_1 = protein_1.get_amino_acids()
             aa_list_2 = protein_2.get_amino_acids()
             if len(aa_list_1) == len(aa_list_2):
+                protein_1.collapse_all_rotamers()
+                protein_2.collapse_all_rotamers()
                 for aa1, aa2 in zip (aa_list_1, aa_list_2):
                     aa1.color = None
                     aa2.color = None
