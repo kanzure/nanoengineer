@@ -71,18 +71,18 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Tools/Build Structures/Build Chunks.png"
     
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         Constructor for the B{Build Atoms} property manager class that defines 
         its UI.
         
-        @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{depositMode}        
+        @param command: The parent mode where this Property Manager is used
+        @type  command: L{depositMode}        
         """
-        self.parentMode = parentMode
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw        
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
+        self.pw = self.command.pw        
         self.o = self.win.glpane 
         
         

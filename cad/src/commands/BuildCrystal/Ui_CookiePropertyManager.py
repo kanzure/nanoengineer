@@ -62,19 +62,19 @@ class Ui_CookiePropertyManager(PM_Dialog):
     pmName = title
     iconPath = "ui/actions/Tools/Build Structures/Build Crystal.png"
     
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         Constructor for the B{Crystal} property manager class that defines 
         its UI.
         
-        @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{cookieMode}  
+        @param command: The parent mode where this Property Manager is used
+        @type  command: L{cookieMode}  
         """
-        self.parentMode = parentMode
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw        
-        self.o = self.parentMode.o
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
+        self.pw = self.command.pw        
+        self.o = self.command.o
         
         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)

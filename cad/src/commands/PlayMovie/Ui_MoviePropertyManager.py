@@ -61,19 +61,19 @@ class Ui_MoviePropertyManager(PM_Dialog):
     # The full path to PNG file(s) that appears in the header.
     iconPath = "ui/actions/Simulation/Play_Movie.png"
     
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         Constructor for the B{Movie} property manager class that defines 
         its UI.
         
-        @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{movieMode}        
+        @param command: The parent mode where this Property Manager is used
+        @type  command: L{movieMode}        
         """
-        self.parentMode = parentMode
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
         self.o = self.win.glpane
-        self.pw = self.parentMode.pw
+        self.pw = self.command.pw
         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         

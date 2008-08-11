@@ -61,19 +61,19 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
     iconPath      =  "ui/actions/Command Toolbar/Crossover.png"
 
 
-    def __init__( self, parentCommand):
+    def __init__( self, command):
         """
         Constructor for the property manager.
         """
 
-        self.parentMode = parentCommand
-        #We will use self.command hereonwards. self.parentMode is still declared
+        self.command = command
+        #We will use self.command hereonwards. self.command is still declared
         #for safety -- 2008-05-29
-        self.command = self.parentMode
+        self.command = self.command
 
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw        
+        self.w = self.command.w
+        self.win = self.command.w
+        self.pw = self.command.pw        
         self.o = self.win.glpane        
 
         self.isAlreadyConnected = False
@@ -169,10 +169,8 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         _superclass.close(self)
         self.connect_or_disconnect_signals(False)
 
-
-
     def _makeAllCrossovers(self):
-        self.parentMode.makeAllCrossovers()
+        self.command.makeAllCrossovers()
 
 
     def _addGroupBoxes( self ):

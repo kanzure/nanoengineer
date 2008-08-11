@@ -52,14 +52,14 @@ class FixedBBProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
     iconPath      = "ui/actions/Simulation/Rosetta.png"
 
     
-    def __init__( self, parentCommand ):
+    def __init__( self, command ):
         """
         Constructor for the property manager.
         """
 
-        self.parentMode = parentCommand
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw        
+        self.command = command
+        self.win = self.command.w
+        self.pw = self.command.pw        
         self.o = self.win.glpane                 
         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
@@ -413,7 +413,7 @@ class FixedBBProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         numSim = self.numSimSpinBox.value()
-        previousCommand = self.parentMode.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
         protein = previousCommand.propMgr.get_current_protein_chunk_name()
         argList = [numSim, otherOptionsText, protein]
         

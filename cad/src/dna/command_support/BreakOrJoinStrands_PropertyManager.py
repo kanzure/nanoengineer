@@ -41,15 +41,15 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     _baseNumberLabelColorChooser = None
     _baseNumberingOrderComboBox = None
         
-    def __init__( self, parentCommand ):
+    def __init__( self, command ):
         """
         Constructor for the property manager.
         """
 
-        self.parentMode = parentCommand
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw        
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
+        self.pw = self.command.pw        
         self.o = self.win.glpane             
                         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
@@ -199,7 +199,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         Load widgets in the display options groupbox
         """   
-        title = "Arrowhead prefs in %s:"%self.parentMode.featurename
+        title = "Arrowhead prefs in %s:"%self.command.featurename
         self._arrowheadPrefsGroupBox = PM_GroupBox(
             pmGroupBox, 
             title = title)

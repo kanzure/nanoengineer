@@ -83,16 +83,16 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
     rosetta_apolar_set = "PGAVILMFWYC_________"
 
         
-    def __init__( self, parentCommand ):
+    def __init__( self, command ):
         """
         Constructor for the property manager.
         """
 
-        self.parentMode = parentCommand
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
         
-        self.pw = self.parentMode.pw        
+        self.pw = self.command.pw        
         self.o = self.win.glpane                 
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
         
@@ -226,9 +226,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
         if modelAndSimulateProteins:
-            previousCommand = self.parentMode.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+            previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
         else:    
-            previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+            previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
         if  previousCommand:
             #Urmi 20080728: get the protein currently selected in the combo box
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()

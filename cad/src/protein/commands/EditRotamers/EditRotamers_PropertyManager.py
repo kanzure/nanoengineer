@@ -67,16 +67,16 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
     iconPath      =  "ui/actions/Edit/EditProteinDisplayStyle.png"
 
     
-    def __init__( self, parentCommand ):
+    def __init__( self, command ):
         """
         Constructor for the property manager.
         """
         
-        self.parentMode = parentCommand
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
 
-        self.pw = self.parentMode.pw        
+        self.pw = self.command.pw        
         self.o = self.win.glpane                 
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
         
@@ -153,9 +153,9 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.current_protein = ""
         from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
         if modelAndSimulateProteins:
-            previousCommand = self.parentMode.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+            previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
         else:    
-            previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+            previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
         if previousCommand:
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
@@ -240,9 +240,9 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         # current protein in build protein mode
         from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
         if modelAndSimulateProteins:
-            previousCommand = self.parentMode.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+            previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
         else:    
-            previousCommand = self.parentMode.find_parent_command_named('BUILD_PROTEIN')
+            previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
         if previousCommand:
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:

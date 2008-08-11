@@ -66,16 +66,16 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
     iconPath      =  "ui/actions/Edit/EditProteinDisplayStyle.png"
 
     
-    def __init__( self, parentCommand ):
+    def __init__( self, command ):
         """
         Constructor for the property manager.
         """
 
-        self.parentMode = parentCommand
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
 
-        self.pw = self.parentMode.pw        
+        self.pw = self.command.pw        
         self.o = self.win.glpane                 
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
         

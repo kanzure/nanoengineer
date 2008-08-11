@@ -59,15 +59,15 @@ class QuteMolPropertyManager(PM_Dialog):
     _axesFlags  = EXCLUDE_HIDDEN_ATOMS
     _basesFlags = EXCLUDE_HIDDEN_ATOMS
     
-    def __init__( self, parentCommand ):
+    def __init__( self, command ):
         """
         Constructor for the property manager.
         """
 
-        self.parentMode = parentCommand
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw        
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
+        self.pw = self.command.pw        
         self.o = self.win.glpane 
         
               

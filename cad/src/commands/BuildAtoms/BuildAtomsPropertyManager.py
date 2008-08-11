@@ -41,15 +41,15 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
     B{Build Atoms mode}.  The UI is defined in L{Ui_BuildAtomsPropertyManager}
     """
     
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         Constructor for the B{Build Atoms} property manager.
         
-        @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{depositMode} 
+        @param command: The parent mode where this Property Manager is used
+        @type  command: L{depositMode} 
         """
         self.previousSelectionParams = None
-        _superclass.__init__(self, parentMode)
+        _superclass.__init__(self, command)
         
         # It is essential to make the following flag 'True' instead of False. 
         # Program enters self._moveSelectedAtom method first after init, and 
@@ -212,7 +212,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
         self.filterlistLE.setEnabled(enabled)   
         self.update_selection_filter_list()     
-        self.parentMode.graphicsMode.update_cursor()
+        self.command.graphicsMode.update_cursor()
         
     def update_selection_filter_list(self):
         """
@@ -303,7 +303,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                     msg ="Note: this pseudoatom can only be deposited onto a strand sugar"\
                         " and will disappear if deposited in free space"
         else: # Bonds Tool is selected
-            if self.parentMode.isDeleteBondsToolActive():
+            if self.command.isDeleteBondsToolActive():
                 msg = "<b> Cut Bonds </b> tool is active. " \
                     "Click on bonds in order to delete them."
                 self.MessageGroupBox.insertHtmlMessage(msg)
@@ -376,11 +376,11 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         # But that method gets called only when during atom left down. 
         #Its not useful here as user may select that atom using selection lasso
         #or using other means (ctrl + A if only one atom is present) . Also, 
-        #the lists parentMode.baggage and parentMode.nonbaggage seem to get 
+        #the lists command.baggage and command.nonbaggage seem to get 
         #cleared during left up. So that method is not useful. 
         #There needs to be a method in parentmode (selectMode or depositMode) 
         #to do the following (next code cleanup?) -- ninad 2007-09-27
-        self.parentMode.baggage, self.parentMode.nonbaggage = \
+        self.command.baggage, self.command.nonbaggage = \
             selectedAtom.baggage_and_other_neighbors()          
         
         xPos= self.xCoordOfSelectedAtom.value()
@@ -392,8 +392,8 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         #Don't do selectedAtom.setposn()  because it needs to handle 
         #cases where atom has bond points and/or monovalent atoms . It also 
         #needs to modify the neighboring atom baggage. This is already done in
-        #the following method in parentMode so use that. 
-        self.parentMode.drag_selected_atom(selectedAtom, delta)
+        #the following method in command so use that. 
+        self.command.drag_selected_atom(selectedAtom, delta)
         
         self.o.gl_update()
         

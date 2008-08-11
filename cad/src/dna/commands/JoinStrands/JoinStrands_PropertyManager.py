@@ -61,12 +61,12 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
     pmName        =  title
     iconPath      =  "ui/actions/Command Toolbar/Join_Strands.png"
     
-    def __init__( self, parentCommand ):
+    def __init__( self, command ):
         """
         Constructor for the property manager.
         """
         
-        _superclass.__init__(self, parentCommand)
+        _superclass.__init__(self, command)
         if sys.platform == 'darwin':
             leftMouseButtonString = 'mouse button'
         else:

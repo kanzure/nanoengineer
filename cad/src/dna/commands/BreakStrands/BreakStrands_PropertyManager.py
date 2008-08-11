@@ -30,7 +30,7 @@ from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_PushButton import PM_PushButton
-from PM.PM_ObjectChooser import PM_ObjectChooser
+
 
 from utilities.prefs_constants import assignColorToBrokenDnaStrands_prefs_key
 from utilities.prefs_constants import breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
@@ -58,9 +58,12 @@ from widgets.prefs_widgets import connect_spinBox_with_pref
 #debug flag for experimental code Ninad is
 #working on (various break strands options). Don't commit it with True! 
 #Note that this flag is also used in BreakStrand_Command
-DEBUG_BREAK_OPTIONS_FEATURE = False 
+DEBUG_BREAK_OPTIONS_FEATURE = False
 
 
+from PM.PM_ObjectChooser import PM_ObjectChooser
+
+DEBUG_CHANGE_COUNTERS = False
 
 _superclass = BreakOrJoinStrands_PropertyManager
 
@@ -88,7 +91,7 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
     iconPath      =  "ui/actions/Command Toolbar/Break_Strand.png"
     
     
-    def __init__( self, parentCommand ):
+    def __init__( self, command ):
         """
         Constructor for the property manager.
         """
@@ -97,10 +100,10 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False 
         
-        self.command = parentCommand
+        self.command = command
         self.win = self.command.win
         
-        _superclass.__init__(self, parentCommand)
+        _superclass.__init__(self, command)
   
         msg = "Click on a strand's backbone bond to break a strand."
         self.updateMessage(msg)
@@ -163,8 +166,15 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         @see: DnaSegment_EditCommand.hasResizableStructure()
         @see: self._current_model_changed_params()
         """
-        if DEBUG_BREAK_OPTIONS_FEATURE:
+        if not DEBUG_BREAK_OPTIONS_FEATURE:
             return 
+        
+        
+        if DEBUG_CHANGE_COUNTERS:
+            print "model_change = %d\nselection_change = %d\n "%(
+                self.win.assy.model_change_counter(),
+                self.win.assy.selection_change_counter())
+            
         
         currentParams = self._current_model_changed_params()
         

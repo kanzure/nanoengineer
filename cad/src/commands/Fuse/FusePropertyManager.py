@@ -39,15 +39,15 @@ class FusePropertyManager(MovePropertyManager):
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Tools/Fuse_Chunks.png"
     
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         Constructor for Fuse Property manager. 
-        @param parentMode: The parent mode for this property manager 
-        @type  parentMode: L{fuseChunksmode}
+        @param command: The parent mode for this property manager 
+        @type  command: L{fuseChunksmode}
         """
         
-        self.parentMode = parentMode
-        MovePropertyManager.__init__(self, self.parentMode)
+        self.command = command
+        MovePropertyManager.__init__(self, self.command)
                 
         self.activate_translateGroupBox_in_fuse_PM()
     
@@ -84,7 +84,7 @@ class FusePropertyManager(MovePropertyManager):
         
         self.connect(self.fuseComboBox, 
                      SIGNAL("activated(const QString&)"), 
-                     self.parentMode.change_fuse_mode)
+                     self.command.change_fuse_mode)
         
         self.fusePushButton = PM_PushButton( inPmGroupBox,
                                              label     = "",
@@ -93,7 +93,7 @@ class FusePropertyManager(MovePropertyManager):
         
         self.connect( self.fusePushButton,
                       SIGNAL("clicked()"),
-                      self.parentMode.fuse_something)
+                      self.command.fuse_something)
         
         self.toleranceSlider =  PM_Slider( inPmGroupBox,
                                            currentValue = 100,
@@ -104,7 +104,7 @@ class FusePropertyManager(MovePropertyManager):
                                          )
         self.connect(self.toleranceSlider,
                        SIGNAL("valueChanged(int)"),
-                       self.parentMode.tolerance_changed)
+                       self.command.tolerance_changed)
         
         self.mergeChunksCheckBox = PM_CheckBox( inPmGroupBox,
                                                 text         = 'Merge chunks',
@@ -121,7 +121,7 @@ class FusePropertyManager(MovePropertyManager):
         @see: L{self.activate_translateGroupBox_in_fuse_PM}
         """
         
-        self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
+        self.command.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
                       
         self.toggle_translateGroupBox()
         self.deactivate_rotateGroupBox()
@@ -137,7 +137,7 @@ class FusePropertyManager(MovePropertyManager):
         self.changeMoveOption(buttonToCheck)
         
         self.isTranslateGroupBoxActive = True
-        self.parentMode.graphicsMode.update_cursor()
+        self.command.graphicsMode.update_cursor()
     
     def activate_rotateGroupBox_in_fuse_PM(self):
         """
@@ -148,7 +148,7 @@ class FusePropertyManager(MovePropertyManager):
         groupbox button is clicked. 
         @see: L{activate_rotateGroupBox_in_fuse_PM}
         """
-        self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
+        self.command.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
      
         self.toggle_rotateGroupBox()
         self.deactivate_translateGroupBox()
@@ -164,7 +164,7 @@ class FusePropertyManager(MovePropertyManager):
         self.changeRotateOption(buttonToCheck)
         
         self.isTranslateGroupBoxActive = False
-        self.parentMode.graphicsMode.update_cursor()
+        self.command.graphicsMode.update_cursor()
         return
     
     def updateMessage(self, msg = ''): 

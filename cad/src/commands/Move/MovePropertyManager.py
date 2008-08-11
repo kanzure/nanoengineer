@@ -23,8 +23,8 @@ class MovePropertyManager(Ui_MovePropertyManager):
     serves as a superclass for FusePropertyManager
     """
 
-    def __init__(self, parentMode):
-        Ui_MovePropertyManager.__init__(self, parentMode) 
+    def __init__(self, command):
+        Ui_MovePropertyManager.__init__(self, command) 
         
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected =  False
@@ -83,31 +83,31 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         change_connect(self.transDeltaPlusButton, 
                        SIGNAL("clicked()"), 
-                       self.parentMode.transDeltaPlus)
+                       self.command.transDeltaPlus)
 
         change_connect(self.transDeltaMinusButton, 
                        SIGNAL("clicked()"), 
-                       self.parentMode.transDeltaMinus)
+                       self.command.transDeltaMinus)
 
         change_connect(self.moveAbsoluteButton, 
                        SIGNAL("clicked()"), 
-                       self.parentMode.moveAbsolute)
+                       self.command.moveAbsolute)
 
         change_connect(self.rotateThetaPlusButton, 
                        SIGNAL("clicked()"), 
-                       self.parentMode.rotateThetaPlus)
+                       self.command.rotateThetaPlus)
 
         change_connect(self.rotateThetaMinusButton, 
                        SIGNAL("clicked()"), 
-                       self.parentMode.rotateThetaMinus)
+                       self.command.rotateThetaMinus)
 
         change_connect(self.moveFromToButton, 
                        SIGNAL("toggled(bool)"), 
-                       self.parentMode.moveFromToTemporaryMode)
+                       self.command.moveFromToTemporaryMode)
         
         change_connect(self.rotateAboutPointButton, 
                        SIGNAL("toggled(bool)"), 
-                       self.parentMode.rotateAboutPointTemporaryCommand)
+                       self.command.rotateAboutPointTemporaryCommand)
         
         
 
@@ -132,7 +132,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         if not self.w.toolsMoveMoleculeAction.isChecked():
             
             self.w.toolsMoveMoleculeAction.setChecked(True)
-            self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
+            self.command.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
 
             # Update the title and icon.
             self.setHeaderIcon(self.translateIconPath)
@@ -151,7 +151,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
             self.changeMoveOption(buttonToCheck)
             
-            self.parentMode.graphicsMode.update_cursor()
+            self.command.graphicsMode.update_cursor()
             self.updateMessage()
             
 
@@ -167,7 +167,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         if not self.w.rotateComponentsAction.isChecked():            
             self.w.rotateComponentsAction.setChecked(True)   
-            self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'ROTATE_CHUNKS')
+            self.command.switchGraphicsModeTo(newGraphicsMode = 'ROTATE_CHUNKS')
             
             # Update the title and icon.
             self.setHeaderIcon(self.rotateIconPath)
@@ -189,7 +189,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
             self.changeRotateOption(buttonToCheck)
             
-            self.parentMode.graphicsMode.update_cursor()
+            self.command.graphicsMode.update_cursor()
             self.updateMessage()
            
     def activate_translateGroupBox(self):
@@ -202,7 +202,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         """
 
         
-        self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
+        self.command.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
 
         #Update the icon and the title
         self.setHeaderIcon(self.translateIconPath)
@@ -227,7 +227,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         self.changeMoveOption(buttonToCheck)
         
-        self.parentMode.graphicsMode.update_cursor()
+        self.command.graphicsMode.update_cursor()
         self.updateMessage()
        
     def activate_rotateGroupBox(self):
@@ -239,7 +239,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         """
         
         
-        self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'ROTATE_CHUNKS')
+        self.command.switchGraphicsModeTo(newGraphicsMode = 'ROTATE_CHUNKS')
                 
         #Update the icon and the title. 
         self.setHeaderIcon(self.rotateIconPath)
@@ -260,7 +260,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         self.changeRotateOption(buttonToCheck)
         
-        self.parentMode.graphicsMode.update_cursor()
+        self.command.graphicsMode.update_cursor()
         self.updateMessage()
         
       
@@ -482,14 +482,14 @@ class MovePropertyManager(Ui_MovePropertyManager):
         assert buttonText in ['TRANSX', 'TRANSY', 'TRANSZ', 
                               'ROT_TRANS_ALONG_AXIS', 'MOVEDEFAULT' ]
         
-        self.parentMode.graphicsMode.moveOption = buttonText
+        self.command.graphicsMode.moveOption = buttonText
         
         #commandSequencer = self.win.commandSequencer  
         
         #if commandSequencer.currentCommand.commandName == 'TRANSLATE_CHUNKS':
             #commandSequencer.currentCommand.graphicsMode.moveOption = buttonText
 
-        ##self.parentMode.moveOption = buttonText
+        ##self.command.moveOption = buttonText
 
 
     def changeRotateOption(self, button):
@@ -514,12 +514,12 @@ class MovePropertyManager(Ui_MovePropertyManager):
         else:
             self.toggleRotationDeltaLabels(show = True)
         
-        self.parentMode.graphicsMode.rotateOption = buttonText
+        self.command.graphicsMode.rotateOption = buttonText
         #commandSequencer = self.win.commandSequencer
         #if commandSequencer.currentCommand.commandName == 'ROTATE_CHUNKS':
             #commandSequencer.currentCommand.graphicsMode.rotateOption = buttonText
 
-        ##self.parentMode.rotateOption = buttonText
+        ##self.command.rotateOption = buttonText
 
 
     def set_move_xyz(self, x, y, z):
@@ -609,8 +609,8 @@ class MovePropertyManager(Ui_MovePropertyManager):
         #suchs as graphicsModeName ? (or a method that returns the GM name 
         # and which falls backs to graphicsMode.__class__.__name__ if name  is 
         # not defined ? -- Ninad 2008-01-25
-        if hasattr(self.parentMode, 'graphicsMode'):
-            graphicsModeName = self.parentMode.graphicsMode.__class__.__name__
+        if hasattr(self.command, 'graphicsMode'):
+            graphicsModeName = self.command.graphicsMode.__class__.__name__
 
         if msg:
             self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )

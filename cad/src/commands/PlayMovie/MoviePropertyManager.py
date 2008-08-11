@@ -31,14 +31,14 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
     #see self.connect_or_disconnect_signals for comment about this flag
     isAlreadyConnected = False
 
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         Constructor for the B{Movie} property manager.
 
-        @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{movieMode}
+        @param command: The parent mode where this Property Manager is used
+        @type  command: L{movieMode}
         """
-        Ui_MoviePropertyManager.__init__(self, parentMode)
+        Ui_MoviePropertyManager.__init__(self, command)
         ##self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, connect):
@@ -334,7 +334,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
             self.w.assy.current_movie = new_movie
             self.w.assy.current_movie.cueMovie(propMgr = self)
             #Make sure to enable movie control buttons!
-            self.parentMode.enableMovieControls(True)
+            self.command.enableMovieControls(True)
             self.updateFrameInformation()
             self._updateMessageInModePM()
         else:
@@ -342,7 +342,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
             # (but if someday we do _checkMovieFile inside find_saved_movie and not here,
             #  then this will happen as an error return from find_saved_movie)
             msg = redmsg("Internal error in fileOpenMovie")
-            self.parentMode.enableMovieControls(False)
+            self.command.enableMovieControls(False)
             self._updateMessageInModePM(msg)
             env.history.message(msg)
         return

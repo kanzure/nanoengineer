@@ -41,16 +41,16 @@ class PastePropertyManager(BuildAtomsPropertyManager):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Properties Manager/clipboard-full.png"
     
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         Constructor for the B{Paste} property manager class that defines 
         its UI.
         
-        @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{PasteFromClipboard_Command}    
+        @param command: The parent mode where this Property Manager is used
+        @type  command: L{PasteFromClipboard_Command}    
         """    
         self.clipboardGroupBox = None
-        BuildAtomsPropertyManager.__init__(self, parentMode)
+        BuildAtomsPropertyManager.__init__(self, command)
         self.updateMessage("Double click on empty space inside the 3D" \
                  "workspace to paste the item shown in "\
                  "the <b> Preview </b> box. Click the check mark to exit Paste"
@@ -81,7 +81,7 @@ class PastePropertyManager(BuildAtomsPropertyManager):
                 
         self.clipboardGroupBox = \
             PM_Clipboard(self, 
-                         win = self.parentMode.w, 
+                         win = self.command.w, 
                          elementViewer = elementViewer)
                
     def show(self):
@@ -110,9 +110,9 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         @rtype:  L{molecule} or L{Group}
         """
                 
-        self.parentMode.pastable = self.previewGroupBox.elementViewer.model
+        self.command.pastable = self.previewGroupBox.elementViewer.model
                 
-        return self.parentMode.pastable
+        return self.command.pastable
     
     def update_clipboard_items(self):
         """

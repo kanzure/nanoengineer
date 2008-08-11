@@ -49,12 +49,12 @@ class Ui_MovePropertyManager( PM_Dialog ):
     translateIconPath = "ui/actions/Properties Manager/Translate_Components.png"
     rotateIconPath = "ui/actions/Properties Manager/Rotate_Components.png"
     
-    def __init__(self, parentMode):        
-        self.parentMode = parentMode
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.o = self.parentMode.o
-        self.pw = self.parentMode.pw
+    def __init__(self, command):        
+        self.command = command
+        self.w = self.command.w
+        self.win = self.command.w
+        self.o = self.command.o
+        self.pw = self.command.pw
 
         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)        

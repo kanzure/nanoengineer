@@ -6,8 +6,8 @@ $Id$
 from commands.BuildCrystal.Ui_CookiePropertyManager import Ui_CookiePropertyManager
 
 class CookiePropertyManager(Ui_CookiePropertyManager):
-    def __init__(self, parentMode):
-        Ui_CookiePropertyManager.__init__(self, parentMode)
+    def __init__(self, command):
+        Ui_CookiePropertyManager.__init__(self, command)
         self.updateMessage()           
     
     def ok_btn_clicked(self):

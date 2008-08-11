@@ -31,17 +31,17 @@ class CookieCtrlPanel(CookiePropertyManager):
     This class provides GUI controls to the cookie-cutter command.
     """
        
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         """
-        self.w = parentMode.w
-        self.cookieCommand = parentMode
+        self.w = command.w
+        self.cookieCommand = command
             #bruce 071008, probably redundant with some other attribute
                                        
         self.pw = None # pw is active part window
         
         self._init_flyoutActions()
-        CookiePropertyManager.__init__(self, parentMode)
+        CookiePropertyManager.__init__(self, command)
         self._makeConnections()
 
     def _init_flyoutActions(self):

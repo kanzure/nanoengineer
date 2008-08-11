@@ -25,16 +25,16 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
     B{Extrude mode}.  The UI is defined in L{Ui_ExtrudePropertyManager}
     """
      
-    def __init__(self, parentMode):
+    def __init__(self, command):
         """
         Constructor for the B{Extrude} property manager.
         
-        @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{depositMode} 
+        @param command: The parent mode where this Property Manager is used
+        @type  command: L{ExtrudeMode}
         """
         self.suppress_valuechanged = 0
         
-        Ui_ExtrudePropertyManager.__init__(self, parentMode)
+        Ui_ExtrudePropertyManager.__init__(self, command)
         
         self.updateMessage()        
         
@@ -72,33 +72,33 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         
         change_connect(self.extrudeSpinBox_n,
                        SIGNAL("valueChanged(int)"),
-                       self.parentMode.spinbox_value_changed)
+                       self.command.spinbox_value_changed)
         
         change_connect(self.extrudeSpinBox_x,
                        SIGNAL("valueChanged(double)"),
-                       self.parentMode.spinbox_value_changed)
+                       self.command.spinbox_value_changed)
         
         change_connect(self.extrudeSpinBox_y,
                        SIGNAL("valueChanged(double)"),
-                       self.parentMode.spinbox_value_changed)
+                       self.command.spinbox_value_changed)
         
         change_connect(self.extrudeSpinBox_z,
                        SIGNAL("valueChanged(double)"),
-                       self.parentMode.spinbox_value_changed)
+                       self.command.spinbox_value_changed)
         
         change_connect(self.extrudeSpinBox_length,
                        SIGNAL("valueChanged(double)"),
-                       self.parentMode.length_value_changed)
+                       self.command.length_value_changed)
         
         slider = self.extrudeBondCriterionSlider
         
         change_connect(slider, 
                        SIGNAL("valueChanged(int)"), 
-                       self.parentMode.slider_value_changed)
+                       self.command.slider_value_changed)
         
         change_connect(self.extrude_productTypeComboBox,
                        SIGNAL("activated(int)"), 
-                       self.parentMode.ptype_value_changed)
+                       self.command.ptype_value_changed)
             
                 
     def set_extrude_controls_xyz(self, (x, y, z) ):
@@ -192,7 +192,7 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
                 
         numCopies = self.extrudeSpinBox_n.value() - 1
         
-        if self.parentMode.product_type == "straight rod":
+        if self.command.product_type == "straight rod":
             msg = "Drag one of the " + str(numCopies) + " copies on the right \
                 to position them. Bondpoints will highlight in blue and green \
                 pairs whenever bonds can be formed between them."
