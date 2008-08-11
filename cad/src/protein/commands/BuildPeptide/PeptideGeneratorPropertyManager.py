@@ -104,8 +104,9 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         self.psi = -47.0
         self.chirality = 1
         self.ss_idx = 1
-        self.peptide_cache = []
-        self.peptide_cache.append((0, 0, 0))
+        self.current_amino_acid = 0
+        #self.peptide_cache = []
+        #self.peptide_cache.append((0, 0, 0))
         self.updateMessageGroupBox()
                 
     def updateMessageGroupBox(self):
@@ -129,7 +130,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         """
         #return (self.a1, self.a2, self.a3, self.a4, self.a5, self.a6)
     
-        return (self.peptide_cache, self.ss_idx)
+        return (self.ss_idx, self.phi, self.psi, self.current_amino_acid)
 
     def _addGroupBoxes(self):
         """
@@ -202,15 +203,15 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         self.psiAngleField.setEnabled(False)        
 
 
-        self.invertChiralityPushButton = \
-            PM_PushButton( inPmGroupBox,
-                           text         = 'Invert chirality' ,
-                           spanWidth    = False
-                       )
+        #self.invertChiralityPushButton = \
+        #    PM_PushButton( inPmGroupBox,
+        #                   text         = 'Invert chirality' ,
+        #                   spanWidth    = False
+        #               )
 
-        self.connect(self.invertChiralityPushButton,
-                     SIGNAL("clicked()"),
-                     self._aaChiralityChanged)
+        #self.connect(self.invertChiralityPushButton,
+        #             SIGNAL("clicked()"),
+        #             self._aaChiralityChanged)
 
         self.aaTypesButtonGroup = \
             PM_ToolButtonGrid( inPmGroupBox, 
@@ -223,7 +224,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
                       SIGNAL("buttonClicked(int)"),
                       self._setAminoAcidType)
 
-        self.addAminoAcid(0)
+        #self.addAminoAcid(0)
     
     def addAminoAcid(self, index):
         """
@@ -233,8 +234,9 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
 
         # add a new amino acid and chain conformation to the peptide cache
         #self.peptide_cache.append((index,self.phi,self.psi))
-        self.peptide_cache[0] = (index,self.phi,self.psi)
+        #self.peptide_cache[0] = (index,self.phi,self.psi)
         
+        self.current_amino_acid = index
         return
 
     def _addWhatsThisText(self):
@@ -339,7 +341,8 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         aa_txt += symbol+"</font>"
         #self.sequenceEditor.insertHtml(aa_txt, False, 4, 10, False)
         """
-        self.addAminoAcid(aaTypeIndex)
+        self.current_amino_acid = aaTypeIndex
+        #self.addAminoAcid(aaTypeIndex)
         return
 
     

@@ -788,12 +788,7 @@ class PeptideGenerator:
         ax = V(0.,0.,1.) # Axis of first selected chunk
         mol.rot(Q(mol.getaxis(),ax))
         
-        print "PEPTIDE AXIS PRE : ", mol.axis
-        
-        if mol:
-            self._orient(mol, pos1, pos2)
-            
-        print "PEPTIDE AXIS POST : ", mol.axis
+        self._orient(mol, pos1, pos2)
         
         return mol          
 

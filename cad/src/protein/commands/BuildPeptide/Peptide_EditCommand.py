@@ -144,7 +144,7 @@ class Peptide_EditCommand(EditCommand):
             name = self.name
             
             
-        params = self._gatherParameters()
+        ss_idx, phi, psi, aa_type = self._gatherParameters()
         
         #
         self.win.assy.part.ensure_toplevel_group()
@@ -157,7 +157,7 @@ class Peptide_EditCommand(EditCommand):
         from geometry.VQT import V
         pos1 = V(self.mouseClickPoints[0][0], self.mouseClickPoints[0][1], self.mouseClickPoints[0][2])
         pos2 = V(self.mouseClickPoints[1][0], self.mouseClickPoints[1][1], self.mouseClickPoints[1][2])
-        struct = self.structGenerator.make_aligned(self.win.assy, name, params[0][0][0], params[0][0][1], params[0][0][2], pos2, pos1)
+        struct = self.structGenerator.make_aligned(self.win.assy, name, aa_type, phi, psi, pos1, pos2)
         self.win.assy.part.topnode.addmember(struct)
         self.win.win_update()
         return struct
@@ -322,10 +322,9 @@ class Peptide_EditCommand(EditCommand):
         vec = endPoint2 - endPoint1
         from geometry.VQT import vlen
         peptideLength = vlen(vec)
-        params = self._gatherParameters()
-        peptideLength = self.structGenerator.get_number_of_res(endPoint1, endPoint2, params[0][0][1], params[0][0][2])
+        ss_idx, phi, psi, aa_type = self._gatherParameters()
+        peptideLength = self.structGenerator.get_number_of_res(endPoint1, endPoint2, phi, psi)
         lengthString = self._getCursorText_length(peptideLength)
-        
         
         thetaString = ''
         #Urmi 20080804: not sure if angle will be required later
