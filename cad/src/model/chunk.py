@@ -506,12 +506,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     item = (("%s" % (self.name)),
                             noop, 'disabled')
                     contextMenuList.append(item)
-                    #We cannot pass methods with arguments and hence this is 
-                    #commented for now and we will allow this in the new protein
-                    #implementation where edit does not require an argument
-                    #item = (("Edit Protein Properties..."), 
-                    #        protein.edit, self.assy.w)
-                    #contextMenuList.append(item)
+                    item = (("Edit Protein Properties..."), 
+                            (lambda _arg = self.assy.w, protein = protein:
+                             protein.edit(_arg))
+                             )
+                    contextMenuList.append(item)
                     
         if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'NANOTUBE_SEGMENT'):
             if self.isNanotubeChunk():
