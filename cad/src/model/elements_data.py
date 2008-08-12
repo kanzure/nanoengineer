@@ -279,7 +279,7 @@ _mendeleev = [
 
 #    symb  hybridization     FC   need prov c-rad geometry
 _chemicalAtomTypeData = [
-    ["X",  'sp',              0,    2,  1,  0.00, None],
+    ["X",  'sp',              0,    2,  1,  0.00, onebond],
     ["H",  None,              0,    2,  1,  0.31, onebond],
     ["He", None,              0,    2,  2,  0.00, None],
     ["Li", None,              0,    2,  1,  1.52, None],
