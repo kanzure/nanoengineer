@@ -1908,19 +1908,20 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
-            if ret == 0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            if ret == 0:
+                isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
             elif ret == 1:
                 env.history.message("Changes discarded.")
             elif ret == 2: 
                 env.history.message("Cancelled.")
                 return # Cancel clicked or Alt+C pressed or Escape pressed
         
-        if isFileSaved: 
-                self.__clear()
-                self.commandSequencer.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
-                self.assy.reset_changed() #bruce 050429, part of fixing bug 413
-                self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
-                self.win_update()
+        if isFileSaved:
+            self.__clear()
+            self.commandSequencer.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
+            self.assy.reset_changed() #bruce 050429, part of fixing bug 413
+            self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
+            self.win_update()
         return
 
     def fileSetWorkingDirectory(self):
@@ -1988,7 +1989,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             env.history.message( redmsg(msg))
         return
                 
-    def __clear(self):
+    def __clear(self): # rename: win_replace_assy?
+        """
+        [private; as of 080812, called from fileOpen and fileClose,
+         immediately followed by start_using_mode; has no other calls]
+
+        Close current self.assy, make a new assy and reinit commandsequencer
+        for it (in glpane.setAssy), tell new assy about our model tree and
+        glpane (and vice versa), update mainwindow caption.
+        """
         #bruce 050907 comment: this is only called from two file ops in this mixin, so I moved it here from MWsemantics
         # even though its name-mangled name was thereby changed. It should really be given a normal name.
         # Some comments in other files still call it MWsemantics.__clear. [See also the 060127 kluge below.]
@@ -2012,7 +2021,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.assy.set_modelTree(self.mt)
         
         ### Hack by Huaicai 2/1 to fix bug 369
-        self.mt.resetAssy_and_clear() 
+        self.mt.resetAssy_and_clear()
         
         return
 
