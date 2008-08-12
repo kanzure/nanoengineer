@@ -41,9 +41,7 @@ from utilities.prefs_constants import breakStrandsCommand_useCustomColorForFiveP
 from utilities.prefs_constants import breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
 
 from utilities.prefs_constants import breakStrandsCommand_numberOfBasesBeforeNextBreak_prefs_key 
-from utilities.prefs_constants import breakStrandsCommand_dnaBaseNumberLabelColor_prefs_key
-from utilities.prefs_constants import breakStrandsCommand_dnaBaseNumberingOrder_prefs_key
-from utilities.prefs_constants import breakStrandsCommand_dnaBaseNumberLabelChoice_prefs_key
+
 
 from utilities.Comparison import same_vals
 from utilities import debug_flags
@@ -315,32 +313,7 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         """
         return breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
     
-    
-    
-    def get_prefs_key_dnaBaseNumberLabelColor(self):
-        """
-        
-        """
-        return breakStrandsCommand_dnaBaseNumberLabelColor_prefs_key
-    
-    def get_prefs_key_dnaBaseNumberLabelChoice(self):
-        """
-        Return the preference key whose value will give the 
-        choice for Dna base numbering order for number labels in the
-        3D workspace. 
-        @see: JoinStrands_Command.
-        """
-        return breakStrandsCommand_dnaBaseNumberLabelChoice_prefs_key
-        
-    def get_prefs_key_dnaBaseNumberingOrder(self):
-        """
-        Return the preference key whose value will give the 
-        choice for displaying the Dna base numbers in the 3D workspace. 
-        @see: JoinStrands_Command.
-        """
-        return breakStrandsCommand_dnaBaseNumberingOrder_prefs_key
-    
-    
+
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the DNA Property Manager.  

@@ -17,8 +17,6 @@ from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from utilities.exception_classes import AbstractMethod
 from utilities.constants import CL_SUBCOMMAND
 
-# == Command part
-
 _superclass = BuildAtoms_Command
 
 class BreakOrJoinStrands_Command(BuildAtoms_Command):
@@ -87,20 +85,8 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
         """
         Overrides superclass method. See superclass for documentation.
         """
-        pass
+        pass      
     
-    def getColor_baseNumberLabel(self):
-        key  = self.propMgr.get_prefs_key_dnaBaseNumberLabelColor()
-        return env.prefs[key]
-    
-    def getBaseNumberLabelChoice(self):
-        key = self.propMgr.get_prefs_key_dnaBaseNumberLabelChoice()
-        return env.prefs[key]
-    
-    def getBaseNumberingOrder(self):
-        key = self.propMgr.get_prefs_key_dnaBaseNumberingOrder()
-        return env.prefs[key]       
-
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted.

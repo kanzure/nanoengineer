@@ -361,6 +361,9 @@ class basicGraphicsMode(GraphicsMode_API):
 
         #Draw Special indicators if any (subclasses can draw custom indicators)
         self._drawSpecialIndicators()
+        
+        #Draw labels if any 
+        self._drawLabels()
 
 
         # bruce 040929/041103 debug code -- for developers who enable this
@@ -426,6 +429,22 @@ class basicGraphicsMode(GraphicsMode_API):
         @see: MultipleDnaSegmentResize_GraphicsMode._drawSpecialIndicators()
         @TODO: cleanup self._drawTags() that method and this method look
         similar but the actual implementation is different.
+        """
+        pass
+    
+    def _drawLabels(self):
+        """
+        Subclasses should override this method. Default implementation does
+        nothing. Many times, the graphics mode needs to draw some labels on the
+        top of everything. Called in self.Draw()
+        
+        Example: For a DNA, user may want to turn on the labels next to the 
+        atoms indicating the base numbers. 
+        
+        @see: BreakOrJoinStrands_GraphicsMode._drawLabels() for an example.   
+        
+        @see: self._drawSpecialIndicators()
+        @see: self.Draw()
         """
         pass
 

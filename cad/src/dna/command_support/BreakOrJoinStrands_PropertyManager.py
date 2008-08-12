@@ -9,7 +9,7 @@ History:
 Ninad 2008-06-05: Revised and refactored code in JoinStrands_PropertyManager, 
 and moved it to this class.
 """
-import sys
+
 from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 import foundation.env as env
@@ -17,9 +17,7 @@ from PM.PM_Dialog import PM_Dialog
 from widgets.DebugMenuMixin import DebugMenuMixin
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_CheckBox import PM_CheckBox
-from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_ColorComboBox import PM_ColorComboBox
-
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 
@@ -32,8 +30,7 @@ from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_p
 from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
 
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
-from utilities.exception_classes import AbstractMethod
-from widgets.prefs_widgets import connect_comboBox_with_pref
+from PM.PM_DnaBaseNumberLabelsGroupBox import PM_DnaBaseNumberLabelsGroupBox
 
 class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     
@@ -95,23 +92,8 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
                        SIGNAL("toggled(bool)"),
                        self.allowChoosingColorsOnThreePrimeEnd)
         
-        if self._baseNumberLabelColorChooser:
-            change_connect(self._baseNumberLabelColorChooser,
-                          SIGNAL("editingFinished()"),         
-                          self._colorChanged_dnaBaseNumberLabel)
-        
-        if self._baseNumberLabelGroupBox:
-            prefs_key = self.get_prefs_key_dnaBaseNumberLabelChoice()
-            connect_comboBox_with_pref(self._baseNumberComboBox, 
-                                       prefs_key
-                                       )
-        if self._baseNumberingOrderComboBox:
-            prefs_key = self.get_prefs_key_dnaBaseNumberingOrder()
-            connect_comboBox_with_pref(self._baseNumberingOrderComboBox ,
-                                       prefs_key
-                                       )
-            
-        
+        self._baseNumberLabelGroupBox.connect_or_disconnect_signals(isConnect)
+               
         return
     
     def show(self):
@@ -119,9 +101,8 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
         PM_Dialog.show(self)        
-        self.connect_or_disconnect_signals(isConnect = True)    
-        return
-                
+        self.connect_or_disconnect_signals(isConnect = True) 
+   
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
@@ -169,32 +150,9 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     #Load various widgets ====================
     
     def _loadBaseNumberLabelGroupBox(self, pmGroupBox):
-        baseNumberChoices = ('None (default)',  
-                             'Strands and segments',
-                             'Strands only', 
-                             'Segments only')
-        
-        self._baseNumberComboBox = \
-            PM_ComboBox( pmGroupBox,
-                         label         =  "Base numbers:",
-                         choices       =  baseNumberChoices,
-                         setAsDefault  =  True)
-        
-        numberingOrderChoices = ('5\' to 3\' (default)', 
-                           '3\' to 5\'' )         
-                           
-        self._baseNumberingOrderComboBox = \
-            PM_ComboBox( pmGroupBox,
-                         label         =  "Base numbers:",
-                         choices       =  numberingOrderChoices,
-                         setAsDefault  =  True)
-        
-        prefs_key = self.get_prefs_key_dnaBaseNumberLabelColor()
-        self._baseNumberLabelColorChooser = \
-            PM_ColorComboBox(pmGroupBox,
-                             color      = env.prefs[prefs_key])
-        
-          
+        self._baseNumberLabelGroupBox = PM_DnaBaseNumberLabelsGroupBox(pmGroupBox, 
+                                                                       self.command)
+       
     def _loadDisplayOptionsGroupBox(self, pmGroupBox):
         """
         Load widgets in the display options groupbox
@@ -383,34 +341,9 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         Choose custom color for 5' ends
         """
+        print "*** in _colorChanged_dnaBaseNumberLabel"
         color = self._baseNumberLabelColorChooser.getColor()
-        prefs_key = self.get_prefs_key_dnaBaseNumberLabelColor()
+        prefs_key = self.command.get_prefs_key_dnaBaseNumberLabelColor()
         env.prefs[prefs_key] = color
         self.win.glpane.gl_update() 
-        return
-    
-    
-    def get_prefs_key_dnaBaseNumberLabelColor(self):
-        """
-        
-        """
-        raise AbstractMethod()
-               
-        
-    def get_prefs_key_dnaBaseNumberLabelChoice(self):
-        """
-        Return the preference key whose value will give the 
-        choice for displaying the Dna base numbers in the 3D workspace. 
-        Abstract method, must be overridden in subclasses. 
-        """
-        raise AbstractMethod()
-    
-    def get_prefs_key_dnaBaseNumberingOrder(self):
-        """
-        Return the preference key whose value will give the 
-        choice for displaying the Dna base numbers in the 3D workspace. 
-        @see: JoinStrands_Command.
-        """
-        raise AbstractMethod()
-    
-            
+        return  

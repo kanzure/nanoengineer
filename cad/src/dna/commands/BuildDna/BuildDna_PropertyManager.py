@@ -37,6 +37,7 @@ from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_Constants     import PM_CANCEL_BUTTON
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
+from PM.PM_DnaBaseNumberLabelsGroupBox import PM_DnaBaseNumberLabelsGroupBox
 
 DEBUG_CHANGE_COUNTERS =  False
 class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -139,6 +140,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect(self.searchForCrossoversButton,
                       SIGNAL("clicked()"),
                       self._enterMakeCrossoversCommand)
+        
+        self._baseNumberLabelGroupBox.connect_or_disconnect_signals(isConnect)
  
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
@@ -425,6 +428,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._pmGroupBox3 = PM_GroupBox( self, title = "Segments" )
         self._loadGroupBox3( self._pmGroupBox3 )
         
+        self._loadBaseNumberLabelGroupBox(self)
+        
         
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -478,6 +483,13 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             label = "",
             text  = "Search For Crossovers..." )
         self.searchForCrossoversButton.setEnabled(False)
+        
+        
+    def _loadBaseNumberLabelGroupBox(self, pmGroupBox):
+        """
+        """
+        self._baseNumberLabelGroupBox = PM_DnaBaseNumberLabelsGroupBox(pmGroupBox, 
+                                                                       self.command)
     
  
     def _addWhatsThisText( self ):

@@ -12,6 +12,10 @@ TODO:
 """
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from PyQt4.Qt import QFont, QString
+import foundation.env as env
+from utilities.prefs_constants import dnaBaseNumberLabelColor_prefs_key
+from utilities.prefs_constants import dnaBaseNumberingOrder_prefs_key
+from utilities.prefs_constants import dnaBaseNumberLabelChoice_prefs_key
 
 _superclass = BuildAtoms_GraphicsMode
 class BreakOrJoinstrands_GraphicsMode(BuildAtoms_GraphicsMode):
@@ -21,14 +25,17 @@ class BreakOrJoinstrands_GraphicsMode(BuildAtoms_GraphicsMode):
     @see: BreakStrand_GraphicsMode()
     @see: JoinStrands_GraphicsMode() 
     """
-    def Draw(self):
-        _superclass.Draw(self)
+    def _drawLabels(self):
+        """
+        Overrides superclass method
+        @see: self.Draw()
+        """
+        _superclass._drawLabels(self)
         self._draw_dnaBaseNumberLabels()
         
     def _draw_dnaBaseNumberLabels(self):
         """
-        Draw the DNA basee number labels.
-        
+        Draw the DNA basee number labels.        
         
         baseNumLabelChoice:(obtained from command class)
         0 =  None
@@ -37,8 +44,9 @@ class BreakOrJoinstrands_GraphicsMode(BuildAtoms_GraphicsMode):
         3 =  Segments Only
         
         @see: self._correct_baseatom_order_for_dnaStrand()
+        @see: self._drawLabels()
         """
-        baseNumLabelChoice = self.command.getBaseNumberLabelChoice()
+        baseNumLabelChoice = env.prefs[dnaBaseNumberLabelChoice_prefs_key]
         
         if self.glpane.scale > 65.0:
             fontSize = 9
@@ -53,7 +61,7 @@ class BreakOrJoinstrands_GraphicsMode(BuildAtoms_GraphicsMode):
         strands = self.win.assy.part.get_topmost_subnodes_of_class(self.win.assy.DnaStrand)
         
         font = QFont( QString("Helvetica"), fontSize)
-        textColor = self.command.getColor_baseNumberLabel()
+        textColor = env.prefs[dnaBaseNumberLabelColor_prefs_key]
         # WARNING: Anything smaller than 9 pt on Mac OS X results in 
         # un-rendered text.
                     
@@ -101,7 +109,7 @@ class BreakOrJoinstrands_GraphicsMode(BuildAtoms_GraphicsMode):
         #direction. May be it needs to be revised/ replaced with 
         #wholechain.get_all_base_atoms_in_order()
         #-- Ninad 2008-08-06
-        numberingOrder = self.command.getBaseNumberingOrder()
+        numberingOrder = env.prefs[dnaBaseNumberingOrder_prefs_key]
         five_prime_end = strand.get_five_prime_end_base_atom()
         if five_prime_end: 
             if numberingOrder == 0:

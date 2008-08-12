@@ -307,9 +307,6 @@ joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key = 'A110/ Whil
 joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand three-prime arrowheads/spheres'
 joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Join strands command,use custom color for five-prime arrowheads/spheres'
 joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand five-prime arrowheads/spheres'
-joinStrandsCommand_dnaBaseNumberLabelChoice_prefs_key = 'V120/While in Join strands command, display dna base numbering using the choice given by this keys value'
-joinStrandsCommand_dnaBaseNumberingOrder_prefs_key = 'V120/While in Join strands command, display dna base numbering labels using the ordering choice given by this keys value'
-joinStrandsCommand_dnaBaseNumberLabelColor_prefs_key = 'V120/While in Join strands command, display dna base numbering labels using color given by this keys value'
 
 #Urmi 20080617: display grid in Plane Property Manager pref keys
 PlanePM_showGrid_prefs_key = 'V111/Show Grid on the Plane'
@@ -323,9 +320,12 @@ breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ 
 breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Break strands command,use custom color for five-prime arrowheads/spheres'
 breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Break strands command, Custom color for strand five-prime arrowheads/spheres'
 breakStrandsCommand_numberOfBasesBeforeNextBreak_prefs_key  = 'A111/Number of bases before the next break site'
-breakStrandsCommand_dnaBaseNumberLabelChoice_prefs_key = 'V120/While in break strands command, display dna base numbering using the choice given by this keys value'
-breakStrandsCommand_dnaBaseNumberingOrder_prefs_key = 'V120/While in break strands command, display dna base numbering labels using the ordering choice given by this keys value'
-breakStrandsCommand_dnaBaseNumberLabelColor_prefs_key = 'V120/While in break strands command, display dna base numbering labels using color given by this keys value'
+
+#Dna base number label prefs
+dnaBaseNumberLabelChoice_prefs_key = 'V120/display dna base numbering using the choice given by this keys value'
+dnaBaseNumberingOrder_prefs_key = 'V120/ display dna base numbering labels using the ordering choice given by this keys value'
+dnaBaseNumberLabelColor_prefs_key = 'V120/ display dna base numbering labels using color given by this keys value'
+
 #Various cursor text prefs =======================
 dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex'
 dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key = 'A110/Show number of basepair info in cursor text while in DnaDulex_Editcommand'
@@ -789,9 +789,11 @@ prefs_table = (
     ('', 'color', joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),
-    ('', 'int',   joinStrandsCommand_dnaBaseNumberLabelChoice_prefs_key, 0),
-    ('', 'int',   joinStrandsCommand_dnaBaseNumberingOrder_prefs_key, 0),
-    ('', 'color', joinStrandsCommand_dnaBaseNumberLabelColor_prefs_key, green),
+    
+    #Dna base number label prefs
+    ('', 'int',   dnaBaseNumberLabelChoice_prefs_key, 0),
+    ('', 'int',   dnaBaseNumberingOrder_prefs_key, 0),
+    ('', 'color', dnaBaseNumberLabelColor_prefs_key, green),
 
     #Urmi 20080617: Plane_PM display grid prefs
     ('','boolean',PlanePM_showGrid_prefs_key, False),
@@ -807,10 +809,7 @@ prefs_table = (
     ('', 'boolean', breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),    
     ('', 'int', breakStrandsCommand_numberOfBasesBeforeNextBreak_prefs_key, 5),
-    ('', 'int',   breakStrandsCommand_dnaBaseNumberLabelChoice_prefs_key, 0),
-    ('', 'int',   breakStrandsCommand_dnaBaseNumberingOrder_prefs_key, 0),
-    ('', 'color', breakStrandsCommand_dnaBaseNumberLabelColor_prefs_key, green),
-
+    
     #DNA cursor text preferences 
 
     #Cursor text prefs while in DnaDuplex_EditCommand 
