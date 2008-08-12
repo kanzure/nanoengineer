@@ -150,7 +150,9 @@ class rosettaSetup_CommandRun(CommandRun):
             return -1
         
         self.simcntl = RosettaSetup(self.win, self.part, suffix = suffix)
-        movie = self.simcntl.movie 
+        movie = self.simcntl.movie
+        #we are passing the type of rosetta simulation we intend to run as the second
+        #argument in the argument list
         self.cmd_type = self.args[1]
         r = writemovie(self.part, self.args, movie, print_sim_warnings = True, 
                        cmdname = self.cmdname, cmd_type = self.cmd_type, useRosetta = True)
