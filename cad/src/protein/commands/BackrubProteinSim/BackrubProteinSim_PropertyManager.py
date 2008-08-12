@@ -13,7 +13,6 @@ Build > Protein > Simulate mode.
 """
 import string
 import foundation.env as env
-
 from widgets.DebugMenuMixin import DebugMenuMixin
 from utilities.prefs_constants import rosetta_backrub_enabled_prefs_key
 from PyQt4.Qt import SIGNAL
@@ -70,16 +69,22 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                 PM_WHATS_THIS_BUTTON)
 
         msg = "Choose various parameters from below to design an optimized" \
-            "protein sequence with Rosetta."
+            "protein sequence with Rosetta with backrub motion allowed."
         self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, isConnect = True):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
         
         if isConnect:
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-        
         
         change_connect(self.ex1Checkbox, SIGNAL("stateChanged(int)"), self.update_ex1)
         change_connect(self.ex1aroCheckbox, SIGNAL("stateChanged(int)"), self.update_ex1aro)
@@ -93,8 +98,9 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         change_connect(self.useElecRepCheckbox, SIGNAL("stateChanged(int)"), self.update_use_elec_rep)
         change_connect(self.norepackDisulfCheckbox, SIGNAL("stateChanged(int)"), self.update_norepack_disulf)
         #signal slot connections for the push buttons
-        change_connect(self.okButton, SIGNAL("clicked()"), self.getRosettaParameters)
-        
+        change_connect(self.okButton, SIGNAL("clicked()"), self.runRosettaBackrubSim)
+        return
+    
         
     #Protein Display methods         
 
@@ -108,7 +114,6 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Slot for the Cancel button.
         """
-        #TODO: Cancel button needs to be removed. See comment at the top
         self.win.toolsDone()
 
     def show(self):
@@ -118,9 +123,9 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.sequenceEditor.hide()
         PM_Dialog.show(self)
-
         self.connect_or_disconnect_signals(isConnect = True)
-        
+        return
+    
         
     def close(self):
         """
@@ -128,6 +133,8 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         self.connect_or_disconnect_signals(False)
         PM_Dialog.close(self)
+        return
+    
 
     def _addGroupBoxes( self ):
         """
@@ -136,7 +143,7 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self._pmGroupBox1 = PM_GroupBox( self,
                                          title = "Rosetta sequence design with backrub motion")
         self._loadGroupBox1( self._pmGroupBox1 )
-
+        return
     
         
     def _loadGroupBox1(self, pmGroupBox):
@@ -240,7 +247,9 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          text         =  "Run Rosetta",
                          setAsDefault  =  True,
                          spanWidth = True)
-        
+        return
+    
+    
     def update_ex1(self, state):
         """
         Update the command text edit depending on the state of the update_ex1
@@ -408,9 +417,9 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.otherCommandLineOptions.setText(otherOptionsText)        
         return
     
-    def getRosettaParameters(self):
+    def runRosettaBackrubSim(self):
         """
-        Get all the parameters from the Rosetta pop up dialog
+        Get all the parameters from the PM and run a rosetta simulation
         """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         numSim = self.numSimSpinBox.value()
