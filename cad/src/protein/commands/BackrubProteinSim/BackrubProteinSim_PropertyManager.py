@@ -13,6 +13,7 @@ Build > Protein > Simulate mode.
 """
 import string
 import foundation.env as env
+from utilities.Log import redmsg
 from widgets.DebugMenuMixin import DebugMenuMixin
 from utilities.prefs_constants import rosetta_backrub_enabled_prefs_key
 from PyQt4.Qt import SIGNAL
@@ -27,6 +28,8 @@ from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_Constants import PM_DONE_BUTTON
 from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from PM.PM_SpinBox import PM_SpinBox
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_ComboBox import PM_ComboBox
 
 class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
@@ -69,7 +72,7 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                 PM_WHATS_THIS_BUTTON)
 
         msg = "Choose various parameters from below to design an optimized" \
-            "protein sequence with Rosetta with backrub motion allowed."
+            " protein sequence with Rosetta with backrub motion allowed."
         self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, isConnect = True):
@@ -122,6 +125,16 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.sequenceEditor.hide()
+        #update the min and max residues spinbox max values based on the length
+        #of the current protein
+        numResidues = self._getNumResiduesForCurrentProtein()
+        if numResidues == 0:
+            self.minresSpinBox.setMaximum(numResidues + 2)
+            self.maxresSpinBox.setMaximum(numResidues + 2)
+        else:    
+            self.minresSpinBox.setMaximum(numResidues)
+            self.maxresSpinBox.setMaximum(numResidues)
+        
         PM_Dialog.show(self)
         self.connect_or_disconnect_signals(isConnect = True)
         return
@@ -140,12 +153,111 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Add the Property Manager group boxes.
         """
+        self._pmGroupBox2 = PM_GroupBox( self,
+                                         title = "Backrub specific parameters")
+        self._loadGroupBox2( self._pmGroupBox2 )
+        
         self._pmGroupBox1 = PM_GroupBox( self,
-                                         title = "Rosetta sequence design with backrub motion")
+                                         title = "Rosetta sequence design parameters")
         self._loadGroupBox1( self._pmGroupBox1 )
+        
         return
     
+    def _loadGroupBox2(self, pmGroupBox):
+        """
+        Load widgets in group box.
+        """
+        self.bondAngleWeightSimSpinBox = PM_DoubleSpinBox( pmGroupBox,
+                                         labelColumn  = 0,
+                                         label = "Bond angle weight:",
+                                         minimum = 0.01,
+                                         decimals     = 2, 
+                                         maximum = 1.0,
+                                         singleStep = 0.01,
+                                         value = 1.0,
+                                         setAsDefault  =  False,
+                                         spanWidth = False)
         
+        bond_angle_param_list = ['Amber', 'Charmm']
+        
+        self.bondAngleParamComboBox = PM_ComboBox( pmGroupBox,
+                                                   label         =  "Bond angle parameters:",
+                                                   choices       =  bond_angle_param_list,
+                                                   setAsDefault  =  False)
+        
+        self.onlybbSpinBox = PM_DoubleSpinBox( pmGroupBox,
+                                         labelColumn  = 0,
+                                         label = "Only backbone rotation:",
+                                         minimum = 0.01,
+                                         maximum = 1.0,
+                                         value        = 0.75, 
+                                        decimals     = 2, 
+                                         singleStep = 0.01,
+                                         setAsDefault  =  False,
+                                         spanWidth = False)
+        
+        self.onlyrotSpinBox = PM_DoubleSpinBox( pmGroupBox,
+                                         labelColumn  = 0,
+                                         label = "Only rotamer rotation:",
+                                         minimum = 0.01,
+                                         maximum = 1.0,
+                                        decimals     = 2, 
+                                        value        = 0.25, 
+                                         singleStep = 0.01,
+                                         setAsDefault  =  False,
+                                         spanWidth = False)
+        
+        self.mctempSpinBox = PM_DoubleSpinBox( pmGroupBox,
+                                         labelColumn  = 0,
+                                         label = "MC simulation temperature:",
+                                         minimum = 0.1,
+                                         value        = 0.6, 
+                                         maximum = 1.0,
+                                        decimals     = 2, 
+                                         singleStep = 0.1,
+                                         setAsDefault  =  False,
+                                         spanWidth = False)
+        
+        numResidues = self._getNumResiduesForCurrentProtein()
+        self.minresSpinBox = PM_SpinBox( pmGroupBox,
+                                         labelColumn  = 0,
+                                         label = "Minimum number of residues:",
+                                         minimum = 2,
+                                         maximum = numResidues,
+                                         singleStep = 1,
+                                         setAsDefault  =  False,
+                                         spanWidth = False)
+        
+        self.maxresSpinBox = PM_SpinBox( pmGroupBox,
+                                         labelColumn  = 0,
+                                         label = "Maximum number of residues:",
+                                         minimum = 2,
+                                         maximum = numResidues,
+                                         singleStep = 1,
+                                         setAsDefault  =  False,
+                                         spanWidth = False)
+        if numResidues == 0:
+            self.minresSpinBox.setMaximum(numResidues + 2)
+            self.maxresSpinBox.setMaximum(numResidues + 2)
+        return
+    
+    def _getNumResiduesForCurrentProtein(self):
+        """
+        Get number of residues for the current protein
+        """
+        previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        if  previousCommand:
+            #Urmi 20080728: get the protein currently selected in the combo box
+            current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
+            for mol in self.win.assy.molecules:
+                if mol.isProteinChunk() and current_protein == mol.name:
+                    return len(mol.protein.get_sequence_string()) 
+                
+        else:
+            return 0
+        return 0
+    
+    
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box.
@@ -426,10 +538,56 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
         protein = previousCommand.propMgr.get_current_protein_chunk_name()
         argList = [numSim, otherOptionsText, protein]
-        
+        backrubSpecificArgList = self.getBackrubSpecificArgumentList()
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
         if argList[0] > 0:
             env.prefs[rosetta_backrub_enabled_prefs_key] = True
-            cmdrun = rosettaSetup_CommandRun(self.win, argList, "BACKRUB_PROTEIN_SEQUENCE_DESIGN")
+            cmdrun = rosettaSetup_CommandRun(self.win, argList, "BACKRUB_PROTEIN_SEQUENCE_DESIGN", backrubSpecificArgList)
             cmdrun.run() 
         return    
+    
+    def getBackrubSpecificArgumentList(self):
+        """
+        get list of backrub specific parameters from PM
+        """
+        listOfArgs = []
+        
+        bond_angle_weight = str(self.bondAngleWeightSimSpinBox.value())
+        listOfArgs.append('-bond_angle_weight')
+        listOfArgs.append( bond_angle_weight)
+        
+        if self.bondAngleParamComboBox.currentIndex() == 0:
+            bond_angle_params = 'bond_angle_amber_rosetta'
+        else:
+            bond_angle_params = 'bond_angle_charmm_rosetta'
+            
+        listOfArgs.append('-bond_angle_params')            
+        listOfArgs.append(bond_angle_params)    
+        
+        only_bb = str(self.onlybbSpinBox.value())
+        listOfArgs.append('-only_bb')
+        listOfArgs.append( only_bb)
+        
+        only_rot = str(self.onlyrotSpinBox.value())
+        listOfArgs.append('-only_rot')
+        listOfArgs.append( only_rot)
+        
+        mc_temp = str(self.mctempSpinBox.value())
+        listOfArgs.append('-mc_temp')
+        listOfArgs.append( mc_temp)
+        
+        min_res = self.minresSpinBox.value()
+        max_res = self.maxresSpinBox.value()
+        if max_res < min_res:
+            msg = redmsg("Maximum number of residues for rosetta simulation with backrub" \
+                " motion cannot be less than minimum number of residues."\
+                " Neglecting this parameter for this simulation.")
+            
+            env.history.message("BACKRUB SIMULATION: " + msg)
+        else:
+            listOfArgs.append('-min_res')
+            listOfArgs.append( str(min_res))
+            listOfArgs.append('-max_res')
+            listOfArgs.append( str(max_res))
+        
+        return listOfArgs
