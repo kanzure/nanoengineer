@@ -884,10 +884,14 @@ class Protein:
                model. May be we'll take care of that when we move to the new model
         
         """ 
-        win.commandSequencer.userEnterTemporaryCommand('BUILD_PROTEIN')
-        assert win.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
-        win.commandSequencer.currentCommand.runCommand()
-        
+        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+        if modelAndSimulateProteins:
+            win.commandSequencer.userEnterCommand('MODEL_AND_SIMULATE_PROTEIN')
+        else:    
+            win.commandSequencer.userEnterTemporaryCommand('BUILD_PROTEIN')
+            assert win.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
+            win.commandSequencer.currentCommand.runCommand()
+        return
        
 # end of Protein class
 
