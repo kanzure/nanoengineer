@@ -6,33 +6,24 @@
 @version: $Id$
 
 History:
-- 2008-08-05 created. 
+- 2008-08-05 created by Urmi. 
 - The motivation was to include all protein modeling and simulation features 
   in one place.
+- Based on the original protein flyout toolbar that mostly supported modeling tools 
+  and the new flyout toolbar that combines atom and bonds tool for chunks 
 
 """
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QAction
 from PyQt4.Qt import QActionGroup
-
-
 from utilities.icon_utilities import geticon
-
 from ne1_ui.toolbars.Ui_AbstractFlyout import Ui_AbstractFlyout
 
 _superclass = Ui_AbstractFlyout
 
 class ProteinFlyout_v2(Ui_AbstractFlyout):    
-    
-    #def deActivateFlyoutToolbar(self):
-        #"""
-        #Updates the flyout toolbar with the actions this class provides.
-        #"""
-        #_superclass.deActivateFlyoutToolbar(self)
-        #self.resetStateOfActions()
-        #return
-    
+ 
     def _action_in_controlArea_to_show_this_flyout(self):
         """
         Required action in the 'Control Area' as a reference for this 
@@ -116,17 +107,9 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         """
         Define flyout toolbar actions for this mode.
         """
-        #@NOTE: In Build mode, some of the actions defined in this method are also 
-        #used in Build Atoms PM. (e.g. bond actions) So probably better to rename 
-        #it as _init_modeActions. Not doing that change in mmkit code cleanup 
-        #commit(other modes still implement a method by same name)-ninad20070717
-                
+              
         _superclass._createActions(self, parentWidget)
-        
-        #Following Actions are added in the Flyout toolbar. 
-        #Defining them outside that method as those are being used
-        #by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
-                
+              
         self.modelProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.modelProteinAction.setText("Model")
         self.modelProteinAction.setIcon(geticon(
@@ -153,7 +136,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         
     def _createModelProteinsActions(self, parentWidget): 
         """
-        Create the actions to be included in flyout toolbar , when the 'Model
+        Create the actions to be included in flyout toolbar, when the 'Model
         Proteins' is active. 
         
         @see: self._createActions() where this is called. 
@@ -196,7 +179,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
     
     def _createSimulateProteinsActions(self, parentWidget): 
         """
-        Create the actions to be included in flyout toolbar , when the 'Simulate
+        Create the actions to be included in flyout toolbar, when the 'Simulate
         Proteins' is active. 
         
         @see: self._createActions() where this is called. 
@@ -251,7 +234,6 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         else:
             change_connect = self.win.disconnect 
         
-            
         #Ui_AbstractFlyout connects the self.exitmodeAction, so call it first.
         _superclass.connect_or_disconnect_signals(self, isConnect = isConnect)
         
@@ -301,7 +283,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
     
     def activateRosettaBackrub_Command(self, isChecked):
         """
-        Activate Rosetta sequence design with backrub command
+        Activate Rosetta sequence design with backrub motion command
         """
         self.win.enterOrExitTemporaryCommand('BACKRUB_PROTEIN_SEQUENCE_DESIGN')
         for action in self.subControlActionGroupForSimulateProtein.actions():
@@ -341,8 +323,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
     def _activateModelProteins(self):
         """
         Activate the model proteins action of the Proteins mode 
-        hide only the Atoms Tools groupbox in the Build Atoms Property manager
-        and show all others the others.
+        
         """
         self.command.setCurrentCommandMode('MODEL_PROTEIN')
         self.command.enterModelOrSimulateCommand('MODEL_PROTEIN')
@@ -352,10 +333,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         
     def _activateSimulateProteins(self):
         """
-        Activate the bond tool of the Build Atoms mode 
-        Show only the Bond Tools groupbox in the Build Atoms Property manager
-        and hide the others.
-        @see:self._convert_bonds_bet_selected_atoms()
+        Activate the simulation tool of the Build Protein mode 
         """  
         self.command.setCurrentCommandMode('SIMULATE_PROTEIN')
         self.command.enterModelOrSimulateCommand('SIMULATE_PROTEIN')
@@ -431,13 +409,12 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         Uncheck most of the actions. Basically it 
         unchecks all the actions EXCEPT the ExitDnaAction
         @see: self.deActivateFlyoutToolbar()
-        @see: self.activateBreakStrands_Command() 
-        @see: BuildDna_EditCommand.resume_gui()
-        """
-
-        #Uncheck all the actions in the flyout toolbar (subcontrol area)
         
+        """
+        #Uncheck all the actions in the flyout toolbar (subcontrol area)
         for action in self.subControlActionGroup.actions():
             if action.isChecked():
                 action.setChecked(False)     
-                
+        return
+    
+    
