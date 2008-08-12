@@ -61,6 +61,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
             self.propMgr = self._createPropMgrObject()
             #changes.keep_forever(self.propMgr)      
         self.propMgr.show()
+        return
     
     def command_exit_PM(self):
         """
@@ -71,6 +72,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
         
         if self.propMgr:
             self.propMgr.close()
+        return    
             
     def command_enter_flyout(self):
         """
@@ -81,12 +83,12 @@ class ModelAndSimulateProtein_Command(EditCommand):
         if self.flyoutToolbar is None:
             self.flyoutToolbar = self._createFlyoutToolBarObject() 
         self.flyoutToolbar.activateFlyoutToolbar()  
-        
+        return
+    
     def _createFlyoutToolBarObject(self):
         """
         Create a flyout toolbar to be shown when this command is active. 
         Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
         @see: self.command_enter_flyout()
         """
         flyoutToolbar = ProteinFlyout_v2(self) 
@@ -163,6 +165,9 @@ class ModelAndSimulateProtein_Command(EditCommand):
         return
     
     def setCurrentCommandMode(self, commandName):
+        """
+        Sets the current active command: modeling or simulation
+        """
         self._currentActiveTool = commandName
         return
     
@@ -175,8 +180,6 @@ class ModelAndSimulateProtein_Command(EditCommand):
         
         commandSequencer = self.win.commandSequencer
         currentCommand = commandSequencer.currentCommand
-        
-        #commandSequencer.userEnterTemporaryCommand(commandName) 
         if currentCommand.commandName != commandName:
             # enter command, if not already in it
             commandSequencer.userEnterTemporaryCommand( commandName)
@@ -186,10 +189,8 @@ class ModelAndSimulateProtein_Command(EditCommand):
         
         return
     
-    def update_gui(self): #bruce 050121 heavily revised this 
-        #[called by basicMode.UpdateDashboard]
+    def update_gui(self): 
         """
-        #doc...
         can be called many times during the mode;
         should be called only by code in modes.py
         """
@@ -233,13 +234,6 @@ class ModelAndSimulateProtein_Command(EditCommand):
         """
         return None
 
-    #def runCommand(self):
-        #"""
-        #Overrides EditCommand.runCommand
-        #"""
-        #self.struct = None
-        #self.existingStructForEditing = False
-        
 
     def keep_empty_group(self, group):
         """
@@ -248,8 +242,6 @@ class ModelAndSimulateProtein_Command(EditCommand):
         False. Subclasses should override this method if it needs to keep the
         empty group for some reasons. Note that this method will only get called
         when a group has a class constant autdelete_when_empty set to True.
-        (and as of 2008-03-06, it is proposed that dna_updater calls this method
-        when needed.
         @see: Command.keep_empty_group() which is overridden here.
         """
 
