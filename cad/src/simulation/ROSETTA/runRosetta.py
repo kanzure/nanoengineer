@@ -38,6 +38,20 @@ count = 1
 count_backrub = 1
 
 def showRosettaScore(tmp_file_prefix, scorefile, win):
+    """
+    Show the rosetta score of the current protein sequence
+    
+    @param tmp_file_prefix: file prefix from which directory of the score file 
+                            could be extracted
+    @type tmp_file_prefix: str
+    
+    @param scorefile: name of the rosetta score file
+    @type scorefile: str
+    
+    @param win: NE-1 window
+    @type win: L{gl_pane}
+    
+    """
     dir1 = os.path.dirname(tmp_file_prefix)
     scorefile = scorefile + '.sc'
     scoreFilePath = os.path.join(dir1, scorefile)   
@@ -76,7 +90,19 @@ def showRosettaScore(tmp_file_prefix, scorefile, win):
 
 def createUniquePDBOutput(tmp_file_prefix, proteinName, win):
     """
-    Create a uniquely named output file for rosetta scores
+    Create a uniquely named output file for rosetta backrub motion simulation
+    
+    @param tmp_file_prefix: file prefix from which directory of the pdb file to 
+                            be saved could be extracted
+    @type tmp_file_prefix: str
+    
+    @param proteinName: name of the input protein
+    @type proteinName: str
+    
+    @param win: NE-1 window
+    @type win: L{gl_pane}
+    
+    @return: output protein name and  output pdb file path
     """
     pdbFile = 'backrub_low.pdb' 
     dir1 = os.path.dirname(tmp_file_prefix)
@@ -110,6 +136,15 @@ def createUniquePDBOutput(tmp_file_prefix, proteinName, win):
     return outProteinName, outputPdbFilePath
 
 def getScoreFromBackrubOutFile(outputPdbFilePath):
+    """
+    Get score from backrub_low.pdb for the current protein sequence deisgn with
+    backrub motion
+    
+    @param outputPdbFilePath: path location of the output pdb file in the disk
+    @type outputPdbFilePath: str
+    
+    @return: a string 
+    """
     #a separate function for this is needed since we have only one pdb file 
     #with backrub that is backrub_low and hence the score is much more easily
     #obtainable from the header
@@ -132,6 +167,21 @@ def getScoreFromBackrubOutFile(outputPdbFilePath):
     return None
 
 def getProteinNameAndSeq(inProtein, outProtein, win):
+    """
+    Get the protein name for inProtein and outProtein chunk and the corresponding
+    sequence to be displayed in the popup result dialog
+    
+    @param inProtein: input protein chunk
+    @type inProtein: L{Chunk}
+    
+    @param outProtein:  output protein chunk
+    @type outProtein: L{Chunk}
+    
+    @param  win: NE-1 window
+    @type win: L{gl_pane}
+    
+    @return: a list of two tuples [(inProtein Name, sequence), (outProtein Name, sequence)]
+    """
     proteinSeqTupleList = []
     seqList1 = ""
     seqList2 = ""
@@ -862,6 +912,8 @@ class RosettaRunner:
         
         @param args: list of simulation arguments
         @type args: list
+        
+        @note: This method needs to be refactored very badly
         """
         self._movie = movie 
         assert args >= 1
@@ -999,9 +1051,11 @@ class RosettaRunner:
                             env.history.statusbar_msg("")
                             
                     if self.cmd_type == "BACKRUB_PROTEIN_SEQUENCE_DESIGN":
+                        #its important to set thi pref key to False so that if the
+                        #subsequent rosetta run is with fixed backbone then the 
+                        #resfile is correctly written
                         from utilities.prefs_constants import rosetta_backrub_enabled_prefs_key    
                         env.prefs[rosetta_backrub_enabled_prefs_key] = False  
-                        print "Pref key=", env.prefs[rosetta_backrub_enabled_prefs_key] 
                         #Urmi 20080807: first copy the backrub_low.pdb to a new pdb
                         #file with the pdb info also added there
                         outProteinName, outPath = createUniquePDBOutput(self.tmp_file_prefix, self.sim_input_file[0:len(self.sim_input_file)-4], self.win)
@@ -1046,7 +1100,7 @@ class RosettaRunner:
         @param outProtein: rosetta outputted protein chunk
         @type outProtein: L{Chunk}
         """
-        # note [bruce 080801]: this could probably be simplified as (untested):
+        
         from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
         if modelAndSimulateProteins:
             command = self.win.commandSequencer.find_innermost_command_named('MODEL_AND_SIMULATE_PROTEIN')
