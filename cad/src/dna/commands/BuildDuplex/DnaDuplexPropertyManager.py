@@ -14,8 +14,6 @@ Ninad 2007-10-24:
 feature to generate Dna using endpoints of a line.
 """
 
-__author__ = "Mark"
-
 import foundation.env as env
 
 from dna.model.Dna_Constants import getDuplexBasesPerTurn, getDuplexRise, getDuplexLength
@@ -162,11 +160,12 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         pass
 
     def getFlyoutActionList(self):
-        """ returns custom actionlist that will be used in a specific mode
+        """
+        returns custom actionlist that will be used in a specific mode
         or editing a feature etc Example: while in movie mode,
         the _createFlyoutToolBar method calls
-        this """
-
+        this
+        """
 
         #'allActionsList' returns all actions in the flyout toolbar
         #including the subcontrolArea actions

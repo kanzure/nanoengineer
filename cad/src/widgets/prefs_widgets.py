@@ -36,8 +36,6 @@ from foundation.undo_manager import wrap_callable_for_undo
 
 # public helper functions
 
-# [this comment is probably obs:] ### colorframe prefs are UNTESTED since local old funcs rewritten to use these
-
 def widget_destroyConnectionWithState(widget):
     """
     """
@@ -359,7 +357,7 @@ def connect_checkbox_with_boolean_pref( qcheckbox, prefs_key ): #bruce 050810, r
     widget_connectWithState( qcheckbox, stateref, QCheckBox_ConnectionWithState)
     return
 
-def connect_doubleSpinBox_with_pref(qDoubleSpinBox, prefs_key):
+def connect_doubleSpinBox_with_pref(qDoubleSpinBox, prefs_key): # by Ninad
     """
     Cause the QDoubleSpinbox to track the value of the given preference key AND
     causes changes to the Double spinbox to change the value of that prefs_key.
@@ -379,7 +377,7 @@ def connect_doubleSpinBox_with_pref(qDoubleSpinBox, prefs_key):
     widget_connectWithState( qDoubleSpinBox, stateref, QDoubleSpinBox_ConnectionWithState)
     return
 
-def connect_spinBox_with_pref(qSpinBox, prefs_key):
+def connect_spinBox_with_pref(qSpinBox, prefs_key): # by Ninad
     """
     Cause the QSpinbox to track the value of the given preference key AND
     causes changes to the Double spinbox to change the value of that prefs_key.
@@ -400,7 +398,7 @@ def connect_spinBox_with_pref(qSpinBox, prefs_key):
     return
 
 
-def connect_comboBox_with_pref(qComboBox, prefs_key):
+def connect_comboBox_with_pref(qComboBox, prefs_key): # by Ninad
     """
     Cause the QComboBox to track the value of the given preference key AND
     causes changes to the combobox  to change the value of that prefs_key.
@@ -521,17 +519,18 @@ class QDoubleSpinBox_ConnectionWithState( _twoway_Qt_connection):
         widget_setter = qspinbox.setValue
             # note: requires bugfix in PM_DoubleSpinBox.setValue,
             # or this will also set default value when used with a PM_DoubleSpinBox object.
-        self.qspinbox = qspinbox
+        self.qspinbox = qspinbox # review: is this reference needed?
         _twoway_Qt_connection.__init__(self, qspinbox, SIGNAL("valueChanged(double)"),
                                        stateref,
                                        widget_setter)
         return
     
     
-class QSpinBox_ConnectionWithState( _twoway_Qt_connection):
+class QSpinBox_ConnectionWithState( _twoway_Qt_connection): # by Ninad
+    # review: add a def connectWithState to a suitable PM class, which uses this? [bruce 080811 comment]
     def __init__(self, qspinbox, stateref):
         widget_setter = qspinbox.setValue           
-        self.qspinbox = qspinbox
+        self.qspinbox = qspinbox # review: is this reference needed?
         _twoway_Qt_connection.__init__(self, qspinbox, SIGNAL("valueChanged(int)"),
                                        stateref,
                                        widget_setter)
@@ -546,10 +545,11 @@ class QPushButton_ConnectionWithAction(destroyable_Qt_connection):
         destroyable_Qt_connection.__init__( self, sender, signal, slot) # this keeps a ref to slot
         return
     
-class QComboBox_ConnectionWithState( _twoway_Qt_connection):
+class QComboBox_ConnectionWithState( _twoway_Qt_connection): # by Ninad
+    # review: add a def connectWithState to a suitable PM class, which uses this? [bruce 080811 comment]
     def __init__(self, qcombobox, stateref):
         widget_setter = qcombobox.setCurrentIndex           
-        self.qcombobox = qcombobox
+        self.qcombobox = qcombobox # review: is this reference needed?
         _twoway_Qt_connection.__init__(self, 
                                        qcombobox, 
                                        SIGNAL("currentIndexChanged(int)"),

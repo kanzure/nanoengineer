@@ -353,47 +353,101 @@ class baseCommand(object):
 
     # == update methods
 
-    def command_update_state(self): ### tentative; details under discussion;
-        ### need to figure out how to call it (see calls of model_changed etc, also undo system, also win_update etc)
+    def command_update_state(self): ### tentative; details under discussion
+        # note: likely implem of call to this: a new cseq method is called by
+        # existing method state_may_have_changed, which loops over the methods
+        # described in the docstring
+        # note: code now in model_changed and other update methods
+        # is divided up into the new update methods listed here.
         """
-        This is called by the command sequencer at the end of any user event
-        that may have changed the command stack, model, or selection.
-        
-        [### Under discussion [see comment for initial outcome]:
-         Do we retain separate methods model_changed, other_things_changed?
-         If so, are they also called at the ends of user events (guess yes)?
-         If so, before this method (guess yes)?]
+        At the end of any user event that may have changed system state
+        which may need to cause changes to the command stack or to any
+        active command's state or UI, the command sequencer will call
+        this method on the current command, repeating that until the
+        command stack doesn't change (but never calling it twice
+        on the same command, during one user event, to prevent infinite
+        recursion due to bugs in specific implems of this method).
 
-        Specific commands should override this to update their state
-        (and that of their property manager, if any)
-        based on the current model and selection, their prior state, etc.
-        For any command that has a "state machine", its logic should be
-        implemented within this method.
+        This method is responsible for:
 
-        This method can itself modify the command stack, either by exiting
-        this command or entering another command (normally or as a
-        request command) (#doc the specific methods to be used in each case).
+        - optimizing for frequent calls (e.g. for every mouse drag event),
+          by checking whether anything it cares about has actually changed
+          (see below for how it can do this ### change counter; once per event
+           means can set self._something_changed for other methods)
+
+        - updating any "state machines" inside this command which can
+          cause it to alter the command stack
+
+        - exiting this command and/or entering other commands, if necessary
+          due to its own state or system state
+
+        If this method doesn't change the command stack (i.e. if self remains
+        the current command), then after it returns, the command sequencer
+        will call self.command_update_internal_state(), which should update
+        internal state for all commands on the command stack, in bottom to top
+        order (see its docstring for details ### superclass calls, base implem).
         
-        If this method changes the command stack, the command sequencer calls
-        this method again on the new current command. But to protect against
-        infinite recursion, it never calls it twice on the same command
-        (even after intervening calls on other commands) during the same user
-        event. [###discuss -- are exceptions to that ever needed? will it call
-        model_changed etc on all the commands it calls this on? maybe simplest
-        if we eliminate those other changed methods... let commands query
-        change counters if they want to optimize for those things not changing. ###]
+        The command sequencer will then call self.command_update_UI()
+        (and, possibly, other update_UI methods on other UI objects ###doc).
+        
+        @note: For any command that has a "state machine", its logic should be
+               implemented within this method.
 
         [many subclasses must override or extend this method; when extending,
-         see superclass documentation to decide when to call the superclass
-         method]
+         see the docstring for the specific superclass method being extended
+         to decide when to call the superclass method within the new method]
         """
-        ### discuss: should basicCommand implem (in basicCommand, not in this class)
-        # call any similar update method on self.propMgr?
+        return
 
-        # note: initial discussion outcome: just have this called in place of (or for now, by)
-        # existing method state_may_have_changed, and rename model_changed to it,
-        # or (for now) have it call that, and discard the other 4 or 5 methods like whatever_changed,
-        # and have this method in subclasses look at change counters on its own.
+    def command_update_internal_state(self):
+        """
+        Update the internal state of this command and all parent commands.
+        Self is on the command stack, but might not be the current command.
+
+        This must update all state that might be seen by other commands or
+        UI elements, even if that state is stored in self.propMgr.
+        It should not update UI elements themselves, unless they are used
+        to store internal state.
+
+        This must not change the command stack (error if it does).
+        Any updates which might require exiting or entering commands
+        must be done earlier, in a command_update method.
+
+        @note: the base class implementation delegates to the parent command,
+               so a typical subclass implementation of this method need only
+               call its superclass method in order to accomplish the "all parent
+               commands" part of its responsibility. Typically it should call
+               its superclass method before doing its own updates.
+
+        @see: command_update_state, for prior updates that might change the
+              command stack; see its docstring for the context of this call
+              
+        @see: command_update_UI, for subsequent updates of UI elements only
+        """
+        if self.parentCommand:
+            self.parentCommand.command_update_internal_state()
+        return
+
+    def command_update_UI(self):
+        """
+        Update UI elements owned by or displayed by this command
+        (e.g. self.propMgr and/or self's flyout toolbar) (preferably by
+        calling update_UI methods in those UI elements, rather than by
+        hardcoding the update alforithms, since the UI elements themselves
+        may be owned by parent commands rather than self).
+
+        Self is always the current command.
+
+        @see: command_update_state, for prior updates that might change the
+              command stack; see its docstring for the context of this call
+
+        @see: command_update_internal_state, for prior updates that change
+              internal state variables in all active commands (even if those
+              are stored in their property manager objects)
+        """
+        if self.propMgr:
+            self.propMgr.update_UI() ### IMPLEM
+        ### maybe: also something for a flyout toolbar attribute?
         return
     
     # == other methods
