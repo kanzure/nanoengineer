@@ -543,7 +543,7 @@ class RosettaRunner:
             
         return argStringListFromPopUpDialog
     
-    def setup_sim_args(self, argsFromPopUpDialog):
+    def setup_sim_args(self, argsFromPopUpDialog, backrubArgs = []):
         """
         Set up arguments for the simulator,
         by constructing a command line for the standalone executable simulator,
@@ -601,6 +601,9 @@ class RosettaRunner:
                     '-backrub_mc',
                     '-resfile', str(self.resFile),
                     '-s', infile]
+                args.extend(argListFromPopUpDialog)
+                args.extend(backrubArgs)
+                
             elif self.cmd_type == "ROSETTA_SCORE":
                 args =[
                     '-paths',  str(self.path),
@@ -942,7 +945,10 @@ class RosettaRunner:
             self.simProcess = None 
             #sets up the argument list for running rosetta including the ones
             #that were provided in the pop up dialog
-            self.setup_sim_args(args[0][1])
+            backRubArgs = []
+            if args[2]:
+                backRubArgs = args[2]
+            self.setup_sim_args(args[0][1], backRubArgs)
             progressBar.setRange(0, 0)
             progressBar.reset()
             progressBar.show()
