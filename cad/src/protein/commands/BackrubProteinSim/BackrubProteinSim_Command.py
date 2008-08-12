@@ -3,6 +3,7 @@
 @author:    Urmi
 @version:   $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+
 """
 
 import foundation.changes as changes
@@ -26,7 +27,7 @@ class BackrubProteinSim_GraphicsMode(SelectChunks_GraphicsMode ):
 
 class BackrubProteinSim_Command(EditCommand): 
     """
-    
+    Class for protein sequence design with rosetta when backrub motion is allowed
     """
     # class constants
     
@@ -34,11 +35,16 @@ class BackrubProteinSim_Command(EditCommand):
     featurename = "Backrub Protein Sequence Design"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
+    #Urmi 20080812: not sure we should have MODEL_AND_SIMULATE_PROTEIN instead of
+    #'SIMULATE_PROTEIN' since the command stack seems to have MODEL_AND_SIMULATE_PROTEIN
+    #as the immediate parent. Don't know why. Anyways it is not necessary since
+    #I'm using self._init_gui_flyout_action( 'rosetta_backrub_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
+    #explicitly and not using the command parent
+    
     command_parent = 'SIMULATE_PROTEIN'
       
     GraphicsMode_class = BackrubProteinSim_GraphicsMode
    
-    
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
@@ -54,12 +60,10 @@ class BackrubProteinSim_Command(EditCommand):
         
         if self.propMgr is None:
             self.propMgr = BackrubProteinSim_PropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
             changes.keep_forever(self.propMgr)  
             
         self.propMgr.show()
+        return
         
     def restore_gui(self):
         """
@@ -67,7 +71,8 @@ class BackrubProteinSim_Command(EditCommand):
         """
         EditCommand.restore_gui(self)
         if self.flyoutToolbar:
-            self.flyoutToolbar.rosetta_backrub_Action.setChecked(False)    
+            self.flyoutToolbar.rosetta_backrub_Action.setChecked(False) 
+        return    
         
     def keep_empty_group(self, group):
         """
@@ -76,8 +81,7 @@ class BackrubProteinSim_Command(EditCommand):
         False. Subclasses should override this method if it needs to keep the
         empty group for some reasons. Note that this method will only get called
         when a group has a class constant autdelete_when_empty set to True. 
-        (and as of 2008-03-06, it is proposed that dna_updater calls this method
-        when needed. 
+        
         @see: Command.keep_empty_group() which is overridden here. 
         """
         
