@@ -26,7 +26,7 @@ class FixedBBProteinSim_GraphicsMode(SelectChunks_GraphicsMode ):
 
 class FixedBBProteinSim_Command(EditCommand): 
     """
-    
+    Class for fixed backbone rosetta sequence design
     """
     # class constants
     
@@ -54,12 +54,11 @@ class FixedBBProteinSim_Command(EditCommand):
         
         if self.propMgr is None:
             self.propMgr = FixedBBProteinSim_PropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
             changes.keep_forever(self.propMgr)  
             
         self.propMgr.show()
+        return
+    
         
     def restore_gui(self):
         """
@@ -67,7 +66,9 @@ class FixedBBProteinSim_Command(EditCommand):
         """
         EditCommand.restore_gui(self)
         if self.flyoutToolbar:
-            self.flyoutToolbar.rosetta_fixedbb_design_Action.setChecked(False)    
+            self.flyoutToolbar.rosetta_fixedbb_design_Action.setChecked(False) 
+        return
+    
         
     def keep_empty_group(self, group):
         """
@@ -76,8 +77,6 @@ class FixedBBProteinSim_Command(EditCommand):
         False. Subclasses should override this method if it needs to keep the
         empty group for some reasons. Note that this method will only get called
         when a group has a class constant autdelete_when_empty set to True. 
-        (and as of 2008-03-06, it is proposed that dna_updater calls this method
-        when needed. 
         @see: Command.keep_empty_group() which is overridden here. 
         """
         
