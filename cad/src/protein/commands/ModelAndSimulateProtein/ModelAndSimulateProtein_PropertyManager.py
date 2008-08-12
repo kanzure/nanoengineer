@@ -330,3 +330,5 @@ class ModelAndSimulateProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             text       =  "Edit Sequence",
             setAsDefault  =  True
             )
+        return
+    
