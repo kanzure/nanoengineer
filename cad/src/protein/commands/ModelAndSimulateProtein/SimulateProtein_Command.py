@@ -9,7 +9,9 @@
 from utilities.debug import print_compact_stack, print_compact_traceback
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
 class SimulateProtein_Command(ModelAndSimulateProtein_Command):
-    
+    """
+    Class for simulating proteins
+    """
     featurename = 'Model and Simulate Protein Mode/Simulate Protein'
     commandName = 'SIMULATE_PROTEIN'
     
@@ -27,7 +29,9 @@ class SimulateProtein_Command(ModelAndSimulateProtein_Command):
     command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
     
     def Enter(self):
-        
+        """
+        Enter the protein simulation command.
+        """
         ModelAndSimulateProtein_Command.Enter(self)
         #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
         self.command_enter_PM()     
@@ -39,11 +43,7 @@ class SimulateProtein_Command(ModelAndSimulateProtein_Command):
         
     def command_enter_flyout(self):
         """
-        REUSE the flyout toolbar from the parent_command (BuildAtoms_command 
-        in this case)
-        @TODO: 
-        - may need cleanup in command stack refactoring. But the method name is 
-        such that it fits the new method names in command API.         
+        REUSE the flyout toolbar from the parent_command         
         """
         self._reuse_attr_of_parentCommand('flyoutToolbar')
     
@@ -53,8 +53,6 @@ class SimulateProtein_Command(ModelAndSimulateProtein_Command):
         Example: reuse 'flyoutToolbar' or 'propMgr' attrs in self. 
         @see: self.command_enter_flyout()
         """
-        # WARNING: this code is duplicated in other places.
-        # For comments about it, see one of them.
         
         if not attr_name:
             print_compact_stack("bug: trying to set an attr with no name "
@@ -84,7 +82,7 @@ class SimulateProtein_Command(ModelAndSimulateProtein_Command):
         #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
         """
         self._reuse_attr_of_parentCommand('propMgr')
-        
+        return
     
         
     def init_gui(self):
