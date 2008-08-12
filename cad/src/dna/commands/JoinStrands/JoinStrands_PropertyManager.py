@@ -33,9 +33,7 @@ from utilities.prefs_constants import joinStrandsCommand_useCustomColorForThreeP
 from utilities.prefs_constants import joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
-from utilities.prefs_constants import joinStrandsCommand_dnaBaseNumberLabelChoice_prefs_key
-from utilities.prefs_constants import joinStrandsCommand_dnaBaseNumberingOrder_prefs_key
-from utilities.prefs_constants import joinStrandsCommand_dnaBaseNumberLabelColor_prefs_key
+
 from dna.command_support.BreakOrJoinStrands_PropertyManager import BreakOrJoinStrands_PropertyManager
 
 _superclass = BreakOrJoinStrands_PropertyManager
@@ -138,30 +136,6 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
         """
         return joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
     
-            
-    
-    def get_prefs_key_dnaBaseNumberLabelColor(self):
-        """
-        
-        """
-        return joinStrandsCommand_dnaBaseNumberLabelColor_prefs_key
-    
-    def get_prefs_key_dnaBaseNumberLabelChoice(self):
-        """
-        Return the preference key whose value will give the 
-        choice for Dna base numbering order for number labels in the
-        3D workspace. 
-        @see: JoinStrands_Command.
-        """
-        return joinStrandsCommand_dnaBaseNumberLabelChoice_prefs_key
-        
-    def get_prefs_key_dnaBaseNumberingOrder(self):
-        """
-        Return the preference key whose value will give the 
-        choice for displaying the Dna base numbers in the 3D workspace. 
-        @see: JoinStrands_Command.
-        """
-        return joinStrandsCommand_dnaBaseNumberingOrder_prefs_key
 
     def _addWhatsThisText( self ):
         """
