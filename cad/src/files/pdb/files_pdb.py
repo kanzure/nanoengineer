@@ -279,8 +279,16 @@ def _readpdb_new(assy,
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
 
-    from protein.model.Protein import is_water
+    from protein.model.Protein import is_water, is_amino_acid, is_nucleotide
     
+    def _add_bondpoints(mol):
+        """
+        Adds missing bondpoints to a molecule.
+        """
+        atlist = [atom for (key, atom) in mol.atoms.items()]
+        for atom in atlist:
+            atom.make_enough_bondpoints()
+
     def _finish_molecule():
         """
         Perform some operations after reading entire PDB chain:
@@ -302,10 +310,14 @@ def _readpdb_new(assy,
             ###idzialprint "SEQ = ", mol.protein.get_sequence_string()
             ###print "SEC = ", mol.protein.get_secondary_structure_string()
             
-            if mol.protein.count_c_alpha_atoms() == 0:
+            if mol.protein.count_c_alpha_atoms() == 0 and \
+               not dont_split:
                 # If there is no C-alpha atoms, consider the chunk 
                 # as a non-protein. But! Split it into individual 
-                # hetero groups.
+                # hetero groups. 
+                # This is undesired behavior for DNA molecules (and perhaps
+                # for carbohydrates) - they should still be considered 
+                # single chunks. piotr 081208
                 res_list = mol.protein.get_amino_acids()
                 assy.part.ensure_toplevel_group()
                 hetgroup = Group("Heteroatoms", assy, assy.part.topnode) 
@@ -329,11 +341,18 @@ def _readpdb_new(assy,
                 #    # time) [bruce 060620]
                 #    env.history.h_update() 
 
-                # For protein - infer the bonds anyway.
+                # For protein - infer the bonds anyway. This should be replaced
+                # by a proper atom / bond type assignment using templates
+                # present in the Peptide Generator.
                 inferBonds(mol)
                     
-                mol.protein.set_chain_id(chainId)
-                mol.protein.set_pdb_id(pdbid)
+                if mol.protein.count_c_alpha_atoms() == 0:
+                    # It is not a protein molecule - delete the protein information.
+                    mol.protein = None
+                else:
+                    mol.protein.set_chain_id(chainId)
+                    mol.protein.set_pdb_id(pdbid)
+                
                 if mol.atoms:
                     mollist.append(mol)                
         else:
@@ -341,6 +360,10 @@ def _readpdb_new(assy,
             #env.history.h_update() 
             pass
         
+        _add_bondpoints(mol)
+        pass # _finish_molecule
+    
+    # Read the file contents.
     fi = open(filename,"rU")
     lines = fi.readlines()
     fi.close()
@@ -359,6 +382,7 @@ def _readpdb_new(assy,
     ndix = {}
     mol = Chunk(assy, nodename)
     mol.protein = Protein()
+    dont_split = False
     
     # Create a chunk for water molecules.
     water = Chunk(assy, nodename)
@@ -376,9 +400,9 @@ def _readpdb_new(assy,
     atomname_exceptions = {
         "HB":"H", #k these are all guesses -- I can't find this documented 
                   # anywhere [bruce 070410]
-        "CA":"C", #k these are all guesses -- I can't find this documented 
-        "NE":"N", #k these are all guesses -- I can't find this documented 
-        "HG":"H", #k these are all guesses -- I can't find this documented 
+        "CA":"C",  
+        "NE":"N",  
+        "HG":"H",  
         ## "HE":"H", ### REVIEW: I'm not sure about this one -- 
                     ###          leaving it out means it's read as Helium,
         # but including it erroneously might prevent reading an actual Helium 
@@ -427,7 +451,7 @@ def _readpdb_new(assy,
             else:
                 resId = 0
             resName = card[17:20]
-            sym = card[77:78]
+            sym = card[77:78] # Element symbol
             alt = card[16] # Alternate location indicator
             
             if alt != ' ' and \
@@ -503,17 +527,24 @@ def _readpdb_new(assy,
                 # inferring bonds,  which we do later if the file doesn't have 
                 # any bonds). [bruce 060614/070410 comment]
 
-            _is_water = is_water(resName, name4)
-            if _is_water:
-                tmpmol = mol
-                mol = water
-                
+            _is_water = is_water(resName)
+            _is_amino_acid = is_amino_acid(resName)
+            _is_nucleotide = is_nucleotide(resName)
+            
             # Now the element name is in sym.
             xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
             n = int(card[6:11])
-            a = Atom(sym, A(xyz), mol)
+            if _is_water:
+                a = Atom(sym, A(xyz), water)
+            else:
+                a = Atom(sym, A(xyz), mol)
+                
             ndix[n] = a
             
+            if _is_amino_acid or \
+               _is_nucleotide:
+                dont_split = True
+                
             if not _is_water:
                 mol.protein.add_pdb_atom(a, 
                                          name4, 
@@ -529,9 +560,6 @@ def _readpdb_new(assy,
                 
             if (resId, chainId) in turn:
                 mol.protein.assign_turn(resId)
-            
-            if mol == water:
-                mol = tmpmol
             
         elif key == "conect":
             try:
@@ -567,6 +595,7 @@ def _readpdb_new(assy,
             # Discard the original molecule and create a new one. 
             mol = Chunk(assy, nodename)
             mol.protein = Protein()
+            dont_split = False
             numconects = 0
                         
         elif key == "header":
@@ -612,6 +641,7 @@ def _readpdb_new(assy,
                 for s in range(begin, end+1):
                     turn.append((s, chainId))            
         else:
+            # Rosetta-written PDB files include scoring information.
             if card[7:15] == "ntrials:":
                 _read_rosetta_info = True
                 comment_text += "Rosetta Scoring Analysis\n"
@@ -640,6 +670,11 @@ def _readpdb_new(assy,
     _finish_molecule()
     
     if water.atoms:
+        # Rebuild bonds in case there are hydrogens present.
+        inferBonds(water)
+        # Add bondpoints.
+        _add_bondpoints(water)
+        
         # Check if there are any water molecules
         water.name = "Solvent"
         # The water should be hidden by default.

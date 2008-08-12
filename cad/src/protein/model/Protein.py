@@ -20,29 +20,180 @@ from utilities.prefs_constants import rosetta_backrub_enabled_prefs_key
 
 # 3-letter to 1-letter conversion
 AA_3_TO_1 = {
-    "ALA" : "A",
-    "ARG" : "R",
-    "ASN" : "N",
-    "ASP" : "D",
-    "CYS" : "C",
-    "GLN" : "E",
-    "GLU" : "Q",
-    "GLY" : "G",
-    "HIS" : "H",
-    "ILE" : "I",
-    "LEU" : "L",
-    "LYS" : "K",
-    "MET" : "M",
-    "MSE" : "M",
-    "PHE" : "F",
-    "PRO" : "P",
-    "SER" : "S",
-    "THR" : "T",
-    "TRP" : "W",
-    "TYR" : "Y",
-    "UNK" : "X",
-    "VAL" : "V" }
+    'ALA':'A', # 20 standard amino acids
+    'VAL':'V', 
+    'PHE':'F', 
+    'PRO':'P', 
+    'MET':'M',
+    'ILE':'I', 
+    'LEU':'L', 
+    'ASP':'D', 
+    'GLU':'E', 
+    'LYS':'K',
+    'ARG':'R', 
+    'SER':'S', 
+    'THR':'T', 
+    'TYR':'Y', 
+    'HIS':'H',
+    'CYS':'C', 
+    'ASN':'N', 
+    'GLN':'Q', 
+    'TRP':'W', 
+    'GLY':'G',
+    '2AS':'D', # non-standard codes encountered in PDB
+    '3AH':'H', 
+    '5HP':'E', 
+    'ACL':'R', 
+    'AIB':'A',
+    'ALM':'A', 
+    'ALO':'T', 
+    'ALY':'K', 
+    'ARM':'R', 
+    'ASA':'D',
+    'ASB':'D', 
+    'ASK':'D', 
+    'ASL':'D', 
+    'ASQ':'D', 
+    'AYA':'A',
+    'BCS':'C', 
+    'BHD':'D', 
+    'BMT':'T', 
+    'BNN':'A', 
+    'BUC':'C',
+    'BUG':'L', 
+    'C5C':'C', 
+    'C6C':'C', 
+    'CCS':'C', 
+    'CEA':'C',
+    'CHG':'A', 
+    'CLE':'L', 
+    'CME':'C', 
+    'CSD':'A', 
+    'CSO':'C',
+    'CSP':'C', 
+    'CSS':'C', 
+    'CSW':'C', 
+    'CXM':'M', 
+    'CY1':'C',
+    'CY3':'C', 
+    'CYG':'C', 
+    'CYM':'C', 
+    'CYQ':'C', 
+    'DAH':'F',
+    'DAL':'A', 
+    'DAR':'R', 
+    'DAS':'D', 
+    'DCY':'C', 
+    'DGL':'E',
+    'DGN':'Q', 
+    'DHA':'A', 
+    'DHI':'H', 
+    'DIL':'I', 
+    'DIV':'V',
+    'DLE':'L', 
+    'DLY':'K', 
+    'DNP':'A', 
+    'DPN':'F', 
+    'DPR':'P',
+    'DSN':'S', 
+    'DSP':'D', 
+    'DTH':'T', 
+    'DTR':'W', 
+    'DTY':'Y',
+    'DVA':'V', 
+    'EFC':'C', 
+    'FLA':'A', 
+    'FME':'M', 
+    'GGL':'E',
+    'GLZ':'G', 
+    'GMA':'E', 
+    'GSC':'G', 
+    'HAC':'A', 
+    'HAR':'R',
+    'HIC':'H', 
+    'HIP':'H', 
+    'HMR':'R', 
+    'HPQ':'F', 
+    'HTR':'W',
+    'HYP':'P', 
+    'IIL':'I', 
+    'IYR':'Y', 
+    'KCX':'K', 
+    'LLP':'K',
+    'LLY':'K', 
+    'LTR':'W', 
+    'LYM':'K', 
+    'LYZ':'K', 
+    'MAA':'A',
+    'MEN':'N', 
+    'MHS':'H', 
+    'MIS':'S', 
+    'MLE':'L', 
+    'MPQ':'G',
+    'MSA':'G', 
+    'MSE':'M', 
+    'MVA':'V', 
+    'NEM':'H', 
+    'NEP':'H',
+    'NLE':'L', 
+    'NLN':'L', 
+    'NLP':'L', 
+    'NMC':'G', 
+    'OAS':'S',
+    'OCS':'C', 
+    'OMT':'M', 
+    'PAQ':'Y', 
+    'PCA':'E', 
+    'PEC':'C',
+    'PHI':'F', 
+    'PHL':'F', 
+    'PR3':'C', 
+    'PRR':'A', 
+    'PTR':'Y',
+    'SAC':'S', 
+    'SAR':'G', 
+    'SCH':'C', 
+    'SCS':'C', 
+    'SCY':'C',
+    'SEL':'S', 
+    'SEP':'S', 
+    'SET':'S', 
+    'SHC':'C', 
+    'SHR':'K',
+    'SOC':'C', 
+    'STY':'Y', 
+    'SVA':'S', 
+    'TIH':'A', 
+    'TPL':'W',
+    'TPO':'T', 
+    'TPQ':'A', 
+    'TRG':'K', 
+    'TRO':'W', 
+    'TYB':'Y',
+    'TYQ':'Y', 
+    'TYS':'Y', 
+    'TYY':'Y', 
+    'AGM':'R', 
+    'GL3':'G',
+    'SMC':'C', 
+    'ASX':'B', 
+    'CGU':'E', 
+    'CSX':'C', 
+    'GLX':'Z',
+    'UNK':'X' }
 
+NUC_3_TO_1 = {
+    ' DG':'G',
+    ' DA':'A',
+    ' DT':'T',
+    ' DU':'U',
+    ' DI':'I',
+    '  G':'G',
+    '  A':'A',
+    '  T':'T',
+    '  U':'U',
+    '  I':'I' }
+    
 # Types of secondary structure as defined in PDB format.
 # There are various definitions of secondary structure in use.
 # The most common is a three-letter code: helix (H), extended (E),
@@ -205,7 +356,7 @@ enableProteins =  debug_pref("Enable Proteins? (next session)",
     non_debug = True,
     prefs_key = True)
 
-def is_water(resName, atomName):
+def is_water(resName):
     """
     Check if a PDB residue is a water molecule.
     """    
@@ -213,12 +364,29 @@ def is_water(resName, atomName):
                    "DOH", "HOD", "D2O", "DDO", "ODD", "OD2", "HO1", "HO2",
                    "HO3", "HO4"]
     
-    if atomName == "O" and \
-       resName in water_codes:
+    if resName[:3] in water_codes:
         return True
     
     return False
 
+def is_amino_acid(resName):
+    """
+    Check if a PDB residue is an amino acid.
+    """
+    if AA_3_TO_1.has_key(resName[:3]):
+        return True
+    
+    return False
+    
+def is_nucleotide(resName):
+    """
+    Check if a PDB residue is a nucleotide.
+    """
+    if NUC_3_TO_1.has_key(resName[:3]):
+        return True
+    
+    return False
+    
 class Residuum:
     """
     This class implements a Residuum object.
@@ -485,7 +653,13 @@ class Residuum:
     #        pass
     #        
 
-    def set_chi_angle(self, which, angle, lock=False):
+    def lock(self):
+        """
+        Lock the amino acid (set mutation range to "native rotamer")
+        """
+        self.set_mutation_range("NATRO")
+        
+    def set_chi_angle(self, which, angle):
         """
         """
         from geometry.VQT import norm, Q, V
@@ -496,9 +670,6 @@ class Residuum:
             angle0 = self.calc_torsion_angle(chi_atom_list)
             dangle = angle - angle0
             if abs(dangle) > 0.0:
-                if lock:
-                    # Lock the edited amino acid.
-                    self.set_mutation_range("NATRO")
                 vec = norm(chi_atom_list[2].posn() - chi_atom_list[1].posn())
                 atom_list = self.get_atom_list_to_rotate(which)
                 first_atom_posn = chi_atom_list[1].posn()
