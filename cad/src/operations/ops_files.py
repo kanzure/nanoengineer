@@ -1055,10 +1055,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             start = begin_timing("File..Open")
             self.updateRecentFileList(fn)
 
-            self._make_and_init_assy() # resets self.assy to a new, empty Assembly object
-
-            self.commandSequencer.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
-                
+            self._make_and_init_assy('$DEFAULT_MODE')
+                # resets self.assy to a new, empty Assembly object
+            
             self.assy.clear_undo_stack()
                 # important optimization -- the first call of clear_undo_stack
                 # (for a given value of self.assy) does two initial checkpoints,
@@ -1917,8 +1916,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return # Cancel clicked or Alt+C pressed or Escape pressed
         
         if isFileSaved:
-            self._make_and_init_assy()
-            self.commandSequencer.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
+            self._make_and_init_assy('$STARTUP_MODE')
             self.assy.reset_changed() #bruce 050429, part of fixing bug 413
             self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
             self.win_update()
@@ -1989,7 +1987,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             env.history.message( redmsg(msg))
         return
                 
-    def _make_and_init_assy(self):
+    def _make_and_init_assy(self, initial_mode_symbol = None):
         """
         [private; as of 080812, called only from fileOpen and fileClose,
          in both cases immediately followed by start_using_mode]
@@ -1997,13 +1995,25 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         Close current self.assy, make a new assy and reinit commandsequencer
         for it (in glpane.setAssy), tell new assy about our model tree and
         glpane (and vice versa), update mainwindow caption.
+
+        @param initial_mode_symbol: if provided, initialize the command
+                                    sequencer to that mode; otherwise,
+                                    to nullMode. All current calls provide
+                                    this as a "symbolic mode name".
+
+        @note: MWsemantics.__init__ doesn't call this, but contains similar
+               code, not all in one place. It's not clear whether it could
+               be made to call this.
+
+        @note: certain things are done shortly after this call by all callers,
+               and by the similar MWsemantics.__init__ code, but since various
+               things intervene it's not clear whether they could be pulled
+               into a single method. These include assy.clear_undo_stack.
         """
         #bruce 080812 renamed this from __clear (which is very old).
         # REVIEW: should all or part of this method be moved back into
         # class MWsemantics (which mixes it in)?
         
-        # see also MWsemantics.__init__, which contains similar code.
-
         if self.assy:
             # this happens
             self.assy.close_assy() #bruce 080314
@@ -2016,12 +2026,17 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             #bruce 080403 added run_updaters = True (to preserve current
             # behavior) -- I don't know whether it's needed
         self.update_mainwindow_caption()
-        self.glpane.setAssy(self.assy) # leaves currentCommand as nullmode
-            # does that call assy.set_glpane?
+        self.glpane.setAssy(self.assy)
+            # notes: this calls assy.set_glpane, and _reinit_modes
+            # (which leaves currentCommand as nullmode)
         self.assy.set_modelTree(self.mt)
         
         ### Hack by Huaicai 2/1 to fix bug 369
         self.mt.resetAssy_and_clear()
+
+        if initial_mode_symbol:
+            #bruce 080812 pulled this code in from just after both calls
+            self.commandSequencer.start_using_mode( initial_mode_symbol)
         
         return
 
