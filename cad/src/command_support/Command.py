@@ -723,12 +723,12 @@ class basicCommand(baseCommand, anyCommand):
                 ## pass
                 print "debug note: _KLUGE_current_PM returns %r, but %r.propMgr is %r" % \
                       (res, self, self.propMgr) ### if happens, fix; if not, clean up all calls
-##                assert 0, "failure in _KLUGE_current_PM, see console prints"
-##                    #bruce 080812 (temporary) -- make this un-missable by
-##                    # developers, for next few days -- also added 'raise' below
+                assert 0, "failure in _KLUGE_current_PM, see console prints"
+                    #bruce 080812 (temporary) -- make this un-missable by
+                    # developers, for next few days -- also added 'raise' below
             return res
         except:
-##            raise #bruce 080812 (temporary) -- goes with above assert 0
+            raise #bruce 080812 (temporary) -- goes with above assert 0
             # I don't know if this can happen
             msg = "ignoring exception in %r.KLUGE_current_PropertyManager()" % (pw,)
             print_compact_traceback(msg + ": ")
@@ -944,6 +944,16 @@ class basicCommand(baseCommand, anyCommand):
         # [Ninad 2007-12-28 comment]
                 
         self.graphicsMode.Enter_GraphicsMode()
+
+        #bruce 080813 experiment; if it works, we can remove most or all
+        # current defs of command_enter_PM, if all they do is call
+        # self._reuse_attr_of_parentCommand('propMgr'), since they are now
+        # redundant (for commands with command_has_its_own_PM = False).
+        # [code copied from baseCommand.command_entered:]
+        if not self.command_has_its_own_PM:
+            # should work: self.propMgr = self.find_parentCommand().propMgr
+            # but use this form for now (more error checks):
+            self._reuse_attr_of_parentCommand('propMgr')
         
         return None
     
@@ -1816,7 +1826,13 @@ class basicCommand(baseCommand, anyCommand):
                       "attr named %r" % (parentCommand, attr_name)
                 print_compact_traceback( msg + ": " )
                 return                
-                
+
+            # can't do this check -- wrong for reusable nestable commands;
+            # if not for that (or if exit would reset .propMgr to None -- probably it should)
+            # it would be desirable
+            ## assert getattr(self, attr_name, None) in (None, parent_attr)
+            # [bruce 080813]
+            
             setattr(self, attr_name, parent_attr)
 
         else:
