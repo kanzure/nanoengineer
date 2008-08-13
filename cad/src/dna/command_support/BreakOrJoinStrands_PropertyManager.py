@@ -39,9 +39,7 @@ from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     
     _baseNumberLabelGroupBox = None
-    _baseNumberLabelColorChooser = None
-    _baseNumberingOrderComboBox = None
-        
+            
     def __init__( self, command ):
         """
         Constructor for the property manager.
@@ -111,6 +109,9 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         PM_Dialog.show(self)   
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(isConnect = True) 
+        
+        #Required to update the color combobox for Dna base number labels.
+        self._baseNumberLabelGroupBox.updateWidgets()
    
     def close(self):
         """
@@ -347,13 +348,4 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         return dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
     
-    def _colorChanged_dnaBaseNumberLabel(self):
-        """
-        Choose custom color for 5' ends
-        """
-        print "*** in _colorChanged_dnaBaseNumberLabel"
-        color = self._baseNumberLabelColorChooser.getColor()
-        prefs_key = self.command.get_prefs_key_dnaBaseNumberLabelColor()
-        env.prefs[prefs_key] = color
-        self.win.glpane.gl_update() 
-        return  
+    

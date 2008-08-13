@@ -60,15 +60,7 @@ class PM_DnaBaseNumberLabelsGroupBox(PM_GroupBox):
         
         self._connect_widgets_with_prefs_keys()
                 
-        if isConnect:
-            #Ideally the color combobox  should be connected with state. 
-            #(e.g. 'connect_colorCombobox_with_state' , which will make the  
-            #following update call unncessary. but connecting with state 
-            #for the color combobox has some issues not resolved yet. 
-            #(e.g. the current index changed won't always allow you to set the 
-            #proper color -- because the 'Other color' can be anything) 
-            #--Ninad 2008-08-12
-            self._updateColor_dnaBaseNumberLabel()
+        
         
     def _connect_widgets_with_prefs_keys(self):
         """
@@ -133,4 +125,18 @@ class PM_DnaBaseNumberLabelsGroupBox(PM_GroupBox):
         color = env.prefs[prefs_key]
         self._baseNumberLabelColorChooser.setColor(color)
         return
+    
+    def updateWidgets(self):
+        """
+        Called in BreakorJoinstrands_PropertyManager.show()
+        """
+        #@TODO: revise this.
+        #Ideally the color combobox  should be connected with state. 
+        #(e.g. 'connect_colorCombobox_with_state' , which will make the  
+        #following update call unncessary. but connecting with state 
+        #for the color combobox has some issues not resolved yet. 
+        #(e.g. the current index changed won't always allow you to set the 
+        #proper color -- because the 'Other color' can be anything) 
+        #--Ninad 2008-08-12
+        self._updateColor_dnaBaseNumberLabel()
     
