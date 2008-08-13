@@ -1053,8 +1053,8 @@ class Protein:
                model. May be we'll take care of that when we move to the new model
         
         """ 
-        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
-        if modelAndSimulateProteins:
+        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        if MODEL_AND_SIMULATE_PROTEINS:
             win.commandSequencer.userEnterCommand('MODEL_AND_SIMULATE_PROTEIN')
         else:    
             win.commandSequencer.userEnterTemporaryCommand('BUILD_PROTEIN')

@@ -17,7 +17,7 @@ from protein.commands.BuildPeptide.PeptideGenerator import PeptideGenerator
 from utilities.constants import gensym
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from protein.temporary_commands.PeptideLineMode import PeptideLine_GM
-from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
+from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 from utilities.debug import print_compact_stack, print_compact_traceback
 
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
@@ -35,7 +35,7 @@ class Peptide_EditCommand(EditCommand):
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
     
-    if modelAndSimulateProteins:
+    if MODEL_AND_SIMULATE_PROTEINS:
         command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
 
     create_name_from_prefix  =  True 
@@ -83,7 +83,7 @@ class Peptide_EditCommand(EditCommand):
         #Clear the segmentList as it may still be maintaining a list of segments
         #from the previous run of the command. 
         self._segmentList = []
-        if modelAndSimulateProteins:
+        if MODEL_AND_SIMULATE_PROTEINS:
             self._init_gui_flyout_action( 'buildPeptideAction', 'MODEL_AND_SIMULATE_PROTEIN' ) 
         else:
             self._init_gui_flyout_action( 'buildPeptideAction')
@@ -309,6 +309,7 @@ class Peptide_EditCommand(EditCommand):
         This is used in isinstance test. 
         @see: EditCommand._getStructureType() (overridden here)
         """
+
         return self.win.assy.Chunk
 
     # Things needed for CntLine_GraphicsMode (NanotubeLine_GM) ======================
@@ -371,8 +372,10 @@ class Peptide_EditCommand(EditCommand):
         Returns a string that gives the length of the Nanotube for the cursor 
         text
         """
-        self.secondary, self.phi, self.psi, aa_type = self._gatherParameters()
 
+        # This should be moved to more appropriate place. piotr 081308
+        self.secondary, self.phi, self.psi, aa_type = self._gatherParameters()
+        
         peptideLengthString = ''
         
         lengthUnitString = 'AA'

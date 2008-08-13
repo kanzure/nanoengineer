@@ -157,8 +157,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #Urmi 20080728: Update the residue combo box with amino acids for the
         #currently selected protein in build protein mode
         self.current_protein = ""
-        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
-        if modelAndSimulateProteins:
+        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        if MODEL_AND_SIMULATE_PROTEINS:
             previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
         else:    
             previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
@@ -247,8 +247,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.current_protein = ""
         #Urmi 20080728: fill up the combo box with amino acids belonging to the
         # current protein in build protein mode
-        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
-        if modelAndSimulateProteins:
+        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        if MODEL_AND_SIMULATE_PROTEINS:
             previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
         else:    
             previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
@@ -529,7 +529,7 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 current_aa = chunk.protein.get_current_amino_acid()
                 if current_aa:
                     chunk.protein.expand_rotamer(current_aa)
-                    current_aa.set_chi_angle(chi, angle, lock=self.lockEditedCheckBox.isChecked())
+                    current_aa.set_chi_angle(chi, angle)
                     self.win.glpane.gl_update()
                     return
                 

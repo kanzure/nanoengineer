@@ -52,8 +52,8 @@ class ProteinDisplayStyle_Command(EditCommand):
         """
         Initialize GUI for this mode 
         """
-        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
-        if modelAndSimulateProteins:
+        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        if MODEL_AND_SIMULATE_PROTEINS:
             self._init_gui_flyout_action( 'displayProteinStyleAction' , 
                                       'MODEL_AND_SIMULATE_PROTEIN') 
         else:

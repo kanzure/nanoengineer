@@ -233,8 +233,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #"current protein" in this mode.
         self.current_protein = ""
         
-        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
-        if modelAndSimulateProteins:
+        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        if MODEL_AND_SIMULATE_PROTEINS:
             previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
         else:    
             previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')

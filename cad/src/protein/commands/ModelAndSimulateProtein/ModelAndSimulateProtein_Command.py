@@ -13,10 +13,6 @@ from utilities.constants import gensym
 from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_PropertyManager import ModelAndSimulateProtein_PropertyManager 
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
-modelAndSimulateProteins =  debug_pref("Enable model and simulate protein flyout? (next session)",
-    Choice_boolean_False,
-    non_debug = True,
-    prefs_key = True)
 
 _superclass = EditCommand
 class ModelAndSimulateProtein_Command(EditCommand):

@@ -484,6 +484,10 @@ enableProteins = debug_pref("Enable Proteins? (next session)",
                              prefs_key = True
                             )
 
+MODEL_AND_SIMULATE_PROTEINS = debug_pref("Enable model and simulate protein flyout? (next session)",
+    Choice_boolean_False,
+    non_debug = True,
+    prefs_key = True)
 
 def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
     #-The current code always connects signals while shown a PM and 

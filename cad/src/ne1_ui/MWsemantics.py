@@ -1760,8 +1760,8 @@ class MWsemantics(QMainWindow,
         Activates the Protein toolbar.
         """
         commandSequencer = self.commandSequencer
-        from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import modelAndSimulateProteins
-        if modelAndSimulateProteins:
+        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        if MODEL_AND_SIMULATE_PROTEINS:
             commandSequencer.userEnterCommand('MODEL_AND_SIMULATE_PROTEIN')
             #assert commandSequencer.currentCommand.commandName == 'MODEL_AND_SIMULATE_PROTEIN'
             #commandSequencer.currentCommand.runCommand()
