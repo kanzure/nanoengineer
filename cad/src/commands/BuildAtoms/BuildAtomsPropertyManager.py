@@ -30,6 +30,9 @@ from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
 from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
+#for debugging 'keep signals conencted all the time'
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 NOBLEGASES = ("He", "Ne", "Ar", "Kr")
 PAMATOMS = ("Gv5", "Ax3")
 ALL_PAM_ATOMS = ("Gv5", "Ss5", "Pl5", "Ax3", "Ss3", "Ub3", "Ux3", "Uy3")
@@ -59,6 +62,10 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         # implementing connectWithState. 
         self.model_changed_from_glpane = True
         
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+        
+        
     def ok_btn_clicked(self):
         """
         Calls MainWindow.toolsDone to exit the current mode. 
@@ -70,10 +77,13 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
     def show(self):
         _superclass.show(self)
-        self.connect_or_disconnect_signals(isConnect = True)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
         
     def close(self):
-        self.connect_or_disconnect_signals(isConnect = False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = False)
+            
         _superclass.close(self)
     
     def connect_or_disconnect_signals(self, isConnect): 
@@ -84,6 +94,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @type  isConnect: boolean
         @see: L{depositMode.connect_or_disconnect_signals} where this is called
         """
+                
         
         if isConnect:
             change_connect = self.w.connect

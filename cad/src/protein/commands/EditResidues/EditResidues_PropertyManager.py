@@ -56,6 +56,9 @@ from PM.PM_ColorComboBox import PM_ColorComboBox
 from PM.PM_TableWidget import PM_TableWidget
 from PM.PM_WidgetGrid import PM_WidgetGrid
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
     The ProteinDisplayStyle_PropertyManager class provides a Property Manager 
@@ -108,6 +111,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.editingItem = False
         
         self.updateMessage(msg)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
     def connect_or_disconnect_signals(self, isConnect = True):
         
@@ -212,7 +218,10 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.showSequencePushButton.setEnabled(False)
         self.sequenceEditor.hide()    
         PM_Dialog.show(self)
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
+            
         self._fillSequenceTable()
         
     def set_current_protein(self):
@@ -257,7 +266,9 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
 
     def _addGroupBoxes( self ):

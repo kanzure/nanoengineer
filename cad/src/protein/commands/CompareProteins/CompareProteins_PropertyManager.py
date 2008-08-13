@@ -43,6 +43,9 @@ from PM.PM_Constants import PM_DONE_BUTTON
 from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from PM.PM_ColorComboBox import PM_ColorComboBox
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
     The ProteinDisplayStyle_PropertyManager class provides a Property Manager 
@@ -87,6 +90,9 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
         msg = "Select protein structures to compare."
         self.updateMessage(msg)
@@ -130,7 +136,13 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
         # it in the reverse order will generate signals when updating
         # the PM widgets (via updateDnaDisplayStyleWidgets()), causing
         # unneccessary repaints of the model view.
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        #The above comment might be outdated according to Piotr. 
+        #Piotr is planning to remove it after review. Note that if 
+        #KEEP_SIGNALS_ALWAYS_CONNECTED is true, then it may create undesirable 
+        #effects if the above comment is True -- Ninad 2008-08-13
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
         
         self._updateProteinList()
         self.structure1ComboBox.clear()
@@ -142,7 +154,9 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
 
     def _addGroupBoxes( self ):

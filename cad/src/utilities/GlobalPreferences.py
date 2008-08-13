@@ -474,4 +474,20 @@ def _debug_pref_use_command_stack(): #bruce 080728
 
 USE_COMMAND_STACK = _debug_pref_use_command_stack()
 
+
+def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
+    #-The current code always connects signals while shown a PM and 
+    #disconnects those in the close method. The above flag, if True, signals 
+    #are connected when PM is created (this is a proposed scheme in the new 
+                                      #command stack project)
+   #As of 2008-08-13 this is not implemented for - Flyout toolbars , 
+   #old commands such as Extrude, Movie. 
+    res = debug_pref("Keep signals always connected (NIM) (next session)?",
+                     Choice_boolean_False,
+                     prefs_key = True
+                    )
+    return res
+
+KEEP_SIGNALS_ALWAYS_CONNECTED = _debug_pref_keep_signals_always_connected()
+
 # end

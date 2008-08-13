@@ -66,6 +66,9 @@ from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
 from utilities.prefs_constants import dnaStrandLabelsEnabled_prefs_key
 from utilities.prefs_constants import dnaStrandLabelsColorMode_prefs_key
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 dnaDisplayStylePrefsList = \
                          [dnaRendition_prefs_key,
                           dnaStyleAxisShape_prefs_key,
@@ -341,9 +344,15 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+            
 
         msg = "Modify the DNA display settings below."
         self.updateMessage(msg)
+        
+        
 
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -486,13 +495,17 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #when updating the PM widgets (via updateDnaDisplayStyleWidgets()), 
         #causing unneccessary repaints of the model view.
         self.updateDnaDisplayStyleWidgets(blockSignals = True)
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
 
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
 
         # Restore the original global display style.

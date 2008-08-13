@@ -32,6 +32,9 @@ from files.pdb.files_pdb import EXCLUDE_HIDDEN_ATOMS
 from files.pdb.files_pdb import EXCLUDE_DNA_AXIS_BONDS
 from files.pdb.files_pdb import EXCLUDE_DNA_AXIS_ATOMS
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 class QuteMolPropertyManager(PM_Dialog):
     """
     The QuteMolPropertyManager class provides a Property Manager for 
@@ -73,14 +76,17 @@ class QuteMolPropertyManager(PM_Dialog):
               
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         
-        msg = "Select a QuteMolX rendering style and click the \
-        <b>Launch QuteMolX</b> button when ready."
+        msg = "Select a QuteMolX rendering style and click the "\
+        "<b>Launch QuteMolX</b> button when ready."
         
         # This causes the "Message" box to be displayed as well.
         self.updateMessage(msg)
         
         # Hide Preview and Restore defaults button for Alpha9.
         self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON | PM_PREVIEW_BUTTON)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
     def _addGroupBoxes(self):
         """
@@ -166,13 +172,17 @@ class QuteMolPropertyManager(PM_Dialog):
         """
         PM_Dialog.show(self)
         # self.updateDnaDisplayStyleWidgets()
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
 
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)    
     
     def connect_or_disconnect_signals(self, isConnect):

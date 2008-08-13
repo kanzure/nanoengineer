@@ -29,6 +29,9 @@ from PM.PM_Constants import PM_DONE_BUTTON
 from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from PM.PM_SpinBox import PM_SpinBox
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 class FixedBBProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
     The FixedBBProteinSim_PropertyManager class provides a Property Manager 
@@ -72,6 +75,10 @@ class FixedBBProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         msg = "Choose various parameters from below to design an optimized" \
             "protein sequence with Rosetta."
         self.updateMessage(msg)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+            
         return
     
 
@@ -129,15 +136,18 @@ class FixedBBProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.sequenceEditor.hide()
         PM_Dialog.show(self)
-
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
         return
         
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
         return
     

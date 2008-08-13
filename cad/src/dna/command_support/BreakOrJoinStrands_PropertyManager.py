@@ -32,6 +32,10 @@ from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_pr
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from PM.PM_DnaBaseNumberLabelsGroupBox import PM_DnaBaseNumberLabelsGroupBox
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
+
 class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     
     _baseNumberLabelGroupBox = None
@@ -55,6 +59,10 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
+        
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:            
+            self.connect_or_disconnect_signals(True)
         
         return
     
@@ -100,8 +108,9 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
-        PM_Dialog.show(self)        
-        self.connect_or_disconnect_signals(isConnect = True) 
+        PM_Dialog.show(self)   
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True) 
    
     def close(self):
         """
@@ -109,8 +118,9 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         # this is important since these pref keys are used in other command modes 
         # as well and we do not want to see the 5' end arrow in Inset DNA mode       
-        
-        self.connect_or_disconnect_signals(False)        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)    
+            
         PM_Dialog.close(self)
         
     def _connect_checkboxes_to_global_prefs_keys(self, isConnect = True):

@@ -19,6 +19,9 @@ from utilities.exception_classes import AbstractMethod
 from utilities.icon_utilities import geticon
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 class EditCommand_PM(PM_Dialog):
     """
     This is a superclass for the property managers of various objects that use
@@ -65,6 +68,10 @@ class EditCommand_PM(PM_Dialog):
                        )
 
         self._createFlyoutActions()
+        
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
     def setEditCommand(self, command):
         """
@@ -79,7 +86,10 @@ class EditCommand_PM(PM_Dialog):
         """
         self._update_widgets_in_PM_before_show()
         PM_Dialog.show(self)
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
+            
         self.enable_or_disable_gui_actions(bool_enable = False)
         self.updateCommandToolbar(bool_entering = True)
 
@@ -91,7 +101,10 @@ class EditCommand_PM(PM_Dialog):
         currentCommand = self.win.commandSequencer.currentCommand
         if not currentCommand.command_has_its_own_PM:
             currentCommand.Done()
-        self.connect_or_disconnect_signals(False)
+            
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         self.enable_or_disable_gui_actions(bool_enable = True)
         self.updateCommandToolbar(bool_entering = False)
         PM_Dialog.close(self)

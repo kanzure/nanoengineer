@@ -72,6 +72,9 @@ from utilities.prefs_constants import fogEnabled_prefs_key
 
 from utilities.constants import black, white, gray
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 colorSchemePrefsList = \
                      [backgroundGradient_prefs_key,
                       backgroundColor_prefs_key,
@@ -346,6 +349,9 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         msg = "Edit the color scheme for NE1, including the background color, "\
             "hover highlighting and selection colors, etc."
         self.updateMessage(msg)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -455,13 +461,16 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         self._updateAllWidgets()
         PM_Dialog.show(self)
-        self.connect_or_disconnect_signals(isConnect = True)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
 
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
 
     def _addGroupBoxes( self ):

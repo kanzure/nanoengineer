@@ -35,6 +35,8 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_MakeCrossoversPropertyManager
 from utilities.Log import orangemsg
 
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 _superclass = PM_Dialog
 class MakeCrossovers_PropertyManager( PM_Dialog, 
                                       ListWidgetItems_PM_Mixin,
@@ -93,6 +95,9 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
          cylinder pair will make that crossover."""
 
         self.updateMessage(self.defaultLogMessage)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
 
     def ok_btn_clicked(self):
@@ -160,14 +165,19 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         @see: self._deactivateAddRemoveSegmentsTool
         """
         _superclass.show(self)
-        self.connect_or_disconnect_signals(True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+            
         ##self.updateListWidgets()       
         self._deactivateAddRemoveSegmentsTool()
         self._previous_model_changed_params = None
 
     def close(self):
         _superclass.close(self)
-        self.connect_or_disconnect_signals(False)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
 
     def _makeAllCrossovers(self):
         self.command.makeAllCrossovers()

@@ -29,6 +29,9 @@ from platform_dependent.PlatformDependent import open_file_in_editor
 
 from dna.model.DnaStrand import DnaStrand
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 def writeDnaOrderFile(fileName, assy, dnaSequence):
     """
     Open a temporary file and write the specified Dna sequence into it.
@@ -103,14 +106,17 @@ class OrderDna_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                 PM_WHATS_THIS_BUTTON)
         
         self.update_includeStrands() # Updates the message box.
-        """
-        if self.getNumberOfBases():
-            msg = "Click on <b>View DNA Order File...</b> to preview a "\
-                "DNA order for all DNA strands in the current model."
-        else:
-            msg = "<font color=red>There is no DNA in the current model."
-        self.updateMessage(msg)
-        """
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+       
+        ##if self.getNumberOfBases():
+            ##msg = "Click on <b>View DNA Order File...</b> to preview a "\
+                ##"DNA order for all DNA strands in the current model."
+        ##else:
+            ##msg = "<font color=red>There is no DNA in the current model."
+        ##self.updateMessage(msg)
+        
         
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -144,13 +150,15 @@ class OrderDna_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
         PM_Dialog.show(self)
-        self.connect_or_disconnect_signals(isConnect = True)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
 
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
         PM_Dialog.close(self)
     
     def _addGroupBoxes( self ):

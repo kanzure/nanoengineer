@@ -55,6 +55,9 @@ import foundation.preferences as preferences
 
 from utilities.constants import black, white, gray
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 lightingSchemePrefsList = \
                      [light1Color_prefs_key,
                       light2Color_prefs_key,
@@ -398,6 +401,9 @@ class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             "changing the ambient, diffuse, and specular properites."
         self.updateMessage(msg)
         
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+        
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -681,14 +687,19 @@ class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
         PM_Dialog.show(self)
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
+            
         self._updateAllWidgets()
 
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
         
     def _addGroupBoxes( self ):

@@ -44,6 +44,9 @@ from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from PM.PM_ColorComboBox import PM_ColorComboBox
 from PyQt4.Qt import QTextCursor        
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
     The ProteinDisplayStyle_PropertyManager class provides a Property Manager 
@@ -89,6 +92,9 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         msg = "Edit protein rotamers."
         self.updateMessage(msg)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
     def connect_or_disconnect_signals(self, isConnect = True):
         
@@ -203,8 +209,9 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.showSequencePushButton.setEnabled(False)
         self.sequenceEditor.hide()    
         PM_Dialog.show(self)
-
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
 
         for chunk in self.win.assy.molecules:
             if chunk.isProteinChunk() and chunk.name == self.current_protein:
@@ -215,7 +222,9 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
 
     def _addGroupBoxes( self ):

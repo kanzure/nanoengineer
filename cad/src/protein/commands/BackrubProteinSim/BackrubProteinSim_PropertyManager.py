@@ -31,6 +31,9 @@ from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ComboBox import PM_ComboBox
 
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
     The BackrubProteinSim_PropertyManager class provides a Property Manager 
@@ -74,6 +77,9 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         msg = "Choose various parameters from below to design an optimized" \
             " protein sequence with Rosetta with backrub motion allowed."
         self.updateMessage(msg)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
     def connect_or_disconnect_signals(self, isConnect = True):
         """
@@ -136,7 +142,9 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.maxresSpinBox.setMaximum(numResidues)
         
         PM_Dialog.show(self)
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
         return
     
         
@@ -144,7 +152,9 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
         return
     

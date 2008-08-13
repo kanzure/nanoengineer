@@ -1,7 +1,7 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author: Ninad
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
 
 History:
@@ -10,10 +10,13 @@ ninad 2007-02-07: Created to implement new UI for Move and Rotate chunks mode.
 ninad 2007-08-20: Code cleanup to use new PM module classes. 
 
 """
-__author__  = "Ninad"
+
 
 from commands.Move.Ui_MovePropertyManager import Ui_MovePropertyManager
 from PyQt4.Qt import Qt, SIGNAL
+
+#debug flag to keep signals always connected
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
 
 class MovePropertyManager(Ui_MovePropertyManager):
@@ -32,6 +35,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
         self.lastCheckedRotateButton = None 
         self.lastCheckedTranslateButton = None                     
         self.updateMessage()
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
         
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -579,7 +585,8 @@ class MovePropertyManager(Ui_MovePropertyManager):
         
     def show(self):
         Ui_MovePropertyManager.show(self)
-        self.connect_or_disconnect_signals(isConnect = True)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = True)
 
     def close(self):
         """
@@ -597,7 +604,10 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         self.translateGroupBox.collapse()
         self.rotateGroupBox.collapse()
-        self.connect_or_disconnect_signals(isConnect = False)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(isConnect = False)
+            
         Ui_MovePropertyManager.close(self)
 
     def updateMessage(self, msg = ''): # Mark 2007-06-23
