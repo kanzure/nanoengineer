@@ -1377,7 +1377,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                               self.rosetta_db_path_lineedit,
                               self.rosetta_db_choose_btn]
 
-        from protein.model.Protein import enableProteins
+        from utilities.GlobalPreferences import enableProteins
         for widget in rosetta_widgetList:
             if enableProteins:
                 widget.show()

@@ -475,6 +475,16 @@ def _debug_pref_use_command_stack(): #bruce 080728
 USE_COMMAND_STACK = _debug_pref_use_command_stack()
 
 
+#bruce 0808013 moved enableProteins from protein.model.Protein.enableProteins
+# to avoid import cycles.
+# TODO: rename it to ENABLE_PROTEINS, to fit with coding standard for constants.
+enableProteins = debug_pref("Enable Proteins? (next session)",
+                             Choice_boolean_False,
+                             non_debug = True,
+                             prefs_key = True
+                            )
+
+
 def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
     #-The current code always connects signals while shown a PM and 
     #disconnects those in the close method. The above flag, if True, signals 
@@ -489,5 +499,15 @@ def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
     return res
 
 KEEP_SIGNALS_ALWAYS_CONNECTED = _debug_pref_keep_signals_always_connected()
+
+
+def _debug_pref_cseq_is_not_glpane(): #bruce 080813
+    res = debug_pref("CommandSequencer is not GLPane (next session)?",
+                     Choice_boolean_False,
+                     prefs_key = True
+                    )
+    return res
+
+# todo: XXX = not _debug_pref_cseq_is_not_glpane()
 
 # end

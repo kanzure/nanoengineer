@@ -462,7 +462,10 @@ class Assembly( StateMixin, Assembly_API):
                 #  The same argument might apply to our undo manager.
                 #  Related Q: is finding commandSequencer via assy legitimate?
                 #  [bruce 080813 questions]]
-                from commandSequencer.CommandSequencer import modeMixin
+
+                # does this cause the big new import cycle?
+                ## from commandSequencer.CommandSequencer import modeMixin
+                assert 0 # need that import
                 self.commandSequencer = modeMixin(self) #bruce 080813
 
         self.assy_valid = True

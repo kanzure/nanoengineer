@@ -708,7 +708,7 @@ def read_or_insert_pdb(assy,
     @type  showProgressDialog: boolean
     """
     
-    from protein.model.Protein import enableProteins
+    from utilities.GlobalPreferences import enableProteins
     
     if enableProteins:
         
@@ -938,7 +938,7 @@ def writepdb(part,
     
     atomSerialNumber = 1
 
-    from protein.model.Protein import enableProteins
+    from utilities.GlobalPreferences import enableProteins
     
     def exclude(atm): #bruce 050318
         """

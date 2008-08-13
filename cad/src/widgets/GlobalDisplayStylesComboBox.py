@@ -62,7 +62,7 @@ class GlobalDisplayStylesComboBox(QComboBox):
         # Add a new experimental Protein display style
         # if the Enable proteins debug pref is set to True.
         # piotr 080710
-        from protein.model.Protein import enableProteins
+        from utilities.GlobalPreferences import enableProteins
             
         if display_style == diDEFAULT:
             display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]

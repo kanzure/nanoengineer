@@ -25,7 +25,7 @@ def setupUi(win):
     # Populate the "Simulation" menu.
     win.simulationMenu.addAction(win.simSetupAction) # "Run Dynamics"
     win.simulationMenu.addAction(win.simMoviePlayerAction) # "Play Movie"  
-    from protein.model.Protein import enableProteins
+    from utilities.GlobalPreferences import enableProteins
     if enableProteins:
         win.simulationMenu.addSeparator()
         win.simulationMenu.addAction(win.rosettaSetupAction)

@@ -45,7 +45,7 @@ def setupUi(win):
     win.fileMenu.addMenu(win.importMenu)
     win.fileMenu.addMenu(win.exportMenu)
     
-    from protein.model.Protein import enableProteins
+    from utilities.GlobalPreferences import enableProteins
     if enableProteins:
         win.fileMenu.addMenu(win.fetchMenu)
         

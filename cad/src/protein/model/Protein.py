@@ -351,11 +351,6 @@ chi_exclusions = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
                              None,
                              None ] }
 
-enableProteins =  debug_pref("Enable Proteins? (next session)",
-    Choice_boolean_False,
-    non_debug = True,
-    prefs_key = True)
-
 def is_water(resName):
     """
     Check if a PDB residue is a water molecule.
