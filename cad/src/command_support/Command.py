@@ -52,6 +52,8 @@ from model.jigs import Jig
 
 from command_support.GraphicsMode_API import GraphicsMode_API
 
+from command_support.baseCommand import baseCommand # warning: modified below, if not USE_COMMAND_STACK
+
 # ==
 
 class anyCommand(object, StateMixin):
@@ -157,7 +159,7 @@ class anyCommand(object, StateMixin):
     def model_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename (in Commands and their PMs)
         return
     
-    def state_may_have_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename
+    def command_post_event_ui_updater(self): #bruce 070925; bruce 080812 renamed this, from state_may_have_changed
         """
         This is called after every user event (###verify).
         Overridden only in basicCommand as of 080731 (###describe).
@@ -313,7 +315,11 @@ class nullCommand(anyCommand):
 
 # ==
 
-class basicCommand(anyCommand):
+if not USE_COMMAND_STACK:
+    class baseCommand(object):
+        pass
+
+class basicCommand(baseCommand, anyCommand):
     """
     Common code between class Command (see its docstring)
     and old-code-compatibility class basicMode.
@@ -447,9 +453,9 @@ class basicCommand(anyCommand):
 
     # remove these once we always inherit from baseCommand,
     # from which they're copied; see it for their docstrings: ###
-
-    def command_ok_to_enter(self):
-        return True
+    if not USE_COMMAND_STACK:
+        def command_ok_to_enter(self):
+            return True
     
     # ==
     
@@ -684,6 +690,8 @@ class basicCommand(anyCommand):
         private method, and a kluge;
         see KLUGE_current_PropertyManager docstring for more info
         """
+        if USE_COMMAND_STACK:
+            return self.propMgr
         pw = self.w.activePartWindow()
         if not pw:
             # I don't know if pw can be None
@@ -1143,15 +1151,16 @@ class basicCommand(anyCommand):
             # note: mode_obj = self is needed in case
             # glpane.currentCommand == nullMode at the moment.
 
-    def state_may_have_changed(self): #bruce 080804 revision
-        """
-        #doc
+    if not USE_COMMAND_STACK:
+        def command_post_event_ui_updater(self): #bruce 080804 revision
+            """
+            #doc
 
-        FYI: This is called by env.do_post_event_updates() by a registered
-        "post_event_ui_updater" set up by MWsemantics. [still true 080804]
-        """
-        self.model_changed() # TODO: revise or rename this
-        return
+            FYI: This is called by env.do_post_event_updates() by a registered
+            "post_event_ui_updater" set up by MWsemantics. [still true 080804]
+            """
+            self.model_changed() # TODO: revise or rename this
+            return
 
     def model_changed(self): #bruce 070925 added this to Command API.
         # bruce 080804 revised docstring

@@ -60,16 +60,6 @@ class baseCommand(object):
     
     propMgr = None # will be set to the PM to use with self (whether or not created by self)
 
-##    def get_propertyManager(self): ### note: might become a get method for self.propertyManager
-##        """
-##        @return: the property manager object to use when this command is current
-##                 (or when its subcommands don't have a PM of their own).
-##        """
-##        if self.command_has_its_own_PM:
-##            return self.propMgr # might be None
-##        else:
-##            return self.parentCommand and self.parentCommand.get_propertyManager()
-    
     # == exit-related methods
     
     def _command_do_exit_if_ok(self, args = None):
@@ -353,9 +343,24 @@ class baseCommand(object):
 
     # == update methods
 
+    def command_post_event_ui_updater(self):
+        """
+        Commands can extend this if they need to optimize by completely ignoring
+        some updates under certain conditions.
+
+        Note: this is called from MWsemantics.post_event_ui_updater.
+
+        Note that this prevents *all* active commands, or the command sequencer,
+        from doing any updates in response to this method (whose base class implem
+        is indirectly the only caller of any command_update_* method),
+        so it's safer to optimize one of the command_update_* methods instead.
+        """
+        self.commandSequencer._f_update_current_command()
+        return
+
     def command_update_state(self): ### tentative; details under discussion
         # note: likely implem of call to this: a new cseq method is called by
-        # existing method state_may_have_changed, which loops over the methods
+        # existing method command_post_event_ui_updater, which loops over the methods
         # described in the docstring
         # note: code now in model_changed and other update methods
         # is divided up into the new update methods listed here.

@@ -239,7 +239,7 @@ class MWsemantics(QMainWindow,
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
 
-        pw = Ui_PartWindow(self.assy, self)
+        pw = Ui_PartWindow(self.assy, self) # note: calls glpane.setAssy inside GLPane.__init__; that calls _reinit_modes
         self.assy.set_glpane(pw.glpane) # sets assy.o and assy.glpane
         self.assy.set_modelTree(pw.modelTree) # sets assy.mt
         self._activepw = pw
@@ -454,7 +454,8 @@ class MWsemantics(QMainWindow,
         # WARNING: if this causes infinite recursion, we just get an AttributeError
         # from the inner call (saying self has no attr 'commandSequencer')
         # rather than an understandable exception.
-        return self.glpane #bruce 071008; will revise when we have a separate one
+        return self.glpane #bruce 071008; will revise when we have a separate one;
+            # see GLPANE_IS_COMMAND_SEQUENCER
 
     commandSequencer = property(_get_commandSequencer)
 
@@ -464,7 +465,7 @@ class MWsemantics(QMainWindow,
     currentCommand = property(_get_currentCommand)
 
     def post_event_ui_updater(self): #bruce 070925
-        self.currentCommand.state_may_have_changed()
+        self.currentCommand.command_post_event_ui_updater()
         return
 
     def createPopupMenu(self): # Ninad 070328

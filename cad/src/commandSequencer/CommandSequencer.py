@@ -42,6 +42,9 @@ from command_support.GraphicsMode_API import GraphicsMode_API
 
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
+_DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
+
+
 # ==
 
 # TODO: mode -> command or currentCommand in lots of comments, some method names
@@ -78,11 +81,15 @@ class modeMixin(object):
     else:
         prevMode = property() # hopefully this causes errors on any access of it ### check this
     
-    def _init_modeMixin(self):
+    def _init_modeMixin(self): # will become __init__ when this is no longer a mixin
         """
         call this near the start of __init__ in a subclass that mixes us in
-        (i.e. GLPane)
+        (i.e. GLPane); subsequent init calls will also be made, namely:
+        - _reinit_modes, from glpane.setAssy, from __clear or ... ###
+        - start_using_mode - end of MWsem.init, or __clear
         """
+        if _DEBUG_CSEQ_INIT:
+            print "_DEBUG_CSEQ_INIT: _init_modeMixin"###
         self._registered_command_classes = {} #bruce 080805
         if not USE_COMMAND_STACK:
             self._recreate_nullmode()
@@ -101,9 +108,13 @@ class modeMixin(object):
     
     def _reinit_modes(self): #revised, bruce 050911, 080209
         # note: called from:
-        # - GLPane.setAssy (end of function)
+        # - GLPane.setAssy (end of function),
+        #   which is called from:
+        #   - GLPane.__init__ (in partwindow init)
+        #   - MWSemantics.__clear (fileOpen/fileClose)
         # - extrudeMode.extrude_reload (followed by .start_using_mode( '$DEFAULT_MODE' )) --
-        #   should encapsulate that pair into a reset_command_sequencer method, or make it per-command-class, or ... ###
+        #   should encapsulate that pair into a reset_command_sequencer method,
+        #   or make it per-command-class, or ... ###
         """
         [bruce comment 040922, when I split this out from GLPane's
         setAssy method; comment is fairly specific to GLPane:]
@@ -128,6 +139,8 @@ class modeMixin(object):
         state (like user preferences), which is probably also bad
         for them to do. So we can ignore this for now.)
         """
+        if _DEBUG_CSEQ_INIT:
+            print "_DEBUG_CSEQ_INIT: reinit modes"###
         assert not USE_COMMAND_STACK # otherwise NIM #### IMPLEM in that case
 
         self.exit_all_commands()
@@ -257,6 +270,9 @@ class modeMixin(object):
         if not self.is_this_command_current(command):
             # we weren't sending you events anyway, what are you
             # talking about?!?" #k not sure this is an error
+            # (note: this can happen when a protein or dna subcommand is current
+            #  and a non-protein or non-dna command (resp) is directly entered
+            #  -- bruce 080812 comment)
             print "fyi (for developers): stop_sending_us_events called " \
                   "from %r which is not currentCommand %r" % \
                   (command, self._raw_currentCommand)
@@ -325,6 +341,8 @@ class modeMixin(object):
         @param resuming: see _enterMode method. ###TODO: describe it here,
                          and fix rest of docstring re this.
         """
+        if _DEBUG_CSEQ_INIT:
+            print "_DEBUG_CSEQ_INIT: start_using_mode", mode ###
         assert not USE_COMMAND_STACK # other case nim #### IMPLEM, or FIX CALLS (DECIDE)
         #bruce 070813 added resuming option
         # note: resuming option often comes from **new_mode_options in callers
@@ -903,7 +921,60 @@ class modeMixin(object):
             res = (None, None)
             print "fyi: entering a possible request command which was not called that way" ### more info if it happens
         return res
-    
+
+    # ==
+
+    # update methods (tentative, UNTESTED) [bruce 080812]
+
+    def _f_update_current_command(self): #bruce 080812
+        """
+        [private; called from baseCommand.command_post_event_ui_updater]
+        
+        Update the command stack, command state (for all active commands),
+        and current command UI.
+        """
+
+        # update the command stack itself, and any current command state
+        # which can affect that
+        
+        already_called = []
+        good = False # might be reset below
+        while self.currentCommand not in already_called:
+            command = self.currentCommand
+            already_called.append( command)
+            command.command_update_state() # might alter command stack
+            if self.currentCommand is not command:
+                # command_update_state altered command stack
+                continue
+            else:
+                # command stack reached a fixed point without error
+                good = True
+                break
+            pass
+        if not good:
+            print "likely bug: command_update_state changed current command " \
+                  "away from, then back to, %r" % self.currentCommand
+        # command stack should not be changed after this point
+        command = self.currentCommand
+
+        # update internal state of all active commands
+        
+        command.command_update_internal_state()
+        assert command is self.currentCommand, \
+               "%r.command_update_internal_state() should not have changed " \
+               "current command (to %r)" % (command, self.currentCommand)
+        # maybe: warn if default command's command_update_internal_state
+        # was not called, by comparing a counter before/after
+
+        # update current command UI
+        
+        command.command_update_UI()
+        assert command is self.currentCommand, \
+               "%r.command_update_UI() should not have changed " \
+               "current command (to %r)" % (command, self.currentCommand)
+
+        return
+        
     # ==
     
     # new code, mostly for the transition to a real command sequencer
