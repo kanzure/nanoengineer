@@ -1754,6 +1754,22 @@ class basicCommand(baseCommand, anyCommand):
                 return command
         return None
 
+    def find_parentCommand(self): #bruce 080813; won't be needed once .parentCommand always works
+        cseq = self.commandSequencer
+        commands = cseq.all_active_commands( starting_from = self )
+        commands = commands[1:] # only look at our parent commands
+        if not commands:
+            res = None
+        else:
+            res = commands[0]
+        if self.command_parent:
+            assert res is self.find_parent_command_named( self.command_parent) # not sure this is always required...
+        if USE_COMMAND_STACK:
+            assert res is self.parentCommand
+            # maybe: if not, add a property to make this always true... then use it
+            # to replace all calls of _reuse_attr_of_parentCommand with direct assignments.
+        return res
+
     def _reuse_attr_of_parentCommand(self, attr_name = ''): # by Ninad; moved here by bruce 080813; might be revised
         """
         [helper method for use in subclasses; not part of Command API]
@@ -1773,7 +1789,7 @@ class basicCommand(baseCommand, anyCommand):
         # It's not good to add this to Command API, for several reasons,
         # one of which is that it's probably not the best way to do what
         # it's doing. Also, it's only correct for commands which define
-        # self.command_parent.
+        # self.command_parent [that has been fixed as of 080813].
         #
         # For now, to avoid duplicated code, I'll add it here anyway,
         # since I want to use it in more commands.
@@ -1787,21 +1803,24 @@ class basicCommand(baseCommand, anyCommand):
                                 "in this command: ")
             return
         
-        previousCommand = self.find_parent_command_named( self.command_parent) ### BUG: won't work for nestable commands.
+##        parentCommand = self.find_parent_command_named( self.command_parent) ### BUG: won't work for nestable commands.
+        parentCommand = self.find_parentCommand()
+            #bruce 080813 generalization -- should be same when command_parent is defined,
+            # but also work for nestables like Zoom
         
-        if previousCommand:
+        if parentCommand:
             try:
-                parent_attr = getattr(previousCommand, attr_name)
+                parent_attr = getattr(parentCommand, attr_name)
             except:
                 msg = "bug: parent command %s doesn't have an " \
-                      "attr named %r" % (previousCommand, attr_name)
+                      "attr named %r" % (parentCommand, attr_name)
                 print_compact_traceback( msg + ": " )
                 return                
                 
             setattr(self, attr_name, parent_attr)
 
         else:
-            msg = "bug: parent command %s not found" % self.command_parent ## BUG: see above
+            msg = "bug: parent command %s not found" % self.command_parent # might be None -- todo: improve msg in that case
             print_compact_stack( msg + ": " )
         return
 
