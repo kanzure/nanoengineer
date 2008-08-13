@@ -15,7 +15,13 @@ class Ui_CommentPropDialog(object):
         CommentPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,390,275).size()).expandedTo(CommentPropDialog.minimumSizeHint()))
 
         self.gridlayout = QtGui.QGridLayout(CommentPropDialog)
-        self.gridlayout.setContentsMargins(0,0,0,2)
+
+        # note: this change will be lost when this file is remade from the .ui file.
+        # it's a short term workaround only. [bruce 080808]
+        from utilities.GlobalPreferences import debug_pref_support_Qt_4point2
+        if not debug_pref_support_Qt_4point2():
+            self.gridlayout.setContentsMargins(0,0,0,2)
+        
         self.gridlayout.setSpacing(2)
         self.gridlayout.setObjectName("gridlayout")
 
