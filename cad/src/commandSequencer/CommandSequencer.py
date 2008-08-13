@@ -35,6 +35,8 @@ import foundation.env as env
 import os
 import sys
 
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
+
 from command_support.modes import nullMode
 
 from command_support.Command import anyCommand # only for isinstance assertion
@@ -49,11 +51,12 @@ _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 
 # TODO: mode -> command or currentCommand in lots of comments, some method names
 
-class modeMixin(object):
+class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is always false
     """
     Mixin class for supporting command-switching in GLPane. Basically it's
     a primitive Command Sequencer which for historical reasons lives
-    temporarily as a mixin in the GLPane.
+    temporarily as a mixin in the GLPane
+    (until GLPANE_IS_COMMAND_SEQUENCER is always false).
 
     Maintains instance attributes currentCommand, graphicsMode
     (both read-only for public access), and mostly private
@@ -80,6 +83,15 @@ class modeMixin(object):
         prevMode = None #bruce 071011 added this initialization
     else:
         prevMode = property() # hopefully this causes errors on any access of it ### check this
+
+    def __init__(self, assy): #bruce 080813
+        assert not GLPANE_IS_COMMAND_SEQUENCER
+        self.assy = assy
+        self.win = assy.win
+        assert self.assy
+        assert self.win
+        self._init_modeMixin()
+        return
     
     def _init_modeMixin(self): # will become __init__ when this is no longer a mixin
         """
@@ -90,6 +102,13 @@ class modeMixin(object):
         """
         if _DEBUG_CSEQ_INIT:
             print "_DEBUG_CSEQ_INIT: _init_modeMixin"###
+
+        # make sure certain attributes are present (important once we're a
+        # standalone object, since external code expects us to have these
+        # even if we don't need them ourselves) (but it's ok if they're still None)
+        self.win # probably used only in EditCommand and in some methods in self
+        self.assy # used in self and in an unknown amount of external code
+        
         self._registered_command_classes = {} #bruce 080805
         if not USE_COMMAND_STACK:
             self._recreate_nullmode()
@@ -455,9 +474,36 @@ class modeMixin(object):
             continue
         # if even $SAFE_MODE failed (serious bug), we might as well just stick
         # with self.currentCommand being nullMode...
-        self.update_after_new_mode()
+        self._cseq_update_after_new_mode()
         return # from start_using_mode
-    
+
+    def _cseq_update_after_new_mode(self): # rename?
+        """
+        Do whatever updates are needed after self.currentCommand (including
+        its graphicsMode aspect) might have changed.
+
+        @note: it's ok if this is called more than needed, except it
+               might be too slow. In practice, as of 080813 it looks
+               like it is usually called twice after most command changes.
+               This should be fixed, but it's not urgent.
+        """
+        #bruce 080813 moved/renamed this from GLPane.update_after_new_mode,
+        # and refactored it
+        glpane = self.assy.glpane
+        glpane.update_after_new_graphicsMode()
+        glpane.update_GLPane_after_new_command()
+
+        self.win.win_update()
+
+        #e also update tool-icon visual state in the toolbar? [presumably done elsewhere now]
+        # bruce 041222 [comment revised 050408, 080813]:
+        # changed this to a full update (not just a glpane update),
+        # and changed MWsemantics to make that safe during our __init__
+        # (when that was written, it referred to GLPane.__init__,
+        #  which is when self was initialized then).
+
+        return
+
     def _Entering_Mode_message(self, mode, resuming = False):
         featurename = mode.get_featurename()
         if resuming:
@@ -564,7 +610,7 @@ class modeMixin(object):
 
         If commandName is a command name string and we are already in that
         command, then do nothing unless always_update is true [new feature,
-        080730; prior code did nothing except self.update_after_new_mode(),
+        080730; prior code did nothing except self._cseq_update_after_new_mode(),
         equivalent to passing always_update = True to new code].
         Note: all calls which pass always_update as of 080730 do so only
         to preserve old code behavior; passing it is probably not needed
@@ -588,7 +634,7 @@ class modeMixin(object):
         another is that it leads to that code assuming that a UI exists,
         complicating future scripting support. When this is improved, the
         updating of toolbutton status might be done by
-        self.update_after_new_mode().
+        self._cseq_update_after_new_mode().
         [Note, that's now in GLPane but should probably move into this class.]
         
         @see: userEnterTemporaryCommand (which is the only caller that passes
@@ -601,7 +647,7 @@ class modeMixin(object):
         # the same-named command, provided that is a basicCommand subclass
         # (i.e. not nullCommand). A lot of callers have a test for this
         # before the call, but they don't need it, except that it
-        # avoids the call herein of self.update_after_new_mode().
+        # avoids the call herein of self._cseq_update_after_new_mode().
         # CHANGING THIS NOW: avoid that update here too, and simplify the callers.
         # [bruce 080730]
         try:
@@ -611,14 +657,14 @@ class modeMixin(object):
                 self.currentCommand._f_userEnterCommand(commandName, **options)
 
             if always_update or not already_in_command:
-                # REVIEW: the following update_after_new_mode looks redundant with
+                # REVIEW: the following _cseq_update_after_new_mode looks redundant with
                 # the one at the end of start_using_mode, if that one has always
                 # run at this point (which I think, but didn't prove).
                 # [bruce 070813 comment]
                 
                 # TODO, maybe: let current command decide whether/how to do
                 # this update:
-                self.update_after_new_mode()
+                self._cseq_update_after_new_mode()
             pass
         except:
             # This should never happen unless there's a bug in some command --

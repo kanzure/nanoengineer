@@ -53,6 +53,7 @@ from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 from utilities.constants import str_or_unicode
 from utilities.constants import RECENTFILES_QSETTINGS_KEY
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 from ne1_ui.Ui_MainWindow import Ui_MainWindow
 from ne1_ui.Ui_PartWindow import Ui_PartWindow
@@ -445,11 +446,17 @@ class MWsemantics(QMainWindow,
         self.mouseWheelZoomOutPoint = env.prefs[zoomOutAboutScreenCenter_prefs_key]
 
     def _get_commandSequencer(self):
-        # WARNING: if this causes infinite recursion, we just get an AttributeError
-        # from the inner call (saying self has no attr 'commandSequencer')
-        # rather than an understandable exception.
-        return self.glpane #bruce 071008; will revise when we have a separate one;
-            # see GLPANE_IS_COMMAND_SEQUENCER
+        if GLPANE_IS_COMMAND_SEQUENCER:
+            # WARNING: if this causes infinite recursion, we just get an AttributeError
+            # from the inner call (saying self has no attr 'commandSequencer')
+            # rather than an understandable exception.
+            return self.glpane #bruce 071008; will revise when we have a separate one
+        else:
+            #bruce 080813
+            res = self.assy.commandSequencer
+            assert res
+            return res
+        pass
 
     commandSequencer = property(_get_commandSequencer)
 

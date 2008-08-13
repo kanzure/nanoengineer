@@ -186,10 +186,13 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     
     # init methods
     
-    def __init__(self, glpane):
+    def __init__(self, commandSequencer):
         # I don't know why this method is needed. ##### REVIEW (super semantics), FIX or clean up
+        # (note: that comment predates commandSequencer != glpane; after that, it's needed
+        #  due to different init args)
+        glpane = commandSequencer.assy.glpane
         super(test_connectWithState, self).__init__(glpane) # State_preMixin.__init__
-        ExampleCommand.__init__(self, glpane) # (especially this part)
+        ExampleCommand.__init__(self, commandSequencer) # (especially this part)
         return
 
 ##    def __init__(self, glpane):

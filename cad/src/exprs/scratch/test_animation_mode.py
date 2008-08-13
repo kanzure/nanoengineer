@@ -1240,13 +1240,14 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
     _loop_start_time = 0
     simtime = 0.0 # this is a constant between loops, and grows with real time during loops. only changed in cmd_Start. never reset.
 
-    def __init__(self, glpane):
+    def __init__(self, commandSequencer):
         """
         create an expr instance, to draw in addition to the model
         """
         # code copied from test_commands.py
-        super(test_animation_mode, self).__init__(glpane) # that only calls some mode's init method, not IorE.__init__,
+        super(test_animation_mode, self).__init__(commandSequencer) # that only calls some mode's init method, not IorE.__init__,
             # so (for now) call that separately
+        glpane = commandSequencer.assy.glpane
         IorE_guest_mixin.__init__(self, glpane)
         if 0:
             # expr from test_commands - works except for resizer highlighting

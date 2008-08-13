@@ -54,8 +54,6 @@ even though it can't yet replace the ones it splits out of.
 since those are all split now.]
 """
 
-from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
-
 from command_support.Command import anyCommand, nullCommand, basicCommand
 
 from command_support.GraphicsMode import nullGraphicsMode, basicGraphicsMode
@@ -100,14 +98,8 @@ class basicMode(basicCommand, basicGraphicsMode, anyMode):
     Compatibility mixture of Command and GraphicsMode
     for old code which uses one object for both.
     """
-    def __init__(self, glpane):
-        if GLPANE_IS_COMMAND_SEQUENCER:
-            commandSequencer = glpane
-        else:
-            msg = "don't yet know how to find commandSequencer when not GLPANE_IS_COMMAND_SEQUENCER"
-                # btw, glpane.win.commandSequencer doesn't work yet (in the case when they are the same)
-            print msg
-            assert 0, msg
+    def __init__(self, commandSequencer):
+        glpane = commandSequencer.assy.glpane #bruce 080813 revised this
         
         basicCommand.__init__(self, commandSequencer)
         

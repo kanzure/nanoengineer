@@ -452,6 +452,19 @@ class Assembly( StateMixin, Assembly_API):
 
         self._init_glselect_name_dict()
 
+        from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
+
+        if not GLPANE_IS_COMMAND_SEQUENCER:
+            if own_window_UI: # otherwise (e.g. Partlib assy) we shouldn't need one
+                # [Review: does this condition indicate that class Assembly
+                #  is not the ideal object to own a command sequencer??
+                #  Other candidates: partwindow; or specialized subclass of Assembly.
+                #  The same argument might apply to our undo manager.
+                #  Related Q: is finding commandSequencer via assy legitimate?
+                #  [bruce 080813 questions]]
+                from commandSequencer.CommandSequencer import modeMixin
+                self.commandSequencer = modeMixin(self) #bruce 080813
+
         self.assy_valid = True
                 
         return # from Assembly.__init__

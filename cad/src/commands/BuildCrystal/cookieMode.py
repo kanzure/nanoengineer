@@ -114,10 +114,10 @@ class cookieMode(basicMode):
         # False = finished/not defining selection curve
                            
     # methods related to entering this mode
-    def __init__(self, glpane):
+    def __init__(self, commandSequencer):
         """
         """
-        basicMode.__init__(self, glpane)
+        basicMode.__init__(self, commandSequencer)
         
         if not self.propMgr:
             self.propMgr = CookieCtrlPanel(self)

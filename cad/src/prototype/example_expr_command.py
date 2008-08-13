@@ -146,9 +146,12 @@ class ExampleCommand2E( ExampleCommand2, object):
 
     GraphicsMode_class = ExampleCommand2E_GM
 
-    def __init__(self, glpane):
-        "create an expr instance, to draw in addition to the model"
-        super(ExampleCommand2E, self).__init__(glpane)
+    def __init__(self, commandSequencer):
+        """
+        create an expr instance, to draw in addition to the model
+        """
+        super(ExampleCommand2E, self).__init__(commandSequencer)
+        glpane = commandSequencer.assy.glpane
         expr1 = TextState()
         expr2 = DraggablyBoxed(expr1, resizable = True)
             ###BUG: resizing is projecting mouseray in the wrong way, when plane is tilted!

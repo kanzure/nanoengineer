@@ -46,7 +46,7 @@ from foundation.FeatureDescriptor import register_abstract_feature_class
 
 from foundation.state_utils import StateMixin
 
-from utilities.constants import noop, GLPANE_IS_COMMAND_SEQUENCER
+from utilities.constants import noop
 
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
@@ -370,8 +370,9 @@ class basicCommand(baseCommand, anyCommand):
         REVIEW: are there ever more args, or if the UI wants this to immediately
         do something, does it call some other method immediately? Guess: the latter.
         """
-        assert GLPANE_IS_COMMAND_SEQUENCER
-        glpane = commandSequencer ### TODO: clean this up, and use commandSequencer below
+        glpane = commandSequencer.assy.glpane
+        assert glpane
+        assert glpane is commandSequencer ### TEMPORARY, only true when GLPANE_IS_COMMAND_SEQUENCER
         
         self.pw = None # pw = part window
             # TODO: remove this, or rename it -- most code uses .win for the same thing

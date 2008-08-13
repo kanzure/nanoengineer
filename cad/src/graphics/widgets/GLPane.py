@@ -151,12 +151,10 @@ from graphics.drawing.setup_draw import setup_drawer
 
 from utilities.constants import bgSOLID, bgEVENING_SKY, bgBLUE_SKY, bgSEAGREEN
 from utilities.constants import ave_colors, color_difference
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 # note: the list of preloaded_command_classes for the Command Sequencer
-# has been moved from here (where it didn't belong) to a new file,
-# builtin_command_loaders.py [bruce 080209]
-
-from commandSequencer.CommandSequencer import modeMixin
+# is in builtin_command_loaders.py
 
 from utilities import debug_flags
 ### from utilities.debug import profile, doProfile ###
@@ -397,7 +395,14 @@ class GLPane_mixin_for_DisplayListChunk(object):
 
 # ==
 
-class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
+if GLPANE_IS_COMMAND_SEQUENCER: #bruce 080813
+    from commandSequencer.CommandSequencer import modeMixin
+    modeMixin_for_glpane = modeMixin
+else:
+    class modeMixin_for_glpane(object):
+        pass
+
+class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrackingMixin,
              GLPane_mixin_for_DisplayListChunk):
     """
     Mouse input and graphics output in the main view window.
@@ -415,10 +420,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     # be formalized as a new class GraphicsMode_API or so]. Similarly, it
     # expects self.currentCommand to be a Command object (more precisely,
     # a basicCommand subclass). The Command API of self.currentCommand (and
-    # some private aspects of our commands) are used by self.modeMixin
-    # to "switch between commands". Soon, the modeMixin part will become part of
+    # some private aspects of our commands) are used by self's modeMixin superclass
+    # to "switch between commands".
+    #
+    # Soon [when GLPANE_IS_COMMAND_SEQUENCER is false], the modeMixin part will become part of
     # the planned CommandSequencer and be removed from this class GLPane
-    # [that's partly done as of 071030, since it's now in CommandSequencer.py],
+    # [that's partly done as of 071030, since it's now in CommandSequencer.py;
+    #  more on this is being done as of 080813],
     # and the Command and GraphicsMode class hierarchies will be separated
     # [later: mostly done].
     # Of the attributes mentioned, only self.graphicsMode will remain in GLPane.
@@ -438,7 +446,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         GLPane_minimal.__init__(self, parent, shareWidget, useStencilBuffer)
         self.win = win
 
-        modeMixin._init_modeMixin(self)
+        if GLPANE_IS_COMMAND_SEQUENCER: #bruce 080813 made this conditional
+            modeMixin._init_modeMixin(self)
+            # otherwise, each Assembly owns one, as assy.commandSequencer
 
         self.partWindow = parent
 
@@ -1108,8 +1118,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self.set_part( mainpart)
 
-        # defined in modeMixin [bruce 040922]; requires self.assy
-        self._reinit_modes() # leaves mode as nullmode as of 050911
+        if GLPANE_IS_COMMAND_SEQUENCER:
+            # defined in modeMixin [bruce 040922]; requires self.assy
+            self._reinit_modes() # leaves mode as nullmode as of 050911
+        else:
+            self.assy.commandSequencer._reinit_modes()
+                # todo: move this out of this method, once it's the usual case
 
         return # from GLPane.setAssy
 
@@ -1466,8 +1480,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # if there was an exception in the animation loop 
         self.is_animating = False
 
-    # == "callback methods" from modeMixin:
-
+    # ==
+    
     def setCursor(self, cursor = None):
         """
         Sets the cursor for the glpane.
@@ -1490,26 +1504,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                                            offsetX = 2, offsetY = 19)
         return QGLWidget.setCursor(self, cursor)
 
-    def update_after_new_mode(self): ### TODO: this will be split between GLPane and CommandSequencer
-        """
-        Do whatever updates are needed after self.currentCommand and/or
-        self.graphicsMode might have changed.
+    # == update methods [refactored between self and CommandSequencer, bruce 080813]
 
-        #doc: need to clarify whether those updates involve UI elements
-        unrelated to the GLPane.
-        
-        @note: it's ok if this is called more than needed, except it
-               might be too slow.
+    def update_after_new_graphicsMode(self): # maybe rename to update_GLPane_after_new_graphicsMode?
         """
-        self.update_after_new_graphicsMode()
-        self.update_after_new_currentCommand()
-        return
-
-    def update_after_new_graphicsMode(self):
-        """
-        do whatever updates are needed after self.graphicsMode might have changed
+        do whatever updates are needed in self after self.graphicsMode might have changed
         (ok if this is called more than needed, except it might be slower)
+
+        @note: this should only do updates related specifically to self
+               (as a GLPane). Any updates to assy, command sequencer or stack,
+               active commands, or other UI elements should be done elsewhere.
         """
+        # note: as of 080813, called from _cseq_update_after_new_mode and Move_Command
+        
         # TODO: optimize: some of this is not needed if the old & new graphicsMode are equivalent...
         # the best solution is to make them the same object in that case,
         # i.e. to get their owning commands to share that object,
@@ -1523,11 +1530,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         if self.selatom is not None: #bruce 050612 precaution (scheme could probably be cleaned up #e)
             if debug_flags.atom_debug:
-                print "atom_debug: update_after_new_mode storing None over self.selatom", self.selatom
+                print "atom_debug: update_after_new_graphicsMode storing None over self.selatom", self.selatom
             self.selatom = None
         if self.selobj is not None: #bruce 050612 bugfix; to try it, in Build drag selatom over Select Atoms toolbutton & press it
             if debug_flags.atom_debug:
-                print "atom_debug: update_after_new_mode storing None over self.selobj", self.selobj
+                print "atom_debug: update_after_new_graphicsMode storing None over self.selobj", self.selobj
             self.set_selobj(None)
 
         self.set_mouse_event_handler(None) #bruce 070628 part of fixing bug 2476 (leftover CC Done cursor)
@@ -1539,7 +1546,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # But it seems a good precaution even if not. [bruce 070628]
 
         if sys.platform == 'darwin':
-            self.set_widget_erase_color( self.backgroundColor)
+            self._set_widget_erase_color( self.backgroundColor)
             # Note: this was called here when the graphicsMode could determine
             # the background color, but that's no longer true, so it could probably
             # just be called at startup and whenever the background color is changed.
@@ -1568,7 +1575,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         return
 
-    def set_widget_erase_color(self, bgcolor): # revised, bruce 071011
+    def _set_widget_erase_color(self, bgcolor): # revised, bruce 071011
         """
         Change this widget's erase color (seen only if it's resized,
         and only briefly -- it's independent of OpenGL clearColor) to
@@ -1588,21 +1595,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # see Qt docs for this and for backgroundRole
         return
 
-    def update_after_new_currentCommand(self): ### TODO: move this out of GLPane into Command Sequencer
+    def update_GLPane_after_new_command(self): #bruce 080813
         """
-        do whatever updates are needed after self.currentCommand might have changed
-        (ok if this is called more than needed, except it might be slower)
+        [meant to be called only from CommandSequencer._cseq_update_after_new_mode]
         """
-        #e also update tool-icon visual state in the toolbar? [presumably done elsewhere now]
-        # bruce 041222 [comment revised 050408]:
-        # changed this to a full update (not just a glpane update),
-        # though technically the non-glpane part is the job of our caller rather than us,
-        # and changed MWsemantics to make that safe during our __init__.
-
-        self._adjust_GLPane_scale_if_needed()        
-        self.win.win_update()
-
-    def _adjust_GLPane_scale_if_needed(self):
+        self._adjust_GLPane_scale_if_needed()
+        return
+    
+    def _adjust_GLPane_scale_if_needed(self): # by Ninad
         """
         Adjust the glpane scale while in a certain command. 
 
@@ -1613,12 +1613,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         If user enters BuildDna command and if --
         a) there is no model in the assembly AND 
-        b) user didn't change the zoom factor , the glpane.scale woud be 
+        b) user didn't change the zoom factor , the glpane.scale would be 
         adjusted to 50.0 (GLPane_scale_for_dna_commands_prefs_key)
 
         If User doesn't do anything in BuildDna AND also doesn't modify the zoom
-        factor, exiting BuildDna and going into the defaultcommand
-        (or any command such asBuildAtoms ), it should restore zoom scale to 
+        factor, exiting BuildDna and going into the default command
+        (or any command such as BuildAtoms), it should restore zoom scale to 
         10.0 (value for GLPane_scale_for_atom_commands_prefs_key)
 
         @see: self.update_after_new_current_command() where it is called. This
@@ -1626,6 +1626,26 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         @see: Command.start_using_new_mode()
         """
         #Implementing this method fixes bug 2774
+
+        #bruce 0808013 revised order of tests within this method
+
+        #hasattr test fixes bug 2813
+        if hasattr(self.assy.part.topnode, 'members'):
+            numberOfMembers = len(self.assy.part.topnode.members)
+        else:
+            #It's a clipboard part, probably a chunk or a jig not contained in 
+            #a group.
+            numberOfMembers = 1
+
+        if numberOfMembers != 0: # do nothing except for an empty part
+            return
+
+        # TODO: find some way to refactor this to avoid knowing the
+        # explicit list of commandNames (certainly) and prefs_keys /
+        # preferred scales (if possible). At least, define a
+        # "command scale kind" attribute to test here in place of
+        # having the list of command names. [bruce 080813 comment]
+
         dnaCommands = ('BUILD_DNA', 'DNA_DUPLEX', 'DNA_SEGMENT', 'DNA_STRAND')
 
         startup_scale = float(env.prefs[startup_GLPane_scale_prefs_key])
@@ -1636,23 +1656,15 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         atom_preferred_scale = float(
             env.prefs[GLPane_scale_for_atom_commands_prefs_key])
 
-        numberOfMembers = 0 
-        #hasattr test fixes bug 2813
-        if hasattr(self.assy.part.topnode, 'members'):
-            numberOfMembers = len(self.assy.part.topnode.members)
-        else:
-            #Its a clipboard part, probably a chunk or a jig not contained in 
-            #a group.
-            numberOfMembers = 1
 
         if self.currentCommand.commandName in dnaCommands:
-            if self.scale ==  startup_scale and \
-               numberOfMembers == 0:                
+            if self.scale == startup_scale:                
                 self.scale = dna_preferred_scale
         else:
-            if self.scale == dna_preferred_scale and \
-               numberOfMembers == 0:
+            if self.scale == dna_preferred_scale:
                 self.scale = atom_preferred_scale
+
+        return
 
     # ==
 

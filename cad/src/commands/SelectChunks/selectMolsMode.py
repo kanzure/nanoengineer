@@ -14,8 +14,6 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
                           SelectChunks_GraphicsMode.py]
 """
 
-from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
-
 from commands.SelectChunks.SelectChunks_Command import SelectChunks_basicCommand
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_basicGraphicsMode
 
@@ -25,10 +23,8 @@ class selectMolsMode(SelectChunks_basicCommand,
     """
     Select Chunks Mode (compatibility version for unsplit modes; deprecated)
     """
-    def __init__(self, glpane):
-        assert GLPANE_IS_COMMAND_SEQUENCER
-
-        commandSequencer = glpane
+    def __init__(self, commandSequencer):
+        glpane = commandSequencer.assy.glpane
 
         SelectChunks_basicCommand.__init__(self, commandSequencer)
             # was just basicCommand in original
