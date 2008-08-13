@@ -224,8 +224,8 @@ class MWsemantics(QMainWindow,
         env.setMainWindow(self)
 
         # Start NE1 with an empty document called "Untitled".
-        # See also __clear method in ops_files, which creates and inits an assy
-        # using similar code.
+        # See also the _make_and_init_assy method in our mixin class in
+        # ops_files.py, which creates and inits an assy using similar code.
         #
         # Note: It is very desirable to change this startup behavior so that
         # the user must select "File > New" to open an empty document after
@@ -694,7 +694,7 @@ class MWsemantics(QMainWindow,
         except:
             print_compact_traceback( msg )
 
-        ## self.__clear() # (this seems to take too long, and is probably not needed)
+        ## self._make_and_init_assy() # (this seems to take too long, and is probably not needed)
 
         try:
             self.deleteOrientationWindow() # ninad 061121- perhaps it's unnecessary
@@ -818,9 +818,7 @@ class MWsemantics(QMainWindow,
     # Notes:
     #   #e closeEvent method (moved to fileSlotsMixin) should be split in two
     # and the outer part moved back into this file.
-    #   __clear method was moved to fileSlotsMixin (as it should be), even though
-    # its name-mangled name thereby changed, and some comments in other code
-    # still refer to it as MWsemantics.__clear. It should be given an ordinary name.
+    #   _make_and_init_assy method was moved to fileSlotsMixin (as it should be)
 
 
     ###################################

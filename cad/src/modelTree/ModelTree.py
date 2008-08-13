@@ -277,19 +277,19 @@ class modelTree(modelTreeGui.Ne1Model_api):
 
     def resetAssy_and_clear(self): #bruce 050201 for Alpha, part of Huaicai's bug 369 fix
         """
-        This method should be called from the end of MWsemantics.__clear
+        This method should be called from the end of MWsemantics._make_and_init_assy
         to prevent a crash on (at least) Windows during File->Close when the mtree is
         editing an item's text, using a fix developed by Huaicai 050201,
         which is to run the QListView method self.clear().
            Neither Huaicai nor Bruce yet understands why this fix is needed or why
         it works, so the details of what this method does (and when it's called,
         and what's it's named) might change. Bruce notes that without this fix,
-        MWsemantics.__clear would change win.assy (but not tell the mt (self) to change
+        MWsemantics._make_and_init_assy would change win.assy (but not tell the mt (self) to change
         its own .assy) and call mt_update(), which in old code would immediately do
         self.clear() but in new code doesn't do it until later, so this might relate
         to the problem. Perhaps in the future, mt_update itself can compare self.assy
         to self.win.assy and do this immediate clear() if they differ, so no change
-        would be needed to MWsemantics.__clear(), but for now, we'll just do it
+        would be needed to MWsemantics._make_and_init_assy(), but for now, we'll just do it
         like this.
         """
         self.modelTreeGui.update_item_tree( unpickEverybody = True )

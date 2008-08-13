@@ -1056,8 +1056,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def setAssy(self, assy): #bruce 050911 revised this
         """
         [bruce comment 040922, partly updated 080812]
-        This is called from self.__init__, and from MWSemantics.__clear
-        when user asks to open a new file or close current file.
+        This is called from self.__init__, and from
+        MWSemantics._make_and_init_assy when user asks to open a new file
+        or close current file.
 
         Apparently, it is supposed to forget whatever is happening now,
         and reinitialize the entire GLPane. However, it does nothing to

@@ -85,8 +85,8 @@ class modeMixin(object):
         """
         call this near the start of __init__ in a subclass that mixes us in
         (i.e. GLPane); subsequent init calls will also be made, namely:
-        - _reinit_modes, from glpane.setAssy, from __clear or ... ###
-        - start_using_mode - end of MWsem.init, or __clear
+        - _reinit_modes, from glpane.setAssy, from _make_and_init_assy or ... ###
+        - start_using_mode - end of MWsemantics.__init__, or _make_and_init_assy
         """
         if _DEBUG_CSEQ_INIT:
             print "_DEBUG_CSEQ_INIT: _init_modeMixin"###
@@ -111,7 +111,7 @@ class modeMixin(object):
         # - GLPane.setAssy (end of function),
         #   which is called from:
         #   - GLPane.__init__ (in partwindow init)
-        #   - MWSemantics.__clear (fileOpen/fileClose)
+        #   - MWSemantics._make_and_init_assy (fileOpen/fileClose)
         # - extrudeMode.extrude_reload (followed by .start_using_mode( '$DEFAULT_MODE' )) --
         #   should encapsulate that pair into a reset_command_sequencer method,
         #   or make it per-command-class, or ... ###

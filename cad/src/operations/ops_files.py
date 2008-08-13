@@ -1018,7 +1018,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 
             ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
             elif ret == 1:
-                pass ## self.__clear() 
+                pass ## self._make_and_init_assy() 
             
             elif ret == 2: 
                 env.history.message("Cancelled.")              
@@ -1055,7 +1055,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             start = begin_timing("File..Open")
             self.updateRecentFileList(fn)
 
-            self.__clear() # this resets self.assy to a new, empty Assembly object
+            self._make_and_init_assy() # resets self.assy to a new, empty Assembly object
 
             self.commandSequencer.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
                 
@@ -1917,7 +1917,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return # Cancel clicked or Alt+C pressed or Escape pressed
         
         if isFileSaved:
-            self.__clear()
+            self._make_and_init_assy()
             self.commandSequencer.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
             self.assy.reset_changed() #bruce 050429, part of fixing bug 413
             self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
@@ -1989,23 +1989,23 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             env.history.message( redmsg(msg))
         return
                 
-    def __clear(self): # rename: win_replace_assy?
+    def _make_and_init_assy(self):
         """
-        [private; as of 080812, called from fileOpen and fileClose,
-         immediately followed by start_using_mode; has no other calls]
+        [private; as of 080812, called only from fileOpen and fileClose,
+         in both cases immediately followed by start_using_mode]
 
         Close current self.assy, make a new assy and reinit commandsequencer
         for it (in glpane.setAssy), tell new assy about our model tree and
         glpane (and vice versa), update mainwindow caption.
         """
-        #bruce 050907 comment: this is only called from two file ops in this mixin, so I moved it here from MWsemantics
-        # even though its name-mangled name was thereby changed. It should really be given a normal name.
-        # Some comments in other files still call it MWsemantics.__clear. [See also the 060127 kluge below.]
-
+        #bruce 080812 renamed this from __clear (which is very old).
+        # REVIEW: should all or part of this method be moved back into
+        # class MWsemantics (which mixes it in)?
+        
         # see also MWsemantics.__init__, which contains similar code.
 
         if self.assy:
-            # print "\nfyi: closing old assy %r in __clear" % self.assy # works
+            # this happens
             self.assy.close_assy() #bruce 080314
         
         self.assy = Assembly(self, "Untitled",
@@ -2024,8 +2024,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.mt.resetAssy_and_clear()
         
         return
-
-    _MWsemantics__clear = __clear #bruce 060127 kluge so it can be called as __clear from inside class MWsemantics itself.
 
     def openRecentFile(self, idx):
         """
