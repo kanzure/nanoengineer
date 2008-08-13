@@ -1754,6 +1754,57 @@ class basicCommand(baseCommand, anyCommand):
                 return command
         return None
 
+    def _reuse_attr_of_parentCommand(self, attr_name = ''): # by Ninad; moved here by bruce 080813; might be revised
+        """
+        [helper method for use in subclasses; not part of Command API]
+        
+        Reuse the given attr of the parent command in self,
+        by assigning self.attr = self.parentCommand.attr
+        (in the correct way based on how parentCommand should be found).
+        
+        Example: reuse 'flyoutToolbar' or 'propMgr' attrs in self. 
+        @see: AtomsTool_Command.command_enter_flyout() for an example.
+        """        
+        #@TODO: this could be a new command API method. That gets automatically
+        #called based on some CL_* flags that decides whether to use certain 
+        #attrs such as flyouttoolbar or PM of the parent command
+        #-- Ninad 2008-08-01
+
+        # It's not good to add this to Command API, for several reasons,
+        # one of which is that it's probably not the best way to do what
+        # it's doing. Also, it's only correct for commands which define
+        # self.command_parent.
+        #
+        # For now, to avoid duplicated code, I'll add it here anyway,
+        # since I want to use it in more commands.
+        #
+        # Ultimately, all uses of this should be replaced with direct
+        # assignments of the appropriate attrs.
+        # [bruce 080801/080813 comments]
+        
+        if not attr_name:
+            print_compact_stack("bug: trying to set an attr with no name "
+                                "in this command: ")
+            return
+        
+        previousCommand = self.find_parent_command_named( self.command_parent) ### BUG: won't work for nestable commands.
+        
+        if previousCommand:
+            try:
+                parent_attr = getattr(previousCommand, attr_name)
+            except:
+                msg = "bug: parent command %s doesn't have an " \
+                      "attr named %r" % (previousCommand, attr_name)
+                print_compact_traceback( msg + ": " )
+                return                
+                
+            setattr(self, attr_name, parent_attr)
+
+        else:
+            msg = "bug: parent command %s not found" % self.command_parent ## BUG: see above
+            print_compact_stack( msg + ": " )
+        return
+
     # ==
 
     def _args_and_callback_for_request_command(self): #bruce 080801, might be revised/renamed

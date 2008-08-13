@@ -3,7 +3,7 @@
 
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
 2008-07-30: Created to refactor Build Atoms command (currently called
@@ -27,7 +27,6 @@ from utilities.constants import CL_SUBCOMMAND
 from model.elements import Singlet
 import foundation.env as env
 from utilities.Log import orangemsg
-from utilities.debug import print_compact_stack, print_compact_traceback
 
 class BondTool_Command(BuildAtoms_Command):
     """
@@ -81,44 +80,11 @@ class BondTool_Command(BuildAtoms_Command):
         """
         self._reuse_attr_of_parentCommand('flyoutToolbar')
     
-    def _reuse_attr_of_parentCommand(self, attr_name = ''): 
-        """
-        Reuse the given attr of the parent command. 
-        Example: reuse 'flyoutToolbar' or 'propMgr' attrs in self. 
-        @see: self.command_enter_flyout()
-        """
-        # WARNING: this code is duplicated in other places.
-        # For comments about it, see one of them.
-        
-        if not attr_name:
-            print_compact_stack("bug: trying to set an attr with no name "
-                                "in this command: ")
-            return
-        
-        previousCommand = self.find_parent_command_named( self.command_parent)
-        
-        if previousCommand:
-            try:
-                parent_attr = getattr(previousCommand, attr_name)
-            except:
-                msg = "bug: parent command %s doesn't have an " \
-                      "attr named %r" % (previousCommand, attr_name)
-                print_compact_traceback( msg + ": " )
-                return                
-                
-            setattr(self, attr_name, parent_attr)
-
-        else:
-            msg = "bug: parent command %s not found" % self.command_parent
-            print_compact_stack( msg + ": " )
-        return
-
     def command_enter_PM(self):
         """
         #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
         """
         self._reuse_attr_of_parentCommand('propMgr')
-        
     
     def init_gui(self):
         pass
