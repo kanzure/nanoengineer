@@ -262,7 +262,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
             change_connect = self.win.disconnect 
         
         #Ui_AbstractFlyout connects the self.exitmodeAction, so call it first.
-        _superclass.connect_or_disconnect_signals(self, isConnect = isConnect)
+        _superclass.connect_or_disconnect_signals(self, isConnect)
             
         #Atom , Bond Tools Groupbox
         change_connect(self.bondToolsActionGroup,

@@ -235,7 +235,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
             change_connect = self.win.disconnect 
         
         #Ui_AbstractFlyout connects the self.exitmodeAction, so call it first.
-        _superclass.connect_or_disconnect_signals(self, isConnect = isConnect)
+        _superclass.connect_or_disconnect_signals(self, isConnect)
         
         change_connect(self.modelProteinAction,
                         SIGNAL("triggered()"),self._activateModelProteins)
