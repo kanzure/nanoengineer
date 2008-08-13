@@ -162,6 +162,8 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
         @type  spanWidth: bool
         
         @see: U{B{QDoubleSpinBox}<http://doc.trolltech.com/4/qdoublespinbox.html>}
+        @see: B{InsertNanotube_PropertyManager._chiralityFixup()} for an example
+              use of blockSignals flag
         """
         
         if 0: # Debugging code
@@ -228,7 +230,10 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
         self.setAsDefault = True
         self.defaultValue = value
             
-    def setValue(self, value, setAsDefault = True):
+    def setValue(self, 
+                 value, 
+                 setAsDefault = True, 
+                 blockSignals = False):
         """
         Sets the value of the spin box to I{value}. 
         
@@ -247,8 +252,18 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
         @note: The value will be rounded so it can be displayed with the current
         setting of decimals.  
         
+        @param blockSignals: Many times, the caller just wants to setValue 
+                             and don't want to send valueChanged signal. 
+                             If this flag is set to True, the valueChanged 
+                             signal won't be emitted.  The default value is 
+                             False.
+        @type  blockSignals: bool 
+        
         @see: L{setDefaultValue}
+        @see: QObject.blockSignals(bool block)
+        
         """
+        
 ##        if setAsDefault: ### THIS IS A BUG, if the default value of this option remains True.
 ##            # it also looks useless, so i'll zap it. btw that means i could zap the entire method, but i won't yet.
 ##            # I verified nothing calls it with changed version... not enough to prove this zapping is ok...
@@ -256,7 +271,17 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
 ##            # it should be changed. Ninad, feel free to clean up this method & comment when you see this.
 ##            # [bruce 070814]
 ##            self.setDefaultValue(value)
+        
+        
+        #If blockSignals flag is True, the valueChanged signal won't be emitted 
+        #This is done by self.blockSignals method below.  -- Ninad 2008-08-13
+        self.blockSignals(blockSignals)
+        
         QDoubleSpinBox.setValue(self, value)
+        
+        #Make sure to always 'unblock' signals that might have been temporarily
+        #blocked before calling superclass.setValue. 
+        self.blockSignals(False)
 
     def connectWithState(self, stateref,
                          set_metainfo = True,

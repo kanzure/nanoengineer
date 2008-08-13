@@ -160,12 +160,14 @@ class PM_SpinBox( QSpinBox ):
             print "  spanWidth    = ", spanWidth
         
         QSpinBox.__init__(self)
-        
+                
         self.parentWidget = parentWidget
         self.label        = label
         self.labelColumn  = labelColumn
         self.setAsDefault = setAsDefault
         self.spanWidth    = spanWidth
+        
+        self._supress_valueChanged_signal = False
         
         if label: # Create this widget's QLabel.
             self.labelWidget = QLabel()
@@ -206,11 +208,14 @@ class PM_SpinBox( QSpinBox ):
         self.setAsDefault = True
         self.defaultValue = value
             
-    def setValue(self, value, setAsDefault = True):
+    def setValue(self, value, 
+                 setAsDefault = True, 
+                 blockSignals = False):
         """
         Sets the value of the spin box to I{value}. 
         
-        setValue() will emit valueChanged() if the new value is different from the old one.      
+        setValue() will emit valueChanged() if the new value is different from 
+        the old one.  (and if blockSignals flag is False)
         
         @param value: The new spin box value.
         @type  value: int
@@ -221,11 +226,32 @@ class PM_SpinBox( QSpinBox ):
                              value.
         @type  setAsDefault: bool
         
+        @param blockSignals: Many times, the caller just wants to setValue 
+                             and don't want to send valueChanged signal. 
+                             If this flag is set to True, the valueChanged 
+                             signal won't be emitted.  The default value is 
+                             False.
+        @type  blockSignals: bool 
+        
         @see: L{setDefaultValue}
+        @see: QObject.blockSignals(bool block)
+        
+        @see: B{InsertNanotube_PropertyManager._chiralityFixup()} for an example
+              use of blockSignals flag
+        
         """
+        #If blockSignals flag is True, the valueChanged signal won't be emitted 
+        #This is done by self.blockSignals method below.  -- Ninad 2008-08-13
+        self.blockSignals(blockSignals)
+       
         if setAsDefault:
             self.setDefaultValue(value)
-        QSpinBox.setValue(self, value)
+        QSpinBox.setValue(self, value)        
+        
+        #Make sure to always 'unblock' signals that might have been temporarily
+        #blocked before calling superclass.setValue. 
+        self.blockSignals(False)
+        
         
     def hide(self):
         """
@@ -246,5 +272,7 @@ class PM_SpinBox( QSpinBox ):
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()
+            
+                 
         
 # End of PM_SpinBox ############################

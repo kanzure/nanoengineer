@@ -541,17 +541,18 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
                                  signal. It is not used. We just want to know
                                  that the spinbox value has changed.
         @type  spinBoxValueJunk: double or None
+        @see: PM_SpinBox.setValue() for a note about blockSignals. 
         """
         _n, _m = self.nanotube.setChirality(self.chiralityNSpinBox.value(),
                                             self.chiralityMSpinBox.value())
 
         #self.n, self.m = self.nanotube.getChirality()
-
-        self.connect_or_disconnect_signals(isConnect = False)
-        self.chiralityNSpinBox.setValue(_n)
-        self.chiralityMSpinBox.setValue(_m)
-        self.connect_or_disconnect_signals(isConnect = True)
-
+        
+        #QSpinBox.setValue emits valueChanged signal. We don't want that here. 
+        #so temporarily blockSignal by passing the blockSignals flag. 
+        self.chiralityNSpinBox.setValue(_n, blockSignals = True)
+        self.chiralityMSpinBox.setValue(_m, blockSignals = True)
+        
         self.updateNanotubeDiameter()
 
     def updateNanotubeDiameter(self):
