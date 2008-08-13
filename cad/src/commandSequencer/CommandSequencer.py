@@ -84,8 +84,8 @@ class modeMixin(object):
     def _init_modeMixin(self): # will become __init__ when this is no longer a mixin
         """
         call this near the start of __init__ in a subclass that mixes us in
-        (i.e. GLPane); subsequent init calls will also be made, namely:
-        - _reinit_modes, from glpane.setAssy, from _make_and_init_assy or ... ###
+        (i.e. GLPane); subsequent init calls should also be made, namely:
+        - _reinit_modes, from glpane.setAssy, from _make_and_init_assy or GLPane.__init__
         - start_using_initial_mode - end of MWsemantics.__init__, or _make_and_init_assy
         """
         if _DEBUG_CSEQ_INIT:
@@ -107,14 +107,20 @@ class modeMixin(object):
         return
     
     def _reinit_modes(self): #revised, bruce 050911, 080209
-        # note: called from:
+        # note: as of 080812, not called directly in this file; called from:
         # - GLPane.setAssy (end of function),
         #   which is called from:
         #   - GLPane.__init__ (in partwindow init)
         #   - MWSemantics._make_and_init_assy (fileOpen/fileClose)
-        # - extrudeMode.extrude_reload (followed by .start_using_initial_mode( '$DEFAULT_MODE' )) --
-        #   should encapsulate that pair into a reset_command_sequencer method,
-        #   or make it per-command-class, or ... ###
+        # - extrudeMode.extrude_reload (followed by .start_using_initial_mode( '$DEFAULT_MODE' )).
+        # Each call is followed eventually by start_using_initial_mode,
+        # but in some cases this is in a different method or not nearby.
+        #
+        # Maybe todo: encapsulate that pair (_reinit_modes and start_using_initial_mode)
+        # into a reset_command_sequencer method, even though it can't yet be used
+        # by the main calls of this listed above; and/or make the reinit of
+        # command objects lazy (per-command-class), so calling this is optional,
+        # at least in methods like extrude_reload.
         """
         [bruce comment 040922, when I split this out from GLPane's
         setAssy method; comment is fairly specific to GLPane:]
