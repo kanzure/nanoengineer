@@ -1841,7 +1841,7 @@ class extrudeMode(basicMode):
         print "about to reset command sequencer"
         # need to revise following to use some cleaner interface
         self.commandSequencer._reinit_modes() # leaves mode as nullmode as of 050911
-        self.commandSequencer.start_using_mode( '$DEFAULT_MODE' )
+        self.commandSequencer.start_using_initial_mode( '$DEFAULT_MODE' )
             ###e or could use commandName of prior self.commandSequencer.currentCommand
         print "done with _reinit_modes, now we'll try to reenter extrudeMode"
         self.commandSequencer.userEnterCommand( self.commandName) #bruce 080805

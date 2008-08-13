@@ -1,6 +1,7 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Command.py -- provides class basicCommand, superclass for commands
+[see also baseCommand.py, once ongoing refactoring is completed]
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
@@ -21,8 +22,11 @@ add all the API methods to it, and rename the other methods
 in class Command to look private.
 
 Methods such as basicCommand.Done, basicCommand._enterMode, 
-basicCommand._exitMode and CommandSequencer.start_using_mode need cleanup. 
-(Needs to be done together) 
+basicCommand._exitMode and CommandSequencer.start_using_mode need cleanup
+(needs to be done together).
+
+This is happening as part of a big command sequencer refactoring
+by Bruce & Ninad, circa 080812 (ongoing).
 """
 
 from PyQt4.Qt import QToolButton
@@ -852,11 +856,6 @@ class basicCommand(baseCommand, anyCommand):
                                  for a detailed comment.
                                  
         @type has_its_own_gui: boolean
-        
-        @see: self.Done, self._exitMode, CommandSequencer.start_using_mode
-        
-        TODO: This and the other methods mentioned in 'See Also' need cleanup. 
-              Need to be simplified. 
         """
         assert not USE_COMMAND_STACK # obsolete otherwise [080806]
         if not resuming:

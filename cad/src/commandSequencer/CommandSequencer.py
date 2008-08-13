@@ -86,7 +86,7 @@ class modeMixin(object):
         call this near the start of __init__ in a subclass that mixes us in
         (i.e. GLPane); subsequent init calls will also be made, namely:
         - _reinit_modes, from glpane.setAssy, from _make_and_init_assy or ... ###
-        - start_using_mode - end of MWsemantics.__init__, or _make_and_init_assy
+        - start_using_initial_mode - end of MWsemantics.__init__, or _make_and_init_assy
         """
         if _DEBUG_CSEQ_INIT:
             print "_DEBUG_CSEQ_INIT: _init_modeMixin"###
@@ -112,7 +112,7 @@ class modeMixin(object):
         #   which is called from:
         #   - GLPane.__init__ (in partwindow init)
         #   - MWSemantics._make_and_init_assy (fileOpen/fileClose)
-        # - extrudeMode.extrude_reload (followed by .start_using_mode( '$DEFAULT_MODE' )) --
+        # - extrudeMode.extrude_reload (followed by .start_using_initial_mode( '$DEFAULT_MODE' )) --
         #   should encapsulate that pair into a reset_command_sequencer method,
         #   or make it per-command-class, or ... ###
         """
@@ -185,7 +185,7 @@ class modeMixin(object):
         # todo: something to support lazily loaded/instantiated commands
         # (make self._commandTable a dictlike object that loads on demand?)
 
-        ## self.start_using_mode( '$DEFAULT_MODE')
+        ## self.start_using_initial_mode( '$DEFAULT_MODE')
         #bruce 050911 removed this; now we leave it at nullmode,
         # let direct or indirect callers put in the mode they want
         # (since different callers want different modes, and during init
@@ -326,7 +326,21 @@ class modeMixin(object):
         entered = command._command_do_enter_if_ok()
 
         return entered
-        
+
+    def start_using_initial_mode(self, mode): #bruce 080812
+        """
+        [semi-private]
+        Initialize self to the given initial mode,
+        just after self is created or _reinit_modes is called.
+        """
+        # as of 080812, this is called from 3 places:
+        # - MWsemantics.__init__
+        # - _make_and_init_assy
+        # - extrude_reload
+        assert mode in ('$STARTUP_MODE', '$DEFAULT_MODE')
+        self.start_using_mode( mode)
+        return
+    
     def start_using_mode(self, mode, resuming = False, has_its_own_gui = True):
         """
         Semi-internal method (meant to be called only from self
@@ -341,6 +355,14 @@ class modeMixin(object):
         @param resuming: see _enterMode method. ###TODO: describe it here,
                          and fix rest of docstring re this.
         """
+        # as of 080812, this is called from:
+        # - start_using_initial_mode
+        # - at end of userEnterCommand, in case of bug
+        # - basicCommand._exitMode (called from Done & Cancel)
+        # Note that it is also called indirectly by userEnterCommand entering
+        # its new mode normally, via basicCommand._f_userEnterCommand and Done.
+        # It is probably the only way to start using a new current command
+        # (aside from nullmode). [### verify]
         if _DEBUG_CSEQ_INIT:
             print "_DEBUG_CSEQ_INIT: start_using_mode", mode ###
         assert not USE_COMMAND_STACK # other case nim #### IMPLEM, or FIX CALLS (DECIDE)

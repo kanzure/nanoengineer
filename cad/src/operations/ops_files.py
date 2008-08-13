@@ -1989,8 +1989,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 
     def _make_and_init_assy(self, initial_mode_symbol = None):
         """
-        [private; as of 080812, called only from fileOpen and fileClose,
-         in both cases immediately followed by start_using_mode]
+        [private; as of 080812, called only from fileOpen and fileClose]
 
         Close current self.assy, make a new assy and reinit commandsequencer
         for it (in glpane.setAssy), tell new assy about our model tree and
@@ -2036,7 +2035,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         if initial_mode_symbol:
             #bruce 080812 pulled this code in from just after both calls
-            self.commandSequencer.start_using_mode( initial_mode_symbol)
+            self.commandSequencer.start_using_initial_mode( initial_mode_symbol)
         
         return
 

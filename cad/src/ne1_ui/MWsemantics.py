@@ -296,14 +296,8 @@ class MWsemantics(QMainWindow,
             # [I guess that comment is by Will... for now, this code doesn't do those things
             #  more than once, it appears. [bruce 070503 comment]]
             MWsemantics._init_part_two(self)
-
-        ## pw.glpane.start_using_mode('$STARTUP_MODE')
-            ### TODO: this should be the commandSequencer --
-            # decide whether to just get it from win (self) here
-            # (e.g. if we abandon separate Ui_PartWindow class)
-            # or make pw.commandSequencer work.
-            # For now just get it from self. [bruce 071012]
-        self.commandSequencer.start_using_mode('$STARTUP_MODE')
+        
+        self.commandSequencer.start_using_initial_mode('$STARTUP_MODE')
 
         env.register_post_event_ui_updater( self.post_event_ui_updater) #bruce 070925
         #Urmi 20080716: initiliaze the Rosetta simulation parameters

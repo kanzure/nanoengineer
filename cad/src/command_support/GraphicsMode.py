@@ -100,7 +100,7 @@ class nullGraphicsMode(GraphicsMode_API):
 
     def Draw(self):
         # Note: this does happen... maybe due to how soon we call
-        # .start_using_mode( '$DEFAULT_MODE')".
+        # .start_using_mode( '$DEFAULT_MODE')" (or start_using_initial_mode?).
         # If so, it's ok that it happens and good
         # that we make it a noop. [bruce 040924]
         pass
