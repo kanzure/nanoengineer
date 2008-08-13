@@ -1,10 +1,25 @@
 
- Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+ Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 
  # $Id$
  
 This describes how to use various tools to manage import statements
 and to detect and analyze dependency loops created by those imports.
+
+
+Summary of steps for a routine check:
+
+
+For routine, incremental checks of the import cycle graph,
+it's sufficient to run the following two commands in /bin/sh,
+which are elaborated on below:
+
+ $ tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles > depend.dot
+ $ tools/splitDependDot.py > anotheroutputfile
+
+
+Full explanation, and steps for more complete checks:
+
 
 The first step is to make sure that all the necessary import
 statements are in the code, and that they point to the right
