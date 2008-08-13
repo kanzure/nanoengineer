@@ -183,7 +183,7 @@ TransientDoneBig_Pressed.png""".split()
 
 # ==
 
-class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
+class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make_confcorner_instance
     """
     ###doc
     """
@@ -546,11 +546,12 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
 
 # ==
 
-def find_or_make(cctype, graphicsMode):
+def find_or_make_confcorner_instance(cctype, graphicsMode):
     """
     Return a confirmation corner instance for graphicsMode, of the given cctype.
-    [Public; called from basicMode.draw_overlay]
+    [Public; called from basicGraphicsMode.draw_overlay]
     """
+    #bruce 080812 renamed this from 'find_or_make'
     command = graphicsMode.command #bruce 071015 to fix bug 2565
         # This means we cache this on the Command, not on the GraphicsMode.
         # I'm not sure that's best, though since the whole thing seems to assume

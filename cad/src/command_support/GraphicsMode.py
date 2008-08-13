@@ -257,13 +257,13 @@ class basicGraphicsMode(GraphicsMode_API):
         # figure out what kind of confirmation corner we want, and draw it
         import graphics.behaviors.confirmation_corner as confirmation_corner
         cctype = self.command.want_confirmation_corner_type()
-        self._ccinstance = confirmation_corner.find_or_make(cctype, self)
+        self._ccinstance = confirmation_corner.find_or_make_confcorner_instance(cctype, self)
             # Notes:
             # - we might use an instance cached in self (in an attr private to that helper function);
             # - this might be as specific as both args passed above, or as shared as one instance
             #   for the entire app -- that's up to it;
             # - if one instance is shared for multiple cctypes, it might store the cctype passed above
-            #   as a side effect of find_or_make;
+            #   as a side effect of find_or_make_confcorner_instance;
             # - self._ccinstance might be None.
         if self._ccinstance is not None:
             # it's an instance we want to draw, and to keep around for mouse event handling
