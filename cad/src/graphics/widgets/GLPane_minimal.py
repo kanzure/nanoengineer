@@ -26,7 +26,7 @@ from utilities.prefs_constants import startup_GLPane_scale_prefs_key
 
 from utilities.constants import default_display_mode
 
-from utilities.debug_prefs import Choice
+from utilities.debug_prefs import Choice, Choice_boolean_False
 from utilities.debug_prefs import debug_pref
 
 from utilities.debug import print_compact_traceback
@@ -99,6 +99,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
     permit_draw_bond_letters = True #bruce 071023
 
+    useMultisample = debug_pref("GLPane: full scene anti-aliasing (next session)?", 
+                                Choice_boolean_False, prefs_key = True)
+        
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
         If shareWidget is specified, useStencilBuffer is ignored: set it in the widget you're sharing with.
@@ -119,6 +122,11 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
                     # (needed for mouseover-highlighting of objects of general
                     #  shape in depositMode.bareMotion) [bruce 050610]
 
+            if (self.useMultisample):
+                glformat.setSampleBuffers(True)
+                # use full scene anti-aliasing on hardware that supports 
+                # this feature
+                
             QGLWidget.__init__(self, glformat, parent)
 
         # Current view attributes (sometimes saved in or loaded from
@@ -143,6 +151,11 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         # piotr 080714: Defined this attribute here in case
         # chunk.py accesses it in ThumbView. 
         self.lastNonReducedDisplayMode = default_display_mode
+        
+        # piotr 080807
+        # Most recent quaternion to be used in animation timer.
+        self.last_quat = None
+        
         return
 
     def _setup_display_lists(self): # bruce 071030
