@@ -480,12 +480,12 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.originalDisplayStyle = self.o.getGlobalDisplayStyle()
         self.o.setGlobalDisplayStyle(diDNACYLINDER)
 
-        # Update all PM widgets, then establish their signal-slot connections.
-        # note: It is important to update the widgets *first* since doing
-        # it in the reverse order will generate signals when updating
-        # the PM widgets (via updateDnaDisplayStyleWidgets()), causing
-        # unneccessary repaints of the model view.
-        self.updateDnaDisplayStyleWidgets()
+        # Update all PM widgets, .
+        # note: It is important to update the widgets by blocking the 
+        # 'signals'. If done in the reverse order, it will generate signals 
+        #when updating the PM widgets (via updateDnaDisplayStyleWidgets()), 
+        #causing unneccessary repaints of the model view.
+        self.updateDnaDisplayStyleWidgets(blockSignals = True)
         self.connect_or_disconnect_signals(isConnect = True)
 
     def close(self):
@@ -831,39 +831,77 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                         widgetColumn = 1
                         )
 
-    def updateDnaDisplayStyleWidgets( self ):
+    def updateDnaDisplayStyleWidgets( self , blockSignals = False):
         """
         Updates all the DNA Display style widgets based on the current pref keys
         values.
+        
+        @param blockSignals: If its set to True, the set* methods of the 
+                             the widgets (currently only PM_ Spinboxes and 
+                             ComboBoxes) won't emit a signal.
+        @type blockSignals: bool 
+        
+        @see: self.show() where this method is called. 
+        @see: PM_Spinbox.setValue() 
+        @see: PM_ComboBox.setCurrentIndex()
 
         @note: This should be called each time the PM is displayed (see show()).
         """
-        self.dnaRenditionComboBox.setCurrentIndex(env.prefs[dnaRendition_prefs_key])
+        
+        self.dnaRenditionComboBox.setCurrentIndex(
+            env.prefs[dnaRendition_prefs_key], 
+            blockSignals = blockSignals )
 
-        self.axisShapeComboBox.setCurrentIndex(env.prefs[dnaStyleAxisShape_prefs_key])
-        self.axisScaleDoubleSpinBox.setValue(env.prefs[dnaStyleAxisScale_prefs_key])
-        self.axisColorComboBox.setCurrentIndex(env.prefs[dnaStyleAxisColor_prefs_key])
-        self.axisEndingStyleComboBox.setCurrentIndex(env.prefs[dnaStyleAxisEndingStyle_prefs_key])
+        self.axisShapeComboBox.setCurrentIndex(
+            env.prefs[dnaStyleAxisShape_prefs_key], blockSignals = blockSignals)
+        
+        self.axisScaleDoubleSpinBox.setValue(
+            env.prefs[dnaStyleAxisScale_prefs_key], blockSignals = blockSignals)
+        
+        self.axisColorComboBox.setCurrentIndex(
+            env.prefs[dnaStyleAxisColor_prefs_key], blockSignals = blockSignals)
+        
+        self.axisEndingStyleComboBox.setCurrentIndex(
+            env.prefs[dnaStyleAxisEndingStyle_prefs_key], blockSignals = blockSignals)
 
-        self.strandsShapeComboBox.setCurrentIndex(env.prefs[dnaStyleStrandsShape_prefs_key])
-        self.strandsScaleDoubleSpinBox.setValue(env.prefs[dnaStyleStrandsScale_prefs_key])
-        self.strandsColorComboBox.setCurrentIndex(env.prefs[dnaStyleStrandsColor_prefs_key])
-        self.strandsArrowsComboBox.setCurrentIndex(env.prefs[dnaStyleStrandsArrows_prefs_key])
+        self.strandsShapeComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrandsShape_prefs_key], blockSignals = blockSignals)
+        
+        self.strandsScaleDoubleSpinBox.setValue(
+            env.prefs[dnaStyleStrandsScale_prefs_key], blockSignals = blockSignals)
+        
+        self.strandsColorComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrandsColor_prefs_key], blockSignals = blockSignals)
+        
+        self.strandsArrowsComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrandsArrows_prefs_key], blockSignals = blockSignals)
+        
 
-        self.strutsShapeComboBox.setCurrentIndex(env.prefs[dnaStyleStrutsShape_prefs_key])
-        self.strutsScaleDoubleSpinBox.setValue(env.prefs[dnaStyleStrutsScale_prefs_key])
-        self.strutsColorComboBox.setCurrentIndex(env.prefs[dnaStyleStrutsColor_prefs_key])
+        self.strutsShapeComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrutsShape_prefs_key], blockSignals = blockSignals)
+        
+        self.strutsScaleDoubleSpinBox.setValue(
+            env.prefs[dnaStyleStrutsScale_prefs_key], blockSignals = blockSignals)
+        
+        self.strutsColorComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrutsColor_prefs_key], blockSignals = blockSignals)
 
-        self.nucleotidesShapeComboBox.setCurrentIndex(env.prefs[dnaStyleBasesShape_prefs_key])
-        self.nucleotidesScaleDoubleSpinBox.setValue(env.prefs[dnaStyleBasesScale_prefs_key])
-        self.nucleotidesColorComboBox.setCurrentIndex(env.prefs[dnaStyleBasesColor_prefs_key])
+        self.nucleotidesShapeComboBox.setCurrentIndex(
+            env.prefs[dnaStyleBasesShape_prefs_key], blockSignals = blockSignals)
+        
+        self.nucleotidesScaleDoubleSpinBox.setValue(
+            env.prefs[dnaStyleBasesScale_prefs_key], blockSignals = blockSignals)
+        
+        self.nucleotidesColorComboBox.setCurrentIndex(
+            env.prefs[dnaStyleBasesColor_prefs_key], blockSignals = blockSignals)
 
         # DNA Strand label combobox.
         if env.prefs[dnaStrandLabelsEnabled_prefs_key]:
             _dnaStrandColorItem = env.prefs[dnaStrandLabelsColorMode_prefs_key] + 1
         else:
             _dnaStrandColorItem = 0
-        self.standLabelColorComboBox.setCurrentIndex(_dnaStrandColorItem)
+        self.standLabelColorComboBox.setCurrentIndex(
+            _dnaStrandColorItem, blockSignals = blockSignals)
 
     def change_dnaStrandLabelsDisplay(self, mode):
         """

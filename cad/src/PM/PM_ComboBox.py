@@ -206,5 +206,30 @@ class PM_ComboBox( QComboBox ):
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()
+            
+            
+    def setCurrentIndex(self, val, blockSignals = False):
+        """
+        Overrides the superclass method. 
+        
+        @param blockSignals: Many times, the caller just wants to setCurrentIndex 
+                             and don't want to send valueChanged signal. 
+                             If this flag is set to True, the currentIdexChanged
+                             signal won't be emitted.  The default value is 
+                             False.
+        @type  blockSignals: bool 
+        
+        @see: DnaDisplayStyle_PropertyManager.updateDnaDisplayStyleWidgets()
+        """
+        #If blockSignals flag is True, the valueChanged signal won't be emitted 
+        #This is done by self.blockSignals method below.  -- Ninad 2008-08-13
+        self.blockSignals(blockSignals)
+        
+        QComboBox.setCurrentIndex(self, val)
+        
+        #Make sure to always 'unblock' signals that might have been temporarily
+        #blocked before calling superclass.setValue. 
+        self.blockSignals(False)
+        
 
 # End of PM_ComboBox ############################
