@@ -17,14 +17,29 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 
-from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.CS_draw_primitives import drawline, drawsphere
 from graphics.drawing.drawers import drawPoint
 from graphics.drawing.drawers import drawCircle
 
+
 from geometry.VQT import norm, vlen, V, cross
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
+from utilities.constants import blue, gray
 
 from protein.commands.BuildPeptide.PeptideGenerator import get_unit_length
+
+def drawPeptideTrace_new(mol):
+    last_pos = None
+    
+    atomitems = mol.atoms.items()
+    atomitems.sort() 
+    atlist = [atom for (key, atom) in atomitems] 
+    
+    for atom in atlist:
+        drawsphere(blue, atom.posn(), 0.2, 1)
+        if last_pos:
+            drawline(gray, last_pos, atom.posn(), width=2)
+        last_pos = atom.posn()
 
 def drawPeptideTrace(endCenter1,  
                      endCenter2,

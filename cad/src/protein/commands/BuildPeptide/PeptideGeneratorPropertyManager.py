@@ -49,6 +49,8 @@ from utilities.debug import print_compact_traceback
 from utilities.Log import orangemsg, greenmsg, redmsg
 import foundation.env as env
 
+from protein.model.Protein import SS_HELIX, SS_COIL, SS_STRAND
+
 # list of button descriptors for PM_ToolButtonGrid
 
 AA_BUTTON_LIST = [
@@ -103,7 +105,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         self.phi = -57.0
         self.psi = -47.0
         self.chirality = 1
-        self.ss_idx = 1
+        self.secondary = SS_COIL
         self.current_amino_acid = 0
         #self.peptide_cache = []
         #self.peptide_cache.append((0, 0, 0))
@@ -130,7 +132,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         """
         #return (self.a1, self.a2, self.a3, self.a4, self.a5, self.a6)
     
-        return (self.ss_idx, self.phi, self.psi, self.current_amino_acid)
+        return (self.secondary, self.phi, self.psi, self.current_amino_acid)
 
     def _addGroupBoxes(self):
         """
@@ -282,25 +284,32 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         if idx == 1: # alpha helix
             self.phi = -57.0
             self.psi = -47.0
+            self.secondary = SS_HELIX
         elif idx == 2: # beta strand
             self.phi = -135.0
             self.psi = 135.0
+            self.secondary = SS_STRAND
         elif idx == 3: # 3-10 helix
             self.phi = -55.0
             self.psi = -70.0
+            self.secondary = SS_HELIX
         elif idx == 4: # pi helix
             self.phi = -49.0
             self.psi = -26.0
+            self.secondary = SS_HELIX
         elif idx == 5: # polyprolin-II
             self.phi = -75.0
             self.psi = 150.0
+            self.secondary = SS_HELIX
         elif idx == 6: # fully extended
             self.phi = -180.0
             self.psi = 180.0
+            self.secondary = SS_STRAND
         else:
             self.phi = self.phiAngleField.value()
             self.psi = self.psiAngleField.value()
-
+            self.secondary = SS_COIL
+            
         self.phi *= self.chirality
         self.psi *= self.chirality
 

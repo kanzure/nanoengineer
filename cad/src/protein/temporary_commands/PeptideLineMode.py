@@ -11,11 +11,11 @@
 
 from temporary_commands.LineMode import LineMode
 
-from graphics.drawing.drawPeptideTrace import drawPeptideTrace
+from graphics.drawing.drawPeptideTrace import drawPeptideTrace, drawPeptideTrace_new
 
 from utilities.constants import gray, black, darkred, blue, white
 
-from protein.commands.BuildPeptide.PeptideGenerator import get_unit_length
+from protein.commands.BuildPeptide.PeptideGenerator import PeptideGenerator, get_unit_length
 
 # == GraphicsMode part
 
@@ -32,7 +32,9 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
     endPoint1_sphereOpacity = 1.0
     
     text = ''
-    
+
+    structGenerator = PeptideGenerator()
+
     def __init__(self, command):
         """
         """
@@ -79,6 +81,20 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
             #placeholder for now. May be Piotr can implement a better representation
             #for drawing protein secondary structure
             # Draw the ladder. 
+            
+            #print "command = ", self.command
+            #print "phi = ", self.command.phi
+            
+            mol = self.structGenerator.make_aligned(self.win.assy, "", 0, 
+                                                    self.command.phi, 
+                                                    self.command.phi, 
+                                                    self.endPoint1, 
+                                                    self.endPoint2, 
+                                                    fake_chain=True)
+            
+            drawPeptideTrace_new(mol)
+            
+            """
             drawPeptideTrace(self.endPoint1,
                           self.endPoint2, 
                           135,
@@ -87,4 +103,5 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
                           self.glpane.lineOfSight,
                           beamThickness = 4.0 
                           ) 
+            """
 

@@ -87,6 +87,9 @@ class Peptide_EditCommand(EditCommand):
             self._init_gui_flyout_action( 'buildPeptideAction', 'MODEL_AND_SIMULATE_PROTEIN' ) 
         else:
             self._init_gui_flyout_action( 'buildPeptideAction')
+            
+        ss_idx, self.phi, self.psi, aa_type = self._gatherParameters()
+
     
 
     def restore_gui(self):
@@ -154,8 +157,7 @@ class Peptide_EditCommand(EditCommand):
                 #  made with)
             name = self.name
             
-            
-        ss_idx, phi, psi, aa_type = self._gatherParameters()
+        self.secondary, self.phi, self.psi, aa_type = self._gatherParameters()
         
         #
         self.win.assy.part.ensure_toplevel_group()
@@ -168,11 +170,18 @@ class Peptide_EditCommand(EditCommand):
         from geometry.VQT import V
         pos1 = V(self.mouseClickPoints[0][0], self.mouseClickPoints[0][1], self.mouseClickPoints[0][2])
         pos2 = V(self.mouseClickPoints[1][0], self.mouseClickPoints[1][1], self.mouseClickPoints[1][2])
-        struct = self.structGenerator.make_aligned(self.win.assy, name, aa_type, phi, psi, pos1, pos2)
+        struct = self.structGenerator.make_aligned(self.win.assy, 
+                                                   name, 
+                                                   aa_type, 
+                                                   self.phi, 
+                                                   self.psi, 
+                                                   pos1, 
+                                                   pos2, 
+                                                   fake_chain=False, 
+                                                   secondary=self.secondary)
         self.win.assy.part.topnode.addmember(struct)
         self.win.win_update()
         return struct
-        
     
     def _modifyStructure(self, params):
         """
@@ -236,6 +245,7 @@ class Peptide_EditCommand(EditCommand):
         self.win.assy.part.ensure_toplevel_group()
         self.propMgr.endPoint1 = self.mouseClickPoints[0]
         self.propMgr.endPoint2 = self.mouseClickPoints[1]
+        
         #ntLength = vlen(self.mouseClickPoints[0] - self.mouseClickPoints[1])
 
         self.preview_or_finalize_structure(previewing = True)
@@ -361,6 +371,8 @@ class Peptide_EditCommand(EditCommand):
         Returns a string that gives the length of the Nanotube for the cursor 
         text
         """
+        self.secondary, self.phi, self.psi, aa_type = self._gatherParameters()
+
         peptideLengthString = ''
         
         lengthUnitString = 'AA'
