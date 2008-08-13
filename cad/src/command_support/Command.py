@@ -723,12 +723,12 @@ class basicCommand(baseCommand, anyCommand):
                 ## pass
                 print "debug note: _KLUGE_current_PM returns %r, but %r.propMgr is %r" % \
                       (res, self, self.propMgr) ### if happens, fix; if not, clean up all calls
-                assert 0, "failure in _KLUGE_current_PM, see console prints"
-                    #bruce 080812 (temporary) -- make this un-missable by
-                    # developers, for next few days -- also added 'raise' below
+##                assert 0, "failure in _KLUGE_current_PM, see console prints"
+##                    #bruce 080812 (temporary) -- make this un-missable by
+##                    # developers, for next few days -- also added 'raise' below
             return res
         except:
-            raise #bruce 080812 (temporary) -- goes with above assert 0
+##            raise #bruce 080812 (temporary) -- goes with above assert 0
             # I don't know if this can happen
             msg = "ignoring exception in %r.KLUGE_current_PropertyManager()" % (pw,)
             print_compact_traceback(msg + ": ")
