@@ -438,7 +438,7 @@ class baseCommand(object):
         Update UI elements owned by or displayed by this command
         (e.g. self.propMgr and/or self's flyout toolbar) (preferably by
         calling update_UI methods in those UI elements, rather than by
-        hardcoding the update alforithms, since the UI elements themselves
+        hardcoding the update algorithms, since the UI elements themselves
         may be owned by parent commands rather than self).
 
         Self is always the current command.
