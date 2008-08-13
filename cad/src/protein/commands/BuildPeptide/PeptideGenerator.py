@@ -918,7 +918,8 @@ class PeptideGenerator:
                                                  name.replace(' ',''), 
                                                  idx, 
                                                  symbol)
-                        aa.set_secondary_structure(secondary)
+                        if aa:
+                            aa.set_secondary_structure(secondary)
                         
                     # Create temporary attributes for proper bond assignment.
                     atom._is_aromatic = False

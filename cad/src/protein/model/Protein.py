@@ -781,13 +781,14 @@ class Protein:
         
     def add_pdb_atom(self, atom, pdbname, resId, resName):
         """
-        Adds a new atom to the protein.
+        Adds a new atom to the protein. Returns a residue that the atom
+        has been added to.
         """
         if self.sequence.has_key(resId):
             # Find an existing residuum.
             aa = self.sequence[resId]
         else:
-            # This is a new residuum.
+            # This is a new residue.
             aa = Residuum(resId, resName)
             self.sequence[resId] = aa
            
@@ -796,6 +797,8 @@ class Protein:
         if pdbname == "CA":
             self.ca_atom_list.append(atom)
 
+        return aa
+    
     def is_c_alpha(self, atom):
         """
         Check if this is a C-alpha atom.
