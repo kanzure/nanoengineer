@@ -117,7 +117,7 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
     """
     "What's This" text for the Build DNA Command Toolbar
     """
-    commandToolbar.exitDnaAction.setWhatsThis(
+    commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit DNA</b>
         <p>
         Exits <b>Build DNA</b>.
@@ -195,7 +195,7 @@ def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
     """
     "What's This" text for widgets in the Build Nanotube Command Toolbar.
     """
-    commandToolbar.exitNanotubeAction.setWhatsThis(
+    commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Nanotube</b>
         <p>
         Exits <b>Build Nanotube</b>.

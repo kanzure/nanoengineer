@@ -77,25 +77,23 @@ class BuildNanotube_EditCommand(EditCommand):
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
 
-
-    def init_gui(self):
+        
+    def command_enter_flyout(self):
         """
-        Do changes to the GUI while entering this command. This includes opening 
-        the property manager, updating the command toolbar , connecting widget 
-        slots (if any) etc. Note: The slot connection in property manager and 
-        command toolbar is handled in those classes. 
-
-        Called once each time the command is entered; should be called only 
-        by code in modes.py
-
-        @see: L{self.restore_gui}
+        Overrides superclass method
         """
-        EditCommand.init_gui(self)    
-
         if self.flyoutToolbar is None:
-            self.flyoutToolbar = NanotubeFlyout(self.win, self.propMgr)
+            self.flyoutToolbar = NanotubeFlyout(self)
 
         self.flyoutToolbar.activateFlyoutToolbar()
+        
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method.
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.deActivateFlyoutToolbar()
+        
 
     def resume_gui(self):
         """
@@ -127,17 +125,7 @@ class BuildNanotube_EditCommand(EditCommand):
             self.flyoutToolbar.resetStateOfActions()
 
 
-    def restore_gui(self):
-        """
-        Do changes to the GUI while exiting this command. This includes closing 
-        this mode's property manager, updating the command toolbar ,
-        Note: The slot connection/disconnection in property manager and 
-        command toolbar is handled in those classes.
-        @see: L{self.init_gui}
-        """
-        EditCommand.restore_gui(self)
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
+    
 
     def runCommand(self):
         """

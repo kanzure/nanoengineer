@@ -23,48 +23,28 @@ from utilities.icon_utilities import geticon
 from utilities.Log import greenmsg
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
-_theNanotubeFlyout = None
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
-#NOTE: global methods setupUi, activateNanotubeFlyout are not called as of 2007-12-19
-#Use methods like NanotubeFlyout.activateFlyoutToolbar instead. 
-#Command toolbar needs to be integrated with the commandSequencer. 
-#See InsertNanotubeLine_EditCommand.init_gui for an example. (still experimental)
+from ne1_ui.toolbars.Ui_AbstractFlyout import Ui_AbstractFlyout
 
-def setupUi(mainWindow):
-    """
-    Construct the QWidgetActions for the Cnt flyout on the 
-    Command Manager toolbar.
-    """
-    global _theNanotubeFlyout
 
-    _theNanotubeFlyout = NanotubeFlyout(mainWindow)
+_superclass = Ui_AbstractFlyout
+class NanotubeFlyout(Ui_AbstractFlyout):    
     
-# probably needs a retranslateUi to add tooltips too...
-
-def activateNanotubeFlyout(mainWindow):
-    mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildNanotubeAction, 
-                                                   _theNanotubeFlyout)
-
-class NanotubeFlyout:    
-    def __init__(self, mainWindow, parentWidget):
+    def _action_in_controlArea_to_show_this_flyout(self):
         """
-        Create necessary flyout action list and update the flyout toolbar in
-        the command toolbar with the actions provided by the object of this
-        class.
-        
-        @param mainWindow: The mainWindow object
-        @type  mainWindow: B{MWsemantics} 
-        
-        @param parentWidget: The parentWidget to which actions defined by this 
-                             object belong to. This needs to be revised.
-                             
+        Required action in the 'Control Area' as a reference for this 
+        flyout toolbar. See superclass method for documentation and todo note.
         """
-        self.parentWidget = parentWidget
-        self.win = mainWindow
-        self._isActive = False
-        self._createActions(self.parentWidget)
-        self._addWhatsThisText()
-        self._addToolTipText()
+        return self.win.buildNanotubeAction
+    
+    def _getExitActionText(self):
+        """
+        Overrides superclass method. 
+        @see: self._createActions()
+        """
+        return "Exit NT"
+    
     
     def getFlyoutActionList(self):
         """
@@ -84,7 +64,7 @@ class NanotubeFlyout:
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
-        subControlAreaActionList.append(self.exitNanotubeAction)
+        subControlAreaActionList.append(self.exitModeAction)
         separator = QtGui.QAction(self.parentWidget)
         separator.setSeparator(True)
         subControlAreaActionList.append(separator) 
@@ -104,12 +84,8 @@ class NanotubeFlyout:
         return params
 
     def _createActions(self, parentWidget):
-        self.exitNanotubeAction = NE1_QWidgetAction(parentWidget, 
-                                                      win = self.win)
-        self.exitNanotubeAction.setText("Exit NT")
-        self.exitNanotubeAction.setIcon(
-            geticon("ui/actions/Toolbars/Smart/Exit.png"))
-        self.exitNanotubeAction.setCheckable(True)
+        
+        _superclass._createActions(self, parentWidget)
         
         self.insertNanotubeAction = NE1_QWidgetAction(parentWidget,
                                                         win = self.win)
@@ -149,15 +125,15 @@ class NanotubeFlyout:
         else:
             change_connect = self.win.disconnect 
             
-        change_connect(self.exitNanotubeAction, 
-                       SIGNAL("triggered(bool)"),
-                       self.activateExitCnt)
+        _superclass.connect_or_disconnect_signals(self, isConnect)
         
         change_connect(self.insertNanotubeAction, 
                              SIGNAL("triggered(bool)"),
                              self.activateInsertNanotubeLine_EditCommand)
     
-    def activateFlyoutToolbar(self):
+    def ORIGINAL_activateFlyoutToolbar(self):#Unused as of 2008-08-13 (and onwards)
+        #This method can be removed in the near future. Testing has not discovered
+        #any new bugs after Ui_DnaFlyout was inherited from Ui_AbstractFlyout
         """
         Updates the flyout toolbar with the actions this class provides. 
         """    
@@ -182,22 +158,7 @@ class NanotubeFlyout:
         self.exitNanotubeAction.setChecked(True)
         self.connect_or_disconnect_signals(True)
     
-    def deActivateFlyoutToolbar(self):
-        """
-        Updates the flyout toolbar with the actions this class provides.
-        """
-        if not self._isActive:
-            return 
         
-        self._isActive = False
-        
-        self.resetStateOfActions()
-            
-        self.connect_or_disconnect_signals(False)    
-        self.win.commandToolbar.updateCommandToolbar(self.win.buildNanotubeAction,
-                                                     self,
-                                                     entering = False)
-    
     def resetStateOfActions(self):
         """
         Resets the state of actions in the flyout toolbar.
@@ -212,16 +173,6 @@ class NanotubeFlyout:
             if action.isChecked():
                 action.setChecked(False)
         
-        
-    def activateExitCnt(self, isChecked):
-        """
-        Slot for B{Exit DNA} action.
-        """     
-        #@TODO: This needs to be revised. 
-        
-        if hasattr(self.parentWidget, 'ok_btn_clicked'):
-            if not isChecked:
-                self.parentWidget.ok_btn_clicked()
         
     def activateInsertNanotubeLine_EditCommand(self, isChecked):
         """

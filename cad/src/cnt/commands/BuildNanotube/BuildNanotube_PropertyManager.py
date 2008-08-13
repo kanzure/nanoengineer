@@ -141,7 +141,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #command/command sequencer (Done and other methods._)-- Ninad 2008-01-09
         if hasattr(self.command, 'flyoutToolbar') and \
            self.command.flyoutToolbar:            
-            self.command.flyoutToolbar.exitNanotubeAction.setEnabled(not bool_enable)
+            self.command.flyoutToolbar.exitModeAction.setEnabled(not bool_enable)
         
     def model_changed(self):
         """       

@@ -84,7 +84,7 @@ class BuildDna_EditCommand(EditCommand):
         @see: EditCommand.command_enter_flyout()
         """
         if self.flyoutToolbar is None:
-            self.flyoutToolbar = DnaFlyout(self.win, self.propMgr)
+            self.flyoutToolbar = DnaFlyout(self)
 
         self.flyoutToolbar.activateFlyoutToolbar()
                 

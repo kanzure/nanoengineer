@@ -22,6 +22,8 @@ from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
 
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 class Ui_AbstractFlyout(object):
     
     def __init__(self, command):
@@ -35,6 +37,11 @@ class Ui_AbstractFlyout(object):
         self.win =self.command.win                       
         self._isActive = False
         self._createActions(self.parentWidget)
+        self._addWhatsThisText()
+        self._addToolTipText()
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
         
     def _action_in_controlArea_to_show_this_flyout(self):
         """
@@ -110,7 +117,8 @@ class Ui_AbstractFlyout(object):
         
         self.exitModeAction.setChecked(True)
         
-        self.connect_or_disconnect_signals(True)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
                     
     
     def deActivateFlyoutToolbar(self):
@@ -121,8 +129,10 @@ class Ui_AbstractFlyout(object):
             return 
         
         self._isActive = False
-                            
-        self.connect_or_disconnect_signals(False)    
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)   
+            
         self.updateCommandToolbar(bool_entering = False)
             
     def updateCommandToolbar(self, bool_entering = True):
@@ -136,4 +146,19 @@ class Ui_AbstractFlyout(object):
             entering = bool_entering)
         
         return
+    
+    def _addWhatsThisText(self):
+        """
+        Add 'What's This' help text for all actions on toolbar. 
+        Default implementation does nothing. Should be overridden in subclasses
+        """
+        pass
+    
+    def _addToolTipText(self):
+        """
+        Add 'Tool tip' help text for all actions on toolbar. 
+        Default implementation does nothing. Should be overridden in subclasses
+        """
+        pass
+        
 
