@@ -1055,21 +1055,27 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     def setAssy(self, assy): #bruce 050911 revised this
         """
-        [bruce comment 040922] This is called from self.__init__,
-        and from MWSemantics.__clear when user asks to open a new
-        file, etc.  Apparently, it is supposed to forget whatever is
-        happening now, and reinitialize the entire GLPane.  However,
-        it does nothing to cleanly leave the current mode, if any; my
-        initial guess [040922 1035am] is that that's a bug.  (As of
-        040922 I didn't yet try to fix that... only to emit a warning
-        when it happens. Any fix requires modifying our callers.)  I
-        also wonder if setAssy ought to do some of the other things
+        [bruce comment 040922, partly updated 080812]
+        This is called from self.__init__, and from MWSemantics.__clear
+        when user asks to open a new file or close current file.
+
+        Apparently, it is supposed to forget whatever is happening now,
+        and reinitialize the entire GLPane. However, it does nothing to
+        cleanly leave the current mode, if any; my initial guess [040922]
+        is that that's a bug. (As of 040922 I didn't yet try to fix that...
+        only to emit a warning when it happens. Any fix requires modifying
+        our callers.)
+
+        I also wonder if setAssy ought to do some of the other things
         now in __init__, e.g. setting some display prefs to their
-        defaults.  Yet another bug (in how it's called now): user is
-        evidently not given any chance to save unsaved changes, or get
-        back to current state if the openfile fails... tho I'm not
-        sure I'm right about that, since I didn't test it.
-           Revised 050911: leaves mode as nullmode.
+        defaults.
+
+        Yet another bug (in how it's called now): user is evidently not given
+        any chance to save unsaved changes, or get back to current state if the
+        openfile fails... tho I'm not sure I'm right about that, since I didn't
+        test it.
+
+        Revised 050911: leaves mode as nullmode.
         """
         if self.assy:
             # make sure the old assy (if any) was closed [bruce 080314]
@@ -1078,34 +1084,28 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # Accordingly, we only complain, we don't close it.
             # Callers should close it before calling this method.
             if not self.assy.assy_closed:
-                print "\nlikely bug: GLPane %r .setAssy(%r) but old assy %r was not closed" % \
-                      (self, assy, self.assy)
+                print "\nlikely bug: GLPane %r .setAssy(%r) but old assy %r " \
+                      "was not closed" % (self, assy, self.assy)
             ##e should previous self.assy be destroyed, or at least
             # made to no longer point to self? [bruce 051227 question]
             pass
         self.assy = assy
         mainpart = assy.tree.part
-        assert mainpart
-            # This assert was added by bruce 050418, in a try/except which tried to patch things up if it failed.
-            # No one has reported it ever failing, so hopefully it never does, but it depends on the order
-            # in which global objects (glpane, assy) are set up during startup or when opening a new file,
-            # so it might happen someday. It turns out the patchup code was wrong (or became wrong later),
-            # as noticed by PyChecker (the Part args are wrong), so I removed it [bruce 070621].
-            # If we ever need it back, this is what it was (below);
-            # it looks like it could be replaced by just initializing our viewpoint to default;
-            # it was meant to run instead of the set_part after it (but that is probably safe with mainpart of None, anyway):
-            ##if debug_flags.atom_debug:
-            ##    print "atom_debug: no mainpart yet in setAssy (ok during init); using a fake one"
-            ##mainpart = Part(self) # use this just for its lastView
-            ##self._setInitialViewFromPart( mainpart)        
+        assert mainpart #bruce 050418; depends on the order in which
+            # global objects (glpane, assy) are set up during startup
+            # or when opening a new file, so it might fail someday.
+            # It might not be needed if set_part (below) doesn't mind
+            # a mainpart of None and/or if we initialize our viewpoint
+            # to default, according to an older version of this comment.
+            # [comment revised, bruce 080812]    
 
         assy.set_glpane(self) # sets assy.o and assy.glpane
-            # logically I'd prefer to move this to just after set_part, but right now
-            # I have no time to fully analyze whether set_part might depend on
-            # this having been done, so I won't move it down for now. [bruce 080314]
+            # logically I'd prefer to move this to just after set_part,
+            # but right now I have no time to fully analyze whether set_part
+            # might depend on this having been done, so I won't move it down
+            # for now. [bruce 080314]
 
         self.set_part( mainpart)
-
 
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() # leaves mode as nullmode as of 050911
@@ -1113,7 +1113,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         return # from GLPane.setAssy
 
     # ==
-
 
     def center_and_scale_from_bbox(self, bbox, klugefactor = 1.0):
         #bruce 070919 split this out of some other methods here.
