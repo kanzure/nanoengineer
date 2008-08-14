@@ -416,13 +416,12 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @type  atomCoords: Vector
         """
         self.model_changed_from_glpane = True
-
-        # Disable signals out of these spinboxes, to fix bug 2564 [bruce 071015]
-        ## self.xCoordOfSelectedAtom.setValue_with_signals_blocked(atomCoords[0]) # maybe someday we can just say this?
-        setValue_with_signals_blocked( self.xCoordOfSelectedAtom, atomCoords[0])
-        setValue_with_signals_blocked( self.yCoordOfSelectedAtom, atomCoords[1])
-        setValue_with_signals_blocked( self.zCoordOfSelectedAtom, atomCoords[2])
         
+        #block signals while making setting values in these spinboxes
+        self.xCoordOfSelectedAtom.setValue(atomCoords[0],  blockSignals = True)
+        self.yCoordOfSelectedAtom.setValue(atomCoords[1],  blockSignals = True)
+        self.zCoordOfSelectedAtom.setValue(atomCoords[2],  blockSignals = True)
+
         self.model_changed_from_glpane = False
         return
     
