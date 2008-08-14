@@ -11,6 +11,8 @@ from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from dna.commands.DnaDisplayStyle.DnaDisplayStyle_PropertyManager import DnaDisplayStyle_PropertyManager
 
+from graphics.drawing.drawDnaLabels import draw_dnaBaseNumberLabels
+
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -19,7 +21,13 @@ class DnaDisplayStyle_GraphicsMode( SelectChunks_GraphicsMode ):
     """
     Graphics mode for (DNA) Display Style command. 
     """
-    pass
+    def _drawLabels(self):
+        """
+        Overrides suoerclass method.
+        @see: GraphicsMode._drawLabels()
+        """
+        _superclass_for_GM._drawLabels(self)
+        draw_dnaBaseNumberLabels(self.glpane)
     
 # == Command part
 

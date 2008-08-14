@@ -19,6 +19,7 @@ the tool that allows user to specify a drawing plane.
 from PyQt4.Qt import Qt
 
 from dna.temporary_commands.DnaLineMode import DnaLine_GM
+from graphics.drawing.drawDnaLabels import draw_dnaBaseNumberLabels
 
 _superclass = DnaLine_GM
 class DnaDuplex_GraphicsMode(DnaLine_GM):
@@ -29,6 +30,16 @@ class DnaDuplex_GraphicsMode(DnaLine_GM):
     @see: LineMode_GM.leftDown()
     @see: DnaLine_GM.leftUp()
     """  
+    
+    def _drawLabels(self):
+        """
+        Overrides suoerclass method.
+        @see: GraphicsMode._drawLabels()
+        """
+        _superclass._drawLabels(self)
+        draw_dnaBaseNumberLabels(self.glpane)
+        
+        
     def update_cursor_for_no_MB(self):
         """
         Update the cursor for no mouse button pressed
@@ -54,9 +65,7 @@ class DnaDuplex_GraphicsMode(DnaLine_GM):
                 return            
 
         _superclass.keyPressEvent(self, event)
-        
- 
-        
+                
     def jigLeftUp(self, j, event):
         """
         Overrides superclass method See that method for more details. 
