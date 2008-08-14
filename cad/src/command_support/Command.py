@@ -47,6 +47,7 @@ from foundation.FeatureDescriptor import register_abstract_feature_class
 from foundation.state_utils import StateMixin
 
 from utilities.constants import noop
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
@@ -372,7 +373,8 @@ class basicCommand(baseCommand, anyCommand):
         """
         glpane = commandSequencer.assy.glpane
         assert glpane
-        assert glpane is commandSequencer ### TEMPORARY, only true when GLPANE_IS_COMMAND_SEQUENCER
+        if GLPANE_IS_COMMAND_SEQUENCER:
+            assert glpane is commandSequencer
         
         self.pw = None # pw = part window
             # TODO: remove this, or rename it -- most code uses .win for the same thing
@@ -723,12 +725,12 @@ class basicCommand(baseCommand, anyCommand):
                 ## pass
                 print "debug note: _KLUGE_current_PM returns %r, but %r.propMgr is %r" % \
                       (res, self, self.propMgr) ### if happens, fix; if not, clean up all calls
-                assert 0, "failure in _KLUGE_current_PM, see console prints"
-                    #bruce 080812 (temporary) -- make this un-missable by
-                    # developers, for next few days -- also added 'raise' below
+##                assert 0, "failure in _KLUGE_current_PM, see console prints"
+##                    #bruce 080812 (temporary) -- make this un-missable by
+##                    # developers, for next few days -- also added 'raise' below
             return res
         except:
-            raise #bruce 080812 (temporary) -- goes with above assert 0
+##            raise #bruce 080812 (temporary) -- goes with above assert 0
             # I don't know if this can happen
             msg = "ignoring exception in %r.KLUGE_current_PropertyManager()" % (pw,)
             print_compact_traceback(msg + ": ")
