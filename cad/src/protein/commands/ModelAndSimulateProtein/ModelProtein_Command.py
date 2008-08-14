@@ -18,7 +18,7 @@ class ModelProtein_Command(ModelAndSimulateProtein_Command):
     command_can_be_suspended = False
     command_should_resume_prevMode = True
     #Urmi 20080806: We may want it to have its own PM
-    command_has_its_own_gui = False
+    command_has_its_own_PM = False
     
     currentActiveTool = 'MODEL_PROTEIN'
     from utilities.constants import CL_SUBCOMMAND
