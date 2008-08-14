@@ -255,14 +255,14 @@ def _make_prefs_shelf():
         # By experiment, on the Mac, with bsddb there is no extension added,
         # and without it there is '.db' added. [bruce 050105]
     mkdirs_in_filename(_shelfname)
-    _shelf = shelve.open(_shelfname)
+    _shelf = shelve.open(_shelfname.encode("utf_8"))
     _cache = {}
     _cache.update(_shelf) # will this work?
     was_just_made = (not _cache) #bruce 080505
     if was_just_made:
-        print "made prefs db, basename", _shelfname
+        print u"made prefs db, basename", _shelfname.encode("utf_8")
     else:
-        print "prefs db already existed, basename", _shelfname
+        print u"prefs db already existed, basename", _shelfname.encode("utf_8")
     _defaults = {}
     _trackers = {}
     # zap obsolete contents
@@ -297,12 +297,12 @@ def _make_prefs_shelf():
             filename = os.path.join( nanorex, "Preferences", DEFAULT_PREFS_BASENAME )
             if not os.path.exists(filename):
                 lines = []
-                print "didn't find", filename
+                print u"didn't find", filename.encode("utf_8")
             else:
                 file = open( filename, "rU")
                 lines = file.readlines()
                 file.close()
-                print "reading from", filename
+                print u"reading from", filename.encode("utf_8")
             for line in lines:
                 line0 = line
                 try:
@@ -345,7 +345,7 @@ def _make_prefs_shelf():
         items = default_prefs_values.items()
         items.sort() # just to make the following console prints look nicer
         # now open, store the values, and close
-        _shelf = shelve.open(_shelfname)
+        _shelf = shelve.open(_shelfname.encode("utf_8"))
         for key, val in items:
             pkey = _PREFS_KEY_TO_SHELF_KEY(key)
             _store_while_open( pkey, val)
@@ -365,7 +365,7 @@ def _reopen():
     _ensure_shelf_exists()
     global _shelf
     assert _shelf is None
-    _shelf = shelve.open(_shelfname)
+    _shelf = shelve.open(_shelfname.encode("utf_8"))
     # don't bother to re-update our _cache! This would be too slow to do every time.
     return
 

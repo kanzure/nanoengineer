@@ -45,6 +45,8 @@ def mkdirs_in_filename(filename):
     if not os.path.exists(dir):
         mkdirs_in_filename(dir)
         os.mkdir(dir)
+        if not os.path.exists(dir):
+            print u"Directory not created: ", dir.encode("utf_8")
     return
 
 # == event code
