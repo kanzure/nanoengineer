@@ -51,6 +51,9 @@ from utilities.prefs_constants import proteinStyleHelixColor_prefs_key
 from utilities.prefs_constants import proteinStyleStrandColor_prefs_key
 from utilities.prefs_constants import proteinStyleCoilColor_prefs_key
 
+
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 proteinDisplayStylePrefsList = \
                          [proteinStyle_prefs_key,
                           proteinStyleSmooth_prefs_key,
@@ -286,6 +289,9 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
         msg = "Modify the protein display settings below."
         self.updateMessage(msg)
@@ -531,13 +537,17 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.sequenceEditor.hide()
         PM_Dialog.show(self)
         self.updateProteinDisplayStyleWidgets()
-        self.connect_or_disconnect_signals(isConnect = True)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
 
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        self.connect_or_disconnect_signals(False)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
         PM_Dialog.close(self)
 
     def _addGroupBoxes( self ):

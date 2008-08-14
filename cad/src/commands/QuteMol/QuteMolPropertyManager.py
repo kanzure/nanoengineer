@@ -174,7 +174,7 @@ class QuteMolPropertyManager(PM_Dialog):
         # self.updateDnaDisplayStyleWidgets()
         
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(isConnect = True)
+            self.connect_or_disconnect_signals(True)
 
     def close(self):
         """

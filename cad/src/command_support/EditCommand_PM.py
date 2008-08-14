@@ -88,7 +88,7 @@ class EditCommand_PM(PM_Dialog):
         PM_Dialog.show(self)
         
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(isConnect = True)
+            self.connect_or_disconnect_signals(True)
             
         self.enable_or_disable_gui_actions(bool_enable = False)
         self.updateCommandToolbar(bool_entering = True)

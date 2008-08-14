@@ -42,7 +42,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
         self._supress_textChanged_signal = False
-        self.connect_or_disconnect_signals(isConnect = True)
+        self.connect_or_disconnect_signals(True)
         self.win = win
         self.maxSeqLength = 0
     

@@ -78,11 +78,11 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
     def show(self):
         _superclass.show(self)
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(isConnect = True)
+            self.connect_or_disconnect_signals(True)
         
     def close(self):
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(isConnect = False)
+            self.connect_or_disconnect_signals(False)
             
         _superclass.close(self)
     

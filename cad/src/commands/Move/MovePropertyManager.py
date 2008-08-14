@@ -586,7 +586,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
     def show(self):
         Ui_MovePropertyManager.show(self)
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(isConnect = True)
+            self.connect_or_disconnect_signals(True)
 
     def close(self):
         """
@@ -606,7 +606,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         self.rotateGroupBox.collapse()
         
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(isConnect = False)
+            self.connect_or_disconnect_signals(False)
             
         Ui_MovePropertyManager.close(self)
 

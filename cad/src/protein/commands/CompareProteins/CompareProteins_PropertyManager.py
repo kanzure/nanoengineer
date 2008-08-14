@@ -142,7 +142,7 @@ class CompareProteins_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #KEEP_SIGNALS_ALWAYS_CONNECTED is true, then it may create undesirable 
         #effects if the above comment is True -- Ninad 2008-08-13
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(isConnect = True)
+            self.connect_or_disconnect_signals(True)
         
         self._updateProteinList()
         self.structure1ComboBox.clear()

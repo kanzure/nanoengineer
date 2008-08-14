@@ -689,7 +689,7 @@ class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         PM_Dialog.show(self)
         
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(isConnect = True)
+            self.connect_or_disconnect_signals(True)
             
         self._updateAllWidgets()
 
