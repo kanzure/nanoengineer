@@ -946,7 +946,7 @@ class RosettaRunner:
             #sets up the argument list for running rosetta including the ones
             #that were provided in the pop up dialog
             backRubArgs = []
-            if args[2]:
+            if len(args) == 3:
                 backRubArgs = args[2]
             self.setup_sim_args(args[0][1], backRubArgs)
             progressBar.setRange(0, 0)
