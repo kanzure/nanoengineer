@@ -153,6 +153,8 @@ from utilities.constants import bgSOLID, bgEVENING_SKY, bgBLUE_SKY, bgSEAGREEN
 from utilities.constants import ave_colors, color_difference
 from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
+from command_support.GraphicsMode_API import GraphicsMode_API # for isinstance assertion
+
 # note: the list of preloaded_command_classes for the Command Sequencer
 # is in builtin_command_loaders.py
 
@@ -232,7 +234,6 @@ from utilities.constants import black, gray, darkgray, lightgray, white
 from utilities.constants import bluesky, eveningsky, bg_seagreen
 import utilities.qt4transition as qt4transition
 from geometry.VQT import planeXline, ptonline
-
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from model.bonds import Bond # used only for selobj ordering
@@ -415,6 +416,9 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
     # which ought to be merged into their common superclass GLPane_minimal.
     # [bruce 070914 comment]
 
+    # [the following comment is partly obsolete as of 080813
+    #  when not GLPANE_IS_COMMAND_SEQUENCER:]
+    #
     # Note: external code expects self.graphicsMode to always be a working
     # GraphicsMode object, which has certain callable methods [which should
     # be formalized as a new class GraphicsMode_API or so]. Similarly, it
@@ -632,7 +636,34 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
 
         return # from GLPane.__init__ 
 
+    # ==
+    
+    if not GLPANE_IS_COMMAND_SEQUENCER:
+        
+        #bruce 080813 get .graphicsMode from commandSequencer
+        
+        def _get_graphicsMode(self):
+            res = self.assy.commandSequencer.currentCommand.graphicsMode
+                # don't go through commandSequencer.graphicsMode,
+                # maybe that attr is not needed
+            assert isinstance(res, GraphicsMode_API)
+            return res
 
+        graphicsMode = property( _get_graphicsMode)
+
+        # same with .currentCommand, but complain;
+        # uses should go through command sequencer
+
+        def _get_currentCommand(self):
+            print_compact_stack( "deprecated: direct ref of glpane.currentCommand: ") #bruce 080813
+            return self.assy.commandSequencer.currentCommand
+
+        currentCommand = property( _get_currentCommand)
+
+        pass # end of if statement
+
+    # ==
+    
     def should_draw_valence_errors(self):
         """
         [overrides GLPane_minimal method]
@@ -1657,7 +1688,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
             env.prefs[GLPane_scale_for_atom_commands_prefs_key])
 
 
-        if self.currentCommand.commandName in dnaCommands:
+        if self.assy.commandSequencer.currentCommand.commandName in dnaCommands:
             if self.scale == startup_scale:                
                 self.scale = dna_preferred_scale
         else:
@@ -2844,7 +2875,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
             self.lastNonReducedDisplayMode = disp
             
         # Huaicai 3/29/05: Add the condition to fix bug 477 (keep this note)
-        if self.currentCommand.commandName == 'COOKIE':
+        if self.assy.commandSequencer.currentCommand.commandName == 'COOKIE':
             self.win.statusBar().dispbarLabel.setEnabled(False)
             self.win.statusBar().globalDisplayStylesComboBox.setEnabled(False)
         else:

@@ -226,17 +226,13 @@ class MWsemantics(QMainWindow,
 
         # Start NE1 with an empty document called "Untitled".
         # See also the _make_and_init_assy method in our mixin class in
-        # ops_files.py, which creates and inits an assy using similar code.
+        # ops_files.py, which creates and inits an assy using the same method.
         #
         # Note: It is very desirable to change this startup behavior so that
         # the user must select "File > New" to open an empty document after
         # NE1 starts. Mark 2007-12-30.
-        self.assy = Assembly(self, "Untitled",
-                             own_window_UI = True,
-                             run_updaters = True
-                             )
-            #bruce 060127 added own_window_UI flag to help fix bug 1403;
-            # it's required for this assy to support Undo
+        self.assy = self._make_a_main_assy()
+        
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
 
@@ -305,6 +301,31 @@ class MWsemantics(QMainWindow,
         self.rosettaArgs = []
         return
 
+    def _make_a_main_assy(self): #bruce 080813 split this out
+        """
+        [private]
+        
+        Make a new main assy, meant for caller to store as self.assy.
+        
+        Called during __init__, and by _make_and_init_assy (in a mixin class)
+        for fileClose and fileOpen.
+        """
+        if GLPANE_IS_COMMAND_SEQUENCER:
+            commandSequencerClass_for_assy = None
+        else:
+            #bruce 080813
+            from commandSequencer.CommandSequencer import modeMixin
+            commandSequencerClass_for_assy = modeMixin
+        res = Assembly(self,
+                       "Untitled",
+                       own_window_UI = True,
+                       run_updaters = True,
+                       commandSequencerClass = commandSequencerClass_for_assy
+                      )
+            #bruce 060127 added own_window_UI flag to help fix bug 1403;
+            # it's required for this assy to support Undo.
+        return res
+        
     def _init_part_two(self):
         """
         #@ NEED DOCSTRING

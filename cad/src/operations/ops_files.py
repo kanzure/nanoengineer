@@ -2014,16 +2014,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # class MWsemantics (which mixes it in)?
         
         if self.assy:
-            # this happens
+            # this can happen
             self.assy.close_assy() #bruce 080314
         
-        self.assy = Assembly(self, "Untitled",
-                             own_window_UI = True, # own_window_UI is required for this assy to support Undo
-                             run_updaters = True
-                            )
-            #bruce 060127 added own_window_UI flag to help fix bug 1403
-            #bruce 080403 added run_updaters = True (to preserve current
-            # behavior) -- I don't know whether it's needed
+        self.assy = self._make_a_main_assy()
         self.update_mainwindow_caption()
         self.glpane.setAssy(self.assy)
             # notes: this calls assy.set_glpane, and _reinit_modes

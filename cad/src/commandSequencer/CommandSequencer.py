@@ -40,7 +40,7 @@ from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 from command_support.modes import nullMode
 
 from command_support.Command import anyCommand # only for isinstance assertion
-from command_support.GraphicsMode_API import GraphicsMode_API 
+from command_support.GraphicsMode_API import GraphicsMode_API # ditto
 
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
@@ -62,6 +62,10 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
     (both read-only for public access), and mostly private
     attributes for access by command-sequencing code in class Command,
     such as nullmode and _commandTable.
+
+    @note: graphicsMode is also available from GLPane, which gets it from here
+           via its assy. Maybe it won't be needed from here at all... so we print
+           a console warning whenever it's accessed directly from here.
     """
     # TODO: turn this into a standalone command sequencer object,
     # which also contains some logic now in class Command
@@ -1113,6 +1117,8 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             # may or may not be same as self._raw_currentCommand
             ### FIX in nullMode #}
         assert isinstance(res, GraphicsMode_API)
+        if not GLPANE_IS_COMMAND_SEQUENCER:
+            print_compact_stack( "deprecated: direct ref of cseq.graphicsMode: ") #bruce 080813
         return res
 
     def _set_graphicsMode(self, command):

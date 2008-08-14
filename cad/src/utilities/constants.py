@@ -4,6 +4,8 @@ constants.py -- constants and trivial functions used in multiple modules.
 
 Everything defined here must require no imports except from builtin
 modules or PyQt, and use names that we don't mind reserving throughout NE1.
+(At the moment there are some exceptions to that, but these should be
+cleaned up.)
 
 (Ideally this module would also contain no state; probably we should move
 gensym out of it for that reason.)
@@ -32,12 +34,12 @@ MULTIPANE_GUI = True # enable some code which was intended to permit the main wi
     # this flag, and then decide whether the singleton partWindow should continue
     # to exist. [bruce 071008, replacing a debug_pref with this flag]
 
-GLPANE_IS_COMMAND_SEQUENCER = True
+GLPANE_IS_COMMAND_SEQUENCER = True ### DO NOT COMMIT WITH FALSE, should be True -- or move to GlobalPreferences.py
     # This indicates that the GLPane and Command Sequencer are the same object.
-    # This is true for now, and False is not yet supported, but will someday
-    # only be False (and then this constant flag can be removed). It exists now
-    # mainly to mark code which is known to need changing when this can be False.
-    # [bruce 071010]
+    # This is True for now, but False now works as of 080813, but is not yet well tested.
+    # In a week or so, the default will become False and support for True will be
+    # removed, as a long-desired refactoring and cleanup.
+    # [bruce 071010, 080813]
 
 DIAMOND_BOND_LENGTH = 1.544
     #bruce 051102 added this based on email from Damian Allis:

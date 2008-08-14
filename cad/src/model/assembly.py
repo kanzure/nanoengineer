@@ -88,6 +88,8 @@ from foundation.state_utils import StateMixin
 from utilities.debug import print_compact_stack
 import foundation.undo_archive as undo_archive
 
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
+
 from utilities.constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_CHILD, S_DATA, S_REF
 
@@ -278,10 +280,13 @@ class Assembly( StateMixin, Assembly_API):
         # Not yet implemented in all updaters. Implemented in dna updater.
         # [bruce 080314]
     
-    def __init__(self, win,
+    def __init__(self,
+                 win,
                  name = None,
                  own_window_UI = False,
-                 run_updaters = False ):
+                 run_updaters = False,
+                 commandSequencerClass = None
+                 ):
         """
         @type win: MWsemantics or None
         """
@@ -452,21 +457,31 @@ class Assembly( StateMixin, Assembly_API):
 
         self._init_glselect_name_dict()
 
-        from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
+        if GLPANE_IS_COMMAND_SEQUENCER:
+            assert not commandSequencerClass
+        else:
+            assert bool(commandSequencerClass) == bool(own_window_UI)
+                # since own_window_UI determines whether external code
+                # expects us to have self.commandSequencer accessible
+            if commandSequencerClass: #bruce 080813
+                # make and own a command sequencer of the given class
+                
+                # Note: importing the usual class directly causes import cycle
+                # problems, for legitimate or at least hard-to-avoid reasons --
+                # it knows a lot of command classes, and some of them know how
+                # to construct Assemblies (albeit ones that don't need command
+                #  sequencers, as it happens for now, but that might not be
+                #  fundamental). So we make the caller tell us, to avoid that,
+                # and since it makes perfect sense.
+                
+                # Review: is class Assembly not the ideal object to own a
+                # command sequencer?? Other candidates: partwindow; or a
+                # specialized subclass of Assembly.
+                # The same question might apply to our undo manager.
+                # Related Q: is finding commandSequencer via assy legitimate?
+                # [bruce 080813 questions]
 
-        if not GLPANE_IS_COMMAND_SEQUENCER:
-            if own_window_UI: # otherwise (e.g. Partlib assy) we shouldn't need one
-                # [Review: does this condition indicate that class Assembly
-                #  is not the ideal object to own a command sequencer??
-                #  Other candidates: partwindow; or specialized subclass of Assembly.
-                #  The same argument might apply to our undo manager.
-                #  Related Q: is finding commandSequencer via assy legitimate?
-                #  [bruce 080813 questions]]
-
-                # does this cause the big new import cycle?
-                ## from commandSequencer.CommandSequencer import modeMixin
-                assert 0 # need that import
-                self.commandSequencer = modeMixin(self) #bruce 080813
+                self.commandSequencer = commandSequencerClass(self) #bruce 080813
 
         self.assy_valid = True
                 
@@ -477,6 +492,11 @@ class Assembly( StateMixin, Assembly_API):
     def set_glpane(self, glpane): #bruce 080216
         self.o = glpane # historical name for our glpane, widely used
         self.glpane = glpane # clearer name, added 080216
+        if GLPANE_IS_COMMAND_SEQUENCER:
+            #bruce 080813 permit new code running under old flag value
+            # to reference assy.commandSequencer
+            if self.own_window_UI:
+                self.commandSequencer = glpane
         return
 
     def set_modelTree(self, modelTree): #bruce 080216
