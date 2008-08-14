@@ -58,13 +58,7 @@ class AtomsTool_Command(BuildAtoms_Command):
         """
         self._reuse_attr_of_parentCommand('flyoutToolbar')
         
-    def command_enter_PM(self):
-        """
-        #NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
-        @see: basicCommand._reuse_attr_of_parentCommand()
-        """
-        self._reuse_attr_of_parentCommand('propMgr')
-   
+      
     def init_gui(self):
         pass
     

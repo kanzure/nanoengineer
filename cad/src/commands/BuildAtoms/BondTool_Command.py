@@ -80,11 +80,6 @@ class BondTool_Command(BuildAtoms_Command):
         """
         self._reuse_attr_of_parentCommand('flyoutToolbar')
     
-    def command_enter_PM(self):
-        """
-        #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
-        """
-        self._reuse_attr_of_parentCommand('propMgr')
     
     def init_gui(self):
         pass
