@@ -31,8 +31,7 @@ from utilities.version import Version
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from datetime import datetime
 from model.Comment import Comment
-from model.assembly import Group
-
+from foundation.Group import Group
 
 import foundation.env as env
 
