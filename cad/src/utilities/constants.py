@@ -703,6 +703,8 @@ DELETE_SELECTION = 'Delete'
 
 # ==
 
+DEFAULT_COMMAND = 'SELECTMOLS' # commandName of default command
+
 # command level constants [bruce 080725]
 
 CL_DEFAULT_MODE = 'CL_DEFAULT_MODE'

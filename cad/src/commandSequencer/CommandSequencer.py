@@ -36,6 +36,9 @@ import os
 import sys
 
 from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.constants import DEFAULT_COMMAND
+
+from commandSequencer.command_levels import allowed_parent
 
 from command_support.modes import nullMode
 
@@ -47,6 +50,7 @@ from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 
+_SAFE_MODE = DEFAULT_COMMAND
 
 # ==
 
@@ -611,8 +615,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             # active commands anyway. [bruce 080806 comment]
             commandName = commandName_or_obj
             if commandName == '$SAFE_MODE':
-                commandName = 'SELECTMOLS'
-                    # todo: SELECTMOLS should be a defined constant, SAFE_MODE
+                commandName = _SAFE_MODE
             if commandName == '$STARTUP_MODE':
                 commandName = self.startup_commandName() # might be '$DEFAULT_MODE'
             if commandName == '$DEFAULT_MODE':
@@ -651,7 +654,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         Return the commandName string of the user's default mode.
         """
         # note: at one point this made use of env.prefs[ defaultMode_prefs_key].
-        return 'SELECTMOLS' # todo: named constant for this, eg DEFAULT_MODE
+        return DEFAULT_COMMAND
 
     def startup_commandName(self):
         """
@@ -659,7 +662,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         '$DEFAULT_MODE') of the user's startup mode.
         """
         # note: at one point this made use of env.prefs[ startupMode_prefs_key].
-        return 'SELECTMOLS'
+        return DEFAULT_COMMAND
 
     # user requests a specific new command.
 
@@ -744,7 +747,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
     def _need_to_exit(self, currentCommand, want_command): #bruce 080814
         """
         """
-        nim #### IMPLEM
+        return not allowed_parent( want_command, currentCommand )
     
     def _next_commandName_to_enter(self, currentCommand, want_command): #bruce 080814
         """

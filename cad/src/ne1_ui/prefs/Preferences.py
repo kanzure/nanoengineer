@@ -276,6 +276,9 @@ def debug_povdir_signals():
 # [TODO: It needs to be renamed, since "modes" is too generic to search for
 #  as a global name, which in theory could referenced from other modules.]
 modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
+    ### REVIEW: is this constant still used anywhere?
+    # If not, it should be removed.
+    # [bruce 080815 question]
 
 def parentless_open_dialog_pref(): #bruce 060710 for Mac A8
     # see if setting this True fixes the Mac-specific bugs in draggability of this dialog, and CPU usage while it's up

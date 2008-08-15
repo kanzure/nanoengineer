@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 SelectChunks_Command.py 
 
@@ -14,7 +14,7 @@ For example:
   to override them).
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 
 TODO:
@@ -51,12 +51,12 @@ class SelectChunks_basicCommand(Select_basicCommand):
       to override them).
     """
     commandName = 'SELECTMOLS'
+        # i.e. DEFAULT_COMMAND, but don't use that constant to define it here
     featurename = "Select Chunks Mode"
     from utilities.constants import CL_DEFAULT_MODE
     command_level = CL_DEFAULT_MODE # error if command subclass fails to override this
+
     
-            
-        
     def init_gui(self):
         """
         """
