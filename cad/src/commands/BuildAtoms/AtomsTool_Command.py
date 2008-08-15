@@ -50,7 +50,7 @@ class AtomsTool_Command(BuildAtoms_Command):
         
     def command_enter_flyout(self):
         """
-        REUSE the flyout toolbar from the parent_command (BuildAtoms_command 
+        REUSE the flyout toolbar from the parentCommand (BuildAtoms_command 
         in this case)
         @TODO: 
         - may need cleanup in command stack refactoring. But the method name is 
