@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Move_Command.py
 
@@ -14,7 +14,7 @@ For example:
   to override them).
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 
 History:
@@ -236,7 +236,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
             
             # following was revised by bruce 080801
             self.commandSequencer.callRequestCommand( 'RotateAboutPoint',
-                 ## provide_arguments = self.provideParamsForTemporaryMode,
                  arguments = (2,), # number of mouse click points to accept
                  accept_results = self._acceptRotateAboutPointResults
              )
@@ -269,7 +268,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
             self.propMgr.updateMessage(msg)
             # following was revised by bruce 080801
             self.commandSequencer.callRequestCommand( 'LineMode',
-                 ## provide_arguments = self.provideParamsForTemporaryMode,
                  arguments = (2,), # number of mouse click points to accept
                  accept_results = self._acceptLineModePoints
              )

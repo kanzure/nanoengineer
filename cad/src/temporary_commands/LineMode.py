@@ -45,17 +45,7 @@ class LineMode_GM( Select_GraphicsMode ):
     as endpoints and then returns to the previous mode when the  
     mouseClickLimit specified by the user is reached.
 
-##    Example use: [note: the following info is out of date as of before 080801]
-##    User is working in selectMolsMode, Now he enters a temporary mode 
-##    called DnaLine mode, where, he clicks two points in the 3Dworkspace 
-##    and expects to create a DNA using the points he clicked as endpoints. 
-##    Internally, the program returns to the previous mode after two clicks. 
-##    The temporary mode sends this information to the method defined in 
-##    the previous mode called acceptParamsFromTemporaryMode and then the
-##    previous mode (selectMolsMode) can use it further to create a dna 
     @see: L{DnaLineMode}
-##    @see: selectMolsMode.provideParamsForTemporaryMode comments for 
-##          related  TODOs. 
 
     TODO: 
     -Need further documentation. 

@@ -97,17 +97,7 @@ class NanotubeLineMode(LineMode): # not used as of 080111, see docstring
     """
     [no longer used as of 080111, see details below]
     Encapsulates the LineMode functionality.
-##    Example: [the following info is out of date as of before 080801]
-##    User is working in selectMolsMode, Now he enters a temporary mode 
-##    called CntLine mode, where, he clicks two points in the 3Dworkspace 
-##    and expects to create a CNT using the points he clicked as endpoints. 
-##    Internally, the program returns to the previous mode after two clicks. 
-##    The temporary mode sends this information to the method defined in 
-##    the previous mode called acceptParamsFromTemporaryMode and then the
-##    previous mode (selectMolsMode) can use it further to create a dna 
     @see: L{LineMode}
-##    @see: selectMolsMode.provideParamsForTemporaryMode comments for 
-##          related  TODOs.
     @see: InsertNanotube_EditCommand.getCursorText()
     
     NOTE: [2008-01-11]
