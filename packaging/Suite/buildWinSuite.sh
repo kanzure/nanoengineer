@@ -18,6 +18,7 @@ VERSION_NUM="1.1.1.2"
 RC_NUMBER="0"
 GROMACS_VERSION="3.3.3"
 QUTEMOLX_VERSION="0.5.1"
+PREF_VER="0.0.2"
 
 # Do a basic check for sanity in the build area.
 if [ ! -e "$TOP_LEVEL/cad/src" ]
@@ -37,7 +38,7 @@ then
   then
 #   All clear to do the build
     cd packaging/Pref_Mod
-    ./buildWin.sh || exit 1
+    ./buildWin.sh $PREF_VER || exit 1
   else
     echo "Build Pref_Mod before continuing"
     exit 1

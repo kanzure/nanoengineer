@@ -7,7 +7,12 @@
 # The NE1 and Suite Installers modify this, so if this script is run manually,
 # Make sure to make the necessary changes.
 
-PREF_VERSION="0.0.1"
+if [ "$1" = "" ]
+then
+  PREF_VERSION="0.0.1"
+else
+  PREF_VERSION="$1"
+fi
 
 TOP_LEVEL=`pwd`
 echo $TOP_LEVEL | grep "Pref_Mod"

@@ -23,6 +23,7 @@ VERSION_NUM="1.1.1"
 RC_NUMBER="0"
 GROMACS_VERSION="3.3.3"
 QUTEMOLX_VERSION="0.5.1"
+PREF_VER="0.0.2"
 
 DATECODE=`date "+%B %d, %Y"`
 
@@ -44,7 +45,7 @@ then
   then
 #   All clear to do the build
     cd packaging/Pref_Mod
-    ./buildMac.sh || exit 1
+    ./buildMac.sh $PREF_VER || exit 1
   else
     echo "Build Pref_Mod before continuing"
     exit 1

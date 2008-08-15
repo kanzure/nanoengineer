@@ -7,7 +7,12 @@
 # for the version number.  The NE1 and Suite Installers modify this, so if 
 # this script is run manually, make sure to make the necessary changes.
 
-PREF_VERSION="0.0.1"
+if [ "$1" = "" ]
+then
+  PREF_VERSION="0.0.1"
+else
+  PREF_VERSION="$1"
+fi
 
 # set up a directory to store pre-built stuff
 if [ ! -e ~/MacOSX_Installers ]
