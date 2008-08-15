@@ -23,6 +23,9 @@ class baseCommand(object):
     """
     # default values of command subclass constants
 
+    # WARNING: presently some of these are overridden in anyCommand and/or basicCommand;
+    # that will be cleaned up after the refactoring is complete. [bruce 080815 comment]
+
     command_level = CL_ABSTRACT
         #doc
     
@@ -44,7 +47,7 @@ class baseCommand(object):
     def _get_parentCommand( self):
         return self._parentCommand
 
-    parentCommand = property( _get_parentCommand )
+    parentCommand = property( _get_parentCommand ) # a read-only property
 
     def command_is_active(self):
         """
@@ -52,7 +55,7 @@ class baseCommand(object):
                  it's on top (aka current)).
         @rtype: boolean
         """
-        return self._parentCommand is not None
+        return self.parentCommand is not None
 
     # - related to a command's property manager (PM)
     
@@ -60,14 +63,27 @@ class baseCommand(object):
     
     propMgr = None # will be set to the PM to use with self (whether or not created by self)
 
+    # == access methods
+
+    def is_fixed_parent_command(cls):
+        from commandSequencer.command_levels import FIXED_PARENT_LEVELS
+        return cls.command_level in FIXED_PARENT_LEVELS
+    
+    is_fixed_parent_command = classmethod(is_fixed_parent_command)
+        # someday: check whether this can be called directly on the class object... probably not.
+    
     # == exit-related methods
     
-    def _command_do_exit_if_ok(self, args = None):
+    def _command_do_exit_if_ok(self, force = False):
         # todo: args: anything needed to decide if ok or when asking user
         """
-        Exit this command (only), if possible, and return True.
+        Exit this command (only), if possible or if force is true, and return True.
         If not possible for some reason, emit messages as needed, and return False.
 
+        @param force: whether the exit is forced (must occur, regardless of
+                      command state, perhaps after side effects and warnings)
+        @type force: boolean
+        
         @return: whether exit succeeded.
         @rtype: boolean
         
@@ -79,14 +95,22 @@ class baseCommand(object):
                exiting, the answer might affect how or how much to exit, needed
                by caller for later stages of exiting multiple commands. In that
                case we'd need to return info about that, whenever exit succeeds.
+
+        @note: if the exit is being done by Done or Cancel, a suitable method
+               (not yet defined in Command API ###) will do special side effects
+               in either case, before this method is ever called. ### TODO: DOC DETAILS, IMPLEM
+               If the exit is forced, that doesn't happen, but our force param
+               will be True. ### DECIDE: does Done vs Cancel vs force need to be
+               propogated to all commands exiting at once? Current implem effectively
+               propogates force, not yet coded for the others.
         """
         try:
-            ok = self._command_ok_to_exit(args) # must explain to user if not
+            ok = self._command_ok_to_exit(force) # must explain to user if not
         except:
             _pct()
             ok = True
         
-        if not ok:
+        if not ok and not force:
             self._command_log("not exiting")
             return False
 
@@ -99,15 +123,16 @@ class baseCommand(object):
 
         return True
 
-    def _command_ok_to_exit(self, args):
-        ask = self.command_exit_should_ask_user(args)
+    def _command_ok_to_exit(self, force = False):
+        ask = self.command_exit_should_ask_user(force)
         if ask:
             print "asking is nim" # put up dialog with 3 choices (or more?)
                 # call method on self to put it up? or determine choices anyway? (yes)
                 # also, if ok to exit but only after some side effects, do those side effects.
+                # (especially likely if force is true; ### TODO: put this in some docstring)
         return True
 
-    def command_exit_should_ask_user(self, args):
+    def command_exit_should_ask_user(self, force = False):
         """
         [subclasses should extend this as needed]
         """
@@ -261,7 +286,7 @@ class baseCommand(object):
         self.commandSequencer._f_set_currentCommand( self)
         return
 
-    def command_entered(self, args):
+    def command_entered(self):
         """
         Update self's command state and ui as needed, when self has just been
         pushed onto command stack.
@@ -279,6 +304,8 @@ class baseCommand(object):
          implementation at the start]
         """
         if not self.command_has_its_own_PM:
+            # note: that flag must be True (so this doesn't run) in the default
+            # command, since it has no self.parentCommand
             self.propMgr = self.parentCommand.propMgr
         self.command_enter_PM()
         self.command_enter_flyout()

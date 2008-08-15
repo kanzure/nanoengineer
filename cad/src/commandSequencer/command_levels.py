@@ -69,19 +69,36 @@ _apl[ CL_VIEW_CHANGE ] = \
 
 LEGAL_COMMAND_LEVELS = _ALLOWED_PARENT_LEVELS.keys()
 
+FIXED_PARENT_LEVELS = [level
+                       for level in LEGAL_COMMAND_LEVELS
+                       if _apl[level] == _USE_COMMAND_PARENT]
+
 
 def allowed_parent( want, parent ): # in CommandSequencer
     """
-    User wants to enter command class (or instance) <want>
-    and current command is <parent>.
+    Assume that the user wants to enter command class (or instance) <want>,
+    and current command class (or instance) is <parent>,
+    and that the caller already knows we're not *already* in the desired
+    command.
+
+    (Note that this means that if we immediately entered <want>,
+     its parent command would be <parent>, whether or not that's
+     acceptable.)
+
+    @return: whether <parent> is a suitable parent
+             or grandparent (etc) command for <want>.
+    @rtype: boolean
+
+    If we return True, it means the caller shouldn't exit
+    any commands, though it may need to enter some before
+    entering <want>.
+
+    If we return False, it means the caller does need to exit <parent>,
+    then call us again to decide what to do.
+
     
-    (If we enter <want> directly, <parent> will become the parent command.)
-
-    Decide whether <parent> is an acceptable parent command for <want>
-    (return a boolean). ### any other retvals besides yes and no? maybe, more info about what to do to get to <want>?
+    ### any other retvals besides yes and no? maybe, more info about what to do to get to <want>?
     (we really mean parent or grandparent or ...)
-
-    Assume we already determined we're not *already* in the desired command. ###
     """
 
     # the info we will use:
@@ -100,7 +117,8 @@ def allowed_parent( want, parent ): # in CommandSequencer
     allowed_parent_levels = _ALLOWED_PARENT_LEVELS[ want.command_level ]
 
     if allowed_parent_levels == _USE_COMMAND_PARENT:
-        # just check whether parent is the desired parent, or is a parent of that ... ### really part of a higher alg in caller? and/or a new command class method?
+        # just check whether parent is the desired parent, or is a parent of that ...
+        ### really part of a higher alg in caller? and/or a new command class method?
         nim ###
 
     # <want> is nestable, or a fixed parent command that doesn't care about
@@ -111,10 +129,6 @@ def allowed_parent( want, parent ): # in CommandSequencer
     #  but not under other kinds of subcommands".)
     
     return parent.command_level in allowed_parent_levels
-
-
-
-
 
 
 

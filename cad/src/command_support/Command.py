@@ -59,9 +59,12 @@ from command_support.GraphicsMode_API import GraphicsMode_API
 
 from command_support.baseCommand import baseCommand # warning: modified below, if not USE_COMMAND_STACK
 
+if not USE_COMMAND_STACK:
+    baseCommand = object
+
 # ==
 
-class anyCommand(object, StateMixin):
+class anyCommand(baseCommand, StateMixin):
     """
     abstract superclass for all Command objects, including nullCommand
     """
@@ -72,8 +75,8 @@ class anyCommand(object, StateMixin):
     # treat them as read-only; command-related code (in this file) can override
     # them in subclasses and/or instances, and modify them directly.
 
-    # note: soon, command_level and command_parent will be inherited from
-    # a new superclass baseCommand.
+    # note: soon, command_level and command_parent, and some other of the
+    # following default values, will be inherited from a new superclass baseCommand.
 
     from utilities.constants import CL_ABSTRACT
     command_level = CL_ABSTRACT
@@ -320,11 +323,7 @@ class nullCommand(anyCommand):
 
 # ==
 
-if not USE_COMMAND_STACK:
-    class baseCommand(object):
-        pass
-
-class basicCommand(baseCommand, anyCommand):
+class basicCommand(anyCommand):
     """
     Common code between class Command (see its docstring)
     and old-code-compatibility class basicMode.
@@ -1020,6 +1019,13 @@ class basicCommand(baseCommand, anyCommand):
             assert self.command_parent, \
                    "_init_gui_flyout_action in %r requires " \
                    "self.command_parent assignment" % self
+            # note: it's ok that we don't interpret command_parent = None
+            # as the default commandName here, since the default command has no
+            # flyout toolbar. This only works by accident; it might be more
+            # principled to check self.is_fixed_parent_command() instead, once
+            # that's always defined, and if it's true, interpret
+            # command_parent = None as being the name of the default command.
+            # [bruce 080814 comment]
         if not USE_COMMAND_STACK:
             parentCommand = self.commandSequencer.prevMode # _init_gui_flyout_action: flyoutToolbar
         else:
@@ -1776,6 +1782,9 @@ class basicCommand(baseCommand, anyCommand):
             res = commands[0]
         if self.command_parent:
             assert res is self.find_parent_command_named( self.command_parent) # not sure this is always required...
+            # note: this doesn't run when self.is_fixed_parent_command() and
+            # self.command_parent is None, meaning the default command!
+            # ok for now, since it's only an assert.
         if USE_COMMAND_STACK:
             assert res is self.parentCommand
             # maybe: if not, add a property to make this always true... then use it
@@ -1786,9 +1795,10 @@ class basicCommand(baseCommand, anyCommand):
         """
         [helper method for use in subclasses; not part of Command API]
         
-        Reuse the given attr of the parent command in self,
+        Reuse the given attr of self's parentCommand in self,
         by assigning self.attr = self.parentCommand.attr
-        (in the correct way based on how parentCommand should be found).
+        (in the correct way based on how parentCommand should be found,
+         which depends on USE_COMMAND_STACK).
         
         Example: reuse 'flyoutToolbar' or 'propMgr' attrs in self. 
         @see: AtomsTool_Command.command_enter_flyout() for an example.
@@ -1815,10 +1825,10 @@ class basicCommand(baseCommand, anyCommand):
                                 "in this command: ")
             return
         
-##        parentCommand = self.find_parent_command_named( self.command_parent) ### BUG: won't work for nestable commands.
         parentCommand = self.find_parentCommand()
-            #bruce 080813 generalization -- should be same when command_parent is defined,
-            # but also work for nestables like Zoom
+            #bruce 080813 generalization -- should be same as before
+            # when command_parent is defined,
+            # but also work for nestables like Zoom.
         
         if parentCommand:
             try:
@@ -1838,7 +1848,7 @@ class basicCommand(baseCommand, anyCommand):
             setattr(self, attr_name, parent_attr)
 
         else:
-            msg = "bug: parent command %s not found" % self.command_parent # might be None -- todo: improve msg in that case
+            msg = "bug: %r has no parentCommand!" % self
             print_compact_stack( msg + ": " )
         return
 
