@@ -113,7 +113,8 @@ except:
 progopts=progopts[0]
 parseopts(progopts)
 if exitset:
-    print "Usage: pref_modifier -K <key value> -V <value to store>"
+    print >> sys.__stderr__, \
+          "Usage: pref_modifier -K <key value> -V <value to store>"
     sys.exit(0)
 
 key=prefkeys[keyset]    #set the key value to that used by the database
