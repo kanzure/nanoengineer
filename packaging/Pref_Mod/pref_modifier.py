@@ -15,6 +15,7 @@ if os.name=="nt":
         try:
             capture_file = u"".join((sys.executable[:-4], "_console.log"))
             sys.stdout = open(capture_file, 'w')
+            sys.stderr = sys.stdout
             capture_console = True # already trapped, don't try more.
         except:
             pass
@@ -36,9 +37,10 @@ if os.name=="nt":
                 capture_file = os.path.normpath(u"".join((tmpFilePath,\
                                                           "/NE1_console.log")))
                 sys.stdout = open(capture_file, 'w')
+                sys.stderr = sys.stdout
                 capture_console = True
             except:
-                print >> sys.__stderr__, \
+                print >> sys.stderr, \
                       "Failed to create any console log file."
                 capture_console = False
 
