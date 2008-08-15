@@ -2,8 +2,8 @@
 """
 preferences.py -- Preferences system.
 
-@author: bruce
-@version: $Id: preferences.py 11951 2008-03-14 04:44:50Z ericmessick $
+@author: Bruce
+@version: $Id: preferences.py 13965 2008-08-14 20:09:41Z derrickdb1 $
 @copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification: [bruce 071215]
@@ -61,63 +61,18 @@ BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK!
 import os
 import time
 import sys
+import NE1_Build_Constants
 
-#from utilities import debug_flags
-
-#try:
-#    atom_debug # don't disturb it if already set (e.g. by .atom-debug-rc)
-#except:
-#    try:
-#        atom_debug = os.environ['ATOM_DEBUG'] # as a string; should be "1" or "0"
-#    except:
-#        atom_debug = 0
-#    try:
-#        atom_debug = int(atom_debug)
-#    except:
-#        pass
-#    atom_debug = not not atom_debug
-
-#if atom_debug:
-#    print "fyi: user has requested ATOM_DEBUG feature; extra debugging code enabled; might be slower"
-
-# ==
-
-# debug flags for dna updater, controlled by debug_prefs
-# in dna_updater.dna_updater_prefs.
-# The default values set here don't matter, afaik,
-# since they are replaced by debug_pref values before use.
-# [bruce 080228 moved these here]
-
-DEBUG_DNA_UPDATER_MINIMAL = True
-
-DEBUG_DNA_UPDATER = True
-
-DEBUG_DNA_UPDATER_VERBOSE = False
-
-DNA_UPDATER_SLOW_ASSERTS = True
-
-
-def mkdirs_in_filename(filename):
-    """
-    Make all directories needed for the directory part of this filename,
-    if nothing exists there. Never make the filename itself (even if it's
-    intended to be a directory, which we have no way of knowing anyway).
-    If something other than a directory exists at one of the dirs we might
-    otherwise make, we don't change it, which will probably lead to errors
-    in this function or in the caller, which is fine.
-    """
-    dir, file = os.path.split(filename)
-    if not os.path.exists(dir):
-        mkdirs_in_filename(dir)
-        os.mkdir(dir)
-    return
-
-# Finding or making special directories and files (e.g. in user's homedir):
-
-# code which contains hardcoded filenames in the user's homedir, etc
-# (moved into this module from MWsemantics.py by bruce 050104,
-#  since not specific to one window, might be needed before main window init,
-#  and the directory names might become platform-specific.)
+_tmpary = NE1_Build_Constants.NE1_RELEASE_VERSION.split(".")
+if len(_tmpary) >= 3:
+    DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s-%s.txt" % \
+                             (_tmpary[0], _tmpary[1], _tmpary[2])
+else:
+    DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s.txt" % \
+                             (_tmpary[0], _tmpary[1])
+    #Derrick 080703
+    # note: this name is still hardcoded into 
+    # packaging/Pref_Mod/pref_modifier.py
 
 _tmpFilePath = None
 
@@ -159,28 +114,36 @@ def _find_or_make_nanorex_dir_0():
     tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/"))
     if not os.path.exists(tmpFilePath):
         try:
-            os.mkdir(tmpFilePath)
+            os.makedirs(tmpFilePath)
         except:
-            sys.exit
+            sys.exit(1)
             #bruce 041202 fixed minor bug in next line; removed return statement
             #print_compact_traceback("exception in creating temporary directory: \"%s\"" % tmpFilePath)
             #bruce 050104 new feature [needs to be made portable so it works on Windows ###@@@]
-            os_tempdir = "/tmp"
-            print "warning: using \"%s\" for temporary directory, since \"%s\" didn't work" % (os_tempdir, tmpFilePath)
-            tmpFilePath = os_tempdir
+            #os_tempdir = "/tmp"
+            #print "warning: using \"%s\" for temporary directory, since \"%s\" didn't work" % (os_tempdir, tmpFilePath)
+            #tmpFilePath = os_tempdir
     #e now we should create or update a README file in there [bruce 050104]
     return tmpFilePath
 
-#import foundation.env as env
-#import utilities.EndUser as EndUser
-#from utilities.debug import print_compact_traceback
-
-#from foundation.changes import UsageTracker
-
-#from prefs_constants import prefs_table
+def mkdirs_in_filename(filename):
+    """
+    Make all directories needed for the directory part of this filename,
+    if nothing exists there. Never make the filename itself (even if it's
+    intended to be a directory, which we have no way of knowing anyway).
+    If something other than a directory exists at one of the dirs we might
+    otherwise make, we don't change it, which will probably lead to errors
+    in this function or in the caller, which is fine.
+    """
+    dir, file = os.path.split(filename)
+    if not os.path.exists(dir):
+        mkdirs_in_filename(dir)
+        os.mkdir(dir)
+        if not os.path.exists(dir):
+            print u"Directory not created: ", dir.encode("utf_8")
+    return
 
 # some imports remain lower down, for now: bsddb and shelve
-
 
 """
 Some internal & client-code documentation, as of 050106:
@@ -290,7 +253,7 @@ try:
     import bsddb3 as _junk
     _junk # try to tell pylint we need this import [bruce 071023]
 except:
-    print "error: import bsddb3 failed" #bruce 080505 added this line
+    print "Error: import bsddb failed"
     sys.exit(1)
 else:
     dbname = "bsddb"
@@ -299,7 +262,7 @@ else:
 # shelve will use it. (I don't know any straightforward way to check this. But the
 # docs for shelve say it will use it, I think. #k check this ###@@@)
 
-from bsddb3 import dbshelve
+from bsddb3 import dbshelve as shelve
 
 # (For the actual filename of the prefs file, see the code of _make_prefs_shelf()
 #  below, which specifies the basename only; the db module decides what extension
@@ -312,7 +275,8 @@ _shelfname = _shelf = _cache = None
 _defaults = _trackers = None #bruce 050804 new features
 
 def _make_prefs_shelf():
-    """[private function]
+    """
+    [private function]
     call this once per session,
     to create or find the shelf (whose name depends only on the dbm format we'll use for it),
     and create the cache of its contents,
@@ -326,13 +290,18 @@ def _make_prefs_shelf():
         # This name should differ when db format differs.
         # Note: the actual filename used might have an extension added
         # by the db module (in theory, it might even create two files
-        # with different extentions from the given basename).
+        # with different extensions from the given basename).
         # By experiment, on the Mac, with bsddb there is no extension added,
         # and without it there is '.db' added. [bruce 050105]
     mkdirs_in_filename(_shelfname)
-    _shelf = dbshelve.open(_shelfname)
+    _shelf = shelve.open(_shelfname.encode("utf_8"))
     _cache = {}
     _cache.update(_shelf) # will this work?
+    was_just_made = (not _cache) #bruce 080505
+    if was_just_made:
+        print u"made prefs db, basename", _shelfname.encode("utf_8")
+    else:
+        print u"prefs db already existed, basename", _shelfname.encode("utf_8")
     _defaults = {}
     _trackers = {}
     # zap obsolete contents
@@ -355,6 +324,74 @@ def _make_prefs_shelf():
     proc_info = "process: pid = %d, starttime = %r" % (os.getpid(), time.asctime())
     _store_while_open( '_fyi/last_proc', proc_info ) # (nothing yet looks at this)
     _close()
+    
+    if was_just_made:
+        # use DEFAULT_PREFS_BASENAME [bruce 080505 new feature];
+        # file format must correspond with that written by
+        # packaging/Pref_Mod/pref_modifier.py
+        default_prefs_values = {}
+        # read the values from DEFAULT_PREFS_BASENAME
+        # (while shelf is closed, in case this takes time)
+        try:
+            filename = os.path.join( nanorex, "Preferences", DEFAULT_PREFS_BASENAME )
+            if not os.path.exists(filename):
+                lines = []
+                print u"didn't find", filename.encode("utf_8")
+            else:
+                file = open( filename, "rU")
+                lines = file.readlines()
+                file.close()
+                print u"reading from", filename.encode("utf_8")
+            for line in lines:
+                line0 = line
+                try:
+                    # try/except so corrupted lines don't break good ones added later
+                    # assume line has the correct format: key = val\n
+                    while line[-1] in ('\r', '\n'):
+                        # 'while' is to handle Windows newlines
+                        # (probably not needed due to 'rU')
+                        line = line[:-1]
+                    key, val = line.split(" = ")
+                        # don't strip key or val -- they might end with spaces
+                    def decode(string1):
+                        words = string1.split(r'\\')
+                        for i in range(len(words)):
+                            word = words[i]
+                            word = word.replace(r'\=', '=')
+                            word = word.replace(r'\n', '\n')
+                            word = word.replace(r'\r', '\r')
+                            words[i] = word
+                            continue
+                        return '\\'.join(words)                        
+                    key = decode(key)
+                    val = decode(val)
+                    if val == 'True':
+                        val = True
+                    elif val == 'False':
+                        val = False
+                    default_prefs_values[key] = val
+                    # print "read key, val = (%r, %r)" % (key, val)
+                    pass
+                except:
+                    print "ignoring exception in this line: %r" % (line0,)
+                    pass
+                continue
+            pass
+        except:
+            print "ignoring exception reading from", DEFAULT_PREFS_BASENAME
+            default_prefs_values = {}
+            pass
+        items = default_prefs_values.items()
+        items.sort() # just to make the following console prints look nicer
+        # now open, store the values, and close
+        _shelf = shelve.open(_shelfname.encode("utf_8"))
+        for key, val in items:
+            pkey = _PREFS_KEY_TO_SHELF_KEY(key)
+            _store_while_open( pkey, val)
+            print "stored key, val = (%r, %r)" % (key, val)
+        _close()
+        pass
+    
     return
 
 def _close():
@@ -367,7 +404,7 @@ def _reopen():
     _ensure_shelf_exists()
     global _shelf
     assert _shelf is None
-    _shelf = dbshelve.open(_shelfname)
+    _shelf = shelve.open(_shelfname.encode("utf_8"))
     # don't bother to re-update our _cache! This would be too slow to do every time.
     return
 
@@ -409,7 +446,10 @@ def _tracker_for_pkey(pkey):
     pass
 
 def _get_pkey_key(pkey, key): #bruce 050804 split this out of __getitem__ so I can also use it in get (both methods)
-    "[#doc better; note: pkey and key args are redundant; they're both provided just for this implem's convenience]"
+    """
+    [#doc better; note: pkey and key args are redundant;
+     they're both provided just for this implem's convenience]
+    """
     _track_use(pkey) # note, this is done even if we raise KeyError below (which is good)
     try:
         return _cache[pkey]
@@ -422,7 +462,8 @@ def _get_pkey_faster(pkey): # optimization of _get_pkey_key(pkey, key) when the 
     return _cache[pkey]
 
 def _record_default( pkey, dflt):
-    """Record this default value (if none is yet known for pkey),
+    """
+    Record this default value (if none is yet known for pkey),
     so other code can find out what the default value is,
     for use in "restore defaults" buttons in prefs UI.
     In debug version, also ensure this is the same as any previously recorded default value.
@@ -438,7 +479,8 @@ def _record_default( pkey, dflt):
     return
 
 def _restore_default_while_open( pkey): #bruce 050805
-    """Remove the pref for pkey from the prefs db (but no error if it's not present there).
+    """
+    Remove the pref for pkey from the prefs db (but no error if it's not present there).
     As for the internal value of the pref (in _cache, and for track_change, and for subscriptions to its value):
     If a default value has been recorded, change the cached value to that value
     (as it would be if this pref had originally been missing from the db, and a default value was then recorded).
@@ -465,7 +507,8 @@ def _restore_default_while_open( pkey): #bruce 050805
     return
 
 def keys_list( keys): #bruce 050805
-    """Given a key or a list of keys (or a nested list), return an equivalent list of keys.
+    """
+    Given a key or a list of keys (or a nested list), return an equivalent list of keys.
     Note: tuples of keys are not allowed (someday they might be a new kind of primitive key).
     """
     res = []
@@ -487,15 +530,24 @@ def keys_list( keys): #bruce 050805
 _NOT_PASSED = [] # private object for use as keyword arg default [bruce 070110, part of fixing bug of None as Choice value]
     # (note, the same global name is used for different objects in preferences.py and debug_prefs.py)
 
+def _PREFS_KEY_TO_SHELF_KEY(prefs_key):
+    """
+    Translate a prefs_key string (used in external code)
+    to a shelf database key string (called "pkey" in some local variables).
+    """
+    #bruce 080505 split this out of _prefs_context._attr2key
+    return "k " + prefs_key
+
 class _prefs_context:
-    """Represents a symbol context for prefs names, possibly [someday] customized for one module.
+    """
+    Represents a symbol context for prefs names, possibly [someday] customized for one module.
     """
     def __init__(self, modname):
         # modname is not presently used
         _ensure_shelf_exists() # needed before __getattr__ and __getitem__ are called
         self.trackers = {}
-    def _attr2key(self, attr):
-        return "k " + attr # stub! (i guess)
+    def _attr2key(self, attr): # note: method and its arg are misnamed.
+        return _PREFS_KEY_TO_SHELF_KEY(attr)
     #e Someday we will support more complex keys,
     # which are like exprs whose heads (at all levels) are in our context.
     # For now, just support arbitrary strings as items.
@@ -525,8 +577,7 @@ class _prefs_context:
             return # see long comment above
         if _shelf:
             _shelf[pkey] = _cache[pkey] = val
-            #Next line removed because I don't care about tracking changes right now. (Derrick)
-#            _track_change(pkey) # do this only after the change happens, for the sake of formulas...
+            #_track_change(pkey) # do this only after the change happens, for the sake of formulas...
                 #e (someday we might pass an arg saying the change is done, or the curval is merely invalid,
                 #   and if the latter, whether another track_change will occur when the change is done.)
         else:
@@ -587,7 +638,8 @@ class _prefs_context:
                 _close()
         return
     def suspend_saving_changes(self): #bruce 051205 new feature
-        """Let prefs changes after this point be saved in RAM and take full effect
+        """
+        Let prefs changes after this point be saved in RAM and take full effect
         (including notifying subscribers),
         but not be saved to disk until the next call to resume_saving_changes
         (which should be called within the same user command or mouse drag,
@@ -605,7 +657,8 @@ class _prefs_context:
         _reopen()
         return
     def resume_saving_changes(self, redundant_is_ok = False): #bruce 051205 new feature
-        """Resume saving changes, after a call of suspend_saving_changes.
+        """
+        Resume saving changes, after a call of suspend_saving_changes.
         Optional redundant_is_ok = True prevents a warning about a redundant call;
         this is useful for letting callers make sure changes are being saved
         when they should be (and probably already are).
@@ -620,7 +673,8 @@ class _prefs_context:
                 print "warning: redundant resume_saving_changes ignored"
         return
     def restore_defaults(self, keys): #bruce 050805
-        """Given a key or a list of keys,
+        """
+        Given a key or a list of keys,
         restore the default value of each given preference
         (if one has yet been recorded, e.g. if prefs.get has been provided with one),
         with all side effects as if the user set it to that value,
@@ -726,12 +780,11 @@ def declare_pref( attrname, typecode, prefskey, dflt = None ): # arg format is s
 #        try:
 #            declare_pref(*prefrec)
 #        except:
-#            sys.exit(1)
-#           #print_compact_traceback( "ignoring prefs_table entry %r with this exception: " % (prefrec,) )
+#            print_compact_traceback( "ignoring prefs_table entry %r with this exception: " % (prefrec,) )
 #        pass
-    
+#    
 #    env.prefs = prefs_context() # this is only ok because all modules use the same prefs context.
-    
+#    
 #    if 0 and debug_flags.atom_debug:
 #        print "atom_debug: done with prefs_table" # remove when works
 #    return

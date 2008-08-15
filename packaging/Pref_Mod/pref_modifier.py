@@ -6,20 +6,42 @@ import NE1_Build_Constants
 
 prefs = prefs_context()
 
-if os.name=="nt":  #Windows machines spawn and remove the shell, so no info is normally captured
-    try: #The next lines until the sys.stdout were taken and modified from PlatformDependent.py
-        capture_con=True
-        tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/")) #Find the default user path
+if os.name=="nt":
+    capture_console = False
+    capture_file = ""
+    # if it's not reporting as python is the executable
+    if not sys.executable.upper().endswith("PYTHON.EXE") and \
+       not sys.executable.upper().endswith("PYTHON"):
+        try:
+            capture_file = u"".join((sys.executable[:-4], "_console.log"))
+            sys.stdout = open(capture_file, 'w')
+            capture_console = True # already trapped, don't try more.
+        except:
+            pass
+    if not capture_console:
+        # Haven't captured the console log yet.  Find the default user
+        # path and try to capture there this happens if we can't write to
+        # the normal log location, or if python.exe is the executable.
+        tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/"))
         if not os.path.exists(tmpFilePath): #If it doesn't exist
             try:
                 os.mkdir(tmpFilePath) #Try making one
+                capture_console = True 
             except:
-                capture_con=False # we tried, but there's no easy way to capture the console
-        if capture_con:
-            sys.stdout = open(os.path.normpath(tmpFilePath+"/prefs-run.log"), 'w')
-            sys.stderr = open(os.path.normpath(tmpFilePath+"/prefs-err.log"), 'w')
-    except:
-        pass
+                pass
+                # we tried, but there's no easy way to capture the console
+        if capture_console or os.path.isdir(tmpFilePath):
+            try: # We made the directory or it already existed, try
+                    # creating the log file.
+                capture_file = os.path.normpath(u"".join((tmpFilePath,\
+                                                          "/NE1_console.log")))
+                sys.stdout = open(capture_file, 'w')
+                capture_console = True
+            except:
+                print >> sys.__stderr__, \
+                      "Failed to create any console log file."
+                capture_console = False
+
 
 from prefs_constants import qutemol_enabled_prefs_key
 from prefs_constants import qutemol_path_prefs_key
@@ -84,7 +106,7 @@ try:
     progopts=getopt.getopt(sys.argv[1:],"k:K:v:V:")
 except:
     exitset=True
-    
+
 #start of actual main program
 progopts=progopts[0]
 parseopts(progopts)
@@ -109,10 +131,10 @@ prefs.update(prefstmp) # modifies bsddb-shelf
 _tmpary = NE1_Build_Constants.NE1_RELEASE_VERSION.split(".")
 if len(_tmpary) >= 3:
     DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s-%s.txt" % \
-                             (_tmpary[0], _tmpary[1], _tmpary[2])
+                           (_tmpary[0], _tmpary[1], _tmpary[2])
 else:
     DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s.txt" % \
-                             (_tmpary[0], _tmpary[1])
+                           (_tmpary[0], _tmpary[1])
 
 try:
     from preferences import find_or_make_Nanorex_directory
