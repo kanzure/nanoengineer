@@ -35,7 +35,7 @@ if os.name=="nt":
             try: # We made the directory or it already existed, try
                     # creating the log file.
                 capture_file = os.path.normpath(u"".join((tmpFilePath,\
-                                                          "/NE1_console.log")))
+                                                          "/pref_mod_console.log")))
                 sys.stdout = open(capture_file, 'w')
                 sys.stderr = sys.stdout
                 capture_console = True
