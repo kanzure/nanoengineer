@@ -215,9 +215,7 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         self._breakOptionsGroupbox = PM_GroupBox( self, title = "Break Options" )
         self._loadBreakOptionsGroupbox( self._breakOptionsGroupbox )
         
-        if not DEBUG_BREAK_OPTIONS_FEATURE:
-            self._breakOptionsGroupbox.hide()
-  
+         
         self._displayOptionsGroupBox = PM_GroupBox( self, title = "Display options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
         
@@ -229,6 +227,18 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         """
         Load widgets in this group box.
         """        
+        
+        self.assignColorToBrokenDnaStrandsCheckBox = \
+            PM_CheckBox(pmGroupBox ,
+                        text         = 'Assign new color to broken strands',
+                        widgetColumn = 0, 
+                        spanWidth = True)
+        
+        connect_checkbox_with_boolean_pref(
+            self.assignColorToBrokenDnaStrandsCheckBox, 
+            assignColorToBrokenDnaStrands_prefs_key )
+        
+           
         
         self.basesBeforeNextBreakSpinBox = \
             PM_SpinBox( pmGroupBox, 
@@ -249,21 +259,18 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
             label = "",
             text  = "do it" )
     
-        self.assignColorToBrokenDnaStrandsCheckBox = \
-            PM_CheckBox(pmGroupBox ,
-                        text         = 'Assign new color to broken strands',
-                        widgetColumn = 0, 
-                        spanWidth = True)
-        
-        connect_checkbox_with_boolean_pref(
-            self.assignColorToBrokenDnaStrandsCheckBox, 
-            assignColorToBrokenDnaStrands_prefs_key )
-        
+                
         self._dnaStrandChooserGroupBox = PM_ObjectChooser(            
             pmGroupBox,
             self.command,
             modelObjectType = self.win.assy.DnaStrand,
             title = "Choose strands " )
+        
+        if not DEBUG_BREAK_OPTIONS_FEATURE:
+            self._dnaStrandChooserGroupBox.hide()
+            self.breakAllStrandsButton.hide()
+            self.basesBeforeNextBreakSpinBox.hide()
+            
         
 
     #Return varius prefs_keys for arrowhead display options ui elements =======     
