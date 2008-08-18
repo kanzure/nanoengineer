@@ -1,10 +1,21 @@
 #!/bin/sh
 # This should be run from the packaging directory
 
-# Set up some necessary variables
-GMX_VERSION="3.3.3"
-QMX_VERSION="0.5.1"
-NE1_VERSION="1.1.1"
+# set up package version information
+cd Suite
+PKNG_DIR=`pwd`
+cd ..
+if [ -x $PKNG_DIR/ver_info.sh ]
+then
+  . $PKNG_DIR/ver_info.sh
+else
+  VERSION_NUM="1.1.1"
+  GROMACS_VERSION="3.3.3"
+  QUTEMOLX_VERSION="0.5.1"
+  PREF_VER="0.0.2"
+fi
+RC_NUMBER="0"
+
 TAR_DIR="/tmp/dist_tars"
 FORCE_REMOVE=0
 cd .. || exit 1

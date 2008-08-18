@@ -6,6 +6,7 @@
 # Set control variable to build packages if they are not build already
 # This will probably be removed later as it was only added for testing
 BUILD_IF_UNBUILT=1
+PKNG_DIR=`pwd`
 
 # Set up path variables
 cd ../..
@@ -13,12 +14,21 @@ TOP_LEVEL=`pwd`
 DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT
 
-# Set up version information
-VERSION_NUM="1.1.1.2"
+# set up package version information
+if [ -x $PKNG_DIR/ver_info.sh ]
+then
+  . $PKNG_DIR/ver_info.sh
+  VERSION_NUM=$NE1_VERSION
+  GROMACS_VERSION=$GMX_VERSION
+  QUTEMOLX_VERSION=$QMX_VERSION
+  PREF_VER=$PREF_VERSION
+else
+  VERSION_NUM="1.1.1"
+  GROMACS_VERSION="3.3.3"
+  QUTEMOLX_VERSION="0.5.1"
+  PREF_VER="0.0.2"
+fi
 RC_NUMBER="0"
-GROMACS_VERSION="3.3.3"
-QUTEMOLX_VERSION="0.5.1"
-PREF_VER="0.0.2"
 
 # Do a basic check for sanity in the build area.
 if [ ! -e "$TOP_LEVEL/cad/src" ]

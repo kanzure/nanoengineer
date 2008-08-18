@@ -18,12 +18,21 @@ then
   mkdir ~/MacOSX_Installers
 fi
 
-# Set up version information
-VERSION_NUM="1.1.1"
+# set up package version information
+if [ -x $PKNG_DIR/ver_info.sh ]
+then
+  . $PKNG_DIR/ver_info.sh
+  VERSION_NUM=$NE1_VERSION
+  GROMACS_VERSION=$GMX_VERSION
+  QUTEMOLX_VERSION=$QMX_VERSION
+  PREF_VER=$PREF_VERSION
+else
+  VERSION_NUM="1.1.1"
+  GROMACS_VERSION="3.3.3"
+  QUTEMOLX_VERSION="0.5.1"
+  PREF_VER="0.0.2"
+fi
 RC_NUMBER="0"
-GROMACS_VERSION="3.3.3"
-QUTEMOLX_VERSION="0.5.1"
-PREF_VER="0.0.2"
 
 DATECODE=`date "+%B %d, %Y"`
 
