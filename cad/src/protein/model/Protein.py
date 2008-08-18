@@ -9,9 +9,9 @@ Protein.py -- Protein class implementation.
 
 History:
 
-Piotr 2008-07-09:
-- Created a preliminary version of the Protein class.
+piotr 080709: Created a preliminary version of the Protein class.
 
+piotr 080819: Completed docstrings and documented better.
 """
 
 import foundation.env as env
@@ -182,6 +182,7 @@ AA_3_TO_1 = {
     'GLX':'Z',
     'UNK':'X' }
 
+# 3- TO 1-letter conversion for PDB nucleotide names
 NUC_3_TO_1 = {
     ' DG':'G',
     ' DA':'A',
@@ -209,6 +210,7 @@ SS_TURN = 3
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
+# PDB atom name sets for chiral angles for amino acid side chains
 chi_angles = { "GLY" : [ None, 
                          None, 
                          None, 
@@ -286,6 +288,7 @@ chi_angles = { "GLY" : [ None,
                          None,
                          None ] }
 
+# Sets of atoms excluded from chi-angle rotations.
 chi_exclusions = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
                              [ "CB", "HB2", "HB3" ],
                              None,
@@ -459,6 +462,9 @@ class Residuum:
     def get_atom(self, pdbname):
         """
         Return an atom by PDB name.
+        
+        @param pdbname: a PDB name of an atom.
+        @type: string
         """
         if self.atoms.has_key(pdbname):
             return self.atoms[pdbname]
@@ -467,80 +473,131 @@ class Residuum:
     def has_atom(self, atom):
         """
         Check if the atom belongs to self.
+        
+        @param atom: atom to be checked
+        @type atom: Atom
+        
         """
         if atom in self.atoms.values():
             return True
         else:
             return False
         
-    def set_secondary_structure(self, type):
+    def set_secondary_structure(self, sec):
         """
-        Set a secondary structure type for current amino acid.
+        Set a secondary structure type for this residue.
+        
+        @param sec: secondary structure type to be assigned
+        @type sec: int
+        
         """
-        self.secondary_structure = type
+        self.secondary_structure = sec
         
     def get_secondary_structure(self):
         """
         Retrieve a secondary structure type.
+
+        @return: secondary structure of this residue. 
         """
         return self.secondary_structure
         
     def get_atom_by_name(self, name):
+        """
+        Returns a residue atom for a given name, or None if not found.
+        
+        @param name: name of the atom
+        @type name: string
+        
+        @return: atom
+        """
         if self.atoms.has_key(name):
             return self.atoms[name]
+        
         return None
     
     def get_c_alpha_atom(self):
         """
-        Return a CA atom (or None).
+        Return an alpha-carbon atom atom (or None).
+        
+        @return: alpha carbon atom
         """
         return self.get_atom_by_name("CA")
     
     def get_c_beta_atom(self):
         """
-        Return a CB atom (or None).
+        Return a beta carbon atom (or None).
+        
+        @return: beta carbon atom
         """
         return self.get_atom_by_name("CA")
     
     def get_n_atom(self):
         """
         Return a backbone nitrogen atom.
+        
+        @return: backbone nitrogen atom
         """
         return self.get_atom_by_name("N")
         
     def get_c_atom(self):
         """
         Return a backbone carbon atom.
+        
+        @return: backbone carbonyl group carbon atom
         """
         return self.get_atom_by_name("C")
         
     def get_o_atom(self):
         """
         Return a backbone oxygen atom.
+        
+        @return: backbone carbonyly group oxygen atom
         """
         return self.get_atom_by_name("O")
         
     def set_mutation_range(self, range):
         """
+        Sets a mutation range according to Rosetta definition.
+        
+        @param range: mutation range
+        @type range: string
         """
         self.mutation_range = range
         
     def get_mutation_range(self):
         """
+        Gets a mutaion range according to Rosetta definition.
+        
+        @return: range
         """
         return self.mutation_range
     
     def set_mutation_descriptor(self, descriptor):
         """
+        Sets a mutation descriptor according to Rosetta definition.
+        
+        @param descriptor: Rosetta mutation descriptor 
+        @type descriptor: string (20-characters long)
         """
         self.mutation_descriptor = descriptor
         
     def get_mutation_descriptor(self):
+        """
+        Returns a mutation descriptor according to Rosetta definition.
+        
+        @return descriptor: string (20-characters long)
+        """
         return self.mutation_descriptor
     
     def calc_torsion_angle(self, atom_list):
         """
-        Calculates a torsion angle between four atoms.
+        Calculates a torsional angle between four atoms, A1-A2-A3-A4,
+        returns the torsional angle between atoms A2 and A3.
+        
+        @param atom_list: list of four atoms describing the torsion bond
+        @type atom_list: list
+        
+        @return: value of the torsional angle (float)
         """
    
         from Numeric import dot
@@ -548,14 +605,21 @@ class Residuum:
         from geometry.VQT import cross
         
         if len(atom_list) != 4:
+            # The list has to have four members.
             return 0.0
         
+        # Calculate pairwise distances
         v12 = atom_list[0].posn() - atom_list[1].posn()
         v43 = atom_list[3].posn() - atom_list[2].posn()
         v23 = atom_list[1].posn() - atom_list[2].posn()
-        
+
+        # p is perpendicular to v23_v12 plane
         p = cross(v23, v12)
+        
+        # x is perpendicular to v23_v43 plane
         x = cross(v23, v43)
+        
+        # y is perpendicular to v23_x plane
         y = cross(v23, x)
         
         u1 = dot(x, x)
@@ -570,23 +634,29 @@ class Residuum:
         
         if u2 != 0.0 and \
            v2 != 0.0:
+            # calculate the angle
             return atan2(v2, u2) * (180.0 / pi)
         else:
             return 360.0
          
     def get_chi_atom_list(self, which):
         """
+        Create a list of four atoms for computing a given chi angle.
+        Return None if no such angle exists for this amino acid.
+        
+        @param which: chi angle (0=chi1, 1=chi2, and so on)
+        @type which: int
+        
+        @return: list of four atoms
         """
         if which in range(4):
             if chi_angles.has_key(self.name):
                 chi_list = chi_angles[self.name]
-                #print "CHI LIST = ", chi_list
                 if chi_list[which]:
                     chi_atom_names = chi_list[which]
                     chi_atoms = []
                     for name in chi_atom_names:
                         atom = self.get_atom_by_name(name)
-                        #print "CHI ATOM = ", (name, atom)
                         if atom:
                             chi_atoms.append(atom)
                     return chi_atoms
@@ -594,18 +664,23 @@ class Residuum:
      
     def get_chi_atom_exclusion_list(self, which):
         """
+        Create a list of atoms excluded from rotation for a current amino acid.
+        Return None if wrong chi angle is requested.
+        
+        @param which: chi angle (0=chi1, 1=chi2, and so on)
+        @type which: int
+        
+        @return: list of atoms to be excluded from rotation
         """
         if which in range(4):
             if chi_exclusions.has_key(self.name):
                 chi_ex_list = chi_exclusions[self.name]
-                #print "CHI LIST = ", chi_list
                 ex_atoms = [self.get_atom_by_name("OXT")]
                 for w in range(0, which + 1):
                     if chi_ex_list[w]:
                         ex_atom_names = chi_ex_list[w]
                         for name in ex_atom_names:
                             atom = self.get_atom_by_name(name)
-                            #print "CHI ATOM = ", (name, atom)
                             if atom:
                                 ex_atoms.append(atom)
                 return ex_atoms
@@ -615,6 +690,11 @@ class Residuum:
         """
         Computes the side-chain Chi angle. Returns None if the angle
         doesn't exist.
+        
+        @param which: chi angle (0=chi1, 1=chi2, and so on)
+        @type which: int
+        
+        @return: value of the specified chi angle
         """
         chi_atom_list = self.get_chi_atom_list(which)
         if chi_atom_list:
@@ -624,6 +704,13 @@ class Residuum:
     
     def get_atom_list_to_rotate(self, which):
         """
+        Create a list of atoms to be rotated around a specified chi angle.
+        Returns an empty list if wrong chi angle is requested.
+        
+        @param which: chi angle (0=chi1, 1=chi2, and so on)
+        @type which: int
+        
+        @return: list of atoms to be rotated for a specified chi angle
         """
         atom_list = []
         
@@ -636,27 +723,26 @@ class Residuum:
                     atom_list.append(atom)
                   
         return atom_list
-
     
-    #def get_atom_list_to_rotate(self, atom1, atom2):
-    #    """
-    #    """
-    #    atom_list = []
-    #
-    #    def recurse_bonds
-    #    for bond in atom2.bonds:
-    #        pass
-    #        
-
     def lock(self):
         """
-        Lock the amino acid (set mutation range to "native rotamer")
+        Locks this residue (sets Rosetta mutation range to "native rotamer").      
         """
         self.set_mutation_range("NATRO")
         
     def set_chi_angle(self, which, angle):
         """
+        Sets a specified chi angle of this amino acid.
+        
+        @param which: chi angle (0=chi1, 1=chi2, and so on)
+        @type which: int
+        
+        @param angle: value of the chi angle to be set
+        @type angle:float
+        
+        @return: angle value if sucessfully completed, None if not
         """
+        
         from geometry.VQT import norm, Q, V
         from math import pi, cos, sin
         
@@ -676,11 +762,15 @@ class Residuum:
                     
                     q = V(0, 0, 0)
                     
+                    # rotate point around a vector
+                    
                     q[0] += (cos_a + (1.0 - cos_a) * vec[0] * vec[0]) * pos[0];
                     q[0] += ((1.0 - cos_a) * vec[0] * vec[1] - vec[2] * sin_a) * pos[1];
-                    q[0] += ((1.0 - cos_a) * vec[0] * vec[2] + vec[1] * sin_a) * pos[2];
+                    q[0] += ((1.0 - cos_a) * 
+                             vec[0] * vec[2] + vec[1] * sin_a) * pos[2];
                  
-                    q[1] += ((1.0 - cos_a) * vec[0] * vec[1] + vec[2] * sin_a) * pos[0];
+                    q[1] += ((1.0 - cos_a) * 
+                             vec[0] * vec[1] + vec[2] * sin_a) * pos[0];
                     q[1] += (cos_a + (1.0 - cos_a) * vec[1] * vec[1]) * pos[1];
                     q[1] += ((1.0 - cos_a) * vec[1] * vec[2] - vec[0] * sin_a) * pos[2];
                  
@@ -691,25 +781,26 @@ class Residuum:
                     q += first_atom_posn
                     
                     atom.setposn(q)
+                    return angle
                 
         return None
         
     def expand(self):
         """
-        Expand a rotamer.
+        Expands a residue side chain.
         """
         
         self.expanded = True
         
     def collapse(self):
         """
-        Collapse a rotamer.
+        Collapse a residue side chain.
         """
         self.expanded = False
         
     def is_expanded(self):
         """
-        Return True if the rotamer is expanded.
+        Return True if side chain of this amino acid is expanded.
         """
         return self.expanded
     
@@ -722,22 +813,27 @@ class Residuum:
     def set_backrub_mode(self, enable_backrub):
         """
         Sets Rosetta backrub mode (True or False).
+        
+        @param enable_backrub: should backrub mode be enabled for this residue
+        @type enable_backrub: boolean
         """
         self.backrub = enable_backrub
         
     def get_backrub_mode(self):
         """ 
         Gets Rosetta backrub mode (True or False).
+        
+        @return: is backrub enabled for this residue (boolean)
         """
         return self.backrub
     
 # End of Residuum class.
 
 
-
 class Protein:
     """
-    This class implements a protein model.
+    This class implements a protein model in NanoEngineer-1. This is an
+    early implementation as of July 2008. 
     """
     
     def __init__(self):
@@ -753,24 +849,34 @@ class Protein:
     def set_chain_id(self, chainId):
         """
         Sets a single letter chain ID.
+        
+        @param chainId: chain ID of current protein
+        @type chainId: character
         """
         self.chainId = chainId
 
     def get_chain_id(self):
         """
         Gets a single letter chain ID.
+        
+        @return: chain ID of current protein (character)
         """
         return self.chainId
 
     def set_pdb_id(self, pdbId):
         """
         Set a four-letter PDB identificator.
+        
+        @param pdbId: PDB ID of current protein
+        @type pdbId: string (four characters)
         """
         self.pdbId = pdbId
         
     def get_pdb_id(self):
         """
         Return a four-letter PDB identificator.
+        
+        @return: PDB ID of current protein (four-character string)
         """
         return self.pdbId
         
@@ -778,6 +884,20 @@ class Protein:
         """
         Adds a new atom to the protein. Returns a residue that the atom
         has been added to.
+        
+        @param atom: new atom to be added to the protein
+        @type atom: Atom
+        
+        @param pdbname: PDB name (label) of the atom (up to four characters)
+        @type pdbname: string
+        
+        @param resId: PDB residue ID (an integer, usually)
+        @type resId: integer
+        
+        @param resName: PDB residue name
+        @type name: string
+        
+        @return: residue the atom has been added to (Residue) 
         """
         if self.sequence.has_key(resId):
             # Find an existing residuum.
@@ -796,7 +916,12 @@ class Protein:
     
     def is_c_alpha(self, atom):
         """
-        Check if this is a C-alpha atom.
+        Check if the atom is a C-alpha atom.
+        
+        @param atom: atom to be tested
+        @type atom: boolean
+        
+        @return: True if atom is an alpha carbon atom, False if it is not
         """
         if atom in self.ca_atom_list:
             return True
@@ -805,19 +930,29 @@ class Protein:
         
     def count_c_alpha_atoms(self):
         """
-        Return a total number of alpha carbon atoms.
+        Return a total number of alpha carbon atoms in the protein
+        (usually equal to the protein sequence length).
+        
+        @return: number of C-alpha atoms (integer)
         """
         return len(self.ca_atom_list)
     
     def get_c_alpha_atoms(self):
         """
         Return a list of alpha carbon atoms.
+        
+        @return: list of atoms 
         """
         return self.ca_atom_list
     
     def is_c_beta(atom):
         """
-        Check if this is a C-beta atom.
+        Check if the atom is a C-beta atom.
+        
+        @param atom: atom to be tested
+        @type atom: boolean
+        
+        @return: True if atom is a carbon-beta atom, False if it is not.
         """
         if atom in self.cb_atom_list:
             return True
@@ -827,6 +962,8 @@ class Protein:
     def get_sequence_string(self):
         """
         Create and return a protein sequence string.
+        
+        @return: string corresponding to the protein sequence in 1-letter code
         """
         seq = ""
         for aa in self.get_amino_acids():
@@ -853,7 +990,11 @@ class Protein:
 
     def get_secondary_structure_string(self):
         """
-        Create and return a protein sequence string.
+        Create and return a protein sequence string. 'H' corresponds
+        to helical conformation, 'E' corresponds to extended secondary
+        structure, 'C' corresponds to coil (other types of secondary structure).
+        
+        @return: secondary structure string 
         """
         ss_str = ""
         for aa in self.get_amino_acids():
@@ -869,8 +1010,10 @@ class Protein:
 
     def get_amino_acid_id(self, index):
         """
-        Create and return an amino acid ID (protein name, 
-        index, residuum name, residuum index).
+        Create and return a description of this residue (protein name, index, 
+        residue name, residue index).
+        
+        @return: string describing the current residue
         """
         aa_list = self.get_amino_acids()
         if index in range(len(aa_list)):
@@ -889,8 +1032,10 @@ class Protein:
     
     def get_amino_acid_id_list(self):
         """
-        Create and return a list of amino acid IDs (protein name, 
-        index, residuum name, residuum index).
+        Create and return a list of residue descriptions (protein name, index, 
+        residue name, residue index).
+        
+        @return: list of residue descriptions for all amino acids
         """
         id_list = []
         for idx in range(len(self.get_amino_acids())):
@@ -901,13 +1046,18 @@ class Protein:
     
     def get_amino_acids(self):
         """
-        Return a list of residues in current protein object.
+        Return a list of residues in this protein.
+        
+        @return: list of residues
         """
         return self.sequence.values()
     
     def assign_helix(self, resId):
         """
         Assign a helical secondary structure to resId.
+        
+        @param resId: residue ID for secondary structure assignment
+        @type resId: int
         """
         if self.sequence.has_key(resId):
             aa = self.sequence[resId]
@@ -916,6 +1066,9 @@ class Protein:
     def assign_strand(self, resId):
         """
         Assign a beta secondary structure to resId.
+        
+        @param resId: residue ID for secondary structure assignment
+        @type resId: int
         """
         if self.sequence.has_key(resId):
             aa = self.sequence[resId]
@@ -924,6 +1077,9 @@ class Protein:
     def assign_turn(self, resId):
         """
         Assign a turn secondary structure to resId.
+        
+        @param resId: residue ID for secondary structure assignment
+        @type resId: int
         """
         if self.sequence.has_key(resId):
             aa = self.sequence[resId]
@@ -931,20 +1087,28 @@ class Protein:
             
     def expand_rotamer(self, aa):
         """
-        Expand a rotamer.
+        Expand a side chain of a given amino acid.
+        
+        @param aa: amino acid to expand
+        @type aa: Residue
         """
         self.residues_dl = None
         aa.expand()
-        
+
     def is_expanded(self, aa):
         """
         Check if a given amino acid's rotamer is expanded.
+        
+        @param aa: amino acid to check 
+        @type aa: Residue
+        
+        @return: True if amino acid's side chain is expanded
         """
         return aa.is_expanded()
     
     def collapse_all_rotamers(self):
         """
-        Collapse all rotamers.
+        Collapse all side chains.
         """
         self.residues_dl = None
         self.residues_hi_dl = None
@@ -953,7 +1117,7 @@ class Protein:
         
     def expand_all_rotamers(self):
         """
-        Expand all rotamers.
+        Expand all side chains.
         """
         self.residues_dl = None
         self.residues_hi_dl = None
@@ -962,7 +1126,12 @@ class Protein:
         
     def get_residuum(self, atom):
         """
-        For a given atom, return a residuum the atom belongs to.
+        For a given atom, return a residuum that the atom belongs to.
+        
+        @param atom: atom to look for
+        @type atom: Atom
+        
+        @return: residue the atom belongs to, or None if not found
         """
         for aa in self.sequence.itervalues():
             if aa.has_atom(atom):
@@ -991,6 +1160,8 @@ class Protein:
     def get_current_amino_acid(self):
         """
         Get current amino acid. 
+        
+        @return: current amino acid (Residue)
         """
         if self.current_aa_idx in range(len(self.sequence)):
             return self.sequence.values()[self.current_aa_idx]
@@ -999,9 +1170,11 @@ class Protein:
     def get_amino_acid_at_index(self, index):
         """
         Return the amino acid at the given index
+        
         @param index: index of amino acid requested
         @type index: int
-        @return: amino acid
+
+        @return: amino acid (Residue)
         """
         #Urmi 20080728: created to do the two way connection between protein
         #sequence editor and residue combo box
@@ -1011,11 +1184,18 @@ class Protein:
     
     def get_current_amino_acid_index(self):
         """
+        Get index of current amino acid.
+        
+        @return: index of current amino acid (integer)
         """
         return self.current_aa_idx
         
     def set_current_amino_acid_index(self, index):
         """
+        Set index of current amino acid.
+        
+        @param index: index of current amino acid
+        @type index: integer
         """
         if index in range(len(self.sequence)):
             self.current_aa_idx = index
@@ -1023,6 +1203,8 @@ class Protein:
     def get_number_of_backrub_aa(self):
         """
         Returns a number of backrub amino acids.
+        
+        @return: number of amino acids assigned as "backrub" (integer)
         """
         nbr = 0
         for aa in self.get_amino_acids():
@@ -1032,7 +1214,9 @@ class Protein:
         
     def is_backrub_setup_correctly(self):
         """
-        Returns True if backrub table is set properly.
+        Returns True if the backrub table is properly set up.
+        
+        @return: boolean
         """
         last_aa = None
         # Check if at least two consecutive amino acids have backrub flag
@@ -1067,7 +1251,8 @@ class Protein:
 def write_rosetta_resfile(filename, chunk):
     """
     Write a Rosetta resfile for a given protein chunk. Return True 
-    if succefully written, otherwise return False.
+    if succefully written, otherwise return False. Writes backrub
+    information if the backrub mode is enabled in user preferences.
     """
     
     # Make sure this is a valid protein chunk.
