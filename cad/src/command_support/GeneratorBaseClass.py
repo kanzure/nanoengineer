@@ -113,7 +113,7 @@ class GeneratorBaseClass:
 
     [As of bruce 070719 I am not sure if not inheriting QDialog is possible.]
     There are some other methods here that merit mentioning: 
-    done_btn_clicked, abort_btn_clicked, cancel_btn_clicked, close.
+    done_btn_clicked, cancel_btn_clicked, close.
     """
     # default values of class constants; subclasses should override these as
     # needed
@@ -439,10 +439,6 @@ class GeneratorBaseClass:
         if debug_flags.atom_debug:
             print "done button clicked"
         self.ok_btn_clicked()
-
-    def abort_btn_clicked(self):
-        "Slot for the Abort button"
-        self.cancel_btn_clicked()
 
     def cancel_btn_clicked(self):
         "Slot for the Cancel button"

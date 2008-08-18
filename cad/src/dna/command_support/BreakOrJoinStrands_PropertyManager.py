@@ -151,13 +151,6 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         
         return
     
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """      
-        self.win.toolsDone()
-        return
-        
     #Load various widgets ====================
     
     def _loadBaseNumberLabelGroupBox(self, pmGroupBox):

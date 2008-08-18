@@ -958,17 +958,20 @@ class basicCommand(anyCommand):
         
         return None
     
-    def should_exit_when_ESC_key_pressed(self):
+    def should_exit_when_ESC_key_pressed(self): # not overridden, as of 080815
         """
-        Returns whether the command should exit when the ESC key is pressed.
-        May be overridden in subclasses. 
+        @return: whether this command should exit when the ESC key is pressed
+        @rtype: boolean
+
+        [May be overridden in subclasses.]
         
-        Default implementation does the following: 
-        If its going to resume the previous command
-        (which can be verified using attr command_should_resume_prevMode). For 
-        now, if you hit Escape key in all such commands, the command will 
-        exit. 
-        @see: class ESC_to_exit_GraphicsMode_preMixin.keyPress().
+        Default implementation returns the value of
+        self.command_should_resume_prevMode
+        (except for the default command, which returns False).
+        For now, if you hit Escape key in all such commands,
+        the command will exit.
+        
+        @see: ESC_to_exit_GraphicsMode_preMixin.keyPress()
         """
         return (self.command_should_resume_prevMode and not self.is_default_command())
 
@@ -1305,6 +1308,10 @@ class basicCommand(anyCommand):
              suspend_old_mode = False,
              exit_using_done_or_cancel_button = True,
              **new_mode_options):
+        # options ever passed:
+        # - exit_using_done_or_cancel_button - common
+        # - new_mode - once
+        # - whichever are passed to _f_userEnterCommand
         """
         Called by the slot method for the Done tool in the dashboard;
         also called internally (in _f_userEnterCommand and elsewhere)
@@ -1381,8 +1388,8 @@ class basicCommand(anyCommand):
             else:
                 #TEMPORARY FIX FOR BUG 2593, 2800 NEEDS CLEANUP
                 # This code is not copied in Cancel 
-                # method as it seems unncessary to do so (as of 2007-12-21) 
-                #(This part of the code is reached only when user explicitely 
+                # method as it seems unnecessary to do so (as of 2007-12-21) 
+                #(This part of the code is reached only when user explicitly
                 #invokes a new command and before entering that command, we
                 #execute 'autoDone' on the current command
                 #If the current command is a temporary command, it is necessary
@@ -1447,10 +1454,8 @@ class basicCommand(anyCommand):
                 if previous_command.command_has_its_own_PM:
                     previous_command.Done()
                 else:
-                    #new Command is a temporary mode with no special
-                    #ui to exit it.
-                    previous_command.Done(
-                        exit_using_done_or_cancel_button = False)
+                    #new Command is a temporary mode with no special ui to exit it.
+                    previous_command.Done(exit_using_done_or_cancel_button = False)
         return
         
     def StateDone(self):
@@ -1471,6 +1476,9 @@ class basicCommand(anyCommand):
                new_mode = None, 
                exit_using_done_or_cancel_button = True,
                **new_mode_options):
+        # options ever passed [as of 080815]:
+        # - exit_using_done_or_cancel_button (and one typo version of that, not sure if it is ever executed)
+        # - new_mode
         """
         Cancel tool in dashboard; might also be called internally
         (but is not as of 040922, I think).  Change [bruce 040922]:
@@ -1507,7 +1515,8 @@ class basicCommand(anyCommand):
                             if new_mode.command_has_its_own_PM:
                                 new_mode.Cancel()
                             else:
-                                new_mode.Cancel(exit_using_don_or_cancel = False)
+                                print "fyi: passing typo option exit_using_don_or_cancel" # does this ever happen?
+                                new_mode.Cancel(exit_using_don_or_cancel = False) ### TYPO! don't fix without analyzing the effects.
                                 
                             resuming = False
                             new_mode = None
@@ -1519,8 +1528,8 @@ class basicCommand(anyCommand):
                 #TEMPORARY FIX FOR BUG 2593 NEEDS CLEANUP 
                 #(just like in self.Done)
                 # This code is not copied in Cancel 
-                # method as it seems unncessary to do so (as of 2007-12-21) 
-                #(This part of the code is reached only when user explicitely 
+                # method as it seems unnecessary to do so (as of 2007-12-21) [but wait, this *is* the Cancel method here...]
+                #(This part of the code is reached only when user explicitly
                 #invokes a new command and before entering that command, we
                 #execute 'autoDone' on the current command
                 #If the current command is a temporary command, it is necessary
@@ -1535,10 +1544,8 @@ class basicCommand(anyCommand):
                             if previous_command.command_has_its_own_PM:
                                 previous_command.Cancel()
                             else:
-                                #new Command is a temporary mode with no special
-                                #ui to exit it.
-                                previous_command.Cancel(
-                                    exit_using_done_or_cancel_button = False)                                        
+                                #new Command is a temporary mode with no special ui to exit it.
+                                previous_command.Cancel(exit_using_done_or_cancel_button = False)                                        
             if resuming:
                 new_mode_options['resuming'] = True
                 new_mode_options['has_its_own_gui'] = self.command_has_its_own_PM

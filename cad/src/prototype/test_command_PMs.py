@@ -119,7 +119,6 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
         pass
     
     def cancel_btn_clicked(self):
-        #bruce 070814 bugfix -- renamed from abort_btn_clicked; new method name is needed by PM_Dialog.cancelButtonClicked
         print "cancel_btn_clicked, nim except for Cancel in", self
         self.commandrun.Cancel()
         pass
@@ -191,7 +190,6 @@ class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
         self.commandrun.Done() ###k both commandrun and Done -- and, kluge, instead GBC should call a done method in self.commandrun
         pass
     def cancel_btn_clicked(self):
-        #bruce 070814 bugfix -- renamed from abort_btn_clicked; new method name is needed by PM_Dialog.cancelButtonClicked
         print "cancel_btn_clicked, doing super then Done (kluge)", self
         GeneratorBaseClass.cancel_btn_clicked(self)
         self.commandrun.Done()

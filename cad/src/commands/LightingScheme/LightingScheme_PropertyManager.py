@@ -669,12 +669,6 @@ class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self._updatePage_Lighting()
         self.save_lighting()
     
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """      
-        self.win.toolsDone()
-    
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.

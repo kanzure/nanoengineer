@@ -115,16 +115,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
                        SIGNAL("toggled(bool)"), 
                        self.command.rotateAboutPointTemporaryCommand)
         
-        
-
-    def ok_btn_clicked(self):
-        """
-        Calls MainWindow.toolsDone to exit the current mode. 
-        @attention: this method needs to be renamed. (this should be done in 
-        PM_Dialog)
-        """
-        self.w.toolsDone()
-
+    
     def activate_translateGroupBox_using_groupButton(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
         Also check the button that was checked when this groupbox  was active

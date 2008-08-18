@@ -463,12 +463,6 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("currentIndexChanged(int)"),
                       self.change_dnaStrandLabelsDisplay )
 
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """
-        self.win.toolsDone()
-
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.

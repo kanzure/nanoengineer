@@ -100,12 +100,6 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
             self.connect_or_disconnect_signals(True)
 
 
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """      
-        self.win.toolsDone()
-
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.

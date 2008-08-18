@@ -203,7 +203,7 @@ def loadFavoriteFile( filename ):
 
             keyValuePair = line.split('=')
             pref_keyString = keyValuePair[0].strip()
-            pref_value=keyValuePair[1].strip()
+            pref_value = keyValuePair[1].strip()
 
             try:
                 if backgroundColor_prefs_key.endswith(pref_keyString):
@@ -294,7 +294,7 @@ def saveFavoriteFile( savePath, fromPath ):
     if fromPath:
         fromFile = open(fromPath, 'r')
 
-    lines=fromFile.readlines()
+    lines = fromFile.readlines()
     saveFile.writelines(lines)
 
     saveFile.close()
@@ -441,12 +441,6 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         color = self.selectionColorComboBox.getColor()
         env.prefs[selectionColor_prefs_key] = color
         return
-
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """
-        self.win.toolsDone()
 
     def cancel_btn_clicked(self):
         """

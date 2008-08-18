@@ -86,11 +86,10 @@ class GeneratorController(GeneratorBaseClass):
     # but they do need to be called from our dialog when its buttons are clicked on.
     # I think we'll also need to add a "restore defaults".
     ##def done_btn_clicked(self): # same as ok
-    ##def abort_btn_clicked(self):
     ##def preview_btn_clicked(self):
     ##def whatsthis_btn_clicked(self):
     ##def ok_btn_clicked(self):
-    ##def cancel_btn_clicked(self): # same as abort
+    ##def cancel_btn_clicked(self):
     
     def gather_parameters(self):
         getters = self.dialog.param_getters

@@ -909,8 +909,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         """
         if USE_COMMAND_STACK:
             ### REVIEW: is this always correct?
-            self.userEnterCommand(self,
-                                  commandName,
+            self.userEnterCommand(commandName,
                                   always_update = always_update )
             return
 

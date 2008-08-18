@@ -153,12 +153,6 @@ class QuteMolPropertyManager(PM_Dialog):
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_QuteMolPropertyManager
         ToolTip_QuteMolPropertyManager(self)
     
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """      
-        self.win.toolsDone()
-
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.

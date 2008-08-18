@@ -399,7 +399,7 @@ class parameter_dialog_or_frame:
                                    (self.cancel_btn, 'do_cancel_btn'),
                                    (self.ok_btn, 'do_ok_btn')):
             if hasattr(self, methodname):
-                self.connect(button,SIGNAL("clicked()"),getattr(self, methodname))
+                self.connect(button, SIGNAL("clicked()"), getattr(self, methodname))
         return
 
 
@@ -499,7 +499,7 @@ class ParameterDialogBase(parameter_dialog_or_frame):
     def do_abort_btn(self):
 ##        print "do_abort_btn: delegating"
         if self.controller:
-            self.controller.abort_btn_clicked()
+            self.controller.cancel_btn_clicked() #bruce 080815 revised (guess), was abort_btn_clicked()
     def do_preview_btn(self):
 ##        print "do_preview_btn: delegating"
         if self.controller:

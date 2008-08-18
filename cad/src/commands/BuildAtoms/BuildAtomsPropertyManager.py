@@ -65,16 +65,6 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         if KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(True)
         
-        
-    def ok_btn_clicked(self):
-        """
-        Calls MainWindow.toolsDone to exit the current mode. 
-        @attention: this method needs to be renamed. (this should be done in 
-        PM_Dialog)
-        """
-        self.w.toolsDone()
-        
-        
     def show(self):
         _superclass.show(self)
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:

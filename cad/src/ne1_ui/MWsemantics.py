@@ -2270,11 +2270,17 @@ class MWsemantics(QMainWindow,
     ###################################
 
     def toolsDone(self):
-        # note: this is apparently still called from several places [bruce 080806 comment]
+        # note: called from several places, including ok_btn_clicked
+        # (and in some cases, cancel_btn_clicked) of PM_Dialog and its
+        # subclasses, and the "Exit xxx" toolbuttons (e.g. Exit DNA)
+        # via a signal set up in Ui_AbstractFlyout.py.
+        # [bruce 080815 comment]
         self.currentCommand.Done()
 
     def toolsCancel(self):
-        # note: this is apparently still called from several places [bruce 080806 comment]
+        # note: called only from cancel_btn_clicked methods in PM_Dialog or its
+        # subclasses, but some of those call toolsDone instead.
+        # [bruce 080815 comment]
         self.currentCommand.Cancel()
 
     ######################################

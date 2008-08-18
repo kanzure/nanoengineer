@@ -75,25 +75,25 @@ class PM_Dialog( QDialog, SponsorableMixin ):
     """
     The PM_Dialog class is the base class for Property Manager dialogs.
     
-    [To make a PM class from this mixin-superclass, subclass it to customize
+    [To make a PM class from this superclass, subclass it to customize
     the widget set and add behavior.
-    You must also provide certain methods provided by GeneratorBaseClass
-    (either by inheriting it -- not sure if superclass order matters for that --
-    or by defining them yourself), including ok_btn_clicked and several others,
+    You must also provide certain methods that used to be provided by
+    GeneratorBaseClass, including ok_btn_clicked and several others,
     including at least some defined by SponsorableMixin (open_sponsor_homepage,
     setSponsor).
     This set of requirements may be cleaned up.]
-    [Note: Technically, this is not a "base class" but a "mixin class".]    
     """
     
     headerTitleText  = ""  # The header title text.
     
     _widgetList = [] # A list of all group boxes in this PM dialog, 
-                     # including the message group box.
+                     # including the message group box
                      # (but not header, sponsor button, etc.)
-    _groupBoxCount = 0 # Number of PM_GroupBoxes in this PM dialog.
-    _lastGroupBox = None # The last PM_GroupBox in this PM dialog. 
-                        # (i.e. the most recent PM_GroupBox added).
+                     
+    _groupBoxCount = 0 # Number of PM_GroupBoxes in this PM dialog
+    
+    _lastGroupBox = None # The last PM_GroupBox in this PM dialog
+                         # (i.e. the most recent PM_GroupBox added)
     
     def __init__(self, 
                  name,
@@ -146,26 +146,25 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         try:
             self._addWhatsThisText()
         except:
-            print_compact_traceback("Error loading whatsthis text for this " \
-                                    "property manager.")
+            print_compact_traceback("Error loading whatsthis text for this "
+                                    "property manager: ")
         
         try:
             self._addToolTipText()
         except:
-            print_compact_traceback("Error loading tool tip text for this " \
-                                    "property manager.")
+            print_compact_traceback("Error loading tool tip text for this "
+                                    "property manager: ")
     
     def keyPressEvent(self, event):
         """
         Handles keyPress event. 
         
-        NOTE: 
-        Subclasses should carefully override this. 
-        Note that the default implementation  doesn't permit ESC key 
-        as a way to close the PM_dialog. (this is typically dsesirable
-        for Property Managers) If any subclass need to implement the key press, 
-        they should first call this method(i.e. superclass.keyPressEvent) and then 
-        implement specific code that closed the dialog when ESC key is pressed.
+        @note: Subclasses should carefully override this. 
+        Note that the default implementation doesn't permit ESC key 
+        as a way to close the PM_dialog. (This is typically desirable
+        for Property Managers.) If any subclass needs to implement the key press, 
+        they should first call this method (i.e. superclass.keyPressEvent) and then 
+        implement specific code that closes the dialog when ESC key is pressed.
         """
         key = event.key()
         # Don't use ESC key to close the PM dialog. Fixes bug 2596
@@ -178,23 +177,22 @@ class PM_Dialog( QDialog, SponsorableMixin ):
     
     def _addGroupBoxes(self):
         """
-        Add various group boxes to this PM. Subclasses should override this 
-        method. 
-         
+        Add various group boxes to this PM. Subclasses should override this
+        method.
         """
         pass
 
     def _addWhatsThisText(self):
         """
         Add what's this text. 
-        Subclasses should override this  method. 
+        Subclasses should override this method. 
         """
         pass
     
     def _addToolTipText(self):
         """
         Add Tool tip text. 
-        Subclasses should override this  method. 
+        Subclasses should override this method. 
         """
         pass
             
@@ -656,15 +654,15 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         palette.setColor(QPalette.WindowText, pmHeaderTitleColor)
         return palette
         
-    def doneButtonClicked(self):
+    def doneButtonClicked(self): # note: never overridden, as of 080815
         """
-        Slot for the What's This button.
+        Slot for the Done button.
         """
         self.ok_btn_clicked()
     
-    def cancelButtonClicked(self):
+    def cancelButtonClicked(self): # note: never overridden, as of 080815
         """
-        Slot for the What's This button.
+        Slot for the Cancel button.
         """
         self.cancel_btn_clicked()
     
@@ -679,7 +677,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
                          
     def previewButtonClicked(self):
         """
-        Slot for the What's This button.
+        Slot for the Preview button.
         """
         self.preview_btn_clicked()
         
@@ -688,5 +686,31 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         Slot for the What's This button.
         """
         QWhatsThis.enterWhatsThisMode()
+
+    # default implementations for subclasses
+    # [bruce 080815 pulled these in from subclasses]
+
+    def ok_btn_clicked(self):
+        """
+        Implements Done button. Called by its slot method in PM_Dialog.
+        
+        [subclasses can override as needed]
+        """      
+        self.win.toolsDone()
+
+    def cancel_btn_clicked(self):
+        """
+        Implements Cancel button. Called by its slot method in PM_Dialog.
+
+        [subclasses can override as needed]
+        """  
+        # Note: many subclasses override this to call self.w.toolsDone
+        # (rather than toolsCancel). This should be cleaned up
+        # so those overrides are not needed. (Maybe they are already
+        # not needed.) [bruce 080815 comment]
+        
+        self.win.toolsCancel()
+
+    pass
                 
-# End of PropMgrBaseClass ############################
+# end

@@ -103,22 +103,6 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
                        SIGNAL("triggered()"),
                        self.movieInfo)
 
-    def ok_btn_clicked(self):
-        """
-        Calls MainWindow.toolsDone to exit the current mode.
-        @attention: this method needs to be renamed. (this should be done in
-        PM_Dialog)
-        """
-        self.w.toolsDone()
-
-    def cancel_btn_clicked(self):
-        """
-        Calls MainWindow.toolsDone to exit the current mode.
-        @attention: this method needs to be renamed. (this should be done in
-        PM_Dialog)
-        """
-        self.w.toolsCancel()
-
     def updateMessage(self, msg = ''):
         """
         Updates the message box with an informative message.

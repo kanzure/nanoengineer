@@ -190,7 +190,9 @@ class EditCommand_PM(PM_Dialog):
 
     def ok_btn_clicked(self):
         """
-        Slot for the OK button
+        Implements Done button
+
+        [extends superclass method]
         """
         if self.command:
             self.command.preview_or_finalize_structure(previewing = False)
@@ -202,32 +204,30 @@ class EditCommand_PM(PM_Dialog):
             if hasattr(self.command, 'logMessage'):
                 env.history.message(self.command.logMessage)
                 
-        self.win.toolsDone()
+        ## self.win.toolsDone() #bruce 080815 replaced this with superclass call
+        PM_Dialog.ok_btn_clicked(self)
 
     def cancel_btn_clicked(self):
         """
-        Slot for the Cancel button.
+        Implements Cancel button
+
+        [extends superclass method]
         """
         if self.command:
             self.command.cancelStructure()
-        self.win.toolsCancel()
+        ## self.win.toolsCancel() #bruce 080815 replaced this with superclass call
+        PM_Dialog.cancel_btn_clicked(self)
 
     def preview_btn_clicked(self):
         """
-        Slot for the Preview button.
+        Implements Preview button.
         """
         self.command.preview_or_finalize_structure(previewing = True)
         env.history.message(self.command.logMessage)
 
-    def abort_btn_clicked(self):
-        """
-        Slot for Abort button
-        """
-        self.cancel_btn_clicked()
-
     def restore_defaults_btn_clicked(self):
         """
-        Slot for Restore defaults button
+        Implements Restore defaults button
         """
         pass
 

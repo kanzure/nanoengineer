@@ -33,18 +33,15 @@ class TemporaryCommand_preMixin(commonCommand):
 
 class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
     """
-    A pre-Mixin class for GraphicsModes which overrides their keyPress method
-    to call self.command.Done() when the ESC key is pressed,
-    but delegate all other keypresses to the superclass.
-    NOTE: The default mode or command will override this implementation 
-    (i.e. while in default command which is 'Select chunks', hitting Escape key 
-    will not exit that command. This is intentional)
+    A pre-mixin class for GraphicsModes which overrides their keyPress method
+    to call self.command.Done() when the ESC key is pressed
+    if self.command.should_exit_when_ESC_key_pressed() returns true,
+    or to call assy.selectNone otherwise,
+    but which delegates all other keypresses to the superclass.
     """
     def keyPress(self, key):
-        # ESC - Exit our command.
+        # ESC - Exit our command, if it permits exit due to ESC key.
         if key == Qt.Key_Escape:
-            #Escape key to exit should not exit the command if it's the 
-            #default command [ninad 080709]
             if self.command.should_exit_when_ESC_key_pressed():
                 self.command.Done(exit_using_done_or_cancel_button = False)
             else:
@@ -62,7 +59,7 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
 
 class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
     """
-    A pre-Mixin class for GraphicsModes which overrides their Draw method
+    A pre-mixin class for GraphicsModes which overrides their Draw method
     to do the saved prior command's drawing
     (perhaps in addition to their own, if they subclass this
      and further extend its Draw method, or if they do incremental

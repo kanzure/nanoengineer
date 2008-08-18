@@ -271,14 +271,18 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Slot for the OK button
         """   
-        
+        # WARNING: this overrides EditCommand_PM method, bypassing its extra actions.
+        ### REVIEW whether this class has the correct superclass.
+        # [bruce 080815 comment]
         self.win.toolsDone()
     
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.
         """
-                  
+        # WARNING: this overrides EditCommand_PM method, bypassing its extra actions.
+        # See comment in ok_btn_clicked.
+        # [bruce 080815 comment]
         self.win.toolsCancel()
     
     def _addWhatsThisText( self ):

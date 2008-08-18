@@ -139,12 +139,6 @@ class OrderDna_PropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("activated(int)"),
                       self.update_includeStrands )
         
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """      
-        self.win.toolsDone()
-        
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
