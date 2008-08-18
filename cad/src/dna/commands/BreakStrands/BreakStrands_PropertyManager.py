@@ -53,10 +53,7 @@ import foundation.env as env
 from widgets.prefs_widgets import connect_spinBox_with_pref
 
 
-#debug flag for experimental code Ninad is
-#working on (various break strands options). Don't commit it with True! 
-#Note that this flag is also used in BreakStrand_Command
-DEBUG_BREAK_OPTIONS_FEATURE = False
+from utilities.GlobalPreferences import DEBUG_BREAK_OPTIONS_FEATURE
 
 
 from PM.PM_ObjectChooser import PM_ObjectChooser

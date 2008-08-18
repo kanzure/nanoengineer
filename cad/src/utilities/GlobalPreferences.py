@@ -514,4 +514,20 @@ def _debug_pref_cseq_is_not_glpane(): #bruce 080813
 
 # todo: XXX = not _debug_pref_cseq_is_not_glpane()
 
+
+
+def _debug_pref_break_strands_feature(): #Ninad 2008-08-18
+    #debug flag for experimental code Ninad is
+#working on (various break strands options). 
+#Note that this flag is also used in BreakStrand_Command
+    res = debug_pref("DNA: debug new break strands options feature",
+                     Choice_boolean_False,
+                     prefs_key = True
+                    )
+    return res
+
+DEBUG_BREAK_OPTIONS_FEATURE = _debug_pref_break_strands_feature()
+
+
+
 # end

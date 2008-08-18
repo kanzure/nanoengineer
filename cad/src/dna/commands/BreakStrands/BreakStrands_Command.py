@@ -15,7 +15,7 @@ from dna.commands.BreakStrands.BreakStrands_GraphicsMode import BreakStrands_Gra
 
 #debug flag for experimental code Ninad is
 #working on (various break strands options)
-from dna.commands.BreakStrands.BreakStrands_PropertyManager import DEBUG_BREAK_OPTIONS_FEATURE
+from utilities.GlobalPreferences import DEBUG_BREAK_OPTIONS_FEATURE
 
 _superclass = BreakOrJoinStrands_Command
 class BreakStrands_Command(BreakOrJoinStrands_Command):
@@ -61,8 +61,7 @@ class BreakStrands_Command(BreakOrJoinStrands_Command):
         
         return 2
     
-    def breakStrandBonds(self):
-        
+    def breakStrandBonds(self):        
         if not DEBUG_BREAK_OPTIONS_FEATURE:
             return
         
