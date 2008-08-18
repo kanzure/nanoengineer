@@ -419,7 +419,7 @@ def do_post_event_updates( warn_if_needed = False ):
 
     # make sure any change_counter values, saved by those updaters,
     # will not be seen again if subsequent real changes occur
-    # [bruce 080805; should make model_change_counter more useful
+    # [bruce 080805; should make model_change_indicator more useful
     #  by making it change for every drag event during a drag
     #  and not depend on undo checkpointing, but needs testing for
     #  unanticipated bugs or performance impact]

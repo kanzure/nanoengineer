@@ -167,9 +167,9 @@ class Assembly( StateMixin, Assembly_API):
     # (includes all structural changes and many display changes)
     # (note that a few changes are saved but don't mark it as needing save, like "last view" (always equals current view))
     
-    _model_change_counter = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
-        #bruce 060227 renamed this from _change_counter to
-        # _model_change_counter, but don't plan to rename self.changed().
+    _model_change_indicator = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
+        #bruce 060227 renamed this from _change_indicator to
+        # _model_change_indicator, but don't plan to rename self.changed().
         #
         # maybe: add a separate change counter for drag changes vs other kinds
         # of changes (less frequent), to help optimize some PM updates;
@@ -177,22 +177,22 @@ class Assembly( StateMixin, Assembly_API):
         # (or diffs which prevent them but take time), which this would fix
         # [bruce 080808 comment]
 
-    _selection_change_counter = 0
+    _selection_change_indicator = 0
     
-    _view_change_counter = 0 # also includes changing current part, glpane display mode
+    _view_change_indicator = 0 # also includes changing current part, glpane display mode
         # [mostly nim as of 060228, 080805]
 
-    def all_change_counters(self): #bruce 060227; 071116 & 080805, revised docstring  ### TODO: fix docstring after tests
+    def all_change_indicators(self): #bruce 060227; 071116 & 080805, revised docstring  ### TODO: fix docstring after tests
         """
         Return a tuple of all our change counters, suitable for later passing
         to self.reset_changed_for_undo(). The order is guaranteed to be:
 
-        (model_change_counter, selection_change_counter, view_change_counter)
+        (model_change_indicator, selection_change_indicator, view_change_indicator)
 
         and if we add new elements, we guarantee we'll add them at the end
         (so indices of old elements won't change).
 
-        @note: view_change_counter is mostly NIM (as of 080805)
+        @note: view_change_indicator is mostly NIM (as of 080805)
 
         @note: these are not really "counters" -- they might increase by more
                than 1 for one change, or only once for several changes,
@@ -200,14 +200,14 @@ class Assembly( StateMixin, Assembly_API):
                don't differ, no change occurred in the corresponding state.
                They might be renamed to "change indicators" to reflect this.
 
-        @note: model_change_counter only changes when assy.changed() is called,
+        @note: model_change_indicator only changes when assy.changed() is called,
                and at most once per potential undoable operation. For example,
                during a drag, some model component's position changes many times,
-               but model_change_counter only changes once during that time,
+               but model_change_indicator only changes once during that time,
                when the user operation that does the drag happens to call
                assy.changed() for the first time during that undoable operation.
 
-        @note: I don't know whether model_change_counter works properly when
+        @note: I don't know whether model_change_indicator works properly when
                automatic Undo checkpointing is turned off -- needs review.
                (The issue is whether it changes at most once during any one
                *potential* or *actual* undoable operation.) This relates to
@@ -217,31 +217,31 @@ class Assembly( StateMixin, Assembly_API):
                issue noted above, by adding a call to that function sometime
                during every user event -- probably after all ui updaters are called.
         """
-        return self._model_change_counter, self._selection_change_counter, self._view_change_counter
+        return self._model_change_indicator, self._selection_change_indicator, self._view_change_indicator
 
-    def model_change_counter(self): #bruce 080731
+    def model_change_indicator(self): #bruce 080731
         """
-        @see: all_change_counters
+        @see: all_change_indicators
         """
         # todo: ensure it's up to date
-        return self._model_change_counter
+        return self._model_change_indicator
 
-    def selection_change_counter(self): #bruce 080731
+    def selection_change_indicator(self): #bruce 080731
         """
-        @see: all_change_counters
+        @see: all_change_indicators
         """
         # todo: ensure it's up to date
-        return self._selection_change_counter
+        return self._selection_change_indicator
 
-    def view_change_counter(self): #bruce 080731
+    def view_change_indicator(self): #bruce 080731
         """
         NOT YET IMPLEMENTED
         
-        @see: all_change_counters
+        @see: all_change_indicators
         """
         # todo: ensure it's up to date
         assert 0, "don't use this yet, the counter attr is mostly NIM" #bruce 080805
-        return self._view_change_counter
+        return self._view_change_indicator
     
     # state declarations:
     # (the change counters above should not have ordinary state decls -- for now, they should have none)
@@ -1478,13 +1478,13 @@ class Assembly( StateMixin, Assembly_API):
         # see also same-named Node method
         if self._suspend_noticing_changes:
             return
-        self._selection_change_counter = env.change_counter_for_changed_objects()
+        self._selection_change_indicator = env.change_counter_for_changed_objects()
         return
 
     def changed_view(self): #bruce 060129 ###@@@ not yet called enough
         if self._suspend_noticing_changes:
             return
-        self._view_change_counter = env.change_counter_for_changed_objects()
+        self._view_change_indicator = env.change_counter_for_changed_objects()
         return
     
     # == change-tracking [needs to be extended to be per-part or per-node, and for Undo]
@@ -1531,16 +1531,16 @@ class Assembly( StateMixin, Assembly_API):
         newc = env.change_counter_for_changed_objects() #bruce 060123
         
         if debug_assy_changes:
-            oldc = self._model_change_counter
+            oldc = self._model_change_indicator
             print
             self.modflag_asserts()
             if oldc == newc:
-                print "debug_assy_changes: self._model_change_counter remains", oldc
+                print "debug_assy_changes: self._model_change_indicator remains", oldc
             else:
-                print_compact_stack("debug_assy_changes: self._model_change_counter %d -> %d: " % (oldc, newc) )
+                print_compact_stack("debug_assy_changes: self._model_change_indicator %d -> %d: " % (oldc, newc) )
             pass
         
-        self._model_change_counter = newc
+        self._model_change_indicator = newc
             ###e should optimize by feeding new value from changed children (mainly Nodes) only when needed
             ##e will also change this in some other routine which is run for changes that are undoable but won't set _modified flag
 
@@ -1574,11 +1574,11 @@ class Assembly( StateMixin, Assembly_API):
         check invariants related to self._modified
         """
         if 1: ###@@@ maybe should be: if debug_flags.atom_debug:
-            hopetrue = ( (not self._modified) == (self._model_change_counter == self._change_counter_when_reset_changed) )
+            hopetrue = ( (not self._modified) == (self._model_change_indicator == self._change_indicator_when_reset_changed) )
             if not hopetrue:
                 print_compact_stack(
                     "bug? (%r.modflag_asserts() failed; %r %r %r): " % \
-                      (self, self._modified, self._model_change_counter, self._change_counter_when_reset_changed)
+                      (self, self._modified, self._model_change_indicator, self._change_indicator_when_reset_changed)
                 )
         return
 
@@ -1629,7 +1629,7 @@ class Assembly( StateMixin, Assembly_API):
         self._modified = oldmod
         return
 
-    _change_counter_when_reset_changed = -1 #bruce 060123 for Undo; as of 060125 it should no longer matter whether the value is even
+    _change_indicator_when_reset_changed = -1 #bruce 060123 for Undo; as of 060125 it should no longer matter whether the value is even
     
     def reset_changed(self): # bruce 050107
         """
@@ -1646,11 +1646,11 @@ class Assembly( StateMixin, Assembly_API):
         #e should this call self.w.update_mainwindow_caption(changed = False),
         # or fulfill a subs to do that?? [bruce question 060123]
 
-        self._change_counter_when_reset_changed = self._model_change_counter #bruce 060125 (eve) revised this; related to bugs 1387, 1388??
+        self._change_indicator_when_reset_changed = self._model_change_indicator #bruce 060125 (eve) revised this; related to bugs 1387, 1388??
             ## = env.change_counter_checkpoint() #bruce 060123 for Undo
             ##k not sure it's right to call change_counter_checkpoint and not subsequently call change_counter_for_changed_objects,
             # but i bet it's ok... more problematic is calling change_counter_checkpoint at all! #######@@@@@@@
-            # the issue is, this is not actually a change to our data, so why are we changing self._model_change_counter??
+            # the issue is, this is not actually a change to our data, so why are we changing self._model_change_indicator??
             # OTOH, if just before saving we always changed our data just for fun, the effect would be the same, right?
             # Well, not sure -- what about when we Undo before... if we use this as a vers, maybe no diffs will link at it...
             # but why would they not? this is not running inside undo, but from an op that does changes like anything else does
@@ -1662,7 +1662,7 @@ class Assembly( StateMixin, Assembly_API):
             # changing counter even if they wouldn't... call checkpoint here even if not using value?!?!?!? #####@@@@@ 060124 230pm
         #bruce 060201 update for bug 1425: if you call self.changed() right after this, you'll asfail unless we
         # call env.change_counter_checkpoint() now (discarding result is ok), for a good reason -- once we "used up"
-        # the current value of _model_change_counter in _change_counter_when_reset_changed, we better use a different value
+        # the current value of _model_change_indicator in _change_indicator_when_reset_changed, we better use a different value
         # for the next real change (so it looks like a change)! This would be needed (to make sure checkpoints notice the change)
         # even if the asserts were not being done. So the following now seems correct and required:
         env.change_counter_checkpoint() #bruce 060201 fix bug 1425
@@ -1670,22 +1670,22 @@ class Assembly( StateMixin, Assembly_API):
 
     def reset_changed_for_undo(self, change_counters ): #bruce 060123 guess; needs cleanup
         """
-        External code (doing an Undo or Redo) has made our state like it was when self.all_change_counters() was as given.
-        Set all self._xxx_change_counter attrs to match that tuple,
-        and update self._modified to match (using self._change_counter_when_reset_changed without changing it).
+        External code (doing an Undo or Redo) has made our state like it was when self.all_change_indicators() was as given.
+        Set all self._xxx_change_indicator attrs to match that tuple,
+        and update self._modified to match (using self._change_indicator_when_reset_changed without changing it).
            Note that modified flag is false if no model changes happened, even if selection or structural changes happened.
         Thus if we redo or undo past sel or view changes alone, modified flag won't change.
         """
-        # in other words, treat self.all_change_counters() as a varid_vers for our current state... ###@@@
-        model_cc, sel_cc, view_cc = change_counters # order must match self.all_change_counters() retval
-        modflag = (self._change_counter_when_reset_changed != model_cc)
+        # in other words, treat self.all_change_indicators() as a varid_vers for our current state... ###@@@
+        model_cc, sel_cc, view_cc = change_counters # order must match self.all_change_indicators() retval
+        modflag = (self._change_indicator_when_reset_changed != model_cc)
         if debug_assy_changes:
             print_compact_stack( "debug_assy_changes for %r: reset_changed_for_undo(%r), modflag %r: " % \
                                  (self, change_counters, modflag) )
         self._modified = modflag
-        self._model_change_counter = model_cc
-        self._selection_change_counter = sel_cc
-        self._view_change_counter = view_cc
+        self._model_change_indicator = model_cc
+        self._selection_change_indicator = sel_cc
+        self._view_change_indicator = view_cc
         self.modflag_asserts()
         #####@@@@@ need any other side effects of assy.changed()??
         if self.w:

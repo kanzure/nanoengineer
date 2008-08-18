@@ -285,11 +285,11 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         # have and draw a .assy attribute, though by passing assy into this method,
         # we remove any obvious bug from that. [bruce 080220 comment]
 
-        oldc = assy.all_change_counters()
+        oldc = assy.all_change_indicators()
 
         namedView = NamedView(assy, "name", self.scale, self.pov, self.zoomFactor, self.quat)
 
-        newc = assy.all_change_counters()
+        newc = assy.all_change_indicators()
         assert oldc == newc
 
         namedView.current_selgroup_index = assy.current_selgroup_index()

@@ -1204,9 +1204,9 @@ class basicCommand(anyCommand):
         drawing, and other user events).)
         
         Program state checked by an implem of this method might include:
-        - model state (see Assembly.model_change_counter)
-        - selection state (see Assembly.selection_change_counter)
-        - view state (see Assembly.view_change_counter)
+        - model state (see Assembly.model_change_indicator)
+        - selection state (see Assembly.selection_change_indicator)
+        - view state (see Assembly.view_change_indicator)
           - should include Ortho/Perspective, but I guess it doesn't ###FIX
           - includes view center, direction, scale(?)
         - hover-highlighted object (glpane.selobj)

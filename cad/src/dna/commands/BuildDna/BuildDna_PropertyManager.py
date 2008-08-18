@@ -169,8 +169,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 
         if DEBUG_CHANGE_COUNTERS:
             print "model_change = %d\nselection_change = %d\n "%(
-                self.win.assy.model_change_counter(),
-                self.win.assy.selection_change_counter())
+                self.win.assy.model_change_indicator(),
+                self.win.assy.selection_change_indicator())
         
         newSelectionParams = self._currentSelectionParams()   
         

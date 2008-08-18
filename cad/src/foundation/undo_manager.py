@@ -326,13 +326,13 @@ class AssyUndoManager(UndoManager):
     def undo_redo_ops(self):
         # copied code below [dup code is in undo_manager_older.py, not in cvs]
         
-        # the following value for warn_when_change_counters_seem_wrong is a kluge
+        # the following value for warn_when_change_indicators_seem_wrong is a kluge
         # (wrong in principle but probably safe, not entirely sure it's correct) [060309]
         # (note, same value was hardcoded inside that method before bruce 071025;
         #  see comment there about when I see the warnings; it's known that it gives
         #  false warnings if we pass True when _AutoCheckpointing_enabled is false):
         ops = self.archive.find_undoredos(
-                  warn_when_change_counters_seem_wrong = _AutoCheckpointing_enabled )
+                  warn_when_change_indicators_seem_wrong = _AutoCheckpointing_enabled )
             # state_version - now held inside UndoArchive.last_cp (might be wrong) ###@@@
             # [what the heck does that comment mean? bruce 071025 Q]
         undos = []
