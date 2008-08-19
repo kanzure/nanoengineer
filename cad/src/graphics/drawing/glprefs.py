@@ -125,6 +125,10 @@ class glprefs:
             drawing_globals.use_color_sorted_vbos_prefs_key,
             drawing_globals.use_color_sorted_vbos_default)
 
+        drawing_globals.use_sphere_shaders = env.prefs.get(
+            drawing_globals.use_sphere_shaders_prefs_key,
+            drawing_globals.use_sphere_shaders_default)
+
         drawing_globals.use_drawing_variant = env.prefs.get(
             drawing_globals.use_drawing_variant_prefs_key,
             drawing_globals.use_drawing_variant_default)
@@ -169,6 +173,8 @@ class glprefs:
                               drawing_globals.use_color_sorted_vbos_default),)
         res += (env.prefs.get(drawing_globals.use_drawing_variant_prefs_key,
                               drawing_globals.use_drawing_variant_default),)
+        res += (env.prefs.get(drawing_globals.use_sphere_shaders_prefs_key,
+                              drawing_globals.use_sphere_shaders_default),)
 
         # russ 080530: Selection style preference controls select_dl contents.
         res += (env.prefs[selectionColorStyle_prefs_key],)

@@ -375,7 +375,6 @@ class GLSphereBuffer:
     pass # End of class GLSphereBuffer.
 
 # Sphere shaders.
-# XXX Initial version borrowed from VMD, will write our own for NE1.
 sphereVertSrc = """
 // Vertex shader program for sphere primitives.
 //
@@ -436,7 +435,7 @@ void main(void) {
 }
 """
 sphereFragSrc = """
-// Ragment (pixel) shader program for sphere primitives.
+// Fragment (pixel) shader program for sphere primitives.
 // 
 // Compute raster-scanned normal samples of analytic spheres for shading, or
 // reject the pixel if it is more than the radius away from the center point.

@@ -78,7 +78,6 @@ from utilities.debug_prefs import Choice
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.gl_buffers import GLBufferObject
-from graphics.drawing.gl_shaders import GLSphereShaderObject
 from graphics.drawing.shape_vertices import getSphereTriStrips
 from graphics.drawing.shape_vertices import getSphereTriangles
 from graphics.drawing.shape_vertices import indexVerts
@@ -195,9 +194,6 @@ def setup_drawer():
         ibo.unbind()
         vbo.unbind()
         pass
-
-    if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
-        drawing_globals.sphereShader = shader = GLSphereShaderObject()
 
     #bruce 060415
     drawing_globals.wiresphere1list = wiresphere1list = glGenLists(1)
@@ -425,6 +421,11 @@ def setup_drawer():
     drawing_globals.use_color_sorted_vbos_pref = debug_pref(
         "Use Color-sorted Vertex Buffer Objects?", initial_choice,
         prefs_key = drawing_globals.use_color_sorted_vbos_prefs_key)
+    #russ 080819: Added.
+    initial_choice = choices[drawing_globals.use_sphere_shaders_default]
+    drawing_globals.use_sphere_shaders_pref = debug_pref(
+        "Use Color-sorted Vertex Buffer Objects?", initial_choice,
+        prefs_key = drawing_globals.use_sphere_shaders_prefs_key)
 
     #russ 080403: Added drawing variant selection
     variants = [
@@ -456,6 +457,25 @@ def setup_drawer():
     else:
         print "note: this session will NOT use", \
               "color sorted Vertex Buffer Objects\n"
+    if (drawing_globals.allow_color_sorting_pref and
+        drawing_globals.use_sphere_shaders_pref):
+        if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
+            print "note: this session WILL use", \
+                  "sphere-shader Vertex Buffer Objects"
+
+            from graphics.drawing.gl_shaders import GLSphereShaderObject
+            drawing_globals.sphereShader = GLSphereShaderObject()
+
+            print "Sphere-shader initialization is complete.\n"
+        else:
+            print "note: this session WOULD use", \
+              "sphere-shader Vertex Buffer Objects,\n", \
+              "but GL_EXTENSION GL_ARB_shader_objects is not supported.\n"
+            pass
+        pass
+    else:
+        print "note: this session will NOT use", \
+              "sphere-shader Vertex Buffer Objects\n"
 
     # 20060313 grantham Added use_c_renderer debug pref, can
     # take out when C renderer used by default.
