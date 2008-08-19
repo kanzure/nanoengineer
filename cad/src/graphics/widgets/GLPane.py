@@ -988,6 +988,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         [private]
         Update the special contrast colors (used to draw lines, etc.) to a 
         shade that contrasts well with the current background.
+        @see: get_background_contrast_color()
         """
         # REVIEW: the following is only legitimate since these prefs variables
         # are (I think) not actual user prefs, but just global state variables.
@@ -1010,7 +1011,34 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         elif gradient == bgEVENING_SKY:
             env.prefs[DarkBackgroundContrastColor_prefs_key] = ave_colors( 0.6, dark_color, white)
         return
-
+    
+    
+    def get_background_contrast_color(self):
+        """
+        Return a color that contrasts well with the background color of the 
+        3D workspace. 
+        @see: MultipleDnaSegmentResize_GraphicsMode where it is used for rendering 
+        text with a proper contrast. 
+        @see: self._updateSpecialContrastColors()
+        """
+        #NOTE: This method mitigates bug 2927
+        
+        dark_color = env.prefs[DarkBackgroundContrastColor_prefs_key]  # black
+        ##lite_color = env.prefs[LightBackgroundContrastColor_prefs_key] # white
+        gradient = env.prefs[ backgroundGradient_prefs_key ]
+        
+        color = black
+                
+        if gradient == bgSOLID:
+            if not color_difference(self.backgroundColor, dark_color,
+                                    minimum_difference = 0.51):
+                color = ave_colors( 0.5, dark_color, white)            
+        elif gradient == bgEVENING_SKY:
+            color = ave_colors( 0.6, dark_color, white)
+            
+        return color
+        
+    
     # self.part maintenance [bruce 050419]
 
     def set_part(self, part):

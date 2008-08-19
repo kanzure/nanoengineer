@@ -18,6 +18,7 @@ from PyQt4.Qt import Qt
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 import foundation.env as env
 from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 from utilities.constants import black, banana, silver, lighterblue, darkred
 from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
@@ -111,8 +112,7 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
         if event.key() == Qt.Key_Delete:
             if self.command.propMgr and self.command.propMgr.listWidgetHasFocus():
                 self.command.propMgr.removeListWidgetItems()
-                return
-            
+                return            
 
         _superclass.keyPressEvent(self, event)
         
@@ -199,6 +199,9 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                 handleType = 'RESIZE_HANDLE'
 
         if handleType and handleType == 'RESIZE_HANDLE': 
+            #Use the text color that better contrasts with the background color. 
+            #mitigates bug 2927
+            textColor = self.glpane.get_background_contrast_color()
             for segment in self.command.getResizeSegmentList():  
                 self.command.currentStruct = segment
                 params_when_adding_bases, params_when_removing_bases = \
@@ -241,7 +244,7 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                                    ribbon2_direction = ribbon2_direction,
                                    ribbon1Color = ribbon1Color,
                                    ribbon2Color = ribbon2Color,
-                                   stepColor = black ) 
+                                   ) 
                     
                     #Draw a sphere that indicates the current position of 
                     #the resize end of each segment . 
@@ -252,8 +255,10 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                                opacity = SPHERE_OPACITY) 
                     
                     numberOfBasePairsString = "+" + str(numberOfBasePairs)
-                    self.glpane.renderTextAtPosition( end2, 
-                                                      numberOfBasePairsString)
+                    self.glpane.renderTextAtPosition( end2 + self.glpane.out*2.5, 
+                                                      numberOfBasePairsString, 
+                                                      textColor = textColor
+                                                      )
                 
                 elif params_when_removing_bases:
                     numberOfBasePairs , end2 = params_when_removing_bases
@@ -266,8 +271,10 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                                opacity = SPHERE_OPACITY)   
                     
                     numberOfBasePairsString = str(numberOfBasePairs)
-                    self.glpane.renderTextAtPosition( end2, 
+                
+                    self.glpane.renderTextAtPosition( end2 + self.glpane.out*2.5, 
                                                       textString = numberOfBasePairsString,
+                                                      textColor = textColor
                                                       )
 
                 #Draw the text next to the cursor that gives info about 
