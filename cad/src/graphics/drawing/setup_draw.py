@@ -78,6 +78,7 @@ from utilities.debug_prefs import Choice
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.gl_buffers import GLBufferObject
+from graphics.drawing.gl_shaders import GLSphereShaderObject
 from graphics.drawing.shape_vertices import getSphereTriStrips
 from graphics.drawing.shape_vertices import getSphereTriangles
 from graphics.drawing.shape_vertices import indexVerts
@@ -195,6 +196,9 @@ def setup_drawer():
         vbo.unbind()
         pass
 
+    if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
+        drawing_globals.sphereShader = shader = GLSphereShaderObject()
+
     #bruce 060415
     drawing_globals.wiresphere1list = wiresphere1list = glGenLists(1)
     glNewList(wiresphere1list, GL_COMPILE)
@@ -307,6 +311,33 @@ def setup_drawer():
     glEnd()
     glEndList()                
 
+    drawing_globals.shaderCubeList = shaderCubeList = glGenLists(1)
+    drawing_globals.shaderCubeVerts = verts = [
+        (-1.0, -1.0, -1.0),
+        ( 1.0, -1.0, -1.0),
+        (-1.0,  1.0, -1.0),
+        ( 1.0,  1.0, -1.0),
+        (-1.0, -1.0,  1.0),
+        ( 1.0, -1.0,  1.0),
+        (-1.0,  1.0,  1.0),
+        ( 1.0,  1.0,  1.0)]
+    drawing_globals.shaderCubeIndices = indices = [
+        [0, 1, 3, 2], # -Z face.
+        [4, 5, 7, 6], # +Z face.
+        [0, 1, 5, 4], # -Y face.
+        [2, 3, 7, 6], # +Y face.
+        [0, 2, 6, 4], # -X face.
+        [1, 3, 7, 5]] # +X face.
+    glNewList(shaderCubeList, GL_COMPILE)
+    glBegin(GL_QUADS)
+    for i in range(6):
+        for j in range(4):
+            glVertex3fv(A(verts[indices[i][j]]))
+            continue
+        continue
+    glEnd()
+    glEndList()                
+
     drawing_globals.rotSignList = rotSignList = glGenLists(1)
     glNewList(rotSignList, GL_COMPILE)
     glBegin(GL_LINE_STRIP)
@@ -402,7 +433,8 @@ def setup_drawer():
         "2. OpenGL 1.1 - glDrawElements indexed arrays from CPU RAM.",
         "3. OpenGL 1.5 - glDrawArrays from graphics RAM VBO.",
         "4. OpenGL 1.5 - glDrawElements, verts in VBO, index in CPU.",
-        "5. OpenGL 1.5 - VBO/IBO buffered glDrawElements."]
+        "5. OpenGL 1.5 - VBO/IBO buffered glDrawElements.",
+        "6. OpenGL 1.4/2.0 - GLSL Vertex/Fragment shaders."]
     drawing_globals.use_drawing_variant = debug_pref(
         "GLPane: drawing method",
         Choice(names = variants, values = range(len(variants)),

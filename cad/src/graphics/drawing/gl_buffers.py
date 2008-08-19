@@ -49,8 +49,12 @@ gl_lighting.py gl_buffers.py
 #
 from OpenGL.GL.ARB.vertex_buffer_object import glGenBuffersARB
 from OpenGL.GL.ARB.vertex_buffer_object import glDeleteBuffersARB
-# Patched versions.
-from graphics.drawing.vbo_patch import glBufferDataARB, glBufferSubDataARB
+if 0:
+    from OpenGL.GL.ARB.vertex_buffer_object import glBufferDataARB
+    from OpenGL.GL.ARB.vertex_buffer_object import glBufferSubDataARB
+else:
+    # Patched versions.
+    from graphics.drawing.vbo_patch import glBufferDataARB, glBufferSubDataARB
 # Unwrappered.
 from OpenGL.raw.GL.ARB.vertex_buffer_object import glBindBufferARB
 
@@ -74,12 +78,39 @@ class GLBufferObject(object):
     def __init__(self, target, data, usage):
         self.buffer = glGenBuffersARB(1) # Returns a numpy.ndarray for > 1.
         self.target = target
+        self.usage = usage
 
         self.bind()
         self.size = len(data)
 
         # Push the data over to Graphics card RAM.
         glBufferDataARB(target, data, usage)
+
+        self.unbind()
+        return
+
+    def updateAll(self, data):
+        """
+        Update the contents of a buffer with glBufferData.
+        """
+        self.bind()
+        glBufferDataARB(self.target, data, self.usage)
+        self.unbind()
+        return
+
+    def update(self, offset, data):
+        """
+        Update the contents of a buffer with glBufferSubData.
+        The offset into the buffer is the same granularity as the data.
+        """
+        self.bind()
+
+        ## Warning!  This call on glBufferSubDataARB sometimes hangs MacOS in
+        ## the "Spinning Ball of Death" and can't be killed, when the data array
+        ## is getting big (larger than 320,000 bytes, for 100x100 sphere radii.)
+
+        # XXX Need to determine the array element size.  Assume 4 for now.
+        glBufferSubDataARB(self.target, offset * 4, data)
 
         self.unbind()
         return

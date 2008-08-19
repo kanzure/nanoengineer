@@ -28,6 +28,11 @@ Some of this might be a prerequisite for some ways of
 optimizing the graphics code.
 """
 
+_testing_ = False # True
+if _testing_:
+    from exprs.test_drawing import test_drawing
+    pass
+
 import math
 import sys
 import time
@@ -47,6 +52,7 @@ from PyQt4.QtOpenGL import QGLWidget
 
 from OpenGL.GL import glGenLists
 from OpenGL.GL import glNewList
+from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 from OpenGL.GL import glEndList
 from OpenGL.GL import glCallList
 from OpenGL.GL import glDepthFunc
@@ -3249,6 +3255,10 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         BY OUR OWN CODE -- CALL gl_update INSTEAD.
         """
 
+        if _testing_:                   # See exprs/test_drawing.py .
+            test_drawing(self)
+            return
+
         self._frustum_planes_available = False
 
         if not self.initialised:
@@ -3996,7 +4006,9 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         else:
             # have two images, left and right, for the stereo rendering
             stereo_image_range = [-1, 1]
+            pass
 
+        vboLevel = drawing_globals.use_drawing_variant
         for stereo_image in stereo_image_range: 
             # iterate over stereo images
             self._enable_stereo(stereo_image)
@@ -4007,6 +4019,11 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                 
             try: #bruce 070124 added try/finally for drawing_phase
                 self.drawing_phase = 'main' #bruce 070124
+
+                if vboLevel == 6:   # russ 080714
+                    drawing_globals.sphereShader.configShader(self)
+                    pass
+
                 self.graphicsMode.Draw()
             finally:
                 self.drawing_phase = '?'
