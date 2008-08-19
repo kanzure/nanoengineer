@@ -20,6 +20,9 @@ from PyQt4.Qt import QActionGroup
 from utilities.icon_utilities import geticon
 from ne1_ui.toolbars.Ui_AbstractFlyout import Ui_AbstractFlyout
 
+from processes.Plugins import checkPluginPreferences
+from utilities.prefs_constants import rosetta_enabled_prefs_key, rosetta_path_prefs_key
+
 _superclass = Ui_AbstractFlyout
 
 class ProteinFlyout_v2(Ui_AbstractFlyout):    
@@ -62,16 +65,15 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         separator1.setSeparator(True)
         subControlAreaActionList.append(separator1) 
         
-        if self.rosetta_enabled:
-            subControlAreaActionList.append(self.modelProteinAction)        
-            subControlAreaActionList.append(self.simulateProteinAction)      
-            separator = QAction(self.win)
-            separator.setSeparator(True)
-            subControlAreaActionList.append(separator) 
-        
-            #Also add the subcontrol Area actions to the 'allActionsList'
-            for a in subControlAreaActionList:
-                allActionsList.append(a)    
+        subControlAreaActionList.append(self.modelProteinAction)        
+        subControlAreaActionList.append(self.simulateProteinAction)      
+        separator = QAction(self.win)
+        separator.setSeparator(True)
+        subControlAreaActionList.append(separator) 
+    
+        #Also add the subcontrol Area actions to the 'allActionsList'
+        for a in subControlAreaActionList:
+            allActionsList.append(a)    
         
         commandActionLists = [] 
         
@@ -82,16 +84,16 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
             commandActionLists.append(lst)
         
         #Command list for the subcontrol area button 'Model Proteins Tool'
+        modelProteinsCmdLst = []
+        modelProteinsCmdLst.append(self.buildPeptideAction)
+        modelProteinsCmdLst.append(self.editRotamersAction)
+        modelProteinsCmdLst.append(self.compareProteinsAction)
+        modelProteinsCmdLst.append(self.displayProteinStyleAction)    
+        commandActionLists[2].extend(modelProteinsCmdLst)
+        
+        # Command list for the subcontrol area button 'Simulate Proteins Tool'
+        
         if self.rosetta_enabled:
-            modelProteinsCmdLst = []
-            modelProteinsCmdLst.append(self.buildPeptideAction)
-            modelProteinsCmdLst.append(self.editRotamersAction)
-            modelProteinsCmdLst.append(self.compareProteinsAction)
-            modelProteinsCmdLst.append(self.displayProteinStyleAction)    
-            commandActionLists[2].extend(modelProteinsCmdLst)
-        
-            # Command list for the subcontrol area button 'Simulate Proteins Tool'
-        
             simulateProteinsCmdLst = []
             simulateProteinsCmdLst.append(self.rosetta_fixedbb_design_Action)
             simulateProteinsCmdLst.append(self.rosetta_backrub_Action)
@@ -121,46 +123,42 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         #Urmi 20080814: show this flyout toolbar only when rosetta plugin path
         # is there
         #Probably only rosetta_enabled_prefs_key check would have sufficed
-        from processes.Plugins import checkPluginPreferences
-        from utilities.prefs_constants import rosetta_enabled_prefs_key, rosetta_path_prefs_key
         plugin_name = "ROSETTA"
         plugin_prefs_keys = (rosetta_enabled_prefs_key, rosetta_path_prefs_key)    
         errorcode, errortext_or_path = \
                  checkPluginPreferences(plugin_name, plugin_prefs_keys, ask_for_help = False)
-        print "Error code =", errorcode, errortext_or_path
+        #print "Error code =", errorcode, errortext_or_path
         if errorcode == 0:
             self.rosetta_enabled = True
         else:
             self.rosetta_enabled = False
             
-        if self.rosetta_enabled:    
-            self.modelProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
-            self.modelProteinAction.setText("Model")
-            self.modelProteinAction.setIcon(geticon(
-                'ui/actions/Command Toolbar/BuildProtein/Peptide.png'))
-            self.modelProteinAction.setCheckable(True)
-            self.modelProteinAction.setChecked(True)
-            self.modelProteinAction.setObjectName('ACTION_MODEL_PROTEINS')
+        self.modelProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.modelProteinAction.setText("Model")
+        self.modelProteinAction.setIcon(geticon(
+            'ui/actions/Command Toolbar/BuildProtein/Peptide.png'))
+        self.modelProteinAction.setCheckable(True)
+        self.modelProteinAction.setChecked(True)
+        self.modelProteinAction.setObjectName('ACTION_MODEL_PROTEINS')
         
-                
-            self.simulateProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
-            self.simulateProteinAction.setText("Simulate")
-            self.simulateProteinAction.setIcon(geticon(
-                "ui/actions/Simulation/Rosetta.png"))
-            self.simulateProteinAction.setCheckable(True)
-            self.simulateProteinAction.setObjectName('ACTION_SIMULATE_PROTEINS')
+        self.simulateProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.simulateProteinAction.setText("Simulate")
+        self.simulateProteinAction.setIcon(geticon(
+            "ui/actions/Simulation/Rosetta.png"))
+        self.simulateProteinAction.setCheckable(True)
+        self.simulateProteinAction.setObjectName('ACTION_SIMULATE_PROTEINS')
+    
+        self.subControlActionGroup = QActionGroup(parentWidget)
+        self.subControlActionGroup.setExclusive(True)   
+        self.subControlActionGroup.addAction(self.modelProteinAction)   
+        self.subControlActionGroup.addAction(self.simulateProteinAction)
+    
+        self._createModelProteinsActions(parentWidget)
+        self._createSimulateProteinsActions(parentWidget)
         
-            self.subControlActionGroup = QActionGroup(parentWidget)
-            self.subControlActionGroup.setExclusive(True)   
-            self.subControlActionGroup.addAction(self.modelProteinAction)   
-            self.subControlActionGroup.addAction(self.simulateProteinAction)
-        
-            self._createModelProteinsActions(parentWidget)
-            self._createSimulateProteinsActions(parentWidget)
-        
-        else:
-            self._createModelProteinsActions(parentWidget)
-        return
+        #else:
+        #    self._createModelProteinsActions(parentWidget)
+        #return
     
             
     def _createModelProteinsActions(self, parentWidget): 
@@ -213,6 +211,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         
         @see: self._createActions() where this is called. 
         """
+           
         self.rosetta_fixedbb_design_Action = NE1_QWidgetAction(parentWidget,
                                                       win = self.win)
         self.rosetta_fixedbb_design_Action.setText("Fixed BB")
@@ -266,17 +265,14 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         #Ui_AbstractFlyout connects the self.exitmodeAction, so call it first.
         _superclass.connect_or_disconnect_signals(self, isConnect)
         
-        if self.rosetta_enabled:
-            change_connect(self.modelProteinAction,
-                           SIGNAL("triggered()"),self._activateModelProteins)
-        if self.rosetta_enabled:               
-            change_connect(self.subControlActionGroup, 
-                           SIGNAL("triggered(QAction *)"),
-                           self.updateCommandToolbar)
-        if self.rosetta_enabled:
-            change_connect(self.simulateProteinAction, 
-                           SIGNAL("triggered()"), 
-                           self._activateSimulateProteins)
+        change_connect(self.modelProteinAction,
+                       SIGNAL("triggered()"),self._activateModelProteins)
+        change_connect(self.subControlActionGroup, 
+                       SIGNAL("triggered(QAction *)"),
+                       self.testRosettaAndUpdateCommandToolbar)
+        change_connect(self.simulateProteinAction, 
+                       SIGNAL("triggered()"), 
+                       self._activateSimulateProteins)
         
         change_connect(self.buildPeptideAction, 
                        SIGNAL("triggered(bool)"),
@@ -285,10 +281,9 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         change_connect(self.editRotamersAction, 
                        SIGNAL("triggered(bool)"),
                        self.activateEditRotamers_EditCommand)
-        if self.rosetta_enabled: 
-            change_connect(self.editResiduesAction, 
-                           SIGNAL("triggered(bool)"),
-                           self.activateEditResidues_EditCommand)
+        change_connect(self.editResiduesAction, 
+                       SIGNAL("triggered(bool)"),
+                       self.activateEditResidues_EditCommand)
 
         change_connect(self.compareProteinsAction, 
                        SIGNAL("triggered(bool)"),
@@ -298,18 +293,17 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
                        SIGNAL("triggered(bool)"),
                        self.activateProteinDisplayStyle_Command)
         
-        if self.rosetta_enabled:
-            change_connect(self.rosetta_fixedbb_design_Action,
-                           SIGNAL("triggered(bool)"),
-                           self.activateRosettaFixedBBDesign_Command)
-        
-            change_connect(self.rosetta_score_Action,
-                           SIGNAL("triggered(bool)"),
-                           self.activateRosettaScore_Command)
-        
-            change_connect(self.rosetta_backrub_Action,
-                           SIGNAL("triggered(bool)"),
-                           self.activateRosettaBackrub_Command)
+        change_connect(self.rosetta_fixedbb_design_Action,
+                       SIGNAL("triggered(bool)"),
+                       self.activateRosettaFixedBBDesign_Command)
+    
+        change_connect(self.rosetta_score_Action,
+                       SIGNAL("triggered(bool)"),
+                       self.activateRosettaScore_Command)
+    
+        change_connect(self.rosetta_backrub_Action,
+                       SIGNAL("triggered(bool)"),
+                       self.activateRosettaBackrub_Command)
         return
     
     def activateRosettaBackrub_Command(self, isChecked):
@@ -365,7 +359,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
     def _activateSimulateProteins(self):
         """
         Activate the simulation tool of the Build Protein mode 
-        """  
+        """                
         self.command.setCurrentCommandMode('SIMULATE_PROTEIN')
         self.command.enterModelOrSimulateCommand('SIMULATE_PROTEIN')
         for action in self.subControlActionGroupForSimulateProtein.actions():
@@ -449,4 +443,23 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
                 action.setChecked(False)     
         return
     
+    def testRosettaAndUpdateCommandToolbar(self, action):
+        if action == self.simulateProteinAction:
+            if not self.rosetta_enabled:
+                #print "Rosetta is not enabled"
+                plugin_name = "ROSETTA"
+                plugin_prefs_keys = (rosetta_enabled_prefs_key, rosetta_path_prefs_key)    
+                errorcode, errortext_or_path = \
+                         checkPluginPreferences(plugin_name, plugin_prefs_keys, ask_for_help = True)
+                #print "Error code =", errorcode, errortext_or_path
+                if errorcode == 0:
+                    self.rosetta_enabled = True
+                else:
+                    self.rosetta_enabled = False
+                    self.modelProteinAction.setChecked(True)
+                    self.simulateProteinAction.setChecked(False)
+                    return
+                
+        self.updateCommandToolbar()
+        
     
