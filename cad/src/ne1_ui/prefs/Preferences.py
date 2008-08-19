@@ -3022,8 +3022,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                                                         rosetta_dbdir_prefs_key,
                                                         'Choose Rosetta database directory')
 
-        if rosetta_db_executable:
-            self.rosetta_db_path_lineedit.setText(env.prefs[rosetta_db_path_prefs_key])
+        # piotr 081908: this pref key doesn't exist
+        #if rosetta_db_executable:
+        #    self.rosetta_db_path_lineedit.setText(env.prefs[rosetta_db_path_prefs_key])
 
     def set_rosetta_db_path(self, newValue):
         """
