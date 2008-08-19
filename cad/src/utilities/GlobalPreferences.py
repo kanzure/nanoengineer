@@ -520,8 +520,9 @@ def _debug_pref_break_strands_feature(): #Ninad 2008-08-18
     #debug flag for experimental code Ninad is
 #working on (various break strands options). 
 #Note that this flag is also used in BreakStrand_Command
-    res = debug_pref("DNA: debug new break strands options feature",
-                     Choice_boolean_False,
+#UPDATE 2008-08-19: This preference is set to True by default
+    res = debug_pref("DNA: debug new break strands options feature (next session)",
+                     Choice_boolean_True,
                      prefs_key = True
                     )
     return res
