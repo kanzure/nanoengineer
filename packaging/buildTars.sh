@@ -9,10 +9,11 @@ if [ -x $PKNG_DIR/ver_info.sh ]
 then
   . $PKNG_DIR/ver_info.sh
 else
-  VERSION_NUM="1.1.1"
-  GROMACS_VERSION="3.3.3"
-  QUTEMOLX_VERSION="0.5.1"
+  NE1_VERSION="1.1.1"
+  GMX_VERSION="3.3.3"
+  QMX_VERSION="0.5.1"
   PREF_VER="0.0.2"
+  SIM_VERSION="0.1.0"
 fi
 RC_NUMBER="0"
 
@@ -51,11 +52,11 @@ mkdir $TAR_DIR
 
 # Create the Suite tar file
 echo "Creating $TAR_DIR/NanoEngineer-1_Suite_v$NE1_VERSION.tar.gz"
-tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -f /tmp/dist_tars/NanoEngineer-1_Suite_v1.1.1.tar.gz * || exit 1
+tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -f /tmp/dist_tars/NanoEngineer-1_Suite_v$NE1_VERSION.tar.gz * || exit 1
 
 # Create the NE1 tar file
 echo "Creating $TAR_DIR/NanoEngineer-1_v$NE1_VERSION.tar.gz"
-tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -X packaging/Win32/exclude_files.txt -f /tmp/dist_tars/NanoEngineer-1_v1.1.1.tar.gz * || exit 1
+tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -X packaging/Win32/exclude_files.txt -f /tmp/dist_tars/NanoEngineer-1_v$NE1_VERSION.tar.gz * || exit 1
 
 # Create the GROMACS tar file
 echo "Creating GROMACS_$GMX_VERSION.tar.gz"
@@ -67,6 +68,6 @@ cd $TOP_LEVEL/cad/plugins/QuteMol || exit 1
 tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -f $TAR_DIR/QuteMolX_$QMX_VERSION.tar.gz qutemol || exit 1
 
 # Create the HDF5_SimResults tar file
-echo "Creating $TAR_DIR/HDF5_SimResults_0.1.0.tar.gz"
-cd $TOP_LEVEL/cad/plugins || exit 1
-tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -f $TAR_DIR/HDF5_SimResults_0.1.0.tar.gz HDF5_SimResults || exit 1
+#echo "Creating $TAR_DIR/HDF5_SimResults_0.1.0.tar.gz"
+#cd $TOP_LEVEL/cad/plugins || exit 1
+#tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -f $TAR_DIR/HDF5_SimResults_$SIM_VERSION.tar.gz HDF5_SimResults || exit 1
