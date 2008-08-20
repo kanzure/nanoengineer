@@ -57,21 +57,13 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     """
 
     title         =  "DnaStrand Properties"
-    pmName        =  title
     iconPath      =  "ui/actions/Properties Manager/Strand.png"
 
     def __init__( self, win, command ):
         """
         Constructor for the Build DNA property manager.
         """
-        
-        #For model changed signal
-        self.previousSelectionParams = None
-        
-        #see self.connect_or_disconnect_signals for comment about this flag
-        self.isAlreadyConnected = False
-        self.isAlreadyDisconnected = False
-        
+                
         self.sequenceEditor = None      
         
         self._numberOfBases = 0 
@@ -80,8 +72,8 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         
         
         _superclass.__init__( self, 
-                                    win,
-                                    command)
+                              win,
+                              command)
 
 
         

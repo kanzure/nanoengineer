@@ -52,7 +52,6 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
     """
 
     title         =  "DnaSegment Properties"
-    pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/DNA.png"
 
     def __init__( self, win, command ):
@@ -60,16 +59,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         Constructor for the Build DNA property manager.
         """
 
-        #For model changed signal
-        #@see: self.model_changed() and self._current_model_changed_params 
-        #for example use
-        self._previous_model_changed_params = None
-
-
-        #see self.connect_or_disconnect_signals for comment about this flag
-        self.isAlreadyConnected = False
-        self.isAlreadyDisconnected = False
-
+        
         self.endPoint1 = V(0, 0, 0)
         self.endPoint2 = V(0, 0, 0)
 

@@ -57,6 +57,18 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
         self._colorChooser     = None
         self.showCursorTextCheckBox = None
         self.referencePlaneListWidget = None
+        
+        
+        #For model changed signal
+        #@see: self.model_changed() and self._current_model_changed_params 
+        #for example use
+        self._previous_model_changed_params = None
+
+
+        #see self.connect_or_disconnect_signals for comment about this flag
+        self.isAlreadyConnected = False
+        self.isAlreadyDisconnected = False
+        
 
         _superclass.__init__( self, 
                               win,
