@@ -30,7 +30,7 @@ optimizing the graphics code.
 
 _testing_ = False # True
 if _testing_:
-    from exprs.test_drawing import test_drawing
+    from prototype.test_drawing import test_drawing
     pass
 
 import math
