@@ -715,7 +715,8 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                              position,
                              textString,
                              textColor = black,
-                             textFont =  None
+                             textFont =  None, 
+                             fontSize = 11
                              ):
         """
         Renders the text at the specified position (x, y , z coordinates)
@@ -740,49 +741,41 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         if textFont is not None:
             font = textFont
         else:
-            font = self._getFontForTextNearCursor()
+            font = self._getFontForTextNearCursor(fontSize = fontSize, 
+                                                  isBold = True)
 
 
         x = position[0]
         y = position[1]
         z = position[2]
 
-        #background color
-        bg_color = lightgray #not used
-        #Foreground color 
-        fg_color = textColor  
-
-        DEBUG_USE_GLU_PROJECT = False #DO NOT commit it with True.
-
-        if not DEBUG_USE_GLU_PROJECT:
-
-            glDisable(GL_LIGHTING)
-            glDisable(GL_DEPTH_TEST)
-            self.qglColor(RGBf_to_QColor(fg_color))
-            self.renderText(x, y, z, 
-                            QString(textString), 
-                            self._getFontForTextNearCursor(fontSize = 11, 
-                                                           isBold = True))
-            self.qglClearColor(RGBf_to_QColor(fg_color))
-            glEnable(GL_DEPTH_TEST)
-            glEnable(GL_LIGHTING)  
-        else:  
-            glDisable(GL_LIGHTING)
-            self.qglColor(RGBf_to_QColor(fg_color))               
-            x, y, z = gluProject(x, y, z)
-            pos = QPoint(int(x), int(y))
-            ##pos = self.mapFromGlobal(pos)
-            x1 = pos.x() 
-            y1 = pos.y() 
-
-            ### Note: self.renderText is QGLWidget.renderText method.
-            self.renderText(x1 ,
-                            y1,
-                            QString(textString),
-                            font)
-            self.qglClearColor(RGBf_to_QColor(fg_color))
-                # question: is this related to glClearColor? [bruce 071214 question]
-            glEnable(GL_LIGHTING)        
+        glDisable(GL_LIGHTING)
+        
+        #Convert the object coordinates to the window coordinates. This will 
+        #be used further to render the text near the clipping plane 
+        #(which in turn ensures its not obscured by any object drawing)
+        wX, wY, wZ = gluProject(x, y, z)
+        
+        #Now use the window x and y coords (wX and wY) in gluUnProject, 
+        #but use the depth equal to 'just beyond' clipping plane to ensure 
+        #text visibility. 
+        p1 = A(gluUnProject(wX, wY, 0.0))            
+        
+        x = p1[0]
+        y = p1[1]
+        z = p1[2]
+        
+        fg_color = textColor
+                    
+        self.qglColor(RGBf_to_QColor(fg_color)) 
+        self.renderText(x, y, z,
+                        QString(textString), 
+                        font)
+        
+        self.qglClearColor(RGBf_to_QColor(fg_color))
+            # question: is this related to glClearColor? [bruce 071214 question]
+            # -- yes [Ninad 2008-08-20]
+        glEnable(GL_LIGHTING)        
 
 
     def renderTextNearCursor(self, 
