@@ -57,6 +57,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
             self.propMgr = self._createPropMgrObject()
             #changes.keep_forever(self.propMgr)      
         self.propMgr.show()
+        self.propMgr.updateMessage()
         return
     
     def command_exit_PM(self):
@@ -139,13 +140,11 @@ class ModelAndSimulateProtein_Command(EditCommand):
         @see: L{self.restore_gui}
         """
            
-        self.dont_update_gui = True # redundant with Enter, 
+        
         self.command_enter_misc_actions()
         self.command_enter_PM() 
         self.command_enter_flyout()
-  
-        self.dont_update_gui = False
-        self.propMgr.updateMessage()
+        
         return
     
     def restore_gui(self):
@@ -183,32 +182,9 @@ class ModelAndSimulateProtein_Command(EditCommand):
             # exit command, if already in it
             currentCommand.Done(exit_using_done_or_cancel_button = False)
         
-        return
+        return    
     
-    def update_gui(self): 
-        """
-        can be called many times during the mode;
-        should be called only by code in modes.py
-        """
-
-        if self.dont_update_gui:   
-            return
         
-        self.dont_update_gui = True
-        try:
-            self.update_gui_0()
-        except:
-            print_compact_traceback("exception from update_gui_0: ")
-        self.dont_update_gui = False
-        return
-
-    def update_gui_0(self): 
-        """
-        Overridden in some subclasses. Default implementation does nothing
-        @see: B{PasteFromClipboard_Command}
-        """        
-        pass
-    
     def makeMenus(self): #bruce 050705 revised this to support bond menus
         """
         Create context menu for this command. (Build Atoms mode)
