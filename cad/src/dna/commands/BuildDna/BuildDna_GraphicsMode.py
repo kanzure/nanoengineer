@@ -611,11 +611,16 @@ class BuildDna_GraphicsMode(
                                                 hicolor2)
 
 
-    def _drawCursorText(self):
+    def _drawCursorText(self, position = None):
         """
         Draw the text near the cursor. It gives information about number of
         basepairs/bases being added or removed, length of the segment (if self.struct
         is a strand etc.
+        @param position: Optional argument. If position (a vector) is specified, 
+                         instead of drawing the text at the cursor position, 
+                         it is drawn at the specified position. 
+        @type position: B{V} or None
+               
         @see: DnaSegment_GraphicsMode,  DnaStrand_GraphicsMode  (subclasses of
         this class where this is being used.
         """
@@ -626,9 +631,15 @@ class BuildDna_GraphicsMode(
                 #number of base pairs etc
 
                 text , textColor = self.command.getCursorText()
-                self.glpane.renderTextNearCursor(text,
-                                                 offset = 30,
-                                                 color = textColor)
+                                
+                if position is None:
+                    self.glpane.renderTextNearCursor(text,
+                                                     offset = 30,
+                                                     color = textColor)
+                else:
+                    self.glpane.renderTextAtPosition( position,
+                                                      text, 
+                                                      textColor = textColor)
     
     
     def _drawLabels(self):

@@ -864,21 +864,20 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         else:
             numberOfBasePairsToAddOrRemove = raw_numberOfBasePairsToAddOrRemove
 
-        ##############
-
         current_numberOfBasePairs = self.struct.getNumberOfBasePairs()
-
+      
         numberOfBasePairs = current_numberOfBasePairs + numberOfBasePairsToAddOrRemove
-        #@TODO: The following updates the PM as the cursor moves. 
-        #Need to rename this method so that you that it also does more things 
-        #than just to return a textString -- Ninad 2007-12-20
-        self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+        
+        if hasattr(self.propMgr, 'numberOfBasePairsSpinBox'):            
+            #@TODO: The following updates the PM as the cursor moves. 
+            #Need to rename this method so that you that it also does more things 
+            #than just to return a textString -- Ninad 2007-12-20
+            self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
 
-        #Note: for Rattlesnake rc2, the text color is green when bases are added
-        #, red when subtracted black when no change. But this implementation is 
-        #changed based on Mark's user experience. The text is now always shown
-        #in black color. -- Ninad 2008-04-17
-        textColor = black  
+        
+        #Use the text color that better contrasts with the background color. 
+        #mitigates bug 2927
+        textColor = self.glpane.get_background_contrast_color()
 
         text = "" 
 
