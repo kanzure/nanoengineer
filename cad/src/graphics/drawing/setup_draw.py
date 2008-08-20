@@ -424,7 +424,7 @@ def setup_drawer():
     #russ 080819: Added.
     initial_choice = choices[drawing_globals.use_sphere_shaders_default]
     drawing_globals.use_sphere_shaders_pref = debug_pref(
-        "Use Color-sorted Vertex Buffer Objects?", initial_choice,
+        "Use Color-sorted sphere-shaders?", initial_choice,
         prefs_key = drawing_globals.use_sphere_shaders_prefs_key)
 
     #russ 080403: Added drawing variant selection
