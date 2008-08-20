@@ -354,6 +354,57 @@ chi_exclusions = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
                              None,
                              None ] }
 
+# PDB atom types for proteins. Assumes that the remaining atom types
+# have default hybridizations. Thie dictionary is used by Protein.add_pdb_atom
+PROTEIN_ATOM_TYPES = { 
+    "ANY" : {
+        "N"   : "sp2(graphitic)",
+        "C"   : "sp2",
+        "O"   : "sp2" },
+    "PHE" : {
+        "CG"  : "sp2a",
+        "CD1" : "sp2a", 
+        "CE1" : "sp2a",
+        "CZ"  : "sp2a",
+        "CE2" : "sp2a",
+        "CD2" : "sp2a" },
+    "GLU" : {
+        "CD"  : "sp2",
+        "OE1" : "sp2" },
+    "GLN" : {
+        "CD"  : "sp2",
+        "OE1" : "sp2" },
+    "ASP" : {
+        "CG"  : "sp2",
+        "OD1" : "sp2" },
+    "ASN" : {
+        "CG"  : "sp2",
+        "OD1" : "sp2" },
+    "TRP" : {
+        "CG"  : "sp2",
+        "CD1" : "sp2",
+        "CE2" : "sp2a",
+        "CZ2" : "sp2a",
+        "CH2" : "sp2a",
+        "CZ3" : "sp2a",
+        "CE3" : "sp2a",
+        "CD2" : "sp2a" },
+    "TYR" : {
+        "CG"  : "sp2a",
+        "CD1" : "sp2a",
+        "CE1" : "sp2a",
+        "CZ"  : "sp2a",
+        "CE2" : "sp2a",
+        "CD2" : "sp2a" },
+    "ARG" : {
+        "CZ"  : "sp2",
+        "NH2" : "sp2" },
+    "HIS" : {
+        "CG"  : "sp2",
+        "CE1" : "sp2", 
+        "NE2" : "sp2s", 
+        "CD2" : "sp2s" } }
+
 def is_water(resName):
     """
     Check if a PDB residue is a water molecule.
@@ -845,7 +896,9 @@ class Protein:
         self.mutation_range_list = []
         self.residues_dl = None
         self.residues_hi_dl = None
-        
+        self.aromatic_atoms = []
+        self.single_bonded_atoms = []
+            
     def set_chain_id(self, chainId):
         """
         Sets a single letter chain ID.
@@ -880,10 +933,10 @@ class Protein:
         """
         return self.pdbId
         
-    def add_pdb_atom(self, atom, pdbname, resId, resName):
+    def add_pdb_atom(self, atom, pdbname, resId, resName, setType=False):
         """
         Adds a new atom to the protein. Returns a residue that the atom
-        has been added to.
+        has been added to. Assigns the atom type.
         
         @param atom: new atom to be added to the protein
         @type atom: Atom
@@ -896,6 +949,10 @@ class Protein:
         
         @param resName: PDB residue name
         @type name: string
+        
+        @param setType: if True, try to determine the atom type based on 
+                        PDB residue name and atom nae                         
+        @type setType: boolean
         
         @return: residue the atom has been added to (Residue) 
         """
@@ -912,8 +969,51 @@ class Protein:
         if pdbname == "CA":
             self.ca_atom_list.append(atom)
 
+        if setType:
+            _assigned = False
+            # Look for the atom type and set it
+            if PROTEIN_ATOM_TYPES.has_key(resName):
+                atom_type_dict = PROTEIN_ATOM_TYPES[resName]
+                if atom_type_dict.has_key(pdbname):
+                    atom_type = atom_type_dict[pdbname]
+                    print (resName, pdbname, atom_type)
+                    if atom_type == "sp2s":
+                        atom.pdb_is_single_bonded = True
+                        atom_type = "sp2"
+                    if atom_type == "sp2a":
+                        atom.pdb_is_aromatic = True
+                        atom_type = "sp2"
+                    atom.set_atomtype_but_dont_revise_singlets(atom_type) 
+                    _assigned = True
+            if not _assigned:
+                # Look for common atom types (N, C, O)
+                atom_type_dict = PROTEIN_ATOM_TYPES["ANY"]
+                if atom_type_dict.has_key(pdbname):
+                    atom_type = atom_type_dict[pdbname]
+                    atom.set_atomtype_but_dont_revise_singlets(atom_type) 
+            
         return aa
     
+    def is_atom_aromatic(self, atom):
+        """
+        Test if the atom is aromatic
+        """
+        if hasattr(atom, 'pdb_is_aromatic'):
+            if atom.pdb_is_aromatic:
+                return True
+        else:
+            return False
+        
+    def is_atom_single_bonded(self, atom):
+        """
+        Test if the atom is aromatic
+        """
+        if hasattr(atom, 'pdb_is_single_bonded'):
+            if atom.pdb_is_single_bonded:
+                return True
+        else:
+            return False
+        
     def is_c_alpha(self, atom):
         """
         Check if the atom is a C-alpha atom.

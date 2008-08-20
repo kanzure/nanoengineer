@@ -290,10 +290,10 @@ def _readpdb_new(assy,
 
     def _finish_molecule():
         """
-        Perform some operations after reading entire PDB chain:
+        Perform some operations after reading the entire PDB chain:
           - rebuild (infer) bonds
           - rename molecule to reflect a chain ID
-          - delete protein object if this is not a protein
+          - delete the protein object if this is not a protein
           - append the molecule to the molecule list
         """
         
@@ -341,14 +341,42 @@ def _readpdb_new(assy,
                 #    env.history.h_update() 
 
                 # For protein - infer the bonds anyway. This should be replaced
-                # by a proper atom / bond type assignment using templates
-                # present in the Peptide Generator.
+                # by a proper atom / bond type assignment, for example using 
+                # the templates present in the Peptide Generator. piotr 081908
                 inferBonds(mol)
                     
                 if mol.protein.count_c_alpha_atoms() == 0:
-                    # It is not a protein molecule - delete the protein information.
+                    # It is not a protein molecule: remove the protein information.
                     mol.protein = None
                 else:
+                    aromatic_atom_list = []
+                    single_bonded_atom_list = []
+                    
+                    # This is a protein.
+                    # Assign proper atom types according to protein templates.
+                    # amino_acid_list = mol.protein.get_amino_acids() 
+                    #for aa in amino_acid_list:
+                        
+                    # aromatic, single_bonded = set_protein_atom_type(atom, 
+                                                                    
+                    # Assign bond orders. piotr 081908
+                    from model.bond_constants import V_DOUBLE, V_AROMATIC
+
+                    for atom in mol.atoms.itervalues():
+                        if atom.bonds:
+                            for bond in atom.bonds:
+                                if bond.atom1.getAtomTypeName() == "sp2" and \
+                                   bond.atom2.getAtomTypeName() == "sp2":
+                                    if mol.protein.is_atom_aromatic(bond.atom1) and \
+                                       mol.protein.is_atom_aromatic(bond.atom2):
+                                        bond.set_v6(V_AROMATIC)
+                                    elif ((mol.protein.is_atom_aromatic(bond.atom1) == False and
+                                       mol.protein.is_atom_aromatic(bond.atom2) == False) and
+                                      not (mol.protein.is_atom_single_bonded(bond.atom1) and
+                                           mol.protein.is_atom_single_bonded(bond.atom2))):
+                                        bond.set_v6(V_DOUBLE)
+
+                    # Set the PDB information (chain ID and PDB code)
                     mol.protein.set_chain_id(chainId)
                     mol.protein.set_pdb_id(pdbid)
                 
@@ -475,7 +503,7 @@ def _readpdb_new(assy,
                 nodigits(name2) # like code as revised on 070410
             ]
             
-            # First, look at 77-78 field - it should include an element symbol.
+            # piotr 081908: look at 77-78 field - it should include an element symbol.
             foundit = False
             try:
                 PeriodicTable.getElement(sym)
@@ -533,31 +561,40 @@ def _readpdb_new(assy,
             # Now the element name is in sym.
             xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
             n = int(card[6:11])
+
             if _is_water:
+                # If this is a water molecule, add the atom to Water chunk
                 a = Atom(sym, A(xyz), water)
             else:
+                # Otherwise, add it to the current molecule.
                 a = Atom(sym, A(xyz), mol)
                 
             ndix[n] = a
             
             if _is_amino_acid or \
                _is_nucleotide:
+                # Don't split proteins or nucleotides into individual 
+                # residues. What about carbohydrates? piotr 081908
                 dont_split = True
                 
             if not _is_water:
                 mol.protein.add_pdb_atom(a, 
                                          name4, 
                                          resId, 
-                                         resName)
+                                         resName,
+                                         setType=True)
             
-            # Assign secondary structure.            
+            # Assign one of three types of secondary structure.            
             if (resId, chainId) in helix:
+                # helix
                 mol.protein.assign_helix(resId)
             
             if (resId, chainId) in sheet:
+                # extended
                 mol.protein.assign_strand(resId)
                 
             if (resId, chainId) in turn:
+                # turn 
                 mol.protein.assign_turn(resId)
             
         elif key == "conect":
@@ -620,7 +657,7 @@ def _readpdb_new(assy,
                 break
             
         elif key in ["helix", "sheet", "turn"]:
-            # Read secondary structure information.
+            # Read the secondary structure information.
             if key == "helix":
                 begin = int(card[22:25])
                 end = int(card[34:37])
