@@ -205,21 +205,20 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
             for segment in self.command.getResizeSegmentList():  
                 self.command.currentStruct = segment
                 params_when_adding_bases, params_when_removing_bases = \
-                                        self.command.getDnaRibbonParams()  
+                                        self.command.getDnaRibbonParams() 
 
-                self.command.currentStruct = None
-                if params_when_adding_bases:                    
-                    numberOfBasePairs,\
-                                    end1, \
-                                    end2, \
-                                    basesPerTurn,\
-                                    duplexRise, \
-                                    ribbon1_start_point, \
-                                    ribbon2_start_point, \
-                                    ribbon1_direction, \
-                                    ribbon2_direction, \
-                                    ribbon1Color, \
-                                    ribbon2Color = params_when_adding_bases 
+                
+                if params_when_adding_bases:
+                    end1, \
+                        end2, \
+                        basesPerTurn,\
+                        duplexRise, \
+                        ribbon1_start_point, \
+                        ribbon2_start_point, \
+                        ribbon1_direction, \
+                        ribbon2_direction, \
+                        ribbon1Color, \
+                        ribbon2Color = params_when_adding_bases 
 
 
                     #Note: The displayStyle argument for the rubberband line should 
@@ -254,14 +253,14 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                                SPHERE_DRAWLEVEL,
                                opacity = SPHERE_OPACITY) 
                     
-                    numberOfBasePairsString = "+" + str(numberOfBasePairs)
-                    self.glpane.renderTextAtPosition( end2 + self.glpane.out*2.5, 
-                                                      numberOfBasePairsString, 
-                                                      textColor = textColor
-                                                      )
+                    
+                    #Draw the text next to the cursor that gives info about 
+                    #number of base pairs etc            
+                    self._drawCursorText(position = end2)
+
                 
                 elif params_when_removing_bases:
-                    numberOfBasePairs , end2 = params_when_removing_bases
+                    end2 = params_when_removing_bases
                     #Draw a sphere that indicates the current position of 
                     #the resize end of each segment.
                     drawsphere(darkred, 
@@ -270,13 +269,12 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                                SPHERE_DRAWLEVEL,
                                opacity = SPHERE_OPACITY)   
                     
-                    numberOfBasePairsString = str(numberOfBasePairs)
+                    
+                    #Draw the text next to the cursor that gives info about 
+                    #number of base pairs etc            
+                    self._drawCursorText(position = end2)
                 
-                    self.glpane.renderTextAtPosition( end2 + self.glpane.out*2.5, 
-                                                      textString = numberOfBasePairsString,
-                                                      textColor = textColor
-                                                      )
-
-                #Draw the text next to the cursor that gives info about 
-                #number of base pairs etc
-                self._drawCursorText()
+                #Reset the command.currentStruct to None. (it is set to 'segment' 
+                #at the beginning of the for loop.
+                self.command.currentStruct = None
+                                

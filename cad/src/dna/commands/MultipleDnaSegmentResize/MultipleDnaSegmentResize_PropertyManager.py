@@ -13,8 +13,6 @@ TODO: as of 2008-01-18
 """
 from PyQt4.Qt import Qt, SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
-from widgets.DebugMenuMixin import DebugMenuMixin
-from command_support.EditCommand_PM import EditCommand_PM
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_ToolButton    import PM_ToolButton
@@ -25,33 +23,28 @@ from geometry.VQT import V
 from utilities.debug import print_compact_stack
 from utilities       import debug_flags
 from utilities.Comparison import same_vals
-
+from command_support.DnaOrCnt_PropertyManager   import DnaOrCnt_PropertyManager
 from utilities.Log import redmsg
 
-_superclass = EditCommand_PM
-class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key
+
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+
+_superclass = DnaOrCnt_PropertyManager
+class MultipleDnaSegmentResize_PropertyManager( DnaOrCnt_PropertyManager ):
     
     title         =  "Resize Dna Segments"
-    pmName        =  title
     iconPath      =  "ui/actions/Properties Manager/Resize_Multiple_Segments.png"
-    
-    isAlreadyConnected = False
-    isAlreadyDisconnected = False
-    
+        
     def __init__( self, win, command ):
         """
         Constructor for the Build DNA property manager.
         """
         
-        #For model changed signal    
-        #@see: self.model_changed() and self._current_model_changed_params 
-        #for example use
-        self._previous_model_changed_params = None
-        
-        #see self.connect_or_disconnect_signals for comment about this flag
-        self.isAlreadyConnected = False
-        self.isAlreadyDisconnected = False
-        
+                
         self.endPoint1 = V(0, 0, 0)
         self.endPoint2 = V(0, 0, 0)
                 
@@ -64,9 +57,6 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         _superclass.__init__( self, 
                                     win,
                                     command)
-
-
-        DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
@@ -266,6 +256,10 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         self._pmGroupBox1 = PM_GroupBox( self, title = "Segments for Resizing" )
         self._loadGroupBox1( self._pmGroupBox1 )
         
+        self._displayOptionsGroupBox = PM_GroupBox( self, 
+                                                    title = "Display Options" )
+        self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
+        
 
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -380,3 +374,44 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         self.segmentListWidget.insertItems(
             row = 0,
             items = segmentList)
+        
+        
+    def _connect_showCursorTextCheckBox(self):
+        """
+        Connect the show cursor text checkbox with user prefs_key.
+        Overrides 
+        DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
+        """
+        connect_checkbox_with_boolean_pref(
+            self.showCursorTextCheckBox , 
+            dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key)
+
+
+    def _params_for_creating_cursorTextCheckBoxes(self):
+        """
+        Returns params needed to create various cursor text checkboxes connected
+        to prefs_keys  that allow custom cursor texts. 
+        @return: A list containing tuples in the following format:
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                uses this data to create checkboxes with the the given names and
+                connects them to the provided preference keys. (Note that 
+                PM_PrefsCheckBoxes puts thes within a GroupBox)
+        @rtype: list
+        @see: PM_PrefsCheckBoxes
+        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: Superclass method which is overridden here --
+        DnaOrCnt_PropertyManager._params_for_creating_cursorTextCheckBoxes()
+        """
+        params = \
+               [  #Format: (" checkbox text", prefs_key)
+                  ("Number of base pairs", 
+                   dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key),
+
+                   ("Duplex length",
+                    dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key),
+
+                    ("Number of basepairs to be changed",
+                     dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key) 
+                 ]
+
+        return params
