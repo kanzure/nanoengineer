@@ -497,7 +497,7 @@ def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
    #As of 2008-08-13 this is not implemented for - Flyout toolbars , 
    #old commands such as Extrude, Movie. 
     res = debug_pref("Keep signals always connected (NIM) (next session)?",
-                     Choice_boolean_False,
+                     Choice_boolean_True,
                      prefs_key = True
                     )
     return res
@@ -522,7 +522,7 @@ def _debug_pref_break_strands_feature(): #Ninad 2008-08-18
 #Note that this flag is also used in BreakStrand_Command
 #UPDATE 2008-08-19: This preference is set to True by default
     res = debug_pref("DNA: debug new break strands options feature (next session)",
-                     Choice_boolean_True,
+                     Choice_boolean_False,
                      prefs_key = True
                     )
     return res
