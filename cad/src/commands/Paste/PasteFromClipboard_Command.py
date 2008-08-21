@@ -33,6 +33,8 @@ from operations.pastables import is_pastable
 from operations.pastables import find_hotspot_for_pasting
 from model.bonds import bond_at_singlets
 
+from utilities.Comparison import same_vals
+
 from commands.Paste.PastePropertyManager import PastePropertyManager
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from ne1_ui.toolbars.Ui_PasteFromClipboardFlyout import PasteFromClipboardFlyout
@@ -60,7 +62,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
 
     #See Command.anyCommand for details about the following flag
     command_has_its_own_PM = True
-    
+
     GraphicsMode_class = PasteFromClipboard_GraphicsMode
 
     def __init__(self, commandSequencer):
@@ -73,8 +75,9 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         @param commandSequencer: The command sequencer (GLPane) object 
         """
         self.pastables_list = [] #@note: not needed here?
+        self._previous_model_changed_params = None
         _superclass.__init__(self, commandSequencer) 
-           
+
     def Enter(self):
         """
         """
@@ -83,7 +86,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
             # note, this is also done redundantly in init_gui.
         self.pastables_list = [] # should be ok, since update_gui comes after 
         #this...
-       
+
     def init_gui(self):
         """
         Do changes to the GUI while entering this mode. This includes opening 
@@ -108,21 +111,93 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         """
         flyoutToolbar = PasteFromClipboardFlyout(self) 
         return flyoutToolbar
-    
+
     def _createPropMgrObject(self):
         """
         """
         propMgr = PastePropertyManager(self)
         return propMgr
+
+
+    def model_changed(self):
+        _superclass.model_changed(self)
         
+        currentParams = self._current_model_changed_params()
+        
+        #Optimization. Return from the model_changed method if the 
+        #params are the same. 
+        if same_vals(currentParams, self._previous_model_changed_params):
+            return 
+        
+        #update the self._previous_model_changed_params with this new param set.
+        self._previous_model_changed_params = currentParams 
+        
+        #This was earlier -- self.update_gui_0()
+        self._update_pastables_list()
+                
+        self.propMgr.update_clipboard_items() 
+        # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
+        # Note and bugfix, bruce 060412: doing this now was also causing 
+        # traceback bugs 1726, 1629,
+        # and the traceback part of bug 1677, and some related 
+        #(perhaps unreported) bugs.
+        # The problem was that this is called during pasteBond's addmol 
+        #(due to its addchild), before it's finished,
+        # at a time when the .part structure is invalid (since the added 
+        # mol's .part has not yet been set).
+        # To fix bugs 1726, 1629 and mitigate bug 1677, I revised the 
+        # interface to MMKit.update_clipboard_items
+        # (in the manner which was originally recommented in 
+        #call_after_next_changed_members's docstring) 
+        # so that it only sets a flag and updates (triggering an MMKit 
+        # repaint event), deferring all UI effects to
+        # the next MMKit event.
+        pass
 
-    def update_gui(self):
+
+    def _current_model_changed_params(self):
+        """
+        Returns a tuple containing the parameters that will be compared
+        against the previously stored parameters. This provides a quick test
+        to determine whether to do more things in self.model_changed()
+        @see: self.model_changed() which calls this
+        @see: self._previous_model_changed_params attr. 
+        """
+        params = None
+
+        memberList = []
+
+        try:
+            ###@@@@ need this to avoid UnboundLocalError: local variable 'shelf'
+            ##referenced before assignment
+            # but that got swallowed the first time we entered mode!
+            # but i can't figure out why, so neverind for now [bruce 050121]
+            shelf = self.glpane.assy.shelf
+            if hasattr(shelf, 'members'):
+                memberList = list(shelf.members)
+            else:
+                memberList = [shelf]
+        except AttributeError:
+            # this is normal, until I commit new code to Utility and model tree!
+            #[bruce 050121]
+            pass
+
+        params = (memberList)
+
+        return params
+
+    def _update_pastables_list(self): #bruce 050121 split this out and heavily revised it
         """
         """
-        _superclass.update_gui(self)
-        self.resubscribe_to_clipboard_members_changed()
-
-    def update_gui_0(self): #bruce 050121 split this out and heavily revised it
+        
+        #UPDATE 2008-08-20:
+        # This method was earlier update_gui_0() which was called from 
+        #def update_gui().  The update_gui_* methods will be deprecated soon. 
+        #See model_changed() method where this method is called. 
+        #Note that the code in this method is old and needs to be revised
+        #-- [Ninad comment]
+                
+        
         # [Warning, bruce 050316: when this runs, new clipboard items might not
         # yet have
         # their own Part, or the correct Part! So this code should not depend
@@ -209,7 +284,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
 
         return
 
-    
+
 
     def update_pastable(self):
         """
@@ -235,7 +310,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         if not self.pastable:
             return None
         return self.pastable.part
-    
+
     def deposit_from_Clipboard_page(self, atom_or_pos):
         """
         Deposit the clipboard item being previewed into the 3D workspace
@@ -272,7 +347,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
 
         return chunk, status
 
-    
+
 
     def resubscribe_to_clipboard_members_changed(self):
         try:
@@ -406,7 +481,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
             return numol, "copy of %r" % pastable.name
         elif isinstance(pastable, Group):
             msg = "Pasting a group with hotspot onto a bond point " \
-                  "is not implemented"
+                "is not implemented"
             return None, msg
             ##if debug_flags.atom_debug:     
                 ###@@@ EXPERIMENTAL CODE TO PASTE a GROUP WITH A HOTSPOT  
@@ -417,7 +492,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
                     ### attach to atom
                     ##attch2Atom = attch2Singlet.singlet_neighbor() 
                     ##rotOffset = Q(hotspot_neighbor.posn() - hotspot.posn(), 
-                                  ##attch2Singlet.posn() - attch2Atom.posn())
+                                    ##attch2Singlet.posn() - attch2Atom.posn())
 
                     ##rotCenter = newMol.center
                     ##newMol.rot(rotOffset)
@@ -426,9 +501,9 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
                     ##newMol.move(moveOffset)
 
                     ##self.graphicsMode._createBond(hotspot, 
-                                      ##hotspot_neighbor, 
-                                      ##attch2Singlet, 
-                                      ##attch2Atom)
+                                        ##hotspot_neighbor, 
+                                        ##attch2Singlet, 
+                                        ##attch2Atom)
                     ##self.o.assy.addmol(newMol)
                     ##########
                     ####newGroup = self.pasteGroup(pos, pastable)      
