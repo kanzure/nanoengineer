@@ -3,22 +3,33 @@
 """
 Protein.py -- Protein class implementation.
 
+The Protein class stores protein-related information and provides several
+methods used by Protein display style and Rosetta simulations.
+
+Currently, the protein objects can be created by reading a protein
+structure from PDB file or by using Peptide Builder.
+
 @author: Piotr
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
-piotr 080709: Created a preliminary version of the Protein class.
+piotr 080707: Created a preliminary version of the Protein class.
 
-piotr 080819: Completed docstrings and documented better.
+piotr 081908: Completed docstrings and documented better the code.
+
+piotr 082008: Better documentation of this file; code re-factoring.
 """
 
 import foundation.env as env
 
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.prefs_constants import rosetta_backrub_enabled_prefs_key
 
-# 3-letter to 1-letter conversion
+# 3-letter to 1-letter amino acid name conversion
+# The three-letter names are used to distinguish "protein" from "non-protein"
+# residues in PDB reading code.
 AA_3_TO_1 = {
     'ALA':'A', # 20 standard amino acids
     'VAL':'V', 
@@ -208,8 +219,6 @@ SS_HELIX = 1
 SS_STRAND = 2
 SS_TURN = 3
 
-from utilities.debug_prefs import debug_pref, Choice_boolean_False
-
 # PDB atom name sets for chiral angles for amino acid side chains
 chi_angles = { "GLY" : [ None, 
                          None, 
@@ -355,15 +364,18 @@ chi_exclusions = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
                              None ] }
 
 # PDB atom types for proteins. Assumes that the remaining atom types
-# have default hybridizations. Thie dictionary is used by Protein.add_pdb_atom
+# have default hybridization. Thie dictionary is used by Protein.add_pdb_atom
+
+# Note: piotr 082108: this is going to be moved to files_pdb.py 
+
 PROTEIN_ATOM_TYPES = { 
     "ANY" : {
-        "N"   : "sp2(graphitic)",
-        "C"   : "sp2",
+        "N"   : "sp2(graphitic)", # these atom types are common for all amino
+        "C"   : "sp2",            # acids
         "O"   : "sp2" },
     "PHE" : {
-        "CG"  : "sp2a",
-        "CD1" : "sp2a", 
+        "CG"  : "sp2a", # "sp2a" is an sp2 atom connected to another sp2a atom
+        "CD1" : "sp2a", # with an aromatic bond
         "CE1" : "sp2a",
         "CZ"  : "sp2a",
         "CE2" : "sp2a",
@@ -402,12 +414,17 @@ PROTEIN_ATOM_TYPES = {
     "HIS" : {
         "CG"  : "sp2",
         "CE1" : "sp2", 
-        "NE2" : "sp2s", 
-        "CD2" : "sp2s" } }
+        "NE2" : "sp2s",      # two "sp2s" atoms are connected with a bond 
+        "CD2" : "sp2s" } }   # of order 1
+
+# Utility methods used by PDB reading code.
 
 def is_water(resName):
     """
     Check if a PDB residue is a water molecule.
+    
+    @param resName: PDB residue name (3-letter string)
+    @type resName: string
     """    
     water_codes = ["H2O", "HHO", "OHH", "HOH", "OH2", "SOL", "WAT", "DOD", 
                    "DOH", "HOD", "D2O", "DDO", "ODD", "OD2", "HO1", "HO2",
@@ -421,6 +438,9 @@ def is_water(resName):
 def is_amino_acid(resName):
     """
     Check if a PDB residue is an amino acid.
+    
+    @param resName: PDB residue name (3-letter string)
+    @type resName: string
     """
     if AA_3_TO_1.has_key(resName[:3]):
         return True
@@ -430,42 +450,89 @@ def is_amino_acid(resName):
 def is_nucleotide(resName):
     """
     Check if a PDB residue is a nucleotide.
+    
+    @param resName: PDB residue name (3-letter string)
+    @type resName: string
     """
     if NUC_3_TO_1.has_key(resName[:3]):
         return True
     
     return False
-    
+
+# This class should be renamed to "Residue" (which is a proper spelling,
+# as Eric D has pointed out.
+# piotr 082008: This class should be moved to its own file.
+
 class Residuum:
     """
-    This class implements a Residuum object.
+    This class implements a Residue object. The residue is an object
+    describing an individual amino acid of a protein chain.
     """
     
     def __init__(self, id, name):
         """
-        id is a PDB residue number.
-        name is a PDB name (amino acid name in three-letter code.
-        """
-        self.atoms = {} # dictionary for name -> atom mapping
-        self.names = {} # inverse dictionary for atom -> name mapping
-        self.atom_list = []
-        self.name = name[:3]
-        self.id = id
-        self.secondary_structure = SS_COIL
-        self.mutation_range = "NATAA"
-        self.mutation_descriptor = ""
-        self.expanded = False
-        self.color = None
-        self.bfactor = 1.0
-        self.backrub = False
+        @param id: PDB residue number.
+        @type id: integer
         
+        @param name: PDB name (amino acid name in three-letter code.
+        @type name: string (3 characters)
+        """
+        # dictionary for name -> atom mapping
+        self.atoms = {} 
+        
+        # dictionary for atom -> name mapping
+        self.names = {} 
+        
+        # list of residue atoms in the same order as they occur in PDB
+        self.atom_list = []
+        
+        # residue name (3 characters string)
+        self.name = name[:3]
+        
+        # residue id (serial number)
+        self.id = id
+
+        # amino acid secondary structure        
+        self.secondary_structure = SS_COIL
+
+        # True if the residue is expanded. The feature is used by "Edit
+        # Rotamers" command for efficient rotamer manipulation in reduced
+        # protein display style.
+        self.expanded = False
+        
+        # Rotamer color, used by "Edit Rotamers" command.
+        self.color = None
+        
+        # Additional attributes, currently not read from PDB files, but
+        # used for writting the files for Rosetta.
+        self.bfactor = 1.0
+        self.occupation = 0.0
+        
+        # These Rosetta-related attributes should be probably moved from this
+        # class to some Rosetta-related structure. For now, the Residuum
+        # and Protein classes
+        
+        # Rosetta name of mutation range. 
+        self.mutation_range = "NATAA"
+        
+        # Rosetta mutation descriptor. If set, it is usually a string of
+        # 20 characters, corresponding to amino acid allowed at a given position.
+        # Note: the descriptor is actuallt used by Rosetta only if mutation
+        # range is set to "PIKAA". Otherwise, it is used only for informational
+        # purposes. 
+        self.mutation_descriptor = ""
+        
+        # True if this residue will be using backrub mode.
+        self.backrub = False
+
     def get_atom_name(self, atom):
         """
         For a given PDB atom name, return a corresponding atom.
         """
         if atom in self.names:
             return self.names[atom]
-        return None
+        else:
+            return None
        
     def add_atom(self, atom, pdbname):
         """ 
@@ -477,13 +544,14 @@ class Residuum:
         
     def get_atom_list(self):
         """
-        Return a list of atoms of residue object.
+        Return a list of atoms for the residue.
         """
         return self.atom_list
     
     def get_side_chain_atom_list(self):
         """
-        Return a list of side chain atoms of residue object.
+        Return a list of side chain atoms for the residue. Assumes standard
+        PDB atom names.
         """
         return [atom for atom in self.atom_list \
                 if self.names[atom] not in ["C", "N", "O", "H", "HA"]]
@@ -496,7 +564,7 @@ class Residuum:
 
     def get_one_letter_code(self):
         """
-        Return a one-letter amino acid code, or "X" if the residuum code
+        Return a one-letter amino acid code, or "X" if the residue code
         is not recognized.
         """
         if AA_3_TO_1.has_key(self.name):
@@ -519,15 +587,15 @@ class Residuum:
         """
         if self.atoms.has_key(pdbname):
             return self.atoms[pdbname]
-        return None
-
+        else:
+            return None
+    
     def has_atom(self, atom):
         """
-        Check if the atom belongs to self.
+        Check if the atom belongs to self. 
         
         @param atom: atom to be checked
-        @type atom: Atom
-        
+        @type atom: Atom        
         """
         if atom in self.atoms.values():
             return True
@@ -618,7 +686,7 @@ class Residuum:
     def get_mutation_range(self):
         """
         Gets a mutaion range according to Rosetta definition.
-        
+        nie,.
         @return: range
         """
         return self.mutation_range
@@ -642,8 +710,8 @@ class Residuum:
     
     def calc_torsion_angle(self, atom_list):
         """
-        Calculates a torsional angle between four atoms, A1-A2-A3-A4,
-        returns the torsional angle between atoms A2 and A3.
+        Calculates torsional angle defined by four atoms, A1-A2-A3-A4,
+        Return torsional angle value between atoms A2 and A3.
         
         @param atom_list: list of four atoms describing the torsion bond
         @type atom_list: list
@@ -664,15 +732,19 @@ class Residuum:
         v43 = atom_list[3].posn() - atom_list[2].posn()
         v23 = atom_list[1].posn() - atom_list[2].posn()
 
+        # p is a vector perpendicular to the plane defined by atoms 1,2,3
         # p is perpendicular to v23_v12 plane
         p = cross(v23, v12)
         
+        # x is a vector perpendicular to the plane defined by atoms 2,3,4.
         # x is perpendicular to v23_v43 plane
         x = cross(v23, v43)
         
         # y is perpendicular to v23_x plane
         y = cross(v23, x)
         
+        
+        # Calculate lengths of the x, y vectors.
         u1 = dot(x, x)
         v1 = dot(y, y)
         
@@ -749,14 +821,22 @@ class Residuum:
         """
         chi_atom_list = self.get_chi_atom_list(which)
         if chi_atom_list:
-            return self.calc_torsion_angle(chi_atom_list)                    
-        return None
+            return self.calc_torsion_angle(chi_atom_list)                  
+        else:
+            return None
 
     
     def get_atom_list_to_rotate(self, which):
         """
         Create a list of atoms to be rotated around a specified chi angle.
         Returns an empty list if wrong chi angle is requested.
+        
+        piotr 082008: This method should be rewritten in a way so it 
+        traverses a molecular graph rather than uses a predefined 
+        lists of atoms "excluded" and "included" from rotations.
+        Current implementation only works for "proper" amino acids
+        that have all atoms named properly and don't include any 
+        non-standard atoms.
         
         @param which: chi angle (0=chi1, 1=chi2, and so on)
         @type which: int
@@ -783,7 +863,7 @@ class Residuum:
         
     def set_chi_angle(self, which, angle):
         """
-        Sets a specified chi angle of this amino acid.
+        Sets a specified chi angle of this amino acid. 
         
         @param which: chi angle (0=chi1, 1=chi2, and so on)
         @type which: int
@@ -813,7 +893,7 @@ class Residuum:
                     
                     q = V(0, 0, 0)
                     
-                    # rotate point around a vector
+                    # rotate the point around a vector
                     
                     q[0] += (cos_a + (1.0 - cos_a) * vec[0] * vec[0]) * pos[0];
                     q[0] += ((1.0 - cos_a) * vec[0] * vec[1] - vec[2] * sin_a) * pos[1];
@@ -880,25 +960,48 @@ class Residuum:
     
 # End of Residuum class.
 
-
 class Protein:
     """
-    This class implements a protein model in NanoEngineer-1. This is an
-    early implementation as of July 2008. 
+    This class implements a protein model in NanoEngineer-1. 
+    This class was implemented by Piotr in July 2008. 
     """
     
     def __init__(self):
-        self.ca_atom_list = []
-        self.sequence = {}
-        self.chainId = ''
+
+        # PDB indentifier of the protein, typically, a four character string
+        # of following format: "1abc"
         self.pdbId = ""
+        
+        # Single-character chain identifier.
+        self.chainId = ''
+        
+        # Dictionary that maps residue names to residue objects. 
+        # The name "sequence" is confusing and should be changed 
+        # to "residues". piotr 082008        
+        self.sequence = {}
+        
+        # Ordered list of amino acids.
+        self.amino_acid_list = []
+        
+        # Ordered list of alpha carbon atoms. It should contain at least one atom.
+        # This could be probably pre-calculated every time
+        self.ca_atom_list = []
+        
+        # Index of "current" amino acid (used by Edit Rotamers command).
         self.current_aa_idx = 0
-        self.mutation_range_list = []
+
+        # Display list for expanded rotamers, used by ProteinChunk.draw_realtime
         self.residues_dl = None
-        self.residues_hi_dl = None
+        
+        # List of aromatic atoms, used for bond type assignment in PDB reading
+        # code.
         self.aromatic_atoms = []
+        
+        # List of sp2 atoms bonded with a single bond, used for bond type
+        # assignment in PDB reading code. If two atoms are "single bonded"
+        # and both are sp2, they should be bonded with a single bond.
         self.single_bonded_atoms = []
-            
+        
     def set_chain_id(self, chainId):
         """
         Sets a single letter chain ID.
@@ -963,9 +1066,14 @@ class Protein:
             # This is a new residue.
             aa = Residuum(resId, resName)
             self.sequence[resId] = aa
-           
+            # Append the residue to amino acid list to have a properly ordered
+            # list of amino acids.
+            self.amino_acid_list.append(aa)
+            
+        # Add the atom to the residue.
         aa.add_atom(atom, pdbname)
         
+        # If this is an alpha carbon atom, add it to the list of alpha carbons.
         if pdbname == "CA":
             self.ca_atom_list.append(atom)
 
@@ -976,7 +1084,7 @@ class Protein:
                 atom_type_dict = PROTEIN_ATOM_TYPES[resName]
                 if atom_type_dict.has_key(pdbname):
                     atom_type = atom_type_dict[pdbname]
-                    print (resName, pdbname, atom_type)
+                    ### print (resName, pdbname, atom_type)
                     if atom_type == "sp2s":
                         atom.pdb_is_single_bonded = True
                         atom_type = "sp2"
@@ -1073,7 +1181,16 @@ class Protein:
     def set_rosetta_protein_secondary_structure(self, inProtein):
         """
         Set the secondary structure of the protein outputted from rosetta to that
-        of the inProtein
+        of the inProtein. (created by Urmi)
+        
+        piotr 081908: Explanation. Rosetta fixed backbone simulation doesn't 
+        change the backbone atom positions, so it is safe to copy the secondary
+        structure information from the input protein. 
+        
+        piotr 082008: This is no longer true for flexible backbone simulations,
+        i.e. when using the bakcrub mode. It is not going to cause major problems,
+        as the backbone changes are relatively minor, but in general we need
+        a secondary structure computation algorithm.
         
         @param inProtein:input protein chunk
         @type inProtein: L{Chunk}
@@ -1150,7 +1267,7 @@ class Protein:
         
         @return: list of residues
         """
-        return self.sequence.values()
+        return self.amino_acid_list
     
     def assign_helix(self, resId):
         """
@@ -1278,8 +1395,8 @@ class Protein:
         """
         #Urmi 20080728: created to do the two way connection between protein
         #sequence editor and residue combo box
-        if index in range(len(self.sequence)):
-            return self.sequence.values()[index]
+        if index in range(len(self.amino_acid_list)):
+            return self.amino_acid_list[index]
         return None
     
     def get_current_amino_acid_index(self):
@@ -1297,7 +1414,7 @@ class Protein:
         @param index: index of current amino acid
         @type index: integer
         """
-        if index in range(len(self.sequence)):
+        if index in range(len(self.amino_acid_list)):
             self.current_aa_idx = index
             
     def get_number_of_backrub_aa(self):
@@ -1348,11 +1465,18 @@ class Protein:
        
 # end of Protein class
 
+# piotr 082008: This and possibly several Rosetta-related methods of the Protein 
+# class should be re-factored and moved to a separate file.
+    
 def write_rosetta_resfile(filename, chunk):
     """
     Write a Rosetta resfile for a given protein chunk. Return True 
     if succefully written, otherwise return False. Writes backrub
     information if the backrub mode is enabled in user preferences.
+    
+    Currently, we only support single-chain Rosetta simulations.
+    
+    @param chunk: protein chunk to be written
     """
     
     # Make sure this is a valid protein chunk.
@@ -1360,8 +1484,7 @@ def write_rosetta_resfile(filename, chunk):
        chunk.protein is None:
         return False
 
-    # Check if this is a backrub mode
-    
+    # Check if the backrub mode is enabled.
     use_backrub = env.prefs[rosetta_backrub_enabled_prefs_key]
     
     # Get a list of amino acids.
@@ -1405,8 +1528,10 @@ def write_rosetta_resfile(filename, chunk):
 
     index = 0
     for aa in amino_acids:
+        # For each consecutive amino acid
         index += 1
         mut = aa.get_mutation_range()
+        # Write the amino acid and its mutation range name
         out_str = " " + \
                 chunk.protein.get_chain_id() + \
                 "%5d" % int(index) + \
@@ -1414,6 +1539,7 @@ def write_rosetta_resfile(filename, chunk):
                 mut 
         if use_backrub and \
            aa.backrub:
+            # Append "B" when in backrub mode. 
             out_str += "B"
         if mut == "PIKAA":
             out_str += "  " + aa.get_mutation_descriptor().replace("_","") + "\n"
