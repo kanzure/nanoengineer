@@ -1217,9 +1217,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             self.o.assy.shelf.addchild(new) # adds at the end
             self.o.assy.update_parts() 
             # bruce 050316; needed when adding clipboard items.
-            # Is this soon enough for command.UpdateDashboard?? 
-            # or does it matter if it comes first? ####@@@@
-        
+                    
             # bruce 050121 don't change selection anymore; it causes too many 
             # bugs to have clipboard items selected. Once my new model tree code
             # is committed, we could do this again and/or highlight the pastable
@@ -1235,10 +1233,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #depositMode.  (this needs further cleanup) -- ninad 2007-09-04
             self.w.depositState = 'Atoms'
             
-            self.command.UpdateDashboard()
-                # (also called by shelf.addchild(), but only after my home mods
-                #  to Utility.py get committed, i.e. not yet -- bruce 050121)
-
+            
             self.w.mt.mt_update() # since clipboard changed
             #bruce 050614 comment: in spite of bug 703 
             # (fixed in setHotSpot_mainPart),

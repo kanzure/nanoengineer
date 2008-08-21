@@ -968,9 +968,7 @@ class Node( StateMixin):
             self.changed_selection() #bruce 060227
             self.change_current_selgroup_to_include_self()
                 # note: stops at a picked dad, so should be fast enough during recursive use
-        # we no longer call mode.UpdateDashboard() from here;
-        # clipboard selection no longer affects Build mode dashboard. [bruce 050124]
-
+        
     def ModelTree_plain_left_click(self): #bruce 080213 addition to Node API
         """
         Subclasses which want side effects from a plain, direct left click

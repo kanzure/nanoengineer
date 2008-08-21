@@ -186,17 +186,10 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         """
         
                 
-        self.dont_update_gui = True # redundant with Enter, 
-        #I think; changed below
-        # (the possible orders of calling all these mode entering/exiting
-        #  methods is badly in need of documentation, if not cleanup...
-        #  [says bruce 050121, who is to blame for this])
-        
+           
         self.command_enter_misc_actions()
         self.command_enter_PM() 
         self.command_enter_flyout()
-  
-        self.dont_update_gui = False
         
         #@TODO: check if its safe to move this in self.command_enter_gui()
         #-- Ninad 2008-08-01
@@ -234,56 +227,6 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         Overridden in subclasses. 
         """
         return ''
-    
-            
-    def update_gui(self): #bruce 050121 heavily revised this 
-        #[called by basicMode.UpdateDashboard]
-        """
-        #doc...
-        can be called many times during the mode;
-        should be called only by code in modes.py
-        """
-##        if not self.isCurrentCommand():
-##            print "update_gui returns since not self.isCurrentCommand"
-##            return #k can this ever happen? yes, when the mode is entered!
-##            # this was preventing the initial update_gui in _enterMode from 
-              ##running...
-        
-        # avoid unwanted recursion [bruce 041124]
-        # [bruce 050121: this is not needed for reason it was before,
-        #  but we'll keep it (in fact improve it) in case it's needed now
-        #  for new reasons -- i don't know if it is, but someday it might be]
-        
-        
-        if self.dont_update_gui:
-            # Getting msg after depositing an atom, then selecting a bondpoint 
-            # and "Select Hotspot and Copy" from the GLPane menu.
-            # Is it a bug??? Mark 051212.
-            # bruce 060412 replies: I don't know; it might be. Perhaps we should
-            # do what MMKit does as of today,
-            # and defer all UpdateDashboard actions until another event handler
-            # (here, or better in basicMode).
-            # But for now I'll disable the debug print and we can defer this 
-            # issue unless it becomes suspected
-            # in specific bugs.
-            return
-        # now we know self.dont_update_gui == False, so ok that we reset it to 
-        # that below (I hope)
-        self.dont_update_gui = True
-        try:
-            self.update_gui_0()
-        except:
-            print_compact_traceback("exception from update_gui_0: ")
-        self.dont_update_gui = False
-        
-        return
-
-    def update_gui_0(self): 
-        """
-        Overridden in some subclasses. Default implementation does nothing
-        @see: B{PasteFromClipboard_Command}
-        """        
-        pass
     
     def viewing_main_part(self): #bruce 050416 ###e should refile into assy
         return self.o.assy.current_selgroup_iff_valid() is self.o.assy.tree
@@ -616,9 +559,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         self.graphicsMode.update_cursor()
         
         self.w.depositState = 'Atoms'
-        
-        self.UpdateDashboard()
-        
+                
         self.propMgr.updateMessage()
         self.win.win_update()
                

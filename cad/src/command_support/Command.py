@@ -887,7 +887,6 @@ class basicCommand(anyCommand):
                 self.init_gui()
                     ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
                 self.resume_gui()
-                self.update_gui() # see also UpdateDashboard
                 self.update_mode_status_text()
         # caller (our command sequencer) will set its self.currentCommand to point to us,
         # but only if we return false
@@ -921,8 +920,7 @@ class basicCommand(anyCommand):
         it's better if you can figure this out earlier, in
         command_ok_to_enter().        
         """
-        self.UpdateDashboard() # hide Done button for Default command. Mark 050922.
-        
+                
         # TODOs:
         # - We are likely to create a Enter_Command method instead of just
         #   the 'Enter' method
@@ -1072,81 +1070,6 @@ class basicCommand(anyCommand):
         """
         pass
     
-    def update_gui(self): # TODO [bruce 080806]: replace the 2 defs with general update method defs; called in _enterMode and UpdateDashboard
-        """
-        Subclasses should define this to update their dashboard to reflect state
-        that might have changed in the rest of the program, e.g. selection state
-        in the model tree. Not intended to be called directly by external code;
-        for that, see UpdateDashboard().
-        """
-        assert not USE_COMMAND_STACK # obsolete in that case
-        return
-
-    def UpdateDashboard(self): # TODO [bruce 080806]: replace defs with general update method; called by 2 commands, and basicCommand.Enter.
-        """
-        Public method, meant to be called only on the current command object:
-
-        Make sure this command's UI is updated before the processing of
-        the current user event is finished, by calling its update_gui method
-        (and perhaps doing a few other things).
-
-        External code that might change things which some commands
-        need to reflect in their UI should call this one or more times
-        after any such changes, before the end of the same user event.
-
-        Multiple calls per event are ok (but in the initial implem might
-        be slow). Subclasses should not override this; for that, see update_gui().
-
-        @note: this method is misnamed, since commands now have PMs rather
-        than dashboards, but it applies to any sort of UI except the GLPane.
-
-        @note: overriding update_gui is now deprecated -- new Commands
-        should define model_changed (to be renamed) instead -- but until we revise
-        depositMode and its subclasses to define one or more of those instead
-        of update_gui (which is a good cleanup to do when we have time),
-        we can't remove updateDashboard or existing calls to it.
-        [bruce 071221, revised 080804]
-        """
-        # @attention: Need to ask Bruce whether this method can be removed since
-        # there are no longer any dashboards. [--mark]
-        #
-        # Reply:
-        # I looked into this, and it can't yet be removed -- depositMode
-        # and some of its subclasses are relying on it (it calls update_gui,
-        # and they rely on that to set up and maintain a list of
-        # pastable objects, and perhaps for other reasons).
-        #
-        # See also my additions to the docstring.
-        #
-        # However, it's possible that this method's effect on
-        # self.w.toolsDoneAction could be removed; I don't know.
-        # If that makes a visible difference that we rely on
-        # (in any commands, not just depositMode), then it can't
-        # be removed (until we reimplement that effect in some
-        # other way), but I have not tried to find out whether it does.
-        #
-        # [bruce 071221]
-        
-        # For now, this method just updates the dashboard immediately.
-        # This might be too slow if it's called many times per event, so someday
-        # we might split this into separate invalidation and update code;
-        # this will then be the invalidation routine, in spite of the name.
-        # We *don't* also call update_mode_status_text -- that's separate.
-        
-        # This shows the Done button on the dashboard unless the current
-        # command is the Default command. Resolves bug #958 and #959.
-        # [Mark 050922]
-        if self.is_default_command(): #bruce 060403, 080709 revised this
-            self.w.toolsDoneAction.setVisible(0)
-        else:
-            self.w.toolsDoneAction.setVisible(1)
-
-        # call update_gui if legal
-        if self.isCurrentCommand(): #bruce 050122 added this condition
-            self.update_gui()
-        
-        return
-
     def is_default_command(self): #bruce 080709 refactoring
         return self.commandName == self.commandSequencer.default_commandName()
     
@@ -1216,10 +1139,6 @@ class basicCommand(anyCommand):
         but needn't guarantee this, so implementations should try to be fast
         when the call was not needed, e.g. by checking applicable change
         counters, or diffing old and new state.
-
-        See also update_gui; this method is typically implemented
-        more efficiently and called much more widely, and should eventually
-        replace update_gui.
         """
         if self.propMgr:
             if hasattr( self.propMgr, 'model_changed'):

@@ -347,62 +347,6 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
 
         return chunk, status
 
-
-
-    def resubscribe_to_clipboard_members_changed(self):
-        try:
-            ###@@@@ need this to avoid UnboundLocalError: local variable 'shelf'
-            ##referenced before assignment
-            # but that got swallowed the first time we entered mode!
-            # but i can't figure out why, so neverind for now [bruce 050121]
-            shelf = self.o.assy.shelf
-            shelf.call_after_next_changed_members # does this method exist?
-        except AttributeError:
-            # this is normal, until I commit new code to Utility and model tree!
-            #[bruce 050121]
-            pass
-        except:#k should not be needed, but I'm not positive, in light of 
-            #bug-mystery above
-            raise
-        else:
-            shelf = self.o.assy.shelf
-            func = self.clipboard_members_changed
-            shelf.call_after_next_changed_members(func, only_if_new = True)
-                # note reversed word order in method names (feature, not bug)
-        return
-
-    def clipboard_members_changed(self, clipboard): #bruce 050121
-        """
-        we'll subscribe this method to changes to shelf.members, if possible
-        """
-        if self.isCurrentCommand():
-            self.UpdateDashboard()
-                #e ideally we'd set an inval flag and call that later, but when?
-                # For now, see if it works this way. (After all, the old code 
-                # called
-                # UpdateDashboard directly from certain Node or Group methods.)
-            ## call this from update_gui (called by UpdateDashboard) instead,
-            ## so it will happen the first time we're setting it up, too:
-            ## self.resubscribe_to_clipboard_members_changed()
-            self.propMgr.update_clipboard_items() 
-            # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
-            # Note and bugfix, bruce 060412: doing this now was also causing 
-            # traceback bugs 1726, 1629,
-            # and the traceback part of bug 1677, and some related 
-            #(perhaps unreported) bugs.
-            # The problem was that this is called during pasteBond's addmol 
-            #(due to its addchild), before it's finished,
-            # at a time when the .part structure is invalid (since the added 
-            # mol's .part has not yet been set).
-            # To fix bugs 1726, 1629 and mitigate bug 1677, I revised the 
-            # interface to MMKit.update_clipboard_items
-            # (in the manner which was originally recommented in 
-            #call_after_next_changed_members's docstring) 
-            # so that it only sets a flag and updates (triggering an MMKit 
-            # repaint event), deferring all UI effects to
-            # the next MMKit event.
-        return
-
     # paste the pastable object where the cursor is (at pos)
     # warning: some of the following comment is obsolete (read all of it for 
     # the details)
