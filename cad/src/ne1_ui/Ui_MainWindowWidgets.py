@@ -21,6 +21,8 @@ from PyQt4.Qt import QToolButton
 from utilities.icon_utilities import geticon
 from utilities.prefs_constants import displayRulers_prefs_key
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
+# Dock widgets
+from ne1_ui.Ui_ReportsDockWidget import Ui_ReportsDockWidget
 
 def setupUi(win):
     """
@@ -954,15 +956,7 @@ def setupUi(win):
     win.CircleSelAction = QtGui.QAction(MainWindow)
     win.HexagonSelAction = QtGui.QAction(MainWindow)
 
-    # This needs to stay until I talk with Bruce about UpdateDashboard(),
-    # which calls a method of toolsDoneAction in Command.py. Mark 2007-12-20
-    win.toolsDoneAction = QtGui.QAction(MainWindow)
-    win.toolsDoneAction.setIcon(
-        geticon("ui/actions/Properties Manager/Done.png"))
-    win.toolsDoneAction.setObjectName("toolsDoneAction")
-
     # Dock widgets
-    from ne1_ui.Ui_ReportsDockWidget import Ui_ReportsDockWidget
     win.reportsDockWidget = Ui_ReportsDockWidget(win)
 
 def retranslateUi(win):
@@ -1957,8 +1951,8 @@ def retranslateUi(win):
     win.viewDefviewAction.setIconText(QtGui.QApplication.translate("MainWindow", "Orientations", None, QtGui.QApplication.UnicodeUTF8))
     win.viewDefviewAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Default Views", None, QtGui.QApplication.UnicodeUTF8))
 
-    win.toolsDoneAction.setText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
-    win.toolsDoneAction.setIconText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
+    
+    
 
     win.modifyStretchAction.setText(QtGui.QApplication.translate("MainWindow", "S&tretch", None, QtGui.QApplication.UnicodeUTF8))
     win.modifyStretchAction.setIconText(QtGui.QApplication.translate("MainWindow", "Stretch", None, QtGui.QApplication.UnicodeUTF8))      

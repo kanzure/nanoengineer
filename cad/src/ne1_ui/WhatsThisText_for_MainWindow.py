@@ -1728,23 +1728,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win. simPlotToolAction.setWhatsThis( simPlotToolActionText )
-
-    #
-    # Dashboard Buttons
-    #
-
-    # Done
-
-    toolsDoneActionText = \
-        "<u><b>Done</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Properties Manager/Done.png\"><br> "\
-        "Completes the current operation and enters the "\
-        "default mode."\
-        "</p>"
-
-    win.toolsDoneAction.setWhatsThis( toolsDoneActionText )
-
+    
     #
     # Jigs
     #

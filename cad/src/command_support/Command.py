@@ -519,7 +519,7 @@ class basicCommand(anyCommand):
         actions should have an effect.
 
         Warning: this is False while a command is still being entered (i.e.
-        during the calls of Enter and init_gui, and the first call of update_gui).
+        during the calls of Enter and init_gui).
         But it's not a good idea to rely on that behavior -- if you do, you should
         redefine this function to guarantee it, and add suitable comments near the
         places which *could* in principle be modified to set .currentCommand to the

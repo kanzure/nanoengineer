@@ -248,7 +248,7 @@ def setupUi(win):
                 SIGNAL("triggered()"),
                 win.toolsBuildAtoms)
 
-    win.connect(win.toolsDoneAction,SIGNAL("triggered()"),win.toolsDone)
+    
     win.connect(win.toolsExtrudeAction,SIGNAL("triggered()"),win.toolsExtrude)
     win.connect(win.toolsFuseChunksAction,SIGNAL("triggered()"),win.toolsFuseChunks)
 
