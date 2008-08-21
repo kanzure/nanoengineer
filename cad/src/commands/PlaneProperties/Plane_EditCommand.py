@@ -242,7 +242,7 @@ class Plane_EditCommand(EditCommand):
     def model_changed(self):
         
         #check first if the plane object exists first
-        if self.hasValidStructure() is None:
+        if not self.hasValidStructure():
             return
         
         # piotr 080617 
