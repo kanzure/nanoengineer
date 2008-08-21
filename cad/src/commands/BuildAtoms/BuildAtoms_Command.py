@@ -64,9 +64,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     command_level = CL_ENVIRONMENT_PROVIDING
 
     highlight_singlets = True         
-    # methods related to entering this mode         
-    dont_update_gui = True
-    
+        
     #graphicsMode will be set in BuildAtoms_Command.__init__ . 
     graphicsMode = None
     
@@ -109,6 +107,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             
         if not USE_COMMAND_STACK:    
             self.propMgr.show()
+        
+        self.propMgr.updateMessage()
     
     def command_exit_PM(self):
         """
@@ -190,12 +190,6 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         self.command_enter_misc_actions()
         self.command_enter_PM() 
         self.command_enter_flyout()
-        
-        #@TODO: check if its safe to move this in self.command_enter_gui()
-        #-- Ninad 2008-08-01
-        self.propMgr.updateMessage()
-        
-        # The caller will now call update_gui(); we rely on that [bruce 050122]
         return
     
     

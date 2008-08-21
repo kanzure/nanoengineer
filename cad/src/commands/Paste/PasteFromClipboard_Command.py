@@ -192,7 +192,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         
         #UPDATE 2008-08-20:
         # This method was earlier update_gui_0() which was called from 
-        #def update_gui().  The update_gui_* methods will be deprecated soon. 
+        # 'def update_gui()'.  The update_gui_* methods will be deprecated soon. 
         #See model_changed() method where this method is called. 
         #Note that the code in this method is old and needs to be revised
         #-- [Ninad comment]
@@ -219,15 +219,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         # still available in the list), else the last item (if there are any 
         # items).
 
-        # First, if self.pastable is None, set it to the current value from
-        # the spinbox and prior list, in case some other code set it to None
-        # when it set depositState to 'Atoms' or 'Library' (tho I don't think 
-        # that other code really
-        # needs to do that). This is safe even if called "too early". But if 
-        # it's
-        # already set, don't change it, so callers of UpdateDashboard can set it
-        # to the value they want, even if that value is not yet in the spinbox
-        # (see e.g. setHotSpot_mainPart).
+        #First update self.pastable 
         if not self.pastable:
             self.update_pastable()
 

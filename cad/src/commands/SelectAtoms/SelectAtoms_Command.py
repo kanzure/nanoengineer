@@ -65,8 +65,6 @@ class SelectAtoms_basicCommand(Select_basicCommand):
         self.w.win_update()
             #k needed? I doubt it, I bet caller of Enter does it
             # [bruce comment 050517]
-
-        self.dont_update_gui = True # until changed in init_gui
         return
     
     call_makeMenus_for_each_event = True     

@@ -979,10 +979,9 @@ class basicCommand(anyCommand):
         cursors, toggle icons, etc.
 
         It should be called only once each time the command is entered.
-        Therefore, it should not be called by other code (for that,
-        see UpdateDashboard()), nor defined by commands to do things that
-        need redoing many times while the command remains active (for that, see
-        update_gui()).
+        Therefore, it should not be called by other code nor defined by 
+        commands to do things that need redoing many times while the command 
+        remains active (for that, see model_changed()).
         """
         pass
 

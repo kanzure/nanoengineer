@@ -34,9 +34,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
     create_name_from_prefix  =  True
     call_makeMenus_for_each_event = True
     
-    # methods related to entering this mode         
-    dont_update_gui = True
-    
+        
     graphicsMode = None
     flyoutToolbar = None
     _currentActiveTool = 'MODEL_PROTEIN'
