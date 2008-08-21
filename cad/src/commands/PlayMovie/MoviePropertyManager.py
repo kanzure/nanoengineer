@@ -1,12 +1,9 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 MoviePropertyManager.py
-<<<<<<< .mine
 @author: Ninad, Bruce, Mark, Huaicai
-=======
->>>>>>> .r12473
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  All rights reserved.
+@copyright: 2007-2008 Nanorex, Inc.  All rights reserved.
 
 History:
 ninad20070507 : Converted movie dashboard into movie Property manager
@@ -22,6 +19,10 @@ from utilities.Log import redmsg, greenmsg
 from utilities.constants import filesplit
 from utilities.prefs_constants import workingDirectory_prefs_key
 
+#for debugging 'keep signals conencted all the time'
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
+_superclass = Ui_MoviePropertyManager
 class MoviePropertyManager(Ui_MoviePropertyManager):
     """
     The MoviePropertyManager class provides the Property Manager for the
@@ -30,17 +31,16 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
 
     #see self.connect_or_disconnect_signals for comment about this flag
     isAlreadyConnected = False
-
+    
     def __init__(self, command):
         """
-        Constructor for the B{Movie} property manager.
-
-        @param command: The parent mode where this Property Manager is used
-        @type  command: L{movieMode}
+        Contructor for Play Movie Property Manager. 
         """
-        Ui_MoviePropertyManager.__init__(self, command)
-        ##self.updateMessage(msg)
-
+        _superclass.__init__(self, command)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+   
     def connect_or_disconnect_signals(self, connect):
         """
         Connect the slots in the Property Manager.
@@ -108,10 +108,10 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         Updates the message box with an informative message.
         """
         if not msg:
-            msg = "Use movie control buttons in the Property Manager to play \
-                current simulation movie (if it exists). You can also load a \
-                previously saved movie for this model using \
-                <b>'Open Movie File...'</b> option."
+            msg = "Use movie control buttons in the Property Manager to play " \
+                "current simulation movie (if it exists). You can also load a" \
+                "previously saved movie for this model using "\
+                "<b>'Open Movie File...'</b> option."
 
         self.MessageGroupBox.insertHtmlMessage( msg,
                                                 minLines      = 6,
@@ -148,7 +148,15 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         """
         msg = self.getOpenMovieFileInfo()
         self.updateMessage(msg)
-        Ui_MoviePropertyManager.show(self)
+        _superclass.show(self)
+        
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+        
+    def close(self):
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+        _superclass.close(self)
 
 # ==
 

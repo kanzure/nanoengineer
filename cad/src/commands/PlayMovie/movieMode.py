@@ -16,26 +16,22 @@ Adding various comments and revising docstrings; perhaps not signing every such 
  probably just be to adapt this file to the external changes.)
 
 ninad20070507: moved Movie Player dashboard to Movie Property Manager.
+ninad2008-08-21: Cleanup: a) to introduce command_enter/exit_* methods in the 
+                  new Command API b) Moved flyouttoolbar related code in its own 
+                  module (Ui_PlayMovieFlyout)
 """
 
 import os
-
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QDialog, QGridLayout, QPushButton, QTextBrowser, SIGNAL, QCursor
-from PyQt4.Qt import QMessageBox, QString, QWidgetAction, QAction
-
 import foundation.env as env
 import foundation.changes as changes
-
-from simulation.movie import find_saved_movie
 from command_support.modes import basicMode
-from utilities.Log import greenmsg
 from utilities.Log import redmsg, orangemsg
 from commands.PlayMovie.MoviePropertyManager import MoviePropertyManager
-from utilities.icon_utilities import geticon
-
-from utilities.prefs_constants import workingDirectory_prefs_key
-from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
+from ne1_ui.toolbars.Ui_PlayMovieFlyout import PlayMovieFlyout
+import foundation.undo_manager as undo_manager
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class _MovieRewindDialog(QDialog):
     """
@@ -95,6 +91,8 @@ class movieMode(basicMode):
     featurename = "Movie Player Mode"
     from utilities.constants import CL_MISC_TOPLEVEL
     command_level = CL_MISC_TOPLEVEL
+    
+    flyoutToolbar = None
 
     # methods related to entering this mode
 
@@ -156,16 +154,102 @@ class movieMode(basicMode):
         return
     
     def init_gui(self):
+        self.command_enter_PM()
+        self.command_enter_flyout()
+        self.command_enter_misc_actions()
 
+            
+    #START new command API methods =============================================
+    #currently [2008-08-21 ] also called in by self.init_gui and 
+    #self.restore_gui.
+    
+    def command_enter_PM(self):
+        """
+        Overrides superclass method.         
+        @see: baseCommand.command_enter_PM()  for documentation        
+        """
+        #important to check for old propMgr object. Reusing propMgr object 
+        #significantly improves the performance.
         if not self.propMgr:
-            self.propMgr = MoviePropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494
-            changes.keep_forever(self.propMgr)
+            self.propMgr = self._createPropMgrObject()
+            #@bug BUG: following is a workaround for bug 2494.
+            #This bug is mitigated as propMgr object no longer gets recreated
+            #for modes -- ninad 2007-08-29
+            changes.keep_forever(self.propMgr)  
+            
+        if not USE_COMMAND_STACK:
+            self.propMgr.show()             
+            
+        #@WARNING: The following code in command_enter_PM was originally in 
+        #def init_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21       
+        
+        self.enableMovieControls(False)
+            #bruce 050428 precaution (has no noticable effect but seems safer in theory)
+        #bruce 050428, working on bug 395: I think some undesirable state is left in the dashboard, so let's reinit it
+        # (and down below we might like to init it from the movie if possible, but it's not always possible).
+            
+            
+        self.propMgr._moviePropMgr_reinit() ###e could pass frameno? is max frames avail yet in all playable movies? not sure.
+        # [bruce 050426 comment: probably this should just be a call of an update method, also used during the mode ###e]
+        movie = self.o.assy.current_movie # might be None, but might_be_playable() true implies it's not
+        if self.might_be_playable(): #bruce 050426 added condition
+            frameno = movie.currentFrame
+        else:
+            frameno = 0 #bruce 050426 guessed value
 
-        #@NOTE: self.propMgr.show() is called later in this (init_gui) method.
-
-        self.updateCommandToolbar(bool_entering = True)
-
+        self.propMgr.frameNumberSpinBox.setValue(frameno, blockSignals = True) 
+        self.propMgr.moviePlayActiveAction.setVisible(0)
+        self.propMgr.moviePlayRevActiveAction.setVisible(0)
+        
+        if self.might_be_playable(): # We have a movie file ready.  It's showtime! [bruce 050426 changed .filename -> .might_be_playable()]
+            movie.cueMovie(propMgr = self.propMgr) # Cue movie.
+            self.enableMovieControls(True)
+            self.propMgr.updateFrameInformation()
+            if movie.filename: #k not sure this cond is needed or what to do if not true [bruce 050510]
+                env.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
+        else:
+            self.enableMovieControls(False)         
+            
+        
+    
+    def command_exit_PM(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_PM() for documentation
+        """
+        if not USE_COMMAND_STACK:
+            if self.propMgr:
+                self.propMgr.close()
+            
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_flyout()  for documentation
+        """
+        if self.flyoutToolbar is None:
+            self.flyoutToolbar = self._createFlyoutToolBarObject() 
+        self.flyoutToolbar.activateFlyoutToolbar()  
+            
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_flyout()  for documentation
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.deActivateFlyoutToolbar()
+            
+    def command_enter_misc_actions(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_misc_actions()  for documentation
+        """
+        #@WARNING: The following code in  was originally in 
+        #def init_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21
+        
         self.w.simMoviePlayerAction.setChecked(1) # toggle on the Movie Player icon+
 
         # Disable some action items in the main window.
@@ -176,131 +260,56 @@ class movieMode(basicMode):
         self.w.disable_QActions_for_movieMode(True)
             #  Actions marked #k are now in disable_QActions_for_movieMode(). mark 060314)
 
-        # MP dashboard initialization.
-        self.enableMovieControls(False)
-            #bruce 050428 precaution (has no noticable effect but seems safer in theory)
-        #bruce 050428, working on bug 395: I think some undesirable state is left in the dashboard, so let's reinit it
-        # (and down below we might like to init it from the movie if possible, but it's not always possible).
-        self.propMgr._moviePropMgr_reinit() ###e could pass frameno? is max frames avail yet in all playable movies? not sure.
-        # [bruce 050426 comment: probably this should just be a call of an update method, also used during the mode ###e]
-        movie = self.o.assy.current_movie # might be None, but might_be_playable() true implies it's not
-        if self.might_be_playable(): #bruce 050426 added condition
-            frameno = movie.currentFrame
-        else:
-            frameno = 0 #bruce 050426 guessed value
-
-        self.propMgr.frameNumberSpinBox.setValue(frameno) # bruce 050428 question: does this call our slot method?? ###k
-        self.propMgr.moviePlayActiveAction.setVisible(0)
-        self.propMgr.moviePlayRevActiveAction.setVisible(0)
-
-        if self.might_be_playable(): # We have a movie file ready.  It's showtime! [bruce 050426 changed .filename -> .might_be_playable()]
-            movie.cueMovie(propMgr = self.propMgr) # Cue movie.
-            self.enableMovieControls(True)
-            self.propMgr.updateFrameInformation()
-            if movie.filename: #k not sure this cond is needed or what to do if not true [bruce 050510]
-                env.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
-        else:
-            self.enableMovieControls(False)
-
-        #Need to do this after calling movie._setUp (propMgr displays movie
-        #information in its msg groupbox.  All this will be cleaned up when we
-        #do moviemode code cleanup.
-
-        self.propMgr.show()
-
         # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
         # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
         # [bruce 060414; same thing done in some other modes]
-        import foundation.undo_manager as undo_manager
+        
         undo_manager.disable_undo_checkpoints('Movie Player')
         undo_manager.disable_UndoRedo('Movie Player', "in Movie Player") # optimizing this for shortness in menu text
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Movie Player)" (and similarly for Redo)
-        self.connect_or_disconnect_signals(True)
-
-    def connect_or_disconnect_signals(self, connect):
+ 
+            
+    def command_exit_misc_actions(self):
         """
-        Connect or disconnect widget signals sent to their slot methods.
-        @param isConnect: If True the widget will send the signals to the slot
-                          method.
-        @type  isConnect: boolean
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        if connect:
-            change_connect = self.w.connect
-        else:
-            change_connect = self.w.disconnect
+        #@WARNING: The following code in  was originally in 
+        #def restore_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21
+        
+        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
+        # do it first to protect it from exceptions in the rest of this method
+        # (since if it never happens, Undo/Redo won't work for the rest of the session)
+        # [bruce 060414; same thing done in some other modes]
+        undo_manager.reenable_undo_checkpoints('Movie Player')
+        undo_manager.reenable_UndoRedo('Movie Player')
 
-        change_connect(self.exitMovieAction,
-                       SIGNAL("triggered()"),
-                       self.w.toolsDone)
-
-        self.propMgr.connect_or_disconnect_signals(connect)
-
-    def getFlyoutActionList(self): #Ninad 20070618
+        self.w.simMoviePlayerAction.setChecked(0) # toggle on the Movie Player icon
+        self.set_cmdname('Movie Player') # this covers all changes while we were in the mode
+            # (somewhat of a kluge, and whether this is the best place to do it is unknown;
+            #  without this the cmdname is "Done")
+        self.w.disable_QActions_for_movieMode(False)   
+            
+    def _createPropMgrObject(self):
         """
-        Returns custom actionlist that will be used in a specific mode
-        or editing a feature etc Example: while in movie mode,
-        the _createFlyoutToolBar method calls
-        this.
+        Create the Property mnanager object for this command 
+        @see: self.command_enter_PM(self)
         """
-
-        #'allActionsList' returns all actions in the flyout toolbar
-        #including the subcontrolArea actions
-        allActionsList = []
-
-        #Action List for  subcontrol Area buttons.
-        #In this mode there is really no subcontrol area.
-        #We will treat subcontrol area same as 'command area'
-        #(subcontrol area buttons will have an empty list as their command area
-        #list). We will set  the Comamnd Area palette background color to the
-        #subcontrol area.
-
-        subControlAreaActionList =[]
-
-        self.exitMovieAction = NE1_QWidgetAction(self.w, win = self.w)
-        self.exitMovieAction.setText("Exit Movie")
-        self.exitMovieAction.setWhatsThis("Exits Movie Mode")
-        self.exitMovieAction.setCheckable(True)
-        self.exitMovieAction.setChecked(True)
-        self.exitMovieAction.setIcon(
-            geticon("ui/actions/Toolbars/Smart/Exit.png"))
-        subControlAreaActionList.append(self.exitMovieAction)
-
-        separator = QAction(self.w)
-        separator.setSeparator(True)
-        subControlAreaActionList.append(separator)
-
-        subControlAreaActionList.append(self.w.simPlotToolAction)
-
-        allActionsList.extend(subControlAreaActionList)
-
-        #Empty actionlist for the 'Command Area'
-        commandActionLists = []
-
-        #Append empty 'lists' in 'commandActionLists equal to the
-        #number of actions in subControlArea
-        for i in range(len(subControlAreaActionList)):
-            lst = []
-            commandActionLists.append(lst)
-
-        params = (subControlAreaActionList, commandActionLists, allActionsList)
-
-        return params
-
-    def updateCommandToolbar(self, bool_entering = True):#Ninad 20070618
+        return MoviePropertyManager(self)
+    
+    def _createFlyoutToolBarObject(self):
         """
-        Update the command toolbar.
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: self.command_enter_flyout()
         """
-        # object that needs its own flyout toolbar. In this case it is just
-        #the mode itself.
-
-        action = self.w.simMoviePlayerAction
-        obj = self
-        self.w.commandToolbar.updateCommandToolbar(action,
-                                                   obj,
-                                                   entering = bool_entering)
-        return
-
+        flyoutToolbar = PlayMovieFlyout(self) 
+        return flyoutToolbar 
+    
+    #START new command API methods =============================================
+    
     def enableMovieControls(self, enabled = True):
         self.propMgr.enableMovieControls(enabled)
 
@@ -343,28 +352,9 @@ class movieMode(basicMode):
 ##        return None
 
     def restore_gui(self):
-
-        self.propMgr.close()
-
-        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
-        # do it first to protect it from exceptions in the rest of this method
-        # (since if it never happens, Undo/Redo won't work for the rest of the session)
-        # [bruce 060414; same thing done in some other modes]
-        import foundation.undo_manager as undo_manager
-
-        undo_manager.reenable_undo_checkpoints('Movie Player')
-        undo_manager.reenable_UndoRedo('Movie Player')
-
-        self.w.simMoviePlayerAction.setChecked(0) # toggle on the Movie Player icon
-        self.set_cmdname('Movie Player') # this covers all changes while we were in the mode
-            # (somewhat of a kluge, and whether this is the best place to do it is unknown;
-            #  without this the cmdname is "Done")
-
-        self.updateCommandToolbar(bool_entering = False)
-        self.w.disable_QActions_for_movieMode(False)
-
-        self.connect_or_disconnect_signals(False)
-
+        self.command_exit_PM()
+        self.command_exit_flyout()
+        self.command_exit_misc_actions()
         return
 
     def makeMenus(self):
