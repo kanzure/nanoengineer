@@ -44,6 +44,8 @@ Sometime I should review this and see if there is some obvious optimization need
 bruce 080305 changed superclass from Node to NodeWithAtomContents
 """
 
+drawbonds = True # False  ## Debug/test switch.  Never check in a False value.
+
 import math # only used for pi, everything else is from Numeric [as of before 071113]
 import re
 import Numeric
@@ -2127,7 +2129,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     for extra_displist in self.extra_displists.itervalues():
                         # [bruce 080604 new feature]
                         extra_displist.draw_but_first_recompile_if_needed(glpane, selected = self.picked)
-                            # todo: pass wantlist? yes in theory, but not urgent.
+                        # todo: pass wantlist? yes in theory, but not urgent.
+                        continue
+                    pass
                 else:
                     # our main display list (and all extra lists) needs to be remade
                     if 1:
@@ -2160,7 +2164,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     # of a matching glEndList) in which any subsequent glNewList is an
                     # invalid operation. (Also done in shape.py; not needed in drawer.py.)
                     try:
-                        self._draw_for_main_display_list(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk), wantlist)
+                        self._draw_for_main_display_list(
+                            glpane, disp,
+                            (hd, delegate_draw_atoms, delegate_draw_chunk),
+                            wantlist)
                     except:
                         print_compact_traceback("exception in Chunk._draw_for_main_display_list ignored: ")
 
@@ -2266,6 +2273,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Draw self's external bonds (if debug_prefs and frustum culling permit).
         """
+        if not drawbonds:
+            return
         #bruce 080215 split this out, added one debug_pref
         
         # decide whether to draw any external bonds at all

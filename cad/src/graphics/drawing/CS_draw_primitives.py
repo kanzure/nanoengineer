@@ -59,7 +59,8 @@ from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.drawers import drawPoint
 from graphics.drawing.gl_GLE import gleGetNumSides, gleSetNumSides
 
-def drawsphere(color, pos, radius, detailLevel, opacity = 1.0):
+def drawsphere(color, pos, radius, detailLevel,
+               opacity = 1.0, testloop = 0):
     """
     Schedule a sphere for rendering whenever ColorSorter thinks is appropriate.
     """
@@ -67,7 +68,8 @@ def drawsphere(color, pos, radius, detailLevel, opacity = 1.0):
                                 pos, 
                                 radius, 
                                 detailLevel, 
-                                opacity = opacity)
+                                opacity = opacity,
+                                testloop = testloop)
 
 def drawwiresphere(color, pos, radius, detailLevel = 1):
     """

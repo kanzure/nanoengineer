@@ -86,6 +86,7 @@ from graphics.drawing.CS_workers import drawline_worker
 from graphics.drawing.CS_workers import drawpolycone_multicolor_worker
 from graphics.drawing.CS_workers import drawpolycone_worker
 from graphics.drawing.CS_workers import drawsphere_worker
+from graphics.drawing.CS_workers import drawsphere_worker_loop
 from graphics.drawing.CS_workers import drawsurface_worker
 from graphics.drawing.CS_workers import drawwiresphere_worker
 from graphics.drawing.CS_workers import drawtriangle_strip_worker
@@ -405,7 +406,7 @@ class ColorSorter:
                 pass
 
             apply_material(color)
-            func(params)
+            func(params)                # Call the draw worker function.
 
             if opacity > 0.0 and opacity != 1.0:
                 glDisable(GL_BLEND)
@@ -420,7 +421,8 @@ class ColorSorter:
 
     schedule = staticmethod(schedule)
 
-    def schedule_sphere(color, pos, radius, detailLevel, opacity = 1.0):
+    def schedule_sphere(color, pos, radius, detailLevel,
+                        opacity = 1.0, testloop = 0):
         """
         Schedule a sphere for rendering whenever ColorSorter thinks is
         appropriate.
@@ -441,14 +443,23 @@ class ColorSorter:
                       "unexpected different sphere LOD levels within same frame"
             ColorSorter.sphereLevel = detailLevel
         else: # Older sorted material rendering
-            if len(color) == 3:		
+            vboLevel = drawing_globals.use_drawing_variant
+            if vboLevel == 6:
+                #russ 080714: "Shader spheres" are signaled
+                # by an opacity of -3 (4th component of the color.)
+                lcolor = (color[0], color[1], color[2], -3)
+            elif len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color	
+                pass
+
+            if testloop > 0:
+                worker = drawsphere_worker_loop
+            else:
+                worker = drawsphere_worker
             ColorSorter.schedule(
-                lcolor,
-                drawsphere_worker, ### drawsphere_worker_loop ### Testing.
-                (pos, radius, detailLevel))
+                lcolor, worker, (pos, radius, detailLevel, testloop))
 
     schedule_sphere = staticmethod(schedule_sphere)
 
@@ -650,9 +661,13 @@ class ColorSorter:
 
     def finish():
         """
-        Finish sorting - objects recorded since "start" will
-        be sorted and invoked now.
+        Finish sorting -- objects recorded since"start" will be sorted and
+        invoked now.  If there's no CSDL, we're in all-in-one-display-list mode,
+        which is still a big speedup over plain immediate-mode drawing.
         """
+        if not ColorSorter.sorting:
+            return                      # Plain immediate-mode, nothing to do.
+
         from utilities.debug_prefs import debug_pref, Choice_boolean_False
         debug_which_renderer = debug_pref(
             "debug print which renderer",
@@ -728,6 +743,7 @@ class ColorSorter:
 
                 parent_csdl.reset()
                 selColor = env.prefs[selectionColor_prefs_key]
+                vboLevel = drawing_globals.use_drawing_variant
 
                 # First build the lower level per-color sublists of primitives.
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
@@ -745,15 +761,25 @@ class ColorSorter:
                         glDisable(GL_LIGHTING) # Don't forget to re-enable it!
                         pass
 
+                    if opacity == -3 and vboLevel == 6:
+                        #russ 080714: "Shader spheres" are signaled
+                        # by an opacity of -3 (4th component of the color.)
+                        drawing_globals.sphereShader.use(True)
+                        pass
+
                     for func, params, name in funcs:
                         objects_drawn += 1
                         if name != 0:
                             glPushName(name)
-                        func(params)
+                        func(params)    # Call the draw worker function.
                         if name != 0:
                             glPopName()
                             pass
                         continue
+
+                    if opacity == -3 and vboLevel == 6:
+                        drawing_globals.sphereShader.use(False)
+                        pass
 
                     if opacity == -1:
                         # Enable lighting after drawing "unshaded" objects.
@@ -898,7 +924,7 @@ class ColorSorter:
                 objects_drawn += 1
                 if name != 0:
                     glPushName(name)
-                func(params)
+                func(params)            # Call the draw worker function.
                 if name != 0:
                     glPopName()
                     pass

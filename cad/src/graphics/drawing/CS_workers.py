@@ -37,6 +37,8 @@ ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 """
 
+drawbonds = True # False  ## Debug/test switch.  Never check in a False value.
+
 # the imports from math vs. Numeric are as discovered in existing code
 # as of 2007/06/25.  It's not clear why acos is coming from math...
 from math import acos
@@ -100,12 +102,13 @@ from graphics.drawing.gl_Scale import glScale
 
 ### Substitute this for drawsphere_worker to test drawing a lot of spheres.
 def drawsphere_worker_loop(params):
-    (pos, radius, detailLevel) = params
-    for x in range(100): ## 500
-        for y in range(100):
+    (pos, radius, detailLevel, n) = params
+    pos += V(-n/2, -n/2, 0)             # Centered on the origin.
+    for x in range(n):
+        for y in range(n):
             newpos = pos + (x+x/10+x/100) * V(1, 0, 0) + \
                    (y+y/10+y/100) * V(0, 1, 0)
-            drawsphere_worker((newpos, radius, detailLevel))
+            drawsphere_worker((newpos, radius, detailLevel, 1))
             continue
         continue
     return
@@ -117,7 +120,7 @@ def drawsphere_worker(params):
     now this is only ColorSorter.schedule (see below)
     """
 
-    (pos, radius, detailLevel) = params
+    (pos, radius, detailLevel, n) = params
 
     vboLevel = drawing_globals.use_drawing_variant
 
@@ -125,9 +128,22 @@ def drawsphere_worker(params):
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
 
-    if vboLevel == 0:
+    if vboLevel == 0:  # OpenGL 1.0 - glBegin/glEnd tri-strips vertex-by-vertex.
         glCallList(drawing_globals.sphereList[detailLevel])
-    else:                               # Array variants.
+
+    elif vboLevel == 6:  # Russ 080710: OpenGL 1.4/2.0 - GLSL Vert/Frag shaders.
+        drawing_globals.sphereShader.use(True)
+        glDisable(GL_CULL_FACE)
+
+        # Draw a bounding box through the shader.  A single "billboard" quad
+        # (just front face of a box) oriented toward the eye would be faster.
+        glCallList(drawing_globals.shaderCubeList)
+        
+        drawing_globals.sphereShader.use(False)
+        glEnable(GL_CULL_FACE)
+
+        pass
+    else:                             # OpenGL 1.1/1.5 - Array/VBO/IBO variants.
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
 
@@ -230,6 +246,8 @@ def drawcylinder_worker(params):
     smaller one (e.g. when highlighting a bond), unless the axes are kept
     parallel as opposed to antiparallel.
     """
+    if not drawbonds:
+        return
 
     (pos1, pos2, radius, capped) = params
 
@@ -260,6 +278,8 @@ def drawpolycone_worker(params):
     function and its parameters can be passed to another function for
     deferment.  Right now this is only ColorSorter.schedule (see below)
     """
+    if not drawbonds:
+        return
     (pos_array, rad_array) = params
     glePolyCone(pos_array, None, rad_array)
     return
