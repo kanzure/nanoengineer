@@ -102,21 +102,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
         if self.flyoutToolbar is None:
             self.flyoutToolbar = self._createFlyoutToolBarObject() 
         self.flyoutToolbar.activateFlyoutToolbar()  
-        
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = MoveFlyout(self) 
-        return flyoutToolbar
-    
-    def _createPropMgrObject(self):
-        propMgr = MovePropertyManager(self)
-        return propMgr
-        
             
     def command_exit_flyout(self):
         """
@@ -143,7 +128,22 @@ class Move_basicCommand(SelectChunks_basicCommand):
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
         self.w.toolsMoveMoleculeAction.setChecked(False) 
-        self.w.rotateComponentsAction.setChecked(False)       
+        self.w.rotateComponentsAction.setChecked(False)     
+        
+        
+    def _createFlyoutToolBarObject(self):
+        """
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteFromClipboard_Command._createFlyouttoolBar()
+        @see: self.command_enter_flyout()
+        """
+        flyoutToolbar = MoveFlyout(self) 
+        return flyoutToolbar
+    
+    def _createPropMgrObject(self):
+        propMgr = MovePropertyManager(self)
+        return propMgr
     
     #END new command API methods ==============================================
 
