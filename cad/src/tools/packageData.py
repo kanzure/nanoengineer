@@ -307,9 +307,9 @@ packageMapping_for_files = {
     "constants"                        : "utilities",
     "CoNTubGenerator"                  : "command|commands/InsertHeterojunction",###?? @@@
 
-    "CookieCtrlPanel"                  : "ui|commands/BuildCrystal",
+    "BuildCrystal_PropertyManager"     : "ui|commands/BuildCrystal",
     "cookieMode"                       : "unsplit_mode|commands/BuildCrystal",
-    "CookiePropertyManager"            : "ui/propmgr|commands/BuildCrystal",
+    "BuildCrystal_PropertyManager"     : "ui/propmgr|commands/BuildCrystal",
     "CookieShape"                      : "command|commands/BuildCrystal", # see docstring for reasons and caveats
 
     "crossovers"                       : "operation|dna/operations",

@@ -34,7 +34,7 @@ from PyQt4.Qt import QCursor
 import foundation.env as env
 from geometry.VQT import V, Q, A, norm, vlen
 from command_support.modes import basicMode
-from commands.BuildCrystal.CookieCtrlPanel import CookieCtrlPanel
+from commands.BuildCrystal.BuildCrystal_PropertyManager import BuildCrystal_PropertyManager
 from utilities.Log import orangemsg
 from utilities.Log import redmsg
 
@@ -120,7 +120,7 @@ class cookieMode(basicMode):
         basicMode.__init__(self, commandSequencer)
         
         if not self.propMgr:
-            self.propMgr = CookieCtrlPanel(self)
+            self.propMgr = BuildCrystal_PropertyManager(self)
             changes.keep_forever(self.propMgr)            
     
     def Enter(self): 

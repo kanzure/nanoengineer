@@ -1,13 +1,16 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-CookieCtrlPanel.py
+BuildCrystal_PropertyManager.py
 
 Class used for the GUI controls for the cookie command.
 
 $Id$
-
+History:
 Note: Till Alpha8, this command was called Cookie Cutter mode. In Alpha9 
 it has been renamed to 'Build Crystal' mode. -- ninad 20070511
+
+Ninad 2008-08-22: renamed class CookieCntrlPanel to BuildCrystal_PropertyManager, 
+Also deleted the old CookiePropertyManager.py
 """
 
 from PyQt4 import QtGui
@@ -19,18 +22,16 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
 from PyQt4.Qt import QColor
 from PyQt4.Qt import QColorDialog
-
-from commands.BuildCrystal.CookiePropertyManager import CookiePropertyManager
 from utilities.icon_utilities import geticon
 from utilities.constants import dispLabel
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 
-class CookieCtrlPanel(CookiePropertyManager):
-    """
-    This class provides GUI controls to the cookie-cutter command.
-    """
-       
+from commands.BuildCrystal.Ui_CookiePropertyManager import Ui_CookiePropertyManager
+
+_superclass = Ui_CookiePropertyManager
+class BuildCrystal_PropertyManager(Ui_CookiePropertyManager):
+           
     def __init__(self, command):
         """
         """
@@ -41,8 +42,12 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.pw = None # pw is active part window
         
         self._init_flyoutActions()
-        CookiePropertyManager.__init__(self, command)
+        _superclass.__init__(self, command)
         self._makeConnections()
+        
+        msg = "Draw the Crystal geometry selecting the desired shape from the "\
+            "flyout toolbar at the top."
+        self.updateMessage(msg = msg) 
 
     def _init_flyoutActions(self):
         """
