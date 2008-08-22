@@ -96,7 +96,9 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
                                         "'ROT_TRANS_ALONG_AXIS'")
                 self.leftADown(objectUnderMouse, event)
                 return
-            else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
+            else:
+                print "TranslateChunks_GraphicsMode Error - "\
+                      "unknown moveOption value =", self.moveOption
 
             ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
             # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will
@@ -140,7 +142,8 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
                 msg2 = "Key must be pressed before starting the drag"
                 env.history.statusbar_msg(msg1 + msg2)
                 if debug_flags.atom_debug:
-                    msg3 = "Error occured in modifyMode.leftDragTranslation."
+                    msg3 = "Error occured in "\
+                         "TranslateChunks_GraphicsMode.leftDragTranslation."
                     msg4 = "Possibly due to a key press that activated. "
                     msg5 = "Rotate groupbox. Aborting drag operation"
                     print_compact_traceback(msg3 + msg4 + msg5)

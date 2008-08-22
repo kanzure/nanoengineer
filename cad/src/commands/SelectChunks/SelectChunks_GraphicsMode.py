@@ -788,10 +788,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
         @param  event: mouse left drag event.
         @see: self.leftDrag
-        @see: modifyMode.leftDrag
+        @see: TranslateChunks_GraphicsMode.leftDrag
         #@see: self.getMovablesForLeftDragging()
         @note : This method uses some duplicate code (free drag translate code)
-        from modifyMode.leftDrag
+        from TranslateChunks_GraphicsMode.leftDrag
 
         """
         self._leftDragFreeTranslation(event)

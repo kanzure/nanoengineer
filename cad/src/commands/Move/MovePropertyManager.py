@@ -42,7 +42,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect the slots in Move Property Manager. 
-        @see: modifyMode.connect_or_disconnect_signals.
+        @see: Move_Command.connect_or_disconnect_signals.
         """
         if isConnect:
             change_connect = self.w.connect

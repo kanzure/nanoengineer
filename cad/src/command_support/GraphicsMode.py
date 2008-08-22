@@ -591,7 +591,7 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         # Huaicai 4/12/05: Originally 'self.picking = False in both middle*Down
         # and middle*Drag methods. Change it as it is now is to prevent
-        # possible similar bug that happened in the modifyMode where
+        # possible similar bug that happened in the Move_Command where
         # a *Drag method is called before a *Down() method. This
         # comment applies to all three *Down/*Drag/*Up methods.
         if not self.picking:
@@ -681,7 +681,8 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         #bruce 041123 split this from two methods, and bugfixed to make dragging
         # parallel to screen. (I don't know if there was a bug report for that.)
-        # Should be moved into modes.py and used in modifyMode too. [doing that, 060316]
+        # Should be moved into modes.py and used in Move_Command too. 
+        #[doing that, 060316]
         p1, p2 = self.o.mousepoints(event)
         if perp is None:
             perp = self.o.out

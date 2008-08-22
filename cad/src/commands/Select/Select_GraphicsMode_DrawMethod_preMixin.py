@@ -126,9 +126,7 @@ class Select_GraphicsMode_DrawMethod_preMixin(commonGraphicsMode):
         else:
             if self.bc_in_use is not None: #bruce 060414
                 self.bc_in_use.draw(self.o, 'fake dispdef kluge')
-            # bruce comment 040922: code is almost identical with modifyMode.Draw;
-            # the difference (no check for self.o.assy existing) might be a bug
-            # in this version, or might have no effect.
+            
             commonGraphicsMode.Draw(self)   
             #self.griddraw()
             if self.selCurve_List: self.draw_selection_curve()

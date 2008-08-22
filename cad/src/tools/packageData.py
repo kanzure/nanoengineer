@@ -460,7 +460,6 @@ packageMapping_for_files = {
     "ModelTree"                        : "model|modelTree", # a model which implems the api class for modelTreeGui (rename modelTree.py to modelTree/ModelTree.py)
     "modelTreeGui"                     : "widget|modelTree", # a widget with view & maybe some control code
     "modes"                            : "unsplit_mode|command_support",
-    "modifyMode"                       : "unsplit_mode|commands/Move", #? MoveChunks?? probably not, we'll deemphasize Chunks to users
     "MotorPropertyManager"             : "ui/propmgr|command_support", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
     "Move_Command"                     : "command|commands/Move",
     "Move_GraphicsMode"                : "graphics_mode|commands/Move",

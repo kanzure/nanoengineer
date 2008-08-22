@@ -9,7 +9,6 @@ fusechunksMode.py - helpers for Fuse Chunks command and related functionality
 
 import foundation.env as env
 from geometry.VQT import vlen
-from commands.Move.modifyMode import modifyMode
 from model.bonds import bond_at_singlets
 from utilities.Log import orangemsg
 from utilities.constants import diINVISIBLE

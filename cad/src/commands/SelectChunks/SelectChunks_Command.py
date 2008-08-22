@@ -71,7 +71,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
         """
         self.w.toolsSelectMoleculesAction.setChecked(False)
     
-    # moved here from modifyMode.  mark 060303.
+    
     call_makeMenus_for_each_event = True
     #bruce 050914 enable dynamic context menus
     # [fixes an unreported bug analogous to 971]
@@ -153,7 +153,6 @@ class SelectChunks_basicCommand(Select_basicCommand):
                   'unchecked')])
         return
 
-    # moved here from modifyMode.  mark 060303.
     def invalidate_selection(self): #bruce 041115 (debugging method)
         """
         [debugging method] invalidate all aspects of selected atoms or mols
@@ -164,7 +163,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
         for atm in self.o.assy.selatoms.values():
             atm.invalidate_everything()
 
-    # moved here from modifyMode.  mark 060303.
+    
     def update_selection(self): #bruce 041115 (debugging method)
         """
         [debugging method] update all aspects of selected atoms or mols;

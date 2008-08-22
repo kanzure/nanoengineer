@@ -200,7 +200,7 @@ class Plane(ReferenceGeometry):
         Compute the plane's current bounding box.
         """
 
-        # The move absolute method moveAbsolute() in modifyMode relies on a 
+        # The move absolute method moveAbsolute() in Move_Command relies on a 
         # 'bbox' attribute for the movables. This attribute is really useless 
         # for Planes otherwise. Instead of modifying that method, I added the 
         # attribute bbox here to fix BUG 2473.

@@ -1483,7 +1483,8 @@ class extrudeMode(basicMode):
         drag thing, to new position in event.
         thing might be a handle (pos,radius,info) or something else... #doc
         """
-        # determine motion to apply to thing being dragged. Current code is taken from modifyMode.
+        # determine motion to apply to thing being dragged. 
+        #Current code is taken from  TranslateChunks_GraphicsMode.
         # bruce question -- isn't this only right in central plane?
         # if so, we could fix it by using mousepoints() again.
         w=self.o.width+0.0

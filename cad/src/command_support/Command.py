@@ -939,7 +939,7 @@ class basicCommand(anyCommand):
         #   then needed, like update_cursor . Or whoever calls Enter could do it.
         # - NOTE, the split Enter method (Enter_GraphicsMode and proposed 
         #   Enter_Command method) scheme doesn't consider the effect 
-        #   on the non-split modes such as modifyMode. But some basic tests 
+        #   on the non-split modes such as extrudeMode. But some basic tests 
         #   indicate that this may not be an issue. (looks safe)
         # [Ninad 2007-12-28 comment]
                 

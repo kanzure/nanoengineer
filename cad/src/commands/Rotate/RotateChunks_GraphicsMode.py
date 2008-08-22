@@ -4,7 +4,8 @@
 @version:$Id$
 
 History:
-Ninad 2008-01-25: Split modifyMode into Commmand and GraphicsMode classes
+Ninad 2008-01-25: Split the former 'modifyMode ' 
+                  into Commmand and GraphicsMode classes
                   and also refactored the GraphicsMode to create indiviudal
                   classes for rotating and translating selected entities.
                   (called RotateChunks_GraphicsMode and
@@ -98,7 +99,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
                 return
 
             else:
-                print "modifyMode: Error - unknown rotateOption value =", \
+                print "Move_Command: Error - unknown rotateOption value =", \
                       self.rotateOption
                 return
 
@@ -141,7 +142,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
                 msg2 = "Key must be pressed before starting the drag"
                 env.history.statusbar_msg(msg1 + msg2)
                 if debug_flags.atom_debug:
-                    msg3 = "Error occured in modifyMode.leftDragRotation."
+                    msg3 = "Error occured in Move_Command.leftDragRotation."
                     msg4 = "Possibly due to a key press that activated. "
                     msg5 = "Translate groupbox. Aborting drag operation"
                     print_compact_traceback(msg3 + msg4 + msg5)
@@ -189,7 +190,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
         elif self.rotateOption == 'ROTATEZ':
             ma = V(0,0,1) # Z Axis
         else:
-            print "modifyMode.leftDrag Error: unknown rotateOption value:",\
+            print "rotateChunks_GraphicsMode.leftDrag Error: unknown rotateOption value:",\
                   self.rotateOption
             return
 
