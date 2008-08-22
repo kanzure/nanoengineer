@@ -1105,7 +1105,7 @@ class extrudeMode(basicMode):
     def init_gui(self):
 
         self.propMgr.show()
-        self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
+        self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from BuildCrystal_Command, choice of cursor not reviewed ###
 
         # Disable some QActions that will conflict with this mode.
         self.w.disable_QActions_for_extrudeMode(True)

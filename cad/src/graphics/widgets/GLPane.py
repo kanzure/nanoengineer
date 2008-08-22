@@ -537,7 +537,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         self.redrawGL = True  
 
         # not selecting anything currently
-        # [as of 050418 (and before), this is used in cookieMode and selectMode]
+        # [as of 050418 (and before), this is used in BuildCrystal_Command and selectMode]
         self.shape = None
 
         # Cursor position of the last timer event. Mark 060818

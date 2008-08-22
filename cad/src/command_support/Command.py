@@ -660,7 +660,8 @@ class basicCommand(anyCommand):
                 from foundation.wiki_help import wiki_help_menuspec_for_featurename
                 ms = wiki_help_menuspec_for_featurename( featurename )
                 if ms:
-                    self.Menu_spec.append( None ) # there's a bug in this separator, for cookiemode...
+                    self.Menu_spec.append( None ) 
+                        # there's a bug in this separator, for BuildCrystal_Command...
                         # [did I fix that? I vaguely recall fixing a separator
                         #  logic bug in the menu_spec processor... bruce 071009]
                     # might this look better before the above submenus, with no separator?
@@ -1378,7 +1379,7 @@ class basicCommand(anyCommand):
         
     def StateDone(self):
         """
-        Mode objects (e.g. cookieMode) which might have accumulated
+        Mode objects (e.g. BuildCrystal_Command) which might have accumulated
         state which is not yet put into their model (assembly)
         should override this StateDone method to put that
         state into the model, and return None.  If, however, for

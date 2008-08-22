@@ -308,7 +308,7 @@ packageMapping_for_files = {
     "CoNTubGenerator"                  : "command|commands/InsertHeterojunction",###?? @@@
 
     "BuildCrystal_PropertyManager"     : "ui|commands/BuildCrystal",
-    "cookieMode"                       : "unsplit_mode|commands/BuildCrystal",
+    "BuildCrystal_Command"             : "unsplit_mode|commands/BuildCrystal",
     "BuildCrystal_PropertyManager"     : "ui/propmgr|commands/BuildCrystal",
     "CookieShape"                      : "command|commands/BuildCrystal", # see docstring for reasons and caveats
 

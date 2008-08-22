@@ -30,7 +30,7 @@ we register the loading code herein, so it can load
 some commands lazily.
 """
 
-from commands.BuildCrystal.cookieMode import cookieMode 
+from commands.BuildCrystal.BuildCrystal_Command import BuildCrystal_Command 
 from commands.Extrude.extrudeMode import extrudeMode
 from commands.Paste.PasteFromClipboard_Command import PasteFromClipboard_Command
 from commands.PartLibrary.PartLibrary_Command import PartLibrary_Command
@@ -128,7 +128,7 @@ def preloaded_command_classes():
         SelectAtoms_Command,
         BuildAtoms_Command,
         Move_Command,
-        cookieMode, 
+        BuildCrystal_Command, 
         extrudeMode, 
         movieMode, 
         ZoomToAreaMode, 

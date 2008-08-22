@@ -725,7 +725,7 @@ def drawGrid(scale, center, latticeType):
     glDisable(GL_LIGHTING)
 
     # bruce 041201:
-    #   Quick fix to prevent "hang" from drawing too large a cookieMode grid
+    #   Quick fix to prevent "hang" from drawing too large a BuildCrystal_Command grid
     # with our current cubic algorithm (bug 8). The constant 120.0 is still on
     # the large side in terms of responsiveness -- on a 1.8GHz iMac G5 it can
     # take many seconds to redraw the largest grid, or to update a selection
@@ -820,7 +820,7 @@ def drawrectangle(pt1, pt2, rt, up, color):
 # - use of glVertex instead of glVertex3f or so??? This seems unlikely, since we
 #   have other uses of it, but perhaps they work due to different arg types.
 # - use of GL_LINE_LOOP within OpenGL xor mode, and bugs in some OpenGL
-#   drivers?? I didn't check whether cookieMode does this too.
+#   drivers?? I didn't check whether BuildCrystal_Command does this too.
 ##def drawRubberBand(pt1, pt2, c2, c3, color):
 ##    """Huaicai: depth test should be disabled to make the xor work """
 ##    glBegin(GL_LINE_LOOP)

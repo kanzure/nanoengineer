@@ -1,6 +1,6 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-cookieMode.py -- cookie cutter mode, aka "Build Crystal"
+BuildCrystal_Command.py 
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
@@ -69,7 +69,7 @@ import foundation.changes as changes
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 
-class cookieMode(basicMode):
+class BuildCrystal_Command(basicMode):
     """
     Build Crystal
     """
@@ -324,7 +324,7 @@ class cookieMode(basicMode):
         self.selectionShape = self.flyoutToolbar.getSelectionShape()
 
         #This can't be done in the above call. During this time, 
-        # the ctrlPanel can't find the cookieMode, the nullMode
+        # the ctrlPanel can't find the BuildCrystal_Command, the nullMode
         # is used instead. I don't know if that's good or not, but
         # generally speaking, I think the code structure for mode 
         # operations like enter/init/cancel, etc, are kind of confusing.
@@ -1424,7 +1424,7 @@ class cookieMode(basicMode):
             lx = (ay[1]*pt[0] - ay[0]*pt[1])/(ax[0]*ay[1] - ay[0]*ax[1])
             ly = (ax[1]*pt[0] - ax[0]*pt[1])/(ax[1]*ay[0] - ax[0]*ay[1])
         except ZeroDivisionError:
-            print " In _getNCartP2d() of cookieMode.py, divide-by-zero detected."
+            print " In _getNCartP2d() of BuildCrystal_Command.py, divide-by-zero detected."
             return None
 
         return V(lx, ly)
@@ -1524,7 +1524,7 @@ class cookieMode(basicMode):
 
             return p2 + vlen_p1p2*self.o.out, p2
 
-    pass # end of class cookieMode
+    pass # end of class BuildCrystal_Command
 
 # == helper functions
 
@@ -1533,9 +1533,9 @@ def hashAtomPos(pos):
 
 ### make a new Chunk using a cookie-cut shape
 ##
-### [bruce 050222 changed this from an assembly method to a cookieMode function
+### [bruce 050222 changed this from an assembly method to a BuildCrystal_Command function
 ###  (since it's about cookies made from diamond, like this file),
-###  and moved it from assembly.py to cookieMode.py, but changed nothing else
+###  and moved it from assembly.py to BuildCrystal_Command.py, but changed nothing else
 ###  except renaming self->assy and adding some comments.]
 ##
 ##def molmake(assy,shap):

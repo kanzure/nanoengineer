@@ -457,7 +457,7 @@ i could have said the same about all my other mods to it...
 
 #e also move new incr methods in controls.py to class HL 
 
-#e also say above where we get in and out of opengl xor mode, and grab eg code from cookiemode or zoom or whatever to do that
+#e also say above where we get in and out of opengl xor mode, and grab eg code from BuildCrystal_Command or zoom or whatever to do that
 # (as helper methods in the superclass, or a mixin just for xormode drawing, which could define a swapbuffers method too)
 
 # btw is xormode used now for incr drawing in selmode itself, for region sel -- and if not why not?

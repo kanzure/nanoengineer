@@ -416,7 +416,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             # We want to set a cursor which indicates that we'll do nothing.
             # Modes won't tell us that cursor, but they'll set it as a side
             # effect of graphicsMode.update_cursor_for_no_MB().
-            # Actually, they may set the wrong cursor then (e.g. cookieMode, 
+            # Actually, they may set the wrong cursor then (e.g. BuildCrystal_Command, 
             # which looks at glpane.modkeys, but if we're here with modkeys
             # we're going to ignore them). If that proves to be misleading,
             # we'll revise this.

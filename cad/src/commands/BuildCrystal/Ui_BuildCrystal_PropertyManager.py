@@ -70,7 +70,7 @@ class Ui_BuildCrystal_PropertyManager(PM_Dialog):
         its UI.
         
         @param command: The parent mode where this Property Manager is used
-        @type  command: L{cookieMode}  
+        @type  command: L{BuildCrystal_Command}  
         """
         self.command = command
         self.w = self.command.w

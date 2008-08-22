@@ -14,7 +14,7 @@ Module classification:
 
 Contains graphics_behavior and operations and perhaps internal transient
 model code, all to help the graphics_mode (and command?) for Build Crystal
-(presently an unsplit_mode, cookieMode). So the overall classification
+(presently an unsplit_mode, BuildCrystal_Command). So the overall classification
 is not clear -- for now say "command" since nothing less does all the above.
 But it'll end up in a package for Build Crystal, so this might be ok.
 [bruce 071215]
@@ -934,7 +934,7 @@ class CookieShape(shape):
         
             if len(mol.atoms) > 0:
                 #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
-                # Note: this method is similar to one in cookieMode.py.
+                # Note: this method is similar to one in BuildCrystal_Command.py.
                 assy.addmol(mol)
                 assy.unpickall_in_GLPane() # was unpickparts; not sure _in_GLPane is best (or that this is needed at all) [bruce 060721]
                 mol.pick()

@@ -693,7 +693,7 @@ SELSHAPE_RECT = 'RECTANGLE'
 # mark 060206 adding named constants for selection logic.  
 #& To do: Change these from ints to strings. mark 060211.
 SUBTRACT_FROM_SELECTION = 'Subtract Inside'
-OUTSIDE_SUBTRACT_FROM_SELECTION = 'Subtract Outside' # used in cookieMode only.
+OUTSIDE_SUBTRACT_FROM_SELECTION = 'Subtract Outside' # used in BuildCrystal_Command only.
 ADD_TO_SELECTION = 'Add'
 START_NEW_SELECTION = 'New'
 DELETE_SELECTION = 'Delete'

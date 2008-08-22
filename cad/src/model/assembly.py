@@ -793,7 +793,7 @@ class Assembly( StateMixin, Assembly_API):
         ## print_compact_stack( "set_selwhat to %r: " % (selwhat,))
         assert selwhat in (SELWHAT_ATOMS, SELWHAT_CHUNKS)
         if not self._last_set_selwhat == self.selwhat: # compare last officially set one to last actual one
-            if debug_flags.atom_debug: # condition is because cookiemode will do this, for now
+            if debug_flags.atom_debug: # condition is because BuildCrystal_Command will do this, for now
                 print_compact_stack( "atom_debug: bug: this failed to call set_selwhat, but set it directly, to %r:\n " \
                                      % (self.selwhat,) )
         self.selwhat = selwhat

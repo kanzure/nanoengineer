@@ -1171,7 +1171,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def surfset(self, num):
         """
-        noop method, meant to be overridden in cookieMode
+        noop method, meant to be overridden in BuildCrystal_Command
         for setting diamond surface orientation
         """
         pass

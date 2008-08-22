@@ -14,7 +14,7 @@ mark 060120 split out viewSlotsMixin
 mark 2008-02-02 split out displaySlotsMixin
 
 [Much more splitup of this file is needed. Ideally we would
-split up the class MWsemantics (as for cookieMode), not just the file.]
+split up the class MWsemantics (as for BuildCrystal_Command), not just the file.]
 
 [some of that splitup has been done, now, by Ninad in the Qt4 branch]
 """
