@@ -11,12 +11,15 @@ or the internal FPS counter (enable printFames.)
 To turn it on, enable _testing_ at the beginning of graphics/widgets/glPane.py .
 """
 
-# Which rendering mode: 1, 2, 3, 3.1, 3.2, 3.3, 4, 5, 6, 7
-testCase = 6
+# Which rendering mode: 1, 2, 3, 3.1, 3.2, 3.3, 4, 5, 6, 7, 8
+testCase = 3.1
 
 # An array of nSpheres x nSpheres will be drawn, with divider lanes every 10 and 100.
-# 10, 50, 100, 132, 200, 300, 400, 500...
-nSpheres = 10
+# 10, 25, 50, 100, 132, 200, 300, 400, 500...
+nSpheres = 50
+
+# Short chunks length for test case 8.
+chunkLength = 8
 
 printFrames = True # False    # Prints frames-per-second if set.
 
@@ -522,7 +525,7 @@ def test_drawing(glpane):
     # .  90,000 (300x300) spheres 10.8 FPS
     # . 160,000 (400x400) spheres  9.1 FPS
     # . 250,000 (500x500) spheres  7.3 FPS
-    elif int(testCase) == 7:
+    elif testCase == 7:
         if test_spheres is None:
             print ("Test case 7, %d^2 spheres\n  %s." %
                    (nSpheres, "Per-column VBO/IBO chunk buffers"))
@@ -545,6 +548,55 @@ def test_drawing(glpane):
                     continue
                 test_spheres += [GLSphereBuffer(centers, radii, colors)]
                 continue
+            pass
+        else:
+            shader = drawing_globals.sphereShader
+            shader.configShader(glpane)
+            for chunk in test_spheres:
+                chunk.draw()
+        pass
+
+    # NE1 with test toploop, 
+    # Short chunk VBO sets of shader/box buffer sphere calls (test case 8)
+    # .     625 (25x25)   spheres 30 FPS,     79 chunk buffers of length 8.
+    # .   2,500 (50x50)   spheres 13.6 FPS,  313 chunk buffers of length 8.
+    # .  10,000 (100x100) spheres  6.4 FPS,  704 chunk buffers of length 8.
+    # .  10,000 (100x100) spheres  3.3 FPS, 1250 chunk buffers of length 8.
+    # .  17,424 (132x132) spheres  2.1 FPS, 2178 chunk buffers of length 8.
+    elif testCase == 8:
+        if test_spheres is None:
+            print ("Test case 8, %d^2 spheres\n  %s, length %d." %
+                   (nSpheres, "Short VBO/IBO chunk buffers", chunkLength))
+            test_spheres = []
+            radius = .5
+            centers = []
+            radii = []
+            colors = []
+            for x in range(nSpheres):
+                for y in range(nSpheres):
+                    centers += [sphereLoc(x, y)]
+                    
+                    # Sphere radii progress from 3/4 to full size.
+                    t = float(x+y)/(nSpheres+nSpheres) # 0 to 1 fraction.
+                    thisRad = radius * (.75 + t*.25)
+                    radii += [thisRad]
+
+                    # Colors progress from red to blue.
+                    colors += [rainbow(t)]
+
+                    # Put out short chunk buffers.
+                    if len(centers) >= chunkLength:
+                        test_spheres += [GLSphereBuffer(centers, radii, colors)]
+                        centers = []
+                        radii = []
+                        colors = []
+                    continue
+                continue
+            # Remainder fraction buffer.
+            if len(centers):
+                test_spheres += [GLSphereBuffer(centers, radii, colors)]
+                pass
+            print "%d chunk buffers"%len(test_spheres)
             pass
         else:
             shader = drawing_globals.sphereShader
