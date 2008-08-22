@@ -135,6 +135,8 @@ from utilities.constants import diPROTEIN
 from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
 from utilities.constants import BBOX_MIN_RADIUS
 
+from utilities.constants import white
+
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from utilities.constants import noop
 
@@ -2197,6 +2199,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         
                     pass # end of the case where our "main display list (and all extra lists) needs to be remade"
 
+                self.renderOverlayText(glpane)
                 #@@ninad 070219 disabling the following--
                 #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
 
@@ -2230,6 +2233,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self._draw_outside_local_coords(glpane, disp, drawLevel, is_chunk_visible)
 
         return # from Chunk.draw()
+
+    def renderOverlayText(self, glpane):
+        for atom in self.atoms.itervalues():
+            text = atom.overlayText
+            if (text):
+                pos = atom.baseposn()
+                glpane.renderTextAtPosition(pos, text, white)
+
 
     def _draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible):
         #bruce 080520 split this out

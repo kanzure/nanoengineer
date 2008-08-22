@@ -44,6 +44,7 @@ from simulation.runSim import readGromacsCoordinates
 from files.pdb.files_pdb import insertpdb, writepdb
 from files.pdb.files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
 from files.mmp.files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
+from files.amber_in.files_in import insertin
 from  files.ios.files_ios import exportToIOSFormat,importFromIOSFile
 
 from graphics.rendering.fileIO import writepovfile
@@ -935,6 +936,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 "All Files (*.*)"
         self.fileInsert(formats)
     
+    def fileInsertIn(self):
+        """
+        Slot method for 'Insert > AMBER .in file fragment...'.
+        """
+        formats = \
+                "AMBER internal coordinates file fragment (*.in_frag);;"\
+                "All Files (*.*)"
+        self.fileInsert(formats)
+    
     def fileInsert(self, formats):
         """
         Inserts a file in the current part.
@@ -984,6 +994,19 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 else:
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
+
+            if fn[-7:] == "in_frag":
+                try:
+                    success_code = insertin(self.assy, fn)
+                except:
+                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting IN_FRAG file [%s]: " % fn )
+                    env.history.message( redmsg( "Internal error while inserting IN_FRAG file: [ " + fn+" ]") )
+                else:
+                    ###TODO: needs history message to depend on success_code
+                    # (since Insert can be cancelled or see a syntax error or
+                    #  read error). [bruce 080606 comment]
+                    self.assy.changed() # The file and the part are not the same.
+                    env.history.message( "IN file inserted: [ " + os.path.normpath(fn) + " ]" )# fix bug 453 item. ninad060721
             
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()

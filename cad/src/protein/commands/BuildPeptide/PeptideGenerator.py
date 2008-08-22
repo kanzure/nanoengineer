@@ -20,6 +20,8 @@ Ninad 2008-07-24: Refactoring / cleanup to port PeptideGenerator to the
 
 import foundation.env as env
 
+from geometry.InternalCoordinatesToCartesian import InternalCoordinatesToCartesian
+
 from model.chem import Atom
 from model.chunk import Chunk
 from model.bond_constants import V_DOUBLE, V_AROMATIC
@@ -553,7 +555,6 @@ def get_unit_length(phi, psi):
     return 3.5
     
 class PeptideGenerator:
-    coords = zeros([30,3], Float)
     prev_coords = zeros([3,3], Float)
 
     peptide_mol = None
@@ -749,32 +750,32 @@ class PeptideGenerator:
             return
 
         if not init_pos: # assign three previous atom positions
-            for i in range (0,3):
-                self.coords[i][0] = self.prev_coords[i][0]
-                self.coords[i][1] = self.prev_coords[i][1]
-                self.coords[i][2] = self.prev_coords[i][2]
+            coords = self.prev_coords
         else: # if no prev_coords are given, compute the first three atom positions
+            coords = zeros([3,3], Float)
             num, name, atom_name, atom_type, \
                atom_c, atom_b, atom_a, r, a, t = zmatrix[1]
-            self.coords[0][0] = 0.0;
-            self.coords[0][1] = 0.0;
-            self.coords[0][2] = 0.0;
-            self.coords[1][0] = r;
-            self.coords[1][1] = 0.0;
-            self.coords[1][2] = 0.0;
+            coords[0][0] = 0.0;
+            coords[0][1] = 0.0;
+            coords[0][2] = 0.0;
+            coords[1][0] = r;
+            coords[1][1] = 0.0;
+            coords[1][2] = 0.0;
             ccos = cos(DEG2RAD*a)
             num, name, atom_name, atom_type, \
                atom_c, atom_b, atom_a, r, a, t = zmatrix[2]
             if atom_c == 1:
-                self.coords[2][0] = self.coords[0][0] + r*ccos
+                coords[2][0] = coords[0][0] + r*ccos
             else:
-                self.coords[2][0] = self.coords[0][0] - r*ccos
-            self.coords[2][1] = r * sin(DEG2RAD*a)
-            self.coords[2][2] = 0.0
+                coords[2][0] = coords[0][0] - r*ccos
+            coords[2][1] = r * sin(DEG2RAD*a)
+            coords[2][2] = 0.0
             for i in range (0, 3):
-                self.prev_coords[i][0] = self.coords[i][0] + init_pos[0]
-                self.prev_coords[i][1] = self.coords[i][1] + init_pos[1]
-                self.prev_coords[i][2] = self.coords[i][2] + init_pos[2]
+                self.prev_coords[i][0] = coords[i][0] + init_pos[0]
+                self.prev_coords[i][1] = coords[i][1] + init_pos[1]
+                self.prev_coords[i][2] = coords[i][2] + init_pos[2]
+
+        translator = InternalCoordinatesToCartesian(n_atoms, coords)
 
         for n in range (3, n_atoms):
             # Generate all coordinates using three previous atoms
@@ -782,192 +783,118 @@ class PeptideGenerator:
             num, name, atom_name, atom_type, \
                atom_c, atom_b, atom_a, r, a, t = zmatrix[n]
 
-            cosa = cos(DEG2RAD * a)
-            xb = self.coords[atom_b][0] - self.coords[atom_c][0]
-            yb = self.coords[atom_b][1] - self.coords[atom_c][1]
-            zb = self.coords[atom_b][2] - self.coords[atom_c][2]
-            rbc = 1.0 / sqrt(xb*xb + yb*yb + zb*zb)
-
-            if abs(cosa) >= 0.999:
-                # Linear bond case
-                # Skip angles, just extend along the bond.
-                rbc = r * rbc * cosa
-                self.coords[n][0] = self.coords[atom_c][0] + xb*rbc
-                self.coords[n][1] = self.coords[atom_c][1] + yb*rbc
-                self.coords[n][2] = self.coords[atom_c][2] + zb*rbc
+            # Apply the peptide bond conformation
+            if symbol != "P":
+                if name == "N  " and not init_pos:
+                    t = self.prev_psi + 0.0
+                if name == "O  ":
+                    t = psi + 180.0
+                if name == "HA " or name == "HA2":
+                    t = 120.0 + phi
+                if name == "CB " or name == "HA3":
+                    t = 240.0 + phi
+                if name == "C  ":
+                    t = phi
             else:
-                xa = self.coords[atom_a][0] - self.coords[atom_c][0]
-                ya = self.coords[atom_a][1] - self.coords[atom_c][1]
-                za = self.coords[atom_a][2] - self.coords[atom_c][2]
+                # proline
+                if name == "N  " and not init_pos:
+                    t = self.prev_psi + 0.0
+                if name == "O  ":
+                    t = psi + 180.0
+                if name == "CA ":
+                    t = phi - 120.0
+                if name == "CD ":
+                    t = phi + 60.0
 
-                xyb = sqrt(xb*xb + yb*yb)
+            translator.addInternal(n+1, atom_c+1, atom_b+1, atom_a+1, r, a, t)
+            xyz = translator.getCartesian(n+1)
 
-                inv = False
-                if xyb < 0.001:
-                    xpa = za
-                    za = -xa
-                    xa = xpa
-                    xpb = zb
-                    zb = -xb
-                    xb = xpb
-                    xyb = sqrt(xb*xb + yb*yb)
-                    inv = True
+            if self.nterm_hydrogen:
+                # This is a hack for the first hydrogen atom
+                # to make sure the bond length is correct.
+                self.nterm_hydrogen.setposn(
+                    self.nterm_hydrogen.posn() + \
+                    0.325 * norm(xyz))
+                self.nterm_hydrogen = None
 
-                costh = xb / xyb
-                sinth = yb / xyb
-                xpa = xa * costh + ya * sinth
-                ypa = ya * costh - xa * sinth
-                sinph = zb * rbc
-                cosph = sqrt(abs(1.0- sinph * sinph))
-                xqa = xpa * cosph + za * sinph
-                zqa = za * cosph - xpa * sinph
-                yza = sqrt(ypa * ypa + zqa * zqa)
-                if yza < 1e-8:
-                    coskh = 1.0
-                    sinkh = 0.0
+            # Store previous coordinates for the next building step
+            if not init_pos:
+                if name=="N  ":
+                    self.prev_coords[0][0] = xyz[0]
+                    self.prev_coords[0][1] = xyz[1]
+                    self.prev_coords[0][2] = xyz[2]
+                if name=="CA ":
+                    self.prev_coords[1][0] = xyz[0]
+                    self.prev_coords[1][1] = xyz[1]
+                    self.prev_coords[1][2] = xyz[2]
+                if name=="C  ":
+                    self.prev_coords[2][0] = xyz[0]
+                    self.prev_coords[2][1] = xyz[1]
+                    self.prev_coords[2][2] = xyz[2]
+
+            # Add a new atom to the molecule
+            if not fake_chain or \
+               name == "CA ":
+                atom = Atom(
+                    atom_name,
+                    xyz,
+                    mol)
+
+                if mol.protein:
+                    aa = mol.protein.add_pdb_atom(atom, 
+                                             name.replace(' ',''), 
+                                             idx, 
+                                             symbol)
+                    if aa:
+                        aa.set_secondary_structure(secondary)
+
+                # Create temporary attributes for proper bond assignment.
+                atom._is_aromatic = False
+                atom._is_single = False
+
+                if atom_type == "sp2a":
+                    atom_type = "sp2"
+                    atom._is_aromatic = True
+
+                if atom_type == "sp2s":
+                    atom_type = "sp2"
+                    atom._is_single = True
+
+                atom.set_atomtype_but_dont_revise_singlets(atom_type)
+                """
+                if name == "CA ":
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_ca = True
                 else:
-                    coskh = ypa / yza
-                    sinkh = zqa / yza
+                    atom._protein_ca = False
 
-                # Apply the peptide bond conformation
-                if symbol != "P":
-                    if name == "N  " and not init_pos:
-                        t = self.prev_psi + 0.0
-                    if name == "O  ":
-                        t = psi + 180.0
-                    if name == "HA " or name == "HA2":
-                        t = 120.0 + phi
-                    if name == "CB " or name == "HA3":
-                        t = 240.0 + phi
-                    if name == "C  ":
-                        t = phi
+                if name == "CB ":
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_cb = True
                 else:
-                    # proline
-                    if name == "N  " and not init_pos:
-                        t = self.prev_psi + 0.0
-                    if name == "O  ":
-                        t = psi + 180.0
-                    if name == "CA ":
-                        t = phi - 120.0
-                    if name == "CD ":
-                        t = phi + 60.0
+                    atom._protein_cb = False
 
-                sina = sin(DEG2RAD * a)
-                sind = -sin(DEG2RAD * t)
-                cosd = cos(DEG2RAD * t)
+                if name == "N  ": 
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_n = True
+                else:
+                    atom._protein_n = False
 
-                # Apply the bond length.
-                xd = r * cosa
-                yd = r * sina * cosd
-                zd = r * sina * sind
+                if name == "C  ": 
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_c = True
+                else:
+                    atom._protein_c = False
 
-                # Compute the atom position using bond and torsional angles.
-                ypd = yd * coskh - zd * sinkh
-                zpd = zd * coskh + yd * sinkh
-                xpd = xd * cosph - zpd * sinph
-                zqd = zpd * cosph + xd * sinph
-                xqd = xpd * costh - ypd * sinth
-                yqd = ypd * costh + xpd * sinth
+                if name == "O  ": 
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_o = True
+                else:
+                    atom._protein_o = False
+                """
 
-                if inv:
-                    tmp = -zqd
-                    zqd = xqd
-                    xqd = tmp
-
-                self.coords[n][0] = xqd + self.coords[atom_c][0]
-                self.coords[n][1] = yqd + self.coords[atom_c][1]
-                self.coords[n][2] = zqd + self.coords[atom_c][2]
-
-                if self.nterm_hydrogen:
-                    # This is a hack for the first hydrogen atom
-                    # to make sure the bond length is correct.
-                    self.nterm_hydrogen.setposn(
-                        self.nterm_hydrogen.posn() + \
-                        0.325 * norm(V(xqd, yqd, zqd)))
-                    self.nterm_hydrogen = None
-
-                ax = self.coords[n][0]
-                ay = self.coords[n][1]
-                az = self.coords[n][2]
-
-                # Store previous coordinates for the next building step
-                if not init_pos:
-                    if name=="N  ":
-                        self.prev_coords[0][0] = self.coords[n][0]
-                        self.prev_coords[0][1] = self.coords[n][1]
-                        self.prev_coords[0][2] = self.coords[n][2]
-                    if name=="CA ":
-                        self.prev_coords[1][0] = self.coords[n][0]
-                        self.prev_coords[1][1] = self.coords[n][1]
-                        self.prev_coords[1][2] = self.coords[n][2]
-                    if name=="C  ":
-                        self.prev_coords[2][0] = self.coords[n][0]
-                        self.prev_coords[2][1] = self.coords[n][1]
-                        self.prev_coords[2][2] = self.coords[n][2]
-
-                # Add a new atom to the molecule
-                if not fake_chain or \
-                   name == "CA ":
-                    atom = Atom(
-                        atom_name,
-                        V(self.coords[n][0], self.coords[n][1], self.coords[n][2]),
-                        mol)
-
-                    if mol.protein:
-                        aa = mol.protein.add_pdb_atom(atom, 
-                                                 name.replace(' ',''), 
-                                                 idx, 
-                                                 symbol)
-                        if aa:
-                            aa.set_secondary_structure(secondary)
-                        
-                    # Create temporary attributes for proper bond assignment.
-                    atom._is_aromatic = False
-                    atom._is_single = False
-    
-                    if atom_type == "sp2a":
-                        atom_type = "sp2"
-                        atom._is_aromatic = True
-    
-                    if atom_type == "sp2s":
-                        atom_type = "sp2"
-                        atom._is_single = True
-    
-                    atom.set_atomtype_but_dont_revise_singlets(atom_type)
-                    """
-                    if name == "CA ":
-                        # Set c-alpha flag for protein main chain visualization.
-                        atom._protein_ca = True
-                    else:
-                        atom._protein_ca = False
-    
-                    if name == "CB ":
-                        # Set c-alpha flag for protein main chain visualization.
-                        atom._protein_cb = True
-                    else:
-                        atom._protein_cb = False
-    
-                    if name == "N  ": 
-                        # Set c-alpha flag for protein main chain visualization.
-                        atom._protein_n = True
-                    else:
-                        atom._protein_n = False
-    
-                    if name == "C  ": 
-                        # Set c-alpha flag for protein main chain visualization.
-                        atom._protein_c = True
-                    else:
-                        atom._protein_c = False
-    
-                    if name == "O  ": 
-                        # Set c-alpha flag for protein main chain visualization.
-                        atom._protein_o = True
-                    else:
-                        atom._protein_o = False
-                    """
-                    
-                    # debug - output in PDB format	
-                    # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])	
+                # debug - output in PDB format	
+                # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, xyz[0], xyz[1], xyz[2])	
 
         self.prev_psi = psi # Remember previous psi angle.
 

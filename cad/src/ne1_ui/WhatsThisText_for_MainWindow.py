@@ -123,6 +123,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.fileInsertPdbAction.setWhatsThis( fileInsertPdbActionText )
     
+    # Import AMBER .in file
+
+    fileInsertInActionText = \
+        "<b> AMBER .in file fragment</b>"\
+        "<p>"\
+        "Inserts a fragment of an AMBER .in file into the current part.<p>"\
+        "The fragment should just contain the lines defining the actual z-matrix.  "\
+        "Loop closure bonds are not created, nor are bond orders inferred."\
+        "</p>"
+
+    win.fileInsertInAction.setWhatsThis( fileInsertInActionText )
+    
     # Export Protein Data Bank File
 
     fileExportPdbActionText = \

@@ -37,7 +37,7 @@ import foundation.env as env
 
 from utilities.constants import gensym
 
-from protein.model.Protein import Residuum, Protein
+from protein.model.Protein import Protein
 
 def _readpdb(assy, 
              filename, 

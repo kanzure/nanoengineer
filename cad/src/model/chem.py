@@ -587,6 +587,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     # attribute. 
     iconPath = "ui/modeltree/Single_Atom.png"
 
+    # text to be drawn floating over the atom
+    overlayText = None
+
     # def __init__  is just below a couple undo-update methods
 
     def _undo_update(self):
@@ -1672,7 +1675,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         else:
             ColorSorter.popName()
             glPopName()
-        
+
         return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]
 
     def drawing_color(self, molcolor = None): #bruce 070417; revised, 080406

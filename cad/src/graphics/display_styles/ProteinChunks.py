@@ -1066,9 +1066,6 @@ class ProteinChunks(ChunkDisplayMode):
         last_dpos = None
         last_ca_atom = None
 
-        from files.pdb.files_pdb import Residuum
-        from files.pdb.files_pdb import Protein
-
         for aa in chunk.protein.get_amino_acids():
             last_c_atom = aa.get_c_atom()
             last_o_atom = aa.get_o_atom()

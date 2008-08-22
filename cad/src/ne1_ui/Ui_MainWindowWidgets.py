@@ -497,6 +497,10 @@ def setupUi(win):
     win.fileInsertPdbAction.setObjectName("fileInsertPdbAction")
     win.fileInsertPdbAction.setIcon(geticon('ui/actions/Insert/PDB.png'))
 
+    win.fileInsertInAction = NE1_QWidgetAction(MainWindow, 
+                                                  win = MainWindow)
+    win.fileInsertInAction.setObjectName("fileInsertInAction")
+
     win.partLibAction = NE1_QWidgetAction(MainWindow, 
                                             win = MainWindow)
     win.partLibAction.setObjectName("partLibAction")
@@ -1478,6 +1482,18 @@ def retranslateUi(win):
 
     win.fileInsertPdbAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", "Insert Protein Data Bank (PDB) file", 
+        None, QtGui.QApplication.UnicodeUTF8))
+
+    win.fileInsertInAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "IN file", 
+        None, QtGui.QApplication.UnicodeUTF8))
+
+    win.fileInsertInAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "IN file", 
+        None, QtGui.QApplication.UnicodeUTF8))
+
+    win.fileInsertInAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", "Insert AMBER .in file fragment", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.insertCommentAction.setIconText(QtGui.QApplication.translate(

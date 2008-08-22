@@ -16,6 +16,7 @@ def setupUi(win):
     # Populate the "Import" submenu.
     win.importMenu.addAction(win.fileInsertMmpAction)
     win.importMenu.addAction(win.fileInsertPdbAction)
+    win.importMenu.addAction(win.fileInsertInAction)
     win.importMenu.addSeparator()
     win.importMenu.addAction(win.fileImportOpenBabelAction)
     win.importMenu.addAction(win.fileImportIOSAction)

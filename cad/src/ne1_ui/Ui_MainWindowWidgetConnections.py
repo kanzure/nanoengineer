@@ -122,6 +122,9 @@ def setupUi(win):
     win.connect(win.fileInsertPdbAction,
                 SIGNAL("triggered()"),
                 win.fileInsertPdb)
+    win.connect(win.fileInsertInAction,
+                SIGNAL("triggered()"),
+                win.fileInsertIn)
     win.connect(win.fileExportQuteMolXPdbAction,
                 SIGNAL("triggered()"),
                 win.fileExportQuteMolXPdb)
