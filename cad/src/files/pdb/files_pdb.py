@@ -391,7 +391,7 @@ def _readpdb_new(assy,
         simple name pattern matching.
         """
         _assigned = False
-        print (res_name, atom_name)
+        ### print (res_name, atom_name)
         # Look for the atom type and set the type
         if PROTEIN_ATOM_TYPES.has_key(res_name):
             # Found a protein residue.
@@ -457,7 +457,7 @@ def _readpdb_new(assy,
 
             if mol.protein.count_c_alpha_atoms() == 0 and \
                not dont_split:
-                print "hetero"
+                ### print "hetero"
                 # If there is no C-alpha atoms, consider the chunk 
                 # as a non-protein. But! Split it into individual 
                 # hetero groups. 
