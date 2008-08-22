@@ -27,10 +27,10 @@ from utilities.constants import dispLabel
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 
-from commands.BuildCrystal.Ui_CookiePropertyManager import Ui_CookiePropertyManager
+from commands.BuildCrystal.Ui_BuildCrystal_PropertyManager import Ui_BuildCrystal_PropertyManager
 
-_superclass = Ui_CookiePropertyManager
-class BuildCrystal_PropertyManager(Ui_CookiePropertyManager):
+_superclass = Ui_BuildCrystal_PropertyManager
+class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
            
     def __init__(self, command):
         """

@@ -1,8 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Ui_CookiePropertyManager.py
+Ui_BuildCrystal_PropertyManager.py
 
-$Id$
+@author: Ninad
+@version:$Id$
 
 UI file for Crystal Property Manager. e.g. UI for groupboxes 
 (and its contents), button rows etc. 
@@ -15,6 +16,8 @@ in the Cookie Property Manager.
 - In Alpha 9 , 'Cookie Cutter' was renamed to 'Build Crystal'
 
 ninad 2007-09-10: Rewrote this class to make it use PM module classes. 
+Ninad 2008-08-23: Renamed Ui_CookiePropertyManager to 
+                  Ui_BuildCrystal_PropertyManager
 """
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QSize
@@ -35,11 +38,10 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 
 from utilities.icon_utilities import geticon
 
-__author__ = "Ninad"
 
-class Ui_CookiePropertyManager(PM_Dialog):
+class Ui_BuildCrystal_PropertyManager(PM_Dialog):
     """
-    The Ui_CookiePropertyManager class defines UI elements for the Property 
+    The Ui_BuildCrystal_PropertyManager class defines UI elements for the Property 
     Manager of the B{Crystal mode}.
     
     @ivar title: The title that appears in the property manager header.
@@ -83,9 +85,6 @@ class Ui_CookiePropertyManager(PM_Dialog):
                                 PM_CANCEL_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         
-        
-        msg = ''
-        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
     
     def _addGroupBoxes(self):
         """

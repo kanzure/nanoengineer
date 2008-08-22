@@ -628,7 +628,7 @@ packageMapping_for_files = {
     "Ui_BuildToolsMenu"                : "ui/menu",
     "Ui_BuildToolsToolBar"             : "ui/toolbar",
     "Ui_CommandToolbar"                : "ui/toolbar|ne1_ui/toolbars", # UI and content/layout for Command Toolbar
-    "Ui_CookiePropertyManager"         : "ui/propmgr|commands/BuildCrystal",
+    "Ui_BuildCrystal_PropertyManager"         : "ui/propmgr|commands/BuildCrystal",
     "Ui_DimensionsMenu"                : "ui/menu",#?
     "Ui_DisplayStylesToolBar"          : "ui/toolbar|ne1_ui/toolbars",
     "Ui_NanotubeFlyout"                     : "ui/toolbar|ne1_ui/toolbars", # I'm guessing this has to be in ne1_ui, not dna

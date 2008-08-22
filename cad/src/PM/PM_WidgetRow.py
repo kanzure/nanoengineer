@@ -46,7 +46,7 @@ class PM_WidgetRow( PM_WidgetGrid ):
                              labelColumn  = 0,
                              )
     @see: B{PM_WidgetGrid._createWidgetUsingParameters }
-    @see: B{Ui_CookiePropertyManager._loadLayerPropertiesGroupBox} that uses 
+    @see: B{Ui_BuildCrystal_PropertyManager._loadLayerPropertiesGroupBox} that uses 
           a B{PM_WidgetRow}
     
     """

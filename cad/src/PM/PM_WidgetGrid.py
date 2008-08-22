@@ -187,7 +187,7 @@ class PM_WidgetGrid( PM_GroupBox ):
         if widgetType[0:3] == "PM_":
             #The given widget is already defined using a class in PM_Module
             #so simply use the specified object
-            #@see:Ui_CookiePropertyManager._loadLayerPropertiesGroupBox
+            #@see:Ui_BuildCrystal_PropertyManager._loadLayerPropertiesGroupBox
             #      for an example on how it is used. 
             widget = widgetParams[1]
             return widget
