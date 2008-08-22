@@ -471,13 +471,7 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         #bondable atom pairs within a tolerance limit. This fixes bug 2798
         self._bond_atoms_in_atomPairs(endAtomPairsToBond)
         
-        #reposition bond points (if any) on the new dna's end axis atom 
-        #that is just bonded with the resize end axis atom of the original 
-        #duplex .
-        #This fixes bug BUG 2928
-        # '1st Ax atom missing bondpoint when lengthening DnaStrand'
-        #--Ninad 2008-08-22
-        new_endBaseAtomList[1].reposition_baggage()
+        
 
         #Make sure to call this AFTER the endatoms of new and
         #original DNAs are joined. Otherwise (if you replace the overlapping

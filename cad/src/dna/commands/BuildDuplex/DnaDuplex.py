@@ -548,6 +548,20 @@ class Dna:
                             bond_at_singlets(s1, s2, move = False)
                             break
                         
+                #reposition bond points (if any) on the new dna's end axis atom 
+                #that is just bonded with the resize end axis atom of the original 
+                #duplex .
+                #This fixes bug BUG 2928
+                # '1st Ax atom missing bondpoint when lengthening DnaStrand'
+                #Note that this bug was observed only in Ax-Ax bonding. 
+                #Ss bonding is not affected. And, if we also reposition the 
+                #bondpoints for Ss atoms, the bondpoints may not be oriented 
+                #in desired way (i.e. reposition_baggage may not handle strand 
+                #bondpoint orientation well)/. For these reasons, it is only 
+                #implemented for Ax-Ax bonding. --Ninad 2008-08-22
+                atm1.reposition_baggage()
+                atm2.reposition_baggage()
+                        
     def _bond_two_strandAtoms(self, atm1, atm2):
         """
         Bonds the given strand atoms (sugar atoms) together. To bond these atoms, 
