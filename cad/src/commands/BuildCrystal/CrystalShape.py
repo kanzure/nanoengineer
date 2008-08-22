@@ -1,14 +1,14 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-CookieShape.py -- handle freehand curves for cookie-cutting (?)
+CrystalShape.py -- handle freehand curves for crystal-cutting (?)
 
 @author: Huaicai, maybe others
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
-bruce 071215 split class CookieShape out of shape.py into its own module.
+bruce 071215 split class CrystalShape out of shape.py into its own module.
 
 Module classification:
 
@@ -98,7 +98,7 @@ class _Circle(simple_shape_2d):
 
 # ==
 
-class CookieShape(shape):
+class CrystalShape(shape):
     """
     This class is used to create cookies. It supports multiple parallel layers,
     each curve sits on a particular layer.
@@ -325,13 +325,13 @@ class CookieShape(shape):
     
     def _cutCookie(self, layer, c):
         """
-        For each user defined curve, cut the cookie for it, store carbon postion into a
+        For each user defined curve, cut the crystal for it, store carbon postion into a
         global dictionary, store the bond information into each layer.
         """
         self.havelist = 0
         
         bblo, bbhi = c.bbox.data[1], c.bbox.data[0]
-        #Without +(-) 1.6, cookie for lonsdaileite may not be right
+        #Without +(-) 1.6, crystal for lonsdaileite may not be right
         allCells = genDiam(bblo - 1.6, bbhi + 1.6, self.latticeType)
         if self.carbonPosDict.has_key(layer):
             carbons = self.carbonPosDict[layer]
@@ -406,7 +406,7 @@ class CookieShape(shape):
                         self._logic1Bond(carbons, hedrons, bonds, pp, pph, ppInside)
             
         elif c.selSense == START_NEW_SELECTION: 
-            # Added to make cookie cutter selection behavior consistent when no modkeys pressed. mark 060320.
+            # Added to make crystal cutter selection behavior consistent when no modkeys pressed. mark 060320.
             carbons = {}
             bonds = {}
             hedrons = {}
@@ -764,7 +764,7 @@ class CookieShape(shape):
         the shape. A tube representation of the atoms thus selected is
         saved as a GL call list for fast drawing.
         
-        This method is only for cookie-cutter mode. --Huaicai
+        This method is only for crystal-cutter mode. --Huaicai
         """
         if 0: 
             self._anotherDraw(layerColor)
@@ -942,6 +942,6 @@ class CookieShape(shape):
         
         return # from buildChunk
     
-    pass # end of class CookieShape
+    pass # end of class CrystalShape
 
 # end

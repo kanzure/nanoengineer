@@ -620,9 +620,9 @@ def setupUi(win):
     win.toolsDepositAtomAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Build Chunks.png"))
 
-    win.toolsCookieCutAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
-    win.toolsCookieCutAction.setCheckable(1) # make the cookie button checkable
-    win.toolsCookieCutAction.setIcon(
+    win.buildCrystalAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
+    win.buildCrystalAction.setCheckable(1) # make the crystal button checkable
+    win.buildCrystalAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Build Crystal.png"))
 
     win.insertGrapheneAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
@@ -942,20 +942,7 @@ def setupUi(win):
     win.standardViewsAction.setDefaultWidget(win.standardViews_btn)
     win.standardViews_btn.setDefaultAction(win.standardViewsAction)
 
-    # Miscellaneous QActions.
-
-    # These QActions are used in Cookie (Crystal) and should be moved
-    # to one of those file(s). To do for Mark. mark 2007-12-23
-    win.DefaultSelAction = QtGui.QAction(MainWindow)
-    win.LassoSelAction = QtGui.QAction(MainWindow)
-    win.RectCornerSelAction = QtGui.QAction(MainWindow)
-    win.RectCtrSelAction = QtGui.QAction(MainWindow)
-    win.SquareSelAction = QtGui.QAction(MainWindow)
-    win.TriangleSelAction = QtGui.QAction(MainWindow)
-    win.DiamondSelAction = QtGui.QAction(MainWindow)
-    win.CircleSelAction = QtGui.QAction(MainWindow)
-    win.HexagonSelAction = QtGui.QAction(MainWindow)
-
+    
     # Dock widgets
     win.reportsDockWidget = Ui_ReportsDockWidget(win)
 
@@ -1671,12 +1658,12 @@ def retranslateUi(win):
         "Build Atoms", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
-    win.toolsCookieCutAction.setText(QtGui.QApplication.translate(
+    win.buildCrystalAction.setText(QtGui.QApplication.translate(
         "MainWindow", 
         "Crystal",
         None, 
         QtGui.QApplication.UnicodeUTF8))
-    win.toolsCookieCutAction.setToolTip(QtGui.QApplication.translate(
+    win.buildCrystalAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
         "Build Crystal",
         None, 

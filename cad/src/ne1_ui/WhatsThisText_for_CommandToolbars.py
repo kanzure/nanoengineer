@@ -210,7 +210,7 @@ def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
 
 def whatsThisTextForCrystalCommandToolbar(commandToolbar):
     """
-    "Tool Tip" text for widgets in the Build Crystal (Cookie) Command Toolbar.
+    "Tool Tip" text for widgets in the Build Crystal (crystal) Command Toolbar.
     """
     return
 

@@ -74,7 +74,7 @@ class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
     def Draw(self):
         drew = self.commandSequencer.parentCommand_Draw( self.command)
             # doing this fixes the bug in which Pan etc doesn't show the right things
-            # for Cookie or Extrude modes (e.g. bond-offset spheres in Extrude)
+            # for BuildCrystal or Extrude modes (e.g. bond-offset spheres in Extrude)
         if not drew:
             # (This means no prior command was found. It is unrelated to any Draw method
             #  return value, since there isn't one.)

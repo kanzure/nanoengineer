@@ -1666,7 +1666,7 @@ class extrudeMode(basicMode):
         if self.show_bond_offsets:
             hsets = self.show_bond_offsets_handlesets
             if self.transparent and len(hsets) == 2: #kluge, and messy experimental code [050218];
-                    # looks good w/ cookie, bad w/ dehydrogenated hoop moiety... probably better to compute colors, forget transparency.
+                    # looks good w/ crystal, bad w/ dehydrogenated hoop moiety... probably better to compute colors, forget transparency.
                     # or it might help just to sort them by depth... and/or let hits of several work (hit sees transparency); not sure
                 hset1 = self.nice_offsets_handle # opaque
                 hset2 = self.nice_offsets_handleset # transparent

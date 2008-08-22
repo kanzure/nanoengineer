@@ -275,7 +275,7 @@ def debug_povdir_signals():
 # This list of mode names correspond to the names listed in the modes combo box.
 # [TODO: It needs to be renamed, since "modes" is too generic to search for
 #  as a global name, which in theory could referenced from other modules.]
-modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
+modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'CRYSTAL', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
     ### REVIEW: is this constant still used anywhere?
     # If not, it should be removed.
     # [bruce 080815 question]

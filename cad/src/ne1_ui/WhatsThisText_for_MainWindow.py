@@ -1554,7 +1554,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText )
 
-    # Build Crystal (was Cookie Cutter Mode)
+    # Build Crystal 
 
     toolsCookieCutActionText = \
         "<u><b>Build Crystal</b></u><!-- [[Feature:Build Crystal Mode]] -->"\
@@ -1565,7 +1565,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "out multi-layered shapes from slabs of diamond "\
         "or lonsdaleite lattice.</p>"
 
-    win.toolsCookieCutAction.setWhatsThis( toolsCookieCutActionText )
+    win.buildCrystalAction.setWhatsThis( toolsCookieCutActionText )
 
     # Tools > Extrude
 

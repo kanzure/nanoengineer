@@ -28,7 +28,7 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
         Required action in the 'Control Area' as a reference for this 
         flyout toolbar. See superclass method for documentation and todo note.
         """
-        return self.win.toolsCookieCutAction
+        return self.win.buildCrystalAction
     
     def _getExitActionText(self):
         """

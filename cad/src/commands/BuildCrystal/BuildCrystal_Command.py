@@ -46,7 +46,7 @@ from utilities.Log import redmsg
 
 from graphics.behaviors.shape import get_selCurve_color
 from geometry.Slab import Slab
-from commands.BuildCrystal.CookieShape import CookieShape
+from commands.BuildCrystal.CrystalShape import CrystalShape
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.CS_draw_primitives import drawline
@@ -74,7 +74,7 @@ class BuildCrystal_Command(basicMode):
     Build Crystal
     """
     # class constants
-    commandName = 'COOKIE'
+    commandName = 'CRYSTAL'
     featurename = "Build Crystal Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
@@ -85,7 +85,7 @@ class BuildCrystal_Command(basicMode):
 
     displayMode = diTUBES 
         # displayMode isn't used except for updating the 'Display Mode' combobox in the Preference dialog.
-        # Cookie mode uses its own attr <cookieDisplayMode> to display Tubes (default) or Spheres.
+        # BuildCrystal command uses its own attr <cookieDisplayMode> to display Tubes (default) or Spheres.
 
     selCurve_List = []
         # <selCurve_List> contains a list of points used to draw the selection curve.  
@@ -132,7 +132,8 @@ class BuildCrystal_Command(basicMode):
     def Enter(self): 
         basicMode.Enter(self)
 
-        # Save original GLPane background color and gradient, to be restored when exiting Cookie Cutter mode.
+        # Save original GLPane background color and gradient, to be restored
+        #when exiting BuildCrystal_Command
         self.glpane_backgroundColor = self.o.backgroundColor
         self.o.backgroundColor = self.backgroundColor
 
@@ -238,7 +239,7 @@ class BuildCrystal_Command(basicMode):
         #@ATTENTION: the following code was originall in 
         #BuildCrystals_PropertyManager.show()
         #It is moved here 'as is' -- Ninad 2008-08-22
-        self.win.toolsCookieCutAction.setChecked(True)
+        self.win.buildCrystalAction.setChecked(True)
         #Set projection to ortho, display them
         self.w.setViewOrthoAction.setChecked(True)  
         self.w.setViewOrthoAction.setEnabled(False)
@@ -267,7 +268,7 @@ class BuildCrystal_Command(basicMode):
 
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        self.win.toolsCookieCutAction.setChecked(False)   
+        self.win.buildCrystalAction.setChecked(False)   
         
         #@ATTENTION: the following code was originall in 
         #BuildCrystals_PropertyManager.close()
@@ -339,7 +340,8 @@ class BuildCrystal_Command(basicMode):
         import foundation.undo_manager as undo_manager
         undo_manager.disable_undo_checkpoints('Build Crystal Mode')
         undo_manager.disable_UndoRedo('Build Crystal Mode', "in Build Crystal") # optimizing this for shortness in menu text
-            # this makes Undo menu commands and tooltips look like "Undo (not permitted in Cookie Cutter)" (and similarly for Redo)
+            # this makes Undo menu commands and tooltips look like "Undo 
+            #(not permitted in BuildCrutsl command)" (and similarly for Redo)
 
 
     def restore_gui(self):
@@ -376,12 +378,12 @@ class BuildCrystal_Command(basicMode):
     def setFreeView(self, freeView):
         """
         Enables/disables 'free view' mode.
-        When <freeView> is True, cookie-cutting is frozen.
+        When <freeView> is True, crystal-cutting is frozen.
         """
         self.freeView = freeView
         self.update_cursor_for_no_MB()
 
-        if freeView: # Disable cookie cutting.
+        if freeView: # Disable crystal cutting.
             #Save current pov before free view transformation
             self.cookiePov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
 
@@ -397,12 +399,12 @@ class BuildCrystal_Command(basicMode):
 
             self.propMgr.enableViewChanges(True)
 
-            if self.drawingCookieSelCurve: #Cancel any unfinished cookie drawing
+            if self.drawingCookieSelCurve: #Cancel any unfinished crystal drawing
                 self._afterCookieSelection()
                 env.history.message(redmsg(
                     "In free view mode,the unfinished crystal shape creation has been cancelled."))
 
-        else: ## Restore cookie cutting mode
+        else: ## Restore crystal cutting mode
             self.w.setViewOrthoAction.setChecked(True)  
             self.w.setViewOrthoAction.setEnabled(False)
             self.w.setViewPerspecAction.setEnabled(False)
@@ -432,7 +434,7 @@ class BuildCrystal_Command(basicMode):
 
     def changeDispMode(self, mode):
         """
-        Change cookie display mode as <mode>, which can be 'Tubes' or 'Spheres'
+        Change crystal display mode as <mode>, which can be 'Tubes' or 'Spheres'
         """
         self.cookieDisplayMode = str(mode)
         if self.o.shape:
@@ -476,7 +478,7 @@ class BuildCrystal_Command(basicMode):
         if self.o.shape:
             self.o.shape.undo(self.currentLayer)
             # If no curves left, let users do what they can just like
-            # when they first enter into cookie mode.
+            # when they first enter into crystal mode.
             if not self.o.shape.anyCurvesLeft():
                 self.StartOver()
         self.o.gl_update()
@@ -490,7 +492,7 @@ class BuildCrystal_Command(basicMode):
 
     def update_cursor_for_no_MB(self):
         """
-        Update the cursor for 'Cookie Cutter' mode.
+        Update the cursor for the BuildCrystal_Command
         """
         if self.freeView:
             self.o.setCursor(QCursor(Qt.ArrowCursor))
@@ -747,30 +749,18 @@ class BuildCrystal_Command(basicMode):
             basicMode.middleUp(self, event)
             self._anyMiddleUp()
 
-##    def middleShiftDown_ORIG(self, event):        
-##         """
-##         Disable this action when cutting cookie.
-##         """
-##         if self.freeView:
-##             basicMode.middleShiftDown(self, event)
 
     def middleCntlDown(self, event):
         """
-         Disable this action when cutting cookie.
+         Disable this action when cutting crystal.
          """   
         if self.freeView:
             basicMode.middleCntlDown(self, event)
 
-##    def middleShiftUp_ORIG(self, event):        
-##         """
-##         Disable this action when cutting cookie.
-##         """   
-##         if self.freeView:
-##             basicMode.middleShiftUp(self, event)
 
     def middleCntlUp(self, event):        
         """
-         Disable this action when cutting cookie.
+         Disable this action when cutting crystal.
          """   
         if self.freeView:
             basicMode.middleCntlUp(self, event)
@@ -841,7 +831,7 @@ class BuildCrystal_Command(basicMode):
 
         # bruce 041213 comment: shape might already exist, from prior drags
         if not self.o.shape:
-            self.o.shape = CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
+            self.o.shape = CrystalShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
             self.propMgr.latticeCBox.setEnabled(False) 
             self.propMgr.enableViewChanges(False)
 
@@ -862,10 +852,10 @@ class BuildCrystal_Command(basicMode):
     def _centerBasedSelect(self):
         """
         Construct the right center based selection shape to generate the
-        cookie.
+        crystal.
         """
         if not self.o.shape:
-            self.o.shape = CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
+            self.o.shape = CrystalShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
             self.propMgr.latticeCBox.setEnabled(False)
             self.propMgr.enableViewChanges(False)
 
@@ -1103,7 +1093,7 @@ class BuildCrystal_Command(basicMode):
         """
         Assigned as griddraw for a diamond lattice grid that is fixed in
         space but cut out into a slab one nanometer thick parallel to the 
-        screen (and is equivalent to what the cookie-cutter will cut).
+        screen (and is equivalent to what the crystal-cutter will cut).
         """
         # the grid is in modelspace but the clipping planes are in eyespace
         glPushMatrix()
@@ -1531,7 +1521,7 @@ class BuildCrystal_Command(basicMode):
 def hashAtomPos(pos):
     return int(dot(V(1000000, 1000,1), floor(pos*1.2)))
 
-### make a new Chunk using a cookie-cut shape
+### make a new Chunk using a crystal-cut shape
 ##
 ### [bruce 050222 changed this from an assembly method to a BuildCrystal_Command function
 ###  (since it's about cookies made from diamond, like this file),

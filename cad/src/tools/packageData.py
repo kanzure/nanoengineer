@@ -310,7 +310,7 @@ packageMapping_for_files = {
     "BuildCrystal_PropertyManager"     : "ui|commands/BuildCrystal",
     "BuildCrystal_Command"             : "unsplit_mode|commands/BuildCrystal",
     "BuildCrystal_PropertyManager"     : "ui/propmgr|commands/BuildCrystal",
-    "CookieShape"                      : "command|commands/BuildCrystal", # see docstring for reasons and caveats
+    "CrystalShape"                     : "command|commands/BuildCrystal", # see docstring for reasons and caveats
 
     "crossovers"                       : "operation|dna/operations",
     "cursors"                          : "ui|ne1_ui",

@@ -2902,7 +2902,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
             self.lastNonReducedDisplayMode = disp
             
         # Huaicai 3/29/05: Add the condition to fix bug 477 (keep this note)
-        if self.assy.commandSequencer.currentCommand.commandName == 'COOKIE':
+        if self.assy.commandSequencer.currentCommand.commandName == 'crystal':
             self.win.statusBar().dispbarLabel.setEnabled(False)
             self.win.statusBar().globalDisplayStylesComboBox.setEnabled(False)
         else:

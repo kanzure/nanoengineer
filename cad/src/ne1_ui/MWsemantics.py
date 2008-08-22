@@ -1408,8 +1408,8 @@ class MWsemantics(QMainWindow,
         self.commandSequencer.userEnterCommand('DEPOSIT', always_update = True)
 
     # get into cookiecutter mode
-    def toolsCookieCut(self):
-        self.commandSequencer.userEnterCommand('COOKIE', always_update = True)
+    def enterBuildCrystalCommand(self):
+        self.commandSequencer.userEnterCommand('CRYSTAL', always_update = True)
 
     # get into Extrude mode
     def toolsExtrude(self):

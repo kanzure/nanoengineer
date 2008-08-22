@@ -1183,7 +1183,7 @@ class basicCommand(anyCommand):
     # methods for leaving this command (from a dashboard tool or an
     # internal request).
 
-    # Notes on state-accumulating modes, e.g. cookie, extrude,
+    # Notes on state-accumulating modes, e.g. crystal, extrude,
     # deposit [bruce 040923]:
     #
     # Each command which accumulates state, meant to be put into its
@@ -1651,7 +1651,7 @@ class basicCommand(anyCommand):
     # other dashboard tools
     
     def StartOver(self):
-        # may work (not tested recently); only callable from UI of extrude & cookie;
+        # may work (not tested recently); only callable from UI of extrude & crystal;
         # needs rename ### [bruce 080806 comment]
         #### works, but has wrong error message when nim in sketch command -- fix later [older comment]
         """

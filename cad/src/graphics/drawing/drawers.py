@@ -732,7 +732,7 @@ def drawGrid(scale, center, latticeType):
     # rectangle during a drag. I also tried 200.0 but that was way too large.
     # Since some users have slower machines, I'll be gentle and put 90.0 here.
     #   Someday we need to fix the alg to be quadratic by teaching this code
-    # (and the cookie baker code too) about the eyespace clipping planes. 
+    # (and the Crystal builder code too) about the eyespace clipping planes. 
     #   Once we support user prefs, this should be one of them (if the alg is
     # not fixed by then).
 

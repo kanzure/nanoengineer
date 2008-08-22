@@ -10,7 +10,7 @@ for widgets in the Property Managers.
 """
 def ToolTip_CookiePropertyManager(propMgr):
     """
-    "Tool Tip" text for widgets in the Crystal (Cookie) Property Manager.
+    "Tool Tip" text for widgets in the BuildCrystal Property Manager.
     """
 
     propMgr.addLayerButton.setToolTip("Add Layer")

@@ -20,7 +20,7 @@ def setupUi(win):
     win.buildStructuresMenu.addAction(win.buildDnaAction)
     
     win.buildStructuresMenu.addAction(win.buildNanotubeAction) 
-    win.buildStructuresMenu.addAction(win.toolsCookieCutAction)
+    win.buildStructuresMenu.addAction(win.buildCrystalAction)
     
     win.buildStructuresMenu.addSeparator() # Generators after this separator.
     win.buildStructuresMenu.addAction(win.insertPeptideAction) # piotr 080304

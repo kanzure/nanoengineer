@@ -241,7 +241,10 @@ def setupUi(win):
     win.connect(win.simPlotToolAction,SIGNAL("triggered()"),win.simPlot)
     win.connect(win.simSetupAction,SIGNAL("triggered()"),win.simSetup)
     win.connect(win.rosettaSetupAction,SIGNAL("triggered()"),win.rosettaSetup)
-    win.connect(win.toolsCookieCutAction,SIGNAL("triggered()"),win.toolsCookieCut)
+    
+    win.connect(win.buildCrystalAction,SIGNAL("triggered()"),
+                win.enterBuildCrystalCommand)
+    
     win.connect(win.setStereoViewAction,SIGNAL("triggered()"),win.stereoSettings)
 
     win.connect(win.toolsDepositAtomAction,

@@ -27,7 +27,7 @@ def setupUi(win, toolbarArea):
     win.buildStructuresToolBar.addAction(win.buildDnaAction)   
     
     win.buildStructuresToolBar.addAction(win.buildNanotubeAction) 
-    win.buildStructuresToolBar.addAction(win.toolsCookieCutAction)
+    win.buildStructuresToolBar.addAction(win.buildCrystalAction)
     
     win.buildStructuresToolBar.addSeparator() # Generators after this.
     

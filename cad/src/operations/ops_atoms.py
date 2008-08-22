@@ -2,7 +2,7 @@
 """
 ops_atoms.py -- operations on the atoms and/or bonds inside a Part.
 These operations generally create or destroy atoms, bondpoints, or real bonds.
-Operations specific to single modes (Build, Cookie, Extrude) are not included here.
+Operations specific to single modes (Build, Crystal, Extrude) are not included here.
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.

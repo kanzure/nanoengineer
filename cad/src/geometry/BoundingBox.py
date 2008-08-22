@@ -49,7 +49,7 @@ class BBox:
             # Get the upper-left and lower right corner points
             oc = x[1] + V(point2[0]*dot(dx,point2[0]), 
                           point2[1]*dot(dx,point2[1]))
-            # Get the four 3d cooridinates on the bottom cookie-cutting plane
+            # Get the four 3d cooridinates on the bottom crystal-cutting plane
             sq1 = cat(x,oc) + slab.normal*dot(slab.point, slab.normal)
             # transfer the above 4 3d coordinates in parallel to get that on
             #the top plane, put them together

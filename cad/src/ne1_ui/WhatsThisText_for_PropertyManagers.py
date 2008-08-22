@@ -876,7 +876,7 @@ def whatsThis_ExtrudePropertyManager(propMgr):
     
 def whatsThis_CookiePropertyManager(propMgr):
     """
-    "What's This" text for widgets in the Crystal (Cookie) Property Manager.
+    "What's This" text for widgets in the Build Crystal Property Manager.
     """
     
     propMgr.surface100_btn.setWhatsThis(\
@@ -966,7 +966,7 @@ def whatsThis_CookiePropertyManager(propMgr):
         "<b>Show Model</b>"\
         "<p>"\
         "Allows you to view your current model from the Graphics Area in "\
-        "overlay with the Cookie Cutter lattice view"\
+        "overlay with the Crystal Cutter lattice view"\
         "</p>")
         
     propMgr.snapGridCheckBox.setWhatsThis(

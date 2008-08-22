@@ -2,7 +2,7 @@
 """
 BuildCrystal_PropertyManager.py
 
-Class used for the GUI controls for the cookie command.
+Class used for the GUI controls for the BuildCrystal_Command.
 
 @version: $Id$
 @copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
@@ -126,7 +126,7 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
                
     def enableViewChanges(self, enableFlag):
         """Turn on or off view changes depending on <param> 'enableFlag'. 
-        Turn off view changes is needed during the cookie-cutting stage. """
+        Turn off view changes is needed during the crystal-cutting stage. """
             
         for c in self.orientButtonGroup.buttons():
             c.setEnabled(enableFlag) 
@@ -163,11 +163,11 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
         self.command.change2Layer(value)
 
     def setFreeView(self, freeView):
-        """Slot function to switch between free view/cookie selection states """
+        """Slot function to switch between free view/crystal selection states """
         self.command.setFreeView(freeView)
         
     def toggleFullModel(self, showFullModel):
-        """Slot function for the check box of 'Full Model' in cookie-cutter dashboard """
+        """Slot function for the check box of 'Full Model' in crystal-cutter dashboard """
         self.command.toggleFullModel(showFullModel)
         
     def showGridLine(self, show):

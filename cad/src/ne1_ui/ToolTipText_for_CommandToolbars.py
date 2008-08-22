@@ -46,7 +46,7 @@ def toolTipTextForNanotubeCommandToolbar(commandToolbar):
 
 def toolTipTextForCrystalCommandToolbar(commandToolbar):
     """
-    "Tool Tip" text for widgets in the Build Crystal (Cookie) Command Toolbar.
+    "Tool Tip" text for widgets in the Build Crystal Command Toolbar.
     """
     return
 

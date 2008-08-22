@@ -10,9 +10,9 @@ UI file for Crystal Property Manager. e.g. UI for groupboxes
 
 History:
 
-- These options appeared in cookie cutter dashboard till Alpha8
+- These options appeared in formerly 'cookie cutter dashboard' till Alpha8
 - Post Alpha8 (sometime after 12/2006), the options were included 
-in the Cookie Property Manager. 
+in the BuildCrystal_PropertyManager (formerly Cookie Property Manager. )
 - In Alpha 9 , 'Cookie Cutter' was renamed to 'Build Crystal'
 
 ninad 2007-09-10: Rewrote this class to make it use PM module classes. 
