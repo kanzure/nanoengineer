@@ -376,10 +376,10 @@ class ProteinChunks(ChunkDisplayMode):
                 if style == PROTEIN_STYLE_CA_WIRE or \
                    style == PROTEIN_STYLE_CA_CYLINDER or \
                    style == PROTEIN_STYLE_CA_BALL_STICK:
-                    for n in range( 0, n_atoms ):
-                        #pos0, ss0, aa0, idx0, dpos0, cbpos0 = sec[n - 1]
+                    for n in range( 1, n_atoms-1 ):
+                        pos0, ss0, aa0, idx0, dpos0, cbpos0 = sec[n - 1]
                         pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[n]
-                        #pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[n + 1]
+                        pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[n + 1]
                         color = self._get_aa_color(chunk, 
                                                    idx1, 
                                                    total_length, 
@@ -389,25 +389,25 @@ class ProteinChunks(ChunkDisplayMode):
                                                    n_sec)
                         if style == PROTEIN_STYLE_CA_WIRE:
                             # Wire - use line.
-                            #if pos0:
-                            #    drawline(color, 
-                            #             pos1 + 0.5 * (pos0 - pos1), 
-                            #             pos1,
-                            #             width=5,
-                            #             isSmooth=True)
+                            if pos0:
+                                drawline(color, 
+                                         pos1 + 0.5 * (pos0 - pos1), 
+                                         pos1,
+                                         width=5,
+                                         isSmooth=True)
                                 
-                            drawline(color,
-                                     pos1,
-                                     pos1 + dpos1,
-                                     width=5,
-                                     isSmooth=True)
+                            #drawline(color,
+                            #         pos1,
+                            #         pos1 + dpos1,
+                            #         width=5,
+                            #         isSmooth=True)
                                 
-                            #if pos2:
-                            #    drawline(color, 
-                            #             pos1, 
-                            #             pos1 + 0.5 * (pos2 - pos1),
-                            #             width=5, 
-                            #             isSmooth=True)
+                            if pos2:
+                                drawline(color, 
+                                         pos1, 
+                                         pos1 + 0.5 * (pos2 - pos1),
+                                         width=5, 
+                                         isSmooth=True)
                         else:
                             # Cylinder and B&S - use cylinders.
                             if pos0:
@@ -907,6 +907,11 @@ class ProteinChunks(ChunkDisplayMode):
                                             True))
             else:
                 # Draw rotamers using a display list. Create it if necessary.
+                from PyQt4.Qt import QFont, QString, QColor, QFontMetrics
+
+                labelFont = QFont( QString("Lucida Grande"), 16)
+                fm = QFontMetrics(labelFont)
+
                 if not chunk.protein.residues_dl:                    
                     chunk.protein.residues_dl = glGenLists(1)
                     glNewList(chunk.protein.residues_dl, GL_COMPILE)
@@ -925,6 +930,13 @@ class ProteinChunks(ChunkDisplayMode):
                                     GL_AMBIENT_AND_DIFFUSE, 
                                     color[:3])        
                                 drawsphere_worker((pos1, 0.2, 1))
+                                _name = aa.get_atom_name(atom)
+                                textpos = chunk.abs_to_base(atom.posn()) + 2.0 * glpane.out
+                                
+                                glColor3f(1,1,1)
+
+                                chunk.glpane.renderText(textpos[0], textpos[1], textpos[2], _name, labelFont)                    
+                                
                                 for bond in atom.bonds:
                                     if bond.atom2 in aa_atom_list:
                                         if atom == bond.atom1:

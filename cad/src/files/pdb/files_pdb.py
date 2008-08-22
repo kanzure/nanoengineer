@@ -37,7 +37,7 @@ import foundation.env as env
 
 from utilities.constants import gensym
 
-from protein.model.Protein import Protein
+from protein.model.Protein import Residue, Protein
 
 def _readpdb(assy, 
              filename, 
@@ -244,6 +244,103 @@ def _readpdb(assy,
     return mol
     
 
+# PDB atom types for proteins. Assumes that the remaining atom types
+# have default hybridizations. 
+
+PROTEIN_ATOM_TYPES = { 
+    "ANY" : {
+        "N"   : "sp2(graphitic)", # these atom types are common for all amino
+        "C"   : "sp2",            # acids
+        "O"   : "sp2" },
+    "PHE" : {
+        "CG"  : "sp2aro", # "sp2a" is an sp2 atom connected to another sp2a atom
+        "CD1" : "sp2aro", # with an aromatic bond
+        "CE1" : "sp2aro",
+        "CZ"  : "sp2aro",
+        "CE2" : "sp2aro",
+        "CD2" : "sp2aro" },
+    "GLU" : {
+        "CD"  : "sp2",
+        "OE1" : "sp2" },
+    "GLN" : {
+        "CD"  : "sp2",
+        "OE1" : "sp2" },
+    "ASP" : {
+        "CG"  : "sp2",
+        "OD1" : "sp2" },
+    "ASN" : {
+        "CG"  : "sp2",
+        "OD1" : "sp2" },
+    "TRP" : {
+        "CG"  : "sp2",
+        "CD1" : "sp2",
+        "CE2" : "sp2aro",
+        "CZ2" : "sp2aro",
+        "CH2" : "sp2aro",
+        "CZ3" : "sp2aro",
+        "CE3" : "sp2aro",
+        "CD2" : "sp2aro" },
+    "TYR" : {
+        "CG"  : "sp2aro",
+        "CD1" : "sp2aro",
+        "CE1" : "sp2aro",
+        "CZ"  : "sp2aro",
+        "CE2" : "sp2aro",
+        "CD2" : "sp2aro" },
+    "ARG" : {
+        "CZ"  : "sp2",
+        "NH2" : "sp2" },
+    "HIS" : {
+        "CG"  : "sp2",
+        "CE1" : "sp2a", 
+        "NE2" : "sp2a",      # Two "sp2s" atoms are connected with a bond 
+        "CD2" : "sp2" } }    # of order 1. I introduced this temporary marker
+                             # to describe conjugated double bond systems.
+                             # If the one of the "a", "b", or "c" markers
+                             # is specified, only the atoms sharing the
+                             # same marker will be double-bonded.
+
+NUCLEIC_ATOM_TYPES = {
+    " DC" : {
+        "P"   : "sp3(phosphate)", # phosphate phosphorus
+        "OP1" : "sp2(-.5)",       # and two negatively charged oxygens 
+        "OP2" : "sp2(-.5)",
+        "C2"  : "sp2a",
+        "O2"  : "sp2a", 
+        "C4"  : "sp2b",
+        "N3"  : "sp2b",
+        "C5"  : "sp2a",
+        "C6"  : "sp2a" },
+    " DG" : {
+        "P"   : "sp3(phosphate)",
+        "OP1" : "sp2(-.5)",
+        "OP2" : "sp2(-.5)" },
+    " DA" : {
+        "P"   : "sp3(phosphate)",
+        "OP1" : "sp2(-.5)",
+        "OP2" : "sp2(-.5)",
+        "C2"  : "sp2a",
+        "N3"  : "sp2a",
+        "C6"  : "sp2b",
+        "N1"  : "sp2b",
+        "N4"  : "sp2b",
+        "C4"  : "sp2c",
+        "C5"  : "sp2c",
+        "N7"  : "sp2a",
+        "C8"  : "sp2a" },
+    " DT" : {
+        "P"   : "sp3(phosphate)",
+        "OP1" : "sp2(-.5)",
+        "OP2" : "sp2(-.5)",
+        "C5"  : "sp2a",
+        "C6"  : "sp2a",
+        "C4"  : "sp2b",
+        "O4"  : "sp2b",
+        "C2"  : "sp2a",
+        "O2"  : "sp2a" },
+    }
+
+
 def _readpdb_new(assy, 
              filename, 
              isInsert = False, 
@@ -288,9 +385,62 @@ def _readpdb_new(assy,
         for atom in atlist:
             atom.make_enough_bondpoints()
 
+    def _set_atom_type(atom, atom_name, res_name):
+        """
+        Assigns an atom type based on atom name and residue name by
+        simple name pattern matching.
+        """
+        _assigned = False
+        print (res_name, atom_name)
+        # Look for the atom type and set the type
+        if PROTEIN_ATOM_TYPES.has_key(res_name):
+            # Found a protein residue.
+            atom_type_dict = PROTEIN_ATOM_TYPES[res_name]
+            if atom_type_dict.has_key(atom_name):
+                # Found the atom.
+                atom_type = atom_type_dict[atom_name]
+                if atom_type == "sp2a":
+                    sp2a_atoms.append(atom)
+                    atom_type = "sp2"
+                if atom_type == "sp2c":
+                    sp2c_atoms.append(atom)
+                    atom_type = "sp2"
+                if atom_type == "sp2b":
+                    sp2b_atoms.append(atom)
+                    atom_type = "sp2"
+                if atom_type == "sp2aro":
+                    aromatic_atoms.append(atom)
+                    atom_type = "sp2"
+                atom.set_atomtype_but_dont_revise_singlets(atom_type) 
+                _assigned = True
+        elif NUCLEIC_ATOM_TYPES.has_key(res_name):
+            # Found a nucleic acid residue
+            atom_type_dict = NUCLEIC_ATOM_TYPES[res_name]
+            if atom_type_dict.has_key(atom_name):
+                # Found the atom.
+                atom_type = atom_type_dict[atom_name]
+                if atom_type == "sp2a":
+                    sp2a_atoms.append(atom)
+                    atom_type = "sp2"
+                if atom_type == "sp2b":
+                    sp2b_atoms.append(atom)
+                    atom_type = "sp2"
+                if atom_type == "sp2c":
+                    sp2c_atoms.append(atom)
+                    atom_type = "sp2"
+                atom.set_atomtype_but_dont_revise_singlets(atom_type) 
+                _assigned = True            
+        if not _assigned:
+            # Look for common atom types (N, C, O)
+            atom_type_dict = PROTEIN_ATOM_TYPES["ANY"]
+            # For remaining residues, look at one of the standard atom types 
+            if atom_type_dict.has_key(atom_name):
+                atom_type = atom_type_dict[atom_name]
+                atom.set_atomtype_but_dont_revise_singlets(atom_type) 
+        
     def _finish_molecule():
         """
-        Perform some operations after reading the entire PDB chain:
+        Performs some operations after reading the entire PDB chain:
           - rebuild (infer) bonds
           - rename molecule to reflect a chain ID
           - delete the protein object if this is not a protein
@@ -302,15 +452,12 @@ def _readpdb_new(assy,
             return
         
         if mol.atoms:  
-            ###print "READING PDB ", (mol, numconects, chainId)
             
             mol.name = pdbid.lower() + chainId
 
-            ###idzialprint "SEQ = ", mol.protein.get_sequence_string()
-            ###print "SEC = ", mol.protein.get_secondary_structure_string()
-            
             if mol.protein.count_c_alpha_atoms() == 0 and \
                not dont_split:
+                print "hetero"
                 # If there is no C-alpha atoms, consider the chunk 
                 # as a non-protein. But! Split it into individual 
                 # hetero groups. 
@@ -345,37 +492,50 @@ def _readpdb_new(assy,
                 # the templates present in the Peptide Generator. piotr 081908
                 inferBonds(mol)
                     
+                aromatic_atom_list = []
+                single_bonded_atom_list = []
+                
+                # This is a protein.
+                # Assign proper atom types according to protein templates.
+                # amino_acid_list = mol.protein.get_amino_acids() 
+                #for aa in amino_acid_list:
+                    
+                # aromatic, single_bonded = set_protein_atom_type(atom, 
+                                                                
+                # Assign bond orders. piotr 081908
+                from model.bond_constants import V_DOUBLE, V_AROMATIC, V_GRAPHITE
+
+                # Interring bond types
+                for atom in mol.atoms.itervalues():
+                    if atom.bonds:
+                        for bond in atom.bonds:
+                            atom1_type = bond.atom1.getAtomTypeName()
+                            atom2_type = bond.atom2.getAtomTypeName()
+                            if (atom1_type == "sp2" and 
+                                atom2_type == "sp2"):
+                                if (bond.atom1 in aromatic_atoms and 
+                                    bond.atom2 in aromatic_atoms):
+                                    bond.set_v6(V_AROMATIC)
+                                elif ((bond.atom1 in sp2a_atoms and 
+                                       bond.atom2 in sp2a_atoms) or 
+                                      (bond.atom1 in sp2b_atoms and 
+                                       bond.atom2 in sp2b_atoms) or 
+                                      (bond.atom1 in sp2c_atoms and 
+                                       bond.atom2 in sp2c_atoms) or 
+                                      (bond.atom1 not in sp2a_atoms and
+                                       bond.atom1 not in sp2b_atoms and
+                                       bond.atom1 not in sp2c_atoms)):  
+                                    bond.set_v6(V_DOUBLE)
+                            if ((atom1_type == "sp3(phosphate)" and
+                                 atom2_type == "sp2(-.5)") or 
+                               ((atom2_type == "sp3(phosphate)" and
+                                 atom1_type == "sp2(-.5)"))):
+                                bond.set_v6(V_GRAPHITE)
+                                
                 if mol.protein.count_c_alpha_atoms() == 0:
                     # It is not a protein molecule: remove the protein information.
                     mol.protein = None
                 else:
-                    aromatic_atom_list = []
-                    single_bonded_atom_list = []
-                    
-                    # This is a protein.
-                    # Assign proper atom types according to protein templates.
-                    # amino_acid_list = mol.protein.get_amino_acids() 
-                    #for aa in amino_acid_list:
-                        
-                    # aromatic, single_bonded = set_protein_atom_type(atom, 
-                                                                    
-                    # Assign bond orders. piotr 081908
-                    from model.bond_constants import V_DOUBLE, V_AROMATIC
-
-                    for atom in mol.atoms.itervalues():
-                        if atom.bonds:
-                            for bond in atom.bonds:
-                                if bond.atom1.getAtomTypeName() == "sp2" and \
-                                   bond.atom2.getAtomTypeName() == "sp2":
-                                    if mol.protein.is_atom_aromatic(bond.atom1) and \
-                                       mol.protein.is_atom_aromatic(bond.atom2):
-                                        bond.set_v6(V_AROMATIC)
-                                    elif ((mol.protein.is_atom_aromatic(bond.atom1) == False and
-                                       mol.protein.is_atom_aromatic(bond.atom2) == False) and
-                                      not (mol.protein.is_atom_single_bonded(bond.atom1) and
-                                           mol.protein.is_atom_single_bonded(bond.atom2))):
-                                        bond.set_v6(V_DOUBLE)
-
                     # Set the PDB information (chain ID and PDB code)
                     mol.protein.set_chain_id(chainId)
                     mol.protein.set_pdb_id(pdbid)
@@ -394,6 +554,12 @@ def _readpdb_new(assy,
     fi = open(filename,"rU")
     lines = fi.readlines()
     fi.close()
+
+    ###atom_type_dict = {}
+    aromatic_atoms = []
+    sp2a_atoms = []
+    sp2b_atoms = []
+    sp2c_atoms = []
     
     mollist = []
 
@@ -472,11 +638,11 @@ def _readpdb_new(assy,
             name3 = card[12:15].replace(" ", "").replace("_", "")
             name2 = card[12:14].replace(" ", "").replace("_", "")
             chainId = card[21]
-            resIdStr = card[22:26].replace(" ", "")
-            if resIdStr != "":
-                resId = int(resIdStr)
-            else:
-                resId = 0
+            resId = card[22:26].replace(" ", "") + card[27]
+            #if resIdStr != "":
+            #    resId = int(resIdStr)
+            #else:
+            #    resId = 0
             resName = card[17:20]
             sym = card[77:78] # Element symbol
             alt = card[16] # Alternate location indicator
@@ -568,7 +734,13 @@ def _readpdb_new(assy,
             else:
                 # Otherwise, add it to the current molecule.
                 a = Atom(sym, A(xyz), mol)
-                
+
+            # Store PDB information in the Atom object pdb_info dict.
+            a.pdb_info['atom_name'] = name4
+            a.pdb_info['residue_id'] = resId
+            a.pdb_info['residue_name'] = resName
+            a.pdb_info['chain_id'] = chainId
+            
             ndix[n] = a
             
             if _is_amino_acid or \
@@ -578,12 +750,16 @@ def _readpdb_new(assy,
                 dont_split = True
                 
             if not _is_water:
+                # Add the atom to the "protein" chunk.
                 mol.protein.add_pdb_atom(a, 
                                          name4, 
                                          resId, 
                                          resName,
                                          setType=True)
-            
+                
+                # Recognize atom type by pattern matching of the atom name.
+                _set_atom_type(a, name4, resName)
+                
             # Assign one of three types of secondary structure.            
             if (resId, chainId) in helix:
                 # helix
@@ -880,10 +1056,10 @@ def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resNam
     # Column 22: Chain identifier - single letter (str) 
     # This has been tested with 35 chunks and still works in QuteMolX.
     atomRecord += "%1s" % chainId.upper()
-    # Column 23-26: Residue sequence number (int) *unused*.
-    atomRecord += "%4d" % resId
-    # Column 27: Code for insertion of residues (AChar) *unused*
-    atomRecord += "%1s" % space
+    # Column 23-27: Residue sequence number (int) + Code for insertion of residues (AChar) 
+    atomRecord += "%5s" % resId
+    ### Column 27: Code for insertion of residues (AChar) *unused*
+    ##atomRecord += "%1s" % space
     # Column 28-30: Whitespace (str)
     atomRecord += "%3s" % space
     # Get atom XYZ coordinate
@@ -1039,10 +1215,10 @@ def writepdb(part,
             for aa in aa_list:
                 atom_list = aa.get_atom_list()
                 for a in atom_list:
-                    resId = 1
+                    resId = "   1 "
                     resName = "UNK"
                     atomName = a.element.symbol
-                    res = mol.protein.get_residuum(a)
+                    res = mol.protein.get_residue(a)
                     if res:
                         resId = res.get_id()
                         resName = res.get_three_letter_code()
@@ -1067,16 +1243,25 @@ def writepdb(part,
                 atomsTable[a.key] = atomSerialNumber
                 if enableProteins:
                     # piotr 080709 : Use more robust ATOM output code for Proteins.
-                    resId = 1
-                    resName = "UNK"
+                    if a.pdb_info.has_key['residue_id']:
+                        resId = a.pdb_info['residue_id']
+                    else:
+                        resId = "   1 "                        
+                    if a.pdb_info.has_key['residue_name']:
+                        resName = a.pdb_info['residue_name']
+                    else:
+                        resName = "UNK"
                     atomName = a.element.symbol
+                    
+                    """
                     if mol.protein:
-                        res = mol.protein.get_residuum(a)
+                        res = mol.protein.get_residue(a)
                         if res:
                             resId = res.get_id()
                             resName = res.get_three_letter_code()
                             atomName = res.get_atom_name(a)
                     ### print "WRITING ATOM: ", (atomSerialNumber, atomName, resId, resName)
+                    """
                     writepdb_atom(a, 
                                   f, 
                                   atomSerialNumber, 

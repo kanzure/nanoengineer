@@ -51,10 +51,10 @@ AA_3_TO_1 = {
     'GLN':'Q', 
     'TRP':'W', 
     'GLY':'G',
-    '2AS':'D', # non-standard codes encountered in PDB
-    '3AH':'H', 
-    '5HP':'E', 
-    'ACL':'R', 
+    '2AS':'D', # Non-standard codes encountered in the PDB.
+    '3AH':'H', # Usually, these codes correspond to modified residues 
+    '5HP':'E', # and are only used by the Protein class to convert between 
+    'ACL':'R', # three- and single- letter representations. 
     'AIB':'A',
     'ALM':'A', 
     'ALO':'T', 
@@ -197,6 +197,7 @@ AA_3_TO_1 = {
 NUC_3_TO_1 = {
     ' DG':'G',
     ' DA':'A',
+    ' DC':'C',
     ' DT':'T',
     ' DU':'U',
     ' DI':'I',
@@ -204,6 +205,7 @@ NUC_3_TO_1 = {
     '  A':'A',
     '  T':'T',
     '  U':'U',
+    '  C':'C',
     '  I':'I' }
     
 # Types of secondary structure as defined in PDB format.
@@ -363,60 +365,6 @@ chi_exclusions = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
                              None,
                              None ] }
 
-# PDB atom types for proteins. Assumes that the remaining atom types
-# have default hybridization. Thie dictionary is used by Protein.add_pdb_atom
-
-# Note: piotr 082108: this is going to be moved to files_pdb.py 
-
-PROTEIN_ATOM_TYPES = { 
-    "ANY" : {
-        "N"   : "sp2(graphitic)", # these atom types are common for all amino
-        "C"   : "sp2",            # acids
-        "O"   : "sp2" },
-    "PHE" : {
-        "CG"  : "sp2a", # "sp2a" is an sp2 atom connected to another sp2a atom
-        "CD1" : "sp2a", # with an aromatic bond
-        "CE1" : "sp2a",
-        "CZ"  : "sp2a",
-        "CE2" : "sp2a",
-        "CD2" : "sp2a" },
-    "GLU" : {
-        "CD"  : "sp2",
-        "OE1" : "sp2" },
-    "GLN" : {
-        "CD"  : "sp2",
-        "OE1" : "sp2" },
-    "ASP" : {
-        "CG"  : "sp2",
-        "OD1" : "sp2" },
-    "ASN" : {
-        "CG"  : "sp2",
-        "OD1" : "sp2" },
-    "TRP" : {
-        "CG"  : "sp2",
-        "CD1" : "sp2",
-        "CE2" : "sp2a",
-        "CZ2" : "sp2a",
-        "CH2" : "sp2a",
-        "CZ3" : "sp2a",
-        "CE3" : "sp2a",
-        "CD2" : "sp2a" },
-    "TYR" : {
-        "CG"  : "sp2a",
-        "CD1" : "sp2a",
-        "CE1" : "sp2a",
-        "CZ"  : "sp2a",
-        "CE2" : "sp2a",
-        "CD2" : "sp2a" },
-    "ARG" : {
-        "CZ"  : "sp2",
-        "NH2" : "sp2" },
-    "HIS" : {
-        "CG"  : "sp2",
-        "CE1" : "sp2", 
-        "NE2" : "sp2s",      # two "sp2s" atoms are connected with a bond 
-        "CD2" : "sp2s" } }   # of order 1
-
 # Utility methods used by PDB reading code.
 
 def is_water(resName):
@@ -459,11 +407,12 @@ def is_nucleotide(resName):
     
     return False
 
-# This class should be renamed to "Residue" (which is a proper spelling,
-# as Eric D has pointed out.
-# piotr 082008: This class should be moved to its own file.
+# Renamed this to "Residue" (which is a proper spelling, compared to "Residue",
+# as Eric D has pointed out in his email).
 
-class Residuum:
+# piotr 082008: This class should be re-factored and moved to its own file.
+
+class Residue:
     """
     This class implements a Residue object. The residue is an object
     describing an individual amino acid of a protein chain.
@@ -477,20 +426,13 @@ class Residuum:
         @param name: PDB name (amino acid name in three-letter code.
         @type name: string (3 characters)
         """
-        # dictionary for name -> atom mapping
-        self.atoms = {} 
-        
-        # dictionary for atom -> name mapping
-        self.names = {} 
-        
-        # list of residue atoms in the same order as they occur in PDB
+        # list of residue atoms in the same order as they occur in PDB file
         self.atom_list = []
         
-        # residue name (3 characters string)
-        self.name = name[:3]
+        # dictionary for atom_name -> atom mapping
+        self.atoms = {} 
         
-        # residue id (serial number)
-        self.id = id
+        ##self.id = id
 
         # amino acid secondary structure        
         self.secondary_structure = SS_COIL
@@ -503,13 +445,8 @@ class Residuum:
         # Rotamer color, used by "Edit Rotamers" command.
         self.color = None
         
-        # Additional attributes, currently not read from PDB files, but
-        # used for writting the files for Rosetta.
-        self.bfactor = 1.0
-        self.occupation = 0.0
-        
         # These Rosetta-related attributes should be probably moved from this
-        # class to some Rosetta-related structure. For now, the Residuum
+        # class to some Rosetta-related structure. For now, the Residue
         # and Protein classes
         
         # Rosetta name of mutation range. 
@@ -529,18 +466,26 @@ class Residuum:
         """
         For a given PDB atom name, return a corresponding atom.
         """
-        if atom in self.names:
-            return self.names[atom]
+        if atom.pdb_info.has_key('atom_name'):
+            return atom.pdb_info['atom_name']
         else:
             return None
-       
+        
     def add_atom(self, atom, pdbname):
         """ 
         Add a new atom to the atom dictionary. 
         """
         self.atoms[pdbname] = atom
-        self.names[atom] = pdbname
         self.atom_list.append(atom)
+
+    def get_first_atom(self):
+        """
+        Return first atom of the residue, or None.
+        """
+        if len(self.atom_list):
+            return self.atom_list[0]
+        else:
+            return None
         
     def get_atom_list(self):
         """
@@ -554,29 +499,59 @@ class Residuum:
         PDB atom names.
         """
         return [atom for atom in self.atom_list \
-                if self.names[atom] not in ["C", "N", "O", "H", "HA"]]
-    
+                if self.get_atom_name() not in ['C', 'N', 'O', 'H', 'HA']]
+
     def get_three_letter_code(self):
         """
-        Return a three-letter amino acid code.
+        Return a three-letter amino acid code (the residue name).
         """
-        return self.name
+        atom = self.get_first_atom()
+        if atom:
+            if atom.pdb_info.has_key('residue_name'):
+                return atom.pdb_info['residue_name'][:3]
+        return None
 
+    def get_name(self):
+        """
+        Just another version of get_three_letter_code.
+        """
+        return self.get_three_letter_code()
+        
     def get_one_letter_code(self):
         """
         Return a one-letter amino acid code, or "X" if the residue code
         is not recognized.
         """
-        if AA_3_TO_1.has_key(self.name):
-            return AA_3_TO_1[self.name]
+        if AA_3_TO_1.has_key(self.get_name()):
+            return AA_3_TO_1[self.get_name()]
         
         return "X"
     
     def get_id(self):
         """
         Return a residue ID.
+        
+        The residue ID is a string representing the residue serial number 
+        (integer value up to 9999) and concatenated residue insertion code 
+        (single letter character). It is represented by a five character string.
         """
-        return self.id
+        atom = self.get_first_atom()
+        if atom:
+            if atom.pdb_info.has_key('residue_id'):
+                return atom.pdb_info['residue_id']
+
+        return None
+    
+    def get_index(self):
+        """
+        Return a residue index.
+        """
+        atom = self.get_first_atom()
+        if atom:
+            if atom.pdb_info.has_key('residue_id'):
+                return int(atom.pdb_info['residue_id'][:3])
+
+        return None
     
     def get_atom(self, pdbname):
         """
@@ -743,7 +718,6 @@ class Residuum:
         # y is perpendicular to v23_x plane
         y = cross(v23, x)
         
-        
         # Calculate lengths of the x, y vectors.
         u1 = dot(x, x)
         v1 = dot(y, y)
@@ -773,8 +747,9 @@ class Residuum:
         @return: list of four atoms
         """
         if which in range(4):
-            if chi_angles.has_key(self.name):
-                chi_list = chi_angles[self.name]
+            residue_name = self.get_name()
+            if chi_angles.has_key(residue_name):
+                chi_list = chi_angles[residue_name]
                 if chi_list[which]:
                     chi_atom_names = chi_list[which]
                     chi_atoms = []
@@ -796,8 +771,9 @@ class Residuum:
         @return: list of atoms to be excluded from rotation
         """
         if which in range(4):
-            if chi_exclusions.has_key(self.name):
-                chi_ex_list = chi_exclusions[self.name]
+            residue_name = self.get_name()
+            if chi_exclusions.has_key(residue_name):
+                chi_ex_list = chi_exclusions[residue_name]
                 ex_atoms = [self.get_atom_by_name("OXT")]
                 for w in range(0, which + 1):
                     if chi_ex_list[w]:
@@ -958,7 +934,7 @@ class Residuum:
         """
         return self.backrub
     
-# End of Residuum class.
+# End of Residue class.
 
 class Protein:
     """
@@ -1054,17 +1030,17 @@ class Protein:
         @type name: string
         
         @param setType: if True, try to determine the atom type based on 
-                        PDB residue name and atom nae                         
+                        PDB residue name and atom name                         
         @type setType: boolean
         
         @return: residue the atom has been added to (Residue) 
         """
         if self.sequence.has_key(resId):
-            # Find an existing residuum.
+            # Find an existing residue.
             aa = self.sequence[resId]
         else:
             # This is a new residue.
-            aa = Residuum(resId, resName)
+            aa = Residue(resId, resName)
             self.sequence[resId] = aa
             # Append the residue to amino acid list to have a properly ordered
             # list of amino acids.
@@ -1076,10 +1052,11 @@ class Protein:
         # If this is an alpha carbon atom, add it to the list of alpha carbons.
         if pdbname == "CA":
             self.ca_atom_list.append(atom)
-
+            
+        """
         if setType:
             _assigned = False
-            # Look for the atom type and set it
+            # Look for the atom type and set the type
             if PROTEIN_ATOM_TYPES.has_key(resName):
                 atom_type_dict = PROTEIN_ATOM_TYPES[resName]
                 if atom_type_dict.has_key(pdbname):
@@ -1099,7 +1076,8 @@ class Protein:
                 if atom_type_dict.has_key(pdbname):
                     atom_type = atom_type_dict[pdbname]
                     atom.set_atomtype_but_dont_revise_singlets(atom_type) 
-            
+        """
+        
         return aa
     
     def is_atom_aromatic(self, atom):
@@ -1341,9 +1319,9 @@ class Protein:
         for aa in self.sequence.values():
             aa.expand()
         
-    def get_residuum(self, atom):
+    def get_residue(self, atom):
         """
-        For a given atom, return a residuum that the atom belongs to.
+        For a given atom, return a residue that the atom belongs to.
         
         @param atom: atom to look for
         @type atom: Atom
@@ -1535,7 +1513,7 @@ def write_rosetta_resfile(filename, chunk):
         out_str = " " + \
                 chunk.protein.get_chain_id() + \
                 "%5d" % int(index) + \
-                "%5d " % int(aa.get_id()) + \
+                "%6s" % aa.get_id() + \
                 mut 
         if use_backrub and \
            aa.backrub:

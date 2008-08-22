@@ -27,7 +27,7 @@ from model.chunk import Chunk
 from model.bond_constants import V_DOUBLE, V_AROMATIC
 from operations.bonds_from_atoms import inferBonds
 
-from protein.model.Protein import Residuum, Protein, SS_HELIX, SS_STRAND, SS_COIL
+from protein.model.Protein import Residue, Protein, SS_HELIX, SS_STRAND, SS_COIL
 
 from Numeric import zeros, sqrt, pi, sin, cos, Float
 from geometry.VQT import Q, V, norm, vlen, cross, angleBetween
@@ -489,7 +489,7 @@ NTERM_ZMATRIX = [
     (   3, "N  ", "H", "",       2,    1,    0,    1.335,  116.600,  180.000 ),
 ]
 
-# Note: this is just a fake "N  " label for the _buildResiduum
+# Note: this is just a fake "N  " label for the _buildResidue
 # to make it thinking that we are starting a new amino acid.
 CTERM_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
@@ -552,7 +552,8 @@ def get_unit_length(phi, psi):
     Calculate a length of single amino acid in particular 
     secondary conformation.
     """
-    return 3.5
+        
+    return 1.35
     
 class PeptideGenerator:
     prev_coords = zeros([3,3], Float)
@@ -630,15 +631,18 @@ class PeptideGenerator:
     
     def make_aligned(self, assy, name, aa_idx, phi, psi, 
                      pos2, pos1, mol=None, secondary=SS_COIL, 
-                     fake_chain=False, createPrinted=False):
+                     fake_chain=False, length=None, createPrinted=False):
         """
         Build a homo-peptide aligned to a pos2-pos1 vector. 
         """
 
-        self.length = self.get_number_of_res(pos1, pos2, phi, psi)
-        if self.length == 0:
-            return None
-        
+        if not length:
+            self.length = self.get_number_of_res(pos1, pos2, phi, psi)
+            if self.length == 0:
+                return None
+        else:
+            self.length = length
+            
         # Create a molecule
         mol = Chunk(assy, name)
             
@@ -672,12 +676,14 @@ class PeptideGenerator:
             self.nterm_hydrogen = atom
             mol.protein.add_pdb_atom(atom, "H", 1, name)
             
+        secondary = 1
+        
         # Generate the peptide chain.
         for idx in range(int(self.length)):
-            self._buildResiduum(mol, zmatrix, size, idx+1, phi, psi, secondary, None, symbol, fake_chain=fake_chain)
+            self._buildResidue(mol, zmatrix, size, idx+1, phi, psi, secondary, None, symbol, fake_chain=fake_chain)
 
         # Add a C-terminal OH group
-        self._buildResiduum(mol, CTERM_ZMATRIX, 5, self.length, 0.0, 0.0, secondary, None, symbol, fake_chain=fake_chain)        
+        self._buildResidue(mol, CTERM_ZMATRIX, 5, self.length, 0.0, 0.0, secondary, None, symbol, fake_chain=fake_chain)        
         
         # Compute bonds (slow!)
         # This should be replaced by a proper bond assignment.
@@ -723,7 +729,7 @@ class PeptideGenerator:
         
         return mol          
 
-    def _buildResiduum(self, mol, zmatrix, n_atoms, idx, phi, psi, secondary, init_pos, symbol, fake_chain=False):
+    def _buildResidue(self, mol, zmatrix, n_atoms, idx, phi, psi, secondary, init_pos, symbol, fake_chain=False):
         """
         Builds cartesian coordinates for an amino acid from the internal
         coordinates table.
