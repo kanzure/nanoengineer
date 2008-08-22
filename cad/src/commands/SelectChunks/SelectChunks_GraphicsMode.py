@@ -222,7 +222,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         chunk..typically pick or unpick the chunk(s) or do nothing.
 
         If an object left down happens, the left down method of that object
-        calls this method (chunkLeftDown) as it is the 'selectMolsMode' which
+        calls this method (chunkLeftDown) as it is the 'SelectChunks_GraphicsMode' which
         is supposed to select Chunk of the object clicked
         @param a_chunk: The chunk of the object clicked (example, if the  object
                       is an atom, then it is atom.molecule
@@ -327,9 +327,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         if not self.current_obj_clicked:
             if debug_flags.atom_debug:
                 print_compact_stack("Note: self.current_obj_clicked is False "
-                "and still selectMolsMode.chunkLeftUp is called. Make sure to "
+                "and still SelectChunks_GraphicsMode.chunkLeftUp is called. Make sure to "
                 "call selectMode.objectSpecificLeftUp before calling "
-                "selectMolsMode.chunkLeftUp: ")
+                "SelectChunks_GraphicsMode.chunkLeftUp: ")
             return
 
         #Don't select anything if the selection is locked.
@@ -549,9 +549,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #to be on a safer side and prints a warning.
         if not self.current_obj_clicked:
             print_compact_stack("Note: self.current_obj_clicked is False "
-            "and still selectMolsMode.bondLeftUp is called. Make sure to "
+            "and still SelectChunks_GraphicsMode.bondLeftUp is called. Make sure to "
             "call selectMode.objectSpecificLeftUp before calling "
-            "selectMolsMode.bondLeftUp: ")
+            "SelectChunks_GraphicsMode.bondLeftUp: ")
             return
 
         if self.selection_locked():
@@ -633,9 +633,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         """
         Event handler for all LMB press events.
         """
-        # Note: the code of selectAtomsMode and selectMolsMode .leftDown methods
+        # Note: the code of selectAtomsMode and SelectChunks_GraphicsMode .leftDown methods
         # is very similar, so I'm removing the redundant comments from
-        # this one (selectMolsMode); see selectAtomsMode to find them.
+        # this one (SelectChunks_GraphicsMode); see selectAtomsMode to find them.
         # [bruce 071022]
 
         self.set_cmdname('ChunkClick')
@@ -688,7 +688,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
         self.w.win_update()
 
-        return # from selectMolsMode.leftDown
+        return # from SelectChunks_GraphicsMode.leftDown
 
 
     def leftDrag(self, event):
@@ -700,13 +700,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
           (free drag translate). This is called 'pseudo move mode'
           for convenience.
 
-        Note that NE1 still remains in the selectMolsMode while doing this.
+        Note that NE1 still remains in the SelectChunks_GraphicsMode while doing this.
         It calls separate method for objects that implement drag handler API
 
         @param  event: mouse left drag event
         @see : selectMode.leftDrag
-        @see : selectMolsMode._leftDown_preparation_for_dragging
-        @see : selectMolsMode.leftDragTranslation
+        @see : SelectChunks_GraphicsMode._leftDown_preparation_for_dragging
+        @see : SelectChunks_GraphicsMode.leftDragTranslation
 
         """
 
@@ -887,7 +887,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         self.doObjectSpecificLeftUp(obj, event)
 
         self.w.win_update()
-        return # from selectMolsMode.leftUp
+        return # from SelectChunks_GraphicsMode.leftUp
 
     def reset_drag_vars(self):
         """
@@ -978,7 +978,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         Update the cursor for Select mode (Default implementation).
         """
 
-        # print "selectMolsMode.update_cursor_for_no_MB(): button=",\
+        # print "SelectChunks_GraphicsMode.update_cursor_for_no_MB(): button=",\
         #  self.o.button,"modkeys=",self.o.modkeys
 
         if self.o.modkeys is None:
@@ -1018,7 +1018,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @see : self.drawHighlightedObjectUnderMouse()
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into
-        # selectMolsMode and slightly revised it (including, adding the return
+        # SelectChunks_GraphicsMode and slightly revised it (including, adding the return
         # value).
         # Bruce 080217 formalized hicolor2 as an arg (was hardcoded orange).
         assert hicolor is not None #bruce 070919
@@ -1170,7 +1170,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into
-        # selectMolsMode and slightly revised it.
+        # SelectChunks_GraphicsMode and slightly revised it.
         ## hicolor2 = orange # intended to visually differ from hicolor
         HHColor = env.prefs[hoverHighlightingColor_prefs_key]
         hicolor2 = ave_colors(0.5, HHColor, orange)

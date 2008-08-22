@@ -183,8 +183,8 @@ class modelTree(modelTreeGui.Ne1Model_api):
         """
         if permit_atom_chunk_coselection(): #bruce 060721
             return
-        from commands.SelectChunks.selectMolsMode import selectMolsMode
-        ## from selectAtomsMode import selectAtomsMode
+        from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
+        
         #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy
         win = self.win
@@ -206,7 +206,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         #  vs modes that change to fit it or to fit the actual selection.
         #  For now we only handle modes that change to fit the actual selection.) 
         selwhat_from_mode = None # most modes don't care
-        if isinstance( mode, selectMolsMode):
+        if isinstance( mode, SelectChunks_Command):
             # TODO: replace this by a method call or getattr on mode
             selwhat_from_mode = SELWHAT_CHUNKS
         #bruce 060403 commenting out the following, in advance of proposed removal of Select Atoms mode entirely:

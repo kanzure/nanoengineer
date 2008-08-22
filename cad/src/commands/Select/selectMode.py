@@ -7,6 +7,9 @@ also used as superclasses for some other modes
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 - Ninad 070216 moved selectAtomsMode and selectMolsMode out of selectMode.py
+   -- Update 2008-08-22: class selectMolsMode has been deprecated and is 
+      replaced by  SelectChunks_Command (the change was made perhaps sometime 
+      last year)
 """
 
 from commands.Select.Select_Command import Select_basicCommand

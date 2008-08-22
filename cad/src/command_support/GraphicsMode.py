@@ -1111,7 +1111,6 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         Update the cursor for operations when no mouse button is pressed.
         The default implementation just sets it to a simple arrow cursor
-        (arrow cursor seen in selectMolsMode)
         """
         self.o.setCursor(self.w.SelectArrowCursor)
 

@@ -18,9 +18,6 @@ _KLUGE_PERMIT_INHERITED_CLASSNAMES = (
     "Select_Command",
     "selectMode",
 
-    "SelectChunks_Command",
-    "selectMolsMode",
-
     "SelectAtoms_Command",
     "selectAtomsMode",
     

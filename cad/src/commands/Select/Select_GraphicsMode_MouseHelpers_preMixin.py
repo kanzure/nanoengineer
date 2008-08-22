@@ -231,9 +231,9 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         #selectMode.doObjectSpecificLeftDrag. Note that this method is
         #overridden in subclasses, so make sure to either set that flag in
         #those methods or always call the superclass method at the beginning.
-        # In case of selectMolsMode, the 'objects' are
+        # In case of SelectChunks_GraphicsMode, the 'objects' are
         # really the  selectedMovable. so it makes sense to set it in
-        #selectMolsMode.leftDragTranslation or call doObjectSpecificLeftDrag
+        #SelectChunks_GraphicsMode.leftDragTranslation or call doObjectSpecificLeftDrag
         #somewhere -- Ninad 2007-11-15
 
         #UPDATE 2007-11-15:
@@ -474,7 +474,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         chunk..typically pick or unpick the chunk(s) or do nothing.
 
         If an object left down happens, the left down method of that object
-        calls this method (chunkLeftDown) as it is the 'selectMolsMode' which
+        calls this method (chunkLeftDown) as it is the 'SelectChunks_GraphicsMode' which
         is supposed to select Chunk of the object clicked
         @param a_chunk: The chunk of the object clicked (example, if the  object
                       is an atom, then it is atom.molecule

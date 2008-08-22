@@ -111,7 +111,7 @@ class SelectAtoms_basicCommand(Select_basicCommand):
 
         # Enable/Disable Jig Selection.
         # This is duplicated in depositMode.makeMenus() and 
-        #selectMolsMode.makeMenus().
+        # SelectChunks_Command.makeMenus().
         if self.o.jigSelectionEnabled:
             self.Menu_spec.extend( [("Enable Jig Selection",  
                                      self.graphicsMode.toggleJigSelection, 

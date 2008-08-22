@@ -691,10 +691,10 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         """
 
         #@ATTENTION: This method was originally from class selectAtomsMode.
-        # It was mostly duplicated (with some changes) in selectMolsMode
+        # It was mostly duplicated (with some changes) in SelectChunks_GraphicsMode
         # when that mode started permitting highlighting.
         # The has been modified and moved to selectMode class so that both
-        # selectAtomsMode and selectMolsMode can use it -Ninad 2007-10-15
+        # selectAtomsMode and SelectChunks_GraphicsMode can use it -Ninad 2007-10-15
 
 
         #bruce 060331 comment: this docstring appears wrong, since the code
@@ -795,10 +795,10 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         """
 
         #@ATTENTION: This method was originally from class selectAtomsMode.
-        # It was mostly duplicated (with some changes) in selectMolsMode
+        # It was mostly duplicated (with some changes) in SelectChunks_GraphicsMode
         # when that mode started permitting highlighting.
         # The has been modified and moved to selectMode class so that both
-        # selectAtomsMode and selectMolsMode can use it -Ninad 2007-10-12
+        # selectAtomsMode and SelectChunks_GraphicsMode can use it -Ninad 2007-10-12
 
 
 

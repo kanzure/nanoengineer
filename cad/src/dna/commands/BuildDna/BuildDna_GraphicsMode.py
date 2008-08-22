@@ -208,7 +208,7 @@ class BuildDna_GraphicsMode(
         chunk..typically pick or unpick the chunk(s) or do nothing.
 
         If an object left down happens, the left down method of that object
-        calls this method (chunkLeftDown) as it is the 'selectMolsMode' which
+        calls this method (chunkLeftDown) as it is the 'SelectChunks_GraphicsMode' which
         is supposed to select Chunk of the object clicked
         @param a_chunk: The chunk of the object clicked (example, if the  object
                       is an atom, then it is atom.molecule

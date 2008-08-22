@@ -555,7 +555,7 @@ packageMapping_for_files = {
     
     "SelectChunks_Command"             : "command|commands/SelectChunks", # used directly, as well as as a superclass
     "SelectChunks_GraphicsMode"        : "graphics_mode|commands/SelectChunks",
-    "selectMolsMode"                   : "unsplit_mode|commands/SelectChunks",
+    "SelectChunks_GraphicsMode"                   : "unsplit_mode|commands/SelectChunks",
     
     "Select_Command"                   : "command|commands/Select",
     "Select_GraphicsMode"              : "graphics_mode|commands/Select",

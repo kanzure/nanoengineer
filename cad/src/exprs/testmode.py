@@ -421,7 +421,8 @@ class testmode(superclass):
                 self.Menu_spec.append(None)
             
             # Enable/Disable Jig Selection.
-            # This is duplicated in depositMode.makeMenus() and selectMolsMode.makeMenus().
+            # This is duplicated in depositMode.makeMenus() 
+            #and SelectChunks_Command.makeMenus().
             if self.o.jigSelectionEnabled:
                 self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'checked')])
             else:

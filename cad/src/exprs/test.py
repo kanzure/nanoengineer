@@ -2000,7 +2000,8 @@ def drawtest1_innards(glpane):
 
     graphicsMode = glpane.graphicsMode # assume this is always testmode's graphicsMode
     _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode)
-        #061218 kluge (multiple places, some in cad/src e.g. selectAtomsMode/selectMolsMode);
+        #061218 kluge (multiple places, some in cad/src 
+        #e.g. SelectAtoms_GraphicsMode/SelectChunks_GraphicsMode);
         # fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
         # then click again, could falsely click the same checkbox twice.
     

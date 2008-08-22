@@ -655,7 +655,7 @@ class ops_select_Mixin:
         [warning: not for general use -- doesn't change which select mode is in use]
         """
         # This is called only by Move_Command.Enter.
-        # (Why not selectChunksMode? because selectMolsMode calls it w/o update, instead:
+        # (Why not selectChunksMode? because SelectChunks_GraphicsMode calls it w/o update, instead:
         #   self.o.assy.selectChunksWithSelAtoms_noupdate() # josh 10/7 to avoid race in assy init
         # )
         # BTW, MainWindowUI.{py,ui} has an unused slot with the same name this method used to have [selectParts]

@@ -1065,7 +1065,8 @@ def _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode): #061218, revised 071010
     #   fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
     #   then click again, could falsely click the same checkbox twice.
     # I can't recall exactly how that fix worked. About how glpane.selobj ever becomes equal to this,
-    # there is code in selectAtomsMode and selectMolsMode which does that, in update_selobj.
+    # there is code in SelectAtoms_GraphicsMode and SelectChunks_GraphicsMode
+    # which does that, in update_selobj.
     # TODO: document how this works sometime, and figure out whether it should be set up
     # per-Command or per-graphicsMode. Either way we'll need a class constant to request it,
     # since right now nothing can set it up except in testmode. For now I'll treat it as per-command

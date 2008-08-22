@@ -334,7 +334,7 @@ class EditCommand(Select_Command):
         #Following is needed to make sure that when a dna line is drawn 
         #(using DNA Line mode), it takes input and gives output to the 
         # currently active editCommand 
-        #(see selectMolsMode.provideParametersForTemporaryMode where we are 
+        #(see SelectChunks_GraphicsMode.provideParametersForTemporaryMode where we are 
         # using self.win.dnaEditCommand) Fixes bug 2588
 
         #Following line of code that fixed bug 2588 mentioned in above comment 

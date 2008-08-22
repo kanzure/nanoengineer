@@ -377,10 +377,11 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         """
         Event handler for all LMB press events.
         """
-        # Note: the code of selectAtomsMode and selectMolsMode .leftDown methods
-        # is very similar, so I'm removing the redundant comments from
-        # the other one (selectMolsMode); i.e. some of this method's comments
-        # also apply to the same code in the same method in selectMolsMode.
+        # Note: the code of SelectAtoms_GraphicsMode and SelectChunks_GraphicsMode 
+        # .leftDown methods  is very similar, so I'm removing the redundant 
+        #comments the other one (SelectChunks_GraphicsMode); 
+        #i.e. some of this method's comments
+        # also apply to the same code in the same method in SelectChunks_GraphicsMode.
         # [bruce 071022]
 
         self.set_cmdname('BuildClick')
