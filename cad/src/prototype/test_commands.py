@@ -46,7 +46,6 @@ from prototype.test_command_PMs import ExampleCommand2_PM
 from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
 
 from command_support.modes import basicMode
-## from selectAtomsMode import selectAtomsMode
 
 from command_support.GraphicsMode import GraphicsMode
 from command_support.Command import Command
@@ -61,7 +60,7 @@ class minimalUsefulMode(basicMode): #bruce 071013
     # With nothing added here, the effects are:
     # - they don't draw the model;
     # - the temporary ones don't do the saved command's drawing
-    #   (they didn't with selectAtomsMode either, but they drew the model themselves);
+    #   (they didn't with SelectAtoms_Command either, but they drew the model themselves);
     # - exprs draw, but their highlighting (and associated mouse behavior) doesn't work.
     # But in other ways they work, e.g. the temp ones resume saved command & PM, the GBC ones make a struct.
 
@@ -70,7 +69,7 @@ class minimalUsefulMode(basicMode): #bruce 071013
         super(minimalUsefulMode, self).Draw()
         self.glpane.part.draw(self.glpane) # draw the current Part
 
-    # What we need is some of what's in selectAtomsMode and maybe some of what's in testmode.
+    # What we need is some of what's in SelectAtoms_Command and maybe some of what's in testmode.
     # It's more efficient to refactor those to get a new generally useful GraphicsMode,
     # than to build them up separately here. HOWEVER, for the purpose of testing Command/GraphicsMode split,
     # this one might be enough, if we split it. So do that below.
@@ -86,7 +85,7 @@ class minimalCommand(Command):
     GraphicsMode_class = minimalGraphicsMode
     pass
 
-## _superclass = selectAtomsMode
+
 ## _superclass = minimalUsefulMode
 
 ## this worked a long time -- _superclass = minimalCommand
@@ -115,7 +114,8 @@ class ExampleCommand(_superclass):
         # note: propMgr is initialized to None in our superclass anyMode
         if self.PM_class:
             self.propMgr = self.PM_class(win, commandrun = self)
-        _superclass.init_gui(self) # this fixed the "disconnect without connect" bug [when _superclass was selectAtomsMode anyway]
+        _superclass.init_gui(self) # this fixed the "disconnect without connect" bug 
+        #[when _superclass was selectAtoms_Command anyway]
             #k will we need to do this first not last? or not do all of it? seems ok so far.
         if self.propMgr:
             self.propMgr.show()
@@ -153,8 +153,9 @@ class Example_TemporaryCommand_useParentPM(ExampleCommand):
 
 class ExampleCommand1(ExampleCommand):
     """
-    Example command, which uses behavior similar to selectAtomsMode [but, _superclass is now revised...]. 
-    [Which in future may inherit class Command.]
+    Example command, which uses behavior similar to SelectAtoms_Command
+    [but, _superclass is now revised...]. 
+    [Which inherits class Command.]
     """
     commandName = 'ExampleCommand1-commandName' # internal #e fix init code in basicMode to get it from classname?
     featurename = "Prototype: Example Command 1"

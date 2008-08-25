@@ -551,7 +551,6 @@ packageMapping_for_files = {
     
     "SelectAtoms_Command"              : "command|commands/SelectAtoms", # even though only used as a superclass now
     "SelectAtoms_GraphicsMode"         : "graphics_mode|commands/SelectAtoms",
-    "selectAtomsMode"                  : "unsplit_mode|commands/SelectAtoms",
     
     "SelectChunks_Command"             : "command|commands/SelectChunks", # used directly, as well as as a superclass
     "SelectChunks_GraphicsMode"        : "graphics_mode|commands/SelectChunks",

@@ -67,13 +67,13 @@ def enter_example_command(widget, example_command_classname):
 ##            glpane._reinit_modes() # just to get out of current mode safely
 ##            import command_support.modes as modes
 ##            reload(modes)
-##            ## from selectAtomsMode import selectAtomsMode # commented so it doesn't affect import dependency tools
+##            ## from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command # commented so it doesn't affect import dependency tools
 ##            _superclass = 'Undefined variable' # FIX
-##            if _superclass is selectAtomsMode:
+##            if _superclass is SelectAtoms_Command:
 ##                import commands.Select.selectMode as selectMode
 ##                reload(selectMode)
-##                import commands.SelectAtoms.selectAtomsMode as selectAtomsMode
-##                reload(selectAtomsMode)
+##                import commands.SelectAtoms.selectAtoms_Command as selectAtoms_Command
+##                reload(selectAtoms_Command)
 ##            
 ##            # revised 071010 (glpane == commandSequencer == modeMixin), new code UNTESTED:
 ##            glpane._recreate_nullmode()

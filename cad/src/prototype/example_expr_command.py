@@ -75,12 +75,11 @@ class TextState(InstanceMacro): # rename?
 
 from prototype.test_commands import ExampleCommand2
 
-##from selectAtomsMode import selectAtomsMode
+
 ##from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command # used indirectly via ExampleCommand2
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
-##fyi: class selectAtomsMode(SelectAtoms_basicCommand, 
-##                           SelectAtoms_basicGraphicsMode)
+
 
 ##class ExampleCommand2E_GM( ExampleCommand2.GraphicsMode_class): #bruce 071014 split out _GM class; works, except highlighting
 class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
@@ -97,7 +96,7 @@ class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
     pass
 
 ##class ExampleCommand2E_GM_KLUGED( ExampleCommand2.GraphicsMode_class,
-##                            selectAtomsMode #### KLUGE, will it work? trying to use it just for its GM aspects...
+##                            SelectAtoms_Command #### KLUGE, will it work? trying to use it just for its GM aspects...
 ##                           ): #bruce 071014 split out _GM class
 ##    # status, 071022: works except for highlighting (tho it looked like it did something on mouseover;
 ##    #  i forget if this eg had a good HL color change on that resizer), and on drag on that resizer i got
@@ -105,14 +104,18 @@ class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
 ##    ## AttributeError: 'ExampleCommand2E_GM_KLUGED' object has no attribute 'ignore_next_leftUp_event'
 ##    ##  [GLPane.py:1845] [selectAtomsMode.py:494]
 ##    # but setting this in __init__ works around that (see comment there).
+#@ATTENTION:
+#UPDATE 2008-08-22: Above comment is obsolete since SelectAtomsMode class has 
+#been deprecated . This commented out code needs to be revised if its ever used.
+#[-- Ninad comment]
 ##    
 ##    command = None # defeat the property in selectAtomsMode #k needed?
 ##    
 ##    def __init__(self, command):
 ##        ExampleCommand2.GraphicsMode_class.__init__(self, command) # includes self.command = command
-##        selectAtomsMode.__init__(self, self.glpane) ##k??
+##        SelectAtoms_Command.__init__(self, self.glpane) ##k??
 ##        self.ignore_next_leftUp_event = True
-##            # kluge, since we didn't run the GM part of selectAtomsMode.Enter,
+##            # kluge, since we didn't run the GM part of SelectAtoms_Command.Enter,
 ##            # which normally does this.
 ##        return
 ##

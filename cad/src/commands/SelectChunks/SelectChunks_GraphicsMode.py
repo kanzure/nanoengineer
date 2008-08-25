@@ -633,9 +633,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         """
         Event handler for all LMB press events.
         """
-        # Note: the code of selectAtomsMode and SelectChunks_GraphicsMode .leftDown methods
+        # Note: the code of selectAtoms_GraphicsMode and SelectChunks_GraphicsMode .leftDown methods
         # is very similar, so I'm removing the redundant comments from
-        # this one (SelectChunks_GraphicsMode); see selectAtomsMode to find them.
+        # this one (SelectChunks_GraphicsMode); see selectAtoms_GraphicsMode to find them.
         # [bruce 071022]
 
         self.set_cmdname('ChunkClick')
@@ -656,7 +656,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
         method = getattr(obj, 'leftClick', None)
         if method:
-            # This looks identical to the code from selectAtomsMode.leftDown
+            # This looks identical to the code from selectAtoms_GraphicsMode.leftDown
             # which I just split into a separate method call_leftClick_method,
             # so I will shortly move that into our common superclass and
             # call it here instead of duplicating that code.
@@ -715,10 +715,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
         self.current_obj_clicked = False
 
-        # Copying some drag_handler checker code from selectAtomsMode (with some
+        # Copying some drag_handler checker code from selectAtoms_GraphicsMode (with some
         # modifications) -- Ninad20070601
         # [bruce 071022 removed some comments redundant with the
-        #  leftDrag method of selectAtomsMode]
+        #  leftDrag method of selectAtoms_GraphicsMode]
 
 
         if self.cursor_over_when_LMB_pressed == 'Empty Space':

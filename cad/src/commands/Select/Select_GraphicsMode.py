@@ -131,11 +131,11 @@ def set_DRAG_STICKINESS_LIMIT_from_pref(): #bruce 060315
         prefs_key = DRAG_STICKINESS_LIMIT_prefs_key)
     return
 
-set_DRAG_STICKINESS_LIMIT_from_pref() # also called in selectAtomsMode.leftDown
+set_DRAG_STICKINESS_LIMIT_from_pref() # also called in selectAtoms_GraphicsMode.leftDown
     # (ideally, clean up this pref code a lot by not passing
     # DRAG_STICKINESS_LIMIT  as an arg to the subr that uses it)
     # we do this early so the debug_pref is visible in the debug menu before
-    # entering selectAtomsMode.
+    # entering selectAtoms_GraphicsMode.
 
 # ==
 
@@ -302,7 +302,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         This resets (or initializes) per-drag instance variables, and is called
         in Enter and at beginning of leftDown. Subclasses can override this
         to add variables, but those methods should call this version too.
-        @see L{selectAtomsMode.reset_drag_vars}
+        @see L{selectAtoms_GraphicsMode.reset_drag_vars}
         """
         #IDEALLY(what we should impelment in future) --
         #in each class it would reset only that class's drag vars
@@ -686,15 +686,15 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         Returns None for all other cases, including when a bond, jig or nothing
         is under the cursor. [warning: this docstring appears wrong.]
 
-        @attention: This method was originally from class selectAtomsMode. See
+        @attention: This method was originally from class selectAtoms_GraphicsMode. See
                     code comment for details
         """
 
-        #@ATTENTION: This method was originally from class selectAtomsMode.
+        #@ATTENTION: This method was originally from class selectAtoms_GraphicsMode.
         # It was mostly duplicated (with some changes) in SelectChunks_GraphicsMode
         # when that mode started permitting highlighting.
         # The has been modified and moved to selectMode class so that both
-        # selectAtomsMode and SelectChunks_GraphicsMode can use it -Ninad 2007-10-15
+        # selectAtoms_GraphicsMode and SelectChunks_GraphicsMode can use it -Ninad 2007-10-15
 
 
         #bruce 060331 comment: this docstring appears wrong, since the code
@@ -790,15 +790,15 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
               selobj, which updates selatom and outputs whatever statusbar
               message is appropriate. ####@@@@ doit... this is not yet fully ok.
 
-        @attention: This method was originally from class selectAtomsMode. See
+        @attention: This method was originally from class selectAtoms_GraphicsMode. See
                     code comment for details
         """
 
-        #@ATTENTION: This method was originally from class selectAtomsMode.
+        #@ATTENTION: This method was originally from class selectAtoms_GraphicsMode.
         # It was mostly duplicated (with some changes) in SelectChunks_GraphicsMode
         # when that mode started permitting highlighting.
         # The has been modified and moved to selectMode class so that both
-        # selectAtomsMode and SelectChunks_GraphicsMode can use it -Ninad 2007-10-12
+        # selectAtoms_GraphicsMode and SelectChunks_GraphicsMode can use it -Ninad 2007-10-12
 
 
 
@@ -962,11 +962,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         THE DEFAULT IMPLEMENTATION OF THIS METHOD DOES NOTHING. Subclasses
         should override this method as needed.
 
-        @see: selectAtomsMode.update_selatom for documentation.
+        @see: selectAtoms_GraphicsMode.update_selatom for documentation.
         #see; selectMode.get_obj_under_cursor
         """
         # REVIEW: are any of the calls to this in selectMode methods,
-        # which do nothing except in subclasses of selectAtomsMode,
+        # which do nothing except in subclasses of selectAtoms_GraphicsMode,
         # indications that the code they're in doesn't make sense except
         # in such subclasses? [bruce 071025 question]
 
@@ -1079,12 +1079,12 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
     # - work for single atom too (with its baggage, implying all bps for real
     #   atoms in case chunk rule for that matters)
     # - (not directly related:)
-    #   review why reset_drag_vars is only called in selectAtomsMode but the
+    #   review why reset_drag_vars is only called in selectAtoms_GraphicsMode but the
     #    vars are used in the superclass selectMode
     #   [later 070412: maybe because the methods calling it are themselves only
-    #    called from selectAtomsMode? it looks that way anyway]
+    #    called from selectAtoms_GraphicsMode? it looks that way anyway]
     #   [later 070412: ###WARNING: in Qt3, reset_drag_vars is defined in
-    #   selectAtomsMode, but in Qt4, it's defined in selectMode.]
+    #   selectAtoms_GraphicsMode, but in Qt4, it's defined in selectMode.]
     #
     bc_in_use = None # None, or a BorrowerChunk in use for the current drag,
             # which should be drawn while in use, and demolished when the drag
@@ -1186,7 +1186,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         """
         # Mode API method originally by bruce 050612.
         # This has been refactored further and moved to the superclass
-        # from selectAtomsMode. -- Ninad 2007-10-14
+        # from selectAtoms_GraphicsMode. -- Ninad 2007-10-14
         if not self.command.isHighlightingEnabled():
             return None
 

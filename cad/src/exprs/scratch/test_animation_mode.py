@@ -389,7 +389,6 @@ class _S_ImmutableData_Mixin(_S_Data_Mixin):
 def do_what_MainWindowUI_should_do(win):
     pass
 
-##_superclass = selectAtomsMode # this works too [050528]
 ##_superclass = basicMode
 _superclass = Command
 # see also _superclass_GM

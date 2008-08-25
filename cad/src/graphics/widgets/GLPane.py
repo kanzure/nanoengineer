@@ -558,7 +558,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
 
         self.is_animating = False # mark 060404
             # Set to True while animating between views in animateToView() so that update_selobj() in
-            # selectAtomsMode will not hover highlight objects under the cursor. mark 060404
+            # selectAtoms_GraphicsMode will not hover highlight objects under the cursor. mark 060404
 
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs [of what? paintGL I guess?]
@@ -1480,7 +1480,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         # animation action while this one is still running.
         self.win.enableViews(False)
 
-        # 'is_animating' is checked in selectAtomsMode.update_selobj() to determine whether the 
+        # 'is_animating' is checked in selectAtoms_GraphicsMode.update_selobj() to determine whether the 
         # GLPane is currently animating between views.  If True, then update_selobj() will 
         # not select any object under the cursor. mark 060404.
         self.is_animating = True

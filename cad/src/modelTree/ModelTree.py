@@ -210,7 +210,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             # TODO: replace this by a method call or getattr on mode
             selwhat_from_mode = SELWHAT_CHUNKS
         #bruce 060403 commenting out the following, in advance of proposed removal of Select Atoms mode entirely:
-##        elif isinstance( mode, selectAtomsMode) and mode.commandName == selectAtomsMode.commandName:
+##        elif isinstance( mode, SelectAtoms_Command) and mode.commandName == selectAtoms_Command.commandName:
 ##            #bruce 060210 added commandName condition to fix bug when current mode is Build (now a subclass of Select Atoms)
 ##            selwhat_from_mode = SELWHAT_ATOMS
         change_mode_to_fit = (selwhat_from_mode is not None) # used later; someday some modes won't follow this

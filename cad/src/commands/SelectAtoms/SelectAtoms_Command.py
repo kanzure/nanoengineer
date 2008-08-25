@@ -56,7 +56,7 @@ class SelectAtoms_basicCommand(Select_basicCommand):
     from utilities.constants import CL_ABSTRACT
     command_level = CL_ABSTRACT #??
     
-    # Don't highlight singlets in selectAtomsMode. Fixes bug 1540.mark 060220.
+    # Don't highlight singlets in SelectAtoms_Command. Fixes bug 1540.mark 060220.
     highlight_singlets = False         
         
     def Enter(self): 

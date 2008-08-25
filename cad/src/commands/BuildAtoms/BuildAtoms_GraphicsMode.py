@@ -783,7 +783,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # on leftup, but is not used to determine what gets highlighted
             # during mouse motion. A comment below mentions that
             # selobj_highlight_color is related to that. It looks like it has
-            # code for this in selectAtomsMode._getAtomHighlightColor.
+            # code for this in SelectAtoms_Command._getAtomHighlightColor.
             # There is also a call
             # to update_selatom with singOnly = True, which doesn't have this
             # special case for non-bondpoints, but I don't know whether it's

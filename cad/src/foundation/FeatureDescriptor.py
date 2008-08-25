@@ -17,9 +17,6 @@ _KLUGE_PERMIT_INHERITED_CLASSNAMES = (
         # since it doesn't have its own featurename
     "Select_Command",
     "selectMode",
-
-    "SelectAtoms_Command",
-    "selectAtomsMode",
     
     "BuildAtoms_Command",
     "depositMode",

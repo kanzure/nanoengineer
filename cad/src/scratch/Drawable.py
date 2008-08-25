@@ -34,7 +34,7 @@ class Drawable(Selobj_API):
     together) or BaubleBaseOrWhateverYouCallIt (if you prefer a period
     in which that and Drawable coexist and are related but different),
     and then add this new superclass to the list of things
-    selectAtomsMode treats specially in its event handlers, which is
+    selectAtoms_GraphicsMode treats specially in its event handlers, which is
     now Atom, Bond, Jig.
     
     (If you are willing to let me heavily influence Drawable, as you
@@ -50,12 +50,12 @@ class Drawable(Selobj_API):
     Chunk, maybe Jig or some of its subclasses), some methods you'll
     learn about when it tracebacks (like draw_in_abs_coords and maybe
     one for highlight color), and of course a draw method, and a drag
-    method, and special cases in lots of the places in selectAtomsMode
+    method, and special cases in lots of the places in selectAtoms_GraphicsMode
     that now have them for Atom, Bond, Jig -- but these should of
     course be cases for Drawable, not for Bauble. And they might as
     well come first, so if we ever wanted to make something inherit
     from both Drawable and Atom or Bond or Jig, the Drawable API would
-    win out in terms of how selectAtomsMode interacted with it.
+    win out in terms of how selectAtoms_GraphicsMode interacted with it.
 
     *** __init__ must set self.glname using env.alloc_my_glselect_name
     [note, this has been revised, bruce 080220; class Atom now sets
@@ -69,7 +69,7 @@ class Drawable(Selobj_API):
     that (tomorrow I can look and see if that scheme needs cleanup or
     could reasonably be extended as-is).
 
-    *** special cases go in selectAtomsMode, not here
+    *** special cases go in selectAtoms_GraphicsMode, not here
     
     The code that looks at selobj may also need cases for this, but
     maybe not, if it doesn't need a context menu and doesn't traceback
@@ -101,7 +101,7 @@ class Drawable(Selobj_API):
     *** motion relative to the jig is a good idea
     
     As for what the Bauble drag method does (when called by the new
-    Drawable special case in selectAtomsMode leftDrag or whatever),
+    Drawable special case in selectAtoms_GraphicsMode leftDrag or whatever),
     that is to actually modify its own relative posn in the jig, and
     then do gl_update so that everything (including its parent jig,
     thus itself) gets redrawn, soon after the event is done being
@@ -111,7 +111,7 @@ class Drawable(Selobj_API):
     mouse clicked on the Drawable (known from the depth buffer value
     -- the code for clicking on a Jig shows you how to figure this
     out, and the new code for doing this for Drawables also belongs in
-    selectAtomsMode), then interpret mouse motion as being in the
+    SelectAtoms_GraphicsMode), then interpret mouse motion as being in the
     plane through that point and parallel to the screen, so it's now a
     3d vector, then translate the object by that, then apply whatever
     constraints its position has (e.g. project to a plane it's

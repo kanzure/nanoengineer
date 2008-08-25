@@ -76,8 +76,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
     @see: cad/doc/splitting_a_mode.py that gives a detailed explanation about
           how this is implemented.
     @see: B{SelectAtoms_GraphicsMode}
-    @see: B{SelectAtoms_Command}, B{SelectAtoms_basicCommand},
-          B{selectAtomsMode}
+    @see: B{SelectAtoms_Command}, B{SelectAtoms_basicCommand},         
     @see: B{Select_basicGraphicsMode}
     """
     eCCBtab1 = [1, 2,
@@ -347,7 +346,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
     # == LMB event handling methods ====================================
     #
     # The following sections include all the LMB event handling methods for
-    # selectAtomsMode. The section includes the following methods:
+    # this class. The section includes the following methods:
     #
     #   - LMB down-click (button press) methods
     #       leftShiftDown()
@@ -447,7 +446,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
             #k (is this always desirable? note, a few cases above return
             # early just so they can skip it.)
 
-        return # from selectAtomsMode.leftDown
+        return # from selectAtoms_GraphicsMode.leftDown
 
     def call_leftClick_method(self, method, obj, event):#bruce 071022 split this
                                                         #out
@@ -647,7 +646,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         # not clear this would be good, so *this* is what I won't do for now.
         #self.o.gl_update() #& Now handled in modkey*() methods. mark 060210.
 
-        return # from selectAtomsMode.leftUp
+        return # from selectAtoms_GraphicsMode.leftUp
 
     def leftUp_reset_a_few_drag_vars(self):
         """
@@ -965,7 +964,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
     def drag_selected_atoms(self, offset):
         # WARNING: this (and quite a few other methods) is probably only called
         #(ultimately) from event handlers
-        # in selectAtomsMode, and probably uses some attrs of self that only
+        # in selectAtoms_GraphicsMode, and probably uses some attrs of self that only
         # exist in that mode. [bruce 070412 comment]
 
         if self.maybe_use_bc and self.dragatoms and self.bc_in_use is None:
@@ -1766,9 +1765,9 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
     def update_cursor_for_no_MB(self):
         """
-        Update the cursor for 'Select Atoms' mode (selectAtomsMode)
+        Update the cursor for 'Select Atoms' mode (selectAtoms_GraphicsMode)
         """
-        ## print "selectAtomsMode.update_cursor_for_no_MB(): button=",\
+        ## print "selectAtoms_GraphicsMode.update_cursor_for_no_MB(): button=",\
         ## self.o.button, ", modkeys=", self.o.modkeys
 
         if self.w.selection_filter_enabled:

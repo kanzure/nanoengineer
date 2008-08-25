@@ -49,7 +49,6 @@ annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
             ## one for modes too -- not sure of its name, but I guess I'll let it keep showing too
             ]
 
-## superclass = selectAtomsMode
 superclass = depositMode
 
 class testmode(superclass):
