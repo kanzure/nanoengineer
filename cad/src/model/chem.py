@@ -587,7 +587,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     # attribute. 
     iconPath = "ui/modeltree/Single_Atom.png"
 
-    # text to be drawn floating over the atom
+    # Text to be drawn floating over the atom.  Note, you must also
+    # set chunk.chunkHasOverlayText for this to be used.
     overlayText = None
 
     # def __init__  is just below a couple undo-update methods

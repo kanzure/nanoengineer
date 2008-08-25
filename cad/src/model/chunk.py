@@ -311,6 +311,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     _f_lost_externs = False
     _f_gained_externs = False
 
+    # Set this to True if any of the atoms in this chunk has their
+    # overlayText set to anything other than None.  This keeps us from
+    # having to test that for every single atom in every single chunk
+    # each time the screen is rerendered.
+    chunkHasOverlayText = False
+
     protein = None
     
     # ==
@@ -2199,7 +2205,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         
                     pass # end of the case where our "main display list (and all extra lists) needs to be remade"
 
-                self.renderOverlayText(glpane)
+                if (self.chunkHasOverlayText):
+                    self.renderOverlayText(glpane)
                 #@@ninad 070219 disabling the following--
                 #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
 
