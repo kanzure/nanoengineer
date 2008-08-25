@@ -107,7 +107,6 @@ from foundation.Assembly_API import Assembly_API
 from model.prefsTree import MainPrefsGroupPart
 import foundation.undo_manager as undo_manager
 from files.mmp.files_mmp_writing import writemmpfile_assy
-from utilities.Comparison import same_vals
 
 # ==
 
@@ -486,14 +485,7 @@ class Assembly( StateMixin, Assembly_API):
                 self.commandSequencer = commandSequencerClass(self) #bruce 080813
 
         self.assy_valid = True
-        
-        #These attrs are used for comarison in 
-        #def change_indicator_modified_since_last_call
-        self._previous_all_change_indicators = None
-        self._previous_selection_change_indicator = None
-        self._previous_model_change_indicator = None
-        self._previous_view_change_indicator = None
-                
+                        
         return # from Assembly.__init__
 
     # ==
