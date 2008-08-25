@@ -20,11 +20,11 @@ TODO: [as of 2008-01-04]
 - Some items mentioned in BuildAtoms_Command.py 
 
 History:
-See history for depositMode.py 
-Ninad 2008-01-04: Created new Command and GraphicsMode classes from 
-                  the old class depositMode and moved the 
-                  GraphicsMode related methods into this class from 
-                  depositMode.py
+Originally as 'depositMode.py' by Josh Hall and then significantly modified by 
+several developers. 
+In January 2008, the old depositMode class was split into new Command and 
+GraphicsMode parts and the these classes were moved into their own module 
+[ See BuildAtoms_Command.py and BuildAtoms_GraphicsMode.py]
 """
 
 
@@ -125,7 +125,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         Retrieve the object coordinates of the point on the screen
         with window coordinates(int x, int y) 
         """
-        # bruce 041207 comment: only called for depositMode leftDown in empty
+        # bruce 041207 comment: only called for BuildAtoms_GraphicsMode leftDown in empty
         # space, to decide where to place a newly deposited chunk.
         # So it's a bit weird that it calls findpick at all!
         # In fact, the caller has already called a similar method indirectly
@@ -1230,7 +1230,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #open the clipboard tab in the 'MMKit'. This implementation has 
             #been replaced with a separate 'Paste Mode' to handle Pasting 
             #components. So always keep depositState to Atoms while in 
-            #depositMode.  (this needs further cleanup) -- ninad 2007-09-04
+            #BuildAtoms_GraphicsMode.  (this needs further cleanup) -- ninad 2007-09-04
             self.w.depositState = 'Atoms'
             
             

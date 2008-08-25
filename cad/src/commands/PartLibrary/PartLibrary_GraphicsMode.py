@@ -34,7 +34,7 @@ class PartLibrary_GraphicsMode(PasteFromClipboard_GraphicsMode):
                 message text tells whether the Part got deposited.
         @rtype: (L{Group} , str)
 
-        @attention: This method needs renaming. L{depositMode} still uses it 
+        @attention: This method needs renaming. L{BuildAtoms_Command} still uses it 
         so simply overriden here. B{NEEDS CLEANUP}.
         @see: L{self.deposit_from_Library_page} 
 

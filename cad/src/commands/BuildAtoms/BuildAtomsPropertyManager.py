@@ -49,7 +49,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         Constructor for the B{Build Atoms} property manager.
         
         @param command: The parent mode where this Property Manager is used
-        @type  command: L{depositMode} 
+        @type  command: L{BuildAtoms_Command} 
         """
         self.previousSelectionParams = None
         _superclass.__init__(self, command)
@@ -82,7 +82,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @param isConnect: If True the widget will send the signals to the slot 
                           method. 
         @type  isConnect: boolean
-        @see: L{depositMode.connect_or_disconnect_signals} where this is called
+        @see: L{BuildAtoms_Command.connect_or_disconnect_signals} where this is called
         """
                 
         
@@ -379,7 +379,8 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         #or using other means (ctrl + A if only one atom is present) . Also, 
         #the lists command.baggage and command.nonbaggage seem to get 
         #cleared during left up. So that method is not useful. 
-        #There needs to be a method in parentmode (selectMode or depositMode) 
+        #There needs to be a method in parentmode (Select_Command or
+        #BuildAtoms_Command) 
         #to do the following (next code cleanup?) -- ninad 2007-09-27
         self.command.baggage, self.command.nonbaggage = \
             selectedAtom.baggage_and_other_neighbors()          

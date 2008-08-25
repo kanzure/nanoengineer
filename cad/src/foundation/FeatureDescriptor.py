@@ -18,9 +18,6 @@ _KLUGE_PERMIT_INHERITED_CLASSNAMES = (
     "Select_Command",
     "selectMode",
     
-    "BuildAtoms_Command",
-    "depositMode",
-
     "TemporaryCommand_preMixin", # (should this count as abstract?)
 
     "minimalCommand", # (ditto)

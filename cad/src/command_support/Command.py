@@ -1192,14 +1192,14 @@ class basicCommand(anyCommand):
     # assembly) to support a Cancel event -- versus how much to retain
     # internally -- that part needs to be "done" (put into in the
     # assembly) upon a Done event.  (BTW, as I write this, I think
-    # that only depositMode (so far) puts any state into the assembly
+    # that only BuildAtoms_Command (so far) puts any state into the assembly
     # before it's Done.)
     #
     # Both kinds of state (stored in the command or in the assembly)
     # should be considered when overriding self.haveNontrivialState()
     # -- it should say whether Done and Cancel should have different
     # ultimate effects. (Note "should" rather than "would" --
-    # i.e. even if Cancel does not yet work, like in depositMode,
+    # i.e. even if Cancel does not yet work, like in BuildAtoms_Command,
     # haveNontrivialState should return True based on what Cancel
     # ought to do, not based on what it actually does. That way the
     # user won't miss a warning message saying that Cancel doesn't
@@ -1477,7 +1477,7 @@ class basicCommand(anyCommand):
 
     def StateCancel(self):
         """
-        Mode objects (e.g. depositMode) which might have
+        Mode objects (e.g. BuildAtoms_Command) which might have
         accumulated state directly into their model (assembly)
         should override this StateCancel method to undo
         those changes in the model, and return None.
@@ -1493,7 +1493,7 @@ class basicCommand(anyCommand):
         Perhaps, when they warn the user, they would ask which of
         those two things to do.
         """
-        return None # this is correct for all existing modes except depositMode
+        return None # this is correct for all existing modes except BuildAtoms_Command
                     # -- bruce 040923
         ## assert 0, "bug: command subclass %r needs custom StateCancel method, " \
         ##           "since its haveNontrivialState() apparently returned True" % \

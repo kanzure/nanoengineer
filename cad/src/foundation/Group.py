@@ -201,7 +201,7 @@ class Group(NodeWithAtomContents):
                 return True
         return False
 
-    def changed_members(self): #bruce 050121 new feature, now needed by depositMode
+    def changed_members(self): #bruce 050121 new feature, now needed by BuildAtoms
         """
         Whenever something changes self.members in any way (insert, delete, reorder),
         it MUST call this method to inform us (but only *after* it makes the change);

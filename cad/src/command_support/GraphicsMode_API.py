@@ -53,7 +53,7 @@ class GraphicsMode_API(object):
     
     # default methods for both nullGraphicsMode and basicGraphicsMode
     
-    def selobj_highlight_color(self, selobj): #bruce 050612 added this to GraphicsMode API; see depositMode version for docstring
+    def selobj_highlight_color(self, selobj): #bruce 050612 added this to GraphicsMode API; see BuildAtoms_Graphicsmode version for docstring
         return None
 
     def selobj_still_ok(self, selobj): #bruce 050702 added this to GraphicsMode API; overridden in GraphicsMode, and docstring is there

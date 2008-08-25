@@ -28,11 +28,12 @@ TODO: [as of 2008-01-04]
 - Items mentioned in Build_GraphicsMode.py 
 
 History:
-See history for depositMode.py 
-Ninad 2008-01-04: Created new Command and GraphicsMode classes from 
-                  the old class depositMode and moved the 
-                  Command related methods into this class from 
-                  depositMode.py
+
+Originally as 'depositMode.py' by Josh Hall and then significantly modified by 
+several developers. 
+In January 2008, the old depositMode class was split into new Command and 
+GraphicsMode parts and the these classes were moved into their own module 
+[ See BuildAtoms_Command.py and BuildAtoms_GraphicsMode.py]
 """
 from PyQt4.Qt import QSize
 

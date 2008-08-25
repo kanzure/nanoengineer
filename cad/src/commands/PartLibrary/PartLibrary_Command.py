@@ -14,7 +14,7 @@ button in the Part Library mode.
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
-The Partlib existed as a tab in the MMKit of Build Atoms Mode. (MMKit has been 
+The Partlib existed as a tab in the MMKit of Build Atoms Command. (MMKit has been 
 deprecated since 2007-08-29.) Now it has its own temporary mode. 
 
 ninad 2007-09-06: Created. Split out some methods originally in depositMode.py 
@@ -84,7 +84,8 @@ class PartLibrary_Command(PasteFromClipboard_Command):
                 message text tells whether the Part got deposited.
         @rtype: (L{Group} , str)
         """
-        #Needs cleanup. Copying old code from depositMode.py -- ninad 2007-09-06
+        #Needs cleanup. Copying old code from deprecated 'depositMode.py'
+        #-- ninad 2007-09-06
 
         newPart, hotSpot = self.propMgr.getPastablePart()
 
@@ -130,7 +131,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
 
         assert 0, "notreached"
 
-    #Method _depositLibraryPart moved from depositMode.py to here 
+    #Method _depositLibraryPart moved from deprecated depositMode.py to here 
     #-- Ninad 2008-01-02
     def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): 
         # probably by Huaicai; revised by bruce 051227, 060627, 070501

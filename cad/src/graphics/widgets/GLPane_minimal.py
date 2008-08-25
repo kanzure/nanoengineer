@@ -120,7 +120,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
                 glformat.setStencil(True)
                     # set gl format to request stencil buffer
                     # (needed for mouseover-highlighting of objects of general
-                    #  shape in depositMode.bareMotion) [bruce 050610]
+                    #  shape in BuildAtoms_Graphicsmode.bareMotion) [bruce 050610]
 
             if (self.useMultisample):
                 glformat.setSampleBuffers(True)

@@ -552,7 +552,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         self.setFocusPolicy(Qt.StrongFocus)
 
 ##        self.singlet = None #bruce 060220 zapping this, seems to be old and to no longer be used
-        self.selatom = None # josh 10/11/04 supports depositMode
+        self.selatom = None # josh 10/11/04 supports BuildAtoms_Command
 
         self.jigSelectionEnabled = True # mark 060312
 
@@ -2274,7 +2274,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
 
         # (note: mouseDoubleClickEvent and mousePressEvent share a lot of code)
         self.makeCurrent() #bruce 060129 precaution, presumably needed for same reasons as in mousePressEvent
-        self.begin_select_cmd() #bruce 060129 bugfix (needed now that this can select atoms in depositMode)
+        self.begin_select_cmd() #bruce 060129 bugfix (needed now that this can select atoms in BuildAtoms_Command)
 
         self.debug_event(event, 'mouseDoubleClickEvent')
 

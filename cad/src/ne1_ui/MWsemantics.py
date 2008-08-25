@@ -380,9 +380,8 @@ class MWsemantics(QMainWindow,
         # the glpane. This doesn't prevent other subwidgets from having focus.]
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
-        # 'depositState' is used by depositMode and MMKit to synchonize the
-        # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
-        # It is also used to determine what type of object (atom, clipboard chunk or library part)
+        # 'depositState' is used by BuildAtoms_Command 
+        #to determine what type of object (atom, clipboard chunk or library part)
         # to deposit when pressing the left mouse button in Build mode.
         #
         # depositState can be either:

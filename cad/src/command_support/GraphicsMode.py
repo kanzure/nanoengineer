@@ -465,7 +465,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
         Warning: anything implems do to depth or stencil buffers will affect
         the standard selobj-check in bareMotion
-        (presently only used in depositMode).
+        (presently only used in BuildAtoms_Graphicsmode).
 
         [New method in mode API as of bruce 050610.
         General form not yet defined -- just a hack for Build mode's
