@@ -114,7 +114,7 @@ class Dna:
         it does a basic orientation to align new dna axis with original one
         and then a final orientation to make the end strand and axis atoms 
         fusable with the resize end.         
-        
+
         AVAILABLE AS A DEBUG PREFERENCE ONLY AS OF 2008-04-02. 
         NEED CLEANUP , LOTS OF DOCUMENTATION AND RENAMING. 
         @see: self._fuse_new_dna_with_original_duplex
@@ -133,7 +133,7 @@ class Dna:
 
         self.setNumberOfBasePairs(abs(numberOfBasePairs))
         self.setBaseRise(duplexRise)
-        
+
         #@TODO: See a note in DnaSegment_EditCommand._createStructure(). Should 
         #the parentGroup object <group> be assigned properties such as
         #duplexRise, basesPerTurn in this method itself? to be decided 
@@ -153,33 +153,33 @@ class Dna:
         #see self._orient_to_position_first_strandA_base_in_axis_plane() for 
         #more details.
         self.strandA_atom_end1 = None
-        
-        
+
+
         #The end strand base-atom of the original structure (segment) being 
         #resized. This and the corresponding axis end atom ot the original 
         #structure will be used to orient the new bases we will create and fuse
         #to the original structure. 
         self._resizeEndStrand1Atom = resizeEndStrandAtom
-        
+
         #The axis end base atom of the original structure (at the resize end)
         self._resizeEndAxisAtom = None
-        
+
         #Do a safety check. If number of base pairs to add or subtract is 0, 
         #don't proceed further. 
         if numberOfBasePairs == 0:
             print "Duplex not created. The number of base pairs are unchanged"
             return
-        
+
         #If the number of base pairs supplied by the caller are negative, it 
         #means the caller wants to delete those from the original structure
         #(duplex). 
         if numberOfBasePairs < 0:
             numberOfBasePairsToRemove = abs(numberOfBasePairs)
             self._remove_bases_from_duplex(group, 
-                                             resizeEndAxisAtom,
-                                             numberOfBasePairsToRemove)
+                                           resizeEndAxisAtom,
+                                           numberOfBasePairsToRemove)
             return
-        
+
         #Create a raw duplex first in Z direction. Using reference mmp basefiles
         #Later we will reorient this duplex and then fuse it with the original
         #duplex (which is being resized)
@@ -187,41 +187,41 @@ class Dna:
                                 numberOfBasePairs, 
                                 basesPerTurn, 
                                 duplexRise )      
-        
-       
+
+
         # Orient the duplex.
-        
+
         #Do the basic orientation so that axes of the newly created raw duplex
         #aligns with the original duplex
         self._orient(self.baseList, resizeEndAxisAtom.posn(), endPoint2)
-        
+
         #Now determine the the strand1-end and axis-endAtoms at the resize 
         #end of the *original structure*. We will use this information 
         #for final orientation of the new duplex and also for fusing the new 
         #duplex with the original one. 
-        
+
         #find out dna ladder to which the end axis atom of the original duplex
         #belongs to
         ladder = resizeEndAxisAtom.molecule.ladder 
-        
+
         #list of end base atoms of the original duplex, at the resize end.
         #This list includes the axis end atom and strand end base atoms 
         #(so for a double stranded dna, this will return 3 atoms whereas
         #for a single stranded dna, it will return 2 atoms
         endBaseAtomList  = ladder.get_endBaseAtoms_containing_atom(resizeEndAxisAtom)        
-        
+
         #As of 2008-03-26, we support onlu double stranded dna case
         #So endBaseAtomList should have atleast 3 atoms to proceed further. 
         if endBaseAtomList and len(endBaseAtomList) > 2:
             if not resizeEndStrandAtom:
                 self._resizeEndStrand1Atom = endBaseAtomList[0]
-            
+
             self._resizeEndAxisAtom = endBaseAtomList[1]   
-            
+
             self._resizeEndStrand2Atom = None
             if endBaseAtomList[2] not in (None, self._resizeEndStrand1Atom):
                 self._resizeEndStrand2Atom = endBaseAtomList[2]
-            
+
             #Run full dna update so that the newly created duplex represents
             #one in dna data model. Do it before calling self._orient_for_modify
             #The dna updater run will help us use dna model features such as
@@ -231,15 +231,15 @@ class Dna:
             #calling assy.update_parts... i.e. only running a local update 
             #than the whole on -- Ninad 2008-03-26
             self.assy.update_parts()
-            
+
             #Do the final orientation of the new duplex. i.e rotate the new 
             #duplex around its own axis such that its then fusable with the
             #original duplex.
             self._orient_for_modify(endPoint1, endPoint2)
-            
+
             #new_ladder is the dna ladder of the newly generated duplex.
             new_ladder = self.axis_atom_end1.molecule.ladder     
-            
+
             #REFACTOR: Reset the dnaBaseNames of the atoms to 'X' 
             #replacing the original dnaBaseNames 'a' or 'b'. Do not do it 
             #inside self._postProcess because that method is also used by
@@ -249,14 +249,14 @@ class Dna:
                 for atm in m.atoms.values():
                     if atm.element.symbol in ('Ss3') and atm.getDnaBaseName() in ('a','b'):
                         atm.setDnaBaseName('X')
-                        
+
             #Find out the 'end' of the new ladder i.e. whether it is end0 or 
             #end1, that contains the first end axis base atom of the new duplex
             #i.e. atom self.axis_atom_end1)
             new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
-            
+
             #Find out three the end base atoms list of the new duplex 
-            
+
             endBaseAtomList_generated_duplex = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
 
             #strandA atom should be first in the list. If it is not, 
@@ -265,25 +265,25 @@ class Dna:
             if self.strandA_atom_end1 in endBaseAtomList_generated_duplex and \
                self.strandA_atom_end1 != endBaseAtomList_generated_duplex[0]:
                 endBaseAtomList_generated_duplex.reverse()
-                
-            
+
+
             #Note that after orienting the duplex the first set of end base atoms 
             #in endBaseAtomList_generated_duplex will be killed. Why? because 
             #the corrsponding atoms are already present on the original duplex
             #We just used this new set for proper orientation. 
 
-            
+
             #As we will be deleting the first set of 
             #endBaseAtomList_generated_duplex, et a set of base atoms connected 
             #to) the end base atoms in endBaseAtomList_generated_duplex. This 
             #will become our new end base atoms 
-            
+
             new_endBaseAtomList = []
             for atm in endBaseAtomList_generated_duplex:
                 if atm is not None:
                     rail = atm.molecule.get_ladder_rail()                        
                     baseindex = rail.baseatoms.index(atm)
-    
+
                     next_atm = None
                     if len(rail.baseatoms) == 1:
                         for bond_direction in (1, -1):
@@ -294,75 +294,75 @@ class Dna:
                             next_atm = rail.baseatoms[1]
                         elif new_ladder_end == 1:
                             next_atm = rail.baseatoms[-2]
-    
+
                     assert next_atm is not None                        
                     new_endBaseAtomList.append(next_atm)
-                    
+
             DEBUG_FUSE = True
-            
+
             if DEBUG_FUSE:
                 #@@REVIEW This doesn't invalidate the ladder. We just delete 
                 #all the atoms and then the dna updater runs. 
                 for atm in endBaseAtomList_generated_duplex:
                     if atm is not None:
                         atm.kill()   
-    
+
                 #Run dna updater again
                 self.assy.update_parts()
-    
+
                 self.axis_atom_end1 = None
-                
-                             
-                
-                                                
+
+
+
+
                 self._fuse_new_dna_with_original_duplex(new_endBaseAtomList, 
                                                         endBaseAtomList)
-                
-                
-        
+
+
+
         self.assy.update_parts()
-    
-   
+
+
     def _replace_overlapping_axisAtoms_of_new_dna(self, new_endBaseAtomList):
         """
         @see: B_Dna_PAM3_SingleStrand._replace_overlapping_axisAtoms_of_new_dna()
         """
         pass
-    
+
     def _bond_bare_strandAtoms_with_orig_axisAtoms(self,
                                                    new_endBaseAtomList):
         pass
-    
-    
-    
-    
+
+
+
+
     def _fuse_new_dna_with_original_duplex(self, 
                                            new_endBaseAtomList,
                                            endBaseAtomList):
         """
         Fuse the new dna strand (and axxis) end atom to the original dna 
-        
+
         TODO: method needs to be renamed The original dna may be a single stranded
         dna or a duplex. Until 2008-04-02 ,it was possible to create or modify
         only a duplex and thats why the name 'duplex'
-        
+
         @see: self.modify()
         @see: B_Dna_PAM3_SingleStrand._fuse_new_dna_with_original_duplex()
         """
-        
-        
+
+
         #FUSE new duplex with the original duplex
-        
+
         #strand1 chunks
         chunkList1 = \
                    [ new_endBaseAtomList[0].molecule, 
                      self._resizeEndStrand1Atom.molecule]
-        
+
         #Axis chunks
         chunkList2 = \
                    [ new_endBaseAtomList[1].molecule,
-                      self._resizeEndAxisAtom.molecule]
-        
+                     self._resizeEndAxisAtom.molecule]
+
         if endBaseAtomList[2]:
             #strand2 chunks
             chunkList3 = \
@@ -370,7 +370,7 @@ class Dna:
                         endBaseAtomList[2].molecule]
         else:
             chunkList3 = []
-        
+
         #Set the chunk color and chunk display of the new duplex such that
         #it matches with the original duplex chunk color and display
         #Actually, fusing the chunks should have taken care of this, but 
@@ -384,8 +384,8 @@ class Dna:
                 chunkPair[0].setDisplay(display)
                 if color:
                     chunkPair[0].setcolor(color)
-                    
-                    
+
+
         #Original implementation which relied on  on fuse chunks for finding 
         #bondable atom pairs within a tolerance limit. This is no longer
         #used and can be removed after more testing of explicit bonding
@@ -395,57 +395,57 @@ class Dna:
         ##self.fuseBasePairChunks(chunkList2, fuseTolerance = 1.5)
         ##if chunkList3:
             ##self.fuseBasePairChunks(chunkList3)
-             
+
         strandPairsToBond =   [ (new_endBaseAtomList[0], 
-                                self._resizeEndStrand1Atom)]
-        
+                                 self._resizeEndStrand1Atom)]
+
         if endBaseAtomList[2]:
-           strandPairsToBond.append((new_endBaseAtomList[2],
+            strandPairsToBond.append((new_endBaseAtomList[2],
                                       endBaseAtomList[2]))
-           
+
         axisAtomPairsToBond = [  (new_endBaseAtomList[1], 
-                                 self._resizeEndAxisAtom)]
-        
-    
+                                  self._resizeEndAxisAtom)]
+
+
         self._bond_strandAtom_pairs(strandPairsToBond)
-        
+
         #Create explicit bonds between the end base atoms 
         #(like done in self._bond_bare_strandAtoms_with_orig_axisAtoms())
         #instead of relying on fuse chunks (which relies on finding 
         #bondable atom pairs within a tolerance limit. This fixes bug 2798
         #-- Ninad 2008-04-14
         self._bond_atoms_in_atomPairs(axisAtomPairsToBond)
-        
-        
+
+
         #Now replace the overlapping axis atoms with the corresponding 
         #original axis atoms, make bonds between strand and axis atoms as needed
         #see this method docstrings for details
         self._replace_overlapping_axisAtoms_of_new_dna(new_endBaseAtomList)
-        
+
     def _bond_strandAtom_pairs(self, strandPairsToBond):
         bondPoint1 = None
         bondPoint2 = None
         bondPoint3 = None
         bondPoint4 = None
-        
+
         ##print "***strandPairsToBond =", strandPairsToBond 
-        
+
         if len(strandPairsToBond) == 2:
             firstStrandAtomPair = strandPairsToBond[0]
             secondStrandAtomPair = strandPairsToBond[1]            
             bondablePairs_1 = self._getBondablePairsForStrandAtoms(firstStrandAtomPair)
             bondablePairs_2 = self._getBondablePairsForStrandAtoms(secondStrandAtomPair)
-            
+
             ##print "***bondablePairs_1 =", bondablePairs_1
             ##print "***bondablePairs_2 =", bondablePairs_2
-            
+
             if bondablePairs_1[0] is not None and bondablePairs_2[1] is not None:
                 bondPoint1, bondPoint2 = bondablePairs_1[0]                
                 bondPoint3, bondPoint4 = bondablePairs_2[1]
             elif bondablePairs_1[1] is not None and bondablePairs_2[0] is not None:
                 bondPoint1, bondPoint2 = bondablePairs_1[1]                
                 bondPoint3, bondPoint4 = bondablePairs_2[0]
-                
+
         elif len(strandPairsToBond) == 1:
             firstStrandAtomPair = strandPairsToBond[0]                 
             bondablePairs_1 = self._getBondablePairsForStrandAtoms(firstStrandAtomPair)           
@@ -453,25 +453,25 @@ class Dna:
                 bondPoint1, bondPoint2 = bondablePairs_1[0]                
             elif bondablePairs_1[1] is not None:
                 bondPoint1, bondPoint2 = bondablePairs_1[1]                
-   
+
             #Do the actual bonding        
         if bondPoint1 and bondPoint2:
             bond_at_singlets(bondPoint1, bondPoint2, move = False)
-            
+
         if bondPoint3 and bondPoint4:
             bond_at_singlets(bondPoint3, bondPoint4, move = False)
-   
-                
-            
+
+
+
     def _getBondablePairsForStrandAtoms(self, strandAtomPair):    
         bondablePairs = []
-    
+
         atm1 = strandAtomPair[0]
         atm2 = strandAtomPair[1]
-                            
+
         assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
         #Initialize all possible bond points to None
-                
+
         five_prime_bondPoint_atm1  = None
         three_prime_bondPoint_atm1 = None
         five_prime_bondPoint_atm2  = None
@@ -479,7 +479,7 @@ class Dna:
         #Initialize the final bondPoints we will use to create bonds
         bondPoint1 = None
         bondPoint2 = None
-        
+
         #Find 5' and 3' bondpoints of atm1 (BTW, as of 2008-04-11, atm1 is 
         #the new dna strandend atom See self._fuse_new_dna_with_original_duplex
         #But it doesn't matter here. 
@@ -489,7 +489,7 @@ class Dna:
                 five_prime_bondPoint_atm1 = s1                
             if bnd.isThreePrimeOpenBond():
                 three_prime_bondPoint_atm1 = s1
-                
+
         #Find 5' and 3' bondpoints of atm2
         for s2 in atm2.singNeighbors():
             bnd = s2.bonds[0]
@@ -504,8 +504,8 @@ class Dna:
                                   three_prime_bondPoint_atm2 ))
         else:
             bondablePairs.append(None)
-            
-           
+
+
         #Following will overwrite bondpoint1 and bondPoint2, if the condition is
         #True. Doesn't matter. See method docstring to know why.
         if three_prime_bondPoint_atm1 and five_prime_bondPoint_atm2:
@@ -513,19 +513,19 @@ class Dna:
                                   five_prime_bondPoint_atm2))
         else:
             bondablePairs.append(None)
- 
+
         return bondablePairs
-            
-        
+
+
     def _bond_atoms_in_atomPairs(self, atomPairs):
         """
         Create bonds between the atoms in given atom pairs. It creats explicit 
         bonds between the two atoms at the specified bondpoints (i.e. it doesn't
         use fuseChunkBase to find the bondable pairs within certain tolerance)
-        
+
         @see: self._fuse_new_dna_with_original_duplex()
         @see: _bond_two_strandAtoms() called here
-        
+
         @TODO: Refactor self._bond_bare_strandAtoms_with_orig_axisAtoms
            self._bond_axisNeighbors_with_orig_axisAtoms to use this method
         """
@@ -547,7 +547,7 @@ class Dna:
                             s2 = atm2.singNeighbors()[0]
                             bond_at_singlets(s1, s2, move = False)
                             break
-                        
+
                 #reposition bond points (if any) on the new dna's end axis atom 
                 #that is just bonded with the resize end axis atom of the original 
                 #duplex .
@@ -561,7 +561,7 @@ class Dna:
                 #implemented for Ax-Ax bonding. --Ninad 2008-08-22
                 atm1.reposition_baggage()
                 atm2.reposition_baggage()
-                        
+
     def _bond_two_strandAtoms(self, atm1, atm2):
         """
         Bonds the given strand atoms (sugar atoms) together. To bond these atoms, 
@@ -579,7 +579,7 @@ class Dna:
         atom will have both 3' and 5' bondpoints. In that case it doesn't matter
         what pair (5' orig and 3' new) or (3' orig and 5' new) we bond, as long
         as we honor bonding within the atoms of any atom pair mentioned above.
-        
+
         @param atm1: The first sugar atom of PAM3 (i.e. the strand atom) to be 
                      bonded with atm2. 
         @param atm2: Second sugar atom
@@ -590,7 +590,7 @@ class Dna:
         #2711 in segment resizing-- Ninad 2008-04-14
         assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
         #Initialize all possible bond points to None
-                
+
         five_prime_bondPoint_atm1  = None
         three_prime_bondPoint_atm1 = None
         five_prime_bondPoint_atm2  = None
@@ -598,7 +598,7 @@ class Dna:
         #Initialize the final bondPoints we will use to create bonds
         bondPoint1 = None
         bondPoint2 = None
-        
+
         #Find 5' and 3' bondpoints of atm1 (BTW, as of 2008-04-11, atm1 is 
         #the new dna strandend atom See self._fuse_new_dna_with_original_duplex
         #But it doesn't matter here. 
@@ -608,7 +608,7 @@ class Dna:
                 five_prime_bondPoint_atm1 = s1                
             if bnd.isThreePrimeOpenBond():
                 three_prime_bondPoint_atm1 = s1
-                
+
         #Find 5' and 3' bondpoints of atm2
         for s2 in atm2.singNeighbors():
             bnd = s2.bonds[0]
@@ -626,61 +626,61 @@ class Dna:
         if three_prime_bondPoint_atm1 and five_prime_bondPoint_atm2:
             bondPoint1 = three_prime_bondPoint_atm1
             bondPoint2 = five_prime_bondPoint_atm2
-            
+
         #Do the actual bonding        
         if bondPoint1 and bondPoint2:
             bond_at_singlets(bondPoint1, bondPoint2, move = False)
         else:
             print_compact_stack("Bug: unable to bond atoms %s and %s: " %
                                 (atm1, atm2) )
-      
+
     def _remove_bases_from_duplex(self,
-                                    group, 
-                                    resizeEndAxisAtom, 
-                                    numberOfBasePairsToRemove):
+                                  group, 
+                                  resizeEndAxisAtom, 
+                                  numberOfBasePairsToRemove):
         """
         Remove the specified number of base pairs from the duplex. 
-        
+
         @param group: The DnaGroup which contains this duplex
         @type group: DnaGroup
-        
+
         @param resizeEndAxisAtom: The end axis base atom at a DnaLadder end of 
         the duplex. This end base atom is used as a starting base atom while 
         determining which base atoms to remove. 
         @type resizeEndAxisAtom: Atom
-        
+
         @param numberOfBasePairsToRemove: The total number of base pairs to 
         remove from the duplex. 
         @type numberOfBasePairsToRemove: int
         """
-        
+
         #Use whole_chain.get_all_baseatoms_in_order() and then remove the 
         #requested number of bases from the resize end given by 
         #numberOfBasePairsToRemove (including the resize end axis atom). 
         #this fixes bug 2924 -- Ninad 2008-08-07
-        
+
         segment = resizeEndAxisAtom.getDnaSegment()        
         if not segment:
             print_compact_stack("bug: can't resize dna segment: ")
             return 
-        
+
         whole_chain = segment.get_wholechain()
         if whole_chain is None:
             print_compact_stack("bug: can't resize dna segment: ") #bruce 080807 added this
             return
-        
+
         baseatoms = whole_chain.get_all_baseatoms_in_order()
-        
+
         if len(baseatoms) < 2:
             print_compact_stack("WARNING: resizing a dna segment with < 2 "\
                                 "base atoms is not supported: ")
             return 
-            
+
         atomsScheduledForDeletionDict = {}
-          
+
         atm = resizeEndAxisAtom    
         strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
-        
+
         try:        
             resizeEndAtom_baseindex = baseatoms.index(resizeEndAxisAtom)
             # note: this is an index in a list of baseatoms, which is not
@@ -691,7 +691,7 @@ class Dna:
             print_compact_traceback("bug resize end axis atom not in " \
                                     "segments baseatoms!: ")
             return
- 
+
         if resizeEndAtom_baseindex == 0:
             axisAtomsToRemove = baseatoms[:numberOfBasePairsToRemove]
         elif resizeEndAtom_baseindex == len(baseatoms) - 1:
@@ -700,40 +700,40 @@ class Dna:
             print_compact_stack("bug: end axis atom not at either end of list: ") #bruce 080807 added this
 
         assert len(axisAtomsToRemove) == min(numberOfBasePairsToRemove, len(baseatoms)) #bruce 080807 added this
-        
+
         for atm in axisAtomsToRemove:            
-            
+
             strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
-                
+
             for a in strand_neighbors_to_delete:
                 if not atomsScheduledForDeletionDict.has_key(id(a)):
                     atomsScheduledForDeletionDict[id(a)] = a
-                    
-	    #Add the axis atom to the atoms scheduled for deletion only when 	 
-	    #both the strand neighbors of this axis atom are scheduled for 	 
-	    #deletion. But this is not true if its a sticky end i.e. the 	 
-	    #axis atom has only one strand atom. To fix that problem 	 
-	    #we also check (second condition) if all the strand neighbors 	 
-	    #of an axis atom are scheduled for deletion... if so, ot also 	 
-	    #adds that axis atom to the atom scheduled for deletion) 	 
-	    #Axis atoms are explicitely deleted to fix part of memory 	 
-	    #leak bug 2880 (and thus no longer depends on dna updater 	 
-	    #to delete bare axis atoms .. which is good because there is a 	 
-	    #debug pref that permits bare axis atoms for some other 	 
-	    #uses -- Ninad 2008-05-15 	 
-	    if len(strand_neighbors_to_delete) == 2 or \
-	       len(atm.strand_neighbors()) == len(strand_neighbors_to_delete): 	 
-		if not atomsScheduledForDeletionDict.has_key(id(atm)):
-		    atomsScheduledForDeletionDict[id(atm)] = atm
-		else:
-		    print "unexpected: atom %r already in atomsScheduledForDeletionDict" % atm #bruce 080807 added this              
+
+            #Add the axis atom to the atoms scheduled for deletion only when 	 
+            #both the strand neighbors of this axis atom are scheduled for 	 
+            #deletion. But this is not true if its a sticky end i.e. the 	 
+            #axis atom has only one strand atom. To fix that problem 	 
+            #we also check (second condition) if all the strand neighbors 	 
+            #of an axis atom are scheduled for deletion... if so, ot also 	 
+            #adds that axis atom to the atom scheduled for deletion) 	 
+            #Axis atoms are explicitely deleted to fix part of memory 	 
+            #leak bug 2880 (and thus no longer depends on dna updater 	 
+            #to delete bare axis atoms .. which is good because there is a 	 
+            #debug pref that permits bare axis atoms for some other 	 
+            #uses -- Ninad 2008-05-15 	 
+            if len(strand_neighbors_to_delete) == 2 or \
+               len(atm.strand_neighbors()) == len(strand_neighbors_to_delete): 	 
+                if not atomsScheduledForDeletionDict.has_key(id(atm)):
+                    atomsScheduledForDeletionDict[id(atm)] = atm
+                else:
+                    print "unexpected: atom %r already in atomsScheduledForDeletionDict" % atm #bruce 080807 added this              
 
             # REVIEW: if any atom can be added twice to that dict above without
             # this being a bug, then the has_key tests can simply be removed
             # (as an optimization). If adding it twice is a bug, then we should
             # print a warning when it happens, as I added in one case above
             # (but would be good in both cases). [bruce 080807 comment]
-                    
+
         #Now kill all the atoms.
 
         # [TODO: the following ought to be encapsulated in a helper method to
@@ -748,7 +748,7 @@ class Dna:
         val = Atom_prekill_prep()
         for a in atomsScheduledForDeletionDict.itervalues():
             a._will_kill = val # inlined a._prekill(val), for speed
-        
+
         for atm in atomsScheduledForDeletionDict.values():
             if atm: # this test is probably not needed [bruce 080807 comment]
                 try:                   
@@ -756,7 +756,7 @@ class Dna:
                 except:
                     print_compact_traceback("bug in deleting atom while "\
                                             "resizing the segment: ")
-        
+
         atomsScheduledForDeletionDict.clear()
 
         #IMPORTANT TO RUN DNA UPDATER after deleting these atoms! Otherwise we
@@ -765,7 +765,7 @@ class Dna:
         #axis end atoms of a dna segment. Those update methods may be called 
         #before dna updater is run again, thereby spitting out errors.
         self.assy.update_parts()
-        
+
     def _strand_neighbors_to_delete(self, axisAtom):
         """
         Overridden in subclasses
@@ -781,8 +781,8 @@ class Dna:
         @see: B_Dna_PAM3_SingleStrand._strand_neighbors_to_delete()
         """
         return ()
-        
-         
+
+
     def make(self, 
              group, 
              numberOfBasePairs, 
@@ -1070,14 +1070,14 @@ class Dna:
         # Fuse the base-pair chunks together into continuous strands.
         fcb = fusechunksBase()
         fcb.tol = fuseTolerance
-        
+
         for i in range(len(baseList) - 1):
             #Note that this is actually self.baseList that we are using. 
             #Example see self.make() which calls this method. 
             tol_string = fcb.find_bondable_pairs([baseList[i]], 
                                                  [baseList[i + 1]],
                                                  ignore_chunk_picked_state = True
-                                             ) 
+                                                 ) 
             fcb.make_bonds(self.assy)
 
     def _postProcess(self, baseList):
@@ -1242,24 +1242,24 @@ class Dna:
 
         if _strandA_list:
             strandAChunk = self._makeChunkFromAtomList(
-                            _strandA_list,
-                            name = gensym("Strand", self.assy),
-                            group = dnaGroup,
-                            color = env.prefs[dnaDefaultStrand1Color_prefs_key])
+                _strandA_list,
+                name = gensym("Strand", self.assy),
+                group = dnaGroup,
+                color = env.prefs[dnaDefaultStrand1Color_prefs_key])
 
         if _strandB_list:
             strandBChunk = self._makeChunkFromAtomList(
-                            _strandB_list,
-                            name = gensym("Strand", self.assy),
-                            group = dnaGroup,
-                            color = env.prefs[dnaDefaultStrand2Color_prefs_key])
+                _strandB_list,
+                name = gensym("Strand", self.assy),
+                group = dnaGroup,
+                color = env.prefs[dnaDefaultStrand2Color_prefs_key])
 
         if _axis_list:
             axisChunk = self._makeChunkFromAtomList(
-                            _axis_list,
-                            name = "Axis",
-                            group = dnaGroup,
-                            color = env.prefs[dnaDefaultSegmentColor_prefs_key])
+                _axis_list,
+                name = "Axis",
+                group = dnaGroup,
+                color = env.prefs[dnaDefaultSegmentColor_prefs_key])
         return
 
     def _makeChunkFromAtomList(self, atomList, **options):
@@ -1558,7 +1558,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         basename     =  "MiddleBasePair"
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
-    
+
 
 
 
@@ -1574,7 +1574,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
 
         @note: baseList must contain at least two base-pair chunks.
         """
-        
+
         if len(baseList) < 1:
             print_compact_stack("bug? (ignoring) DnaDuplex._postProcess called but "\
                                 "baseList is empty. Maybe dna_updater was "\
@@ -1611,12 +1611,12 @@ class B_Dna_PAM3(B_Dna_PAM5):
                 # Skip the 2 killed singlets.
                 continue
             adjustSinglet(singlet)
-            
- 
+
+
         return
-    
-    
-            
+
+
+
     def _determine_axis_and_strandA_endAtoms_at_end_1(self, chunk):
         """
         Determine the axis end atom and the strand atom on strand 1 
@@ -1657,7 +1657,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         Orient the new dna to match up appropriately with the original dna 
         (being modified/resized)
         """
-    
+
         b = norm(end2 - end1)
         new_ladder =   self.axis_atom_end1.molecule.ladder
         new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
@@ -1679,8 +1679,8 @@ class B_Dna_PAM3(B_Dna_PAM5):
         self.final_pos_strand_end_atom = \
             self.axis_atom_end1.posn() + \
             vlen(axis_strand_vector)*unitVectorAlongLadderStep
-        
-        
+
+
         q_new = Q(axis_strand_vector, vectorAlongLadderStep)
 
         if dot(axis_strand_vector, cross(vectorAlongLadderStep, b)) < 0:
@@ -1690,13 +1690,13 @@ class B_Dna_PAM3(B_Dna_PAM5):
 
 
         self.assy.rotateSpecifiedMovables(q_new2, chunkListForRotation, end1)
-        
-        
+
+
     def _redetermine_resizeEndStrand1Atom_and_strandA_atom_end1(self):
         """
         @ATTENTION: The strandA endatom at end1 is modified in this method.
         It is originally computed in self._determine_axis_and_strandA_endAtoms()
-         
+
         The recomputation is done to fix bug 2889 (for v1.1.0).  
         See B_Dna_PAM3.orient_for_modify() for details. 
         This NEEDS CLEANUP 
@@ -1708,15 +1708,15 @@ class B_Dna_PAM3(B_Dna_PAM5):
         #Perhaps computing this strand atom  always be done at a later 
         #stage (like done in here). But not sure if this will cause any bugs. 
         #So not changing the original implementation .
-        
-        
+
+
         new_ladder =   self.axis_atom_end1.molecule.ladder       
         endBaseAtomList  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
-        
+
         endStrandbaseAtoms = (endBaseAtomList[0], endBaseAtomList[2]) 
-        
+
         self.strandA_atom_end1 = None
-        
+
         #Check if the resizeEndStrandAtom is a 5' or a 3' end. 
         #If it is a 5' or 3' end, then chose the strand end atom of the 
         #new duplex such that it is the opposite of it (i.e. if resizeEndStrandAtom 
@@ -1724,7 +1724,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         #its a 3' end. Using these references, we will orient the new duplex 
         #to match up correctly with the resizeEnd strand atom (and later
         #the old and new dnas will be bonded at these ends)
-        
+
         #However, if the chosen resizeEndStrandAtom of original duplex 
         #doesn't have a 5' or 3' end, then we will choose the second 
         #resizeEndStrandEndAtom on the original duplex and do the same 
@@ -1735,7 +1735,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
             resizeEndStrandAtom_isFivePrimeEndAtom = True
         elif self._resizeEndStrand1Atom.isThreePrimeEndAtom():
             resizeEndStrandAtom_isThreePrimeEndAtom = True
-        
+
         if not (resizeEndStrandAtom_isFivePrimeEndAtom or \
                 resizeEndStrandAtom_isThreePrimeEndAtom):
             if self._resizeEndStrand2Atom:
@@ -1743,13 +1743,13 @@ class B_Dna_PAM3(B_Dna_PAM5):
                     resizeEndStrandAtom_isFivePrimeEndAtom = True
                 elif self._resizeEndStrand2Atom.isThreePrimeEndAtom():
                     resizeEndStrandAtom_isThreePrimeEndAtom = True
-                    
+
                 if (resizeEndStrandAtom_isFivePrimeEndAtom or \
                     resizeEndStrandAtom_isThreePrimeEndAtom):
                     #Swap resizeEndStrand1Atom and resizeEndStrand2Atom
                     atm1, atm2 = self._resizeEndStrand1Atom, self._resizeEndStrand2Atom
                     self._resizeEndStrand1Atom, self._resizeEndStrand2Atom = atm2, atm1
-                    
+
 
         for atm in endStrandbaseAtoms:
             if atm is not None:
@@ -1761,7 +1761,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
                      resizeEndStrandAtom_isThreePrimeEndAtom:
                     self.strandA_atom_end1 = atm 
                     break 
-                
+
         if self.strandA_atom_end1 is None:
             #As a fallback, set this atom to any atom in endStrandbaseAtoms
             #but, this may cause a bug in which bond directions are not 
@@ -1769,10 +1769,10 @@ class B_Dna_PAM3(B_Dna_PAM5):
             for atm in endStrandbaseAtoms:
                 if atm is not None:
                     self.strandA_atom_end1 = atm
-        
-    
-        
-        
+
+
+
+
     def _orient_to_position_first_strandA_base_in_axis_plane(self, baseList, end1, end2):
         """
         The self._orient method orients the DNA duplex parallel to the screen
@@ -1824,7 +1824,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
 
 
         self.assy.rotateSpecifiedMovables(q_new2, baseList, end1)
-        
+
     def _strand_neighbors_to_delete(self, axisAtom):
         """
         Returns a list of strand neighbors of the given axis atom to delete 
