@@ -457,6 +457,28 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.editDeleteAction.setWhatsThis( editDeleteText )
 
+    
+    # Color Scheme
+    
+    _text = \
+        "<u><b>Color Scheme</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/View/ColorScheme.png\"><br> "\
+        "Edit and save/restore favorite NanoEngineer-1 color schemes "\
+        "including background color, selection/highlight color, etc."\
+        "</p>"
+    win.colorSchemeAction.setWhatsThis( _text )
+    
+    # Lighting Scheme
+    
+    _text = \
+        "<u><b>Lighting Scheme</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/View/LightingScheme.png\"><br> "\
+        "Edit and save/restore favorite NanoEngineer-1 lighting schemes."\
+        "</p>"
+    win.lightingSchemeAction.setWhatsThis( _text )
+    
     #Preferences Dialog
 
     editPrefsText = \
@@ -467,14 +489,6 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "lighting, background color, window position and"\
         "size, plugins etc. </p>"
     win.editPrefsAction.setWhatsThis( editPrefsText )
-    
-    colorSchemeText = \
-        "<b>Color Scheme Property Manager</b>"\
-        "<p>"\
-        "Allows you to edit various color schemes "\
-        "such as changing background color, "\
-        "chunk selection color etc. </p>"
-    win.colorSchemeAction.setWhatsThis( colorSchemeText )
     
     #
     # View Toolbar
