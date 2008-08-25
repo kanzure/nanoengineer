@@ -701,17 +701,32 @@ class Dna:
 
         assert len(axisAtomsToRemove) == min(numberOfBasePairsToRemove, len(baseatoms)) #bruce 080807 added this
         
-        for atm in axisAtomsToRemove:
-            if not atomsScheduledForDeletionDict.has_key(id(atm)):
-                atomsScheduledForDeletionDict[id(atm)] = atm
-            else:
-                print "unexpected: atom %r already in atomsScheduledForDeletionDict" % atm #bruce 080807 added this
+        for atm in axisAtomsToRemove:            
             
             strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
                 
             for a in strand_neighbors_to_delete:
                 if not atomsScheduledForDeletionDict.has_key(id(a)):
                     atomsScheduledForDeletionDict[id(a)] = a
+                    
+	    #Add the axis atom to the atoms scheduled for deletion only when 	 
+	    #both the strand neighbors of this axis atom are scheduled for 	 
+	    #deletion. But this is not true if its a sticky end i.e. the 	 
+	    #axis atom has only one strand atom. To fix that problem 	 
+	    #we also check (second condition) if all the strand neighbors 	 
+	    #of an axis atom are scheduled for deletion... if so, ot also 	 
+	    #adds that axis atom to the atom scheduled for deletion) 	 
+	    #Axis atoms are explicitely deleted to fix part of memory 	 
+	    #leak bug 2880 (and thus no longer depends on dna updater 	 
+	    #to delete bare axis atoms .. which is good because there is a 	 
+	    #debug pref that permits bare axis atoms for some other 	 
+	    #uses -- Ninad 2008-05-15 	 
+	    if len(strand_neighbors_to_delete) == 2 or \
+	       len(atm.strand_neighbors()) == len(strand_neighbors_to_delete): 	 
+		if not atomsScheduledForDeletionDict.has_key(id(atm)):
+		    atomsScheduledForDeletionDict[id(atm)] = atm
+		else:
+		    print "unexpected: atom %r already in atomsScheduledForDeletionDict" % atm #bruce 080807 added this              
 
             # REVIEW: if any atom can be added twice to that dict above without
             # this being a bug, then the has_key tests can simply be removed
