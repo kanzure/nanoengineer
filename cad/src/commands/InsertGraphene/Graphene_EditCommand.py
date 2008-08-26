@@ -20,6 +20,7 @@ from command_support.EditCommand import EditCommand
 from commands.InsertGraphene.GrapheneGenerator import GrapheneGenerator
 from utilities.constants import gensym
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
+from ne1_ui.toolbars.Ui_GrapheneFlyout import GrapheneFlyout
 
 _superclass = EditCommand
 class Graphene_EditCommand(EditCommand):
@@ -33,6 +34,8 @@ class Graphene_EditCommand(EditCommand):
     command_level = CL_ENVIRONMENT_PROVIDING # for now; later might be subcommand of Build Nanotube??
 
     create_name_from_prefix  =  True 
+    
+    flyoutToolbar = None
     
     GraphicsMode_class = SelectChunks_GraphicsMode
     
@@ -113,6 +116,34 @@ class Graphene_EditCommand(EditCommand):
         propMgr = self.win.createBuildGraphenePropMgr_if_needed(self)
 
         return propMgr
+    
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_enter_flyout()
+        """
+        if self.flyoutToolbar is None:
+            self.flyoutToolbar = self._createFlyoutToolBarObject()
+
+        self.flyoutToolbar.activateFlyoutToolbar()
+                
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_exit_flyout()
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.deActivateFlyoutToolbar()
+    
+    def _createFlyoutToolBarObject(self):
+        """
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteFromClipboard_Command._createFlyouttoolBar()
+        @see: self.command_enter_flyout()
+        """
+        flyoutToolbar = GrapheneFlyout(self) 
+        return flyoutToolbar 
     
             
     def _getStructureType(self):
