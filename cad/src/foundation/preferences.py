@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+﻿# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 preferences.py -- Preferences system.
 
@@ -247,7 +247,7 @@ def _make_prefs_shelf():
     global _shelfname, _shelf, _cache, _defaults, _trackers
     nanorex = find_or_make_Nanorex_directory()
     global dbname
-    _shelfname = os.path.join( nanorex, "Preferences", "%s-shelf" % dbname )
+    _shelfname = unicode(os.path.join( nanorex, "Preferences", "%s-shelf" % dbname ))
         # This name should differ when db format differs.
         # Note: the actual filename used might have an extension added
         # by the db module (in theory, it might even create two files
