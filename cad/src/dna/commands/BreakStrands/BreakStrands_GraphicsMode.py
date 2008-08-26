@@ -265,7 +265,7 @@ class BreakStrands_GraphicsMode(BreakOrJoinstrands_GraphicsMode ):
             ##self.updateBreakSites()
             return 
 
-        _superclass.atomLeftUp(self, event)
+        _superclass.atomLeftUp(self, a, event)
 
 
     def bondLeftUp(self, b, event):
