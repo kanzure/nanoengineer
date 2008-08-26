@@ -12,7 +12,7 @@ The object being previewed can then be deposited into the 3D workspace.
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
-ninad 2007-08-29: Created. (Initially to support the clipboard in L{PasteMode})
+ninad 2007-08-29: Created. (Initially to support the clipboard in L{PasteFromClipboard_Command})
 
 """
 
