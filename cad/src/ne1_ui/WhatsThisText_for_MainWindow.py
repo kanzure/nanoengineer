@@ -545,6 +545,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "The area is specified by holding down the left button, "\
         "dragging the mouse, and then releasing the mouse button."\
         "</p>"\
+        "Pressing the <b>Escape</b> key exits Zoom to Area and returns to the"\
+        "previous command."\
+        "</p>"\
         "<p>A mouse with a mouse wheel can also be used to "\
         "zoom in/out."\
         "</p>"\
@@ -600,6 +603,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<img source=\"ui/actions/View/Modify/Pan.png\"><br> "\
         "Allows X-Y panning using the left mouse button."\
         "</p>"\
+        "Pressing the <b>Escape</b> key exits Pan Tool and returns to the"\
+        "previous command."\
+        "</p>"\
         "<p>Users with a 3-button mouse can pan the model at "\
         "any time by pressing the middle mouse button while "\
         "holding down the Shift key."\
@@ -614,6 +620,11 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<p>"\
         "<img source=\"ui/actions/View/Modify/Rotate.png\"><br> "\
         "Allows free rotation using the left mouse button."\
+        "</p>"\
+        "<p>Holding down the <b>A</b> key activates auto-rotation, which will "\
+        "continue rotation after releasing the mouse button (try it!)."\
+        "Pressing the <b>Escape</b> key exits Rotate Tool and returns to the"\
+        "previous command."\
         "</p>"\
         "<p>Users with a 3-button mouse can rotate the "\
         "model at any time by pressing "\
