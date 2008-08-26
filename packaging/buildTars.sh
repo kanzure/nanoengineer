@@ -52,11 +52,11 @@ mkdir $TAR_DIR
 
 # Create the Suite tar file
 echo "Creating $TAR_DIR/NanoEngineer-1_Suite_v$NE1_VERSION.tar.gz"
-tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -f /tmp/dist_tars/NanoEngineer-1_Suite_v$NE1_VERSION.tar.gz * || exit 1
+tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*src/experimental*" --exclude "*/\.svn/*" --exclude "*\.svn" -f /tmp/dist_tars/NanoEngineer-1_Suite_v$NE1_VERSION.tar.gz * || exit 1
 
 # Create the NE1 tar file
 echo "Creating $TAR_DIR/NanoEngineer-1_v$NE1_VERSION.tar.gz"
-tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*/\.svn/*" --exclude "*\.svn" -X packaging/Win32/exclude_files.txt -f /tmp/dist_tars/NanoEngineer-1_v$NE1_VERSION.tar.gz * || exit 1
+tar -cz --exclude "*packaging/*" --exclude "*packaging" --exclude "*src/experimental*" --exclude "*/\.svn/*" --exclude "*\.svn" -X packaging/Win32/exclude_files.txt -f /tmp/dist_tars/NanoEngineer-1_v$NE1_VERSION.tar.gz * || exit 1
 
 # Create the GROMACS tar file
 echo "Creating GROMACS_$GMX_VERSION.tar.gz"

@@ -47,7 +47,7 @@ rm -rf dist build
 cd $TOP_LEVEL
 
 #Make a tarball of the uncompiled source for later.
-tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
+tar -cz --exclude "*src/experimental*" -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
 
 # Modify the main.py file to find the pyopengl egg file for Win
 cat cad/src/main.py | grep "sys.path.insert" | grep "pyopengl"
