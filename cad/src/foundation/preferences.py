@@ -68,6 +68,7 @@ from platform_dependent.PlatformDependent import find_or_make_Nanorex_directory
 import foundation.env as env
 import utilities.EndUser as EndUser
 from utilities.debug import print_compact_traceback
+from utilities.constants import str_or_unicode
 
 from foundation.changes import UsageTracker
 
@@ -247,7 +248,7 @@ def _make_prefs_shelf():
     global _shelfname, _shelf, _cache, _defaults, _trackers
     nanorex = find_or_make_Nanorex_directory()
     global dbname
-    _shelfname = unicode(os.path.join( nanorex, "Preferences", "%s-shelf" % dbname ))
+    _shelfname = str_or_unicode(os.path.join( nanorex, "Preferences", "%s-shelf" % dbname ))
         # This name should differ when db format differs.
         # Note: the actual filename used might have an extension added
         # by the db module (in theory, it might even create two files
