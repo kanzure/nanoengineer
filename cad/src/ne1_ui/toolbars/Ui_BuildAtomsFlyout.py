@@ -81,8 +81,8 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         separator1.setSeparator(True)
         subControlAreaActionList.append(separator1) 
         
-        subControlAreaActionList.append(self.depositAtomsAction)        
-        subControlAreaActionList.append(self.transmuteBondsAction)      
+        subControlAreaActionList.append(self.atomsToolAction)        
+        subControlAreaActionList.append(self.bondsToolAction)      
         separator = QAction(self.win)
         separator.setSeparator(True)
         subControlAreaActionList.append(separator) 
@@ -162,26 +162,26 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         #Defining them outside that method as those are being used
         #by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
                 
-        self.depositAtomsAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.depositAtomsAction.setText("Atoms Tool")
-        self.depositAtomsAction.setIcon(geticon(
+        self.atomsToolAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.atomsToolAction.setText("Atoms Tool")
+        self.atomsToolAction.setIcon(geticon(
             'ui/actions/Toolbars/Smart/Deposit_Atoms.png'))
-        self.depositAtomsAction.setCheckable(True)
-        self.depositAtomsAction.setChecked(True)
-        self.depositAtomsAction.setObjectName('ACTION_ATOMS_TOOL')
+        self.atomsToolAction.setCheckable(True)
+        self.atomsToolAction.setChecked(True)
+        self.atomsToolAction.setObjectName('ACTION_ATOMS_TOOL')
         
                 
-        self.transmuteBondsAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.transmuteBondsAction.setText("Bonds Tool")
-        self.transmuteBondsAction.setIcon(geticon(
+        self.bondsToolAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.bondsToolAction.setText("Bonds Tool")
+        self.bondsToolAction.setIcon(geticon(
             'ui/actions/Toolbars/Smart/Transmute_Bonds.png'))
-        self.transmuteBondsAction.setCheckable(True)
-        self.transmuteBondsAction.setObjectName('ACTION_BOND_TOOL')
+        self.bondsToolAction.setCheckable(True)
+        self.bondsToolAction.setObjectName('ACTION_BOND_TOOL')
         
         self.subControlActionGroup = QActionGroup(parentWidget)
         self.subControlActionGroup.setExclusive(True)   
-        self.subControlActionGroup.addAction(self.depositAtomsAction)   
-        self.subControlActionGroup.addAction(self.transmuteBondsAction)
+        self.subControlActionGroup.addAction(self.atomsToolAction)   
+        self.subControlActionGroup.addAction(self.bondsToolAction)
         
         self.transmuteAtomsAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.transmuteAtomsAction.setText("Transmute Atoms")
@@ -242,9 +242,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
                        ]:
             self.bondToolsActionGroup.addAction(action)
             action.setCheckable(True)
-                    
-        
-        
+
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -268,8 +266,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         change_connect(self.bondToolsActionGroup,
                        SIGNAL("triggered(QAction *)"), 
                        self.command.changeBondTool)
-                
-        
+                        
         change_connect(self.transmuteAtomsAction,
                         SIGNAL("triggered()"),self.command.transmutePressed)
                        
@@ -277,11 +274,11 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
                        SIGNAL("triggered(QAction *)"),
                        self.updateCommandToolbar)
         
-        change_connect(self.transmuteBondsAction, 
+        change_connect(self.bondsToolAction, 
                        SIGNAL("triggered()"), 
                        self._activateBondsTool)
         
-        change_connect(self.depositAtomsAction, 
+        change_connect(self.atomsToolAction, 
                        SIGNAL("triggered()"), 
                        self._activateAtomsTool)    
         
@@ -293,7 +290,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         active tool)
         @see: BuildAtoms_GraphicsMode.update_cursor_for_no_MB_selection_filter_disabled
         """
-        if self.depositAtomsAction.isChecked(): 
+        if self.atomsToolAction.isChecked(): 
             cursor_id = 0
         elif self.bond1Action.isChecked(): 
             cursor_id = 1
