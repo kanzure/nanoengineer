@@ -84,7 +84,7 @@ class BuildDna_EditCommand(EditCommand):
         @see: EditCommand.command_enter_flyout()
         """
         if self.flyoutToolbar is None:
-            self.flyoutToolbar = DnaFlyout(self)
+            self.flyoutToolbar = self._createFlyoutToolBarObject()
 
         self.flyoutToolbar.activateFlyoutToolbar()
                 
@@ -95,6 +95,17 @@ class BuildDna_EditCommand(EditCommand):
         """
         if self.flyoutToolbar:
             self.flyoutToolbar.deActivateFlyoutToolbar()
+            
+    def _createFlyoutToolBarObject(self):
+        """
+        Create a flyout toolbar to be shown when this command is active. 
+        Overridden in subclasses. 
+        @see: PasteFromClipboard_Command._createFlyouttoolBar()
+        @see: self.command_enter_flyout()
+        """
+        flyoutToolbar = DnaFlyout(self) 
+        return flyoutToolbar
+    
             
             
     #=== END   NEW COMMAND API methods  ========================================
