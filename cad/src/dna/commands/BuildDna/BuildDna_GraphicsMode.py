@@ -19,6 +19,9 @@ from geometry.VQT import V, Q, A, norm, vlen
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 from utilities.debug import print_compact_traceback
 import math
+import foundation.env as env
+
+from utilities.prefs_constants import cursorTextFontSize_prefs_key
 
 from graphics.drawing.drawDnaLabels import draw_dnaBaseNumberLabels
 
@@ -635,11 +638,13 @@ class BuildDna_GraphicsMode(
                 if position is None:
                     self.glpane.renderTextNearCursor(text,
                                                      offset = 30,
-                                                     color = textColor)
+                                                     textColor = textColor,
+                                                     fontSize = env.prefs[cursorTextFontSize_prefs_key])
                 else:
-                    self.glpane.renderTextAtPosition( position,
-                                                      text, 
-                                                      textColor = textColor)
+                    self.glpane.renderTextAtPosition(position,
+                                                     text, 
+                                                     textColor = textColor,
+                                                     fontSize = env.prefs[cursorTextFontSize_prefs_key])
     
     
     def _drawLabels(self):

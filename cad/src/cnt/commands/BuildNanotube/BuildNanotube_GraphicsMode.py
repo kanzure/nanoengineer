@@ -78,7 +78,7 @@ class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
                 text , textColor = self.command.getCursorText()
                 self.glpane.renderTextNearCursor(text,
                                                  offset = 30,
-                                                 color = textColor)
+                                                 textColor = textColor)
 
 
 

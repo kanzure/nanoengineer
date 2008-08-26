@@ -134,6 +134,7 @@ originAxisColor_prefs_key = 'V111/Origin Axis Color'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 povAxisColor_prefs_key = 'V111/Point of View Axis Color'
 displayConfirmationCorner_prefs_key = 'V111/Display POV Axis'
+enableAntiAliasing_prefs_key = 'V120/Full screen anti-aliasing'
 defaultProjection_prefs_key = 'A7/Default Projection'
 animateHighQualityGraphics_prefs_key = 'A7/Animate with High Quality Graphics' #mark 060315. NIY.
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
@@ -151,7 +152,10 @@ rulerOpacity_prefs_key = 'A10/Ruler Opacity'
 showRulersInPerspectiveView_prefs_key = 'A10/Show Rulers In Perspective View'
 fogEnabled_prefs_key = "V110/Enable fog"
 
-
+# Cursor text prefs on "Graphics Area" page.
+cursorTextFontSize_prefs_key = "V120/Cursor text font size"
+cursorTextColor_prefs_key = "V120/Cursor text color"
+     
 #General preferences for copy-paste operation (see ops_copy_mixin._pasteGroup
 #for detail) Feature introduced in v1.1.0, on 2008-06-06
 pasteOffsetScaleFactorForChunks_prefs_key = 'V110/Scale factor is used to offset chunks to be pasted w.r.t. original chunks'
@@ -618,6 +622,7 @@ prefs_table = (
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, False),
     ('', 'color', povAxisColor_prefs_key, darkgreen),
     ('', 'boolean', displayConfirmationCorner_prefs_key, True),
+    ('', 'boolean', enableAntiAliasing_prefs_key, False),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
     ('animate_high_quality', 'boolean', animateHighQualityGraphics_prefs_key, True), # Mark 060315. NIY.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
@@ -626,6 +631,10 @@ prefs_table = (
     ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diBALL), # Mark 060815 diTUBES; revised Ninad 080423 diBALL
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
+    
+    # Cursor text preferences (located on "Graphics Area" page).
+    ('', 'int', cursorTextFontSize_prefs_key, 11), 
+    ('', 'color', cursorTextColor_prefs_key, black ),
 
     #Paste offset scale factor preferences (see Ops_copy_Mixin._pasteGroup)
     ('paste offset scale for chunks', 'float', 

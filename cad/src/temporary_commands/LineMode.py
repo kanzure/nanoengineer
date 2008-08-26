@@ -29,6 +29,7 @@ from geometry.VQT import vlen, norm, angleBetween, V, ptonline
 
 import foundation.env as env
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
+from utilities.prefs_constants import cursorTextFontSize_prefs_key
 
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
@@ -404,7 +405,7 @@ class LineMode_GM( Select_GraphicsMode ):
                 self._drawCursorText()
 
     def _drawCursorText(self):
-        """"
+        """
         """       
         if self.endPoint1 is None or self.endPoint2 is None:
             return
@@ -427,7 +428,9 @@ class LineMode_GM( Select_GraphicsMode ):
             dist = vlen(vec)
             self.text = "%5.2fA, %5.2f deg"%(dist, theta)
 
-        self.glpane.renderTextNearCursor(self.text, color = textColor)
+        self.glpane.renderTextNearCursor(self.text, 
+                                         textColor = textColor,
+                                         fontSize = env.prefs[cursorTextFontSize_prefs_key])
 
 
     def leftUp(self, event):

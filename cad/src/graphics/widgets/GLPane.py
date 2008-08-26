@@ -691,7 +691,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
             ctrl_or_cmd = "Ctrl"
 
         glpaneText = \
-                   "<u><b>3D Graphics Area</b></u><br> "\
+                   "<u><b>Graphics Area</b></u><br> "\
                    "<br>This is where the action is."\
                    "<p><b>Mouse Button Commands :</b><br> "\
                    "<br> "\
@@ -702,9 +702,11 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                    "<br> "\
                    "<b>Middle Mouse Button (MMB)</b> - Rotate view <br> "\
                    "<b>MMB + Shift</b> - Pan view <br> "\
-                   "<b>MMB + " + ctrl_or_cmd + "</b> - Rotate view around POV Axis <br> "\
+                   "<b>MMB + " + ctrl_or_cmd + "</b> - Rotate view around the point of view (POV) <br> "\
                    "<br> "\
-                   "<b>Right Mouse Button (RMB)</b> - Display context-sensitive menus "\
+                   "<b>Right Mouse Button (RMB)</b> - Display context-sensitive menus <br>"\
+                   "<br> "\
+                   "<b>Mouse Wheel</b> - Zoom in/out (configurable from Preference settings)"\
                    "</p>"
 
         self.setWhatsThis(glpaneText)
@@ -777,11 +779,11 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
             # -- yes [Ninad 2008-08-20]
         glEnable(GL_LIGHTING)        
 
-
     def renderTextNearCursor(self, 
                              textString, 
                              offset = 10, 
-                             color = (0, 0, 0)):
+                             textColor = black,
+                             fontSize = 11):
         """
         Renders text near the cursor position, on the top right side of the
         cursor (slightly above it).
@@ -805,9 +807,8 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
 
         #Extra precaution if the caller passes a junk value such as None
         #for the color
-        if not isinstance(color, tuple) or isinstance(color, list):
-            color = (0, 0, 0)
-
+        if not isinstance(textColor, tuple) and isinstance(textColor, list):
+            textColor = black
 
         pos = self.cursor().pos()  
         
@@ -843,7 +844,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         yLimit = pos.y()
         
         textString = QString(textString)
-        font = self._getFontForTextNearCursor(fontSize = 11, 
+        font = self._getFontForTextNearCursor(fontSize = fontSize,
                                               isBold = True)
         
         #Now determine the total x and y pixels used to render the text 
@@ -875,7 +876,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         #background color
         bg_color = lightgray
         #Foreground color 
-        fg_color = black
+        fg_color = textColor
         
         for dx, dy in deltas_for_bg_color: 
             self.qglColor(RGBf_to_QColor(bg_color)) 

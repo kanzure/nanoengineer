@@ -48,6 +48,7 @@ from utilities.prefs_constants import displayCompass_prefs_key
 from utilities.prefs_constants import displayCompassLabels_prefs_key
 from utilities.prefs_constants import displayPOVAxis_prefs_key
 from utilities.prefs_constants import displayConfirmationCorner_prefs_key
+from utilities.prefs_constants import enableAntiAliasing_prefs_key
 from utilities.prefs_constants import animateStandardViews_prefs_key
 from utilities.prefs_constants import displayVertRuler_prefs_key
 from utilities.prefs_constants import displayHorzRuler_prefs_key
@@ -216,6 +217,10 @@ from utilities.prefs_constants import displayFont_prefs_key
 from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
 from utilities.prefs_constants import indicateOverlappingAtoms_prefs_key
 from utilities.prefs_constants import fogEnabled_prefs_key
+
+# Cursor text prefs.
+from utilities.prefs_constants import cursorTextFontSize_prefs_key
+from utilities.prefs_constants import cursorTextColor_prefs_key
 
 #global display preferences
 from utilities.constants import diDEFAULT ,diTrueCPK, diLINES
@@ -667,7 +672,20 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
         
         connect_checkbox_with_boolean_pref( self.display_confirmation_corner_checkbox, displayConfirmationCorner_prefs_key )
-
+        connect_checkbox_with_boolean_pref( self.enable_antialiasing_checkbox, enableAntiAliasing_prefs_key )
+        
+        # Cursor text font point size spinbox
+        self.connect(self.cursorTextFontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_cursorTextFontSize)
+        
+        # Cursor text font size reset button.
+        self.connect(self.cursorTextFontSizeResetButton, SIGNAL("clicked()"), self.reset_cursorTextFontSize)
+        self.cursorTextFontSizeResetButton.setIcon(geticon('ui/dialogs/Reset.png'))
+        self.cursorTextFontSizeSpinBox.setValue(env.prefs[ cursorTextFontSize_prefs_key ] )
+        self.change_cursorTextFontSize(env.prefs[cursorTextFontSize_prefs_key]) # Needed to update the reset button.
+        
+        # Cursor text color
+        connect_colorpref_to_colorframe(cursorTextColor_prefs_key, self.cursorTextColorFrame)
+        self.connect(self.cursorTextColorButton, SIGNAL("clicked()"), self.change_cursorTextColor)
         return
 
     def _setupPage_ZoomPanRotate(self):
@@ -1569,6 +1587,34 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # update the glpane
         self.glpane.compassPosition = val
         self.glpane.gl_update()
+        return
+    
+    # "Cursor text" slots (on Graphics Area page)
+    
+    def change_cursorTextColor(self):
+        """
+        Change the cursor text color.
+        """
+        self.usual_change_color( cursorTextColor_prefs_key)
+        return
+    
+    def change_cursorTextFontSize(self, ptSize):
+        """
+        Change the cursor text font size.
+        """
+        env.prefs[ cursorTextFontSize_prefs_key ] = ptSize
+        self._updateResetButton(self.cursorTextFontSizeResetButton, cursorTextFontSize_prefs_key)
+        return
+    
+    def reset_cursorTextFontSize(self):
+        """
+        Slot called when pressing the Font size reset button.
+        Restores the default value.
+        """
+        env.prefs.restore_defaults([cursorTextFontSize_prefs_key])
+        self.cursorTextFontSizeSpinBox.setValue(env.prefs[cursorTextFontSize_prefs_key])
+    
+    # End "Cursor text" slots.
 
     def change_pasteOffsetScaleFactorForChunks(self, val):
         """
@@ -3375,7 +3421,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] = value
 
     ########## End of slot methods for "ToolTips" page widgets ###########
-
+    
     ########## Slot methods for "Window" (former name "Caption") page widgets ################
 
     #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]

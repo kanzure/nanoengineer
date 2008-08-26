@@ -58,6 +58,7 @@ from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_le
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key
+from utilities.prefs_constants import cursorTextColor_prefs_key
 
 
 _superclass = EditCommand
@@ -589,14 +590,14 @@ class DnaDuplex_EditCommand(EditCommand):
         This is used as a callback method in DnaLine mode 
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
+        text = ''
+        textColor = env.prefs[cursorTextColor_prefs_key]
+        
         if endPoint1 is None or endPoint2 is None:
-            return '', black
+            return text, textColor
 
         if not env.prefs[dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key]:
-            return '', black
-
-        text = ''        
-        textColor = black
+            return text, textColor
 
         numberOfBasePairsString = ''
         numberOfTurnsString = ''

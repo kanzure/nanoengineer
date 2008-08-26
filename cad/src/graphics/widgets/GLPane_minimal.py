@@ -23,6 +23,7 @@ from model.NamedView import NamedView
 
 from utilities.prefs_constants import undoRestoreView_prefs_key
 from utilities.prefs_constants import startup_GLPane_scale_prefs_key
+from utilities.prefs_constants import enableAntiAliasing_prefs_key
 
 from utilities.constants import default_display_mode
 
@@ -99,8 +100,11 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
     permit_draw_bond_letters = True #bruce 071023
 
-    useMultisample = debug_pref("GLPane: full scene anti-aliasing (next session)?", 
-                                Choice_boolean_False, prefs_key = True)
+    #@ Marked for removal. Mark 2008-08-26
+    #useMultisample = debug_pref("GLPane: full scene anti-aliasing (next session)?", 
+    #                            Choice_boolean_False, prefs_key = True)
+    
+    useMultisample = env.prefs[enableAntiAliasing_prefs_key]
         
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
