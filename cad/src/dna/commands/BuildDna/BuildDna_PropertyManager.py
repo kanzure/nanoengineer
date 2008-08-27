@@ -23,7 +23,7 @@ from utilities import debug_flags
 from utilities.debug import print_compact_stack
 
 from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import QString
+
 
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_PushButton    import PM_PushButton
@@ -38,6 +38,8 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 from PM.PM_DnaBaseNumberLabelsGroupBox import PM_DnaBaseNumberLabelsGroupBox
+
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 DEBUG_CHANGE_COUNTERS =  False
 class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -150,14 +152,20 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         opened or closed, depending on the bool_enable. 
         
         """
-        #TODO: This is bad. It would have been much better to enable/disable 
-        #gui actions using a API method in command/commandSequencer which gets 
-        #called when you enter another command exiting or suspending the 
-        #previous one. . At present. it doesn't exist (first needs cleanup in 
-        #command/command sequencer (Done and other methods._)-- Ninad 2008-01-09
-        if hasattr(self.command, 'flyoutToolbar') and \
-           self.command.flyoutToolbar:            
-            self.command.flyoutToolbar.exitModeAction.setEnabled(not bool_enable)
+        #For new command API, we will always show the exit button to check 
+        #if Exit button really exits the subcommand and the parent command 
+        #(earlier there were bugs) . Regaring 'whether this should be the 
+        #default behavior', its a UI design issue and we will worry about it 
+        #later -- Ninad 2008-08-27 (based on an email exchanged with Bruce)
+        if not USE_COMMAND_STACK:
+            #TODO: This is bad. It would have been much better to enable/disable 
+            #gui actions using a API method in command/commandSequencer which gets 
+            #called when you enter another command exiting or suspending the 
+            #previous one. . At present. it doesn't exist (first needs cleanup in 
+            #command/command sequencer (Done and other methods._)-- Ninad 2008-01-09
+            if hasattr(self.command, 'flyoutToolbar') and \
+               self.command.flyoutToolbar:            
+                self.command.flyoutToolbar.exitModeAction.setEnabled(not bool_enable)
             
                     
     def model_changed(self):
