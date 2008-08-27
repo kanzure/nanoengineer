@@ -214,6 +214,71 @@ class DnaDuplex_EditCommand(EditCommand):
         self._parentDnaGroup = None 
         self._fallbackDnaGroup = None
         self._segmentList = []
+        
+    #=== START   NEW COMMAND API methods  ======================================
+    #As of 2008-08-27, these are used as a debug pref only ('USE_COMMAND_STACK')
+    def command_entered(self):
+        """
+        Overrides superclass method. See superclass for documentation. 
+        """                 
+        _superclass.command_entered(self)
+        
+        if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
+            self._setParamsForDnaLineGraphicsMode()
+            self.mouseClickPoints = []
+
+        #Clear the segmentList as it may still be maintaining a list of segments
+        #from the previous run of the command. 
+        self._segmentList = []
+        
+        if self.parentCommand.commandName == self.command_parent:
+            params = self.parentCommand.provideParamsForTemporaryMode_in_BuildDna()
+                #bruce 080801 revised this; that method should be renamed
+            self._parentDnaGroup = params
+        else:
+            #Should this be an assertion? Should we always kill _parentDnaGroup
+            #if its not None? ..not a good idea. Lets just make it to None. 
+            self._parentDnaGroup = None             
+            self._createFallbackDnaGroup()
+            
+        self.updateDrawingPlane(plane = None)
+                
+    def command_will_exit(self):
+        """
+        Overrides superclass method. See superclass for documentation. 
+        """          
+        _superclass.command_will_exit(self)
+        
+        if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
+            self.mouseClickPoints = []
+
+        self.graphicsMode.resetVariables()   
+        
+        self._parentDnaGroup = None 
+        self._fallbackDnaGroup = None
+        self._segmentList = []
+        
+        
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_enter_flyout()
+        """
+        self._init_gui_flyout_action( 'dnaDuplexAction' )
+        
+                
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_exit_flyout()
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.dnaDuplexAction.setChecked(False)
+            
+    
+    
+                        
+    #=== END   NEW COMMAND API methods  ========================================
 
 
     def runCommand(self):
