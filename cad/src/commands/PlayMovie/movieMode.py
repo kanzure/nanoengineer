@@ -47,19 +47,24 @@ class _MovieRewindDialog(QDialog):
         self.text_browser.setObjectName("movie_warning_textbrowser")
         self.text_browser.setMinimumSize(400, 40)
         self.setWindowTitle('Rewind your movie?')
-        self.text_browser.setPlainText(
-            "You may want to rewind the movie now. If you save the part without "
-            "rewinding the movie, the movie file will become invalid because it "
-            "depends upon the initial atom positions. The atoms move as the movie "
+        self.text_browser.setPlainText( #bruce 080827 revised text
+            "You may want to rewind the movie now. The atoms move as the movie "
             "progresses, and saving the part without rewinding will save the "
             "current positions, which is sometimes useful, but will make the "
-            "movie invalid." )
+            "movie invalid, because .dpb files only store deltas relative to "
+            "the initial atom positions, and don't store the initial positions "
+            "themselves." )
         self.ok_button = QPushButton(self)
         self.ok_button.setObjectName("ok_button")
         self.ok_button.setText("Rewind movie")
         self.cancel_button = QPushButton(self)
         self.cancel_button.setObjectName("cancel_button")
-        self.cancel_button.setText("No thanks")
+        self.cancel_button.setText("Exit command without rewinding") #bruce 080827 revised text
+            # Note: this is not, in fact, a cancel button --
+            # there is no option in the caller to prevent exiting the command.
+            # There is also no option to "forward to final position",
+            # though for a minimize movie, that might be most useful.
+            # [bruce 080827 comment]
         layout = QGridLayout(self)
         layout.addWidget(self.text_browser, 0, 0, 0, 1)
         layout.addWidget(self.ok_button, 1, 0)
@@ -123,7 +128,12 @@ class movieMode(basicMode):
         if it's not at the beginning. (Doesn't offer to prevent
         exit, only to rewind or not when exit is done.)
         """
-        self._offer_to_rewind_if_necessary()
+        if USE_COMMAND_STACK:
+            ask = not self.commandSequencer.exit_is_forced
+        else:
+            ask = True
+        if ask:
+            self._offer_to_rewind_if_necessary()
         
         basicMode.command_will_exit(self)
         return
@@ -140,7 +150,8 @@ class movieMode(basicMode):
         #  because before that, this is only called for Done or Cancel,
         #  not Abandon, I think.)
         #
-        # A possible fix is for Open to first exit all current commands,
+        # A possible fix is for Open to first exit all current commands
+        # (by implicit Done, as when changing to some unrelated command),
         # before even doing the check. There are better, more complex fixes,
         # e.g. checking for changes to ask about saving (or for the need to
         # ask other questions before exit) by asking all commands on the stack.
@@ -148,8 +159,16 @@ class movieMode(basicMode):
         
         movie = self.o.assy.current_movie
         if movie and movie.currentFrame != 0:
+            # note: if the movie file stores absolute atom positions,
+            # there is no need to call this. Currently, we only support
+            # .dpb files, which don't store them.
+            # note: if we entered this on a nonzero frame, it might
+            # be more useful to compare to and offer to rewind to
+            # that frame (perhaps in addition to frame 0).
+            # [bruce 080827 comments]
             mrd = _MovieRewindDialog(movie)
                 # rewind (by calling movie._reset()), if user desires it
+                # (see text and comments in that class)
             mrd.exec_()
         return
     
@@ -162,6 +181,7 @@ class movieMode(basicMode):
     #START new command API methods =============================================
     #currently [2008-08-21 ] also called in by self.init_gui and 
     #self.restore_gui.
+    # see also command_will_exit, elsewhere in this file
     
     def command_enter_PM(self):
         """
@@ -308,7 +328,7 @@ class movieMode(basicMode):
         flyoutToolbar = PlayMovieFlyout(self) 
         return flyoutToolbar 
     
-    #START new command API methods =============================================
+    #END new command API methods =============================================
     
     def enableMovieControls(self, enabled = True):
         self.propMgr.enableMovieControls(enabled)
