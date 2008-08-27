@@ -60,6 +60,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
     def init_gui(self):
         """
         """
+        print "*** in SelectChunks_command.init_gui"
         self.w.toolsSelectMoleculesAction.setChecked(True)
         #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
         #portion) doesn't get updated even when in the default mode. 
@@ -70,6 +71,24 @@ class SelectChunks_basicCommand(Select_basicCommand):
         """
         """
         self.w.toolsSelectMoleculesAction.setChecked(False)
+        
+    #START: New Command API methods. ==========================================
+        
+    def command_enter_flyout(self):
+        print "*** in SelectChunks_command.command_enter_flyout"
+        #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
+        #portion) doesn't get updated even when in the default mode. 
+        self.win.commandToolbar.resetToDefaultState()
+        
+    def command_enter_misc_actions(self):
+        self.w.toolsSelectMoleculesAction.setChecked(True)
+    
+    def command_exit_misc_actions(self):
+        self.w.toolsSelectMoleculesAction.setChecked(False)
+                 
+        
+    #END: New Command API methods. ==========================================
+        
     
     
     call_makeMenus_for_each_event = True
