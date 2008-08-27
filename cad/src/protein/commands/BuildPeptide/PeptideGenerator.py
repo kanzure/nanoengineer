@@ -27,7 +27,9 @@ from model.chunk import Chunk
 from model.bond_constants import V_DOUBLE, V_AROMATIC
 from operations.bonds_from_atoms import inferBonds
 
-from protein.model.Protein import Residue, Protein, SS_HELIX, SS_STRAND, SS_COIL
+from protein.model.Protein import Protein 
+from protein.model.Residue import Residue
+from protein.model.Residue import SS_HELIX, SS_STRAND, SS_COIL
 
 from Numeric import zeros, sqrt, pi, sin, cos, Float
 from geometry.VQT import Q, V, norm, vlen, cross, angleBetween

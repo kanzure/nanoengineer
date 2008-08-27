@@ -49,7 +49,8 @@ from utilities.debug import print_compact_traceback
 from utilities.Log import orangemsg, greenmsg, redmsg
 import foundation.env as env
 
-from protein.model.Protein import SS_HELIX, SS_COIL, SS_STRAND
+from protein.model.Residue import Residue
+from protein.model.Residue import SS_HELIX, SS_COIL, SS_STRAND
 
 # list of button descriptors for PM_ToolButtonGrid
 
@@ -113,7 +114,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
                 
     def updateMessageGroupBox(self):
        
-        msg = "Click on the Amino Acid buttons to add a new residuum to " \
+        msg = "Click on the Amino Acid buttons to add a new residue to " \
             "the polypeptide chain. Click <b>Done</b> to insert it into the project."
 
         # This causes the "Message" box to be displayed as well.
@@ -272,6 +273,8 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         Slot for Peptide Structure Type combobox.
         Changes phi/psi angles for secondary structure.
         """
+        print "edit_command = ", self.command
+        
         self.ss_idx = idx
 
         if idx == 0:
@@ -300,7 +303,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         elif idx == 5: # polyprolin-II
             self.phi = -75.0
             self.psi = 150.0
-            self.secondary = SS_HELIX
+            self.secondary = SS_COIL
         elif idx == 6: # fully extended
             self.phi = -180.0
             self.psi = 180.0

@@ -3,6 +3,8 @@
 """
 Residue.py -- Residue class implementation.
 
+Residue class stores information on individual amino acids of a protein
+chain. 
 
 @author: Piotr
 $Id$
@@ -13,13 +15,205 @@ History:
 piotr 082708: Re-factored the Residue class out of Protein.py file.
 """
 
-# Renamed this to "Residue" (which is a proper spelling, compared to "Residue",
-# as Eric D has pointed out in his email).
+# Renamed this class to "Residue" (which is a proper spelling, opposite 
+# to "Residuum", as Eric D has pointed out in his email).
 
-# piotr 082008: This class should be re-factored and moved to its own file.
-# piotr 082708: The re-factoring completed.
+# piotr 082708: The class was re-factored and moved to itsown file.
 
-from protein.model.Protein import AA_3_TO_1
+# 3-letter to 1-letter amino acid name conversion
+# The three-letter names are used to distinguish "protein" from "non-protein"
+# residues in PDB reading code.
+AA_3_TO_1 = {
+    'ALA':'A', # 20 standard amino acids
+    'VAL':'V', 
+    'PHE':'F', 
+    'PRO':'P', 
+    'MET':'M',
+    'ILE':'I', 
+    'LEU':'L', 
+    'ASP':'D', 
+    'GLU':'E', 
+    'LYS':'K',
+    'ARG':'R', 
+    'SER':'S', 
+    'THR':'T', 
+    'TYR':'Y', 
+    'HIS':'H',
+    'CYS':'C', 
+    'ASN':'N', 
+    'GLN':'Q', 
+    'TRP':'W', 
+    'GLY':'G',
+    '2AS':'D', # Non-standard codes encountered in the PDB.
+    '3AH':'H', # Usually, these codes correspond to modified residues 
+    '5HP':'E', # and are only used by the Protein class to convert between 
+    'ACL':'R', # three- and single- letter representations. 
+    'AIB':'A',
+    'ALM':'A', 
+    'ALO':'T', 
+    'ALY':'K', 
+    'ARM':'R', 
+    'ASA':'D',
+    'ASB':'D', 
+    'ASK':'D', 
+    'ASL':'D', 
+    'ASQ':'D', 
+    'AYA':'A',
+    'BCS':'C', 
+    'BHD':'D', 
+    'BMT':'T', 
+    'BNN':'A', 
+    'BUC':'C',
+    'BUG':'L', 
+    'C5C':'C', 
+    'C6C':'C', 
+    'CCS':'C', 
+    'CEA':'C',
+    'CHG':'A', 
+    'CLE':'L', 
+    'CME':'C', 
+    'CSD':'A', 
+    'CSO':'C',
+    'CSP':'C', 
+    'CSS':'C', 
+    'CSW':'C', 
+    'CXM':'M', 
+    'CY1':'C',
+    'CY3':'C', 
+    'CYG':'C', 
+    'CYM':'C', 
+    'CYQ':'C', 
+    'DAH':'F',
+    'DAL':'A', 
+    'DAR':'R', 
+    'DAS':'D', 
+    'DCY':'C', 
+    'DGL':'E',
+    'DGN':'Q', 
+    'DHA':'A', 
+    'DHI':'H', 
+    'DIL':'I', 
+    'DIV':'V',
+    'DLE':'L', 
+    'DLY':'K', 
+    'DNP':'A', 
+    'DPN':'F', 
+    'DPR':'P',
+    'DSN':'S', 
+    'DSP':'D', 
+    'DTH':'T', 
+    'DTR':'W', 
+    'DTY':'Y',
+    'DVA':'V', 
+    'EFC':'C', 
+    'FLA':'A', 
+    'FME':'M', 
+    'GGL':'E',
+    'GLZ':'G', 
+    'GMA':'E', 
+    'GSC':'G', 
+    'HAC':'A', 
+    'HAR':'R',
+    'HIC':'H', 
+    'HIP':'H', 
+    'HMR':'R', 
+    'HPQ':'F', 
+    'HTR':'W',
+    'HYP':'P', 
+    'IIL':'I', 
+    'IYR':'Y', 
+    'KCX':'K', 
+    'LLP':'K',
+    'LLY':'K', 
+    'LTR':'W', 
+    'LYM':'K', 
+    'LYZ':'K', 
+    'MAA':'A',
+    'MEN':'N', 
+    'MHS':'H', 
+    'MIS':'S', 
+    'MLE':'L', 
+    'MPQ':'G',
+    'MSA':'G', 
+    'MSE':'M', 
+    'MVA':'V', 
+    'NEM':'H', 
+    'NEP':'H',
+    'NLE':'L', 
+    'NLN':'L', 
+    'NLP':'L', 
+    'NMC':'G', 
+    'OAS':'S',
+    'OCS':'C', 
+    'OMT':'M', 
+    'PAQ':'Y', 
+    'PCA':'E', 
+    'PEC':'C',
+    'PHI':'F', 
+    'PHL':'F', 
+    'PR3':'C', 
+    'PRR':'A', 
+    'PTR':'Y',
+    'SAC':'S', 
+    'SAR':'G', 
+    'SCH':'C', 
+    'SCS':'C', 
+    'SCY':'C',
+    'SEL':'S', 
+    'SEP':'S', 
+    'SET':'S', 
+    'SHC':'C', 
+    'SHR':'K',
+    'SOC':'C', 
+    'STY':'Y', 
+    'SVA':'S', 
+    'TIH':'A', 
+    'TPL':'W',
+    'TPO':'T', 
+    'TPQ':'A', 
+    'TRG':'K', 
+    'TRO':'W', 
+    'TYB':'Y',
+    'TYQ':'Y', 
+    'TYS':'Y', 
+    'TYY':'Y', 
+    'AGM':'R', 
+    'GL3':'G',
+    'SMC':'C', 
+    'ASX':'B', 
+    'CGU':'E', 
+    'CSX':'C', 
+    'GLX':'Z',
+    'UNK':'X' }
+
+# 3- TO 1-letter conversion for PDB nucleotide names
+NUC_3_TO_1 = {
+    ' DG':'G',
+    ' DA':'A',
+    ' DC':'C',
+    ' DT':'T',
+    ' DU':'U',
+    ' DI':'I',
+    '  G':'G',
+    '  A':'A',
+    '  T':'T',
+    '  U':'U',
+    '  C':'C',
+    '  I':'I' }
+    
+# Types of secondary structure as defined in PDB format.
+# There are various definitions of secondary structure in use.
+# The most common is a three-letter code: helix (H), extended (E),
+# coil (C). PDB distingushes a fourth type, turn (T) that corresponds
+# to the chain fragments that rapidly change direction, have
+# a hydrogen bond patter present, and are not helices nor strands.
+# Currently, the turns are not used for visualization purposes in NE1.
+
+SS_COIL = 0
+SS_HELIX = 1
+SS_STRAND = 2
+SS_TURN = 3
+
 
 # PDB atom name sets for chiral angles for amino acid side chains
 chi_angles = { "GLY" : [ None, 
@@ -610,15 +804,24 @@ class Residue:
         from geometry.VQT import norm, Q, V
         from math import pi, cos, sin
         
+        # Get a list of atoms to rotate.
         chi_atom_list = self.get_chi_atom_list(which)
         if chi_atom_list:
+            # Calculate a current chi torsion angle.
             angle0 = self.calc_torsion_angle(chi_atom_list)
+            # Calculate a difference between the current angle and 
+            # a requested chi angle.
             dangle = angle - angle0
             if abs(dangle) > 0.0:
+                # Vector we are rotating about is the vector connecting 
+                # two middle atoms of the chi angle atom list.
                 vec = norm(chi_atom_list[2].posn() - chi_atom_list[1].posn())
+                # Compute a list of atoms to rotate.
                 atom_list = self.get_atom_list_to_rotate(which)
                 first_atom_posn = chi_atom_list[1].posn()
                 for atom in atom_list:
+                    
+                    # Move the origin to the first atom.
                     pos = atom.posn() - first_atom_posn
                     
                     cos_a = cos(pi * (dangle / 180.0))
@@ -626,7 +829,7 @@ class Residue:
                     
                     q = V(0, 0, 0)
                     
-                    # rotate the point around a vector
+                    # Rotate the point around a vector
                     
                     q[0] += (cos_a + (1.0 - cos_a) * vec[0] * vec[0]) * pos[0];
                     q[0] += ((1.0 - cos_a) * vec[0] * vec[1] - vec[2] * sin_a) * pos[1];
@@ -642,9 +845,12 @@ class Residue:
                     q[2] += ((1.0 - cos_a) * vec[1] * vec[2] + vec[0] * sin_a) * pos[1];
                     q[2] += (cos_a + (1.0 - cos_a) * vec[2] * vec[2]) * pos[2];
     
+                    # Move the origin back to the previous position
                     q += first_atom_posn
                     
+                    # Set the atom position.
                     atom.setposn(q)
+                    
                     return angle
                 
         return None

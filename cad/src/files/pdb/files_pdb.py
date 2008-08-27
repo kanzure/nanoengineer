@@ -37,7 +37,8 @@ import foundation.env as env
 
 from utilities.constants import gensym
 
-from protein.model.Protein import Residue, Protein
+from protein.model.Protein import Protein
+from protein.model.Residue import Residue
 
 def _readpdb(assy, 
              filename, 
@@ -314,7 +315,15 @@ NUCLEIC_ATOM_TYPES = {
     " DG" : {
         "P"   : "sp3(phosphate)",
         "OP1" : "sp2(-.5)",
-        "OP2" : "sp2(-.5)" },
+        "OP2" : "sp2(-.5)",
+        "C4"  : "sp2b",
+        "C5"  : "sp2b", 
+        "C8"  : "sp2a",
+        "N7"  : "sp2a", 
+        "C2"  : "sp2a",
+        "N3"  : "sp2a", 
+        "C6"  : "sp2c",
+        "O6"  : "sp2c" },
     " DA" : {
         "P"   : "sp3(phosphate)",
         "OP1" : "sp2(-.5)",
@@ -736,6 +745,10 @@ def _readpdb_new(assy,
                 a = Atom(sym, A(xyz), mol)
 
             # Store PDB information in the Atom object pdb_info dict.
+            if not a.pdb_info:
+                # Create the pdb_info dictionary if it doesn't exist.
+                a.pdb_info = {}
+                
             a.pdb_info['atom_name'] = name4
             a.pdb_info['residue_id'] = resId
             a.pdb_info['residue_name'] = resName
