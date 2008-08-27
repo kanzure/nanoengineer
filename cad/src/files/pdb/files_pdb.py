@@ -399,6 +399,7 @@ def _readpdb_new(assy,
         Assigns an atom type based on atom name and residue name by
         simple name pattern matching.
         """
+        atom.setOverlayText(atom_name)
         _assigned = False
         ### print (res_name, atom_name)
         # Look for the atom type and set the type

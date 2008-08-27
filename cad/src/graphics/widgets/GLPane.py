@@ -717,6 +717,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                              position,
                              textString,
                              textColor = black,
+                             backgroundColor = gray,
                              textFont =  None, 
                              fontSize = 11
                              ):
@@ -753,30 +754,29 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
 
         glDisable(GL_LIGHTING)
         
-        #Convert the object coordinates to the window coordinates. This will 
-        #be used further to render the text near the clipping plane 
-        #(which in turn ensures its not obscured by any object drawing)
+        #Convert the object coordinates to the window coordinates.
         wX, wY, wZ = gluProject(x, y, z)
         
-        #Now use the window x and y coords (wX and wY) in gluUnProject, 
-        #but use the depth equal to 'just beyond' clipping plane to ensure 
-        #text visibility. 
-        p1 = A(gluUnProject(wX, wY, 0.0))            
-        
-        x = p1[0]
-        y = p1[1]
-        z = p1[2]
-        
         fg_color = textColor
-                    
-        self.qglColor(RGBf_to_QColor(fg_color)) 
-        self.renderText(x, y, z,
-                        QString(textString), 
-                        font)
-        
-        self.qglClearColor(RGBf_to_QColor(fg_color))
+        bg_color = backgroundColor
+        offset_val = 1
+
+        render_positions = (( offset_val,  offset_val, bg_color), 
+                            (-offset_val, -offset_val, bg_color), 
+                            (-offset_val,  offset_val, bg_color), 
+                            ( offset_val, -offset_val, bg_color),
+                            (          0,           0, fg_color))
+
+        for dx, dy, color in render_positions:
+            self.qglColor(RGBf_to_QColor(color)) 
+            self.renderText(wX + dx,
+                            self.height - wY + dy,
+                            QString(textString), 
+                            font)
+            self.qglClearColor(RGBf_to_QColor(color))
             # question: is this related to glClearColor? [bruce 071214 question]
             # -- yes [Ninad 2008-08-20]
+
         glEnable(GL_LIGHTING)        
 
     def renderTextNearCursor(self, 
@@ -3378,6 +3378,11 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         #k not sure whether _restore_modelview_stack_depth is also needed
         # in the split-out standard_repaint [bruce 050617]
 
+        self.displayOverlayText = debug_pref(
+            "GLPane: Display overlay text",
+            Choice_boolean_False,
+            non_debug = True,
+            prefs_key = True)
         self._restore_modelview_stack_depth()
 
         self._use_frustum_culling = use_frustum_culling()

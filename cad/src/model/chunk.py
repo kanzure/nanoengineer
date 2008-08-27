@@ -2205,7 +2205,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         
                     pass # end of the case where our "main display list (and all extra lists) needs to be remade"
 
-                if (self.chunkHasOverlayText):
+                if (glpane.displayOverlayText and self.chunkHasOverlayText):
                     self.renderOverlayText(glpane)
                 #@@ninad 070219 disabling the following--
                 #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
@@ -2242,11 +2242,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         return # from Chunk.draw()
 
     def renderOverlayText(self, glpane):
+        gotone = False
         for atom in self.atoms.itervalues():
             text = atom.overlayText
             if (text):
+                gotone = True
                 pos = atom.baseposn()
-                glpane.renderTextAtPosition(pos, text, white)
+                glpane.renderTextAtPosition(pos, text)
+        if (not gotone):
+            self.chunkHasOverlayText = False
 
 
     def _draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible):
@@ -4039,6 +4043,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         numol = self.__class__(mapping.assy, self.name)
             #bruce 080316 Chunk -> self.__class__ (part of fixing this for Extrude of DnaGroup)
         self.copy_copyable_attrs_to(numol) # copies .name (redundantly), .hidden, .display, .color...
+        if (self.chunkHasOverlayText):
+            numol.chunkHasOverlayText = True
         mapping.record_copy(self, numol)
         # also copy user-specified axis, center, etc, if we ever have those
         ## numol.setDisplay(self.display)
@@ -4261,6 +4267,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.copy_copyable_attrs_to(numol)
             # copies .name (redundantly), .hidden, .display, .color...
             # and sets .prior_part, which is what should fix bug 660
+        if (self.chunkHasOverlayText):
+            numol.chunkHasOverlayText = True
         numol.name = newname
         #end 050531 kluges
         nuatoms = {}

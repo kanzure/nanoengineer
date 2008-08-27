@@ -588,7 +588,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     iconPath = "ui/modeltree/Single_Atom.png"
 
     # Text to be drawn floating over the atom.  Note, you must also
-    # set chunk.chunkHasOverlayText for this to be used.
+    # set chunk.chunkHasOverlayText for this to be used.  Do this by
+    # just calling setOverlayText().
     overlayText = None
 
     # def __init__  is just below a couple undo-update methods
@@ -1052,6 +1053,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         undo_archive._undo_debug_obj = self
         undo_archive._undo_debug_message( '_undo_debug_obj = %r' % self )
         return
+
+    def setOverlayText(self, text):
+        self.overlayText = text
+        self.molecule.chunkHasOverlayText = True
     
     def __getattr__(self, attr): # in class Atom
         assert attr != 'xyz' # temporary: catch bugs in bruce 060308 rewrite
@@ -3274,6 +3279,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if self._PAM3plus5_Pl_Gv_data is not None:
             nuat._PAM3plus5_Pl_Gv_data = copy_val(self._PAM3plus5_Pl_Gv_data)
 
+        if (self.overlayText):
+            nuat.overlayText = self.overlayText
+
         # no need in new atoms for anything like
         # _changed_otherwise_Atoms[nuat.key] = nuat
         # [bruce 060322 guess ###@@@ #k]
@@ -3434,6 +3442,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             msg = "\nBUG?: hopmol(%r, %r) but self.molecule %r .assy %r != numol.assy %r" % \
                   (self, numol, self.molecule, self.molecule.assy, numol.assy)
             print_compact_stack(msg + ": ") #bruce 080411
+
+        # We only have to set this in the chunk, not clear it, as it
+        # is cleared by the display routine when needed.
+        if (self.overlayText):
+            numol.chunkHasOverlayText = True
+
         self.molecule.delatom(self) # this also invalidates our bonds
         numol.addatom(self)
         for atom in self.singNeighbors():

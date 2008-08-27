@@ -169,7 +169,6 @@ def insertin(assy, filename):
     dir, nodename = os.path.split(filename)
 
     mol = Chunk(assy, nodename)
-    mol.chunkHasOverlayText = True
 
     file = open(filename)
     lines = file.readlines()
@@ -199,7 +198,7 @@ def insertin(assy, filename):
 
             a = Atom(sym, A(xyz), mol)
             atoms[index] = a
-            a.overlayText = type
+            a.setOverlayText(type)
             if (na > 3):
                 a2 = atoms[na]
                 bond_atoms(a, a2)
