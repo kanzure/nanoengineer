@@ -153,7 +153,15 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
             change_connect(self.basesBeforeNextBreakSpinBox, 
                            SIGNAL("valueChanged(int)"), 
                            self.valueChanged_basesBeforeNextBreak)
-        
+            
+            
+    #New command API method -- implemented on 2008-08-27
+    def update_UI(self):
+        """
+        This method should replace model_changed() eventually. 
+        This is used with USE_COMMAND_STACK debug flag
+        """     
+        self.model_changed()          
         
     def model_changed(self): 
         """

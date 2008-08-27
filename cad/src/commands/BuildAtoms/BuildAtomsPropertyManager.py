@@ -121,6 +121,16 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
         connect_checkbox_with_boolean_pref(self.highlightingCheckBox, 
                                            buildModeHighlightingEnabled_prefs_key)
+        
+        
+    #New command API method -- implemented on 2008-08-27
+    def update_UI(self):
+        """
+        This method should replace model_changed() eventually. 
+        This is used with USE_COMMAND_STACK debug flag
+        """     
+        self.model_changed()  
+        
     def model_changed(self):
         """
         Overrides basicMode.model_changed.

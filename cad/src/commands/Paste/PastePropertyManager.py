@@ -55,6 +55,14 @@ class PastePropertyManager(BuildAtomsPropertyManager):
                  "workspace to paste the item shown in "\
                  "the <b> Preview </b> box. Click the check mark to exit Paste"
                  " Items")
+        
+    #New command API method -- implemented on 2008-08-27
+    def update_UI(self):
+        """
+        This method should replace model_changed() eventually. 
+        This is used with USE_COMMAND_STACK debug flag
+        """     
+        self.model_changed()  
     
     def model_changed(self):
         """

@@ -166,7 +166,15 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             if hasattr(self.command, 'flyoutToolbar') and \
                self.command.flyoutToolbar:            
                 self.command.flyoutToolbar.exitModeAction.setEnabled(not bool_enable)
-            
+                
+                
+    #New command API method -- implemented on 2008-08-27
+    def update_UI(self):
+        """
+        This method should replace model_changed() eventually. 
+        This is used with USE_COMMAND_STACK debug flag
+        """     
+        self.model_changed()            
                     
     def model_changed(self):
         """       
