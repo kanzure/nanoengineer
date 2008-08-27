@@ -447,7 +447,7 @@ class Residue:
         PDB atom names.
         """
         return [atom for atom in self.atom_list \
-                if self.get_atom_name() not in ['C', 'N', 'O', 'H', 'HA']]
+                if self.get_atom_name(atom) not in ['C', 'N', 'O', 'H', 'HA']]
 
     def get_three_letter_code(self):
         """
