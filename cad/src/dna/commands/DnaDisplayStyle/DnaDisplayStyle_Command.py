@@ -12,7 +12,7 @@ from utilities.constants import red
 from dna.commands.DnaDisplayStyle.DnaDisplayStyle_PropertyManager import DnaDisplayStyle_PropertyManager
 
 from graphics.drawing.drawDnaLabels import draw_dnaBaseNumberLabels
-
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -75,6 +75,51 @@ class DnaDisplayStyle_Command(EditCommand):
             
         if self.propMgr is not None:
             self.propMgr.close()
+            
+            
+     #START new command API methods =============================================
+        
+    def command_enter_PM(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_PM()  for documentation
+        """
+        #important to check for old propMgr object. Reusing propMgr object 
+        #significantly improves the performance.
+        if not self.propMgr:
+            self.propMgr = self._createPropMgrObject()
+            #@bug BUG: following is a workaround for bug 2494.
+            #This bug is mitigated as propMgr object no longer gets recreated
+            #for modes -- ninad 2007-08-29
+            changes.keep_forever(self.propMgr)  
+            
+        
+        if not USE_COMMAND_STACK:
+            self.propMgr.show()    
+            
+            
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_enter_flyout()
+        """
+        self._init_gui_flyout_action( 'editDnaDisplayStyleAction', 'BUILD_DNA')
+        
+                
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_exit_flyout()
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.orderDnaAction.setChecked(False)
+            
+            
+    def _createPropMgrObject(self):
+        propMgr = DnaDisplayStyle_PropertyManager(self)
+        return propMgr
+    
     
    
     def keep_empty_group(self, group):
