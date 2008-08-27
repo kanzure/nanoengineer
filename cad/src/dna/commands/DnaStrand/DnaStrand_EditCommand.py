@@ -176,6 +176,50 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #@see DnaSegment_EditCommand.init_gui() for a detailed note. 
         #This command implements similar thing 
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
+        
+        
+    #New Command API method -- implemented on 2008-08-27
+    def command_update_UI(self):
+        """
+        Overrides superclass method. 
+        This method should replace model_changed() eventually. This method 
+        copies most of the code in def model_changed. 
+        This is used with USE_COMMAND_STACK debug flag
+        @see: self.model_changed() 
+        """     
+        #This MAY HAVE BUG. WHEN --
+        #debug pref 'call model_changed only when needed' is ON
+        #See related bug 2729 for details. 
+
+        #The following code that updates te handle positions and the strand 
+        #sequence fixes bugs like 2745 and updating the handle positions
+        #updating handle positions in command_update_UI instead of in 
+        #self.graphicsMode._draw_handles() is also a minor optimization
+        #This can be further optimized by debug pref 
+        #'call command_update_UI only when needed' but its NOT done because of
+        #an issue mentioned in bug 2729   - Ninad 2008-04-07
+        
+        
+        if self.propMgr:
+            self.propMgr.update_UI()
+            
+        if self.grabbedHandle is not None:
+            return
+
+        #For Rattlesnake, PAM5 segment resizing  is not supported. 
+        #@see: self.hasResizableStructure()        
+        if self.hasValidStructure():
+            isStructResizable, why_not = self.hasResizableStructure()
+            if not isStructResizable:
+                self.handles = []
+                return
+            elif len(self.handles) == 0:
+                self._updateHandleList()
+
+            self.updateHandlePositions()
+            #NOTE: The following also updates self._previousParams
+            self._updateStrandSequence_if_needed()
+            
 
     def model_changed(self):
         #This MAY HAVE BUG. WHEN --
