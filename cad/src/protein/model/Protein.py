@@ -82,39 +82,39 @@ class Protein:
     
     def __init__(self):
 
-        # PDB indentifier of the protein, typically, a four character string
-        # of following format: "1abc"
-        self.pdbId = ""
-        
-        # Single-character chain identifier.
-        self.chainId = ''
-        
         # Dictionary that maps residue names to residue objects. 
         # The name "sequence" is confusing and should be changed 
         # to "residues". piotr 082008        
-        self.sequence = {}
+        self.residues = {}
         
         # Ordered list of amino acids.
-        self.amino_acid_list = []
+        self.residues_list = []
         
         # Ordered list of alpha carbon atoms. It should contain at least one atom.
         # This could be probably pre-calculated every time
         self.ca_atom_list = []
         
+        # Single-character chain identifier.
+        self.chainId = ''
+        
+        # PDB indentifier of the protein, typically, a four character string
+        # in the following format: "1abc"
+        self.pdbId = ""
+        
         # Index of "current" amino acid (used by Edit Rotamers command).
         self.current_aa_idx = 0
 
         # Display list for expanded rotamers, used by ProteinChunk.draw_realtime
+        # The purpose of this list is to speed up drawing of "expanded" rotamers,
+        # and avoid re-generating protein models in reduced display style 
+        # if a modification is made to side chain atoms and not to backbone 
+        # atoms (e.g. if a side chain chi angle was edited). 
+        # The idea is to allow for simultaneous displaying of atomistic
+        # (for expanded rotamers) and reduced (for backbone) representations.
+        # This implementation is wrong, as the display list is never properly
+        # deleted. This attribute could be moved to Chunk class, or implemented
+        # in a different way, so the list is deleted in current OpenGL context.
         self.residues_dl = None
-        
-        # List of aromatic atoms, used for bond type assignment in PDB reading
-        # code.
-        self.aromatic_atoms = []
-        
-        # List of sp2 atoms bonded with a single bond, used for bond type
-        # assignment in PDB reading code. If two atoms are "single bonded"
-        # and both are sp2, they should be bonded with a single bond.
-        self.single_bonded_atoms = []
         
     def set_chain_id(self, chainId):
         """
@@ -153,7 +153,7 @@ class Protein:
     def add_pdb_atom(self, atom, pdbname, resId, resName, setType=False):
         """
         Adds a new atom to the protein. Returns a residue that the atom
-        has been added to. Assigns the atom type.
+        has been added to. 
         
         @param atom: new atom to be added to the protein
         @type atom: Atom
@@ -173,16 +173,16 @@ class Protein:
         
         @return: residue the atom has been added to (Residue) 
         """
-        if self.sequence.has_key(resId):
+        if self.residues.has_key(resId):
             # Find an existing residue.
-            aa = self.sequence[resId]
+            aa = self.residues[resId]
         else:
             # This is a new residue.
             aa = Residue(resId, resName)
-            self.sequence[resId] = aa
+            self.residues[resId] = aa
             # Append the residue to amino acid list to have a properly ordered
             # list of amino acids.
-            self.amino_acid_list.append(aa)
+            self.residues_list.append(aa)
             
         # Add the atom to the residue.
         aa.add_atom(atom, pdbname)
@@ -191,31 +191,6 @@ class Protein:
         if pdbname == "CA":
             self.ca_atom_list.append(atom)
             
-        """
-        if setType:
-            _assigned = False
-            # Look for the atom type and set the type
-            if PROTEIN_ATOM_TYPES.has_key(resName):
-                atom_type_dict = PROTEIN_ATOM_TYPES[resName]
-                if atom_type_dict.has_key(pdbname):
-                    atom_type = atom_type_dict[pdbname]
-                    ### print (resName, pdbname, atom_type)
-                    if atom_type == "sp2s":
-                        atom.pdb_is_single_bonded = True
-                        atom_type = "sp2"
-                    if atom_type == "sp2a":
-                        atom.pdb_is_aromatic = True
-                        atom_type = "sp2"
-                    atom.set_atomtype_but_dont_revise_singlets(atom_type) 
-                    _assigned = True
-            if not _assigned:
-                # Look for common atom types (N, C, O)
-                atom_type_dict = PROTEIN_ATOM_TYPES["ANY"]
-                if atom_type_dict.has_key(pdbname):
-                    atom_type = atom_type_dict[pdbname]
-                    atom.set_atomtype_but_dont_revise_singlets(atom_type) 
-        """
-        
         return aa
     
     def is_atom_aromatic(self, atom):
@@ -383,7 +358,7 @@ class Protein:
         
         @return: list of residues
         """
-        return self.amino_acid_list
+        return self.residues_list
     
     def assign_helix(self, resId):
         """
@@ -392,8 +367,8 @@ class Protein:
         @param resId: residue ID for secondary structure assignment
         @type resId: int
         """
-        if self.sequence.has_key(resId):
-            aa = self.sequence[resId]
+        if self.residues.has_key(resId):
+            aa = self.residues[resId]
             aa.set_secondary_structure(SS_HELIX)
             
     def assign_strand(self, resId):
@@ -403,8 +378,8 @@ class Protein:
         @param resId: residue ID for secondary structure assignment
         @type resId: int
         """
-        if self.sequence.has_key(resId):
-            aa = self.sequence[resId]
+        if self.residues.has_key(resId):
+            aa = self.residues[resId]
             aa.set_secondary_structure(SS_STRAND)
             
     def assign_turn(self, resId):
@@ -414,8 +389,8 @@ class Protein:
         @param resId: residue ID for secondary structure assignment
         @type resId: int
         """
-        if self.sequence.has_key(resId):
-            aa = self.sequence[resId]
+        if self.residues.has_key(resId):
+            aa = self.residues[resId]
             aa.set_secondary_structure(SS_TURN)
             
     def expand_rotamer(self, aa):
@@ -445,7 +420,7 @@ class Protein:
         """
         self.residues_dl = None
         self.residues_hi_dl = None
-        for aa in self.sequence.values():
+        for aa in self.residues.values():
             aa.collapse()
         
     def expand_all_rotamers(self):
@@ -454,7 +429,7 @@ class Protein:
         """
         self.residues_dl = None
         self.residues_hi_dl = None
-        for aa in self.sequence.values():
+        for aa in self.residues.values():
             aa.expand()
         
     def get_residue(self, atom):
@@ -466,7 +441,7 @@ class Protein:
         
         @return: residue the atom belongs to, or None if not found
         """
-        for aa in self.sequence.itervalues():
+        for aa in self.residues.itervalues():
             if aa.has_atom(atom):
                 return aa
         
@@ -476,7 +451,7 @@ class Protein:
         """
         Increase an index of the current amino acid.
         """
-        if self.current_aa_idx < len(self.sequence)-1:
+        if self.current_aa_idx < len(self.residues)-1:
             self.current_aa_idx += 1
             return True
         return False
@@ -496,8 +471,8 @@ class Protein:
         
         @return: current amino acid (Residue)
         """
-        if self.current_aa_idx in range(len(self.sequence)):
-            return self.sequence.values()[self.current_aa_idx]
+        if self.current_aa_idx in range(len(self.residues)):
+            return self.residues.values()[self.current_aa_idx]
         return None
     
     def get_amino_acid_at_index(self, index):
@@ -511,8 +486,8 @@ class Protein:
         """
         #Urmi 20080728: created to do the two way connection between protein
         #sequence editor and residue combo box
-        if index in range(len(self.amino_acid_list)):
-            return self.amino_acid_list[index]
+        if index in range(len(self.residues_list)):
+            return self.residues_list[index]
         return None
     
     def get_current_amino_acid_index(self):
@@ -530,7 +505,7 @@ class Protein:
         @param index: index of current amino acid
         @type index: integer
         """
-        if index in range(len(self.amino_acid_list)):
+        if index in range(len(self.residues_list)):
             self.current_aa_idx = index
             
     def get_number_of_backrub_aa(self):
@@ -582,7 +557,7 @@ class Protein:
 # end of Protein class
 
 # piotr 082008: This and possibly several Rosetta-related methods of the Protein 
-# class should be re-factored and moved to a separate file.
+# class should be re-factored and moved to a separate file in simulations/ROSETTA.
     
 def write_rosetta_resfile(filename, chunk):
     """
