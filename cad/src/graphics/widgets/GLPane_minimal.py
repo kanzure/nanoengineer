@@ -105,6 +105,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     #                            Choice_boolean_False, prefs_key = True)
     
     useMultisample = env.prefs[enableAntiAliasing_prefs_key]
+
+    # default value so ThumbView doesn't complain about it.
+    displayOverlayText = False
         
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
