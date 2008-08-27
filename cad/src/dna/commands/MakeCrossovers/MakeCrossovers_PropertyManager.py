@@ -35,7 +35,7 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_MakeCrossoversPropertyManager
 from utilities.Log import orangemsg
 
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED, USE_COMMAND_STACK
 
 _superclass = PM_Dialog
 class MakeCrossovers_PropertyManager( PM_Dialog, 
@@ -213,6 +213,15 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
             text      = "Make All Crossovers",
             spanWidth = True )
         
+     #new command API method  
+    def update_UI(self):
+        """
+        This method should replace model_changed() eventually. 
+        This is used with USE_COMMAND_STACK debug flag
+        """
+        if USE_COMMAND_STACK: #just for safety
+            self.model_changed()
+               
 
     def model_changed(self): 
         """
