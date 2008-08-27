@@ -105,6 +105,12 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         prevMode = None #bruce 071011 added this initialization
     else:
         prevMode = property() # hopefully this causes errors on any access of it ### check this
+        # doc these:
+        exit_is_cancel = False
+        exit_is_forced = False
+        exit_is_implicit = False
+        exit_target = None
+        enter_target = None
 
     def __init__(self, assy): #bruce 080813
         assert not GLPANE_IS_COMMAND_SEQUENCER
@@ -279,7 +285,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
                 # exit current command
                 old_commandName = self.currentCommand.commandName
                 try:
-                    self.currentCommand._command_do_exit_if_ok( force = True)
+                    self._exit_currentCommand_with_flags( forced = True)
                 except:
                     print_compact_traceback()
                 if self._raw_currentCommand and \
@@ -311,6 +317,47 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             self.prevMode = None #bruce 080806
             return
         pass
+
+    def _exit_currentCommand_with_flags(self,
+                                        cancel = False,
+                                        forced = False,
+                                        implicit = False,
+                                        exit_target = None,
+                                        enter_target = None
+                                        ): #bruce 080827
+        """
+        Call self.currentCommand._f_command_do_exit_if_ok
+        (and return what it returns)
+        while setting attrs on self (only during this call)
+        based on the options passed (as documented below).
+
+        @param cancel: value for self.exit_is_cancel, default False
+        @param forced: value for self.exit_is_forced, default False
+        @param implicit: value for self.exit_is_implicit, default False
+        @param exit_target: value for self.exit_target, default None
+        @param enter_target: value for self.enter_target, default None
+        """
+        assert USE_COMMAND_STACK
+        assert self.currentCommand and self.currentCommand.parentCommand
+        # set attrs for telling command_will_exit what side effects to do
+        self.exit_is_cancel = cancel
+        self.exit_is_forced = forced
+        self.exit_is_implicit = implicit
+        # set attrs to let command_exit methods construct dialog text, etc
+        # (when used along with the other attrs)
+        self.exit_target = exit_target # a command, if we're exiting it as a goal ### FIX to featureName?
+        self.enter_target = enter_target # a commandName, if we're entering it as a goal ### FIX to featureName?
+        # exit the current command, return whether it worked
+        try:
+            res = self.currentCommand._f_command_do_exit_if_ok()
+        finally:
+            #TODO: except clause, protect callers (unless that method does it)
+            self.exit_is_cancel = False
+            self.exit_is_forced = False
+            self.exit_is_implicit = False
+            self.exit_target = None
+            self.enter_target = None
+        return res
     
     def remove_command_object(self, commandName): #bruce 080805
         try:
@@ -694,9 +741,10 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             if old_commandName == want_commandName:
                 # maybe: add option to avoid this check, for use on reloaded commands
                 break
-            if self._need_to_exit(self.currentCommand, want_command): ### IMPLEM, rename
+            if self._need_to_exit(self.currentCommand, want_command):
                 do_update = True # even if error
-                exited = self.currentCommand._command_do_exit_if_ok()
+                exited = self._exit_currentCommand_with_flags(implicit = True,
+                                                              enter_target = want_commandName)
                 assert exited == (old_commandName != self.currentCommand.commandName)
                     # review: zap retval and just use this condition?
                 if not exited:
@@ -744,7 +792,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
 
         return
 
-    def _need_to_exit(self, currentCommand, want_command): #bruce 080814
+    def _need_to_exit(self, currentCommand, want_command): #bruce 080814 # maybe: rename?
         """
         """
         return not allowed_parent( want_command, currentCommand )
@@ -782,6 +830,44 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             # entered (pushed on the command stack).
             return needs_parentName
         pass
+
+    def _f_exit_active_command(self, command, cancel = False, forced = False, implicit = False): #bruce 080827
+        """
+        Exit this command (which must be active), after first exiting
+        any subcommands it may have.
+
+        Do side effects appropriate to the options passed. For documentation
+        of their effects, see the callers which pass them, listed below.
+
+        @param command: the command it's our goal to exit.
+                        Saved as self.exit_target.
+        
+        @param cancel: @see: baseCommand.command_Cancel
+        
+        @param forced: @see: baseCommand.command_Abandon
+        
+        @param implicit: @see: baseCommand.command_Done
+        """
+        assert USE_COMMAND_STACK
+        assert command.command_is_active()
+        # exit commands, innermost (current) first, until we fail,
+        # or exit the command we were passed (our exit_target).
+        error = False
+        while not error:
+            old_command = self.currentCommand
+            exited = self._exit_currentCommand_with_flags( cancel = cancel,
+                                                           forced = forced,
+                                                           implicit = implicit,
+                                                           exit_target = command )
+            if not exited:
+                error = True
+                break
+            assert self.currentCommand is not old_command
+            if old_command is command:
+                # we're done
+                break
+            continue # exit more commands
+        return
 
     # ==
     
@@ -1193,7 +1279,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
 
     # ==
 
-    # update methods (tentative, UNTESTED) [bruce 080812] ###@@@ CALL ME
+    # update methods (tentative, UNTESTED) [bruce 080812]
 
     def _f_update_current_command(self): #bruce 080812
         """
@@ -1203,6 +1289,11 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         and current command UI.
         """
 
+        ### TODO: decide whether a command-stack update is required.
+
+        #### what if different active cmds disagree? what if request cmd messes up the one showing the PM? ####
+        
+        
         # update the command stack itself, and any current command state
         # which can affect that
         
@@ -1241,6 +1332,27 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         assert command is self.currentCommand, \
                "%r.command_update_UI() should not have changed " \
                "current command (to %r)" % (command, self.currentCommand)
+
+        # make sure the correct Property Manager is shown.
+        # (ideally this would be done by an update method in an object
+        #  whose job is to control the PM slot. TODO: refactor it that way.)
+
+        # note: we can't assume anything has kept track of which PM is shown,
+        # until all code to show or hide/close it is revised.
+        # So for now, just show it if the one in the UI seems to have changed.
+        old_PM = self.currentCommand._KLUGE_current_PM(get_old_PM = True)
+        desired_PM = self.currentCommand.propMgr
+        if desired_PM is not old_PM:
+            if old_PM:
+                try:
+                    old_PM.close() # might not be needed, if desired_PM is not None; ### REVIEW
+                except:
+                    # might happen for same reason as an existing common exception related to this...
+                    print "fyi: discarded exception in closing %r" % old_PM
+                    pass
+            if desired_PM:
+                desired_PM.show()
+            pass
 
         return
         

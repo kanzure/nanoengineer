@@ -47,6 +47,8 @@ from utilities.constants import yellow
 
 from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
 from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
 from utilities.prefs_constants import displayOriginAxis_prefs_key
@@ -183,16 +185,31 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def Enter_GraphicsMode(self):
         """
-        Things needed while entering the GraphicsMode (e.g. updating cursor,
-        setting some attributes etc).
-        This method is called in self.command.Enter
+        Perform side effects in self (a GraphicsMode) when entering it
+        or reentering it. Typically this involves resetting or initializing
+        state variables.
+
+        @note: if not USE_COMMAND_STACK, this calls self.update_cursor(),
+               but that ought to be unnecessary, so it's not done when
+               when USE_COMMAND_STACK is true, as it soon always will be.
+        
+        @note: when not USE_COMMAND_STACK, this method is called in
+               self.command.Enter. When USE_COMMAND_STACK, it's called
+               in self.command.command_entered.
+        
         @see: B{basicCommand.Enter}
+        @see: B{baseCommand.command_entered}
         """
         #NOTE: See a comment in basicCommand.Enter for things still needed
         # to be done
 
         self.picking = False
-        self.update_cursor()
+        if not USE_COMMAND_STACK:
+            # the call in glpane.update_after_new_graphicsMode ought to cover this
+            # (probably in both cases of USE_COMMAND_STACK, but for now I'll disable this
+            #  only in the new case; ultimately we can remove this call altogether)
+            # [bruce 080820 added condition] 
+            self.update_cursor()
 
     def isCurrentGraphicsMode(self): #bruce 071010, for GraphicsMode API
         """

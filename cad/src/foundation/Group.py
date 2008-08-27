@@ -266,6 +266,8 @@ class Group(NodeWithAtomContents):
         explicitly permit func, when called from our code, to itself call this method,
         supplying either the same func or a new one.)
         """
+        # note: this method is no longer used as of 080821, but it can remain,
+        # since it's still correct and potentially useful. [bruce 080821]
         if only_if_new and (func in self.__cmfuncs):
             return
         self.__cmfuncs.append( func) # might occur during use of same func!

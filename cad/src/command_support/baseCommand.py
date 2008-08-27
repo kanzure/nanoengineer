@@ -55,6 +55,9 @@ class baseCommand(object):
                  it's on top (aka current)).
         @rtype: boolean
         """
+        # note: this is not as robust a definition as might be hoped.
+        # iterating over the command stack and comparing the result
+        # might catch more bugs.
         return self.parentCommand is not None
 
     # - related to a command's property manager (PM)
@@ -71,23 +74,92 @@ class baseCommand(object):
     
     is_fixed_parent_command = classmethod(is_fixed_parent_command)
         # someday: check whether this can be called directly on the class object... probably not.
-    
+
+    def command_that_supplies_PM(self):
+        """
+        Return the innermost command (of self or its parent/grandparent/etc)
+        which supplies the PM when self is current. Note that this command
+        will supply a value of None for the PM, if self does.
+
+        Self must be an active command (on the command stack).
+
+        Print a warning if any PM encountered appears to
+        have .command set incorrectly.
+        """
+        # find innermost command whose .propMgr differs from its
+        # parent's .propMgr.
+        cseq = self.commandSequencer
+        commands = cseq.all_active_commands( starting_from = self )
+        res = None
+        for command in commands:
+            if not command.parentCommand or \
+               command.parentCommand.propMgr is not command.propMgr:
+                res = command
+                break
+        assert res # since outermost command has no parent
+        assert res.propMgr is self.propMgr # sanity check on algorithm
+        # check PM's command field
+        if res.propMgr:
+            ## assert res.propMgr.command is res, \
+            if not (res.propMgr.command is res):
+                print "\n*** BUG: " \
+                   "%r.PM %r has wrong .command %r, found from %r" % \
+                   (res, res.propMgr, res.propMgr.command, self)
+        return res
+            
     # == exit-related methods
+
+    def command_Done(self, implicit = False): # TODO: add these to weird_to_override
+        """
+        Exit this command, after also exiting any subcommands it may have,
+        as if its Done button was pressed.
+
+        @param implicit: this is occurring as a result of the user asking
+                         to enter some other command (not nestable under
+                         this command), rather than by an explicit exit
+                         request.
+        @type implicit: boolean
+        """
+        self.commandSequencer._f_exit_active_command(self, implicit = implicit)
+        return
     
-    def _command_do_exit_if_ok(self, force = False):
+    def command_Cancel(self):
+        """
+        Exit this command, after also exiting any subcommands it may have,
+        as if its Cancel button was pressed.
+        """
+        self.commandSequencer._f_exit_active_command(self, cancel = True)
+        return
+    
+    def command_Abandon(self): ###@@@ CALL ME
+        """
+        Abandon this command, after also abandoning as any subcommands it may
+        have, by exiting it as soon as possible without changing the model
+        any more than necessary. The side effects from this can be any
+        combination of those from Done or Cancel, depending on the
+        specific command. This is only called due to logic bugs in
+        the code for opening a new file, which fail to exit all commands
+        normally beforehand.
+        """
+        self.commandSequencer._f_exit_active_command(self, forced = True)
+        return
+    
+    def _f_command_do_exit_if_ok(self):
         # todo: args: anything needed to decide if ok or when asking user
         """
-        Exit this command (only), if possible or if force is true, and return True.
-        If not possible for some reason, emit messages as needed, and return False.
-
-        @param force: whether the exit is forced (must occur, regardless of
-                      command state, perhaps after side effects and warnings)
-        @type force: boolean
+        Exit this command (but not any other commands), when it's the current
+        command, if possible or if self.commandSequencer.exit_is_forced is true,
+        and return True.
         
+        If not possible for some reason, emit messages as needed,
+        and return False.
+
         @return: whether exit succeeded.
         @rtype: boolean
         
-        @note: caller must only call this if this command *should* exit if possible.
+        @note: caller must only call this if this command *should* exit if
+               possible, and if it's the current command (not merely an active
+               command, even if it's the command which is supplying the PM).
                Deciding whether exit is needed, based on a desired next command,
                is up to the caller.
 
@@ -96,21 +168,18 @@ class baseCommand(object):
                by caller for later stages of exiting multiple commands. In that
                case we'd need to return info about that, whenever exit succeeds.
 
-        @note: if the exit is being done by Done or Cancel, a suitable method
-               (not yet defined in Command API ###) will do special side effects
-               in either case, before this method is ever called. ### TODO: DOC DETAILS, IMPLEM
-               If the exit is forced, that doesn't happen, but our force param
-               will be True. ### DECIDE: does Done vs Cancel vs force need to be
-               propogated to all commands exiting at once? Current implem effectively
-               propogates force, not yet coded for the others.
+        @note: certain attrs in self.commandSequencer (e.g. .exit_is_cancel)
+               will tell self.command_will_exit which side effects to do.
+               For documentation of those attrs, see CommandSequencer methods
+              _f_exit_active_command and _exit_currentCommand_with_flags.
         """
         try:
-            ok = self._command_ok_to_exit(force) # must explain to user if not
+            ok = self._command_ok_to_exit() # must explain to user if not
         except:
             _pct()
             ok = True
         
-        if not ok and not force:
+        if not ok and not self.commandSequencer.exit_is_forced:
             self._command_log("not exiting")
             return False
 
@@ -123,18 +192,19 @@ class baseCommand(object):
 
         return True
 
-    def _command_ok_to_exit(self, force = False):
-        ask = self.command_exit_should_ask_user(force)
+    def _command_ok_to_exit(self): # only in this file so far, 080826
+        ask = self.command_exit_should_ask_user()
         if ask:
             print "asking is nim" # put up dialog with 3 choices (or more?)
                 # call method on self to put it up? or determine choices anyway? (yes)
                 # also, if ok to exit but only after some side effects, do those side effects.
-                # (especially likely if force is true; ### TODO: put this in some docstring)
+                # (especially likely if self.commandSequencer.exit_is_forced is true; ### TODO: put this in some docstring)
         return True
 
-    def command_exit_should_ask_user(self, force = False):
+    def command_exit_should_ask_user(self):# only in this file so far, 080826
         """
-        [subclasses should extend this as needed]
+        [subclasses should extend this as needed,
+         perhaps using self.commandSequencer.exit_is_forced]
         """
         # note: someday this may call a renamed self.haveNontrivialState() method,
         # and if that returns true, check a user pref to decide what to do.
@@ -289,7 +359,8 @@ class baseCommand(object):
     def command_entered(self):
         """
         Update self's command state and ui as needed, when self has just been
-        pushed onto command stack.
+        pushed onto command stack. (But never modify the command stack.
+        If that's necessary, do it in command_update_state.)
 
         @note: self may or may not still be the current command by the time
                the current user event is fully handled. It might be immediately
@@ -303,10 +374,16 @@ class baseCommand(object):
         [subclasses should extend as needed, typically calling superclass
          implementation at the start]
         """
+
+        self.graphicsMode.Enter_GraphicsMode() ### REVIEW: refactor into a subclass which defines this attr?
+            # note: existing implems do some state-resetting (good) and some UI updates (bad),
+            # including update_cursor. The latter is being turned off when USE_COMMAND_STACK is true.
+        
         if not self.command_has_its_own_PM:
             # note: that flag must be True (so this doesn't run) in the default
             # command, since it has no self.parentCommand
             self.propMgr = self.parentCommand.propMgr
+        
         self.command_enter_PM()
         self.command_enter_flyout()
         self.command_enter_misc_actions()
@@ -340,7 +417,13 @@ class baseCommand(object):
 
         @note: base class implementation of command_entered calls this,
                after setting self.propMgr to PM from parent command if
-               self.command_has_its_own_PM is false. 
+               self.command_has_its_own_PM is false.
+
+        @note: some subclasses also update the PM state in this method
+               (e.g EditCommand calls create_and_or_show_PM_if_wanted,
+                which is often extended to call self.propMgr.updateMessage),
+               but it is better to do that in an appropriate update method,
+               such as self.command_update_UI() or self.propMgr.update_UI().
 
         [subclasses should override as needed]
         """
@@ -478,8 +561,14 @@ class baseCommand(object):
               are stored in their property manager objects)
         """
         if self.propMgr:
-            self.propMgr.update_UI() ### IMPLEM
-        ### maybe: also something for a flyout toolbar attribute?
+            self.propMgr.update_UI() ### IMPLEM; must work when PM is shown or not shown, and should not show it
+                # note: what shows self.propMgr (if it ought to be shown but isn't)
+                # is the base implem of our indirect caller,
+                # commandSequencer._f_update_current_command,
+                # after we return.
+        
+        ### maybe: also something to update the flyout toolbar, from an attribute?
+        
         return
     
     # == other methods

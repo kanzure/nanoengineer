@@ -13,6 +13,7 @@ from utilities.constants import gensym
 from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_PropertyManager import ModelAndSimulateProtein_PropertyManager 
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
 class ModelAndSimulateProtein_Command(EditCommand):
@@ -43,7 +44,9 @@ class ModelAndSimulateProtein_Command(EditCommand):
         _superclass.__init__(self, commandSequencer)    
         self.struct = struct
         return
-    
+
+    #START new command API methods ==============================================
+
     def command_enter_PM(self):
         """
         Overrides superclass method. 
@@ -53,8 +56,9 @@ class ModelAndSimulateProtein_Command(EditCommand):
         #significantly improves the performance.
         if not self.propMgr:
             self.propMgr = self._createPropMgrObject()
-            #changes.keep_forever(self.propMgr)      
-        self.propMgr.show()
+            ## changes.keep_forever(self.propMgr)
+        if not USE_COMMAND_STACK:
+            self.propMgr.show()
         self.propMgr.updateMessage()
         return
     
@@ -64,9 +68,9 @@ class ModelAndSimulateProtein_Command(EditCommand):
         
         @see: baseCommand.command_exit_PM() for documentation
         """
-        
-        if self.propMgr:
-            self.propMgr.close()
+        if not USE_COMMAND_STACK:
+            if self.propMgr:
+                self.propMgr.close()
         return    
             
     def command_enter_flyout(self):
@@ -182,29 +186,14 @@ class ModelAndSimulateProtein_Command(EditCommand):
         
         return    
     
-        
-    def makeMenus(self): #bruce 050705 revised this to support bond menus
+    def makeMenus(self):
         """
-        Create context menu for this command. (Build Atoms mode)
+        Create context menu for this command.
         """
         #Urmi 20080806: will implement later, once the basic system is up and
         #working
         return
     
-    def StateDone(self):
-        """
-        @see: Command.StateDone
-        """
-        
-        return None
-
-    def StateCancel(self):
-        """
-        @see Command.StateCancel
-        """
-        return None
-
-
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted.

@@ -239,7 +239,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         @see: B{SelectChunks_basicCommand.Enter}, B{basicCommand.Enter}
         """
         basicGraphicsMode.Enter_GraphicsMode(self)
-        self.reset_drag_vars() #for safety
+        self.reset_drag_vars()
         self.ignore_next_leftUp_event = False
             # Set to True in leftDouble() and checked by the left*Up()
             # event handlers to determine whether they should ignore the

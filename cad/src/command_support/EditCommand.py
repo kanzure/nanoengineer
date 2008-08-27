@@ -244,22 +244,22 @@ class EditCommand(Select_Command):
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
         """
         Create the property manager object if one doesn't already exist 
-        and then show the propMgr if wanted by the user
+        and then (if not USE_COMMAND_STACK) show the propMgr if wanted
+        by the user
+        
         @param showPropMgr: If True, show the property manager 
         @type showPropMgr: boolean
         """
         if not self.propMgr:                 
             self.propMgr = self._createPropMgrObject()
             #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
+            # (REVIEW: still needed, given that it's stored in self? [bruce 080819 question])
             changes.keep_forever(self.propMgr)
-            
             
         if not USE_COMMAND_STACK:
             
-            if not showPropMgr:
-                return   
-            
-            self.propMgr.show()
+            if showPropMgr:
+                self.propMgr.show()
 
     def createStructure(self, showPropMgr = True):
         """
@@ -336,6 +336,10 @@ class EditCommand(Select_Command):
         # currently active editCommand 
         #(see SelectChunks_GraphicsMode.provideParametersForTemporaryMode where we are 
         # using self.win.dnaEditCommand) Fixes bug 2588
+        # [note: that method no longer exists. I'm not sure if the one being
+        #  referred to is the one now called provideParamsForTemporaryMode_in_BuildDna,
+        #  in BuildDna_EditCommand, used in DnaDuplex_EditCommand, or something else.
+        #  [bruce 080822 update]]
 
         #Following line of code that fixed bug 2588 mentioned in above comment 
         # was disabled on 2007-12-20, aftter dnaDuplexEditCommand was 

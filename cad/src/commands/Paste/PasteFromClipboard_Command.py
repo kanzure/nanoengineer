@@ -84,8 +84,8 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         _superclass.Enter(self)
         self.pastable = None #k would it be nicer to preserve it from the past??
             # note, this is also done redundantly in init_gui.
-        self.pastables_list = [] # should be ok, since model_changed comes after
-        #this...
+        self.pastables_list = []
+            # should be ok, since model_changed comes after this...
 
     def init_gui(self):
         """
@@ -192,7 +192,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         
         #UPDATE 2008-08-20:
         # This method was earlier update_gui_0() which was called from 
-        # 'def update_gui()'.  The update_gui_* methods will be deprecated soon. 
+        # 'def update_gui()'. All update_gui_* methods have been removed 080821. 
         #See model_changed() method where this method is called. 
         #Note that the code in this method is old and needs to be revised
         #-- [Ninad comment]

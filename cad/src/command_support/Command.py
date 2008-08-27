@@ -166,14 +166,15 @@ class anyCommand(baseCommand, StateMixin):
     
     def model_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename (in Commands and their PMs)
         return
-    
-    def command_post_event_ui_updater(self): #bruce 070925; bruce 080812 renamed this, from state_may_have_changed
-        """
-        This is called after every user event (###verify).
-        Overridden only in basicCommand as of 080731 (###describe).
-        """
-        # note: called by MWsemantics.post_event_ui_updater [080731 comment]
-        return
+
+    if not USE_COMMAND_STACK:
+        def command_post_event_ui_updater(self): #bruce 070925; bruce 080812 renamed this, from state_may_have_changed
+            """
+            This is called after every user event (###verify).
+            Overridden only in basicCommand as of 080731 (###describe).
+            """
+            # note: called by MWsemantics.post_event_ui_updater [080731 comment]
+            return
 
     def isCurrentCommand(self): #bruce 071008
         # WARNING: this value of False means the nullCommand should never itself
@@ -400,12 +401,9 @@ class basicCommand(anyCommand):
         if USE_COMMAND_STACK and 0: # only enable this once we'll never go back...
             # also complain about commands not fully ported to the new API
             for methodname, howtofix in (
-##                ('refuseEnter', ""), # only used in extrudeMode -- removed, 080806
                 ('Enter', ""),
                 ('init_gui', ""),
                 ('resume_gui', ""),
-                ('update_gui', ""),
-                ('UpdateDashboard', ""),
                 ('Done', ""),
                 ('StateDone', ""),
                 ('StateCancel', ""),
@@ -692,12 +690,12 @@ class basicCommand(anyCommand):
     # may be revised to delegate to the "current generator" or its PM.
     # If so, when doing this, note that many modes currently act as their own PM widget.
 
-    def _KLUGE_current_PM(self): #bruce 070627
+    def _KLUGE_current_PM(self, get_old_PM = False): #bruce 070627; new option 080819
         """
         private method, and a kluge;
         see KLUGE_current_PropertyManager docstring for more info
         """
-        if USE_COMMAND_STACK:
+        if USE_COMMAND_STACK and not get_old_PM:
             return self.propMgr
         pw = self.w.activePartWindow()
         if not pw:
@@ -706,7 +704,7 @@ class basicCommand(anyCommand):
             return None
         try:
             res = pw.KLUGE_current_PropertyManager()
-            if res is not self.propMgr:
+            if res is not self.propMgr and not get_old_PM:
                 # I think this should now be rare, now that Ninad removed
                 # all official "guest PM" commands; let's find out...
                 # unfortunately it's common, apparently due to a logic bug
@@ -905,7 +903,7 @@ class basicCommand(anyCommand):
 ##        """
 ##        return 0
     
-    def Enter(self):
+    def Enter(self): # see also: baseCommand.command_entered
         """
         Subclasses should override this: first call superclass.Enter(self)
         for your superclass (update 071010: for old code that might be
@@ -928,7 +926,9 @@ class basicCommand(anyCommand):
         # - An example of the worry in current scheme -- what if that 
         #   update_cursor call in basicGraphicsMode.Enter_GraphicsMode tries to 
         #   use some Command attrs to decide on the cursor which are only 
-        #   initialized in the subclass command.Enter? 
+        #   initialized in the subclass command.Enter?
+        #     [later, bruce 080819: that update_cursor call needs to be moved
+        #      to an update method, when USE_COMMAND_STACK.]
         # - Maybe we should call Enter_GraphicsMode in or after method 
         #   CommandSequencer.start_using_mode? Not sure if that method actually 
         #   uses some things from graphicsMode.Enter. 
@@ -956,7 +956,7 @@ class basicCommand(anyCommand):
             self._reuse_attr_of_parentCommand('propMgr')
         
         return None
-    
+
     def should_exit_when_ESC_key_pressed(self): # not overridden, as of 080815
         """
         @return: whether this command should exit when the ESC key is pressed
@@ -1257,6 +1257,19 @@ class basicCommand(anyCommand):
                        (and thus exit_using_done_or_cancel_button was 'False')
         @type exit_using_done_or_cancel_button: boolean                       
         """
+        if USE_COMMAND_STACK:
+            # compatibility method for old code.
+            # New code should call what this calls more directly.
+            # [bruce 080827]
+            assert not (new_mode or suspend_old_mode or new_mode_options), \
+                   "nim: opts %r" % ((new_mode, suspend_old_mode, new_mode_options),)
+            if exit_using_done_or_cancel_button:
+                command_to_exit = self
+            else:
+                command_to_exit = self.command_that_supplies_PM()
+            command_to_exit.command_Done()
+            return
+            
         # TODO: most or all of the following should be done by the CommandSequencer
         # rather than by self. Same goes for several of the methods this calls.
         # [bruce 071011 comment]
@@ -1405,6 +1418,19 @@ class basicCommand(anyCommand):
         override haveNontrivialState and/or StateDone and/or
         StateCancel as appropriate.
         """
+        if USE_COMMAND_STACK:
+            # compatibility method for old code.
+            # New code should call what this calls more directly.
+            # [bruce 080827]
+            assert not (new_mode or new_mode_options), \
+                   "nim: opts %r" % ((new_mode, new_mode_options),)
+            if exit_using_done_or_cancel_button:
+                command_to_exit = self
+            else:
+                command_to_exit = self.command_that_supplies_PM()
+            command_to_exit.command_Cancel()
+            return
+
         ###REVIEW: any need to support suspend_old_mode here? I doubt it...
         # but maybe complain if it's passed. [bruce 070814]
         if self.haveNontrivialState():
@@ -1493,11 +1519,12 @@ class basicCommand(anyCommand):
         Perhaps, when they warn the user, they would ask which of
         those two things to do.
         """
-        return None # this is correct for all existing modes except BuildAtoms_Command
-                    # -- bruce 040923
-        ## assert 0, "bug: command subclass %r needs custom StateCancel method, " \
-        ##           "since its haveNontrivialState() apparently returned True" % \
-        ##       self.__class__.__name__
+#bruce 080826 reenabled the assert 0 below
+##        return None # this is correct for all existing modes except BuildAtoms_Command
+##                    # -- bruce 040923
+        assert 0, "bug: command subclass %r needs custom StateCancel method, " \
+                  "since its haveNontrivialState() apparently returned True" % \
+                  self.__class__.__name__
 
     def haveNontrivialState(self):
         """

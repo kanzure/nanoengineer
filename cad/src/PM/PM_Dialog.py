@@ -195,7 +195,17 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         Subclasses should override this method. 
         """
         pass
-            
+
+    def update_UI(self): #bruce 080819
+        """
+        Update whatever is shown in this PM based on current state
+        of the rest of the system, especially the state of self.command
+        and of the model it shows.
+        """
+        # Note: this is only called when USE_COMMAND_STACK is true.
+        # API details subject to revision.
+        return
+    
     def show(self):
         """
         Shows the Property Manager.
