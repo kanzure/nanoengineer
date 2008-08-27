@@ -933,9 +933,9 @@ def read_or_insert_pdb(assy,
     @type  showProgressDialog: boolean
     """
     
-    from utilities.GlobalPreferences import enableProteins
+    from utilities.GlobalPreferences import ENABLE_PROTEINS
     
-    if enableProteins:
+    if ENABLE_PROTEINS:
         
         molecules, comment_text, comment_title  = _readpdb_new(assy, 
                         filename, 
@@ -1163,7 +1163,7 @@ def writepdb(part,
     
     atomSerialNumber = 1
 
-    from utilities.GlobalPreferences import enableProteins
+    from utilities.GlobalPreferences import ENABLE_PROTEINS
     
     def exclude(atm): #bruce 050318
         """
@@ -1254,7 +1254,7 @@ def writepdb(part,
                     continue
                 atomConnectList = []
                 atomsTable[a.key] = atomSerialNumber
-                if enableProteins:
+                if ENABLE_PROTEINS:
                     # piotr 080709 : Use more robust ATOM output code for Proteins.
                     if a.pdb_info.has_key['residue_id']:
                         resId = a.pdb_info['residue_id']

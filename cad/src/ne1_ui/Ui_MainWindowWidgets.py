@@ -1752,8 +1752,8 @@ def retranslateUi(win):
     # if the "Enable Proteins" debug pref is set to False.
     # This should be moved to "interactive builders" sections
     # on the Build Structures toolbar.
-    from utilities.GlobalPreferences import enableProteins
-    if enableProteins:    
+    from utilities.GlobalPreferences import ENABLE_PROTEINS
+    if ENABLE_PROTEINS:    
         win.insertPeptideAction.setIconText(QtGui.QApplication.translate(
             "MainWindow", 
             "Protein", 

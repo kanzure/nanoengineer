@@ -46,8 +46,8 @@ def setupUi(win):
     win.fileMenu.addMenu(win.importMenu)
     win.fileMenu.addMenu(win.exportMenu)
     
-    from utilities.GlobalPreferences import enableProteins
-    if enableProteins:
+    from utilities.GlobalPreferences import ENABLE_PROTEINS
+    if ENABLE_PROTEINS:
         win.fileMenu.addMenu(win.fetchMenu)
         
     win.fileMenu.addSeparator()

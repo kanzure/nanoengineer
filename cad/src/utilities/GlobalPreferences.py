@@ -478,7 +478,8 @@ USE_COMMAND_STACK = _debug_pref_use_command_stack()
 #bruce 0808013 moved enableProteins from protein.model.Protein.enableProteins
 # to avoid import cycles.
 # TODO: rename it to ENABLE_PROTEINS, to fit with coding standard for constants.
-enableProteins = debug_pref("Enable Proteins? (next session)",
+#piotr 2008-08-27: renamed enableProteins to ENABLE_PROTEINS
+ENABLE_PROTEINS = debug_pref("Enable Proteins? (next session)",
                              Choice_boolean_False,
                              non_debug = True,
                              prefs_key = True
