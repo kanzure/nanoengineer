@@ -323,8 +323,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
     - DNA Cylinders are not written to POV-Ray file. piotr: done 080317
     - as of 080519 this doesn't work again
     - DNA Cylinders are not written to PDB file and displayed in QuteMolX.
-    
-    piotr: to be done
 
     @note: Nothing else is rendered (no atoms, sugar atoms, etc) when 
         set to this display mode. piotr 080316: some feature can be displayed
@@ -347,11 +345,22 @@ class DnaCylinderChunks(ChunkDisplayMode):
     ### either in class or in each instance
     ### also should define a featurename for wiki help
     
+    # Several of the methods below could be split into their own files.
+    # piotr 082708
+    
     def _compute_spline(self, data, idx, t):
         """
-        Implements a Catmull-Rom spline.
-        Interpolates between data[idx] and data[idx+1].
-        0.0 <= t <= 1.0.
+        Implements a Catmull-Rom spline. Interpolates between data[idx] 
+        and data[idx+1]. 0.0 <= t <= 1.0.
+        
+        @param data: array with at least four values to be used for 
+        interpolation. The following values are used: data[idx-1], data[idx],
+        data[idx+1], data[idx+2]
+        
+        @param t: position (0 <= t <= 1)
+        @type t: float
+        
+        @return: spline value at t
         """
         t2 = t*t
         t3 = t2*t
@@ -367,7 +376,18 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
     def _get_rainbow_color(self, hue, saturation, value):
         """
-        Gets a color of a hue range limited to 0 - 0.667 (red - blue)
+        Gets a color of a hue range limited to 0 - 0.667 (red - blue color range).
+        
+        @param hue: color hue (0..1)
+        @type hue: float
+        
+        @param saturation: color saturation (0..1)
+        @type saturation: float
+        
+        @param value: color value (0..1)
+        @type value: float
+        
+        @return: color for given (h,s,v) 
         """
 
         hue = 0.666 * (1.0 - hue)
@@ -379,7 +399,19 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
     def _get_full_rainbow_color(self, hue, saturation, value):
         """
-        Gets a color from a full hue range.
+        Gets a color from a full hue range (red - red). Can be used for
+        color wrapping (color at hue==0 is the same as color at hue==1).
+        
+        @param hue: color hue (0..1)
+        @type hue: float
+        
+        @param saturation: color saturation (0..1)
+        @type saturation: float
+        
+        @param value: color value (0..1)
+        @type value: float
+        
+        @return: color for given (h,s,v)         
         """
         if hue < 0.0: 
             hue = 0.0
@@ -389,7 +421,18 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
     def _get_nice_rainbow_color(self, hue, saturation, value):
         """
-        Gets a color of a full hue range.
+        Gets a color of a hue limited to red-magenta range.
+
+        @param hue: color hue (0..1)
+        @type hue: float
+        
+        @param saturation: color saturation (0..1)
+        @type saturation: float
+        
+        @param value: color value (0..1)
+        @type value: float
+        
+        @return: color for given (h,s,v)                 
         """
         hue *= 0.8
         if hue < 0.0: 
@@ -402,10 +445,16 @@ class DnaCylinderChunks(ChunkDisplayMode):
         """
         Returns a color according to DNA base type.
         Two-ring bases (G and A) have darker colors.
+        
         G = red
         C = orange
         A = blue
         T = cyan
+        
+        @param base: DNA base symbol
+        @type base: 1-char string
+        
+        @return: color corresponding to a given base
         """
         
         if base == "G":
@@ -421,6 +470,24 @@ class DnaCylinderChunks(ChunkDisplayMode):
         return color
     
     def _get_rainbow_color_in_range(self, pos, count, saturation, value):
+        """
+        Gets a color of a hue range limited to 0 - 0.667 (red - blue color range)
+        correspoding to a "pos" value from (0..count) range.
+        
+        @param pos: position in (0..count range) 
+        @type pos: integer
+        
+        @param count: limits the range of allowable values
+        @type count: integer
+        
+        @param saturation: color saturation (0..1)
+        @type saturation: float
+        
+        @param value: color value (0..1)
+        @type value: float
+        
+        @return: color for given (pos, s, v) 
+        """
         if count > 1: 
             count -= 1
         hue = float(pos)/float(count)        
@@ -431,6 +498,25 @@ class DnaCylinderChunks(ChunkDisplayMode):
         return self._get_rainbow_color(hue, saturation, value)
 
     def _get_full_rainbow_color_in_range(self, pos, count, saturation, value):
+        """
+        Gets a color from a full hue range (red - red). Can be used for
+        color wrapping (color at hue==0 is the same as color at hue==1).
+        The color corresponds to a "pos" value from (0..count) range.
+        
+        @param pos: position in (0..count range) 
+        @type pos: integer
+        
+        @param count: limits the range of allowable values
+        @type count: integer
+        
+        @param saturation: color saturation (0..1)
+        @type saturation: float
+        
+        @param value: color value (0..1)
+        @type value: float
+        
+        @return: color for given (pos, s, v) 
+        """
         if count > 1: 
             count -= 1
         hue = float(pos)/float(count)        
@@ -441,6 +527,24 @@ class DnaCylinderChunks(ChunkDisplayMode):
         return self._get_full_rainbow_color(hue, saturation, value)
 
     def _get_nice_rainbow_color_in_range(self, pos, count, saturation, value):
+        """
+        Gets a color of a hue range limited to red-magenta range.
+        The color corresponds to a "pos" value from (0..count) range.
+        
+        @param pos: position in (0..count) range 
+        @type pos: integer
+        
+        @param count: limits the range of allowable values
+        @type count: integer
+        
+        @param saturation: color saturation (0..1)
+        @type saturation: float
+        
+        @param value: color value (0..1)
+        @type value: float
+        
+        @return: color for given (pos, s, v) 
+        """
         if count > 1: 
             count -= 1
         hue = float(pos)/float(count)        
@@ -453,10 +557,24 @@ class DnaCylinderChunks(ChunkDisplayMode):
     def _make_curved_strand(self, points, colors, radii):
         """
         Converts a polycylinder tube to a smooth, curved tube
-        using spline interpolation of points, colors and radii.
+        by spline interpolating of points, colors and radii.
+        
+        Assumes that len(points) == len(colors) == len(radii)
+        
+        @param points: consecutive points to be interpolated
+        @type points: list of V or list of float[3]
+        
+        @param colors: colors corresponding to the points
+        @type colors: list of colors
+        
+        @param radii: radii correspoding to individual points
+        @type radii: list of radii
+        
+        @return: tuple of interpolated (points, colors, radii)
         """
         n = len(points)
         if n > 3:
+            # Create lists for the interpolated positions, colors, and radii.
             new_points = [ None ] * (4*(n-2)-1)
             new_colors = [ None ] * (4*(n-2)-1)
             new_radii = [ 0.0 ] * (4*(n-2)-1)
@@ -464,6 +582,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 new_points[p] = [ 0.0 ] * 3
                 new_colors[p] = [ 0.0 ] * 3
             o = 1
+            # Fill-in the lists by computing spline values at consecutive points.
+            # Assume that the spline resolution equals 4.
             for p in range (1, n-2):
                 for m in range (0, 4):
                     t = 0.25 * m
@@ -471,31 +591,56 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     new_colors[o] = self._compute_spline(colors, p, t)
                     new_radii[o] = self._compute_spline(radii, p, t)
                     o += 1        
+                    
+            # Fill-in terminal positions.
             new_points[o] = self._compute_spline(points, p, 1.0)
             new_colors[o] = self._compute_spline(colors, p, 1.0)
             new_radii[o] = self._compute_spline(radii, p, 1.0)
             o += 1
-            new_points[0] = 3.0 * new_points[1] - 3.0 * new_points[2] + new_points[3] 
-            new_points[o] = 3.0 * new_points[o-1] - 3.0 * new_points[o-2] + new_points[o-3] 
+            new_points[0] = 3.0 * new_points[1] \
+                      - 3.0 * new_points[2] \
+                      + new_points[3] 
+            new_points[o] = 3.0 * new_points[o-1] \
+                      - 3.0 * new_points[o-2] \
+                      + new_points[o-3] 
             new_colors[0] = new_colors[1]
             new_colors[o] = new_colors[o - 1]
             new_radii[0] = new_radii[1]
             new_radii[o] = new_radii[o - 1]
             return (new_points, new_colors, new_radii)
         else:
+            # if not enough points, just return the initial lists
             return (points, colors, radii)
 
     def _get_axis_positions(self, chunk, atom_list, color_style):
         """
-        From an atom list create a list of positions
-        extended by two dummy positions at both ends.
+        From an atom list create a list of positions extended by two dummy 
+        positions at both ends. The list looks different depending on the
+        used color style.
+
+        Uses the chunk to convert atom coordinates to molecule-relative coords.
+        
+        @param chunk: chunk
+        @type chunk: Chunk
+        
+        @param atom_list: list of axis chunk atoms
+        @type atom_list: list of Atoms
+        
+        @param color_style: color style to be used to render the axis
+        @type color_style: int
+        
+        @return: positions
         """
         n_atoms = len(atom_list)
-        if color_style==2 or color_style==3: # discrete colors
+        if color_style==2 or color_style==3: 
+            # Use discrete colors. Here is an explanation of how the "discrete"
+            # colors work.
+            # The GLE "polycylinder" (and related, e.g. glePolyCone) methods
+            # interpolate colors between consecutive links. 
             positions = [None] * (2*n_atoms+2)
             pos = 2
             for i in range (1, n_atoms):
-                pos1 = chunk.abs_to_base(atom_list[i-1].posn())#-chunk.center
+                pos1 = chunk.abs_to_base(atom_list[i-1].posn())
                 pos2 = chunk.abs_to_base(atom_list[i].posn())                
                 positions[pos] = 0.5*(pos1+pos2)
                 positions[pos+1] = 0.5*(pos1+pos2)
@@ -633,8 +778,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
             positions[0] = positions[1]
             positions[n_atoms+1] = positions[n_atoms]
         else:
-            positions[0] = 3.0 * positions[1] - 3.0 * positions[2] + positions[3]
-            positions[n_atoms+1] = 3.0 * positions[n_atoms] - 3.0 * positions[n_atoms - 1] + positions[n_atoms - 2] 
+            positions[0] = 3.0 * positions[1] \
+                     - 3.0 * positions[2] \
+                     + positions[3]
+            positions[n_atoms+1] = 3.0 * positions[n_atoms] \
+                     - 3.0 * positions[n_atoms - 1] \
+                     + positions[n_atoms - 2] 
 
         return positions
 
@@ -764,11 +913,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
         """
         # ---------------------------------------------------------------------
 
-        if not memo: # nothing to render
+        if not memo: 
+            # nothing to render
             return
 
         if self.dnaExperimentalMode > 0: 
-            # experimental mode is drawn in drawchunk_realtime
+            # experimental models is drawn in drawchunk_realtime
             return
 
         positions, colors, radii, \
@@ -776,7 +926,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
         # render the axis cylinder        
         if chunk.isAxisChunk() and \
-           positions: # fixed bug 2877 - piotr 080516
+           positions: 
+            # fixed bug 2877 (exception when "positions" 
+            # is set to None) - piotr 080516
             n_points = len(positions)            
             if self.dnaStyleAxisShape>0:
                 # spherical ends    
@@ -795,7 +947,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 # draw the polycone                
                 if self.dnaStyleAxisColor==1 \
                    or self.dnaStyleAxisColor==2 \
-                   or self.dnaStyleAxisColor==3: # render discrete colors                
+                   or self.dnaStyleAxisColor==3: 
+                    # render discrete colors                
                     drawpolycone_multicolor([0, 0, 0, -2], 
                                                    positions, 
                                                    colors, 
@@ -863,8 +1016,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     bposn, 
                                     0.20*self.dnaStyleBasesScale, True) 
                                 
-                                if bname == 'G' \
-                                   or bname == 'A': # draw two purine rings                                
+                                if bname == 'G' or \
+                                   bname == 'A': 
+                                    # draw two purine rings                                
                                     drawcylinder(color, 
                                         aposn - 0.25 * self.dnaStyleBasesScale * normal,
                                         aposn + 0.25 * self.dnaStyleBasesScale * normal,
@@ -1682,10 +1836,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
         self.dnaStyleBasesShape = env.prefs[dnaStyleBasesShape_prefs_key]
         self.dnaStyleBasesColor = env.prefs[dnaStyleBasesColor_prefs_key]
         self.dnaStyleBasesScale = env.prefs[dnaStyleBasesScale_prefs_key]
-        self.dnaStyleBasesDisplayLetters = env.prefs[dnaStyleBasesDisplayLetters_prefs_key]
-        
+        self.dnaStyleBasesDisplayLetters = env.prefs[dnaStyleBasesDisplayLetters_prefs_key]        
         self.dnaExperimentalMode = env.prefs[dnaRendition_prefs_key]
 
+        # Four "components of the reduced DNA style can be created and
+        # controlled independently: central axis, strands, structs, and bases.
+        
         if not hasattr(chunk, 'ladder'):
             # DNA updater is off ?      
             # Don't render (should display a warning message?)
@@ -1715,7 +1871,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
         current_strand = 0
 
-
         strand_atoms = [None] * num_strands
         strand_colors = [None] * num_strands
         for i in range(0, num_strands):
@@ -1740,7 +1895,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         radii = None
         
         # pre-calculate polycylinder positions (main drawing primitive
-        # for strands and/or central axis
+        # for strands and/or central axis)
 
         arrows = []
         struts_cylinders = []
