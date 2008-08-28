@@ -301,6 +301,12 @@ PROTEIN_ATOM_TYPES = {
                              # is specified, only the atoms sharing the
                              # same marker will be double-bonded.
 
+# " DG", "DC", "DT", and " DA" names correspond to deoxynucleotides
+# as defined in PDB format >= 3.0 
+# Older versions didn't distinguish between RNA and DNA base names
+# so both compounds used "  G", "  C", "  A", "  T" (and "  U" in case of
+# RNA)
+                             
 NUCLEIC_ATOM_TYPES = {
     " DC" : {
         "P"   : "sp3(phosphate)", # phosphate phosphorus
@@ -341,6 +347,51 @@ NUCLEIC_ATOM_TYPES = {
         "P"   : "sp3(phosphate)",
         "OP1" : "sp2(-.5)",
         "OP2" : "sp2(-.5)",
+        "C5"  : "sp2a",
+        "C6"  : "sp2a",
+        "C4"  : "sp2b",
+        "O4"  : "sp2b",
+        "C2"  : "sp2a",
+        "O2"  : "sp2a" },
+    "  C" : {
+        "P"   : "sp3(phosphate)", 
+        "O1P" : "sp2(-.5)",        
+        "O2P" : "sp2(-.5)",
+        "C2"  : "sp2a",
+        "O2"  : "sp2a", 
+        "C4"  : "sp2b",
+        "N3"  : "sp2b",
+        "C5"  : "sp2a",
+        "C6"  : "sp2a" },
+    "  G" : {
+        "P"   : "sp3(phosphate)",
+        "O1P" : "sp2(-.5)",
+        "O2P" : "sp2(-.5)",
+        "C4"  : "sp2b",
+        "C5"  : "sp2b", 
+        "C8"  : "sp2a",
+        "N7"  : "sp2a", 
+        "C2"  : "sp2a",
+        "N3"  : "sp2a", 
+        "C6"  : "sp2c",
+        "O6"  : "sp2c" },
+    "  A" : {
+        "P"   : "sp3(phosphate)",
+        "O1P" : "sp2(-.5)",
+        "O2P" : "sp2(-.5)",
+        "C2"  : "sp2a",
+        "N3"  : "sp2a",
+        "C6"  : "sp2b",
+        "N1"  : "sp2b",
+        "N4"  : "sp2b",
+        "C4"  : "sp2c",
+        "C5"  : "sp2c",
+        "N7"  : "sp2a",
+        "C8"  : "sp2a" },
+    "  T" : {
+        "P"   : "sp3(phosphate)",
+        "O1P" : "sp2(-.5)",
+        "O2P" : "sp2(-.5)",
         "C5"  : "sp2a",
         "C6"  : "sp2a",
         "C4"  : "sp2b",
@@ -534,7 +585,8 @@ def _readpdb_new(assy,
                                        bond.atom2 in sp2c_atoms) or 
                                       (bond.atom1 not in sp2a_atoms and
                                        bond.atom1 not in sp2b_atoms and
-                                       bond.atom1 not in sp2c_atoms)):  
+                                       bond.atom1 not in sp2c_atoms and
+                                       bond.atom1 not in aromatic_atoms)):  
                                     bond.set_v6(V_DOUBLE)
                             if ((atom1_type == "sp3(phosphate)" and
                                  atom2_type == "sp2(-.5)") or 
@@ -1257,25 +1309,21 @@ def writepdb(part,
                 atomsTable[a.key] = atomSerialNumber
                 if ENABLE_PROTEINS:
                     # piotr 080709 : Use more robust ATOM output code for Proteins.
-                    if a.pdb_info.has_key['residue_id']:
+                    if a.pdb_info and \
+                       a.pdb_info.has_key('residue_id'):
                         resId = a.pdb_info['residue_id']
                     else:
                         resId = "   1 "                        
-                    if a.pdb_info.has_key['residue_name']:
+                    if a.pdb_info and \
+                       a.pdb_info.has_key('residue_name'):
                         resName = a.pdb_info['residue_name']
                     else:
                         resName = "UNK"
-                    atomName = a.element.symbol
-                    
-                    """
-                    if mol.protein:
-                        res = mol.protein.get_residue(a)
-                        if res:
-                            resId = res.get_id()
-                            resName = res.get_three_letter_code()
-                            atomName = res.get_atom_name(a)
-                    ### print "WRITING ATOM: ", (atomSerialNumber, atomName, resId, resName)
-                    """
+                    if a.pdb_info and \
+                       a.pdb_info.has_key('atom_name'):
+                        atomName = a.pdb_info['atom_name']
+                    else:
+                        atomName = a.element.symbol
                     writepdb_atom(a, 
                                   f, 
                                   atomSerialNumber, 
@@ -1285,6 +1333,7 @@ def writepdb(part,
                                   resName)
                 else:
                     a.writepdb(f, atomSerialNumber, chr(chainIdChar))
+                
                 atomConnectList.append(a)
         
                 for b in a.bonds:
