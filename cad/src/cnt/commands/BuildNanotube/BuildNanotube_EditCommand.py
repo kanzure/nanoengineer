@@ -123,9 +123,7 @@ class BuildNanotube_EditCommand(EditCommand):
 
         if self.flyoutToolbar:
             self.flyoutToolbar.resetStateOfActions()
-
-
-    
+        return
 
     def runCommand(self):
         """
@@ -134,6 +132,7 @@ class BuildNanotube_EditCommand(EditCommand):
         self.struct = None     
         self.existingStructForEditing = False
         self.propMgr.updateListWidgets()
+        return
 
     def keep_empty_group(self, group):
         """

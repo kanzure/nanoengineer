@@ -68,6 +68,7 @@ from cnt.commands.NanotubeSegment.NanotubeSegment_GraphicsMode import NanotubeSe
 
 from utilities.prefs_constants import nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key
 from utilities.prefs_constants import nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key
+from utilities.prefs_constants import cursorTextColor_prefs_key
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
@@ -680,11 +681,11 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         if self.grabbedHandle is None:
             return
         
+        text = ''
+        textColor = env.prefs[cursorTextColor_prefs_key]
+        
         if not env.prefs[nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
-            return '', black
-
-        text = ""
-        textColor = black
+            return text, textColor
 
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure

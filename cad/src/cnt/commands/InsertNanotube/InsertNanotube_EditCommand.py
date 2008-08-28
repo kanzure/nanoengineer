@@ -42,6 +42,7 @@ from cnt.temporary_commands.NanotubeLineMode import NanotubeLine_GM
 from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key
 from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key
 from utilities.prefs_constants import insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key
+from utilities.prefs_constants import cursorTextColor_prefs_key
 
 _superclass = EditCommand
 class InsertNanotube_EditCommand(EditCommand):
@@ -399,13 +400,16 @@ class InsertNanotube_EditCommand(EditCommand):
         This is used as a callback method in CntLine mode 
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
+        
+        text = ""
+        textColor = env.prefs[cursorTextColor_prefs_key] # Mark 2008-08-28
+        
         if endPoint1 is None or endPoint2 is None:
-            return
+            return text, textColor
         
         if not env.prefs[insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key]:
-            return '', black
+            return text, textColor
 
-        textColor = black
         vec = endPoint2 - endPoint1
         ntLength = vlen(vec)
         

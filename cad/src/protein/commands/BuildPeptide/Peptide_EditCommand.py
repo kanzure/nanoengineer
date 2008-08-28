@@ -20,6 +20,9 @@ from protein.temporary_commands.PeptideLineMode import PeptideLine_GM
 from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 from utilities.debug import print_compact_stack, print_compact_traceback
 
+import foundation.env as env
+from utilities.prefs_constants import cursorTextColor_prefs_key
+
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
 #_superclass = ModelAndSimulateProtein_Command
 _superclass = EditCommand
@@ -334,13 +337,16 @@ class Peptide_EditCommand(EditCommand):
         This is used as a callback method in CntLine mode 
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
+        
+        text = ''
+        textColor = env.prefs[cursorTextColor_prefs_key]
+        
         if endPoint1 is None or endPoint2 is None:
-            return
+            return text, textColor
         
         #if not env.prefs[insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key]:
-        #    return '', black
-        from utilities.constants import black
-        textColor = black
+        #    return text, textColor
+
         vec = endPoint2 - endPoint1
         from geometry.VQT import vlen
         peptideLength = vlen(vec)
@@ -364,7 +370,7 @@ class Peptide_EditCommand(EditCommand):
 
         text += thetaString
         
-        return text , textColor
+        return text, textColor
     
     
     def _getCursorText_length(self, peptideLength):
