@@ -398,6 +398,10 @@ class basicCommand(anyCommand):
             # not 'draw_selection_curve', 'Wheel', they are none of my business;
             # not 'makemenu' since no relation to new mode changes per se.
             # [bruce 040924]
+        if USE_COMMAND_STACK:
+            weird_to_override += [
+                             'command_Done', 'command_Cancel', 'command_Abandon', #bruce 080827
+                            ]
         if USE_COMMAND_STACK and 0: # only enable this once we'll never go back...
             # also complain about commands not fully ported to the new API
             for methodname, howtofix in (
@@ -1163,6 +1167,7 @@ class basicCommand(anyCommand):
         ourselves switching to anything like it) even if it has the same
         commandname as self.
         """
+        assert not USE_COMMAND_STACK
         if self.commandName == commandName:
             # note that this implies commandName is a string, not a command instance
             if self.isCurrentCommand():
@@ -1183,8 +1188,8 @@ class basicCommand(anyCommand):
     # methods for leaving this command (from a dashboard tool or an
     # internal request).
 
-    # Notes on state-accumulating modes, e.g. crystal, extrude,
-    # deposit [bruce 040923]:
+    # Notes on state-accumulating modes, e.g. Build Crystal, Extrude,
+    # and [we hoped at the time] Build Atoms [bruce 040923]:
     #
     # Each command which accumulates state, meant to be put into its
     # model (assembly) in the end, decides how much to put in as it
@@ -1678,16 +1683,24 @@ class basicCommand(anyCommand):
     # other dashboard tools
     
     def StartOver(self):
-        # may work (not tested recently); only callable from UI of extrude & crystal;
-        # needs rename ### [bruce 080806 comment]
-        #### works, but has wrong error message when nim in sketch command -- fix later [older comment]
+        # only callable from UI of Extrude & Build Crystal;
+        # needs rename [bruce 080806 comment]
         """
         Support Start Over action for a few commands which implement this
 
         [subclasses should NOT override this]
         """
-        self.Cancel(new_mode = self.commandName)
-
+        if USE_COMMAND_STACK:
+            #bruce 080827 guess; UNTESTED ###
+            self.command_Cancel()
+            self.commandSequencer.userEnterCommand(self.commandName)
+        else:
+            # old code; may work (not tested recently) [bruce 080806 comment]
+            # older comment: works, but has wrong error message when nim
+            # in sketch command -- fix later
+            self.Cancel(new_mode = self.commandName)
+        return
+    
     # ==
 
     def find_self_or_parent_command_named(self, commandName): #bruce 080801; maybe untested
