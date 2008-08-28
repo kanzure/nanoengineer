@@ -14,7 +14,9 @@ TODO: 2008-08-04
 - more documentation,
 - have more flyouts use this new superclass
 
-@see Ui_ParrtLibraryFlyout (a subclass)
+@see: Ui_PartLibraryFlyout (a subclass)
+
+REVIEW: should this be moved into the widgets package? [bruce 080827 question]
 """
 
 from utilities.exception_classes import AbstractMethod
@@ -23,6 +25,7 @@ from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
 
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class Ui_AbstractFlyout(object):
     
@@ -33,6 +36,7 @@ class Ui_AbstractFlyout(object):
         class.                             
         """
         self.command = command
+        self.command_for_exit_action = self.command #bruce 080827 guess
         self.parentWidget = self.command.propMgr            
         self.win =self.command.win                       
         self._isActive = False
@@ -63,13 +67,16 @@ class Ui_AbstractFlyout(object):
         """
         Raises AbstractMethod. Subclasses must override this method.
         @see: self._createActions()
+        @see: attribute, self.command_for_exit_action
         """
         raise AbstractMethod()
         
     def _createActions(self, parentWidget):
         """
         Define flyout toolbar actions for this mode.
-        @see: self._getExitActionText() which defines text for exit action. 
+        @see: self._getExitActionText() which defines text for exit action.
+
+        @note: subclasses typically extend this method to define more actions.
         """
         #@NOTE: In Build mode, some of the actions defined in this method are also 
         #used in Build Atoms PM. (e.g. bond actions) So probably better to rename 
@@ -87,7 +94,9 @@ class Ui_AbstractFlyout(object):
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
-        This can be overridden in subclasses. By default it does nothing.
+        This can be extended in subclasses. By default it handles only
+        self.exitModeAction.
+        
         @param isConnect: If True the widget will send the signals to the slot 
                           method. 
         @type  isConnect: boolean
@@ -97,12 +106,24 @@ class Ui_AbstractFlyout(object):
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
-            
-                               
-        change_connect(self.exitModeAction, SIGNAL("triggered()"), 
-                       self.win.toolsDone)
+            change_connect = self.win.disconnect
         
+        change_connect(self.exitModeAction, SIGNAL("triggered()"),
+                       self._exitModeActionSlot)
+        return
+
+    def _exitModeActionSlot(self): #bruce 080827 split this out, revised for USE_COMMAND_STACK
+        """
+        Do what's appropriate when self.exitModeAction is triggered. 
+        """
+        if USE_COMMAND_STACK:
+            self.command_for_exit_action.command_Done()
+        else:
+            # note: this would not always exit the correct command.
+            # as of 080827 the action appears to be disabled in those cases.
+            # [bruce 080827 comment]
+            self.win.toolsDone()
+        return
 
     def activateFlyoutToolbar(self):
         """
