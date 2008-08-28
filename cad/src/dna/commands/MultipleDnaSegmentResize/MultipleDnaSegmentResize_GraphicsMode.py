@@ -19,6 +19,7 @@ from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 import foundation.env as env
 from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
+from utilities.prefs_constants import cursorTextColor_prefs_key
 from utilities.constants import black, banana, silver, lighterblue, darkred
 from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
@@ -199,9 +200,11 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                 handleType = 'RESIZE_HANDLE'
 
         if handleType and handleType == 'RESIZE_HANDLE': 
-            #Use the text color that better contrasts with the background color. 
-            #mitigates bug 2927
-            textColor = self.glpane.get_background_contrast_color()
+            
+            # textColor is not used. I'm going to ask Ninad if this should 
+            # stay in or should be removed. --Mark
+            #textColor = env.prefs[cursorTextColor_prefs_key] # Mark 2008-08-28
+            
             for segment in self.command.getResizeSegmentList():  
                 self.command.currentStruct = segment
                 params_when_adding_bases, params_when_removing_bases = \

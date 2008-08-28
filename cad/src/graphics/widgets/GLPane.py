@@ -717,7 +717,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                              position,
                              textString,
                              textColor = black,
-                             backgroundColor = gray,
+                             backgroundColor = lightgray,
                              textFont =  None, 
                              fontSize = 11
                              ):
@@ -783,6 +783,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                              textString, 
                              offset = 10, 
                              textColor = black,
+                             backgroundColor = lightgray,
                              fontSize = 11):
         """
         Renders text near the cursor position, on the top right side of the
@@ -874,7 +875,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                                (offset_val, -offset_val))
         
         #background color
-        bg_color = lightgray
+        bg_color = backgroundColor
         #Foreground color 
         fg_color = textColor
         
