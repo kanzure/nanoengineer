@@ -7,22 +7,22 @@ Residue class stores information on individual amino acids of a protein
 chain. 
 
 @author: Piotr
-$Id$
+@version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 piotr 082708: Re-factored the Residue class out of Protein.py file.
+
+Renamed this class to "Residue" (which is a proper spelling, opposite 
+to "Residuum", as Eric D has pointed out in his email).
 """
 
-# Renamed this class to "Residue" (which is a proper spelling, opposite 
-# to "Residuum", as Eric D has pointed out in his email).
-
-# piotr 082708: The class was re-factored and moved to itsown file.
-
 # 3-letter to 1-letter amino acid name conversion
+
 # The three-letter names are used to distinguish "protein" from "non-protein"
 # residues in PDB reading code.
+
 AA_3_TO_1 = {
     'ALA':'A', # 20 standard amino acids
     'VAL':'V', 
@@ -206,7 +206,7 @@ NUC_3_TO_1 = {
 # The most common is a three-letter code: helix (H), extended (E),
 # coil (C). PDB distingushes a fourth type, turn (T) that corresponds
 # to the chain fragments that rapidly change direction, have
-# a hydrogen bond patter present, and are not helices nor strands.
+# a hydrogen bond pattern present, and are not helices nor strands.
 # Currently, the turns are not used for visualization purposes in NE1.
 
 SS_COIL = 0
@@ -216,6 +216,9 @@ SS_TURN = 3
 
 
 # PDB atom name sets for chiral angles for amino acid side chains
+
+# REVIEW: if this is a constant, its name should be CHI_ANGLES
+
 chi_angles = { "GLY" : [ None, 
                          None, 
                          None, 
@@ -373,6 +376,12 @@ class Residue:
         @param name: PDB name (amino acid name in three-letter code.
         @type name: string (3 characters)
         """
+        # REVIEW: id is the name of a Python builtin, so it should not be
+        # used for local variables. Doing so will work, but will cause bugs
+        # if someone doesn't notice it when adding new code such as
+        # print "%#x" % id(something).
+        # [bruce 080828 comment]
+        
         # list of residue atoms in the same order as they occur in PDB file
         self.atom_list = []
         
@@ -395,13 +404,14 @@ class Residue:
         # These Rosetta-related attributes should be probably moved from this
         # class to some Rosetta-related structure. For now, the Residue
         # and Protein classes
+        # REVIEW: that comment appears truncated.
         
         # Rosetta name of mutation range. 
         self.mutation_range = "NATAA"
         
         # Rosetta mutation descriptor. If set, it is usually a string of
         # 20 characters, corresponding to amino acid allowed at a given position.
-        # Note: the descriptor is actuallt used by Rosetta only if mutation
+        # Note: the descriptor is actually used by Rosetta only if mutation
         # range is set to "PIKAA". Otherwise, it is used only for informational
         # purposes. 
         self.mutation_descriptor = ""
@@ -409,7 +419,7 @@ class Residue:
         # True if this residue will be using backrub mode.
         self.backrub = False
 
-    def get_atom_name(self, atom):
+    def get_atom_name(self, atom): # REVIEW: docstring has input & output backwards.
         """
         For a given PDB atom name, return a corresponding atom.
         """
@@ -464,6 +474,15 @@ class Residue:
         """
         Just another version of get_three_letter_code.
         """
+        # REVIEW: if it's good to have both versions,
+        # it is probably because they have different descriptions or "contracts"
+        # even though they have the same implementation.
+        # If so, this docstring should describe what this method is for,
+        # and add a @note that it behaves identically to get_three_letter_code
+        # if that is interesting to callers. (The method name could also usefully
+        # be more specific.)
+        # If not, it's probably best to pick one method name and only use that one.
+        # [bruce 080828 comment]
         return self.get_three_letter_code()
         
     def get_one_letter_code(self):
@@ -496,6 +515,12 @@ class Residue:
         """
         Return a residue index.
         """
+        # REVIEW: either the docstring or a comment should explain
+        # why this has almost (but not quite) the same implementation
+        # as get_id. (Otherwise, a reviewer can wonder whether that's
+        # intentional.)
+        # Also the docstring should say a bit more about what this is for.
+        # [bruce 080828 comment]
         atom = self.get_first_atom()
         if atom and \
            atom.pdb_info:
@@ -555,6 +580,7 @@ class Residue:
         
         @return: atom
         """
+        # REVIEW: docstring should be more specific about what kind of name this is about.
         if self.atoms.has_key(name):
             return self.atoms[name]
         
@@ -574,6 +600,8 @@ class Residue:
         
         @return: beta carbon atom
         """
+        # REVIEW: docstring or comment should explain why this is
+        # implemented identically to get_c_alpha_atom.
         return self.get_atom_by_name("CA")
     
     def get_n_atom(self):
@@ -598,6 +626,7 @@ class Residue:
         
         @return: backbone carbonyly group oxygen atom
         """
+        # REVIEW: is carbonyly a typo?
         return self.get_atom_by_name("O")
         
     def set_mutation_range(self, range):
@@ -644,7 +673,10 @@ class Residue:
         
         @return: value of the torsional angle (float)
         """
-   
+        # REVIEW: this doesn't use self; it should probably be a function, not a method.
+        # Also, it appears to be very general and ought to be moved to a more
+        # general place (someday), perhaps VQT.py or nearby. [bruce 080828 comment]
+        
         from Numeric import dot
         from math import atan2, pi, sqrt
         from geometry.VQT import cross
@@ -697,6 +729,14 @@ class Residue:
         
         @return: list of four atoms
         """
+        # REVIEW: the docstring claims this returns a list of four atoms,
+        # but in fact the code appears to be able to return a shorter list.
+        # Should the code check for that, and return None instead?
+        # If not, explain why not in a comment.
+        # Also, the "@return" part doesn't document the None return value,
+        # and the general description seems to give a smaller set of
+        # conditions for returning None than the code apperas to have.
+        # [bruce 080828 comment]
         if which in range(4):
             residue_name = self.get_name()
             if chi_angles.has_key(residue_name):
@@ -726,6 +766,10 @@ class Residue:
             if chi_exclusions.has_key(residue_name):
                 chi_ex_list = chi_exclusions[residue_name]
                 ex_atoms = [self.get_atom_by_name("OXT")]
+                    # REVIEW: can this ever be [None]? If so, is that ok?
+                    # If so, docstring should say so.
+                    # Also, some of the same comments as for get_chi_atom_list
+                    # apply here. [bruce 080828 comment]
                 for w in range(0, which + 1):
                     if chi_ex_list[w]:
                         ex_atom_names = chi_ex_list[w]
@@ -800,6 +844,11 @@ class Residue:
         
         @return: angle value if sucessfully completed, None if not
         """
+        # REVIEW: Eric M said he factored some intrinsic coordinate code
+        # out of some other file to create a general function for that.
+        # Is this also something that could use that function?
+        # If so, it's enough for now to comment this saying so
+        # rather than to actually refactor it. [bruce 080828 comment]
         
         from geometry.VQT import norm, Q, V
         from math import pi, cos, sin
@@ -897,6 +946,5 @@ class Residue:
         """
         return self.backrub
     
-# End of Residue class.
-
+    pass # end of class Residue
 
