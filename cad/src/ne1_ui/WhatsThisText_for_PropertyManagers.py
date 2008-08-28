@@ -151,7 +151,7 @@ def whatsThis_PeptideGeneratorPropertyManager(propMgr):
     propMgr.invertChiralityPushButton.setWhatsThis(
         """<b>Invert chirality</b>
         <p>
-        Inverts a chirality of the polypeptide bakcbone   
+        Inverts a chirality of the polypeptide backbone   
         </p>""")
 
     propMgr.aaTypesButtonGroup.setWhatsThis(
