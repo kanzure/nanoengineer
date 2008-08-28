@@ -2269,18 +2269,38 @@ class MWsemantics(QMainWindow,
     ###################################
 
     def toolsDone(self):
-        # note: called from several places, including ok_btn_clicked
-        # (and in some cases, cancel_btn_clicked) of PM_Dialog and its
-        # subclasses, and the "Exit xxx" toolbuttons (e.g. Exit DNA)
-        # via a signal set up in Ui_AbstractFlyout.py.
-        # [bruce 080815 comment]
+        """
+        @note: called from several places, including ok_btn_clicked
+        (and in some cases, cancel_btn_clicked) of PM_Dialog and its
+        subclasses, and (when not USE_COMMAND_STACK) the "Exit xxx"
+        toolbuttons (e.g. Exit DNA) via a signal set up in
+        Ui_AbstractFlyout.py.
+
+        When USE_COMMAND_STACK is true, the calls from
+        ok_btn_clicked and cancel_btn_clicked methods are probably
+        correct, but are deprecated, and should be replaced by calls of
+        self.command.command_Done (where self is the calling PM).
+        """
+        #bruce 080815/080827 docstring
         self.currentCommand.Done()
+        return
 
     def toolsCancel(self):
-        # note: called only from cancel_btn_clicked methods in PM_Dialog or its
-        # subclasses, but some of those call toolsDone instead.
-        # [bruce 080815 comment]
+        """
+        Cancel the command which is supplying the currently visible
+        Property Manager.
+        
+        @note: called only from cancel_btn_clicked methods in PM_Dialog or its
+        subclasses, but some of those call toolsDone instead.
+        
+        When USE_COMMAND_STACK is true, the calls from
+        cancel_btn_clicked methods are probably correct, but are deprecated,
+        and should be replaced by calls of self.command.command_Cancel
+        (where self is the calling PM).
+        """
+        #bruce 080815/080827 docstring
         self.currentCommand.Cancel()
+        return
 
     ######################################
     # Show View > Orientation Window
