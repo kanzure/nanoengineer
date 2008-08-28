@@ -56,6 +56,7 @@ from utilities.Comparison import same_vals
 from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key
 from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key
 from utilities.prefs_constants import dnaStrandEditCommand_showCursorTextCheckBox_prefs_key
+from utilities.prefs_constants import cursorTextColor_prefs_key
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.5
@@ -870,17 +871,11 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #GraphicscMode._draw_handles-- Ninad 2008-04-05
         self.update_numberOfBases()
         
+        text = ""
+        textColor = env.prefs[cursorTextColor_prefs_key] # Mark 2008-08-28
+        
         if not env.prefs[dnaStrandEditCommand_showCursorTextCheckBox_prefs_key]:
-            return '', black
-
-
-        #Note: for Rattlesnake rc2, the text color is green when bases are added
-        #, red when subtracted black when no change. But this implementation is 
-        #changed based on Mark's user experience. The text is now always shown
-        #in black color. -- Ninad 2008-04-17
-        textColor = black     
-
-        text = ""  
+            return text, textColor
         
         numberOfBases = self.propMgr.numberOfBasesSpinBox.value()
         

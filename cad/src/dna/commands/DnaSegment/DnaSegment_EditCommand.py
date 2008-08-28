@@ -79,6 +79,7 @@ from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckB
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key
 from utilities.prefs_constants import dnaSegmentResizeHandle_discRadius_prefs_key
 from utilities.prefs_constants import dnaSegmentResizeHandle_discThickness_prefs_key
+from utilities.prefs_constants import cursorTextColor_prefs_key
 from dna.model.Dna_Constants import getDuplexLength
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
@@ -921,15 +922,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
 
         
-        #Use the text color that better contrasts with the background color. 
-        #mitigates bug 2927
-        textColor = self.glpane.get_background_contrast_color()
-
-        text = "" 
+        text = ""
+        textColor = env.prefs[cursorTextColor_prefs_key] # Mark 2008-08-28
 
         if not env.prefs[dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
-            return '', black
-        
+            return text, textColor
                 
         #@@TODO: refactor. 
         #this duplex length canculation fixes bug 2906
