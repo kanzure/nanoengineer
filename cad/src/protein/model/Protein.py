@@ -76,15 +76,14 @@ def is_nucleotide(resName):
 
 class Protein:
     """
-    This class implements a protein model in NanoEngineer-1. 
-    This class was implemented by Piotr in July 2008. 
+    This class implements a protein model in NanoEngineer-1.
+    See module docstring for more info.
     """
+    # This class was implemented by Piotr in July 2008. 
     
     def __init__(self):
 
-        # Dictionary that maps residue names to residue objects. 
-        # The name "sequence" is confusing and should be changed 
-        # to "residues". piotr 082008        
+        # Dictionary that maps residue names to residue objects.
         self.residues = {}
         
         # Ordered list of amino acids.
@@ -92,12 +91,14 @@ class Protein:
         
         # Ordered list of alpha carbon atoms. It should contain at least one atom.
         # This could be probably pre-calculated every time
+        # [I can't tell what that last sentence means -- every time that what occurs?
+        #  motivation? -- bruce 080828]
         self.ca_atom_list = []
         
         # Single-character chain identifier.
         self.chainId = ''
         
-        # PDB indentifier of the protein, typically, a four character string
+        # PDB identifier of the protein, typically, a four character string
         # in the following format: "1abc"
         self.pdbId = ""
         
@@ -135,7 +136,7 @@ class Protein:
 
     def set_pdb_id(self, pdbId):
         """
-        Set a four-letter PDB identificator.
+        Set a four-letter PDB identifier.
         
         @param pdbId: PDB ID of current protein
         @type pdbId: string (four characters)
@@ -144,13 +145,13 @@ class Protein:
         
     def get_pdb_id(self):
         """
-        Return a four-letter PDB identificator.
+        Return a four-letter PDB identifier.
         
         @return: PDB ID of current protein (four-character string)
         """
         return self.pdbId
         
-    def add_pdb_atom(self, atom, pdbname, resId, resName, setType=False):
+    def add_pdb_atom(self, atom, pdbname, resId, resName, setType = False):
         """
         Adds a new atom to the protein. Returns a residue that the atom
         has been added to. 
@@ -205,7 +206,7 @@ class Protein:
         
     def is_atom_single_bonded(self, atom):
         """
-        Test if the atom is aromatic
+        Test if the atom is single-bonded
         """
         if hasattr(atom, 'pdb_is_single_bonded'):
             if atom.pdb_is_single_bonded:
@@ -213,7 +214,7 @@ class Protein:
         else:
             return False
         
-    def is_c_alpha(self, atom):
+    def is_c_alpha(self, atom): # REVIEW: "@type atom: boolean" is wrong
         """
         Check if the atom is a C-alpha atom.
         
@@ -221,6 +222,7 @@ class Protein:
         @type atom: boolean
         
         @return: True if atom is an alpha carbon atom, False if it is not
+        @rtype: boolean
         """
         if atom in self.ca_atom_list:
             return True
@@ -240,11 +242,18 @@ class Protein:
         """
         Return a list of alpha carbon atoms.
         
-        @return: list of atoms 
+        @return: list of atoms
         """
+        # REVIEW: this list is mutable. Docstring should say
+        # whether caller is allowed to modify it (and if so,
+        # what would happen if it did). For example, we could
+        # say "@note: the caller must not modify this list."
+        # Alternatively, should we copy the list here,
+        # to prevent bugs from accidental modification
+        # by caller? or is that too slow? [bruce 080828 comment]
         return self.ca_atom_list
     
-    def is_c_beta(atom):
+    def is_c_beta(atom): # REVIEW: "@type atom: boolean" is wrong
         """
         Check if the atom is a C-beta atom.
         
@@ -279,13 +288,17 @@ class Protein:
         structure information from the input protein. 
         
         piotr 082008: This is no longer true for flexible backbone simulations,
-        i.e. when using the bakcrub mode. It is not going to cause major problems,
+        i.e. when using the backrub mode. It is not going to cause major problems,
         as the backbone changes are relatively minor, but in general we need
         a secondary structure computation algorithm.
         
         @param inProtein:input protein chunk
         @type inProtein: L{Chunk}
         """
+        # REVIEW: historical info should be moved to comments. The docstring
+        # should just describe the current usage info (and if important when
+        # coding callers, likely future changes). [bruce 080828 comment]
+        
         #Urmi 20080728: created to set the secondary structure of the rosetta
         #outputted protein
         aa_list_for_rosetta = self.get_amino_acids()
@@ -304,6 +317,8 @@ class Protein:
         
         @return: secondary structure string 
         """
+        # REVIEW: docstring says result can contain 'C', but it can't.
+        # It can contain '-', not mentioned in docstring. [bruce 080828 comment]
         ss_str = ""
         for aa in self.get_amino_acids():
             ss = aa.get_secondary_structure()
@@ -317,6 +332,8 @@ class Protein:
         return ss_str
 
     def get_amino_acid_id(self, index):
+        # REVIEW: need @param index: ...; and, clarify/fix the term "current" in "current residue",
+        # and, document return value of None
         """
         Create and return a description of this residue (protein name, index, 
         residue name, residue index).
@@ -338,13 +355,15 @@ class Protein:
             return aa_id
         return None
     
-    def get_amino_acid_id_list(self):
+    def get_amino_acid_id_list(self): # REVIEW: document type of list elements in return value
         """
         Create and return a list of residue descriptions (protein name, index, 
         residue name, residue index).
         
         @return: list of residue descriptions for all amino acids
         """
+        # Note: this is quadratic time (due to index in range test inside submethod),
+        # may need to be optimized [bruce 080828 comment]
         id_list = []
         for idx in range(len(self.get_amino_acids())):
             aa_id = self.get_amino_acid_id(idx)
@@ -358,6 +377,10 @@ class Protein:
         
         @return: list of residues
         """
+        # REVIEW: docstring should warn caller that list is mutable,
+        # should not be changed (assuming that's the case).
+        # (But copying it here as a precaution would be a big slowdown
+        #  for some other methods of this class.) [bruce 080828 comment]
         return self.residues_list
     
     def assign_helix(self, resId):
@@ -378,6 +401,8 @@ class Protein:
         @param resId: residue ID for secondary structure assignment
         @type resId: int
         """
+        # REVIEW: docstring should explain the terminology discrepancy
+        # between "strand" and "beta". [bruce 080828 comment]
         if self.residues.has_key(resId):
             aa = self.residues[resId]
             aa.set_secondary_structure(SS_STRAND)
@@ -400,6 +425,9 @@ class Protein:
         @param aa: amino acid to expand
         @type aa: Residue
         """
+        # REVIEW: I think aa should be an element of self.residues.values();
+        # if so, docstring should say this is required (but not checked).
+        # [bruce 080828 comment]
         self.residues_dl = None
         aa.expand()
 
@@ -451,6 +479,8 @@ class Protein:
         """
         Increase an index of the current amino acid.
         """
+        # REVIEW: docstring should emphasize the index is an attr of self,
+        # and document the return value.
         if self.current_aa_idx < len(self.residues)-1:
             self.current_aa_idx += 1
             return True
@@ -460,6 +490,7 @@ class Protein:
         """
         Decrease an index of the current amino acid.
         """
+        # REVIEW: same as for traverse_forward.
         if self.current_aa_idx > 0:
             self.current_aa_idx -= 1
             return True
@@ -471,6 +502,7 @@ class Protein:
         
         @return: current amino acid (Residue)
         """
+        ### MAJOR BUG: dict.values() has undefined order.
         if self.current_aa_idx in range(len(self.residues)):
             return self.residues.values()[self.current_aa_idx]
         return None
@@ -505,6 +537,9 @@ class Protein:
         @param index: index of current amino acid
         @type index: integer
         """
+        # REVIEW: this does no error checking (error is silently ignored);
+        # it might be better to warn if the index is not in range (if that's an error),
+        # or to document that that's allowed (if it is). [bruce 080828 comment]
         if index in range(len(self.residues_list)):
             self.current_aa_idx = index
             
@@ -541,9 +576,9 @@ class Protein:
         """
         Edit the protein chunk
         
-        @note: Probably should not reside here since this file is for the actual 
-               model. May be we'll take care of that when we move to the new model
-        
+        @note: Probably this method should not reside here, since this file is for
+               the actual model. Maybe we'll take care of that when we move to the
+               new model
         """ 
         from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
         if MODEL_AND_SIMULATE_PROTEINS:
@@ -554,7 +589,7 @@ class Protein:
             win.commandSequencer.currentCommand.runCommand()
         return
        
-# end of Protein class
+    pass # end of class Protein
 
 # piotr 082008: This and possibly several Rosetta-related methods of the Protein 
 # class should be re-factored and moved to a separate file in simulations/ROSETTA.
@@ -562,7 +597,7 @@ class Protein:
 def write_rosetta_resfile(filename, chunk):
     """
     Write a Rosetta resfile for a given protein chunk. Return True 
-    if succefully written, otherwise return False. Writes backrub
+    if successfully written, otherwise return False. Writes backrub
     information if the backrub mode is enabled in user preferences.
     
     Currently, we only support single-chain Rosetta simulations.
