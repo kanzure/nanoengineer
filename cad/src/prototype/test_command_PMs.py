@@ -114,17 +114,17 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
     #  So does GBC, but to a noop method. So GBC better be inherited *after* PropMgrBaseClass!)
     
     def ok_btn_clicked(self):
-        print "ok_btn_clicked, nim except for Done in", self
+        print "ok_btn_clicked, doing Done in", self.commandrun
         self.commandrun.Done()
         pass
     
     def cancel_btn_clicked(self):
-        print "cancel_btn_clicked, nim except for Cancel in", self
+        print "cancel_btn_clicked, doing Cancel in", self.commandrun
         self.commandrun.Cancel()
         pass
         
     def preview_btn_clicked(self):
-        print "preview_btn_clicked", self
+        print "preview_btn_clicked (noop or nim, I think)", self
         pass
         
     def __init__(self, win, commandrun = None):
