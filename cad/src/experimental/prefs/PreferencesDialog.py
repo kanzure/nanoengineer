@@ -14,14 +14,120 @@ from PyQt4.Qt import *
 from PyQt4 import QtCore, QtGui
 from Ui_PreferencesDialog import Ui_PreferencesDialog
 
+DEBUG = True
+
+class PageWidget(QWidget):
+    """
+    The page widget base class.
+    """
+    
+    _rowCount = 0
+    
+    def __init__(self, name):
+        """
+        Creates a page widget named name.
+        
+        param name: The page name. It will be used as the tree item
+        """
+        QWidget.__init__(self)
+        self.name = name
+        self.setObjectName(name)
+        
+        # _containerWidget is the container widget.
+        _containerWidget = QtGui.QFrame(self)
+        _containerWidget.setObjectName(name)
+        
+        if DEBUG:
+            _containerWidget.setFrameShape(QFrame.Box)
+        
+        # Create vertical box layout
+        self.vBoxLayout = QVBoxLayout(_containerWidget)
+        self.vBoxLayout.setMargin(0)
+        self.vBoxLayout.setSpacing(0)
+        
+        # Create grid layout
+        self.gridLayout = QtGui.QGridLayout()
+        self.gridLayout.setMargin(2)
+        self.gridLayout.setSpacing(2)
+        
+        # Insert grid layout in its own vBoxLayout
+        self.vBoxLayout.addLayout(self.gridLayout)
+        
+        # Vertical spacer
+        vSpacer = QtGui.QSpacerItem(1, 1, 
+                                    QSizePolicy.Preferred, 
+                                    QSizePolicy.Expanding)
+        self.vBoxLayout.addItem(vSpacer)
+        
+        # Horizontal spacer
+        hSpacer = QtGui.QSpacerItem(1, 1, 
+                                    QSizePolicy.Expanding, 
+                                    QSizePolicy.Preferred)
+        
+        self.hBoxLayout = QtGui.QHBoxLayout(self)
+        self.hBoxLayout.setMargin(0)
+        self.hBoxLayout.setSpacing(0)
+        self.hBoxLayout.addWidget(_containerWidget)
+        self.hBoxLayout.addItem(hSpacer)
+            
+        return
+    
+    def addQtWidget(self, qtWidget, column = 0, spanWidth = False):
+        """
+        Add a Qt widget to this page.
+        
+        @param qtWidget: The Qt widget to add.
+        @type  qtWidget: QWidget
+        """
+        # Set the widget's row and column parameters.
+        widgetRow      = self._rowCount
+        widgetColumn   = column
+        if spanWidth:
+            widgetSpanCols = 2
+        else:
+            widgetSpanCols = 1
+        
+        self.gridLayout.addWidget( qtWidget,
+                                   widgetRow, 
+                                   widgetColumn,
+                                   1, 
+                                   widgetSpanCols )
+        
+        self._rowCount += 1
+        return
+    
+    def addPmWidget(self):
+        """
+        This is a reminder to Derrick and Mark to review the PM_Group class
+        and its addPmWidget() method, since we want to support PM widget 
+        classes.
+        """
+        return
+    
+    pass # End of PageWidget class
+
 class PreferencesDialog(QDialog, Ui_PreferencesDialog):
     """
     The Preferences dialog class.
     
     This is experimental.
     """
-    pagenameList = []
-    containerWidgetList = []
+    pagenameList = ["General", 
+                    "Graphics Area", 
+                    "Zoom, Pan and Rotate",
+                    "Rules",
+                    "Atoms",
+                    "Bonds",
+                    "DNA",
+                    "Minor groove error indicator",
+                    "Base orientation indicator",
+                    "Adjust",
+                    "Lighting",
+                    "Plug-ins",
+                    "Undo",
+                    "Window",
+                    "Reports",
+                    "Tooltips"]
     
     def __init__(self):
         """
@@ -59,90 +165,56 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
     
     def _addPages(self):
         """
-        Adds all pages to the Preferences dialog.
+        Creates all page widgets in pagenameList and add them 
+        to the Preferences dialog.
         """
-        _pageWidget = self.addPage("General")
-        _pageWidget = self.addPage("Color")
-        _pageWidget = self.addPage("Graphics Area")
-        _pageWidget = self.addPage("Zoom, Pan and Rotate")
+        for name in self.pagenameList:
+            print name
+            page_widget = PageWidget(name)
+            self.addPage(page_widget)
+            
+            # Add test widgets for debugging
+            if DEBUG:
+                self._addPageTestWidgets(page_widget)
+                
         return
     
-    def addPage(self, pagename):
+    def _addPageTestWidgets(self, page_widget):
         """
-        Appends a new page to the bottom of the list.
+        This creates a set of test widgets for page_widget.
         """
-        return self.insertPage(pagename)
+        _label = QtGui.QLabel(page_widget)
+        _label.setText(page_widget.name)
+        page_widget.addQtWidget(_label)
+        _checkbox = QtGui.QCheckBox(page_widget.name, page_widget)
+        page_widget.addQtWidget(_checkbox)
+        _pushbutton = QtGui.QPushButton(page_widget.name, page_widget)
+        page_widget.addQtWidget(_pushbutton)
+        _label = QtGui.QLabel(page_widget)
+        return
     
-    def insertPage(self, pagename, index = -1):
+    def addPage(self, page):
         """
-        Inserts page into this preferences dialog at position index.
+        Adds page into this preferences dialog at position index.
         If index is negative, the page is added at the end. 
         
-        param pagename: Page name.
-        type  pagename: string
-        param index: Page index
-        type  index: int
-        
-        @note: This implem in temporary. Derrick and I like passing in a 
-        page widget that gets added to the stacked widget. The page
-        widget will contain the name attr needed in this method.
+        param page: Page widget.
+        type  page: L{PageWidget}
         """
-        # 0. Check that the page widget's "name" is a unique name/string
         
-        # 1. Create the page widget and add it to the stack widget.
-        _page = QtGui.QWidget()
-        _page.setObjectName(pagename)
-        self.prefsStackedWidget.addWidget(_page)
+        # Add page to the stacked widget
+        self.prefsStackedWidget.addWidget(page)
         
-        # 2. Add page widget and pagename to a list.
-        
-        # _widget is the container widget.
-        _widget = QtGui.QFrame(_page)
-        _widget.setObjectName(pagename)
-        _widget.setFrameShape(QFrame.Box)
-        
-        # Set the size policy for the container widget. 
-        # Note to Derrick: This is really important to get right early in the
-        # project. --Mark
-        #_widget.setMinimumSize(QtCore.QSize(100,100))
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(_widget.sizePolicy().hasHeightForWidth())
-        _widget.setSizePolicy(sizePolicy)
-        
-        if index < 0:
-            self.pagenameList.append(pagename)
-            self.containerWidgetList.append(_widget)
-        else:
-            self.pagenameList.insert(index, pagename)
-            self.containerWidgetList.append(index, _page)
-            
-        # Label for debugging
-        if 1:
-            _label = QtGui.QLabel(_widget)
-            _label.setText(pagename+" this is an extension to the label so that it will grow")
-
-        
-        if 1:
-            # Horizontal spacer
-            horizontalSpacer = QtGui.QSpacerItem(1, 1, 
-                                    QSizePolicy.Preferred, 
-                                    QSizePolicy.Minimum)
-            
-            self.hBoxLayout = QtGui.QHBoxLayout(_page)
-            self.hBoxLayout.addWidget(_widget)
-            self.hBoxLayout.addItem(horizontalSpacer)
-        
-        # 3. Add the QTreeWidgetItem
+        # Add a QTreeWidgetItem to the categories QTreeWidget.
+        # The label (text) of the item is the page name.
         _item = QtGui.QTreeWidgetItem(self.categoriesTreeWidget)
         _item.setText(0, 
                       QtGui.QApplication.translate("PreferencesDialog", 
-                                                   pagename, 
+                                                   page.name, 
                                                    None, 
                                                    QtGui.QApplication.UnicodeUTF8))
         
-        return _widget
+        return
     
     def getPage(self, pagename):
         """

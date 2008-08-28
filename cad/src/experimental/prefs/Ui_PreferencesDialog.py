@@ -26,6 +26,8 @@ class Ui_PreferencesDialog(object):
         self.tab.setObjectName("tab")
 
         self.hboxlayout = QtGui.QHBoxLayout(self.tab)
+        self.hboxlayout.setSpacing(4)
+        self.hboxlayout.setMargin(2)
         self.hboxlayout.setObjectName("hboxlayout")
 
         self.categoriesTreeWidget = QtGui.QTreeWidget(self.tab)
