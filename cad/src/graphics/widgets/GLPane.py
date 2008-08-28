@@ -713,11 +713,20 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
 
     # ==
 
+    def getTextHaloColor(self, textColor):
+        """
+        A function that returns the halo color given a text color. 
+        The halo color will be either light gray or dark gray.
+        """
+        if not color_difference(lightgray, textColor,
+                                minimum_difference = 0.51):
+            return darkgray
+        return lightgray
+        
     def renderTextAtPosition(self,                               
                              position,
                              textString,
                              textColor = black,
-                             backgroundColor = lightgray,
                              textFont =  None, 
                              fontSize = 11
                              ):
@@ -736,9 +745,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         @see: QGLWidget.renderText ()
 
         @TODO: refactor to move the common code in this method and 
-        self.renderTextNearCursor(). Also, in this method, its not possible to 
-        define a background text slightly offset to the x.y z to get a nicer
-        text. Need to see how to acheve that
+        self.renderTextNearCursor().
         """
         
         if textFont is not None:
@@ -746,7 +753,6 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         else:
             font = self._getFontForTextNearCursor(fontSize = fontSize, 
                                                   isBold = True)
-
 
         x = position[0]
         y = position[1]
@@ -757,15 +763,16 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         #Convert the object coordinates to the window coordinates.
         wX, wY, wZ = gluProject(x, y, z)
         
-        fg_color = textColor
-        bg_color = backgroundColor
+        # halo color
+        halo_color = self.getTextHaloColor(textColor)
+        
         offset_val = 1
 
-        render_positions = (( offset_val,  offset_val, bg_color), 
-                            (-offset_val, -offset_val, bg_color), 
-                            (-offset_val,  offset_val, bg_color), 
-                            ( offset_val, -offset_val, bg_color),
-                            (          0,           0, fg_color))
+        render_positions = (( offset_val,  offset_val, halo_color), 
+                            (-offset_val, -offset_val, halo_color), 
+                            (-offset_val,  offset_val, halo_color), 
+                            ( offset_val, -offset_val, halo_color),
+                            (          0,           0, textColor))
 
         for dx, dy, color in render_positions:
             self.qglColor(RGBf_to_QColor(color)) 
@@ -783,7 +790,6 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                              textString, 
                              offset = 10, 
                              textColor = black,
-                             backgroundColor = lightgray,
                              fontSize = 11):
         """
         Renders text near the cursor position, on the top right side of the
@@ -799,9 +805,6 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         @see: DnaLineMode.Draw
         @see: self._getFontForTextNearCursor()
         @see: self.renderTextAtPosition()
-        @Note: the color argument is not used. It is superseded by bg_color
-        and forgraound colored text . So color arg is unsupported for 
-        the Rattlesnake  release.
         """
         if not textString:
             return 
@@ -869,29 +872,27 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
     
         offset_val = 1
 
-        deltas_for_bg_color = ((offset_val, offset_val), 
-                               (-offset_val, -offset_val), 
-                               (-offset_val, offset_val), 
-                               (offset_val, -offset_val))
+        deltas_for_halo_color = (( offset_val,  offset_val), 
+                                 (-offset_val, -offset_val), 
+                                 (-offset_val,  offset_val), 
+                                 ( offset_val, -offset_val))
         
-        #background color
-        bg_color = backgroundColor
-        #Foreground color 
-        fg_color = textColor
+        # halo color
+        halo_color = self.getTextHaloColor(textColor)
         
-        for dx, dy in deltas_for_bg_color: 
-            self.qglColor(RGBf_to_QColor(bg_color)) 
+        for dx, dy in deltas_for_halo_color: 
+            self.qglColor(RGBf_to_QColor(halo_color)) 
 
             ### Note: self.renderText is QGLWidget.renderText method.
             self.renderText(x + dx*signForDX ,
                             y + dy*signForDY,
                             textString,
                             font)
-            self.qglClearColor(RGBf_to_QColor(bg_color))
+            self.qglClearColor(RGBf_to_QColor(halo_color))
 
         # Note: It is necessary to set the font color, otherwise it may change!
 
-        self.qglColor(RGBf_to_QColor(fg_color))   
+        self.qglColor(RGBf_to_QColor(textColor))   
         x = pos.x() + xOffset
         y = pos.y() - yOffset
 
@@ -900,7 +901,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                         y ,
                         textString,
                         font)
-        self.qglClearColor(RGBf_to_QColor(fg_color))
+        self.qglClearColor(RGBf_to_QColor(textColor))
             # question: is this related to glClearColor? [bruce 071214 question]
         glEnable(GL_LIGHTING)
 
