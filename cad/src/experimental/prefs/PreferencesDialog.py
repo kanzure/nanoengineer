@@ -15,50 +15,29 @@ from PyQt4 import QtCore, QtGui
 from Ui_PreferencesDialog import Ui_PreferencesDialog
 
 # imports for testing
-from PM_ComboBox import PM_ComboBox
-from PM_ColorComboBox import PM_ColorComboBox
+from PM.PM_ComboBox import PM_ComboBox
+from PM.PM_ColorComboBox import PM_ColorComboBox
+from PM.PM_CheckBox import PM_CheckBox
 
-if 0: # This will be used later
-    from PM.PM_Constants import PM_MAINVBOXLAYOUT_MARGIN
-    from PM.PM_Constants import PM_MAINVBOXLAYOUT_SPACING
-    from PM.PM_Constants import PM_HEADER_FRAME_MARGIN
-    from PM.PM_Constants import PM_HEADER_FRAME_SPACING
-    from PM.PM_Constants import PM_HEADER_FONT
-    from PM.PM_Constants import PM_HEADER_FONT_POINT_SIZE
-    from PM.PM_Constants import PM_HEADER_FONT_BOLD
-    from PM.PM_Constants import PM_SPONSOR_FRAME_MARGIN
-    from PM.PM_Constants import PM_SPONSOR_FRAME_SPACING
-    from PM.PM_Constants import PM_TOPROWBUTTONS_MARGIN
-    from PM.PM_Constants import PM_TOPROWBUTTONS_SPACING
-    from PM.PM_Constants import PM_LABEL_LEFT_ALIGNMENT, PM_LABEL_RIGHT_ALIGNMENT
-    
-    from PM.PM_Constants import PM_ALL_BUTTONS
-    from PM.PM_Constants import PM_DONE_BUTTON
-    from PM.PM_Constants import PM_CANCEL_BUTTON
-    from PM.PM_Constants import PM_RESTORE_DEFAULTS_BUTTON
-    from PM.PM_Constants import PM_PREVIEW_BUTTON
-    from PM.PM_Constants import PM_WHATS_THIS_BUTTON
-
-if 1: # This is for building
-    from PM_Constants import PM_MAINVBOXLAYOUT_MARGIN
-    from PM_Constants import PM_MAINVBOXLAYOUT_SPACING
-    from PM_Constants import PM_HEADER_FRAME_MARGIN
-    from PM_Constants import PM_HEADER_FRAME_SPACING
-    from PM_Constants import PM_HEADER_FONT
-    from PM_Constants import PM_HEADER_FONT_POINT_SIZE
-    from PM_Constants import PM_HEADER_FONT_BOLD
-    from PM_Constants import PM_SPONSOR_FRAME_MARGIN
-    from PM_Constants import PM_SPONSOR_FRAME_SPACING
-    from PM_Constants import PM_TOPROWBUTTONS_MARGIN
-    from PM_Constants import PM_TOPROWBUTTONS_SPACING
-    from PM_Constants import PM_LABEL_LEFT_ALIGNMENT, PM_LABEL_RIGHT_ALIGNMENT
-    
-    from PM_Constants import PM_ALL_BUTTONS
-    from PM_Constants import PM_DONE_BUTTON
-    from PM_Constants import PM_CANCEL_BUTTON
-    from PM_Constants import PM_RESTORE_DEFAULTS_BUTTON
-    from PM_Constants import PM_PREVIEW_BUTTON
-    from PM_Constants import PM_WHATS_THIS_BUTTON
+from PM.PM_Constants import PM_MAINVBOXLAYOUT_MARGIN
+from PM.PM_Constants import PM_MAINVBOXLAYOUT_SPACING
+from PM.PM_Constants import PM_HEADER_FRAME_MARGIN
+from PM.PM_Constants import PM_HEADER_FRAME_SPACING
+from PM.PM_Constants import PM_HEADER_FONT
+from PM.PM_Constants import PM_HEADER_FONT_POINT_SIZE
+from PM.PM_Constants import PM_HEADER_FONT_BOLD
+from PM.PM_Constants import PM_SPONSOR_FRAME_MARGIN
+from PM.PM_Constants import PM_SPONSOR_FRAME_SPACING
+from PM.PM_Constants import PM_TOPROWBUTTONS_MARGIN
+from PM.PM_Constants import PM_TOPROWBUTTONS_SPACING
+from PM.PM_Constants import PM_LABEL_LEFT_ALIGNMENT, PM_LABEL_RIGHT_ALIGNMENT
+   
+from PM.PM_Constants import PM_ALL_BUTTONS
+from PM.PM_Constants import PM_DONE_BUTTON
+from PM.PM_Constants import PM_CANCEL_BUTTON
+from PM.PM_Constants import PM_RESTORE_DEFAULTS_BUTTON
+from PM.PM_Constants import PM_PREVIEW_BUTTON
+from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 
 DEBUG = True
 
@@ -158,48 +137,48 @@ class PageWidget(QWidget):
         #placement of the checkbox. (can be placed either in column 0 or 1 , 
         #This also needs to be implemented for PM_RadioButton, but at present 
         #the following code doesn't support PM_RadioButton. 
-        #if isinstance(pmWidget, PM_CheckBox):
-            #spanWidth = pmWidget.spanWidth
+        if isinstance(pmWidget, PM_CheckBox):
+            spanWidth = pmWidget.spanWidth
             
-            #if not spanWidth:
-                ## Set the widget's row and column parameters.
-                #widgetRow      = row
-                #widgetColumn   = pmWidget.widgetColumn
-                #widgetSpanCols = 1
-                #widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
-                #rowIncrement   = 1
-                ##set a virtual label
-                #labelRow       = row
-                #labelSpanCols  = 1
-                #labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
+            if not spanWidth:
+                # Set the widget's row and column parameters.
+                widgetRow      = row
+                widgetColumn   = pmWidget.widgetColumn
+                widgetSpanCols = 1
+                widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
+                rowIncrement   = 1
+                #set a virtual label
+                labelRow       = row
+                labelSpanCols  = 1
+                labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
                             
-                #if widgetColumn == 0:
-                    #labelColumn   = 1                              
-                #elif widgetColumn == 1:
-                    #labelColumn   = 0
-            #else:                
-                ## Set the widget's row and column parameters.
-                #widgetRow      = row
-                #widgetColumn   = pmWidget.widgetColumn
-                #widgetSpanCols = 2
-                #widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
-                #rowIncrement   = 1
-                ##no label 
-                #labelRow       = 0
-                #labelColumn    = 0
-                #labelSpanCols  = 0
-                #labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
+                if widgetColumn == 0:
+                    labelColumn   = 1                              
+                elif widgetColumn == 1:
+                    labelColumn   = 0
+            else:                
+                # Set the widget's row and column parameters.
+                widgetRow      = row
+                widgetColumn   = pmWidget.widgetColumn
+                widgetSpanCols = 2
+                widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
+                rowIncrement   = 1
+                #no label 
+                labelRow       = 0
+                labelColumn    = 0
+                labelSpanCols  = 0
+                labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
                 
             
-            #return widgetRow, \
-               #widgetColumn, \
-               #widgetSpanCols, \
-               #widgetAlignment, \
-               #rowIncrement, \
-               #labelRow, \
-               #labelColumn, \
-               #labelSpanCols, \
-               #labelAlignment
+            return widgetRow, \
+               widgetColumn, \
+               widgetSpanCols, \
+               widgetAlignment, \
+               rowIncrement, \
+               labelRow, \
+               labelColumn, \
+               labelSpanCols, \
+               labelAlignment
         
        
         label       = pmWidget.label            
@@ -342,16 +321,18 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
     The Preferences dialog class.
 
     This is experimental.
+    
+    pagenameList[0] always has to be a singular item, it cannot be a list.
+    All sub-lists are interpreted as being children of the item preceding it.
     """
     pagenameList = ["General", 
                     "Graphics Area", 
-                    "Zoom, Pan and Rotate",
-                    "Rules",
+                    ["Zoom, Pan and Rotate", "Rules"],
                     "Atoms",
                     "Bonds",
                     "DNA",
-                    "Minor groove error indicator",
-                    "Base orientation indicator",
+                    ["Minor groove error indicator", 
+                     "Base orientation indicator"],
                     "Adjust",
                     "Lighting",
                     "Plug-ins",
@@ -359,6 +340,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                     "Window",
                     "Reports",
                     "Tooltips"]
+    
+    pagenameDict = {}
 
     def __init__(self):
         """
@@ -367,7 +350,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         QDialog.__init__(self)
         self.setupUi(self)
         self._setupDialog_TopLevelWidgets()
-        self._addPages()
+        self._addPages(self.pagenameList)
         return
 
     def _setupDialog_TopLevelWidgets(self):
@@ -394,15 +377,42 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.whatsThisToolButton.setToolTip('Enter "What\'s This?" help mode')
         return
 
-    def _addPages(self):
+    def addScrollArea(self):
+        self.propertyManagerScrollArea = QScrollArea(self.categoriesTreeWidget)
+        self.propertyManagerScrollArea.setObjectName("propertyManagerScrollArea")
+        self.propertyManagerScrollArea.setWidget(self.categoriesTreeWidget)
+        self.propertyManagerScrollArea.setWidgetResizable(True)
+    
+    def _addPages(self, pagenameList, myparent = None):
         """
         Creates all page widgets in pagenameList and add them 
         to the Preferences dialog.
         """
-        for name in self.pagenameList:
+
+        if (type(pagenameList[0]) == list or \
+            type(pagenameList[0]) == tuple):
+            print "Invalid tree structure with no root page."
+            return
+        # Run through the list and add the pages into the tree.
+        # This is recursive so that it interpretes nested sublists based on
+        # the structure of the list.
+        x=-1
+        while x < len(pagenameList) - 1:
+            x = x + 1
+            name = pagenameList[x]
             print name
             page_widget = PageWidget(name)
-            self.addPage(page_widget)
+            # Create a dictionary entry for the page name and it's index
+            self.pagenameDict[name] = len(self.pagenameDict)
+            page_tree_slot = self.addPage(page_widget, myparent)
+            # Check if the next level is a sub-list
+            if x + 1 <= len(pagenameList) - 1 and \
+               (type(pagenameList[x+1]) == list or \
+               type(pagenameList[x+1]) == tuple):
+                # If so, call addPages again using the sublist and the current
+                # item as the parent
+                self._addPages(pagenameList[x+1], page_tree_slot)
+                x = x + 1
 
             # Add test widgets for debugging
             if DEBUG:
@@ -410,25 +420,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
 
         return
 
-    def _addPageTestWidgets(self, page_widget):
-        """
-        This creates a set of test widgets for page_widget.
-        """
-        _label = QtGui.QLabel(page_widget)
-        _label.setText(page_widget.name)
-        page_widget.addQtWidget(_label)
-        _checkbox = QtGui.QCheckBox(page_widget.name, page_widget)
-        page_widget.addQtWidget(_checkbox)
-        _pushbutton = QtGui.QPushButton(page_widget.name, page_widget)
-        page_widget.addQtWidget(_pushbutton)
-        _label = QtGui.QLabel(page_widget)
-        _choices = ['a', 'b' ]
-        _pref_ComboBox = PM_ComboBox( page_widget, label =  "choices:", 
-                                      choices = _choices, setAsDefault = True)
-        _prec_color = PM_ColorComboBox(page_widget)
-        return
-
-    def addPage(self, page):
+    def addPage(self, page, myparent = None):
         """
         Adds page into this preferences dialog at position index.
         If index is negative, the page is added at the end. 
@@ -442,15 +434,38 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
 
         # Add a QTreeWidgetItem to the categories QTreeWidget.
         # The label (text) of the item is the page name.
-        _item = QtGui.QTreeWidgetItem(self.categoriesTreeWidget)
+        if not myparent:
+            _item = QtGui.QTreeWidgetItem(self.categoriesTreeWidget)
+        else:
+            _item = QtGui.QTreeWidgetItem(myparent)
         _item.setText(0, 
                       QtGui.QApplication.translate("PreferencesDialog", 
                                                    page.name, 
                                                    None, 
                                                    QtGui.QApplication.UnicodeUTF8))
 
-        return
+        return _item
 
+    def _addPageTestWidgets(self, page_widget):
+        """
+        This creates a set of test widgets for page_widget.
+        """
+        _label = QtGui.QLabel(page_widget)
+        _label.setText(page_widget.name)
+        page_widget.addQtWidget(_label)
+        _checkbox = QtGui.QCheckBox(page_widget.name, page_widget)
+        page_widget.addQtWidget(_checkbox)
+        _pushbutton = QtGui.QPushButton(page_widget.name, page_widget)
+        page_widget.addQtWidget(_pushbutton)
+        _label = QtGui.QLabel(page_widget)
+        _choices = ['choice a', 'choice b' ]
+        _pref_ComboBox = PM_ComboBox( page_widget, label =  "choices:", 
+                                      choices = _choices, setAsDefault = True)
+        _pref_color = PM_ColorComboBox(page_widget, spanWidth = True)
+        _pref_CheckBox = PM_CheckBox(page_widget, text ="nothing interesting", \
+                                     widgetColumn = 1)
+        return
+        
     def getPage(self, pagename):
         """
         Returns the container widget for pagename.
@@ -477,15 +492,15 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             else:
                 pagename = 'General'
 
-        if not pagename in self.pagenameList:
+        if not pagename in self.pagenameDict:
             msg = 'Preferences page unknown: pagename =%s\n' \
                 'pagename must be one of the following:\n%r\n' \
                 % (pagename, self.pagenameList)
             print_compact_traceback(msg)
 
         try:
-            # Show page.
-            self.prefsStackedWidget.setCurrentIndex(self.pagenameList.index(pagename))
+            # Show page.  Use the dictionary to get the index.
+            self.prefsStackedWidget.setCurrentIndex(self.pagenameDict[pagename])
         except:
             print_compact_traceback("Bug in showPage() ignored.")
 
