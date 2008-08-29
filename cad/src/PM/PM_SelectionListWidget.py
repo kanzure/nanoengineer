@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PM_SelectionListWidget.py
 
 @author: Ninad 
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  All rights reserved.
+@copyright: 2007-2008 Nanorex, Inc.  All rights reserved.
 
 TODO:
 - Probably need to revise the tag instructions. At the moment it is confusing. 
@@ -57,6 +57,7 @@ from widgets.widget_helpers import RGBf_to_QColor
 
 from utilities.constants import yellow, white
 from utilities.icon_utilities import geticon
+from utilities.debug import print_compact_traceback
 
 TAG_INSTRUCTIONS = ['TAG_ITEM_IN_GLPANE', 
                     'PICK_ITEM_IN_GLPANE',
@@ -328,8 +329,12 @@ class PM_SelectionListWidget(PM_ListWidget):
             #following line . See also self.editItems -- Ninad 2008-01-16
             listWidgetItem.setFlags( listWidgetItem.flags()| Qt.ItemIsEditable)
 
-            if hasattr(item.__class__, 'iconPath'): 
-                listWidgetItem.setIcon(geticon(item.iconPath))
+            if hasattr(item.__class__, 'iconPath'):
+                try:
+                    listWidgetItem.setIcon(geticon(item.iconPath))
+                except:
+                    #bruce 080829 added this while debugging Zoom in or after Insert Dna in USE_COMMAND_STACK
+                    print_compact_traceback()
 
             self._itemDictionary[listWidgetItem] = item  
 

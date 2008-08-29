@@ -337,7 +337,14 @@ class basicGraphicsMode(GraphicsMode_API):
         like win or glpane or assy, or settings changes in them)
 
         @see: Command.restore_patches_by_Command
+
+        @note: no longer part of the GraphicsMode API when USE_COMMAND_STACK is true
         """
+        assert not USE_COMMAND_STACK #bruce 080829
+            # note: this is still defined privately by ZoomToAreaMode
+            # and called in its command.command_will_exit method.
+            # If we add this back into the GraphicsMode API, we'll rename it,
+            # perhaps to graphicsMode_will_exit.
         pass
 
     # ==

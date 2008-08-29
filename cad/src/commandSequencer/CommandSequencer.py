@@ -52,6 +52,8 @@ _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 
 _SAFE_MODE = DEFAULT_COMMAND
 
+DEBUG_COMMAND_SEQUENCER = USE_COMMAND_STACK # turn this off when USE_COMMAND_STACK becomes the default
+
 # ==
 
 # TODO: mode -> command or currentCommand in lots of comments, some method names
@@ -721,6 +723,8 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         Exit and enter commands as needed, so that the current command
         has the given commandName.
         """
+        self._f_assert_command_stack_unlocked()
+        
         do_update = always_update # might be set to True below
         del always_update
         
@@ -849,12 +853,17 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         @param implicit: @see: baseCommand.command_Done
         """
         assert USE_COMMAND_STACK
+        self._f_assert_command_stack_unlocked()
+        if DEBUG_COMMAND_SEQUENCER:
+            print "DEBUG_COMMAND_SEQUENCER: _f_exit_active_command wants to exit back to", command
         assert command.command_is_active()
         # exit commands, innermost (current) first, until we fail,
         # or exit the command we were passed (our exit_target).
         error = False
         while not error:
             old_command = self.currentCommand
+            if DEBUG_COMMAND_SEQUENCER:
+                print "DEBUG_COMMAND_SEQUENCER: _f_exit_active_command will exit currentCommand", old_command
             exited = self._exit_currentCommand_with_flags( cancel = cancel,
                                                            forced = forced,
                                                            implicit = implicit,
@@ -867,8 +876,28 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
                 # we're done
                 break
             continue # exit more commands
+        if DEBUG_COMMAND_SEQUENCER:
+            print "DEBUG_COMMAND_SEQUENCER: _f_exit_active_command returns, currentCommand is", self.currentCommand
         return
 
+    _f_command_stack_is_locked = None # None or a reason string
+    
+    def _f_lock_command_stack(self, why = None):
+        assert not self._f_command_stack_is_locked 
+        self._f_command_stack_is_locked = why or "for some reason"
+        return
+
+    def _f_unlock_command_stack(self):
+        assert self._f_command_stack_is_locked
+        self._f_command_stack_is_locked = None
+        return
+
+    def _f_assert_command_stack_unlocked(self):
+        assert not self._f_command_stack_is_locked, \
+               "bug: command stack is locked: %r" % \
+               self._f_command_stack_is_locked
+        return
+    
     # ==
     
     def userEnterCommand(self, commandName, always_update = False, **options):
@@ -1262,7 +1291,8 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
                 self._fyi_request_data_was_accessed = False
             pass            
         else:
-            assert 0, "nim" ### IMPLEM
+            self._f_assert_command_stack_unlocked()
+            assert 0, "callRequestCommand is nim for USE_COMMAND_STACK" ### IMPLEM
         return
 
     def _f_get_data_while_entering_request_command(self): #bruce 080801
@@ -1289,8 +1319,25 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         and current command UI.
         """
 
+        if self._f_command_stack_is_locked:
+            # This can happen; not yet sure if it can happen when there are
+            # no bugs.
+            #
+            # When it happens, it's unsafe to do any updates
+            # (especially those which alter the command stack).
+            # todo: If this is common, then only print it when
+            # DEBUG_COMMAND_SEQUENCER.
+            #
+            # REVIEW: do we also need something like the old
+            # "stop_sending_us_events" system,
+            # to protect from all kinds of events? [bruce 080829]
+            print "fyi: _f_update_current_command does nothing since command stack is locked (%s)" % \
+                  self._f_command_stack_is_locked
+            return
+        
+        self._f_assert_command_stack_unlocked()
+        
         ### TODO: decide whether a command-stack update is required.
-
         #### what if different active cmds disagree? what if request cmd messes up the one showing the PM? ####
         
         

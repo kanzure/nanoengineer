@@ -396,8 +396,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         #TODO: 
         #Filter out only the chunks inside the dna group. the DnaDuplex.make 
-        #doesn't  implement the dan data model yet. Until thats implemented ,we
-        #will do an isinstance(node, Chunk) check . Note that it includes both  
+        #doesn't implement the dna data model yet. Until that's implemented, we
+        #will do an isinstance(node, Chunk) check. Note that it includes both  
         #Strands and Axis chunks -- Ninad 2008-01-09
         
         if self.command and self.command.hasValidStructure():

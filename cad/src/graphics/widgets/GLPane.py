@@ -1634,6 +1634,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
             # looked like self.backgroundColor.) [bruce 050615 comment]
             pass
 
+        self.gl_update() #bruce 080829
         return
 
     def _set_widget_erase_color(self, bgcolor): # revised, bruce 071011

@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Zoom to Area functionality.
 
 @author:    Mark Sims
 @version:   $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 
 History:
@@ -30,8 +30,11 @@ from geometry.VQT import V, A
 from graphics.drawing.drawers import drawrectangle
 from utilities.constants import GL_FAR_Z
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from temporary_commands.TemporaryCommand import TemporaryCommand_Overdrawing
+
+DEBUG_ZOOM = USE_COMMAND_STACK # turn this off when USE_COMMAND_STACK becomes the default
 
 
 # == the GraphicsMode part
@@ -99,6 +102,8 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         Erase the final rubber band window and do zoom if user indeed draws a
         rubber band window.
         """
+        if DEBUG_ZOOM:
+            print "DEBUG_ZOOM: leftUp"
         # bugs 1190, 1818 wware 4/05/2006 - sometimes Qt neglects to call
         # leftDown before this
         if not hasattr(self, "pWxy") or not hasattr(self, "firstDraw"):
@@ -115,8 +120,11 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # like a double click, a single line rubber band, skip zoom
         DELTA = 1.0E-5
         if self.pWxy[0] == cWxy[0] or self.pWxy[1] == cWxy[1] \
-                or zoomFactor < DELTA: 
-            self.command.Done()
+                or zoomFactor < DELTA:
+            if DEBUG_ZOOM:
+                print "DEBUG_ZOOM: Done 1"
+            self.command.Done(exit_using_done_or_cancel_button = False)
+                #bruce 080829 bugfix: added exit_using_done_or_cancel_button = False
             return
         
         # Erase the last rubber-band window
@@ -165,6 +173,8 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # plane change as scale too.
         self.glpane.scale *= zoomFactor
        
+        if DEBUG_ZOOM:
+            print "DEBUG_ZOOM: Done 2"
         self.command.Done(exit_using_done_or_cancel_button = False)
         return
         
@@ -178,6 +188,11 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         This is run when we exit this command for any reason.
         """
+        # Note: this is no longer part of the GraphicsMode API when USE_COMMAND_STACK is true,
+        # but we retain it as an essentially private method and call it from
+        # self.command.command_will_exit in that case. [bruce 080829 comment]
+        if DEBUG_ZOOM:
+            print "DEBUG_ZOOM: restore_patches_by_GraphicsMode" ### BUG: not yet called when USE_COMMAND_STACK
         # If OpenGL states changed during this mode, we need to restore
         # them before exit. Currently, only leftDown() will change that.
         # [bruce 071011/071012 change: do this in
@@ -206,9 +221,28 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
     command_level = CL_VIEW_CHANGE
 
     GraphicsMode_class = ZoomToAreaMode_GM
-    
-    def Enter(self):
-        super(ZoomToAreaMode, self).Enter()
+
+    if not USE_COMMAND_STACK:
+        
+        def Enter(self):
+            super(ZoomToAreaMode, self).Enter()
+            self._command_enter_effects()
+
+        def init_gui(self):
+            self.command_enter_misc_actions()
+
+        def restore_gui(self):
+            self.command_exit_misc_actions()            
+
+    def command_entered(self):
+        super(ZoomToAreaMode, self).command_entered()
+        self._command_enter_effects()
+
+    def _command_enter_effects(self):
+        """
+        common code for Enter and command_entered
+        """
+        # todo: merge into command_entered when USE_COMMAND_STACK is always true and Enter is removed
         bg = self.glpane.backgroundColor
         
         # rubber window shows as white color normally, but when the
@@ -218,18 +252,33 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
             self.rbwcolor = bg
                 # note: accessed as self.command.rbwcolor in our GraphicsMode part
         else:
+            # REVIEW: should the following color be converted to tuple(),
+            # in case it's black and the Numeric.array version
+            # would fool some code due to being boolean false?
+            # [bruce 080829 question]
             self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
         
         self.glStatesChanged = False
             # note: accessed as self.command.glStatesChanged in our GraphicsMode part
         return
-    
-    def init_gui(self):
+
+    def command_enter_misc_actions(self):
+        super(ZoomToAreaMode, self).command_enter_misc_actions()
+        if DEBUG_ZOOM:
+            print "DEBUG_ZOOM: toggle on the Zoom Tool icon"
         self.win.zoomToAreaAction.setChecked(1) # toggle on the Zoom Tool icon
 
-    def restore_gui(self):
+    def command_exit_misc_actions(self):
+        if DEBUG_ZOOM:
+            print "DEBUG_ZOOM: toggle off the Zoom Tool icon" # i suspect this recurses into Done and causes a bug
         self.win.zoomToAreaAction.setChecked(0) # toggle off the Zoom Tool icon
+        super(ZoomToAreaMode, self).command_exit_misc_actions()
 
+    def command_will_exit(self):
+        super(ZoomToAreaMode, self).command_will_exit()
+        self.graphicsMode.restore_patches_by_GraphicsMode()
+        return
+    
     pass
 
 # end

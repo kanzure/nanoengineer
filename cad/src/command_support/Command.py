@@ -160,7 +160,13 @@ class anyCommand(baseCommand, StateMixin):
         # typical exit of a temporary mode . See that method for detailed 
         # comment. -- Ninad 2007-11-09
     
-    
+    def __repr__(self): #bruce 080829, modified from Utility.py version
+        """
+        [subclasses can override this, and often do]
+        """
+        classname = self.__class__.__name__.split('.')[-1]
+        return "<%s at %#x>" % (classname, id(self))
+
     # (default methods that should be noops in both nullCommand and Command
     #  can be put here instead if desired; for docstrings, see basicCommand)
     
@@ -1268,7 +1274,7 @@ class basicCommand(anyCommand):
             # [bruce 080827]
             assert not (new_mode or suspend_old_mode or new_mode_options), \
                    "nim: opts %r" % ((new_mode, suspend_old_mode, new_mode_options),)
-            if exit_using_done_or_cancel_button:
+            if not exit_using_done_or_cancel_button:
                 command_to_exit = self
             else:
                 command_to_exit = self.command_that_supplies_PM()
@@ -1429,7 +1435,7 @@ class basicCommand(anyCommand):
             # [bruce 080827]
             assert not (new_mode or new_mode_options), \
                    "nim: opts %r" % ((new_mode, new_mode_options),)
-            if exit_using_done_or_cancel_button:
+            if not exit_using_done_or_cancel_button:
                 command_to_exit = self
             else:
                 command_to_exit = self.command_that_supplies_PM()
@@ -1603,6 +1609,8 @@ class basicCommand(anyCommand):
 
         [private; should not be overridden]
         """
+        assert not USE_COMMAND_STACK #bruce 080829 ### TODO: do the same things in other methods
+        
         # (the following are probably only called together, but it's
         # good to split up their effects as documented in case we
         # someday call them separately, and also just for code
@@ -1643,7 +1651,10 @@ class basicCommand(anyCommand):
         like win or glpane or assy, or settings changes in them)
 
         @see: GraphicsMode.restore_patches_by_GraphicsMode
+
+        @note: no longer part of the Command API when USE_COMMAND_STACK is true
         """
+        assert not USE_COMMAND_STACK #bruce 080829 ### TODO: do the same things in other methods
         pass
     
     def clear(self): #bruce 080806 deprecated this (old name of clear_command_state) ### rename in subs, in calls
@@ -1658,7 +1669,10 @@ class basicCommand(anyCommand):
         """
         subclasses with internal state should reset it to null values
         (somewhat redundant with Enter; best to clear things now)
+
+        @note: no longer part of the Command API when USE_COMMAND_STACK is true
         """
+        assert not USE_COMMAND_STACK #bruce 080829 ### TODO: do the same things in other methods
         return
         
     # [bruce comment 040923; trimmed, 080806]

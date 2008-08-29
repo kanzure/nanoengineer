@@ -24,6 +24,7 @@ from utilities.prefs_constants import ORTHOGRAPHIC
 from utilities.prefs_constants import PERSPECTIVE
 from model.NamedView import NamedView
 from model.PovrayScene import PovrayScene
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class viewSlotsMixin:
     """
@@ -189,10 +190,16 @@ class viewSlotsMixin:
             if command.commandName == commandName:
                 #bruce 071011 change, an educated guess, may increase prints, may cause bugs ### TEST
                 # we're now in the command being turned off, as expected.
-                command.Done(exit_using_done_or_cancel_button = False)
-                ### REVIEW: Can this ever happen if we just now entered that command,
-                # due to a programmatic change to that button, e.g. if another one
-                # was pressed? If so, it might cause some bug. [bruce 070814 comment]
+                if USE_COMMAND_STACK and commandSequencer._f_command_stack_is_locked:
+                    # this is normal when the command is exiting on its own
+                    # and changes the state of its action programmatically.
+                    # In this case, redundant exit causes bugs, so skip it.
+                    # [bruce 080829]
+                    print "DEBUG fyi: _zoomPanRotateTool skipping Done of %r since command stack locked" % commandName
+                        # remove when works, or soon after
+                    pass
+                else:
+                    command.Done(exit_using_done_or_cancel_button = False)
             else:
                 if command is not commandSequencer.nullmode:
                     # bruce 071009 add condition to fix bug 2512

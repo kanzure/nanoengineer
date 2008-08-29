@@ -15,6 +15,8 @@ _pct = print_compact_traceback # local abbreviation for readability
 
 from utilities.constants import CL_ABSTRACT 
 
+DEBUG_USE_COMMAND_STACK = True
+
 # ==
 
 class baseCommand(object):
@@ -173,20 +175,24 @@ class baseCommand(object):
                For documentation of those attrs, see CommandSequencer methods
               _f_exit_active_command and _exit_currentCommand_with_flags.
         """
+        self.commandSequencer._f_lock_command_stack("preparing to exit a command")
         try:
-            ok = self._command_ok_to_exit() # must explain to user if not
-        except:
-            _pct()
-            ok = True
-        
-        if not ok and not self.commandSequencer.exit_is_forced:
-            self._command_log("not exiting")
-            return False
+            try:
+                ok = self._command_ok_to_exit() # must explain to user if not
+            except:
+                _pct()
+                ok = True
+            
+            if not ok and not self.commandSequencer.exit_is_forced:
+                self._command_log("not exiting")
+                return False
 
-        try:
-            self.command_will_exit() # args?
-        except:
-            _pct()
+            try:
+                self.command_will_exit() # args?
+            except:
+                _pct()
+        finally:
+            self.commandSequencer._f_unlock_command_stack()
 
         self._command_do_exit()
 
@@ -267,7 +273,11 @@ class baseCommand(object):
         [private]
         pop self from the top of the command stack
         """
-        assert self is self.commandSequencer._f_currentCommand ###k
+        if DEBUG_USE_COMMAND_STACK:
+            print "_command_do_exit:", self
+        assert self is self.commandSequencer._f_currentCommand, \
+               "can't pop %r since it's not currentCommand %r" % \
+               (self, self.commandSequencer._f_currentCommand)
         assert self._parentCommand is not None # would fail for default command
         self.commandSequencer._f_set_currentCommand( self._parentCommand )
         self._parentCommand = None
@@ -287,25 +297,30 @@ class baseCommand(object):
         @note: always called on an instance, even if a command class alone
                could (in principle) decide to refuse entry.
         """
+        self.commandSequencer._f_lock_command_stack("preparing to enter a command")
         try:
-            ok = self.command_ok_to_enter() # must explain to user if not
-        except:
-            _pct()
-            ok = True
-        
-        if not ok:
-            self._command_log("not entering")
-            return False
+            try:
+                ok = self.command_ok_to_enter() # must explain to user if not
+            except:
+                _pct()
+                ok = True
+            
+            if not ok:
+                self._command_log("not entering")
+                return False
 
-        try:
-            self.command_prepare_to_enter() # get ready to receive events (usually a noop) # args?
-        except:
-            _pct()
-            self._command_log("not entering due to exception")
-            return False
+            try:
+                self.command_prepare_to_enter() # get ready to receive events (usually a noop) # args?
+            except:
+                _pct()
+                self._command_log("not entering due to exception")
+                return False
+        finally:
+            self.commandSequencer._f_unlock_command_stack()
 
         self._command_do_enter() # push self on command stack
 
+        self.commandSequencer._f_lock_command_stack("calling command_entered")
         try:
             self.command_entered() # update ui as needed # args?
         except:
@@ -314,6 +329,7 @@ class baseCommand(object):
             # return True anyway
             # REVIEW: should caller continue entering subcommands
             # if it planned to? (for now, let it try)
+        self.commandSequencer._f_unlock_command_stack()
 
         return True
 
@@ -350,9 +366,10 @@ class baseCommand(object):
         [private]
         push self on command stack
         """
-        ### guess
+        if DEBUG_USE_COMMAND_STACK:
+            print "_command_do_enter:", self
         assert self._parentCommand is None
-        self._parentCommand = self.commandSequencer._f_currentCommand ###k
+        self._parentCommand = self.commandSequencer._f_currentCommand
         self.commandSequencer._f_set_currentCommand( self)
         return
 
