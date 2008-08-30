@@ -107,7 +107,12 @@ def _accumulate_stats(node, stats):
     stats.n += 1
 
     stats.ngroups += int(isinstance(node, Group))
-    stats.nchunks += int(isinstance(node, Chunk))
+    if (isinstance(node, Chunk)):
+        stats.nchunks += 1
+        if (node.chunkHasOverlayText and not node.showOverlayText):
+            stats.canShowOverlayText += 1
+        if (node.chunkHasOverlayText and node.showOverlayText):
+            stats.canHideOverlayText += 1
     stats.njigs += int(isinstance(node, Jig))
     #e later, classify(node1, Node) into a list of classes, and get counts for all...
 
@@ -628,6 +633,10 @@ class modelTree(modelTreeGui.Ne1Model_api):
         #ninad 070320 - context menu option to edit color of multiple chunks
         if allstats.nchunks:
             res.append(("Edit Chunk Color...", self.cmEditChunkColor))
+        if allstats.canShowOverlayText:
+            res.append(("Show Overlay Text", self.cmShowOverlayText))
+        if allstats.canHideOverlayText:
+            res.append(("Hide Overlay Text", self.cmHideOverlayText))
 
         #bruce 070531 - rename node -- temporary workaround for inability to do this in MT, or, maybe we'll like it to stay
         if len(nodeset) == 1:
@@ -1067,6 +1076,27 @@ class modelTree(modelTreeGui.Ne1Model_api):
             self.win.dispObjectColor(initialColor = m_QColor)
         else:         
             self.win.dispObjectColor()
+
+    def cmShowOverlayText(self):
+        """
+        Context menu entry for chunks.  Turns on the showOverlayText
+        flag in each chunk which has overlayText in some of its atoms.
+        """
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        for m in nodeset:
+            if isinstance(m, Chunk):
+                m.showOverlayText = True
+
+    def cmHideOverlayText(self):
+        """
+        Context menu entry for chunks.  Turns off the showOverlayText
+        flag in each chunk which has overlayText in some of its atoms.
+        """
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        for m in nodeset:
+            if isinstance(m, Chunk):
+                m.showOverlayText = False
+        
 
     def cmRenameNode(self): #bruce 070531
         """

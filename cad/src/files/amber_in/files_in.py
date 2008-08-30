@@ -169,6 +169,7 @@ def insertin(assy, filename):
     dir, nodename = os.path.split(filename)
 
     mol = Chunk(assy, nodename)
+    mol.showOverlayText = True
 
     file = open(filename)
     lines = file.readlines()

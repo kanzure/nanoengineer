@@ -235,7 +235,13 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             self.o.assy.unpickall_in_GLPane() 
             self.o.selatom.molecule.pick()
             self.w.win_update()
-        
+
+    def toggleShowOverlayText(self):
+        if (self.o.selatom):
+            chunk = self.o.selatom.molecule
+            chunk.showOverlayText = not chunk.showOverlayText
+            self.w.win_update()
+
     def makeMenus(self): #bruce 050705 revised this to support bond menus
         """
         Create context menu for this command. (Build Atoms mode)
@@ -293,6 +299,13 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
                 #e maybe should disable this or change to checkmark item (with 
                 #unselect action) if it's already selected??
             self.Menu_spec.append(item)
+            chunk = selatom.molecule
+            if (chunk.chunkHasOverlayText):
+                if (chunk.showOverlayText):
+                    item = ('Hide overlay text on %r' % name, self.toggleShowOverlayText)
+                else:
+                    item = ('Show overlay text on %r' % name, self.toggleShowOverlayText)
+                self.Menu_spec.append(item)
 
         ##e add something similar for bonds, displaying their atoms, and the 
         ##bonded chunk or chunks?

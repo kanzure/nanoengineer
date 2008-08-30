@@ -3380,12 +3380,6 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
 
         #k not sure whether _restore_modelview_stack_depth is also needed
         # in the split-out standard_repaint [bruce 050617]
-
-        self.displayOverlayText = debug_pref(
-            "GLPane: Display overlay text",
-            Choice_boolean_False,
-            non_debug = True,
-            prefs_key = True)
         self._restore_modelview_stack_depth()
 
         self._use_frustum_culling = use_frustum_culling()
