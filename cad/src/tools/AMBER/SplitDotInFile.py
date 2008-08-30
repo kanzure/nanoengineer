@@ -56,14 +56,26 @@ def parseInFile(fileName):
             out = open(newFileName, 'w')
             nextIndex = 1
             inFile = True
+            warned = False
         
         if (inFile):
             # Within the residue itself, column 0 is an index number
             # which usually increments sequentially.
-            if (columns[0] != "%d" % nextIndex):
+            index = int(columns[0])
+            igraph = columns[1]
+            isymbl = columns[2]
+            itree = columns[3]
+            na = int(columns[4])
+            nb = int(columns[5])
+            nc = int(columns[6])
+            r = float(columns[7])
+            theta = float(columns[8])
+            phi = float(columns[9])
+            print >>out, "%3d %4s %2s %s %3d %3d %3d %10.3f %10.3f %10.3f" % (nextIndex, igraph, isymbl, itree, na, nb, nc, r, theta, phi)
+            if (index != nextIndex and not warned):
                 print "%s %s index not sequential" % (fileName, newFileName)
-            print >>out, line.rstrip()
-            nextIndex = int(columns[0]) + 1
+                warned = True
+            nextIndex = nextIndex + 1
 
 
 if (__name__ == '__main__'):
