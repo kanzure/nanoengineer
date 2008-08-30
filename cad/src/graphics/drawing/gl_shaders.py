@@ -63,7 +63,12 @@ from OpenGL.GL.ARB.vertex_shader  import glBindAttribLocationARB
 
 class GLSphereShaderObject(object):
     """
-    Create a sphere shader.
+    An analytic sphere shader.
+
+    This raster-converts analytic spheres, defined by a center point and radius.
+    (Some people call that a ray-tracer, but unlike a real ray-tracer it can't
+    send rays through the scene for reflection/refraction, nor toward the lights
+    to compute shadows.)
     """
 
     def __init__(self):
@@ -382,6 +387,29 @@ sphereVertSrc = """
 // (Some people call that a ray-tracer, but unlike a real ray-tracer it can't
 // send rays through the scene for reflection/refraction, nor toward the lights
 // to compute shadows.)
+// 
+// How it works:
+// 
+// A bounding volume of OpenGL faces is drawn around the sphere.  A center point
+// and radius are also provided as vertex attributes.  It doesn't matter what
+// the shape of the bounding volume is, as long as it covers at least the pixels
+// where the sphere is to be rendered.  Clipping and lighting settings are also
+// provided to the fragment (pixel) shader.
+// 
+// The eye position, and ray vectors pointing from the eye to the transformed
+// vertex and the center of the sphere, are output from the vertex shader to the
+// fragment shader.  This is handled differently for orthographic and
+// perspective projections, but it's all in pre-projection gl_ModelViewMatrix
+// space.
+// 
+// In between the vertex shader and the fragment shader, the transformed vertex
+// vector coords get interpolated, so it winds up being a transformed ray from
+// the eye point to the pixel on the bounding volume surface.
+// 
+// In the fragment shader, the sphere radius comparison is done using these
+// points and vectors.  That is, if the pixel is within the sphere radius of the
+// sphere center point, a depth and normal are calculated as a function of the
+// distance from the center.
 
 // requires GLSL version 1.10
 #version 110
