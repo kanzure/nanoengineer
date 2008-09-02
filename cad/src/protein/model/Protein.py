@@ -115,6 +115,8 @@ class Protein:
         # This implementation is wrong, as the display list is never properly
         # deleted. This attribute could be moved to Chunk class, or implemented
         # in a different way, so the list is deleted in current OpenGL context.
+        # Potentially, current implementation can cause memory leaks by not
+        # deleting display lists. 
         self.residues_dl = None
         
     def set_chain_id(self, chainId):
@@ -179,7 +181,7 @@ class Protein:
             aa = self.residues[resId]
         else:
             # This is a new residue.
-            aa = Residue(resId, resName)
+            aa = Residue()
             self.residues[resId] = aa
             # Append the residue to amino acid list to have a properly ordered
             # list of amino acids.
@@ -193,36 +195,16 @@ class Protein:
             self.ca_atom_list.append(atom)
             
         return aa
-    
-    def is_atom_aromatic(self, atom):
-        """
-        Test if the atom is aromatic
-        """
-        if hasattr(atom, 'pdb_is_aromatic'):
-            if atom.pdb_is_aromatic:
-                return True
-        else:
-            return False
         
-    def is_atom_single_bonded(self, atom):
-        """
-        Test if the atom is single-bonded
-        """
-        if hasattr(atom, 'pdb_is_single_bonded'):
-            if atom.pdb_is_single_bonded:
-                return True
-        else:
-            return False
-        
-    def is_c_alpha(self, atom): # REVIEW: "@type atom: boolean" is wrong
+    def is_c_alpha(self, atom): # REVIEW: "@type atom: boolean" is wrong -- FIXED
         """
         Check if the atom is a C-alpha atom.
         
         @param atom: atom to be tested
-        @type atom: boolean
+        @type atom: Atom
         
         @return: True if atom is an alpha carbon atom, False if it is not
-        @rtype: boolean
+        @type: boolean
         """
         if atom in self.ca_atom_list:
             return True
@@ -242,7 +224,10 @@ class Protein:
         """
         Return a list of alpha carbon atoms.
         
-        @return: list of atoms
+        @note: the returned list is mutable and should not be modified
+        outside of the Protein class.
+
+        @return: list of alpha carbon atoms
         """
         # REVIEW: this list is mutable. Docstring should say
         # whether caller is allowed to modify it (and if so,
@@ -251,6 +236,7 @@ class Protein:
         # Alternatively, should we copy the list here,
         # to prevent bugs from accidental modification
         # by caller? or is that too slow? [bruce 080828 comment]
+        # -- FIXED by adding a docstring
         return self.ca_atom_list
     
     def is_c_beta(atom): # REVIEW: "@type atom: boolean" is wrong
@@ -283,22 +269,21 @@ class Protein:
         Set the secondary structure of the protein outputted from rosetta to that
         of the inProtein. (created by Urmi)
         
-        piotr 081908: Explanation. Rosetta fixed backbone simulation doesn't 
-        change the backbone atom positions, so it is safe to copy the secondary
-        structure information from the input protein. 
-        
-        piotr 082008: This is no longer true for flexible backbone simulations,
-        i.e. when using the backrub mode. It is not going to cause major problems,
-        as the backbone changes are relatively minor, but in general we need
-        a secondary structure computation algorithm.
-        
         @param inProtein:input protein chunk
         @type inProtein: L{Chunk}
         """
         # REVIEW: historical info should be moved to comments. The docstring
         # should just describe the current usage info (and if important when
-        # coding callers, likely future changes). [bruce 080828 comment]
-        
+        # coding callers, likely future changes). [bruce 080828 comment] -- FIXED
+
+        # piotr 081908: Explanation. Rosetta fixed backbone simulation doesn't 
+        # change the backbone atom positions, so it is safe to copy the secondary
+        # structure information from the input protein. 
+        # piotr 082008: This is no longer true for flexible backbone simulations,
+        # i.e. when using the backrub mode. It is not going to cause major problems,
+        # as the backbone changes are relatively minor, but in general we need
+        # a secondary structure computation algorithm.
+                
         #Urmi 20080728: created to set the secondary structure of the rosetta
         #outputted protein
         aa_list_for_rosetta = self.get_amino_acids()
@@ -313,12 +298,12 @@ class Protein:
         """
         Create and return a protein sequence string. 'H' corresponds
         to helical conformation, 'E' corresponds to extended secondary
-        structure, 'C' corresponds to coil (other types of secondary structure).
+        structure, '-' corresponds to coil (other types of secondary structure).
         
         @return: secondary structure string 
         """
         # REVIEW: docstring says result can contain 'C', but it can't.
-        # It can contain '-', not mentioned in docstring. [bruce 080828 comment]
+        # It can contain '-', not mentioned in docstring. [bruce 080828 comment] -- FIXED
         ss_str = ""
         for aa in self.get_amino_acids():
             ss = aa.get_secondary_structure()
@@ -333,12 +318,17 @@ class Protein:
 
     def get_amino_acid_id(self, index):
         # REVIEW: need @param index: ...; and, clarify/fix the term "current" in "current residue",
-        # and, document return value of None
+        # and, document return value of None --FIXED piotr 080901
         """
-        Create and return a description of this residue (protein name, index, 
-        residue name, residue index).
+        Create and return a descriptive text related to a residue of a given
+        sequence index. The text is composed of protein name, index, residue name, 
+        residue index.
         
-        @return: string describing the current residue
+        @param index: index of a queried amino acid [0, sequence_length-1]
+        @type index: int
+        
+        @return: string describing this residue, or None if a residue of a
+        specified index doesn't exist
         """
         aa_list = self.get_amino_acids()
         if index in range(len(aa_list)):
@@ -357,13 +347,14 @@ class Protein:
     
     def get_amino_acid_id_list(self): # REVIEW: document type of list elements in return value
         """
-        Create and return a list of residue descriptions (protein name, index, 
-        residue name, residue index).
+        Create and return a list of residue descriptions. See get_amino_acid_id
+        for details on the description format.
         
         @return: list of residue descriptions for all amino acids
         """
         # Note: this is quadratic time (due to index in range test inside submethod),
         # may need to be optimized [bruce 080828 comment]
+        # piotr TODO
         id_list = []
         for idx in range(len(self.get_amino_acids())):
             aa_id = self.get_amino_acid_id(idx)
@@ -373,7 +364,10 @@ class Protein:
     
     def get_amino_acids(self):
         """
-        Return a list of residues in this protein.
+        Return a list of residues in this protein. 
+        
+        @note: the returned list is mutable and should not be modified
+        outside of the Protein class.
         
         @return: list of residues
         """
@@ -381,6 +375,7 @@ class Protein:
         # should not be changed (assuming that's the case).
         # (But copying it here as a precaution would be a big slowdown
         #  for some other methods of this class.) [bruce 080828 comment]
+        # --FIXED piotr 080901
         return self.residues_list
     
     def assign_helix(self, resId):
@@ -398,11 +393,16 @@ class Protein:
         """
         Assign a beta secondary structure to resId.
         
+        @proper name: The proper name of this secondary structure type is 
+        "beta strand", but names "beta", "strand", "extended" are used 
+        interchangeably (PDB files use "STRAND" name to mark the beta
+        conformation fragments).
+        
         @param resId: residue ID for secondary structure assignment
         @type resId: int
         """
         # REVIEW: docstring should explain the terminology discrepancy
-        # between "strand" and "beta". [bruce 080828 comment]
+        # between "strand" and "beta". [bruce 080828 comment] -- FIXED
         if self.residues.has_key(resId):
             aa = self.residues[resId]
             aa.set_secondary_structure(SS_STRAND)
@@ -420,17 +420,27 @@ class Protein:
             
     def expand_rotamer(self, aa):
         """
-        Expand a side chain of a given amino acid.
+        Expand a side chain of a given residue.
+        
+        @note: aa should belong to the Protein object - it is not being checked.
         
         @param aa: amino acid to expand
         @type aa: Residue
+        
+        @return: True if a given residue belongs to self, or False otherwise.        
         """
         # REVIEW: I think aa should be an element of self.residues.values();
         # if so, docstring should say this is required (but not checked).
-        # [bruce 080828 comment]
-        self.residues_dl = None
-        aa.expand()
-
+        # [bruce 080828 comment] 
+        
+        # That's right, because of the change of residues_dl attribute. -- FIXED
+        
+        if aa in self.residues_list:
+            self.residues_dl = None
+            aa.expand()
+            return True
+        return False
+    
     def is_expanded(self, aa):
         """
         Check if a given amino acid's rotamer is expanded.
@@ -477,20 +487,26 @@ class Protein:
         
     def traverse_forward(self):
         """
-        Increase an index of the current amino acid.
+        Increase an index of the current amino acid. The index is an 
+        attribute of self (Protein class).
+        
+        @return: True if the forward step is possible, otherwise False.
         """
         # REVIEW: docstring should emphasize the index is an attr of self,
-        # and document the return value.
-        if self.current_aa_idx < len(self.residues)-1:
+        # and document the return value.  -- FIXED
+        if self.current_aa_idx < len(self.residues) - 1:
             self.current_aa_idx += 1
             return True
         return False
     
     def traverse_backward(self):
         """
-        Decrease an index of the current amino acid.
+        Decrease an index of the current amino acid. The index is an 
+        attribute of Protein class. 
+        
+        @return: True if the backward step is possible, otherwise False.
         """
-        # REVIEW: same as for traverse_forward.
+        # REVIEW: same as for traverse_forward. -- FIXED
         if self.current_aa_idx > 0:
             self.current_aa_idx -= 1
             return True
@@ -500,11 +516,13 @@ class Protein:
         """
         Get current amino acid. 
         
-        @return: current amino acid (Residue)
+        @return: current amino acid (Residue) 
         """
-        ### MAJOR BUG: dict.values() has undefined order.
-        if self.current_aa_idx in range(len(self.residues)):
-            return self.residues.values()[self.current_aa_idx]
+        ### MAJOR BUG: dict.values() has undefined order. 
+        # -- FIXED piotr 080901 -- uses residues_list instead the dict
+        
+        if self.current_aa_idx in range(len(self.residues_list)):
+            return self.residues_list[self.current_aa_idx]
         return None
     
     def get_amino_acid_at_index(self, index):
@@ -536,13 +554,18 @@ class Protein:
         
         @param index: index of current amino acid
         @type index: integer
+        
+        @return: True if the index is allowed, False if it is out of allowed range
         """
         # REVIEW: this does no error checking (error is silently ignored);
         # it might be better to warn if the index is not in range (if that's an error),
-        # or to document that that's allowed (if it is). [bruce 080828 comment]
+        # or to document that that's allowed (if it is). [bruce 080828 comment] -- FIXED
         if index in range(len(self.residues_list)):
             self.current_aa_idx = index
-            
+            return True
+        else:
+            return False
+    
     def get_number_of_backrub_aa(self):
         """
         Returns a number of backrub amino acids.
