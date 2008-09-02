@@ -441,6 +441,9 @@ class baseCommand(object):
                 which is often extended to call self.propMgr.updateMessage),
                but it is better to do that in an appropriate update method,
                such as self.command_update_UI() or self.propMgr.update_UI().
+               
+        @see: CommandSequencer._f_update_current_command() which calls PM.show()
+              for the desired PM.              
 
         [subclasses should override as needed]
         """
