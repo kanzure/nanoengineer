@@ -263,16 +263,20 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
         return
 
     def command_enter_misc_actions(self):
-        super(ZoomToAreaMode, self).command_enter_misc_actions()
-        if DEBUG_ZOOM:
-            print "DEBUG_ZOOM: toggle on the Zoom Tool icon"
+        if USE_COMMAND_STACK:
+            super(ZoomToAreaMode, self).command_enter_misc_actions()
+            if DEBUG_ZOOM:
+                print "DEBUG_ZOOM: toggle on the Zoom Tool icon"
+                
         self.win.zoomToAreaAction.setChecked(1) # toggle on the Zoom Tool icon
 
     def command_exit_misc_actions(self):
         if DEBUG_ZOOM:
             print "DEBUG_ZOOM: toggle off the Zoom Tool icon" # i suspect this recurses into Done and causes a bug
         self.win.zoomToAreaAction.setChecked(0) # toggle off the Zoom Tool icon
-        super(ZoomToAreaMode, self).command_exit_misc_actions()
+        
+        if USE_COMMAND_STACK:
+            super(ZoomToAreaMode, self).command_exit_misc_actions()
 
     def command_will_exit(self):
         super(ZoomToAreaMode, self).command_will_exit()
