@@ -73,6 +73,10 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     
     _currentActiveTool = 'ATOMS_TOOL'
     
+    #The class constant PM_class defines the class for the Property Manager of 
+    #this command. See Command.py for more infor about this class constant 
+    PM_class = BuildAtomsPropertyManager
+    
     
     def __init__(self, commandSequencer):
         _superclass.__init__(self, commandSequencer)    
@@ -91,36 +95,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     #currently [2008-08-01 ] also called in by self,init_gui and 
     #self.restore_gui.
     
-    def command_enter_PM(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_enter_PM()  for documentation
-        """
-        #important to check for old propMgr object. Reusing propMgr object 
-        #significantly improves the performance.
-        if not self.propMgr:
-            self.propMgr = self._createPropMgrObject()
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- ninad 2007-08-29
-            changes.keep_forever(self.propMgr)  
-            
-        if not USE_COMMAND_STACK:    
-            self.propMgr.show()
-        
-        self.propMgr.updateMessage()
-    
-    def command_exit_PM(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_PM() for documentation
-        """
-        if not USE_COMMAND_STACK:
-            if self.propMgr:
-                self.propMgr.close()
-            
+                
     def command_enter_flyout(self):
         """
         Overrides superclass method. 
@@ -139,12 +114,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         @see: self.command_enter_flyout()
         """
         flyoutToolbar = BuildAtomsFlyout(self) 
-        return flyoutToolbar
-    
-    def _createPropMgrObject(self):
-        propMgr = BuildAtomsPropertyManager(self)
-        return propMgr
-        
+        return flyoutToolbar        
             
     def command_exit_flyout(self):
         """
@@ -169,8 +139,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        self.w.toolsDepositAtomAction.setChecked(False)        
-    
+        self.w.toolsDepositAtomAction.setChecked(False)  
+        
     #END new command API methods ==============================================
     
     
@@ -184,16 +154,13 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         in modes.py
         
         @see: L{self.restore_gui}
-        """
-        
-                
-           
+        """      
+                           
         self.command_enter_misc_actions()
         self.command_enter_PM() 
         self.command_enter_flyout()
+        self.propMgr.show()
         return
-    
-    
 
     def restore_gui(self):
         """
@@ -204,7 +171,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         """
         self.command_exit_misc_actions()
         self.command_exit_flyout()
-        self.command_exit_PM()
+        if self.propMgr:
+            self.propMgr.close()
 
     def enterToolsCommand(self, commandName = ''): #REVIEW
         """

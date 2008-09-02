@@ -69,6 +69,8 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         _superclass.show(self)
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(True)
+            
+        self.updateMessage()
         
     def close(self):
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:

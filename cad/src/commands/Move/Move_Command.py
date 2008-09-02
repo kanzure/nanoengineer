@@ -56,6 +56,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
     
     flyoutToolbar = None
     
+    #The class constant PM_class defines the class for the Property Manager of 
+    #this command. See Command.py for more infor about this class constant
+    PM_class = MovePropertyManager
+    
     #START new command API methods =============================================
     #currently [2008-08-01 ] also called in by self,init_gui and 
     #self.restore_gui.
@@ -66,32 +70,11 @@ class Move_basicCommand(SelectChunks_basicCommand):
         
         @see: baseCommand.command_enter_PM()  for documentation
         """
-        #important to check for old propMgr object. Reusing propMgr object 
-        #significantly improves the performance.
-        if not self.propMgr:
-            self.propMgr = self._createPropMgrObject()
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- ninad 2007-08-29
-            changes.keep_forever(self.propMgr)  
-            
-        
-        if not USE_COMMAND_STACK:
-            self.propMgr.show()        
+        SelectChunks_basicCommand.command_enter_PM(self)
             
         self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
         self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
         
-    
-    def command_exit_PM(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_PM() for documentation
-        """
-        if not USE_COMMAND_STACK:
-            if self.propMgr:
-                self.propMgr.close()
             
     def command_enter_flyout(self):
         """
@@ -140,10 +123,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
         """
         flyoutToolbar = MoveFlyout(self) 
         return flyoutToolbar
-    
-    def _createPropMgrObject(self):
-        propMgr = MovePropertyManager(self)
-        return propMgr
+
     
     #END new command API methods ==============================================
 
@@ -161,6 +141,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.command_enter_misc_actions()
         self.command_enter_PM() 
         self.command_enter_flyout()
+        self.propMgr.show()
 
     def restore_gui(self):
         """
@@ -171,7 +152,8 @@ class Move_basicCommand(SelectChunks_basicCommand):
         """
         self.command_exit_misc_actions()
         self.command_exit_flyout()
-        self.command_exit_PM()
+        if self.propMgr:
+            self.propMgr.close()
 
     def _acceptLineModePoints(self, params): #bruce 080801, revises acceptParamsFromTemporaryMode
         """

@@ -59,6 +59,8 @@ from command_support.GraphicsMode_API import GraphicsMode_API
 
 from command_support.baseCommand import baseCommand # warning: modified below, if not USE_COMMAND_STACK
 
+import foundation.changes as changes
+
 if not USE_COMMAND_STACK:
     baseCommand = object
 
@@ -357,6 +359,19 @@ class basicCommand(anyCommand):
     command_level = CL_ABSTRACT
 
     command_can_be_suspended = True # good default value for most commands [bruce 071011]
+    
+    
+    PM_class = None
+       #Command subclasses can override this class constant with the appropriate
+       #Property Manager class, if they have their own Property Manager object.
+       #This is used by self._createPropMgrObject(). 
+       #See also self.command_enter_PM. 
+       
+       #NOTE 2008-09-02: The class constant PM_class was introduced today and 
+       #will soon be used in all commands. But before that, it will be tested 
+       #in a few command classes [ -- Ninad comment]. The comemnt can be 
+       #deleted when all commands that have their own PM start using this. 
+       
 
     def __init__(self, commandSequencer):
         """
@@ -470,8 +485,36 @@ class basicCommand(anyCommand):
     if not USE_COMMAND_STACK:
         def command_ok_to_enter(self):
             return True
-    
+           
     # ==
+    
+    def command_enter_PM(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_PM()  for documentation
+        """
+        #important to check for old propMgr object. Reusing propMgr object 
+        #significantly improves the performance.
+        if not self.propMgr:
+            self.propMgr = self._createPropMgrObject()
+            #@bug BUG: following is a workaround for bug 2494.
+            #This bug is mitigated as propMgr object no longer gets recreated
+            #for modes -- ninad 2007-08-29
+            changes.keep_forever(self.propMgr)  
+    
+    
+    def _createPropMgrObject(self):
+        """
+        Returns the property manager object for this command. 
+        
+        """
+        if self.PM_class is None:
+            return None
+    
+        propMgr = self.PM_class(self)
+        return propMgr
+    
     
     def get_featurename(clas): #bruce 071227, revised into classmethod 080722
         """
@@ -1082,6 +1125,8 @@ class basicCommand(anyCommand):
     
     def is_default_command(self): #bruce 080709 refactoring
         return self.commandName == self.commandSequencer.default_commandName()
+    
+    
     
     def update_mode_status_text(self):
         # REVIEW: still needed after command stack refactoring? noop now.
@@ -1892,6 +1937,7 @@ class Command(basicCommand):
         # dependent then on the API of those GraphicsMode methods,
         # and not on their implem until it had to be instantiated.
         # Eventually, to librarify this code, we'll need to solve that problem.
+        
 
     def __init__(self, commandSequencer):
         basicCommand.__init__(self, commandSequencer)
