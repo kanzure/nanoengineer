@@ -33,6 +33,10 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 #for debugging 'keep signals conencted all the time'
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
+from utilities import debug_flags
+from utilities.debug import print_compact_stack
+
+
 NOBLEGASES = ("He", "Ne", "Ar", "Kr")
 PAMATOMS = ("Gv5", "Ax3")
 ALL_PAM_ATOMS = ("Gv5", "Ss5", "Pl5", "Ax3", "Ss3", "Ub3", "Ux3", "Uy3")
@@ -52,6 +56,9 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @type  command: L{BuildAtoms_Command} 
         """
         self.previousSelectionParams = None
+        self.isAlreadyConnected = False
+        self.isAlreadyDisconnected = False
+        
         _superclass.__init__(self, command)
         
         # It is essential to make the following flag 'True' instead of False. 
@@ -87,6 +94,20 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @see: L{BuildAtoms_Command.connect_or_disconnect_signals} where this is called
         """
                 
+        if isConnect and self.isAlreadyConnected:
+            if debug_flags.atom_debug:
+                print_compact_stack("warning: attempt to connect widgets"\
+                                    "in this PM that are already connected." )
+            return 
+        
+        if not isConnect and self.isAlreadyDisconnected:
+            if debug_flags.atom_debug:
+                print_compact_stack("warning: attempt to disconnect widgets"\
+                                    "in this PM that are already disconnected.")
+            return
+        
+        self.isAlreadyConnected = isConnect
+        self.isAlreadyDisconnected = not isConnect
         
         if isConnect:
             change_connect = self.w.connect

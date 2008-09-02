@@ -152,6 +152,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
         """
         self.command_exit_misc_actions()
         self.command_exit_flyout()
+        self.command_exit_PM()
         if self.propMgr:
             self.propMgr.close()
 

@@ -502,6 +502,20 @@ class basicCommand(anyCommand):
             #This bug is mitigated as propMgr object no longer gets recreated
             #for modes -- ninad 2007-08-29
             changes.keep_forever(self.propMgr)  
+            
+            
+    if not USE_COMMAND_STACK:
+        def command_exit_PM(self):
+            """
+            Temporary method, will be removed after command stack refactoring. 
+            Used when USE_COMMAND_STACK is false (e.g. method called in restore_gui)
+            Commented on 2008-09-02.
+            For USE_COMMAND_STACK = true case, this is already implemented in 
+            baseCommand
+            @see: baseCommand.command_exit_PM()  
+            
+            """
+            pass
     
     
     def _createPropMgrObject(self):
