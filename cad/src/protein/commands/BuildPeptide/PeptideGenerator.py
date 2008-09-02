@@ -29,7 +29,7 @@ from operations.bonds_from_atoms import inferBonds
 
 from protein.model.Protein import Protein 
 from protein.model.Residue import Residue
-from protein.model.Residue import SS_HELIX, SS_STRAND, SS_COIL
+from protein.model.Residue import SS_HELIX, SS_STRAND, SS_COIL, AA_3_TO_1
 
 from Numeric import zeros, sqrt, pi, sin, cos, Float
 from geometry.VQT import Q, V, norm, vlen, cross, angleBetween
@@ -497,7 +497,7 @@ CTERM_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "O", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "OXT", "O", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    0.960,  109.500,    0.000 ),
 ]
 
@@ -650,6 +650,7 @@ class PeptideGenerator:
             
         if not fake_chain:
             mol.protein = Protein()
+            mol.protein.set_chain_id('A')
             
         #pos1 = mol.base_to_abs(pos1);
         #pos2 = mol.base_to_abs(pos2);
@@ -671,21 +672,28 @@ class PeptideGenerator:
         
         # Add a N-terminal hydrogen
         self.nterm_hydrogen = None
+        """
         if not fake_chain:
             atom = Atom("H", pos1, mol)
             atom._is_aromatic = False
             atom._is_single = False
             self.nterm_hydrogen = atom
             mol.protein.add_pdb_atom(atom, "H", 1, name)
-            
+            atom.pdb_info = {}
+            atom.pdb_info['atom_name'] = "H"
+            atom.pdb_info['residue_name'] = short_name
+            atom.pdb_info['residue_id'] = "  1 "
+            atom.pdb_info['standard_atom'] = True
+        """
+        
         secondary = 1
         
         # Generate the peptide chain.
         for idx in range(int(self.length)):
-            self._buildResidue(mol, zmatrix, size, idx+1, phi, psi, secondary, None, symbol, fake_chain=fake_chain)
+            self._buildResidue(mol, zmatrix, size, idx+1, phi, psi, secondary, None, short_name, fake_chain=fake_chain)
 
         # Add a C-terminal OH group
-        self._buildResidue(mol, CTERM_ZMATRIX, 5, self.length, 0.0, 0.0, secondary, None, symbol, fake_chain=fake_chain)        
+        # self._buildResidue(mol, CTERM_ZMATRIX, 5, int(self.length), 0.0, 0.0, secondary, None, short_name, fake_chain=fake_chain)        
         
         # Compute bonds (slow!)
         # This should be replaced by a proper bond assignment.
@@ -731,7 +739,7 @@ class PeptideGenerator:
         
         return mol          
 
-    def _buildResidue(self, mol, zmatrix, n_atoms, idx, phi, psi, secondary, init_pos, symbol, fake_chain=False):
+    def _buildResidue(self, mol, zmatrix, n_atoms, idx, phi, psi, secondary, init_pos, residue_name, fake_chain=False):
         """
         Builds cartesian coordinates for an amino acid from the internal
         coordinates table.
@@ -792,7 +800,7 @@ class PeptideGenerator:
                atom_c, atom_b, atom_a, r, a, t = zmatrix[n]
 
             # Apply the peptide bond conformation
-            if symbol != "P":
+            if residue_name != "PRO":
                 if name == "N  " and not init_pos:
                     t = self.prev_psi + 0.0
                 if name == "O  ":
@@ -852,7 +860,14 @@ class PeptideGenerator:
                     aa = mol.protein.add_pdb_atom(atom, 
                                              name.replace(' ',''), 
                                              idx, 
-                                             symbol)
+                                             AA_3_TO_1[residue_name])
+                    atom.pdb_info = {}
+                    atom.pdb_info['atom_name'] = name.replace(' ','')
+                    atom.pdb_info['residue_name'] = residue_name
+                    residue_id = "%3d " % idx
+                    atom.pdb_info['residue_id'] = residue_id
+                    atom.pdb_info['standard_atom'] = True
+                    atom.pdb_info['chain_id'] = True
                     if aa:
                         aa.set_secondary_structure(secondary)
 
@@ -869,46 +884,14 @@ class PeptideGenerator:
                     atom._is_single = True
 
                 atom.set_atomtype_but_dont_revise_singlets(atom_type)
-                """
-                if name == "CA ":
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_ca = True
-                else:
-                    atom._protein_ca = False
-
-                if name == "CB ":
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_cb = True
-                else:
-                    atom._protein_cb = False
-
-                if name == "N  ": 
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_n = True
-                else:
-                    atom._protein_n = False
-
-                if name == "C  ": 
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_c = True
-                else:
-                    atom._protein_c = False
-
-                if name == "O  ": 
-                    # Set c-alpha flag for protein main chain visualization.
-                    atom._protein_o = True
-                else:
-                    atom._protein_o = False
-                """
-
-                # debug - output in PDB format	
-                # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, xyz[0], xyz[1], xyz[2])	
+                
+                ### debug - output in PDB format	
+                ### print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, xyz[0], xyz[1], xyz[2])	
 
         self.prev_psi = psi # Remember previous psi angle.
 
-        self.length += 1 # Increase the amino acid counter.
+        ### self.length += 1 # Increase the amino acid counter.
 
         return
-
     
 # end
