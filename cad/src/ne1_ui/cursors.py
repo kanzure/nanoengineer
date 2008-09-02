@@ -163,8 +163,21 @@ def loadCursors(w):
                            offsetX = 12, offsetY = 0)
     
     # View Zoom, Pan, Rotate cursors
-    w.ZoomCursor = QCursor(getCursorPixmap("ZoomCursor.png"), 0, 0)
-    w.ZoomInOutCursor = QCursor(getCursorPixmap("ZoomInOutCursor.png"), 0, 0)
+    
+    # The zoom cursor(s). One is for a dark background, the other for a light bg.
+    # See GLPane.setCursor() for more details about this list.
+    w.ZoomCursor = []
+    _cursor = QCursor(getCursorPixmap("darkbg/ZoomCursor.png"), 0, 0)
+    w.ZoomCursor.append(_cursor)
+    _cursor = QCursor(getCursorPixmap("litebg/ZoomCursor.png"), 0, 0)
+    w.ZoomCursor.append(_cursor)
+    
+    w.ZoomInOutCursor = []
+    _cursor = QCursor(getCursorPixmap("darkbg/ZoomCursor.png"), 0, 0)
+    w.ZoomInOutCursor.append(_cursor)
+    _cursor = QCursor(getCursorPixmap("litebg/ZoomCursor.png"), 0, 0)
+    w.ZoomInOutCursor.append(_cursor)
+    
     w.PanViewCursor = QCursor(getCursorPixmap("PanViewCursor.png"), 0, 0)
     w.RotateViewCursor = QCursor(getCursorPixmap("RotateViewCursor.png"), 0, 0)
 

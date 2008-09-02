@@ -1543,7 +1543,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
 
     # ==
     
-    def setCursor(self, cursor = None):
+    def setCursor(self, inCursor = None):
         """
         Sets the cursor for the glpane.
 
@@ -1551,10 +1551,36 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         cursor that should be persistent as cursors change (i.e. the selection
         lock symbol).
 
-        @param cursor: The cursor. If cursor is None, reset the cursor to the
-                       most resent version without the selection lock symbol.
-        @type  type: U{B{QCursor}<http://doc.trolltech.com/4/qcursor.html>}
+        @param incursor: Either a cursor or a list of 2 cursors (one for a dark
+                    background, one for a light background). 
+                    If cursor is None, reset the cursor to the
+                    most resent version without the selection lock symbol.
+        @type  type: U{B{QCursor}<http://doc.trolltech.com/4/qcursor.html>} or
+                    a list of two {B{QCursors}<http://doc.trolltech.com/4/qcursor.html>} or
         """
+        
+        # If inCursor is a list (of a dark and light bg cursor), set
+        # cursor to one or the other based on the current bg color.
+        if isinstance(inCursor, list):
+            if self.backgroundGradient == bgSOLID:
+                if not color_difference(self.backgroundColor, black,
+                                        minimum_difference = 0.51):
+                    cursor = inCursor[0] # dark bg cursor
+                else:
+                    cursor = inCursor[1] # light bg cursor
+            elif self.backgroundGradient == bgEVENING_SKY:
+                cursor = inCursor[0] # dark bg cursor
+            elif self.backgroundGradient == bgBLUE_SKY:
+                cursor = inCursor[1] # light bg cursor
+            elif self.backgroundGradient == bgSEAGREEN:
+                cursor = inCursor[1] # light bg cursor
+            else:
+                msg = "Warning: Unknown background gradient = %s"\
+                    % self.backgroundGradient
+                print_compact_stack(msg)
+        else:
+            cursor = inCursor
+            
         if not cursor:
             cursor = self.cursorWithoutSelectionLock
         self.cursorWithoutSelectionLock = cursor
