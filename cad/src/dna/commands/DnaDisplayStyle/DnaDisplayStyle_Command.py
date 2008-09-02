@@ -113,7 +113,7 @@ class DnaDisplayStyle_Command(EditCommand):
         @see: EditCommand.command_exit_flyout()
         """
         if self.flyoutToolbar:
-            self.flyoutToolbar.orderDnaAction.setChecked(False)
+            self.flyoutToolbar.editDnaDisplayStyleAction.setChecked(False)
             
             
     def _createPropMgrObject(self):
