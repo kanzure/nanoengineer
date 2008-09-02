@@ -8,7 +8,17 @@ It simply renders an array of n^2 unit spheres, n by n.  Spin them around with
 the NE1 rotate control, getting frames per second off the MacOS OpenGl Profiler
 or the internal FPS counter (enable printFames.)
 
-To turn it on, enable _testing_ at the beginning of graphics/widgets/glPane.py .
+You won't get redraws, and hence frame counts printed, unless you are generating
+a steady stream of mouse events with the left mouse button pressed.  It's more
+interesting to put NE1 in pan or rotate mode so you can see the redraws.
+
+With a low number of spheres, the frame rate is bottlenecked by Qt.  You'll know
+that's the case because as you increase the number of spheres, the frame rate
+doesn't go down at first.  Eventually, something in the graphics card becomes
+the bottleneck.  These tests were done as a series of explorations into finding
+and avoiding those bottlenecks.
+
+To turn it on, enable _testing_ at the beginning of graphics/widgets/GLPane.py .
 """
 
 # Which rendering mode: 1, 2, 3, 3.1, 3.2, 3.3, 4, 5, 6, 7, 8
@@ -101,7 +111,6 @@ start_pos = V(-nSpheres/2.0, -nSpheres/2.0, 0)
 def sphereLoc(x, y):                    # Assume int x, y in the sphere array.
     return start_pos + V( x + x/10 + x/100, y + y/10 + y/100, 0)
 
-
 def rainbow(t):
     # Colors progress from red to blue.
     if t < .25:
@@ -124,6 +133,16 @@ def test_drawing(glpane):
     file is loaded and GLPane.paintGL() calls the test_drawing() function
     instead of the usual body of paintGL().
     """
+    # Load the sphere shaders if needed.
+    if not hasattr(drawing_globals, "sphereShader"):
+        print "Loading sphere shaders."
+
+        from graphics.drawing.gl_shaders import GLSphereShaderObject
+        drawing_globals.sphereShader = GLSphereShaderObject()
+
+        print "Sphere-shader initialization is complete.\n"
+        pass
+
     global frame_count, last_frame, last_time, start_pos
     frame_count += 1
     now = time()
