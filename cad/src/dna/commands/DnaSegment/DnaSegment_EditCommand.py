@@ -82,6 +82,8 @@ from utilities.prefs_constants import dnaSegmentResizeHandle_discThickness_prefs
 from utilities.prefs_constants import cursorTextColor_prefs_key
 from dna.model.Dna_Constants import getDuplexLength
 
+
+
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
 ORIGIN = V(0,0,0)
@@ -90,6 +92,7 @@ ORIGIN = V(0,0,0)
 #display and computation while in DnaSegment_EditCommand
 DEBUG_ROTATION_HANDLES = False
 
+_superclass = EditCommand
 
 class DnaSegment_EditCommand(State_preMixin, EditCommand):
     """
@@ -242,14 +245,20 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         
         
     #New Command API method -- implemented on 2008-08-27
-    def command_update_UI(self):
+     
+    def command_update_internal_state(self):
         """
-        Overrides superclass method. 
+        Extends the superclass method.
         This method should replace model_changed() eventually. This method 
         copies most of the code in def model_changed. 
-        This is used with USE_COMMAND_STACK debug flag
-        @see: self.model_changed() 
-        """     
+        @see:baseCommand.command_update_internal_state() for documentation
+        """   
+        
+        #NOTE 2008-09-02: This method is called too often. It should exit early
+        #if , for example , model_change_inidicator didn't change. Need to 
+        #review and test to see if its okay to do so. [-- Ninad comment]
+        
+        _superclass.command_update_internal_state(self)
         
         #This MAY HAVE BUG. WHEN --
         #debug pref 'call model_changed only when needed' is ON
@@ -262,15 +271,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #This can be further optimized by debug pref 
         #'call command_update_UI only when needed' but its NOT done because of
         #an issue mentioned in bug 2729   - Ninad 2008-04-07
-        
-        
-        if self.propMgr:
-            self.propMgr.update_UI()
-            
         if self.grabbedHandle is not None:
             return
+                
 
-        #For Rattlesnake, PAM5 segment resizing  is not supported. 
+        #PAM5 segment resizing  is not supported. 
         #@see: self.hasResizableStructure()
         if self.hasValidStructure():
             isStructResizable, why_not = self.hasResizableStructure()
@@ -283,8 +288,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             self.updateHandlePositions()  
 
             self._update_previousParams_in_model_changed()
-            
-        
 
     def model_changed(self):
         #This MAY HAVE BUG. WHEN --
