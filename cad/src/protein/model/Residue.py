@@ -183,8 +183,7 @@ AA_3_TO_1 = {
     'ASX':'B', 
     'CGU':'E', 
     'CSX':'C', 
-    'GLX':'Z',
-    'UNK':'X' }
+    'GLX':'Z' }
 
 # 3- TO 1-letter conversion for PDB nucleotide names
 NUC_3_TO_1 = {
@@ -217,9 +216,7 @@ SS_TURN = 3
 
 # PDB atom name sets for chiral angles for amino acid side chains
 
-# REVIEW: if this is a constant, its name should be CHI_ANGLES
-
-chi_angles = { "GLY" : [ None, 
+CHI_ANGLES = { "GLY" : [ None, 
                          None, 
                          None, 
                          None ],
@@ -297,7 +294,7 @@ chi_angles = { "GLY" : [ None,
                          None ] }
 
 # Sets of atoms excluded from chi-angle rotations.
-chi_exclusions = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
+CHI_EXCLUSIONS = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
                              [ "CB", "HB2", "HB3" ],
                              None,
                              None ],
@@ -362,13 +359,72 @@ chi_exclusions = { "PHE" : [ [ "N", "H", "C", "O", "CA", "HA" ],
                              None,
                              None ] }
 
+def calc_torsion_angle(atom_list):
+    """
+    Calculates torsional angle defined by four atoms, A1-A2-A3-A4,
+    Return torsional angle value between atoms A2 and A3.
+    
+    @param atom_list: list of four atoms describing the torsion bond
+    @type atom_list: list
+    
+    @return: value of the torsional angle (float)
+    """
+    # REVIEW: this doesn't use self; it should probably be a function, not a method.
+    # Also, it appears to be very general and ought to be moved to a more
+    # general place (someday), perhaps VQT.py or nearby. [bruce 080828 comment] 
+
+    # piotr 080828: --FIXED: splitted this method out of Residue class
+    
+    from Numeric import dot
+    from math import atan2, pi, sqrt
+    from geometry.VQT import cross
+    
+    if len(atom_list) != 4:
+        # The list has to have four members.
+        return 0.0
+    
+    # Calculate pairwise distances
+    v12 = atom_list[0].posn() - atom_list[1].posn()
+    v43 = atom_list[3].posn() - atom_list[2].posn()
+    v23 = atom_list[1].posn() - atom_list[2].posn()
+
+    # p is a vector perpendicular to the plane defined by atoms 1,2,3
+    # p is perpendicular to v23_v12 plane
+    p = cross(v23, v12)
+    
+    # x is a vector perpendicular to the plane defined by atoms 2,3,4.
+    # x is perpendicular to v23_v43 plane
+    x = cross(v23, v43)
+    
+    # y is perpendicular to v23_x plane
+    y = cross(v23, x)
+    
+    # Calculate lengths of the x, y vectors.
+    u1 = dot(x, x)
+    v1 = dot(y, y)
+    
+    if u1 < 0.0 or \
+       v1 < 0.0:
+        return 360.0
+    
+    u2 = dot(p, x) / sqrt(u1)
+    v2 = dot(p, y) / sqrt(v1)
+    
+    if u2 != 0.0 and \
+       v2 != 0.0:
+        # calculate the angle
+        return atan2(v2, u2) * (180.0 / pi)
+    else:
+        return 360.0
+     
+    
 class Residue:
     """
     This class implements a Residue object. The residue is an object
     describing an individual amino acid of a protein chain.
     """
     
-    def __init__(self, id, name):
+    def __init__(self):
         """
         @param id: PDB residue number.
         @type id: integer
@@ -381,6 +437,7 @@ class Residue:
         # if someone doesn't notice it when adding new code such as
         # print "%#x" % id(something).
         # [bruce 080828 comment]
+        # FIXED - removed the parameters, they were obsolete
         
         # list of residue atoms in the same order as they occur in PDB file
         self.atom_list = []
@@ -388,8 +445,6 @@ class Residue:
         # dictionary for atom_name -> atom mapping
         self.atoms = {} 
         
-        ##self.id = id
-
         # amino acid secondary structure        
         self.secondary_structure = SS_COIL
 
@@ -403,8 +458,9 @@ class Residue:
         
         # These Rosetta-related attributes should be probably moved from this
         # class to some Rosetta-related structure. For now, the Residue
-        # and Protein classes
-        # REVIEW: that comment appears truncated.
+        # and Protein classes include several methods created for Rosetta
+        # purposes only.
+        # REVIEW: that comment appears truncated. -- FIXED piotr 080902
         
         # Rosetta name of mutation range. 
         self.mutation_range = "NATAA"
@@ -419,9 +475,9 @@ class Residue:
         # True if this residue will be using backrub mode.
         self.backrub = False
 
-    def get_atom_name(self, atom): # REVIEW: docstring has input & output backwards.
+    def get_atom_name(self, atom): # REVIEW: docstring has input & output backwards. --FIXED
         """
-        For a given PDB atom name, return a corresponding atom.
+        For a given PDB atom, return a corresponding atom name.
         """
         if atom.pdb_info and \
            atom.pdb_info.has_key('atom_name'):
@@ -438,12 +494,16 @@ class Residue:
 
     def get_first_atom(self):
         """
-        Return first atom of the residue, or None.
+        Return a first atom of the residue, or None.
+        
+        @note: this method will cause an exception if the residue is empty
+        (has no atoms). This should never happen.
+        
         """
         if len(self.atom_list):
             return self.atom_list[0]
-        else:
-            return None
+
+        raise Exception("Residue object has no atoms")
         
     def get_atom_list(self):
         """
@@ -453,7 +513,7 @@ class Residue:
     
     def get_side_chain_atom_list(self):
         """
-        Return a list of side chain atoms for the residue. Assumes standard
+        Return a list of side chain atoms for self. Assumes standard
         PDB atom names.
         """
         return [atom for atom in self.atom_list \
@@ -462,36 +522,36 @@ class Residue:
     def get_three_letter_code(self):
         """
         Return a three-letter amino acid code (the residue name).
+        
+        This method returns "   " (a string composed of three spaces) 
+        if there is no amino acid code assigned.
+        
+        @note: this method should probably scan all atoms looking for a 
+        PDB residue key, not only the first one. For example, if a new atom
+        is added to a residue, the method may not return a valid three-letter 
+        code anymore. This could be a desired and expected behavior, but it is 
+        not guaranteed in the current implementation. -- piotr 080902
+        
+        @return: amino acid three-letter name, or "   " if the name is unknown.
         """
         atom = self.get_first_atom()
         if atom and \
            atom.pdb_info:
             if atom.pdb_info.has_key('residue_name'):
                 return atom.pdb_info['residue_name'][:3]
-        return None
-
-    def get_name(self):
-        """
-        Just another version of get_three_letter_code.
-        """
-        # REVIEW: if it's good to have both versions,
-        # it is probably because they have different descriptions or "contracts"
-        # even though they have the same implementation.
-        # If so, this docstring should describe what this method is for,
-        # and add a @note that it behaves identically to get_three_letter_code
-        # if that is interesting to callers. (The method name could also usefully
-        # be more specific.)
-        # If not, it's probably best to pick one method name and only use that one.
-        # [bruce 080828 comment]
-        return self.get_three_letter_code()
         
+        return "   "
+
     def get_one_letter_code(self):
         """
         Return a one-letter amino acid code, or "X" if the residue code
         is not recognized.
+        
+        @note: see docstring in get_three_letter_code
+        
         """
-        if AA_3_TO_1.has_key(self.get_name()):
-            return AA_3_TO_1[self.get_name()]
+        if AA_3_TO_1.has_key(self.get_three_letter_code()):
+            return AA_3_TO_1[self.get_three_letter_code()]
         
         return "X"
     
@@ -504,42 +564,31 @@ class Residue:
         (single letter character). It is represented by a five character string.
         """
         atom = self.get_first_atom()
-        if atom and \
-           atom.pdb_info:
+        
+        if atom.pdb_info:
             if atom.pdb_info.has_key('residue_id'):
                 return atom.pdb_info['residue_id']
 
-        return None
+        raise Exception("Residue has no ID")
     
     def get_index(self):
         """
-        Return a residue index.
+        Return a residue index. The residue index is a numerical equivalent
+        of a residue ID (less the insertion code) and is provided for user's
+        convenience, i.e. when it is desired for the index to be used 
+        independetly from the residue insertion code. Also, see docstring
+        in get_id.
         """
         # REVIEW: either the docstring or a comment should explain
         # why this has almost (but not quite) the same implementation
         # as get_id. (Otherwise, a reviewer can wonder whether that's
-        # intentional.)
+        # intentional.) --FIXED, added more info to docstring, piotr 080902
         # Also the docstring should say a bit more about what this is for.
-        # [bruce 080828 comment]
-        atom = self.get_first_atom()
-        if atom and \
-           atom.pdb_info:
-            if atom.pdb_info.has_key('residue_id'):
-                return int(atom.pdb_info['residue_id'][:3])
-
-        return None
-    
-    def get_atom(self, pdbname):
-        """
-        Return an atom by PDB name.
+        # [bruce 080828 comment] -- FIXED piotr 080902
         
-        @param pdbname: a PDB name of an atom.
-        @type: string
-        """
-        if self.atoms.has_key(pdbname):
-            return self.atoms[pdbname]
-        else:
-            return None
+        residue_id = self.get_id()
+        
+        return int(residue_id[:3])
     
     def has_atom(self, atom):
         """
@@ -547,6 +596,8 @@ class Residue:
         
         @param atom: atom to be checked
         @type atom: Atom        
+        
+        @return: True if the atom belongs to self, False otherwise 
         """
         if atom in self.atoms.values():
             return True
@@ -559,7 +610,6 @@ class Residue:
         
         @param sec: secondary structure type to be assigned
         @type sec: int
-        
         """
         self.secondary_structure = sec
         
@@ -573,18 +623,25 @@ class Residue:
         
     def get_atom_by_name(self, name):
         """
-        Returns a residue atom for a given name, or None if not found.
+        Returns a residue atom for a given PDB atom name, or None if not found.
+        The PDB name corresponds to the atom label as defined in PDB file.
+        Peptide Builder can create proper atom labels.
+        
+        This intentionally and without a warning returns None if the atom 
+        of a given name is not found. It is callers responsibility 
+        to handle such case properly. --piotr 080902
         
         @param name: name of the atom
         @type name: string
         
-        @return: atom
+        @return: atom or None
+        @rtype: Atom
         """
-        # REVIEW: docstring should be more specific about what kind of name this is about.
+        # REVIEW: docstring should be more specific about what kind of name this is about. -- FIXED
         if self.atoms.has_key(name):
             return self.atoms[name]
-        
-        return None
+        else:
+            return None
     
     def get_c_alpha_atom(self):
         """
@@ -602,7 +659,8 @@ class Residue:
         """
         # REVIEW: docstring or comment should explain why this is
         # implemented identically to get_c_alpha_atom.
-        return self.get_atom_by_name("CA")
+        # --FIXED typo - this was a bug
+        return self.get_atom_by_name("CB")
     
     def get_n_atom(self):
         """
@@ -624,9 +682,8 @@ class Residue:
         """
         Return a backbone oxygen atom.
         
-        @return: backbone carbonyly group oxygen atom
+        @return: backbone carbonyl group oxygen atom
         """
-        # REVIEW: is carbonyly a typo?
         return self.get_atom_by_name("O")
         
     def set_mutation_range(self, range):
@@ -640,7 +697,7 @@ class Residue:
         
     def get_mutation_range(self):
         """
-        Gets a mutaion range according to Rosetta definition.
+        Gets a mutation range according to Rosetta definition.
         nie,.
         @return: range
         """
@@ -663,71 +720,17 @@ class Residue:
         """
         return self.mutation_descriptor
     
-    def calc_torsion_angle(self, atom_list):
-        """
-        Calculates torsional angle defined by four atoms, A1-A2-A3-A4,
-        Return torsional angle value between atoms A2 and A3.
-        
-        @param atom_list: list of four atoms describing the torsion bond
-        @type atom_list: list
-        
-        @return: value of the torsional angle (float)
-        """
-        # REVIEW: this doesn't use self; it should probably be a function, not a method.
-        # Also, it appears to be very general and ought to be moved to a more
-        # general place (someday), perhaps VQT.py or nearby. [bruce 080828 comment]
-        
-        from Numeric import dot
-        from math import atan2, pi, sqrt
-        from geometry.VQT import cross
-        
-        if len(atom_list) != 4:
-            # The list has to have four members.
-            return 0.0
-        
-        # Calculate pairwise distances
-        v12 = atom_list[0].posn() - atom_list[1].posn()
-        v43 = atom_list[3].posn() - atom_list[2].posn()
-        v23 = atom_list[1].posn() - atom_list[2].posn()
-
-        # p is a vector perpendicular to the plane defined by atoms 1,2,3
-        # p is perpendicular to v23_v12 plane
-        p = cross(v23, v12)
-        
-        # x is a vector perpendicular to the plane defined by atoms 2,3,4.
-        # x is perpendicular to v23_v43 plane
-        x = cross(v23, v43)
-        
-        # y is perpendicular to v23_x plane
-        y = cross(v23, x)
-        
-        # Calculate lengths of the x, y vectors.
-        u1 = dot(x, x)
-        v1 = dot(y, y)
-        
-        if u1 < 0.0 or \
-           v1 < 0.0:
-            return 360.0
-        
-        u2 = dot(p, x) / sqrt(u1)
-        v2 = dot(p, y) / sqrt(v1)
-        
-        if u2 != 0.0 and \
-           v2 != 0.0:
-            # calculate the angle
-            return atan2(v2, u2) * (180.0 / pi)
-        else:
-            return 360.0
-         
     def get_chi_atom_list(self, which):
         """
         Create a list of four atoms for computing a given chi angle.
-        Return None if no such angle exists for this amino acid.
+        Return an empty lisy if no such angle exists for self, or if
+        residue name doesn't match one of the 20 standard amino acid names,
+        or if the specified chi angle is out of allowed range (which is 0..3).
         
         @param which: chi angle (0=chi1, 1=chi2, and so on)
         @type which: int
         
-        @return: list of four atoms
+        @return: list of four atoms, or 
         """
         # REVIEW: the docstring claims this returns a list of four atoms,
         # but in fact the code appears to be able to return a shorter list.
@@ -737,10 +740,14 @@ class Residue:
         # and the general description seems to give a smaller set of
         # conditions for returning None than the code apperas to have.
         # [bruce 080828 comment]
+        
+        # piotr 080903: --FIXED, returns an empty list on failure, better
+        # documented in docstring
+        
         if which in range(4):
-            residue_name = self.get_name()
-            if chi_angles.has_key(residue_name):
-                chi_list = chi_angles[residue_name]
+            residue_name = self.get_three_letter_code()
+            if CHI_ANGLES.has_key(residue_name):
+                chi_list = CHI_ANGLES[residue_name]
                 if chi_list[which]:
                     chi_atom_names = chi_list[which]
                     chi_atoms = []
@@ -749,27 +756,34 @@ class Residue:
                         if atom:
                             chi_atoms.append(atom)
                     return chi_atoms
-        return None
+        
+        return []
      
     def get_chi_atom_exclusion_list(self, which):
         """
-        Create a list of atoms excluded from rotation for a current amino acid.
-        Return None if wrong chi angle is requested.
+        Creates a list of atoms excluded from rotation for a current amino acid.
+        Returns an empty list if wrong chi angle is requested.
         
         @param which: chi angle (0=chi1, 1=chi2, and so on)
         @type which: int
         
         @return: list of atoms to be excluded from rotation
         """
+        ex_atoms = []
+        
         if which in range(4):
-            residue_name = self.get_name()
-            if chi_exclusions.has_key(residue_name):
-                chi_ex_list = chi_exclusions[residue_name]
-                ex_atoms = [self.get_atom_by_name("OXT")]
+            residue_name = self.get_three_letter_code()
+            if CHI_EXCLUSIONS.has_key(residue_name):
+                chi_ex_list = CHI_EXCLUSIONS[residue_name]
+                oxt_atom = self.get_atom_by_name("OXT")
+                if oxt_atom:
+                    ex_atoms.append(oxt_atom)
                     # REVIEW: can this ever be [None]? If so, is that ok?
                     # If so, docstring should say so.
                     # Also, some of the same comments as for get_chi_atom_list
                     # apply here. [bruce 080828 comment]
+                    # piotr 080903: Both problems FIXED (the None in exclusion
+                    # list was ok, but I changed it to avoid confusion).
                 for w in range(0, which + 1):
                     if chi_ex_list[w]:
                         ex_atom_names = chi_ex_list[w]
@@ -777,13 +791,15 @@ class Residue:
                             atom = self.get_atom_by_name(name)
                             if atom:
                                 ex_atoms.append(atom)
-                return ex_atoms
-        return None
+        return ex_atoms
      
     def get_chi_angle(self, which):
         """
         Computes the side-chain Chi angle. Returns None if the angle
         doesn't exist.
+        
+        @note: This method returns None if the chi angle doesn't exist.
+        This is intentional and callers should be aware of it.
         
         @param which: chi angle (0=chi1, 1=chi2, and so on)
         @type which: int
@@ -792,7 +808,7 @@ class Residue:
         """
         chi_atom_list = self.get_chi_atom_list(which)
         if chi_atom_list:
-            return self.calc_torsion_angle(chi_atom_list)                  
+            return calc_torsion_angle(chi_atom_list)                  
         else:
             return None
 
@@ -800,7 +816,8 @@ class Residue:
     def get_atom_list_to_rotate(self, which):
         """
         Create a list of atoms to be rotated around a specified chi angle.
-        Returns an empty list if wrong chi angle is requested.
+        Returns an empty list if wrong chi angle is requested, or if all
+        atoms are going to be excluded.
         
         piotr 082008: This method should be rewritten in a way so it 
         traverses a molecular graph rather than uses a predefined 
@@ -823,7 +840,7 @@ class Residue:
             for atom in all_atom_list:
                 if atom not in chi_atom_exclusion_list:
                     atom_list.append(atom)
-                  
+
         return atom_list
     
     def lock(self):
@@ -842,6 +859,9 @@ class Residue:
         @param angle: value of the chi angle to be set
         @type angle:float
         
+        @note: this method intentionally returns None if it is not possible
+        to set the specified chi angle
+        
         @return: angle value if sucessfully completed, None if not
         """
         # REVIEW: Eric M said he factored some intrinsic coordinate code
@@ -850,14 +870,22 @@ class Residue:
         # If so, it's enough for now to comment this saying so
         # rather than to actually refactor it. [bruce 080828 comment]
         
+        # piotr 080902: I think that is different than the internal-to-cartesian 
+        # coordinate conversion. Perhaps the code Eric M re-factored from 
+        # Peptide Builder could be adapted to be used for torsion angle
+        # manipulations, but I think current implementation is more 
+        # straightforward. The "rotate point around a vector" routine
+        # should be splitted out, though (and perphaps an equivalent method
+        # exists somewhere in the codebase)
+        
         from geometry.VQT import norm, Q, V
         from math import pi, cos, sin
         
         # Get a list of atoms to rotate.
         chi_atom_list = self.get_chi_atom_list(which)
-        if chi_atom_list:
+        if len(chi_atom_list)>0:
             # Calculate a current chi torsion angle.
-            angle0 = self.calc_torsion_angle(chi_atom_list)
+            angle0 = calc_torsion_angle(chi_atom_list)
             # Calculate a difference between the current angle and 
             # a requested chi angle.
             dangle = angle - angle0
@@ -867,7 +895,9 @@ class Residue:
                 vec = norm(chi_atom_list[2].posn() - chi_atom_list[1].posn())
                 # Compute a list of atoms to rotate.
                 atom_list = self.get_atom_list_to_rotate(which)
+                
                 first_atom_posn = chi_atom_list[1].posn()
+                
                 for atom in atom_list:
                     
                     # Move the origin to the first atom.
@@ -906,7 +936,7 @@ class Residue:
         
     def expand(self):
         """
-        Expands a residue side chain.
+        Expand a residue side chain.
         """
         
         self.expanded = True
@@ -925,13 +955,13 @@ class Residue:
     
     def set_color(self, color):
         """
-        Sets a rotamer color for current amino acid.
+        Set a rotamer color for current amino acid.
         """
         self.color = color
         
     def set_backrub_mode(self, enable_backrub):
         """
-        Sets Rosetta backrub mode (True or False).
+        Set Rosetta backrub mode (True or False).
         
         @param enable_backrub: should backrub mode be enabled for this residue
         @type enable_backrub: boolean
@@ -940,7 +970,7 @@ class Residue:
         
     def get_backrub_mode(self):
         """ 
-        Gets Rosetta backrub mode (True or False).
+        Get Rosetta backrub mode (True or False).
         
         @return: is backrub enabled for this residue (boolean)
         """

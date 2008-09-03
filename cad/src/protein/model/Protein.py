@@ -204,7 +204,7 @@ class Protein:
         @type atom: Atom
         
         @return: True if atom is an alpha carbon atom, False if it is not
-        @type: boolean
+        @rtype: boolean
         """
         if atom in self.ca_atom_list:
             return True
@@ -292,7 +292,6 @@ class Protein:
             ss = aa.get_secondary_structure()
             aa_list_for_rosetta[i].set_secondary_structure(ss)
             i = i + 1
-        return
 
     def get_secondary_structure_string(self):
         """
@@ -316,6 +315,32 @@ class Protein:
                 
         return ss_str
 
+    # The two methods below should probably be renamed, the names are 
+    # confusing now -- piotr 080902
+    
+    def get_id_for_aa(self, aa, index):
+        """
+        Create and return an info text describing a specified residue.
+        (look at "get_amino_acid_id" method for more information").
+        
+        @param index: index of a queried amino acid [0, sequence_length-1]
+        @type index: int
+        
+        @return: string describing this residue
+        """
+        
+        aa_id = self.get_pdb_id() + \
+              self.get_chain_id() + \
+              "[" + \
+              repr(index+1) + \
+              "] : " + \
+              aa.get_three_letter_code() + \
+              "[" + \
+              repr(int(aa.get_id())) + \
+              "]" 
+        
+        return aa_id
+        
     def get_amino_acid_id(self, index):
         # REVIEW: need @param index: ...; and, clarify/fix the term "current" in "current residue",
         # and, document return value of None --FIXED piotr 080901
@@ -323,27 +348,24 @@ class Protein:
         Create and return a descriptive text related to a residue of a given
         sequence index. The text is composed of protein name, index, residue name, 
         residue index.
+
+        @note: this method will cause an exception if there is no residue
+        of the specified index
         
         @param index: index of a queried amino acid [0, sequence_length-1]
         @type index: int
         
-        @return: string describing this residue, or None if a residue of a
-        specified index doesn't exist
+        @return: string describing this residue
+
         """
         aa_list = self.get_amino_acids()
+
         if index in range(len(aa_list)):
             aa = aa_list[index]
-            aa_id = self.get_pdb_id() + \
-                  self.get_chain_id() + \
-                  "[" + \
-                  repr(index+1) + \
-                  "] : " + \
-                  aa.get_three_letter_code() + \
-                  "[" + \
-                  repr(int(aa.get_id())) + \
-                  "]" 
+            aa_id = self.get_id_for_aa(aa, index)
             return aa_id
-        return None
+
+        raise Exception("Residue index is out of range: %d" % index)
     
     def get_amino_acid_id_list(self): # REVIEW: document type of list elements in return value
         """
@@ -354,11 +376,15 @@ class Protein:
         """
         # Note: this is quadratic time (due to index in range test inside submethod),
         # may need to be optimized [bruce 080828 comment]
-        # piotr TODO
+        # piotr FIXED 080903
+        
         id_list = []
-        for idx in range(len(self.get_amino_acids())):
-            aa_id = self.get_amino_acid_id(idx)
+        index = 0
+        
+        for aa in self.get_amino_acids():
+            aa_id = self.get_id_for_aa(aa, index)
             id_list.append(aa_id)
+            index += 1
             
         return id_list
     
@@ -381,6 +407,9 @@ class Protein:
     def assign_helix(self, resId):
         """
         Assign a helical secondary structure to resId.
+
+        @note: this method will raise an exception if a residue of a 
+        specified resId doesn't exist
         
         @param resId: residue ID for secondary structure assignment
         @type resId: int
@@ -389,15 +418,20 @@ class Protein:
             aa = self.residues[resId]
             aa.set_secondary_structure(SS_HELIX)
             
+        raise Exception("Specified residue doesn't exist")
+ 
     def assign_strand(self, resId):
         """
         Assign a beta secondary structure to resId.
         
-        @proper name: The proper name of this secondary structure type is 
+        The proper name of this secondary structure type is 
         "beta strand", but names "beta", "strand", "extended" are used 
         interchangeably (PDB files use "STRAND" name to mark the beta
         conformation fragments).
         
+        @note: this method will raise an exception if a residue of a 
+        specified resId doesn't exist
+
         @param resId: residue ID for secondary structure assignment
         @type resId: int
         """
@@ -407,10 +441,15 @@ class Protein:
             aa = self.residues[resId]
             aa.set_secondary_structure(SS_STRAND)
             
+        raise Exception("Specified residue doesn't exist")
+    
     def assign_turn(self, resId):
         """
         Assign a turn secondary structure to resId.
         
+        @note: this method will raise an exception if a residue of a 
+        specified resId doesn't exist
+
         @param resId: residue ID for secondary structure assignment
         @type resId: int
         """
@@ -418,11 +457,13 @@ class Protein:
             aa = self.residues[resId]
             aa.set_secondary_structure(SS_TURN)
             
+        raise Exception("Specified residue doesn't exist")
+
     def expand_rotamer(self, aa):
         """
         Expand a side chain of a given residue.
         
-        @note: aa should belong to the Protein object - it is not being checked.
+        @note: aa should belong to the Protein object.
         
         @param aa: amino acid to expand
         @type aa: Residue
@@ -439,6 +480,7 @@ class Protein:
             self.residues_dl = None
             aa.expand()
             return True
+        
         return False
     
     def is_expanded(self, aa):
@@ -510,7 +552,16 @@ class Protein:
         if self.current_aa_idx > 0:
             self.current_aa_idx -= 1
             return True
+        
         return False
+    
+    # General comment regarding the "current residue" mechanism. The purpose
+    # of the "current_aa_idx" attribute is to have a mechanism for selecting
+    # and focusing on an individual amino acid. Currently, this mechanism
+    # is only used by "Edit Rotamers" command and probably the "Edit Rotamers"
+    # command should keep track of the current residue. It would be
+    # better if this attribute was removed from the Protein class. 
+    # -- piotr 080902
     
     def get_current_amino_acid(self):
         """
@@ -519,7 +570,7 @@ class Protein:
         @return: current amino acid (Residue) 
         """
         ### MAJOR BUG: dict.values() has undefined order. 
-        # -- FIXED piotr 080901 -- uses residues_list instead the dict
+        # -- FIXED piotr 080901 -- uses residues_list instead of the dict
         
         if self.current_aa_idx in range(len(self.residues_list)):
             return self.residues_list[self.current_aa_idx]
@@ -527,7 +578,10 @@ class Protein:
     
     def get_amino_acid_at_index(self, index):
         """
-        Return the amino acid at the given index
+        Return the amino acid at the given index.
+        
+        @note: This method returns None if there is no amino acid at the
+        specified index. This is intentional - callers should be aware of it.
         
         @param index: index of amino acid requested
         @type index: int
@@ -538,6 +592,7 @@ class Protein:
         #sequence editor and residue combo box
         if index in range(len(self.residues_list)):
             return self.residues_list[index]
+        
         return None
     
     def get_current_amino_acid_index(self):
@@ -556,6 +611,7 @@ class Protein:
         @type index: integer
         
         @return: True if the index is allowed, False if it is out of allowed range
+        @rtype: boolean
         """
         # REVIEW: this does no error checking (error is silently ignored);
         # it might be better to warn if the index is not in range (if that's an error),
@@ -570,19 +626,21 @@ class Protein:
         """
         Returns a number of backrub amino acids.
         
-        @return: number of amino acids assigned as "backrub" (integer)
+        @return: number of amino acids assigned as "backrub" 
+        @rtype: integer
         """
         nbr = 0
         for aa in self.get_amino_acids():
             if aa.get_backrub_mode():
                 nbr += 1
+        
         return nbr
         
     def is_backrub_setup_correctly(self):
         """
-        Returns True if the backrub table is properly set up.
+        Returns True if the backrub table is properly set up, False otherwise.
         
-        @return: boolean
+        @rtype: boolean
         """
         last_aa = None
         # Check if at least two consecutive amino acids have backrub flag
@@ -593,6 +651,7 @@ class Protein:
                aa.get_backrub_mode():
                 return True
             last_aa = aa            
+        
         return False
         
     def edit(self, win):
