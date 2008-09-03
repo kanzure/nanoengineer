@@ -444,24 +444,24 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
                 self.assy.checkparts() #bruce 050315 assy/part debug code
         return
         
-    def start_using_mode_for_USE_COMMAND_STACK(self, command): #bruce 080806 prototype; @@@ CALL ME
-        """
-        Try to enter the given (or named) command: push it onto command stack,
-        and have it do any necessary side effects on entry.
-
-        @return: whether enter succeeded well enough that caller should continue
-                 entering subcommands if it wants to.
-        """
-        assert USE_COMMAND_STACK
-
-        self._update_model_between_commands()
-
-        command = self._find_command_instance( command)
-            # note: exception if this fails to find command (never returns false)
-        
-        entered = command._command_do_enter_if_ok()
-
-        return entered
+##    def start_using_mode_for_USE_COMMAND_STACK(self, command): #bruce 080806 prototype; 080903 NOT USED, PROBABLY OBSOLETE
+##        """
+##        Try to enter the given (or named) command: push it onto command stack,
+##        and have it do any necessary side effects on entry.
+##
+##        @return: whether enter succeeded well enough that caller should continue
+##                 entering subcommands if it wants to.
+##        """
+##        assert USE_COMMAND_STACK
+##
+##        self._update_model_between_commands()
+##
+##        command = self._find_command_instance( command)
+##            # note: exception if this fails to find command (never returns false)
+##        
+##        entered = command._command_do_enter_if_ok()
+##
+##        return entered
 
     def start_using_initial_mode(self, mode): #bruce 080812
         """
@@ -482,8 +482,10 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             entered = command_instance._command_do_enter_if_ok()
             assert entered
             return
-        self.start_using_mode( mode)
-        return
+        else:
+            self.start_using_mode( mode)
+            return
+        pass
     
     def start_using_mode(self, mode, resuming = False, has_its_own_gui = True):
         """
@@ -608,11 +610,15 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         """
         #bruce 080813 moved/renamed this from GLPane.update_after_new_mode,
         # and refactored it
+        if DEBUG_COMMAND_SEQUENCER:
+            print "DEBUG_COMMAND_SEQUENCER: calling _cseq_update_after_new_mode"
         glpane = self.assy.glpane
-        glpane.update_after_new_graphicsMode()
         glpane.update_GLPane_after_new_command()
+            #bruce 080903 moved this before the call of update_after_new_graphicsMode
+            # (precaution, in case glpane.scale, which it can alter, affects that)
+        glpane.update_after_new_graphicsMode() # includes gl_update
 
-        self.win.win_update()
+        self.win.win_update() # includes gl_update (redundant calls of that are ok)
 
         #e also update tool-icon visual state in the toolbar? [presumably done elsewhere now]
         # bruce 041222 [comment revised 050408, 080813]:
@@ -861,6 +867,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         # exit commands, innermost (current) first, until we fail,
         # or exit the command we were passed (our exit_target).
         error = False
+        do_update = False
         while not error:
             old_command = self.currentCommand
             if DEBUG_COMMAND_SEQUENCER:
@@ -872,11 +879,24 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             if not exited:
                 error = True
                 break
+            else:
+                do_update = True
             assert self.currentCommand is not old_command
             if old_command is command:
                 # we're done
                 break
             continue # exit more commands
+        if do_update:
+            # note: this can happen even if error is True
+            # (when exiting multiple commands at once)
+            
+            ##### REVIEW: should we call self._update_model_between_commands() like old code did?
+            # Note that no calls to it are implemented in USE_COMMAND_STACK case
+            # (not for entering commands, either). This might cause new bugs.
+            
+            self._cseq_update_after_new_mode()
+            pass
+        
         if DEBUG_COMMAND_SEQUENCER:
             print "DEBUG_COMMAND_SEQUENCER: _f_exit_active_command returns, currentCommand is", self.currentCommand
         return
@@ -1294,6 +1314,10 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         else:
             self._f_assert_command_stack_unlocked()
             assert 0, "callRequestCommand is nim for USE_COMMAND_STACK" ### IMPLEM
+                # when we implement it, decide whether it needs to call
+                # the same update methods as the old code above does internally:
+                # - _cseq_update_after_new_mode
+                # - _update_model_between_commands
         return
 
     def _f_get_data_while_entering_request_command(self): #bruce 080801
@@ -1332,9 +1356,13 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             # REVIEW: do we also need something like the old
             # "stop_sending_us_events" system,
             # to protect from all kinds of events? [bruce 080829]
-            print "fyi: _f_update_current_command does nothing since command stack is locked (%s)" % \
-                  self._f_command_stack_is_locked
+            if DEBUG_COMMAND_SEQUENCER:
+                print "fyi: _f_update_current_command does nothing since command stack is locked (%s)" % \
+                      self._f_command_stack_is_locked
             return
+        else:
+            if DEBUG_COMMAND_SEQUENCER:
+                print "fyi: _f_update_current_command called, stack not locked"
         
         self._f_assert_command_stack_unlocked()
         
