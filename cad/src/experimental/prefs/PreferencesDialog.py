@@ -18,6 +18,19 @@ from Ui_PreferencesDialog import Ui_PreferencesDialog
 from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_ColorComboBox import PM_ColorComboBox
 from PM.PM_CheckBox import PM_CheckBox
+from PM.PM_GroupBox      import PM_GroupBox
+from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
+from PM.PM_LineEdit      import PM_LineEdit
+from PM.PM_PushButton import PM_PushButton
+from PM.PM_RadioButton import PM_RadioButton
+from PM.PM_RadioButtonList import PM_RadioButtonList
+from PM.PM_Slider import PM_Slider
+from PM.PM_TableWidget import PM_TableWidget
+from PM.PM_TextEdit import PM_TextEdit
+from PM.PM_ToolButton import PM_ToolButton
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_Dial import PM_Dial
+from PM.PM_SpinBox import PM_SpinBox
 
 from PM.PM_Constants import PM_MAINVBOXLAYOUT_MARGIN
 from PM.PM_Constants import PM_MAINVBOXLAYOUT_SPACING
@@ -58,10 +71,17 @@ class PageWidget(QWidget):
         QWidget.__init__(self)
         self.name = name
         self.setObjectName(name)
+        self.containerList = []
 
         # _containerWidget is the container widget.
         _containerWidget = QtGui.QFrame(self)
         _containerWidget.setObjectName(name)
+        # This next line fills the list with improper data.  But, later when a
+        # container class is built, this will store the object where the 
+        # getPageContainers method can get to it.  One container will be 
+        # created with each page, and the programmer can ask for more by calling
+        # self.newContainer (not yet implemented).
+        self.containerList.append(_containerWidget)
 
         if DEBUG:
             _containerWidget.setFrameShape(QFrame.Box)
@@ -121,6 +141,28 @@ class PageWidget(QWidget):
 
         self._rowCount += 1
         return
+    
+    def getPageContainers(self, containerKey = None):
+        """
+        Returns a list of containers which the page owns.
+        Always returns a list for consistancy.  The list can be restricted to
+        only those that have containerKey in the name.  If there's only one, the 
+        programmer can do list = list[0]
+        """
+
+        # See if we are asking for a specific container
+        if containerKey == None:
+            # return the whole list
+            containers = self.containerList
+        else:
+            # return only the container(s) where containerKey is in the name.
+            # this is a list comprehension search.
+            # Also, the condition can be modified with a startswith depending
+            # on the implementation of naming the containers.
+            containers = [ x for x in self.containerList \
+                           if x.objectName().find(containerKey) >= 0 ]
+        return containers
+
     
     def getPmWidgetPlacementParameters(self, pmWidget):
         """
@@ -377,11 +419,11 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.whatsThisToolButton.setToolTip('Enter "What\'s This?" help mode')
         return
 
-    def addScrollArea(self):
-        self.propertyManagerScrollArea = QScrollArea(self.categoriesTreeWidget)
-        self.propertyManagerScrollArea.setObjectName("propertyManagerScrollArea")
-        self.propertyManagerScrollArea.setWidget(self.categoriesTreeWidget)
-        self.propertyManagerScrollArea.setWidgetResizable(True)
+    #def addScrollArea(self):
+        #self.propertyManagerScrollArea = QScrollArea(self.categoriesTreeWidget)
+        #self.propertyManagerScrollArea.setObjectName("propertyManagerScrollArea")
+        #self.propertyManagerScrollArea.setWidget(self.categoriesTreeWidget)
+        #self.propertyManagerScrollArea.setWidgetResizable(True)
     
     def _addPages(self, pagenameList, myparent = None):
         """
@@ -464,14 +506,44 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         _pref_color = PM_ColorComboBox(page_widget, spanWidth = True)
         _pref_CheckBox = PM_CheckBox(page_widget, text ="nothing interesting", \
                                      widgetColumn = 1)
+        #N means this PM widget currently does not work.
+#N        _pmGroupBox1 = PM_GroupBox( self, title = "Endpoints" )
+#N        _endPoint1SpinBoxes = PM_CoordinateSpinBoxes(self._pmGroupBox1,
+#                                                          label = "test 1")
+        duplexLengthLineEdit  =  \
+            PM_LineEdit(page_widget, label =  "something\non the next line",
+                         text          =  "default text",
+                         setAsDefault  =  False)
+        pushbtn = PM_PushButton(page_widget, label = "Click here",
+                                 text = "here")
+        radio1 = PM_RadioButton(page_widget, text = "self button1")
+        radio2 = PM_RadioButton(page_widget, text = "self button2")
+#N        radiobtns = PM_RadioButtonList (page_widget, title = "junk", 
+#                                        label = "junk2", 
+#                                        buttonList = ["btn1", "btn2"])
+        slider1 = PM_Slider(page_widget, label = "slider 1:")
+        table1 = PM_TableWidget(page_widget, label = "table:")
+        TE1 = PM_TextEdit(page_widget, label = "QMX")
+#N        TB1 = PM_ToolButton(page_widget, label = "tb1", text = "text1")
+        radio3 = PM_RadioButton(page_widget, text = "self button3")
+        SB = PM_SpinBox(page_widget, label = "SB", suffix = "x2")
+        DBS = PM_DoubleSpinBox(page_widget, label = "test", suffix = "x3", singleStep = .1)
+        Dial = PM_Dial( page_widget, label = "Direction", suffix = "degrees")
+
         return
         
     def getPage(self, pagename):
         """
-        Returns the container widget for pagename.
+        Returns the page widget for pagename.
         """
-        return
-
+        if not pagename in self.pagenameDict:
+            msg = 'Preferences page unknown: pagename =%s\n' \
+                'pagename must be one of the following:\n%r\n' \
+                % (pagename, self.pagenameList)
+            print_compact_traceback(msg)
+            return
+        return self.prefsStackedWidget.widget(self.pagenameDict[pagename])
+    
     def showPage(self, pagename = ""):
         """
         Show the current page of the Preferences dialog. If no page is
@@ -505,6 +577,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             print_compact_traceback("Bug in showPage() ignored.")
 
         self.setWindowTitle("Preferences - %s" % pagename)
+        containers = self.getPage(pagename).getPageContainers()
+        print containers
         return
 
 if __name__ == "__main__":
