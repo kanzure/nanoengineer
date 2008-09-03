@@ -113,6 +113,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         exit_is_implicit = False
         exit_target = None
         enter_target = None
+        _command_stack_change_counter = 0
 
     def __init__(self, assy): #bruce 080813
         assert not GLPANE_IS_COMMAND_SEQUENCER
@@ -1483,6 +1484,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         def _set_raw_currentCommand(self, command):
             assert command is None or isinstance(command, baseCommand)
                 # is it true of nullmode???#### FIX ####
+            self._command_stack_change_counter += 1 #bruce 080903 new feature
             self.__raw_currentCommand = command
             return
 
@@ -1498,7 +1500,18 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             assert 0, "illegal to set %r.currentCommand directly" % self
 
         currentCommand = property( _get_currentCommand, _set_currentCommand)
-        
+
+        def command_stack_change_indicator(self):
+            """
+            Return the current value of a "change indicator"
+            for the command stack as a whole. Any change to the command stack
+            causes this to change, provided it's viewed during one of the
+            command_update* methods in the Command API (see baseCommand
+            for their default defs and docstrings).
+
+            @see: same-named method in class Assembly.
+            """
+            return self._command_stack_change_counter
         pass
     
     # graphicsMode

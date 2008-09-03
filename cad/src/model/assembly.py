@@ -184,8 +184,13 @@ class Assembly( StateMixin, Assembly_API):
 
     def all_change_indicators(self): #bruce 060227; 071116 & 080805, revised docstring  ### TODO: fix docstring after tests
         """
-        Return a tuple of all our change counters, suitable for later passing
-        to self.reset_changed_for_undo(). The order is guaranteed to be:
+        Return a tuple of all our change indicators which relate to undoable
+        state, suitable for later passing to self.reset_changed_for_undo().
+
+        (Presently, this means all of our change indicators except the
+        one returned by command_stack_change_indicator.) 
+
+        The order is guaranteed to be:
 
         (model_change_indicator, selection_change_indicator, view_change_indicator)
 
@@ -216,6 +221,8 @@ class Assembly( StateMixin, Assembly_API):
                today [080805], and also to the "changing only once during drag"
                issue noted above, by adding a call to that function sometime
                during every user event -- probably after all ui updaters are called.
+
+        @see: self.command_stack_change_indicator (not included in our return value)
         """
         return self._model_change_indicator, self._selection_change_indicator, self._view_change_indicator
 
@@ -243,7 +250,15 @@ class Assembly( StateMixin, Assembly_API):
         assert 0, "don't use this yet, the counter attr is mostly NIM" #bruce 080805
         return self._view_change_indicator
     
+    def command_stack_change_indicator(self): #bruce 080903
+        """
+        @see: same-named method in class CommandSequencer.
 
+        @note: this is intentionally not included in the value of
+               self.all_change_indicators().
+        """
+        return self.commandSequencer.command_stack_change_indicator()
+    
     # state declarations:
     # (the change counters above should not have ordinary state decls -- for now, they should have none)
     
