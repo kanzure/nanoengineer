@@ -369,11 +369,8 @@ def calc_torsion_angle(atom_list):
     
     @return: value of the torsional angle (float)
     """
-    # REVIEW: this doesn't use self; it should probably be a function, not a method.
-    # Also, it appears to be very general and ought to be moved to a more
-    # general place (someday), perhaps VQT.py or nearby. [bruce 080828 comment] 
-
-    # piotr 080828: --FIXED: splitted this method out of Residue class
+    # Note: this appears to be very general and perhaps ought to be moved to a more
+    # general place (someday), perhaps VQT.py or nearby. [bruce 080828 comment]
     
     from Numeric import dot
     from math import atan2, pi, sqrt
@@ -426,19 +423,7 @@ class Residue:
     
     def __init__(self):
         """
-        @param id: PDB residue number.
-        @type id: integer
-        
-        @param name: PDB name (amino acid name in three-letter code.
-        @type name: string (3 characters)
         """
-        # REVIEW: id is the name of a Python builtin, so it should not be
-        # used for local variables. Doing so will work, but will cause bugs
-        # if someone doesn't notice it when adding new code such as
-        # print "%#x" % id(something).
-        # [bruce 080828 comment]
-        # FIXED - removed the parameters, they were obsolete
-        
         # list of residue atoms in the same order as they occur in PDB file
         self.atom_list = []
         
@@ -460,7 +445,6 @@ class Residue:
         # class to some Rosetta-related structure. For now, the Residue
         # and Protein classes include several methods created for Rosetta
         # purposes only.
-        # REVIEW: that comment appears truncated. -- FIXED piotr 080902
         
         # Rosetta name of mutation range. 
         self.mutation_range = "NATAA"
@@ -475,7 +459,7 @@ class Residue:
         # True if this residue will be using backrub mode.
         self.backrub = False
 
-    def get_atom_name(self, atom): # REVIEW: docstring has input & output backwards. --FIXED
+    def get_atom_name(self, atom):
         """
         For a given PDB atom, return a corresponding atom name.
         """
@@ -563,6 +547,9 @@ class Residue:
         (integer value up to 9999) and concatenated residue insertion code 
         (single letter character). It is represented by a five character string.
         """
+        # REVIEW: docstring should clarify whether serial number
+        # is padded on left with ' ' or '0' (when less than 1000).
+        # [bruce 080904 comment]
         atom = self.get_first_atom()
         
         if atom.pdb_info:
@@ -576,15 +563,13 @@ class Residue:
         Return a residue index. The residue index is a numerical equivalent
         of a residue ID (less the insertion code) and is provided for user's
         convenience, i.e. when it is desired for the index to be used 
-        independetly from the residue insertion code. Also, see docstring
+        independently from the residue insertion code. Also, see docstring
         in get_id.
         """
-        # REVIEW: either the docstring or a comment should explain
-        # why this has almost (but not quite) the same implementation
-        # as get_id. (Otherwise, a reviewer can wonder whether that's
-        # intentional.) --FIXED, added more info to docstring, piotr 080902
-        # Also the docstring should say a bit more about what this is for.
-        # [bruce 080828 comment] -- FIXED piotr 080902
+        # REVIEW: docstring of get_id suggests that residue_id will
+        # have 4 chars for serial number and 1 char for insertion code.
+        # But this makes use of the first 3 chars only.
+        # Needs bugfix or explanation. [bruce 080904 comment]
         
         residue_id = self.get_id()
         
@@ -628,7 +613,7 @@ class Residue:
         Peptide Builder can create proper atom labels.
         
         This intentionally and without a warning returns None if the atom 
-        of a given name is not found. It is callers responsibility 
+        of a given name is not found. It is caller's responsibility 
         to handle such case properly. --piotr 080902
         
         @param name: name of the atom
@@ -637,7 +622,6 @@ class Residue:
         @return: atom or None
         @rtype: Atom
         """
-        # REVIEW: docstring should be more specific about what kind of name this is about. -- FIXED
         if self.atoms.has_key(name):
             return self.atoms[name]
         else:
@@ -657,9 +641,6 @@ class Residue:
         
         @return: beta carbon atom
         """
-        # REVIEW: docstring or comment should explain why this is
-        # implemented identically to get_c_alpha_atom.
-        # --FIXED typo - this was a bug
         return self.get_atom_by_name("CB")
     
     def get_n_atom(self):
@@ -723,27 +704,15 @@ class Residue:
     def get_chi_atom_list(self, which):
         """
         Create a list of four atoms for computing a given chi angle.
-        Return an empty lisy if no such angle exists for self, or if
+        Return an empty list if no such angle exists for self, or if
         residue name doesn't match one of the 20 standard amino acid names,
         or if the specified chi angle is out of allowed range (which is 0..3).
         
         @param which: chi angle (0=chi1, 1=chi2, and so on)
         @type which: int
         
-        @return: list of four atoms, or 
+        @return: list of four atoms, or empty list
         """
-        # REVIEW: the docstring claims this returns a list of four atoms,
-        # but in fact the code appears to be able to return a shorter list.
-        # Should the code check for that, and return None instead?
-        # If not, explain why not in a comment.
-        # Also, the "@return" part doesn't document the None return value,
-        # and the general description seems to give a smaller set of
-        # conditions for returning None than the code apperas to have.
-        # [bruce 080828 comment]
-        
-        # piotr 080903: --FIXED, returns an empty list on failure, better
-        # documented in docstring
-        
         if which in range(4):
             residue_name = self.get_three_letter_code()
             if CHI_ANGLES.has_key(residue_name):
@@ -778,12 +747,6 @@ class Residue:
                 oxt_atom = self.get_atom_by_name("OXT")
                 if oxt_atom:
                     ex_atoms.append(oxt_atom)
-                    # REVIEW: can this ever be [None]? If so, is that ok?
-                    # If so, docstring should say so.
-                    # Also, some of the same comments as for get_chi_atom_list
-                    # apply here. [bruce 080828 comment]
-                    # piotr 080903: Both problems FIXED (the None in exclusion
-                    # list was ok, but I changed it to avoid confusion).
                 for w in range(0, which + 1):
                     if chi_ex_list[w]:
                         ex_atom_names = chi_ex_list[w]
@@ -804,7 +767,7 @@ class Residue:
         @param which: chi angle (0=chi1, 1=chi2, and so on)
         @type which: int
         
-        @return: value of the specified chi angle
+        @return: value of the specified chi angle, or None
         """
         chi_atom_list = self.get_chi_atom_list(which)
         if chi_atom_list:
@@ -864,19 +827,20 @@ class Residue:
         
         @return: angle value if sucessfully completed, None if not
         """
-        # REVIEW: Eric M said he factored some intrinsic coordinate code
+        # Note: Eric M said he factored some intrinsic coordinate code
         # out of some other file to create a general function for that.
         # Is this also something that could use that function?
         # If so, it's enough for now to comment this saying so
         # rather than to actually refactor it. [bruce 080828 comment]
-        
-        # piotr 080902: I think that is different than the internal-to-cartesian 
+        #
+        # piotr 080902 reply:
+        # I think that is different than the internal-to-cartesian 
         # coordinate conversion. Perhaps the code Eric M re-factored from 
         # Peptide Builder could be adapted to be used for torsion angle
         # manipulations, but I think current implementation is more 
         # straightforward. The "rotate point around a vector" routine
-        # should be splitted out, though (and perphaps an equivalent method
-        # exists somewhere in the codebase)
+        # should be split out, though (and perhaps an equivalent method
+        # exists somewhere in the codebase).
         
         from geometry.VQT import norm, Q, V
         from math import pi, cos, sin
