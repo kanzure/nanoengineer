@@ -52,7 +52,8 @@ _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 
 _SAFE_MODE = DEFAULT_COMMAND
 
-DEBUG_COMMAND_SEQUENCER = USE_COMMAND_STACK # turn this off when USE_COMMAND_STACK becomes the default
+DEBUG_COMMAND_SEQUENCER = False ## USE_COMMAND_STACK # turn this off when USE_COMMAND_STACK becomes the default
+DEBUG_COMMAND_SEQUENCER_VERBOSE = False
 
 # ==
 
@@ -444,25 +445,6 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
                 self.assy.checkparts() #bruce 050315 assy/part debug code
         return
         
-##    def start_using_mode_for_USE_COMMAND_STACK(self, command): #bruce 080806 prototype; 080903 NOT USED, PROBABLY OBSOLETE
-##        """
-##        Try to enter the given (or named) command: push it onto command stack,
-##        and have it do any necessary side effects on entry.
-##
-##        @return: whether enter succeeded well enough that caller should continue
-##                 entering subcommands if it wants to.
-##        """
-##        assert USE_COMMAND_STACK
-##
-##        self._update_model_between_commands()
-##
-##        command = self._find_command_instance( command)
-##            # note: exception if this fails to find command (never returns false)
-##        
-##        entered = command._command_do_enter_if_ok()
-##
-##        return entered
-
     def start_using_initial_mode(self, mode): #bruce 080812
         """
         [semi-private]
@@ -1345,8 +1327,8 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         """
 
         if self._f_command_stack_is_locked:
-            # This can happen; not yet sure if it can happen when there are
-            # no bugs.
+            # This can happen, even after I fixed the lack of gl_update
+            # when ZoomToAreaMode exits (bug was unrelated to this method).
             #
             # When it happens, it's unsafe to do any updates
             # (especially those which alter the command stack).
@@ -1356,13 +1338,14 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             # REVIEW: do we also need something like the old
             # "stop_sending_us_events" system,
             # to protect from all kinds of events? [bruce 080829]
-            if DEBUG_COMMAND_SEQUENCER:
-                print "fyi: _f_update_current_command does nothing since command stack is locked (%s)" % \
+            if DEBUG_COMMAND_SEQUENCER_VERBOSE:
+                print "DEBUG_COMMAND_SEQUENCER_VERBOSE: _f_update_current_command does nothing since command stack is locked (%s)" % \
                       self._f_command_stack_is_locked
             return
         else:
-            if DEBUG_COMMAND_SEQUENCER:
-                print "fyi: _f_update_current_command called, stack not locked"
+            # this is very common
+            if DEBUG_COMMAND_SEQUENCER_VERBOSE:
+                print "DEBUG_COMMAND_SEQUENCER_VERBOSE: _f_update_current_command called, stack not locked"
         
         self._f_assert_command_stack_unlocked()
         

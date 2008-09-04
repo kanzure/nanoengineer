@@ -34,7 +34,7 @@ from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from temporary_commands.TemporaryCommand import TemporaryCommand_Overdrawing
 
-DEBUG_ZOOM = USE_COMMAND_STACK # turn this off when USE_COMMAND_STACK becomes the default
+DEBUG_ZOOM = False ## USE_COMMAND_STACK # turn this off when USE_COMMAND_STACK becomes the default
 
 
 # == the GraphicsMode part
@@ -192,7 +192,7 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # but we retain it as an essentially private method and call it from
         # self.command.command_will_exit in that case. [bruce 080829 comment]
         if DEBUG_ZOOM:
-            print "DEBUG_ZOOM: restore_patches_by_GraphicsMode" ### BUG: not yet called when USE_COMMAND_STACK
+            print "DEBUG_ZOOM: restore_patches_by_GraphicsMode"
         # If OpenGL states changed during this mode, we need to restore
         # them before exit. Currently, only leftDown() will change that.
         # [bruce 071011/071012 change: do this in
@@ -265,9 +265,8 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
     def command_enter_misc_actions(self):
         if USE_COMMAND_STACK:
             super(ZoomToAreaMode, self).command_enter_misc_actions()
-            if DEBUG_ZOOM:
-                print "DEBUG_ZOOM: toggle on the Zoom Tool icon"
-                
+        if DEBUG_ZOOM:
+            print "DEBUG_ZOOM: toggle on the Zoom Tool icon"
         self.win.zoomToAreaAction.setChecked(1) # toggle on the Zoom Tool icon
 
     def command_exit_misc_actions(self):
