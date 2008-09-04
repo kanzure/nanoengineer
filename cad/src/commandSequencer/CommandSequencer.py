@@ -747,6 +747,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             continue
 
         # enter prerequisite parent commands as needed, then the wanted command
+        # (note: this code is similar to that in _enterRequestCommand)
         while not error:
             # enter the next command we need to enter, if possible
             old_commandName = self.currentCommand.commandName
@@ -783,6 +784,35 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             # Q: how do we tell something that it needs to be called?
             # A: we don't, it's always called (after every user event).
 
+        return
+
+    def _enterRequestCommand(self, commandName): #bruce 080904
+        """
+        [private]
+
+        Immediately enter the specified command, by pushing it on the command
+        stack, not changing the command stack in any other ways (e.g. exiting
+        commands or checking for required parent commands).
+
+        Do necessary updates from changing the command stack, but not
+        _update_model_between_commands (in case it's too slow).
+
+        @see: callRequestCommand, which calls this.
+        """
+        assert USE_COMMAND_STACK
+        
+        # note: this code is similar to parts of userEnterCommand
+        old_commandName = self.currentCommand.commandName
+        command_instance = self._find_command_instance( commandName)
+            # note: exception if this fails to find command (never returns None)
+        entered = command_instance._command_do_enter_if_ok()
+            # note: that method might be overkill, but it's probably ok for now
+        assert entered == (old_commandName != self.currentCommand.commandName)
+        assert entered == (commandName == self.currentCommand.commandName)
+        assert entered, "error trying to enter %r" % commandName
+            # neither caller nor this method's API yet tolerates failure to enter
+        self._cseq_update_after_new_mode()
+            # REVIEW: should this be up to caller, or controlled by an option?
         return
 
     def _need_to_exit(self, currentCommand, want_command): #bruce 080814 # maybe: rename?
@@ -1248,7 +1278,16 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         always in a separate user event handler from this method call),
         it will call accept_results with the request results
         (or with None if it was cancelled and has no results ### DECIDE whether it
-        might instead just not bother to call it if canceled).
+        might instead just not bother to call it if canceled -- for now,
+        this depends on the caller, but current callers require that this
+        callback be called no matter how the request command exits).
+
+        The request command should exit itself by calling one of its methods
+        command_Done or command_Cancel (if USE_COMMAND_STACK is true),
+        or by calling self.Done(exit_using_done_or_cancel_button = False)
+        (for self being the request command) (if USE_COMMAND_STACK is False).
+        The latter call works in both cases, during the initial implementation
+        of USE_COMMAND_STACK.
 
         The format and nature of its arguments and results depend on
         the particular request command, but by convention (possibly
@@ -1272,35 +1311,33 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
 
         assert accept_results is not None
         
-        if not USE_COMMAND_STACK:
-            assert self._entering_request_command == False
-            assert self._request_arguments is None
-            assert self._accept_request_results is None
-
-            self._entering_request_command = True
-            self._request_arguments = arguments
-            self._accept_request_results = accept_results
-            self._fyi_request_data_was_accessed = False
-            
-            try:
-                self.userEnterTemporaryCommand(commandName)
-                if not self._fyi_request_data_was_accessed:
-                    print "forgot to access request data"
-                        ### add more info if this ever happens; see: _args_and_callback_for_request_command
-            finally:
-                self._entering_request_command = False
-                self._request_arguments = None
-                self._accept_request_results = None
-                self._fyi_request_data_was_accessed = False
-            pass            
-        else:
+        if USE_COMMAND_STACK:
             self._f_assert_command_stack_unlocked()
-            assert 0, "callRequestCommand is nim for USE_COMMAND_STACK" ### IMPLEM
-                # when we implement it, decide whether it needs to call
-                # the same update methods as the old code above does internally:
-                # - _cseq_update_after_new_mode
-                # - _update_model_between_commands
-        return
+            
+        assert self._entering_request_command == False
+        assert self._request_arguments is None
+        assert self._accept_request_results is None
+
+        self._entering_request_command = True
+        self._request_arguments = arguments
+        self._accept_request_results = accept_results
+        self._fyi_request_data_was_accessed = False
+        
+        try:
+            if not USE_COMMAND_STACK:
+                self.userEnterTemporaryCommand(commandName)
+            else:
+                self._enterRequestCommand(commandName)
+                    
+            if not self._fyi_request_data_was_accessed:
+                print "bug: request command forgot to call _args_and_callback_for_request_command:", commandName
+        finally:
+            self._entering_request_command = False
+            self._request_arguments = None
+            self._accept_request_results = None
+            self._fyi_request_data_was_accessed = False            
+        
+        return # from callRequestCommand
 
     def _f_get_data_while_entering_request_command(self): #bruce 080801
         if self._entering_request_command:
@@ -1310,8 +1347,8 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             self._fyi_request_data_was_accessed = True
         else:
             res = (None, None)
-            print "fyi: entering a possible request command which was not called that way"
-                ### add more info if this ever happens
+            msg = "likely bug: entering a possible request command which was not called as such using callRequestCommand"
+            print_compact_stack( msg + ": ")
         return res
 
     # ==

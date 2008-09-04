@@ -1897,7 +1897,6 @@ class basicCommand(anyCommand):
         """
         ###doc
         """
-        assert not USE_COMMAND_STACK # nim otherwise
         cseq = self.commandSequencer
         return cseq._f_get_data_while_entering_request_command()
     

@@ -122,7 +122,11 @@ class Line_Command(Select_Command):
         super(Line_Command, self).command_will_exit()
         if self._results_callback:
             # note: _results_callback comes from an argument to
-            # callRequestCommand.
+            # callRequestCommand. Under the current command sequencer
+            # API (without or with USE_COMMAND_STACK), it's important to
+            # call the callback no matter how self is exited (except possibly
+            # when it's "abandoned"). This code always calls it.
+            # [bruce 080904 comment]
             params = self._results_for_request_command_caller()
             self._results_callback( params)
 
@@ -164,8 +168,7 @@ class Line_Command(Select_Command):
             Restore the GUI 
             """
             if self._results_callback:
-                # note: _results_callback comes from an argument to
-                # callRequestCommand.
+                # note: see comment in command_will_exit version of this code
                 params = self._results_for_request_command_caller()
                 self._results_callback( params)
     

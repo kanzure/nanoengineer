@@ -160,8 +160,13 @@ class Move_basicCommand(SelectChunks_basicCommand):
         """
         Accept returned points from the Line_Command request command.
         """
-        ### REVIEW: can this be called with params == None
-        # if Line_Command is terminated early?
+        ### REVIEW: can this be called with params == None,
+        # and/or never called, if Line_Command is terminated early?
+        # In current code, it must always be called,
+        # and is always called regardless of how Line_Command exits
+        # (at least in USE_COMMAND_STACK case, which Ninad implemented today,
+        #  and probably in the old other case as well).
+        # [bruce 080904 comment]
         
         (points,) = params
         del params
