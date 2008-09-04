@@ -162,7 +162,9 @@ class AtomType(IdentityCopyMixin):
 #                 assert numbonds == num_outer_shell_es
 #             else: # 5 thru 8
 #                 if (numbonds != shellsize - num_outer_shell_es):
-#                     return # this is true for sp3(phosphate), currently ok to bail, as none of this is actually used.
+#                     return # this is true for sp3(p) i.e. sp3(phosphate),
+                             #currently ok to bail, as none of this is actually 
+                             #used.
 #                 nlp = num_outer_shell_es - 4
 #         elif spX == 2:
 #             # There are 3 bonding (or LP) positions,

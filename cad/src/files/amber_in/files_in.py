@@ -145,7 +145,7 @@ def _init():
     AMBER_AtomTypes["OH"] = PeriodicTable.getElement("O").find_atomtype("sp3")
     AMBER_AtomTypes["OS"] = PeriodicTable.getElement("O").find_atomtype("sp3")
 
-    AMBER_AtomTypes["P"]  = PeriodicTable.getElement("P").find_atomtype("sp3(phosphate)")
+    AMBER_AtomTypes["P"]  = PeriodicTable.getElement("P").find_atomtype("sp3(p)") #sp3(p) is 'sp3(phosphate)
 
     AMBER_AtomTypes["S"]  = PeriodicTable.getElement("S").find_atomtype("sp3") # ?
     AMBER_AtomTypes["SH"] = PeriodicTable.getElement("S").find_atomtype("sp3") # ?

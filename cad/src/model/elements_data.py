@@ -217,7 +217,7 @@ _mendeleev = [
     ("Al", "Aluminum",    13,  44.7997, [[3, 143, flat]]),
     ("Si", "Silicon",     14,  46.6245, [[4, 111, tetra4]]),
     ("P",  "Phosphorus",  15,  51.429,  [[3, 108, tetra3, 'sp3'],
-                                         [5, 100, tetra4, 'sp3(phosphate)']]), # 100 is made up
+                                         [5, 100, tetra4, 'sp3(p)']]), # 100 is made up sp3(p) means sp3(phosphate)
     ("S",  "Sulfur",      16,  53.233,  [[2, 107, tetra2, 'sp3'],
                                          [1, 88, onebond, 'sp2']]), #bruce 050706 added this, and both names; length chgd by Josh
     ("Cl", "Chlorine",    17,  58.867,  [[1, 102, onebond]]),
@@ -303,7 +303,7 @@ _chemicalAtomTypeData = [
     ["Al", None,              0,    6,  3,  1.43, flat],
     ["Si", None,              0,    8,  4,  1.11, tetra4],
     ["P",  'sp3',             0,    8,  5,  1.08, tetra3],
-    ["P",  'sp3(phosphate)',  0,   10,  5,  1.00, tetra4], # bogus rcovalent
+    ["P",  'sp3(p)',  0,   10,  5,  1.00, tetra4], # bogus rcovalent. sp3(p)means sp3(phosphate)
     ["S",  'sp3',             0,    8,  6,  1.07, tetra2],
     ["S",  'sp2',             0,    8,  6,  0.88, onebond],
     ["Cl", None,              0,    8,  7,  1.02, onebond],

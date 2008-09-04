@@ -309,7 +309,7 @@ PROTEIN_ATOM_TYPES = {
                              
 NUCLEIC_ATOM_TYPES = {
     " DC" : {
-        "P"   : "sp3(phosphate)", # phosphate phosphorus
+        "P"   : "sp3(p)", # phosphate phosphorus
         "OP1" : "sp2(-.5)",       # and two negatively charged oxygens 
         "OP2" : "sp2(-.5)",
         "C2"  : "sp2a",
@@ -319,7 +319,7 @@ NUCLEIC_ATOM_TYPES = {
         "C5"  : "sp2a",
         "C6"  : "sp2a" },
     " DG" : {
-        "P"   : "sp3(phosphate)",
+        "P"   : "sp3(p)",
         "OP1" : "sp2(-.5)",
         "OP2" : "sp2(-.5)",
         "C4"  : "sp2b",
@@ -331,7 +331,7 @@ NUCLEIC_ATOM_TYPES = {
         "C6"  : "sp2c",
         "O6"  : "sp2c" },
     " DA" : {
-        "P"   : "sp3(phosphate)",
+        "P"   : "sp3(p)",
         "OP1" : "sp2(-.5)",
         "OP2" : "sp2(-.5)",
         "C2"  : "sp2a",
@@ -344,7 +344,7 @@ NUCLEIC_ATOM_TYPES = {
         "N7"  : "sp2a",
         "C8"  : "sp2a" },
     " DT" : {
-        "P"   : "sp3(phosphate)",
+        "P"   : "sp3(p)",
         "OP1" : "sp2(-.5)",
         "OP2" : "sp2(-.5)",
         "C5"  : "sp2a",
@@ -354,7 +354,7 @@ NUCLEIC_ATOM_TYPES = {
         "C2"  : "sp2a",
         "O2"  : "sp2a" },
     "  C" : {
-        "P"   : "sp3(phosphate)", 
+        "P"   : "sp3(p)", 
         "O1P" : "sp2(-.5)",        
         "O2P" : "sp2(-.5)",
         "C2"  : "sp2a",
@@ -364,7 +364,7 @@ NUCLEIC_ATOM_TYPES = {
         "C5"  : "sp2a",
         "C6"  : "sp2a" },
     "  G" : {
-        "P"   : "sp3(phosphate)",
+        "P"   : "sp3(p)",
         "O1P" : "sp2(-.5)",
         "O2P" : "sp2(-.5)",
         "C4"  : "sp2b",
@@ -376,7 +376,7 @@ NUCLEIC_ATOM_TYPES = {
         "C6"  : "sp2c",
         "O6"  : "sp2c" },
     "  A" : {
-        "P"   : "sp3(phosphate)",
+        "P"   : "sp3(p)",
         "O1P" : "sp2(-.5)",
         "O2P" : "sp2(-.5)",
         "C2"  : "sp2a",
@@ -389,7 +389,7 @@ NUCLEIC_ATOM_TYPES = {
         "N7"  : "sp2a",
         "C8"  : "sp2a" },
     "  T" : {
-        "P"   : "sp3(phosphate)",
+        "P"   : "sp3(p)",
         "O1P" : "sp2(-.5)",
         "O2P" : "sp2(-.5)",
         "C5"  : "sp2a",
@@ -588,9 +588,9 @@ def _readpdb_new(assy,
                                        bond.atom1 not in sp2c_atoms and
                                        bond.atom1 not in aromatic_atoms)):  
                                     bond.set_v6(V_DOUBLE)
-                            if ((atom1_type == "sp3(phosphate)" and
+                            if ((atom1_type == "sp3(p)" and
                                  atom2_type == "sp2(-.5)") or 
-                               ((atom2_type == "sp3(phosphate)" and
+                               ((atom2_type == "sp3(p)" and
                                  atom1_type == "sp2(-.5)"))):
                                 bond.set_v6(V_GRAPHITE)
                                 
