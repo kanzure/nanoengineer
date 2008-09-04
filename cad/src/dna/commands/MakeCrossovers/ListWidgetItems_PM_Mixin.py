@@ -89,13 +89,19 @@ class ListWidgetItems_PM_Mixin:
         Update the list of segments shown in the segments list widget
         @see: self.updateListWidgets, self.updateStrandListWidget
         """
+        
         segmentList = []
         
-        segmentList = self.command.getSegmentList()                        
-               
-        self.segmentListWidget.insertItems(
-            row = 0,
-            items = segmentList)
+        segmentList = self.command.getSegmentList()   
+        
+        
+        if segmentList:
+            self.segmentListWidget.insertItems(
+                row = 0,
+                items = segmentList)
+        else:
+            self.segmentListWidget.clear()
+            
         
 
     def isAddSegmentsToolActive(self): 

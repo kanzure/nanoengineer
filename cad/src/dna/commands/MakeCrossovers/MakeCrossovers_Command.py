@@ -47,13 +47,16 @@ class MakeCrossovers_Command(SelectChunks_Command,
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
     
-    GraphicsMode_class = MakeCrossovers_Graphicsmode
-    
+        
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     
-    flyoutToolbar = None
+    flyoutToolbar = None    
+    
+    GraphicsMode_class = MakeCrossovers_Graphicsmode
+    
+    PM_class = MakeCrossovers_PropertyManager
     
                 
     def Enter(self):
@@ -65,14 +68,8 @@ class MakeCrossovers_Command(SelectChunks_Command,
         Initialize GUI for this mode 
         """
         
-        self._init_gui_flyout_action( 'makeCrossoversAction' ) 
-                
-        if self.propMgr is None:
-            self.propMgr = MakeCrossovers_PropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
-            changes.keep_forever(self.propMgr)  
+        self.command_enter_PM()
+        self.command_enter_flyout()
             
         #Now set the initial segment list. The segments within this segment list
         #will be searched for the crossovers. 
@@ -84,7 +81,9 @@ class MakeCrossovers_Command(SelectChunks_Command,
     def restore_gui(self):
         """
         Restore the GUI 
-        """                   
+        """       
+        self.command_exit_flyout()
+        self.command_exit_PM()
         if self.propMgr is not None:
             self.propMgr.close()
 
@@ -92,40 +91,13 @@ class MakeCrossovers_Command(SelectChunks_Command,
     def command_entered(self):
         #Set the initial segment list. The segments within this segment list
         #will be searched for the crossovers. 
-        selectedSegments = self.win.assy.getSelectedDnaSegments()        
-        self.ensureSegmentListItemsWithinLimit(selectedSegments)
+        ListWidgetItems_Command_Mixin.command_entered(self) 
         
         _superclass.command_entered(self)
-            
-    def command_enter_PM(self):
-        """
-        Overrides superclass method. 
         
-        @see: baseCommand.command_enter_PM()  for documentation
-        """
-        #important to check for old propMgr object. Reusing propMgr object 
-        #significantly improves the performance.
-        if not self.propMgr:
-            self.propMgr = self._createPropMgrObject()
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- ninad 2007-08-29
-            changes.keep_forever(self.propMgr)              
-        
-        if not USE_COMMAND_STACK:
-            self.propMgr.show() 
-            
-    def command_exit_PM(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_PM() for documentation
-        """
-        if not USE_COMMAND_STACK:
-            if self.propMgr:
-                self.propMgr.close()
-        
-            
+        selectedSegments = self.win.assy.getSelectedDnaSegments()        
+        self.ensureSegmentListItemsWithinLimit(selectedSegments)
+                      
     def command_enter_flyout(self):
         """
         Overrides superclass method. 
@@ -141,16 +113,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
         """
         if self.flyoutToolbar:
             self.flyoutToolbar.makeCrossoversAction.setChecked(False)
-            
-            
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        propMgr =  MakeCrossovers_PropertyManager(self)
-        return propMgr
-            
+                      
             
     def logMessage(self, type = 'DEFAULT'): 
         """

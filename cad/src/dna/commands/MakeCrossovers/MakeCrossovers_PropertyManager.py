@@ -165,11 +165,14 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
             
         ##self.updateListWidgets()       
         self._deactivateAddRemoveSegmentsTool()
-        self._previous_model_changed_params = None
+        
+        if not USE_COMMAND_STACK:
+            self._previous_model_changed_params = None
 
     def close(self):
-        _superclass.close(self)
         
+        _superclass.close(self)
+                
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(False)
 
@@ -214,7 +217,7 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
             spanWidth = True )
         
      #new command API method  
-    def update_UI(self):
+    def _update_UI_do_updates(self):
         """
         This method should replace model_changed() eventually. 
         This is used with USE_COMMAND_STACK debug flag
@@ -236,6 +239,7 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         #params are the same. 
         if same_vals(currentParams, self._previous_model_changed_params):
             return 
+        
 
         number_of_segments, \
                           crossover_search_pref_junk,\

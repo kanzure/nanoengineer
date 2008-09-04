@@ -32,6 +32,14 @@ class ListWidgetItems_Command_Mixin:
 
     def Enter(self):
         self._structList = []  
+    
+    #NEW command API method -- 2008-09-03
+    def command_entered(self):
+        """
+        @see baseCommand.command_entered() for documentation
+        @see MakeCrossovers_Command.command_entered()
+        """
+        self._structList = []  
         
         
     def itemLimitForSegmentListWidget(self):
