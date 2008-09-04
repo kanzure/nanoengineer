@@ -156,7 +156,7 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
             
             
     #New command API method -- implemented on 2008-08-27
-    def update_UI(self):
+    def _update_UI_do_updates(self):
         """
         This method should replace model_changed() eventually. 
         This is used with USE_COMMAND_STACK debug flag
@@ -172,12 +172,7 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         if not DEBUG_BREAK_OPTIONS_FEATURE:
             return 
         
-        
-        if DEBUG_CHANGE_COUNTERS:
-            print "model_change = %d\nselection_change = %d\n "%(
-                self.win.assy.model_change_indicator(),
-                self.win.assy.selection_change_indicator())
-            
+                 
         
         currentParams = self._current_model_changed_params()
         

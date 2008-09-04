@@ -57,7 +57,7 @@ class PastePropertyManager(BuildAtomsPropertyManager):
                  " Items")
         
     #New command API method -- implemented on 2008-08-27
-    def update_UI(self):
+    def _update_UI_do_updates(self):
         """
         This method should replace model_changed() eventually. 
         This is used with USE_COMMAND_STACK debug flag
