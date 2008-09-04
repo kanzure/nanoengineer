@@ -723,12 +723,12 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
             return darkgray
         return lightgray
         
-    def renderTextAtPosition(self,                               
+    def renderTextAtPosition(self,
                              position,
                              textString,
                              textColor = black,
-                             textFont =  None, 
-                             fontSize = 11
+                             textFont = None,
+                             fontSize = 11,
                              ):
         """
         Renders the text at the specified position (x, y , z coordinates)
@@ -763,22 +763,24 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         #Convert the object coordinates to the window coordinates.
         wX, wY, wZ = gluProject(x, y, z)
         
-        # halo color
         halo_color = self.getTextHaloColor(textColor)
         
         offset_val = 1
+        bg_z_offset = 0
+        fg_z_offset = -1e-7
 
-        render_positions = (( offset_val,  offset_val, halo_color), 
-                            (-offset_val, -offset_val, halo_color), 
-                            (-offset_val,  offset_val, halo_color), 
-                            ( offset_val, -offset_val, halo_color),
-                            (          0,           0, textColor))
+        render_positions = (( offset_val,  offset_val, bg_z_offset, halo_color), 
+                            (-offset_val, -offset_val, bg_z_offset, halo_color), 
+                            (-offset_val,  offset_val, bg_z_offset, halo_color), 
+                            ( offset_val, -offset_val, bg_z_offset, halo_color),
+                            (          0,           0, fg_z_offset, textColor))
 
-        for dx, dy, color in render_positions:
+        for dx, dy, dz, color in render_positions:
+            x1, y1, z1 = gluUnProject(wX + dx, wY + dy, wZ + dz)
+
             self.qglColor(RGBf_to_QColor(color)) 
-            self.renderText(wX + dx,
-                            self.height - wY + dy,
-                            QString(textString), 
+            self.renderText(x1, y1, z1,
+                            QString(textString),
                             font)
             self.qglClearColor(RGBf_to_QColor(color))
             # question: is this related to glClearColor? [bruce 071214 question]

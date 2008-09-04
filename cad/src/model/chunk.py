@@ -2252,6 +2252,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if (text):
                 gotone = True
                 pos = atom.baseposn()
+                radius = atom.drawing_radius() * 1.01
+                pos = pos + glpane.out * radius
                 glpane.renderTextAtPosition(pos, text)
         if (not gotone):
             self.chunkHasOverlayText = False
