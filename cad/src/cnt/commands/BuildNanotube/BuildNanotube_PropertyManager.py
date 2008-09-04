@@ -40,6 +40,7 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 from cnt.model.NanotubeSegment import NanotubeSegment
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -144,7 +145,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.command.flyoutToolbar.exitModeAction.setEnabled(not bool_enable)
             
     #New command API method -- implemented on 2008-08-27
-    def update_UI(self):
+    def _update_UI_do_updates(self):
         """
         This method should replace model_changed() eventually. 
         This is used with USE_COMMAND_STACK debug flag
@@ -248,7 +249,8 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         the history widget. This implementation may change in the near future
         """
         EditCommand_PM.show(self) 
-        self.updateListWidgets()    
+        if not USE_COMMAND_STACK:
+            self.updateListWidgets()    
     
     def _editNanotubeSegment(self):
         """
@@ -276,7 +278,8 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show  
         """  
-        self.updateListWidgets()
+        if not USE_COMMAND_STACK:
+            self.updateListWidgets()
         
     def updateListWidgets(self):
         """

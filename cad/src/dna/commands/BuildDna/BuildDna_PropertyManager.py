@@ -169,11 +169,11 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 
                 
     #New command API method -- implemented on 2008-08-27
-    def update_UI(self):
+    def _update_UI_do_updates(self):
         """
         This method should replace model_changed() eventually. 
         This is used with USE_COMMAND_STACK debug flag
-        """     
+        """   
         self.model_changed()            
                     
     def model_changed(self):
@@ -181,13 +181,10 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         When the command is treated as a 'command' by the 
         commandSequencer, this method will override basicCommand.model_changed.
         For more info, see BuildAtomsPropertyManager.model_changed docstring.
-        """  
-                
-        if DEBUG_CHANGE_COUNTERS:
-            print "model_change = %d\nselection_change = %d\n "%(
-                self.win.assy.model_change_indicator(),
-                self.win.assy.selection_change_indicator())
+        """         
         
+                
+                
         newSelectionParams = self._currentSelectionParams()   
         
         selection_params_unchanged = same_vals(newSelectionParams,
@@ -210,7 +207,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self._previousSelectionParams = newSelectionParams  
             
             selectedStrands, selectedSegments = newSelectionParams
-            
+                       
             self.strandListWidget.updateSelection(selectedStrands) 
             self.segmentListWidget.updateSelection(selectedSegments)
             
@@ -318,7 +315,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         the history widget. This implementation may change in the near future
         """
         EditCommand_PM.show(self) 
-        self.updateListWidgets()    
+        if not USE_COMMAND_STACK:
+            self.updateListWidgets()    
         
     def _editDnaStrand(self):  
         """
@@ -370,7 +368,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show  
         """  
-        self.updateListWidgets()
+        if not USE_COMMAND_STACK:
+            self.updateListWidgets()
         
     
     def updateListWidgets(self):
@@ -507,7 +506,6 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._baseNumberLabelGroupBox = PM_DnaBaseNumberLabelsGroupBox(pmGroupBox, 
                                                                        self.command)
     
- 
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the DNA Property Manager.  
