@@ -94,29 +94,7 @@ class EditCommand(Select_Command):
 
         self.struct               =  None
         self.existingStructForEditing  =  False
-
-        ##bruce 060616 added the following kluge to make sure both cmdname 
-        ##and cmd are set properly.
-        #if not self.cmdname and not self.cmd:
-            #self.cmdname = "Generate something"
-        #if self.cmd and not self.cmdname:
-            ## deprecated but common, as of 060616
-            #self.cmdname = self.cmd # fallback
-            #try:
-                #cmdname = self.cmd.split('>')[1]
-                #cmdname = cmdname.split('<')[0]
-                #cmdname = cmdname.split(':')[0]
-                #self.cmdname = cmdname
-            #except:
-                #if debug_flags.atom_debug:
-                    #print "fyi: %r guessed wrong \
-                    #about format of self.cmd == %r" % (self, self.cmd,)
-
-        #elif self.cmdname and not self.cmd:
-            ## this is intended to be the usual situation, but isn't yet, 
-            ##as of 060616
-            #self.cmd = greenmsg(self.cmdname + ": ")
-
+        
         Select_Command.__init__(self, commandSequencer)
         return
 
