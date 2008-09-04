@@ -777,7 +777,8 @@ class PlanePropertyManager(EditCommand_PM):
         """
         Loads image file if path is valid
         """
-
+        
+        # Update buttons and checkboxes.
         self.mirrorButton.setEnabled(False)
         self.plusNinetyButton.setEnabled(False)
         self.minusNinetyButton.setEnabled(False)
@@ -787,7 +788,10 @@ class PlanePropertyManager(EditCommand_PM):
         self.heightfieldTextureCheckBox.setEnabled(False)
         self.vScaleSpinBox.setEnabled(False)
 
+        
         plane = self.command.struct
+
+        # Delete current image and heightfield
         plane.deleteImage()
         plane.heightfield = None
         plane.display_image = self.imageDisplayCheckBox.isChecked()
@@ -801,9 +805,11 @@ class PlanePropertyManager(EditCommand_PM):
             if validPath:
                 from PIL import Image
 
+                # Load image from file
                 plane.image = Image.open(imageFile)
                 plane.loadImage(imageFile)
 
+                # Compute the relief image
                 plane.computeHeightfield()
 
                 if plane.image:

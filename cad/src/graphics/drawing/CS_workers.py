@@ -352,19 +352,23 @@ def drawtriangle_strip_worker(params):
     Draw a triangle strip using a list of triangle vertices
     and (optional) normals.
     """
+    
+    # piotr 080904 - This method could be optimized by using vertex
+    # arrays or VBOs.
+    
     (triangles, normals, colors) = params
 
-    #glEnable(GL_LIGHTING)
-
+    # It needs to support two-sided triangles, therefore we disable
+    # culling and enable two-sided lighting. These settings have to be 
+    # turned back to default setting.
+    
     glDisable(GL_CULL_FACE)
     glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
 
+    # Use color material mode if colors are present.
+    
     if colors:
         glEnable(GL_COLOR_MATERIAL)
-
-    #glPolygonMode(GL_FRONT, GL_FILL)
-    #glPolygonMode(GL_BACK, GL_FILL)
-    # glPolygonOffset(0.0, 10.0)    
 
     glBegin(GL_TRIANGLE_STRIP)
     if normals:
@@ -389,6 +393,8 @@ def drawtriangle_strip_worker(params):
 
     if colors:
         glDisable(GL_COLOR_MATERIAL)
+
+    # piotr 080904 - are these settings really default?
 
     glEnable(GL_CULL_FACE)
     glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE)

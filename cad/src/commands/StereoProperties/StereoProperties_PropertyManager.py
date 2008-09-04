@@ -246,6 +246,10 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _stereoModeComboBoxChanged(self, mode):
         """
         Change stereo mode.
+        
+        @param mode: stereo mode (0=relaxed, 1=cross-eyed, 2=red/blue,
+        3=red/cyan, 4=red/green)
+        @type value: int
         """
 
         env.prefs[stereoViewMode_prefs_key] = mode + 1
@@ -258,6 +262,9 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _stereoModeSeparationSliderChanged(self, value):
         """
         Change stereo view separation.
+        
+        @param value: separation (0..300)
+        @type value: int
         """
 
         env.prefs[stereoViewSeparation_prefs_key] = value
@@ -267,6 +274,9 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _stereoModeAngleSliderChanged(self, value):
         """
         Change stereo view angle.
+        
+        @param value: stereo angle (0..100)
+        @type value: int
         """
 
         env.prefs[stereoViewAngle_prefs_key] = value
@@ -274,6 +284,9 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.o.gl_update()        
 
     def _updateSeparationSlider(self):
+        """ 
+        Update the separation slider widget.
+        """
         if self.stereoModeComboBox.currentIndex() >= 2: 
             # for anaglyphs disable the separation slider 
             self.stereoSeparationSlider.setEnabled(False)
@@ -282,6 +295,9 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.stereoSeparationSlider.setEnabled(True)
 
     def _updateWidgets(self):
+        """
+        Update stereo PM widgets.
+        """
         if self.stereoEnabledCheckBox.isChecked():
             self.stereoModeComboBox.setEnabled(True)
             self.stereoSeparationSlider.setEnabled(True)

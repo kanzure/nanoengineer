@@ -943,6 +943,9 @@ def drawPlane(color, w, h, textureReady, opacity,
 
     @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick
       selection purpose.
+
+    @param tex_coords: texture coordinates to be explicitly provided (for 
+    simple image transformation purposes)
     """
     vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0],
           [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
