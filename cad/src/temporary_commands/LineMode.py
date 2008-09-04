@@ -31,6 +31,8 @@ import foundation.env as env
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 from utilities.prefs_constants import cursorTextFontSize_prefs_key
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
 
@@ -83,7 +85,7 @@ class LineMode_GM( Select_GraphicsMode ):
 
     #cursor text. ##@@ rename it to 'cursorText' -- Ninad
     text = ''
-    
+
     #the drawing plane on which the line (or the structure in subclasses) 
     #will be placed. 
     plane = None
@@ -91,24 +93,24 @@ class LineMode_GM( Select_GraphicsMode ):
     def Enter_GraphicsMode(self):
         _superclass_for_GM.Enter_GraphicsMode(self)
         self._ok_to_render_cursor_text = True        
-        
+
         #Set the drawing plane to the one returned by  self.getDrawingPlane()
         #subclasses override the implementation of self.getDrawingPlane()
         #@see self.setDrawingPlane(). 
         self.plane = self.getDrawingPlane()
-        
-                
+
+
     def getDrawingPlane(self):
         """
         Overridden in subclasses. 
-        
+
         Returns the reference plane on which the line will be drawn.
         The default immplementation returns None.   
         @see: DnaDuplex_GraphicsMode.getDrawingPlane()
         """
         return self.plane
-        
-        
+
+
     def setDrawingPlane(self, plane):
         """
         Sets the plane on which the line will be drawn (in subclasses , this 
@@ -120,7 +122,7 @@ class LineMode_GM( Select_GraphicsMode ):
             self.plane = plane
         else:
             self.plane = None
-            
+
     def isSpecifyPlaneToolActive(self):
         """
         Default implementation returns False. Subclasses can override this 
@@ -129,7 +131,7 @@ class LineMode_GM( Select_GraphicsMode ):
         this method. 
         """
         return False
-                                           
+
 
     def leftDown(self, event):
         """
@@ -142,10 +144,10 @@ class LineMode_GM( Select_GraphicsMode ):
             if obj is None: # Cursor over empty space.
                 self.emptySpaceLeftDown(event)
                 return  
-            
+
             self.doObjectSpecificLeftDown(obj, event)
             return
-        
+
         self._leftDown_determine_endPoint1(event)        
 
         #NIY code that accepts highlighted atom center as the endPoint instead 
@@ -207,18 +209,18 @@ class LineMode_GM( Select_GraphicsMode ):
                                                   perp = norm(plane.getaxis()))
                 else:
                     self.endPoint2 = self.dragto( self.endPoint1, event)
-    
+
                 self.endPoint2 = self.snapLineEndPoint()  
                 self.update_cursor_for_no_MB()
                 self.glpane.gl_update()    
 
         value = _superclass_for_GM.bareMotion(self,event)
-        
+
         #Needed to make sure that the cursor is updated properly when 
         #the mouse is moved after the 'specify reference plane tool is 
         #activated/deactivated
         self.update_cursor()  
-        
+
         return value # russ 080527   
 
     def snapLineEndPoint(self):
@@ -441,14 +443,14 @@ class LineMode_GM( Select_GraphicsMode ):
             if self.cursor_over_when_LMB_pressed == 'Empty Space':
                 self.emptySpaceLeftUp(event)
                 return
-            
+
             obj = self.current_obj                  
             if obj is None: # Nothing dragged (or clicked); return. 
                 return
-            
+
             self.doObjectSpecificLeftUp(obj, event)
             return 
-        
+
         if  self.command.mouseClickLimit is None:
             if len(self.command.mouseClickPoints) == 2:
                 self.endPoint2 = None
@@ -466,7 +468,7 @@ class LineMode_GM( Select_GraphicsMode ):
             self.glpane.gl_update()
             self.command.Done(exit_using_done_or_cancel_button = False)            
             return
-        
+
 
     def update_cursor_for_no_MB(self): 
         """
@@ -531,24 +533,7 @@ class LineMode(Select_Command):
 
     _results_callback = None #bruce 080801
     
-    def init_gui(self):
-        """
-        Initialize GUI for this mode 
-        """
-        #clear the list (for safety) which may still have old data in it
-        self.mouseClickPoints = []
-        self.glpane.gl_update()
-
-        params, results_callback = self._args_and_callback_for_request_command()
-        if params is not None:
-            self.setParams(params)
-            self._results_callback = results_callback
-            # otherwise we were not called as a request command;
-            # method above prints something in that case, for now ###
-        else:
-            # maybe: set default params?
-            self._results_callback = None
-        return
+    
 
     def setParams(self, params):
         """
@@ -565,29 +550,100 @@ class LineMode(Select_Command):
         assert len(params) == 1 #bruce 080801
         (self.mouseClickLimit,) = params
 
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-        if self._results_callback:
-            # note: _results_callback comes from an argument to
-            # callRequestCommand.
-            params = self._results_for_request_command_caller()
-            self._results_callback( params)
-        
-        #clear the list [bruce 080801 revision, not fully analyzed: always do this]
-        self.mouseClickPoints = []
-        
-        self.graphicsMode.resetVariables()
-        return
 
     def _results_for_request_command_caller(self):
         """
         @return: tuple of results to return to whatever "called"
                  self as a "request command"
-        
+
         [overridden in subclasses]
         """
         #bruce 080801 split this out of restore_gui
         ### REVIEW: make this a Request Command API method??
         return (self.mouseClickPoints,)
+
+
+    #START New Command API methods. (used when USE_COMMAND_STACK is True)======
+    def command_entered(self):
+        super(LineMode, self).command_entered()
+        self._command_enter_effects()
+
+    def _command_enter_effects(self):
+        """
+	common code for Enter and command_entered
+	"""
+        #@TODO: merge into command_entered when USE_COMMAND_STACK is 
+        # always true and Enter is removed
+        #clear the list (for safety) which may still have old data in it
+        self.mouseClickPoints = []
+        self.glpane.gl_update()
+
+        params, results_callback = self._args_and_callback_for_request_command()
+        if params is not None:
+            self.setParams(params)
+            self._results_callback = results_callback
+            # otherwise we were not called as a request command;
+            # method above prints something in that case, for now ###
+        else:
+            # maybe: set default params?
+            self._results_callback = None
+            
+            
+    def command_will_exit(self):
+        super(LineMode, self).command_will_exit()
+        if self._results_callback:
+            # note: _results_callback comes from an argument to
+            # callRequestCommand.
+            params = self._results_for_request_command_caller()
+            self._results_callback( params)
+
+        #clear the list [bruce 080801 revision, not fully analyzed: always do this]
+        self.mouseClickPoints = []
+
+        self.graphicsMode.resetVariables()
+        return  
+    
+
+    #END New Command API methods ===============================================
+    
+    
+    #START - OLD command api methods init_gui, restore_gui =====================
+    if not USE_COMMAND_STACK:
+
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
+            #clear the list (for safety) which may still have old data in it
+            self.mouseClickPoints = []
+            self.glpane.gl_update()
+    
+            params, results_callback = self._args_and_callback_for_request_command()
+            if params is not None:
+                self.setParams(params)
+                self._results_callback = results_callback
+                # otherwise we were not called as a request command;
+                # method above prints something in that case, for now ###
+            else:
+                # maybe: set default params?
+                self._results_callback = None
+            return   
+    
+    
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+            if self._results_callback:
+                # note: _results_callback comes from an argument to
+                # callRequestCommand.
+                params = self._results_for_request_command_caller()
+                self._results_callback( params)
+    
+            #clear the list [bruce 080801 revision, not fully analyzed: always do this]
+            self.mouseClickPoints = []
+    
+            self.graphicsMode.resetVariables()
+            return
+        
+    #END - OLD command api methods init_gui, restore_gui =======================
