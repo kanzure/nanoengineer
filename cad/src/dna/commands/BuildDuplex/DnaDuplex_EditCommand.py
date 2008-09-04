@@ -771,8 +771,8 @@ class DnaDuplex_EditCommand(EditCommand):
         should be used as a placement plane for the Dna duplex. 
         
         @see: self.isSpecifyPlaneToolActive()
-        @see: LineMode_GM.bareMotion() to see how this is ultimately used. 
-        @see: LineMode_GM.leftDown()
+        @see: Line_GraphicsMode.bareMotion() to see how this is ultimately used. 
+        @see: Line_GraphicsMode.leftDown()
         @see: DnaLine_GM.leftUp()
         """
         if self.propMgr:

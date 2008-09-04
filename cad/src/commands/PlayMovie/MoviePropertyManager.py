@@ -51,7 +51,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
             change_connect = self.w.disconnect
 
         #TODO: This is a temporary fix for a bug. When you invoke a temp mode
-        #such as LineMode or PanMode, entering such a temporary mode keeps the
+        #such as Line_Command or PanMode, entering such a temporary mode keeps the
         #PM from the previous mode open (and thus keeps all its signals
         #connected)  but while exiting that temporary mode and reentering the
         #previous mode, it actually reconnects the signal! This gives rise to

@@ -158,10 +158,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
 
     def _acceptLineModePoints(self, params): #bruce 080801, revises acceptParamsFromTemporaryMode
         """
-        Accept returned points from the LineMode request command.
+        Accept returned points from the Line_Command request command.
         """
         ### REVIEW: can this be called with params == None
-        # if LineMode is terminated early?
+        # if Line_Command is terminated early?
         
         (points,) = params
         del params
@@ -240,7 +240,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
         TODO: Note that the endpoints always assume GLPane depth. As of today,
         the temporary mode API knows nothing about the highlighting. Once it
         is implemented,  we can then specify atom centers etc as reference
-        points. See comments in LineMode for further details.
+        points. See comments in Line_Command for further details.
         """
         if isChecked:
             self.propMgr.startCoordLineEdit.setEnabled(isChecked)
@@ -250,7 +250,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
 
             self.propMgr.updateMessage(msg)
             # following was revised by bruce 080801
-            self.commandSequencer.callRequestCommand( 'LineMode',
+            self.commandSequencer.callRequestCommand( 'Line_Command',
                  arguments = (2,), # number of mouse click points to accept
                  accept_results = self._acceptLineModePoints
              )

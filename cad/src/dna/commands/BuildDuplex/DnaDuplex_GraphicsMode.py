@@ -26,8 +26,8 @@ class DnaDuplex_GraphicsMode(DnaLine_GM):
     """
     Graphics mode class for creating a dna duplex by specifying two line end 
     points. The duplex can be created on a specified plane or parallel to screen
-    @see: LineMode_GM.bareMotion()
-    @see: LineMode_GM.leftDown()
+    @see: Line_GraphicsMode.bareMotion()
+    @see: Line_GraphicsMode.leftDown()
     @see: DnaLine_GM.leftUp()
     """  
     
@@ -105,8 +105,8 @@ class DnaDuplex_GraphicsMode(DnaLine_GM):
         Returns the reference plane on which the line will be drawn.
         The default immplementation returns None.
         @see: DnaDuplex_EditCommand.useSpecifiedDrawingPlane()
-        @see: LineMode_GM.bareMotion()
-        @see: LineMode_GM.leftDown()
+        @see: Line_GraphicsMode.bareMotion()
+        @see: Line_GraphicsMode.leftDown()
         """
         if self.command.useSpecifiedDrawingPlane():
             return self.plane 

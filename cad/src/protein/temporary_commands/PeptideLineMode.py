@@ -9,7 +9,8 @@
 """
 
 
-from temporary_commands.LineMode.LineMode import LineMode
+from temporary_commands.LineMode.Line_Command import Line_Command
+from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
 
 from graphics.drawing.drawPeptideTrace import drawPeptideTrace, drawPeptideTrace_new
 
@@ -19,7 +20,7 @@ from protein.commands.BuildPeptide.PeptideGenerator import PeptideGenerator, get
 
 # == GraphicsMode part
 
-class PeptideLine_GM( LineMode.GraphicsMode_class ):
+class PeptideLine_GM( Line_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of PeptideLineMode.
     @see: L{PeptideLineMode} for more comments. 
@@ -27,7 +28,7 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
                   
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
-    #first endpoint of the line. See LineMode.Draw for details. 
+    #first endpoint of the line. See Line_GraphicsMode.Draw for details. 
     endPoint1_sphereColor = white 
     endPoint1_sphereOpacity = 1.0
     
@@ -35,11 +36,7 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
 
     structGenerator = PeptideGenerator()
 
-    def __init__(self, command):
-        """
-        """
-        LineMode.GraphicsMode_class.__init__(self, command)
-    
+        
     def leftUp(self, event):
         """
         Left up method
@@ -63,7 +60,7 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
         """
                 
         if self.command.callbackForSnapEnabled() == 1:
-            endPoint2  = LineMode.GraphicsMode_class.snapLineEndPoint(self)
+            endPoint2  = Line_GraphicsMode.snapLineEndPoint(self)
         else:
             endPoint2 = self.endPoint2
             
@@ -74,7 +71,7 @@ class PeptideLine_GM( LineMode.GraphicsMode_class ):
         """
         Draw the Nanotube rubberband line (a ladder representation)
         """
-        LineMode.GraphicsMode_class.Draw(self)        
+        Line_GraphicsMode.Draw(self)        
         if self.endPoint2 is not None and \
            self.endPoint1 is not None: 
             #Urmi 20080804: In absence of a better representation, this is a 

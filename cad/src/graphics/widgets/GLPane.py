@@ -3064,7 +3064,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         GLPane and/or vary with differently drawn frames.)
         @param always_use_center_of_view: If True it always uses the depth of the
              center of view (returned by self.mousepoints) . This is used by
-             LineMode_GM.leftDown(). 
+             Line_GraphicsMode.leftDown(). 
 
         """
         #@NOTE: Argument  always_use_center_of_view added on April 20, 2008 to 
@@ -3098,7 +3098,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         @param plane: The point is computed such that it lies on this Plane 
                      at the given event coordinates. 
                      
-        @see: LineMode.leftDown()
+        @see: Line_GraphicsMode.leftDown()
         @see: DnaDuplex_GraphicsMode.
         
         @TODO: There will be some cases where the intersection of the mouseray 

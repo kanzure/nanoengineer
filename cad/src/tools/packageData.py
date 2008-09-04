@@ -449,7 +449,7 @@ packageMapping_for_files = {
     "Line"                             : "model",
     "LinearMotor_EditCommand"          : "command|commands/LinearMotorProperties?",
     "LinearMotorPropertyManager"       : "ui/propmgr|commands/LinearMotorProperties?",
-    "LineMode"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
+    "Line_Command"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
 
     "main"                             : "top_level", # someday to be renamed to ne1_main
     "master_model_updater"             : "model_updater",

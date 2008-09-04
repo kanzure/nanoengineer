@@ -9,8 +9,8 @@ TODO:
 - User Preferences for different rubberband line display styles 
 """
 
-from temporary_commands.LineMode.LineMode import LineMode
-from temporary_commands.LineMode.LineMode import LineMode_GM
+from temporary_commands.LineMode.Line_Command import Line_Command
+from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
 
 from graphics.drawing.drawDnaLadder import drawDnaLadder
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
@@ -24,8 +24,8 @@ from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key
 
 # == GraphicsMode part
 
-_superclass_for_GM = LineMode_GM
-class DnaLine_GM( LineMode_GM ):
+_superclass_for_GM = Line_GraphicsMode
+class DnaLine_GM( Line_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of DnaLineMode.
     @see: L{DnaLineMode} for more comments. 
@@ -34,7 +34,7 @@ class DnaLine_GM( LineMode_GM ):
           implementation  of self.command (see class DnaLineMode)          
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
-    #first endpoint of the line. See LineMode.Draw for details. 
+    #first endpoint of the line. See Line_GraphicsMode.Draw for details. 
     endPoint1_sphereColor = white 
     endPoint1_sphereOpacity = 1.0
     
@@ -96,7 +96,7 @@ class DnaLine_GM( LineMode_GM ):
         #a ladder with arrow heads for the beams is the current implementation 
         # -Ninad 2007-10-30
         
-        #@see: LineMode_GM class definition about this flag. Basically we supress
+        #@see: Line_GraphicsMode class definition about this flag. Basically we supress
         #cursor text drawing in the superclass and draw later in this method
         #after everyting is drawn.
         self._ok_to_render_cursor_text = False
@@ -107,7 +107,7 @@ class DnaLine_GM( LineMode_GM ):
         #Don't draw the Dna rubberband line if the cursor is over the confirmation
         #corner. But make sure to call superclass.Draw method before doing this 
         #check because we need to draw the rest of the model in the graphics 
-        #mode!. @see: LineMode_GM.Draw
+        #mode!. @see: Line_GraphicsMode.Draw
         handler = self.o.mouse_event_handler
         if handler is not None and handler is self._ccinstance:
             return
@@ -173,11 +173,11 @@ class DnaLine_GM( LineMode_GM ):
                     
 
 # == Command part
-class DnaLineMode(LineMode): # not used as of 080111, see docstring
+class DnaLineMode(Line_Command): # not used as of 080111, see docstring
     """
     [no longer used as of 080111, see details below]
-    Encapsulates the LineMode functionality.
-    @see: L{LineMode}
+    Encapsulates the Line_Command functionality.
+    @see: L{Line_Command}
     @see: DnaDuplex_EditCommand.getCursorText
     
     NOTE: [2008-01-11]
@@ -195,7 +195,7 @@ class DnaLineMode(LineMode): # not used as of 080111, see docstring
     commandName = 'DNA_LINE_MODE'    
     featurename = "DNA Line Mode"
         # (This featurename is sometimes user-visible,
-        #  but is probably not useful. See comments in LineMode
+        #  but is probably not useful. See comments in Line_Command
         #  for more info and how to fix. [bruce 071227])
     from utilities.constants import CL_UNUSED
     command_level = CL_UNUSED

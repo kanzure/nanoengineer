@@ -10,7 +10,8 @@ TODO:
 """
 
 
-from temporary_commands.LineMode.LineMode import LineMode
+from temporary_commands.LineMode.Line_Command import Line_Command
+from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
 
 from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
 
@@ -19,7 +20,7 @@ from utilities.constants import gray, black, darkred, blue, white
 
 # == GraphicsMode part
 
-class NanotubeLine_GM( LineMode.GraphicsMode_class ):
+class NanotubeLine_GM( Line_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of NanotubeLineMode.
     @see: L{NanotubeLineMode} for more comments. 
@@ -28,17 +29,13 @@ class NanotubeLine_GM( LineMode.GraphicsMode_class ):
           implementation  of self.command (see class NanotubeLineMode)          
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
-    #first endpoint of the line. See LineMode.Draw for details. 
+    #first endpoint of the line. See Line_GraphicsMode.Draw for details. 
     endPoint1_sphereColor = white 
     endPoint1_sphereOpacity = 1.0
     
     text = ''
     
-    def __init__(self, command):
-        """
-        """
-        LineMode.GraphicsMode_class.__init__(self, command)
-    
+        
     def leftUp(self, event):
         """
         Left up method
@@ -67,7 +64,7 @@ class NanotubeLine_GM( LineMode.GraphicsMode_class ):
         """
                 
         if self.command.callbackForSnapEnabled() == 1:
-            endPoint2  = LineMode.GraphicsMode_class.snapLineEndPoint(self)
+            endPoint2  = Line_GraphicsMode.snapLineEndPoint(self)
         else:
             endPoint2 = self.endPoint2
             
@@ -78,7 +75,7 @@ class NanotubeLine_GM( LineMode.GraphicsMode_class ):
         """
         Draw the Nanotube rubberband line (a ladder representation)
         """
-        LineMode.GraphicsMode_class.Draw(self)        
+        Line_GraphicsMode.Draw(self)        
         if self.endPoint2 is not None and \
            self.endPoint1 is not None: 
             
@@ -93,11 +90,11 @@ class NanotubeLine_GM( LineMode.GraphicsMode_class ):
                            ) 
 
 # == Command part
-class NanotubeLineMode(LineMode): # not used as of 080111, see docstring
+class NanotubeLineMode(Line_Command): # not used as of 080111, see docstring
     """
     [no longer used as of 080111, see details below]
-    Encapsulates the LineMode functionality.
-    @see: L{LineMode}
+    Encapsulates the Line_Command functionality.
+    @see: L{Line_Command}
     @see: InsertNanotube_EditCommand.getCursorText()
     
     NOTE: [2008-01-11]
@@ -116,7 +113,7 @@ class NanotubeLineMode(LineMode): # not used as of 080111, see docstring
     commandName = 'NANOTUBE_LINE_MODE'    
     featurename = "Nanotube Line Mode"
         # (This featurename is sometimes user-visible,
-        #  but is probably not useful. See comments in LineMode
+        #  but is probably not useful. See comments in Line_Command
         #  for more info and how to fix. [bruce 071227])
     from utilities.constants import CL_UNUSED
     command_level = CL_UNUSED

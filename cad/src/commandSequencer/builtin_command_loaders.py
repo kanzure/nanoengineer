@@ -56,7 +56,7 @@ from temporary_commands.ZoomToAreaMode import ZoomToAreaMode
 from temporary_commands.ZoomInOutMode import ZoomInOutMode
 from temporary_commands.PanMode import PanMode
 from temporary_commands.RotateMode import RotateMode
-from temporary_commands.LineMode.LineMode import LineMode
+from temporary_commands.LineMode.Line_Command import Line_Command
 from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
 
 #Carbon nanotube command imports 
@@ -137,7 +137,7 @@ def preloaded_command_classes():
         RotateMode, 
         PasteFromClipboard_Command, 
         PartLibrary_Command, 
-        LineMode, 
+        Line_Command, 
         DnaLineMode, 
         DnaDuplex_EditCommand,
         Plane_EditCommand,

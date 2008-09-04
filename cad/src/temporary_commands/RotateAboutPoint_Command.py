@@ -13,8 +13,8 @@ conference. This may be revised further.
 -- Need documentation
 """
 
-from temporary_commands.LineMode.LineMode import LineMode
-from temporary_commands.LineMode.LineMode import LineMode_GM
+from temporary_commands.LineMode.Line_Command import Line_Command
+from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
 import foundation.env as env
 from utilities.prefs_constants import atomHighlightColor_prefs_key
 from model.chem import Atom # for isinstance check as of 2008-04-17
@@ -24,9 +24,9 @@ from Numeric import dot
 
 
 
-_superclass_for_GM = LineMode_GM
+_superclass_for_GM = Line_GraphicsMode
 
-class RotateAboutPoint_GraphicsMode(LineMode_GM):
+class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 
     pivotAtom = None
 
@@ -113,7 +113,7 @@ class RotateAboutPoint_GraphicsMode(LineMode_GM):
             self.glpane.setCursor(self.win.rotateAboutPointCursor)
 
 
-class RotateAboutPoint_Command(LineMode):
+class RotateAboutPoint_Command(Line_Command):
 
     GraphicsMode_class = RotateAboutPoint_GraphicsMode
 
@@ -189,10 +189,10 @@ class RotateAboutPoint_Command(LineMode):
         @return: tuple of results to return to whatever "called"
                  self as a "request command"
         
-        [overrides LineMode method]
+        [overrides Line_GraphicsMode method]
         """
         #bruce 080801 split this out of restore_gui (now inherited).
-        # note: superclass LineMode.init_gui sets self._results_callback,
+        # note: superclass Line_Command.init_gui sets self._results_callback,
         # and superclass restore_gui calls it with this method's return value
         return ()
 

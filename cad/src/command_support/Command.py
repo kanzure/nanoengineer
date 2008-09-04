@@ -139,7 +139,7 @@ class anyCommand(baseCommand, StateMixin):
         #corner). 
         #For most of the commands, this is True (e.g. BuildAtoms mode , 
         #BuildCrystal Mode, DnaDuplexEdit Controller etc.) 
-        # For many temporary commands #such as Zoom/Pan/Rotate/LineMode 
+        # For many temporary commands #such as Zoom/Pan/Rotate/Line_Command 
         # it is False. That means when the temporary command is active, 
         # it is only doing some thing in the glpane and giving the user an 
         # impression as if he is still in the previous command he was 
