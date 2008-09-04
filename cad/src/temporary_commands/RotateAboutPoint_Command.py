@@ -13,8 +13,8 @@ conference. This may be revised further.
 -- Need documentation
 """
 
-from temporary_commands.LineMode import LineMode
-from temporary_commands.LineMode import LineMode_GM
+from temporary_commands.Line.LineMode import LineMode
+from temporary_commands.Line.LineMode import LineMode_GM
 import foundation.env as env
 from utilities.prefs_constants import atomHighlightColor_prefs_key
 from model.chem import Atom # for isinstance check as of 2008-04-17
