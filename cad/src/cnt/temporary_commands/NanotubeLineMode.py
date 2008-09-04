@@ -10,7 +10,7 @@ TODO:
 """
 
 
-from temporary_commands.LineMode import LineMode
+from temporary_commands.LineMode.LineMode import LineMode
 
 from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
 

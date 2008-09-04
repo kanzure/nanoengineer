@@ -9,7 +9,7 @@
 """
 
 
-from temporary_commands.Line.LineMode import LineMode
+from temporary_commands.LineMode.LineMode import LineMode
 
 from graphics.drawing.drawPeptideTrace import drawPeptideTrace, drawPeptideTrace_new
 

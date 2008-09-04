@@ -9,8 +9,8 @@ TODO:
 - User Preferences for different rubberband line display styles 
 """
 
-from temporary_commands.Line.LineMode import LineMode
-from temporary_commands.Line.LineMode import LineMode_GM
+from temporary_commands.LineMode.LineMode import LineMode
+from temporary_commands.LineMode.LineMode import LineMode_GM
 
 from graphics.drawing.drawDnaLadder import drawDnaLadder
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons

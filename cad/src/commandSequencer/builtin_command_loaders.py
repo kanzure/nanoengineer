@@ -56,7 +56,7 @@ from temporary_commands.ZoomToAreaMode import ZoomToAreaMode
 from temporary_commands.ZoomInOutMode import ZoomInOutMode
 from temporary_commands.PanMode import PanMode
 from temporary_commands.RotateMode import RotateMode
-from temporary_commands.Line.LineMode import LineMode
+from temporary_commands.LineMode.LineMode import LineMode
 from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
 
 #Carbon nanotube command imports 
