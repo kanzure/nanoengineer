@@ -139,10 +139,10 @@ class RotateMode(TemporaryCommand_Overdrawing): # TODO: rename to RotateTool or 
             
     #START new command API methods==============================================
             
-    def command_will_exit(self):
-        super(RotateMode, self).command_will_exit()
+    def command_will_exit(self):        
         # Disable auto-rotation.
         self.graphicsMode.last_quat = False
+        super(RotateMode, self).command_will_exit()
     
     def command_enter_misc_actions(self):
         """

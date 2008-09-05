@@ -280,9 +280,9 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
         if USE_COMMAND_STACK:
             super(ZoomToAreaMode, self).command_exit_misc_actions()
 
-    def command_will_exit(self):
-        super(ZoomToAreaMode, self).command_will_exit()
+    def command_will_exit(self):        
         self.graphicsMode.restore_patches_by_GraphicsMode()
+        super(ZoomToAreaMode, self).command_will_exit()
         return
     
     pass
