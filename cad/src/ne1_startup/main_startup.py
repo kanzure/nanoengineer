@@ -18,6 +18,8 @@ by bruce 070704.
 
 import sys, time, os, NE1_Build_Constants
 
+# Note -- Logic in startup_before_most_imports depends on its load location.
+# If you move it, fix the endUser code in before_most_imports().
 from ne1_startup import startup_before_most_imports
 
 # NOTE: all other imports MUST be added inside the following function,
