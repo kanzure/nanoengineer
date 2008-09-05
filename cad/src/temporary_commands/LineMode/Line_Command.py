@@ -33,6 +33,9 @@ class Line_Command(Select_Command):
     """
     Encapsulates the Line_Command tool functionality.
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status =  None
+    
     # class constants
 
     commandName = 'Line_Command'

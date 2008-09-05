@@ -9,6 +9,7 @@ Pan mode functionality.
 """
 
 from temporary_commands.TemporaryCommand import TemporaryCommand_Overdrawing
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 # == GraphicsMode part
 
@@ -47,6 +48,8 @@ class PanMode(TemporaryCommand_Overdrawing): # TODO: rename to PanTool or PanCom
     """
     Encapsulates the Pan tool functionality.
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status =  None
     
     # class constants
     
@@ -56,14 +59,28 @@ class PanMode(TemporaryCommand_Overdrawing): # TODO: rename to PanTool or PanCom
     command_level = CL_VIEW_CHANGE
 
     GraphicsMode_class = PanMode_GM
-
-    def init_gui(self):
-        self.win.panToolAction.setChecked(1) # toggle on the Pan Tool icon
-        return    
+    
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            self.win.panToolAction.setChecked(1) # toggle on the Pan Tool icon
+            return    
+            
+        def restore_gui(self):
+            self.win.panToolAction.setChecked(0) # toggle off the Pan Tool icon
         
-    def restore_gui(self):
-        self.win.panToolAction.setChecked(0) # toggle off the Pan Tool icon
-
+    #START new command API methods==============================================   
+    def command_enter_misc_actions(self):
+        """
+        See superclass method for documentation
+        """
+        self.win.panToolAction.setChecked(True)
+    
+    def command_exit_misc_actions(self):
+        """
+        See superclass method for documentation
+        """
+        self.win.panToolAction.setChecked(False)
+    #END new command API methods==============================================
     pass
 
 # end

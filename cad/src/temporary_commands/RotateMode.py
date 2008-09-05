@@ -12,7 +12,7 @@ piotr 080808: added "auto-rotation" feature.
 
 from temporary_commands.TemporaryCommand import TemporaryCommand_Overdrawing
 from PyQt4.Qt import Qt, QTimer, SIGNAL
-
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 ### from utilities.debug import doProfile   ###
 ### clicked = False                         ###
 
@@ -115,6 +115,9 @@ class RotateMode(TemporaryCommand_Overdrawing): # TODO: rename to RotateTool or 
     Encapsulates the Rotate Tool functionality.
     """
     
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status =  None
+    
     # class constants
     commandName = 'ROTATE'
     featurename = "Rotate Tool"
@@ -122,16 +125,39 @@ class RotateMode(TemporaryCommand_Overdrawing): # TODO: rename to RotateTool or 
     command_level = CL_VIEW_CHANGE
 
     GraphicsMode_class = RotateMode_GM
-
-    def init_gui(self):
-        # Toggle on the Rotate Tool icon
-        self.win.rotateToolAction.setChecked(1)
     
-    def restore_gui(self):
-        # Toggle off the Rotate Tool icon
-        self.win.rotateToolAction.setChecked(0)
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            # Toggle on the Rotate Tool icon
+            self.win.rotateToolAction.setChecked(1)
+        
+        def restore_gui(self):
+            # Toggle off the Rotate Tool icon
+            self.win.rotateToolAction.setChecked(0)
+            # Disable auto-rotation.
+            self.graphicsMode.last_quat = False
+            
+    #START new command API methods==============================================
+            
+    def command_will_exit(self):
+        super(RotateMode, self).command_will_exit()
         # Disable auto-rotation.
         self.graphicsMode.last_quat = False
+    
+    def command_enter_misc_actions(self):
+        """
+        See superclass method for documentation
+        """
+        self.win.rotateToolAction.setChecked(True)
+    
+    def command_exit_misc_actions(self):
+        """
+        See superclass method for documentation
+        """
+        self.win.rotateToolAction.setChecked(False)
+        
+    #END new command API methods==============================================
+    
         
     pass
 

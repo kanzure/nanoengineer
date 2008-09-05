@@ -114,6 +114,9 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 
 
 class RotateAboutPoint_Command(Line_Command):
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status =  None
 
     GraphicsMode_class = RotateAboutPoint_GraphicsMode
 
