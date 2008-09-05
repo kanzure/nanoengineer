@@ -49,10 +49,20 @@ _descriptor_for_featurename = {}
 
 _feature_classes = {}
     # maps feature class (abstract class) to descriptor constructor for it;
-    # only for the classes directly passed to register_abstract_feature_class
-    # (with descriptors), not for their subclasses.
+    # only contains the classes directly passed to register_abstract_feature_class
+    # (with descriptor_constructors), not their subclasses.
 
-_feature_class_tuple = () # tuple of feature classes, to be passed to issubclass
+_feature_class_tuple = () # tuple of feature classes, suitable for passing to issubclass;
+    # recreated automatically after each call of register_abstract_feature_class
+
+_feature_kind_subclasses = [] # list of subclasses corresponding to specific
+    # kinds of features to report in special ways
+    # (todo: permit passing different more specific descriptor_constructors
+    #  for those -- that doesn't work now, since _feature_class_tuple doesn't
+    # preserve registration order)
+    # TODO: use this in describing kind of feature, in export command table
+    # TODO: register EditCommand
+    # [bruce 080905]
 
 # ==
 
@@ -92,8 +102,14 @@ def register_abstract_feature_class( feature_class, descriptor_constructor = Non
     if descriptor_constructor is None:
         # assert that we're a subclass of an existing feature class
         assert issubclass( feature_class, _feature_class_tuple )
-        # record this class so we'll know it's abstract if we encounter it
-        assert 0, "nim"
+        # 080905: record this class (assume that more general classes get
+        # recorded first, since this function is called immediately
+        # after they're defined -- first verify that assumption)
+        for fc in _feature_kind_subclasses:
+            assert not issubclass(fc, feature_class), \
+                   "subclass %r must be registered after superclass %r" % \
+                   ( fc, feature_class)
+        _feature_kind_subclasses.append( feature_class)
     else:
         _feature_classes[ feature_class ] = descriptor_constructor
         _feature_class_tuple = tuple( _feature_classes.keys() )
@@ -361,6 +377,7 @@ class basicCommand_Descriptor( CommandDescriptor): # refile with basicCommand?
         # initialize various metainfo
         modulename = command_class.__module__
         self.command_package = command_package_part_of_module_name( modulename)
+        self.feature_type = self._get_feature_type()
         # todo: more
         return
     
@@ -368,6 +385,20 @@ class basicCommand_Descriptor( CommandDescriptor): # refile with basicCommand?
         return self.thing
     command_class = property( _get_command_class)
 
+    def _get_feature_type(self):
+        for fc in (list(_feature_class_tuple) + _feature_kind_subclasses)[::-1]:
+            # list is most general first, so we scan it backwards
+            if issubclass( self.command_class, fc):
+                return short_class_name(fc) + " subclass"
+        return "unknown" # bug
+
+    def _get_porting_status(self):
+        # temporary code during the port to USE_COMMAND_STACK
+        porting_status = getattr(self.command_class,
+                                 'command_porting_status',
+                                 "bug: command_porting_status not defined" )
+        return porting_status or ""
+        
     def sort_key(self):
         # revise to group dna commands together, etc? or subcommands of one main command?
         # yes, when we have the metainfo to support that.
@@ -375,12 +406,21 @@ class basicCommand_Descriptor( CommandDescriptor): # refile with basicCommand?
         return ( 1, self.featurename, short_class_name( self.command_class) ) #e more?
 
     def print_plain(self):
-        print "featurename:", self.featurename
+        porting_status = self._get_porting_status()
+            # porting_status is temporary code during the port to USE_COMMAND_STACK
+        fully_ported = not porting_status
+        if fully_ported:
+            print "featurename: <b>%s</b>" % self.featurename
+        else:
+            print "featurename:", self.featurename
         print "classname:", short_class_name( self.command_class)
         print "command_package:", self.command_package
-        print "type: basicCommand subclass"
+        print "type:", self.feature_type
+        if not fully_ported:
+            print "porting status:", porting_status
         # todo: more
-        
-    pass
+        return
+    
+    pass # end of class basicCommand_Descriptor
 
 # end

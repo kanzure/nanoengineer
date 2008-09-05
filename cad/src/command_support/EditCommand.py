@@ -35,6 +35,8 @@ TODO:
 """
 
 import foundation.changes as changes
+from foundation.FeatureDescriptor import register_abstract_feature_class
+
 from utilities.Comparison import same_vals
 
 from utilities.constants import permit_gensym_to_reuse_name
@@ -522,3 +524,11 @@ class EditCommand(Select_Command):
             permit_gensym_to_reuse_name(prefix, name)
         self._gensym_data_for_reusing_name = None
         return
+
+    pass # end of class EditCommand
+
+register_abstract_feature_class( EditCommand )
+    # this is so "export command table" lists it as a separate kind of feature
+    # [bruce 080905]
+
+# end
