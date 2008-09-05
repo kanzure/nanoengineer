@@ -213,8 +213,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
             # programmatically changing the action state.
             # See similar code and comment in ops_view.py.
             # [bruce 080905]
-            print "DEBUG fyi: rotateAboutPointTemporaryCommand(%r) returning early since command stack locked" % isChecked
-                # remove when works, or soon after
             return
 
         if isChecked:
