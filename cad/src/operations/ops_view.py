@@ -194,6 +194,9 @@ class viewSlotsMixin:
                     # this is normal when the command is exiting on its own
                     # and changes the state of its action programmatically.
                     # In this case, redundant exit causes bugs, so skip it.
+                    # It might be better to avoid sending the signal when
+                    # programmatically changing the action state.
+                    # See similar code and comment in Move_Command.py.
                     # [bruce 080829]
                     print "DEBUG fyi: _zoomPanRotateTool skipping Done of %r since command stack locked" % commandName
                         # remove when works, or soon after

@@ -205,11 +205,24 @@ class Move_basicCommand(SelectChunks_basicCommand):
         #@TODO: clean this up. This was written just after Rattlesnake rc2
         #for FNANO presentation -- Ninad 2008-04-17
 
+        if USE_COMMAND_STACK and self.commandSequencer._f_command_stack_is_locked:
+            # This is normal when the command is exiting on its own
+            # and changes the state of its action programmatically.
+            # In this case, redundant exit causes bugs, so skip it.
+            # It might be better to avoid sending the signal when
+            # programmatically changing the action state.
+            # See similar code and comment in ops_view.py.
+            # [bruce 080905]
+            print "DEBUG fyi: rotateAboutPointTemporaryCommand(%r) returning early since command stack locked" % isChecked
+                # remove when works, or soon after
+            return
+
         if isChecked:
+            # invoke the RotateAboutPoint command
             self.propMgr.rotateStartCoordLineEdit.setEnabled(isChecked)
-            msg = "Click inside the 3D workspace to define two points" \
-                "of a line. The selection will be rotated about the first point"\
-                " in the direction specified by that line"
+            msg = "Click inside the 3D workspace to define two points " \
+                "of a line. The selection will be rotated about the first point "\
+                "in the direction specified by that line"
 
             self.propMgr.updateMessage(msg)
             
@@ -219,6 +232,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
                  accept_results = self._acceptRotateAboutPointResults
              )
         else:
+            # exit the RotateAboutPoint command
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == "RotateAboutPoint":
                 if not USE_COMMAND_STACK:
