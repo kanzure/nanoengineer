@@ -107,6 +107,7 @@ class ExampleCommand(_superclass):
     featurename = "Prototype: Undocumented Example Command"
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
+    __abstract_command_class = True
 
     def init_gui(self):
         print "init_gui in", self ###

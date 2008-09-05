@@ -83,6 +83,7 @@ class anyCommand(baseCommand, StateMixin):
     from utilities.constants import CL_ABSTRACT
     command_level = CL_ABSTRACT
         # command_level is not yet documented, part of command stack refactoring
+    __abstract_command_class = True
     
     command_parent = None
         # Subclasses should set this to the commandName of the parent command
@@ -357,6 +358,7 @@ class basicCommand(anyCommand):
     featurename = "Undocumented Command"
     from utilities.constants import CL_ABSTRACT
     command_level = CL_ABSTRACT
+    __abstract_command_class = True
 
     command_can_be_suspended = True # good default value for most commands [bruce 071011]
     

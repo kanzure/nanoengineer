@@ -2,7 +2,8 @@
 """
 baseCommand.py - base class for command objects on a command sequencer stack
 
-NOTE: under development, not yet used as of 080730.
+NOTE: under development, only used when USE_COMMAND_STACK is true
+(controlled by debug_pref as of before 080905)
 
 @author: Bruce
 @version: $Id$
@@ -23,21 +24,21 @@ class baseCommand(object):
     """
     Abstract base class for command objects compatible with Command Sequencer.
     """
-    
-    #Temporary attr 'command_porting_status'. Used ONLY to keep a track of
-    #commands that are ported to the new command API. the default value is 
-    #'None' (fully ported) and is overridden in subclasses.     
-    command_porting_status = None
-    
-    
+    __abstract_command_class = True
     
     # default values of command subclass constants
 
-    # WARNING: presently some of these are overridden in anyCommand and/or basicCommand;
-    # that will be cleaned up after the refactoring is complete. [bruce 080815 comment]
+    # WARNING: presently some of these are overridden in anyCommand and/or
+    # basicCommand; that will be cleaned up after the refactoring is complete.
+    # [bruce 080815 comment]
 
+    #Temporary attr 'command_porting_status'. Used ONLY to keep a track of
+    #commands that are ported to the new command API. the default value is
+    #'None' (fully ported) and is overridden in subclasses.
+    command_porting_status = None
+    
     command_level = CL_ABSTRACT
-        #doc
+        #doc command_level; see command_levels.py
     
     command_parent = None # TODO: rename this to command_parentName or ... ###
         # Subclasses should set this to the commandName of the parent command

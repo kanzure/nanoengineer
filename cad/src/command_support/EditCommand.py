@@ -79,6 +79,7 @@ class EditCommand(Select_Command):
     featurename = "Undocumented Edit Command" # default wiki help featurename
     from utilities.constants import CL_ABSTRACT
     command_level = CL_ABSTRACT
+    __abstract_command_class = True
     
     propMgr = None
     flyoutToolbar = None

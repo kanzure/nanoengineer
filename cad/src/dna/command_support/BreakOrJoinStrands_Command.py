@@ -28,13 +28,8 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     command_porting_status = "PARTIAL: 2008-0--05: needs PM_class refactoring"
     
     command_level = CL_SUBCOMMAND
-        # Note: maybe this should be CL_ABSTRACT so it's correct for *this* class,
-        # which each subclass of this class specifying command_level = CL_SUBCOMMAND.
-        # For now, this doesn't matter, since this command's name is in
-        # _KLUGE_ABSTRACT_CLASSNAMES in FeatureDescriptor.py, and since
-        # that code doesn't yet pay attention to CL_ABSTRACT anyway.
-        # [bruce 080905 comment]
     command_parent = 'BUILD_DNA'
+    __abstract_command_class = True #bruce 080905
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 

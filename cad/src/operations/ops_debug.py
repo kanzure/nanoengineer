@@ -52,7 +52,8 @@ def import_all_modules_cmd(glpane): #bruce 080721
         modules = file1.readlines()
         file1.close
         os.remove(tmpfile)
-        
+
+        print
         print "will scan %d source files from AllPyFiles" % len(modules) # 722 files as of 080721!
 
         modules.sort()
@@ -160,16 +161,8 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
         continue
 
     print "found %d distinct global values in %d modules" % ( len(global_values), mcount)
-
-    print "found %d command_packages" % len(all_command_packages_dict) # a dict, from and to their names
-    all_command_packages_list = all_command_packages_dict.values()
-    all_command_packages_list.sort()
-    
-    # print "\n".join( all_command_packages_list)
-    # print
-
     if 1:
-        # not needed, just curious how many types there are
+        # not really needed, just curious how many types of global values there are
         global_value_types = {} # maps type -> type (I assume all types are hashable)
         for v in global_values.itervalues():
             t = type(v)
@@ -182,6 +175,13 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
 
         # print global_value_types.values() # just to see it...
         print
+
+    print "found %d command_packages" % len(all_command_packages_dict) # a dict, from and to their names
+    all_command_packages_list = all_command_packages_dict.values()
+    all_command_packages_list.sort()
+    
+    # print "\n".join( all_command_packages_list)
+    # print
 
     # find command descriptors in global_values
     descriptors = {}
@@ -199,7 +199,8 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
             if cp not in all_command_packages_dict:
                 print "bug: command package not found in initial scan:", cp
             if command_packages_with_commands.has_key(cp):
-                print "warning: command package with more than one command:", cp
+                # this is normal now; todo: print at most once per cp
+                print "fyi: command package with more than one command:", cp
             command_packages_with_commands[ cp] = cp
 
     for cp in all_command_packages_list:

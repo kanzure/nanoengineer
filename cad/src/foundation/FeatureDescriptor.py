@@ -17,20 +17,24 @@ _KLUGE_PERMIT_INHERITED_CLASSNAMES = (
         # since it doesn't have its own featurename
     "Select_Command",
     "selectMode",
-    
+
+    # these need to be here since they still inherit from basicCommand versions
+    # where the featurename is actually defined
+    # (alternatively, we could define featurename in these classes instead
+    #  of in their basicCommand superclasses, and put the basicCommand
+    #  superclasses into this table; ultimately it won't matter since
+    #  those class-pairs should each be merged into a single class.)
+    "SelectChunks_Command",
+    "SelectAtoms_Command",
+    "BuildAtoms_Command",
+    "Move_Command",
+
     "TemporaryCommand_preMixin", # (should this count as abstract?)
 
     "minimalCommand", # (ditto)
     "minimalUsefulMode",
 
     "Example_TemporaryCommand_useParentPM", # abstract, but doesn't have its own featurename
- )
-
-_KLUGE_ABSTRACT_CLASSNAMES = (
-    # todo: replace with per-class __abstract = True
-    "EditCommand",
-    "ExampleCommand", # (why printed twice, when not in this list?)
-    "TemporaryCommand_Overdrawing",
  )
 
 # == global state
@@ -55,6 +59,7 @@ _feature_class_tuple = () # tuple of feature classes, to be passed to issubclass
 def short_class_name( clas):
     # todo: refile into utilities.constants; has lots of inlined uses
     # todo: generalize to non-class things
+    # note: used for name-mangling too, so don't change what it returns
     return clas.__name__.split('.')[-1]
         
 def canonicalize_featurename( featurename, warn = False):
@@ -159,7 +164,7 @@ def find_or_make_FeatureDescriptor( thing):
 def _determine_FeatureDescriptor( thing):
     """
     Determine (find or make) and return the FeatureDescriptor
-    to use with thing.
+    to use with thing. (If thing is abstract, return None.)
 
     @param thing: an object or class corresponding internally
                   to a specific program feature, and for which
@@ -179,8 +184,28 @@ def _determine_FeatureDescriptor( thing):
     
     clas = thing
     del thing
-    
+
     featurename = clas.featurename # note: not yet canonicalized
+
+    # See if class is declared abstract.
+    # It declares that using a name-mangled attribute, __abstract_command_class,
+    # so its subclasses don't accidentally inherit that declaration.
+    # (This is better than using command_level == CL_ABSTRACT,
+    #  since that can be inherited mistakenly. REVIEW whether that
+    #  attr value should survive at all.)
+    # [bruce 080905 new feature]
+
+    short_name = short_class_name( clas)
+    
+    mangled_abstract_attrname = "_%s__abstract_command_class" % short_name
+    abstract = getattr(clas, mangled_abstract_attrname, False)
+    if abstract:
+        return None
+
+    if clas in _feature_class_tuple:
+        print "\n*** possible bug: %r probably ought to define __abstract_command_class = True" % short_name
+            # if not true, after review, revise this print [bruce 080905]
+        return None
 
     # see if featurename is inherited
 
@@ -192,17 +217,13 @@ def _determine_FeatureDescriptor( thing):
             inherited_from = base
             break
 
-    short_name = short_class_name( clas)
-
     if inherited_from is not None:
         # decide whether this is legitimate (use inherited description),
         # or not (warn, and make up a new description).
 
-        assert not clas in _feature_class_tuple
-
         legitimate = short_name in _KLUGE_PERMIT_INHERITED_CLASSNAMES
             # maybe: also add ways to register such classes,
-            # and/or to mark them using __abstract = True
+            # and/or to mark them using __abstract_command_class = True
             # (made unique to that class by name-mangling).
 
             # maybe: point out in warning if it ends with Mode or Command
@@ -211,11 +232,20 @@ def _determine_FeatureDescriptor( thing):
         if legitimate:
             return find_or_make_FeatureDescriptor( inherited_from)
                 # return that even if it's None (meaning we're an abstract class)
+                # (todo: review that comment -- abstract classes are now detected earlier;
+                #  can this still be None at this point? Doesn't matter for now.)
 
         # make it unique
         featurename = canonicalize_featurename( featurename, warn = True)
         featurename = featurename + " " + short_name
+        print
         print "developer warning: auto-extending inherited featurename to make it unique:", featurename
+        print "    involved classes: %r and its subclass %r" % \
+              ( short_class_name( inherited_from),
+                short_class_name( clas) )
+        print "    likely fixes: either add %r to _KLUGE_PERMIT_INHERITED_CLASSNAMES," % ( short_name, )
+        print "    or define a featurename class constant for it,"
+        print "    or declare it as abstract by defining __abstract_command_class = True in it."
         pass # use new featurename to make a new description, below
 
     else:
@@ -223,11 +253,6 @@ def _determine_FeatureDescriptor( thing):
         featurename = canonicalize_featurename( featurename, warn = True)
         assert not short_name in _KLUGE_PERMIT_INHERITED_CLASSNAMES, short_name
         pass
-
-    # see if registered as abstract class
-    
-    if clas in _feature_class_tuple or short_name in _KLUGE_ABSTRACT_CLASSNAMES:
-        return None
 
     # use featurename (perhaps modified above) to make a new description
 

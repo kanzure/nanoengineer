@@ -120,6 +120,7 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
     and GraphicsMode.
     """
     GraphicsMode_class = _TemporaryCommand_Overdrawing_GM
+    __abstract_command_class = True
     featurename = "Undocumented Temporary Command"
         # (I don't know if this featurename is ever user-visible;
         #  if it is, it's probably wrong -- consider overriding
