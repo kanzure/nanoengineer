@@ -43,6 +43,7 @@ from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckB
 from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key
 from utilities.prefs_constants import insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key
 from utilities.prefs_constants import cursorTextColor_prefs_key
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
 class InsertNanotube_EditCommand(EditCommand):
@@ -56,6 +57,11 @@ class InsertNanotube_EditCommand(EditCommand):
     two end points for each nanotube. This uses NanotubeLineMode_GM  class as its
     GraphicsMode 
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "NOT_PORTED"
+    
+    
     cmd              =  greenmsg("Insert Nanotube: ")
     prefix           =  'Nanotube'   # used for gensym
     cmdname          = "Insert Nanotube"
@@ -95,7 +101,8 @@ class InsertNanotube_EditCommand(EditCommand):
         self._segmentList = []
 
         self.struct = struct
-
+        
+    
 
     def init_gui(self):
         """
