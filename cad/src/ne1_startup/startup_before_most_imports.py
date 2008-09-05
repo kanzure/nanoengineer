@@ -1,10 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 startup_before_most_imports.py - some application startup functions
 which need to be run before most imports are done, and which therefore
 need to be careful about doing imports themselves.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -63,8 +64,18 @@ def before_most_imports( main_globals ):
     # certain code it might not be safe for end-users to run).
     # [bruce 050902 new feature; revised 051006 to work in Windows
     # built packages]
-    # [Russ 080905: Fixed after this file moved into ne1_startup.]
-    ourpackage = "ne1_startup"
+    # [Russ 080905: Fixed after this file moved into ne1_startup.
+    #  bruce 080905 slightly revised that fix.
+    #  Note: see also NE1_Build_Constants.py, which has constants
+    #  that might be useable for this.]
+    _OUR_PACKAGE = "ne1_startup" # should be this file's package inside cad/src
+        # todo: this could be derived entirely from __name__.
+    our_basename = __name__.split('.')[-1] # e.g. startup_before_most_imports
+    assert _OUR_PACKAGE == __name__.split('.')[-2], \
+           "need to revise this code for moved file"
+        # this will fail if _OUR_PACKAGE has more than one component, or no
+        # components; that's intentional, since some of the code below would
+        # also fail in that case. If it fails, generalize this and that code.
 
     # Method 1. As of 050902, package builders on all platforms reportedly move main.py
     # (the __main__ script) into a higher directory than the compiled python files.
@@ -99,11 +110,10 @@ def before_most_imports( main_globals ):
             return os.path.normcase(os.path.abspath(path))
         maindir = canon(maindir)
         ourdir = canon(ourdir)
-        guess1 = (os.path.join(maindir, ourpackage) != ourdir) # Russ 080905: Loaded from package subdirectory.
+        guess1 = (os.path.join(maindir, _OUR_PACKAGE) != ourdir) # Russ 080905: Loaded from package subdirectory.
 
         # Method 2. As of 050902, package builders on all platforms remove the .py files, leaving only .pyc files.
-        ourfile = os.path.splitext(__name__)[1][1:] # Russ 080905: Remove "ourpackage." prefix.
-        guess2 = not os.path.exists(os.path.join(ourdir, ourfile + ".py"))
+        guess2 = not os.path.exists(os.path.join(ourdir, our_basename + ".py"))
 
         endUser = guess1 or guess2
         if EndUser.getAlternateSourcePath() != None:
