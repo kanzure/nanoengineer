@@ -22,7 +22,8 @@ from model.chem import Atom # for isinstance check as of 2008-04-17
 from geometry.VQT import cross, norm, Q
 from Numeric import dot
 
-
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+from utilities.debug import print_compact_stack
 
 _superclass_for_GM = Line_GraphicsMode
 
@@ -80,7 +81,14 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             if len(self.command.mouseClickPoints) == 2:
                 self.endPoint2 = None
                 self.command.rotateAboutPoint()
-                self.command.restore_gui()
+                
+                if not USE_COMMAND_STACK:
+                    self.command.restore_gui()
+                else:
+                    print_compact_stack("bug: %s.leftUp doesn't handle the case" \
+                    "where mouseclicklimit is not specified. Ideally it should" \
+                    "call most of the code in self.command_will_exit")%(self)
+                    
                 self.glpane.gl_update()
             return
 
@@ -116,7 +124,7 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 class RotateAboutPoint_Command(Line_Command):
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status =  None
+    command_porting_status =  "PARTIAL: GraphicsMode.leftUp calls restore_gui and corre case in new command API not handled"
 
     GraphicsMode_class = RotateAboutPoint_GraphicsMode
 
