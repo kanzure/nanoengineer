@@ -40,6 +40,9 @@ class MakeCrossovers_Command(SelectChunks_Command,
     """
     
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status =  None
+    
     # class constants    
     commandName = 'MAKE_CROSSOVERS'
     featurename = "Make Crossovers"

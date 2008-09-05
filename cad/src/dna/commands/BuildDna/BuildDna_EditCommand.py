@@ -41,6 +41,10 @@ class BuildDna_EditCommand(EditCommand):
     BuildDna_EditCommand provides a convenient way to edit or create
     a DnaGroup object
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    
     cmd              =  greenmsg("Build DNA: ")
     prefix           =  'DnaGroup'   # used for gensym
     cmdname          = "Build Dna"

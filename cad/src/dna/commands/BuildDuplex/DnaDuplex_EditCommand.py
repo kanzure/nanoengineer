@@ -74,6 +74,10 @@ class DnaDuplex_EditCommand(EditCommand):
     two end points for each dna duplex.This uses DnaLineMode_GM  class as its
     GraphicsMode 
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    
     cmd              =  greenmsg("Build DNA: ")
     prefix           =  'DnaSegment'   # used for gensym
     cmdname          = "Duplex"

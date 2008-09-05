@@ -24,6 +24,9 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     A superclass for Break Strands and Join Strands commands
     """   
     
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "PARTIAL: 2008-0--05: needs PM_class refactoring"
+    
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
     
@@ -32,6 +35,8 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     command_has_its_own_PM = True
     
     flyoutToolbar = None      
+    
+    
         
     def _createPropMgrObject(self):
         """

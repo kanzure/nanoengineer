@@ -22,11 +22,12 @@ class BreakStrands_Command(BreakOrJoinStrands_Command):
     """
 
     """
+    
     # class constants
     commandName = 'BREAK_STRANDS'
     featurename = "Break Strands"    
     GraphicsMode_class = BreakStrands_GraphicsMode
-
+    
     def _createPropMgrObject(self):
         propMgr = BreakStrands_PropertyManager(self)
         return propMgr    

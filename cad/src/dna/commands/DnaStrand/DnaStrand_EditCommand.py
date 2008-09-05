@@ -73,6 +73,10 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     DnaStrand_Editcommand, shows its property manager and also shows the 
     resize handles if any.
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    
     cmd              =  'Dna Strand'
     prefix           =  'Strand '   # used for gensym
     cmdname          = "DNA_STRAND"

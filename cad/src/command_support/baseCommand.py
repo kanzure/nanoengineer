@@ -23,6 +23,14 @@ class baseCommand(object):
     """
     Abstract base class for command objects compatible with Command Sequencer.
     """
+    
+    #Temporary attr 'command_porting_status'. Used ONLY to keep a track of
+    #commands that are ported to the new command API. the default value is 
+    #'None' (fully ported) and is overridden in subclasses.     
+    command_porting_status = None
+    
+    
+    
     # default values of command subclass constants
 
     # WARNING: presently some of these are overridden in anyCommand and/or basicCommand;

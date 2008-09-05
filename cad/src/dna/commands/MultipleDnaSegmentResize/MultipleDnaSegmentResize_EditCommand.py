@@ -45,6 +45,9 @@ ORIGIN = V(0, 0, 0)
 
 _superclass = DnaSegment_EditCommand
 class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring; may be some update code needs to be in methods like command_update_internal_state"
 
     cmdname = 'MULTIPLE_DNA_SEGMENT_RESIZE' # REVIEW: needed? correct?
 

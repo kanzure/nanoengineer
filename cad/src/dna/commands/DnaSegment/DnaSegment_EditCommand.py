@@ -103,6 +103,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     and shows the property manager with its widgets showing the properties of 
     selected segment.
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    
+    
     cmd              =  'Dna Segment'
     prefix           =  'Segment '   # used for gensym
     cmdname          = "DNA_SEGMENT"

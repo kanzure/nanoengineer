@@ -36,6 +36,11 @@ class DnaDisplayStyle_Command(EditCommand):
     """
     
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    
+    
     # class constants
     
     commandName = 'EDIT_DNA_DISPLAY_STYLE'
