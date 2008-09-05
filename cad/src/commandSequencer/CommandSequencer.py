@@ -918,11 +918,13 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
     def _f_lock_command_stack(self, why = None):
         assert not self._f_command_stack_is_locked 
         self._f_command_stack_is_locked = why or "for some reason"
+        print "locking command stack:", self._f_command_stack_is_locked ###
         return
 
     def _f_unlock_command_stack(self):
         assert self._f_command_stack_is_locked
         self._f_command_stack_is_locked = None
+        print "unlocking command stack"
         return
 
     def _f_assert_command_stack_unlocked(self):
