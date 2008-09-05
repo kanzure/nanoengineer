@@ -183,14 +183,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
             self.o.gl_update()
 
         self.propMgr.moveFromToButton.setChecked(False)
-
-        #For Rotate about point tool. Maybe we should do the following
-        #only when the graphics mode is Rotate graphics mode? Okay for now.
-        #feature implemented just before FNANO 08 cleanup.
-        # -- Ninad 2008-04-20
-        # [note: this is no longer called for RotateAboutPoint;
-        #  see _acceptRotateAboutPointResults for that -- bruce 080801]
-        self.propMgr.rotateAboutPointButton.setChecked(False) #k needed?
         return
 
     def _acceptRotateAboutPointResults(self, params): #bruce 080801, revises acceptParamsFromTemporaryMode
@@ -202,7 +194,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
         ### REVIEW: can this be called with params == None
         # if RotateAboutPoint is terminated early?
         del params
-        self.propMgr.moveFromToButton.setChecked(False)  # above needed? 
         self.propMgr.rotateAboutPointButton.setChecked(False)
         return
 
@@ -230,7 +221,11 @@ class Move_basicCommand(SelectChunks_basicCommand):
         else:
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == "RotateAboutPoint":
-                currentCommand.Done(exit_using_done_or_cancel_button = False)
+                if not USE_COMMAND_STACK:
+                    currentCommand.Done(exit_using_done_or_cancel_button = False)
+                else:
+                    currentCommand.command_Cancel()
+                
             self.propMgr.rotateStartCoordLineEdit.setEnabled(False)
             self.propMgr.updateMessage()
 
