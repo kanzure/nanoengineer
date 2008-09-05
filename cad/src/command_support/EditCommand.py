@@ -83,6 +83,13 @@ class EditCommand(Select_Command):
     
     propMgr = None
     flyoutToolbar = None
+    
+    
+    PM_class = None
+       #Command subclasses can override this class constant with the appropriate
+       #Property Manager class. See baseCommand class definition for more 
+       #details. 
+       
 
     def __init__(self, commandSequencer):
         """
@@ -148,29 +155,6 @@ class EditCommand(Select_Command):
         """
         pass
     
-    def command_enter_PM(self):
-        """
-        Setup GUI related to the  Property Manager (PM)
-        May be overridden in subclasses. Default implementation creates and 
-        shows PM (if requested)
-        Overrides the superclass method.       
-        @see: baseCommand.command_enter_PM()  
-        @see: self.command_exit_PM()
-        @see: self.command_enter_flyout()
-        """
-        self.create_and_or_show_PM_if_wanted() 
-    
-    def command_exit_PM(self):
-        """
-        Reset/ change GUI related to the Property Manager (PM)
-        May be overridden in subclasses.
-        @see: self.command_enter_PM()  
-        @see: baseCommand.command_exit_PM() 
-        @see: self.command_exit_flyout()
-        """
-        if not USE_COMMAND_STACK:
-            if self.propMgr:
-                self.propMgr.close()
     
     def command_enter_misc_actions(self):
         pass
@@ -179,31 +163,55 @@ class EditCommand(Select_Command):
         pass                   
     
     #=== END   NEW command API methods  ========================================
+    
+    if not USE_COMMAND_STACK:
 
-    def init_gui(self):
-        
-        """
-        Do changes to the GUI while entering this command. This includes opening
-        the property manager, updating the command toolbar , connecting widget
-        slots (if any) etc. Note: The slot connection in property manager and
-        command toolbar is handled in those classes.
-
-        Called once each time the command is entered; should be called only
-        by code in modes.py
-
-        @see: L{self.restore_gui}
-        """
-        self.command_enter_PM()
-        self.command_enter_flyout()
-        self.command_enter_misc_actions()
+        def init_gui(self):
             
-    def restore_gui(self):
-        """
-        """
-        self.command_exit_PM()
-        self.command_exit_flyout()
-        self.command_exit_misc_actions()
+            """
+            Do changes to the GUI while entering this command. This includes opening
+            the property manager, updating the command toolbar , connecting widget
+            slots (if any) etc. Note: The slot connection in property manager and
+            command toolbar is handled in those classes.
+    
+            Called once each time the command is entered; should be called only
+            by code in modes.py
+    
+            @see: L{self.restore_gui}
+            """
+            self.create_and_or_show_PM_if_wanted()
+            self.command_enter_flyout()
+            self.command_enter_misc_actions()
+                
+        def restore_gui(self):
+            """
+            """
+            
+            self.command_exit_flyout()
+            self.command_exit_misc_actions()
+            if self.propMgr:
+                self.propMgr.close()
         
+    
+    def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
+        """
+        Create the property manager object if one doesn't already exist 
+        and then (if not USE_COMMAND_STACK) show the propMgr if wanted
+        by the user
+        
+        @param showPropMgr: If True, show the property manager 
+        @type showPropMgr: boolean
+        """
+        if not self.propMgr:                 
+            self.propMgr = self._createPropMgrObject()
+            if self.propMgr:
+                #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
+                # (REVIEW: still needed, given that it's stored in self? [bruce 080819 question])
+                changes.keep_forever(self.propMgr)
+            
+        if showPropMgr and self.propMgr:
+            self.propMgr.show()
+                
     def runCommand(self):
         """        
         Used to run this editCommand . Depending upon the
@@ -219,26 +227,6 @@ class EditCommand(Select_Command):
         if self.struct:
             self.struct = None
         self.createStructure()
-
-    def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
-        """
-        Create the property manager object if one doesn't already exist 
-        and then (if not USE_COMMAND_STACK) show the propMgr if wanted
-        by the user
-        
-        @param showPropMgr: If True, show the property manager 
-        @type showPropMgr: boolean
-        """
-        if not self.propMgr:                 
-            self.propMgr = self._createPropMgrObject()
-            #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
-            # (REVIEW: still needed, given that it's stored in self? [bruce 080819 question])
-            changes.keep_forever(self.propMgr)
-            
-        if not USE_COMMAND_STACK:
-            
-            if showPropMgr:
-                self.propMgr.show()
 
     def createStructure(self, showPropMgr = True):
         """
@@ -387,13 +375,7 @@ class EditCommand(Select_Command):
         """
         raise AbstractMethod()
 
-    def _createPropMgrObject(self):
-        """
-        Abstract method (overridden in subclasses). Creates a property manager 
-        object (that defines UI things) for this editCommand. 
-        """
-        raise AbstractMethod()
-
+   
     def _modifyStructure(self, params):
         """
         Abstract method that modifies the structure (i.e. the object created 

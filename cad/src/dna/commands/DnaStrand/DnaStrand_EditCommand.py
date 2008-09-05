@@ -58,6 +58,9 @@ from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_nu
 from utilities.prefs_constants import dnaStrandEditCommand_showCursorTextCheckBox_prefs_key
 from utilities.prefs_constants import cursorTextColor_prefs_key
 
+from dna.commands.DnaStrand.DnaStrand_PropertyManager import DnaStrand_PropertyManager
+
+
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.5
 
@@ -75,7 +78,13 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    command_porting_status = "PARTIAL: 2008-09-05 ?? check"
+    
+    #Graphics Mode 
+    GraphicsMode_class = DnaStrand_GraphicsMode
+    
+    #Property Manager
+    PM_class = DnaStrand_PropertyManager
     
     cmd              =  'Dna Strand'
     prefix           =  'Strand '   # used for gensym
@@ -97,8 +106,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
     call_makeMenus_for_each_event = True 
 
-    #Graphics Mode 
-    GraphicsMode_class = DnaStrand_GraphicsMode
+    
 
     #@see: self.updateHandlePositions for details on how these variables are 
     #used in computation. 
@@ -283,15 +291,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
         return bool_keep
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-        propMgr = self.win.createDnaStrandPropMgr_if_needed(self)
-        return propMgr
-
+    
     def _gatherParameters(self):
         """
         Return the parameters from the property manager UI. Delegates this to

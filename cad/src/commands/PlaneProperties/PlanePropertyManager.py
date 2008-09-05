@@ -48,7 +48,7 @@ class PlanePropertyManager(EditCommand_PM):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Insert/Reference Geometry/Plane.png"
 
-    def __init__(self, win, planeEditCommand):
+    def __init__(self, command):
         """
         Construct the Plane Property Manager.
 
@@ -61,9 +61,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.isAlreadyDisconnected = False
 
 
-        EditCommand_PM.__init__( self, 
-                                 win,
-                                 planeEditCommand) 
+        EditCommand_PM.__init__( self, command) 
 
 
 

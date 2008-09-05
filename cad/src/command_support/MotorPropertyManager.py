@@ -34,14 +34,12 @@ class MotorPropertyManager(EditCommand_PM):
     #This should be overridden in subclasses
     iconPath = "ui/actions/Simulation/Motor_JUNK.png"
 
-    def __init__(self, win, motorEditCommand):
+    def __init__(self, command):
         """
         Construct the  Motor Property Manager.
         """
 
-        EditCommand_PM.__init__( self,
-                                    win,
-                                    motorEditCommand)
+        EditCommand_PM.__init__( self, command)
 
         msg = "Attach a " + self.title + " to the selected atoms"
 

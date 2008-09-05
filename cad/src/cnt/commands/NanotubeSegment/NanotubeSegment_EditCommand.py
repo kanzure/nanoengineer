@@ -70,6 +70,8 @@ from utilities.prefs_constants import nanotubeSegmentEditCommand_cursorTextCheck
 from utilities.prefs_constants import nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key
 from utilities.prefs_constants import cursorTextColor_prefs_key
 
+from cnt.commands.NanotubeSegment.NanotubeSegment_PropertyManager import NanotubeSegment_PropertyManager
+
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
 ORIGIN = V(0,0,0)
@@ -94,6 +96,17 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     enters NanotubeSegment_Editcommand and shows the property manager with its
     widgets showing the properties of selected segment.
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "NOT_PORTED"
+    
+    #Graphics Mode 
+    GraphicsMode_class = NanotubeSegment_GraphicsMode
+    
+    #Property Manager
+    PM_class = NanotubeSegment_PropertyManager
+    
+    
     cmd              =  'Nanotube Segment'
     prefix           =  'NanotubeSegment' # used for gensym
     cmdname          = "NANOTUBE_SEGMENT"
@@ -111,9 +124,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     create_name_from_prefix  =  True 
 
     call_makeMenus_for_each_event = True 
-
-    #Graphics Mode 
-    GraphicsMode_class = NanotubeSegment_GraphicsMode
 
     #This is set to BuildDna_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
@@ -412,15 +422,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         self._resizeHandle_stopper_length = - total_length + nanotubeRise
         return
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-        propMgr = self.win.createNanotubeSegmentPropMgr_if_needed(self)
-        return propMgr
-
+    
     def _gatherParameters(self):
         """
         Return the parameters from the property manager UI.

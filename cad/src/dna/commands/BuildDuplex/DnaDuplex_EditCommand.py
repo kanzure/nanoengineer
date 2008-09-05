@@ -76,7 +76,15 @@ class DnaDuplex_EditCommand(EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    command_porting_status = "PARTIAL: 2008-09-05 : ?? check"
+    
+    
+    #Graphics Mode set to DnaLine graphics mode
+    GraphicsMode_class = DnaDuplex_GraphicsMode
+    
+    #Property Manager
+    PM_class = DnaDuplexPropertyManager
+    
     
     cmd              =  greenmsg("Build DNA: ")
     prefix           =  'DnaSegment'   # used for gensym
@@ -96,8 +104,7 @@ class DnaDuplex_EditCommand(EditCommand):
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
 
-    #Graphics Mode set to DnaLine graphics mode
-    GraphicsMode_class = DnaDuplex_GraphicsMode
+    
 
     #required by DnaLine_GM
     mouseClickPoints = []
@@ -385,16 +392,7 @@ class DnaDuplex_EditCommand(EditCommand):
         self.graphicsMode.resetVariables()
         self.win.win_update() #fixes bug 2810
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-        propMgr = DnaDuplexPropertyManager(self.win, self)
-        return propMgr
-
-
+    
     def _getStructureType(self):
         """
         Subclasses override this method to define their own structure type. 

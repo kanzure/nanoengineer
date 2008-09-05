@@ -75,7 +75,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/InsertDsDna.png"
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the DNA Duplex property manager.
         """
@@ -90,9 +90,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
                                               self._numberOfBases)
 
 
-        _superclass.__init__( self,
-                              win,
-                              command)
+        _superclass.__init__( self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \

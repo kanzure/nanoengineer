@@ -12,11 +12,18 @@ from utilities.Log  import greenmsg
 from utilities.constants import gensym
 from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
 
+from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager
+
 class BuildProtein_EditCommand(EditCommand):
     """
     BuildProtein_EditCommand provides a convenient way to edit or create
     a Protein object
     """
+    
+    #Property Manager
+    PM_class = BuildProtein_PropertyManager
+    
+    
     cmd              =  greenmsg("Build Protein: ")
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Build Protein"
@@ -30,6 +37,8 @@ class BuildProtein_EditCommand(EditCommand):
     command_can_be_suspended = True
     create_name_from_prefix  =  True
     call_makeMenus_for_each_event = True
+    
+    
 
     def __init__(self, commandSequencer, struct = None):
         """
@@ -148,15 +157,4 @@ class BuildProtein_EditCommand(EditCommand):
                                    "If you change the sequence, make sure to "\
                                    "hit Enter key at the end so that the changes "
                                    "can be saved."
-                                   "<br>"
-                               )
-
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this
-        editCommand.
-        """
-        assert not self.propMgr
-        propMgr = self.win.createBuildProteinPropMgr_if_needed(self)
-        return propMgr
- 
+                                   "<br>"  )

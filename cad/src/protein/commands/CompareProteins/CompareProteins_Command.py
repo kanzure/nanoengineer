@@ -29,6 +29,11 @@ class CompareProteins_Command(EditCommand):
     
     """
     # class constants
+    GraphicsMode_class = CompareProteins_GraphicsMode
+    
+    PM_class = CompareProteins_PropertyManager
+    
+    
     
     commandName = 'COMPARE_PROTEINS'
     featurename = "Compare Proteins"
@@ -39,7 +44,7 @@ class CompareProteins_Command(EditCommand):
     if MODEL_AND_SIMULATE_PROTEINS:
         command_parent = 'MODEL_PROTEIN'
         
-    GraphicsMode_class = CompareProteins_GraphicsMode
+    
    
     
     command_can_be_suspended = False

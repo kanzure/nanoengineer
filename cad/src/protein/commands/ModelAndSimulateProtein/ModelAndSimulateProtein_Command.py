@@ -21,6 +21,9 @@ class ModelAndSimulateProtein_Command(EditCommand):
     ModelAndSimulateProtein_EditCommand provides a convenient way to edit or create 
     or simulate a Protein object
     """
+    
+    PM_class = ModelAndSimulateProtein_PropertyManager
+    
     cmd              =  greenmsg("Model and simulate protein: ")
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Model and simulate protein"
@@ -94,7 +97,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
         return flyoutToolbar
     
     def _createPropMgrObject(self):
-        propMgr = ModelAndSimulateProtein_PropertyManager(self.w, self)
+        propMgr = ModelAndSimulateProtein_PropertyManager(self)
         return propMgr
         
             

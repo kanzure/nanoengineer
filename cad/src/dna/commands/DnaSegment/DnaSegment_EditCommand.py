@@ -82,7 +82,7 @@ from utilities.prefs_constants import dnaSegmentResizeHandle_discThickness_prefs
 from utilities.prefs_constants import cursorTextColor_prefs_key
 from dna.model.Dna_Constants import getDuplexLength
 
-
+from dna.commands.DnaSegment.DnaSegment_PropertyManager import DnaSegment_PropertyManager
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
@@ -105,7 +105,13 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    command_porting_status = "PARTIAL: 2008-09-05:?? check"
+    
+    #Graphics Mode 
+    GraphicsMode_class = DnaSegment_GraphicsMode
+    
+    #Property Manager
+    PM_class = DnaSegment_PropertyManager
     
     
     cmd              =  'Dna Segment'
@@ -129,8 +135,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     call_makeMenus_for_each_event = True 
 
-    #Graphics Mode 
-    GraphicsMode_class = DnaSegment_GraphicsMode
+    
 
     #This is set to BuildDna_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
@@ -228,7 +233,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.grabbedHandle = None
 
 
-    def command_enter_PM(self):
+    def ORIG_command_enter_PM(self):
         """
         See superclass dor documentation.
         """
@@ -617,15 +622,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self._resizeHandle_stopper_length = - total_length + two_bases_length
 
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-        propMgr = self.win.createDnaSegmentPropMgr_if_needed(self)
-        return propMgr
-
+    
     def _gatherParameters(self):
         """
         Return the parameters from the property manager UI.

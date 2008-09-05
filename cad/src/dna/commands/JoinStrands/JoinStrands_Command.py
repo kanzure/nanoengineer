@@ -26,13 +26,9 @@ class JoinStrands_Command(BreakOrJoinStrands_Command):
     commandName = 'JOIN_STRANDS'
     featurename = "Join Strands"   
 
-    GraphicsMode_class = JoinStrands_GraphicsMode    
-    
-    def _createPropMgrObject(self):
-        propMgr = JoinStrands_PropertyManager(self)
-        return propMgr    
-
-    
+    GraphicsMode_class = JoinStrands_GraphicsMode 
+    PM_class = JoinStrands_PropertyManager
+        
     def _get_init_gui_flyout_action_string(self):
         return 'joinStrandsAction'
     

@@ -29,6 +29,11 @@ class EditRotamers_Command(EditCommand):
     
     """
     # class constants
+    GraphicsMode_class = EditRotamers_GraphicsMode
+    
+    PM_class = EditRotamers_PropertyManager
+    
+    
     
     commandName = 'EDIT_ROTAMERS'
     featurename = "Edit Rotamers"
@@ -39,7 +44,7 @@ class EditRotamers_Command(EditCommand):
     if MODEL_AND_SIMULATE_PROTEINS:
         command_parent = 'MODEL_PROTEIN'
         
-    GraphicsMode_class = EditRotamers_GraphicsMode
+    
    
     
     command_can_be_suspended = False

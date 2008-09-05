@@ -48,7 +48,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
     @see: DnaDuplexPropertyManager (subclass)
     """
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the DNA Duplex property manager.
         """
@@ -70,9 +70,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
         self.isAlreadyDisconnected = False
         
 
-        _superclass.__init__( self, 
-                              win,
-                              command)
+        _superclass.__init__( self, command)
 
         DebugMenuMixin._init1( self )
         

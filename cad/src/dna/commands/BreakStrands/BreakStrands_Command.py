@@ -27,10 +27,9 @@ class BreakStrands_Command(BreakOrJoinStrands_Command):
     commandName = 'BREAK_STRANDS'
     featurename = "Break Strands"    
     GraphicsMode_class = BreakStrands_GraphicsMode
+    PM_class = BreakStrands_PropertyManager
     
-    def _createPropMgrObject(self):
-        propMgr = BreakStrands_PropertyManager(self)
-        return propMgr    
+    
     
     def _get_init_gui_flyout_action_string(self):
         return 'breakStrandAction'

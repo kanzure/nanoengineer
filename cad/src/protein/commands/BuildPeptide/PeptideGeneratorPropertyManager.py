@@ -90,11 +90,11 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
     # The relative path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Peptide.png"
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Construct the "Build Graphene" Property Manager.
         """
-        _superclass.__init__( self, win, command )
+        _superclass.__init__( self, command )
                
                
         self.showTopRowButtons( PM_DONE_BUTTON | \

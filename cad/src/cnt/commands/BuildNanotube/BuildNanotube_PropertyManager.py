@@ -63,7 +63,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the Build Nanotube property manager.
         """
@@ -77,9 +77,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.sequenceEditor = None              
         
-        EditCommand_PM.__init__( self, 
-                                    win,
-                                    command)
+        EditCommand_PM.__init__( self, command)
 
 
         DebugMenuMixin._init1( self )

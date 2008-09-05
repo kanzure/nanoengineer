@@ -43,6 +43,10 @@ class MakeCrossovers_Command(SelectChunks_Command,
     #Temporary attr 'command_porting_status. See baseCommand for details.
     command_porting_status =  None
     
+    GraphicsMode_class = MakeCrossovers_Graphicsmode
+    
+    PM_class = MakeCrossovers_PropertyManager
+    
     # class constants    
     commandName = 'MAKE_CROSSOVERS'
     featurename = "Make Crossovers"
@@ -57,9 +61,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
     
     flyoutToolbar = None    
     
-    GraphicsMode_class = MakeCrossovers_Graphicsmode
     
-    PM_class = MakeCrossovers_PropertyManager
     
                 
     def Enter(self):

@@ -24,10 +24,15 @@ import foundation.env as env
 from utilities.prefs_constants import cursorTextColor_prefs_key
 
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
+from protein.commands.BuildPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager
+
 #_superclass = ModelAndSimulateProtein_Command
 _superclass = EditCommand
 class Peptide_EditCommand(EditCommand):
 #class Peptide_EditCommand(ModelAndSimulateProtein_Command):
+
+    PM_class = PeptideGeneratorPropertyManager
+    
     cmd              =  greenmsg("Build Peptide: ")
     prefix           =  'Peptide'   # used for gensym
     cmdname          = 'Build Peptide'
@@ -293,17 +298,7 @@ class Peptide_EditCommand(EditCommand):
                                )
         return
     
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-
-        propMgr = self.win.createBuildPeptidePropMgr_if_needed(self)
-
-        return propMgr
-    
+       
             
     def _getStructureType(self):
         """

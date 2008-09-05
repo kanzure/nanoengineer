@@ -45,21 +45,19 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     #change this ico path later
     iconPath      =  "ui/actions/Tools/Build Structures/Peptide.png"
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the Build DNA property manager.
         """
-        self.win = win
+       
         self.current_protein = ""
-        self.sequenceEditor = win.createProteinSequenceEditorIfNeeded() 
+        self.sequenceEditor = command.win.createProteinSequenceEditorIfNeeded() 
         
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False           
         
-        EditCommand_PM.__init__( self, 
-                                    win,
-                                    command)
+        EditCommand_PM.__init__( self, command)
 
 
         DebugMenuMixin._init1( self )

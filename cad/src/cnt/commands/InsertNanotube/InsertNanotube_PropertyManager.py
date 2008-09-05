@@ -66,7 +66,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/InsertNanotube.png"
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the Nanotube property manager.
         """
@@ -75,9 +75,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.nanotube = Nanotube() # A 5x5 CNT.
 
-        _superclass.__init__( self,
-                                 win,
-                                 command)
+        _superclass.__init__( self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \

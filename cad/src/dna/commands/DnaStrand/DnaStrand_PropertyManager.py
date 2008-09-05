@@ -59,7 +59,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     title         =  "DnaStrand Properties"
     iconPath      =  "ui/actions/Properties Manager/Strand.png"
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the Build DNA property manager.
         """
@@ -71,9 +71,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         self.dnaModel = 'PAM3'
         
         
-        _superclass.__init__( self, 
-                              win,
-                              command)
+        _superclass.__init__( self, command)
 
 
         

@@ -37,6 +37,7 @@ from widgets.prefs_widgets  import ObjAttr_StateRef
 from dna.commands.DnaSegment.DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
 from utilities.debug import print_compact_stack
 from dna.command_support.DnaSegmentList import DnaSegmentList
+from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_PropertyManager import MultipleDnaSegmentResize_PropertyManager
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 4.0
@@ -47,7 +48,13 @@ _superclass = DnaSegment_EditCommand
 class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring; may be some update code needs to be in methods like command_update_internal_state"
+    command_porting_status = "PARTIAL: 2008-09-05: may be some update code needs to be in methods like command_update_internal_state"
+    
+    #Graphics Mode 
+    GraphicsMode_class = MultipleDnaSegmentResize_GraphicsMode
+    
+    #Property Manager
+    PM_class = MultipleDnaSegmentResize_PropertyManager
 
     cmdname = 'MULTIPLE_DNA_SEGMENT_RESIZE' # REVIEW: needed? correct?
 
@@ -65,8 +72,7 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
     #@see: self.modifyStructure()
     currentStruct = None
 
-    #Graphics Mode 
-    GraphicsMode_class = MultipleDnaSegmentResize_GraphicsMode
+    
 
 
     handlePoint1 = State( Point, ORIGIN)
@@ -652,11 +658,4 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
 
         return numberOfBasesToAddOrRemove
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager object (that defines UI things) for this 
-        command. 
-        """
-        assert not self.propMgr
-        propMgr = self.win.createMultipleDnaSegmentPropMgr_if_needed(self)
-        return propMgr
+    

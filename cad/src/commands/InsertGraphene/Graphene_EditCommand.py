@@ -21,6 +21,7 @@ from commands.InsertGraphene.GrapheneGenerator import GrapheneGenerator
 from utilities.constants import gensym
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from ne1_ui.toolbars.Ui_GrapheneFlyout import GrapheneFlyout
+from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
 
 _superclass = EditCommand
 class Graphene_EditCommand(EditCommand):
@@ -38,6 +39,9 @@ class Graphene_EditCommand(EditCommand):
     flyoutToolbar = None
     
     GraphicsMode_class = SelectChunks_GraphicsMode
+    
+    #Property Manager 
+    PM_class = GrapheneGeneratorPropertyManager
     
     def _gatherParameters(self):
         """
@@ -106,17 +110,7 @@ class Graphene_EditCommand(EditCommand):
 
         self.struct = self._createStructure()
     
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-
-        propMgr = self.win.createBuildGraphenePropMgr_if_needed(self)
-
-        return propMgr
-    
+        
     def command_enter_flyout(self):
         """
         Overrides superclass method. 
@@ -155,9 +149,3 @@ class Graphene_EditCommand(EditCommand):
         """
         return self.win.assy.Chunk
         
-        
-    
-    
-    
-    
-    

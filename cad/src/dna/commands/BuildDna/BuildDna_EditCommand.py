@@ -35,6 +35,8 @@ from model.chunk import Chunk
 from model.bonds import Bond
 
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
+from dna.commands.BuildDna.BuildDna_PropertyManager import BuildDna_PropertyManager
+
 
 class BuildDna_EditCommand(EditCommand):
     """
@@ -43,7 +45,13 @@ class BuildDna_EditCommand(EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    command_porting_status = None
+    
+    #GraphicsMode
+    GraphicsMode_class = BuildDna_GraphicsMode
+    
+    #Property Manager
+    PM_class = BuildDna_PropertyManager
     
     cmd              =  greenmsg("Build DNA: ")
     prefix           =  'DnaGroup'   # used for gensym
@@ -53,8 +61,8 @@ class BuildDna_EditCommand(EditCommand):
     featurename       = "Build Dna"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
-
-    GraphicsMode_class = BuildDna_GraphicsMode
+    
+    
 
     command_should_resume_prevMode = False
     command_has_its_own_PM = True
@@ -235,17 +243,7 @@ class BuildDna_EditCommand(EditCommand):
         """
         return self.win.assy.DnaGroup
 
-
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this
-        editCommand.
-        """
-        assert not self.propMgr
-        propMgr = self.win.createBuildDnaPropMgr_if_needed(self)
-        return propMgr
-
-
+    
     def _createStructure(self):
         """
         creates and returns the structure (in this case a L{Group} object that

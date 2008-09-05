@@ -25,7 +25,7 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     """   
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-0--05: needs PM_class refactoring"
+    command_porting_status = "PARTIAL: 2008-0--05: ?? check"
     
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
@@ -36,16 +36,7 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     command_has_its_own_PM = True
     
     flyoutToolbar = None      
-    
-    
-        
-    def _createPropMgrObject(self):
-        """
-        Overrides superclass method and also raises an abstract method. 
-        Break and join strands must override this method in order to create their
-        own PM  objects. 
-        """
-        raise AbstractMethod()      
+         
     
     def _get_init_gui_flyout_action_string(self):
         raise AbstractMethod

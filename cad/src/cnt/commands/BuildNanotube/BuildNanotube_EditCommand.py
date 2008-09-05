@@ -37,12 +37,21 @@ from model.bonds import Bond
 ##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
 from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode
+from cnt.commands.BuildNanotube.BuildNanotube_PropertyManager import BuildNanotube_PropertyManager
+
 
 class BuildNanotube_EditCommand(EditCommand):
     """
     BuildNanotube_EditCommand provides a convenient way to edit or create
     a NanotubeGroup object     
     """
+    
+    #GraphicsMode
+    GraphicsMode_class = BuildNanotube_GraphicsMode
+    
+    #PropertyManager
+    PM_class = BuildNanotube_PropertyManager
+    
     cmd              =  greenmsg("Build Nanotube: ")
     prefix           =  'NanotubeGroup' # used for gensym
     cmdname          = "Build Nanotube"
@@ -51,8 +60,6 @@ class BuildNanotube_EditCommand(EditCommand):
     featurename       = "Build Nanotube"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
-
-    GraphicsMode_class = BuildNanotube_GraphicsMode
 
     command_should_resume_prevMode = False
     command_has_its_own_PM = True
@@ -214,17 +221,6 @@ class BuildNanotube_EditCommand(EditCommand):
         @see: EditCommand._getStructureType() 
         """
         return self.win.assy.NanotubeGroup
-
-
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr        
-        propMgr = self.win.createBuildNanotubePropMgr_if_needed(self)
-        return propMgr
-
 
     def _createStructure(self):
         """

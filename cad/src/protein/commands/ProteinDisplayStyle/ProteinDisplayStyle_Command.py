@@ -33,13 +33,15 @@ class ProteinDisplayStyle_Command(EditCommand):
     """
     # class constants
     
+    GraphicsMode_class = ProteinDisplayStyle_GraphicsMode
+    
+    PM_class = ProteinDisplayStyle_PropertyManager
+    
+    
     commandName = 'EDIT_PROTEIN_DISPLAY_STYLE'
     featurename = "Protein Display Style"
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
-         
-    GraphicsMode_class = ProteinDisplayStyle_GraphicsMode
-   
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 

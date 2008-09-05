@@ -30,13 +30,17 @@ class FixedBBProteinSim_Command(EditCommand):
     """
     # class constants
     
+    GraphicsMode_class = FixedBBProteinSim_GraphicsMode
+    
+    PM_class = FixedBBProteinSim_PropertyManager
+    
     commandName = 'FIXED_BACKBONE_PROTEIN_SEQUENCE_DESIGN'
     featurename = "Fixed Backbone Sequence Design"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'SIMULATE_PROTEIN'
       
-    GraphicsMode_class = FixedBBProteinSim_GraphicsMode
+    
    
     
     command_can_be_suspended = False

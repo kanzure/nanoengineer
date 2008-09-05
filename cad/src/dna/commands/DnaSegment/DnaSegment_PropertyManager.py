@@ -54,7 +54,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
     title         =  "DnaSegment Properties"
     iconPath      =  "ui/actions/Tools/Build Structures/DNA.png"
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the Build DNA property manager.
         """
@@ -69,7 +69,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         self.basesPerTurn = 10
         self.dnaModel = 'PAM3'
 
-        _superclass.__init__( self,  win, command)
+        _superclass.__init__( self, command)
 
 
         self.showTopRowButtons( PM_DONE_BUTTON | \

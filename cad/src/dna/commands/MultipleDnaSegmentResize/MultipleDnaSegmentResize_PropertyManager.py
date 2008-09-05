@@ -39,7 +39,7 @@ class MultipleDnaSegmentResize_PropertyManager( DnaOrCnt_PropertyManager ):
     title         =  "Resize Dna Segments"
     iconPath      =  "ui/actions/Properties Manager/Resize_Multiple_Segments.png"
         
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the Build DNA property manager.
         """
@@ -54,9 +54,7 @@ class MultipleDnaSegmentResize_PropertyManager( DnaOrCnt_PropertyManager ):
         self.basesPerTurn = 10
         self.dnaModel = 'PAM3'
         
-        _superclass.__init__( self, 
-                                    win,
-                                    command)
+        _superclass.__init__( self,  command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)

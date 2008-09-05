@@ -30,6 +30,8 @@ class BackrubProteinSim_Command(EditCommand):
     Class for protein sequence design with rosetta when backrub motion is allowed
     """
     # class constants
+    GraphicsMode_class = BackrubProteinSim_GraphicsMode
+    PM_class = BackrubProteinSim_PropertyManager
     
     commandName = 'BACKRUB_PROTEIN_SEQUENCE_DESIGN'
     featurename = "Backrub Protein Sequence Design"
@@ -43,7 +45,7 @@ class BackrubProteinSim_Command(EditCommand):
     
     command_parent = 'SIMULATE_PROTEIN'
       
-    GraphicsMode_class = BackrubProteinSim_GraphicsMode
+    
    
     command_can_be_suspended = False
     command_should_resume_prevMode = True 

@@ -38,19 +38,20 @@ class DnaDisplayStyle_Command(EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05: needs PM_class refactoring"
+    command_porting_status = "PARTIAL: 2008-09-05: ?? check"
     
     
     # class constants
+    
+    GraphicsMode_class = DnaDisplayStyle_GraphicsMode
+    
+    PM_class = DnaDisplayStyle_PropertyManager
     
     commandName = 'EDIT_DNA_DISPLAY_STYLE'
     featurename = "DNA Display Style"
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
 
-    GraphicsMode_class = DnaDisplayStyle_GraphicsMode
-   
-    
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
@@ -84,24 +85,7 @@ class DnaDisplayStyle_Command(EditCommand):
             
      #START new command API methods =============================================
         
-    def command_enter_PM(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_enter_PM()  for documentation
-        """
-        #important to check for old propMgr object. Reusing propMgr object 
-        #significantly improves the performance.
-        if not self.propMgr:
-            self.propMgr = self._createPropMgrObject()
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- ninad 2007-08-29
-            changes.keep_forever(self.propMgr)  
-            
-        
-        if not USE_COMMAND_STACK:
-            self.propMgr.show()    
+      
             
             
     def command_enter_flyout(self):
@@ -119,14 +103,7 @@ class DnaDisplayStyle_Command(EditCommand):
         """
         if self.flyoutToolbar:
             self.flyoutToolbar.editDnaDisplayStyleAction.setChecked(False)
-            
-            
-    def _createPropMgrObject(self):
-        propMgr = DnaDisplayStyle_PropertyManager(self)
-        return propMgr
-    
-    
-   
+
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 

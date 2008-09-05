@@ -65,7 +65,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     sponsor_keyword = None # Nanorex is the sponsor. Change to 'DNA' to the
                              # the NUPACK logo.
 
-    def __init__( self, win, command ):
+    def __init__( self, command ):
         """
         Constructor for the Build DNA property manager.
         """
@@ -79,9 +79,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False           
         
-        EditCommand_PM.__init__( self, 
-                                    win,
-                                    command)
+        EditCommand_PM.__init__( self, command)
 
 
         DebugMenuMixin._init1( self )

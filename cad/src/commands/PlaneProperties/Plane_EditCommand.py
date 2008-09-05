@@ -33,6 +33,8 @@ from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMo
 from utilities.Comparison import same_vals
 from utilities.prefs_constants import PlanePM_showGridLabels_prefs_key, PlanePM_showGrid_prefs_key
 
+from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
+
 class Plane_EditCommand(EditCommand):
     """
     The Plane_EditCommand class  provides an editCommand Object.
@@ -41,6 +43,8 @@ class Plane_EditCommand(EditCommand):
     """
 
     #@NOTE: self.struct is the Plane object
+    
+    PM_class = PlanePropertyManager
 
     cmd = greenmsg("Plane: ")
     #
@@ -126,18 +130,7 @@ class Plane_EditCommand(EditCommand):
         """
         return Plane
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-
-        propMgr = self.win.createPlanePropMgr_if_needed(self)
-
-        return propMgr
-
-
+    
     def placePlaneParallelToScreen(self):
         """
         Orient this plane such that it is placed parallel to the screen

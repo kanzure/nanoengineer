@@ -17,6 +17,7 @@ from operations.jigmakers_Mixin import atom_limit_exceeded_and_confirmed
 from command_support.EditCommand import EditCommand
 
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
+from commands.RotaryMotorProperties.RotaryMotorPropertyManager import RotaryMotorPropertyManager
 
 class RotaryMotor_EditCommand(EditCommand):
     """
@@ -24,6 +25,12 @@ class RotaryMotor_EditCommand(EditCommand):
     The editCommand, depending on what client code needs it to do, may create
     a new rotary motor or it may be used for an existing rotary motor. 
     """
+    #GraphicsMode
+    GraphicsMode_class = SelectAtoms_GraphicsMode
+    
+    #Property Manager
+    PM_class = RotaryMotorPropertyManager
+    
     cmd = greenmsg("Rotary Motor: ")
     #
     prefix = '' # Not used by jigs.
@@ -41,7 +48,7 @@ class RotaryMotor_EditCommand(EditCommand):
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
 
-    GraphicsMode_class = SelectAtoms_GraphicsMode
+    
 
     def __init__(self, commandSequencer, struct = None):
         """
@@ -200,16 +207,6 @@ class RotaryMotor_EditCommand(EditCommand):
         self.win.win_update() # Update model tree
         self.win.assy.changed()     
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-
-        propMgr = self.win.createRotaryMotorPropMgr_if_needed(self)
-
-        return propMgr
     ##=====================================##
 
     def _checkMotorAtomLimits(self, numberOfAtoms):

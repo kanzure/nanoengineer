@@ -29,6 +29,11 @@ class EditResidues_Command(EditCommand):
     
     """
     # class constants
+    GraphicsMode_class = EditResidues_GraphicsMode
+    
+    PM_class = EditResidues_PropertyManager
+    
+    
     
     commandName = 'EDIT_RESIDUES'
     featurename = "Edit Residues"
@@ -39,7 +44,7 @@ class EditResidues_Command(EditCommand):
     if MODEL_AND_SIMULATE_PROTEINS:
         command_parent = 'SIMULATE_PROTEIN'
         
-    GraphicsMode_class = EditResidues_GraphicsMode
+    
    
     
     command_can_be_suspended = False

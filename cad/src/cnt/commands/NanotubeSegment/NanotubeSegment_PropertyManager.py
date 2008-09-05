@@ -51,7 +51,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
 
-    def __init__( self, win, command ):
+    def __init__( self,  command ):
         """
         Constructor for the Cnt Segment Properties property manager.
         """
@@ -68,9 +68,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         self.endPoint1 = V(0, 0, 0)
         self.endPoint2 = V(0, 0, 0)
         
-        _superclass.__init__( self, 
-                                    win,
-                                    command)
+        _superclass.__init__( self, command)
 
         
         self.showTopRowButtons( PM_DONE_BUTTON | \

@@ -503,9 +503,9 @@ class basicCommand(anyCommand):
             #@bug BUG: following is a workaround for bug 2494.
             #This bug is mitigated as propMgr object no longer gets recreated
             #for modes -- ninad 2007-08-29
-            changes.keep_forever(self.propMgr)  
-            
-            
+            if self.propMgr:
+                changes.keep_forever(self.propMgr)  
+                        
     if not USE_COMMAND_STACK:
         def command_exit_PM(self):
             """

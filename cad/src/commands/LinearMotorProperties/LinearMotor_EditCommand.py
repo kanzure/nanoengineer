@@ -17,6 +17,7 @@ from operations.jigmakers_Mixin import atom_limit_exceeded_and_confirmed
 from command_support.EditCommand import EditCommand
 
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
+from commands.LinearMotorProperties.LinearMotorPropertyManager import LinearMotorPropertyManager
 
 class LinearMotor_EditCommand(EditCommand):
     """
@@ -24,6 +25,9 @@ class LinearMotor_EditCommand(EditCommand):
     The editCommand, depending on what client code needs it to do, may create
     a new linear motor or it may be used for an existing linear motor. 
     """
+    
+    PM_class = LinearMotorPropertyManager
+    
     cmd = greenmsg("Linear Motor: ")
     #
     prefix = '' # Not used by jigs.
@@ -190,16 +194,7 @@ class LinearMotor_EditCommand(EditCommand):
         self.win.win_update() # Update model tree
         self.win.assy.changed()     
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager  object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-
-        propMgr = self.win.createLinearMotorPropMgr_if_needed(self)
-
-        return propMgr
+    
     ##=====================================##
 
     def _checkMotorAtomLimits(self, numberOfAtoms):

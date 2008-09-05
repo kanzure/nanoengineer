@@ -61,6 +61,12 @@ class InsertNanotube_EditCommand(EditCommand):
     #Temporary attr 'command_porting_status. See baseCommand for details.
     command_porting_status = "NOT_PORTED"
     
+    #Graphics Mode set to CntLine graphics mode
+    GraphicsMode_class = NanotubeLine_GM
+    
+    #Property Manager
+    PM_class = InsertNanotube_PropertyManager
+    
     
     cmd              =  greenmsg("Insert Nanotube: ")
     prefix           =  'Nanotube'   # used for gensym
@@ -80,9 +86,7 @@ class InsertNanotube_EditCommand(EditCommand):
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
 
-    #Graphics Mode set to CntLine graphics mode
-    GraphicsMode_class = NanotubeLine_GM
-
+    
     #required by NanotubeLine_GM
     mouseClickPoints = []
 
@@ -225,15 +229,7 @@ class InsertNanotube_EditCommand(EditCommand):
         self.graphicsMode.resetVariables()
 
 
-    def _createPropMgrObject(self):
-        """
-        Creates a property manager object (that defines UI things) for this 
-        editCommand. 
-        """
-        assert not self.propMgr
-        propMgr = InsertNanotube_PropertyManager(self.win, self)
-        return propMgr
-
+    
     def _getStructureType(self):
         """
         Subclasses override this method to define their own structure type. 

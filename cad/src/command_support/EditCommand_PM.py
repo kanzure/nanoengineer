@@ -36,7 +36,7 @@ class EditCommand_PM(PM_Dialog):
     # The relative path to the PNG file that appears in the header
     iconPath = ""
 
-    def __init__(self, win, command = None):
+    def __init__(self, command):
         """
         Constructor for the EditCommand_PM
         """
@@ -50,13 +50,9 @@ class EditCommand_PM(PM_Dialog):
         # might be one of them .--- ninad 20070613
 
         self.command = command
-        if command:
-            self.struct = self.command.struct
-        else:
-            self.struct = None
 
-        self.win      =  win
-        self.w = win
+        self.win =  self.command.win
+        self.w = self.command.win
         self.pw       =  None
         
         PM_Dialog.__init__(self,
@@ -73,8 +69,8 @@ class EditCommand_PM(PM_Dialog):
         """
         assert command
         self.command = command
-        self.struct = self.command.struct
-
+        
+        
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show)
@@ -148,8 +144,8 @@ class EditCommand_PM(PM_Dialog):
         # [ninad 2007-10-09 comment]
 
         #called from updatePropertyManager in Ui_PartWindow.py (Partwindowclass)
-        if hasattr(self.struct, 'updateCosmeticProps'):
-            self.struct.updateCosmeticProps()
+        if self.command.struct and hasattr(self.command.struct, 'updateCosmeticProps'):
+            self.command.struct.updateCosmeticProps()
         self.enable_or_disable_gui_actions(bool_enable = True)
 
     def enable_or_disable_gui_actions(self, bool_enable = False):
