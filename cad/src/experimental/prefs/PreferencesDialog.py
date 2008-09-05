@@ -61,12 +61,14 @@ class ContainerWidget(QFrame):
 
     _rowCount = 0
     _widgetList = []
+    _groupBoxCount = 0
+    _lastGroupBox = None
     
     def __init__(self, name):
         """
         Creates a container widget within the page widget
         """
-        QWidget.__init__(self)
+        QFrame.__init__(self)
         self.name = name
         self.setObjectName(name)
         if DEBUG:
@@ -327,11 +329,6 @@ class PageWidget(QWidget):
         self.setObjectName(name)
         self.containerList = []
 
-        # _containerWidget is the container widget.
-        _containerWidget = ContainerWidget(name + "_1")
-        _containerWidget.setObjectName(name + "_1")
-        self.containerList.append(_containerWidget)
-
         # Horizontal spacer
         hSpacer = QtGui.QSpacerItem(1, 1, 
                                     QSizePolicy.Expanding, 
@@ -340,8 +337,13 @@ class PageWidget(QWidget):
         self.hBoxLayout = QtGui.QHBoxLayout(self)
         self.hBoxLayout.setMargin(0)
         self.hBoxLayout.setSpacing(0)
-        self.hBoxLayout.addWidget(_containerWidget)
         self.hBoxLayout.addItem(hSpacer)
+        # add the base container widget
+        container = self.addContainer(name + "_1")
+#        print container
+#        scrollArea = QScrollArea()
+#        scrollArea.setWidget(container)
+#        container.scrollarea = scrollArea
 
         return
 
@@ -355,9 +357,9 @@ class PageWidget(QWidget):
             indx = len(self.containerList)
         # create some theoretically unique name if None is given
         if containerName == None:
-            containerName = self.name + "_" + (len(self.containerList) + 1)
+            containerName = self.name + "_" + str((len(self.containerList) + 1))
         # create the container and name it
-        _containerWidget = ContainerWidget(self, containerName)
+        _containerWidget = ContainerWidget(containerName)
         _containerWidget.setObjectName(containerName)
         # add the container into the page
         self.containerList.insert(indx, _containerWidget)
@@ -420,6 +422,13 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                     "Reports",
                     "Tooltips"]
     
+    #NOTE: when creating the function names for populating the pages with 
+    # widgets...  Create the function name by replacing all spaces with 
+    # underscores and removing all characters that are not ascii 
+    # letters or numbers, and appending the result to "populate_"
+    # ex. "Zoom, Pan and Rotate" has the function:
+    #     populate_Zoom_Pan_and_Rotate()
+    
     pagenameDict = {}
 
     def __init__(self):
@@ -430,6 +439,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.setupUi(self)
         self._setupDialog_TopLevelWidgets()
         self._addPages(self.pagenameList)
+        self.populatePages()
         return
 
     def _setupDialog_TopLevelWidgets(self):
@@ -494,12 +504,6 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                 self._addPages(pagenameList[x+1], page_tree_slot)
                 x = x + 1
 
-            # Add test widgets for debugging
-            if DEBUG:
-                _pageContainer = page_widget.getPageContainers()
-                _pageContainer = _pageContainer[0]
-                self._addPageTestWidgets(_pageContainer)
-
         return
 
     def addPage(self, page, myparent = None):
@@ -547,28 +551,29 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         _pref_CheckBox = PM_CheckBox(page_widget, text ="nothing interesting", \
                                      widgetColumn = 1)
         #N means this PM widget currently does not work.
-#N        _pmGroupBox1 = PM_GroupBox( self, title = "Endpoints" )
-#N        _endPoint1SpinBoxes = PM_CoordinateSpinBoxes(self._pmGroupBox1,
-#                                                          label = "test 1")
-        duplexLengthLineEdit  =  \
-            PM_LineEdit(page_widget, label =  "something\non the next line",
-                         text          =  "default text",
-                         setAsDefault  =  False)
+        _pmGroupBox1 = PM_GroupBox( page_widget, title = "Test of GB",
+                                    connectTitleButton = False)
+#N        _endPoint1SpinBoxes = PM_CoordinateSpinBoxes(_pmGroupBox1)
+#        duplexLengthLineEdit  =  \
+#            PM_LineEdit(page_widget, label =  "something\non the next line",
+#                         text          =  "default text",
+#                         setAsDefault  =  False)
         pushbtn = PM_PushButton(page_widget, label = "Click here",
                                  text = "here")
         radio1 = PM_RadioButton(page_widget, text = "self button1")
         radio2 = PM_RadioButton(page_widget, text = "self button2")
-#N        radiobtns = PM_RadioButtonList (page_widget, title = "junk", 
-#                                        label = "junk2", 
-#                                        buttonList = ["btn1", "btn2"])
+        radiobtns = PM_RadioButtonList (_pmGroupBox1, title = "junk", 
+                                        label = "junk2", 
+                                        buttonList = [[ 1, "btn1", "btn1"],
+                                                      [ 2, "btn2", "btn2"]])
         slider1 = PM_Slider(page_widget, label = "slider 1:")
-        table1 = PM_TableWidget(page_widget, label = "table:")
-        TE1 = PM_TextEdit(page_widget, label = "QMX")
-#N        TB1 = PM_ToolButton(page_widget, label = "tb1", text = "text1")
+#        table1 = PM_TableWidget(page_widget, label = "table:")
+#        TE1 = PM_TextEdit(page_widget, label = "QMX")
+#N        TB1 = PM_ToolButton(_pmGroupBox1, label = "tb1", text = "text1")
         radio3 = PM_RadioButton(page_widget, text = "self button3")
-        SB = PM_SpinBox(page_widget, label = "SB", suffix = "x2")
-        DBS = PM_DoubleSpinBox(page_widget, label = "test", suffix = "x3", singleStep = .1)
-        Dial = PM_Dial( page_widget, label = "Direction", suffix = "degrees")
+#        SB = PM_SpinBox(page_widget, label = "SB", suffix = "x2")
+#        DBS = PM_DoubleSpinBox(page_widget, label = "test", suffix = "x3", singleStep = .1)
+#        Dial = PM_Dial( page_widget, label = "Direction", suffix = "degrees")
 
         return
         
@@ -584,6 +589,30 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             return
         return self.prefsStackedWidget.widget(self.pagenameDict[pagename])
     
+    def populatePages(self):
+        import string
+        for name in self.pagenameDict:
+            # create the function name by replacing spaces with "_" and 
+            # removing everything that is not an _, ascii letter, or number
+            # and appending that to populate_
+            fname = "populate_%s" % "".join([ x for x in name.replace(" ","_") \
+                                              if (x in string.ascii_letters or\
+                                                  x in string.digits \
+                                                  or x == "_") ])
+            # Make sure the class has that object defined before calling it.
+            if hasattr(self, fname):
+                fcall = getattr(self, fname)
+                if callable(fcall):
+                    if DEBUG:
+                        print "method defined: %s" % fname
+                    fcall(name)
+                else:
+                    print "Attribute %s exists, but is not a callable method."
+            else:
+                if DEBUG:
+                    print "method missing: %s" % fname
+        return
+
     def showPage(self, pagename = ""):
         """
         Show the current page of the Preferences dialog. If no page is
@@ -620,6 +649,171 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         #containers = self.getPage(pagename).getPageContainers()
         #print containers
         return
+
+    def populate_General(self, pagename):
+        """
+        Populate the General page
+        """
+        print "populate_General: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+
+    def populate_Tooltips(self, pagename):
+        print "populate_Tooltips: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        slider2 = PM_Slider(_pageContainer, label = "slider 2:")
+        return
+    
+    def populate_Reports(self, pagename):
+        print "populate_Reports: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_DNA(self, pagename):
+        print "populate_DNA: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Bonds(self, pagename):
+        print "populate_Bonds: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Rules(self, pagename):
+        print "populate_Rules: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Plugins(self, pagename):
+        print "populate_Plugins: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Adjust(self, pagename):
+        print "populate_Adjust: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Atoms(self, pagename):
+        print "populate_Atoms: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Window(self, pagename):
+        print "populate_Window: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Graphics_Area(self, pagename):
+        print "populate_Graphics_Area: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Base_orientation_indicator(self, pagename):
+        print "populate_Base_orientation_indicator: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Undo(self, pagename):
+        print "populate_Undo: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Zoom_Pan_and_Rotate(self, pagename):
+        print "populate_Zoom_Pan_and_Rotate: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Lighting(self, pagename):
+        print "populate_Lighting: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
+    def populate_Minor_groove_error_indicator(self, pagename):
+        print "populate_Minor_groove_error_indicator: %s" % pagename
+        page_widget = self.getPage(pagename)
+        _pageContainer = page_widget.getPageContainers()
+        _pageContainer = _pageContainer[0]
+        if DEBUG:
+            self._addPageTestWidgets(_pageContainer)
+            #page_widget.addContainer()
+        return
+    
 
 # End of PreferencesDialog class
 
