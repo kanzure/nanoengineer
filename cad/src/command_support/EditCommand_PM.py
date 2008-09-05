@@ -58,17 +58,12 @@ class EditCommand_PM(PM_Dialog):
         self.win      =  win
         self.w = win
         self.pw       =  None
-        self.modePropertyManager = None
-
-
+        
         PM_Dialog.__init__(self,
                            self.pmName,
                            self.iconPath,
                            self.title
-                       )
-
-        self._createFlyoutActions()
-        
+                       )       
         
         if KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(True)
@@ -91,7 +86,7 @@ class EditCommand_PM(PM_Dialog):
             self.connect_or_disconnect_signals(True)
             
         self.enable_or_disable_gui_actions(bool_enable = False)
-        self.updateCommandToolbar(bool_entering = True)
+        
 
     def close(self):
         """
@@ -106,7 +101,6 @@ class EditCommand_PM(PM_Dialog):
             self.connect_or_disconnect_signals(False)
             
         self.enable_or_disable_gui_actions(bool_enable = True)
-        self.updateCommandToolbar(bool_entering = False)
         PM_Dialog.close(self)
 
     def connect_or_disconnect_signals(self, isConnect):
@@ -117,15 +111,8 @@ class EditCommand_PM(PM_Dialog):
                           method.
         @type  isConnect: boolean
         """
-        if isConnect:
-            change_connect = self.win.connect
-        else:
-            change_connect = self.win.disconnect
-
-        if self.exitEditCommandAction:
-            change_connect(self.exitEditCommandAction,
-                           SIGNAL("triggered()"),
-                           self.close)
+        pass
+    
 
     def _update_widgets_in_PM_before_show(self):
         """
@@ -230,62 +217,4 @@ class EditCommand_PM(PM_Dialog):
         Implements Restore defaults button
         """
         pass
-
-    def enter_WhatsThisMode(self):
-        """
-        Show what's this text
-        """
-        pass
-
-    def _createFlyoutActions(self):
-        self.exitEditCommandAction = NE1_QWidgetAction(self.win, win = self.win)
-        if self.command:
-            text = "Exit " + self.command.cmdname
-        else:
-            text = "Exit"
-        self.exitEditCommandAction.setText(text)
-        self.exitEditCommandAction.setIcon(
-            geticon("ui/actions/Toolbars/Smart/Exit.png"))
-        self.exitEditCommandAction.setCheckable(True)
-
-    def getFlyoutActionList(self):
-        """
-        returns custom actionlist that will be used in a specific mode
-        or editing a feature etc Example: while in movie mode,
-        the _createFlyoutToolBar method calls
-        this
-        Subclasses must override this method if they need their own flyout
-        toolbar
-        """
-
-        #'allActionsList' returns all actions in the flyout toolbar
-        #including the subcontrolArea actions
-        allActionsList = []
-
-        #Action List for  subcontrol Area buttons.
-        #In this mode there is really no subcontrol area.
-        #We will treat subcontrol area same as 'command area'
-        #(subcontrol area buttons will have an empty list as their command area
-        #list). We will set  the Comamnd Area palette background color to the
-        #subcontrol area.
-
-        subControlAreaActionList =[]
-
-        #Action list for the command area button (the actions meant for the
-        commandActionLists = []
-
-        params = (subControlAreaActionList, commandActionLists, allActionsList)
-
-        return params
-
-    def updateCommandToolbar(self, bool_entering = True):
-        """
-        Update the command toolbar
-        Subclasses should override this method if they need their flyout toolbar
-        """
-
-        #Note to Eric M:
-        # This needs cleanup. This is a temporary implementation --ninad20071025
-        pass
-
-
+    

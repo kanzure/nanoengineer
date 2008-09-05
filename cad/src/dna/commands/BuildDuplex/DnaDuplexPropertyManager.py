@@ -159,50 +159,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         """
         pass
 
-    def getFlyoutActionList(self):
-        """
-        returns custom actionlist that will be used in a specific mode
-        or editing a feature etc Example: while in movie mode,
-        the _createFlyoutToolBar method calls
-        this
-        """
-
-        #'allActionsList' returns all actions in the flyout toolbar
-        #including the subcontrolArea actions
-        allActionsList = []
-
-        #Action List for  subcontrol Area buttons.
-        #In this mode there is really no subcontrol area.
-        #We will treat subcontrol area same as 'command area'
-        #(subcontrol area buttons will have an empty list as their command area
-        #list). We will set  the Comamnd Area palette background color to the
-        #subcontrol area.
-
-        subControlAreaActionList =[]
-
-        self.exitEditCommandAction.setChecked(True)
-        subControlAreaActionList.append(self.exitEditCommandAction)
-
-        separator = QAction(self.w)
-        separator.setSeparator(True)
-        subControlAreaActionList.append(separator)
-
-
-        allActionsList.extend(subControlAreaActionList)
-
-        #Empty actionlist for the 'Command Area'
-        commandActionLists = []
-
-        #Append empty 'lists' in 'commandActionLists equal to the
-        #number of actions in subControlArea
-        for i in range(len(subControlAreaActionList)):
-            lst = []
-            commandActionLists.append(lst)
-
-        params = (subControlAreaActionList, commandActionLists, allActionsList)
-
-        return params
-
+    
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
