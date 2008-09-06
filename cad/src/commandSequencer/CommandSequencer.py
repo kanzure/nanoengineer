@@ -55,6 +55,8 @@ _SAFE_MODE = DEFAULT_COMMAND
 DEBUG_COMMAND_SEQUENCER = False ## USE_COMMAND_STACK # turn this off when USE_COMMAND_STACK becomes the default
 DEBUG_COMMAND_SEQUENCER_VERBOSE = False
 
+DEBUG_COMMAND_STACK = False
+
 # ==
 
 # TODO: mode -> command or currentCommand in lots of comments, some method names
@@ -918,13 +920,15 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
     def _f_lock_command_stack(self, why = None):
         assert not self._f_command_stack_is_locked 
         self._f_command_stack_is_locked = why or "for some reason"
-        print "locking command stack:", self._f_command_stack_is_locked ###
+        if DEBUG_COMMAND_STACK:
+            print "locking command stack:", self._f_command_stack_is_locked ###
         return
 
     def _f_unlock_command_stack(self):
         assert self._f_command_stack_is_locked
         self._f_command_stack_is_locked = None
-        print "unlocking command stack"
+        if DEBUG_COMMAND_STACK:
+            print "unlocking command stack"
         return
 
     def _f_assert_command_stack_unlocked(self):

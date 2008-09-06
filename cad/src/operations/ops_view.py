@@ -198,8 +198,8 @@ class viewSlotsMixin:
                     # programmatically changing the action state.
                     # See similar code and comment in Move_Command.py.
                     # [bruce 080829]
-                    print "DEBUG fyi: _zoomPanRotateTool skipping Done of %r since command stack locked" % commandName
-                        # remove when works, or soon after
+                    ## print "DEBUG fyi: _zoomPanRotateTool skipping Done of %r since command stack locked" % commandName
+                    ##     # remove when works, or soon after
                     pass
                 else:
                     command.Done(exit_using_done_or_cancel_button = False)
