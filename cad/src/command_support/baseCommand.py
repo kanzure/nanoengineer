@@ -80,6 +80,10 @@ class baseCommand(object):
     # == access methods
 
     def is_fixed_parent_command(cls):
+        """
+        @note: it works to call this classmethod directly on the class,
+               or on an instance
+        """
         from commandSequencer.command_levels import FIXED_PARENT_LEVELS
         return cls.command_level in FIXED_PARENT_LEVELS
     

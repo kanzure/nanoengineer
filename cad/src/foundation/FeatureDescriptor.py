@@ -416,6 +416,12 @@ class basicCommand_Descriptor( CommandDescriptor): # refile with basicCommand?
         print "classname:", short_class_name( self.command_class)
         print "command_package:", self.command_package
         print "type:", self.feature_type
+        if self.command_class.is_fixed_parent_command():
+            # note: it works to call this classmethod directly on the class
+            print "level:", self.command_class.command_level, \
+                  "(%s)" % (self.command_class.command_parent or "no command_parent")
+        else:
+            print "level:", self.command_class.command_level 
         if not fully_ported:
             print "porting status:", porting_status
         # todo: more
