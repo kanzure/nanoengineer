@@ -15,8 +15,9 @@ to handle all kinds of overlays, in principle, but the current implem and
 some API details may be just barely general enough for the confirmation
 corner.
 
-Those method implems assume that Command subclasses (whose instances are
-found in graphicsMode.command) override want_confirmation_corner_type
+Those method implems assume that Command subclasses (at least those which
+can be found by GraphicsMode.draw_overlay -- namely, those which supply their
+own PM, as of 080905) override want_confirmation_corner_type
 to return the kind of confirmation corner they want at a given moment.
 """
 
@@ -228,8 +229,12 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         
         Set self._button_codes correctly for cctype and command,
         also saving those in attrs of self of related names.
+
+        self.command is used later for:
+        - finding PM buttons for doing actions
+        - finding the icon for the Done button, from the PM
         """
-        self.command = command # used to find buttons for doing actions; not cross-checked with passed or found modes...
+        self.command = command
         if self._cctype != cctype:
             # note: no point in updating drawing here if cctype changes,
             # since we're only called within glpane calling graphicsMode.draw_overlay.
@@ -546,24 +551,18 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
 
 # ==
 
-def find_or_make_confcorner_instance(cctype, graphicsMode):
+def find_or_make_confcorner_instance(cctype, command):
     """
-    Return a confirmation corner instance for graphicsMode, of the given cctype.
+    Return a confirmation corner instance for command, of the given cctype.
     [Public; called from basicGraphicsMode.draw_overlay]
     """
-    #bruce 080812 renamed this from 'find_or_make'
-    command = graphicsMode.command #bruce 071015 to fix bug 2565
-        # This means we cache this on the Command, not on the GraphicsMode.
-        # I'm not sure that's best, though since the whole thing seems to assume
-        # they have a 1-1 correspondence, it may not matter much.
-        # But in the future if weird GraphicsModes needed their own
-        # conf. corner styles or implems, it might need revision.
     try:
         command._confirmation_corner__cached_meh
     except AttributeError:
         command._confirmation_corner__cached_meh = cc_MouseEventHandler(command.glpane)
     res = command._confirmation_corner__cached_meh
-    res._f_advise_find_args(cctype, command) # in case it wants to store these (especially since it's shared for different values of them)
+    res._f_advise_find_args(cctype, command) # in case it wants to store these
+        # (especially since it's shared for different values of them)
     return res
     # see also exprs/cc_scratch.py
 

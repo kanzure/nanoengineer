@@ -128,12 +128,19 @@ class anyCommand(baseCommand, StateMixin):
         # presently that is done by entering it using a special method,
         # commandSequencer.userEnterTemporaryCommand.
         # [bruce 071011, to be revised (replaces need for customized Done methods)]
+        #
+        # WARNING: when USE_COMMAND_STACK, this no longer controls command
+        # nesting as described above, but it has other effects, e.g. on
+        # want_confirmation_corner_type.
     
     command_has_its_own_PM = True
         # note: following comment predates the command stack refactoring circa 080806.
         # This flag now means only that the command should create its own PM
         # in self.propMgr rather than letting one from the parent (if any)
         # remain visible.
+        #
+        # REVIEW: can this be replaced by bool(self.PM_class) once that's
+        # fully implemented? [bruce 080905 question]
         #
         #command_has_its_own_PM means, for example, the command has its own PM,
         #and flyout toolbar and/or the Done/Cancel button corner (confirmation 
@@ -838,11 +845,19 @@ class basicCommand(anyCommand):
         """
         Subclasses should return the type of confirmation corner they
         currently want, typically computed from their current state.
+        
+        This makes use of various attrs defined on self, so it should
+        be called on whichever command the confirmation corner would
+        terminate, which is not necessarily the current command.
 
         The return value can be one of the strings 'Done+Cancel' or
         'Done' or 'Cancel', or None (for no conf. corner).
-        Later we may add another possible value, 'Exit'.
-        [See confirmation_corner.py for related info.]
+        Or it can be one of those values with 'Transient-Done' in place
+        of 'Done'.
+
+        (Later we may add other possible values, e.g. 'Exit'.)
+
+        @see: confirmation_corner.py, for related info
         
         [Many subclasses will need to override this; we might also revise
          the default to be computed in a more often correct manner.]

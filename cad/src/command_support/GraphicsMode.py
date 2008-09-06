@@ -274,22 +274,39 @@ class basicGraphicsMode(GraphicsMode_API):
         called from GLPane with same drawing coordsys as for model
         [part of GLPane's drawing interface to modes]
         """
-        # conf corner is enabled by default for A9.1 (070627); requires exprs module and Python Imaging Library
+        # conf corner is enabled by default for A9.1 (070627);
+        # requires exprs module and Python Imaging Library
         if not env.prefs[displayConfirmationCorner_prefs_key]:
             return
-        # figure out what kind of confirmation corner we want, and draw it
+        
+        # which command should control the confirmation corner?
+        command = self.command #bruce 071015 to fix bug 2565
+            # (originally done inside find_or_make_confcorner_instance)
+            # Note: we cache this on the Command, not on the GraphicsMode.
+            # I'm not sure that's best, though since the whole thing seems to assume
+            # they have a 1-1 correspondence, it may not matter much.
+            # But in the future if weird GraphicsModes needed their own
+            # conf. corner styles or implems, it might need revision.
+        if USE_COMMAND_STACK:
+            #bruce 080905 fix bug 2933 (at least when USE_COMMAND_STACK is true)
+            command = command.command_that_supplies_PM()
+        
+        # figure out what kind of confirmation corner command wants, and draw it
         import graphics.behaviors.confirmation_corner as confirmation_corner
-        cctype = self.command.want_confirmation_corner_type()
-        self._ccinstance = confirmation_corner.find_or_make_confcorner_instance(cctype, self)
+        cctype = command.want_confirmation_corner_type()
+        self._ccinstance = confirmation_corner.find_or_make_confcorner_instance(cctype, command)
             # Notes:
-            # - we might use an instance cached in self (in an attr private to that helper function);
+            # - we might use an instance cached in command (in an attr private to that helper function);
             # - this might be as specific as both args passed above, or as shared as one instance
             #   for the entire app -- that's up to it;
-            # - if one instance is shared for multiple cctypes, it might store the cctype passed above
-            #   as a side effect of find_or_make_confcorner_instance;
+            # - if one instance is shared for multiple values of (cctype, command),
+            #   it might store those values in that instance as a side effect of
+            #   find_or_make_confcorner_instance;
             # - self._ccinstance might be None.
         if self._ccinstance is not None:
             # it's an instance we want to draw, and to keep around for mouse event handling
+            # (even though it's not necessarily still valid the next time we draw;
+            #  fortunately we'll rerun this method then and recompute cctype and command, etc)
             self._ccinstance.draw()
         return
 
