@@ -180,17 +180,7 @@ class BuildDna_EditCommand(EditCommand):
 
         return bool_keep
 
-    def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
-        """
-        Create the property manager object if one doesn't already exist
-        and then show the propMgr if wanted by the user.
-        @param showPropMgr: If True, show the property manager
-        @type showPropMgr: boolean
-        """
-        EditCommand.create_and_or_show_PM_if_wanted(
-            self,
-            showPropMgr = showPropMgr)
-
+    
     def createStructure(self, showPropMgr = True):
         """
         Overrides superclass method. It doesn't do anything for this type
