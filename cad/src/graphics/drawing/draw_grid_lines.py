@@ -54,7 +54,10 @@ from OpenGL.GL import GL_LINE_STRIP
 from OpenGL.GL import glVertex3fv
 from OpenGL.GL import glEndList
 from OpenGL.GL import glColor3fv
-from utilities.constants import LOWER_LEFT, LOWER_RIGHT, UPPER_LEFT, UPPER_RIGHT
+from utilities.constants import PLANE_ORIGIN_LOWER_LEFT
+from utilities.constants import PLANE_ORIGIN_LOWER_RIGHT
+from utilities.constants import PLANE_ORIGIN_UPPER_LEFT
+from utilities.constants import PLANE_ORIGIN_UPPER_RIGHT
 from utilities.constants import LABELS_ALONG_ORIGIN, LABELS_ALONG_PLANE_EDGES
 from graphics.drawing.drawers import drawtext
 from geometry.VQT import V
@@ -332,35 +335,35 @@ def drawGPGridForPlane(glpane, color, line_type, w, h, uw, uh, up, right,
     text_offset = 0.3 # Offset from edge of border, in Angstroms.
     
     if displayLabels == True:
-        if (originLocation == LOWER_LEFT and
+        if (originLocation == PLANE_ORIGIN_LOWER_LEFT and
             labelsDisplayStyle == LABELS_ALONG_ORIGIN):
             displayLabelsAlongOriginLowerLeft(h, w, hh, hw, uh, uw,
                 text_offset, text_color, font_size, glpane)
-        elif (originLocation == UPPER_LEFT and
+        elif (originLocation == PLANE_ORIGIN_UPPER_LEFT and
               labelsDisplayStyle == LABELS_ALONG_ORIGIN):
             displayLabelsAlongOriginUpperLeft(h, w, hh, hw, uh, uw, 
                 text_offset, text_color, font_size, glpane)
-        elif (originLocation == UPPER_RIGHT and
+        elif (originLocation == PLANE_ORIGIN_UPPER_RIGHT and
               labelsDisplayStyle == LABELS_ALONG_ORIGIN):
             displayLabelsAlongOriginUpperRight(h, w, hh, hw, uh, uw, 
                 text_offset, text_color,font_size, glpane)  
-        elif (originLocation == LOWER_RIGHT and
+        elif (originLocation == PLANE_ORIGIN_LOWER_RIGHT and
               labelsDisplayStyle == LABELS_ALONG_ORIGIN):
             displayLabelsAlongOriginLowerRight(h, w, hh, hw, uh, uw, 
                 text_offset, text_color, font_size, glpane)  
-        elif (originLocation == LOWER_LEFT and
+        elif (originLocation == PLANE_ORIGIN_LOWER_LEFT and
               labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES):
             displayLabelsAlongPlaneEdgesLowerLeft(h, w, hh, hw, uh, uw, 
                 text_offset, text_color, font_size, glpane)
-        elif (originLocation == UPPER_LEFT and
+        elif (originLocation == PLANE_ORIGIN_UPPER_LEFT and
               labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES):
             displayLabelsAlongPlaneEdgesUpperLeft(h, w, hh, hw, uh, uw, 
                 text_offset, text_color, font_size, glpane)  
-        elif (originLocation == UPPER_RIGHT and
+        elif (originLocation == PLANE_ORIGIN_UPPER_RIGHT and
               labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES):
             displayLabelsAlongPlaneEdgesUpperRight(h, w, hh, hw, uh, uw, 
                 text_offset, text_color, font_size, glpane)  
-        elif (originLocation == LOWER_RIGHT and
+        elif (originLocation == PLANE_ORIGIN_LOWER_RIGHT and
               labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES):
             displayLabelsAlongPlaneEdgesLowerRight(h, w, hh, hw, uh, uw, 
                 text_offset, text_color, font_size, glpane)  

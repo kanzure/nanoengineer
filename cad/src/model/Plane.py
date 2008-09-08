@@ -47,7 +47,7 @@ from utilities.Log     import redmsg
 from model.ReferenceGeometry import ReferenceGeometry 
 from graphics.drawables.DirectionArrow import DirectionArrow
 from graphics.drawables.ResizeHandle import ResizeHandle  
-from utilities.constants import LOWER_LEFT, LABELS_ALONG_ORIGIN
+from utilities.constants import PLANE_ORIGIN_LOWER_LEFT, LABELS_ALONG_ORIGIN
 from graphics.drawing.texture_helpers import load_image_into_new_texture_name
 
 try:
@@ -164,7 +164,7 @@ class Plane(ReferenceGeometry):
         self.gridLineType = 3
         self.gridXSpacing = 4.0
         self.gridYSpacing = 4.0       
-        self.originLocation = LOWER_LEFT
+        self.originLocation = PLANE_ORIGIN_LOWER_LEFT
         self.displayLabelStyle = LABELS_ALONG_ORIGIN
         
         if not READ_FROM_MMP:

@@ -26,7 +26,10 @@ from command_support.EditCommand_PM import EditCommand_PM
 import foundation.env as env
 from utilities.constants import yellow, orange, red, magenta
 from utilities.constants import cyan, blue, white, black, gray
-from utilities.constants import LOWER_LEFT, LOWER_RIGHT, UPPER_LEFT, UPPER_RIGHT
+from utilities.constants import  PLANE_ORIGIN_LOWER_LEFT
+from utilities.constants import  PLANE_ORIGIN_LOWER_RIGHT
+from utilities.constants import  PLANE_ORIGIN_UPPER_LEFT
+from utilities.constants import  PLANE_ORIGIN_UPPER_RIGHT
 from utilities.constants import LABELS_ALONG_ORIGIN, LABELS_ALONG_PLANE_EDGES
 from utilities.prefs_constants import PlanePM_showGridLabels_prefs_key, PlanePM_showGrid_prefs_key
 
@@ -85,7 +88,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.gridYSpacing = 4.0
         self.gridLineType = 3
         self.displayLabels = False
-        self.originLocation = LOWER_LEFT
+        self.originLocation = PLANE_ORIGIN_LOWER_LEFT
         self.displayLabelStyle = LABELS_ALONG_ORIGIN
 
     def _addGroupBoxes(self):
@@ -396,13 +399,13 @@ class PlanePropertyManager(EditCommand_PM):
         @type idx: int
         """
         if idx == 0:
-            self.originLocation = LOWER_LEFT
+            self.originLocation = PLANE_ORIGIN_LOWER_LEFT
         elif idx ==1:
-            self.originLocation = UPPER_LEFT
+            self.originLocation = PLANE_ORIGIN_UPPER_LEFT
         elif idx == 2:
-            self.originLocation = LOWER_RIGHT
+            self.originLocation = PLANE_ORIGIN_LOWER_RIGHT
         elif idx == 3:
-            self.originLocation = UPPER_RIGHT
+            self.originLocation = PLANE_ORIGIN_UPPER_RIGHT
         else:
             print "Invalid index", idx
         return
@@ -417,7 +420,7 @@ class PlanePropertyManager(EditCommand_PM):
             self.gpOriginComboBox.setEnabled(True)
             self.gpPositionComboBox.setEnabled(True)
             self.displayLabels = True
-            self.originLocation = LOWER_LEFT
+            self.originLocation = PLANE_ORIGIN_LOWER_LEFT
             self.displayLabelStyle = LABELS_ALONG_ORIGIN
         else:
             self.gpOriginComboBox.setEnabled(False)
