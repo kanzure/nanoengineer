@@ -493,20 +493,19 @@ GLPANE_IS_COMMAND_SEQUENCER = not _debug_pref_use_separate_command_sequencer()
 
 # ==
 
-#bruce 0808013 moved enableProteins from protein.model.Protein.enableProteins
-# to avoid import cycles.
-# TODO: rename it to ENABLE_PROTEINS, to fit with coding standard for constants.
-#piotr 2008-08-27: renamed enableProteins to ENABLE_PROTEINS
 ENABLE_PROTEINS = debug_pref("Enable Proteins? (next session)",
                              Choice_boolean_True,
                              non_debug = True,
-                             prefs_key = True
+                             prefs_key = "v1.2/Enable Proteins?"
                             )
 
 MODEL_AND_SIMULATE_PROTEINS = debug_pref("Enable model and simulate protein flyout? (next session)",
     Choice_boolean_True,
     non_debug = True,
-    prefs_key = True)
+    prefs_key = "v1.2/Enable model and simulate protein flyout?"
+ )
+
+# ==
 
 def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
     #-The current code always connects signals while shown a PM and 
