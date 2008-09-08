@@ -26,7 +26,6 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QFont
 from PyQt4.Qt import QMenu
-from PyQt4.Qt import QIcon
 from PyQt4.Qt import QSettings
 from PyQt4.Qt import QVariant
 
@@ -50,7 +49,7 @@ from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 from ne1_ui.ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 
 from utilities.debug import print_compact_traceback
-from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.constants import str_or_unicode
 from utilities.constants import RECENTFILES_QSETTINGS_KEY
 from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
@@ -162,24 +161,7 @@ class MWsemantics(QMainWindow,
                                     
         self._proteinSequenceEditor = None
 
-        # Initialize all Property Manager attrs.
-        self._rotaryMotorPropMgr = None
-        self._linearMotorPropMgr = None
-        self._planePropMgr = None
-        self._dnaDuplexPropMgr = None
-        self._dnaSegmentPropMgr = None
-        self._multipleDnaSegmentPropMgr = None
-        self._makeCrossoversPropMgr = None
-        self._dnaStrandPropMgr = None
-        self._buildDnaPropMgr = None
-        self._buildCntPropMgr = None
-        self._cntSegmentPropMgr = None
-        self._buildProteinPropMgr = None
-        self._buildGraphenePropMgr = None  
-        self._buildPeptidePropMgr = None
-        self._editResiduesPropMgr = None
-        self._editRotamersPropMgr = None
-
+       
         # These boolean flags, if True, stop the execution of slot
         # methods that are called because the state of 'self.viewFullScreenAction
         # or self.viewSemiFullScreenAction is changed. Maybe there is a way to
@@ -1622,96 +1604,7 @@ class MWsemantics(QMainWindow,
             currentCommand.runCommand()
             
 
-    def createBuildNanotubePropMgr_if_needed(self, command):
-        """
-        Create Build Nanotube PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{BuildNanotube_EditCommand}
-        @see: B{BuildNanotube_EditCommand._createPropMgrObject}
-        """
-        from cnt.commands.BuildNanotube.BuildNanotube_PropertyManager import BuildNanotube_PropertyManager
-        if self._buildCntPropMgr is None:
-            self._buildCntPropMgr = \
-                BuildNanotube_PropertyManager(self, command)
-        else:
-            self._buildCntPropMgr.setEditCommand(command)
-
-        return self._buildCntPropMgr
-    
-    
-    def createBuildGraphenePropMgr_if_needed(self, command):
-        """
-        Create Graphene PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{BuildGraphene_EditCommand}
-        @see: B{BuildGraphene_EditCommand._createPropMgrObject}
-        """
-        from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
-        if self._buildGraphenePropMgr is None:
-            self._buildGraphenePropMgr = \
-                GrapheneGeneratorPropertyManager(self, command)
-        else:
-            self._buildGraphenePropMgr.setEditCommand(command)
-
-        return self._buildGraphenePropMgr
-    
-    def createBuildPeptidePropMgr_if_needed(self, command):
-        """
-        Create Peptide PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{BuildPeptide_EditCommand}
-        @see: B{BuildPeptide_EditCommand._createPropMgrObject}
-        """
-        from protein.commands.BuildPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager
-        if self._buildPeptidePropMgr is None:
-            self._buildPeptidePropMgr = \
-                PeptideGeneratorPropertyManager(self, command)
-        else:
-            self._buildPeptidePropMgr.setEditCommand(command)
-
-        return self._buildPeptidePropMgr
         
-
-    def createNanotubeSegmentPropMgr_if_needed(self, command):
-        """
-        Create the NanotubeSegment PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{NanotubeSegment_EditCommand}
-        @see: B{NanotubeSegment_EditCommand._createPropMgrObject}
-        """
-        from cnt.commands.NanotubeSegment.NanotubeSegment_PropertyManager import NanotubeSegment_PropertyManager
-        if self._cntSegmentPropMgr is None:
-            self._cntSegmentPropMgr = \
-                NanotubeSegment_PropertyManager(self, command)
-
-        else:
-            self._cntSegmentPropMgr.setEditCommand(command)
-
-        return self._cntSegmentPropMgr
-
-    def activateDnaTool_OLD_NOT_USED(self):
-        """
-        THIS IS DEPRECATED. THIS METHOD WILL BE REMOVED AFTER SOME
-        MORE TESTING AND WHEN WE FEEL COMFORTABLE ABOUT THE NEW BUILD DNA
-        MODE. -- NINAD - 2008-01-11
-
-        Enter the DnaDuplex_EditCommand command.
-        @see:B{self.insertDna}
-        """
-        commandSequencer = self.commandSequencer
-        commandSequencer.userEnterCommand('DNA_DUPLEX')
-
-        assert self.commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
-
-        self.commandSequencer.currentCommand.runCommand()
 
     def activateDnaTool(self):
         """
@@ -1791,23 +1684,6 @@ class MWsemantics(QMainWindow,
             commandSequencer.currentCommand.runCommand()
         return
     
-    def createBuildProteinPropMgr_if_needed(self, command):
-        """
-        Create Build Protein PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @param command: The edit controller object for this PM
-        @type command: B{BuildDna_EditCommand}
-        @see: B{BuildDna_EditCommand._createPropMgrObject}
-        """
-        from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager
-        if self._buildProteinPropMgr is None:
-            self._buildProteinPropMgr = \
-                BuildProtein_PropertyManager(self, command)
-        else:
-            self._buildProteinPropMgr.setEditCommand(command)
-    
-        return self._buildProteinPropMgr
         
     
     def insertPeptide(self, isChecked = False):  
@@ -2024,224 +1900,6 @@ class MWsemantics(QMainWindow,
 
         return self._proteinSequenceEditor
     
-    def createEditResiduesPropMgr_if_needed(self):
-        """
-        Returns a Residues editor PM object.
-        If one doesn't already exists, it creates one .
-        (created only once and only when its first requested and then the
-        object is reused)
-        @return: The residues editor object (self._editResiduesPropMgr)
-        @rtype: B{EditResidues_PropertyManager}
-        
-        """
-        if not self._editResiduesPropMgr:
-            from protein.commands.EditResidues.EditResidues_PropertyManager import EditResidues_PropertyManager            
-            self._editResiduesPropMgr = EditResidues_PropertyManager(self)
-            self._editResiduesPropMgr.setObjectName("residues_editor")
-
-        return self._editResiduesPropMgr
-    
-    def createEditRotamersPropMgr_if_needed(self):
-        """
-        Returns a Rotamers editor PM object.
-        If one doesn't already exists, it creates one .
-        (created only once and only when its first requested and then the
-        object is reused)
-        @return: The residues editor object (self._editResiduesPropMgr)
-        @rtype: B{EditResidues_PropertyManager}
-        
-        """
-        if not self._editRotamersPropMgr:
-            from protein.commands.EditRotamers.EditRotamers_PropertyManager import EditRotamers_PropertyManager
-            self._editRotamersPropMgr = EditRotamers_PropertyManager(self)
-            self._editRotamersPropMgr.setObjectName("rotamers_editor")
-
-        return self._editRotamersPropMgr
-    
-    def createRotaryMotorPropMgr_if_needed(self, command):
-        """
-        Create the Rotary motor PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{RotaryMotor_EditCommand}
-        @see: B{RotaryMotor_EditCommand._createPropMgrObject}
-        """
-        from commands.RotaryMotorProperties.RotaryMotorPropertyManager import RotaryMotorPropertyManager
-        if self._rotaryMotorPropMgr is None:
-            self._rotaryMotorPropMgr = \
-                RotaryMotorPropertyManager(self, command)
-        else:
-            self._rotaryMotorPropMgr.setEditCommand(command)
-
-        return self._rotaryMotorPropMgr
-
-
-    def createLinearMotorPropMgr_if_needed(self, command):
-        """
-        Create the Linear motor PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{LinearMotor_EditCommand}
-        @see: B{LinearMotor_EditCommand._createPropMgrObject}
-        """
-        from commands.LinearMotorProperties.LinearMotorPropertyManager import LinearMotorPropertyManager
-        if self._linearMotorPropMgr is None:
-            self._linearMotorPropMgr = \
-                LinearMotorPropertyManager( self, command)
-        else:
-            self._linearMotorPropMgr.setEditCommand(command)
-
-        return self._linearMotorPropMgr
-
-    def createPlanePropMgr_if_needed(self, command):
-        """
-        Create the Plane PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{RotaryMotor_EditCommand}
-        @see: B{Plane_EditCommand._createPropMgrObject}
-        """
-        from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
-        if self._planePropMgr is None:
-            self._planePropMgr = \
-                PlanePropertyManager(self, command)
-        else:
-            self._planePropMgr.setEditCommand(command)
-
-        return self._planePropMgr
-
-    def createDnaDuplexPropMgr_if_needed(self, command):
-        """
-        THIS METHOD IS NOT USED AS OF 2007-12-04
-        - This is because the endPoint1 and endPoint2 passed to the
-        Dna duplex PM are unique for each generated Dna group. So having a
-        unique PM for editing such a dna group. The 'endPoints' are not stored
-        in the dna group. The new dna data model will store the axis end points
-        Once thats done this method will be used to create only a single
-        PM object and reusing it as needed.
-
-        Create the DNA Duplex PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{DnaDuplex_EditCommand}
-        """
-        from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager
-        if self._dnaDuplexPropMgr is None:
-            self._dnaDuplexPropMgr = \
-                DnaDuplexPropertyManager(self, command)
-        else:
-            self._dnaDuplexPropMgr.setEditCommand(command)
-
-        return self._dnaDuplexPropMgr
-
-    def createBuildDnaPropMgr_if_needed(self, command):
-        """
-        Create Build Dna PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{BuildDna_EditCommand}
-        @see: B{BuildDna_EditCommand._createPropMgrObject}
-        """
-        from dna.commands.BuildDna.BuildDna_PropertyManager import BuildDna_PropertyManager
-        if self._buildDnaPropMgr is None:
-            self._buildDnaPropMgr = \
-                BuildDna_PropertyManager(self, command)
-        else:
-            self._buildDnaPropMgr.setEditCommand(command)
-
-        return self._buildDnaPropMgr
-
-    def createDnaSegmentPropMgr_if_needed(self, command):
-        """
-        Create the DnaSegment PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{DnaSegment_EditCommand}
-        @see: B{DnaSegment_EditCommand._createPropMgrObject}
-        """
-
-        from dna.commands.DnaSegment.DnaSegment_PropertyManager import DnaSegment_PropertyManager
-        if self._dnaSegmentPropMgr is None:
-            self._dnaSegmentPropMgr = \
-                DnaSegment_PropertyManager(self, command)
-
-        else:
-            self._dnaSegmentPropMgr.setEditCommand(command)
-
-        return self._dnaSegmentPropMgr
-
-
-    def createMultipleDnaSegmentPropMgr_if_needed(self, command):
-        """
-        Create the a Property manager object (if one doesn't exist)  for the
-        Multiple Dna Segment Resize command.
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{{MultipleDnaSegmentResize_EditCommand}
-        @see: B{MultipleDnaSegmentResize_EditCommand._createPropMgrObject}
-        """
-
-        from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_PropertyManager import MultipleDnaSegmentResize_PropertyManager
-        if self._multipleDnaSegmentPropMgr is None:
-            self._multipleDnaSegmentPropMgr = \
-                MultipleDnaSegmentResize_PropertyManager(self, command)
-
-        else:
-            self._multipleDnaSegmentPropMgr.setEditCommand(command)
-
-        return self._multipleDnaSegmentPropMgr
-
-
-    def createMakeCrossoversPropMgr_if_needed(self, command):
-        """
-        Create the a Property manager object (if one doesn't exist)  for the
-        Make Crossovers command.
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{{MakeCrossovers_Command}
-        @see: B{MakeCrossovers_Command._createPropMgrObject}
-        """
-
-        from dna.commands.MakeCrossovers.MakeCrossovers_PropertyManager import MakeCrossovers_PropertyManager
-        if self._makeCrossoversPropMgr is None:
-            self._makeCrossoversPropMgr = \
-                MakeCrossovers_PropertyManager(self, command)
-
-        else:
-            self._makeCrossoversPropMgr.setEditCommand(command)
-
-        return self._makeCrossoversPropMgr
-
-
-
-    def createDnaStrandPropMgr_if_needed(self, command):
-        """
-        Create the DnaStrand PM object (if one doesn't exist)
-        If this object is already present, then set its command to this
-        parameter
-        @parameter command: The edit controller object for this PM
-        @type command: B{DnaSegment_EditCommand}
-        @see: B{DnaSegment_EditCommand._createPropMgrObject}
-        """
-
-        from dna.commands.DnaStrand.DnaStrand_PropertyManager import DnaStrand_PropertyManager
-        if self._dnaStrandPropMgr is None:
-            self._dnaStrandPropMgr = \
-                DnaStrand_PropertyManager(self, command)
-
-        else:
-            self._dnaStrandPropMgr.setEditCommand(command)
-
-        return self._dnaStrandPropMgr
-
 
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()
