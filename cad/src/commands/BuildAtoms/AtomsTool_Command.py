@@ -22,6 +22,7 @@ e.g. command_reuse_PM etc.
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from model.bond_constants import V_SINGLE, V_DOUBLE, V_TRIPLE, V_AROMATIC, V_CARBOMERIC, V_GRAPHITE
 from utilities.constants import CL_SUBCOMMAND
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = BuildAtoms_Command
 class AtomsTool_Command(BuildAtoms_Command):
@@ -40,14 +41,6 @@ class AtomsTool_Command(BuildAtoms_Command):
     command_level = CL_SUBCOMMAND
     command_parent = 'DEPOSIT'
     
-    def Enter(self):
-        _superclass.Enter(self)
-        #NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
-        self.command_enter_PM()
-        
-        self.command_enter_flyout()
-        
-        
     def command_enter_flyout(self):
         """
         REUSE the flyout toolbar from the parentCommand (BuildAtoms_command 
@@ -57,13 +50,24 @@ class AtomsTool_Command(BuildAtoms_Command):
         such that it fits the new method names in command API.         
         """
         self._reuse_attr_of_parentCommand('flyoutToolbar')
-        
-      
-    def init_gui(self):
-        pass
     
-    def restore_gui(self):
-        pass
+    
+    #START OLD command API methods =============================================
+    if not USE_COMMAND_STACK:        
+        def Enter(self):
+            _superclass.Enter(self)
+            #NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
+            self.command_enter_PM()
+            
+            self.command_enter_flyout()
+        
+        def init_gui(self):
+            pass
+        
+        def restore_gui(self):
+            pass
+    #END OLD command API methods =============================================
+    
     
     #TEMPORARILY override the is*ToolActive methods in BuildAtoms_Command. 
     #These methods will go away when BuildAtoms command starts treating 
