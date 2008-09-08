@@ -498,13 +498,13 @@ GLPANE_IS_COMMAND_SEQUENCER = not _debug_pref_use_separate_command_sequencer()
 # TODO: rename it to ENABLE_PROTEINS, to fit with coding standard for constants.
 #piotr 2008-08-27: renamed enableProteins to ENABLE_PROTEINS
 ENABLE_PROTEINS = debug_pref("Enable Proteins? (next session)",
-                             Choice_boolean_False,
+                             Choice_boolean_True,
                              non_debug = True,
                              prefs_key = True
                             )
 
 MODEL_AND_SIMULATE_PROTEINS = debug_pref("Enable model and simulate protein flyout? (next session)",
-    Choice_boolean_False,
+    Choice_boolean_True,
     non_debug = True,
     prefs_key = True)
 
