@@ -191,11 +191,6 @@ class BuildDna_EditCommand(EditCommand):
             self,
             showPropMgr = showPropMgr)
 
-        self.propMgr.updateMessage("Use appropriate command in the command "\
-                                   "toolbar to create or modify a DNA Object"\
-                                   "<br>"
-                               )
-
     def createStructure(self, showPropMgr = True):
         """
         Overrides superclass method. It doesn't do anything for this type

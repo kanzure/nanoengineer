@@ -172,10 +172,7 @@ class BuildNanotube_EditCommand(EditCommand):
             self,
             showPropMgr = showPropMgr)
 
-        self.propMgr.updateMessage("Use appropriate command in the command "\
-                                   "toolbar to create or modify a CNT Object"\
-                                   "<br>"                                   
-                               )
+        
 
     def createStructure(self, showPropMgr = True):
         """

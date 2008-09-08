@@ -249,6 +249,11 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         EditCommand_PM.show(self) 
         if not USE_COMMAND_STACK:
             self.updateListWidgets()    
+            
+        self.updateMessage("Use appropriate command in the command "\
+                           "toolbar to create or modify a CNT Object"\
+                           "<br>" )
+        
     
     def _editNanotubeSegment(self):
         """

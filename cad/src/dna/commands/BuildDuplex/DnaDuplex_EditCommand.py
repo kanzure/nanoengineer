@@ -337,11 +337,6 @@ class DnaDuplex_EditCommand(EditCommand):
             self,
             showPropMgr = showPropMgr)
 
-        self.propMgr.updateMessage("Specify two points in the 3D Graphics " \
-                                   "Area to define the endpoints of the "\
-                                   "DNA duplex."
-                               )
-
     def createStructure(self, showPropMgr = True):
         """
         Overrides superclass method. Creates the structure (DnaSegment) 
