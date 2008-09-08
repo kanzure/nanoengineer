@@ -222,7 +222,7 @@ class BuildCrystal_Command(basicMode):
         Overrides superclass method. 
         @see:baseCommand.command_will_exit() for documentation
         
-        @NOTE: This method also calls the methos that creates the crystal when 
+        @NOTE: This method also calls the method that creates the crystal when 
                the user hits 'Done' button.                
         """
         # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);

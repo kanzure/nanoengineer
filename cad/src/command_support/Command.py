@@ -1625,6 +1625,10 @@ class basicCommand(anyCommand):
         Done or (for some modes) incorrectly
         uncancelled/un-warned-about state after Cancel.
         """
+        # note: mostly obsolete when USE_COMMAND_STACK is true,
+        # but can still be called then when a conf corner debug pref is set.
+        # TODO: fully remove it sometime after USE_COMMAND_STACK is always true.
+        # [bruce 080908 comment]
         return False
     
     def _exitMode(self, new_mode = None, suspend_old_mode = False, **new_mode_options): # called from Done & Cancel
