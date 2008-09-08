@@ -315,6 +315,10 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         EditCommand_PM.show(self) 
         if not USE_COMMAND_STACK:
             self.updateListWidgets()    
+        else:
+            self.updateMessage("Use appropriate command in the command "\
+                                   "toolbar to create or modify a DNA Object"\
+                                   "<br>" )
         
     def _editDnaStrand(self):  
         """

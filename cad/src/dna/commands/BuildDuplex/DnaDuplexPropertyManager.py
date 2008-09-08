@@ -144,7 +144,12 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
             Preferences_StateRef_double( bdnaBasesPerTurn_prefs_key, 
                                          env.prefs[bdnaBasesPerTurn_prefs_key] )
             )
-
+        
+    def show(self):
+        _superclass.show(self)
+        self.updateMessage("Specify two points in the 3D Graphics " \
+                                   "Area to define the endpoints of the "\
+                                   "DNA duplex."   )
 
     
     def _update_widgets_in_PM_before_show(self):
