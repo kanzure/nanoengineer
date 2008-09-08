@@ -124,7 +124,7 @@ class baseCommand(object):
             
     # == exit-related methods
 
-    def command_Done(self, implicit = False): # TODO: add these to weird_to_override
+    def command_Done(self, implicit = False):
         """
         Exit this command, after also exiting any subcommands it may have,
         as if its Done button was pressed.
@@ -134,6 +134,11 @@ class baseCommand(object):
                          this command), rather than by an explicit exit
                          request.
         @type implicit: boolean
+
+        @note: subclasses should not override this method. Instead, if a
+               subclass needs to add Done-specific code, it should override
+               command_will_exit and condition its effects on one of the
+               flags described in that method's docstring.
         """
         self.commandSequencer._f_exit_active_command(self, implicit = implicit)
         return
@@ -142,6 +147,11 @@ class baseCommand(object):
         """
         Exit this command, after also exiting any subcommands it may have,
         as if its Cancel button was pressed.
+
+        @note: subclasses should not override this method. Instead, if a
+               subclass needs to add Cancel-specific code, it should override
+               command_will_exit and condition its effects on one of the
+               flags described in that method's docstring.
         """
         self.commandSequencer._f_exit_active_command(self, cancel = True)
         return
@@ -155,6 +165,11 @@ class baseCommand(object):
         specific command. This is only called due to logic bugs in
         the code for opening a new file, which fail to exit all commands
         normally beforehand.
+
+        @note: subclasses should not override this method. Instead, if a
+               subclass needs to add Abandon-specific code, it should override
+               command_will_exit and condition its effects on one of the
+               flags described in that method's docstring.
         """
         self.commandSequencer._f_exit_active_command(self, forced = True)
         return
@@ -186,7 +201,8 @@ class baseCommand(object):
         @note: certain attrs in self.commandSequencer (e.g. .exit_is_cancel)
                will tell self.command_will_exit which side effects to do.
                For documentation of those attrs, see CommandSequencer methods
-              _f_exit_active_command and _exit_currentCommand_with_flags.
+               _f_exit_active_command and _exit_currentCommand_with_flags,
+               and class CommandSequencer docstring.
         """
         self.commandSequencer._f_lock_command_stack("preparing to exit a command")
         try:
@@ -234,6 +250,14 @@ class baseCommand(object):
         """
         Perform side effects on self and the UI, needed when self
         is about to be exited for any reason.
+
+        If the side effects need to depend on the manner of exit
+        (e.g. Done vs Cancel vs Abandon), or on the command being
+        exited from or intended to be entered, this should be
+        determined by testing an appropriate attribute of
+        self.commandSequencer, e.g. exit_is_cancel, exit_is_forced,
+        exit_is_implicit, exit_target, enter_target. For their meanings,
+        see the docstring of class CommandSequencer.
 
         @note: when this is called, self is on top of the command stack,
                but it may or may not have been on top when the current user

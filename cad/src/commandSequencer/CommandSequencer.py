@@ -89,6 +89,22 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
     @note: graphicsMode is also available from GLPane, which gets it from here
            via its assy. Maybe it won't be needed from here at all... so we print
            a console warning whenever it's accessed directly from here.
+
+    Public attributes available during calls of command.command_will_exit:
+    
+    exit_is_cancel -- whether this exit is caused by Cancel.
+
+    exit_is_forced -- whether this exit is forced to occur (e.g. caused by
+    Abandon).
+
+    exit_is_implicit -- whether this exit is occuring only as a prerequisite
+    of entering some other command
+    
+    exit_target -- if not None, the goal of the exit is ultimately to exit
+    the command of this commandName
+
+    enter_target -- if not None, the goal of the exit is ultimately to enter
+    the command of this commandName
     """
     # TODO: turn this into a standalone command sequencer object,
     # which also contains some logic now in class Command
@@ -351,7 +367,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         self.exit_is_implicit = implicit
         # set attrs to let command_exit methods construct dialog text, etc
         # (when used along with the other attrs)
-        self.exit_target = exit_target # a command, if we're exiting it as a goal ### FIX to featureName?
+        self.exit_target = exit_target # a commandName, if we're exiting it as a goal ### FIX to featureName?
         self.enter_target = enter_target # a commandName, if we're entering it as a goal ### FIX to featureName?
         # exit the current command, return whether it worked
         try:
@@ -858,20 +874,26 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
 
     def _f_exit_active_command(self, command, cancel = False, forced = False, implicit = False): #bruce 080827
         """
-        Exit this command (which must be active), after first exiting
+        Exit the given command (which must be active), after first exiting
         any subcommands it may have.
 
-        Do side effects appropriate to the options passed. For documentation
-        of their effects, see the callers which pass them, listed below.
+        Do side effects appropriate to the options passed, by setting
+        corresponding attributes in self which can be tested by subclass
+        implementations of command_will_exit. For documentation of these
+        attributes and their intended effects, see the callers which pass
+        them, listed below, and the attributes of related names in
+        this class, described in the class docstring.
 
-        @param command: the command it's our goal to exit.
-                        Saved as self.exit_target.
+        @param command: the command it's our ultimate goal to exit.
+                        Must be an active command, but may or may not be
+                        self.currentCommand. Its commandName is saved as
+                        self.exit_target.
         
-        @param cancel: @see: baseCommand.command_Cancel
+        @param cancel: @see: baseCommand.command_Cancel and self.exit_is_cancel
         
-        @param forced: @see: baseCommand.command_Abandon
+        @param forced: @see: baseCommand.command_Abandon and self.exit_is_forced
         
-        @param implicit: @see: baseCommand.command_Done
+        @param implicit: @see: baseCommand.command_Done and self.exit_is_implicit
         """
         assert USE_COMMAND_STACK
         self._f_assert_command_stack_unlocked()
@@ -889,7 +911,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             exited = self._exit_currentCommand_with_flags( cancel = cancel,
                                                            forced = forced,
                                                            implicit = implicit,
-                                                           exit_target = command )
+                                                           exit_target = command.commandName )
             if not exited:
                 error = True
                 break
