@@ -52,7 +52,7 @@ from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.constants import str_or_unicode
 from utilities.constants import RECENTFILES_QSETTINGS_KEY
-from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 
 from ne1_ui.Ui_MainWindow import Ui_MainWindow
 from ne1_ui.Ui_PartWindow import Ui_PartWindow

@@ -47,8 +47,8 @@ from foundation.FeatureDescriptor import register_abstract_feature_class
 from foundation.state_utils import StateMixin
 
 from utilities.constants import noop
-from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
+from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from model.jigs import Jig

@@ -474,6 +474,24 @@ def _debug_pref_use_command_stack(): #bruce 080728
 
 USE_COMMAND_STACK = _debug_pref_use_command_stack()
 
+# ==
+
+def _debug_pref_use_separate_command_sequencer(): #bruce 080908
+    res = debug_pref("use separate command sequencer (next session)?",
+                     Choice_boolean_False,
+                     prefs_key = True
+                    )
+    return res
+
+GLPANE_IS_COMMAND_SEQUENCER = not _debug_pref_use_separate_command_sequencer()
+    # This flag indicates that the GLPane and Command Sequencer are the same object.
+    # (Note that the debug_pref, added 080908, indicates that they are *different* objects, thus the 'not'.)
+    # This is True for now (since debug_pref is False), but False now works as of 080813, but is not yet well tested.
+    # Soon, the default will become False and support for True will be
+    # removed, as a long-desired refactoring and cleanup.
+    # [bruce 071010, 080813, 080908]
+
+# ==
 
 #bruce 0808013 moved enableProteins from protein.model.Protein.enableProteins
 # to avoid import cycles.

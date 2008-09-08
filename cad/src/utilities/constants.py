@@ -34,13 +34,6 @@ MULTIPANE_GUI = True # enable some code which was intended to permit the main wi
     # this flag, and then decide whether the singleton partWindow should continue
     # to exist. [bruce 071008, replacing a debug_pref with this flag]
 
-GLPANE_IS_COMMAND_SEQUENCER = True ### DO NOT COMMIT WITH FALSE, should be True -- or move to GlobalPreferences.py
-    # This indicates that the GLPane and Command Sequencer are the same object.
-    # This is True for now, but False now works as of 080813, but is not yet well tested.
-    # In a week or so, the default will become False and support for True will be
-    # removed, as a long-desired refactoring and cleanup.
-    # [bruce 071010, 080813]
-
 DIAMOND_BOND_LENGTH = 1.544
     #bruce 051102 added this based on email from Damian Allis:
     # > The accepted bond length for diamond is 1.544 ("Interatomic  

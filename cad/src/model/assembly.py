@@ -88,7 +88,7 @@ from foundation.state_utils import StateMixin
 from utilities.debug import print_compact_stack
 import foundation.undo_archive as undo_archive
 
-from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 
 from utilities.constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_CHILD, S_DATA, S_REF

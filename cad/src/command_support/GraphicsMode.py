@@ -45,8 +45,7 @@ from graphics.behaviors.shape import get_selCurve_color
 from utilities.constants import SELSHAPE_RECT
 from utilities.constants import yellow
 
-from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
-
+from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key

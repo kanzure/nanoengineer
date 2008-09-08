@@ -35,7 +35,6 @@ import foundation.env as env
 import os
 import sys
 
-from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 from utilities.constants import DEFAULT_COMMAND
 
 from commandSequencer.command_levels import allowed_parent
@@ -47,6 +46,7 @@ from command_support.baseCommand import baseCommand # ditto
 from command_support.GraphicsMode_API import GraphicsMode_API # ditto
 
 from utilities.GlobalPreferences import USE_COMMAND_STACK
+from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 
 _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 

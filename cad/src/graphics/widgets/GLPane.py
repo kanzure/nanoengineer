@@ -157,7 +157,6 @@ from graphics.drawing.setup_draw import setup_drawer
 
 from utilities.constants import bgSOLID, bgEVENING_SKY, bgBLUE_SKY, bgSEAGREEN
 from utilities.constants import ave_colors, color_difference
-from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 from command_support.GraphicsMode_API import GraphicsMode_API # for isinstance assertion
 
@@ -234,6 +233,7 @@ from utilities.GlobalPreferences import DEBUG_BAREMOTION
 from utilities.GlobalPreferences import use_frustum_culling
 from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 from utilities.GlobalPreferences import pref_skip_redraws_requested_only_by_Qt
+from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 from utilities.constants import black, gray, darkgray, lightgray, white
