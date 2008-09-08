@@ -120,7 +120,13 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
                        self._update_state_of_cursorTextGroupBox)
 
     
-
+    def show(self):
+        _superclass.show(self)
+        self.updateMessage("Specify two points in the 3D Graphics " \
+                                   "Area to define the endpoints of the "\
+                                   "nanotube.")
+    
+    
     def _update_widgets_in_PM_before_show(self):
         """
         Update various widgets in this Property manager.

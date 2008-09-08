@@ -59,7 +59,7 @@ class InsertNanotube_EditCommand(EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "NOT_PORTED"
+    command_porting_status = "PARTIAL: 2008-09-08:mostly done, but needs a look. see if refactoring to implement update_* methods is absolutely essential"
     
     #Graphics Mode set to CntLine graphics mode
     GraphicsMode_class = NanotubeLine_GM
@@ -106,54 +106,97 @@ class InsertNanotube_EditCommand(EditCommand):
 
         self.struct = struct
         
+        
+    if not USE_COMMAND_STACK:  
+        def init_gui(self):
+            """
+            Do changes to the GUI while entering this command. This includes opening 
+            the property manager, updating the command toolbar , connecting widget 
+            slots (if any) etc. Note: The slot connection in property manager and 
+            command toolbar is handled in those classes. 
     
-
-    def init_gui(self):
+            Called once each time the command is entered; should be called only 
+            by code in modes.py
+    
+            @see: L{self.restore_gui}
+            """
+            _superclass.init_gui(self)  
+    
+            if isinstance(self.graphicsMode, NanotubeLine_GM):
+                self._setParamsForCntLineGraphicsMode()
+                self.mouseClickPoints = []
+    
+            #Clear the segmentList as it may still be maintaining a list of segments
+            #from the previous run of the command. 
+            self._segmentList = []
+            
+            self._init_gui_flyout_action( 'insertNanotubeAction' )     
+    
+        def restore_gui(self):
+            """
+            Do changes to the GUI while exiting this command. This includes closing 
+            this mode's property manager, updating the command toolbar ,
+            Note: The slot connection/disconnection in property manager and 
+            command toolbar is handled in those classes.
+            @see: L{self.init_gui}
+            """                    
+            _superclass.restore_gui(self)
+    
+            if isinstance(self.graphicsMode, NanotubeLine_GM):
+                self.mouseClickPoints = []
+    
+            self.graphicsMode.resetVariables()   
+    
+            if self.flyoutToolbar:
+                self.flyoutToolbar.insertNanotubeAction.setChecked(False)
+    
+            self._segmentList = []
+    
+    #START New command API methods==============================================
+    
+    def command_entered(self):
         """
-        Do changes to the GUI while entering this command. This includes opening 
-        the property manager, updating the command toolbar , connecting widget 
-        slots (if any) etc. Note: The slot connection in property manager and 
-        command toolbar is handled in those classes. 
-
-        Called once each time the command is entered; should be called only 
-        by code in modes.py
-
-        @see: L{self.restore_gui}
+        Overrides superclass method. 
+        @see: basecommand.command_entered() for documentation. 
         """
-        _superclass.init_gui(self)  
-
+        _superclass.command_entered(self)
         if isinstance(self.graphicsMode, NanotubeLine_GM):
             self._setParamsForCntLineGraphicsMode()
             self.mouseClickPoints = []
-
+    
         #Clear the segmentList as it may still be maintaining a list of segments
         #from the previous run of the command. 
-        self._segmentList = []
+        self._segmentList = []    
         
-        self._init_gui_flyout_action( 'insertNanotubeAction' ) 
-
-
-    def restore_gui(self):
+    def command_will_exit(self):
         """
-        Do changes to the GUI while exiting this command. This includes closing 
-        this mode's property manager, updating the command toolbar ,
-        Note: The slot connection/disconnection in property manager and 
-        command toolbar is handled in those classes.
-        @see: L{self.init_gui}
-        """                    
-        _superclass.restore_gui(self)
-
+        Overrides superclass method. 
+        @see: basecommand.command_will_exit() for documentation. 
+        """
         if isinstance(self.graphicsMode, NanotubeLine_GM):
             self.mouseClickPoints = []
-
         self.graphicsMode.resetVariables()   
-
+        self._segmentList = []  
+        
+        _superclass.command_will_exit(self)
+        
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: basecommand.command_enter_flyout() for documentation. 
+        """
+        self._init_gui_flyout_action( 'insertNanotubeAction' )
+            
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: basecommand.command_exit_flyout() for documentation. 
+        """
         if self.flyoutToolbar:
             self.flyoutToolbar.insertNanotubeAction.setChecked(False)
-
-        self._segmentList = []
-
-
+            
+    #START New command API methods==============================================    
+    
     def runCommand(self):
         """
         Overrides EditCommand.runCommand
@@ -186,23 +229,7 @@ class InsertNanotube_EditCommand(EditCommand):
                 bool_keep = True
 
         return bool_keep
-
-
-    def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
-        """
-        Create the property manager object if one doesn't already exist 
-        and then show the propMgr if wanted by the user. 
-        @param showPropMgr: If True, show the property manager 
-        @type showPropMgr: boolean
-        """
-        _superclass.create_and_or_show_PM_if_wanted(
-            self,
-            showPropMgr = showPropMgr)
-
-        self.propMgr.updateMessage("Specify two points in the 3D Graphics " \
-                                   "Area to define the endpoints of the "\
-                                   "nanotube."
-                               )
+        
 
     def createStructure(self, showPropMgr = True):
         """
