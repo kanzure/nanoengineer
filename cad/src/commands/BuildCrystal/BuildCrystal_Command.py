@@ -236,8 +236,9 @@ class BuildCrystal_Command(basicMode):
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
             
-        if not self.savedOrtho:
-            self.w.setViewPerspecAction.setChecked(True)
+##        if not self.savedOrtho:
+##            self.w.setViewPerspecAction.setChecked(True)
+        self.o.setViewProjection(self.savedOrtho) #bruce 080909 cleanup, possible bugfix
     
         #Restore GL states
         self.o.redrawGL = True
@@ -258,6 +259,9 @@ class BuildCrystal_Command(basicMode):
                 self.o.shape.buildChunk(self.o.assy)
             
         self.o.shape = None
+
+        self.selCurve_List = [] #bruce 080909
+        self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2]) #bruce 080909
         
         super(BuildCrystal_Command, self).command_will_exit()
                 
@@ -531,7 +535,7 @@ class BuildCrystal_Command(basicMode):
     # from old Done and Flush methods]
 
     def restore_patches_by_Command(self):
-        self.o.ortho = self.savedOrtho
+        self.o.ortho = self.savedOrtho # for USE_COMMAND_STACK, done via setViewProjection in command_will_exit
         self.o.shape = None
         self.selCurve_List = []
         self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2])

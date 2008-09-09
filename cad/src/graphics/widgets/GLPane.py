@@ -1324,7 +1324,7 @@ class GLPane(GLPane_minimal,
     def setViewProjection(self, projection): # Added by Mark 050918.
         """
         Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the 
-        prefs db value itself, since we don\'t want all user changes to projection to be stored
+        prefs db value itself, since we don't want all user changes to projection to be stored
         in the prefs db, only the ones done from the Preferences dialog.
         """
         # Set the checkmark for the Ortho/Perspective menu item in the View menu.  

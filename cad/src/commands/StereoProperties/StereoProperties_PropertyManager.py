@@ -219,28 +219,29 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _enableStereo(self, enabled):
         """
         Enable stereo view.
-        """        
-        if self.o:
-            self.o.stereo_enabled = enabled
+        """
+        glpane = self.o
+        if glpane:
+            glpane.stereo_enabled = enabled
             # switch to perspective mode
             if enabled:
                 # store current projection mode
-                self.o.last_ortho = self.o.ortho
-                if self.o.ortho:
+                glpane.__StereoProperties_last_ortho = glpane.ortho
+                if glpane.ortho:
                     # dont use glpane.setViewProjection
                     # because we don't want to modify 
                     # default projection setting 
-                    self.o.ortho = 0 
+                    glpane.ortho = 0 
             else:
                 # restore default mode
-                if hasattr(self.o, "last_ortho"):
-                    projection = self.o.last_ortho
-                    if self.o.ortho != projection:
-                        self.o.ortho = projection
+                if hasattr(glpane, "__StereoProperties_last_ortho"):
+                    projection = glpane.__StereoProperties_last_ortho
+                    if glpane.ortho != projection:
+                        glpane.ortho = projection
 
             self._updateWidgets()
                     
-            self.o.gl_update()
+            glpane.gl_update()
             
             
     def _stereoModeComboBoxChanged(self, mode):

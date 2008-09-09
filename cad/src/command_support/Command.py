@@ -1707,23 +1707,37 @@ class basicCommand(anyCommand):
         # someday call them separately, and also just for code
         # clarity. -- bruce 040923)
         
-        if not USE_COMMAND_STACK: #bruce 080805 guess ### REVIEW
-            self.commandSequencer.stop_sending_us_events( self)
-                # stop receiving events from our command sequencer or glpane
-                # (i.e. change current command to nullMode)
-            self.restore_gui()
+        self.commandSequencer.stop_sending_us_events( self)
+            # stop receiving events from our command sequencer or glpane
+            # (i.e. change current command to nullMode)
+            # [not needed when USE_COMMAND_STACK -- bruce 080805 guess ### REVIEW]
+        
+        self.restore_gui()
+            # [not needed when USE_COMMAND_STACK]
+        
         self.w.setFocus() #bruce 041010 bugfix (needed in two places)
             # (I think that was needed to prevent key events from being sent to
             #  no-longer-shown command dashboards. [bruce 041220])
-##        self.restore_patches()
+            #
+            # REVIEW: is this setFocus needed when USE_COMMAND_STACK?
+            # Need to figure out how to test it, to find out.
+            # [bruce 080909 question]
 
         #### TODO: either rename the following for new command API,
         # or copy their code into new command API methods and abandon them.
-        # Guess: just do them from per-subclass overrides of command_will_exit.
-        # [bruce 080806 comment]
+        # Guess: the latter -- just do them from per-subclass overrides of command_will_exit.
+        # Done for restore_patches_by_GraphicsMode, others need TODO/REVIEW.
+        # [bruce 080806/080909 comment]
         
-        self.graphicsMode.restore_patches_by_GraphicsMode() # move earlier?
+        self.graphicsMode.restore_patches_by_GraphicsMode()
+            # Note: this is no longer part of the GraphicsMode API when USE_COMMAND_STACK is true,
+            # but certain commands retain it as an essentially private method and call it from
+            # self.command.command_will_exit in that case. [bruce 080829/080909 comment]
+
         self.restore_patches_by_Command()
+            # only defined in movieMode & Build Crystal;
+            # code copied into command_will_exit in those cases [bruce 080909]
+        
         self.clear_command_state() # clear our internal state, if any
         
         return # from _cleanup
@@ -1745,7 +1759,7 @@ class basicCommand(anyCommand):
 
         @note: no longer part of the Command API when USE_COMMAND_STACK is true
         """
-        assert not USE_COMMAND_STACK #bruce 080829 ### TODO: do the same things in other methods
+        assert not USE_COMMAND_STACK #bruce 080829 ### TODO: indiv commands need to do the same things in other methods
         pass
     
     def clear(self): #bruce 080806 deprecated this (old name of clear_command_state) ### rename in subs, in calls

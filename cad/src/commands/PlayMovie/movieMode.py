@@ -99,7 +99,7 @@ class movieMode(basicMode):
     
     flyoutToolbar = None
 
-    # methods related to entering this mode
+    # methods related to entering or exiting this mode
 
     def Enter(self):
         basicMode.Enter(self)
@@ -150,6 +150,18 @@ class movieMode(basicMode):
             ask = True
         if ask:
             self._offer_to_rewind_if_necessary()
+
+        # copied the old self.restore_patches_by_Command():
+        #bruce 050426 added this, to hold the side effect formerly
+        # done illegally by haveNontrivialState.
+        # ... but why do we need to do this at all?
+        # the only point of what we'd do here would be to stop
+        # having that movie optimize itself for rapid playing....
+        movie = self.o.assy.current_movie
+        if movie:
+            movie._close()
+            # note: this assumes this is the only movie which might be "open",
+            # and that redundant _close is ok.
         
         basicMode.command_will_exit(self)
         return
@@ -182,6 +194,7 @@ class movieMode(basicMode):
     #START new command API methods =============================================
     #currently [2008-08-21 ] also called in by self.init_gui and 
     #self.restore_gui.
+    
     # see also command_will_exit, elsewhere in this file
     
     def command_enter_PM(self):
@@ -345,6 +358,7 @@ class movieMode(basicMode):
         """
         This is run when we exit self for any reason.
         """
+        assert not USE_COMMAND_STACK # done in command_will_exit in that case
         #bruce 050426 added this, to hold the side effect formerly
         # done illegally by haveNontrivialState.
         # ... but why do we need to do this at all?
