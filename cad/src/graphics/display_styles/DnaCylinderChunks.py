@@ -208,7 +208,7 @@ def get_dna_base_orientation_indicators(chunk, normal):
     
     return (indicators, inv_indicators)
 
-# piotr 080903: The two following methods were cretaed by Ninad. 
+# piotr 080903: The two following methods were created by Ninad. 
 
 def get_all_available_dna_base_orientation_indicators(chunk, 
                                                       normal,
@@ -219,7 +219,7 @@ def get_all_available_dna_base_orientation_indicators(chunk,
     """
     
     
-    #@TODO: Move this and other methods out of this file , into a general
+    #@TODO: Move this and other methods out of this file, into a general
     #helper pkg and module -- Ninad 2008-06-01
     from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
     from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
@@ -268,10 +268,10 @@ def get_dna_base_orientation_indicator_dict(chunk,
                                             reference_inv_indicator_dict = {},
                                             skip_isStrandChunk_check = False):
     """
-    Returns two  dictoinaries for DNA bases perpendicular and anti-perpendicular
+    Returns two  dictionaries for DNA bases perpendicular and anti-perpendicular
     to a plane specified by the plane normal vector.
     """
-    #@TODO: Move this and other methods out of this file , into a general
+    #@TODO: Move this and other methods out of this file, into a general
     #helper pkg and module -- Ninad 2008-06-01
     
     from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
@@ -737,7 +737,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
            color_style == 3: 
             # Discrete colors.
             # For discrete color scheme, the number of internal nodes has to be
-            # duplicated in order to deal with (deafult) color interpolation
+            # duplicated in order to deal with (defult) color interpolation
             # in glePolyCylinder routine (colors are interpolated on links
             # with zero length, so the interpolation effects are not visible.)
             # Also, look at comments in _get_axis_positions.
@@ -1234,6 +1234,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 if atom == strand.get_three_prime_end_base_atom():
                     ax_atom = atom.axis_neighbor()
                     a_neighbors = ax_atom.axis_neighbors()
+                    # REVIEW: ?
                     #dvec = chunk.abs_to_base(ax_atom.posn()) - \
                     #       chunk.abs_to_base(a_neighbors[0].posn())
                     pos0, dvec = _get_screen_position_of_strand_atom(atom)
@@ -1411,6 +1412,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                            self.dnaStyleBasesShape > 0 or \
                            self.dnaStyleStrutsShape > 0:                   
 
+                            # REVIEW: Is the following comment still valid?
+                            #
                             # the following is copied from DnaStrand.py
                             # I need to find a 5' sugar atom of the strand
                             # is there any more efficient way of doing that?
@@ -1492,7 +1495,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
             # and experimental.
             
             # As of 080520, this code is less buggy, but still quite slow.
-            
+            # REVIEW: Suggestions for speedup?
+
             # The structure will follow a 2D projection of the central axis.
             # Note: this mode doesn't work well for PAM5 models.
             
@@ -1800,11 +1804,13 @@ class DnaCylinderChunks(ChunkDisplayMode):
             if smooth == True:
                 file.write("  linear_spline\n")
             else:
+                # REVIEW: What should the non-smooth version be?
                 file.write("  linear_spline\n")
             file.write("  %d,\n" % (len(points)))
             n = len(points)
             for i in range(0,n):
                 file.write("  " + povpoint(chunk.base_to_abs(points[i])) +", %g\n" % radii[i]);
+            ### REVIEW: Superseded by the pigment block below?
             ### file.write("  pigment {color <%g %g %g>}\n" % (colors[0][0], colors[0][1], colors[0][2]))
              
             file.write("  pigment {\n")
@@ -1951,6 +1957,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         @type  chunk: chunk
         """
 
+        # REVIEW: Does this take into account curved strand shapes?
+        #
         # for this example, we'll turn the chunk axes into a cylinder.
         # Since chunk.axis is not always one of the vectors chunk.evecs 
         # (actually chunk.poly_evals_evecs_axis[2]),
@@ -1975,7 +1983,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         self.dnaStyleBasesDisplayLetters = env.prefs[dnaStyleBasesDisplayLetters_prefs_key]        
         self.dnaExperimentalMode = env.prefs[dnaRendition_prefs_key]
 
-        # Four "components of the reduced DNA style can be created and
+        # Four components of the reduced DNA style can be created and
         # controlled independently: central axis, strands, structs, and bases.
         
         if not hasattr(chunk, 'ladder'):
