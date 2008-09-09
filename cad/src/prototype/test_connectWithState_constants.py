@@ -34,9 +34,9 @@ def cylinder_round_caps():
 # The state for cylinder width, cylinder color [nim], and cylinder orientation
 # is defined using the State macro in the command object (not in this file).
 # It could be referenced by the PM class in this file by:
-# - self.commandrun.cylinderWidth
-# - self.commandrun.cylinderColor (nim)
-# - self.commandrun.cylinderVertical (###NIM)
+# - self.command.cylinderWidth
+# - self.command.cylinderColor (nim)
+# - self.command.cylinderVertical (###NIM)
 # but in fact is referenced indirectly using string literals for those attr names.
 
 CYLINDER_VERTICAL_DEFAULT_VALUE = True

@@ -45,7 +45,9 @@ class test_connectWithState_PM( ExampleCommand1_PM):
     title = "test connectWithState"
     
     def _addGroupBoxes(self):
-        """Add the groupboxes for this Property Manager."""
+        """
+        Add the groupboxes for this Property Manager.
+        """
         self.pmGroupBox1 = PM_GroupBox( self, title =  "settings")
         self._loadGroupBox1(self.pmGroupBox1)
         self.pmGroupBox2 = PM_GroupBox( self, title =  "commands")
@@ -55,8 +57,9 @@ class test_connectWithState_PM( ExampleCommand1_PM):
     _sMaxCylinderHeight = 20 ### TODO: ask the stateref for this
     
     def _loadGroupBox1(self, pmGroupBox):
-        """Load widgets into groupbox 1 (passed as pmGroupBox)."""
-
+        """
+        Load widgets into groupbox 1 (passed as pmGroupBox).
+        """
         # cylinder height (a double, stored as a preferences value)
 
         cylinderHeight_stateref = Preferences_StateRef_double(
@@ -89,7 +92,7 @@ class test_connectWithState_PM( ExampleCommand1_PM):
         #  defined there using the State macro -- note, this is not yet a good
         #  enough example for state stored in a Node)
 
-        cylinderWidth_stateref = ObjAttr_StateRef( self.commandrun, 'cylinderWidth')
+        cylinderWidth_stateref = ObjAttr_StateRef( self.command, 'cylinderWidth')
 
         ## TEMPORARY: just make sure it's defined in there
         junk = cylinderWidth_stateref.defaultValue
@@ -130,7 +133,7 @@ class test_connectWithState_PM( ExampleCommand1_PM):
         # ==
         
         # cylinder vertical or horizontal (boolean)
-        cylinderVertical_stateref = ObjAttr_StateRef( self.commandrun, 'cylinderVertical' )
+        cylinderVertical_stateref = ObjAttr_StateRef( self.command, 'cylinderVertical' )
         
         self.cylinderVerticalCheckbox = PM_CheckBox(pmGroupBox, text = 'cylinder is vertical')
 ##        self.cylinderVerticalCheckbox.setDefaultValue(CYLINDER_VERTICAL_DEFAULT_VALUE)
@@ -159,13 +162,15 @@ class test_connectWithState_PM( ExampleCommand1_PM):
         return
         
     def button_Bigger(self):
-        self.commandrun.cmd_Bigger()
+        self.command.cmd_Bigger()
 
     def button_Smaller(self):
-        self.commandrun.cmd_Smaller()
+        self.command.cmd_Smaller()
         
     def _addWhatsThisText(self):
-        """What's This text for some of the widgets in the Property Manager."""
+        """
+        What's This text for some of the widgets in the Property Manager.
+        """
         self.cylinderHeightSpinbox.setWhatsThis("cylinder height (stored in prefs)")
         self.cylinderWidthSpinbox.setWhatsThis("cylinder width (stored as State in the command object)")
         return

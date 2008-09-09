@@ -114,7 +114,7 @@ class ExampleCommand(_superclass):
         win = self.win
         # note: propMgr is initialized to None in our superclass anyMode
         if self.PM_class:
-            self.propMgr = self.PM_class(win, commandrun = self)
+            self.propMgr = self.PM_class(win, command = self)
         _superclass.init_gui(self) # this fixed the "disconnect without connect" bug 
         #[when _superclass was selectAtoms_Command anyway]
             #k will we need to do this first not last? or not do all of it? seems ok so far.

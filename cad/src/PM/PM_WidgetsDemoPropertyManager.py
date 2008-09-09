@@ -64,7 +64,7 @@ class PM_WidgetsDemoPropertyManager(PM_Dialog, GeneratorBaseClass):
     pmName = title
     iconPath = "ui/actions/Properties Manager/info.png"
 
-    def __init__(self, win, commandrun = None):
+    def __init__(self, win, command = None):
        
         self.win = win
                 

@@ -114,22 +114,24 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
     #  So does GBC, but to a noop method. So GBC better be inherited *after* PropMgrBaseClass!)
     
     def ok_btn_clicked(self):
-        print "ok_btn_clicked, doing Done in", self.commandrun
-        self.commandrun.Done()
+        print "ok_btn_clicked, doing Done in", self.command
+        self.command.Done()
         pass
     
     def cancel_btn_clicked(self):
-        print "cancel_btn_clicked, doing Cancel in", self.commandrun
-        self.commandrun.Cancel()
+        print "cancel_btn_clicked, doing Cancel in", self.command
+        self.command.Cancel()
         pass
         
     def preview_btn_clicked(self):
         print "preview_btn_clicked (noop or nim, I think)", self
         pass
         
-    def __init__(self, win, commandrun = None):
+    def __init__(self, win, command = None):
+        # TODO: remove win argument, get it from command [bruce 080909 comment]
+        assert command.win is win #bruce 080909 UNTESTED
         print "creating", self ####
-        self.commandrun = commandrun
+        self.command = command #bruce 080909 renamed commandrun -> command, in all classes in package prototype
 
         PM_Dialog_with_example_widgets.__init__( self ) ## ok before the next line? @@@
         if 1: # bruce added these, otherwise various AttributeErrors [still true??]
@@ -152,9 +154,9 @@ class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
     prefix = "Thing2" # for names created by GBC [required when create_name_from_prefix is true (not sure about otherwise)]
     cmdname = "Generate a Thing2" # Undo/history cmdname used by GBC [optional, but affects history messages]
     
-    def __init__(self, win, commandrun = None):
+    def __init__(self, win, command = None):
         print "creating", self ####
-        self.commandrun = commandrun
+        self.command = command
 
         PM_Dialog_with_example_widgets.__init__( self )
         GeneratorBaseClass.__init__( self, win)        
@@ -187,12 +189,12 @@ class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
     def ok_btn_clicked(self):
         print "ok_btn_clicked, doing super then Done (kluge)", self
         GeneratorBaseClass.ok_btn_clicked(self)
-        self.commandrun.Done() ###k both commandrun and Done -- and, kluge, instead GBC should call a done method in self.commandrun
+        self.command.Done() ###k both command and Done -- and, kluge, instead GBC should call a done method in self.command
         pass
     def cancel_btn_clicked(self):
         print "cancel_btn_clicked, doing super then Done (kluge)", self
         GeneratorBaseClass.cancel_btn_clicked(self)
-        self.commandrun.Done()
+        self.command.Done()
         pass
 
     pass # end of class ExampleCommand2_PM
