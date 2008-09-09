@@ -1647,7 +1647,8 @@ class basicCommand(anyCommand):
             # [bruce 070814 comment]
         return
 
-    def Abandon(self): # note: this is only called by exit_all_commands, as of before 080908.
+    def Abandon(self, warn_about_abandoned_changes = True):
+        # note: this is only called by exit_all_commands, as of before 080908.
         """
         This is only used when we are forced to Cancel, whether or not this
         is ok (with the user) to do now -- someday it should never be called.
@@ -1655,9 +1656,11 @@ class basicCommand(anyCommand):
         one that can't be fixed in the command-related code alone.
         [But it would be easy to fix in the file-opening code, once we
         agree on how.]
+
+        @param warn_about_abandoned_changes: same meaning as in _exit_currentCommand_with_flags 
         """
         assert not USE_COMMAND_STACK
-        if self.haveNontrivialState():
+        if self.haveNontrivialState() and warn_about_abandoned_changes:
             self._warnUserAboutAbandonedChanges()
         # don't do self._exitMode(), since it sets a new current command and
         #ultimately asks command sequencer to update for that... which is
@@ -1672,10 +1675,19 @@ class basicCommand(anyCommand):
         which (when commandSequencer.exit_is_forced is true) need to warn the user
         about changes being abandoned when closing a model, which were not
         noticed by a file modified check due to logic bugs in how that works
-        and how those changes are stored.
+        and how those changes are stored. Most commands don't need to call this;
+        only commands that store changes in self rather than in assy might
+        need to call it.
+
+        When USE_COMMAND_STACK, does nothing if
+        self.commandSequencer.warn_about_abandoned_changes is False.
 
         @see: old methods (pre-USE_COMMAND_STACK) Abandon and haveNontrivialState.
         """
+        if USE_COMMAND_STACK:
+            if not self.commandSequencer.warn_about_abandoned_changes:
+                return
+        
         msg = "%s with changes is being forced to abandon those changes!\n" \
               "Sorry, no choice for now." % (self.get_featurename(),)
         self.o.warning( msg, bother_user_with_dialog = 1 )

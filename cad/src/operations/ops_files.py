@@ -1019,12 +1019,22 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def fileOpen(self, recentFile = None):
         """
         Slot method for 'File > Open'.
-        By default, users open a file through 'Open File' dialog. If <recentFile> is provided, it means user
-        is opening a file named <recentFile> through the 'Recent Files' menu list. The file may or may not exist.
+        
+        By default, we assume user wants to specify file to open
+        through 'Open File' dialog.
+
+        @param recentFile: if provided, specifies file to open,
+                           assumed to come from the 'Recent Files' menu list;
+                           no Open File dialog will be used.
+                           The file may or may not exist.
+        @type recentFile: string
         """
-        
         env.history.message(greenmsg("Open File:"))
-        
+
+        warn_about_abandoned_changes = True
+            # note: this is turned off later if the user explicitly agrees
+            # to discard unsaved changes [bruce 080909]
+
         if self.assy.has_changed():
             ret = QMessageBox.warning( self, "Warning!",
                 "The part contains unsaved changes.\n"
@@ -1033,19 +1043,25 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
-            if ret == 0: # Save clicked or Alt+S pressed or Enter pressed.
-                ##Huaicai 1/6/05: If user canceled save operation, return 
-                ## without letting user open another file
+            if ret == 0:
+                # Save clicked or Alt+S pressed or Enter pressed.
+                #Huaicai 1/6/05: If user now cancels save operation, return 
+                # without letting user open another file
                 if not self.fileSave():
                     return
-                
-            ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
             elif ret == 1:
-                pass ## self._make_and_init_assy() 
-            
-            elif ret == 2: 
+                # Discard
+                warn_about_abandoned_changes = False
+                    # note: this is about *subsequent* discards on same old
+                    # model, if any (related to "Abandon" or exit_is_forced)
+                #Huaicai 12/06/04: don't clear assy, since user may cancel the file open action below
+                pass ## self._make_and_init_assy()
+            elif ret == 2:
+                # Cancel clicked or Alt+C pressed or Escape pressed
                 env.history.message("Cancelled.")              
-                return # Cancel clicked or Alt+C pressed or Escape pressed
+                return
+            else:
+                assert 0 #bruce 080909
 
         if recentFile:
             if not os.path.exists(recentFile):
@@ -1078,7 +1094,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             start = begin_timing("File..Open")
             self.updateRecentFileList(fn)
 
-            self._make_and_init_assy('$DEFAULT_MODE')
+            self._make_and_init_assy('$DEFAULT_MODE',
+                   warn_about_abandoned_changes = warn_about_abandoned_changes )
                 # resets self.assy to a new, empty Assembly object
             
             self.assy.clear_undo_stack()
@@ -1921,6 +1938,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         env.history.message(greenmsg("Close File:"))
         
         isFileSaved = True
+        warn_about_abandoned_changes = True # see similar code in fileOpen
         if self.assy.has_changed():
             ret = QMessageBox.warning( self, "Warning!" ,
                 "The model contains unsaved changes.\n"
@@ -1931,15 +1949,22 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 2 )     # Escape == button 2
             
             if ret == 0:
-                isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+                # Save clicked or Alt+S pressed or Enter pressed
+                isFileSaved = self.fileSave()
             elif ret == 1:
+                # Discard
                 env.history.message("Changes discarded.")
-            elif ret == 2: 
+                warn_about_abandoned_changes = False
+            elif ret == 2:
+                # Cancel clicked or Alt+C pressed or Escape pressed
                 env.history.message("Cancelled.")
-                return # Cancel clicked or Alt+C pressed or Escape pressed
+                return
+            else:
+                assert 0 #bruce 080909
         
         if isFileSaved:
-            self._make_and_init_assy('$STARTUP_MODE')
+            self._make_and_init_assy('$STARTUP_MODE',
+                   warn_about_abandoned_changes = warn_about_abandoned_changes )
             self.assy.reset_changed() #bruce 050429, part of fixing bug 413
             self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
             self.win_update()
@@ -2009,8 +2034,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             msg = "[" + workdir + "] is not a directory. Working directory was not changed."
             env.history.message( redmsg(msg))
         return
-                
-    def _make_and_init_assy(self, initial_mode_symbol = None):
+    
+    def _make_and_init_assy(self,
+                            initial_mode_symbol = None,
+                            warn_about_abandoned_changes = True ):
         """
         [private; as of 080812, called only from fileOpen and fileClose]
 
@@ -2023,6 +2050,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                                     to nullMode. All current calls provide
                                     this as a "symbolic mode name".
 
+        @param warn_about_abandoned_changes: passed to exit_all_commands method in
+                                             self.assy.commandSequencer; see that
+                                             method in class CommandSequencer for
+                                             documentation
+        @type warn_about_abandoned_changes: boolean
+                                          
         @note: MWsemantics.__init__ doesn't call this, but contains similar
                code, not all in one place. It's not clear whether it could
                be made to call this.
@@ -2037,14 +2070,28 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # class MWsemantics (which mixes it in)?
         
         if self.assy:
-            # this can happen
-            self.assy.close_assy() #bruce 080314
+            cseq = self.assy.commandSequencer
+            cseq.exit_all_commands( warn_about_abandoned_changes = \
+                                    warn_about_abandoned_changes )            
+                #bruce 080909 new features:
+                # 1. exit all commands here, rather than (or in addition to)
+                # when initing new assy. This is needed when not
+                # GLPANE_IS_COMMAND_SEQUENCER; otherwise it might be a
+                # behavior change, but if so it is probably ok or good.
+                # 2. but tell that not to warn about abandoning changes
+                # stored in commands, if user already said to discard changes
+                # stored in assy (according to caller passing False for warn_about_abandoned_changes).
+                # This should fix an old bug in which redundant warnings
+                # would be given if both kinds of changes existed.
+            self.assy.close_assy() # bruce 080314
         
         self.assy = self._make_a_main_assy()
         self.update_mainwindow_caption()
         self.glpane.setAssy(self.assy)
             # notes: this calls assy.set_glpane, and _reinit_modes
             # (which leaves currentCommand as nullmode)
+            # (whether or not USE_COMMAND_STACK,
+            #  and whether or not GLPANE_IS_COMMAND_SEQUENCER).
         self.assy.set_modelTree(self.mt)
         
         ### Hack by Huaicai 2/1 to fix bug 369

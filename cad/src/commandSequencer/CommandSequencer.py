@@ -103,6 +103,11 @@ class CommandSequencer(object):
     exit_is_forced -- whether this exit is forced to occur (e.g. caused by
     exit_all_commands when closing a model).
 
+    warn_about_abandoned_changes -- when exit_is_forced, whether the user should
+    be warned about changes (if any) stored in active commands being exited
+    (as opposed to changes stored in the model in assy, as usual) which are
+    being discarded unavoidably
+
     exit_is_implicit -- whether this exit is occuring only as a prerequisite
     of entering some other command
     
@@ -135,6 +140,7 @@ class CommandSequencer(object):
         # doc these:
         exit_is_cancel = False
         exit_is_forced = False
+        warn_about_abandoned_changes = True
         exit_is_implicit = False
         exit_target = None
         enter_target = None
@@ -315,7 +321,7 @@ class CommandSequencer(object):
         assert commandObject.commandName == commandName #bruce 080805
         self._commandTable[commandName] = commandObject
 
-    def exit_all_commands(self): #bruce 080806 split this out; used in _reinit_modes and extrude_reload
+    def exit_all_commands(self, warn_about_abandoned_changes = True):
         """
         Exit all currently active commands
         (even the default command, even when USE_COMMAND_STACK),
@@ -324,7 +330,30 @@ class CommandSequencer(object):
         To do the exiting, use "Abandon", i.e. (when USE_COMMAND_STACK)
         make sure self.exit_is_forced is true when examined by exit-related
         methods in command classes.
+        
+        @param warn_about_abandoned_changes: if False, unsaved changes (if any)
+                                         stored in self's active commands
+                                         (as opposed to unsaved changes stored
+                                         in the model in self.assy)
+                                         can be discarded with no user warning.
+                                         (Otherwise they are discarded with a
+                                         warning. There is no way for this code
+                                         or the user to avoid discarding them.)
+                                         Note that it is too late to offer to
+                                         not discard them -- caller must do that
+                                         separately if desired (and if user
+                                         agrees to discard them, caller should
+                                         pass True to this option to avoid a
+                                         duplicate warning).
+                                         This is only needed due to there being
+                                         some changes stored in commands but
+                                         not in assy, which are not noticed by
+                                         assy.has_changed(). Most commands don't
+                                         store any such changes.
+        @type warn_about_abandoned_changes: boolean
         """
+        #bruce 080806 split this out; used in _reinit_modes and extrude_reload
+        #bruce 080909 new feature, warn_about_abandoned_changes can be false
         if USE_COMMAND_STACK:
             while self._raw_currentCommand and \
                   not self.currentCommand.is_null and \
@@ -332,7 +361,10 @@ class CommandSequencer(object):
                 # exit current command
                 old_commandName = self.currentCommand.commandName
                 try:
-                    self._exit_currentCommand_with_flags( forced = True)
+                    self._exit_currentCommand_with_flags(
+                        forced = True,
+                        warn_about_abandoned_changes = warn_about_abandoned_changes
+                     )
                 except:
                     print_compact_traceback()
                 if self._raw_currentCommand and \
@@ -355,7 +387,8 @@ class CommandSequencer(object):
                 ###refusing (which is a bug); so for now just abandon
                 # work, with a warning if necessary
                 try:
-                    self.currentCommand.Abandon()
+                    self.currentCommand.Abandon(warn_about_abandoned_changes = \
+                                                warn_about_abandoned_changes )
                 except:
                     msg = "bug: error while abandoning old mode; trying to ignore"
                     print_compact_traceback( msg + ": " )
@@ -368,6 +401,7 @@ class CommandSequencer(object):
     def _exit_currentCommand_with_flags(self,
                                         cancel = False,
                                         forced = False,
+                                        warn_about_abandoned_changes = True,
                                         implicit = False,
                                         exit_target = None,
                                         enter_target = None
@@ -394,6 +428,7 @@ class CommandSequencer(object):
         # set attrs for telling command_will_exit what side effects to do
         self.exit_is_cancel = cancel
         self.exit_is_forced = forced
+        self.warn_about_abandoned_changes = warn_about_abandoned_changes
         self.exit_is_implicit = implicit
         # set attrs to let command_exit methods construct dialog text, etc
         # (when used along with the other attrs)
@@ -406,6 +441,7 @@ class CommandSequencer(object):
             #TODO: except clause, protect callers (unless that method does it)
             self.exit_is_cancel = False
             self.exit_is_forced = False
+            self.warn_about_abandoned_changes = True
             self.exit_is_implicit = False
             self.exit_target = None
             self.enter_target = None
@@ -456,15 +492,19 @@ class CommandSequencer(object):
             return
         pass
 
-    def _use_nullmode(self): # note: 4 calls, all in this file, as of before 080805; making it private
-        if USE_COMMAND_STACK:
-            # REVIEW whether this is needed at all in this case;
-            # for now, assume it is, but only when initializing [###wrong: also in exit_all_commands -- pass warning = false?];
-            # so warn when used in other cases
-            # (though warning might be spurious when reusing self upon fileClose/fileOpen
-            #  unless not GLPANE_IS_COMMAND_SEQUENCER). [bruce 080814]
-            if self._raw_currentCommand and not self._raw_currentCommand.is_null:
-                print "possible bug: discarding %r, in _use_nullmode" % self._raw_currentCommand # may happen for default command
+    def _use_nullmode(self):
+        """
+        [private]
+        self._raw_currentCommand = self.nullmode
+        """
+        # note: 4 calls, all in this file, as of before 080805; making it private
+        #
+        # Note: when USE_COMMAND_STACK is true, this is only called during
+        # exit_all_commands (with current command being default command),
+        # and during init or reinit of self (with current command always being
+        # nullMode, according to debug prints no longer present).
+        # When not USE_COMMAND_STACK, it is also called during most changes
+        # from one command to another. [bruce 080814/080909 comment]
         self._raw_currentCommand = self.nullmode
 
     def is_this_command_current(self, command):

@@ -579,12 +579,14 @@ class Assembly( StateMixin, Assembly_API):
     def close_assy(self): #bruce 080314
         """
         self is no longer being actively used, and never will be again.
-        Record this state, and do (or permit by recording it)
-        various optimizations and safety changes for closed assys.
+        (I.e. it's being discarded.)
+        
+        Record this state in self, and do (or permit later code to do,
+        by recording it) various optimizations and safety changes for
+        closed assys.
 
         @note: doesn't yet do most of what it ought to do (e.g. destroy atoms).
         """
-        # print "\nfyi: close_assy(%r)" % self # works
         self.assy_closed = True
         self.permanently_disable_updaters = True
         return

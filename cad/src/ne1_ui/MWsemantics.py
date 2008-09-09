@@ -658,9 +658,11 @@ class MWsemantics(QMainWindow,
         """
         NE1 is going to exit. (The user has already been given the chance to save current files
         if they are modified, and (whether or not they were saved) has approved the exit.)
-           Perform whatever internal side effects are desirable to make the exit safe and efficient,
+
+        Perform whatever internal side effects are desirable to make the exit safe and efficient,
         and/or to implement features which save other info (e.g. preferences) upon exiting.
-           This should be safe to call more than once, even though doing so is a bug.
+
+        This should be safe to call more than once, even though doing so is a bug.
         """
 
         # We do most things in their own try/except clauses, so if they fail,
@@ -707,9 +709,23 @@ class MWsemantics(QMainWindow,
         try:
             if self.assy:
                 self.assy.close_assy()
+                    # note: we won't also call
+                    # self.assy.commandSequencer.exit_all_commands
+                    # (with or without warn_about_abandoned_changes = False).
+                    # Ideally we might sometimes like that warning here,
+                    # but it's better to never have it than to risk exit bugs
+                    # (in case it's too late to give it),
+                    # or to bother users with duplicate warnings (if they
+                    # already said to discard ordinary unsaved changes,
+                    # different than the ones that warns about) which we
+                    # don't presently have enough info to avoid giving.
+                    # As for the exits themselves, they are not needed,
+                    # and might be too slow and/or risk exit bugs.
+                    # [bruce 080909 comment]
                 self.assy.deinit()
-                # in particular, stop trying to update Undo/Redo actions all the time
-                # (which might cause crashes once their associated widgets are deallocated)
+                    # in particular, stop trying to update Undo/Redo actions
+                    # all the time (which might cause crashes once their
+                    # associated widgets are deallocated)
         except:
             print_compact_traceback( msg )
 
