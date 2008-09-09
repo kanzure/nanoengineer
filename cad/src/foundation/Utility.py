@@ -225,8 +225,7 @@ class Node( StateMixin):
             name_msg = " (exception in `self.name`)"
         return "<%s at %#x%s>" % (classname, id(self), name_msg)
 
-    def setAssy(self, assy):
-        #bruce 051227, Node method [used in depositMode; TODO: rename to avoid confusion with GLPane method]
+    def set_assy(self, assy): #bruce 051227, Node method [used in PartLibrary_Command]
         """
         Change self.assy from its current value to assy,
         cleanly removing self from the prior self.assy if that is not assy.
@@ -1573,7 +1572,7 @@ class Node( StateMixin):
         ## self.__dict__.clear() ###k is this safe???
         return
 
-    def remove_from_parents(self): #bruce 051227 split this out of Node.kill for use in new Node.setAssy
+    def remove_from_parents(self): #bruce 051227 split this out of Node.kill for use in new Node.set_assy
         """
         Remove self from its parents of various kinds
         (part, dad, assy, selection) without otherwise altering it.
@@ -1607,7 +1606,7 @@ class Node( StateMixin):
             #bruce 060315 comments about this old code:
             # reasons to set assy to None:
             # - helps avoid cycles when destroying Nodes
-            # - logical part of setAssy (but could wait til new assy is stored)
+            # - logical part of set_assy (but could wait til new assy is stored)
             # reasons not to:
             # - Undo-tracked changes might like to use it to find the right AssyUndoArchive to tell about the change
             #   (can we fix that by telling it right now? Not sure... in theory, more than one assy could claim it if we Undo in some!)

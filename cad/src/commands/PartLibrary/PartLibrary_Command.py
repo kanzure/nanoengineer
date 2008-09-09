@@ -163,7 +163,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
                 newMol = hotspotAtom.molecule.copy_single_chunk(None)
                     # [this can break interchunk bonds,
                     #  thus it still has bug 2028]
-                newMol.setAssy(self.o.assy)
+                newMol.set_assy(self.o.assy)
                 hs = newMol.hotspot
                 ha = hs.singlet_neighbor() # hotspot neighbor atom
                 attch2Atom = attch2Singlet.singlet_neighbor() # attach to atom
@@ -203,7 +203,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
                     newMol = m.copy_single_chunk(None)
                         # [this can break interchunk bonds,
                         #  thus it still has bug 2028]
-                    newMol.setAssy(self.o.assy)
+                    newMol.set_assy(self.o.assy)
 
                     ## Get each of all other chunks' center movement for the 
                     ## rotation around 'rotCenter'
@@ -295,7 +295,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
 ##            for newMol in newnodes:
 ##                # some of the following probably only work for Chunks,
 ##                # though coding them for other nodes would not be hard
-##                newMol.setAssy(self.o.assy)
+##                newMol.set_assy(self.o.assy)
 ##                newMol.move(moveOffset)
 ##                self.o.assy.addmol(newMol)
 ##                stuff.append(newMol)
@@ -304,7 +304,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
 ##            #chunks one at a time (bug 2028)
 ##            for m in nodes:
 ##                newMol = m.copy(None) # later: renamed Chunk method to copy_single_chunk -- not sure if this was only called on chunks
-##                newMol.setAssy(self.o.assy) #bruce 051227 revised this
+##                newMol.set_assy(self.o.assy) #bruce 051227 revised this
 ##                
 ##                newMol.move(moveOffset)
 ##                
