@@ -310,7 +310,7 @@ PROTEIN_ATOM_TYPES = {
 NUCLEIC_ATOM_TYPES = {
     " DC" : {
         "P"   : "sp3(p)", # phosphate phosphorus
-        "OP1" : "sp2(-.5)",       # and two negatively charged oxygens 
+        "OP1" : "sp2(-.5)",  # and two negatively charged oxygens 
         "OP2" : "sp2(-.5)",
         "C2"  : "sp2a",
         "O2"  : "sp2a", 
@@ -401,6 +401,30 @@ NUCLEIC_ATOM_TYPES = {
     }
 
 
+# Important notes: (piotr 080909)
+#
+# - the PDB reading code can read standard Protein Data Bank files and preserve
+# ATOM and HETATM record information, so the molecules can be exported as PDB
+# and recognized by other programs
+#
+# - not all information contained in PDB files is preserved, only per-atom fields  
+#
+# - only first model is read from multi-model files,
+# 
+# - "Heteroatoms" group is created in Model Tree even if there are no heteroatoms
+#
+# - inferBonds method is used to rebuild bonds for proteins and DNA. This should
+# be replaced by bond assignment using pattern matching. Currently, only 
+# proper bond orders are assigned for standard residues, but connectivity
+# is computed using the inferBonds method.
+# 
+# - PAM3 and PAM5 models can be written and read using the new code,
+# although - as it was before - the internal DNA representation is not preserved
+# 
+# - the old PDB I/O code still remains there, and will be used if ENABLE_PROTEINS
+# debug pref is set to False (perhaps this behavior should be controlled by
+# another debug pref)
+
 def _readpdb_new(assy, 
              filename, 
              isInsert = False, 
@@ -435,11 +459,15 @@ def _readpdb_new(assy,
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
 
+    # These methods should be probably moved to this file.
     from protein.model.Protein import is_water, is_amino_acid, is_nucleotide
     
     def _add_bondpoints(mol):
         """
         Adds missing bondpoints to a molecule.
+        
+        @param mol: molecule
+        @type mol: Chunk
         """
         atlist = [atom for (key, atom) in mol.atoms.items()]
         for atom in atlist:
@@ -449,6 +477,12 @@ def _readpdb_new(assy,
         """
         Assigns an atom type based on atom name and residue name by
         simple name pattern matching.
+        
+        @param atom_name: PDB name of the atom
+        @type atom_name: string
+        
+        @param res_name: PDB residue name
+        @type res_name: string
         """
         atom.setOverlayText(atom_name)
         _assigned = False
@@ -499,55 +533,35 @@ def _readpdb_new(assy,
                 atom_type = atom_type_dict[atom_name]
                 atom.set_atomtype_but_dont_revise_singlets(atom_type) 
         
-    def _finish_molecule():
+    def _finalize_molecule():
         """
         Performs some operations after reading the entire PDB chain:
-          - rebuild (infer) bonds
-          - rename molecule to reflect a chain ID
-          - delete the protein object if this is not a protein
-          - append the molecule to the molecule list
+
+        - rebuild (infer) bonds for protein and DNA chains
+        - assigns proper bond orders for standard residues
+        - renames molecule to reflect a chain ID
+        - deletes the "protein" attribute if it is not a protein
+        - appends the molecule to the molecule list
         """
         
         if mol == water:
-            # Skip water, to be added explicitly at the end.
+            # Skip water, to be added to the mollist explicitly at the end.
             return
         
         if mol.atoms:  
-            
+            # Create a molecule name by concatenating PDB ID and chain ID
             mol.name = pdbid.lower() + chainId
 
             if mol.protein.count_c_alpha_atoms() == 0 and \
                not dont_split:
-                ### print "hetero"
-                # If there is no C-alpha atoms, consider the chunk 
-                # as a non-protein. But! Split it into individual 
-                # hetero groups. 
-                # This is undesired behavior for DNA molecules (and perhaps
-                # for carbohydrates) - they should still be considered 
-                # single chunks. piotr 081208
-                res_list = mol.protein.get_amino_acids()
-                assy.part.ensure_toplevel_group()
-                hetgroup = Group("Heteroatoms", assy, assy.part.topnode) 
-                for res in res_list:
-                    hetmol = Chunk(assy, 
-                                   res.get_three_letter_code().replace(" ", "") + \
-                                   "[" + str(res.get_id()) + "]")
-                    for atom in res.get_atom_list():
-                        newatom = Atom(atom.element.symbol, atom.posn(), hetmol)
-                    # New chunk - infer the bonds anyway (this is not
-                    # correct, should first check connectivity read from
-                    # the PDB file CONECT records).
-                    inferBonds(hetmol)
-                    hetgroup.addchild(hetmol)
-                mollist.append(hetgroup)
+               # If there are C-alpha atoms and dont_split flag is not set, 
+               # consider the chunk non-protein. 
+                
+                # Create a heteromolecule name
+                mol.name = resName + '[' + resId.replace(' ','') + ']'
+                
+                hetgroup.addchild(mol)
             else:
-                #if numconects == 0:
-                #    msg = orangemsg("PDB file has no bond info; inferring bonds")
-                #    env.history.message(msg)
-                #    # let user see message right away (bond inference can take significant 
-                #    # time) [bruce 060620]
-                #    env.history.h_update() 
-
                 # For protein - infer the bonds anyway. This should be replaced
                 # by a proper atom / bond type assignment, for example using 
                 # the templates present in the Peptide Generator. piotr 081908
@@ -566,7 +580,7 @@ def _readpdb_new(assy,
                 # Assign bond orders. piotr 081908
                 from model.bond_constants import V_DOUBLE, V_AROMATIC, V_GRAPHITE
 
-                # Interring bond types
+                # Inferring bond types
                 for atom in mol.atoms.itervalues():
                     if atom.bonds:
                         for bond in atom.bonds:
@@ -588,6 +602,7 @@ def _readpdb_new(assy,
                                        bond.atom1 not in sp2c_atoms and
                                        bond.atom1 not in aromatic_atoms)):  
                                     bond.set_v6(V_DOUBLE)
+                            # for phosphate P - charged oxygen bond: assign V_GRAPHITE
                             if ((atom1_type == "sp3(p)" and
                                  atom2_type == "sp2(-.5)") or 
                                ((atom2_type == "sp3(p)" and
@@ -602,27 +617,31 @@ def _readpdb_new(assy,
                     mol.protein.set_chain_id(chainId)
                     mol.protein.set_pdb_id(pdbid)
                 
-                if mol.atoms:
+                # Add the molecule to mollist
                     mollist.append(mol)                
+                    
+                # Create bondpoints for easy hydrogenation
+                _add_bondpoints(mol)                    
         else:
-            #env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
-            #env.history.h_update() 
+            env.history.message( redmsg( "Warning: PDB residue contained no atoms"))
+            env.history.h_update() 
             pass
         
-        _add_bondpoints(mol)
-        pass # _finish_molecule
+        pass # _finalize_molecule
     
     # Read the file contents.
     fi = open(filename,"rU")
     lines = fi.readlines()
     fi.close()
 
-    ###atom_type_dict = {}
+    assy.part.ensure_toplevel_group()
+
     aromatic_atoms = []
     sp2a_atoms = []
     sp2b_atoms = []
     sp2c_atoms = []
-    
+
+    # List of molecules read from PDB file.
     mollist = []
 
     # Lists of secondary structure tuples (res_id, chain_id) 
@@ -634,12 +653,19 @@ def _readpdb_new(assy,
     if not isInsert:
         assy.filename = filename
     
+    # dictionary for HETATM connectivity reconstruction
     ndix = {}
+
+    lastResId = None
+    
+    # Create a molecule chunk
     mol = Chunk(assy, nodename)
     mol.protein = Protein()
     dont_split = False
-    
-    # Create a chunk for water molecules.
+
+    hetgroup = Group("Heteroatoms", assy, assy.part.topnode) 
+
+    # Create a chunk to store water molecules.
     water = Chunk(assy, nodename)
             
     numconects = 0
@@ -685,6 +711,13 @@ def _readpdb_new(assy,
     for card in lines:
         key = card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
+            
+            # Set _is_hetero flag for HETATM
+            if key == "atom":
+                _is_hetero = False
+            else:
+                _is_hetero = True
+                
             ## sym = capitalize(card[12:14].replace(" ", "").replace("_", "")) 
             # bruce 080508 revision (guess at a bugfix for reading NE1-saved
             # pdb files):
@@ -700,13 +733,20 @@ def _readpdb_new(assy,
             name3 = card[12:15].replace(" ", "").replace("_", "")
             name2 = card[12:14].replace(" ", "").replace("_", "")
             chainId = card[21]
+
             resId = card[22:26].replace(" ", "") + card[27]
-            #if resIdStr != "":
-            #    resId = int(resIdStr)
-            #else:
-            #    resId = 0
+
+            if lastResId == None:
+                lastResId = resId
+                
             resName = card[17:20]
-            sym = card[77:78] # Element symbol
+            
+            _is_water = is_water(resName)
+            _is_amino_acid = is_amino_acid(resName)
+            _is_nucleotide = is_nucleotide(resName)
+            
+            sym = card[77:79] # Element symbol
+
             alt = card[16] # Alternate location indicator
             
             if alt != ' ' and \
@@ -731,7 +771,8 @@ def _readpdb_new(assy,
                 nodigits(name2) # like code as revised on 070410
             ]
             
-            # piotr 081908: look at 77-78 field - it should include an element symbol.
+            # piotr 080819: first look at the 77-78 field - it should include 
+            # the element symbol.
             foundit = False
             try:
                 PeriodicTable.getElement(sym)
@@ -739,11 +780,13 @@ def _readpdb_new(assy,
                 pass
             else:
                 foundit = True
+            # if not found, look at possible atom names 
             if not foundit:
                 for atomname in atomnames_to_try:
                     atomname = atomname_exceptions.get(atomname, atomname)
                     if atomname[0] == 'H' and key == "atom":
                         atomname = "H" # see comment in atomname_exceptions
+                    
                     sym = capitalize(atomname) # turns either 'he' or 'HE' into 'He'
                     
                     try:
@@ -782,16 +825,24 @@ def _readpdb_new(assy,
                 # inferring bonds,  which we do later if the file doesn't have 
                 # any bonds). [bruce 060614/070410 comment]
 
-            _is_water = is_water(resName)
-            _is_amino_acid = is_amino_acid(resName)
-            _is_nucleotide = is_nucleotide(resName)
-            
             # Now the element name is in sym.
             xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
             n = int(card[6:11])
 
+            if resId != lastResId and \
+               not _is_amino_acid and \
+               not _is_nucleotide and \
+               not _is_water:
+                # Finalize current molecule.
+                _finalize_molecule()
+                
+                # Discard the original molecule and create a new one. 
+                mol = Chunk(assy, nodename)
+                mol.protein = Protein()
+                dont_split = False
+            
             if _is_water:
-                # If this is a water molecule, add the atom to Water chunk
+                # If this is a water molecule, add the atom to the Water chunk
                 a = Atom(sym, A(xyz), water)
             else:
                 # Otherwise, add it to the current molecule.
@@ -802,11 +853,21 @@ def _readpdb_new(assy,
                 # Create the pdb_info dictionary if it doesn't exist.
                 a.pdb_info = {}
                 
+            # Store PDB atom properties in the pdb_info dict
             a.pdb_info['atom_name'] = name4
             a.pdb_info['residue_id'] = resId
             a.pdb_info['residue_name'] = resName
             a.pdb_info['chain_id'] = chainId
             
+            if not _is_hetero:
+                # The 'standard_atom' key represents a bool value set to
+                # true if this atom is "standard PDB atom", e.g. it was
+                # read from ATOM record.
+                a.pdb_info['standard_atom'] = True
+            
+            # Normally, the connectivity information is only available 
+            # for HETATM records. But other programs can write CONECT info 
+            # for ATOM records, as well.             
             ndix[n] = a
             
             if _is_amino_acid or \
@@ -816,14 +877,17 @@ def _readpdb_new(assy,
                 dont_split = True
                 
             if not _is_water:
-                # Add the atom to the "protein" chunk.
+                # Adds the atom to the "protein" chunk.
                 mol.protein.add_pdb_atom(a, 
                                          name4, 
                                          resId, 
                                          resName,
                                          setType=True)
                 
+            if _is_amino_acid or \
+               _is_nucleotide:
                 # Recognize atom type by pattern matching of the atom name.
+                # Do this only for proteins and nucleic acids.
                 _set_atom_type(a, name4, resName)
                 
             # Assign one of three types of secondary structure.            
@@ -838,6 +902,9 @@ def _readpdb_new(assy,
             if (resId, chainId) in turn:
                 # turn 
                 mol.protein.assign_turn(resId)
+            
+            # Remember the most recent resId
+            lastResId = resId
             
         elif key == "conect":
             try:
@@ -866,16 +933,18 @@ def _readpdb_new(assy,
                         continue
                     bond_atoms(a1, a2)
                     numconects += 1
+        
         elif key == "ter":
-            # Finish the current molecule.
-            _finish_molecule()
+            # Finalize current molecule.
+            _finalize_molecule()
             
             # Discard the original molecule and create a new one. 
             mol = Chunk(assy, nodename)
             mol.protein = Protein()
             dont_split = False
-            numconects = 0
+            ### numconects = 0
                         
+        # HEADER, COMPND and REMARK fields are added to the comment text
         elif key == "header":
             # Extract PDB ID from the header string.
             pdbid = card[62:66].lower()
@@ -889,7 +958,7 @@ def _readpdb_new(assy,
             
         elif key == "model":
             # Check out the MODEL record, ignore everything other than MODEL 1.
-            # This behavior has to be optional and set via User Preference.
+            # This behavior should be optional and set via User Preference.
             # piotr 080714
             model_id = int(card[6:20])
             if model_id > 1:
@@ -899,7 +968,7 @@ def _readpdb_new(assy,
                 break
             
         elif key in ["helix", "sheet", "turn"]:
-            # Read the secondary structure information.
+            # Read secondary structure information.
             if key == "helix":
                 begin = int(card[22:25])
                 end = int(card[34:37])
@@ -945,8 +1014,10 @@ def _readpdb_new(assy,
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue) 
     
-    _finish_molecule()
+    _finalize_molecule()
     
+    mollist.append(hetgroup)
+        
     if water.atoms:
         # Rebuild bonds in case there are hydrogens present.
         inferBonds(water)
@@ -989,7 +1060,6 @@ def read_or_insert_pdb(assy,
     from utilities.GlobalPreferences import ENABLE_PROTEINS
     
     if ENABLE_PROTEINS:
-        
         molecules, comment_text, comment_title  = _readpdb_new(assy, 
                         filename, 
                         isInsert = isInsert, 
@@ -1075,10 +1145,13 @@ def insertpdb(assy,
 
 
 # Write a PDB ATOM record record.
-# Copied (and modified) from chem.py Atom.writepdb method.
+# Copied and modified version of chem.py Atom.writepdb method.
+# Should be moved back to Atom class as soon as we decided that the
+# new implementation is satisfactory.
 # piotr 080710
 
-def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resName):
+def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, \
+                  resName, hetatm, occup, temp):
     """
     Write a PDB ATOM record for the atom into I{file}.
     
@@ -1101,8 +1174,11 @@ def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resNam
     """
     space = " "
     # Begin ATOM record ----------------------------------
-    # Column 1-6: "ATOM  " (str)
-    atomRecord = "ATOM  "
+    # Column 1-6: "ATOM  " (str) or "HETATM" depending on a type of atom
+    if hetatm:
+        atomRecord = "HETATM"
+    else:
+        atomRecord = "ATOM  "
     # Column 7-11: Atom serial number (int)
     atomRecord += "%5d" % atomSerialNumber
     # Column 12: Whitespace (str)
@@ -1124,8 +1200,6 @@ def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resNam
     atomRecord += "%1s" % chainId.upper()
     # Column 23-27: Residue sequence number (int) + Code for insertion of residues (AChar) 
     atomRecord += "%5s" % resId
-    ### Column 27: Code for insertion of residues (AChar) *unused*
-    ##atomRecord += "%1s" % space
     # Column 28-30: Whitespace (str)
     atomRecord += "%3s" % space
     # Get atom XYZ coordinate
@@ -1137,9 +1211,9 @@ def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resNam
     # Column 47-54: Z coord in Angstroms (float 8.3)
     atomRecord += "%8.3f" % float(_xyz[2])
     # Column 55-60: Occupancy (float 6.2) - should be "1.0"
-    atomRecord += "%6.2f" % float(1.0)
+    atomRecord += "%6.2f" % occup
     # Column 61-66: Temperature factor. (float 6.2) *unused*
-    atomRecord += "%6.2f" % float(0.0)
+    atomRecord += "%6.2f" % temp
     # Column 67-76: Whitespace (str)
     atomRecord += "%10s" % space
     # Column 77-78: Element symbol, right-justified (str)
@@ -1270,79 +1344,74 @@ def writepdb(part,
     if mode == 'w':
         writePDB_Header(f)
         
-    for mol in part.molecules:
+    # get a list of chunks in model tree order
+    mollist = part.nodes_in_mmpfile_order(nodeclass = Chunk)
+    
+    for mol in mollist:
         if singleChunk:
             mol = singleChunk
         if mol.hidden:
             # Atoms and bonds of hidden chunks are never written.
             continue
-        if mol.protein:
-            aa_list = mol.protein.get_amino_acids()
-            for aa in aa_list:
-                atom_list = aa.get_atom_list()
-                for a in atom_list:
-                    resId = "   1 "
-                    resName = "UNK"
-                    atomName = a.element.symbol
-                    res = mol.protein.get_residue(a)
-                    if res:
-                        resId = res.get_id()
-                        resName = res.get_three_letter_code()
-                        # fix for selenomethionine
-                        if resName == "MSE":
-                            resName = "MET"
-                        atomName = res.get_atom_name(a)
-                    writepdb_atom(a, 
-                                  f, 
-                                  atomSerialNumber, 
-                                  atomName, 
-                                  chr(chainIdChar), 
-                                  resId, 
-                                  resName)
-                    
-        else:
-            for a in mol.atoms.itervalues():
-                if exclude(a):
-                    excluded += 1
-                    continue
-                atomConnectList = []
-                atomsTable[a.key] = atomSerialNumber
-                if ENABLE_PROTEINS:
-                    # piotr 080709 : Use more robust ATOM output code for Proteins.
-                    if a.pdb_info and \
-                       a.pdb_info.has_key('residue_id'):
-                        resId = a.pdb_info['residue_id']
-                    else:
-                        resId = "   1 "                        
-                    if a.pdb_info and \
-                       a.pdb_info.has_key('residue_name'):
-                        resName = a.pdb_info['residue_name']
-                    else:
-                        resName = "UNK"
-                    if a.pdb_info and \
-                       a.pdb_info.has_key('atom_name'):
-                        atomName = a.pdb_info['atom_name']
-                    else:
-                        atomName = a.element.symbol
-                    writepdb_atom(a, 
-                                  f, 
-                                  atomSerialNumber, 
-                                  atomName, 
-                                  chr(chainIdChar), 
-                                  resId, 
-                                  resName)
-                else:
-                    a.writepdb(f, atomSerialNumber, chr(chainIdChar))
+
+        # write atoms in proper order 
+        ordered_atoms = mol.atoms_in_mmp_file_order()
+        
+        for a in ordered_atoms:
+            if exclude(a):
+                excluded += 1
+                continue
+            atomConnectList = []
+            atomsTable[a.key] = atomSerialNumber
+            hetatm = True
+            if ENABLE_PROTEINS:
+                # piotr 080709 : Use more robust ATOM output code for Proteins.
+                resId = "   1 "                        
+                resName = "   "
+                atomName = a.element.symbol
+                hetatm = True
+                occup = 1.0
+                temp = 0.0
                 
+                if a.pdb_info:
+                    if a.pdb_info.has_key('residue_id'):
+                        resId = a.pdb_info['residue_id']
+                    if a.pdb_info.has_key('residue_name'):
+                        resName = a.pdb_info['residue_name']
+                    if a.pdb_info.has_key('atom_name'):
+                        atomName = a.pdb_info['atom_name']
+                    if a.pdb_info.has_key('standard_atom'):
+                        hetatm = False
+                    if a.pdb_info.has_key('chain_id'):
+                        chainIdChar = a.pdb_info['chain_id']
+                    if a.pdb_info.has_key('occupancy'):
+                        occup = a.pdb_info['occupancy']
+                    if a.pdb_info.has_key('temperature_factor'):
+                        temp = a.pdb_info['temperature_factor']    
+                    
+                writepdb_atom(a, 
+                              f, 
+                              atomSerialNumber, 
+                              atomName, 
+                              chr(chainIdChar), 
+                              resId, 
+                              resName,
+                              hetatm,
+                              occup,
+                              temp)
+            else:
+                a.writepdb(f, atomSerialNumber, chr(chainIdChar))
+                
+            if hetatm:
                 atomConnectList.append(a)
         
                 for b in a.bonds:
                     a2 = b.other(a)
                     # The following removes bonds b/w PAM3 axis atoms.
                     if excludeFlags & EXCLUDE_DNA_AXIS_BONDS:
-    ##                    if a.element.symbol in ('Ax3', 'Ae3'):
-    ##                        if a2.element.symbol in ('Ax3', 'Ae3'):
-    ##                            continue
+                        ##                    if a.element.symbol in ('Ax3', 'Ae3'):
+                        ##                        if a2.element.symbol in ('Ax3', 'Ae3'):
+                        ##                            continue
                         #bruce 080320 bugfix: revise to cover new elements and PAM5.
                         if a.element.role == 'axis' and a2.element.role == 'axis':
                                 continue
@@ -1356,24 +1425,30 @@ def writepdb(part,
                     # not write bonds to excluded atoms, without needing to check
                     # that directly. The assert verifies this claim.)
                 
-                atomSerialNumber += 1
                 if len(atomConnectList) > 1:
                     connectLists.append(atomConnectList)
                     # bruce 050318 comment: shouldn't we leave it out if 
                     # len(atomConnectList) == 1?
                     # I think so, so I'm doing that (unlike the previous code).
     
-            # Write the chain TER-minator record
-            #
-            # COLUMNS     DATA TYPE         FIELD           DEFINITION
-            # ------------------------------------------------------
-            #  1 - 6      Record name       "TER     "
-            #  7 - 11     Integer           serial          Serial number.
-            # 18 - 20     Residue name      resName         Residue name.
-            # 22          Character         chainID         Chain identifier.
-            # 23 - 26     Integer           resSeq          Residue sequence number.
-            # 27          AChar             iCode           Insertion code.
-            f.write("TER   %5d          %1s\n" % (molnum, chr(chainIdChar)))
+            atomSerialNumber += 1
+        
+        # Write the chain TER-minator record
+        #
+        # COLUMNS     DATA TYPE         FIELD           DEFINITION
+        # ------------------------------------------------------
+        #  1 - 6      Record name       "TER     "
+        #  7 - 11     Integer           serial          Serial number.
+        # 18 - 20     Residue name      resName         Residue name.
+        # 22          Character         chainID         Chain identifier.
+        # 23 - 26     Integer           resSeq          Residue sequence number.
+        # 27          AChar             iCode           Insertion code.
+        
+        # piotr 080908 note: This is not exactly correct, the TER record 
+        # shouldn't be saved between consecutive non-standard residues 
+        # (HETATM records), e.g. water molecules shouldn't be separated
+        # by TER records.
+        f.write("TER   %5d          %1s\n" % (molnum, chr(chainIdChar)))
 
         molnum += 1
         chainIdChar += 1
