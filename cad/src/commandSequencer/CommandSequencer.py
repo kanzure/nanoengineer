@@ -151,10 +151,14 @@ class CommandSequencer(object):
     
     def _init_modeMixin(self):
         # todo: will be merged into __init__ when this class is no longer a mixin,
-        # i.e. when GLPANE_IS_COMMAND_SEQUENCER is always False
+        # i.e. when GLPANE_IS_COMMAND_SEQUENCER is always False;
+        # used when USE_COMMAND_STACK or not;
+        # should try to clean up init code (see docstring) when USE_COMMAND_STACK is always true
         """
         call this near the start of __init__ in a subclass that mixes us in
-        (i.e. GLPane); subsequent init calls should also be made, namely:
+        (i.e. GLPane);
+
+        subsequent init calls should also be made, namely:
         - _reinit_modes, from glpane.setAssy, from _make_and_init_assy or GLPane.__init__
         - start_using_initial_mode - end of MWsemantics.__init__, or _make_and_init_assy
         """
@@ -175,10 +179,11 @@ class CommandSequencer(object):
         # So call them in that case too.
         self._recreate_nullmode()
         self._use_nullmode()
+        # see docstring for additional inits needed as external calls
         return
 
     def _recreate_nullmode(self): # only called from this file, as of 080805
-        # REVIEW whether still needed when USE_COMMAND_STACK
+        # REVIEW whether still needed when USE_COMMAND_STACK; presently still used then
         self.nullmode = nullMode()
             # TODO: rename self.nullmode; note that it's semi-public [###REVIEW: what uses it?];
             # it's a safe place to absorb events that come at the wrong time
@@ -186,6 +191,11 @@ class CommandSequencer(object):
         return
     
     def _reinit_modes(self): #revised, bruce 050911, 080209
+        # REVIEW: still ok for USE_COMMAND_STACK? guess yes, for now;
+        # and still needed, since it's part of how to init or reset the
+        # command sequencer in its current external API
+        # (see doc for _init_modeMixin) [bruce 080814, still true 080909]
+
         # note: as of 080812, not called directly in this file; called from:
         # - GLPane.setAssy (end of function),
         #   which is called from:
@@ -226,10 +236,6 @@ class CommandSequencer(object):
         """
         if _DEBUG_CSEQ_INIT:
             print "_DEBUG_CSEQ_INIT: reinit modes"###
-        # REVIEW: still ok for USE_COMMAND_STACK? guess yes, for now;
-        # and still needed, since it's part of how to init or reset the
-        # command sequencer in its current external API
-        # (see doc for _init_modeMixin) [bruce 080814]
 
         self.exit_all_commands()
 
@@ -303,10 +309,13 @@ class CommandSequencer(object):
 
     def exit_all_commands(self): #bruce 080806 split this out; used in _reinit_modes and extrude_reload
         """
-        Exit all currently active commands (except the default command, ###wrong?
-        if USE_COMMAND_STACK is true, or nullMode, if not).
-        (Use Abandon, or whichever is simpler of Done or Cancel for each
-         command, and force it to work immediately. [#doc more precisely])
+        Exit all currently active commands
+        (even the default command, even when USE_COMMAND_STACK),
+        and leave the current command as nullMode.
+
+        To do the exiting, use "Abandon", i.e. (when USE_COMMAND_STACK)
+        make sure self.exit_is_forced is true when examined by exit-related
+        methods in command classes.
         """
         if USE_COMMAND_STACK:
             while self._raw_currentCommand and \
@@ -323,11 +332,11 @@ class CommandSequencer(object):
                     print "bug: failed to exit", self.currentCommand
                     break
                 continue
-            # REVIEW: do some callers want us to even exit default command now
-            # and/or call self._use_nullmode()? Guess: doesn't matter, but
-            # probably yes (in case reusing a cseq/glpane)... we'll see.
-            self._use_nullmode() # if this stays, fix docstring ####
-                # this assumes default command can safely be silently abandoned
+            # Now we're in the default command. Some callers require us to exit
+            # that too. Exiting it in the above loop would fail, but fortunately
+            # we can just discard it (unlike for a general command). [Note: this
+            # might change if it was given a PM.]
+            self._use_nullmode()
             return
         else:
             if not self._raw_currentCommand.is_null:
@@ -442,12 +451,12 @@ class CommandSequencer(object):
     def _use_nullmode(self): # note: 4 calls, all in this file, as of before 080805; making it private
         if USE_COMMAND_STACK:
             # REVIEW whether this is needed at all in this case;
-            # for now, assume it is, but only when initializing,
+            # for now, assume it is, but only when initializing [###wrong: also in exit_all_commands -- pass warning = false?];
             # so warn when used in other cases
-            # (though might be spurious when reusing self upon fileClose/fileOpen
+            # (though warning might be spurious when reusing self upon fileClose/fileOpen
             #  unless not GLPANE_IS_COMMAND_SEQUENCER). [bruce 080814]
             if self._raw_currentCommand and not self._raw_currentCommand.is_null:
-                print "warning: discarding %r, in _use_nullmode" % self._raw_currentCommand # may happen for default command
+                print "possible bug: discarding %r, in _use_nullmode" % self._raw_currentCommand # may happen for default command
         self._raw_currentCommand = self.nullmode
 
     def is_this_command_current(self, command):
@@ -461,6 +470,8 @@ class CommandSequencer(object):
 
     def _update_model_between_commands(self): #bruce 080806 split this out
         #bruce 050317: do update_parts to insulate new mode from prior one's bugs
+        # WARNING: when USE_COMMAND_STACK, this might be needed (as much as it ever was),
+        # but calling it might be NIM [bruce 080909 comment]
         try:
             self.assy.update_parts()
             # Note: this is overkill (only known to be needed when leaving
@@ -481,6 +492,11 @@ class CommandSequencer(object):
         [semi-private]
         Initialize self to the given initial mode,
         just after self is created or _reinit_modes is called.
+
+        @note: this is called, and is part of our external API for init/reinit,
+               whether or not USE_COMMAND_STACK. See docstring of _init_modeMixin.
+
+        @see: exit_all_commands
         """
         # as of 080812, this is called from 3 places:
         # - MWsemantics.__init__
@@ -514,6 +530,7 @@ class CommandSequencer(object):
         @param resuming: see _enterMode method. ###TODO: describe it here,
                          and fix rest of docstring re this.
         """
+        assert not USE_COMMAND_STACK # other case not needed [bruce 080909]
         # as of 080812, this is called from:
         # - start_using_initial_mode
         # - at end of userEnterCommand, in case of bug
@@ -524,7 +541,6 @@ class CommandSequencer(object):
         # (aside from nullmode). [### verify]
         if _DEBUG_CSEQ_INIT:
             print "_DEBUG_CSEQ_INIT: start_using_mode", mode ###
-        assert not USE_COMMAND_STACK # other case nim #### IMPLEM, or FIX CALLS (DECIDE)
         #bruce 070813 added resuming option
         # note: resuming option often comes from **new_mode_options in callers
 
