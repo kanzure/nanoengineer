@@ -20,11 +20,14 @@ For example:
 History:
 See Move_GraphicsMode.py
 
+TODO as of 2008-09-09:
+-refactor update ui related code. Example some methods call propMgr.updateMessage()
+etc. this needs to be in a central place... either in this callls or
+in PM._update_UI_do_updates()
+
 """
 import foundation.env as env
 import math
-from Numeric import dot
-import foundation.changes as changes
 from commands.Move.MovePropertyManager import MovePropertyManager
 from commands.SelectChunks.SelectChunks_Command import SelectChunks_basicCommand
 from command_support.GraphicsMode_API import GraphicsMode_API
@@ -42,12 +45,19 @@ from utilities.GlobalPreferences import USE_COMMAND_STACK
 class Move_basicCommand(SelectChunks_basicCommand):
     """
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported. But some refactoring related to the update code is needed in future. 
+    
+    #The class constant PM_class defines the class for the Property Manager of 
+    #this command. See Command.py for more infor about this class constant
+    PM_class = MovePropertyManager
+    
     commandName = 'MODIFY'
     featurename = "Move Chunks Mode"
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
 
-    propMgr = None
     pw = None
 
     command_can_be_suspended = True
@@ -56,21 +66,18 @@ class Move_basicCommand(SelectChunks_basicCommand):
     
     flyoutToolbar = None
     
-    #The class constant PM_class defines the class for the Property Manager of 
-    #this command. See Command.py for more infor about this class constant
-    PM_class = MovePropertyManager
     
     #START new command API methods =============================================
     #currently [2008-08-01 ] also called in by self,init_gui and 
     #self.restore_gui.
     
-    def command_enter_PM(self):
+    def command_entered(self):
         """
         Overrides superclass method. 
         
         @see: baseCommand.command_enter_PM()  for documentation
         """
-        SelectChunks_basicCommand.command_enter_PM(self)
+        super(Move_basicCommand, self).command_entered()
             
         self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
         self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
@@ -126,35 +133,37 @@ class Move_basicCommand(SelectChunks_basicCommand):
 
     
     #END new command API methods ==============================================
-
-    def init_gui(self):
-        """
-        Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command toolbar, connecting widget 
-        slots etc. 
-        
-        Called once each time the mode is entered; should be called only by code 
-        in modes.py
-        
-        @see: L{self.restore_gui}
-        """        
-        self.command_enter_misc_actions()
-        self.command_enter_PM() 
-        self.command_enter_flyout()
-        self.propMgr.show()
-
-    def restore_gui(self):
-        """
-        Do changes to the GUI while exiting this mode. This includes closing 
-        this mode's property manager, updating the command toolbar, 
-        disconnecting widget slots etc. 
-        @see: L{self.init_gui}
-        """
-        self.command_exit_misc_actions()
-        self.command_exit_flyout()
-        self.command_exit_PM()
-        if self.propMgr:
-            self.propMgr.close()
+    
+    #Old command api methods (under if not USE_COMMAND_STACK) ====
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            Do changes to the GUI while entering this mode. This includes opening 
+            the property manager, updating the command toolbar, connecting widget 
+            slots etc. 
+            
+            Called once each time the mode is entered; should be called only by code 
+            in modes.py
+            
+            @see: L{self.restore_gui}
+            """        
+            self.command_enter_misc_actions()
+            self.command_enter_PM() 
+            self.command_enter_flyout()
+            self.propMgr.show()
+    
+        def restore_gui(self):
+            """
+            Do changes to the GUI while exiting this mode. This includes closing 
+            this mode's property manager, updating the command toolbar, 
+            disconnecting widget slots etc. 
+            @see: L{self.init_gui}
+            """
+            self.command_exit_misc_actions()
+            self.command_exit_flyout()
+            self.command_exit_PM()
+            if self.propMgr:
+                self.propMgr.close()
 
     def _acceptLineModePoints(self, params): #bruce 080801, revises acceptParamsFromTemporaryMode
         """

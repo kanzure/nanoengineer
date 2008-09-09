@@ -11,6 +11,11 @@ Originally by Mark as class 'fuseChunksMode'.
 Ninad 2008-01-25: Split Command and GraphicsMode classes
                  out of class fuseChunksMode. The graphicsMode class can be
                  found in FuseChunks_GraphicsMode.py
+                 
+TODO as of 2008-09-09:
+-refactor update ui related code. Example some methods call propMgr.updateMessage()
+etc. this needs to be in a central place... either in this callls or
+in PM._update_UI_do_updates()
 """
 
 import foundation.env as env
@@ -49,7 +54,14 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
     2. Fuse Atoms - atoms between chunks will be fused when they overlap each
        other.
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported. But some refactoring related to the update code is needed in future. 
+    
+    
     # class constants
+    PM_class = FusePropertyManager
+    GraphicsMode_class = FuseChunks_GraphicsMode
+    
     commandName = 'FUSECHUNKS'
     featurename = "Fuse Chunks Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
@@ -69,9 +81,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
         # considered overlapping
 
     fuse_mode = '' # The Fuse mode, either 'Make Bonds' or 'Fuse Atoms'.
-    propMgr = None
-
-    GraphicsMode_class = FuseChunks_GraphicsMode
+       
 
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class
@@ -82,10 +92,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         self.translate_graphicsMode = Translate_in_FuseChunks_GraphicsMode(*args, **kws)
         self.rotate_graphicsMode  = Rotate_in_FuseChunks_GraphicsMode(*args, **kws)
-        
     
-    def _createPropMgrObject(self):
-        return FusePropertyManager(self)
     
     def _createFlyoutToolBarObject(self):
         """
@@ -95,43 +102,21 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
         @see: self.command_enter_flyout()
         """
         flyoutToolbar = FuseFlyout(self) 
-        return flyoutToolbar
-    
-    
-    def init_gui(self):
+        return flyoutToolbar    
+        
+    def command_entered(self):
         """
-        Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command toolbar, connecting widget 
-        slots etc. 
-        
-        Called once each time the mode is entered; should be called only by code 
-        in modes.py
-        
-        @see: L{self.restore_gui}
-        """        
-        self.command_enter_misc_actions()
-        self.command_enter_PM() 
-        self.command_enter_flyout()
-        
+        Overrides superclass method. 
+        @see: baseCommand.command_entered() for documentation. 
+        """
+        super(FuseChunks_Command, self).command_entered()
         self.change_fuse_mode(str(self.propMgr.fuseComboBox.currentText()))
             # This maintains state of fuse mode when leaving/reentering mode,
             # and syncs the PM and glpane (and does a gl_update).
             
         if self.o.assy.selmols:
             self.graphicsMode.something_was_picked = True
-            
 
-    def restore_gui(self):
-        """
-        Do changes to the GUI while exiting this mode. This includes closing 
-        this mode's property manager, updating the command toolbar, 
-        disconnecting widget slots etc. 
-        @see: L{self.init_gui}
-        """
-        self.command_exit_misc_actions()
-        self.command_exit_flyout()
-        self.command_exit_PM()
-        
     def command_enter_misc_actions(self):
         self.w.toolsFuseChunksAction.setChecked(1)
             
@@ -421,9 +406,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
     def _delete_overlapping_atoms(self):
         pass
-            
-
-
+    
     def fuse_atoms(self):
         """
         Deletes overlapping atoms found with the selected chunk(s).
