@@ -29,7 +29,7 @@ in PM._update_UI_do_updates()
 import foundation.env as env
 import math
 from commands.Move.MovePropertyManager import MovePropertyManager
-from commands.SelectChunks.SelectChunks_Command import SelectChunks_basicCommand
+from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
 from command_support.GraphicsMode_API import GraphicsMode_API
 from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
@@ -42,9 +42,10 @@ from ne1_ui.toolbars.Ui_MoveFlyout import MoveFlyout
 #for debugging new command stack API 
 from utilities.GlobalPreferences import USE_COMMAND_STACK 
 
-class Move_basicCommand(SelectChunks_basicCommand):
+class Move_Command(SelectChunks_Command):
     """
     """
+    GraphicsMode_class = TranslateChunks_GraphicsMode
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
     command_porting_status = None #fully ported. But some refactoring related to the update code is needed in future. 
@@ -77,7 +78,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
         
         @see: baseCommand.command_enter_PM()  for documentation
         """
-        super(Move_basicCommand, self).command_entered()
+        super(Move_Command, self).command_entered()
             
         self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
         self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
@@ -414,17 +415,6 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.o.gl_update()
         return
 
-class Move_Command(Move_basicCommand):
-    """
-    @see: B{Move_basicCommand}
-    @see: cad/doc/splitting_a_mode.py
-    """
-    GraphicsMode_class = TranslateChunks_GraphicsMode
-
-    def __init__(self, commandSequencer):
-        Move_basicCommand.__init__(self, commandSequencer)
-        self._create_GraphicsMode()
-        return
 
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class

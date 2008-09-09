@@ -32,11 +32,11 @@ from utilities import debug_flags
 from utilities.debug import print_compact_traceback
 from utilities.debug import reload_once_per_event
 
-from commands.Select.Select_Command import Select_basicCommand
+from commands.Select.Select_Command import Select_Command
 from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
-class SelectAtoms_basicCommand(Select_basicCommand):
+class SelectAtoms_Command(Select_Command):
     """
     SelectAtoms_basicCommand
     The 'Command' part of the SelectAtoms Mode (SelectAtoms_basicCommand and 
@@ -51,6 +51,9 @@ class SelectAtoms_basicCommand(Select_basicCommand):
       and the code is still clean, *and* no command-half subclass needs
       to override them).
     """
+    
+    GraphicsMode_class = SelectAtoms_GraphicsMode
+    
     commandName = 'SELECTATOMS'
     featurename = "Select Atoms Mode"
     from utilities.constants import CL_ABSTRACT
@@ -164,25 +167,3 @@ class SelectAtoms_basicCommand(Select_basicCommand):
         """
         self.graphicsMode.drag_selected_atom(a, delta, 
                                              computeBaggage = computeBaggage)
-
-
-class SelectAtoms_Command(SelectAtoms_basicCommand):
-    """
-    SelectAtoms_Command  
-    @see: B{SelectAtoms_basicCommand}
-    @see: cad/doc/splitting_a_mode.py
-    """
-    GraphicsMode_class = SelectAtoms_GraphicsMode
-    
-    def __init__(self, commandSequencer):
-        SelectAtoms_basicCommand.__init__(self, commandSequencer)
-        self._create_GraphicsMode()
-        return
-        
-    def _create_GraphicsMode(self):
-        GM_class = self.GraphicsMode_class
-        assert issubclass(GM_class, GraphicsMode_API)
-        args = [self] 
-        kws = {} 
-        self.graphicsMode = GM_class(*args, **kws)
-

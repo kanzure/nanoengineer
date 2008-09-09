@@ -236,7 +236,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         Things needed while entering the GraphicsMode (e.g. updating cursor,
         setting some attributes etc).
         This method is called in self.command.Enter
-        @see: B{SelectChunks_basicCommand.Enter}, B{basicCommand.Enter}
+        @see: B{SelectChunks_Command.Enter}, B{basicCommand.Enter}
         """
         basicGraphicsMode.Enter_GraphicsMode(self)
         self.reset_drag_vars()

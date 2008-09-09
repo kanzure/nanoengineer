@@ -17,16 +17,7 @@ _KLUGE_PERMIT_INHERITED_CLASSNAMES = (
         # since it doesn't have its own featurename
     "Select_Command",
     "selectMode",
-
-    # these need to be here since they still inherit from basicCommand versions
-    # where the featurename is actually defined
-    # (alternatively, we could define featurename in these classes instead
-    #  of in their basicCommand superclasses, and put the basicCommand
-    #  superclasses into this table; ultimately it won't matter since
-    #  those class-pairs should each be merged into a single class.)
-    "SelectChunks_Command",
-    "SelectAtoms_Command",
-    "Move_Command",
+        
 
     "TemporaryCommand_preMixin", # (should this count as abstract?)
 

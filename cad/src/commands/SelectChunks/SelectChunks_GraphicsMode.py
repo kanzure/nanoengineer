@@ -71,7 +71,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         Things needed while entering the GraphicsMode (e.g. updating cursor,
         setting some attributes etc).
         This method is called in self.command.Enter
-        @see: B{SelectChunks_basicCommand.Enter}, B{basicCommand.Enter}
+        @see: B{SelectChunks_Command.Enter}, B{basicCommand.Enter}
         """
         _superclass.Enter_GraphicsMode(self) #also calls self.reset_drag_vars()
                                              #etc

@@ -50,7 +50,7 @@ class Select_basicCommand(basicCommand):
           this is implemented.
     @see: B{Select_GraphicsMode}, B{Select_basicGraphicsMode}
     @see: B{Select_Command}, B{selectMode}
-    @see: B{SelectChunks_basicCommand}, B{SelectAtoms_basicCommand}
+    @see: B{SelectChunks_Command}, B{SelectAtoms_basicCommand}
           which inherits this class
 
     """

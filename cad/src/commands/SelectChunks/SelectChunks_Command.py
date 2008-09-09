@@ -2,7 +2,7 @@
 """
 SelectChunks_Command.py 
 
-The 'Command' part of the Select Chunks Mode (SelectChunks_basicCommand and 
+The 'Command' part of the Select Chunks Mode (SelectChunks_Command and 
 SelectChunks_basicGraphicsMode are the two split classes of the old 
 selectMolsMode)  It provides the command object for its GraphicsMode class. 
 The Command class defines anything related to the 'command half' of the mode -- 
@@ -28,7 +28,7 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
                           selectMolsMode.py
 
 """
-from commands.Select.Select_Command import Select_basicCommand
+from commands.Select.Select_Command import Select_Command
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
 from utilities.Comparison import same_vals
@@ -38,9 +38,9 @@ from model.chem import Atom
 from model.chunk import Chunk
 from model.bonds import Bond
 
-class SelectChunks_basicCommand(Select_basicCommand):
+class SelectChunks_Command(Select_Command):
     """
-    The 'Command' part of the Select Chunks Mode (SelectChunks_basicCommand and 
+    The 'Command' part of the Select Chunks Mode (SelectChunks_Command and 
     SelectChunks_basicGraphicsMode are the two split classes of the old 
     selectMolsMode)  It provides the command object for its GraphicsMode class. 
     The Command class defines anything related to the 'command half' of the 
@@ -54,6 +54,9 @@ class SelectChunks_basicCommand(Select_basicCommand):
     """
     #Temporary attr 'command_porting_status. See baseCommand for details.
     command_porting_status = None #fully ported. 
+    
+    #GraphicsMode
+    GraphicsMode_class = SelectChunks_GraphicsMode
     
     commandName = 'SELECTMOLS'
         # i.e. DEFAULT_COMMAND, but don't use that constant to define it here
@@ -232,21 +235,3 @@ class SelectChunks_basicCommand(Select_basicCommand):
             mol.update_everything()
         return
 
-class SelectChunks_Command(SelectChunks_basicCommand):
-    """
-    @see: B{SelectChunks_basicCommand}
-    @see: cad/doc/splitting_a_mode.py
-    """
-    GraphicsMode_class = SelectChunks_GraphicsMode
-    
-    def __init__(self, commandSequencer):
-        SelectChunks_basicCommand.__init__(self, commandSequencer)
-        self._create_GraphicsMode()
-        return
-        
-    def _create_GraphicsMode(self):
-        GM_class = self.GraphicsMode_class
-        assert issubclass(GM_class, GraphicsMode_API)
-        args = [self] 
-        kws = {} 
-        self.graphicsMode = GM_class(*args, **kws)
