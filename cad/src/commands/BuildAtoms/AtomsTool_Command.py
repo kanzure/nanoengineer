@@ -11,12 +11,16 @@ BuildAtoms_Command).
 
 TODO:
 
-- Classes created to refactor BuildAtoms_Command (rather 'BuildChunks' command)
+- Classes created to refactor BuildAtoms_Command 
 to be revised further. 
 - document
 - REVIEW: _reusePropMgr_of_parentCommand -- this is an experimental method 
 that will fit in the NEW command API (2008-07-30) . to be revised/ renamed. 
 e.g. command_reuse_PM etc.
+
+- Update methods (e.g. self.propMgr.updateMessage() need to be called 
+by a central method such as command_update_* or PM._update_UI_*. 
+
 """
 
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
@@ -26,6 +30,9 @@ from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = BuildAtoms_Command
 class AtomsTool_Command(BuildAtoms_Command):
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported. 
     
     featurename = 'Build Atoms Mode/AtomsTool'
     commandName = 'ATOMS_TOOL'

@@ -17,6 +17,9 @@ to be revised further.
 - REVIEW: _reusePropMgr_of_parentCommand -- this is an experimental method 
 that will fit in the NEW command API (2008-07-30) . to be revised/ renamed. 
 e.g. command_reuse_PM etc.
+
+- Update methods (e.g. self.propMgr.updateMessage() need to be called 
+by a central method such as command_update_* or PM._update_UI_*. 
 """
 
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
@@ -36,6 +39,9 @@ class BondTool_Command(BuildAtoms_Command):
     tool, it will enter Single Bond Tool command. , suspending the Build Atoms
     default command.
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported. 
+    
     GraphicsMode_class = BondTool_GraphicsMode
     
     featurename = 'Build Atoms Mode/BondTool'
