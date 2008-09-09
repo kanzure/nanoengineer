@@ -428,7 +428,8 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         #cases where atom has bond points and/or monovalent atoms . It also 
         #needs to modify the neighboring atom baggage. This is already done in
         #the following method in command so use that. 
-        self.command.drag_selected_atom(selectedAtom, delta)
+        self.command.drag_selected_atom(selectedAtom, delta, 
+                                        computeBaggage = True)
         
         self.o.gl_update()
         

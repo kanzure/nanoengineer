@@ -893,16 +893,35 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
             self.current_obj_clicked = False # atom was dragged. mark 060125.
             self.o.gl_update()
 
-    def drag_selected_atom(self, a, delta): # bruce 060316 revised API for
+    def drag_selected_atom(self, a, delta, computeBaggage = False): # bruce 060316 revised API for
                                             # uniformity and no redundant
                                             # dragto, re bug 1474
         """
         Drag real atom <a> by the xyz offset <delta>, adjusting its baggage
         atoms accordingly(how that's done depends on its other neighbor atoms).
+        
+        @param computeBaggage: If this is true, the baggage and non-baggage of
+        the atom to be dragged will be computed in this method before dragging 
+        the atom. Otherwise  it assumes that the baggage and non-baggage atoms 
+        are up-to-date and are computed elsewhere , for example in 'atomSetUp'
+        See a comment in the method that illustrates an example use. 
+        @type recompueBaggage: boolean 
+        @see: BuildAtomsPropertyManager._moveSelectedAtom()
+        @see: SelectAtoms_Command.drag_selected_atom()  
         """
+       
         apo = a.posn()
         ## delta = px - apo
         px = apo + delta
+        
+        #Example use of flag 'computeBaggage': If this method is called as a 
+        #result of a value change in a UI element, the methods such as 
+        #self.atomLeftDown or self.atomSetUp are not called. Those methods do 
+        #the job of computing baggage etc. So a workaround is to instruct this 
+        #method to recompute the baggage and non baggage before proceeding. 
+        if computeBaggage:
+            self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
+        
 
         n = self.nonbaggage
             # n = real atoms bonded to <a> that are not singlets or

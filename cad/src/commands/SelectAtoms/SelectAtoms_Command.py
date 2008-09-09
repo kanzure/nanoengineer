@@ -148,6 +148,22 @@ class SelectAtoms_basicCommand(Select_basicCommand):
         from simulation.sim_commandruns import LocalMinimize_function # should not be toplevel
         LocalMinimize_function( [atom], nlayers )
         return
+    
+    def drag_selected_atom(self, a, delta, computeBaggage = False):
+        """
+        Delegates this to self's GraphicsMode
+        
+        @param computeBaggage: If this is true, the baggage and non-baggage of
+        the atom to be dragged will be computed in this method before dragging 
+        the atom. Otherwise  it assumes that the baggage and non-baggage atoms 
+        are up-to-date and are computed elsewhere , for example in 'atomSetUp'
+        See a comment in the method that illustrates an example use. 
+        @type recompueBaggage: boolean 
+        
+        @see: SelectAtoms_GraphicsMode.drag_selected_atom()
+        """
+        self.graphicsMode.drag_selected_atom(a, delta, 
+                                             computeBaggage = computeBaggage)
 
 
 class SelectAtoms_Command(SelectAtoms_basicCommand):
