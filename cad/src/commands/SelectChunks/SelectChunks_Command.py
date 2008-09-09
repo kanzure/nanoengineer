@@ -31,6 +31,8 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 from commands.Select.Select_Command import Select_basicCommand
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
+from utilities.Comparison import same_vals
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from model.chem import Atom
 from model.chunk import Chunk
@@ -50,28 +52,66 @@ class SelectChunks_basicCommand(Select_basicCommand):
       and the code is still clean, *and* no command-half subclass needs
       to override them).
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported. 
+    
     commandName = 'SELECTMOLS'
         # i.e. DEFAULT_COMMAND, but don't use that constant to define it here
     featurename = "Select Chunks Mode"
     from utilities.constants import CL_DEFAULT_MODE
     command_level = CL_DEFAULT_MODE # error if command subclass fails to override this
-
     
-    def init_gui(self):
-        """
-        """
-        self.w.toolsSelectMoleculesAction.setChecked(True)
-        #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
-        #portion) doesn't get updated even when in the default mode. 
-        self.win.commandToolbar.resetToDefaultState()
-                
- 
-    def restore_gui(self):
-        """
-        """
-        self.w.toolsSelectMoleculesAction.setChecked(False)
+    #This attr is used for comparison purpose in self.command_update_UI()
+    _previous_command_stack_change_indicator = None
+    
+    #Old command API methods (under if not USE_COMMAND_STACK block)
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            """
+            self.w.toolsSelectMoleculesAction.setChecked(True)
+            #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
+            #portion) doesn't get updated even when in the default mode. 
+            self.win.commandToolbar.resetToDefaultState()
+                    
+     
+        def restore_gui(self):
+            """
+            """
+            self.w.toolsSelectMoleculesAction.setChecked(False)
         
     #START: New Command API methods. ==========================================
+    
+    def command_update_UI(self):
+        """
+        Overrides superclass method. 
+        @see: baseCommand.command_update_UI() for documentation.
+        """
+        if same_vals(self._previous_command_stack_change_indicator, 
+                     self.assy.command_stack_change_indicator()):
+            
+            return 
+        
+        self._previous_command_stack_change_indicator = self.assy.command_stack_change_indicator()
+        
+        #@NOTE: self is *always the current command* . So we can do the 
+        #following 
+                
+        #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
+        #portion) doesn't get updated even when in the default mode. 
+        
+        #Example of what ' commandToolbar.resetToDefaultState()' fixes: 
+        #Enter Move > Translate command, then Exit to come back to the default
+        #command. Without the following code, it continues to show the 
+        #Move control button menu in the flyout area. With the following code, 
+        #it shows the default 'Build' control button  menu in the flyout. 
+        
+        #Superclasses may use this method. So make sure that the 
+        #following code gets called only when this command is the
+        #default command (i.e. SelectChunks_Command as of 2008-09-09)         
+        if self.is_default_command():
+            self.win.commandToolbar.resetToDefaultState()
+            
         
     def command_enter_flyout(self):
         #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
@@ -83,6 +123,8 @@ class SelectChunks_basicCommand(Select_basicCommand):
     
     def command_exit_misc_actions(self):
         self.w.toolsSelectMoleculesAction.setChecked(False)
+        
+    
         
     #END: New Command API methods. ==========================================
            
