@@ -128,8 +128,8 @@ class Line_Command(Select_Command):
             # callRequestCommand. Under the current command sequencer
             # API (without or with USE_COMMAND_STACK), it's important to
             # call the callback no matter how self is exited (except possibly
-            # when it's "abandoned"). This code always calls it.
-            # [bruce 080904 comment]
+            # when self.commandSequencer.exit_is_forced). This code always
+            # calls it. [bruce 080904 comment]
             params = self._results_for_request_command_caller()
             self._results_callback( params)
 

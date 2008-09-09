@@ -152,6 +152,7 @@ class extrudeMode(basicMode):
     featurename = "Extrude Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
+    command_porting_status = 'NOT_PORTED'
 
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
 
@@ -1132,6 +1133,10 @@ class extrudeMode(basicMode):
     # methods related to exiting this mode
 
     def haveNontrivialState(self):
+        # note: to port this to USE_COMMAND_STACK, check this condition in command_will_exit
+        # when self.commandSequencer.exit_is_forced -- see similar code in
+        # BuildCrystal_Command.command_will_exit; also relates to "Abandon"
+        # [bruce 080908 comment]
         return self.ncopies != 1 # more or less...
 
     def StateDone(self):

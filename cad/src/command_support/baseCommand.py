@@ -122,7 +122,7 @@ class baseCommand(object):
                    (res, res.propMgr, res.propMgr.command, self)
         return res
             
-    # == exit-related methods
+    # == exit-related methods (see also CommandSequencer.exit_all_commands)
 
     def command_Done(self, implicit = False):
         """
@@ -154,24 +154,6 @@ class baseCommand(object):
                flags described in that method's docstring.
         """
         self.commandSequencer._f_exit_active_command(self, cancel = True)
-        return
-    
-    def command_Abandon(self): ###@@@ CALL ME
-        """
-        Abandon this command, after also abandoning as any subcommands it may
-        have, by exiting it as soon as possible without changing the model
-        any more than necessary. The side effects from this can be any
-        combination of those from Done or Cancel, depending on the
-        specific command. This is only called due to logic bugs in
-        the code for opening a new file, which fail to exit all commands
-        normally beforehand.
-
-        @note: subclasses should not override this method. Instead, if a
-               subclass needs to add Abandon-specific code, it should override
-               command_will_exit and condition its effects on one of the
-               flags described in that method's docstring.
-        """
-        self.commandSequencer._f_exit_active_command(self, forced = True)
         return
     
     def _f_command_do_exit_if_ok(self):
@@ -236,12 +218,22 @@ class baseCommand(object):
                 # (especially likely if self.commandSequencer.exit_is_forced is true; ### TODO: put this in some docstring)
         return True
 
-    def command_exit_should_ask_user(self):# only in this file so far, 080826
+    def command_exit_should_ask_user(self): # only in this file so far, 080826
         """
-        [subclasses should extend this as needed,
-         perhaps using self.commandSequencer.exit_is_forced]
+        @return: whether user should be asked whether it's ok to exit self
+        @rtype: boolean
+        
+        @warning: not yet properly implemented in caller
+
+        @warning: overriding this method should be rare.
+
+        @warning: if self.commandSequencer.exit_is_forced,
+                  the caller will still call this method
+                  but will always exit regardless of its
+                  return value.
         """
-        # note: someday this may call a renamed self.haveNontrivialState() method,
+        # note: someday this may call a new command API method
+        # related to the old self.haveNontrivialState() method,
         # and if that returns true, check a user pref to decide what to do.
         # Initially it's ok if it always returns False.
         return False
@@ -252,9 +244,9 @@ class baseCommand(object):
         is about to be exited for any reason.
 
         If the side effects need to depend on the manner of exit
-        (e.g. Done vs Cancel vs Abandon), or on the command being
-        exited from or intended to be entered, this should be
-        determined by testing an appropriate attribute of
+        (e.g. Done vs Cancel vs Abandon/exit_all_commands), or on
+        the command being exited from or intended to be entered,
+        this should be determined by testing an appropriate attribute of
         self.commandSequencer, e.g. exit_is_cancel, exit_is_forced,
         exit_is_implicit, exit_target, enter_target. For their meanings,
         see the docstring of class CommandSequencer.

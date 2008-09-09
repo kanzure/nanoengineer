@@ -430,7 +430,7 @@ class basicCommand(anyCommand):
             # [bruce 040924]
         if USE_COMMAND_STACK:
             weird_to_override += [
-                             'command_Done', 'command_Cancel', 'command_Abandon', #bruce 080827
+                             'command_Done', 'command_Cancel', #bruce 080827
                             ]
         if USE_COMMAND_STACK and 0: # only enable this once we'll never go back...
             # also complain about commands not fully ported to the new API
@@ -863,50 +863,34 @@ class basicCommand(anyCommand):
          the default to be computed in a more often correct manner.]
         """
         # What we do:
-        # find the current PM (self or an active generator, at the moment --
-        # very klugy), and ask which of these buttons are visible to it
-        # (rather than using self.haveNontrivialState()):
+        # find the current PM, and ask which of these buttons are visible to it:
         #   pm.done_btn.isVisibleTo(pm)
         #   pm.abort_btn.isVisibleTo(pm).
         # We also use them to perform the actions (they are QToolButtons).
         # KLUGE: we do this in other code which finds them again redundantly
         # (calling the same kluge helper function).
-        if debug_pref("Conf corner test: use haveNontrivialState",
-                      Choice_boolean_False,
-                      prefs_key = True ):
-            # old code, works, but not correct for default command or when
-            # generators active.
-            # REVIEW: after command stack refactoring circa 080730,
-            # will this be correct?
-            if self.haveNontrivialState():
-                return 'Done+Cancel'
-            else:
-                # when would we just return 'Cancel'? only for a generator?
-                return 'Done' # in future this will sometimes or always be 'Exit'
-        else:
-            done_button_vis, cancel_button_vis = self._KLUGE_visible_PM_buttons()
-                # each one is either None, or a QToolButton (a true value)
-                # currently displayed on the current PM
+        
+        done_button_vis, cancel_button_vis = self._KLUGE_visible_PM_buttons()
+            # each one is either None, or a QToolButton (a true value),
+            # currently displayed on the current PM
 
-            res = []
-            if done_button_vis:
-                #For temporary commands with their own gui (the commands that
-                #are expected to return to the previous command when done), 
-                #use the 'Transient-Done' confirmation corner images. 
-                if self.command_has_its_own_PM and \
-                   self.command_should_resume_prevMode:
-                    res.append('Transient-Done')
-                else:
-                    res.append('Done')
-            if cancel_button_vis:
-                res.append('Cancel')
-            if not res:
-                res = None
+        res = []
+        if done_button_vis:
+            #For temporary commands with their own gui (the commands that
+            #are expected to return to the previous command when done), 
+            #use the 'Transient-Done' confirmation corner images. 
+            if self.command_has_its_own_PM and \
+               self.command_should_resume_prevMode:
+                res.append('Transient-Done')
             else:
-                res = '+'.join(res)
-            # print "want cc got", res
-            return res
-        pass
+                res.append('Done')
+        if cancel_button_vis:
+            res.append('Cancel')
+        if not res:
+            res = None
+        else:
+            res = '+'.join(res)
+        return res
     
     # ==
 
@@ -1272,6 +1256,7 @@ class basicCommand(anyCommand):
 
     # Notes on state-accumulating modes, e.g. Build Crystal, Extrude,
     # and [we hoped at the time] Build Atoms [bruce 040923]:
+    # [mostly obsolete after USE_COMMAND_STACK]
     #
     # Each command which accumulates state, meant to be put into its
     # model (assembly) in the end, decides how much to put in as it
@@ -1625,8 +1610,7 @@ class basicCommand(anyCommand):
         Done or (for some modes) incorrectly
         uncancelled/un-warned-about state after Cancel.
         """
-        # note: mostly obsolete when USE_COMMAND_STACK is true,
-        # but can still be called then when a conf corner debug pref is set.
+        # note: obsolete when USE_COMMAND_STACK is true.
         # TODO: fully remove it sometime after USE_COMMAND_STACK is always true.
         # [bruce 080908 comment]
         return False
@@ -1662,7 +1646,7 @@ class basicCommand(anyCommand):
             # [bruce 070814 comment]
         return
 
-    def Abandon(self):
+    def Abandon(self): # note: this is only called by exit_all_commands, as of before 080908.
         """
         This is only used when we are forced to Cancel, whether or not this
         is ok (with the user) to do now -- someday it should never be called.
@@ -1671,16 +1655,30 @@ class basicCommand(anyCommand):
         [But it would be easy to fix in the file-opening code, once we
         agree on how.]
         """
+        assert not USE_COMMAND_STACK
         if self.haveNontrivialState():
-            msg = "%s with changes is being forced to abandon those changes!\n" \
-                  "Sorry, no choice for now." % (self.get_featurename(),)
-            self.o.warning( msg, bother_user_with_dialog = 1 )
+            self._warnUserAboutAbandonedChanges()
         # don't do self._exitMode(), since it sets a new current command and
         #ultimately asks command sequencer to update for that... which is
         #premature now.  #e should we extend _exitMode to accept
         #commandNames of 'nullMode', and not update? also 'default'?
         #probably not...
         self._cleanup()
+
+    def _warnUserAboutAbandonedChanges(self): #bruce 080908 split this out; can be called even after USE_COMMAND_STACK
+        """
+        Private helper method for command subclasses overriding command_will_exit
+        which (when commandSequencer.exit_is_forced is true) need to warn the user
+        about changes being abandoned when closing a model, which were not
+        noticed by a file modified check due to logic bugs in how that works
+        and how those changes are stored.
+
+        @see: old methods (pre-USE_COMMAND_STACK) Abandon and haveNontrivialState.
+        """
+        msg = "%s with changes is being forced to abandon those changes!\n" \
+              "Sorry, no choice for now." % (self.get_featurename(),)
+        self.o.warning( msg, bother_user_with_dialog = 1 )
+        return
 
     def _cleanup(self): # called only from _exitMode & Abandon, in this file; only caller of stop_sending_us_events [080805]
         """

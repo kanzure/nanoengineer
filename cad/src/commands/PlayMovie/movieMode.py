@@ -130,6 +130,22 @@ class movieMode(basicMode):
         """
         if USE_COMMAND_STACK:
             ask = not self.commandSequencer.exit_is_forced
+                # It's not be safe to rewind if exit is forced,
+                # since this might happen *after* the check for whether
+                # to offer to save changes in an old file being closed,
+                # but it creates such changes.
+                #
+                # A possible fix is for Open to first exit all current commands
+                # (by implicit Done, as when changing to some unrelated command),
+                # before even doing the check. There are better, more complex fixes,
+                # e.g. checking for changes to ask about saving (or for the need to
+                # ask other questions before exit) by asking all commands on the stack.
+                #
+                # Note: a related necessary change is calling exit_all_commands when
+                # closing a file, but I think it doesn't fix the same issue mentioned
+                # above.
+                #
+                # [bruce 080806/080908 comments]
         else:
             ask = True
         if ask:
@@ -142,21 +158,6 @@ class movieMode(basicMode):
         # TODO: add an option to the PM to always say yes or no to this,
         # e.g. a 3-choice combobox for what to do if not rewound on exit
         # (rewind, don't rewind, or ask). [bruce 080806 suggestion]
-
-        # REVIEW: are any bugs caused by rewinding self when opening a new file?
-        # The issue is that this might happen *after* the check for whether
-        # to offer to save changes in the old file -- but it creates such changes.
-        # (This probably can't happen until USE_COMMAND_STACK is true,
-        #  because before that, this is only called for Done or Cancel,
-        #  not Abandon, I think.)
-        #
-        # A possible fix is for Open to first exit all current commands
-        # (by implicit Done, as when changing to some unrelated command),
-        # before even doing the check. There are better, more complex fixes,
-        # e.g. checking for changes to ask about saving (or for the need to
-        # ask other questions before exit) by asking all commands on the stack.
-        # [bruce 080806 comment]
-        
         movie = self.o.assy.current_movie
         if movie and movie.currentFrame != 0:
             # note: if the movie file stores absolute atom positions,
@@ -355,21 +356,6 @@ class movieMode(basicMode):
             # note: this assumes this is the only movie which might be "open",
             # and that redundant _close is ok.
         return
-
-#bruce 080806 commenting this out since same as base class method
-##    def haveNontrivialState(self):
-##        ##bruce 050426: This used to call self.o.assy.current_movie._close()
-##        # but that's wrong (this method shouldn't have side effects),
-##        # so I moved that to our custom restore_patches_by_Command() method.
-##        # Also, this used to always return False; that's still ok as long as we continually modify
-##        # the model and tell it so (assy.changed) -- but I'm not sure we do; this needs review. ###k ####@@@@
-##        # (Current strategy, 050426 eve: ignore this and assy.changed issues, until done.)
-##        return False
-
-    ##bruce 050426: maybe Done should store the movie changes and Cancel should revert to prior state?? If so, revise this. ####@@@@
-##    def StateDone(self):
-##        self.o.assy.current_movie._close()
-##        return None
 
     def restore_gui(self):
         self.command_exit_PM()

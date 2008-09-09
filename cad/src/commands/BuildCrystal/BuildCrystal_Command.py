@@ -244,16 +244,20 @@ class BuildCrystal_Command(basicMode):
         glDisable(GL_COLOR_LOGIC_OP)
         glEnable(GL_DEPTH_TEST)
 
-        # Restore default background color. Ask Bruce if I should create a subclass of Done and place it there. Mark 060815.
+        # Restore default background color.
         self.o.backgroundColor = self.glpane_backgroundColor
         self.o.backgroundGradient = self.glpane_backgroundGradient
         
-        #Call the method that Builds the crystal when user hits Done button,
-        if not self.commandSequencer.exit_is_cancel:
+        if self.commandSequencer.exit_is_forced:
+            #(this comes from the old haveNontrivialState method)
+            if self.o.shape != None:
+                self._warnUserAboutAbandonedChanges()
+        elif not self.commandSequencer.exit_is_cancel:
+            #Call the method that Builds the crystal when user hits Done button
             if self.o.shape:
                 self.o.shape.buildChunk(self.o.assy)
             
-        self.o.shape = None     
+        self.o.shape = None
         
         super(BuildCrystal_Command, self).command_will_exit()
                 
@@ -283,7 +287,7 @@ class BuildCrystal_Command(basicMode):
 
         @see: baseCommand.command_enter_misc_actions()  for documentation
         """
-        #@ATTENTION: the following code was originall in 
+        #@ATTENTION: the following code was originally in 
         #BuildCrystals_PropertyManager.show()
         #It is moved here 'as is' -- Ninad 2008-08-22
         self.win.buildCrystalAction.setChecked(True)
@@ -317,7 +321,7 @@ class BuildCrystal_Command(basicMode):
         """
         self.win.buildCrystalAction.setChecked(False)   
         
-        #@ATTENTION: the following code was originall in 
+        #@ATTENTION: the following code was originally in 
         #BuildCrystals_PropertyManager.close()
         #It is moved here 'as is' -- Ninad 2008-08-22
 
@@ -360,6 +364,7 @@ class BuildCrystal_Command(basicMode):
         return flyoutToolbar
     
     #Old command api methods ===
+    
     if not USE_COMMAND_STACK: 
         def Enter(self): 
             basicMode.Enter(self)
@@ -428,6 +433,9 @@ class BuildCrystal_Command(basicMode):
             # Restore default background color. Ask Bruce if I should create a subclass of Done and place it there. Mark 060815.
             self.o.backgroundColor = self.glpane_backgroundColor
             self.o.backgroundGradient = self.glpane_backgroundGradient
+
+        def haveNontrivialState(self):
+            return self.o.shape != None # note that this is stored in the glpane, but not in its assembly.
     
         def StateDone(self):
             if self.o.shape:
@@ -449,6 +457,9 @@ class BuildCrystal_Command(basicMode):
             # of the model, in assy? [bruce 071012 comment]
     
             return None
+
+        pass
+    #END Old command api methods ===
     
     def setFreeView(self, freeView):
         """
@@ -518,10 +529,6 @@ class BuildCrystal_Command(basicMode):
 
     # methods related to exiting this mode [bruce 040922 made these
     # from old Done and Flush methods]
-
-    def haveNontrivialState(self):
-        return self.o.shape != None # note that this is stored in the glpane, but not in its assembly.
-    
 
     def restore_patches_by_Command(self):
         self.o.ortho = self.savedOrtho

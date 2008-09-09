@@ -95,7 +95,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
     exit_is_cancel -- whether this exit is caused by Cancel.
 
     exit_is_forced -- whether this exit is forced to occur (e.g. caused by
-    Abandon).
+    exit_all_commands when closing a model).
 
     exit_is_implicit -- whether this exit is occuring only as a prerequisite
     of entering some other command
@@ -354,9 +354,14 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         based on the options passed (as documented below).
 
         @param cancel: value for self.exit_is_cancel, default False
+        
         @param forced: value for self.exit_is_forced, default False
+                       (only passed as True by exit_all_commands)
+        
         @param implicit: value for self.exit_is_implicit, default False
+        
         @param exit_target: value for self.exit_target, default None
+        
         @param enter_target: value for self.enter_target, default None
         """
         assert USE_COMMAND_STACK
@@ -891,7 +896,7 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         
         @param cancel: @see: baseCommand.command_Cancel and self.exit_is_cancel
         
-        @param forced: @see: baseCommand.command_Abandon and self.exit_is_forced
+        @param forced: @see: CommandSequencer.exit_all_commands and self.exit_is_forced
         
         @param implicit: @see: baseCommand.command_Done and self.exit_is_implicit
         """
