@@ -36,6 +36,7 @@ from commands.Select.Select_Command import Select_Command
 from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
+_superclass = Select_Command
 class SelectAtoms_Command(Select_Command):
     """
     SelectAtoms_basicCommand
@@ -63,7 +64,7 @@ class SelectAtoms_Command(Select_Command):
     highlight_singlets = False         
         
     def Enter(self): 
-        Select_basicCommand.Enter(self)        
+        _superclass.Enter(self)        
         
         self.w.win_update()
             #k needed? I doubt it, I bet caller of Enter does it
