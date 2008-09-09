@@ -1009,12 +1009,13 @@ def drawHeightfield(color, w, h, textureReady, opacity,
                     SOLID=False, pickCheckOnly=False, hf=None):
     """
     Draw a heighfield using vertex and normal arrays. Optionally, it could be
-    texuture mapped.
+    texture mapped.
 
     @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick
       selection purpose.
     """        
 
+    # REVIEW: PCS: All imports at top of file.
     from OpenGL.GL import glTexEnvf
     from OpenGL.GL import GL_TEXTURE_ENV
     from OpenGL.GL import GL_TEXTURE_ENV_MODE
@@ -1031,6 +1032,7 @@ def drawHeightfield(color, w, h, textureReady, opacity,
     glEnable(GL_COLOR_MATERIAL)
     glEnable(GL_LIGHTING)
 
+    ### REVIEW: ?
     ### glColor4fv(list(color) + [opacity])
     ### glColor3fv(list(color))
     glColor3f(1.0, 1.0, 1.0)
@@ -1060,6 +1062,7 @@ def drawHeightfield(color, w, h, textureReady, opacity,
     for tstrip_vert, tstrip_norm, tstrip_tex in hf:
         glVertexPointer(3, GL_FLOAT, 0, tstrip_vert)
         glNormalPointer(GL_FLOAT, 0, tstrip_norm)
+        # REVIEW: Only if hf is not none?  Is the heightfield really optional?
         glTexCoordPointer(2, GL_FLOAT, 0, tstrip_tex)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, len(tstrip_vert))
         

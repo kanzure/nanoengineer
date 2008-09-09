@@ -291,6 +291,8 @@ def drawpolycone_multicolor_worker(params):
     deferment.  Right now this is only ColorSorter.schedule (see below)
     piotr 080311: this variant accepts a color array as an additional parameter
     """
+    # Note: See the code in class ColorSorter for GL_COLOR_MATERIAL objects.
+    
     (pos_array, color_array, rad_array) = params
     glEnable(GL_COLOR_MATERIAL) # have to enable GL_COLOR_MATERIAL for
                                 # the GLE function
@@ -352,6 +354,7 @@ def drawtriangle_strip_worker(params):
     Draw a triangle strip using a list of triangle vertices
     and (optional) normals.
     """
+    # Note: See the code in class ColorSorter for GL_COLOR_MATERIAL objects.
     
     # piotr 080904 - This method could be optimized by using vertex
     # arrays or VBOs.

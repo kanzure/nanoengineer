@@ -754,6 +754,7 @@ class PlanePropertyManager(EditCommand_PM):
         if self.command and self.command.struct:
             plane = self.command.struct
             plane.heightfield_use_texture = checked
+            # REVIEW: ?
             #if plane.display_heightfield and plane.image:
             #    plane.computeHeightfield()
             plane.glpane.gl_update()

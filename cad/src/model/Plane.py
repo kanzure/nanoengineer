@@ -350,11 +350,11 @@ class Plane(ReferenceGeometry):
         @type  highlighted: bool
         
         @see: self.draw_after_highlighting() which draws things like filled 
-        plane , grids etc after the main drawing code is finished.
+        plane, grids etc after the main drawing code is finished.
         """
         
         #IMPORTANT NOTE: See also self.draw_after_highlighting() which draws 
-        #some more things suxh as filled plane etc after the main drawing code
+        #some more things such as filled plane etc after the main drawing code
         #is finished. It makes sure that plane get selected even when you click
         #on the filled portion of it. -- Ninad 2008-06-20
         
@@ -388,8 +388,8 @@ class Plane(ReferenceGeometry):
                 drawLineLoop(color, corners_pos, width = 2)
             else:  
                 #Following draws the border of the plane in orange color 
-                #for it's front side (side that was in front 
-                #when the plane was created and a brown border for the backside.
+                #for its front side (side that was in front 
+                #when the plane was created) and a brown border for the backside.
                 if dot(self.getaxis(), glpane.lineOfSight) < 0:
                     bordercolor = brown #backside
                 else:
@@ -407,7 +407,7 @@ class Plane(ReferenceGeometry):
     def draw_after_highlighting(self,  glpane, dispdef, pickCheckOnly = False):
         """
         Things to draw after highlighting. Subclasses should override this 
-        method. This API method ensures that , when user clicks on the filled
+        method. This API method ensures that, when user clicks on the filled
         area of a plane, the plane gets selected. 
                 
         @param pickCheckOnly: This flag in conjunction with this API method
@@ -955,6 +955,7 @@ class Plane(ReferenceGeometry):
                             x0 = float(x) / float(wi - 1) 
                             y0 = float(y+t) / float(he - 1) 
                             
+                            # REVIEW: ?
                             # transform according to current texture coordinates
                             """
                             nx = (self.tex_coords[1][0] * (x0) + self.tex_coords[0][0] * (1.0 - x0)) * (1.0 - y0) + \

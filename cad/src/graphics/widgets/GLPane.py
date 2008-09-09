@@ -28,7 +28,7 @@ Some of this might be a prerequisite for some ways of
 optimizing the graphics code.
 """
 
-_testing_ = False # True
+_testing_ = False # True  ## Debug/test switch.  Never check in a False value.
 if _testing_:
     from prototype.test_drawing import test_drawing
     pass
@@ -3801,7 +3801,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
             self.fplanes[p] = [0.0] * 4
 
         # subtract and add the composite matrix rows to get the plane equations
-        # piotr 080403 - I will add a detailed explanation here.
+        # REVIEW: # piotr 080403 - I will add a detailed explanation here.
         for p in range(0, 3):
             for i in range(0, 4):
                 self.fplanes[2*p][i] = cmat[i][3] - cmat[i][p]
@@ -4982,11 +4982,12 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
     def _enable_stereo(self, stereo_image, preserve_colors = False, no_clipping = False):
         """
         Enables stereo rendering.        
-        Stereo_image . 
+
         It should be called before entering drawing phase
         and should be accompanied by a self._disable_stereo call.
         These methods push a modelview matrix on a matrix stack
         and modify the matrix.
+
         @param stereo_image : Indicates which stereo image is being drawn
         (-1 == left, 1 == right)
         @param preserve_colors : Disable color mask manipulations
@@ -5045,7 +5046,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
                       self.up[2])
 
         else:
-            # anaglyphs stereo mode            
+            # Anaglyphs stereo mode - Red plus Blue, Cyan, or Green image.
             angle *= 0.5
             if not preserve_colors:
                 if stereo_image == -1:
