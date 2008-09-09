@@ -50,6 +50,7 @@ class AtomsTool_Command(BuildAtoms_Command):
         such that it fits the new method names in command API.         
         """
         self._reuse_attr_of_parentCommand('flyoutToolbar')
+        self.flyoutToolbar.activateFlyoutToolbar()
     
     
     #START OLD command API methods =============================================

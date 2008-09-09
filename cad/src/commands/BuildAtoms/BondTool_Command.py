@@ -78,6 +78,7 @@ class BondTool_Command(BuildAtoms_Command):
         such that it fits the new method names in command API.         
         """
         self._reuse_attr_of_parentCommand('flyoutToolbar')
+        self.flyoutToolbar.activateFlyoutToolbar()
     
     
     if not USE_COMMAND_STACK:
