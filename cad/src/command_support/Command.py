@@ -1627,6 +1627,7 @@ class basicCommand(anyCommand):
 
         [Unlikely to be overridden by subclasses.]
         """
+        assert not USE_COMMAND_STACK
         if not suspend_old_mode:
             self._cleanup()
         if new_mode is None:
