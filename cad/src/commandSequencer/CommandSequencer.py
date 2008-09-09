@@ -1,13 +1,10 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-CommandSequencer.py - prototype (or stub) Command Sequencer.
-For now, this is just class modeMixin, which acts as the
-"Command Sequencer aspect of the GLPane"; this will either
-be replaced by or evolve into a real Command Sequencer.
+CommandSequencer.py - class for sequencing commands and maintaining command stack.
 
-(Until we decide, I kept the old class name to avoid a false promise
-of good design, but on 071030 gave it a new module name to
-make the role in the current code clear.)
+Historically this was a mixin class for the GLPane, named modeMixin.
+On 080909 it was renamed to CommandSequencer, and soon the option
+to make it a separate object owned by each Assembly will be turned on.
 
 @author: Bruce (partly based on older code by Josh)
 @version: $Id$
@@ -15,18 +12,27 @@ make the role in the current code clear.)
 
 History:
 
-- written by Bruce long ago, in modes.py, mixed into GLPane.py
+Bruce 2004 or 2005: written (partly based on older code by Josh),
+as class modeMixin in modes.py, mixin class for GLPane
 
-- split into its own file, bruce 071009
+Bruce 071009 split into its own file
 
-- file (but not class) renamed to CommandSequencer, bruce 071030
+Bruce 071030 file (but not class) renamed to CommandSequencer
+
+Bruce 2008 made "not GLPANE_IS_COMMAND_SEQUENCER" work (not yet on by default)
+
+Bruce 2008 (with Ninad working in other files) made USE_COMMAND_STACK work
+
+bruce 080909 class renamed from modeMixin to CommandSequencer
 
 TODO:
 
-roughly: mode -> command or currentCommand, prevMode -> _prevCommand or worse,
-glpane -> commandSequencer; and then on to real refactoring. Also, some of the
-logic in basicMode is really part of the command sequencer (which basicMode
-should just interface to rather than "try to be").
+turn off GLPANE_IS_COMMAND_SEQUENCER by default; strip out old code
+
+turn on USE_COMMAND_STACK by default; strip out old code
+
+[old comment:]
+roughly: mode -> command or currentCommand, prevMode -> _prevCommand or worse...
 """
 
 from utilities.debug import print_compact_traceback, print_compact_stack
@@ -61,7 +67,7 @@ DEBUG_COMMAND_STACK = False
 
 # TODO: mode -> command or currentCommand in lots of comments, some method names
 
-class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is always false
+class CommandSequencer(object):
     """
     Mixin class for supporting command-switching in GLPane. Basically it's
     a primitive Command Sequencer which for historical reasons lives
@@ -143,7 +149,9 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
         self._init_modeMixin()
         return
     
-    def _init_modeMixin(self): # will become __init__ when this is no longer a mixin
+    def _init_modeMixin(self):
+        # todo: will be merged into __init__ when this class is no longer a mixin,
+        # i.e. when GLPANE_IS_COMMAND_SEQUENCER is always False
         """
         call this near the start of __init__ in a subclass that mixes us in
         (i.e. GLPane); subsequent init calls should also be made, namely:
@@ -1732,6 +1740,6 @@ class modeMixin(object): # todo: rename, once GLPANE_IS_COMMAND_SEQUENCER is alw
             # note: self is acting as the command sequencer here
         return
 
-    pass # end of class modeMixin
+    pass # end of class CommandSequencer
 
 # end

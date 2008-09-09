@@ -13,7 +13,7 @@ History:
 
 bruce 050507 moved Hydrogenate and Dehydrogenate into another file
 
-bruce 071009 moved modeMixin into its own file
+bruce 071009 moved modeMixin [now CommandSequencer] into its own file
 
 bruce 071009 split modes.py into Command.py and GraphicsMode.py,
 leaving only temporary compatibility mixins in modes.py.
@@ -35,7 +35,7 @@ refer to a derived object which the current command can return,
 perhaps self (for old code) or not (for new code).
 (The null object we store in there can then also be a joint or
 separate object, independently from everything else. For now
-it's still called nullMode (and it's created and stored by modeMixin)
+it's still called nullMode (and it's created and stored by CommandSequencer)
 but that will be revised.)
 
 But that doesn't remove the fact that generators (maybe even when based
@@ -72,7 +72,7 @@ class anyMode(anyCommand, GraphicsMode_API):
     pass
 
 class nullMode(nullCommand, nullGraphicsMode, anyMode):
-    # used in modeMixin and test_commands
+    # used in CommandSequencer and test_commands
     # see discussion in this module's docstring
 
     # duplicated properties in nullMode and basicMode, except for debug prints:

@@ -296,8 +296,8 @@ class MWsemantics(QMainWindow,
             commandSequencerClass_for_assy = None
         else:
             #bruce 080813
-            from commandSequencer.CommandSequencer import modeMixin
-            commandSequencerClass_for_assy = modeMixin
+            from commandSequencer.CommandSequencer import CommandSequencer
+            commandSequencerClass_for_assy = CommandSequencer
         res = Assembly(self,
                        "Untitled",
                        own_window_UI = True,

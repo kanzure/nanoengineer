@@ -54,7 +54,7 @@ def start_cmdrun( cmdrun):
         glpane.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
     print "done with start_cmdrun for", cmdrun
         # returns as soon as user is in it, doesn't wait for it to "finish" -- so run is not a good name -- use Enter??
-        # problem: Enter is only meant to be called internally by glue code in modeMixin.
+        # problem: Enter is only meant to be called internally by glue code in CommandSequencer.
         # solution: use a new method, maybe Start. note, it's not guaranteed to change to it immediately! it's like Done (newmode arg).
     return
 
@@ -75,7 +75,7 @@ def enter_example_command(widget, example_command_classname):
 ##                import commands.SelectAtoms.selectAtoms_Command as selectAtoms_Command
 ##                reload(selectAtoms_Command)
 ##            
-##            # revised 071010 (glpane == commandSequencer == modeMixin), new code UNTESTED:
+##            # revised 071010 (glpane == commandSequencer), new code UNTESTED:
 ##            glpane._recreate_nullmode()
 ##            glpane._use_nullmode()
 ##

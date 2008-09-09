@@ -22,7 +22,7 @@ objects);
 - move more common code into GLPane_minimal;
 
 - most urgently, make the main GLPane not be the
-same object as the CommandSequencer.
+same object as the CommandSequencer. [see GLPANE_IS_COMMAND_SEQUENCER]
 
 Some of this might be a prerequisite for some ways of
 optimizing the graphics code.
@@ -403,45 +403,50 @@ class GLPane_mixin_for_DisplayListChunk(object):
 # ==
 
 if GLPANE_IS_COMMAND_SEQUENCER: #bruce 080813
-    from commandSequencer.CommandSequencer import modeMixin
-    modeMixin_for_glpane = modeMixin
+    from commandSequencer.CommandSequencer import CommandSequencer
+    _CommandSequencer_for_glpane = CommandSequencer
 else:
-    class modeMixin_for_glpane(object):
+    class _CommandSequencer_for_glpane(object):
         pass
 
-class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrackingMixin,
-             GLPane_mixin_for_DisplayListChunk):
+class GLPane(GLPane_minimal,
+             _CommandSequencer_for_glpane,
+             DebugMenuMixin,
+             SubUsageTrackingMixin,
+             GLPane_mixin_for_DisplayListChunk ):
     """
-    Mouse input and graphics output in the main view window.
-    """
-    # bruce 070920 added object superclass, to make this a new-style class
-    # (so I can use a property in it); bruce 080220 moved object superclass
-    # into our superclass GLPane_minimal
+    Widget for OpenGL graphics and associated mouse/key input,
+    with lots of associated/standard behavior and helper methods.
 
-    # Note: classes GLPane and ThumbView share lots of code,
+    Effectively a singleton object:
+
+    * owned by main window (perhaps indirectly via class PartWindow)
+
+    * never remade duringan NE1 session
+
+    * contains public references to other singletons
+      (e.g. win (permanent), assy (sometimes remade))
+
+    * some old code stores miscellaneous attributes
+      inside it (e.g. shape, stored by Build Crystal)
+
+    Also mixes in class CommandSequencer when GLPANE_IS_COMMAND_SEQUENCER is true.
+    This will soon be deprecated and turned off.
+
+    A few of the GLPane's public attributes:
+
+    * several "point of view" attributes (some might be inherited
+      from superclass GLPane_minimal)
+
+    * graphicsMode - an instance of GraphicsMode_API
+
+    * currentCommand [when GLPANE_IS_COMMAND_SEQUENCER] - a command object
+      (see Command.py and/or baseCommand.py)
+    """
+    # Note: classes GLPane and ThumbView still share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal.
-    # [bruce 070914 comment]
-
-    # [the following comment is partly obsolete as of 080813
-    #  when not GLPANE_IS_COMMAND_SEQUENCER:]
-    #
-    # Note: external code expects self.graphicsMode to always be a working
-    # GraphicsMode object, which has certain callable methods [which should
-    # be formalized as a new class GraphicsMode_API or so]. Similarly, it
-    # expects self.currentCommand to be a Command object (more precisely,
-    # a basicCommand subclass). The Command API of self.currentCommand (and
-    # some private aspects of our commands) are used by self's modeMixin superclass
-    # to "switch between commands".
-    #
-    # Soon [when GLPANE_IS_COMMAND_SEQUENCER is false], the modeMixin part will become part of
-    # the planned CommandSequencer and be removed from this class GLPane
-    # [that's partly done as of 071030, since it's now in CommandSequencer.py;
-    #  more on this is being done as of 080813],
-    # and the Command and GraphicsMode class hierarchies will be separated
-    # [later: mostly done].
-    # Of the attributes mentioned, only self.graphicsMode will remain in GLPane.
-    # [bruce 071011]
-
+    # [bruce 070914/080909 comment]
+    
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
     assy = None #bruce 080314
@@ -457,7 +462,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         self.win = win
 
         if GLPANE_IS_COMMAND_SEQUENCER: #bruce 080813 made this conditional
-            modeMixin._init_modeMixin(self)
+            CommandSequencer._init_modeMixin(self)
             # otherwise, each Assembly owns one, as assy.commandSequencer
 
         self.partWindow = parent
@@ -1182,7 +1187,7 @@ class GLPane(GLPane_minimal, modeMixin_for_glpane, DebugMenuMixin, SubUsageTrack
         self.set_part( mainpart)
 
         if GLPANE_IS_COMMAND_SEQUENCER:
-            # defined in modeMixin [bruce 040922]; requires self.assy
+            # defined in CommandSequencer [bruce 040922]; requires self.assy
             self._reinit_modes() # leaves mode as nullmode as of 050911
         else:
             self.assy.commandSequencer._reinit_modes()

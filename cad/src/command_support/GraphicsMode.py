@@ -216,7 +216,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
         See also Command.isCurrentCommand.
         """
-        # see WARNING in modeMixin about this needing revision if .graphicsMode
+        # see WARNING in CommandSequencer about this needing revision if .graphicsMode
         # might have been wrapped with an API-enforcement (or any other) proxy.
         return self.glpane.graphicsMode is self
 
