@@ -451,7 +451,7 @@ class BuildCrystal_Command(basicMode):
         def StateCancel(self):
             self.o.shape = None
             # note: it's mostly a matter of taste whether to put this statement
-            # into StateCancel, restore_patches_by_*, or clear_command_state()...
+            # into StateCancel, restore_patches_by_*, or ...
             # it probably doesn't matter in effect, in this case. To be safe
             # (e.g. in case of Abandon), I put it in more than one place.
             #

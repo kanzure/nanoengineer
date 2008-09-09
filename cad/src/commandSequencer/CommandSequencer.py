@@ -1133,6 +1133,8 @@ class CommandSequencer(object):
                 self.win.setFocus() #bruce 041010 bugfix (needed in two places)
                     # (I think that was needed to prevent key events from being
                     #  sent to no-longer-shown mode dashboards. [bruce 041220])
+                    # a test with USE_COMMAND_STACK (which doesn't call this line)
+                    # seems to indicate that this is no longer needed [bruce 080909 comment]
                 self.currentCommand.restore_gui()
                     ###REVIEW: restore_gui is probably wrong when options caused
                     # us merely to suspend, not exit, the old mode.

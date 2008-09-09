@@ -88,9 +88,11 @@ class EditCommand(Select_Command):
     
     
     PM_class = None
-       #Command subclasses can override this class constant with the appropriate
-       #Property Manager class. See baseCommand class definition for more 
-       #details. 
+        #Command subclasses can override this class constant with the appropriate
+        #Property Manager class. See baseCommand class definition for more 
+        #details. [Ninad]
+        # REVIEW: can we just inherit this from our superclass?
+        # if not, a comment should say why not. [bruce 080909 comment]
        
 
     def __init__(self, commandSequencer):

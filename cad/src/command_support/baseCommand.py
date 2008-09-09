@@ -620,6 +620,7 @@ class baseCommand(object):
         @see: command_update_UI, for subsequent updates of UI elements only
         """
         if self.parentCommand:
+            assert self.parentCommand is not self #bruce 080909 debug code
             self.parentCommand.command_update_internal_state()
         return
 

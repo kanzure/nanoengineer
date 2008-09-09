@@ -73,6 +73,8 @@ from utilities.constants import blue
 from utilities.constants import green
 from utilities.constants import common_prefix
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK 
+
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 
@@ -1592,7 +1594,8 @@ class extrudeMode(basicMode):
     moused_over = None
 
     def clear_command_state(self):
-        ### REVIEW: should modes.py also call this before calling Enter? until it does, call it in Enter ourselves
+        assert not USE_COMMAND_STACK
+            # in that case we'll need to do these things in command_enter instead [bruce 080909]
         self.mergeables = {}
         self.moused_over = None #k?
         self.dragdist = 0.0

@@ -371,15 +371,21 @@ class basicCommand(anyCommand):
     
     
     PM_class = None
-       #Command subclasses can override this class constant with the appropriate
-       #Property Manager class, if they have their own Property Manager object.
-       #This is used by self._createPropMgrObject(). 
-       #See also self.command_enter_PM. 
+        #Command subclasses can override this class constant with the appropriate
+        #Property Manager class, if they have their own Property Manager object.
+        #This is used by self._createPropMgrObject(). 
+        #See also self.command_enter_PM. 
        
-       #NOTE 2008-09-02: The class constant PM_class was introduced today and 
-       #will soon be used in all commands. But before that, it will be tested 
-       #in a few command classes [ -- Ninad comment]. The comemnt can be 
-       #deleted when all commands that have their own PM start using this. 
+        #NOTE 2008-09-02: The class constant PM_class was introduced today and 
+        #will soon be used in all commands. But before that, it will be tested 
+        #in a few command classes [ -- Ninad comment]. This comment can be 
+        #deleted when all commands that have their own PM start using this.
+
+        # Note: when USE_COMMAND_STACK is true, this is always used,
+        # since base class command_enter_PM calls _createPropMgrObject.
+        # But when not USE_COMMAND_STACK, it's only used in command classes
+        # which call that explicitly. This covers mainly EditCommand subclasses.
+        # [bruce 080909 guess ###VERIFY]
        
 
     def __init__(self, commandSequencer):
@@ -432,8 +438,9 @@ class basicCommand(anyCommand):
             weird_to_override += [
                              'command_Done', 'command_Cancel', #bruce 080827
                             ]
-        if USE_COMMAND_STACK and 0: # only enable this once we'll never go back...
+        if USE_COMMAND_STACK and 0: ### TODO: enable this once we'll never go back, to help strip out obsolete code
             # also complain about commands not fully ported to the new API
+            # (i.e. in which obsolete methods are still defined)
             for methodname, howtofix in (
                 ('Enter', ""),
                 ('init_gui', ""),
@@ -442,6 +449,9 @@ class basicCommand(anyCommand):
                 ('StateDone', ""),
                 ('StateCancel', ""),
                 ('restore_gui', ""),
+                ('restore_patches_by_Command', ""),
+                ('clear_command_state', ""),
+                ('haveNontrivialState', ""),
             ):
                 weird_to_override += [methodname]
                 # todo: print howtofix when needed
@@ -526,18 +536,15 @@ class basicCommand(anyCommand):
             """
             pass
     
-    
     def _createPropMgrObject(self):
         """
-        Returns the property manager object for this command. 
-        
+        Returns the property manager object for this command.
         """
         if self.PM_class is None:
             return None
     
         propMgr = self.PM_class(self)
         return propMgr
-    
     
     def get_featurename(clas): #bruce 071227, revised into classmethod 080722
         """
@@ -1719,9 +1726,8 @@ class basicCommand(anyCommand):
             # (I think that was needed to prevent key events from being sent to
             #  no-longer-shown command dashboards. [bruce 041220])
             #
-            # REVIEW: is this setFocus needed when USE_COMMAND_STACK?
-            # Need to figure out how to test it, to find out.
-            # [bruce 080909 question]
+            # a test with USE_COMMAND_STACK (which doesn't call this line)
+            # seems to indicate that this is no longer needed [bruce 080909 comment]
 
         #### TODO: either rename the following for new command API,
         # or copy their code into new command API methods and abandon them.
@@ -1757,9 +1763,12 @@ class basicCommand(anyCommand):
 
         @see: GraphicsMode.restore_patches_by_GraphicsMode
 
-        @note: no longer part of the Command API when USE_COMMAND_STACK is true
+        @note: no longer part of the Command API when USE_COMMAND_STACK is true;
+               commands needing this should just extend command_will_exit
         """
-        assert not USE_COMMAND_STACK #bruce 080829 ### TODO: indiv commands need to do the same things in other methods
+        assert not USE_COMMAND_STACK #bruce 080829
+        # as of 080909, all individual commands do the same things in other
+        # methods that overrides of this method used to do
         pass
     
     def clear(self): #bruce 080806 deprecated this (old name of clear_command_state) ### rename in subs, in calls
@@ -1768,14 +1777,14 @@ class basicCommand(anyCommand):
         return
     
     def clear_command_state(self):
-        #bruce 080806 renamed clear -> clear_command_state;
-        # semantics are tentative (call during enter too, like in Extrude? fold into command_will_exit?);
-        # will be renamed again (to start with 'command_') if it remains in new Command API
+        #bruce 080806 renamed clear -> clear_command_state
         """
         subclasses with internal state should reset it to null values
         (somewhat redundant with Enter; best to clear things now)
 
-        @note: no longer part of the Command API when USE_COMMAND_STACK is true
+        @note: no longer part of the Command API when USE_COMMAND_STACK is true;
+               commands needing this should just extend command_will_exit and/or
+               command_entered
         """
         assert not USE_COMMAND_STACK #bruce 080829 ### TODO: do the same things in other methods
         return

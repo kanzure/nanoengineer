@@ -96,6 +96,8 @@ class movieMode(basicMode):
     featurename = "Movie Player Mode"
     from utilities.constants import CL_MISC_TOPLEVEL
     command_level = CL_MISC_TOPLEVEL
+
+    PM_class = MoviePropertyManager #bruce 080909
     
     flyoutToolbar = None
 
@@ -199,17 +201,18 @@ class movieMode(basicMode):
     
     def command_enter_PM(self):
         """
-        Overrides superclass method.         
+        Extends superclass method.         
         @see: baseCommand.command_enter_PM()  for documentation        
         """
-        #important to check for old propMgr object. Reusing propMgr object 
-        #significantly improves the performance.
-        if not self.propMgr:
-            self.propMgr = self._createPropMgrObject()
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- ninad 2007-08-29
-            changes.keep_forever(self.propMgr)  
+##        #important to check for old propMgr object. Reusing propMgr object 
+##        #significantly improves the performance.
+##        if not self.propMgr:
+##            self.propMgr = self._createPropMgrObject()
+##            #@bug BUG: following is a workaround for bug 2494.
+##            #This bug is mitigated as propMgr object no longer gets recreated
+##            #for modes -- ninad 2007-08-29
+##            changes.keep_forever(self.propMgr)
+        basicMode.command_enter_PM(self) #bruce 080909 call this instead of inlining it
             
         if not USE_COMMAND_STACK:
             self.propMgr.show()             
@@ -221,7 +224,6 @@ class movieMode(basicMode):
             #bruce 050428 precaution (has no noticable effect but seems safer in theory)
         #bruce 050428, working on bug 395: I think some undesirable state is left in the dashboard, so let's reinit it
         # (and down below we might like to init it from the movie if possible, but it's not always possible).
-            
             
         self.propMgr._moviePropMgr_reinit() ###e could pass frameno? is max frames avail yet in all playable movies? not sure.
         # [bruce 050426 comment: probably this should just be a call of an update method, also used during the mode ###e]
@@ -243,8 +245,7 @@ class movieMode(basicMode):
                 env.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
         else:
             self.enableMovieControls(False)         
-            
-        
+        return
     
     def command_exit_PM(self):
         """
@@ -325,13 +326,6 @@ class movieMode(basicMode):
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
         self.w.disable_QActions_for_movieMode(False)   
-            
-    def _createPropMgrObject(self):
-        """
-        Create the Property mnanager object for this command 
-        @see: self.command_enter_PM(self)
-        """
-        return MoviePropertyManager(self)
     
     def _createFlyoutToolBarObject(self):
         """
