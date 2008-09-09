@@ -25,7 +25,7 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     """   
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-0--05: ?? check"
+    command_porting_status = None #fully ported (includind subclasses Break and JoinStrands commands
     
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
@@ -40,23 +40,7 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     
     def _get_init_gui_flyout_action_string(self):
         raise AbstractMethod
-    
-    
-    def init_gui(self):
-        self.command_enter_misc_actions()
-        self.command_enter_PM() 
-        self.command_enter_flyout()
         
-    def restore_gui(self):
-        """
-        Do changes to the GUI while exiting this mode. This includes closing 
-        this mode's property manager, updating the command toolbar etc. 
-        @see: L{self.init_gui}
-        """
-        self.command_exit_misc_actions()
-        self.command_exit_flyout()
-        self.command_exit_PM()
-    
                 
     def command_enter_flyout(self):
         """
