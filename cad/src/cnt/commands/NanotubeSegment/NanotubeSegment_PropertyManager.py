@@ -189,14 +189,14 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         # This is needed to update the endpoints since the Nanotube segment
         # may have been moved (i.e. translated or rotated). In that case,
         # the endpoints are not updated, so we recompute them here.
-        nanotubeChunk = self.struct.members[0]
+        nanotubeChunk = self.command.struct.members[0]
         self.endPoint1, self.endPoint2, radius = \
-            self.struct.nanotube.computeEndPointsFromChunk(nanotubeChunk)
+            self.command.struct.nanotube.computeEndPointsFromChunk(nanotubeChunk)
         
         if 0:
             print "\n--------------"
             print "setParameters():"
-            print "Struct=", self.struct
+            print "Struct=", self.command.struct
             print "N, M:", self.n, self.m
             print "type:", self.type
             print "endings:", self.endings
@@ -210,7 +210,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         if 0:
             print "\n--------------"
             print "getParameters():"
-            print "Struct=", self.struct
+            print "Struct=", self.command.struct
             print "N, M:", self.n, self.m
             print "type:", self.type
             print "endings:", self.endings
