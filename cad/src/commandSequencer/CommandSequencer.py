@@ -155,12 +155,20 @@ class CommandSequencer(object):
         # used when USE_COMMAND_STACK or not;
         # should try to clean up init code (see docstring) when USE_COMMAND_STACK is always true
         """
-        call this near the start of __init__ in a subclass that mixes us in
-        (i.e. GLPane);
+        [semi-private]
+        
+        Call this near the start of __init__ in a subclass that mixes us in
+        (i.e. GLPane), or in our own __init__ method (when we're not used as a mixin).
 
-        subsequent init calls should also be made, namely:
+        Subsequent init calls should also be made, namely:
         - _reinit_modes, from glpane.setAssy, from _make_and_init_assy or GLPane.__init__
-        - start_using_initial_mode - end of MWsemantics.__init__, or _make_and_init_assy
+        - start_using_initial_mode - end of MWsemantics.__init__, or _make_and_init_assy.
+
+        To reuse self "from scratch", perhaps with new command objects (necessary
+        if self is reused with a new assy, as happens when GLPANE_IS_COMMAND_SEQUENCER)
+        and/or new command classes (e.g. after a developer reloads some of them),
+        first call self.exit_all_commands(), then do only the "subsequent init calls"
+        mentioned above -- don't call this method again.
         """
         if _DEBUG_CSEQ_INIT:
             print "_DEBUG_CSEQ_INIT: _init_modeMixin"###
