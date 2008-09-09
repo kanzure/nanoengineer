@@ -5,7 +5,7 @@ BuildAtoms_Command.py
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
-The 'Command' part of the BuildAtoms Mode (BuildAtoms_basicCommand and 
+The 'Command' part of the BuildAtoms Mode (BuildAtoms_Command and 
 BuildAtoms_basicGraphicsMode are the two split classes of the old 
 depositMode). It provides the command object for its GraphicsMode class. 
 The Command class defines anything related to the 'command half' of the mode -- 
@@ -46,7 +46,7 @@ from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
 from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
 
 from commands.BuildAtoms.BuildAtomsPropertyManager import BuildAtomsPropertyManager
-from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_basicCommand
+from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command
 
 from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
@@ -54,11 +54,22 @@ from ne1_ui.toolbars.Ui_BuildAtomsFlyout import BuildAtomsFlyout
 
 #for debugging new command stack API 
 from utilities.GlobalPreferences import USE_COMMAND_STACK 
-_superclass = SelectAtoms_basicCommand
 
-class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
+_superclass = SelectAtoms_Command
+
+class BuildAtoms_Command(SelectAtoms_Command):
     """
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported. 
+    
+    #GraphicsMode
+    GraphicsMode_class = BuildAtoms_GraphicsMode
+    
+    #The class constant PM_class defines the class for the Property Manager of 
+    #this command. See Command.py for more infor about this class constant 
+    PM_class = BuildAtomsPropertyManager
+    
     commandName = 'DEPOSIT'
     featurename = "Build Atoms Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
@@ -72,11 +83,6 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     flyoutToolbar = None
     
     _currentActiveTool = 'ATOMS_TOOL'
-    
-    #The class constant PM_class defines the class for the Property Manager of 
-    #this command. See Command.py for more infor about this class constant 
-    PM_class = BuildAtomsPropertyManager
-    
     
     def __init__(self, commandSequencer):
         _superclass.__init__(self, commandSequencer)    
@@ -744,32 +750,4 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         """
         self.propMgr.setElement(elementNumber)
         return
-    
-class BuildAtoms_Command(BuildAtoms_basicCommand):
-    """
-    BuildAtoms_Command  
-    @see: B{BuildAtoms_basicCommand}
-    @see: cad/doc/splitting_a_mode.py
-    """
-    GraphicsMode_class = BuildAtoms_GraphicsMode
-    
-     ##### START of code copied from SelectAtoms_Command (except that the 
-     ##### superclass name is different. 
-    
-    def __init__(self, commandSequencer):
-        
-        BuildAtoms_basicCommand.__init__(self, commandSequencer)
-        self._create_GraphicsMode()
-        return
-        
-    def _create_GraphicsMode(self):
-        GM_class = self.GraphicsMode_class
-        assert issubclass(GM_class, GraphicsMode_API)
-        args = [self] 
-        kws = {} 
-        self.graphicsMode = GM_class(*args, **kws)
-        return
-    
-    ##### END of code copied from SelectAtoms_Command
-
     

@@ -26,7 +26,6 @@ _KLUGE_PERMIT_INHERITED_CLASSNAMES = (
     #  those class-pairs should each be merged into a single class.)
     "SelectChunks_Command",
     "SelectAtoms_Command",
-    "BuildAtoms_Command",
     "Move_Command",
 
     "TemporaryCommand_preMixin", # (should this count as abstract?)
