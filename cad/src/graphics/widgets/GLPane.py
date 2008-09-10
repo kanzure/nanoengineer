@@ -44,20 +44,13 @@ from PyQt4.Qt import QMouseEvent
 from PyQt4.Qt import QHelpEvent
 from PyQt4.Qt import QPoint
 from PyQt4.Qt import QFontMetrics
-
 from PyQt4.Qt import Qt, QFont, QMessageBox, QString
 from PyQt4.Qt import SIGNAL, QTimer
+
 from PyQt4.QtOpenGL import QGLWidget
 
-
-from OpenGL.GL import glGenLists
-from OpenGL.GL import glNewList
-from OpenGL.GL import GL_COMPILE_AND_EXECUTE
-from OpenGL.GL import glEndList
-from OpenGL.GL import glCallList
 from OpenGL.GL import glDepthFunc
 from OpenGL.GL import GL_STENCIL_BITS
-from OpenGL.GL import GL_NORMALIZE
 from OpenGL.GL import GL_PROJECTION
 from OpenGL.GL import GL_SMOOTH
 from OpenGL.GL import glShadeModel
@@ -102,12 +95,6 @@ from OpenGL.GL import glGetIntegerv
 from OpenGL.GL import glFrustum
 from OpenGL.GL import glOrtho
 from OpenGL.GL import glRotatef
-from OpenGL.GL import GL_COLOR_MATERIAL
-from OpenGL.GL import GL_FILL
-from OpenGL.GL import GL_FRONT_AND_BACK
-from OpenGL.GL import glPolygonMode
-from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
-from OpenGL.GL import glColorMaterial
 from OpenGL.GL import GL_LIGHTING
 from OpenGL.GL import GL_MODULATE
 from OpenGL.GL import glViewport
@@ -132,26 +119,19 @@ from OpenGL.GL import GL_TRANSFORM_BIT
 
 from OpenGL.GLU import gluUnProject, gluProject, gluPickMatrix
 
-try:
-    from OpenGL.GLE import glePolyCone
-except:
-    print "GLE module can't be imported. Now trying _GLE"
-    from OpenGL._GLE import glePolyCone
-
 from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 from Numeric import dot
 
 import graphics.drawing.drawing_globals as drawing_globals
-from graphics.drawing.gl_lighting import glprefs_data_used_by_setup_standard_lights
 from graphics.drawing.CS_draw_primitives import drawwiresphere
 from graphics.drawing.drawers import drawFullWindow
 from graphics.drawing.drawers import drawOriginAsSmallAxis
 from graphics.drawing.drawers import drawaxes
-from graphics.drawing.gl_lighting import _default_lights
+
 from graphics.drawing.gl_lighting import disable_fog
 from graphics.drawing.gl_lighting import enable_fog
 from graphics.drawing.gl_lighting import setup_fog
-from graphics.drawing.gl_lighting import setup_standard_lights
+
 from graphics.drawing.glprefs import glprefs
 from graphics.drawing.setup_draw import setup_drawer
 
@@ -172,7 +152,6 @@ from platform_dependent.PlatformDependent import wrap_key_event
 from widgets.menu_helpers import makemenu_helper
 from widgets.DebugMenuMixin import DebugMenuMixin
 from utilities.debug import print_compact_traceback, print_compact_stack
-import foundation.preferences as preferences
 import foundation.env as env
 from foundation.changes import SubUsageTrackingMixin
 from ne1_ui.cursors import createCompositeCursor
@@ -181,9 +160,6 @@ from widgets.widget_helpers import RGBf_to_QColor
 from graphics.widgets.DynamicTip import DynamicTip
 from graphics.drawing.Guides import Guides
 
-from foundation.state_utils import transclose
-
-from utilities.prefs_constants import glpane_lights_prefs_key
 from utilities.prefs_constants import compassPosition_prefs_key
 from utilities.prefs_constants import defaultProjection_prefs_key
 from utilities.prefs_constants import startupGlobalDisplayStyle_prefs_key
@@ -191,16 +167,10 @@ from utilities.prefs_constants import backgroundColor_prefs_key
 from utilities.prefs_constants import backgroundGradient_prefs_key
 from utilities.prefs_constants import animateStandardViews_prefs_key
 from utilities.prefs_constants import animateMaximumTime_prefs_key
-from utilities.prefs_constants import light1Color_prefs_key
-from utilities.prefs_constants import light2Color_prefs_key
-from utilities.prefs_constants import light3Color_prefs_key
 from utilities.prefs_constants import displayCompass_prefs_key
 from utilities.prefs_constants import displayOriginAxis_prefs_key
 from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
 from utilities.prefs_constants import originAxisColor_prefs_key
-from utilities.prefs_constants import UPPER_RIGHT
-from utilities.prefs_constants import UPPER_LEFT
-from utilities.prefs_constants import LOWER_LEFT
 from utilities.prefs_constants import displayCompassLabels_prefs_key
 from utilities.prefs_constants import displayRulers_prefs_key
 from utilities.prefs_constants import showRulersInPerspectiveView_prefs_key
@@ -222,12 +192,13 @@ from utilities.constants import GL_FAR_Z
 from utilities.constants import diDNACYLINDER
 from utilities.constants import diPROTEIN
 from utilities.constants import default_display_mode
-
 from utilities.constants import MULTIPANE_GUI
+from utilities.constants import black, gray, darkgray, lightgray, white
+from utilities.constants import bluesky, eveningsky, bg_seagreen
 
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice
-from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
+from utilities.debug_prefs import Choice_boolean_False
 
 from utilities.GlobalPreferences import DEBUG_BAREMOTION
 from utilities.GlobalPreferences import use_frustum_culling
@@ -236,24 +207,18 @@ from utilities.GlobalPreferences import pref_skip_redraws_requested_only_by_Qt
 from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
-from utilities.constants import black, gray, darkgray, lightgray, white
-from utilities.constants import bluesky, eveningsky, bg_seagreen
+
 import utilities.qt4transition as qt4transition
 from geometry.VQT import planeXline, ptonline
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from model.bonds import Bond # used only for selobj ordering
 
+from graphics.widgets.GLPane_mixin_for_DisplayListChunk import GLPane_mixin_for_DisplayListChunk
+from graphics.widgets.GLPane_lighting_methods import GLPane_lighting_methods
+from graphics.drawing.drawcompass import drawcompass
 
-debug_lighting = False #bruce 050418
-
-debug_set_selobj = False # do not commit with true
-
-
-paneno = 0
-#  ... what a Pane ...
-
-## normalGridLines = (0.0, 0.0, 0.6) # bruce 050410 removed this, and related code
+_DEBUG_SET_SELOBJ = False # do not commit with true
 
 pi2 = math.pi/2.0
 pi3 = math.pi/3.0
@@ -307,98 +272,7 @@ button_names = {Qt.NoButton:None, Qt.LeftButton:'LMB', Qt.RightButton:'RMB', Qt.
 
 # ==
 
-class GLPane_mixin_for_DisplayListChunk(object):
-    #bruce 070110 moved this here from exprs/DisplayListChunk.py and made GLPane inherit it
-    #bruce 080215 renamed this
-    """
-    Private mixin class for GLPane. Attr and method names must not interfere with GLPane.
-    Likely to be merged into class GLPane in future (as directly included methods rather than a mixin superclass).
-    """
-    compiling_displist = 0 #e rename to be private? probably not.
-    compiling_displist_owned_by = None
-    def glGenLists(self, *args):
-        return glGenLists(*args)
-    def glNewList(self, listname, mode, owner = None):
-        """
-        Execute glNewList, after verifying args are ok and we don't think we're compiling a display list now.
-        (The OpenGL call is illegal if we're *actually* compiling one now. Even if it detects that error (as is likely),
-        it's not a redundant check, since our internal flag about whether we're compiling one could be wrong.)
-           If owner is provided, record it privately (until glEndList) as the owner of the display list being compiled.
-        This allows information to be tracked in owner or using it, like the set of sublists directly called by owner's list.
-        Any initialization of tracking info in owner is up to our caller.###k doit
-        """
-        #e make our GL context current? no need -- callers already had to know that to safely call the original form of glNewList
-        #e assert it's current? yes -- might catch old bugs -- but not yet practical to do.
-        assert self.compiling_displist == 0
-        assert self.compiling_displist_owned_by is None
-        assert listname
-        glNewList(listname, mode)
-        self.compiling_displist = listname
-        self.compiling_displist_owned_by = owner # optional arg in general, but required for the tracking done in this module
-        return
-    def glEndList(self, listname = None):
-        assert self.compiling_displist != 0
-        if listname is not None: # optional arg
-            assert listname == self.compiling_displist
-        glEndList() # no arg is permitted
-        self.compiling_displist = 0
-        self.compiling_displist_owned_by = None
-        return
-    def glCallList(self, listname):
-        """
-        Compile a call to the given display list.
-        Note: most error checking and any extra tracking is responsibility of caller.
-        """
-        ##e in future, could merge successive calls into one call of multiple lists
-        ## assert not self.compiling_displist # redundant with OpenGL only if we have no bugs in maintaining it, so worth checking
-            # above was WRONG -- what was I thinking? This is permitted, and we'll need it whenever one displist can call another.
-            # (And I'm surprised I didn't encounter it before -- did I still never try an MT with displists?)
-            # (Did I mean to put this into some other method? or into only certain uses of this method??
-            # For now, do an info print, in case sometimes this does indicate an error, and since it's useful
-            # for analyzing whether nested displists are behaving as expected. [bruce 070203]
-        if self.compiling_displist and \
-           debug_pref("GLPane: print nested displist compiles?",
-                      Choice_boolean_False,
-                      prefs_key = True):
-            print "debug: fyi: displist %r is compiling a call to displist %r" % \
-                  (self.compiling_displist, listname)
-        assert listname # redundant with following?
-        glCallList(listname)
-        return
-    def ensure_dlist_ready_to_call( self, dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
-        """
-        [private helper method for use by DisplayListChunk]
-           This implements the recursive algorithm described in DisplayListChunk.__doc__.
-        dlist_owner_1 should be a DisplistOwner ###term; we use private attrs and/or methods of that class,
-        including _key, _recompile_if_needed_and_return_sublists_dict().
-           What we do: make sure that dlist_owner_1's display list can be safely called (executed) right after we return,
-        with all displists that will call (directly or indirectly) up to date (in their content).
-           Note that, in general, we won't know which displists will be called by a given one
-        until after we've updated its content (and thereby compiled calls to those displists as part of its content).
-           Assume we are only called when our GL context is current and we're not presently compiling a displist in it.
-        """
-        ###e verify our GL context is current, or make it so; not needed now since only called during some widget's draw call
-        assert self.compiling_displist == 0
-        toscan = { dlist_owner_1._key : dlist_owner_1 }
-        def collector( obj1, dict1):
-            dlist_owner = obj1
-            direct_sublists_dict = dlist_owner._recompile_if_needed_and_return_sublists_dict() # [renamed from _ensure_self_updated]
-                # This says to dlist_owner: if your list is invalid, recompile it (and set your flag saying it's valid);
-                # then you know your direct sublists, so we can ask you to return them.
-                #   Note: it only has to include sublists whose drawing effects might be invalid.
-                # This means, if its own effects are valid, it can optim by just returning {}.
-                # [#e Someday it might maintain a dict of invalid sublists and return that. Right now it returns none or all of them.]
-                #   Note: during that call, the glpane (self) is modified to know which dlist_owner's list is being compiled.
-            dict1.update( direct_sublists_dict )
-        seen = transclose(  toscan, collector )
-        # now, for each dlist_owner we saw, tell it its drawing effects are valid.
-        for dlist_owner in seen.itervalues():
-            dlist_owner._your_drawing_effects_are_valid()
-                # Q: this resets flags which cause inval propogation... does it retain consistency?
-                # A: it does it in reverse logic dir and reverse arrow dir (due to transclose) as inval prop, so it's ok.
-                # Note: that comment won't be understandable in a month [from 070102]. Need to explain it better. ####doc
-        return
-    pass # end of class GLPane_mixin_for_DisplayListChunk
+
 
 # ==
 
@@ -413,7 +287,9 @@ class GLPane(GLPane_minimal,
              _CommandSequencer_for_glpane,
              DebugMenuMixin,
              SubUsageTrackingMixin,
-             GLPane_mixin_for_DisplayListChunk ):
+             GLPane_mixin_for_DisplayListChunk,
+             GLPane_lighting_methods
+            ):
     """
     Widget for OpenGL graphics and associated mouse/key input,
     with lots of associated/standard behavior and helper methods.
@@ -499,9 +375,7 @@ class GLPane(GLPane_minimal,
 ##                print "atom_debug: glGetInteger(GL_STENCIL_BITS) = %r" % ( glGetInteger(GL_STENCIL_BITS) , )
             pass
 
-        global paneno
-        self.name = str(paneno)
-        paneno += 1
+        self.name = "?"
         self.initialised = 0
 
         DebugMenuMixin._init1(self) # provides self.debug_event() [might provide or require more things too... #doc]
@@ -622,7 +496,7 @@ class GLPane(GLPane_minimal,
 
         self.setAssy(assy) # leaves self.currentCommand/self.graphicsMode as nullmode, as of 050911
 
-        self.loadLighting() #bruce 050311
+        self.loadLighting() #bruce 050311 [defined in GLPane_lighting_methods]
         #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
 
         self.dynamicToolTip = DynamicTip(self)
@@ -831,10 +705,9 @@ class GLPane(GLPane_minimal,
         # be dull and may also become even more light if some other object 
         # is rendered as a transparent object. Example in DNA Line mode, when the
         # second axis end sphere is rendered as a transparent sphere, it affects
-        # the text rendering as well (if GL_Lighting is not disabled)
+        # the text rendering as well (if GL_LIGHTING is not disabled)
         # [-- Ninad 2007-12-03]
         glDisable(GL_LIGHTING)
-        
         
         ############
         #Add 'stoppers' for the cursor text. Example: If the cursor is near the
@@ -1806,7 +1679,7 @@ class GLPane(GLPane_minimal,
             env.end_op(mc)
         return
 
-    def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
+    def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1): ### TODO: move out of GLPane, since unrelated to it
         """
         [experimental method by bruce 040922]
 
@@ -1885,205 +1758,8 @@ class GLPane(GLPane_minimal,
             return self.quat.unrot(V(0, 0, 1))
         else:
             raise AttributeError, 'GLPane has no "%s"' % name
-
-    # == lighting methods [bruce 050311 rush order for Alpha4]
-
-    def setLighting(self, lights, _guard_ = 6574833, gl_update = True): 
-        """
-        Set current lighting parameters as specified
-        (using the format as described in the getLighting method docstring).
-        This does not save them in the preferences file; for that see the saveLighting method.
-        If option gl_update is False, then don't do a gl_update, let caller do that if they want to.
-        """
-        assert _guard_ == 6574833 # don't permit optional args to be specified positionally!!
-        try:
-            # check, standardize, and copy what the caller gave us for lights
-            res = []
-            lights = list(lights)
-            assert len(lights) == 3
-            for c,a,d,s,x,y,z,e in lights:
-                # check values, give them standard types
-                r = float(c[0])
-                g = float(c[1])
-                b = float(c[2])
-                a = float(a)
-                d = float(d)
-                s = float(s)
-                x = float(x)
-                y = float(y)
-                z = float(z)
-                assert 0.0 <= r <= 1.0
-                assert 0.0 <= g <= 1.0
-                assert 0.0 <= b <= 1.0
-                assert 0.0 <= a <= 1.0
-                assert 0.0 <= d <= 1.0
-                assert 0.0 <= s <= 1.0
-                assert e in [0,1,True,False]
-                e = not not e
-                res.append( ((r,g,b),a,d,s,x,y,z,e) )
-            lights = res
-        except:
-            print_compact_traceback("erroneous lights %r (ignored): " % lights)
-            return
-        self._lights = lights
-        # set a flag so we'll set up the new lighting in the next paintGL call
-        self.need_setup_lighting = True
-        #e maybe arrange to later save the lighting in prefs... don't know if this belongs here
-        # update GLPane unless caller wanted to do that itself
-        if gl_update:
-            self.gl_update()
-        return
-
-    def getLighting(self):
-        """
-        Return the current lighting parameters.
-        [For now, these are a list of 3 tuples, one per light,
-        each giving several floats and booleans
-        (specific format is only documented in other methods or in their code).]
-        """
-        return list(self._lights)
-
-    # default value of instance variable:
-    # [bruce 051212 comment: not sure if this needs to be in sync with any other values;
-    #  also not sure if this is used anymore, since __init__ sets _lights from prefs db via loadLighting.]
-    _lights = _default_lights
-
-    _default_lights = _lights # this copy will never be changed
-
-    need_setup_lighting = True # whether the next paintGL needs to call _setup_lighting
-
-    _last_glprefs_data_used_by_lights = None #bruce 051212, replaces/generalizes _last_override_light_specular
-
-    def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between GLPane (has comments) and ThumbView ###@@@
-        """
-        [private method]
-        Set up lighting in the model (according to self._lights).
-        [Called from both initializeGL and paintGL.]
-        """
-        glEnable(GL_NORMALIZE)
-            # bruce comment 050311: I don't know if this relates to lighting or not
-            # grantham 20051121: Yes, if NORMALIZE is not enabled (and normals
-            # aren't unit length or the modelview matrix isn't just rotation)
-            # then the lighting equation can produce unexpected results.  
-
-        #bruce 050413 try to fix bug 507 in direction of lighting:
-        ##k might be partly redundant now; not sure whether projection matrix needs to be modified here [bruce 051212]
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-
-        glprefs = None
-            #e someday this could be an argument providing a different glprefs object
-            # for local use in part of a scenegraph (if other code was also revised) [bruce 051212 comment]
-
-        #bruce 051212 moved most code from this method into new function, setup_standard_lights
-        setup_standard_lights( self._lights, glprefs)
-
-        # record what glprefs data was used by that, for comparison to see when we need to call it again
-        # (not needed for _lights since another system tells us when that changes)
-        self._last_glprefs_data_used_by_lights = glprefs_data_used_by_setup_standard_lights(glprefs)
-        return
-
-    def saveLighting(self):
-        """
-        save the current lighting values in the standard preferences database
-        """
-        try:
-            prefs = preferences.prefs_context()
-            key = glpane_lights_prefs_key
-            # we'll store everything in a single value at this key,
-            # making it a dict of dicts so it's easy to add more lighting attrs (or lights) later
-            # in an upward-compatible way.
-            # [update, bruce 051206: it turned out that when we added lots of info it became
-            #  not upward compatible, causing bug 1181 and making the only practical fix of that bug
-            #  a change in this prefs key. In successive commits I moved this key to prefs_constants,
-            #  then renamed it (variable and key string) to try to fix bug 1181. I would also like to find out
-            #  what's up with our two redundant storings of light color in prefs db, ###@@@
-            #  but I think bug 1181 can be fixed safely this way without my understanding that.]
-
-            (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
-             ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
-             ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = self._lights
-
-            # now process it in a cleaner way
-            val = {}
-            for (i, (c,a,d,s,x,y,z,e)) in zip(range(3),self._lights):
-                name = "light%d" % i
-                params = dict( color = c, \
-                               ambient_intensity = a, \
-                               diffuse_intensity = d, \
-                               specular_intensity = s, \
-                               xpos = x, ypos = y, zpos = z, \
-                               enabled = e )
-                val[name] = params
-            # save the prefs to the database file
-            prefs[key] = val
-            # This was printing many redundant messages since this method is called 
-            # many times while changing lighting parameters in the Preferences | Lighting dialog.
-            # Mark 051125.
-            #env.history.message( greenmsg( "Lighting preferences saved" ))
-        except:
-            print_compact_traceback("bug: exception in saveLighting (pref changes not saved): ")
-            #e redmsg?
-        return
-
-    def loadLighting(self, gl_update = True):
-        """
-        load new lighting values from the standard preferences database, if possible;
-        if correct values were loaded, start using them, and do gl_update unless option for that is False;
-        return True if you loaded new values, False if that failed
-        """
-        try:
-            prefs = preferences.prefs_context()
-            key = glpane_lights_prefs_key
-            try:
-                val = prefs[key]
-            except KeyError:
-                # none were saved; not an error and not even worthy of a message
-                # since this is called on startup and it's common for nothing to be saved.
-                # Return with no changes.
-                return False
-            # At this point, you have a saved prefs val, and if this is wrong it's an error.        
-            # val format is described (partly implicitly) in saveLighting method.
-            res = [] # will become new argument to pass to self.setLighting method, if we succeed
-            for name in ['light0','light1','light2']:
-                params = val[name] # a dict of ambient, diffuse, specular, x, y, z, enabled
-                color = params['color'] # light color (r,g,b)
-                a = params['ambient_intensity'] # ambient intensity
-                d = params['diffuse_intensity'] # diffuse intensity
-                s = params['specular_intensity'] # specular intensity
-                x = params['xpos'] # X position
-                y = params['ypos'] # Y position
-                z = params['zpos'] # Z position
-                e = params['enabled'] # boolean
-
-                res.append( (color,a,d,s,x,y,z,e) )
-            self.setLighting( res, gl_update = gl_update)
-            if debug_lighting:
-                print "debug_lighting: fyi: Lighting preferences loaded"
-            return True
-        except:
-            print_compact_traceback("bug: exception in loadLighting (current prefs not altered): ")
-            #e redmsg?
-            return False
         pass
-
-    def restoreDefaultLighting(self, gl_update = True):
-        """
-        restore the default (built-in) lighting preferences (but don't save them).
-        """
-        # Restore light color prefs keys.
-        env.prefs.restore_defaults([
-            light1Color_prefs_key, 
-            light2Color_prefs_key, 
-            light3Color_prefs_key,
-        ])
-
-        self.setLighting( self._default_lights,  gl_update = gl_update )
-
-        return True
-
+    
     # ==
 
     def initializeGL(self):
@@ -2091,7 +1767,7 @@ class GLPane(GLPane_minimal,
         #doc [called by Qt]
         """
         self.makeCurrent() # bruce comment 050311: probably not needed since Qt does it before calling this
-        self._setup_lighting()
+        self._setup_lighting() # defined in GLPane_lighting_methods
         glShadeModel(GL_SMOOTH)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_CULL_FACE)
@@ -2222,21 +1898,17 @@ class GLPane(GLPane_minimal,
         else:
             self.modkeys = None
         if self.modkeys != oldmodkeys:
-
-            ## This would be a good place to tell the GraphicsMode it might want to update the cursor,
-            ## based on all state it knows about, including self.modkeys and what the mouse is over,
-            ## but it's not enough, since it doesn't cover mouseEnter (or mode Enter),
-            ## where we need that even if modkeys didn't change. [bruce 060220]
+            # This would be a good place to tell the GraphicsMode it might want to update the cursor,
+            # based on all state it knows about, including self.modkeys and what the mouse is over,
+            # but it's not enough, since it doesn't cover mouseEnter (or mode Enter),
+            # where we need that even if modkeys didn't change. [bruce 060220]
             self.graphicsMode.update_cursor()
-            
-            
             highlighting_enabled = self.graphicsMode.command.isHighlightingEnabled()
             if self.selobj and highlighting_enabled:
                 if self.modkeys == 'Shift+Control' or oldmodkeys == 'Shift+Control':
                     # If something is highlighted under the cursor and we just pressed or released 
                     # "Shift+Control", repaint to update its correct highlight color.
                     self.gl_update_highlight()
-
         return
 
     def begin_select_cmd(self):
@@ -2335,9 +2007,6 @@ class GLPane(GLPane_minimal,
             # env.postevent_updates (see its call to find them). But I might do the lone-releaseEvent checkpoint too. [bruce 060323]
             # Update, 060326: reverting the most_of_paintGL checkpointing, since it caused bug 1759 (more info there).
 
-        if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
-            print "debug fyi: GLPane.mouseDoubleClickEvent sees selobj", self.selobj
-
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:
             handler.mouseDoubleClickEvent(event)
@@ -2351,8 +2020,6 @@ class GLPane(GLPane_minimal,
             self.graphicsMode.rightDouble(event)
 
         return
-
-    # == DUPLICATING checkpoint_before_drag and checkpoint_after_drag in TreeWidget.py -- should clean up ####@@@@ [bruce 060328]
 
     __pressEvent = None #bruce 060124 for Undo
     __flag_and_begin_retval = None
@@ -2425,8 +2092,6 @@ class GLPane(GLPane_minimal,
         #  without releasing them all, during the drag. Some old bug reports are about that. #e
         #  [bruce 060124-26 comment])
 
-        ## print "Button pressed: ", but
-
         self.checkpoint_before_drag(event, but)
 
         # piotr 080529 - determine which of the stereo pairs is being used
@@ -2442,9 +2107,6 @@ class GLPane(GLPane_minimal,
                     self.current_stereo_image = -1
                 else:
                     self.current_stereo_image = 1
-
-        if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
-            print "debug fyi: GLPane.mousePressEvent sees selobj", self.selobj
 
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:
@@ -3606,30 +3268,13 @@ class GLPane(GLPane_minimal,
     selobj = property( __get_selobj, __set_selobj)
         #bruce 080509 bugfix for MT crosshighlight sometimes lasting too long
 
-    # ** Note: all code between the two comments containing "changes merged in from exprs/GLPane_overrider.py"
-    # ** was copied from here into that file by bruce 061208, modified somewhat in that file, then moved back here
-    # ** by bruce 070110, in order to make GLPane_overrider obsolete, with minor further changes to make this file not
-    # ** depend on the exprs module.
-
     def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
 
         #k not sure whether next things are also needed in the split-out standard_repaint [bruce 050617]
 
         drawing_globals.glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
 
-        if self.need_setup_lighting \
-           or self._last_glprefs_data_used_by_lights != glprefs_data_used_by_setup_standard_lights() \
-           or debug_pref("always setup_lighting?", Choice_boolean_False):
-            #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
-            # using it makes specularity work on my iMac G4,
-            # except for brief periods as you move mouse around to change selobj (also observed on G5, but less frequently I think).
-            # BTW using this (on G4) has no effect on whether "new wirespheres" is needed to make wirespheres visible.
-            #
-            # (bruce 051126 added override_light_specular part of condition)
-            # I don't know if it matters to avoid calling this every time...
-            # in case it's slow, we'll only do it when it might have changed.
-            self.need_setup_lighting = False # set to true again if setLighting is called
-            self._setup_lighting()
+        self.setup_lighting_if_needed() # defined in GLPane_lighting_methods
 
         self.standard_repaint()
 
@@ -4535,9 +4180,9 @@ class GLPane(GLPane_minimal,
             # if there will be a net change of selobj. I don't know if we should call it here --
             # if any callers call this twice with no net change (i.e. use this to set selobj to None
             # and then back to what it was), it would be bad to call it here. [bruce 070626 comment]
-            if debug_set_selobj:
+            if _DEBUG_SET_SELOBJ:
                 # todo: also include "why" argument, and make more calls pass one
-                print_compact_stack("debug_set_selobj: %r -> %r: " % (previous_selobj, selobj))
+                print_compact_stack("_DEBUG_SET_SELOBJ: %r -> %r: " % (previous_selobj, selobj))
             #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
             # Temporary fix, since Build mode's messages are better and should be restored.
             if selobj is not None:
@@ -4902,103 +4547,16 @@ class GLPane(GLPane_minimal,
                        vdist * near, vdist * far)
         return
 
-    def drawcompass(self, aspect):
-        """
-        Draw the "compass" (the perpendicular colored arrows showing orientation of model coordinates)
-        in a corner of the GLPane specified by preference variables.
-        No longer assumes a specific glMatrixMode, but sets it to GL_MODELVIEW on exit.
-        No longer trashes either matrix, but does require enough GL_PROJECTION stack depth
-        to do glPushMatrix on it (though the guaranteed depth for that stack is only 2).
-        """
-        #bruce 050608 improved behavior re GL state requirements and side effects; 050707 revised docstring accordingly.
-        #mark 0510230 switched Y and Z colors.  Now X = red, Y = green, Z = blue, standard in all CAD programs.
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
-        glLoadIdentity()
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity() # needed!
-
-        # Set compass position using glOrtho
-        if self.compassPosition == UPPER_RIGHT:
-            # hack for use in testmode [revised bruce 070110 when GLPane_overrider merged into GLPane]:
-            if self.graphicsMode.compass_moved_in_from_corner:
-                glOrtho(-40*aspect, 15.5*aspect, -50, 5.5,  -5, 500)
-            else:
-                glOrtho(-50*aspect, 3.5*aspect, -50, 4.5,  -5, 500) # Upper Right
-        elif self.compassPosition == UPPER_LEFT:
-            glOrtho(-3.5*aspect, 50.5*aspect, -50, 4.5,  -5, 500) # Upper Left
-        elif self.compassPosition == LOWER_LEFT:
-            glOrtho(-3.5*aspect, 50.5*aspect, -4.5, 50.5,  -5, 500) # Lower Left
-        else:
-            glOrtho(-50*aspect, 3.5*aspect, -4.5, 50.5,  -5, 500) # Lower Right
-
-        q = self.quat
-        glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
-        glEnable(GL_COLOR_MATERIAL)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        glDisable(GL_CULL_FACE)
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
-
-        #ninad 070122 - parametrized the compass drawing. (also added some doc). 
-        #Also reduced the overall size of the compass. 
-
-        p1 = -1 # ? start point of arrow cyl? 
-        p2 = 3.25 #end point of the arrow cylinderical portion
-        p3 = 2.5 #arrow head start point
-        p4 = 3.8 # ??? may be used to specify the slant of the arrow head (conical portion).?
-        p5 = 4.5 # cone tip
-
-        r1 = 0.2 #cylinder radius 
-        r2 =0.2
-        r3 = 0.2
-        r4 = 0.60 #cone base radius
-
-        glePolyCone([[p1,0,0], [0,0,0], [p2,0,0], [p3,0,0], [p4,0,0], [p5,0,0]],
-                    [[0,0,0], [1,0,0], [1,0,0], [.5,0,0], [.5,0,0], [0,0,0]],
-                    [r1,r2,r3,r4,0,0])
-
-        glePolyCone([[0,p1,0], [0,0,0], [0,p2,0], [0,p3,0], [0,p4,0], [0,p5,0]],
-                    [[0,0,0], [0,.9,0], [0,.9,0], [0,.4,0], [0,.4,0], [0,0,0]],
-                    [r1,r2,r3,r4,0,0])
-
-        glePolyCone([[0,0,p1], [0,0,0], [0,0,p2], [0,0,p3], [0,0,p4], [0,0,p5]],
-                    [[0,0,0], [0,0,1], [0,0,1], [0,0,.4], [0,0,.4], [0,0,0]],
-                    [r1,r2,r3,r4,0,0])
-
-        glEnable(GL_CULL_FACE)
-        glDisable(GL_COLOR_MATERIAL)
-
-        ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get
-        # segmentation fault on Mandrake Linux 10.0 with libqt3-3.2.3-17mdk
-        # or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
-
-        if env.prefs[displayCompassLabels_prefs_key]: ###sys.platform in ['darwin', 'win32']:
-            glDisable(GL_LIGHTING)
-            glDisable(GL_DEPTH_TEST)
-            ## glPushMatrix()
-            font = QFont( QString("Helvetica"), 12)
-            self.qglColor(QColor(200, 75, 75)) # Dark Red
-            self.renderText(p4, 0.0, 0.0, QString("x"), font)
-            self.qglColor(QColor(25, 100, 25)) # Dark Green
-            self.renderText(0.0, p4, 0.0, QString("y"), font)
-            self.qglColor(QColor(50, 50, 200)) # Dark Blue
-            self.renderText(0.0, 0.0, p4+0.2, QString("z"), font)
-            ## glPopMatrix()
-            glEnable(GL_DEPTH_TEST)
-            glEnable(GL_LIGHTING)
-
-        #bruce 050707 switched order to leave ending matrixmode in standard state, GL_MODELVIEW
-        # (though it doesn't matter for present calling code; see discussion in bug 727)
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
-        glPopMatrix()
-        return # from drawcompass
-
-    # ** note: all code between the two comments containing "changes merged in from exprs/GLPane_overrider.py"
-    # ** was modified by bruce 070110. For more info see the other such comment, above.
-
+    def drawcompass(self, aspect): #bruce 080910 moved body into its own file
+        drawcompass(self,
+                    aspect,
+                    self.quat,
+                    self.compassPosition,
+                    self.graphicsMode.compass_moved_in_from_corner,
+                    env.prefs[displayCompassLabels_prefs_key]
+                   )
+        return
+    
     # ==
 
     def resizeGL(self, width, height):
@@ -5020,16 +4578,6 @@ class GLPane(GLPane_minimal,
         self.trackball.rescale(width, height)
         self.gl_update()
         return
-
-    def xdump(self):
-        """
-        for debugging
-        """
-        print " pov: ", self.pov
-        print " quat ", self.quat
-
-    def __str__(self):
-        return "<GLPane " + self.name + ">"
 
     def makemenu(self, menu_spec, menu):
         # this overrides the one from DebugMenuMixin (with the same code), but that's ok,

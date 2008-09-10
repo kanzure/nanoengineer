@@ -192,7 +192,7 @@ class ThumbView(GLPane_minimal):
 
     assy = property(__get_assy) #bruce 080220, for per-assy glname dict
     
-    def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between GLPane (has comments) and ThumbView ###@@@
+    def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between GLPane_lighting_methods (has comments) and ThumbView ###@@@
         """
         [private method]
         Set up lighting in the model.
@@ -221,7 +221,7 @@ class ThumbView(GLPane_minimal):
         return
     
     def initializeGL(self):
-                
+        
         self._setup_lighting()
 
         glShadeModel(GL_SMOOTH)
@@ -331,10 +331,10 @@ class ThumbView(GLPane_minimal):
         self.setDepthRange_setup_from_debug_pref()
         self.setDepthRange_Normal()
         
-        from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        from utilities.debug_prefs import debug_pref, Choice_boolean_False
         if debug_pref("always setup_lighting?", Choice_boolean_False):
             #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
-            # see comments in GLPane
+            # see comments in GLPane_lighting_methods
             self._setup_lighting() #bruce 060415 added this call
             
         self.backgroundColor = env.prefs[backgroundColor_prefs_key]

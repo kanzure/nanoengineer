@@ -162,6 +162,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         
         return
 
+    def __repr__(self):
+        return "<%s at %#x>" % (self.__class__.__name__.split('.')[-1], id(self))
+
     def _setup_display_lists(self): # bruce 071030
         """
         This needs to be called during __init__ if a new display list context
