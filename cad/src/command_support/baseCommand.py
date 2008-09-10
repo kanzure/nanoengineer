@@ -647,9 +647,22 @@ class baseCommand(object):
                 # is the base implem of our indirect caller,
                 # commandSequencer._f_update_current_command,
                 # after we return.
-        
+
         ### maybe: also something to update the flyout toolbar, from an attribute?
         
+        return
+
+    def command_update_flyout(self): #bruce 080910; TODO: revise docstrings above to reflect existence of this method
+        """
+        Subclasses can override this to make sure the
+        correct flyout toolbar is shown, with the correct state.
+
+        When this is called, self is the current command and
+        all other update methods defined above have been called.
+        
+        @note: called only when command stack changed since
+               the last time this was called for any command
+        """
         return
     
     # == other methods

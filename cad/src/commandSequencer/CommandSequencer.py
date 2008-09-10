@@ -133,17 +133,26 @@ class CommandSequencer(object):
     # currentCommand.
 
     if not USE_COMMAND_STACK:
+        
         prevMode = None #bruce 071011 added this initialization
+        
     else:
+        
         prevMode = property() # hopefully this causes errors on any access of it ### check this
-        # doc these:
+
+        _command_stack_change_counter = 0
+
+        _previous_flyout_update_indicators = None
+        
+        # these are documented in our class docstring:
         exit_is_cancel = False
         exit_is_forced = False
         warn_about_abandoned_changes = True
         exit_is_implicit = False
         exit_target = None
         enter_target = None
-        _command_stack_change_counter = 0
+
+        pass
 
     def __init__(self, assy): #bruce 080813
         assert not GLPANE_IS_COMMAND_SEQUENCER
@@ -1559,15 +1568,19 @@ class CommandSequencer(object):
         # (ideally this would be done by an update method in an object
         #  whose job is to control the PM slot. TODO: refactor it that way.)
 
-        # note: we can't assume anything has kept track of which PM is shown,
-        # until all code to show or hide/close it is revised.
-        # So for now, just show it if the one in the UI seems to have changed.
+        # Note: we can't assume anything has kept track of which PM is shown,
+        # until all code to show or hide/close it is revised. (That is,
+        # we have to assume some old code exists which shows, hides, or
+        # changes the PM without telling us about it.)
+        # 
+        # So for now, we just check whether the PM in the UI is the one we want,
+        # and if not, fix that.
         old_PM = self.currentCommand._KLUGE_current_PM(get_old_PM = True)
         desired_PM = self.currentCommand.propMgr
         if desired_PM is not old_PM:
             if old_PM:
                 try:
-                    old_PM.close() # might not be needed, if desired_PM is not None; ### REVIEW
+                    old_PM.close() # might not be needed, if desired_PM is not None ### REVIEW
                 except:
                     # might happen for same reason as an existing common exception related to this...
                     print "fyi: discarded exception in closing %r" % old_PM
@@ -1575,8 +1588,19 @@ class CommandSequencer(object):
             if desired_PM:
                 desired_PM.show()
             pass
+        
+        # let currentCommand update its flyout toolbar if command stack has
+        # changed since any command last did that using this code [bruce 080910]
+        flyout_update_indicators = ( self._command_stack_change_counter, )
+        if self._previous_flyout_update_indicators != flyout_update_indicators:
+            self._previous_flyout_update_indicators = flyout_update_indicators
+            command.command_update_flyout()
+            assert command is self.currentCommand, \
+                   "%r.command_update_flyout() should not have changed " \
+                   "current command (to %r)" % (command, self.currentCommand)
+            pass
 
-        return
+        return # from _f_update_current_command
         
     # ==
 
