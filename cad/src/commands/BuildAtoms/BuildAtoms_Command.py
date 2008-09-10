@@ -621,13 +621,7 @@ class BuildAtoms_Command(SelectAtoms_Command):
     #            # bug 133
     #        self.o.selatom = None
 
-    if not USE_COMMAND_STACK:
-        def clear_command_state(self):
-            # REVIEW: does this need to be done by command_will_exit and/or
-            # command_entered when USE_COMMAND_STACK is true?
-            # [bruce 080909 question]
-            self.new = None
-    
+        
     #=== Cursor id
     
     def get_cursor_id_for_active_tool(self):

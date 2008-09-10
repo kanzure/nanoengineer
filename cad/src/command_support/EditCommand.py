@@ -43,7 +43,6 @@ from utilities.constants import permit_gensym_to_reuse_name
 from utilities.exception_classes import AbstractMethod
 
 from commands.Select.Select_Command import Select_Command
-from utilities.debug import print_compact_stack
 
 #for debugging new command stack API 
 from utilities.GlobalPreferences import USE_COMMAND_STACK 
@@ -82,18 +81,10 @@ class EditCommand(Select_Command):
     from utilities.constants import CL_ABSTRACT
     command_level = CL_ABSTRACT
     __abstract_command_class = True
-    
-    propMgr = None
+ 
     flyoutToolbar = None
     
-    
-    PM_class = None
-        #Command subclasses can override this class constant with the appropriate
-        #Property Manager class. See baseCommand class definition for more 
-        #details. [Ninad]
-        # REVIEW: can we just inherit this from our superclass?
-        # if not, a comment should say why not. [bruce 080909 comment]
-       
+               
 
     def __init__(self, commandSequencer):
         """
@@ -109,34 +100,7 @@ class EditCommand(Select_Command):
         
         Select_Command.__init__(self, commandSequencer)
         return
-
-    def Enter(self):
-        """
-
-        """
-        #@@TODO: Should the structure always be reset while entering,
-        #(for instance), Plane_EditCommand PM? The client must explicitely use, 
-        #for example, editCommand.editStructre(self) so that this command
-        #knows what to edit. But that must be done after entering the command. 
-        #see Plane.edit for example.
-        #setting self.struct to None is needed in Enter as
-        #update_props_if_needed_before_closing is called which may update 
-        #the cosmetic props of the old structure from some previous run. 
-        #This will be cleaned up (the update_props_... method was designed 
-        # for the 'guest Property Managers' i.e. at the time when the 
-        #editCommand was not a 'command'. ) -- Ninad 2007-12-26
-
-        #UPDATE: For BuildDna_EditCommand, setting the struct to None
-        #is a bug. #(The BuildDna edit command gets 'segments' from the 
-        #temporary command  'DnaDuplex_EditCommand' and during this process
-        #it reenters the BuildDna_EditCommand (from the temporary mode)
-        #so, don't set self.struct to None. Do it in subclasses instead. OR 
-        #better fix the update_props_if_needed_before_closing problem soon 
-        #-- Ninad 2008-01-09
-        ##if self.struct:
-            ##self.struct = None                    
-        Select_Command.Enter(self)
-        
+         
     #=== START   NEW COMMAND API methods  ======================================
     #Used in self.init_gui and self.restore_gui as of 2008-08-11 
     
@@ -169,6 +133,34 @@ class EditCommand(Select_Command):
     #=== END   NEW command API methods  ========================================
     
     if not USE_COMMAND_STACK:
+        
+        def Enter(self):
+            """
+    
+            """
+            #@@TODO: Should the structure always be reset while entering,
+            #(for instance), Plane_EditCommand PM? The client must explicitely use, 
+            #for example, editCommand.editStructre(self) so that this command
+            #knows what to edit. But that must be done after entering the command. 
+            #see Plane.edit for example.
+            #setting self.struct to None is needed in Enter as
+            #update_props_if_needed_before_closing is called which may update 
+            #the cosmetic props of the old structure from some previous run. 
+            #This will be cleaned up (the update_props_... method was designed 
+            # for the 'guest Property Managers' i.e. at the time when the 
+            #editCommand was not a 'command'. ) -- Ninad 2007-12-26
+    
+            #UPDATE: For BuildDna_EditCommand, setting the struct to None
+            #is a bug. #(The BuildDna edit command gets 'segments' from the 
+            #temporary command  'DnaDuplex_EditCommand' and during this process
+            #it reenters the BuildDna_EditCommand (from the temporary mode)
+            #so, don't set self.struct to None. Do it in subclasses instead. OR 
+            #better fix the update_props_if_needed_before_closing problem soon 
+            #-- Ninad 2008-01-09
+            ##if self.struct:
+                ##self.struct = None                    
+            Select_Command.Enter(self)
+           
 
         def init_gui(self):
             
