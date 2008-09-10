@@ -3777,6 +3777,81 @@ class GLPane(GLPane_minimal,
                whether they need to set self._frustum_planes_available = False
                when they change them, to avoid erroneous culling.
         """
+        # The following comment comes from emails exchanged between Russ and Piotr
+        # on 080403.
+        #        
+        # This code is based on the information from OpenGL FAQ on clipping and culling:
+        # http://www.opengl.org/resources/faq/technical/clipping.htm
+        #
+        # I tried to dust off the math behind it and I found the following paper
+        # dealing with the homogeneous coordinates in great detail:
+        # http://www.unchainedgeometry.com/jbloom/pdf/homog-coords.pdf
+        #
+        # The computations are in homogeneous coordinates, so every vertex is 
+        # represented by four coordinates (x,y,z,w). The composite matrix C (cmat 
+        # in the code) transforms a point from the Euclidean coordinates to the 
+        # homogeneous coordinates.
+        #
+        # Let's transform a point p(xp,yp,zp,wp) using the computed composite 
+        # matrix:
+        #
+        # C[4][4] (in 3D Euclidean space, wp = 1):
+        #
+        # r = p^T * C
+        #
+        # so we get a transformed point r(p*C0,p*C1,p*C2,p*C3), where Cx represents
+        # a corresponding row of the matrix C. In homogeneous coordinates, if 
+        # the transformed point is inside the viewing frustum, the following 
+        # inequalities have to be true:
+        #
+        # -wr < xr < wr
+        # -wr < yr < wr
+        # -wr < zr < wr
+        #
+        # So if -wr < xr, the point p is on + side of the left frustum plane, 
+        # if xr < wr it is on + side of the right frustum plane, if -wr < yr, 
+        # the point is on + side of the bottom plane, and so on. Let's take the 
+        # left frustum plane:
+        # 
+        # -wr < xr
+        #
+        # so:
+        # 
+        # -p*C3 < p*C0
+        # 
+        # so:
+        #
+        # 0 < p*C0+p*C3
+        # 
+        # that is equal to:
+        # 
+        # 0 < p*(C0+C3)
+        # 
+        # which gives us the plane equation (ax+bx+cx+d=0):
+        # 
+        # x*(C0[0]+C3[0]) + y*(C0[1]+C3[1]) + z*(C0[2]+C3[2]) + w(C0[3]+C3[3]) = 0
+        # 
+        # Because w = 1:
+        # 
+        # x*(C0[0]+C3[0]) + y*(C0[1]+C3[1]) + z*(C0[2]+C3[2]) + (C0[3]+C3[3]) = 0
+        # 
+        # so the plane coefficients are as follows:
+        # 
+        # a = C0[0] + C3[0]
+        # b = C0[1] + C3[1]
+        # c = C0[2] + C3[2]
+        # d = C0[3] + C3[3]
+        # 
+        # Similarly, for the right plane (xr < wr) we get:
+        #
+        # a = -C0[0] + C3[0]
+        # b = -C0[1] + C3[1]
+        # c = -C0[2] + C3[2]
+        # d = -C0[3] + C3[3]
+        # 
+        # and so on for every plane.
+        #
+        
         if not self._use_frustum_culling:
             # [bruce 080331]
             assert not self._frustum_planes_available
@@ -3806,7 +3881,7 @@ class GLPane(GLPane_minimal,
             self.fplanes[p] = [0.0] * 4
 
         # subtract and add the composite matrix rows to get the plane equations
-        # REVIEW: # piotr 080403 - I will add a detailed explanation here.
+        
         for p in range(0, 3):
             for i in range(0, 4):
                 self.fplanes[2*p][i] = cmat[i][3] - cmat[i][p]

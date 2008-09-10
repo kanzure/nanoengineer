@@ -955,18 +955,6 @@ class Plane(ReferenceGeometry):
                             x0 = float(x) / float(wi - 1) 
                             y0 = float(y+t) / float(he - 1) 
                             
-                            # REVIEW: ?
-                            # transform according to current texture coordinates
-                            """
-                            nx = (self.tex_coords[1][0] * (x0) + self.tex_coords[0][0] * (1.0 - x0)) * (1.0 - y0) + \
-                                 (self.tex_coords[2][0] * (x0) + self.tex_coords[3][0] * (1.0 - x0)) * y0
-                            ny = (self.tex_coords[0][1] * (x0) + self.tex_coords[1][1] * (1.0 - x0)) * (1.0 - y0) + \
-                                 (self.tex_coords[3][1] * (x0) + self.tex_coords[2][1] * (1.0 - x0)) * y0
-                              
-                            x0 = nx
-                            y0 = ny
-                            """
-                            
                             # get data point (the image is converted to grayscale)
                             r0 = scale * pix[x, y+t]
 

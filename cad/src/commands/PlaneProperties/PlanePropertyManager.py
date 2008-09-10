@@ -754,11 +754,11 @@ class PlanePropertyManager(EditCommand_PM):
         if self.command and self.command.struct:
             plane = self.command.struct
             plane.heightfield_use_texture = checked
-            # REVIEW: ?
-            #if plane.display_heightfield and plane.image:
-            #    plane.computeHeightfield()
+            # It is not necessary to re-compute the heightfield coordinates
+            # at this point, they are re-computed whenever the "3D relief image"
+            # checkbox is set. 
             plane.glpane.gl_update()
-
+            
     def update_spinboxes(self): 	 
         """ 	 
 	Update the width and height spinboxes. 	 
@@ -790,7 +790,6 @@ class PlanePropertyManager(EditCommand_PM):
         self.heightfieldTextureCheckBox.setEnabled(False)
         self.vScaleSpinBox.setEnabled(False)
 
-        
         plane = self.command.struct
 
         # Delete current image and heightfield

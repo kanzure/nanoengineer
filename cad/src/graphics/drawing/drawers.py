@@ -104,6 +104,18 @@ from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import glVertexPointer
 from OpenGL.GL import GL_COLOR_MATERIAL
 from OpenGL.GL import GL_TRIANGLE_STRIP
+from OpenGL.GL import glTexEnvf
+from OpenGL.GL import GL_TEXTURE_ENV
+from OpenGL.GL import GL_TEXTURE_ENV_MODE
+from OpenGL.GL import GL_MODULATE
+from OpenGL.GL import glVertexPointer
+from OpenGL.GL import glNormalPointer
+from OpenGL.GL import glTexCoordPointer
+from OpenGL.GL import glDrawArrays
+from OpenGL.GL import glEnableClientState
+from OpenGL.GL import GL_VERTEX_ARRAY
+from OpenGL.GL import GL_NORMAL_ARRAY
+from OpenGL.GL import GL_TEXTURE_COORD_ARRAY
 
 from geometry.VQT import norm, vlen, V, Q, A
 
@@ -1015,28 +1027,23 @@ def drawHeightfield(color, w, h, textureReady, opacity,
       selection purpose.
     """        
 
-    # REVIEW: PCS: All imports at top of file.
-    from OpenGL.GL import glTexEnvf
-    from OpenGL.GL import GL_TEXTURE_ENV
-    from OpenGL.GL import GL_TEXTURE_ENV_MODE
-    from OpenGL.GL import GL_MODULATE
-    from OpenGL.GL import glVertexPointer
-    from OpenGL.GL import glNormalPointer
-    from OpenGL.GL import glTexCoordPointer
-    from OpenGL.GL import glDrawArrays
-    from OpenGL.GL import glEnableClientState
-    from OpenGL.GL import GL_VERTEX_ARRAY
-    from OpenGL.GL import GL_NORMAL_ARRAY
-    from OpenGL.GL import GL_TEXTURE_COORD_ARRAY
-        
+    if not hf:
+        # Return if heightfield is not provided
+        return
+    
     glEnable(GL_COLOR_MATERIAL)
     glEnable(GL_LIGHTING)
 
-    ### REVIEW: ?
-    ### glColor4fv(list(color) + [opacity])
-    ### glColor3fv(list(color))
-    glColor3f(1.0, 1.0, 1.0)
+    # Don't use opacity, otherwise the heighfield polygons should be sorted
+    # - something to implement later...
+    ## glColor3v(list(color))
     
+    if textureReady:
+        # For texturing, use white color (to be modulated by the texture)
+        glColor3f(1,1,1)
+    else:
+        glColor3fv(list(color))
+        
     glPushMatrix()
     glScalef(w, h, 1.0)
 
@@ -1062,7 +1069,6 @@ def drawHeightfield(color, w, h, textureReady, opacity,
     for tstrip_vert, tstrip_norm, tstrip_tex in hf:
         glVertexPointer(3, GL_FLOAT, 0, tstrip_vert)
         glNormalPointer(GL_FLOAT, 0, tstrip_norm)
-        # REVIEW: Only if hf is not none?  Is the heightfield really optional?
         glTexCoordPointer(2, GL_FLOAT, 0, tstrip_tex)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, len(tstrip_vert))
         

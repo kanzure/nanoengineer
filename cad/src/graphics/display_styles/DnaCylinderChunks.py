@@ -1228,15 +1228,17 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
         
         def _draw_arrow(atom):
+            """
+            Draws a 2-D arrow ending of a DNA strand at 3' atom.
+            
+            @return: True if arrow was drawn, False if this is not a 3' atom.
+            """
             if atom:
                 strand = atom.molecule.parent_node_of_class(
                     atom.molecule.assy.DnaStrand)
                 if atom == strand.get_three_prime_end_base_atom():
                     ax_atom = atom.axis_neighbor()
                     a_neighbors = ax_atom.axis_neighbors()
-                    # REVIEW: ?
-                    #dvec = chunk.abs_to_base(ax_atom.posn()) - \
-                    #       chunk.abs_to_base(a_neighbors[0].posn())
                     pos0, dvec = _get_screen_position_of_strand_atom(atom)
                     ovec = norm(cross(dvec, chunk.quat.unrot(glpane.out)))
                     pos1 = pos0 + 0.5 * dvec
@@ -1255,6 +1257,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
             return False
         
         def _draw_external_bonds():
+            """
+            Draws external bonds between different chunks of the same group.
+            """
             for bond in chunk.externs:
                 if bond.atom1.molecule.dad == bond.atom2.molecule.dad: # same group
                     if bond.atom1.molecule != bond.atom2.molecule: # but different chunks
@@ -1266,7 +1271,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         
         def _light_color(color):
             """
-            Make a lighter color
+            Make a lighter color.
             """
             lcolor = [0.0, 0.0, 0.0]
             lcolor[0] = 0.5 * (1.0 + color[0])
@@ -1496,7 +1501,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
             
             # As of 080520, this code is less buggy, but still quite slow.
             # REVIEW: Suggestions for speedup?
-
+            # suggestion added by piotr 080910
+            # The 2D representation is drawn in intermediate mode. 
+            # This code uses multiple individual OpenGL calls (glVertex, 
+            # glColor). These calls should be replaced by single OpenGL
+            # array call. 
+            
             # The structure will follow a 2D projection of the central axis.
             # Note: this mode doesn't work well for PAM5 models.
             
@@ -1805,14 +1815,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 file.write("  linear_spline\n")
             else:
                 # REVIEW: What should the non-smooth version be?
+                # The non-smooth version should just draw straight
+                # cylinders with spherical joints. This is not implemented.
                 file.write("  linear_spline\n")
             file.write("  %d,\n" % (len(points)))
             n = len(points)
             for i in range(0,n):
                 file.write("  " + povpoint(chunk.base_to_abs(points[i])) +", %g\n" % radii[i]);
-            ### REVIEW: Superseded by the pigment block below?
-            ### file.write("  pigment {color <%g %g %g>}\n" % (colors[0][0], colors[0][1], colors[0][2]))
-             
+            
             file.write("  pigment {\n")
             vec = points[n-1]-points[0]
             nvec = radii[0] * norm(vec)
@@ -1965,6 +1975,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
         # it's best to just use the axis and center, then recompute 
         # a bounding cylinder.
 
+        # piotr 080910 comment: yes, it is not a straight cylinder representing
+        # the chunk axis anymore. It is a glePolyCone object
+        # drawn along a path of DNA axis chunk. Similarly, the strand chunks
+        # are represented by curved polycone objects. 
+        
         # import the style preferences from User Preferences
         self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
         self.dnaStyleStrandsColor = env.prefs[dnaStyleStrandsColor_prefs_key]
