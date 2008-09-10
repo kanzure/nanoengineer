@@ -45,7 +45,7 @@ from Numeric import dot
 
 from utilities.constants  import gensym
 from utilities.Log        import redmsg
-from prototype.test_connectWithState import State_preMixin
+from exprs.State_preMixin import State_preMixin
 
 from exprs.attr_decl_macros import Instance, State
 from exprs.__Symbols__      import _self

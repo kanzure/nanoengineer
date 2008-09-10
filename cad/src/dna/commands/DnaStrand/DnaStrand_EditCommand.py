@@ -28,7 +28,7 @@ from geometry.VQT import  vlen
 from geometry.VQT import  norm
 from Numeric import dot
 
-from prototype.test_connectWithState import State_preMixin
+from exprs.State_preMixin import State_preMixin
 from exprs.attr_decl_macros import Instance, State
 from exprs.__Symbols__ import _self
 from exprs.Exprs import call_Expr

@@ -1193,7 +1193,7 @@ class test_animation_mode_GM( _superclass_GM ):
 
 from exprs.ExprsMeta import ExprsMeta
 from exprs.StatePlace import StatePlace
-from exprs.instance_helpers import IorE_guest_mixin
+from exprs.IorE_guest_mixin import IorE_guest_mixin # REVIEW: can we use State_preMixin here?
 
 class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might need object if it doesn't have IorE_guest_mixin; see also __init__
     __metaclass__ = ExprsMeta # this seems to cause no harm.

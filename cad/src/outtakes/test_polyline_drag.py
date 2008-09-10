@@ -15,7 +15,7 @@ Doesn't yet store the polyline anywhere.
 Just a stub for now.
 """
 
-from prototype.test_connectWithState import State_preMixin
+from exprs.State_preMixin import State_preMixin
 
 from prototype.test_commands import ExampleCommand
 
