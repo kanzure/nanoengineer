@@ -31,6 +31,9 @@ _superclass = EditCommand
 class Peptide_EditCommand(EditCommand):
 #class Peptide_EditCommand(ModelAndSimulateProtein_Command):
 
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = "NOT_PORTED"
+
     PM_class = PeptideGeneratorPropertyManager
     
     cmd              =  greenmsg("Build Peptide: ")
@@ -60,7 +63,7 @@ class Peptide_EditCommand(EditCommand):
     command_should_resume_prevMode = True
     command_has_its_own_PM = True
 
-    def __init__(self, commandSequencer, struct = None):
+    def __init__(self, commandSequencer):
         """
         Constructor for Peptide_EditCommand
         """
@@ -68,8 +71,7 @@ class Peptide_EditCommand(EditCommand):
         _superclass.__init__(self, commandSequencer)        
         #Maintain a list of peptide segments created while this command was running. 
         self._segmentList = []
-        self.struct = struct
-        
+                
     
     def init_gui(self):
         """

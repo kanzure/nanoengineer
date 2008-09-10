@@ -122,7 +122,7 @@ class DnaDuplex_EditCommand(EditCommand):
 
 
 
-    def __init__(self, commandSequencer, struct = None):
+    def __init__(self, commandSequencer):
         """
         Constructor for DnaDuplex_EditCommand
         """
@@ -150,7 +150,6 @@ class DnaDuplex_EditCommand(EditCommand):
         #structure creation (segment addition). 
         self._segmentList = []
 
-        self.struct = struct
 
     def _createFallbackDnaGroup(self):
         """

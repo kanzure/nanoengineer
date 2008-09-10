@@ -78,15 +78,7 @@ class BuildDna_EditCommand(EditCommand):
     #See also other examples of its use in older Commands such as
     #BuildAtoms_Command (earlier depositmode)
     call_makeMenus_for_each_event = True
-
-    def __init__(self, commandSequencer, struct = None):
-        """
-        Constructor for BuildDna_EditCommand
-        """
-
-        EditCommand.__init__(self, commandSequencer)
-        self.struct = struct
-        
+      
         
     #=== START   NEW COMMAND API methods  ======================================
     #Used in self.init_gui and self.restore_gui as of 2008-08-11        

@@ -201,15 +201,14 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
                                          ))
 
-    def __init__(self, commandSequencer, struct = None):
+    def __init__(self, commandSequencer):
         """
         Constructor for DnaDuplex_EditCommand
         """
         glpane = commandSequencer.assy.glpane
         State_preMixin.__init__(self, glpane)        
         EditCommand.__init__(self, commandSequencer)
-        self.struct = struct
-
+        
         #Graphics handles for editing the structure . 
         self.handles = []        
         self.grabbedHandle = None

@@ -157,7 +157,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         ))
 
 
-    def __init__(self, commandSequencer, struct = None):
+    def __init__(self, commandSequencer):
         """
         Constructor for DnaDuplex_EditCommand
         """
@@ -165,8 +165,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         glpane = commandSequencer.assy.glpane
         State_preMixin.__init__(self, glpane)        
         EditCommand.__init__(self, commandSequencer)
-        self.struct = struct
-
+        
         #DnaSegment object to which this strand belongs 
         self._parentDnaSegment = None
 

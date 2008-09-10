@@ -218,7 +218,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         ))
 
 
-    def __init__(self, commandSequencer, struct = None):
+    def __init__(self, commandSequencer):
         """
         Constructor for DnaDuplex_EditCommand
         """
@@ -226,8 +226,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         glpane = commandSequencer.assy.glpane
         State_preMixin.__init__(self, glpane)        
         EditCommand.__init__(self, commandSequencer)
-        self.struct = struct
-
+        
         #Graphics handles for editing the structure . 
         self.handles = []        
         self.grabbedHandle = None
@@ -265,7 +264,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """   
         
         #NOTE 2008-09-02: This method is called too often. It should exit early
-        #if , for example , model_change_inidicator didn't change. Need to 
+        #if , for example , model_change_indicator didn't change. Need to 
         #review and test to see if its okay to do so. [-- Ninad comment]
         
         _superclass.command_update_internal_state(self)

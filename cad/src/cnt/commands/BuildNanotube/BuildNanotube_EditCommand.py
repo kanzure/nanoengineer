@@ -75,15 +75,6 @@ class BuildNanotube_EditCommand(EditCommand):
     #See also other examples of its use in older Commands such as 
     #BuildAtoms_Command (earlier depositmode) 
     call_makeMenus_for_each_event = True    
-
-    def __init__(self, commandSequencer, struct = None):
-        """
-        Constructor for BuildNanotube_EditCommand
-        """
-
-        EditCommand.__init__(self, commandSequencer)
-        self.struct = struct
-
         
     def command_enter_flyout(self):
         """

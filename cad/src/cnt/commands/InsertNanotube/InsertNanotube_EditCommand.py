@@ -94,7 +94,7 @@ class InsertNanotube_EditCommand(EditCommand):
     #it only uses 
     flyoutToolbar = None
 
-    def __init__(self, commandSequencer, struct = None):
+    def __init__(self, commandSequencer):
         """
         Constructor for InsertNanotube_EditCommand
         """
@@ -102,10 +102,7 @@ class InsertNanotube_EditCommand(EditCommand):
         _superclass.__init__(self, commandSequencer)        
 
         #Maintain a list of segments created while this command was running. 
-        self._segmentList = []
-
-        self.struct = struct
-        
+        self._segmentList = []       
         
     if not USE_COMMAND_STACK:  
         def init_gui(self):

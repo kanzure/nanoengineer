@@ -37,25 +37,6 @@ class Motor_EditCommand(EditCommand):
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
     
-    
-    def __init__(self, commandSequencer, struct = None):
-        """
-        Constructs a command Object. The command, 
-        depending on what client code needs it to do, may create a new 
-        motor or it may be used for an existing motor. See subclasses, 
-        RotaryMotor_EditCommand and LinearMotor_EditCommand for details. 
-        
-        @param commandSequencer: Command sequencer object
-              
-        @param struct: The model object (in this case a 'rotary motor') that the
-                       this EditCommand may create and/or edit
-                       If struct object is specified, it means this 
-                       editCommand will be used to edit that struct. 
-        @type  struct: L{RotaryMotor} or None
-
-        """ 
-        _superclass.__init__(self, commandSequencer)
-        self.struct = struct
         
     def command_entered(self):
         """

@@ -84,8 +84,6 @@ class EditCommand(Select_Command):
  
     flyoutToolbar = None
     
-               
-
     def __init__(self, commandSequencer):
         """
         Constructor for the class EditCommand.        
@@ -282,6 +280,8 @@ class EditCommand(Select_Command):
               editCommand
         @see: L{Plane.edit} and L{Plane_EditCommand._createPropMgrObject} 
         """
+        
+        print "***in EditCommand.editStructure"
 
         if struct is not None:
             self.struct = struct                
