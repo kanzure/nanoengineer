@@ -474,12 +474,16 @@ def _debug_pref_use_command_stack(): #bruce 080728
 
 USE_COMMAND_STACK = _debug_pref_use_command_stack()
 
+print "USE_COMMAND_STACK =", USE_COMMAND_STACK # temporary
+
 # ==
 
-def _debug_pref_use_separate_command_sequencer(): #bruce 080908
+def _debug_pref_use_separate_command_sequencer(): #bruce 080908; 080910 revised
+    # TODO: change to hardcoded constant before release, or at least remove non_debug = True
     res = debug_pref("use separate command sequencer (next session)?",
-                     Choice_boolean_False,
-                     prefs_key = True
+                     Choice_boolean_True, #bruce 080910 made this True
+                     non_debug = True,
+                     prefs_key = "v1.2/separate command sequencer"
                     )
     return res
 
@@ -490,6 +494,8 @@ GLPANE_IS_COMMAND_SEQUENCER = not _debug_pref_use_separate_command_sequencer()
     # Soon, the default will become False and support for True will be
     # removed, as a long-desired refactoring and cleanup.
     # [bruce 071010, 080813, 080908]
+
+print "GLPANE_IS_COMMAND_SEQUENCER =", GLPANE_IS_COMMAND_SEQUENCER # temporary
 
 # ==
 
