@@ -738,79 +738,8 @@ class MWsemantics(QMainWindow,
             # blame item
             print_compact_traceback( "exception (ignored) in postinit_item(%r): " % item )
         return
-
-    def update_mode_status(self, mode_obj = None):
-        # REVIEW: still needed after command stack refactoring? noop now.
-        # [bruce 080717 comment]
-        """
-        [by bruce 040927; revised/repurposed 080717]
-
-        This method might be obsolete, but will not be fully removed
-        until after the ongoing command stack refactoring, in case
-        the calls to it prove useful for updates when command stack
-        changes. For now, its docstring and implem comment are
-        preserved, but its body is removed since it was only
-        meant to update a statusbar widget that no longer exists
-        (modebarLabel). [bruce 080717 comment]
-
-        old docstring:
-
-        Update the text shown in self.statusBar().modebarLabel (if that widget
-        exists yet).  Get the text to use from mode_obj if supplied,
-        otherwise from the current mode object
-        (self.currentCommand). (The mode object has to be supplied when
-        the currently stored one is incorrect, during a mode
-        transition.)
-
-        This method needs to be called whenever the mode status text
-        might need to change. See a comment in the method to find out
-        what code should call it.
-        """
-        # There are at least 3 general ways we could be sure to call
-        # this method often enough; the initial implementation of
-        # 040927 uses (approximately) way #1:
-        #
-        # (1) Call it after any user-event-handler that might change
-        # what the mode status text should be.  This is reasonable,
-        # but has the danger that we might forget about some kind of
-        # user-event that ought to change it. (As of 040927, we call
-        # this method from this file (after tool button actions
-        # related to selection), and from the mode code (after mode
-        # changes).)
-        #
-        # (2) Call it after any user-event at all (except for
-        # mouse-move or mouse-drag).  This would probably be best (##e
-        # so do it!), since it's simple, won't miss anything, and is
-        # probably efficient enough.  (But if we ever support
-        # text-editing, we might have to exclude keypress/keyrelease
-        # from this, for efficiency.)
-        #
-        # (3) Call it after any internal change which might affect the
-        # mode-status text. This would have to include, at least, any
-        # change to (the id of) self.glpane, self.currentCommand,
-        # self.glpane.assy, or (the value of)
-        # self.glpane.assy.selwhat, regardless of the initial cause of
-        # that change. The problems with this method are: it's
-        # complicated; we might miss a necessary update call; we'd
-        # have to be careful for efficiency to avoid too many calls
-        # after a single user event (e.g. one for which we iterate
-        # over all atoms and "select parts" redundantly for each one);
-        # or we'd have to make many calls permissible, by separating
-        # this method into an "update-needed" notice (just setting a
-        # flag), and a "do-update" function, which does the update
-        # only when the flag is set. But if we did the latter, it
-        # would be simpler and probably faster to just dispense with
-        # the flag and always update, i.e. to use method (2).
-
-        pass
-
-
-    ##################################################
-    # The beginnings of an invalidate/update mechanism
-    # at the moment it just does update whether needed or not
-    ##################################################
-
-    def win_update(self): # bruce 050107 renamed this from 'update'
+    
+    def win_update(self):
         """
         Update most state which directly affects the GUI display,
         in some cases repainting it directly.
@@ -819,7 +748,7 @@ class MWsemantics(QMainWindow,
         [no longer named update, since that conflicts with QWidget.update]
         """
         if not self.initialised:
-            return #bruce 041222
+            return
 
         pw = self.activePartWindow()
         pw.glpane.gl_update()
@@ -828,6 +757,7 @@ class MWsemantics(QMainWindow,
             # this is self.reportsDockWidget.history_object, not env.history,
             # since it's really about this window's widget-owner,
             # not about the place to print history messages [bruce 050913]
+        return
 
     ###################################
     # File Toolbar Slots

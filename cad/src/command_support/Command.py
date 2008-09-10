@@ -961,22 +961,10 @@ class basicCommand(anyCommand):
                 self.init_gui()
                     ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
                 self.resume_gui()
-                self.update_mode_status_text()
+                ## method no longer exists [bruce 080910]: self.update_mode_status_text()
         # caller (our command sequencer) will set its self.currentCommand to point to us,
         # but only if we return false
         return refused
-
-##    def refuseEnter(self, warn):
-##        """
-##        Subclasses should override this: examine the current
-##        selection state of your command's model, and anything else you care
-##        about, and decide whether you would refuse to become the
-##        new current command, if asked to. If you would refuse, and if
-##        warn = true, then emit an error message explaining this.
-##        In any case, return whether you refuse entry (i.e. true if
-##        you do, false if you don't).         
-##        """
-##        return 0
     
     def Enter(self): # see also: baseCommand.command_entered
         """
@@ -1148,34 +1136,6 @@ class basicCommand(anyCommand):
     def is_default_command(self): #bruce 080709 refactoring
         return self.commandName == self.commandSequencer.default_commandName()
     
-    
-    
-    def update_mode_status_text(self):
-        # REVIEW: still needed after command stack refactoring? noop now.
-        # [bruce 080717 comment]
-        """
-        new method, bruce 040927; here is my guess at its doc
-        [maybe already obs?]:
-
-        Update the command-status widget to show
-        the currently correct command-status text for this command.
-        Subclasses should not override this; its main purpose is to
-        know how to do this in the environment of any command.  This
-        is called by the standard command-entering code when it's sure
-        we're entering a new command, and whenever it suspects the
-        correct status text might have changed (e.g. after certain
-        user events #nim).  It can also be called by modes
-        themselves when they think the correct text might have
-        changed. To actually *specify* that text, they should do
-        whatever they need to do (which might differ for each command)
-        to change the value which would be returned by their
-        command-specific method get_mode_status_text()
-        [which no longer exists as of 080717 since all calls were removed].
-        """
-        self.w.update_mode_status( mode_obj = self)
-            # note: mode_obj = self is needed in case
-            # glpane.currentCommand == nullMode at the moment.
-
     if not USE_COMMAND_STACK:
         def command_post_event_ui_updater(self): #bruce 080804 revision
             """
