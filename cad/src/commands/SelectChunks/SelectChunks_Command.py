@@ -109,7 +109,7 @@ class SelectChunks_Command(Select_Command):
         #Move control button menu in the flyout area. With the following code, 
         #it shows the default 'Build' control button  menu in the flyout. 
         
-        #Superclasses may use this method. So make sure that the 
+        #Subclasses may use this method. So make sure that the 
         #following code gets called only when this command is the
         #default command (i.e. SelectChunks_Command as of 2008-09-09)         
         if self.is_default_command():

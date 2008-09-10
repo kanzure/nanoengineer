@@ -976,7 +976,7 @@ class CommandSequencer(object):
         self._f_assert_command_stack_unlocked()
         if DEBUG_COMMAND_SEQUENCER:
             print "DEBUG_COMMAND_SEQUENCER: _f_exit_active_command wants to exit back to", command
-        assert command.command_is_active()
+        assert command.command_is_active(), "can't exit inactive command: %r" % command
         # exit commands, innermost (current) first, until we fail,
         # or exit the command we were passed (our exit_target).
         error = False
