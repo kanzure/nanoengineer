@@ -9,10 +9,8 @@ ModelAndSimulate_EditCommand.py
 """
 from command_support.EditCommand import EditCommand
 from utilities.Log  import greenmsg
-from utilities.constants import gensym
 from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_PropertyManager import ModelAndSimulateProtein_PropertyManager 
-from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
@@ -21,6 +19,8 @@ class ModelAndSimulateProtein_Command(EditCommand):
     ModelAndSimulateProtein_EditCommand provides a convenient way to edit or create 
     or simulate a Protein object
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
     
     PM_class = ModelAndSimulateProtein_PropertyManager
     
@@ -38,43 +38,12 @@ class ModelAndSimulateProtein_Command(EditCommand):
     create_name_from_prefix  =  True
     call_makeMenus_for_each_event = True
     
-        
-    graphicsMode = None
     flyoutToolbar = None
     _currentActiveTool = 'MODEL_PROTEIN'
     
-    def __init__(self, commandSequencer, struct = None):
-        _superclass.__init__(self, commandSequencer)    
-        self.struct = struct
-        return
-
+    
     #START new command API methods ==============================================
 
-    def command_enter_PM(self):
-        """
-        Overrides superclass method. 
-        @see: baseCommand.command_enter_PM()  for documentation
-        """
-        #important to check for old propMgr object. Reusing propMgr object 
-        #significantly improves the performance.
-        if not self.propMgr:
-            self.propMgr = self._createPropMgrObject()
-            ## changes.keep_forever(self.propMgr)
-        if not USE_COMMAND_STACK:
-            self.propMgr.show()
-        self.propMgr.updateMessage()
-        return
-    
-    def command_exit_PM(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_PM() for documentation
-        """
-        if not USE_COMMAND_STACK:
-            if self.propMgr:
-                self.propMgr.close()
-        return    
             
     def command_enter_flyout(self):
         """
@@ -95,11 +64,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
         """
         flyoutToolbar = ProteinFlyout_v2(self) 
         return flyoutToolbar
-    
-    def _createPropMgrObject(self):
-        propMgr = ModelAndSimulateProtein_PropertyManager(self)
-        return propMgr
-        
+           
             
     def command_exit_flyout(self):
         """
@@ -133,36 +98,41 @@ class ModelAndSimulateProtein_Command(EditCommand):
     #END new command API methods ==============================================
     
     
-    def init_gui(self):
-        """
-        Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command toolbar, connecting widget 
-        slots etc. 
+    if not USE_COMMAND_STACK:    
+        def init_gui(self):
+            """
+            Do changes to the GUI while entering this mode. This includes opening 
+            the property manager, updating the command toolbar, connecting widget 
+            slots etc. 
+            
+            Called once each time the mode is entered; should be called only by code 
+            in modes.py
+            
+            @see: L{self.restore_gui}
+            """
+               
+            
+            self.command_enter_misc_actions()
+            self.command_enter_PM() 
+            self.command_enter_flyout()
+            if self.propMgr:
+                self.propMgr.show()
+            
+            return
         
-        Called once each time the mode is entered; should be called only by code 
-        in modes.py
-        
-        @see: L{self.restore_gui}
-        """
-           
-        
-        self.command_enter_misc_actions()
-        self.command_enter_PM() 
-        self.command_enter_flyout()
-        
-        return
-    
-    def restore_gui(self):
-        """
-        Do changes to the GUI while exiting this mode. This includes closing 
-        this mode's property manager, updating the command toolbar, 
-        disconnecting widget slots etc. 
-        @see: L{self.init_gui}
-        """
-        self.command_exit_misc_actions()
-        self.command_exit_flyout()
-        self.command_exit_PM()
-        return
+        def restore_gui(self):
+            """
+            Do changes to the GUI while exiting this mode. This includes closing 
+            this mode's property manager, updating the command toolbar, 
+            disconnecting widget slots etc. 
+            @see: L{self.init_gui}
+            """
+            self.command_exit_misc_actions()
+            self.command_exit_flyout()
+            self.command_exit_PM()
+            if self.propMgr:
+                self.propMgr.close()
+            return
     
     def setCurrentCommandMode(self, commandName):
         """
@@ -178,15 +148,8 @@ class ModelAndSimulateProtein_Command(EditCommand):
         if not commandName:
             return 
         
-        commandSequencer = self.win.commandSequencer
-        currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != commandName:
-            # enter command, if not already in it
-            commandSequencer.userEnterTemporaryCommand( commandName)
-        else:
-            # exit command, if already in it
-            currentCommand.Done(exit_using_done_or_cancel_button = False)
-        
+        commandSequencer = self.win.commandSequencer       
+        commandSequencer.userEnterTemporaryCommand( commandName)
         return    
     
     def makeMenus(self):
