@@ -2,7 +2,7 @@
 """
 example_expr_command.py -- example of how to use an interactive graphics
 expr in a command (unfinished, so partly scratch code); command and PM
-are each variants of ExampleCommand2's command and PM classes
+are each variants of ExampleCommand1's command and PM classes
  
 @author: Bruce
 @version: $Id$
@@ -16,13 +16,18 @@ in which it was called ExampleCommand2E
 
 # == PM class
 
-from prototype.test_command_PMs import ExampleCommand2_PM
+from prototype.test_command_PMs import ExampleCommand1_PM
 
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_GroupBox      import PM_GroupBox
 
-class ExampleCommand2E_PM( ExampleCommand2_PM ):
-    """Property Manager for Example Command 2E"""
+_superclass_PM = ExampleCommand1_PM
+
+class ExampleCommand2E_PM( ExampleCommand1_PM ):
+    # NOTE: used to use ExampleCommand2_PM which uses GBC; UNTESTED with this superclass [bruce 080910]
+    """
+    Property Manager for Example Command 2E
+    """
     title = "Example Command 2E"
     prefix = "Thing2E" # for names created by GBC
     
@@ -30,7 +35,7 @@ class ExampleCommand2E_PM( ExampleCommand2_PM ):
         """
         Add group boxes to this Property Manager.
         """
-        ExampleCommand2_PM._addGroupBoxes(self)
+        _superclass_PM._addGroupBoxes(self)
         
         self.pmGroupBox2 = PM_GroupBox( self, title =  "group box 2" )
         self._loadGroupBox2(self.pmGroupBox2)
@@ -56,7 +61,7 @@ class ExampleCommand2E_PM( ExampleCommand2_PM ):
 
 # == command class
 
-# these imports are not needed in a minimal example like ExampleCommand2:
+# these imports are not needed in a minimal example like ExampleCommand1:
 
 from graphics.drawing.CS_draw_primitives import drawline
 from utilities.constants import red
@@ -73,15 +78,15 @@ class TextState(InstanceMacro): # rename?
     _value = TextRect(text) # need size?
     pass
 
-from prototype.test_commands import ExampleCommand2
+from prototype.test_commands import ExampleCommand1 # NOTE: was ExampleCommand2, this revision UNTESTED [bruce 080910]
 
 
-##from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command # used indirectly via ExampleCommand2
+##from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command # used indirectly via ExampleCommand1
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
 
 
-##class ExampleCommand2E_GM( ExampleCommand2.GraphicsMode_class): #bruce 071014 split out _GM class; works, except highlighting
+##class ExampleCommand2E_GM( ExampleCommand1.GraphicsMode_class): #bruce 071014 split out _GM class; works, except highlighting
 class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
     def Draw(self):
         """
@@ -95,7 +100,7 @@ class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
         #print "end ExampleCommand2E Draw"
     pass
 
-##class ExampleCommand2E_GM_KLUGED( ExampleCommand2.GraphicsMode_class,
+##class ExampleCommand2E_GM_KLUGED( ExampleCommand1.GraphicsMode_class,
 ##                            SelectAtoms_Command #### KLUGE, will it work? trying to use it just for its GM aspects...
 ##                           ): #bruce 071014 split out _GM class
 ##    # status, 071022: works except for highlighting (tho it looked like it did something on mouseover;
@@ -112,7 +117,7 @@ class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
 ##    command = None # defeat the property in selectAtomsMode #k needed?
 ##    
 ##    def __init__(self, command):
-##        ExampleCommand2.GraphicsMode_class.__init__(self, command) # includes self.command = command
+##        ExampleCommand1.GraphicsMode_class.__init__(self, command) # includes self.command = command
 ##        SelectAtoms_Command.__init__(self, self.glpane) ##k??
 ##        self.ignore_next_leftUp_event = True
 ##            # kluge, since we didn't run the GM part of SelectAtoms_Command.Enter,
@@ -134,10 +139,10 @@ class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
 ##if KLUGE_USE_SELATOMS_AS_GM:
 ##    ExampleCommand2E_GM = ExampleCommand2E_GM_KLUGED ##### improve
 
-class ExampleCommand2E( ExampleCommand2, object):
+class ExampleCommand2E( ExampleCommand1, object):
     """
     Add things not needed in a minimal example, to try them out.
-    (Uses a PM which is the same as ExampleCommand2 except for title.)
+    (Uses a PM which is the same as ExampleCommand1 except for title.)
     """
     # Note: object superclass is only needed to permit super(ExampleCommand2E, self) to work.
     # object superclass should not come first, or it overrides __new__

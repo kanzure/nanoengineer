@@ -355,6 +355,8 @@ class basicCommand(anyCommand):
     # (This is not urgent, since all commands should have that basic
     #  functionality. It might make things clearer or ease refactoring
     #  some of minimalCommand into the Command Sequencer.)
+    # (later clarification: this comment is not about _minimalCommand in
+    #  test_commands.py, though that might hold some lessons for this.)
     # [bruce 071011 comment]
     
     # Subclasses should define the following class constants,

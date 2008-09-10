@@ -56,6 +56,8 @@ from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_PushButton import PM_PushButton
 from PM.PM_CheckBox import PM_CheckBox
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 ##from modes import *
 ##from modes import basicMode
 from command_support.Command import Command
@@ -148,8 +150,8 @@ class test_animation_mode_PM(ExampleCommand1_PM):
     """
     title = "test_animation_mode PM"
     
-    def __init__(self, command): #bruce 080909, remove win arg
-        ExampleCommand1_PM.__init__(self, command.win, command)
+    def __init__(self, command): #bruce 080909/080910, remove win arg
+        ExampleCommand1_PM.__init__(self, command)
     
     def _addGroupBoxes(self):
         """
@@ -973,7 +975,7 @@ annoyers = [##'editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
 
 
 # code copied from test_commands.py:
-# these imports are not needed in a minimal example like ExampleCommand2;
+# these imports are not needed in a minimal example like ExampleCommand1;
 # to make that clear, we put them down here instead of at the top of the file
 from graphics.drawing.CS_draw_primitives import drawline
 from utilities.constants import red, green
@@ -1218,7 +1220,8 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
 
     # class constants needed by mode API
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
-    commandName = 'TEST_ANIMATION'
+    commandName = 'test_animation_mode' # bruce 080910 'TEST_ANIMATION' -> 'test_animation_mode' so it works with
+        # USE_COMMAND_STACK and/or with new asserts in CommandSequencer
     featurename = "Prototype: Example Animation Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
@@ -1293,7 +1296,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
             self.cannonWidth = 2.0########### DOES IT FIX THE BUG? THEN ZAP.
         return
 
-    if 1 or not USE_COMMAND_STACK: ########## in USE_COMMAND_STACK we get infinite recursion somehow
+    if not USE_COMMAND_STACK: ########## in USE_COMMAND_STACK we get infinite recursion somehow; maybe fixed after that?
         # all these will need porting to other methods of new command API when USE_COMMAND_STACK
         def clear_command_state(self): # this will need to be inlined (copied) into command_will_exit
             """
@@ -1304,36 +1307,8 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
             ## super(test_animation_mode, self).clear_command_state()
             return
         
-        def Enter(self): # this will need to go into command_entered
-            print
-            print "entering test_animation_mode again", time.asctime()
-    ##        self.assy = self.w.assy # [AttributeError: can't set attribute -- property?]
-            hacktrack(self.glpane)
-            hack_standard_repaint_0(self.glpane, self.graphicsMode.pre_repaint)
-                # KLUGE -- this ought to be part of an Enter_GraphicsMode method...
-                # there was something like that in one of those Pan/Rotate/Zoom classes too...
-                # need to find those and decide when to call a method like that.
-            self.glpane.pov = V(0, 0, 0)
-            self.glpane.quat = Q(1,0,0,0) + Q(V(1,0,0),10.0 * pi/180)
-            print "self.glpane.scale =", self.glpane.scale # 10 -- or 10.0?
-            self.glpane.scale = 20.0 #### 070813 # note: using 20 (int not float) may have caused AssertionError:
-                ## in GLPane.py 3473 in typecheckViewArgs
-                ## assert isinstance(s2, float)
-            
-            print "self.glpane.scale changed to", self.glpane.scale
-            self.right = V(1,0,0) ## self.glpane.right
-            self.up = V(0,1,0)
-            self.left = - self.right
-            self.down = - self.up
-            self.away = V(0,0,-1)
-            self.towards = - self.away
-            self.origin = - self.glpane.pov ###k replace with V(0,0,0)
-            self.guy = guy(self)
-            self.cannon = cannon(self)
-            
-            ##self.glbufstates = [0, 0] # 0 = unknown, number = last drawn model state number
-            self.modelstate = 1
-            # set perspective view -- no need, just do it in user prefs
+        def Enter(self): # this will need to go into command_entered [done]
+            self._command_enter_effects()            
             return _superclass.Enter(self)
         
         def init_gui(self): #050528
@@ -1348,7 +1323,6 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
                 except:
                     print_compact_traceback("hmm %s: " % tbname) # someone might rename one of them
 
-            win = self.win
             self.propMgr = self.PM_class(self)
             self.propMgr.show()
 
@@ -1360,7 +1334,54 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
             self.propMgr.hide()
 
     # ==
+
+    def command_will_exit(self):
+        self._clear_command_state()
+        _superclass.command_will_exit(self)
+        return
     
+    def command_enter_PM(self):
+        if not self.propMgr:
+            self.propMgr = self.PM_class(self) # UNTESTED and not well reviewed re other code [080910 change]
+        return
+    
+    def _command_enter_effects(self):
+        print
+        print "entering test_animation_mode again", time.asctime()
+##        self.assy = self.w.assy # [AttributeError: can't set attribute -- property?]
+        hacktrack(self.glpane)
+        hack_standard_repaint_0(self.glpane, self.graphicsMode.pre_repaint)
+            # KLUGE -- this ought to be part of an Enter_GraphicsMode method...
+            # there was something like that in one of those Pan/Rotate/Zoom classes too...
+            # need to find those and decide when to call a method like that.
+        self.glpane.pov = V(0, 0, 0)
+        self.glpane.quat = Q(1,0,0,0) + Q(V(1,0,0),10.0 * pi/180)
+        print "self.glpane.scale =", self.glpane.scale # 10 -- or 10.0?
+        self.glpane.scale = 20.0 #### 070813 # note: using 20 (int not float) may have caused AssertionError:
+            ## in GLPane.py 3473 in typecheckViewArgs
+            ## assert isinstance(s2, float)
+        
+        print "self.glpane.scale changed to", self.glpane.scale
+        self.right = V(1,0,0) ## self.glpane.right
+        self.up = V(0,1,0)
+        self.left = - self.right
+        self.down = - self.up
+        self.away = V(0,0,-1)
+        self.towards = - self.away
+        self.origin = - self.glpane.pov ###k replace with V(0,0,0)
+        self.guy = guy(self)
+        self.cannon = cannon(self)
+        
+        ##self.glbufstates = [0, 0] # 0 = unknown, number = last drawn model state number
+        self.modelstate = 1
+        # set perspective view -- no need, just do it in user prefs
+        return
+
+    def command_entered(self):
+        _superclass.command_entered(self)
+        self._command_enter_effects()
+        return
+        
     def command_enter_misc_actions(self): #bruce 080909 guess, UNTESTED
         self.hidethese = hidethese = []
         for tbname in annoyers:
@@ -1371,11 +1392,13 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
                     hidethese.append(tb) # only if hiding it was needed and claims it worked
             except:
                 print_compact_traceback("hmm %s: " % tbname) # someone might rename one of them
-        
+        return
+    
     def command_exit_misc_actions(self): #bruce 080909 guess, UNTESTED
         for tb in self.hidethese:
             tb.show()
-        
+        return
+    
 # not used now, but keep (was used to append DebugNodes):
 ##    def placenode(self, node):
 ##        "place newly made node somewhere in the MT"

@@ -333,7 +333,8 @@ class testmode(_superclass_C):
     
     GraphicsMode_class = testmode_GM
     
-    commandName = 'TEST'
+    commandName = 'testmode' #bruce 080910 'TEST' -> 'testmode' so it works with
+        # USE_COMMAND_STACK and/or with new asserts in CommandSequencer
     featurename = "Test Command: Exprs Package"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING

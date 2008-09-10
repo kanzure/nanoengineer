@@ -21,10 +21,9 @@ _KLUGE_PERMIT_INHERITED_CLASSNAMES = (
 
     "TemporaryCommand_preMixin", # (should this count as abstract?)
 
-    "minimalCommand", # (ditto)
-    "minimalUsefulMode",
+    "_minimalCommand", # (ditto)
 
-    "Example_TemporaryCommand_useParentPM", # abstract, but doesn't have its own featurename
+##    "_Example_TemporaryCommand_useParentPM", # abstract, but doesn't have its own featurename
  )
 
 # == global state

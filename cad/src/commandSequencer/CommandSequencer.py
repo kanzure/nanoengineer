@@ -58,10 +58,9 @@ _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 
 _SAFE_MODE = DEFAULT_COMMAND
 
-DEBUG_COMMAND_SEQUENCER = False ## USE_COMMAND_STACK # turn this off when USE_COMMAND_STACK becomes the default
-DEBUG_COMMAND_SEQUENCER_VERBOSE = False
-
-DEBUG_COMMAND_STACK = False
+DEBUG_COMMAND_SEQUENCER = False
+_DEBUG_F_UPDATE_CURRENT_COMMAND = False
+_DEBUG_COMMAND_STACK_LOCKING = False
 
 # ==
 
@@ -774,6 +773,8 @@ class CommandSequencer(object):
 
     def _commandName_properties(self, commandName): #bruce 080814
         # STUB -- just use the cached instance for its properties.
+        # (Note: if commandName is a command object, this method just returns that object.
+        #  For now, we depend on this in test_commands_init.py. [bruce 080910 comment])
         return self._find_command_instance(commandName)
     
     # default and startup command name methods.
@@ -799,7 +800,7 @@ class CommandSequencer(object):
 
     # user requests a specific new command.
 
-    def userEnterCommand_for_USE_COMMAND_STACK(self, want_commandName, always_update = False): # @@@ redirect Done to get here...
+    def userEnterCommand_for_USE_COMMAND_STACK(self, want_commandName, always_update = False):
         """
         [main public method for changing command stack
          to get into a specified command]
@@ -821,6 +822,21 @@ class CommandSequencer(object):
             # only assumes it has a few properties and methods,
             # namely command_level, command_parent, and helper methods
             # for interpreting them.
+        
+        if want_commandName != want_command.commandName:
+            #bruce 080910
+            if want_commandName is want_command:
+                # this is routine when we're called from test_commands_init.py
+                print "fyi: command object %r passed as want_commandName to userEnterCommand" % want_commandName
+                want_commandName = want_command.commandName # make following code work
+            else:
+                assert 0, "commandName mismatch: userEnterCommand gets want_commandName %r, " \
+                          "led to want_command %r whose commandName is %r" % \
+                          (want_commandName, want_command, want_command.commandName )
+                pass
+            pass
+
+        assert type(want_commandName) == type(""), "not a string: %r" % (want_commandName,) #bruce 080910
         
         # exit incompatible commands as needed
         while not error:
@@ -849,8 +865,11 @@ class CommandSequencer(object):
             if old_commandName == want_commandName:
                 break
             
-            next_commandName_to_enter = self._next_commandName_to_enter( self.currentCommand, want_command) ### IMPLEM; might be want_commandName; never None
-            assert old_commandName != next_commandName_to_enter
+            next_commandName_to_enter = self._next_commandName_to_enter( self.currentCommand, want_command)
+                # note: might be want_commandName; never None
+            assert old_commandName != next_commandName_to_enter, \
+                   "should be different: old_commandName %r, next_commandName_to_enter %r" % \
+                   (old_commandName, next_commandName_to_enter)
             
             do_update = True # even if error
             command_instance = self._find_command_instance( next_commandName_to_enter)
@@ -1019,15 +1038,15 @@ class CommandSequencer(object):
     def _f_lock_command_stack(self, why = None):
         assert not self._f_command_stack_is_locked 
         self._f_command_stack_is_locked = why or "for some reason"
-        if DEBUG_COMMAND_STACK:
-            print "locking command stack:", self._f_command_stack_is_locked ###
+        if _DEBUG_COMMAND_STACK_LOCKING:
+            print "_DEBUG_COMMAND_STACK_LOCKING: locking command stack:", self._f_command_stack_is_locked ###
         return
 
     def _f_unlock_command_stack(self):
         assert self._f_command_stack_is_locked
         self._f_command_stack_is_locked = None
-        if DEBUG_COMMAND_STACK:
-            print "unlocking command stack"
+        if _DEBUG_COMMAND_STACK_LOCKING:
+            print "_DEBUG_COMMAND_STACK_LOCKING: unlocking command stack"
         return
 
     def _f_assert_command_stack_unlocked(self):
@@ -1460,7 +1479,7 @@ class CommandSequencer(object):
 
     # ==
 
-    # update methods (tentative, UNTESTED) [bruce 080812]
+    # update methods [bruce 080812]
 
     def _f_update_current_command(self): #bruce 080812
         """
@@ -1482,14 +1501,14 @@ class CommandSequencer(object):
             # REVIEW: do we also need something like the old
             # "stop_sending_us_events" system,
             # to protect from all kinds of events? [bruce 080829]
-            if DEBUG_COMMAND_SEQUENCER_VERBOSE:
-                print "DEBUG_COMMAND_SEQUENCER_VERBOSE: _f_update_current_command does nothing since command stack is locked (%s)" % \
+            if _DEBUG_F_UPDATE_CURRENT_COMMAND:
+                print "_DEBUG_F_UPDATE_CURRENT_COMMAND: _f_update_current_command does nothing since command stack is locked (%s)" % \
                       self._f_command_stack_is_locked
             return
         else:
             # this is very common
-            if DEBUG_COMMAND_SEQUENCER_VERBOSE:
-                print "DEBUG_COMMAND_SEQUENCER_VERBOSE: _f_update_current_command called, stack not locked"
+            if _DEBUG_F_UPDATE_CURRENT_COMMAND:
+                print "_DEBUG_F_UPDATE_CURRENT_COMMAND: _f_update_current_command called, stack not locked"
         
         self._f_assert_command_stack_unlocked()
         

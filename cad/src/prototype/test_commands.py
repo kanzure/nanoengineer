@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 test_commands.py -- try out using mode classes as command classes for a command stack;
  find out the minimal needs for a command with PM (and improve them);
  prototype a command stack
  
-$Id$
+@version: $Id$
 
 
 How to run these test commands:
@@ -37,58 +37,38 @@ When cleaning up PropMgrBaseClass etc, note some other things Mark wants to work
 - split some PMs/modes into more than one smaller PM (especially MMKit). 
   Note: See PM_ElementSelector.py. Mark 2007-08-07.
 
-Fix problems with Example_TemporaryCommand_useParentPM (commented where it's used)
+Fix problems with _Example_TemporaryCommand_useParentPM (commented where it's used)
 """
 
 from prototype.test_command_PMs import ExampleCommand1_PM
-from prototype.test_command_PMs import ExampleCommand2_PM
+##from prototype.test_command_PMs import ExampleCommand2_PM
 
 from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
-
-from command_support.modes import basicMode
 
 from command_support.GraphicsMode import GraphicsMode
 from command_support.Command import Command
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 # ==
 
-class minimalUsefulMode(basicMode): #bruce 071013
-    #e What will be needed here, just to run the example commands?
-    # (As of 071013 this affects ExampleCommand1, ExampleCommand2 & 2E, test_connectWithState.
-    #  It also affected test_polyline_drag.py but as of 071030 that's moved to outtakes.)
-    #
-    # With nothing added here, the effects are:
-    # - they don't draw the model;
-    # - the temporary ones don't do the saved command's drawing
-    #   (they didn't with SelectAtoms_Command either, but they drew the model themselves);
-    # - exprs draw, but their highlighting (and associated mouse behavior) doesn't work.
-    # But in other ways they work, e.g. the temp ones resume saved command & PM, the GBC ones make a struct.
-
+class _minimalGraphicsMode(GraphicsMode):
+    # [not sure whether this comment is obs, as of 080910:]
     # this is enough to draw the axes, compass, etc, and the model, but not with highlighting (model or expr):
-    def Draw(self):
-        super(minimalUsefulMode, self).Draw()
-        self.glpane.part.draw(self.glpane) # draw the current Part
-
     # What we need is some of what's in SelectAtoms_Command and maybe some of what's in testmode.
     # It's more efficient to refactor those to get a new generally useful GraphicsMode,
     # than to build them up separately here. HOWEVER, for the purpose of testing Command/GraphicsMode split,
     # this one might be enough, if we split it. So do that below.
-    pass
-
-class minimalGraphicsMode(GraphicsMode):
     def Draw(self):
-        super(minimalGraphicsMode, self).Draw()
+        super(_minimalGraphicsMode, self).Draw()
         self.glpane.part.draw(self.glpane) # draw the current Part
     pass
 
-class minimalCommand(Command):
-    GraphicsMode_class = minimalGraphicsMode
+class _minimalCommand(Command):
+    GraphicsMode_class = _minimalGraphicsMode
     pass
 
-
-## _superclass = minimalUsefulMode
-
-## this worked a long time -- _superclass = minimalCommand
+## this worked a long time -- _superclass = _minimalCommand
 # but time to try SelectAtoms again now that it's split [bruce 080123]
 from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command
 _superclass = SelectAtoms_Command
@@ -109,46 +89,48 @@ class ExampleCommand(_superclass):
     command_level = CL_EDIT_GENERIC
     __abstract_command_class = True
 
-    def init_gui(self):
-        print "init_gui in", self ###
-        win = self.win
-        # note: propMgr is initialized to None in our superclass anyMode
-        if self.PM_class:
-            self.propMgr = self.PM_class(win, command = self)
-        _superclass.init_gui(self) # this fixed the "disconnect without connect" bug 
-        #[when _superclass was selectAtoms_Command anyway]
-            #k will we need to do this first not last? or not do all of it? seems ok so far.
-        if self.propMgr:
-            self.propMgr.show()
-        return
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            print "init_gui in", self ###
+            # note: propMgr is initialized to None in our superclass anyMode
+            if self.PM_class and not self.propMgr:
+                self.propMgr = self.PM_class(self)
+            _superclass.init_gui(self) # this fixed the "disconnect without connect" bug 
+            #[when _superclass was selectAtoms_Command anyway]
+                #k will we need to do this first not last? or not do all of it? seems ok so far.
+            if self.propMgr:
+                self.propMgr.show()
+            return
 
-    def restore_gui(self):
-        print "restore_gui in", self ###
-        if self.propMgr:
-            self.propMgr.close() # removes PM tab -- better than the prior .hide() call [bruce 070829]
-        _superclass.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
-        return
-    
+        def restore_gui(self):
+            print "restore_gui in", self ###
+            if self.propMgr:
+                self.propMgr.close() # removes PM tab -- better than the prior .hide() call [bruce 070829]
+            _superclass.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
+            return
+
     pass
 
 # ==
 
-class Example_TemporaryCommand_useParentPM(ExampleCommand):
-    # BUGS:
-    # - doesn't call parentCommand_Draw; should use something from TemporaryCommand.py ####
-    #
-    # Note: this works if you have your own PM; perhaps untested when you don't.
-    # Warning: currently only one level of temporary commands is permitted;
-    # if you enter one of these commands and then enter another TemporaryCommand (e.g. Zoom Tool)
-    # it exits the first temporary commmand you were in.
-    command_can_be_suspended = False #bruce 071011
-    command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
-    test_commands_start_as_temporary_command = True # enter in different way
-        ### maybe todo: set up a similar thing in Command API?
-        # it would replace all calls of userEnterTemporaryCommand.
-        # [later, 080730: that idea might be obsolete or invalid in its details.
-        #  revisit after ongoing command stack refactoring.]
-    pass
+##class _Example_TemporaryCommand_useParentPM(ExampleCommand):
+##    # BUGS:
+##    # - doesn't call parentCommand_Draw; should use something from TemporaryCommand.py ####
+##    #
+##    # Note: this works if you have your own PM; perhaps untested when you don't.
+##    # Warning: currently only one level of temporary commands is permitted;
+##    # if you enter one of these commands and then enter another TemporaryCommand (e.g. Zoom Tool)
+##    # it exits the first temporary commmand you were in.
+##    command_can_be_suspended = False #bruce 071011
+##    command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
+##    test_commands_start_as_temporary_command = True # enter in different way
+##        ### maybe todo: set up a similar thing in Command API?
+##        # it would replace all calls of userEnterTemporaryCommand.
+##        # [later, 080730: that idea might be obsolete or invalid in its details.
+##        #  revisit after ongoing command stack refactoring.]
+##    pass
+
+_Example_TemporaryCommand_useParentPM = ExampleCommand
 
 # ==
 
@@ -169,15 +151,15 @@ class ExampleCommand1(ExampleCommand):
 
     pass
 
-class ExampleCommand2( Example_TemporaryCommand_useParentPM): # WRONG: this has own PM, so it'll mess up parent one.
-    """
-    Like ExampleCommand1, but use GBC (GeneratorBaseClass).
-    (This difference shows up only in our PM class.)
-    """
-    commandName = 'ExampleCommand2-commandName'
-    featurename = "Prototype: Example Command 2"
-    PM_class = ExampleCommand2_PM
-    pass
+##class ExampleCommand2( _Example_TemporaryCommand_useParentPM): # WRONG: this has own PM, so it'll mess up parent one.
+##    """
+##    Like ExampleCommand1, but use GBC (GeneratorBaseClass).
+##    (This difference shows up only in our PM class.)
+##    """
+##    commandName = 'ExampleCommand2-commandName'
+##    featurename = "Prototype: Example Command 2"
+##    PM_class = ExampleCommand2_PM
+##    pass
 
 # ==
 

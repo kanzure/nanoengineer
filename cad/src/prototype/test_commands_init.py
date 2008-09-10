@@ -15,22 +15,26 @@ from utilities.debug import register_debug_menu_command
 
 import utilities.EndUser as EndUser, utilities.Initialize as Initialize
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 # ==
 
-def construct_cmdrun( cmd_class, glpane):
+def construct_cmdrun( cmd_class, commandSequencer):
     """
-    Construct and return a new "command run" object, for use in the given glpane.
+    Construct and return a new "command run" object, for use in the given commandSequencer.
     Don't start it -- there is no obligation for the caller to ever start it;
     and if it does, it's allowed to do that after other user events and model changes
     happened in the meantime [REVIEW THAT, it's not good for "potential commands"] --
-    but it should not be after this glpane or its underlying model (assembly object)
-    get replaced (e.g. by Open File).
+    but it should not be after this commandSequencer or its assy get replaced
+    (e.g. by Open File).
     """
     # (we use same interface as <mode>.__init__ for now,
     #  though passing assy might be more logical)
-    cmdrun = cmd_class(glpane)
+    cmdrun = cmd_class(commandSequencer)
     if not hasattr(cmdrun, 'glpane'):
         print "bug: no glpane in cmdrun %r: did it forget to call ExampleCommand.__init__?" % (cmdrun,)
+    if not hasattr(cmdrun, 'commandSequencer'):
+        print "bug: no commandSequencer in cmdrun %r: did it forget to call ExampleCommand.__init__?" % (cmdrun,)
     ###e should also put it somewhere, as needed for a mode ####DOIT
     if 'kluge, might prevent malloc errors after removing pm from ui (guess)':
         import foundation.changes as changes
@@ -39,8 +43,8 @@ def construct_cmdrun( cmd_class, glpane):
 
 def start_cmdrun( cmdrun):
     ## ideally:  cmd.Start() #######
-    glpane = cmdrun.glpane # TODO: glpane -> commandSequencer
-    if cmdrun.test_commands_start_as_temporary_command:
+    commandSequencer = cmdrun.commandSequencer
+    if cmdrun.test_commands_start_as_temporary_command or USE_COMMAND_STACK:
         # bruce 071011
         # note: was written for commands with no PM of their own, but was only tested for a command that has one (and works)...
         # also do we need the Draw delegation to prevMode as in TemporaryCommand_Overdrawing? ### REVIEW
@@ -49,9 +53,9 @@ def start_cmdrun( cmdrun):
         # TODO: print a warning if cmdrun.command_level is not something
         # we'd consider "nestable", per the likely intent of starting it
         # as a temporary command.
-        glpane.userEnterTemporaryCommand( cmdrun, always_update = True)
+        commandSequencer.userEnterTemporaryCommand( cmdrun, always_update = True)
     else:
-        glpane.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
+        commandSequencer.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
     print "done with start_cmdrun for", cmdrun
         # returns as soon as user is in it, doesn't wait for it to "finish" -- so run is not a good name -- use Enter??
         # problem: Enter is only meant to be called internally by glue code in CommandSequencer.
@@ -104,7 +108,8 @@ def enter_example_command_doit(glpane, example_command_classname):
         # comparison of commandName -- not sure if it works; pretty sure
         # it's needed for now
         # TODO: replace it with a new option to pass to that method.
-    cmdrun = construct_cmdrun(example_command_class, glpane)
+    commandSequencer = glpane.assy.commandSequencer
+    cmdrun = construct_cmdrun(example_command_class, commandSequencer)
     start_cmdrun(cmdrun)
     return
 
@@ -123,9 +128,9 @@ def initialize():
     from prototype.test_commands import ExampleCommand1
     classnames.append("ExampleCommand1")
 
-    global ExampleCommand2
-    from prototype.test_commands import ExampleCommand2
-    classnames.append("ExampleCommand2")
+##    global ExampleCommand2
+##    from prototype.test_commands import ExampleCommand2
+##    classnames.append("ExampleCommand2")
 
     global test_connectWithState
     from prototype.test_connectWithState import test_connectWithState

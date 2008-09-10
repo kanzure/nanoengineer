@@ -1,9 +1,11 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 test_connectWithState.py -- test the connectWithState features.
 Also serves as scratch code for their improvement.
- 
-$Id$
+
+@author: Bruce
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -79,7 +81,7 @@ from widgets.prefs_widgets import ObjAttr_StateRef
 
 class State_preMixin( IorE_guest_mixin):
     # TODO: refile (alongside IorE_guest_mixin ? in its own file?), once cleaned up & bugfixed --
-    # note, as of 080128 or so, this is used in real code
+    # note, as of 080128 or so, this is used in real code.
     """
     Use this as the *first* superclass (thus the _preMixin in the name)
     in order to permit use of the State macro in the class assignments
@@ -93,15 +95,13 @@ class State_preMixin( IorE_guest_mixin):
     _e_has_args = True # not needed -- only purpose is to remove "w/o a" from repr(self)
 
     def __init__(self, glpane, *args, **kws):
-        
-        #Following flag , if True, enables some debug prints in console
-        debug_init = False 
-        if debug_init:
+        DEBUG_INIT = False # if True, enables some debug prints in console 
+        if DEBUG_INIT:
             print "State_preMixin.__init__", glpane, args, kws
         IorE_guest_mixin.__init__(self, glpane)
 
         # REVIEW: should callers do the following, not us?
-        if debug_init:
+        if DEBUG_INIT:
             print " State_preMixin.__init__ will call", super(State_preMixin, self).__init__
                 ## <bound method test_connectWithState.__init__ of <test_connectWithState#4789(i w/o a)>>
 
@@ -119,7 +119,7 @@ class State_preMixin( IorE_guest_mixin):
         super(State_preMixin, self).__init__(glpane, *args, **kws)
             # this is not calling ExampleCommand.__init__ as I hoped it would. I don't know why. ###BUG
             # (but is it calling anything? i forget. clarify!)
-        if debug_init:
+        if DEBUG_INIT:
             print " State_preMixin.__init__ returned from calling", super(State_preMixin, self).__init__
     pass
 

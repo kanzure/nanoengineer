@@ -1,8 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 test_connectWithState_PM.py -- Property Manager for test_connectWithState command.
- 
-$Id$
+
+@author: Bruce
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
