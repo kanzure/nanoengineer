@@ -2124,7 +2124,7 @@ class GLPane(GLPane_minimal,
             self.lastNonReducedDisplayMode = disp
             
         # Huaicai 3/29/05: Add the condition to fix bug 477 (keep this note)
-        if self.assy.commandSequencer.currentCommand.commandName == 'crystal':
+        if self.assy.commandSequencer.currentCommand.commandName == 'CRYSTAL':
             self.win.statusBar().dispbarLabel.setEnabled(False)
             self.win.statusBar().globalDisplayStylesComboBox.setEnabled(False)
         else:
