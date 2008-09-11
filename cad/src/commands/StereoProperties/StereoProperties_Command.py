@@ -11,7 +11,7 @@ from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
 from command_support.Command import Command
 from utilities.constants import red
 from commands.StereoProperties.StereoProperties_PropertyManager import StereoProperties_PropertyManager
-
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 # == GraphicsMode part
 
 
@@ -27,40 +27,46 @@ class StereoProperties_Command(SelectChunks_Command):
     """
 
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported.
+    
     # class constants
+    GraphicsMode_class = StereoProperties_GraphicsMode
+    PM_class = StereoProperties_PropertyManager
+    
     commandName = 'STEREO_PROPERTIES'
     featurename = "Stereo View Properties"
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
-
-    GraphicsMode_class = StereoProperties_GraphicsMode
+   
 
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
 
     flyoutToolbar = None
-
-
-    def init_gui(self):
-        """
-        Initialize GUI for this mode 
-        """
-        if self.propMgr is None:
-            self.propMgr = StereoProperties_PropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
-            changes.keep_forever(self.propMgr)  
-
-        self.propMgr.show()
-
-
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-
-        if self.propMgr is not None:
-            self.propMgr.close()
+    
+    
+    #Old command API methods (under "if not USE_COMMAND_STACK" condition block)
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
+            if self.propMgr is None:
+                self.propMgr = StereoProperties_PropertyManager(self)
+                #@bug BUG: following is a workaround for bug 2494.
+                #This bug is mitigated as propMgr object no longer gets recreated
+                #for modes -- niand 2007-08-29
+                changes.keep_forever(self.propMgr)  
+    
+            self.propMgr.show()    
+    
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+    
+            if self.propMgr is not None:
+                self.propMgr.close()
 
