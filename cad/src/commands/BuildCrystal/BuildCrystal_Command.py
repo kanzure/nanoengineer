@@ -68,6 +68,58 @@ import foundation.changes as changes
 
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
+# ==
+
+def _init_snapquats():
+    """
+    Return a tuple of lists of quats that can be snapped to.
+    """
+    #bruce 080910 moved this here from GLPane.py, made it a function
+    pi2 = math.pi/2.0
+    pi3 = math.pi/3.0
+    pi4 = math.pi/4.0
+    xquats = [Q(1,0,0,0), Q(V(0,0,1),pi2), Q(V(0,0,1),math.pi), Q(V(0,0,1),-pi2),
+              Q(V(0,0,1),pi4), Q(V(0,0,1),3*pi4),
+              Q(V(0,0,1),-pi4), Q(V(0,0,1),-3*pi4)]
+    pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),math.pi), Q(V(0,1,0),-pi2), 
+              Q(V(1,0,0),pi2), Q(V(1,0,0),-pi2)]
+
+    quats100 = []
+    for q in pquats:
+        for q1 in xquats:
+            quats100 += [(q+q1, 0)]
+
+    rq = Q(V(0,1,0),pi2)
+    pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
+              Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4),
+              Q(V(1,0,0),pi4), Q(V(1,0,0),3*pi4),
+              Q(V(1,0,0),-pi4), Q(V(1,0,0),-3*pi4),
+              rq+Q(V(1,0,0),pi4), rq+Q(V(1,0,0),3*pi4),
+              rq+Q(V(1,0,0),-pi4), rq+Q(V(1,0,0),-3*pi4)]
+
+    quats110 = []
+    for q in pquats:
+        for q1 in xquats:
+            quats110 += [(q+q1, 1)]
+
+    cq = Q(V(1,0,0),0.615479708)
+    xquats = [Q(1,0,0,0), Q(V(0,0,1),pi3), Q(V(0,0,1),2*pi3), Q(V(0,0,1),math.pi),
+              Q(V(0,0,1),-pi3), Q(V(0,0,1),-2*pi3)]
+    pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
+              Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4)]
+
+    quats111 = []
+    for q in pquats:
+        for q1 in xquats:
+            quats111 += [(q+cq+q1, 2), (q-cq+q1, 2)]
+
+    allQuats = quats100 + quats110 + quats111
+
+    return allQuats, quats100, quats110, quats111
+
+allQuats, quats100, quats110, quats111 = _init_snapquats()
+
+# ==
 
 class BuildCrystal_Command(basicMode):
     """
@@ -155,7 +207,7 @@ class BuildCrystal_Command(basicMode):
         self.o.backgroundGradient = self.backgroundGradient
 
         self.oldPov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
-        self.setOrientSurf(self.o.snap2trackball())
+        self.setOrientSurf(self.snap2trackball())
 
         self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
@@ -509,7 +561,7 @@ class BuildCrystal_Command(basicMode):
             if self.o.shape:
                 self.o.quat = Q(self.cookieQuat)
                 self.o.pov = V(self.cookiePov[0], self.cookiePov[1], self.cookiePov[2]) 
-            self.setOrientSurf(self.o.snap2trackball())
+            self.setOrientSurf(self.snap2trackball())
 
 
     def showGridLine(self, show):
@@ -795,7 +847,7 @@ class BuildCrystal_Command(basicMode):
             self.o.quat = Q(self.cookieQuat)
             self.o.gl_update()
         else:
-            self.setOrientSurf(self.o.snap2trackball())
+            self.setOrientSurf(self.snap2trackball())
 
     def middleDown(self, event):
         """
@@ -1256,12 +1308,40 @@ class BuildCrystal_Command(basicMode):
         Set the current view orientation surface to <num>, which
         can be one of values(0, 1, 2) representing 100, 110, 111 surface respectively.
         """
-
         self.whichsurf = num
         self.setThickness(self.propMgr.layerCellsSpinBox.value())
         button = self.propMgr.orientButtonGroup.button(self.whichsurf)
         button.setChecked(True)     
         #self.w.statusBar().dispbarLabel.setText(button.toolTip()) #@ unnecessary. --Mark 2008-03-15
+
+    #bruce 080910 moved 5 snap* methods here from GLPane
+
+    def snapquat100(self):
+        self.snapquat(quats100)
+
+    def snapquat110(self):
+        self.snapquat(quats110)
+
+    def snapquat111(self):
+        self.snapquat(quats111)
+
+    def snap2trackball(self):
+        return self.snapquat(allQuats)
+
+    def snapquat(self, qlist):
+        glpane = self.glpane
+        q1 = glpane.quat
+        a = 1.1
+        what = 0
+        for q2, n in qlist:
+            a2 = vlen((q2-q1).axis)
+            if a2 < a:
+                a = a2
+                q = q2
+                what = n
+        glpane.quat = Q(q)
+        glpane.gl_update()
+        return what
 
     def setThickness(self, num):
         self.thickness = num*drawing_globals.DiGridSp*sqrt(self.whichsurf+1)

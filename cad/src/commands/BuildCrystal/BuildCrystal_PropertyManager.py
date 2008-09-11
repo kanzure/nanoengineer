@@ -49,7 +49,9 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
         self.updateMessage(msg = msg) 
 
     def connect_or_disconnect_signals(self, isConnect):
-        """Connect signal to slots """
+        """
+        Connect signal to slots
+        """
         if isConnect:
             change_connect = self.win.connect
         else:
@@ -180,7 +182,9 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
         pass
                 
     def changeGridColor(self):
-        """Open the stand color chooser dialog to change grid line color """
+        """
+        Open the stand color chooser dialog to change grid line color
+        """
         c = QColorDialog.getColor(QColor(222,148,0), self)
         if c.isValid():
             self.gridColorLabel.setPaletteBackgroundColor(c)
@@ -204,9 +208,11 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
         elif value == 2: self._orient111()
                
     def _rotView(self, direction):
-        """Rotate the view anti-clockwise or clockWise. 
+        """
+        Rotate the view anti-clockwise or clockWise. 
         If <direction> == True, anti-clockwise rotate, otherwise, 
-        clockwise rotate"""
+        clockwise rotate
+        """
         from math import pi
         from geometry.VQT import Q, V
            
@@ -220,24 +226,38 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
         glpane.gl_update()
        
     def antiRotateView(self):
-        """Anti-clockwise rotatation """
+        """
+        Anti-clockwise rotatation
+        """
         self._rotView(True)
        
     def rotateView(self):
-        """clock-wise rotation """
+        """
+        clock-wise rotation
+        """
         self._rotView(False)
 
     def _orient100(self):
-        """ Along one axis """
+        """
+        Along one axis
+        """
         self.command.setOrientSurf(0)
-        self.w.glpane.snapquat100()
+        self.command.snapquat100()
     
     def _orient110(self):
-        """halfway between two axes"""           
+        """
+        halfway between two axes
+        """           
         self.command.setOrientSurf(1)
-        self.w.glpane.snapquat110()
+        self.command.snapquat110()
     
     def _orient111(self):
-        """equidistant from three axes """
+        """
+        equidistant from three axes
+        """
         self.command.setOrientSurf(2)
-        self.w.glpane.snapquat111()
+        self.command.snapquat111()
+
+    pass
+
+# end

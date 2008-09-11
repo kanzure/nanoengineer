@@ -220,46 +220,6 @@ from graphics.drawing.drawcompass import drawcompass
 
 _DEBUG_SET_SELOBJ = False # do not commit with true
 
-pi2 = math.pi/2.0
-pi3 = math.pi/3.0
-pi4 = math.pi/4.0
-xquats = [Q(1,0,0,0), Q(V(0,0,1),pi2), Q(V(0,0,1),math.pi), Q(V(0,0,1),-pi2),
-          Q(V(0,0,1),pi4), Q(V(0,0,1),3*pi4),
-          Q(V(0,0,1),-pi4), Q(V(0,0,1),-3*pi4)]
-pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),math.pi), Q(V(0,1,0),-pi2), 
-          Q(V(1,0,0),pi2), Q(V(1,0,0),-pi2)]
-
-quats100 = []
-for q in pquats:
-    for q1 in xquats:
-        quats100 += [(q+q1, 0)]
-
-rq = Q(V(0,1,0),pi2)
-pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
-          Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4),
-          Q(V(1,0,0),pi4), Q(V(1,0,0),3*pi4),
-          Q(V(1,0,0),-pi4), Q(V(1,0,0),-3*pi4),
-          rq+Q(V(1,0,0),pi4), rq+Q(V(1,0,0),3*pi4),
-          rq+Q(V(1,0,0),-pi4), rq+Q(V(1,0,0),-3*pi4)]
-
-quats110 = []
-for q in pquats:
-    for q1 in xquats:
-        quats110 += [(q+q1, 1)]
-
-cq = Q(V(1,0,0),0.615479708)
-xquats = [Q(1,0,0,0), Q(V(0,0,1),pi3), Q(V(0,0,1),2*pi3), Q(V(0,0,1),math.pi),
-          Q(V(0,0,1),-pi3), Q(V(0,0,1),-2*pi3)]
-pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
-          Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4)]
-
-quats111 = []
-for q in pquats:
-    for q1 in xquats:
-        quats111 += [(q+cq+q1, 2), (q-cq+q1, 2)]
-
-allQuats = quats100 + quats110 + quats111
-
 MIN_REPAINT_TIME = 0.01 # minimum time to repaint (in seconds)
 
 ## button_names = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'} 
@@ -269,10 +229,6 @@ button_names = {Qt.NoButton:None, Qt.LeftButton:'LMB', Qt.RightButton:'RMB', Qt.
     # For the constants, see http://www.riverbankcomputing.com/Docs/PyQt4/html/qmouseevent.html
     # [Note: if there is an import of GLPane.button elsewhere, that'll crash now due to the renaming. Unfortunately, for such
     #  a common word, it's not practical to find out except by renaming it and seeing if that causes bugs.]
-
-# ==
-
-
 
 # ==
 
@@ -2536,32 +2492,6 @@ class GLPane(GLPane_minimal,
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
         self.MousePos = V(event.pos().x(), event.pos().y())
-
-    def snapquat100(self):
-        self.snapquat(quats100)
-
-    def snapquat110(self):
-        self.snapquat(quats110)
-
-    def snapquat111(self):
-        self.snapquat(quats111)
-
-    def snap2trackball(self):
-        return self.snapquat(allQuats)
-
-    def snapquat(self, qlist):
-        q1 = self.quat
-        a = 1.1
-        what = 0
-        for q2, n in qlist:
-            a2 = vlen((q2-q1).axis)
-            if a2 < a:
-                a = a2
-                q = q2
-                what = n
-        self.quat = Q(q)
-        self.gl_update()
-        return what
 
     def setDisplay(self, disp, default_display = False):
         """
