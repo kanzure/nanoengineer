@@ -106,7 +106,8 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         env.history.statusbar_msg("")
         self._updateProteinListForShow()
         self._showProteinParametersAndSequenceEditor()
-        EditCommand_PM.show(self)         
+        EditCommand_PM.show(self)   
+        self.updateMessage()
         return
     
     def close(self):
