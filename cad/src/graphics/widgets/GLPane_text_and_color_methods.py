@@ -3,6 +3,8 @@
 GLPane_text_and_color_methods.py - methods for GLPane related to
 text rendering or backgroundColor/backgroundGradient
 
+(Maybe it should be renamed GLPane_text_and_background_methods?)
+
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
