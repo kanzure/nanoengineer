@@ -47,7 +47,7 @@ from utilities.debug import print_compact_traceback
 from utilities import debug_flags 
 
 import foundation.env as env
-##from utilities.constants import color_difference
+##from utilities.constants import colors_differ_sufficiently
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 from utilities.prefs_constants import LightBackgroundContrastColor_prefs_key
 
@@ -67,7 +67,7 @@ def get_selCurve_color(selSense, bgcolor = white):
     # Problems with this when the user picks a light gradient (i.e. Blue Sky)
     # but the bgcolor is a dark color. Simply returning 
     # "DarkBackgroundContrastColor_prefs_key" works fine. Mark 2008-07-10
-    #if color_difference(bgcolor, black, minimum_difference = 0.51):
+    #if colors_differ_sufficiently(bgcolor, black):
     #    return env.prefs[DarkBackgroundContrastColor_prefs_key]
     #else:
     #    return env.prefs[LightBackgroundContrastColor_prefs_key]

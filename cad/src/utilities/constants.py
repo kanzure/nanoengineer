@@ -569,20 +569,36 @@ def ave_colors(weight, color1, color2): #bruce 050805 moved this here from handl
     weight = float(weight)
     return tuple([weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)])
 
-def color_difference(color1, color2, minimum_difference = 0.5):
+def colors_differ_sufficiently(color1, color2, minimum_difference = 0.51 ):
     """
-    Return True if the difference between color1 and color2 is greater than
-    minimum_difference (0.5 by default). Otherwise, return False.
+    Return True if the difference between color1 and color2
+    (as vectors in an RGB unit cube) is greater than minimum_difference
+    (0.51 by default). Otherwise, return False.
     """
     # [probably by Mark, circa 080710]
     # [revised by bruce 080711 to remove import cycle involving VQT]
-    # Note: this function name is misleading, since it does not return
-    # the color difference. [bruce 080711 comment]
-    color_diff_squared = sum([(color2[i] - color1[i])**2 for i in (0,1,2)])
+    # bruce 080910 renamed this from color_difference, since it does
+    # not return the color difference, and revised default value since
+    # all calls were passing the same value of minimum_difference.
+    color_diff_squared = sum([(color2[i] - color1[i]) ** 2
+                              for i in (0, 1, 2)
+                              ])
     if color_diff_squared > minimum_difference ** 2:
         return True
     return False
 
+def getTextHaloColor(textColor):
+    """
+    @return: a good halo color, given a text color.
+             The halo color will be either light gray or dark gray
+             and will not be too close to textColor.
+    """
+    if colors_differ_sufficiently(lightgray, textColor):
+        return lightgray
+    else:
+        return darkgray
+    pass
+    
 # colors
 # [note: some of the ones whose names describe their function
 #  are default values for user preferences]

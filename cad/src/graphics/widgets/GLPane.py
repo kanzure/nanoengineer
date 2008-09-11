@@ -37,14 +37,11 @@ import math
 import sys
 import time
 
-from PyQt4.Qt import QPalette
-from PyQt4.Qt import QColor
 from PyQt4.Qt import QEvent
 from PyQt4.Qt import QMouseEvent
 from PyQt4.Qt import QHelpEvent
 from PyQt4.Qt import QPoint
-from PyQt4.Qt import QFontMetrics
-from PyQt4.Qt import Qt, QFont, QMessageBox, QString
+from PyQt4.Qt import Qt, QMessageBox
 from PyQt4.Qt import SIGNAL, QTimer
 
 from PyQt4.QtOpenGL import QGLWidget
@@ -63,8 +60,6 @@ from OpenGL.GL import glReadPixelsf
 from OpenGL.GL import GL_LEQUAL
 from OpenGL.GL import GL_MODELVIEW_STACK_DEPTH
 from OpenGL.GL import glGetInteger
-from OpenGL.GL import glClearColor
-from OpenGL.GL import GL_COLOR_BUFFER_BIT
 from OpenGL.GL import GL_STENCIL_BUFFER_BIT
 from OpenGL.GL import glSelectBuffer
 from OpenGL.GL import GL_SELECT
@@ -96,7 +91,6 @@ from OpenGL.GL import glFrustum
 from OpenGL.GL import glOrtho
 from OpenGL.GL import glRotatef
 from OpenGL.GL import GL_LIGHTING
-from OpenGL.GL import GL_MODULATE
 from OpenGL.GL import glViewport
 from OpenGL.GL import GL_RGB
 from OpenGL.GL import GL_UNSIGNED_BYTE
@@ -112,19 +106,15 @@ from OpenGL.GL import GL_CLIP_PLANE5
 from OpenGL.GL import glClipPlane
 from OpenGL.GL import glPushAttrib
 from OpenGL.GL import glPopAttrib
-from OpenGL.GL import glTexEnvf
-from OpenGL.GL import GL_TEXTURE_ENV
-from OpenGL.GL import GL_TEXTURE_ENV_MODE
 from OpenGL.GL import GL_TRANSFORM_BIT
 
-from OpenGL.GLU import gluUnProject, gluProject, gluPickMatrix
+from OpenGL.GLU import gluUnProject, gluPickMatrix
 
 from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 from Numeric import dot
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.CS_draw_primitives import drawwiresphere
-from graphics.drawing.drawers import drawFullWindow
 from graphics.drawing.drawers import drawOriginAsSmallAxis
 from graphics.drawing.drawers import drawaxes
 
@@ -134,13 +124,7 @@ from graphics.drawing.gl_lighting import setup_fog
 
 from graphics.drawing.glprefs import glprefs
 
-from utilities.constants import bgSOLID, bgEVENING_SKY, bgBLUE_SKY, bgSEAGREEN
-from utilities.constants import ave_colors, color_difference
-
 from command_support.GraphicsMode_API import GraphicsMode_API # for isinstance assertion
-
-# note: the list of preloaded_command_classes for the Command Sequencer
-# is in builtin_command_loaders.py
 
 from utilities import debug_flags
 ### from utilities.debug import profile, doProfile ###
@@ -154,7 +138,6 @@ from utilities.debug import print_compact_traceback, print_compact_stack
 import foundation.env as env
 from foundation.changes import SubUsageTrackingMixin
 from ne1_ui.cursors import createCompositeCursor
-from widgets.widget_helpers import RGBf_to_QColor
 
 from graphics.widgets.DynamicTip import DynamicTip
 from graphics.drawing.Guides import Guides
@@ -162,14 +145,11 @@ from graphics.drawing.Guides import Guides
 from utilities.prefs_constants import compassPosition_prefs_key
 from utilities.prefs_constants import defaultProjection_prefs_key
 from utilities.prefs_constants import startupGlobalDisplayStyle_prefs_key
-from utilities.prefs_constants import backgroundColor_prefs_key
-from utilities.prefs_constants import backgroundGradient_prefs_key
 from utilities.prefs_constants import animateStandardViews_prefs_key
 from utilities.prefs_constants import animateMaximumTime_prefs_key
 from utilities.prefs_constants import displayCompass_prefs_key
 from utilities.prefs_constants import displayOriginAxis_prefs_key
 from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
-from utilities.prefs_constants import originAxisColor_prefs_key
 from utilities.prefs_constants import displayCompassLabels_prefs_key
 from utilities.prefs_constants import displayRulers_prefs_key
 from utilities.prefs_constants import showRulersInPerspectiveView_prefs_key
@@ -178,8 +158,6 @@ from utilities.prefs_constants import GLPane_scale_for_atom_commands_prefs_key
 from utilities.prefs_constants import GLPane_scale_for_dna_commands_prefs_key
 from utilities.prefs_constants import fogEnabled_prefs_key
 
-from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
-from utilities.prefs_constants import LightBackgroundContrastColor_prefs_key
 
 from utilities.prefs_constants import stereoViewMode_prefs_key
 from utilities.prefs_constants import stereoViewAngle_prefs_key
@@ -192,8 +170,7 @@ from utilities.constants import diDNACYLINDER
 from utilities.constants import diPROTEIN
 from utilities.constants import default_display_mode
 from utilities.constants import MULTIPANE_GUI
-from utilities.constants import black, gray, darkgray, lightgray, white
-from utilities.constants import bluesky, eveningsky, bg_seagreen
+from utilities.constants import white
 
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice
@@ -215,6 +192,7 @@ from model.bonds import Bond # used only for selobj ordering
 
 from graphics.widgets.GLPane_mixin_for_DisplayListChunk import GLPane_mixin_for_DisplayListChunk
 from graphics.widgets.GLPane_lighting_methods import GLPane_lighting_methods
+from graphics.widgets.GLPane_text_and_color_methods import GLPane_text_and_color_methods
 from graphics.drawing.drawcompass import drawcompass
 
 _DEBUG_SET_SELOBJ = False # do not commit with true
@@ -243,7 +221,8 @@ class GLPane(GLPane_minimal,
              DebugMenuMixin,
              SubUsageTrackingMixin,
              GLPane_mixin_for_DisplayListChunk,
-             GLPane_lighting_methods
+             GLPane_lighting_methods,
+             GLPane_text_and_color_methods
             ):
     """
     Widget for OpenGL graphics and associated mouse/key input,
@@ -417,10 +396,9 @@ class GLPane(GLPane_minimal,
         # Get glpane related settings from prefs db.
         # Default values are set in "prefs_table" in prefs_constants.py.
         # Mark 050919.
-        
-        self.backgroundColor = env.prefs[backgroundColor_prefs_key]
-        self.backgroundGradient = env.prefs[backgroundGradient_prefs_key]
 
+        self._init_background_from_prefs()
+        
         self.compassPosition = env.prefs[compassPosition_prefs_key]
         self.ortho = env.prefs[defaultProjection_prefs_key]
         # This updates the checkmark in the View menu. Fixes bug #996 Mark 050925.
@@ -547,335 +525,6 @@ class GLPane(GLPane_minimal,
 
     # ==
 
-    def getTextHaloColor(self, textColor):
-        """
-        A function that returns the halo color given a text color. 
-        The halo color will be either light gray or dark gray.
-        """
-        if not color_difference(lightgray, textColor,
-                                minimum_difference = 0.51):
-            return darkgray
-        return lightgray
-        
-    def renderTextAtPosition(self,
-                             position,
-                             textString,
-                             textColor = black,
-                             textFont = None,
-                             fontSize = 11,
-                             ):
-        """
-        Renders the text at the specified position (x, y , z coordinates)
-        @param position: The x, y z coordinates of the object at which the 
-        text needs to be rendered. 
-        @type position: B{A}
-        @param textString:  the text to be rendered at the specified position.
-        @type textString : str
-        @see: self.renderTextNearCursor() This method is different than that 
-        method. That method uses QPoint (the current cursor position) to 
-        render the text (thus needs integers x and y) where has this method
-        uses the actual object coordinates        
-        @see: MultiplednaSegment_GraphicsMode._drawDnaRubberbandLine()
-        @see: QGLWidget.renderText ()
-
-        @TODO: refactor to move the common code in this method and 
-        self.renderTextNearCursor().
-        """
-        
-        if textFont is not None:
-            font = textFont
-        else:
-            font = self._getFontForTextNearCursor(fontSize = fontSize, 
-                                                  isBold = True)
-
-        x = position[0]
-        y = position[1]
-        z = position[2]
-
-        glDisable(GL_LIGHTING)
-        
-        #Convert the object coordinates to the window coordinates.
-        wX, wY, wZ = gluProject(x, y, z)
-        
-        halo_color = self.getTextHaloColor(textColor)
-        
-        offset_val = 1
-        bg_z_offset = 0
-        fg_z_offset = -1e-7
-
-        render_positions = (( offset_val,  offset_val, bg_z_offset, halo_color), 
-                            (-offset_val, -offset_val, bg_z_offset, halo_color), 
-                            (-offset_val,  offset_val, bg_z_offset, halo_color), 
-                            ( offset_val, -offset_val, bg_z_offset, halo_color),
-                            (          0,           0, fg_z_offset, textColor))
-
-        for dx, dy, dz, color in render_positions:
-            x1, y1, z1 = gluUnProject(wX + dx, wY + dy, wZ + dz)
-
-            self.qglColor(RGBf_to_QColor(color)) 
-            self.renderText(x1, y1, z1,
-                            QString(textString),
-                            font)
-            self.qglClearColor(RGBf_to_QColor(color))
-            # question: is this related to glClearColor? [bruce 071214 question]
-            # -- yes [Ninad 2008-08-20]
-
-        glEnable(GL_LIGHTING)        
-
-    def renderTextNearCursor(self, 
-                             textString, 
-                             offset = 10, 
-                             textColor = black,
-                             fontSize = 11):
-        """
-        Renders text near the cursor position, on the top right side of the
-        cursor (slightly above it).
-
-        See example in DNA Line mode.
-
-        @param textString: string
-        @param offset: The offset that will be added to x and y values of the 
-                       cursor position to get the base position of the text 
-                       to be rendered. 
-
-        @see: DnaLineMode.Draw
-        @see: self._getFontForTextNearCursor()
-        @see: self.renderTextAtPosition()
-        """
-        if not textString:
-            return 
-
-        #Extra precaution if the caller passes a junk value such as None
-        #for the color
-        if not isinstance(textColor, tuple) and isinstance(textColor, list):
-            textColor = black
-
-        pos = self.cursor().pos()  
-        
-        # x, y coordinates need to be in window coordinate system. 
-        # See QGLWidget.mapToGlobal for more details.
-        pos = self.mapFromGlobal(pos)
-
-        # Important to turn off the lighting. Otherwise the text color would 
-        # be dull and may also become even more light if some other object 
-        # is rendered as a transparent object. Example in DNA Line mode, when the
-        # second axis end sphere is rendered as a transparent sphere, it affects
-        # the text rendering as well (if GL_LIGHTING is not disabled)
-        # [-- Ninad 2007-12-03]
-        glDisable(GL_LIGHTING)
-        
-        ############
-        #Add 'stoppers' for the cursor text. Example: If the cursor is near the
-        #extreme right hand corner of the 3D workspace, the following code 
-        #ensures that all the text string is visible. It does this check for 
-        #right(x) and top(for y) borders of the glpane. 
-        
-        xOffset = offset
-        yOffset = offset
-        #signForDX and signForDY are used by the code that draws the same 
-        #text in the background (offset by 1 pixel in 4 directions) 
-        signForDX = 1
-        signForDY = 1
-             
-        xLimit = self.width - pos.x()
-        
-        #Note that at the top edge, y coord is 0
-        yLimit = pos.y()
-        
-        textString = QString(textString)
-        font = self._getFontForTextNearCursor(fontSize = fontSize,
-                                              isBold = True)
-        
-        #Now determine the total x and y pixels used to render the text 
-        #(add some tolerance to that number) 
-        fm = QFontMetrics(font)
-        xPixels = fm.width(textString) + 10
-        yPixels = fm.height() + 10
- 
-                
-        if xLimit < xPixels:
-            xOffset = - (xPixels - xLimit)
-            signForDX = -1
-        
-        if yLimit < yPixels:
-            yOffset = - (yPixels - pos.y())
-            signForDY = -1
-                        
-        x = pos.x() + xOffset
-        y = pos.y() - yOffset
-        
-    
-        offset_val = 1
-
-        deltas_for_halo_color = (( offset_val,  offset_val), 
-                                 (-offset_val, -offset_val), 
-                                 (-offset_val,  offset_val), 
-                                 ( offset_val, -offset_val))
-        
-        # halo color
-        halo_color = self.getTextHaloColor(textColor)
-        
-        for dx, dy in deltas_for_halo_color: 
-            self.qglColor(RGBf_to_QColor(halo_color)) 
-
-            ### Note: self.renderText is QGLWidget.renderText method.
-            self.renderText(x + dx*signForDX ,
-                            y + dy*signForDY,
-                            textString,
-                            font)
-            self.qglClearColor(RGBf_to_QColor(halo_color))
-
-        # Note: It is necessary to set the font color, otherwise it may change!
-
-        self.qglColor(RGBf_to_QColor(textColor))   
-        x = pos.x() + xOffset
-        y = pos.y() - yOffset
-
-        ### Note: self.renderText is QGLWidget.renderText method.
-        self.renderText(x ,
-                        y ,
-                        textString,
-                        font)
-        self.qglClearColor(RGBf_to_QColor(textColor))
-            # question: is this related to glClearColor? [bruce 071214 question]
-        glEnable(GL_LIGHTING)
-
-    def _getFontForTextNearCursor(self, fontSize = 10, isBold = False):
-        """
-        Returns the font for text near the cursor. 
-        @see: self.renderTextNearCursor
-        """
-        font = QFont("Arial", fontSize)
-        font.setBold(isBold)              
-        return font
-
-    # == Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
-
-    def restoreDefaultBackground(self):
-        """
-        Restore the default background color and gradient (Sky Blue).
-        Always do a gl_update.
-        """
-        env.prefs.restore_defaults([
-            backgroundColor_prefs_key, 
-            backgroundGradient_prefs_key, 
-        ])
-
-        self.setBackgroundColor(env.prefs[ backgroundColor_prefs_key ])
-        self.setBackgroundGradient(env.prefs[ backgroundGradient_prefs_key ] )
-        self.gl_update()
-
-    def setBackgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
-        """
-        Set the background color and store it in the prefs db.
-
-        @param color: r,g,b tuple with values between 0.0-1.0
-        @type  color: tuple with 3 floats
-        """
-        self.backgroundColor = color
-        env.prefs[ backgroundColor_prefs_key ] = color
-        self.setBackgroundGradient(0)
-        return
-
-    def getBackgroundColor(self):
-        """
-        Returns the current background color.
-
-        @return color: r,g,b tuple with values between 0.0-1.0
-        @rtype  color: tuple with 3 floats
-        """
-        return self.backgroundColor
-
-    def setBackgroundGradient(self, gradient): # mark 050808 new feature
-        """
-        Stores the background gradient prefs value in the prefs db.
-        gradient can be either:
-            0 - No gradient. The background color is a solid color.
-            1 - the background gradient is set to the 'Evening Sky' gradient.
-            2 - the background gradient is set to the 'Blue Sky' gradient.
-            3 - the background gradient is set to the  'Sea Green' gradient.
-
-        See GLPane.standard_repaint_0() to see how this is used when redrawing the glpane.
-        """
-        self.backgroundGradient = gradient
-        env.prefs[ backgroundGradient_prefs_key ] = gradient
-        self._updateOriginAxisColor()
-        self._updateSpecialContrastColors()
-        return
-    
-    def _updateOriginAxisColor(self):
-        """
-        [private]
-        Update the color of the origin axis to a shade that 
-        will contrast well with the background.
-        """
-        env.prefs.restore_defaults([originAxisColor_prefs_key])
-        axisColor = env.prefs[originAxisColor_prefs_key]
-        gradient = env.prefs[ backgroundGradient_prefs_key ]
-        
-        if gradient == bgSOLID:
-            if not color_difference(self.backgroundColor, axisColor, minimum_difference = 0.51):
-                env.prefs[originAxisColor_prefs_key] = ave_colors( 0.5, axisColor, white)
-        elif gradient == bgEVENING_SKY:
-            env.prefs[originAxisColor_prefs_key] = ave_colors( 0.9, axisColor, white)
-        return
-    
-    def _updateSpecialContrastColors(self): # [probably by Mark, circa 080710]
-        """
-        [private]
-        Update the special contrast colors (used to draw lines, etc.) to a 
-        shade that contrasts well with the current background.
-        @see: get_background_contrast_color()
-        """
-        # REVIEW: the following is only legitimate since these prefs variables
-        # are (I think) not actual user prefs, but just global state variables.
-        # However, if that's true, they should not really be stored in the
-        # prefs db. Furthermore, if we had multiple GLPanes with different
-        # background colors, I think these variables would need to be
-        # per-glpane, so really they ought to be GLPane instance variables.
-        # [bruce 080711 comment]
-        env.prefs.restore_defaults([DarkBackgroundContrastColor_prefs_key,
-                                    LightBackgroundContrastColor_prefs_key])
-        dark_color = env.prefs[DarkBackgroundContrastColor_prefs_key]  # black
-        lite_color = env.prefs[LightBackgroundContrastColor_prefs_key] # white
-        gradient = env.prefs[ backgroundGradient_prefs_key ]
-        
-        if gradient == bgSOLID:
-            if not color_difference(self.backgroundColor, dark_color, minimum_difference = 0.51):
-                env.prefs[DarkBackgroundContrastColor_prefs_key] = ave_colors( 0.5, dark_color, white)
-            if not color_difference(self.backgroundColor, lite_color, minimum_difference = 0.51):
-                env.prefs[LightBackgroundContrastColor_prefs_key] = ave_colors( 0.5, lite_color, black)
-        elif gradient == bgEVENING_SKY:
-            env.prefs[DarkBackgroundContrastColor_prefs_key] = ave_colors( 0.6, dark_color, white)
-        return
-    
-    
-    def get_background_contrast_color(self):
-        """
-        Return a color that contrasts well with the background color of the 
-        3D workspace. 
-        @see: MultipleDnaSegmentResize_GraphicsMode where it is used for rendering 
-        text with a proper contrast. 
-        @see: self._updateSpecialContrastColors()
-        """
-        #NOTE: This method mitigates bug 2927
-        
-        dark_color = env.prefs[DarkBackgroundContrastColor_prefs_key]  # black
-        ##lite_color = env.prefs[LightBackgroundContrastColor_prefs_key] # white
-        gradient = env.prefs[ backgroundGradient_prefs_key ]
-        
-        color = black
-                
-        if gradient == bgSOLID:
-            if not color_difference(self.backgroundColor, dark_color,
-                                    minimum_difference = 0.51):
-                color = ave_colors( 0.5, dark_color, white)            
-        elif gradient == bgEVENING_SKY:
-            color = ave_colors( 0.6, dark_color, white)
-            
-        return color
-        
-    
     # self.part maintenance [bruce 050419]
 
     def set_part(self, part):
@@ -1380,7 +1029,7 @@ class GLPane(GLPane_minimal,
     
     def setCursor(self, inCursor = None):
         """
-        Sets the cursor for the glpane.
+        Sets the cursor for the glpane
 
         This method is also responsible for adding special symbols to the 
         cursor that should be persistent as cursors change (i.e. the selection
@@ -1389,30 +1038,18 @@ class GLPane(GLPane_minimal,
         @param incursor: Either a cursor or a list of 2 cursors (one for a dark
                     background, one for a light background). 
                     If cursor is None, reset the cursor to the
-                    most resent version without the selection lock symbol.
+                    most recent version without the selection lock symbol.
         @type  type: U{B{QCursor}<http://doc.trolltech.com/4/qcursor.html>} or
                     a list of two {B{QCursors}<http://doc.trolltech.com/4/qcursor.html>} or
         """
-        
         # If inCursor is a list (of a dark and light bg cursor), set
-        # cursor to one or the other based on the current bg color.
+        # cursor to one or the other based on the current background.
         if isinstance(inCursor, list):
-            if self.backgroundGradient == bgSOLID:
-                if not color_difference(self.backgroundColor, black,
-                                        minimum_difference = 0.51):
-                    cursor = inCursor[0] # dark bg cursor
-                else:
-                    cursor = inCursor[1] # light bg cursor
-            elif self.backgroundGradient == bgEVENING_SKY:
+            if self.is_background_dark():
                 cursor = inCursor[0] # dark bg cursor
-            elif self.backgroundGradient == bgBLUE_SKY:
-                cursor = inCursor[1] # light bg cursor
-            elif self.backgroundGradient == bgSEAGREEN:
-                cursor = inCursor[1] # light bg cursor
             else:
-                msg = "Warning: Unknown background gradient = %s"\
-                    % self.backgroundGradient
-                print_compact_stack(msg)
+                cursor = inCursor[1] # light bg cursor
+            pass
         else:
             cursor = inCursor
             
@@ -1468,54 +1105,12 @@ class GLPane(GLPane_minimal,
             # But it seems a good precaution even if not. [bruce 070628]
 
         if sys.platform == 'darwin':
-            self._set_widget_erase_color( self.backgroundColor)
-            # Note: this was called here when the graphicsMode could determine
-            # the background color, but that's no longer true, so it could probably
-            # just be called at startup and whenever the background color is changed.
-            # Try that sometime, it might be an optim. [bruce 071011]
-            #
-            # REVIEW: what is self.backgroundColor when we're using the new default
-            # of "Blue Sky Gradient". For best effect here, what it ought to be
-            # is the average or central bg color in that gradient. I think it's not,
-            # which makes me wonder if this bugfix is still needed at all. [bruce 071011]
-            #
-            # Note: calling this fixed the bug in which the glpane or its edges
-            # flickered to black during a main-window resize. [bruce 050408]
-            #
-            # Note: limited this to Mac, since it turns out that bug (which has
-            # no bug number yet) was Mac-specific, but this change caused a new bug 530
-            # on Windows. (Not sure about Linux.) See also bug 141 (black during
-            # mode-change), related but different. [bruce 050413]
-            #
-            # Note: for graphicsModes with a translucent surface covering the screen
-            # (i.e. Build Atoms water surface), it would be better to blend that surface
-            # color with self.backgroundColor for passing to this method, to approximate
-            # the effective background color. Alternatively, we could change how those
-            # graphicsModes set up OpenGL clearcolor, so that their empty space areas
-            # looked like self.backgroundColor.) [bruce 050615 comment]
-            pass
+            self._set_widget_erase_color()
+            # sets it from self.backgroundColor;
+            # attr and method defined in GLPane_text_and_color_methods;
+            # see comments in that method's implem for caveats
 
         self.gl_update() #bruce 080829
-        return
-
-    def _set_widget_erase_color(self, bgcolor): # revised, bruce 071011
-        """
-        Change this widget's erase color (seen only if it's resized,
-        and only briefly -- it's independent of OpenGL clearColor) to
-        the given color.
-
-        Usage note: if that color is the same as the current graphics
-        area background color (self.backgroundColor), this will minimize
-        the visual effect of widget resizes which temporarily show the erase
-        color. See comments near the call for caveats about that.
-        """
-        r = int(bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
-        g = int(bgcolor[1]*255 + 0.5)
-        b = int(bgcolor[2]*255 + 0.5)
-        pal = QPalette()
-        pal.setColor(self.backgroundRole(), QColor(r, g, b))
-        self.setPalette(pal)
-            # see Qt docs for this and for backgroundRole
         return
 
     def update_GLPane_after_new_command(self): #bruce 080813
@@ -3509,55 +3104,8 @@ class GLPane(GLPane_minimal,
         drawing_globals.glprefs.update()
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
 
-        # clear, and draw background
-
-        c = self.backgroundColor
-
-        glClearColor(c[0], c[1], c[2], 0.0)
-        self.fogColor = (c[0], c[1], c[2], 1.0) # piotr 080515        
-        del c
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
-            #e if stencil clear is expensive, we could optim and only do it when 
-            #needed [bruce ca. 050615]
-
-        # piotr 080620 - fixed "white text" bug when using Qt 4.3.x
-        # before rendeirng text, the texture mode should be set to "GL_MODULATE
-        # to reflect current color changes
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
-        
-        # for now only evening sky and blue sky gradient backgrounds are supported
-        if self.backgroundGradient:    
-            glMatrixMode(GL_PROJECTION)
-            glLoadIdentity()
-            glMatrixMode(GL_MODELVIEW)
-            glLoadIdentity()
-
-            # 
-            if self.backgroundGradient == bgEVENING_SKY:
-                _bgGradient = eveningsky
-            elif self.backgroundGradient == bgBLUE_SKY:
-                _bgGradient = bluesky
-            elif self.backgroundGradient == bgSEAGREEN:
-                _bgGradient = bg_seagreen
-            else:
-                msg = "Warning: Unknown background gradient = %s. "\
-                    "Setting gradient to evening sky." % self.backgroundGradient
-                print_compact_stack(msg)
-                _bgGradient = eveningsky
-
-            drawFullWindow(_bgGradient)
-            # fogColor is an average of the gradient components
-            # piotr 080515
-            self.fogColor = \
-                (0.25 * (_bgGradient[0][0] + _bgGradient[1][0] + _bgGradient[2][0] + _bgGradient[3][0]), \
-                 0.25 * (_bgGradient[0][1] + _bgGradient[1][1] + _bgGradient[2][1] + _bgGradient[3][1]), \
-                 0.25 * (_bgGradient[0][2] + _bgGradient[1][2] + _bgGradient[2][2] + _bgGradient[3][2]))
-            
-            # Note: it would be possible to optimize by not clearing the color buffer
-            # when we'll call drawFullWindow, if we first cleared depth buffer (or got
-            # drawFullWindow to ignore it and effectively clear it by writing its own
-            # depths into it everywhere, if that's possible). [bruce 070913 comment]
+        self.clear_and_draw_background( GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
+            # also sets self.fogColor
 
         # fog_test_enable debug_pref can be removed if fog is implemented fully
         # (added by bradg 20060224)
@@ -3565,17 +3113,16 @@ class GLPane(GLPane_minimal,
         fog_test_enable = env.prefs[fogEnabled_prefs_key]
 
         if fog_test_enable:
-            if hasattr(self, "fogColor"):
-                # piotr 080515 fixed fog
-                # I think that the bbox call can be expensive.
-                # I have to preserve this value or find another way
-                # of computing it.
-                bbox = self.assy.bbox_for_viewing_model()
-                scale = bbox.scale()
-                enable_fog()
-                setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor) 
-                # this next line really should be just before rendering
-                # the atomic model itself.  I dunno where that is.
+            # piotr 080515 fixed fog
+            # I think that the bbox call can be expensive.
+            # I have to preserve this value or find another way
+            # of computing it.
+            bbox = self.assy.bbox_for_viewing_model()
+            scale = bbox.scale()
+            enable_fog()
+            setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor) 
+            # this next line really should be just before rendering
+            # the atomic model itself.  I dunno where that is.
 
         # ask mode to validate self.selobj (might change it to None)
         # (note: self.selobj is used in do_glselect_if_wanted)
@@ -3756,9 +3303,7 @@ class GLPane(GLPane_minimal,
 
         if ccdp2:
             self.draw_conf_corner_bg_image()
-
-
-            
+        
         # draw various overlays
 
         self.drawing_phase = 'overlay'
@@ -4634,4 +4179,3 @@ def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
     return
 
 # end
-
