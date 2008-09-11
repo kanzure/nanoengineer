@@ -564,6 +564,7 @@ class PeptideGenerator:
     length = 0
     prev_psi = 0
     
+    # Based on analogous Nanotube Builder method.
     def _orient(self, chunk, pt1, pt2):
         """
         Orients the Peptide I{chunk} based on two points. I{pt1} is
@@ -602,23 +603,10 @@ class PeptideGenerator:
         qrot = Q(axis, rot) # Quat for rotation delta.
         
         # Move and rotate the Peptide into final orientation.
-        #chunk.move(rawOffset + qrot.rot(chunk.center) - chunk.center + rawOffset + pt1)
-        
-        #chunk.move(qrot.rot(chunk.center) - chunk.center + rawOffset + pt1)
-        #chunk.rot(qrot)
         
         chunk.move(-chunk.center)
 
         chunk.rot(qrot)
-           
-        atomitems = chunk.atoms.items()
-        atomitems.sort() 
-        atlist = [atom for (key, atom) in atomitems] 
-        
-        chunk.move(pt1 + rawOffset)#  + rawOffset)
-        
-        # chunk.move(pt1)# + rawOffset)
-                   #0.5*(pt2-pt1))
         
         # Bruce suggested I add this. It works here, but not if its 
         # before move() and rot() above. Mark 2008-04-11
@@ -628,14 +616,47 @@ class PeptideGenerator:
         """
         Calculate a number of residues necessary to fill 
         the pos1-pos2 vector.
+        
+        @param pos1, pos2: vector points
+        @type pos1, pos2: V
+        
+        @param phi, psi: peptide chain angles
+        @type phi, psi: float
         """
         return vlen(pos2 - pos1) / get_unit_length(phi, psi)
     
     def make_aligned(self, assy, name, aa_idx, phi, psi, 
-                     pos2, pos1, mol=None, secondary=SS_COIL, 
-                     fake_chain=False, length=None, createPrinted=False):
+                     pos1, pos2, secondary=SS_COIL, 
+                     fake_chain=False, length=None):
         """
-        Build a homo-peptide aligned to a pos2-pos1 vector. 
+        Build a homo-peptide aligned to a pos2-pos1 vector.
+        
+        @param aa_idx: amino acid type (index in AMINO_ACIDS list)
+        @type aa_idx: int
+        
+        @param name: chunk name
+        @type name: string
+        
+        @param phi, psi: peptide bond angles 
+        @type phi, psi: float
+        
+        @param pos1, pos2: desired peptide positions (beginning and end)
+        @type pos1, pos2: V
+        
+        @param secondary: secondary structure class, used for visual representation
+        The actual peptide chain conformation is based on phi / psi angles.
+        @type secondary: int
+        
+        @param fake_chain: if True, create only C-alpha atoms. used for drawing
+        peptide trace image during interactive peptide placement (used by
+        PeptideLineMode.py)
+        @type fake_chain: boolean
+        
+        @param length: optional peptide length (number of amino acids), if 
+        not specified, pos1 and pos2 are used to figure out the length
+        @type length: int
+        
+        
         """
 
         if not length:
@@ -652,9 +673,6 @@ class PeptideGenerator:
             mol.protein = Protein()
             mol.protein.set_chain_id('A')
             
-        #pos1 = mol.base_to_abs(pos1);
-        #pos2 = mol.base_to_abs(pos2);
-        
         # Generate dummy atoms positions
         self.prev_coords[0][0] = pos1[0] - 1.0
         self.prev_coords[0][1] = pos1[1] - 1.0
@@ -672,6 +690,12 @@ class PeptideGenerator:
         
         # Add a N-terminal hydrogen
         self.nterm_hydrogen = None
+
+        # Initially, the Peptide Builder was creating peptide structures
+        # saturated at both ends, i.e. with N-terminal hydrogen and C-terminal
+        # OH group present. Currently, this code is commented out to allow 
+        # connecting multiple peptide structure be creating bonds between
+        # the C- and N- terminal ends of two individual structures.
         """
         if not fake_chain:
             atom = Atom("H", pos1, mol)
@@ -685,15 +709,18 @@ class PeptideGenerator:
             atom.pdb_info['residue_id'] = "  1 "
             atom.pdb_info['standard_atom'] = True
         """
-        
-        secondary = 1
+    
+        self.init_ca = None
         
         # Generate the peptide chain.
         for idx in range(int(self.length)):
             self._buildResidue(mol, zmatrix, size, idx+1, phi, psi, secondary, None, short_name, fake_chain=fake_chain)
 
+        # See the comment above.
+        """
         # Add a C-terminal OH group
-        # self._buildResidue(mol, CTERM_ZMATRIX, 5, int(self.length), 0.0, 0.0, secondary, None, short_name, fake_chain=fake_chain)        
+        self._buildResidue(mol, CTERM_ZMATRIX, 5, int(self.length), 0.0, 0.0, secondary, None, short_name, fake_chain=fake_chain)        
+        """
         
         # Compute bonds (slow!)
         # This should be replaced by a proper bond assignment.
@@ -701,18 +728,9 @@ class PeptideGenerator:
         if not fake_chain:
             inferBonds(mol)
 
-        #mol._protein_helix = []
-        #mol._protein_sheet = []
-        
         # Assign proper bond orders.
         i = 1
         for atom in mol.atoms.itervalues():
-            """
-            if ss_idx == 1:
-                mol._protein_helix.append(i) 
-            elif ss_idx == 2:
-                mol._protein_sheet.append(i)  
-            """
             if atom.bonds:
                 for bond in atom.bonds:
                     if bond.atom1.getAtomTypeName()=="sp2" and \
@@ -732,10 +750,16 @@ class PeptideGenerator:
             del atom._is_aromatic
             del atom._is_single
 
-        ax = V(0.,0.,1.) # Axis of first selected chunk
+        # Axis of first selected chunk
+        ax = V(0.,0.,1.) 
         mol.rot(Q(mol.getaxis(),ax))
         
-        self._orient(mol, pos1, pos2)
+        self._orient(mol, pos2, pos1)
+        
+        if self.init_ca:
+            mol.move(pos1 - self.init_ca.posn())
+        
+        mol_dummy = None
         
         return mol          
 
@@ -744,30 +768,46 @@ class PeptideGenerator:
         Builds cartesian coordinates for an amino acid from the internal
         coordinates table.
 
-        mol is a chunk to which the amino acid will be added.
-
-        zmatrix is an internal coordinates array corresponding to a given amino acid.
-        n_atoms is a number of atoms to be build + 3 dummy atoms.
-
-        idx is a residue index (1..length).
+        @param mol: a chunk to which the amino acid will be added.
+        @type mol: Chunk
         
-        phi is a peptide bond PHI angle.
-        psi is a peptide bond PSI angle.
+        @param zmatrix: is an internal coordinates array corresponding to a 
+        given amino acid.
+        @type zmatrix: list
         
-        init_pos are optional postions of previous CA, C and O atoms.
+        @param n_atoms: size of z-matrix (a number of atoms to be build + 3 
+        dummy atoms)
+        @type n_atoms: int
 
-        symbol is a current amino acid symbol (used for proline case)
-
-        Note: currently, it doesn't rebuild bonds, so inferBonds has to be called after.
-        Unfortunately, the proper bond order can not be correctly recognized this way.
+        @param idx: is a residue index (1..length).
+        @type idx: integer
+        
+        @param phi, psi: peptide bond phi and psi angles
+        @type phi, psi: float
+        
+        @param init_pos: optional postions of previous CA, C and O atoms.
+        @type init_pos: V
+        
+        @param symbol: current amino acid symbol (used to derermine proline case)
+        @type symbol: string
+        
         """
+
+        # note: currently, it doesn't rebuild bonds, so inferBonds has to be 
+        # called after this method. Unfortunately, the proper bond order can 
+        # not be correctly recognized this way. Therefore, temporary atom flags 
+        # _is_aromatic and _is_single are used.
+        
+        #this code was re-factored by EricM and internal-to-cartesian
+        # conversion method was moved to geometry.InternalCoordinatesToCartesian
 
         if mol == None:
             return
 
         if not init_pos: # assign three previous atom positions
             coords = self.prev_coords
-        else: # if no prev_coords are given, compute the first three atom positions
+        else: 
+            # if no prev_coords are given, compute the first three atom positions
             coords = zeros([3,3], Float)
             num, name, atom_name, atom_type, \
                atom_c, atom_b, atom_a, r, a, t = zmatrix[1]
@@ -847,7 +887,7 @@ class PeptideGenerator:
                     self.prev_coords[2][0] = xyz[0]
                     self.prev_coords[2][1] = xyz[1]
                     self.prev_coords[2][2] = xyz[2]
-
+                    
             # Add a new atom to the molecule
             if not fake_chain or \
                name == "CA ":
@@ -855,6 +895,10 @@ class PeptideGenerator:
                     atom_name,
                     xyz,
                     mol)
+
+                if not self.init_ca and \
+                   name == "CA ":
+                    self.init_ca = atom
 
                 if mol.protein:
                     aa = mol.protein.add_pdb_atom(atom, 
@@ -889,8 +933,6 @@ class PeptideGenerator:
                 ### print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, xyz[0], xyz[1], xyz[2])	
 
         self.prev_psi = psi # Remember previous psi angle.
-
-        ### self.length += 1 # Increase the amino acid counter.
 
         return
     

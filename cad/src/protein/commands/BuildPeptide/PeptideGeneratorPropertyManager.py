@@ -106,7 +106,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         self.phi = -57.0
         self.psi = -47.0
         self.chirality = 1
-        self.secondary = SS_COIL
+        self.secondary = SS_HELIX
         self.current_amino_acid = 0
         #self.peptide_cache = []
         #self.peptide_cache.append((0, 0, 0))
@@ -128,11 +128,8 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         to be used to create the  peptide.
         @return: A tuple containing the parameters
         @rtype: tuple
-        @see: L{Peptide_EditCommand._gatherParameters()} where this is used
-        
+        @see: L{Peptide_EditCommand._gatherParameters()} where this is used        
         """
-        #return (self.a1, self.a2, self.a3, self.a4, self.a5, self.a6)
-    
         return (self.secondary, self.phi, self.psi, self.current_amino_acid)
 
     def _addGroupBoxes(self):
@@ -205,7 +202,9 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
 
         self.psiAngleField.setEnabled(False)        
 
-
+        # The "invert chirality" feature is disabled - too confusing
+        # for the users.
+        
         #self.invertChiralityPushButton = \
         #    PM_PushButton( inPmGroupBox,
         #                   text         = 'Invert chirality' ,
@@ -231,16 +230,17 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
     
     def addAminoAcid(self, index):
         """
-        Adds a new amino acid to the peptide molecule.
-        This is going to be displayed after user accepts or previews the structure.
+        Adds a new amino acid to the peptide molecule.        
         """
 
+        # This commened out code is obsolete in interactive peptide builder.
+        # The interactive peptide builder creates homopeptides.
+        
         # add a new amino acid and chain conformation to the peptide cache
         #self.peptide_cache.append((index,self.phi,self.psi))
         #self.peptide_cache[0] = (index,self.phi,self.psi)
         
         self.current_amino_acid = index
-        return
 
     def _addWhatsThisText(self):
         """
@@ -248,7 +248,6 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         """
         #from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_PeptideGeneratorPropertyManager
         #whatsThis_PeptideGeneratorPropertyManager(self)
-        pass
 
     def _addToolTipText(self):
         """
@@ -260,8 +259,13 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
 
     def _aaChiralityChanged(self):
         """
-        Set chirality of the peptide chain.
+        Set chirality of the peptide chain. 
         """
+
+        # This feature is currently disable as it was confusing to the users
+        # who expected control over chirality of amino acids (D/L conformers)
+        # rather than over polypeptide chain (left/right-handed structure).
+
         self.psi *= -1
         self.phi *= -1
 
@@ -270,11 +274,12 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
 
     def _aaTypeChanged(self, idx):
         """
-        Slot for Peptide Structure Type combobox.
-        Changes phi/psi angles for secondary structure.
-        """
-        print "edit_command = ", self.command
+        Slot for Peptide Structure Type combo box. Changes phi/psi angles 
+        for secondary structure.
         
+        @param idx: index of secondary structure combo box
+        @type idx: int
+        """
         self.ss_idx = idx
 
         if idx == 0:
@@ -316,24 +321,37 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         self.phi *= self.chirality
         self.psi *= self.chirality
 
+        self.command.secondary = self.secondary
+        
         self.phiAngleField.setValue(self.phi)
         self.psiAngleField.setValue(self.psi)
         pass
 
     def _aaPhiAngleChanged(self, phi):
+        """
+        Called when phi angle spin box has changed. 
+        
+        @param phi: phi angle value
+        @type phi: float
+        """
         self.phi = self.phiAngleField.value()
-        pass
 
 
     def _aaPsiAngleChanged(self, psi):
+        """
+        Called when psi angle spin box has changed. 
+        
+        @param psi: psi angle value
+        @type psi: float
+        """
         self.psi = self.psiAngleField.value()
-        pass        
 
     def _setAminoAcidType(self, aaTypeIndex):
         """
         Adds a new amino acid to the peptide molecule.
         """
-        """
+        # piotr 080911: this method is obsolete as of 080911. It was used in 
+        # the old Peptide Generator.
         button, idx, short_name, dum, name, symbol, x, y = AA_BUTTON_LIST[aaTypeIndex]
         if self.ss_idx==1:
             aa_txt = "<font color=red>"
@@ -352,17 +370,5 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
 
         aa_txt += symbol+"</font>"
         #self.sequenceEditor.insertHtml(aa_txt, False, 4, 10, False)
-        """
-        self.current_amino_acid = aaTypeIndex
-        #self.addAminoAcid(aaTypeIndex)
-        return
 
     
-    #def _startOverClicked(self):
-    #    """
-    #    Resets a sequence in the sequence editor window.
-    #    """
-    #    self.sequenceEditor.clear()
-    #    self.peptide_cache = []
-    #    pass
-     

@@ -8,7 +8,6 @@
 History:
 2008-07-24: Created
 
-TODO:
 """
 
 from utilities.Log  import greenmsg
@@ -273,7 +272,6 @@ class Peptide_EditCommand(EditCommand):
         Finalize the structure. This is a step just before calling Done method.
         to exit out of this command. Subclasses may overide this method
         @see: EditCommand_PM.ok_btn_clicked
-        @see: NanotubeSegment_EditCommand where this method is overridden. 
         """
         
         if len(self.mouseClickPoints) == 1:
@@ -312,15 +310,13 @@ class Peptide_EditCommand(EditCommand):
 
         return self.win.assy.Chunk
 
-    # Things needed for CntLine_GraphicsMode (NanotubeLine_GM) ======================
-    
     def _setParamsForPeptideLineGraphicsMode(self):
         #"""
         #Needed for PeptideLine_GraphicsMode (NanotubeLine_GM). The method names need to
         #be revised (e.g. callback_xxx. The prefix callback_ was for the earlier 
         #implementation of CntLine mode where it just used to supply some 
         #parameters to the previous mode using the callbacks from the 
-        #previousmode. 
+        #previous mode. 
         #"""
         self.mouseClickLimit = None
         self.jigList = self.win.assy.getSelectedJigs()
@@ -331,8 +327,8 @@ class Peptide_EditCommand(EditCommand):
     
     def getCursorText(self, endPoint1, endPoint2):
         """
-        This is used as a callback method in CntLine mode 
-        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
+        This is used as a callback method in PeptideLineLine mode 
+        @see: PeptideLineMode.setParams, PeptideLineMode_GM.Draw
         """
         
         text = ''
@@ -341,9 +337,6 @@ class Peptide_EditCommand(EditCommand):
         if endPoint1 is None or endPoint2 is None:
             return text, textColor
         
-        #if not env.prefs[insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key]:
-        #    return text, textColor
-
         vec = endPoint2 - endPoint1
         from geometry.VQT import vlen
         peptideLength = vlen(vec)
@@ -353,11 +346,9 @@ class Peptide_EditCommand(EditCommand):
         
         thetaString = ''
         #Urmi 20080804: not sure if angle will be required later
-        #if env.prefs[insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key]:
         theta = self.glpane.get_angle_made_with_screen_right(vec)
         thetaString = '%5.2f deg'%theta
-            
-            
+                        
         commaString = ", "
         
         text = lengthString
@@ -372,8 +363,11 @@ class Peptide_EditCommand(EditCommand):
     
     def _getCursorText_length(self, peptideLength):
         """
-        Returns a string that gives the length of the Nanotube for the cursor 
-        text
+        Returns a string that gives the length of the Peptide for the cursor 
+        text.
+        
+        @param peptideLength: length of the peptide (number of amino acids)
+        @type peptideLength: int
         """
 
         # This should be moved to more appropriate place. piotr 081308
