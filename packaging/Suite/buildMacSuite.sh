@@ -204,7 +204,7 @@ cp License.txt rec
 cp post_*.sh rec
 
 # Run the package builder
-sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -v -o build/NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc
+sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -v -o build/NanoEngineer-1_Suite/NanoEngineer-1_Suite_v$VERSION_NUM.mpkg -d NE1_Suite.pmdoc || exit 1
 
 # Code added to get around the race condition that seems to be a problem where
 # hdiutil doesn't see the srcfolder unless the drive has been completely 
@@ -214,7 +214,7 @@ sudo sync
 sleep 10
 
 # Create the distribution dmg file
-sudo hdiutil create -srcfolder build/NanoEngineer-1_Suite -fs HFS+ -format UDZO build/NanoEngineer-1_Suite_v$VERSION_NUM.dmg
+sudo hdiutil create -srcfolder build/NanoEngineer-1_Suite -fs HFS+ -format UDZO build/NanoEngineer-1_Suite_v$VERSION_NUM.dmg || exit 1
 
 # Store the installers for use later or for upload
 if [ -e ~/MacOSX_Installers ]
