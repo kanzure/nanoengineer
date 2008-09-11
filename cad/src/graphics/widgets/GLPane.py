@@ -3186,12 +3186,17 @@ class GLPane(GLPane_minimal,
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods
 
         # piotr 080515: added software stereo rendering support
+        ### REVIEW/TODO: this code needs centralization.
+        # search for: computes of stereo_image_range, 080911, and "LOGIC BUG"
+        # for related code (all related to stereo, not all quite the same issue).
+        # [bruce 080911 comment]
         if not self.stereo_enabled:
             # draw only once if stereo is disabled
             stereo_image_range = [0]
         else:
-            # have two images, left and right, for the stereo rendering
-            # [REVIEW: can these images be overlapping in some stereo_modes? bruce 080911 question]
+            # have two images for the stereo rendering.
+            # in some stereo_modes these are left and right and are clipped;
+            # in others they are drawn overlapping but with different colormasks.
             stereo_image_range = [-1, 1]
             pass
 
@@ -3231,7 +3236,18 @@ class GLPane(GLPane_minimal,
             self._disable_stereo()
             continue # to next stereo_image
 
-        ### REVIEW: why is Draw_after_highlighting not inside the loop over stereo_image? [bruce 080911 question]
+        ### REVIEW [bruce 080911 question]:
+        # why is Draw_after_highlighting not inside the loop over stereo_image? 
+        # Is there any reason it should not be moved into that loop?
+        # I.e. is there a reason to do it only once and not twice?
+        # For water surface this may not matter
+        # but for its use in deprecated ESPImage class
+        # (draw transparent stuff) it seems like a bug.
+        # I am not sure if it has other uses now.
+        # (I'll check shortly, when I have time.)
+        #
+        # Piotr reply: Yes, I think this is a bug. It should be moved inside the stereo loop.
+
         try: # try/finally for drawing_phase
             self.drawing_phase = 'main/Draw_after_highlighting'
             self.graphicsMode.Draw_after_highlighting() # e.g. draws water surface in Build mode
@@ -3298,11 +3314,12 @@ class GLPane(GLPane_minimal,
 
             self._disable_stereo()
 
-        # REVIEW: isn't this redundant with another call of disable_fog above? [bruce 080911 question]
-        if fog_test_enable:
-            # this next line really should be just after rendering
-            # the atomic model itself.  I dunno where that is. [bradg]
-            disable_fog()            
+##        # REVIEW: isn't this redundant with another call of disable_fog above? [bruce 080911 question]
+##        # piotr reply: Yes, it is redundant, it should be removed. [did that, bruce 080911, needs TEST]
+##        if fog_test_enable:
+##            # this next line really should be just after rendering
+##            # the atomic model itself.  I dunno where that is. [bradg]
+##            disable_fog()            
 
         # draw some test images related to the confirmation corner
 
@@ -4126,16 +4143,12 @@ class GLPane(GLPane_minimal,
             # reset the modelview matrix
 
             if not no_clipping:
-                # piotr 080911: this line should be removed
-                # glPushMatrix() # REVIEW: why do we need two pushMatrixes
-                    # with no transform in between them? [this one and 11 lines before it]
-                    # [bruce 080911 question]
-                    #
-                    # piotr: Yes, you are right, this pair of glPushMatrix calls
-                    # is not necessary. The other call 11 lines earlier 
-                    # and corresponding glPopMatrix call in _disable_stereo
-                    # are required.
-                    #
+                glPushMatrix() # Note: this might look redundant with the
+                    # glPushMatrix above, but removing it (and its glPopMatrix
+                    # 10 lines below) causes a bug (no image visible).
+                    # Guess: it's needed so the glLoadIdentity needed to set up
+                    # the clipping plane just below has only a temporary effect.
+                    # [bruce 080911 comment]
                 glLoadIdentity()
                 if stereo_image == -1:
                     clip_eq = (-1.0, 0.0, 0.0, 0.0)
@@ -4144,8 +4157,7 @@ class GLPane(GLPane_minimal,
                 # using GL_CLIP_PLANE5 for stereo clipping 
                 glClipPlane(GL_CLIP_PLANE5, clip_eq)
                 glEnable(GL_CLIP_PLANE5)
-                # piotr 080911: this line should be removed
-                # glPopMatrix() 
+                glPopMatrix()
 
             # for cross-eyed mode, exchange left and right views
             if stereo_mode == 2:
