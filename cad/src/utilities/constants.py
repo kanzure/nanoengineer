@@ -391,7 +391,7 @@ def _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms):
     dispNames.append(disp_name)
     _new_dispNames.append(disp_name) #bruce 080415 fix bug 2809 in saving nodes with "chunk display styles" set (not in .rc1)
     dispLabel.append(disp_label)
-    ind = dispNames.index(disp_name) # internal value used by setDisplay
+    ind = dispNames.index(disp_name) # internal value used by setDisplayStyle
         # note: this always works, since we appended the same disp_name to *both*
         # dispNames and _new_dispNames [bruce 080415 comment]
     if not allowed_for_atoms:

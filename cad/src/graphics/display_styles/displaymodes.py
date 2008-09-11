@@ -28,7 +28,7 @@ import foundation.env as env
 _display_mode_handlers = {} # maps disp_name, and also its index in constants.dispNames, to a DisplayMode instance used for drawing
 
 ## remap_atom_dispdefs = {}
-    # some dispdef values should be replaced with others in Atom.setDisplay,
+    # some dispdef values should be replaced with others in Atom.setDisplayStyle,
     # since they are not legal for atoms. [bruce 060607]
     # (moved from chem to displaymodes to break import cycle, bruce 071102)
     # (then moved to constants.py to permit some refactoring, bruce 080324)
@@ -88,7 +88,7 @@ class DisplayMode:
 ##        assert len(constants.dispNames) == len(constants.dispLabel)
 ##        constants.dispNames.append(disp_name)
 ##        constants.dispLabel.append(disp_label)
-##        ind = constants.dispNames.index(disp_name) # internal value used by setDisplay
+##        ind = constants.dispNames.index(disp_name) # internal value used by setDisplayStyle
 ##        if clas.chunk_only:
 ##            remap_atom_dispdefs[ind] = constants.diDEFAULT # kluge?
 
@@ -144,16 +144,20 @@ class ChunkDisplayMode(DisplayMode):
         # (As a quick hack, just add a debug menu command (always visible) which acts like pressing a toolbutton for this mode.)
         disp_name = clas.mmp_code
         inst = _display_mode_handlers[disp_name]
-        register_debug_menu_command("setDisplay(%s)" % clas.disp_label, inst.setDisplay_command)
+        register_debug_menu_command("setDisplayStyle_of_selection(%s)" % clas.disp_label, inst.setDisplay_command)
         ##e should we do something so users can use it as a prefs value for preferred display mode, too?
         return
     register_display_mode_class = staticmethod( register_display_mode_class)
 
     def setDisplay_command(self, widget):
         win = env.mainwindow()
-        win.setDisplay(self.ind)
+        win.setDisplayStyle_of_selection(self.ind)
+            #bruce 080910 comment, upon renaming that method from setDisplay:
+            # the new name says what it does, but when originally coded
+            # this would set global style if nothing was selected
+            # (since that method used to act that way).
         if env.debug():
-            print "setDisplay to %r.ind == %r" % (self, self.ind)
+            print "setDisplayStyle_of_selection to %r.ind == %r" % (self, self.ind)
         return
 
     def _drawchunk(self, glpane, chunk, highlighted = False):

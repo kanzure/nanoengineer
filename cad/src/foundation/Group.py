@@ -222,7 +222,7 @@ class Group(NodeWithAtomContents):
             # [bruce 050429 comment: I'm suspicious this is needed or good if we have no part (re bug 413),
             #  but it's too dangerous to change it just before a release, so bug 413 needs a different fix
             #  (and anyway this is not the only source of assy.changed() from opening a file -- at least
-            #   chunk.setDisplay also does it). For Undo we might let .changed() propogate only into direct
+            #   chunk.setDisplayStyle also does it). For Undo we might let .changed() propogate only into direct
             #   parents, and then those assy.changed() would not happen and bug 413 might be fixable differently.]
             self.assy.changed()
             # it is ok for something in part.changed() or assy.changed() to modify self.__cmfuncs

@@ -98,8 +98,7 @@ def setup_drawer():
     in different GL contexts.
     """
     #bruce 060613 added docstring, cleaned up display list name allocation
-    # bruce 071030 renamed from setup to setup_drawer
-
+    
     spherelistbase = glGenLists(numSphereSizes)
     sphereList = []
     for i in range(numSphereSizes):

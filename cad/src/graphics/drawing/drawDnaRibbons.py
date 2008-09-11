@@ -381,7 +381,7 @@ def drawDnaRibbons(glpane,
     @type: B{V}    
     @param displayStyle: Rubberband display style (specified as an integer)
                          see comment in the method below. 
-                         See also GLpane.displayStyle.
+                         See also GLPane.displayMode.
     @type  displayStyle: int
     @param peakDeviationFromCenter: Distance of a peak from the axis 
                                     Also known as 'Amplitude' of a sine wave. 

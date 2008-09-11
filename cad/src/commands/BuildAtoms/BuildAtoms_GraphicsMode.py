@@ -1118,8 +1118,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             chunk = stuff
             if chunk.get_dispdef(self.o) == diINVISIBLE:
                 # Build mode's own default display mode--
-                chunk.setDisplay(diTUBES) 
-                
+                chunk.setDisplayStyle(diTUBES)
                 return 1
             return 0
         elif isinstance(stuff, Group):

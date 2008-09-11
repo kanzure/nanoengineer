@@ -147,6 +147,14 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         
         # zoom factor
         self.zoomFactor = 1.0
+            # Note: I believe (both now, and in a comment dated 060829 which is
+            # now being removed from GLPane.py) that nothing ever sets
+            # self.zoomFactor to anything other than 1.0, though there is code
+            # which could do this in theory. I think zoomFactor was added as
+            # one way to implement zoomToArea, but another way (changing scale)
+            # was chosen, which makes zoomFactor useless. Someday we should
+            # consider removing it, unless we think it might be useful for
+            # something in the future. [bruce 080910 comment]
 
         self.trackball = Trackball(10,10)
 

@@ -381,7 +381,7 @@ class Dna:
             if chunkPair:
                 display = chunkPair[1].display
                 color   = chunkPair[1].color
-                chunkPair[0].setDisplay(display)
+                chunkPair[0].setDisplayStyle(display)
                 if color:
                     chunkPair[0].setcolor(color)
 

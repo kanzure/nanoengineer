@@ -161,11 +161,11 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         #  near or back clipping planes, and the rubber band can be 
         # always shown. The disadvantage: when the view field is too 
         # small, a selection window may be actually act as a single pick.
-        # rubber ban window will not look as rectanglular any more.
-        #zf = self.glpane.getZoomFactor()
+        # rubber band window will not look as rectangular any more.
+        #zf = self.glpane.getZoomFactor() # [note: method does not exist]
         #zoomFactor = pow(zoomFactor, 0.25)
         #zoomFactor *= zf
-        #self.glpane.setZoomFactor(zoomFactor)
+        #self.glpane.setZoomFactor(zoomFactor) # [note: method does not exist]
         
         # Change viewing distance to do zoom. This works better with
         # mouse wheel, since both are changing viewing distance, and

@@ -67,7 +67,6 @@ from geometry.VQT import V, Q, A
 from graphics.drawing.drawers import drawFullWindow
 from graphics.drawing.gl_lighting import _default_lights
 from graphics.drawing.gl_lighting import setup_standard_lights
-from graphics.drawing.setup_draw import setup_drawer
 from model.assembly import Assembly
 import foundation.env as env
 from utilities import debug_flags
@@ -231,7 +230,6 @@ class ThumbView(GLPane_minimal):
         glLoadIdentity()
         
         if not self.isSharing():
-            ## setup_drawer()
             self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
 
         return
@@ -1083,8 +1081,8 @@ class MMKitView(ThumbView):
             self.lastHotspotChunk = None
         return
     
-    def setDisplay(self, mode):
-        self.displayMode = mode
+    def setDisplay(self, disp):
+        self.displayMode = disp
         return
     
     def _fitInWindow(self):

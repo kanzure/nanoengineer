@@ -480,7 +480,9 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         # can see the display style setting effects on any DNA in the current
         # model. The current global display style will be restored when leaving
         # this command (via self.close()).
-        self.originalDisplayStyle = self.o.getGlobalDisplayStyle()
+        self.originalDisplayStyle = self.o.displayMode
+            # TODO: rename that public attr of GLPane (widely used)
+            # from displayMode to displayStyle. [bruce 080910 comment]
         self.o.setGlobalDisplayStyle(diDNACYLINDER)
 
         # Update all PM widgets, .

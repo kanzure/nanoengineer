@@ -1532,7 +1532,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         # Set the current display style in the glpane.
         # (This will be noticed later by chunk.draw of affected chunks.)
-        self.glpane.setDisplay(display_style, True)
+        self.glpane.setGlobalDisplayStyle(display_style)
         self.glpane.gl_update()
         return
 

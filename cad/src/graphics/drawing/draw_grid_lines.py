@@ -107,10 +107,8 @@ def setup_draw_grid_lines():
     This must be called in whichever GL display list context will be drawn in.
     
     See comment in drawer.setup_drawer about problems with calling this
-    in more than one GL context.
+    in more than one GL context. For now, it shouldn't be.
     """
-    #bruce 071030 Split this out of drawer.setup and renamed that to
-    #  setup_drawer.
     global SiCGridList
     SiCGridList = glGenLists(1)
     glNewList(SiCGridList, GL_COMPILE)

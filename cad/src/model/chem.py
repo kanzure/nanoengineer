@@ -2417,7 +2417,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                
         return drawrad
         
-    def setDisplay(self, disp):
+    def setDisplayStyle(self, disp): #bruce 080910 renamed from setDisplay
+        """
+        set self's display style
+        """
         disp = remap_atom_dispdefs.get(disp, disp) #bruce 060607
             # note: error message from rejecting disp, if any,
             # should be done somewhere else, not here
@@ -2441,7 +2444,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         self.changed() # bruce 041206 bugfix (unreported bug); revised, bruce 050509
         
         # bruce 041109 comment:
-        # Atom.setDisplay changes appearance of this atom's bonds,
+        # Atom.setDisplayStyle changes appearance of this atom's bonds,
         # so: do we need to invalidate the bonds? No, they don't store display
         # info, and the geometry related to bond.setup_invalidate has not changed.
         # What about the mols on both ends of the bonds? The changeapp() handles

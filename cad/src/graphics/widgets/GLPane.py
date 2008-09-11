@@ -133,7 +133,6 @@ from graphics.drawing.gl_lighting import enable_fog
 from graphics.drawing.gl_lighting import setup_fog
 
 from graphics.drawing.glprefs import glprefs
-from graphics.drawing.setup_draw import setup_drawer
 
 from utilities.constants import bgSOLID, bgEVENING_SKY, bgBLUE_SKY, bgSEAGREEN
 from utilities.constants import ave_colors, color_difference
@@ -418,10 +417,7 @@ class GLPane(GLPane_minimal,
         # Get glpane related settings from prefs db.
         # Default values are set in "prefs_table" in prefs_constants.py.
         # Mark 050919.
-
-        # (Note: if we wanted concurrent sessions to share bgcolor pref,
-        # then besides this, we'd also need to clear the prefs cache for
-        # this key... and update it more often.)
+        
         self.backgroundColor = env.prefs[backgroundColor_prefs_key]
         self.backgroundGradient = env.prefs[backgroundGradient_prefs_key]
 
@@ -430,12 +426,16 @@ class GLPane(GLPane_minimal,
         # This updates the checkmark in the View menu. Fixes bug #996 Mark 050925.
         self.setViewProjection(self.ortho) 
 
-        # default display form for objects in the window even tho there is only one assembly to a window,
-        # this is here in anticipation of being able to have multiple windows on the same assembly.
+        # default display style for objects in the window.
+        # even though there is only one assembly to a window,
+        # this is here in anticipation of being able to have
+        # multiple windows on the same assembly.
         # Start the GLPane's current display mode in "Default Display Mode" (pref).
         self.displayMode = env.prefs[startupGlobalDisplayStyle_prefs_key]
+            # TODO: rename self.displayMode (widely used as a public attribute
+            # of self) to self.displayStyle. [bruce 080910 comment]
         
-        # piotr 080714: Remeber last non-reduced display style.
+        # piotr 080714: Remember last non-reduced display style.
         if self.displayMode == diDNACYLINDER or \
            self.displayMode == diPROTEIN:
             self.lastNonReducedDisplayMode = default_display_mode
@@ -447,7 +447,6 @@ class GLPane(GLPane_minimal,
 
         self.makeCurrent()
 
-        ## setup_drawer()
         self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
 
         self.setAssy(assy) # leaves self.currentCommand/self.graphicsMode as nullmode, as of 050911
@@ -2444,9 +2443,6 @@ class GLPane(GLPane_minimal,
 
     #== end of Timer helper methods
 
-    def selectedJigTextPosition(self):
-        return A(gluUnProject(5, 5, 0))
-
     def mousepoints(self, event, just_beyond = 0.0):
         """
         Returns a pair (tuple) of points (Numeric arrays of x,y,z)
@@ -2493,29 +2489,31 @@ class GLPane(GLPane_minimal,
         """
         self.MousePos = V(event.pos().x(), event.pos().y())
 
-    def setDisplay(self, disp, default_display = False):
+    def setGlobalDisplayStyle(self, disp):
         """
-        Set the global display style of the GLPane.
+        Set the global display style of self (the GLPane).
 
-        @param disp: The global display style: 
-                     - diDEFAULT (the "NE1 start-up display style", defined
+        @param disp: The desired global display style, which
+                     should be one of the following constants
+                     (this might not be a complete list;
+                      for all definitions see constants.py):
+                     - diDEFAULT (the "NE1 start-up display style", as defined
                        in the Preferences | General dialog)
                      - diLINES (Lines display style)
                      - diTUBES (Tubes display style)
-                     - diBALL, (Ball and stick display style)
-                     - diTrueCPK, (Space filling display style)
+                     - diBALL (Ball and stick display style)
+                     - diTrueCPK (Space filling display style)
                      - diDNACYLINDER (DNA cylinder display style)
         @type  disp: int
 
-        @param default_display: Unused. In older versions of NE1, this used
-                                to change the header of the display status bar
-                                to either 'Default Display' (True) or 
-                                'Current Display' (False, the default).
-        @type  default_display: bool
-
         @note: doesn't update the MT, and callers typically won't need to,
                since the per-node display style icons are not changing.
+
+        @see: setDisplayStyle methods in some model classes
+
+        @see: setDisplayStyle_of_selection method in another class
         """
+        # review docstring: what about diINVISIBLE? diPROTEIN?
         from utilities.constants import diDNACYLINDER
         from utilities.constants import diPROTEIN
         
@@ -2525,7 +2523,7 @@ class GLPane(GLPane_minimal,
         # not sure if that holds for all init code, so being safe for now.
         self.displayMode = disp
 
-        # piotr 080714: Remeber last non-reduced display mode.
+        # piotr 080714: Remember last non-reduced display style.
         if disp != diDNACYLINDER and \
            disp != diPROTEIN:
             self.lastNonReducedDisplayMode = disp
@@ -2544,50 +2542,6 @@ class GLPane(GLPane_minimal,
         # (or their currently set individual display style) to the one they used
         # to make their display lists. [bruce 080305 comment]
         return
-
-    def setGlobalDisplayStyle(self, disp):
-        """
-        Set the global display style of the GLPane.
-
-        @param disp: The global display style: 
-                     - diDEFAULT (the "NE1 start-up display style", defined
-                       in the Preferences | General dialog)
-                     - diLINES (Lines display style)
-                     - diTUBES (Tubes display style)
-                     - diBALL, (Ball and stick display style)
-                     - diTrueCPK, (Space filling display style)
-                     - diDNACYLINDER (DNA cylinder display style)
-        @type  disp: int
-
-        @note: This is identical to (and calls) L{setDisplay}, provided for 
-        convenience.
-        """
-        self.setDisplay(disp)
-
-    def getGlobalDisplayStyle(self):
-        """
-        Returns the current global display style.
-
-        @return: The current global display style:
-                - diDEFAULT (the "NE1 start-up display style", defined
-                  in the Preferences | General dialog)
-                - diLINES (Lines display style)
-                - diTUBES (Tubes display style)
-                - diBALL, (Ball and stick display style)
-                - diTrueCPK, (Space filling display style)
-                - diDNACYLINDER (DNA cylinder display style)
-        @rtype:  int
-        """
-        return self.displayMode
-
-    # note: as of long before 060829, set/getZoomFactor are never called, and I suspect that nothing
-    # ever sets self.zoomFactor to anything other than 1.0, though I didn't fully analyze the calls
-    # of the code that looks like it might. So I'll comment these out for now. [bruce 060829 comment]
-##    def setZoomFactor(self, zFactor): 
-##        self.zoomFactor = zFactor
-##    
-##    def getZoomFactor(self):
-##        return self.zoomFactor
 
     def get_angle_made_with_screen_right(self, vec):  
 
@@ -3129,19 +3083,20 @@ class GLPane(GLPane_minimal,
             pass
         return
 
-    def _restore_modelview_stack_depth(self): #bruce 050608 split this out
+    def _restore_modelview_stack_depth(self):
         """
         restore GL_MODELVIEW_STACK_DEPTH to 1, if necessary
         """
-        #bruce 040923: I'd like to reset the OpenGL state
-        # completely, here, incl the stack depths, to mitigate some
+        #bruce 040923 [updated 080910]:
+        # I'd like to reset the OpenGL state
+        # completely, here, including the stack depths, to mitigate some
         # bugs. How??  Note that there might be some OpenGL init code
-        # earlier which I'll have to not mess up. Incl displaylists in
-        # setup_drawer.  What I ended up doing is just to measure the
+        # earlier which I'll have to not mess up, including _setup_display_lists.
+        #   What I ended up doing is just to measure the
         # stack depth and pop it 0 or more times to make the depth 1.
         #   BTW I don't know for sure whether this causes a significant speed
         # hit for some OpenGL implementations (esp. X windows)...
-        # test sometime. #e
+        # TODO: test the performance effect sometime.
         glMatrixMode(GL_MODELVIEW)
 
         depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)

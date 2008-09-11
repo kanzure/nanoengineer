@@ -43,43 +43,42 @@ class displaySlotsMixin:
     Mixin class to provide display-related methods for class MWsemantics.
     Has slot methods and their helper methods.
     """
-    # set display formats in whatever is selected,
-    # or the GLPane global default if nothing is
+    # methods to set display style of whatever is selected
     def dispDefault(self):
         """
-        Sets the display style of the selection to I{Default}. 
+        Sets the display style of the selection to I{Default}.
         """
-        self.setDisplay(diDEFAULT, True)
+        self.setDisplayStyle_of_selection(diDEFAULT)
 
     def dispInvis(self):
         """
         Sets the display style of the selection to I{Invisible}.
         """
-        self.setDisplay(diINVISIBLE)
+        self.setDisplayStyle_of_selection(diINVISIBLE)
 
     def dispLines(self):
         """
         Sets the display style of the selection to I{Lines}.
         """
-        self.setDisplay(diLINES)
+        self.setDisplayStyle_of_selection(diLINES)
 
     def dispTubes(self):
         """
         Sets the display style of the selection to I{Tubes}.
         """
-        self.setDisplay(diTUBES)
+        self.setDisplayStyle_of_selection(diTUBES)
         
     def dispBall(self): #e this slot method (here and in .ui file) renamed from dispCPK to dispBall [bruce 060607]
         """
         Sets the display style of the selection to I{Ball and Stick}.
         """
-        self.setDisplay(diBALL)
+        self.setDisplayStyle_of_selection(diBALL)
         
     def dispCPK(self): #e this slot method (here and in .ui file) renamed from dispVdW to dispCPK [bruce 060607]
         """
         Sets the display style of the selection to I{CPK} (space fill).
         """
-        self.setDisplay(diTrueCPK)
+        self.setDisplayStyle_of_selection(diTrueCPK)
         
     def dispDnaCylinder(self):
         """
@@ -90,7 +89,7 @@ class displaySlotsMixin:
         if self.assy and self.assy.selatoms:
             env.history.message(cmd + "Selected atoms cannot have their display mode set to DNA Cylinder.")
             return
-        self.setDisplay(diDNACYLINDER)
+        self.setDisplayStyle_of_selection(diDNACYLINDER)
 
     def dispCylinder(self):
         """
@@ -106,7 +105,7 @@ class displaySlotsMixin:
             env.history.message(cmd + "Selected atoms cannot have their display mode set to Cylinder.")
             return #ninad 061003  fixed bug 2286... Note: Once atoms and chunks are allowed to be sel at the same 
             #time , this fix might need further mods. 
-        self.setDisplay(diCYLINDER)
+        self.setDisplayStyle_of_selection(diCYLINDER)
     
     def dispSurface(self):
         """
@@ -121,7 +120,7 @@ class displaySlotsMixin:
             # Fixes bug 2005. Mark 060702.
             env.history.message(cmd + "Selected atoms cannot have their display mode set to Surface.")
             return #ninad 061003 fixed bug 2286
-        self.setDisplay(diSURFACE)
+        self.setDisplayStyle_of_selection(diSURFACE)
         
     def dispHybrid(self): #@@ Ninad 070308
         print "Hybrid display is  Implemented yet"
@@ -144,43 +143,24 @@ class displaySlotsMixin:
         """
         self.assy.unhideSelection()
 
-    def setDisplay(self, 
-                   display_style, 
-                   default_display = False, 
-                   cmd = greenmsg("Set display style: ")):
+    def setDisplayStyle_of_selection(self, display_style): #bruce 080910 revised this
         """
-        Set the display of the selection to I{display_style}.
+        Set the display style of the selection to I{display_style}.
         
-        @param display_style: The display style.
-        @type  display_style: int
-        
-        @param default_display: If True, set the global display style to 
-                                I{display_style}. This is currently unsupported.
-        @type  default_display: boolean
-        
-        @param cmd: The caller's command string.
-        @type  cmd: string
-        
-        @deprecated: I{default_display} is unsupported and will be removed.
+        @param display_style: desired display style code
+        @type  display_style: int   
         """
         if self.assy and self.assy.selatoms:
             for ob in self.assy.selatoms.itervalues():
-                ob.setDisplay(display_style)
+                ob.setDisplayStyle(display_style)
         elif self.assy and self.assy.selmols:
             for ob in self.assy.selmols:
-                ob.setDisplay(display_style)
+                ob.setDisplayStyle(display_style)
         elif 0: # Keep in case we decide to offer a user preference. --Mark 2008-03-16
-            # Nothing is selected, so change the global display style to
-            # 'display_style'.
-            if self.glpane.displayMode == display_style:
-                pass ## was 'return' # no change needed
-                # bruce 041129 removing this optim, tho correct in theory,
-                # since it's not expensive to changeapp and repaint if user
-                # hits a button, so it's more important to fix any bugs that
-                # might be in other code failing to call changeapp when needed.
-            self.glpane.setDisplay(display_style, default_display) 
-                # See docstring for info about default_display
+            # Nothing is selected, so change the global display style.
+            self.glpane.setGlobalDisplayStyle(display_style)
         else:
+            cmd = greenmsg("Set display style: ")
             msg = "No atoms or chunks selected. Nothing changed."
             env.history.message(cmd + msg)
             return
@@ -303,7 +283,7 @@ class displaySlotsMixin:
         if self.assy.selectionContainsAtomsWithOverriddenDisplay():
             for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display != diDEFAULT:
-                    a.setDisplay(diDEFAULT)
+                    a.setDisplayStyle(diDEFAULT)
 
             msg = "Display setting for all selected atom(s) reset to Default" \
                 " (i.e. their parent chunk's display mode)."
@@ -331,7 +311,7 @@ class displaySlotsMixin:
         if self.assy.selectionContainsInvisibleAtoms():
             for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display == diINVISIBLE: 
-                    a.setDisplay(diDEFAULT)
+                    a.setDisplayStyle(diDEFAULT)
                     nia += 1
 
         msg = cmd + str(nia) + " invisible atoms found."

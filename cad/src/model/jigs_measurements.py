@@ -28,7 +28,7 @@ from Numeric import dot
 
 import foundation.env as env
 
-from geometry.VQT import V, norm, cross, vlen, angleBetween
+from geometry.VQT import V, A, norm, cross, vlen, angleBetween
 from foundation.Utility import Node
 from utilities.Log import redmsg, greenmsg, orangemsg
 from utilities.debug import print_compact_stack, print_compact_traceback
@@ -39,6 +39,8 @@ from graphics.drawing.drawers import drawtext
 from utilities.constants import black
 from utilities.prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
 from utilities.prefs_constants import dynamicToolTipBendAnglePrecision_prefs_key
+
+from OpenGL.GLU import gluUnProject
 
 def _constrainHandleToAngle(pos, p0, p1, p2):
     """
@@ -153,7 +155,8 @@ class MeasurementJig(Jig):
         # use atom positions to compute center, where text should go
         if self.picked:
             # move the text to the lower left corner, and make it big
-            drawtext(text, color, self.assy.o.selectedJigTextPosition(),
+            pos = A(gluUnProject(5, 5, 0))
+            drawtext(text, color, pos,
                      3 * self.font_size, self.assy.o)
         else:
             pos1 = self.atoms[0].posn()

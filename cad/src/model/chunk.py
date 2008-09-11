@@ -1532,7 +1532,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Recompute and return (but do not record) our atom content,
         optimizing this if it's exactly known on any node-subtrees.
 
-        @see: Atom.setDisplay, Atom.revise_atom_content
+        @see: Atom.setDisplayStyle, Atom.revise_atom_content
 
         [Overrides superclass method. Subclasses whose atoms are stored differently
          may need to override this further.]
@@ -2123,7 +2123,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 #  when global default display mode is changed); this will incidentally
                 #  optimize some related behaviors by avoiding some needless havelist invals,
                 #  now that we've also removed the now-unneeded changeapp of all mols upon
-                #  global dispdef change (in GLPane.setDisplay).]
+                #  global dispdef change (in GLPane.setGlobalDisplayStyle).]
                 # [bruce 050419 also including something for element radius and color prefs,
                 #  to fix bugs in updating display when those change (eg bug 452 items 12-A, 12-B).]
 
@@ -3410,12 +3410,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             self.assy.win.mt.repaint_some_nodes([self])
         return
 
-    def setDisplay(self, disp):
+    def setDisplayStyle(self, disp): #bruce 080910 renamed from setDisplay
         # TODO: optimize when self.display == disp, since I just reviewed
         # all calls and this looks safe. (Ditto with Atom version of this
         # method.) [bruce comment 080305 @@@@]
         """
-        change self's display mode
+        set self's display style
         """
         if self.display == disp:
             #bruce 080305 optimization; looks safe after review of all calls;
@@ -3440,7 +3440,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         n = 0
         for a in self.atoms.itervalues():
             if a.display == diINVISIBLE: 
-                a.setDisplay(diDEFAULT)
+                a.setDisplayStyle(diDEFAULT)
                 n += 1
         return n
 
@@ -3452,7 +3452,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         n = 0
         for a in self.atoms.itervalues():
             if a.display != display:
-                a.setDisplay(display)
+                a.setDisplayStyle(display)
                 n += 1
         return n
 
@@ -3960,7 +3960,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #bruce 050419 fix bug 550 by fancifying haveradii
         # in the same way as for havelist (see 'bruce 050415').
         # Note: this must also be invalidated when one atom's display mode changes,
-        # and it is, by atom.setDisplay calling changeapp(1) on its chunk.
+        # and it is, by atom.setDisplayStyle calling changeapp(1) on its chunk.
         disp = self.get_dispdef() ##e should caller pass this instead?
         eltprefs = PeriodicTable.rvdw_change_counter # (color changes don't matter for this, unlike for havelist)
         radiusprefs = chem.Atom.selradius_prefs_values() #bruce 060317 -- include this in the tuple below, to fix bug 1639
@@ -4054,7 +4054,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             numol.showOverlayText = True
         mapping.record_copy(self, numol)
         # also copy user-specified axis, center, etc, if we ever have those
-        ## numol.setDisplay(self.display)
+        ## numol.setDisplayStyle(self.display)
         if self._colorfunc is not None: #bruce 060411 added condition; note, this code snippet occurs in two methods
             numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
         if self._dispfunc is not None:
@@ -4333,7 +4333,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #  if we ever have those
         if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
             numol.user_specified_center = self.user_specified_center + offset
-        numol.setDisplay(self.display)
+        numol.setDisplayStyle(self.display)
         numol.dad = dad
         if dad and debug_flags.atom_debug: #bruce 050215
             print "atom_debug: mol.copy got an explicit dad (this is deprecated):", dad

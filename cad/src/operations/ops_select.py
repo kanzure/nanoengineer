@@ -598,7 +598,7 @@ class ops_select_Mixin:
         if self.selatoms:
             # Hide selected atoms by changing their display style to invisible.
             for a in self.selatoms.itervalues():
-                a.setDisplay(diINVISIBLE)
+                a.setDisplayStyle(diINVISIBLE)
         return
     
     def unhideSelection(self):
@@ -637,11 +637,11 @@ class ops_select_Mixin:
             # Unhide any invisible atoms in the selected chunks.
             for chunk in self.assy.selmols[:]:
                 for a in chunk.atoms.itervalues():
-                    a.setDisplay(diDEFAULT)
+                    a.setDisplayStyle(diDEFAULT)
         else:
             # Unhide selected atoms by changing their display style to default.
             for a in self.selatoms.itervalues():
-                a.setDisplay(diDEFAULT)
+                a.setDisplayStyle(diDEFAULT)
         self.w.win_update()
         return
     

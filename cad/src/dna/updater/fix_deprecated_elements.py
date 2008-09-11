@@ -59,7 +59,7 @@ def fix_deprecated_elements( changed_atoms):
             # set by the DNA Duplex Generator. Remove these here.
             # (This may be needed even after we fix the generator,
             #  due to old mmp files. REVIEW: can it ever cause harm?)
-            atom.setDisplay(diDEFAULT)
+            atom.setDisplayStyle(diDEFAULT)
         if deprecated_to == 'remove' or deprecated_to == 'X':
             # (Atom.kill might be unideal behavior for 'remove',
             #  but that's only on Pl3 which never occurs AFAIK, so nevermind)
