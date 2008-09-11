@@ -4105,6 +4105,11 @@ class GLPane(GLPane_minimal,
             # (or, explain why it can't, e.g. only event handlers
             #  change it and they are atomic with respect to a frame)
             # [bruce 080911 comment]
+            
+            # piotr 080911: I think you are right. The stereo_mode,
+            # stereo_separation and stereo_angle attributes could be made
+            # class attributes and be defined e.g. in standard_repaint_0
+            
         stereo_separation = 0.01 * env.prefs[stereoViewSeparation_prefs_key]
         stereo_angle = -0.1 * (env.prefs[stereoViewAngle_prefs_key] - 25)
 
@@ -4121,9 +4126,16 @@ class GLPane(GLPane_minimal,
             # reset the modelview matrix
 
             if not no_clipping:
-                glPushMatrix() # REVIEW: why do we need two pushMatrixes
+                # piotr 080911: this line should be removed
+                # glPushMatrix() # REVIEW: why do we need two pushMatrixes
                     # with no transform in between them? [this one and 11 lines before it]
                     # [bruce 080911 question]
+                    #
+                    # piotr: Yes, you are right, this pair of glPushMatrix calls
+                    # is not necessary. The other call 11 lines earlier 
+                    # and corresponding glPopMatrix call in _disable_stereo
+                    # are required.
+                    #
                 glLoadIdentity()
                 if stereo_image == -1:
                     clip_eq = (-1.0, 0.0, 0.0, 0.0)
@@ -4132,7 +4144,8 @@ class GLPane(GLPane_minimal,
                 # using GL_CLIP_PLANE5 for stereo clipping 
                 glClipPlane(GL_CLIP_PLANE5, clip_eq)
                 glEnable(GL_CLIP_PLANE5)
-                glPopMatrix()
+                # piotr 080911: this line should be removed
+                # glPopMatrix() 
 
             # for cross-eyed mode, exchange left and right views
             if stereo_mode == 2:
@@ -4165,6 +4178,18 @@ class GLPane(GLPane_minimal,
                     # Anyway, it *does* happen then, so I think there is a bug.
                     # Also, remind me, what's the 4th arg to glColorMask?
                     # [bruce 080911 comment]
+                    #
+                    # piotr 080911 response: You are right. This technically
+                    # causes a bug: the red image is not highlightable,
+                    # but actually when using anaglyph glasses, the bug is not
+                    # noticeable, as both red and blue images converge. 
+                    # The bug becomes noticeable if user tries to highlight an
+                    # object without wearing the anaglyph glasses.  
+                    # At this point, I think we can either leave it as it is,
+                    # or consider implementing anaglyph stereo by using 
+                    # OpenGL alpha blending. 
+                    # Also, I am not sure if highlighting problem is the only bug
+                    # that is caused by clearing the GL_DEPTH_BUFFER_BIT.
                     glClear(GL_DEPTH_BUFFER_BIT)
                     if stereo_mode == 3:
                         # blue image
