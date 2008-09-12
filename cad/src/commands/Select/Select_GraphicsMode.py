@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Select_GraphicsMode.py
 The GraphicsMode part of the Select_Command. It provides the graphicsMode
@@ -11,7 +11,7 @@ For example:
 - Key bindings or context menu
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 -  Select_basicGraphicsMode is the main GM class. It is inherited by
@@ -513,8 +513,8 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             # or not, where:
             # True = in the process of defining selection curve
             # False = finished/not defining selection curve
-        selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event,
-                                                          just_beyond = 0.01)
+        selCurve_pt, selCurve_AreaPt = \
+                     self.o.mousepoints(event, just_beyond = 0.01)
             # mousepoints() returns a pair (tuple) of points (Numeric arrays
             # of x,y,z)
             # that lie under the mouse pointer, just beyond the near
