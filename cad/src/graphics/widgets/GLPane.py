@@ -28,8 +28,8 @@ Some of this might be a prerequisite for some ways of
 optimizing the graphics code.
 """
 
-_testing_ = False # True  ## Debug/test switch.  Never check in a False value.
-if _testing_:
+TEST_DRAWING = False # True  ## Debug/test switch.  Never check in a True value.
+if TEST_DRAWING:
     from prototype.test_drawing import test_drawing
     pass
 
@@ -1953,7 +1953,7 @@ class GLPane(GLPane_minimal,
         BY OUR OWN CODE -- CALL gl_update INSTEAD.
         """
 
-        if _testing_:                   # See exprs/test_drawing.py .
+        if TEST_DRAWING:                # See prototype/test_drawing.py .
             test_drawing(self)
             return
 
