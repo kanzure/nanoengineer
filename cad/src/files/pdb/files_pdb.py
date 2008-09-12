@@ -1383,7 +1383,7 @@ def writepdb(part,
                     if a.pdb_info.has_key('standard_atom'):
                         hetatm = False
                     if a.pdb_info.has_key('chain_id'):
-                        chainIdChar = a.pdb_info['chain_id']
+                        chainIdChar = ord(a.pdb_info['chain_id'][0])
                     if a.pdb_info.has_key('occupancy'):
                         occup = a.pdb_info['occupancy']
                     if a.pdb_info.has_key('temperature_factor'):
