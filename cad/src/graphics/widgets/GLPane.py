@@ -1786,56 +1786,23 @@ class GLPane(GLPane_minimal,
         # (or their currently set individual display style) to the one they used
         # to make their display lists. [bruce 080305 comment]
         return
-
-    # REVIEW: the next three methods probably belong elsewhere. [bruce 080912 comment]
     
-    def get_angle_made_with_screen_right(self, vec):  
-
+    def get_angle_made_with_screen_right(self, vec):
         """
         Returns the angle (in degrees) between screen right direction
-        and the given vector. It returns positive angles if the 
-        vector lies in first or second quadrants. The 'quadrants' are determined
-        by checking the dot products between the given vector and screen 'right'
-        and 'up. The angle returned in this case is between 0 and 
-        180. For third and fourth quadrands the andle returned is negative. 
-        @see: self.inFourthQuadrant()
-        @see: self.inThirdQuadrant()
+        and the given vector. It returns positive angles (between 0 and
+        180 degrees) if the vector lies in first or second quadrants
+        (i.e. points more up than down on the screen). Otherwise the
+        angle returned is negative.
         """
-        #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
+        #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2.
+        #bruce 080912 bugfix: don't give theta the wrong sign when
+        # dot(vec, self.up) < 0 and dot(vec, self.right) == 0.
         vec = norm(vec)        
         theta = angleBetween(vec, self.right)
-
-        if self.inThirdQuadrant(vec) or  self.inFourthQuadrant(vec):
+        if dot(vec, self.up) < 0:
             theta = - theta
-
         return theta
-
-    def inFourthQuadrant(self, vec):
-        """
-        Returns True if the vector lies in a fourth quadrant (with origin 
-        located at vector start point)
-
-        The 'quadrants' are determined by checking the dot products between 
-        the given vector and screen 'right' and 'up. 
-        @see: self.get_angle_made_with_screen_right()
-        """
-        #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
-        return ( dot(vec, self.right) > 0 and \
-                 dot(vec, self.up) < 0)
-
-    def inThirdQuadrant(self, vec):
-        """
-        Returns True if the vector lies in a third quadrant (with origin 
-        located at vector start point)
-
-        The 'quadrants' are determined by checking the dot products between 
-        the given vector and screen 'right' and 'up. 
-        @see: self.get_angle_made_with_screen_right()
-        """
-        #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
-        return ( dot(vec, self.right) < 0 and \
-                 dot(vec, self.up) < 0)
-
 
     def dragstart_using_GL_DEPTH(self, 
                                  event, 
