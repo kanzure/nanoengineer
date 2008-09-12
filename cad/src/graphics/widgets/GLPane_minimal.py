@@ -12,15 +12,27 @@ need a common superclass (and have common code that needs merging).
 It needs to be in its own file to avoid import loop problems.
 """
 
-from OpenGL.GL import glDepthRange
+import math
+
 from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import GL_PROJECTION
 from OpenGL.GL import GL_SMOOTH
+from OpenGL.GL import GL_VIEWPORT
+from OpenGL.GL import glDepthRange
 from OpenGL.GL import glEnable
+from OpenGL.GL import glFrustum
+from OpenGL.GL import glGetIntegerv
 from OpenGL.GL import glLoadIdentity
 from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glOrtho
+from OpenGL.GL import glRotatef
 from OpenGL.GL import glShadeModel
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glViewport
+
+from OpenGL.GLU import gluPickMatrix
 
 from PyQt4.QtOpenGL import QGLFormat
 from PyQt4.QtOpenGL import QGLWidget
@@ -178,6 +190,66 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         
         return
 
+    def __getattr__(self, name): # in class GLPane_minimal
+        # bruce 080912 moved from GLPane into GLPane_minimal
+        # TODO: turn these into property defs
+        
+        # return space vectors corresponding to various directions
+        # relative to the screen (can be used during drawing
+        # or when handling mouse events)
+        if name == 'lineOfSight':
+            return self.quat.unrot(V(0, 0, -1))
+        elif name == 'right':
+            return self.quat.unrot(V(1, 0, 0))
+        elif name == 'left':
+            return self.quat.unrot(V(-1, 0, 0))
+        elif name == 'up':
+            return self.quat.unrot(V(0, 1, 0))
+        elif name == 'down':
+            return self.quat.unrot(V(0, -1, 0))
+        elif name == 'out':
+            return self.quat.unrot(V(0, 0, 1))
+        else:
+            raise AttributeError, 'GLPane_minimal has no "%s"' % name
+        pass
+    
+    def __get_vdist(self):
+        """
+        Recompute and return the desired distance between
+        eyeball and center of view.
+        """
+        #bruce 070920 revised; bruce 080912 moved from GLPane into GLPane_minimal
+        # Note: an old comment from elsewhere in GLPane claims:
+            # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
+            # (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
+            # We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
+            # clipping planes, etc, like we do now for right, up, etc. ###e
+        # I don't know if vdist could ever have a different value,
+        # or if we still have aspect < 1.0 bugs due to some other cause.
+        return 6.0 * self.scale
+
+    vdist = property(__get_vdist)
+
+    def eyeball(self): #bruce 060219 ##e should call this to replace equivalent formulae in other places
+        """
+        Return the location of the eyeball in model coordinates.
+
+        @note: this is not meaningful except when using perspective projection.
+        """
+        ### REVIEW: whether this is correct for tall aspect ratio GLPane.
+        # See also the comment in __get_vdist, above, mentioning bug 30.
+        # There is related code in writepovfile which computes a camera position
+        # which corrects vdist when aspect < 1.0:
+        ##    # Camera info
+        ##    vdist = cdist
+        ##    if aspect < 1.0:
+        ##            vdist = cdist / aspect
+        ##    eyePos = vdist * glpane.scale*glpane.out-glpane.pov
+        # [bruce comment 080912]
+        #bruce 0809122 moved this from GLPane into GLPane_minimal,
+        # and made region selection code call it for the first time.
+        return self.quat.unrot(V(0, 0, self.vdist)) - self.pov
+
     def __repr__(self):
         return "<%s at %#x>" % (self.__class__.__name__.split('.')[-1], id(self))
 
@@ -198,6 +270,95 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
             self._setup_display_lists()
         return
 
+    def resizeGL(self, width, height):
+        """
+        Called by QtGL when the drawing window is resized.
+        """
+        #bruce 080912 moved this from GLPane into GLPane_minimal ###IMPORTS
+        self.width = width
+        self.height = height
+
+        glViewport(0, 0, self.width, self.height)
+            # example of using a smaller viewport:
+            ## glViewport(10, 15, (self.width-10)/2, (self.height-15)/3)
+        
+        if not self.initialised:
+            self.initialised = True ###k 1 vs True
+
+        # modify width and height for trackball
+        # (note: this was done in GLPane but not in ThumbView until 080912)
+        if width < 300:
+            width = 300
+        if height < 300:
+            height = 300
+
+        return
+
+    def __get_aspect(self):
+        #bruce 080912 made this a property, moved to this class
+        return (self.width + 0.0) / (self.height + 0.0)
+    
+    aspect = property(__get_aspect)
+    
+    def _setup_projection(self, glselect = False): ### WARNING: This is not actually private! TODO: rename it.
+        """
+        Set up standard projection matrix contents using various attributes
+        of self (aspect, vdist, scale, zoomFactor).
+        
+        (Warning: leaves matrixmode as GL_PROJECTION.)
+        
+        @param glselect: False (default) normally, or a 4-tuple
+               (format not documented here) to prepare for GL_SELECT picking
+        """
+        #bruce 080912 moved this from GLPane into GLPane_minimal ###IMPORTS
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+
+        scale = self.scale * self.zoomFactor
+        near, far = self.near, self.far
+
+        aspect = self.aspect
+        vdist = self.vdist
+
+        if glselect:
+            x, y, w, h = glselect
+            gluPickMatrix(
+                x, y,
+                w, h,
+                glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
+            )
+
+        if self.ortho:
+            glOrtho( - scale * aspect, scale * aspect,
+                     - scale,          scale,
+                     vdist * near, vdist * far )
+        else:
+            glFrustum( - scale * near * aspect, scale * near * aspect,
+                       - scale * near,          scale * near,
+                       vdist * near, vdist * far)
+        return
+
+    def _setup_modelview(self):
+        """
+        set up modelview coordinate system
+        """
+        #bruce 080912 moved this from GLPane into GLPane_minimal ###IMPORTS
+        # note: it's not yet used in ThumbView, but maybe it could be.
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        glTranslatef( 0.0, 0.0, - self.vdist)
+            # translate coords for drawing, away from eye (through screen
+            # and beyond it) by vdist; this places origin at desired position
+            # in eyespace for "center of view" (and for center of trackball
+            # rotation)
+        q = self.quat
+        glRotatef( q.angle * 180.0 / math.pi, q.x, q.y, q.z)
+            # rotate those coords by the trackball quat
+        glTranslatef( self.pov[0], self.pov[1], self.pov[2])
+            # and translate them by -cov, to bring cov (center of view)
+            # to origin
+        return
+    
     def _setup_lighting(self):
         # note: in subclass GLPane, as of 080911 this is defined in
         # its mixin superclass GLPane_lighting_methods
@@ -317,6 +478,14 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
     # ==
 
+    # REVIEW:
+    # the following "Undo view" methods probably don't work in subclasses other
+    # than GLPane. It might make sense to have them here, but only if they are
+    # refactored a bit, e.g. so that self.animateToView works in other
+    # subclassses even if it doesn't animate. Ultimately it might be better
+    # to refactor them a lot and/or move them out of this class hierarchy
+    # entirely. [bruce 080912 comment]
+    
     def current_view_for_Undo(self, assy): #e shares code with saveNamedView
         """
         Return the current view in this glpane (which we assume is showing

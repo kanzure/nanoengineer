@@ -1,35 +1,25 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-ThumbView.py - a simpler OpenGL widget, similar to GLPane 
+ThumbView.py - a simpler OpenGL widget, similar to GLPane
+(which unfortunately has a lot of duplicated but partly modified
+code copied from GLPane)
 
 @author: Huaicai
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 
-import math
 from Numeric import dot
 
 from OpenGL.GL import GL_NORMALIZE
-from OpenGL.GL import GL_SMOOTH
-from OpenGL.GL import glShadeModel
-from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import glEnable
-from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import glMatrixMode
 from OpenGL.GL import glLoadIdentity
-from OpenGL.GL import glViewport
-from OpenGL.GL import GL_VIEWPORT
-from OpenGL.GL import glGetIntegerv
-from OpenGL.GL import glOrtho
-from OpenGL.GL import glFrustum
 from OpenGL.GL import glClearColor
 from OpenGL.GL import GL_COLOR_BUFFER_BIT
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
 from OpenGL.GL import glClear
-from OpenGL.GL import glTranslatef
-from OpenGL.GL import glRotatef
 from OpenGL.GL import GL_STENCIL_INDEX
 from OpenGL.GL import glReadPixelsi
 from OpenGL.GL import GL_DEPTH_COMPONENT
@@ -59,7 +49,7 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glDepthFunc
 from OpenGL.GL import GL_LEQUAL
 
-from OpenGL.GLU import gluPickMatrix, gluUnProject
+from OpenGL.GLU import gluUnProject
 
 from PyQt4.Qt import Qt
 
@@ -191,12 +181,17 @@ class ThumbView(GLPane_minimal):
 
     assy = property(__get_assy) #bruce 080220, for per-assy glname dict
     
-    def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between GLPane_lighting_methods (has comments) and ThumbView ###@@@
+    def _setup_lighting(self):
         """
         [private method]
         Set up lighting in the model.
         [Called from both initializeGL and paintGL.]
         """
+        # note: there is some duplicated code in this method
+        # in GLPane_lighting_methods (has more comments) and ThumbView,
+        # but also significant differences. Should refactor sometime.
+        # [bruce 060415/080912 comment]
+        
         glEnable(GL_NORMALIZE)
 
         glMatrixMode(GL_PROJECTION)
@@ -245,59 +240,6 @@ class ThumbView(GLPane_minimal):
         else:
             self.backgroundGradient = gradient
                 
-    def resizeGL(self, width, height):
-        """
-        Called by QtGL when the drawing window is resized.
-        """
-        self.width = width
-        self.height = height
-           
-        glViewport(0, 0, self.width, self.height)
-        
-        self.trackball.rescale(width, height)
-        
-        if not self.initialised:
-            self.initialised = True
-
-
-    def _setup_projection(self, glselect = False): #bruce 050608 split this out; 050615 revised docstring
-        """
-        Set up standard projection matrix contents using aspect, vdist, and 
-        some attributes of self.
-        
-        @warning: leaves matrixmode as GL_PROJECTION.
-                  Optional arg glselect should be False (default) or a 4-tuple
-                  (to prepare for GL_SELECT picking).
-        """
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-
-        scale = self.scale #bruce 050608 used this to clarify following code
-        near, far = self.near, self.far
-
-        #bruce 080219 moved these from one of two callers into here,
-        # to fix bug when insert from partlib is first operation in NE1
-        self.aspect = (self.width + 0.0) / (self.height + 0.0)
-        self.vdist = 6.0 * scale
-
-        if glselect:
-            x, y, w, h = glselect
-            gluPickMatrix(
-                x, y,
-                w, h,
-                glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
-            )
-         
-        if self.ortho:
-            glOrtho( - scale * self.aspect, scale * self.aspect,
-                     - scale,          scale,
-                       self.vdist * near, self.vdist * far )
-        else:
-            glFrustum( - scale * near * self.aspect, scale * near * self.aspect,
-                       - scale * near              ,  scale * near,
-                         self.vdist * near         , self.vdist * far)
-        return
-    
     def paintGL(self):        
         """
         Called by QtGL when redrawing is needed. For every redraw, color & 
@@ -343,18 +285,15 @@ class ThumbView(GLPane_minimal):
                 
             drawFullWindow(_bgGradient)# gradient color
         
-##        self.aspect = (self.width + 0.0) / (self.height + 0.0)
-##        self.vdist = 6.0 * self.scale
         self._setup_projection()
-        
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()    
-        glTranslatef(0.0, 0.0, -self.vdist)
-       
-        q = self.quat
-        
-        glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
-        glTranslatef(self.pov[0], self.pov[1], self.pov[2])
+
+        self._setup_modelview()
+##        glMatrixMode(GL_MODELVIEW)
+##        glLoadIdentity()    
+##        glTranslatef(0.0, 0.0, - self.vdist)
+##        q = self.quat
+##        glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
+##        glTranslatef(self.pov[0], self.pov[1], self.pov[2])
 
         if self.model_is_valid():
             #bruce 080117 [testing this at start of paintGL to skip most of it]:
@@ -371,22 +310,6 @@ class ThumbView(GLPane_minimal):
             # names and comments). [bruce 080220]
             self.drawModel()
    
-    def __getattr__(self, name): # in class ThumbView
-        if name == 'lineOfSight':
-            return self.quat.unrot(V(0, 0, -1))
-        elif name == 'right':
-            return self.quat.unrot(V(1, 0, 0))
-        elif name == 'left':
-            return self.quat.unrot(V(-1, 0, 0))
-        elif name == 'up':
-            return self.quat.unrot(V(0, 1, 0))
-        elif name == 'down':
-            return self.quat.unrot(V(0, -1, 0))
-        elif name == 'out':
-            return self.quat.unrot(V(0, 0, 1))
-        else:
-            raise AttributeError, 'ThumbView has no "%s"' % name #bruce 060209 revised text
-    
     def mousePressEvent(self, event):
         """
         Dispatches mouse press events depending on shift and
@@ -692,7 +615,7 @@ class ThumbView(GLPane_minimal):
         glClear(GL_STENCIL_BUFFER_BIT)
         
         glDepthMask(GL_FALSE) # turn off depth writing (but not depth test)
-        #glDisable(GL_DEPTH_TEST)
+        ## glDisable(GL_DEPTH_TEST)
         glStencilFunc(GL_ALWAYS, 1, 1)
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         glEnable(GL_STENCIL_TEST)
@@ -707,7 +630,7 @@ class ThumbView(GLPane_minimal):
         Restore OpenGL settings changed by _preHighlight to standard values.
         """
         glDepthMask(GL_TRUE)
-        #glEnable(GL_DEPTH_TEST)
+        ## glEnable(GL_DEPTH_TEST)
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
         glDisable(GL_STENCIL_TEST)
         
@@ -1082,8 +1005,14 @@ class MMKitView(ThumbView):
         else: ## Assembly
             part = self.model.part
             bbox = part.bbox
-        self.scale = bbox.scale() 
-       
+        self.scale = bbox.scale()
+
+        # guess: the following is a KLUGE for width and height
+        # being the names of Qt superclass methods
+        # but also being assigned to ints by our own code.
+        # I don't know why it could ever be needed, since resizeGL
+        # sets them -- maybe this can be called before that ever is??
+        # [bruce 080912 comment]
         if isinstance(self.width, int):
             width = self.width 
         else:
@@ -1094,7 +1023,7 @@ class MMKitView(ThumbView):
             height = float(self.height()) 
             
         aspect = width / height
-        
+            # REVIEW: likely bug: integer division is possible [bruce 080912 comment]
         
         ##aspect = float(self.width) / self.height
         if aspect < 1.0:

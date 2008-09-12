@@ -125,12 +125,17 @@ class GLPane_lighting_methods(object):
         """
         return list(self._lights)
 
-    def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between here (has comments) and ThumbView ###@@@
+    def _setup_lighting(self):
         """
         [private method]
         Set up lighting in the model (according to self._lights).
         [Called from both initializeGL and paintGL.]
         """
+        # note: there is some duplicated code in this method
+        # in GLPane_lighting_methods (has more comments) and ThumbView,
+        # but also significant differences. Should refactor sometime.
+        # [bruce 060415/080912 comment]
+        
         glEnable(GL_NORMALIZE)
             # bruce comment 050311: I don't know if this relates to lighting or not
             # grantham 20051121: Yes, if NORMALIZE is not enabled (and normals

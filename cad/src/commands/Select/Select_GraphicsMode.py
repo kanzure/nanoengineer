@@ -93,7 +93,7 @@ import foundation.env as env
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice
 
-from geometry.VQT import V, A, vlen
+from geometry.VQT import A, vlen
 
 from graphics.behaviors.shape import SelectionShape
 from model.bonds import Bond
@@ -642,10 +642,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             self.o.selArea_List += [selCurve_AreaPt] # Add the last point.
             self.o.selArea_List += [self.o.selArea_List[0]] # Close the selection area.
 
-            self.o.shape=SelectionShape(self.o.right, self.o.up, self.o.lineOfSight)
+            self.o.shape = SelectionShape(self.o.right, self.o.up, self.o.lineOfSight)
                 # Create the selection shape object.
 
-            eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
+            ## eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
+            eyeball = self.o.eyeball() #bruce 080912 change, should be equivalent
 
             if self.selShape == SELSHAPE_RECT : # prepare a rectangle selection
                 self.o.shape.pickrect(self.o.selArea_List[0],

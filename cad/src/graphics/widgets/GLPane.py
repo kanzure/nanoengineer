@@ -67,10 +67,8 @@ from PyQt4.QtOpenGL import QGLWidget
 
 from OpenGL.GL import glDepthFunc
 from OpenGL.GL import GL_STENCIL_BITS
-from OpenGL.GL import GL_PROJECTION
 from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import glEnable
-from OpenGL.GL import glLoadIdentity
 from OpenGL.GL import GL_DEPTH_COMPONENT
 from OpenGL.GL import glReadPixelsf
 from OpenGL.GL import GL_LEQUAL
@@ -91,7 +89,6 @@ from OpenGL.GL import GL_REPLACE
 from OpenGL.GL import glStencilOp
 from OpenGL.GL import GL_STENCIL_TEST
 from OpenGL.GL import glPushMatrix
-from OpenGL.GL import glTranslatef
 from OpenGL.GL import glDisable
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import GL_MODELVIEW
@@ -101,13 +98,7 @@ from OpenGL.GL import glColorMask
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
 from OpenGL.GL import glClear
 from OpenGL.GL import GL_TRUE
-from OpenGL.GL import GL_VIEWPORT
-from OpenGL.GL import glGetIntegerv
-from OpenGL.GL import glFrustum
-from OpenGL.GL import glOrtho
-from OpenGL.GL import glRotatef
-from OpenGL.GL import GL_LIGHTING
-from OpenGL.GL import glViewport
+from OpenGL.GL import GL_LIGHTING 
 from OpenGL.GL import GL_RGB
 from OpenGL.GL import GL_UNSIGNED_BYTE
 from OpenGL.GL import glReadPixels
@@ -123,6 +114,7 @@ from OpenGL.GLU import gluUnProject, gluPickMatrix
 
 from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 from geometry.VQT import planeXline, ptonline
+
 from Numeric import dot
 
 import graphics.drawing.drawing_globals as drawing_globals
@@ -468,6 +460,16 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
 
         return # from GLPane.__init__ 
 
+    def resizeGL(self, width, height):
+        """
+        Called by QtGL when the drawing window is resized.
+        """
+        #bruce 080912 moved most of this into superclass
+        GLPane_minimal.resizeGL(self, width, height) # call superclass method
+        self.gl_update() # REVIEW: ok for superclass?
+            # needed here? (Guess yes, to set needs_repaint flag)
+        return
+    
     # ==
     
     if not GLPANE_IS_COMMAND_SEQUENCER:
@@ -902,28 +904,6 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
             env.end_op(mc)
         return
 
-    def __getattr__(self, name): # in class GLPane
-        # TODO: turn these into property defs
-        
-        # return space vectors corresponding to various directions
-        # relative to the screen (can be used during drawing
-        # or when handling mouse events)
-        if name == 'lineOfSight':
-            return self.quat.unrot(V(0, 0, -1))
-        elif name == 'right':
-            return self.quat.unrot(V(1, 0, 0))
-        elif name == 'left':
-            return self.quat.unrot(V(-1, 0, 0))
-        elif name == 'up':
-            return self.quat.unrot(V(0, 1, 0))
-        elif name == 'down':
-            return self.quat.unrot(V(0, -1, 0))
-        elif name == 'out':
-            return self.quat.unrot(V(0, 0, 1))
-        else:
-            raise AttributeError, 'GLPane has no "%s"' % name
-        pass
-    
     # ==
 
     #bruce 060220 changes related to supporting self.modkeys, self.in_drag.
@@ -1677,13 +1657,6 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
         p2 = p1 + k*(p2-p1)
         return (p1, p2)
 
-    def eyeball(self): #bruce 060219 ##e should call this to replace equivalent formulae in other places
-        """
-        Return the location of the eyeball in model coordinates.
-        """
-        return self.quat.unrot(V(0, 0, self.vdist)) - self.pov # note: self.vdist is (usually??) 6 * self.scale
-        ##k need to review whether this is correct for tall aspect ratio GLPane
-
     def SaveMouse(self, event):
         """
         Extracts the mouse position from event and saves it in the I{MousePos}
@@ -1909,6 +1882,19 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
             # QWidget.update() method -- ask Qt to call self.paintGL()
             # (via some sort of paintEvent to our superclass)
             # very soon after the current event handler returns
+            #
+            ### REVIEW: why does this not call self.updateGL() like ThumbView.py does?
+            # I tried calling self.updateGL() here, and got an exception
+            # inside a paintGL subroutine (AttributeError on self.guides),
+            # captured somewhere inside it by print_compact_stack,
+            # which occurred before a print statement here just after my call.
+            # The toplevel Python call shown in print_compact_stack was paintGL.
+            # This means: updateGL causes an immediate call by Qt into paintGL,
+            # in the same event handler, but from C code which stops print_compact_stack
+            # from seeing what was outside it. (Digression: we could work around
+            # that by grabbing the stack frame here and storing it somewhere!)
+            # Conclusion: never call updateGL in GLPane, and review whether
+            # ThumbView should continue to call it. [bruce 080912 comment]
         return
 
     def gl_update_highlight(self): #bruce 070626
@@ -2431,15 +2417,6 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
         # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ###e which coord system, incl projection??
         # [end]
 
-    def get_vdist(self): # [revised bruce 070920]
-        """
-        Recompute and return the desired distance between
-        eyeball and center of view.
-        """
-        return 6.0 * self.scale
-
-    vdist = property(get_vdist)
-
     def _compute_frustum_planes(self): # Piotr 080331
         """
         Compute six planes to be used for frustum culling
@@ -2806,7 +2783,7 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
 
         # draw coordinate-orientation arrows at upper right corner of glpane
         if env.prefs[displayCompass_prefs_key]:
-            self.drawcompass(self.aspect)
+            self.drawcompass()
             # review: needs drawing_phase? [bruce 070124 q]
 
         for stereo_image in self.stereo_images_to_draw:
@@ -3464,67 +3441,11 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
             print "%s: target depth %r NOT reached by %r at %r" % (debug_prefix, targetdepth, candidate, newdepth)
         return None
 
-    def _setup_modelview(self):
-        """
-        set up modelview coordinate system
-        """
-        #bruce 070919 removed vdist arg, getting it from self.vdist
-        vdist = self.vdist
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        glTranslatef( 0.0, 0.0, - vdist)
-            # [bruce comment 050615]
-            # translate coords for drawing, away from eye (through screen and beyond it) by vdist;
-            # this places origin at desired position in eyespace for "center of view" (and for center of trackball rotation).
-
-            # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
-            # (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
-            # We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
-            # clipping planes, etc, like we do now for right, up, etc. ###e
-
-        q = self.quat 
-        glRotatef( q.angle*180.0/math.pi, q.x, q.y, q.z) # rotate those coords by the trackball quat
-        glTranslatef( self.pov[0], self.pov[1], self.pov[2]) # and translate them by -cov, to bring cov (center of view) to origin
-        return
-
-    def _setup_projection(self, glselect = False): ### WARNING: This is not actually private! TODO: rename it.
-        """
-        Set up standard projection matrix contents using various attributes of self.
-        (Warning: leaves matrixmode as GL_PROJECTION.)
-        Optional arg glselect should be False (default) or a 4-tuple (to prepare for GL_SELECT picking).
-        """
-        #bruce 070919 removed aspect, vdist args, getting them from attrs
-        # (as was already done in ThumbView.py)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-
-        scale = self.scale * self.zoomFactor #bruce 050608 used this to clarify following code
-        near, far = self.near, self.far
-
-        aspect = self.aspect
-        vdist = self.vdist
-
-        if glselect:
-            x, y, w, h = glselect
-            gluPickMatrix(
-                x, y,
-                w, h,
-                glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
-            )
-
-        if self.ortho:
-            glOrtho( - scale * aspect, scale * aspect,
-                     - scale,          scale,
-                     vdist * near, vdist * far )
-        else:
-            glFrustum( - scale * near * aspect, scale * near * aspect,
-                       - scale * near,          scale * near,
-                       vdist * near, vdist * far)
-        return
-
-    def drawcompass(self, aspect): #bruce 080910 moved body into its own file
+    def drawcompass(self):
+        #bruce 080910 moved body into its own file
+        #bruce 080912 removed aspect argument
         drawcompass(self,
-                    aspect,
+                    self.aspect,
                     self.quat,
                     self.compassPosition,
                     self.graphicsMode.compass_moved_in_from_corner,
@@ -3533,26 +3454,6 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
         return
     
     # ==
-
-    def resizeGL(self, width, height):
-        """
-        Called by QtGL when the drawing window is resized.
-        """
-        self.width = width
-        self.height = height
-        self.aspect = (self.width + 0.0)/(self.height + 0.0)
-            #bruce 070919 made this self.aspect rather than aspect,
-            # and moved it here from standard_repaint_0
-
-        ## glViewport(10, 15, (self.width-10)/2, (self.height-15)/3) # (guess: just an example of using a smaller viewport)
-        glViewport(0, 0, self.width, self.height)
-        if not self.initialised:
-            self.initialised = 1
-        if width < 300: width = 300
-        if height < 300: height = 300
-        self.trackball.rescale(width, height)
-        self.gl_update()
-        return
 
     def makemenu(self, menu_spec, menu):
         # this overrides the one from DebugMenuMixin (with the same code), but that's ok,

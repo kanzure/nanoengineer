@@ -62,6 +62,10 @@ def writepovfile(part, glpane, filename):
     if aspect < 1.0:
             vdist = cdist / aspect
     eyePos = vdist * glpane.scale*glpane.out-glpane.pov
+        # note: this is probably the same as glpane.eyeball(),
+        # in perspective view, except for the aspect < 1.0 correction.
+        # See comments in def eyeball about whether that correction
+        # is needed there as well. [bruce 080912 comment]
     
     f.write("#declare cameraPosition = "+ povpoint(eyePos)  + ";\n" +
             "\ncamera {\n  location cameraPosition"  +

@@ -71,7 +71,6 @@ class DrawInCorner_projection(DelegatingInstanceOrExpr):
 
         try:
             glpane = self.env.glpane
-##            aspect = 1.0 ###WRONG -- should use glpane.aspect (which exists as of 070919)
             aspect = glpane.aspect # revised by bruce 070919, UNTESTED
             corner = self.corner
             delegate = self.delegate
@@ -90,14 +89,14 @@ class DrawInCorner_projection(DelegatingInstanceOrExpr):
 
             # the first three cases here are still ###WRONG
             if corner == UPPER_RIGHT:
-                glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
+                glOrtho(-50 * aspect, 5.5 * aspect, -50, 5.5,  -5, 500) # Upper Right
             elif corner == UPPER_LEFT:
-                glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -5, 500) # Upper Left
+                glOrtho(-5 * aspect, 50.5 * aspect, -50, 5.5,  -5, 500) # Upper Left
             elif corner == LOWER_LEFT:
-                glOrtho(-5*aspect, 50.5*aspect, -5, 50.5,  -5, 500) # Lower Left
+                glOrtho(-5 * aspect, 50.5 * aspect, -5, 50.5,  -5, 500) # Lower Left
             else:
-                ## glOrtho(-50*aspect, 5.5*aspect, -5, 50.5,  -5, 500) # Lower Right
-                ## glOrtho(-50*aspect, 0, 0, 50,  -5, 500) # Lower Right [used now] -- x from -50*aspect to 0, y (bot to top) from 0 to 50
+                ## glOrtho(-50 * aspect, 5.5 * aspect, -5, 50.5,  -5, 500) # Lower Right
+                ## glOrtho(-50 * aspect, 0, 0, 50,  -5, 500) # Lower Right [used now] -- x from -50 * aspect to 0, y (bot to top) from 0 to 50
                 glOrtho(-glpane.width * PIXELS, 0, 0, glpane.height * PIXELS,  -5, 500)
                     # approximately right for the checkbox, but I ought to count pixels to be sure (note, PIXELS is a pretty inexact number)
 
@@ -165,7 +164,6 @@ class DrawInCorner(DelegatingInstanceOrExpr):
         glLoadIdentity()
         try:
             glpane = self.env.glpane
-##            aspect = 1.0 ###WRONG -- should use glpane.aspect (which exists as of 070919)
             aspect = glpane.aspect # revised by bruce 070919, UNTESTED
             corner = self.corner
             delegate = self.delegate
@@ -205,7 +203,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
 ##            print x1,y1,z1
             x1wish = glpane.width / 2.0 * PIXELS # / 2.0 because in these coords, screen center indeed has x == y == 0
             r = x1/x1wish
-            glScale(r,r,r) # compensate for zoom*scale in _setup_projection, for error in PIXELS, and for want_depth != cov_depth
+            glScale(r,r,r) # compensate for zoom * scale in _setup_projection, for error in PIXELS, and for want_depth != cov_depth
 ##            x1 /= r
 ##            y1 /= r
             z1 /= r

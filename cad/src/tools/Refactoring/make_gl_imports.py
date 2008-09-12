@@ -17,6 +17,19 @@ tokenize the input, and for each unique identifier
 matching gl* or GL*, make an import statement based on its initial
 characters, handling gl vs glu appropriately.
 
+BUGS:
+
+It thinks identifiers in import statements are in code,
+so it will never remove imports when run on an entire file,
+and it can get confused and suggest unnecessary ones
+such as "from OpenGL.GL import GL" (from seeing the "GL"
+in "OpenGL.GL" in an existing import statement).
+
+It doesn't verify the symbol is available in the module
+it proposes to import, so it will get confused by local
+variables that start with 'gl' or classnames that
+start with 'GL' (e.g. "GLPane"), for example.
+
 TODO:
 
 generalize to a tool which fixes up all toplevel imports
@@ -49,6 +62,8 @@ def process_token(tup5):
     if tokname == 'NAME':
         # keyword or identifier
         if text[:2] in ('gl', 'GL'):
+            if text == 'global':
+                return
             kind = 'gl' # might be modified
             if text[:3] in ('glu', 'GLU'):
                 kind = 'glu'
