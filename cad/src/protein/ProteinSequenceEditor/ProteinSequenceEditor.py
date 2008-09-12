@@ -472,7 +472,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursor_mate2 =  self.aaRulerTextEdit.textCursor()
         
         if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
-            curPos = 0
+            curPos = 1
         else:
             curPos = cursor.position()
             
@@ -494,6 +494,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             return
         
         position = cursor.position()
+        if position == 0:
+            # piotr 080912: fixed an exception when user clicked on position 0
+            position = 1
         proteinExists = False
         if current_command in commandSet:
             current_protein = self.win.commandSequencer.currentCommand.propMgr.current_protein
