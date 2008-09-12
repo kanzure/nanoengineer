@@ -1,12 +1,21 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-GLPane.py -- NE1's main model view, based on Qt's OpenGL widget.
-
-Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-24.
-Revised by many other developers since then (and perhaps before).
+GLPane.py -- NE1's main model view. A subclass of Qt's OpenGL widget, QGLWidget.
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+
+NOTE: If you add code to class GLPane, please carefully consider
+whether it belongs in one of its mixin superclasses (GLPane_*.py)
+instead of in the main class in this file.
+
+These separate files are topic-specific and should be kept as self-contained
+as possible, in methods, attributes, helper functions, and imports.
+(Someday, some of them should evolve into separate cooperating
+objects and not be part of GLPane's class hierarchy at all.)
+
+(Once the current refactoring is complete, most new code will belong
+ in one of those superclass files, not in this file. [bruce 080912])
 
 Module classification: [bruce 080104]
 
@@ -17,15 +26,25 @@ accurate today.
 Refactoring needed: [bruce 080104]
 
 - split into several classes (either an inheritance tree, or cooperating
-objects);
+objects); [080910 doing an initial step to this: splitting into mixins
+in their own files]
 
 - move more common code into GLPane_minimal;
 
 - most urgently, make the main GLPane not be the
-same object as the CommandSequencer. [see GLPANE_IS_COMMAND_SEQUENCER]
+same object as the CommandSequencer. [see GLPANE_IS_COMMAND_SEQUENCER --
+this is now done by default on 080911, but still needs code cleanup
+to completely remove support for the old value, after the next release.]
 
 Some of this might be a prerequisite for some ways of
 optimizing the graphics code.
+
+History:
+
+Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-24.
+Revised by many other developers since then (and perhaps before).
+
+bruce 080910 splitting class GLPane into several mixin classes in other files.
 """
 
 TEST_DRAWING = False # True  ## Debug/test switch.  Never check in a True value.
@@ -49,11 +68,8 @@ from PyQt4.QtOpenGL import QGLWidget
 from OpenGL.GL import glDepthFunc
 from OpenGL.GL import GL_STENCIL_BITS
 from OpenGL.GL import GL_PROJECTION
-from OpenGL.GL import GL_SMOOTH
-from OpenGL.GL import glShadeModel
 from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import glEnable
-from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import glLoadIdentity
 from OpenGL.GL import GL_DEPTH_COMPONENT
 from OpenGL.GL import glReadPixelsf
@@ -204,12 +220,16 @@ else:
     class _CommandSequencer_for_glpane(object):
         pass
 
-class GLPane(GLPane_minimal,
+class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
+                 # since it needs to override _setup_lighting
+             
+             GLPane_minimal, # the "main superclass"; inherits QGLWidget
+             
              _CommandSequencer_for_glpane,
              DebugMenuMixin,
              SubUsageTrackingMixin,
              GLPane_mixin_for_DisplayListChunk,
-             GLPane_lighting_methods,
+             
              GLPane_text_and_color_methods,
              GLPane_stereo_methods,
              GLPane_view_change_methods
@@ -217,6 +237,12 @@ class GLPane(GLPane_minimal,
     """
     Widget for OpenGL graphics and associated mouse/key input,
     with lots of associated/standard behavior and helper methods.
+
+    Note: if you want to add code to this class, consider whether it
+    ought to go into one of the mixin superclasses listed above.
+    (Once the current refactoring is complete, most new code will belong
+     in one of those superclasses, not in this file. [bruce 080912])
+    See module docstring for more info.
 
     Effectively a singleton object:
 
@@ -727,6 +753,8 @@ class GLPane(GLPane_minimal,
         #  or even the currentCommand if it can be considered part of the model
         #  like the selection is). [bruce 071011]
 
+        # selobj
+
         if self.selatom is not None: #bruce 050612 precaution (scheme could probably be cleaned up #e)
             if debug_flags.atom_debug:
                 print "atom_debug: update_after_new_graphicsMode storing None over self.selatom", self.selatom
@@ -736,7 +764,12 @@ class GLPane(GLPane_minimal,
                 print "atom_debug: update_after_new_graphicsMode storing None over self.selobj", self.selobj
             self.set_selobj(None)
 
+        # event handlers
+        
         self.set_mouse_event_handler(None) #bruce 070628 part of fixing bug 2476 (leftover CC Done cursor)
+
+        # cursor (is this more related to event handlers or rendering?)
+        
         self.graphicsMode.update_cursor()
             # do this always (since set_mouse_event_handler only does it if the handler changed) [bruce 070628]
             # Note: the above updates are a good idea,
@@ -744,6 +777,8 @@ class GLPane(GLPane_minimal,
             # thus the need for other parts of that bugfix -- and given those, I don't know if this is needed.
             # But it seems a good precaution even if not. [bruce 070628]
 
+        # rendering-related
+        
         if sys.platform == 'darwin':
             self._set_widget_erase_color()
             # sets it from self.backgroundColor;
@@ -751,6 +786,7 @@ class GLPane(GLPane_minimal,
             # see comments in that method's implem for caveats
 
         self.gl_update() #bruce 080829
+        
         return
 
     def update_GLPane_after_new_command(self): #bruce 080813
@@ -814,7 +850,6 @@ class GLPane(GLPane_minimal,
         atom_preferred_scale = float(
             env.prefs[GLPane_scale_for_atom_commands_prefs_key])
 
-
         if self.assy.commandSequencer.currentCommand.commandName in dnaCommands:
             if self.scale == startup_scale:                
                 self.scale = dna_preferred_scale
@@ -823,8 +858,6 @@ class GLPane(GLPane_minimal,
                 self.scale = atom_preferred_scale
 
         return
-
-    # ==
 
     # bruce 041220: handle keys in GLPane (see also setFocusPolicy, above).
     # Also call these from MWsemantics whenever it has the focus. This fixes
@@ -869,9 +902,12 @@ class GLPane(GLPane_minimal,
             env.end_op(mc)
         return
 
-    # return space vectors corresponding to various directions
-    # relative to the screen
     def __getattr__(self, name): # in class GLPane
+        # TODO: turn these into property defs
+        
+        # return space vectors corresponding to various directions
+        # relative to the screen (can be used during drawing
+        # or when handling mouse events)
         if name == 'lineOfSight':
             return self.quat.unrot(V(0, 0, -1))
         elif name == 'right':
@@ -889,19 +925,6 @@ class GLPane(GLPane_minimal,
         pass
     
     # ==
-
-    def initializeGL(self):
-        """
-        #doc [called by Qt]
-        """
-        self.makeCurrent() # bruce comment 050311: probably not needed since Qt does it before calling this
-        self._setup_lighting() # defined in GLPane_lighting_methods
-        glShadeModel(GL_SMOOTH)
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_CULL_FACE)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        return
 
     #bruce 060220 changes related to supporting self.modkeys, self.in_drag.
     # These changes are unfinished in the following ways: ###@@@
@@ -3540,10 +3563,9 @@ class GLPane(GLPane_minimal,
 
     def debug_menu_items(self): #bruce 050515
         """
-        overrides method from DebugMenuMixin
+        [overrides method from DebugMenuMixin]
         """
-        super = DebugMenuMixin
-        usual = super.debug_menu_items(self)
+        usual = DebugMenuMixin.debug_menu_items(self)
             # list of (text, callable) pairs, None for separator
         ours = list(usual)
         try:

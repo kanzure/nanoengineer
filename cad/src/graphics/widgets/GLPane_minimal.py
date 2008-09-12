@@ -13,6 +13,14 @@ It needs to be in its own file to avoid import loop problems.
 """
 
 from OpenGL.GL import glDepthRange
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import GL_DEPTH_TEST
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import GL_SMOOTH
+from OpenGL.GL import glEnable
+from OpenGL.GL import glLoadIdentity
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glShadeModel
 
 from PyQt4.QtOpenGL import QGLFormat
 from PyQt4.QtOpenGL import QGLWidget
@@ -173,6 +181,28 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     def __repr__(self):
         return "<%s at %#x>" % (self.__class__.__name__.split('.')[-1], id(self))
 
+    def initializeGL(self):
+        """
+        Called once by Qt when the OpenGL context is first ready to use.
+        """
+        #bruce 080912 merged this from subclass methods, guessed docstring
+        self._setup_lighting()
+        
+        glShadeModel(GL_SMOOTH)
+        glEnable(GL_DEPTH_TEST)
+        glEnable(GL_CULL_FACE)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        
+        if not self.isSharing():
+            self._setup_display_lists()
+        return
+
+    def _setup_lighting(self):
+        # note: in subclass GLPane, as of 080911 this is defined in
+        # its mixin superclass GLPane_lighting_methods
+        assert 0, "subclass must override this"
+        
     def _setup_display_lists(self): # bruce 071030
         """
         This needs to be called during __init__ if a new display list context
@@ -183,6 +213,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         most recently set up display list context will work with the
         associated drawing functions in the same modules.
         """
+        # TODO: warn if called twice (see docstring for why)
         setup_drawer()
         setup_draw_grid_lines()
         return

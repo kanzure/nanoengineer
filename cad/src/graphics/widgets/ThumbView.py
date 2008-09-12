@@ -218,22 +218,7 @@ class ThumbView(GLPane_minimal):
         
         setup_standard_lights( lights)
         return
-    
-    def initializeGL(self):
         
-        self._setup_lighting()
-
-        glShadeModel(GL_SMOOTH)
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_CULL_FACE)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        
-        if not self.isSharing():
-            self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
-
-        return
-    
     def resetView(self):
         """
         Reset the view.
