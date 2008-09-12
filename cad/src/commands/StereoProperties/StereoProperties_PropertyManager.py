@@ -198,7 +198,7 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
                        minimum      = 0,
                        maximum      = 100,
                        label        = 'Angle'
-                       )        
+                       )
 
         self.stereoAngleSlider.setValue(env.prefs[stereoViewAngle_prefs_key])
 
@@ -222,7 +222,7 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         glpane = self.o
         if glpane:
-            glpane.stereo_enabled = enabled
+            glpane.set_stereo_enabled( enabled)
             # switch to perspective mode
             if enabled:
                 # store current projection mode

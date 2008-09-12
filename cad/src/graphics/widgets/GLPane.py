@@ -160,8 +160,8 @@ from utilities.prefs_constants import fogEnabled_prefs_key
 
 
 from utilities.prefs_constants import stereoViewMode_prefs_key
-from utilities.prefs_constants import stereoViewAngle_prefs_key
 from utilities.prefs_constants import stereoViewSeparation_prefs_key
+from utilities.prefs_constants import stereoViewAngle_prefs_key
 
 from utilities.constants import diDEFAULT
 from utilities.constants import dispLabel
@@ -261,6 +261,10 @@ class GLPane(GLPane_minimal,
 
     assy = None #bruce 080314
 
+    stereo_enabled = False # piotr 080515 - stereo disabled by default
+    stereo_images_to_draw = (0,)
+    current_stereo_image = 0
+    
     def __init__(self, assy, parent = None, name = None, win = None):
         """
         """
@@ -448,9 +452,6 @@ class GLPane(GLPane_minimal,
         self.tripleClickTimer  =  QTimer(self)
         self.tripleClickTimer.setSingleShot(True)
         self.connect(self.tripleClickTimer, SIGNAL('timeout()'), self._tripleClickTimeout)
-
-        self.stereo_enabled = False # piotr 080515 - stereo disabled by default
-        self.current_stereo_image = 0
 
         return # from GLPane.__init__ 
 
@@ -1601,6 +1602,33 @@ class GLPane(GLPane_minimal,
             pw = self.partWindow
             pw.parent._activepw = pw
 
+    def set_stereo_enabled(self, enabled): #bruce 080911
+        """
+        Set whether stereo will be enabled during the next draw
+        (and subsequent draws until this is set again).
+
+        @note: this should only be called between draws. If it's called by
+               Qt event handlers, that should guarantee this, since they
+               are atomic with respect to paintGL and paintGL never does
+               recursive event processing.
+        """
+        # future: if this could be called during paintGL, then we'd
+        # need to reimplement it so that instead of setting self.stereo_enabled
+        # directly, we'd set another attr which would be copied into it when
+        # we call _update_stereo_settings at the start of the next paintGL.
+        self.stereo_enabled = enabled
+        if self.stereo_enabled:
+            # have two images for the stereo rendering.
+            # In some stereo_modes these are clipped left and right images;
+            # in others they are drawn overlapping with different colormasks.
+            # This is set up as needed by passing these values (as stereo_image)
+            # to self._enable_stereo.
+            self.stereo_images_to_draw = (-1, 1)
+        else:
+            # draw only once if stereo is disabled
+            self.stereo_images_to_draw = (0,)
+        return
+    
     def mousePressEvent(self, event):
         """
         Mouse press event handler for the L{GLPane}. It dispatches mouse press
@@ -1644,18 +1672,26 @@ class GLPane(GLPane_minimal,
 
         self.checkpoint_before_drag(event, but)
 
-        # piotr 080529 - determine which of the stereo pairs is being clicked in
+        # piotr 080529:
+        # set self.current_stereo_image to indicate which stereo image the
+        # mouse press was in:
+        # 0 means stereo is disabled, or the two stereo images overlap
+        # (as opposed to being a left/right pair -- this is determined
+        #  by self.stereo_mode)
+        # -1 means the left image (of a left/right pair) was clicked on
+        # +1 means the right image was clicked on
+        # self.current_stereo_image will then remain unchanged until the
+        # next mouse press event. (Thus even drags into the other image
+        # of a left/right pair will not change it.)
+        ### REVIEW: even bareMotion won't change it -- will this cause
+        # trouble for highlighting when the mouse crosses the boundary?
+        # [bruce 080911 question]
         self.current_stereo_image = 0
         if self.stereo_enabled:
-            # get current stereo mode
-            # LOGIC BUG (unverified): this might have changed since the last redraw.
-            # Maybe the stereo_mode used for the last redraw needs to be cached.
-            # [bruce 080911 comment]
-            stereo_mode = env.prefs[stereoViewMode_prefs_key]
             # if in side-by-side stereo
-            if stereo_mode == 1 or \
-               stereo_mode == 2:
-                # find out which of the stereo pairs is being used
+            if self.stereo_mode == 1 or \
+               self.stereo_mode == 2:
+                # find out which stereo image was clicked in
                 if event.x() < self.width / 2:
                     self.current_stereo_image = -1
                 else:
@@ -2043,17 +2079,26 @@ class GLPane(GLPane_minimal,
 
     def mousepoints(self, event, just_beyond = 0.0):
         """
-        Returns a pair (tuple) of points (Numeric arrays of x,y,z)
-        that lie under the mouse pointer at (or just beyond) the near clipping
-        plane and in the plane of the center of view. Optional argument
-        just_beyond = 0.0 tells how far beyond the near clipping plane
-        the first point should lie. Some callers pass 0.01 for this.
+        @return: a pair (2-tuple) of points (Numeric arrays of x,y,z in model
+                 coordinates) that lie under the mouse pointer. The first point
+                 lies at (or just beyond) the near clipping plane; the other
+                 point lies in the plane of the center of view.
+        @rtype: (point, point)
+
+        @param just_beyond: how far beyond the near clipping plane
+                            the first point should lie. Default value of 0.0
+                            means on the near plane; 1.0 would mean on the
+                            far plane. Callers often pass 0.01 for this.
+                            Some callers pass this positionally, and some as
+                            a keyword argument.
+        @type just_beyond: float
 
         If stereo is enabled, self.current_stereo_image determines which
         stereo image's coordinate system is used to get the mousepoints
         (even if the mouse pointer is not inside that image now).
-        self.current_stereo_image is set based on the mouse position
-        in each mouse press event (not in mouse drag, release, or bareMotion).
+        (Note that self.current_stereo_image is set (by other code in self)
+        based on the mouse position in each mouse press event. It's not affected
+        by mouse position in mouse drag, release, or bareMotion events.)
         """
         x = event.pos().x()
         y = self.height - event.pos().y()
@@ -3120,15 +3165,16 @@ class GLPane(GLPane_minimal,
 
         if fog_test_enable:
             # piotr 080515 fixed fog
-            # I think that the bbox call can be expensive.
-            # I have to preserve this value or find another way
-            # of computing it.
+            # I think that the bbox_for_viewing_model call can be expensive.
+            # I have to preserve this value or find another way of computing it.
             bbox = self.assy.bbox_for_viewing_model()
             scale = bbox.scale()
             enable_fog()
-            setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor) 
+            setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor)
+            # [I suspect the following comment is about a line that has since
+            #  been moved elsewhere -- bruce 080911]
             # this next line really should be just before rendering
-            # the atomic model itself.  I dunno where that is.
+            # the atomic model itself.  I dunno where that is. [bradg I think]
 
         # ask mode to validate self.selobj (might change it to None)
         # (note: self.selobj is used in do_glselect_if_wanted)
@@ -3138,6 +3184,10 @@ class GLPane(GLPane_minimal,
         self._setup_modelview()
             #bruce 050608 moved modelview setup here, from just before the mode.Draw call
 
+        # set self.stereo_* attributes based on current user prefs values
+        # (just once per draw event, before anything might use these attributes)
+        self._update_stereo_settings()
+        
         # do GL_SELECT drawing if needed (for hit test of objects with mouse)
 
         ###e note: if any objects moved since they were last rendered, this hit-test will still work (using their new posns),
@@ -3185,27 +3235,11 @@ class GLPane(GLPane_minimal,
 
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods
 
-        # piotr 080515: added software stereo rendering support
-        ### REVIEW/TODO: this code needs centralization.
-        # search for: computes of stereo_image_range, 080911, and "LOGIC BUG"
-        # for related code (all related to stereo, not all quite the same issue).
-        # [bruce 080911 comment]
-        if not self.stereo_enabled:
-            # draw only once if stereo is disabled
-            stereo_image_range = [0]
-        else:
-            # have two images for the stereo rendering.
-            # in some stereo_modes these are left and right and are clipped;
-            # in others they are drawn overlapping but with different colormasks.
-            stereo_image_range = [-1, 1]
-            pass
-
         vboLevel = drawing_globals.use_drawing_variant
-        for stereo_image in stereo_image_range: 
-            # iterate over stereo images
+        
+        for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)
 
-            # enable fog
             if fog_test_enable:
                 enable_fog()
                 
@@ -3223,13 +3257,15 @@ class GLPane(GLPane_minimal,
             if fog_test_enable:
                 disable_fog()            
                 
-            # highlight selobj if necessary, by drawing it again in highlighted form.
+            # highlight selobj if necessary, by drawing it again in highlighted
+            # form (never inside fog).
             # It was already drawn normally, but we redraw it now for two reasons:
-            # - it might be in a display list in non-highlighted form (and if so, the above draw used that form);
-            # - we need to draw it into the stencil buffer too, so mode.bareMotion can tell when mouse is still over it.
-
+            # - it might be in a display list in non-highlighted form (and if so,
+            #   the above draw used that form);
+            # - we need to draw it into the stencil buffer too, so mode.bareMotion
+            #   can tell when mouse is still over it.
             if selobj is not None:
-                self.draw_highlighted_objectUnderMouse(selobj, hicolor) #bruce 070920 split this out                
+                self.draw_highlighted_objectUnderMouse(selobj, hicolor)
                     # REVIEW: is it ok that the mode had to tell us selobj and hicolor
                     # (and validate selobj) before drawing the model?
 
@@ -3275,26 +3311,12 @@ class GLPane(GLPane_minimal,
             self.drawcompass(self.aspect)
             # review: needs drawing_phase? [bruce 070124 q]
 
-        # piotr 080515: added software stereo rendering support
-        
-        # REVIEW: this looks redundant with another set of stereo_image_range
-        # about 74 lines above. Can this ever set it to a different value?
-        # (I hope not since I think that might be a bug if it happened.)
-        # Should clean up.
-        # (Also, separate issue and less imoprtant -- could we simplify
-        #  by moving it into the same loop used above?)
-        # [bruce 080911 comment]
-
-        if self.stereo_enabled:
-            # have two images, left and right, for the stereo rendering
-            stereo_image_range = [-1, 1]
-        else:
-            # draw only once if stereo is disabled
-            stereo_image_range = [0]
-
-        for stereo_image in stereo_image_range: 
-            # iterate over stereo images
+        for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image, preserve_colors = True)
+
+            # REVIEW: can we simplify and/or optim by moving this into the same
+            # stereo_image loop used earlier for graphicsMode.Draw?
+            # [bruce 080911 question]
             
             # Draw the Origin axes.
             # WARNING: this code is duplicated, or almost duplicated,
@@ -3418,20 +3440,7 @@ class GLPane(GLPane_minimal,
             try:
                 self.drawing_phase = 'glselect' #bruce 070124
 
-                # piotr 080515: added software stereo rendering support
-
-                # REVIEW: can't this use a value of stereo_image_range set just once
-                # closer to the start of paintGL or standard_repaint_0?
-                # This is the 3rd one I've noticed. [bruce 080911 comment]
-                if not self.stereo_enabled:
-                    # draw only once if stereo is disabled
-                    stereo_image_range = [0]
-                else:
-                    # have two images, left and right, for the stereo rendering
-                    stereo_image_range = [-1, 1]
-
-                for stereo_image in stereo_image_range: 
-                    # iterate over stereo images
+                for stereo_image in self.stereo_images_to_draw:
                     self._enable_stereo(stereo_image)
 
                     self.graphicsMode.Draw()
@@ -3446,7 +3455,6 @@ class GLPane(GLPane_minimal,
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                 # now it's important to continue, at least enough to restore other gl state
-
 
             self._frustum_planes_available = False # piotr 080331 
                 # just to be safe and not use the frustum planes computed for 
@@ -3833,7 +3841,7 @@ class GLPane(GLPane_minimal,
             ### REVIEW: should this be an attribute of each object which can be drawn as selobj, instead?
             # The reasons it's needed are the same ones that require a nonzero DEPTH_TWEAK in GLPane_minimal.
             # See also the comment about it inside check_target_depth. [bruce 070921 comment]
-        for orderjunk, obj in items:
+        for orderjunk, obj in items: # iterate over candidates
             try:
                 method = obj.draw_in_abs_coords
             except AttributeError:
@@ -3841,29 +3849,16 @@ class GLPane(GLPane_minimal,
                 print "   items are:", items
             else:
                 try:
-                    # piotr 080515: added software stereo rendering support
-                    # REVIEW:
-                    # 1. this is the 4th redundant set of stereo_image_range.
-                    # Guess: piotr was not sure
-                    # this was only called as a subroutine of paintGL.
-                    # But it is (maybe even of standard_repaint_0, not sure).
-                    # So we only need to set this once.
-                    # 2. would it be more efficient and correct
-                    # to iterate over stereo images outside, and candidates inside?
-                    # I guess that would
-                    # require knowing which stereo_image we're sampling in... and in that
-                    # case we'd want to use only one of them anyway... unless they overlap.
-                    # BTW if the images overlap, what semantics should we use for this?
-                    # [bruce 080911 review comments]
-                    if not self.stereo_enabled:
-                        # draw only once if stereo is disabled
-                        stereo_image_range = [0]
-                    else:
-                        # have two images, left and right, for the stereo rendering
-                        stereo_image_range = [-1, 1]
-
-                    for stereo_image in stereo_image_range: 
-                        # iterate over stereo images
+                    for stereo_image in self.stereo_images_to_draw:
+                        # REVIEW: would it be more efficient, and correct,
+                        # to iterate over stereo images outside, and candidates
+                        # inside (i.e. turn this pair of loops inside out)?
+                        # I guess that would require knowing which stereo_image
+                        # we're sampling in... and in that case we'd want to use
+                        # only one of them anyway to do the testing
+                        # (probably even if they overlap, just pick one and
+                        # use that one -- see related comments in _enable_stereo).
+                        # [bruce 080911 comment]
                         self._enable_stereo(stereo_image)
 
                         self.drawing_phase = 'selobj/preDraw_glselect_dict' # bruce 070124
@@ -3887,7 +3882,7 @@ class GLPane(GLPane_minimal,
                         break
                 except:
                     self.drawing_phase = '?'
-                    print_compact_traceback("exception in %r.draw_in_abs_coords ignored: " % (obj,))
+                    print_compact_traceback("exception in or near %r.draw_in_abs_coords ignored: " % (obj,))
         ##e should check depth here to make sure it's near enough but not too near
         # (if too near, it means objects moved, and we should cancel this pick)
         glClear(GL_DEPTH_BUFFER_BIT) # prevent those predraws from messing up the subsequent main draws
@@ -4087,7 +4082,7 @@ class GLPane(GLPane_minimal,
             print_compact_traceback("exception ignored: ")
         return ours
 
-    # stereo rendering methods added by piotr 080515
+    # stereo rendering methods [piotr 080515 added these, and their calling code]
 
     def _enable_stereo(self, stereo_image, preserve_colors = False, no_clipping = False):
         """
@@ -4105,37 +4100,27 @@ class GLPane(GLPane_minimal,
         
         @param preserve_colors: Disable color mask manipulations,
                                 which normally occur in anaglyph mode.
+                                (Also disable depth buffer clearing
+                                 for 2nd image, which occurs then.)
 
         @param no_clipping: Disable clipping, which normally occurs in
                             side-by-side mode.
         """
-        
         if not self.stereo_enabled:
-            # stereo disabled - just return
             return
 
         glPushAttrib(GL_TRANSFORM_BIT)
 
-        stereo_mode = env.prefs[stereoViewMode_prefs_key]
-            # LOGIC BUG (unverified): should be cached per frame
-            # in case it can change during the draw
-            # (or, explain why it can't, e.g. only event handlers
-            #  change it and they are atomic with respect to a frame)
-            # [bruce 080911 comment]
-            
-            # piotr 080911: I think you are right. The stereo_mode,
-            # stereo_separation and stereo_angle attributes could be made
-            # class attributes and be defined e.g. in standard_repaint_0
-            
-        stereo_separation = 0.01 * env.prefs[stereoViewSeparation_prefs_key]
-        stereo_angle = -0.1 * (env.prefs[stereoViewAngle_prefs_key] - 25)
+        stereo_mode = self.stereo_mode
+        stereo_separation = self.stereo_separation
+        stereo_angle = self.stereo_angle
 
         # push the modelview matrix on the stack
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
 
         separation = stereo_separation * self.scale
-        angle = stereo_angle
+        angle = stereo_angle # might be modified below
 
         if stereo_mode <= 2:
             # side-by-side stereo mode
@@ -4218,31 +4203,24 @@ class GLPane(GLPane_minimal,
                       self.up[0], 
                       self.up[1],
                       self.up[2])
-
+        return
 
     def _disable_stereo(self):
         """
         Disables stereo rendering.
-        This method modifies pops a modelview matrix from a matrix stack.
+        This method pops a modelview matrix from the matrix stack.
         """
-
         if not self.stereo_enabled:
-            # stereo disabled - just return
             return
-
-        stereo_mode = env.prefs[stereoViewMode_prefs_key]
-
-        if stereo_mode <= 2:
+        
+        if self.stereo_mode <= 2:
             # side-by-side stereo mode
             # make sure that the clipping plane is disabled
             glDisable(GL_CLIP_PLANE5)
-            pass
-
         else: 
             # anaglyphs stereo mode
             # enable all colors
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE) 
-            pass
 
         # restore the matrix
         glMatrixMode(GL_MODELVIEW)
@@ -4250,6 +4228,29 @@ class GLPane(GLPane_minimal,
 
         glPopAttrib()
 
+        return
+
+    def _update_stereo_settings(self): #bruce 080911 (bugfix, see docstring)
+        """
+        set self.stereo_* attributes (mode, separation, angle)
+        based on current user prefs values
+        
+        @note: this should be called just once per draw event, before
+               anything might use these attributes, to make sure
+               these settings remain constant throughout that event (perhaps not
+               an issue since event handlers are atomic), and to ensure they remain
+               correct relative to what was drawn in subsequent calls of
+               mousePressEvent or mousepoints (necessary in case intervening
+               user events modified the prefs values)
+        """
+        if self.stereo_enabled:
+            # this code (by Piotr) must be kept in synch with the code
+            # which sets the values of these prefs (in another module)
+            self.stereo_mode = env.prefs[stereoViewMode_prefs_key]
+            self.stereo_separation = 0.01 * env.prefs[stereoViewSeparation_prefs_key]
+            self.stereo_angle = -0.1 * (env.prefs[stereoViewAngle_prefs_key] - 25)
+        return
+    
     pass # end of class GLPane
 
 # ==
