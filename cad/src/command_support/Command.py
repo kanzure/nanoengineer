@@ -901,11 +901,6 @@ class basicCommand(anyCommand):
             res = '+'.join(res)
         return res
     
-    # ==
-
-    def warning(self, *args, **kws): # review: rename/revise for new Command API? Not urgent. [080806]
-        self.o.warning(*args, **kws)
-
     # == methods related to entering this command
     
     def _enterMode(self, resuming = False, has_its_own_gui = True): #### obsolete after USE_COMMAND_STACK;
@@ -1659,7 +1654,83 @@ class basicCommand(anyCommand):
         
         msg = "%s with changes is being forced to abandon those changes!\n" \
               "Sorry, no choice for now." % (self.get_featurename(),)
-        self.o.warning( msg, bother_user_with_dialog = 1 )
+        self._warning_for_abandon( msg, bother_user_with_dialog = 1 )
+        return
+
+    def warning(self, *args, **kws):
+        # find out whether this ever happens. If not, remove it. [bruce 080912]
+        print_compact_stack( "fyi: deprecated method basicCommand.warning(*%r, **%r) was called: " % (args, kws))
+        self._warning_for_abandon(*args, **kws)
+
+    def _warning_for_abandon(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
+        """
+        Show a warning to the user, without interrupting them
+        (i.e. not in a dialog) unless bother_user_with_dialog is
+        true, or unless ensure_visible is true and there's no other
+        way to be sure they'll see the message.  (If neither of
+        these options is true, we might merely print the message to
+        stdout.)
+
+        Also always print the warning to the console.
+
+        In the future, this might go into a status bar in the
+        window, if we can be sure it will remain visible long
+        enough.  For now, that won't work, since some status bar
+        messages I emit are vanishing almost instantly, and I can't
+        yet predict which ones will do that.  Due to that problem
+        and since the stdout/stderr output might be hidden from the
+        user, ensure_visible implies bother_user_with_dialog for
+        now.  (And when we change that, we have to figure out
+        whether all the calls that no longer use dialogs are still
+        ok.)
+
+        In the future, all these messages will also probably get
+        timestamped and recorded in a log file, in addition to
+        whereever they're shown now.
+
+        @see: env.history; other methods named warning.
+        """
+        # bruce 040922 wrote this (in GLPane, named warning)
+        # bruce 080912: this was almost certainly only called by
+        # self._warnUserAboutAbandonedChanges.
+        # so I moved its body here from class GLPane,
+        # and renamed it, and added a deprecated compatibility
+        # call from the old method name (warning).
+
+        # TODO: cleanup; rename str to not mask python builtin;
+        # merge with other 'def warning' methods and with
+        # env.history / statusbar methods.
+        # Or, perhaps just inline it into its sole real caller.
+
+        from PyQt4.Qt import QMessageBox
+        
+        use_status_bar = 0 # always 0, for now
+        use_dialog = bother_user_with_dialog
+
+        if ensure_visible:
+            prefix = "WARNING"
+            use_dialog = 1 ###e for now, and during debugging --
+            ### status bar would be ok when we figure out how to
+            ### guarantee it lasts
+        else:
+            prefix = "warning"
+        str = str[0].upper() + str[1:] # capitalize the sentence
+        msg = "%s: %s" % (prefix, str,)
+        ###e add a timestamp prefix, at least for the printed one
+
+        # always print it so there's a semi-permanent record they can refer to
+        
+        print msg 
+
+        if use_status_bar: # do this first
+            ## [this would work again as of 050107:] self.win.statusBar().message( msg)
+            assert 0 # this never happens for now
+        if use_dialog:
+            # use this only when it's worth interrupting the user to make
+            # sure they noticed the message.. see docstring for details
+            ##e also linebreak it if it's very long? i might hope that some
+            # arg to the messagebox could do this...
+            QMessageBox.warning(self.o, prefix, msg) # args are widget, title, content
         return
 
     def _cleanup(self): # called only from _exitMode & Abandon, in this file; only caller of stop_sending_us_events [080805]

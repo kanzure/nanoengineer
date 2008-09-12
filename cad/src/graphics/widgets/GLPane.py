@@ -41,7 +41,7 @@ from PyQt4.Qt import QEvent
 from PyQt4.Qt import QMouseEvent
 from PyQt4.Qt import QHelpEvent
 from PyQt4.Qt import QPoint
-from PyQt4.Qt import Qt, QMessageBox
+from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL, QTimer
 
 from PyQt4.QtOpenGL import QGLWidget
@@ -867,68 +867,6 @@ class GLPane(GLPane_minimal,
             self.graphicsMode.keyReleaseEvent( wrap_key_event(e) )
         finally:
             env.end_op(mc)
-        return
-
-    def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1): ### TODO: move out of GLPane, since unrelated to it
-        """
-        [experimental method by bruce 040922]
-
-        ###@@@ need to merge this with env.history.message
-        or make a sibling method! [bruce 041223]
-
-        Show a warning to the user, without interrupting them
-        (i.e. not in a dialog) unless bother_user_with_dialog is
-        true, or unless ensure_visible is true and there's no other
-        way to be sure they'll see the message.  (If neither of
-        these options is true, we might merely print the message to
-        stdout.)
-
-        In the future, this might go into a status bar in the
-        window, if we can be sure it will remain visible long
-        enough.  For now, that won't work, since some status bar
-        messages I emit are vanishing almost instantly, and I can't
-        yet predict which ones will do that.  Due to that problem
-        and since the stdout/stderr output might be hidden from the
-        user, ensure_visible implies bother_user_with_dialog for
-        now.  (And when we change that, we have to figure out
-        whether all the calls that no longer use dialogs are still
-        ok.)
-
-        In the future, all these messages will also probably get
-        timestamped and recorded in a log file, in addition to
-        whereever they're shown now.
-
-        This is an experimental method, not yet uniformly used
-        (most uses are in modes.py), and it's likely to be revised
-        a few times in API as well as in implemention. [bruce
-        040924]
-        """
-        use_status_bar = 0 # always 0, for now
-        use_dialog = bother_user_with_dialog
-
-        if ensure_visible:
-            prefix = "WARNING"
-            use_dialog = 1 ###e for now, and during debugging --
-            ### status bar would be ok when we figure out how to
-            ### guarantee it lasts
-        else:
-            prefix = "warning"
-        str = str[0].upper() + str[1:] # capitalize the sentence
-        msg = "%s: %s" % (prefix, str,)
-        ###e add a timestamp prefix, at least for the printed one
-
-        # always print it so there's a semi-permanent record they can refer to
-        print msg 
-
-        if use_status_bar: # do this first
-            ## [this would work again as of 050107:] self.win.statusBar().message( msg)
-            assert 0 # this never happens for now
-        if use_dialog:
-            # use this only when it's worth interrupting the user to make
-            # sure they noticed the message.. see docstring for details
-            ##e also linebreak it if it's very long? i might hope that some
-            # arg to the messagebox could do this...
-            QMessageBox.warning(self, prefix, msg) # args are title, content
         return
 
     # return space vectors corresponding to various directions
