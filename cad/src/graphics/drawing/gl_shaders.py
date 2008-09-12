@@ -12,9 +12,20 @@ gl_shaders.py - OpenGL shader objects.
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-from geometry.VQT import V, Q, A, norm, vlen, angleBetween
-import graphics.drawing.drawing_globals as drawing_globals
 
+# Whether to use texture memory for transforms, or a uniform array of mat4s.
+texture_xforms = 1 # 0
+# Otherwise, use a fixed-sized block of uniform memory for transforms.
+CONST_XFORMS = 250  # (Gets CPU bound at 275.  Dunno why.)
+
+# Turns on a debug info message.
+# Warking, can't read back huge transform textures: SIGSEGV in glGetTexImage.
+check_texture_xform_loading = False # True  ## Never check in a True value.
+
+from geometry.VQT import V, Q, A, norm, vlen, angleBetween
+import utilities.EndUser as EndUser
+
+import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.gl_buffers import GLBufferObject
 
 import numpy
@@ -23,20 +34,37 @@ from OpenGL.GL import GL_ARRAY_BUFFER_ARB
 from OpenGL.GL import GL_COMPILE_STATUS
 from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import GL_ELEMENT_ARRAY_BUFFER_ARB
+from OpenGL.GL import GL_EXTENSIONS
 from OpenGL.GL import GL_FLOAT
 from OpenGL.GL import GL_FRAGMENT_SHADER
+from OpenGL.GL import GL_NEAREST
 from OpenGL.GL import GL_QUADS
+from OpenGL.GL import GL_RGBA, GL_BGRA
+from OpenGL.GL import GL_RGBA32F_ARB
 from OpenGL.GL import GL_STATIC_DRAW
+from OpenGL.GL import GL_TEXTURE_2D
+from OpenGL.GL import GL_TEXTURE_MAG_FILTER
+from OpenGL.GL import GL_TEXTURE_MIN_FILTER
+from OpenGL.GL import GL_TEXTURE0
+from OpenGL.GL import GL_TRUE
 from OpenGL.GL import GL_UNSIGNED_INT
+from OpenGL.GL import GL_UNSIGNED_SHORT
 from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import GL_VERTEX_SHADER
 from OpenGL.GL import GL_VALIDATE_STATUS
 
+from OpenGL.GL import glActiveTexture
+from OpenGL.GL import glBindTexture
 from OpenGL.GL import glDisable
 from OpenGL.GL import glDisableClientState
 from OpenGL.GL import glDrawElements
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
+from OpenGL.GL import glGenTextures
+from OpenGL.GL import glGetString
+from OpenGL.GL import glGetTexImage
+from OpenGL.GL import glTexImage2D
+from OpenGL.GL import glTexSubImage2D
 from OpenGL.GL import glVertexPointer
 
 from OpenGL.GL.ARB.shader_objects import glAttachObjectARB
@@ -46,20 +74,25 @@ from OpenGL.GL.ARB.shader_objects import glCreateShaderObjectARB
 from OpenGL.GL.ARB.shader_objects import glGetInfoLogARB
 from OpenGL.GL.ARB.shader_objects import glGetObjectParameterivARB
 from OpenGL.GL.ARB.shader_objects import glGetUniformLocationARB
+from OpenGL.GL.ARB.shader_objects import glGetUniformfvARB
+from OpenGL.GL.ARB.shader_objects import glGetUniformivARB
 from OpenGL.GL.ARB.shader_objects import glLinkProgramARB
 from OpenGL.GL.ARB.shader_objects import glShaderSourceARB
 from OpenGL.GL.ARB.shader_objects import glUniform1fARB
 from OpenGL.GL.ARB.shader_objects import glUniform1iARB
 from OpenGL.GL.ARB.shader_objects import glUniform3fvARB
 from OpenGL.GL.ARB.shader_objects import glUniform4fvARB
+from OpenGL.GL.ARB.shader_objects import glUniformMatrix4fvARB
 from OpenGL.GL.ARB.shader_objects import glUseProgramObjectARB
 from OpenGL.GL.ARB.shader_objects import glValidateProgramARB
 
 from OpenGL.GL.ARB.vertex_program import glDisableVertexAttribArrayARB
 from OpenGL.GL.ARB.vertex_program import glEnableVertexAttribArrayARB
+from OpenGL.GL.ARB.vertex_program import glVertexAttrib1fARB
+from OpenGL.GL.ARB.vertex_program import glVertexAttrib3fARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 
-from OpenGL.GL.ARB.vertex_shader  import glBindAttribLocationARB
+from OpenGL.GL.ARB.vertex_shader import glGetAttribLocationARB
 
 class GLSphereShaderObject(object):
     """
@@ -72,19 +105,20 @@ class GLSphereShaderObject(object):
     """
 
     def __init__(self):
-        # The batched sphere shader has per-vertex attribute inputs.
-        self.center_pt_attrib = 1       # GLSL: attribute vec3 center_pt;
-        self.radius_attrib = 2          # GLSL: attribute float radius;
-        self.color_attrib = 3           # GLSL: attribute vec3 color;
-        
-        self.sphereVerts = self.createShader(GL_VERTEX_SHADER, sphereVertSrc)
+        # Version statement has to come first in GLSL source.
+        prefix = """// requires GLSL version 1.10
+                    #version 110
+                    """
+        # Insert preprocessor constants.
+        if not texture_xforms:
+            prefix += "#define CONST_XFORMS %d\n" % CONST_XFORMS
+            pass
+        # Pass the source strings to the shader compiler.
+        self.sphereVerts = self.createShader(GL_VERTEX_SHADER,
+                                             prefix + sphereVertSrc)
         self.sphereFrags = self.createShader(GL_FRAGMENT_SHADER, sphereFragSrc)
+        # Link the compiled shaders into a shader program.
         self.progObj = glCreateProgramObjectARB()
-
-        glBindAttribLocationARB(self.progObj, self.center_pt_attrib, "center_pt")
-        glBindAttribLocationARB(self.progObj, self.radius_attrib, "radius")
-        glBindAttribLocationARB(self.progObj, self.color_attrib, "color")
-
         glAttachObjectARB(self.progObj, self.sphereVerts)
         glAttachObjectARB(self.progObj, self.sphereFrags)
         glLinkProgramARB(self.progObj)  # Checks status, raises error if bad.
@@ -97,13 +131,29 @@ class GLSphereShaderObject(object):
             from OpenGL import error
             raise error.GLError("Shader program validation error",
                                 description = glGetInfoLogARB(self.progObj))
+
+        # The batched sphere shader has per-vertex attribute inputs.  To avoid
+        # alias collisions with built-in attributes, let the linker assign
+        # attribute numbers rather than specifying with glBindAttribLocationARB.
+        self.center_pt_attrib = glGetAttribLocationARB(
+            self.progObj, "center_pt")      # vec3.
+        self.radius_attrib = glGetAttribLocationARB(
+            self.progObj, "radius")         # float.
+        self.color_attrib = glGetAttribLocationARB( # XXX Use gl_Color.
+            self.progObj, "color")          # vec3.
+        # Allow putting transforms into texture or uniform (constant) memory
+        # slots, indexed by a transform ID associated with each vertex.
+        # (Attribute variables are not allowed to be int or bool.)
+        self.transform_id_attrib = glGetAttribLocationARB(
+            self.progObj, "transform_id")   # float.
+        
         return
 
     def createShader(self, shaderType, shaderSrc):
         """
         Create, load, and compile a shader.
         """
-        shader = glCreateShaderObjectARB(shaderType);
+        shader = glCreateShaderObjectARB(shaderType)
         glShaderSourceARB(shader, shaderSrc)
         try:
             glCompileShaderARB(shader)    # Checks status, raises error if bad.
@@ -115,7 +165,7 @@ class GLSphereShaderObject(object):
 
     def configShader(self, glpane):
         """
-        Fill in uniform variables in the shader.
+        Fill in uniform variables in the shader before using to draw.
         """
         # Shader needs to be active to set uniform variables.
         wasActive = self.used
@@ -126,6 +176,8 @@ class GLSphereShaderObject(object):
         # Material is [ambient, diffuse, specular, shininess].
         glUniform4fvARB(self.uniform("material"), 1, [0.1, 0.5, 0.5, 35.0])
         glUniform1iARB(self.uniform("perspective"), (1, 0)[glpane.ortho])
+
+        # XXX Try built-in "uniform gl_DepthRangeParameters gl_DepthRange;"
         vdist = glpane.vdist                    # See GLPane._setup_projection().
         # See GLPane_minimal.setDepthRange_Normal().
         from graphics.widgets.GLPane_minimal import DEPTH_TWEAK 
@@ -148,11 +200,50 @@ class GLSphereShaderObject(object):
             self.use(False)
         return
 
+    warnedVars = {}
     def uniform(self, name):
         """
         Return location of a uniform (input) shader variable.
+        Raise a ValueError if it isn't found.
         """
-        return glGetUniformLocationARB(self.progObj, name)
+        loc = glGetUniformLocationARB(self.progObj, name)
+        if loc == -1:
+            # The glGetUniformLocationARB man page says:
+            #   "name must be an active uniform variable name in program that is
+            #    not a structure, an array of structures, or a subcomponent of a
+            #    vector or a matrix."
+            # 
+            # It "returns -1 if the name does not correspond to an active
+            # uniform variable in program".  Then getUniform ignores it: "If
+            # location is equal to -1, the data passed in will be silently
+            # ignored and the specified uniform variable will not be changed."
+            # 
+            # Lets not be so quiet.
+            msg = "Invalid or unused uniform shader variable name '%s'." % name
+            if EndUser.enableDeveloperFeatures():
+                # Developers want to know of a mismatch between their Python and
+                # and shader programs as soon as possible.  Not doing so causes
+                # logic errors, or at least incorrect assumptions, to silently
+                # propagate through the code and makes debugging more difficult.
+                assert 0, msg
+            else:
+                # End users on the other hand, may value program stability more.
+                # Just print a warning if the program is released.  Do it only
+                # once per session, since this will be in the inner draw loop!
+                global warnedVars
+                if name not in warnedVars:
+                    print "Warning:", msg
+                    warnedVars += [name]
+                    pass
+                pass
+            pass
+        return loc
+
+    def getUniformInt(self, name):
+        """
+        Return value of a uniform (input) shader variable.
+        """
+        return glGetUniformivARB(self.progObj, uniform(name))
 
     def use(self, on):
         """
@@ -184,12 +275,13 @@ class GLSphereBuffer:
     shaderCubeIndices from drawing_globals. Vertex attribute VBOs contain the
     sphere center points, and optional per-sphere radius and color attributes.
     """
-    def __init__(self, centers, radii, colors = None):
+    def __init__(self, centers, radii, colors = None, transform_ids = None):
         """
         centers is a list of points.
         radii is a single number, or a list of numbers.
         colors (optional) is a list of [R, G, B] lists.
-        The lengths of centers, radii, and colors lists must match.
+        transforms (optional) is a list of transform slot IDs.
+        The lengths of centers, radii, colors and transformID lists must match.
         """
         self.nSpheres = len(centers)
         self.radArray = type(radii) == type([])
@@ -217,6 +309,7 @@ class GLSphereBuffer:
         self.Py_centers = []
         self.Py_radii = []
         self.Py_colors = []
+        self.Py_transform_ids = []
 
         # Collect transformed bounding box vertices, offset indices, and
         # per-vertex radius attributes for buffering.
@@ -251,6 +344,16 @@ class GLSphereBuffer:
             assert len(self.Py_colors) == 3 * len(self.Py_verts)
             pass
 
+        # Collect optional replicated per-vertex transform_id values.
+        self.transform_id_Array = transform_ids is not None
+        if self.transform_id_Array:
+            assert len(transform_ids) == self.nSpheres
+            for transform_id in transform_ids: # Integers.
+                self.Py_transform_ids += self.nCubeVerts * [transform_id]
+                continue
+            assert len(self.Py_transform_ids) == len(self.Py_verts)
+            pass
+
         # Push the values into IBOs/VBOs in the graphics card memory.
         self.C_indices = numpy.array(self.ibo_indices, dtype=numpy.uint32)
         self.verts_ibo = GLBufferObject(
@@ -280,6 +383,83 @@ class GLSphereBuffer:
                 GL_ARRAY_BUFFER_ARB, self.C_colors, GL_STATIC_DRAW)
             self.colors_vbo.unbind()
             pass
+
+        if self.transform_id_Array:
+            # Warning: if you make transform_id an int rather than a float, it
+            # slows down the vertex shader at least 10x!  That means explicitly
+            # converting the value in the shader when needed: int(transform_id).
+            self.C_transform_ids = numpy.array(self.Py_transform_ids,
+                                               dtype=numpy.float32)
+            self.transform_ids_vbo = GLBufferObject(
+                GL_ARRAY_BUFFER_ARB, self.C_transform_ids, GL_STATIC_DRAW)
+            self.transform_ids_vbo.unbind()
+            pass
+
+        return
+
+    def setupTransforms(self, transforms):
+        """
+        Fill a block of transforms.
+
+        Depending on the setting of texture_xforms, the transforms are either in
+        texture memory, or else in a uniform array of mat4s ("constant memory".)
+
+        @param transforms: A list of transform matrices, where each transform is
+        a flattened list (or Numpy array) of 16 numbers.
+        """
+        shader = drawing_globals.sphereShader
+        shader.use(True)                # Must activate before setting uniforms.
+        self.n_transforms = nTransforms = len(transforms)
+        glUniform1iARB(shader.uniform("n_transforms"), self.n_transforms)
+        if texture_xforms:
+            # Generate a texture ID and bind the texture unit to it.
+            self.transform_memory = glGenTextures(1)
+            glBindTexture(GL_TEXTURE_2D, self.transform_memory)
+            ## These seem to have no effect with a vertex shader.
+            ## glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+            ## glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            # XXX Needed? glEnable(GL_TEXTURE_2D)
+
+            # Load the transform data into the texture.
+            #
+            # Problem: SIGSEGV kills Python in gleTextureImagePut under
+            # glTexImage2D with more than 250 transforms (16,000 bytes.)
+            # Maybe there's a 16-bit signed size calculation underthere, that's
+            # overflowing the sign bit... Work around by sending transforms to
+            # the texture unit in batches with glTexSubImage2D.)
+            glTexImage2D(GL_TEXTURE_2D, 0, # Level zero - base image, no mipmap.
+                         GL_RGBA32F_ARB,   # Internal format is floating point.
+                         # Column major storage: width = N, height = 4 * RGBA.
+                         nTransforms, 4 * 4, 0, # No border.
+                         # Data format and type, null pointer to allocate space.
+                         GL_RGBA, GL_FLOAT, None)
+            # XXX Split this off into a loadTransforms method.
+            batchSize = 250
+            nBatches = (nTransforms + batchSize-1) / batchSize
+            for i in range(nBatches):
+                xStart = batchSize * i
+                xEnd = min(nTransforms, xStart + batchSize)
+                xSize = xEnd - xStart
+                glTexSubImage2D(GL_TEXTURE_2D, 0,
+                                # Subimage x and y offsets and sizes.
+                                xStart, 0, xSize, 4 * 4,
+                                # List of matrices is flattened into a sequence.
+                                GL_RGBA, GL_FLOAT, transforms[xStart:xEnd])
+                continue
+            # Read back to check proper loading.
+            if check_texture_xform_loading:
+                print "setupTransforms\n", \
+                      glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT)
+            pass
+        else:
+            C_transforms = numpy.array(transforms, dtype=numpy.float32)
+            # Load into constant memory.  The GL_EXT_bindable_uniform extension
+            # supports sharing this array of mat4s through a VBO.
+            # XXX Need to bank-switch this data if more than CONST_TRANSFORMS.
+            glUniformMatrix4fvARB(shader.uniform("transforms"),
+                                  len(transforms), GL_TRUE, C_transforms)
+            pass
+        shader.use(False)                # Deactivate again.
         return
 
     def updateRadii(self, offset, radii, send = True):
@@ -317,12 +497,15 @@ class GLSphereBuffer:
             pass
         return
         
-    def draw(self, color = None):
+    def draw(self, radius = None, color = None, transform_id = None):
         """
         Draw the buffered geometry, binding vertex attribute values for the
         sphere shaders.
+
+        Optional radius, color and transform_id args over-ride array values.
         """
         shader = drawing_globals.sphereShader
+        shader.use(True)            # Turn on the sphere shader.
 
         glEnableClientState(GL_VERTEX_ARRAY)
         self.verts_vbo.bind()       # Vertex coordinate data vbo.
@@ -334,27 +517,56 @@ class GLSphereBuffer:
         glVertexAttribPointerARB(center_pt_attrib, 3, GL_FLOAT, 0, 0, None)
 
         radius_attrib = shader.radius_attrib
-        if not self.radArray:
+        if radius is not None:
             # Single radius for the whole batch.
-            glVertexAttrib1f(radius_attrib, self.radius)
-        else:
+            glVertexAttrib1fARB(radius_attrib, radius)
+        elif self.radArray:
             # Per-vertex radii.
             glEnableVertexAttribArrayARB(radius_attrib)
             self.radii_vbo.bind()   # Sphere radius per-vertex attribute vbo.
             glVertexAttribPointerARB(radius_attrib, 1, GL_FLOAT, 0, 0, None)
             pass
+        else:  # Default radius from constructor.
+            glVertexAttrib1fARB(radius_attrib, self.radius)
 
         color_attrib = shader.color_attrib
-        if not self.colorArray:
+        if color is not None:
             # Single color for the whole batch.
-            glVertexAttrib3f(color_attrib, color)
-        else:
+            glVertexAttrib3fARB(color_attrib, color[0], color[1], color[2])
+        elif self.colorArray:
             glEnableVertexAttribArrayARB(color_attrib)
             self.colors_vbo.bind()  # Sphere color per-vertex attribute vbo.
             glVertexAttribPointerARB(color_attrib, 3, GL_FLOAT, 0, 0, None)
             pass
+        else:  # Default color (bright red.)
+            glVertexAttrib3fARB(color_attrib, [1.0, 0.0, 0.0])
 
-        shader.use(True)            # Turn on the sphere shader.
+        transform_id_attrib = shader.transform_id_attrib
+        if transform_id is not None:
+            # Single transform ID for the whole batch.
+            glVertexAttrib1fARB(transform_id_attrib, transform_id)
+        elif self.transform_id_Array:
+            # Sphere transform_id per-vertex attribute vbo.
+            glEnableVertexAttribArrayARB(transform_id_attrib)
+            self.transform_ids_vbo.bind()
+            glVertexAttribPointerARB(
+                transform_id_attrib, 1, GL_FLOAT, 0, 0, None)
+            pass
+        else:  # Single transform_id for the whole batch, default to 0.
+            glVertexAttrib1fARB(transform_id_attrib, 0)
+            pass
+        if texture_xforms:
+            # Activate a texture unit for transforms.
+            ## XXX Not necessary for custom shader programs.
+            ##glEnable(GL_TEXTURE_2D)
+            glBindTexture(GL_TEXTURE_2D, self.transform_memory)
+
+            # Set the sampler to the handle for the active texture image (0).
+            ## XXX Not needed if only one texture is being used?
+            ##glActiveTexture(GL_TEXTURE0)
+            ##glUniform1iARB(shader.uniform("transforms"), 0)
+            pass        
+
         glDisable(GL_CULL_FACE)
 
         self.verts_ibo.bind()       # Vertex index data ibo.
@@ -375,11 +587,19 @@ class GLSphereBuffer:
         if self.colorArray:
             glDisableVertexAttribArrayARB(color_attrib)
             pass
+        if self.transform_id_Array:
+            glDisableVertexAttribArrayARB(transform_id_attrib)
+            pass
         return
 
     pass # End of class GLSphereBuffer.
 
-# Sphere shaders.
+
+# ================================================================
+# Sphere shader source code.
+
+# Note: if texture_xforms is off, a #define CONST_XFORMS array dimension is
+# prepended.  The #version statement has to come first, before it.
 sphereVertSrc = """
 // Vertex shader program for sphere primitives.
 //
@@ -411,17 +631,26 @@ sphereVertSrc = """
 // sphere center point, a depth and normal are calculated as a function of the
 // distance from the center.
 
-// requires GLSL version 1.10
-#version 110
-
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform int perspective;        // perspective=1 orthographic=0
 
-// Attribute variables, which are bound to VBO arrays for the vertex coming in.
+uniform int n_transforms;
+#ifdef CONST_XFORMS
+  // Transforms are in uniform (constant) memory. 
+  uniform mat4 transforms[CONST_XFORMS]; // Must be dimensioned at compile time.
+#else
+  // Transforms are in texture memory, indexed by a transform slot ID attribute.
+  // Column major, one matrix per column: width=N cols, height=4 rows of vec4s.
+  // GL_TEXTURE_2D is bound to transform matrices, tex coords in (0...1, 0...1).
+  uniform sampler2D transforms;
+#endif
+
+// Attribute variables, which are bound to VBO arrays for each vertex coming in.
 attribute vec3 center_pt;       // Per-vertex sphere center point.
 // The following may be set to constants, when no arrays are provided.
 attribute float radius;         // Per-vertex sphere radius.
 attribute vec3 color;           // Per-vertex sphere color.
+attribute float transform_id;   // Ignored if zero.  (Attribs can't be ints.)
 
 // Varying outputs, through the pipeline to the fragment (pixel) shader.
 varying vec3 var_basecolor;     // Vertex color, interpolated to pixels.
@@ -431,12 +660,73 @@ varying vec3 var_eye;           // Var_eye point (different for perspective.)
 varying float var_radius_squared;  // Transformed sphere radius, squared.
 
 void main(void) {
-  // Transform through the modeling and viewing matrix to "eye" space.
-  vec4 eye_vert = gl_ModelViewMatrix * gl_Vertex;
-  gl_ClipVertex = eye_vert;     // For user clipping planes.
-
   // Fragment (pixel) color will be interpolated from the vertex colors.
   var_basecolor = color;
+
+  vec4 vertex = gl_Vertex;
+  mat4 xform;
+  if (n_transforms > 0) {
+    // Apply a transform, indexed by a transform slot ID vertex attribute.
+#ifdef CONST_XFORMS 
+    // Get transforms from a fixed-sized block of uniform (constant)  memory.
+    // The GL_EXT_bindable_uniform extension allows sharing this through a VBO.
+    //
+    // (Very Slow:
+    vertex = transforms[int(transform_id)] * vertex;
+#else  // texture_xforms.
+    // Assemble the 4x4 matrix from a column of vec4s stored in texture memory.
+    // Map the 4 rows and N columns onto the (0...1, 0...1) texture coord range.
+    // The first texture coordinate goes across the width of N matrices.
+    float mat = transform_id / float(n_transforms);
+    // The second tex coord goes down the height of four vec4's for the matrix.
+# if 0 // 1
+    xform = mat4(1.0);   /// Over-ride with an identity matrix for testing.
+# else
+    xform = mat4(texture2D(transforms, vec2(0.0/3.0, mat)),
+                 texture2D(transforms, vec2(1.0/3.0, mat)), 
+                 texture2D(transforms, vec2(2.0/3.0, mat)), 
+                 texture2D(transforms, vec2(3.0/3.0, mat)));
+# endif
+    vertex = xform * vertex;
+#endif CONST_XFORMS
+  }
+
+#if 0 // 1   // Debugging display: set the colors of a 16x16 sphere array.
+  int offset = int(n_transforms)/2;   // Undo the array centering in data setup.
+  int col = int(center_pt.x) + offset;  // X picks the columns.
+  int row = int(center_pt.y) + offset;  // Y picks the rows.
+  if (col > 10) col--;                // Skip the gaps.
+  if (row > 10) row--;
+
+# ifdef CONST_XFORMS
+  // Not allowed: mat4 xform = mat4(transforms[int(transform_id)]);
+  xform = mat4(transforms[int(transform_id)][0],
+               transforms[int(transform_id)][1],
+               transforms[int(transform_id)][2],
+               transforms[int(transform_id)][3]);
+# endif
+
+  float data;
+  if (true) // false  // Display matrix data.
+    // This produces all zeros from a texture-map matrix.
+    // The test identity matrix has 1's in rows 0, 5, 10, and 15, as it should.
+    data = xform[row/4][row - (row/4)*4];  // % is unimplimented.
+  else  // Display transform IDs.
+    data = transform_id / float(n_transforms);
+
+  // Default - Column-major indexing: red is column index, green is row index.
+  var_basecolor = vec3(float(col)/float(n_transforms),
+                       float(row)/float(n_transforms),
+                       data);
+  ///if (data == 0.0) var_basecolor = vec3(1.0, 1.0, 1.0);  // Zeros in white.
+  if (data > 0.0) var_basecolor = vec3(data, data, data);  // Fractions in gray.
+  // Matrix labels (1 + xform/100) in blue.
+  if (data > 1.0) var_basecolor = vec3(0.0, 0.0, (data - 1.0) * 8.0);
+#endif
+    
+  // Transform the vertex through the modeling and viewing matrix to 'eye' space.
+  vec4 eye_vert = gl_ModelViewMatrix * gl_Vertex; /// vertex;
+  gl_ClipVertex = eye_vert;     // For user clipping planes.
 
   // Center point in eye space.
   vec4 eye_center = gl_ModelViewMatrix * vec4(center_pt, 1.0);

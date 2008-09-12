@@ -18,17 +18,33 @@ doesn't go down at first.  Eventually, something in the graphics card becomes
 the bottleneck.  These tests were done as a series of explorations into finding
 and avoiding those bottlenecks.
 
-To turn it on, enable _testing_ at the beginning of graphics/widgets/GLPane.py .
+To turn it on, enable TEST_DRAWING at the start of graphics/widgets/GLPane.py .
 """
 
-# Which rendering mode: 1, 2, 3, 3.1, 3.2, 3.3, 4, 5, 6, 7, 8
-testCase = 3.1
+# Which rendering mode: 1, 2, 3, 3.1, 3.2, 3.3, 3.4, 4, 5, 6, 7, 8
+testCase = 3.4
 
-# An array of nSpheres x nSpheres will be drawn, with divider lanes every 10 and 100.
+# Draw an array of nSpheres x nSpheres, with divider gaps every 10 and 100.
 # 10, 25, 50, 100, 132, 200, 300, 400, 500...
-nSpheres = 50
 
-# Short chunks length for test case 8.
+# Longish chunks for test case 3.4 (with transforms)
+#nSpheres = 132; transformChunkLength = 1000
+#
+# 16x16 sphere array, chunked by columns for vertex shader debugging display.
+#nSpheres = transformChunkLength = 16
+#
+# Short chunks ok w/ texture_xforms = 1, but too many chunks for CONST_XFORMS.
+#nSpheres = 132; transformChunkLength = 70 # 249 chunks.
+#nSpheres = 132; transformChunkLength = 50 # 349 chunks.
+#nSpheres = 132; transformChunkLength = 20 # 872 chunks.
+#nSpheres = 132; transformChunkLength = 10 # 1743 chunks.
+nSpheres = 132; transformChunkLength = 8 # 2178 chunks.
+#
+#nSpheres = 300; transformChunkLength = 8 # 11250 chunks.
+#nSpheres = 400; transformChunkLength = 8 # 20000 chunks.
+#nSpheres = 500; transformChunkLength = 8 # 31250 chunks.
+
+# Short chunk length for test case 8.
 chunkLength = 8
 
 printFrames = True # False    # Prints frames-per-second if set.
@@ -129,8 +145,8 @@ def rainbow(t):
 
 def test_drawing(glpane):
     """
-    When _testing_ is enabled at the beginning of graphics/widgets/glPane.py,
-    file is loaded and GLPane.paintGL() calls the test_drawing() function
+    When TEST_DRAWING is enabled at the beginning of graphics/widgets/glPane.py,
+    this file is loaded and GLPane.paintGL() calls the test_drawing() function
     instead of the usual body of paintGL().
     """
     # Load the sphere shaders if needed.
@@ -210,13 +226,14 @@ def test_drawing(glpane):
         pass
 
     # NE1 with test toploop, one big chunk VBO/IBO of box quads (test case 3)
-    # . 17,424 spheres (1 box/shader draw call) 43.7 FPS
-    # . 17,424 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 57.7 FPS
-    # . 40,00 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 56.7 FPS
-    # . 90,00 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 52.7 FPS
-    # . 160,00 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 41.4 FPS
-    # . 250,00 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 27.0 FPS
+    # .  17,424 spheres (1 box/shader draw call) 43.7 FPS
+    # .  17,424 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 57.7 FPS
+    # .  40,000 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 56.7 FPS
+    # .  90,000 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 52.7 FPS
+    # . 160,000 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 41.4 FPS
+    # . 250,000 spheres (1 box/shader draw call w/ rad/ctrpt attrs) 27.0 FPS
     elif int(testCase) == 3:
+        doTransforms = False
         if test_spheres is None:
             print ("Test case 3, %d^2 spheres\n  %s." %
                    (nSpheres, "One big VBO/IBO chunk buffer"))
@@ -228,10 +245,43 @@ def test_drawing(glpane):
             elif testCase == 3.3:
                 print ("Sub-test 3.3, animate partial updates" +
                        " w/ Python array buffering.")
+            # . 3.4 - Big batch draw, with transforms indexed by IDs added.
+            #   (Second FPS number with debug colors in the vertex shader off.)
+            #   - 90,000 (300x300) spheres, texture_xforms = 1, 26(29) FPS
+            #   - 90,000 (300x300) spheres, CONST_XFORMS = 250, 26(29) FPS
+            #   - 90,000 (300x300) spheres, CONST_XFORMS = 275, 0.3(0.6) FPS
+            #     (What happens after 250?  CPU usage goes from 40% to 94%.)
+            #   -160,000 (400x400) spheres, texture_xforms = 1, 26 FPS
+            #   -250,000 (500x500) spheres, texture_xforms = 1, 26 FPS
+            elif testCase == 3.4:
+                print ("Sub-test 3.4, add transforms indexed by IDs.")
+                from graphics.drawing.gl_shaders import texture_xforms
+                from graphics.drawing.gl_shaders import CONST_XFORMS
+                if texture_xforms:
+                    print "Transforms in texture memory."
+                else:
+                    print "%d transforms in uniform memory." % CONST_XFORMS
+                    pass
+                doTransforms = True
+                pass
+
             centers = []
             radius = .5
             radii = []
             colors = []
+            if not doTransforms:
+                transformIDs = None
+            else:
+                transformIDs = []
+                transformChunkID = -1   # Allocate IDs sequentially from 0.
+                # For this test, allow arbitrarily chunking the primitives.
+                primCounter = transformChunkLength
+                transforms = []      # Accumulate transforms as a list of lists.
+
+                # Initialize transforms with an identity matrix.
+                # Transforms here are lists (or Numpy arrays) of 16 numbers.
+                identity = ([1.0] + 4*[0.0]) * 3 + [1.0]
+                pass
             for x in range(nSpheres):
                 for y in range(nSpheres):
                     centers += [sphereLoc(x, y)]
@@ -243,9 +293,35 @@ def test_drawing(glpane):
 
                     # Colors progress from red to blue.
                     colors += [rainbow(t)]
+
+                    # Transforms go into a texture memory image if needed.
+                    # Per-primitive Transform IDs go into an attribute VBO.
+                    if doTransforms:
+                        primCounter = primCounter + 1
+                        if primCounter >= transformChunkLength:
+                            # Start a new chunk, allocating a transform matrix.
+                            primCounter = 0
+                            transformChunkID += 1
+                            if 1:
+                                # Debug hack: Label mat[0,0] with the chunk ID.
+                                transforms += [
+                                    [1.0+transformChunkID/100.0] + identity[1:]]
+                            else:
+                                transforms += [identity]
+                                pass
+                            pass
+                        # All of the primitives in a chunk have the same ID.
+                        transformIDs += [transformChunkID]
+                        pass
+
                     continue
                 continue
-            test_spheres = GLSphereBuffer(centers, radii, colors)
+            test_spheres = GLSphereBuffer(centers, radii, colors, transformIDs)
+            if doTransforms:
+                print ("%d primitives in %d transform chunks of size <= %d" %
+                       (nSpheres * nSpheres, len(transforms),
+                        transformChunkLength))
+                test_spheres.setupTransforms(transforms)
             pass
         else:
             shader = drawing_globals.sphereShader
@@ -319,7 +395,7 @@ def test_drawing(glpane):
             #   - 17,424 (132x132) spheres 20 FPS
             #   - 40,000 (200x200) spheres 10.6 FPS
             #   - 90,000 (300x300) spheres  4.9 FPS
-            if testCase == 3.3:
+            elif testCase == 3.3:
                 # Buffered at the Python level, batch the whole-array update.
                 radius = .5
                 margin = nSpheres/10
@@ -339,7 +415,8 @@ def test_drawing(glpane):
                 test_spheres.sendRadii()
                 pass
 
-            test_spheres.draw()
+            # Options: color = [0.0, 1.0, 0.0], transform_id = 1, radius = 1.0
+            test_spheres.draw() 
         pass
 
     # NE1 with test toploop, separate sphere VBO/IBO box/shader draws (test case 4)
