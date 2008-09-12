@@ -763,8 +763,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         three_prime_end_custom_ColorComboBox = PM_ColorComboBox(strand_arrowhead_display_options_GroupBox,
                                                            label = "3' end custom color:")
         five_prime_end_custom_ColorComboBox = PM_ColorComboBox(strand_arrowhead_display_options_GroupBox,
-                                                           label = "5' end custom color:")
-        
+                                                           label = "5' end custom color:")        
         return
     
     def populate_Bonds(self, pagename):
@@ -898,9 +897,54 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        if DEBUG:
-            self._addPageTestWidgets(_pageContainer)
-            #page_widget.addContainer()
+        adjust_physics_engine_GroupBox = PM_GroupBox(_pageContainer,
+                                           title = "Adjust physics engine",
+                                           connectTitleButton = False)
+        _choices = ["NanoDynamics-1 (Default)", "GROMACS with ND1 Force Field",
+                    "Background GROMACS with ND1 Force Field"]
+        detail_level_ComboBox = PM_ComboBox(adjust_physics_engine_GroupBox, 
+                                      label =  "", labelColumn = 0,
+                                      choices = _choices, 
+                                      setAsDefault = False)
+        enable_electrostatics_CheckBox = PM_CheckBox(adjust_physics_engine_GroupBox,
+                                                     spanWidth = True,
+                                                     widgetColumn = 0,
+                                                     text ="Enable electrostatics for DNA reduced model")
+        physics_engine_animation_GroupBox = PM_GroupBox(_pageContainer,
+                                                        title = "Pysics engine animation options",
+                                                        connectTitleButton = False)
+        constant_animation_update_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
+                                                               text = "Update as often as possible")
+        update_every_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
+                                                               text = "Update Every")
+        update_rate_SpinBox = PM_SpinBox(physics_engine_animation_GroupBox,
+                                           label = "")
+        _choices = ["frames", "seconds", "minutes", "hours"]
+        detail_level_ComboBox = PM_ComboBox(physics_engine_animation_GroupBox, 
+                                      label =  "",
+                                      choices = _choices, 
+                                      setAsDefault = False)
+        aWidgetList = [ ("PM_RadioButton", update_every_RadioButton, 0),
+                        ("PM_SpinBox", update_rate_SpinBox, 1),
+                        ("PM_ComboBox", detail_level_ComboBox, 3) ]
+        detail_level_row = PM_WidgetRow(physics_engine_animation_GroupBox,
+                                        widgetList = aWidgetList,
+                                        spanWidth = False)
+        convergence_criteria_GroupBox = PM_GroupBox(_pageContainer,
+                                                    title = "Convergence criteria",
+                                                    connectTitleButton = False)
+        endRMS_DoubelSpinBox = PM_DoubleSpinBox(convergence_criteria_GroupBox,
+                                           label = "EndRMS:",
+                                           suffix = " pN")
+        endmax_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+                                           label = "EndMax:",
+                                           suffix = " pN")
+        cutoverRMS_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+                                           label = "CutoverRMS:",
+                                           suffix = " pN")
+        cutoverMax_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+                                           label = "CutoverMax:",
+                                           suffix = " pN")
         return
     
     def populate_Atoms(self, pagename):
@@ -1042,9 +1086,33 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        if DEBUG:
-            self._addPageTestWidgets(_pageContainer)
-            #page_widget.addContainer()
+        base_orientation_indicatiors_CheckBox = PM_CheckBox(_pageContainer, 
+                                             text = "Display base orientation indicators",
+                                             spanWidth = True,
+                                             widgetColumn = 0)
+        base_orientation_GroupBox = PM_GroupBox(_pageContainer, 
+                                                      title = "Base orientation indicator parameters",
+                                                      connectTitleButton = False)
+        indicators_color_ColorComboBox = PM_ColorComboBox(base_orientation_GroupBox,
+                                                      label = "Indicators color:",
+                                                      spanWidth = False)
+        inverse_indicators_color_ColorComboBox = PM_ColorComboBox(base_orientation_GroupBox,
+                                                      label = "Color:",
+                                                      spanWidth = False)
+        enable_inverse_indicatiors_CheckBox = PM_CheckBox(base_orientation_GroupBox, 
+                                             text = "Display base orientation indicators",
+                                             spanWidth = True,
+                                             widgetColumn = 0)
+        angle_threshold_DoubleSpinBox = PM_DoubleSpinBox(base_orientation_GroupBox,
+                                                         label = "Angle threshold:", 
+                                                         suffix = "",
+                                                         spanWidth = False,
+                                                         singleStep = .1)
+        terminal_base_distance_SpinBox = PM_SpinBox(base_orientation_GroupBox,
+                                                         label = "Terminal base distance:", 
+                                                         suffix = "",
+                                                         spanWidth = False,
+                                                         singleStep = 1)
         return
     
     def populate_Undo(self, pagename):
@@ -1112,9 +1180,64 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        if DEBUG:
-            self._addPageTestWidgets(_pageContainer)
-            #page_widget.addContainer()
+        directional_lighting_GroupBox = PM_GroupBox(_pageContainer, 
+                                        title = "Directional light properties",
+                                        connectTitleButton = False)
+        _choices = ["1 (off)", "2 (off)", "3 (off)"]
+        light_ComboBox = PM_ComboBox(directional_lighting_GroupBox, 
+                                      label =  "Light:", labelColumn = 0,
+                                      choices = _choices, 
+                                      setAsDefault = False)
+        light_on_CheckBox = PM_CheckBox(directional_lighting_GroupBox, 
+                                             text = ": On",
+                                             widgetColumn = 1)
+        light_color_ColorComboBox = PM_ColorComboBox(directional_lighting_GroupBox,
+                                                      label = "Color:",
+                                                      spanWidth = False)
+        ambient_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+                                             label = "",
+                                             text = ".1")
+        ambient_light_Slider = PM_Slider(directional_lighting_GroupBox)
+        aWidgetList = [["QLabel", "Ambient:", 0], 
+                       ["PM_LineEdit", ambient_light_LineEdit, 1], 
+                       ["PM_Slider", ambient_light_Slider, 2]]
+        _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
+                                 spanWidth = True,
+                                 widgetList = aWidgetList)
+
+        difuse_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+                                             label = "",
+                                             text = ".1")
+        difuse_light_Slider = PM_Slider(directional_lighting_GroupBox)
+        aWidgetList = [["QLabel", "Difuse:", 0], 
+                       ["PM_LineEdit", difuse_light_LineEdit, 1], 
+                       ["PM_Slider", difuse_light_Slider, 2]]
+        _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
+                                 spanWidth = True,
+                                 widgetList = aWidgetList)
+
+        specular_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+                                             label = "",
+                                             text = ".1")
+        specular_light_Slider = PM_Slider(directional_lighting_GroupBox)
+        aWidgetList = [["QLabel", "Specular:", 0], 
+                       ["PM_LineEdit", specular_light_LineEdit, 1], 
+                       ["PM_Slider", specular_light_Slider, 2]]
+        _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
+                                 spanWidth = True,
+                                 widgetList = aWidgetList)
+        X_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+                                             label = "X:",
+                                             text = ".1")
+        Y_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+                                             label = "Y:",
+                                             text = ".1")
+        Z_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+                                             label = "Z:",
+                                             text = ".1")
+        material_specular_properties_GroupBox = PM_GroupBox(_pageContainer, 
+                                        title = "Material specular properties",
+                                        connectTitleButton = False)
         return
     
     def populate_Minor_groove_error_indicator(self, pagename):
@@ -1122,9 +1245,34 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        if DEBUG:
-            self._addPageTestWidgets(_pageContainer)
-            #page_widget.addContainer()
+        minor_groove_error_indicatiors_CheckBox = PM_CheckBox(_pageContainer, 
+                                             text = "Display minor groove error indicators",
+                                             spanWidth = True,
+                                             widgetColumn = 0)
+        minor_groove_error_parameters_GroupBox = PM_GroupBox(_pageContainer, 
+                                                      title = "Error indicator parameters",
+                                                      connectTitleButton = False)
+        minor_groove_error_minimum_angle_SpinBox = PM_SpinBox(minor_groove_error_parameters_GroupBox,
+                                                         label = "Minimum angle:", 
+                                                         suffix = " degrees",
+                                                         spanWidth = False,
+                                                         singleStep = 1)
+        minor_groove_error_maximum_angle_SpinBox = PM_SpinBox(minor_groove_error_parameters_GroupBox,
+                                                         label = "Maximum angle:", 
+                                                         suffix = " degrees",
+                                                         spanWidth = False,
+                                                         singleStep = 1)
+        minor_groove_error_color_ColorComboBox = PM_ColorComboBox(minor_groove_error_parameters_GroupBox,
+                                                      label = "Color:",
+                                                      spanWidth = False)
+        minor_groove_error_reset_PushButton = PM_PushButton(minor_groove_error_parameters_GroupBox,
+                                                      text = "Reset factory defaults",
+                                                      spanWidth = False)
+        buttonList = [["QSpacerItem", 40, 0, 0], ["PushButton", minor_groove_error_reset_PushButton, 1]]
+        buttonPlacer = PM_WidgetRow(minor_groove_error_parameters_GroupBox,
+                                 spanWidth = True,
+                                 widgetList = buttonList)
+        
         return
     
 
