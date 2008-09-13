@@ -446,8 +446,6 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
         # Guides include rulers and soon, grid lines. Mark 2008-02-24.
         self.guides = Guides(self) 
 
-        self.add_whats_this_text()
-
         # Triple-click Timer: for the purpose of implementing a triple-click
         #                     event handler, which is not supported by Qt.
         #
@@ -503,41 +501,6 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
         [overrides GLPane_minimal method]
         """
         return True
-
-    def add_whats_this_text(self):
-        """
-        Adds What's This description to this glpane.
-        """
-        # We must do this here (and not in gui.WhatsThisText_for_MainWindow) because in the future
-        # there will be multiple part windows, each with its own glpane.
-        # Problem - I don't believe this text is processed by fix_whatsthis_text_and_links()
-        # in whatsthis_utilities.py. Discuss this with Bruce. Mark 2007-06-01
-
-        if sys.platform == "darwin":
-            ctrl_or_cmd = "Cmd"
-        else:
-            ctrl_or_cmd = "Ctrl"
-
-        glpaneText = \
-                   "<u><b>Graphics Area</b></u><br> "\
-                   "<br>This is where the action is."\
-                   "<p><b>Mouse Button Commands :</b><br> "\
-                   "<br> "\
-                   "<b>Left Mouse Button (LMB)</b> - Select<br> "\
-                   "<b>LMB + Shift</b> - add to current selection <br> "\
-                   "<b>LMB + " + ctrl_or_cmd + "</b> - remove from current selection <br> "\
-                   "<b>LMB + Shift + " + ctrl_or_cmd + "</b> - delete highlighted object <br> "\
-                   "<br> "\
-                   "<b>Middle Mouse Button (MMB)</b> - Rotate view <br> "\
-                   "<b>MMB + Shift</b> - Pan view <br> "\
-                   "<b>MMB + " + ctrl_or_cmd + "</b> - Rotate view around the point of view (POV) <br> "\
-                   "<br> "\
-                   "<b>Right Mouse Button (RMB)</b> - Display context-sensitive menus <br>"\
-                   "<br> "\
-                   "<b>Mouse Wheel</b> - Zoom in/out (configurable from Preference settings)"\
-                   "</p>"
-
-        self.setWhatsThis(glpaneText)
 
     # ==
 
@@ -1823,9 +1786,6 @@ class GLPane(GLPane_lighting_methods, # this needs to come before GLPane_minimal
         point = intersection
 
         return point
-
-    def setScaleToDna(self):
-        pass
 
     def rescale_around_point(self, factor, point = None): #bruce 060829; 070402 moved user prefs functionality into caller
         """

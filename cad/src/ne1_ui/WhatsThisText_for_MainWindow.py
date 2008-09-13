@@ -2108,4 +2108,35 @@ def create_whats_this_descriptions_for_NanoHive_dialog(w):
 
     w.MPQC_ESP_checkbox.setToolTip(MPQCESPTipText)
 
+def whats_this_text_for_glpane():
+    """
+    Return a What's This description for a GLPane.
+    """
+    #bruce 080912 moved this here from part of a method in class GLPane
+    import sys
+    if sys.platform == "darwin":
+        ctrl_or_cmd = "Cmd"
+    else:
+        ctrl_or_cmd = "Ctrl"
+
+    glpaneText = \
+               "<u><b>Graphics Area</b></u><br> "\
+               "<br>This is where the action is."\
+               "<p><b>Mouse Button Commands :</b><br> "\
+               "<br> "\
+               "<b>Left Mouse Button (LMB)</b> - Select<br> "\
+               "<b>LMB + Shift</b> - add to current selection <br> "\
+               "<b>LMB + " + ctrl_or_cmd + "</b> - remove from current selection <br> "\
+               "<b>LMB + Shift + " + ctrl_or_cmd + "</b> - delete highlighted object <br> "\
+               "<br> "\
+               "<b>Middle Mouse Button (MMB)</b> - Rotate view <br> "\
+               "<b>MMB + Shift</b> - Pan view <br> "\
+               "<b>MMB + " + ctrl_or_cmd + "</b> - Rotate view around the point of view (POV) <br> "\
+               "<br> "\
+               "<b>Right Mouse Button (RMB)</b> - Display context-sensitive menus <br>"\
+               "<br> "\
+               "<b>Mouse Wheel</b> - Zoom in/out (configurable from Preference settings)"\
+               "</p>"
+    return glpaneText
+
 # end

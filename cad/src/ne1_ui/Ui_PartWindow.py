@@ -273,6 +273,16 @@ class Ui_PartWindow(QWidget):
             # note: our owner (MWsemantics) assumes
             # there is just this one GLPane for assy, and stores it
             # into assy as assy.o and assy.glpane. [bruce 080216 comment]
+        
+        # Add what's this text to self.glpane.
+        # [bruce 080912 moved this here from part of a method in class GLPane.
+        #  In this code's old location, Mark wrote [2007-06-01]: "Problem -
+        #  I don't believe this text is processed by fix_whatsthis_text_and_links()
+        #  in whatsthis_utilities.py." Now that this code is here, I don't know
+        #  whether that's still true.]
+        from ne1_ui.WhatsThisText_for_MainWindow import whats_this_text_for_glpane
+        self.glpane.setWhatsThis( whats_this_text_for_glpane() )
+        
         self.pwProjectTabWidget.KLUGE_setGLPane(self.glpane)
             # help fix bug 2522 [bruce 070829]
         qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
