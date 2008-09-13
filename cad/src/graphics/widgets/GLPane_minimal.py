@@ -190,28 +190,36 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         
         return
 
-    def __getattr__(self, name): # in class GLPane_minimal
-        # bruce 080912 moved from GLPane into GLPane_minimal
-        # TODO: turn these into property defs
-        
-        # return space vectors corresponding to various directions
-        # relative to the screen (can be used during drawing
-        # or when handling mouse events)
-        if name == 'lineOfSight':
-            return self.quat.unrot(V(0, 0, -1))
-        elif name == 'right':
-            return self.quat.unrot(V(1, 0, 0))
-        elif name == 'left':
-            return self.quat.unrot(V(-1, 0, 0))
-        elif name == 'up':
-            return self.quat.unrot(V(0, 1, 0))
-        elif name == 'down':
-            return self.quat.unrot(V(0, -1, 0))
-        elif name == 'out':
-            return self.quat.unrot(V(0, 0, 1))
-        else:
-            raise AttributeError, 'GLPane_minimal has no "%s"' % name
-        pass
+    # define properties which return model-space vectors
+    # corresponding to various directions relative to the screen
+    # (can be used during drawing or when handling mouse events)
+    #
+    # [bruce 080912 turned these into properties, and optimized;
+    #  before that, this was done by __getattr__ in each subclass]
+
+    def __right(self, _q = V(1, 0, 0)):
+        return self.quat.unrot(_q)
+    right = property(__right)
+
+    def __left(self, _q = V(-1, 0, 0)):
+        return self.quat.unrot(_q)
+    left = property(__left)
+
+    def __up(self, _q = V(0, 1, 0)):
+        return self.quat.unrot(_q)
+    up = property(__up)
+
+    def __down(self, _q = V(0, -1, 0)):
+        return self.quat.unrot(_q)
+    down = property(__down)
+
+    def __out(self, _q = V(0, 0, 1)):
+        return self.quat.unrot(_q)
+    out = property(__out)
+    
+    def __lineOfSight(self, _q = V(0, 0, -1)):
+        return self.quat.unrot(_q)
+    lineOfSight = property(__lineOfSight)
     
     def __get_vdist(self):
         """
