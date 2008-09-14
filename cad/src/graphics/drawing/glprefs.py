@@ -186,3 +186,19 @@ class glprefs:
     pass # end of class glprefs
 
 drawing_globals.glprefs = glprefs()
+
+### TODO: CLEAN UP the assignment above, which is very bad in several ways:
+# 1. imports of modules should not be necessary for their side effects on other modules,
+#    unless there is a good reason (which there is not in this case).
+#    It makes the imports falsely appear unnecessary, and confuses tools which
+#    import the module in which the assignment is made (drawing_globals)
+#    but not the one which makes the assignment (this one).
+# 2. Bugs can be caused by something importing this module and looking for that value
+#    before it's been assigned. Revising import orders of other modules in ways
+#    that ought not to matter can trigger such bugs.
+# 3. a class in one module should have the same name as an instance of it in another module.
+#    (Since two globals should not in general have the same name, and this is an especially confusing case of that.)
+# [bruce 080913 comment]
+
+# end
+

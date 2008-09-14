@@ -29,6 +29,8 @@ from OpenGL.GL import glEnable
 from OpenGL.GL import glDisable
 from OpenGL.GL import GL_NORMALIZE
 
+from utilities.debug import print_compact_traceback
+
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
 

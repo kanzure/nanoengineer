@@ -37,7 +37,11 @@ from OpenGL.GLU import gluPickMatrix
 from PyQt4.QtOpenGL import QGLFormat
 from PyQt4.QtOpenGL import QGLWidget
 
+from Numeric import dot
+
+from geometry.VQT import norm, angleBetween
 from geometry.VQT import V, Q
+
 from graphics.behaviors.Trackball import Trackball
 from model.NamedView import NamedView
 
@@ -108,13 +112,17 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     # for that here, since some subclasses define it in each way
     # (and we'd have to know which way to define a default value correctly).
 
-    # default values of instance variables:
+    # class constants
 
-    glselectBufferSize = 10000 # guess, probably overkill, seems to work, no other value was tried
+    SIZE_FOR_glselectBuffer = 10000 # guess, probably overkill, seems to work, no other value was tried
+    
+    # default values of instance variables:
 
     shareWidget = None
 
     is_animating = False #bruce 080219 fix bug 2632 (unverified)
+
+    initialised = False
 
     # default values of subclass-specific constants
 
@@ -176,7 +184,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
             # consider removing it, unless we think it might be useful for
             # something in the future. [bruce 080910 comment]
 
-        self.trackball = Trackball(10,10)
+        self.trackball = Trackball(10, 10)
 
         self._functions_to_call_when_gl_context_is_current = []
 
@@ -220,7 +228,24 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     def __lineOfSight(self, _q = V(0, 0, -1)):
         return self.quat.unrot(_q)
     lineOfSight = property(__lineOfSight)
-    
+
+    def get_angle_made_with_screen_right(self, vec):
+        """
+        Returns the angle (in degrees) between screen right direction
+        and the given vector. It returns positive angles (between 0 and
+        180 degrees) if the vector lies in first or second quadrants
+        (i.e. points more up than down on the screen). Otherwise the
+        angle returned is negative.
+        """
+        #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2.
+        #bruce 080912 bugfix: don't give theta the wrong sign when
+        # dot(vec, self.up) < 0 and dot(vec, self.right) == 0.
+        vec = norm(vec)        
+        theta = angleBetween(vec, self.right)
+        if dot(vec, self.up) < 0:
+            theta = - theta
+        return theta
+
     def __get_vdist(self):
         """
         Recompute and return the desired distance between
@@ -252,7 +277,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         ##    vdist = cdist
         ##    if aspect < 1.0:
         ##            vdist = cdist / aspect
-        ##    eyePos = vdist * glpane.scale*glpane.out-glpane.pov
+        ##    eyePos = vdist * glpane.scale * glpane.out - glpane.pov
         # [bruce comment 080912]
         #bruce 0809122 moved this from GLPane into GLPane_minimal,
         # and made region selection code call it for the first time.
@@ -282,16 +307,13 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         """
         Called by QtGL when the drawing window is resized.
         """
-        #bruce 080912 moved this from GLPane into GLPane_minimal ###IMPORTS
+        #bruce 080912 moved this from GLPane into GLPane_minimal
         self.width = width
         self.height = height
 
         glViewport(0, 0, self.width, self.height)
             # example of using a smaller viewport:
-            ## glViewport(10, 15, (self.width-10)/2, (self.height-15)/3)
-        
-        if not self.initialised:
-            self.initialised = True ###k 1 vs True
+            ## glViewport(10, 15, (self.width - 10)/2, (self.height - 15)/3)
 
         # modify width and height for trackball
         # (note: this was done in GLPane but not in ThumbView until 080912)
@@ -299,7 +321,10 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
             width = 300
         if height < 300:
             height = 300
-
+        self.trackball.rescale(width, height)
+        
+        self.initialised = True
+        
         return
 
     def __get_aspect(self):
@@ -318,7 +343,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         @param glselect: False (default) normally, or a 4-tuple
                (format not documented here) to prepare for GL_SELECT picking
         """
-        #bruce 080912 moved this from GLPane into GLPane_minimal ###IMPORTS
+        #bruce 080912 moved this from GLPane into GLPane_minimal
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
 
@@ -350,7 +375,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         """
         set up modelview coordinate system
         """
-        #bruce 080912 moved this from GLPane into GLPane_minimal ###IMPORTS
+        #bruce 080912 moved this from GLPane into GLPane_minimal
         # note: it's not yet used in ThumbView, but maybe it could be.
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -397,7 +422,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         Subclass implementations of paintGL are advised to call this
         at the beginning and return immediately if it's false.
         """
-        return False
+        return True #bruce 080913 False -> True (more useful default)
 
     # ==
 

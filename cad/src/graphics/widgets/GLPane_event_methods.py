@@ -29,27 +29,30 @@ from geometry.VQT import planeXline, ptonline
 
 from Numeric import dot
 
-from utilities.debug_prefs import debug_pref
-from utilities.debug_prefs import Choice
-from utilities.debug_prefs import Choice_boolean_False
-
-from platform_dependent.PlatformDependent import fix_event_helper
-from platform_dependent.PlatformDependent import wrap_key_event
-from widgets.menu_helpers import makemenu_helper
-from widgets.DebugMenuMixin import DebugMenuMixin
-
-from graphics.widgets.DynamicTip import DynamicTip
+import foundation.env as env
 
 from utilities import debug_flags
 from utilities.debug import print_compact_traceback
-import foundation.env as env
+
+from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice
+from utilities.debug_prefs import Choice_boolean_False
 
 from utilities.constants import GL_FAR_Z
 from utilities.constants import MULTIPANE_GUI
 
 from utilities.GlobalPreferences import DEBUG_BAREMOTION
-
 import utilities.qt4transition as qt4transition
+
+from platform_dependent.PlatformDependent import fix_event_helper
+from platform_dependent.PlatformDependent import wrap_key_event
+
+from widgets.menu_helpers import makemenu_helper
+from widgets.DebugMenuMixin import DebugMenuMixin
+
+from graphics.widgets.DynamicTip import DynamicTip
+
+from ne1_ui.cursors import createCompositeCursor
 
 # ==
 

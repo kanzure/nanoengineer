@@ -4,6 +4,11 @@ drawing_globals.py - A module containing global state within the
 graphics.drawing suite.
 
 Variables can be (and are) dynamically added to the module at runtime.
+[Some of that is done in a dangerous way which requires CLEANUP,
+for example, glprefs, assigned at the end of glprefs.py when it's
+first imported. See comment near that assignment for what's wrong with it.
+If any other assignments have similar issues, they also need cleanup.
+bruce 080913 comment]
 
 Some of the variables contained here are mode control for the whole drawing
 package, including the ColorSorter suite.  Other parts are communication between

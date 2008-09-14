@@ -94,7 +94,13 @@ class ThumbView(GLPane_minimal):
     # Note: classes GLPane and ThumbView share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal
     # [bruce 070914 comment; since then some of it has been merged, some
-    #  still needs to be]
+    #  still needs to be] [I merged a bunch more now -- bruce 080912]
+
+    # class constants and/or default values of instance variables [not sure which are which]
+
+    SIZE_FOR_glselectBuffer = 500
+        # different value from that in GLPane_minimal
+        # [I don't know whether this matters -- bruce 071003 comment]
     
     shareWidget = None #bruce 051212
     always_draw_hotspot = False #bruce 060627
@@ -112,13 +118,8 @@ class ThumbView(GLPane_minimal):
         
         GLPane_minimal.__init__(self, parent, shareWidget, useStencilBuffer)
         
-        self.glselectBufferSize = 500
-            # different value from that in GLPane_minimal
-            # [I don't know whether this matters -- bruce 071003 comment]
-        
         self.elementMode = None
         
-        self.initialised = False
         #@@@Add the QGLWidget to the parentwidget's grid layout. This is done 
         #here for improving the loading speed. Needs further optimization and 
         #a better place to put this code if possible. -- Ninad 20070827        
@@ -304,10 +305,11 @@ class ThumbView(GLPane_minimal):
             # E.g. the partlib has no model when first entered.
             # Fixing this by only not drawing the model itself in that case [UNTESTED].
             # (The GLPane always has a model, so has no similar issue.)
+            #
             # I'm not moving the coordinate transforms into this if statement,
             # since I don't know if they might be depended on by non-paintGL
-            # drawing (e.g. for highlighting, called selection in some method
-            # names and comments). [bruce 080220]
+            # drawing (e.g. for highlighting, which btw is called "selection"
+            # in some method names and comments in this file). [bruce 080220]
             self.drawModel()
    
     def mousePressEvent(self, event):
@@ -518,7 +520,7 @@ class ThumbView(GLPane_minimal):
         
         pxyz = A(gluUnProject(wX, wY, gz))
         pn = self.out
-        pxyz -= 0.0002*pn
+        pxyz -= 0.0002 * pn
             # Note: if this runs before the model is drawn, this can have an
             # exception "OverflowError: math range error", presumably because
             # appropriate state for gluUnProject was not set up. That doesn't
@@ -540,7 +542,7 @@ class ThumbView(GLPane_minimal):
         current_glselect = (wX, wY, 1, 1) 
         self._setup_projection(glselect = current_glselect) 
         
-        glSelectBuffer(self.glselectBufferSize)
+        glSelectBuffer(self.SIZE_FOR_glselectBuffer)
         glRenderMode(GL_SELECT)
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
@@ -790,15 +792,12 @@ class MMKitView(ThumbView):
                 self.model.draw(self)
         return
 
-    def model_is_valid(self): #bruce 080117, revised 080220
+    def model_is_valid(self): #bruce 080117, revised 080220, 080913
         """
         whether our model is currently valid for drawing
         [overrides GLPane_minimal method]
         """
-        assy = self.assy
-        if assy is not None:
-            return assy.assy_valid
-        return False
+        return self.assy and self.assy.assy_valid
 
     def _get_assy(self): #bruce 080220
         """
