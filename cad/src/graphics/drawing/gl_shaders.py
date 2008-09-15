@@ -2,11 +2,25 @@
 """
 gl_shaders.py - OpenGL shader objects.
 
+    For shader concepts and links, see the Wikipedia introductions at:
+     http://en.wikipedia.org/wiki/GLSL
+     http://en.wikipedia.org/wiki/Graphics_pipeline
+
+    The GLSL quick reference card and language specification in PDF are useful:
+     http://www.mew.cx/glsl_quickref.pdf
+     http://www.opengl.org/registry/doc/GLSLangSpec.Full.1.20.8.pdf
+
+    For the OpenGL interface, see the API man pages and ARB specifications:
+     http://www.opengl.org/sdk/docs/man/
+     http://oss.sgi.com/projects/ogl-sample/registry/ARB/vertex_shader.txt
+     http://oss.sgi.com/projects/ogl-sample/registry/ARB/fragment_shader.txt
+     http://oss.sgi.com/projects/ogl-sample/registry/ARB/shader_objects.txt
+
     Useful man pages for OpenGL 2.1 are at:
-    http://www.opengl.org/sdk/docs/man
+     http://www.opengl.org/sdk/docs/man
 
     PyOpenGL versions are at:
-    http://pyopengl.sourceforge.net/ctypes/pydoc/OpenGL.html
+     http://pyopengl.sourceforge.net/ctypes/pydoc/OpenGL.html
 
 @author: Russ Fish
 @version: $Id$
@@ -14,13 +28,41 @@ gl_shaders.py - OpenGL shader objects.
 """
 
 # Whether to use texture memory for transforms, or a uniform array of mat4s.
-texture_xforms = 0 # 1
+texture_xforms = True # False
 # Otherwise, use a fixed-sized block of uniform memory for transforms.
-CONST_XFORMS = 250  # (Gets CPU bound at 275.  Dunno why.)
+N_CONST_XFORMS = 250  # (Gets CPU bound at 275.  Dunno why.)
 
 # Turns on a debug info message.
-# Bug: Can't read back huge transform textures due to SIGSEGV in glGetTexImage.
-check_texture_xform_loading = True # False  ## Never check in a True value.
+CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
+#
+# Note: due to an OpenGL or PyOpengl Bug, can't read back huge transform
+# textures due to SIGSEGV killing Python in glGetTexImage.
+#
+# Traceback on MacOS 10.5.2 with 2178 transforms:
+#   Exception Type:  EXC_BAD_ACCESS (SIGSEGV)
+#   Exception Codes: KERN_INVALID_ADDRESS at 0x00000000251f5000
+#   Thread 0 Crashed:
+#   0   libSystem.B.dylib   0xffff0884 __memcpy + 228
+#   1   libGLImage.dylib    0x913e8ac6 glgProcessPixelsWithProcessor + 326
+#   2   GLEngine            0x1e9dbace glGetTexImage_Exec + 1534
+#   3   libGL.dylib         0x9170dd4f glGetTexImage + 127
+#
+# And while we're on the subject, there is a crash that kills Python while
+# *writing* matrices to graphics card RAM.  I suspect that libGLImage is running
+# out of texture memory space.  I've looked for a method to verify that there is
+# enough left, but have not found one.  Killing a bloated FireFox has helped.
+#
+# Traceback on MacOS 10.5.2 with only 349 transforms requested in this case.
+#   Exception Type:  EXC_BAD_ACCESS (SIGSEGV)
+#   Exception Codes: KERN_INVALID_ADDRESS at 0x0000000013b88000
+#   Thread 0 Crashed:
+#   0   libSystem.B.dylib 	0xffff08a0 __memcpy + 256
+#   1   libGLImage.dylib  	0x913ea5e9 glgCopyRowsWithMemCopy(
+#           GLGOperation const*, unsigned long, GLDPixelMode const*) + 121
+#   2   libGLImage.dylib  	0x913e8ac6 glgProcessPixelsWithProcessor + 326
+#   3   GLEngine          	0x1ea16198 gleTextureImagePut + 1752
+#   4   GLEngine          	0x1ea1f896 glTexSubImage2D_Exec + 1350
+#   5   libGL.dylib       	0x91708cdb glTexSubImage2D + 155
 
 from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 import utilities.EndUser as EndUser
@@ -111,7 +153,7 @@ class GLSphereShaderObject(object):
                     """
         # Insert preprocessor constants.
         if not texture_xforms:
-            prefix += "#define CONST_XFORMS %d\n" % CONST_XFORMS
+            prefix += "#define N_CONST_XFORMS %d\n" % N_CONST_XFORMS
             pass
         # Pass the source strings to the shader compiler.
         self.sphereVerts = self.createShader(GL_VERTEX_SHADER,
@@ -447,7 +489,7 @@ class GLSphereBuffer:
                                 GL_RGBA, GL_FLOAT, transforms[xStart:xEnd])
                 continue
             # Read back to check proper loading.
-            if check_texture_xform_loading:
+            if CHECK_TEXTURE_XFORM_LOADING:
                 mats = glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT)
                 nMats = len(mats)
                 print "setupTransforms\n[[",
@@ -474,10 +516,10 @@ class GLSphereBuffer:
             C_transforms = numpy.array(transforms, dtype=numpy.float32)
             # Load into constant memory.  The GL_EXT_bindable_uniform extension
             # supports sharing this array of mat4s through a VBO.
-            # XXX Need to bank-switch this data if more than CONST_TRANSFORMS.
+            # XXX Need to bank-switch this data if more than N_CONST_XFORMS.
             glUniformMatrix4fvARB(shader.uniform("transforms"),
                                   # Don't over-run the array size.
-                                  min(len(transforms), CONST_XFORMS),
+                                  min(len(transforms), N_CONST_XFORMS),
                                   GL_TRUE, # Transpose.
                                   C_transforms)
             pass
@@ -618,10 +660,12 @@ class GLSphereBuffer:
 
 
 # ================================================================
-# Sphere shader source code.
+# Sphere shader source code in GLSL.
+#
+# See the docstring at the beginning of the file for GLSL references.
 
-# Note: if texture_xforms is off, a #define CONST_XFORMS array dimension is
-# prepended.  The #version statement has to come first, before it.
+# Note: if texture_xforms is off, a #define N_CONST_XFORMS array dimension is
+# prepended to the following.  The #version statement must preceed it.
 sphereVertSrc = """
 // Vertex shader program for sphere primitives.
 //
@@ -657,9 +701,9 @@ sphereVertSrc = """
 uniform int perspective;        // perspective=1 orthographic=0
 
 uniform int n_transforms;
-#ifdef CONST_XFORMS
+#ifdef N_CONST_XFORMS
   // Transforms are in uniform (constant) memory. 
-  uniform mat4 transforms[CONST_XFORMS]; // Must be dimensioned at compile time.
+  uniform mat4 transforms[N_CONST_XFORMS]; // Must dimension at compile time.
 #else
   // Transforms are in texture memory, indexed by a transform slot ID attribute.
   // Column major, one matrix per column: width=N cols, height=4 rows of vec4s.
@@ -691,7 +735,7 @@ void main(void) {
   if (n_transforms > 0) {
     // Apply a transform, indexed by a transform slot ID vertex attribute.
 
-#ifdef CONST_XFORMS 
+#ifdef N_CONST_XFORMS 
     // Get transforms from a fixed-sized block of uniform (constant)  memory.
     // The GL_EXT_bindable_uniform extension allows sharing this through a VBO.
     vertex = transforms[int(transform_id)] * vertex;
@@ -729,7 +773,7 @@ void main(void) {
   if (col > 10) col--;                  // Skip the gaps.
   if (row > 10) row--;
 
-# ifdef CONST_XFORMS
+# ifdef N_CONST_XFORMS
   // Not allowed: mat4 xform = mat4(transforms[int(transform_id)]);
   xform = mat4(transforms[int(transform_id)][0],
                transforms[int(transform_id)][1],
