@@ -141,6 +141,7 @@ class CommandSequencer(object):
         prevMode = property() # hopefully this causes errors on any access of it ### check this
 
         _command_stack_change_counter = 0
+        _flyout_command_change_counter = 0
 
         _previous_flyout_update_indicators = None
         
@@ -1591,7 +1592,7 @@ class CommandSequencer(object):
         
         # let currentCommand update its flyout toolbar if command stack has
         # changed since any command last did that using this code [bruce 080910]
-        flyout_update_indicators = ( self._command_stack_change_counter, )
+        flyout_update_indicators = ( self._flyout_command_change_counter, )
         if self._previous_flyout_update_indicators != flyout_update_indicators:
             self._previous_flyout_update_indicators = flyout_update_indicators
             command.command_update_flyout()
@@ -1681,9 +1682,12 @@ class CommandSequencer(object):
         
         def _set_raw_currentCommand(self, command):
             assert command is None or isinstance(command, baseCommand)
-                # is it true of nullmode???#### FIX ####
-            self._command_stack_change_counter += 1 #bruce 080903 new feature
+
             self.__raw_currentCommand = command
+
+            self._command_stack_change_counter += 1
+            if command and command.command_affects_flyout():
+                self._flyout_command_change_counter += 1
             return
 
         _raw_currentCommand = property( _get_raw_currentCommand, _set_raw_currentCommand)

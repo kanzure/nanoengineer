@@ -81,6 +81,10 @@ class baseCommand(object):
 
     def is_fixed_parent_command(cls):
         """
+        Is this command instance or class a "fixed-parent command",
+        i.e. one which requires self.parentCommand to be an instance
+        of a specific command?
+        
         @note: it works to call this classmethod directly on the class,
                or on an instance
         """
@@ -88,8 +92,25 @@ class baseCommand(object):
         return cls.command_level in FIXED_PARENT_LEVELS
     
     is_fixed_parent_command = classmethod(is_fixed_parent_command)
-        # someday: check whether this can be called directly on the class object... probably not.
 
+    def command_affects_flyout(cls):
+        """
+        Does this command instance or class ever affect the flyout
+        toolbar, either by replacing it, or by modifying its set of actions
+        or their checked or enabled state?
+
+        Used to decide when to call command_update_flyout, and when to
+        restore the default flyout state for the current command if the
+        user has temporarily modified it.
+        
+        @note: it works to call this classmethod directly on the class,
+               or on an instance
+        """
+        from commandSequencer.command_levels import AFFECTS_FLYOUT_LEVELS
+        return cls.command_level in AFFECTS_FLYOUT_LEVELS
+    
+    command_affects_flyout = classmethod(command_affects_flyout)
+    
     def command_that_supplies_PM(self):
         """
         Return the innermost command (of self or its parent/grandparent/etc)

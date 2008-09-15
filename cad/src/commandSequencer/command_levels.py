@@ -77,6 +77,15 @@ FIXED_PARENT_LEVELS = [level
                        for level in LEGAL_COMMAND_LEVELS
                        if _apl[level] == _USE_COMMAND_PARENT]
 
+_IGNORE_FLYOUT_LEVELS = (
+        CL_VIEW_CHANGE,
+        CL_REQUEST,
+        CL_ABSTRACT,
+        CL_UNUSED,
+ )
+
+AFFECTS_FLYOUT_LEVELS = filter( lambda level: level not in _IGNORE_FLYOUT_LEVELS,
+                                LEGAL_COMMAND_LEVELS )
 
 def allowed_parent( want, parent ): #bruce 080815
     """
