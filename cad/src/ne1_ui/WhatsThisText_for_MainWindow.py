@@ -1690,7 +1690,15 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "configuration that the atoms will settle "\
         "into if lowered to zero Kelvin. </p>"
 
-    win. simMinimizeEnergyAction.setWhatsThis( simMinimizeEnergyActionText )
+    win.simMinimizeEnergyAction.setWhatsThis( simMinimizeEnergyActionText )
+
+    checkAtomTypesActionText = \
+        "<u><b>Check AMBER AtomTypes</b></u>"\
+        "<p>"\
+        "Shows which AtomTypes will be assigned to each atom when the AMBER force field is in use."\
+        "</p>"
+
+    win.checkAtomTypesAction.setWhatsThis( checkAtomTypesActionText )
 
     # Change Chunk Color
     

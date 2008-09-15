@@ -370,6 +370,10 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     matchPartToAllPatterns(part);
     PYBAIL();
 
+    if (TypeFeedback) {
+        return finish_python_call(Py_None);
+    }
+
     // ##e should print options set before run, but it's too early to do that in this code
 
     if (IterPerFrame <= 0) IterPerFrame = 1;

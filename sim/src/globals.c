@@ -57,6 +57,8 @@ double MinimizeThresholdEndMax;
 int TimeReversal;
 double ThermostatGamma;
 double ThermostatG1;
+int UseAMBER;
+int TypeFeedback;
 
 // absolute distance in nm beyond which gromacs will consider vdW
 // forces to be exactly zero.  If less than zero, user defined tables
@@ -157,6 +159,8 @@ reinit_globals(void)
     SimpleMovieForceScale = 1.0;
     TimeReversal = 0;
     ThermostatGamma = 0.01;
+    UseAMBER = 0;
+    TypeFeedback = 0;
     
     MinimizeThresholdCutoverRMS = 50.0; // pN
     MinimizeThresholdCutoverMax = 0.0; // set by constrainGlobals, below
@@ -237,6 +241,7 @@ printGlobals()
     write_traceline("# EnableElectrostatic: %d\n", EnableElectrostatic);
     write_traceline("# NeighborSearching: %d\n", NeighborSearching);
     write_traceline("# ThermostatGamma: %f\n", ThermostatGamma);
+    write_traceline("# UseAMBER: %d\n", UseAMBER);
     if (SystemParametersFileName != NULL && LoadedSystemParameters) {
         write_traceline("# SystemParametersFileName: %s\n", SystemParametersFileName);
     }

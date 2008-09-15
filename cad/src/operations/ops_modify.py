@@ -50,6 +50,15 @@ class modifySlotsMixin:
         cmdrun.run()
         return
 
+    def modifyCheckAtomTypes(self):
+        """
+        Check Atom Types for all atoms.
+        """
+        from simulation.sim_commandruns import CheckAtomTypes_CommandRun
+        cmdrun = CheckAtomTypes_CommandRun(self)
+        cmdrun.run()
+        return
+
     def modifyHydrogenate(self):
         """
         Add hydrogen atoms to each singlet in the selection.

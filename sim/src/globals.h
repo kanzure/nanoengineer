@@ -50,6 +50,8 @@ extern int NeighborSearching;
 extern int TimeReversal;
 extern double ThermostatGamma;
 extern double ThermostatG1;
+extern int UseAMBER;
+extern int TypeFeedback;
 
 extern int LoadedSystemParameters;
 extern char *UserParametersFileName;

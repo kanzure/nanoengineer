@@ -272,6 +272,7 @@ def setupUi(win):
     win.connect(win.dispCylinderAction,SIGNAL("triggered()"),win.dispCylinder)
     win.connect(win.dispDnaCylinderAction,SIGNAL("triggered()"),win.dispDnaCylinder)
     win.connect(win.simMinimizeEnergyAction,SIGNAL("triggered()"),win.simMinimizeEnergy)
+    win.connect(win.checkAtomTypesAction,SIGNAL("triggered()"),win.modifyCheckAtomTypes)
     win.connect(win.fileImportOpenBabelAction,
                 SIGNAL("triggered()"),
                 win.fileOpenBabelImport)

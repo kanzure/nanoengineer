@@ -18,6 +18,7 @@
     RCSID_INTERPOLATE_H \
     RCSID_READMMP_H \
     RCSID_READXYZ_H \
+    RCSID_AMBER_PATTERNS_H \
     RCSID_PAM5_PATTERNS_H \
     RCSID_PATTERN_H \
     RCSID_PRINTERS_H \
@@ -148,6 +149,7 @@
 #include "printers.h"
 #include "dynamics.h"
 #include "jigs.h"
+#include "amber_patterns.h"
 #include "pam5_patterns.h"
 #include "pattern.h"
 #include "potential.h"

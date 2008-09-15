@@ -2029,6 +2029,7 @@ class MWsemantics(QMainWindow,
         self.modifyAdjustSelAction.setEnabled(enable) # "Adjust Selection"
         self.modifyAdjustAllAction.setEnabled(enable) # "Adjust All"
         self.simMinimizeEnergyAction.setEnabled(enable) # Minimize Energy
+        self.checkAtomTypesAction.setEnabled(enable) # Check AMBER AtomTypes
         self.rosettaSetupAction.setEnabled(enable)
         self.simSetupAction.setEnabled(enable) # "Simulator"
         self.fileSaveAction.setEnabled(enable) # "File Save"

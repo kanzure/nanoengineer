@@ -28,6 +28,7 @@ def setupUi(win):
     win.toolsMenu.addAction(win.modifyAdjustSelAction)
     win.toolsMenu.addAction(win.modifyAdjustAllAction)
     win.toolsMenu.addAction(win.simMinimizeEnergyAction)
+    win.toolsMenu.addAction(win.checkAtomTypesAction)
     win.toolsMenu.addSeparator()
     win.toolsMenu.addMenu(win.buildStructuresMenu)
     win.toolsMenu.addMenu(win.buildToolsMenu)

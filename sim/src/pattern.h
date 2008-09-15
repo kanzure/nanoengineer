@@ -14,7 +14,7 @@ struct compiledPatternTraversal
 {
   struct compiledPatternAtom *a;
   struct compiledPatternAtom *b;
-  char bondOrder;
+  char bondOrder[4];
 };
 
 struct patternMatch 
@@ -43,6 +43,8 @@ extern void traceMatch(struct patternMatch *match);
 extern int atomIsType(struct atom *a, struct atomType *type);
 
 extern struct compiledPatternAtom *makePatternAtom(int id, char *type);
+
+extern struct compiledPatternTraversal *makeTraversal2(struct compiledPatternAtom *a, struct compiledPatternAtom *b, char *bondOrders);
 
 extern struct compiledPatternTraversal *makeTraversal(struct compiledPatternAtom *a, struct compiledPatternAtom *b, char bondOrder);
 

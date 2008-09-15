@@ -592,6 +592,10 @@ def setupUi(win):
         geticon("ui/actions/Simulation/Minimize_Energy.png"))
     win.simMinimizeEnergyAction.setObjectName("simMinimizeEnergyAction")
 
+    win.checkAtomTypesAction = NE1_QWidgetAction(MainWindow, 
+                                                      win = MainWindow)
+    win.checkAtomTypesAction.setObjectName("checkAtomTypesAction")
+
     win.toolsExtrudeAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.toolsExtrudeAction.setCheckable(True)
     win.toolsExtrudeAction.setIcon(
@@ -1563,6 +1567,12 @@ def retranslateUi(win):
     win.simMinimizeEnergyAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", 
         "Minimize Energy", 
+        None, 
+        QtGui.QApplication.UnicodeUTF8))    
+
+    win.checkAtomTypesAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", 
+        "Check AMBER AtomTypes", 
         None, 
         QtGui.QApplication.UnicodeUTF8))    
 

@@ -48,6 +48,8 @@ cdef extern from "simhelp.c":
     int EnableElectrostatic
     int NeighborSearching
     double ThermostatGamma
+    int UseAMBER
+    int TypeFeedback
     char *IDKey
     char *BaseFileName
     char *InputFileName
@@ -153,6 +155,10 @@ cdef class _Simulator:
             return EnableElectrostatic
         elif strcmp(key, "NeighborSearching") == 0:
             return NeighborSearching
+        elif strcmp(key, "UseAMBER") == 0:
+            return UseAMBER
+        elif strcmp(key, "TypeFeedback") == 0:
+            return TypeFeedback
         elif strcmp(key, "ThermostatGamma") == 0:
             return ThermostatGamma
         elif strcmp(key, "IDKey") == 0:
@@ -269,6 +275,12 @@ cdef class _Simulator:
         elif strcmp(key, "NeighborSearching") == 0:
             global NeighborSearching
             NeighborSearching = value
+        elif strcmp(key, "UseAMBER") == 0:
+            global UseAMBER
+            UseAMBER = value
+        elif strcmp(key, "TypeFeedback") == 0:
+            global TypeFeedback
+            TypeFeedback = value
         elif strcmp(key, "ThermostatGamma") == 0:
             global ThermostatGamma
             ThermostatGamma = value

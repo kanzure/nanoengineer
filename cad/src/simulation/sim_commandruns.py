@@ -641,6 +641,40 @@ class Minimize_CommandRun(CommandRun):
 
 # ==
 
+class CheckAtomTypes_CommandRun(CommandRun):
+    def run(self):
+        if not self.part.molecules:
+            return
+        for chunk in self.part.molecules:
+            if (chunk.atoms):
+                for atom in chunk.atoms.itervalues():
+                    atom.setOverlayText("?")
+                chunk.showOverlayText = True
+
+        selection = self.part.selection_for_all()
+        simaspect = sim_aspect( self.part,
+                                selection.atomslist(),
+                                cmdname_for_messages = "CheckAtomTypes",
+                                anchor_all_nonmoving_atoms = False
+                                )
+
+        movie = Movie(self.assy)
+        #self._movie = movie
+
+        writemovie(self.part,
+                   movie,
+                   1,
+                   simaspect = simaspect,
+                   print_sim_warnings = True,
+                   cmdname = "Simulator",
+                   cmd_type = "Check AtomTypes",
+                   useGromacs = False,
+                   background = False,
+                   useAMBER = True,
+                   typeFeedback = True)
+
+        self.part.gl_update()
+
 def LocalMinimize_function( atomlist, nlayers ): #bruce 051207
     win = atomlist[0].molecule.part.assy.w # kluge!
     #e should probably add in monovalent real atom neighbors -- but before finding neighbors layers, or after?
