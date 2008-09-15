@@ -14,13 +14,13 @@ gl_shaders.py - OpenGL shader objects.
 """
 
 # Whether to use texture memory for transforms, or a uniform array of mat4s.
-texture_xforms = 1 # 0
+texture_xforms = 0 # 1
 # Otherwise, use a fixed-sized block of uniform memory for transforms.
 CONST_XFORMS = 250  # (Gets CPU bound at 275.  Dunno why.)
 
 # Turns on a debug info message.
-# Warking, can't read back huge transform textures: SIGSEGV in glGetTexImage.
-check_texture_xform_loading = False # True  ## Never check in a True value.
+# Bug: Can't read back huge transform textures due to SIGSEGV in glGetTexImage.
+check_texture_xform_loading = True # False  ## Never check in a True value.
 
 from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 import utilities.EndUser as EndUser
@@ -433,7 +433,7 @@ class GLSphereBuffer:
                          nTransforms, 4 * 4, 0, # No border.
                          # Data format and type, null pointer to allocate space.
                          GL_RGBA, GL_FLOAT, None)
-            # XXX Split this off into a loadTransforms method.
+            # XXX Split this off into a setTransforms method.
             batchSize = 250
             nBatches = (nTransforms + batchSize-1) / batchSize
             for i in range(nBatches):
@@ -448,8 +448,27 @@ class GLSphereBuffer:
                 continue
             # Read back to check proper loading.
             if check_texture_xform_loading:
-                print "setupTransforms\n", \
-                      glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT)
+                mats = glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT)
+                nMats = len(mats)
+                print "setupTransforms\n[[",
+                for i in range(nMats):
+                    nElts = len(mats[i])
+                    perLine = 8
+                    nLines = (nElts + perLine-1) / perLine
+                    for line in range(nLines):
+                        jStart = perLine * line
+                        jEnd = min(nElts, jStart + perLine)
+                        for j in range(jStart, jEnd):
+                            print "%.2f" % mats[i][j],
+                            continue
+                        if line < nLines-1:
+                            print "\n  ",
+                            pass
+                    if i < nMats-1:
+                        print "]\n [",
+                        pass
+                    continue
+                print "]]"
             pass
         else:
             C_transforms = numpy.array(transforms, dtype=numpy.float32)
@@ -457,7 +476,10 @@ class GLSphereBuffer:
             # supports sharing this array of mat4s through a VBO.
             # XXX Need to bank-switch this data if more than CONST_TRANSFORMS.
             glUniformMatrix4fvARB(shader.uniform("transforms"),
-                                  len(transforms), GL_TRUE, C_transforms)
+                                  # Don't over-run the array size.
+                                  min(len(transforms), CONST_XFORMS),
+                                  GL_TRUE, # Transpose.
+                                  C_transforms)
             pass
         shader.use(False)                # Deactivate again.
         return
@@ -664,23 +686,25 @@ void main(void) {
   var_basecolor = color;
 
   vec4 vertex = gl_Vertex;
+  vec4 center = vec4(center_pt, 1.0);
   mat4 xform;
   if (n_transforms > 0) {
     // Apply a transform, indexed by a transform slot ID vertex attribute.
+
 #ifdef CONST_XFORMS 
     // Get transforms from a fixed-sized block of uniform (constant)  memory.
     // The GL_EXT_bindable_uniform extension allows sharing this through a VBO.
-    //
-    // (Very Slow:
     vertex = transforms[int(transform_id)] * vertex;
+    center = transforms[int(transform_id)] * center;
+
 #else  // texture_xforms.
     // Assemble the 4x4 matrix from a column of vec4s stored in texture memory.
     // Map the 4 rows and N columns onto the (0...1, 0...1) texture coord range.
     // The first texture coordinate goes across the width of N matrices.
-    float mat = transform_id / float(n_transforms);
-    // The second tex coord goes down the height of four vec4's for the matrix.
-# if 0 // 1
-    xform = mat4(1.0);   /// Over-ride with an identity matrix for testing.
+    float mat = transform_id / float(n_transforms - 1);  // (0...N-1)=>(0...1) .
+    // The second tex coord goes down the height of four vec4s for the matrix.
+# if 0 // 1   /// Never check in a 1 value.
+    xform = mat4(1.0); /// Testing, override texture xform with identity matrix.
 # else
     xform = mat4(texture2D(transforms, vec2(0.0/3.0, mat)),
                  texture2D(transforms, vec2(1.0/3.0, mat)), 
@@ -688,14 +712,21 @@ void main(void) {
                  texture2D(transforms, vec2(3.0/3.0, mat)));
 # endif
     vertex = xform * vertex;
-#endif CONST_XFORMS
+    center = xform * center;
+#endif // texture_xforms.
+
   }
 
-#if 0 // 1   // Debugging display: set the colors of a 16x16 sphere array.
-  int offset = int(n_transforms)/2;   // Undo the array centering in data setup.
+#if 0 // 1   /// Never check in a 1 value.
+  // Debugging display: set the colors of a 16x16 sphere array.
+  // test_drawing.py sets the transform_id's.  Assume here that
+  // nSpheres = transformChunkLength = 16, so each column is one transform.
+
+  // The center_pt coord attrib gives the subscripts of the sphere in the array.
+  int offset = int(n_transforms)/2; // Undo the array centering from data setup.
   int col = int(center_pt.x) + offset;  // X picks the columns.
   int row = int(center_pt.y) + offset;  // Y picks the rows.
-  if (col > 10) col--;                // Skip the gaps.
+  if (col > 10) col--;                  // Skip the gaps.
   if (row > 10) row--;
 
 # ifdef CONST_XFORMS
@@ -722,14 +753,20 @@ void main(void) {
   if (data > 0.0) var_basecolor = vec3(data, data, data);  // Fractions in gray.
   // Matrix labels (1 + xform/100) in blue.
   if (data > 1.0) var_basecolor = vec3(0.0, 0.0, (data - 1.0) * 8.0);
-#endif
     
+  /// When debugging, don't use the xform'ed vertex, which could be all zeros.
   // Transform the vertex through the modeling and viewing matrix to 'eye' space.
   vec4 eye_vert = gl_ModelViewMatrix * gl_Vertex; /// vertex;
   gl_ClipVertex = eye_vert;     // For user clipping planes.
+#else
+
+  // Transform the vertex through the modeling and viewing matrix to 'eye' space.
+  vec4 eye_vert = gl_ModelViewMatrix * vertex;
+  gl_ClipVertex = eye_vert;     // For user clipping planes.
+#endif
 
   // Center point in eye space.
-  vec4 eye_center = gl_ModelViewMatrix * vec4(center_pt, 1.0);
+  vec4 eye_center = gl_ModelViewMatrix * center;
   var_center = vec3(eye_center) / eye_center.w;
 
   // Scaled radius in eye space.  (Assume uniform scale on all axes.)

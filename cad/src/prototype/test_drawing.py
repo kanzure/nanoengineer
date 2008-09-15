@@ -28,7 +28,7 @@ testCase = 3.4
 # 10, 25, 50, 100, 132, 200, 300, 400, 500...
 
 # Longish chunks for test case 3.4 (with transforms)
-#nSpheres = 132; transformChunkLength = 1000
+nSpheres = 132; transformChunkLength = 1000
 #
 # 16x16 sphere array, chunked by columns for vertex shader debugging display.
 #nSpheres = transformChunkLength = 16
@@ -38,7 +38,7 @@ testCase = 3.4
 #nSpheres = 132; transformChunkLength = 50 # 349 chunks.
 #nSpheres = 132; transformChunkLength = 20 # 872 chunks.
 #nSpheres = 132; transformChunkLength = 10 # 1743 chunks.
-nSpheres = 132; transformChunkLength = 8 # 2178 chunks.
+#nSpheres = 132; transformChunkLength = 8 # 2178 chunks.
 #
 #nSpheres = 300; transformChunkLength = 8 # 11250 chunks.
 #nSpheres = 400; transformChunkLength = 8 # 20000 chunks.
@@ -302,10 +302,18 @@ def test_drawing(glpane):
                             # Start a new chunk, allocating a transform matrix.
                             primCounter = 0
                             transformChunkID += 1
-                            if 1:
+                            if 0: # 1
                                 # Debug hack: Label mat[0,0] with the chunk ID.
+                                # Vertex shader debug code shows these in blue.
+                                # If viewed as geometry, it will be a slight
+                                # stretch of the array in the X direction.
                                 transforms += [
                                     [1.0+transformChunkID/100.0] + identity[1:]]
+                            elif 0: # 1
+                                # Debug hack: Fill mat with mat.element pattern.
+                                transforms += [
+                                    [transformChunkID +
+                                     i/100.0 for i in range(16)]]
                             else:
                                 transforms += [identity]
                                 pass
