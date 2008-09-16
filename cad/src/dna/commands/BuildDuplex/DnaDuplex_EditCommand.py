@@ -280,21 +280,21 @@ class DnaDuplex_EditCommand(EditCommand):
         self._segmentList = []
         
         
-    ##def command_enter_flyout(self):
-        ##"""
-        ##Overrides superclass method. 
-        ##@see: EditCommand.command_enter_flyout()
-        ##"""
-        ##self._init_gui_flyout_action( 'dnaDuplexAction' )
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_enter_flyout()
+        """
+        self._init_gui_flyout_action( 'dnaDuplexAction' )
         
                 
-    ##def command_exit_flyout(self):
-        ##"""
-        ##Overrides superclass method. 
-        ##@see: EditCommand.command_exit_flyout()
-        ##"""
-        ##if self.flyoutToolbar:
-            ##self.flyoutToolbar.dnaDuplexAction.setChecked(False)
+    def command_exit_flyout(self):
+        """
+        Overrides superclass method. 
+        @see: EditCommand.command_exit_flyout()
+        """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.dnaDuplexAction.setChecked(False)
             
     
     
