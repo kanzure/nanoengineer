@@ -27,6 +27,7 @@ class BreakStrands_Command(BreakOrJoinStrands_Command):
     commandName = 'BREAK_STRANDS'
     featurename = "Break Strands"    
     GraphicsMode_class = BreakStrands_GraphicsMode
+    
     PM_class = BreakStrands_PropertyManager
     
    

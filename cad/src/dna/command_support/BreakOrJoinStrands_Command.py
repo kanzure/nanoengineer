@@ -27,6 +27,12 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     #Temporary attr 'command_porting_status. See baseCommand for details.
     command_porting_status = None #fully ported (includind subclasses Break and JoinStrands commands
     
+    #Property Manager class (overridden in subclasses)
+    PM_class = None
+    
+    #Flyout toolbar class
+    FlyoutToolbar_class = None
+    
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
     __abstract_command_class = True #bruce 080905
@@ -34,6 +40,8 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
+    
+    
     
     flyoutToolbar = None   
     
