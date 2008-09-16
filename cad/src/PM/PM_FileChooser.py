@@ -143,6 +143,8 @@ class PM_FileChooser( QWidget ):
         if label: # Create this widget's QLabel.
             self.labelWidget = QLabel()
             self.labelWidget.setText(label)
+        else:
+            self.labelWidget = None
         
         self.lineEdit = QLineEdit()
         self.browseButton = QToolButton()
