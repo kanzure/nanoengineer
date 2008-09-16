@@ -117,6 +117,8 @@ class GLPane_rendering_methods(object):
         ### TODO: document this better
 
     def _init_GLPane_rendering_methods(self):
+        """
+        """
         # clipping planes, as percentage of distance from the eye
         self.near = 0.25 # After testing, this is much, much better.  Mark 060116. [Prior value was 0.66 -- bruce 060124 comment]
         self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
@@ -130,7 +132,10 @@ class GLPane_rendering_methods(object):
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs [of what? paintGL I guess?]
             # see also self.object_for_glselect_name()
-            # (which replaces env.obj_with_glselect_name[] as of 080220)
+            # (which replaces env.obj_with_glselect_name[] as of 080220 --
+            #  though in outside code, that's still used as of 080915.
+            #  A fuller story: it's in the middle of an unfinished
+            #  cleanup (changing from global to per-assy), started on 080220.)
 
         self.makeCurrent() # REVIEW: safe now? needed for loadLighting? [bruce 080913 questions]
 
@@ -482,34 +487,17 @@ class GLPane_rendering_methods(object):
 
     __subusage = None #bruce 070110
 
-    def standard_repaint(self): #bruce 050617 split this out; bruce 061208 removed obsolete special_topnode experiment
+    def standard_repaint(self):
         """
-        #doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
-        this routine sets its own matrixmode but depends on other gl state being standard when entered.
+        call standard_repaint_0 inside "usage tracking". This is so subsequent
+        changes to tracked variables (such as env.prefs values) automatically
+        cause self.gl_update to be called.
+        
+        @warning: this trashes both gl matrices! caller must push them both
+                  if it needs the current ones. this routine sets its own
+                  matrixmode, but depends on other gl state being standard
+                  when entered.
         """
-        if 0:
-            #bruce 070109 see if a nonempty subslist is present -- it might be part of my _app contin redraw bug -- offer to empty it
-            #WRONG, this is the wrong subslist, it's for usage of the glpane, whhat i need is invals that might come to it.
-            # that's whatweused in the onetimesubslist in the usage tracker terminated by end_tracking_usage.
-            try:
-                subslist = self._SelfUsageTrackingMixin__subslist
-            except AttributeError: # this is common at all times -- in fact it's the only case here I've yet seen
-                ## print "fyi: glpane had no __subslist" ## this is the only one that got printed, so it doesn't explain my _app redraw bug.
-                pass
-            else:
-                lis = subslist._list_of_subs()
-                if not lis:
-                    print "fyi: glpane had empty __subslist"###
-                else:
-                    remove = debug_pref("GLPane: empty __subslist?", Choice_boolean_False, prefs_key = True)
-                    print "bug??: glpane had %d things in __subslist%s" % (len(subslist), remove and " -- will remove them" or "")
-                    print subslist ###
-                    if remove:
-                        subslist.remove_all_subs()
-                    pass
-                pass
-            pass
-
         # zap any leftover usage tracking from last time
         #
         # [bruce 070110 new feature, for debugging and possibly as a bugfix;
@@ -602,10 +590,12 @@ class GLPane_rendering_methods(object):
         # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ###e which coord system, incl projection??
         # [end]
 
-
     def standard_repaint_0(self):
-
-        # do something (what?) so prefs changes do gl_update when needed [bruce 051126]
+        """
+        This is the main rendering routine -- it clears the OpenGL window,
+        does all drawing done during paintGL, and does hit-testing if
+        requested by event handlers before this call of paintGL.
+        """
         drawing_globals.glprefs.update()
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
 
@@ -623,7 +613,7 @@ class GLPane_rendering_methods(object):
             # I have to preserve this value or find another way of computing it.
             bbox = self.assy.bbox_for_viewing_model()
             scale = bbox.scale()
-            enable_fog()
+            enable_fog() #k needed?? [bruce 080915 question]
             setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor)
             # [I suspect the following comment is about a line that has since
             #  been moved elsewhere -- bruce 080911]
@@ -641,19 +631,26 @@ class GLPane_rendering_methods(object):
         # set self.stereo_* attributes based on current user prefs values
         # (just once per draw event, before anything might use these attributes)
         self._update_stereo_settings()
-        
-        # do GL_SELECT drawing if needed (for hit test of objects with mouse)
 
-        ###e note: if any objects moved since they were last rendered, this hit-test will still work (using their new posns),
-        # but the later depth comparison (below) might not work right. See comments there for details.
+        # do hit-testing, if requested by some event handler before this
+        # call of paintGL (mostly done in do_glselect_if_wanted)
+
+        ###e note: if any objects moved since they were last rendered,
+        # this hit-test will still work (using their new posns),
+        # but the later depth comparison (below, inside preDraw_glselect_dict)
+        # might not work right. See comments there for details.
 
         self.glselect_dict.clear()
             # this will be filled iff we do a gl_select draw,
-            # then used only in the same paintGL call to alert some objects they might be the one under the mouse
+            # then used only in the same paintGL call to alert some objects
+            # they might be the one under the mouse
 
-        self.do_glselect_if_wanted() # note: this sets up its own special projection matrix
+        self.do_glselect_if_wanted()
+            # note: if self.glselect_wanted, this sets up a special projection
+            # matrix, and leaves it in place (effectively trashing the
+            # projection matrix of the caller)
 
-        self._setup_projection()
+        self._setup_projection() # setup the usual projection matrix
 
         # Compute frustum planes required for frustum culling - piotr 080331
         # Moved it right after _setup_projection is called (piotr 080331)
@@ -663,28 +660,43 @@ class GLPane_rendering_methods(object):
         if self._use_frustum_culling:
             self._compute_frustum_planes()
 
-        # In the glselect_wanted case, we now know (in glselect_dict) which objects draw any pixels at the mouse position,
-        # but not which one is in front (the near/far info from GL_SELECT has too wide a range to tell us that).
-        # So we have to get them to tell us their depth at that point (as it was last actually drawn)
+        # In the glselect_wanted case, we now know (in glselect_dict)
+        # which objects draw any pixels at the mouse position,
+        # but not which one is in front. (The near/far info from
+        # GL_SELECT has too wide a range to tell us that.)
+        # So we have to get them to tell us their depth at that point
+        # (as it was last actually drawn)
             ###@@@ should do that for bugfix; also selobj first
-        # (and how it compares to the prior measured depth-buffer value there, as passed in glselect_wanted,
-        #  if we want to avoid selecting something when it's obscured by non-selectable drawing in front of it).
+        # (and how it compares to the prior measured depth-buffer value there,
+        #  as passed in glselect_wanted, if we want to avoid selecting
+        #  something when it's obscured by non-selectable drawing in
+        #  front of it).
         if self.glselect_dict:
-            # kluge: this is always the case if self.glselect_wanted was set and self.selobj was set,
-            # since selobj is always stored in glselect_dict then; if not for that, we might need to reset
-            # selobj to None here for empty glselect_dict -- not sure, not fully analyzed. [bruce 050612]
-            newpicked = self.preDraw_glselect_dict() # retval is new mouseover object, or None ###k verify
-            ###e now tell this obj it's picked (for highlighting), which might affect how the main draw happens.
-            # or, just store it so code knows it's there, and (later) overdraw it for highlighting.
+            # kluge: this is always the case if self.glselect_wanted was set
+            # and self.selobj was set, since selobj is always stored in
+            # glselect_dict then; if not for that, we might need to reset
+            # selobj to None here for empty glselect_dict -- not sure, not
+            # fully analyzed. [bruce 050612]
+            newpicked = self.preDraw_glselect_dict() # retval is new mouseover object, or None
+            # now record which object is hit by the mouse in self.selobj
+            # (or None if none is hit); and (later) overdraw it for highlighting.
             if newpicked is not selobj:
                 self.set_selobj( newpicked, "newpicked")
                 selobj, hicolor = self.validate_selobj_and_hicolor()
-                    # REVIEW: should set_selobj also do this, and save hicolor in an attr of self?
-                ###e we'll probably need to notify some observers that selobj changed (if in fact it did). ###@@@
-                ## env.history.statusbar_msg("%s" % newpicked) -- messed up by depmode "click to do x" msg
+                    # REVIEW: should set_selobj also do this, and save hicolor
+                    # in an attr of self?
+                # future: we'll probably need to notify some observers that
+                # selobj changed (if in fact it did).
+                # REVIEW: we used to print this in the statusbar:
+                ## env.history.statusbar_msg("%s" % newpicked)
+                # but it was messed up by Build Atoms "click to do x" msg.
+                # that message is nim now, so we could restore this if desired.
+                # should we? [bruce 080915 comment]
 
-        # otherwise don't change prior selobj -- we have a separate system to set it back to None when needed
-        # (which has to be implemented in the bareMotion routines of client modes -- would self.bareMotion be better? ###@@@ review)
+        # otherwise don't change prior selobj -- we have a separate system
+        # to set it back to None when needed (which has to be implemented
+        # in the bareMotion methods of instances stored in self.graphicsMode --
+        # would self.bareMotion (which doesn't exist now) be better? (REVIEW)
 
         # draw according to self.graphicsMode
 
@@ -714,11 +726,14 @@ class GLPane_rendering_methods(object):
                 
             # highlight selobj if necessary, by drawing it again in highlighted
             # form (never inside fog).
-            # It was already drawn normally, but we redraw it now for two reasons:
+            # It was already drawn normally, but we redraw it now for three reasons:
             # - it might be in a display list in non-highlighted form (and if so,
             #   the above draw used that form);
-            # - we need to draw it into the stencil buffer too, so mode.bareMotion
-            #   can tell when mouse is still over it.
+            # - if fog is enabled, the above draw was inside fog; this one won't be;
+            # - we need to draw it into the stencil buffer too, so subsequent calls
+            #   of self.graphicsMode.bareMotion event handlers can find out whether
+            #   the mouse is still over it, and avoid asking for hit-test again
+            #   if it was (probably an important optimization).
             if selobj is not None:
                 self.draw_highlighted_objectUnderMouse(selobj, hicolor)
                     # REVIEW: is it ok that the mode had to tell us selobj and hicolor
@@ -728,7 +743,7 @@ class GLPane_rendering_methods(object):
             continue # to next stereo_image
 
         ### REVIEW [bruce 080911 question]:
-        # why is Draw_after_highlighting not inside the loop over stereo_image? 
+        # why is Draw_after_highlighting not inside the loop over stereo_image?
         # Is there any reason it should not be moved into that loop?
         # I.e. is there a reason to do it only once and not twice?
         # For water surface this may not matter
@@ -737,16 +752,19 @@ class GLPane_rendering_methods(object):
         # I am not sure if it has other uses now.
         # (I'll check shortly, when I have time.)
         #
-        # Piotr reply: Yes, I think this is a bug. It should be moved inside the stereo loop.
+        # Piotr reply: Yes, I think this is a bug.
+        # It should be moved inside the stereo loop.
+        #
+        # Bruce 080915 update: we'll fix that when someone has time to test it.
 
         try: # try/finally for drawing_phase
             self.drawing_phase = 'main/Draw_after_highlighting'
-            self.graphicsMode.Draw_after_highlighting() # e.g. draws water surface in Build mode
-                # note: this is called with the same coordinate system as mode.Draw() [bruce 061208 comment]
+            self.graphicsMode.Draw_after_highlighting()
+                # e.g. draws water surface in Build mode
+                # note: this is called in the main model coordinate system,
+                # just like self.graphicsMode.Draw() [bruce 061208 comment]
         finally:
             self.drawing_phase = '?'
-
-        ###@@@ move remaining items back into caller? sometimes yes sometimes no... need to make them more modular... [bruce 050617]
 
         # let parts (other than the main part) draw a text label, to warn
         # the user that the main part is not being shown [bruce 050408]
@@ -754,49 +772,47 @@ class GLPane_rendering_methods(object):
             self.drawing_phase = 'main/draw_text_label' #bruce 070124
             self.part.draw_text_label(self)
         except:
-            # if it happens at all, it'll happen too often to bother non-debug users with a traceback
+            # if this happens at all, it'll happen too often to bother non-debug
+            # users with a traceback (but always print an error message)
             if debug_flags.atom_debug:
                 print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
             else:
                 print "bug: exception in self.part.draw_text_label; use ATOM_DEBUG to see details"
         self.drawing_phase = '?'
 
-        # draw coordinate-orientation arrows at upper right corner of glpane
+        # draw the compass (coordinate-orientation arrows) in chosen corner
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass()
             # review: needs drawing_phase? [bruce 070124 q]
 
-        for stereo_image in self.stereo_images_to_draw:
-            self._enable_stereo(stereo_image, preserve_colors = True)
+        # draw the "origin axes"
+        if env.prefs[displayOriginAxis_prefs_key]:
+            for stereo_image in self.stereo_images_to_draw:
+                self._enable_stereo(stereo_image, preserve_colors = True)
 
-            # REVIEW: can we simplify and/or optim by moving this into the same
-            # stereo_image loop used earlier for graphicsMode.Draw?
-            # [bruce 080911 question]
-            
-            # Draw the Origin axes.
-            # WARNING: this code is duplicated, or almost duplicated,
-            # in GraphicsMode.py and GLPane.py.
-            # It should be moved into a common method in drawers.py.
-            # [bruce 080710 comment]
+                # REVIEW: can we simplify and/or optim by moving this into
+                # the same stereo_image loop used earlier for graphicsMode.Draw?
+                # [bruce 080911 question]
+                
+                # WARNING: this code is duplicated, or almost duplicated,
+                # in GraphicsMode.py and GLPane.py.
+                # It should be moved into a common method in drawers.py.
+                # [bruce 080710 comment]
 
-            #ninad060921 The following draws a dotted origin axis if the correct preference is checked. 
-            # The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
-            # it will just draw it as dotted line. (Remember that we are drawing 2 origins superimposed over each other;
-            # the dotted form will be visible only when the solid form is obscured by a model in front of it.)
-            if env.prefs[displayOriginAxis_prefs_key]:
+                #ninad060921 The following draws a dotted origin axis
+                # if the correct preference is checked. The GL_DEPTH_TEST is
+                # disabled while drawing this, so that if axis is behind a
+                # model object, it will just draw it as a dotted line (since
+                # this drawing will occur, but the solid origin axes drawn
+                # in other code, overlapping these, will be obscured).
+                #bruce 080915 REVIEW: can we clarify that by doing the solid
+                # axis drawing here as well?
                 if env.prefs[displayOriginAsSmallAxis_prefs_key]:
                     drawOriginAsSmallAxis(self.scale, (0.0, 0.0, 0.0), dashEnabled = True)
                 else:
                     drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
 
-            self._disable_stereo()
-
-##        # REVIEW: isn't this redundant with another call of disable_fog above? [bruce 080911 question]
-##        # piotr reply: Yes, it is redundant, it should be removed. [did that, bruce 080911, needs TEST]
-##        if fog_test_enable:
-##            # this next line really should be just after rendering
-##            # the atomic model itself.  I dunno where that is. [bradg]
-##            disable_fog()            
+                self._disable_stereo()
 
         # draw some test images related to the confirmation corner
 
@@ -805,8 +821,8 @@ class GLPane_rendering_methods(object):
                            prefs_key = True)
         ccdp2 = debug_pref("Conf corner test: redraw in-place",
                            Choice_boolean_False,
-                           prefs_key = True) # default changed, same prefs_key
-
+                           prefs_key = True)
+        
         if ccdp1 or ccdp2:
             self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay)
 
@@ -834,27 +850,34 @@ class GLPane_rendering_methods(object):
         
         self.drawing_phase = '?'
 
-        # restore standard glMatrixMode, in case drawing code outside of paintGL forgets to do this [precaution]
+        # restore standard glMatrixMode, in case drawing code outside of paintGL
+        # forgets to do this [precaution]
         glMatrixMode(GL_MODELVIEW)
             # (see discussion in bug 727, which was caused by that)
-            # (it might also be good to set mode-specific standard GL state before checking self.redrawGL in paintGL #e)\
+            # (todo: it might also be good to set mode-specific
+            #  standard GL state before checking self.redrawGL in paintGL)
 
-        return # from standard_repaint_0 (which is the central submethod of paintGL)
+        return # from standard_repaint_0 (the main rendering submethod of paintGL)
 
     def selobj_hicolor(self, obj):
         """
-        If obj was to be highlighted as selobj (whether or not it's presently self.selobj),
+        If obj was to be highlighted as selobj
+        (whether or not it's presently self.selobj),
         what would its highlight color be?
         Or return None if obj should not be allowed as selobj.
         """
         try:
-            hicolor = self.graphicsMode.selobj_highlight_color( obj) #e should implem noop version in basicMode [or maybe i did]
-            # mode can decide whether selobj should be highlighted (return None if not), and if so, in what color
+            hicolor = self.graphicsMode.selobj_highlight_color( obj)
+                #e should implem noop version in basicMode [or maybe i did]
+            # mode can decide whether selobj should be highlighted
+            # (return None if not), and if so, in what color
         except:
             if debug_flags.atom_debug:
-                print_compact_traceback("atom_debug: selobj_highlight_color exception for %r: " % (obj,) )
+                msg = "atom_debug: selobj_highlight_color exception for %r" % (obj,)
+                print_compact_traceback(msg + ": ")
             else:
-                print "bug: selobj_highlight_color exception for %r; for details use ATOM_DEBUG" % (obj,)
+                print "bug: selobj_highlight_color exception for %r; " \
+                      "for details use ATOM_DEBUG" % (obj,)
             hicolor = None
         return hicolor
 
