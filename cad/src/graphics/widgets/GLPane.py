@@ -29,15 +29,15 @@ Refactoring needed: [bruce 080104]
 objects); [080910 doing an initial step to this: splitting into mixins
 in their own files]
 
-- move more common code into GLPane_minimal;
+- move more common code into GLPane_minimal [mostly done, 080914 or so,
+except for GL_SELECT code, common to several files];
 
 - most urgently, make the main GLPane not be the
 same object as the CommandSequencer. [see GLPANE_IS_COMMAND_SEQUENCER --
 this is now done by default on 080911, but still needs code cleanup
 to completely remove support for the old value, after the next release.]
 
-Some of this might be a prerequisite for some ways of
-optimizing the graphics code.
+Some of this will make more practical some ways of optimizing the graphics code.
 
 History:
 
@@ -48,6 +48,8 @@ bruce 080910 splitting class GLPane into several mixin classes in other files.
 """
 
 # TEST_DRAWING has been moved to GLPane_rendering_methods
+
+_DEBUG_SET_SELOBJ = False # do not commit with true
 
 import sys
 
@@ -74,6 +76,7 @@ from utilities.constants import diPROTEIN
 from utilities.constants import default_display_mode
 
 from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 
 from graphics.widgets.GLPane_lighting_methods import GLPane_lighting_methods
 from graphics.widgets.GLPane_frustum_methods import GLPane_frustum_methods
@@ -96,6 +99,8 @@ if GLPANE_IS_COMMAND_SEQUENCER: #bruce 080813
 else:
     class _CommandSequencer_for_glpane(object):
         pass
+
+# ==
 
 class GLPane(
     # these superclasses need to come first, since they need to
@@ -789,6 +794,97 @@ class GLPane(
         # calling gl_update instead.
         self.wants_gl_update = False
         self.gl_update()
+
+    # ==
+
+    ## selobj = None #bruce 050609
+
+    _selobj = None #bruce 080509 made this private
+
+    def __get_selobj(self): #bruce 080509
+        return self._selobj
+
+    def __set_selobj(self, val): #bruce 080509
+        self.set_selobj(val)
+            # this indirection means a subclass could override set_selobj,
+            # or that we could revise this code to pass it an argument
+        return
+
+    selobj = property( __get_selobj, __set_selobj)
+        #bruce 080509 bugfix for MT crosshighlight sometimes lasting too long
+
+    def set_selobj(self, selobj, why = "why?"):
+        """
+        Set self._selobj to selobj (might be None) and do appropriate updates.
+        Possible updates include:
+
+        - env.history.statusbar_msg( selobj.mouseover_statusbar_message(),
+                                     or "" if selobj is None )
+
+        - help the model tree highlight the nodes containing selobj
+
+        @note: as of 080509, all sets of self.selobj call this method, via a
+               property. If some of them don't want all our side effects,
+               they will need to call this method directly and pass options
+               [nim] to prevent those.
+        """
+        # note: this method should access and modify self._selobj,
+        # not self.selobj (setting that here would cause an infinite recursion).
+        if selobj is not self._selobj:
+            previous_selobj = self._selobj
+            self._selobj = selobj #bruce 080507 moved this here
+
+            # Note: we don't call gl_update_highlight here, so the caller needs to
+            # if there will be a net change of selobj. I don't know if we should call it here --
+            # if any callers call this twice with no net change (i.e. use this to set selobj to None
+            # and then back to what it was), it would be bad to call it here. [bruce 070626 comment]
+            if _DEBUG_SET_SELOBJ:
+                # todo: also include "why" argument, and make more calls pass one
+                print_compact_stack("_DEBUG_SET_SELOBJ: %r -> %r: " % (previous_selobj, selobj))
+            #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
+            # Temporary fix, since Build mode's messages are better and should be restored.
+            if selobj is not None:
+                try:
+                    try:
+                        #bruce 050806 let selobj control this
+                        method = selobj.mouseover_statusbar_message
+                            # only defined for some objects which inherit Selobj_API
+                    except AttributeError:
+                        msg = "%s" % (selobj,)
+                    else:
+                        msg = method()
+                except:
+                    msg = "<exception in selobj statusbar message code>"
+                    if debug_flags.atom_debug:
+                        #bruce 070203 added this print; not if 1 in case it's too verbose due as mouse moves
+                        print_compact_traceback(msg + ': ')
+                    else:
+                        print "bug: %s; use ATOM_DEBUG to see details" % msg
+            else:
+                msg = " "
+
+            env.history.statusbar_msg(msg)
+
+            if pref_show_highlighting_in_MT():
+                # help the model tree highlight the nodes containing selobj
+                # [bruce 080507 new feature]
+                self._update_nodes_containing_selobj(
+                    selobj, # might be None, and we do need to call this then
+                    repaint_nodes = True,
+                    # this causes a side effect which is the only reason we're called here
+                    even_if_selobj_unchanged = False
+                    # optimization;
+                    # should be safe, since changes to selobj parents or node parents
+                    # which would otherwise require this to be passed as true
+                    # should also call mt_update separately, thus doing a full
+                    # MT redraw soon enough
+                )
+            pass # if selobj is not self._selobj
+
+        self._selobj = selobj # redundant (as of bruce 080507), but left in for now
+
+        #e notify more observers?
+        return
 
     def _update_nodes_containing_selobj(self,
                                         selobj,

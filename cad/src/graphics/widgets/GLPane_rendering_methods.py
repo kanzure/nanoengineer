@@ -92,15 +92,10 @@ from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
 
 from utilities.GlobalPreferences import use_frustum_culling
-from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 from utilities.GlobalPreferences import pref_skip_redraws_requested_only_by_Qt
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from model.bonds import Bond # used only for selobj ordering
-
-# ==
-
-_DEBUG_SET_SELOBJ = False # do not commit with true
 
 # ==
 
@@ -457,22 +452,6 @@ class GLPane_rendering_methods(object):
             pass
         return
 
-    ## selobj = None #bruce 050609
-
-    _selobj = None #bruce 080509 made this private
-
-    def __get_selobj(self): #bruce 080509
-        return self._selobj
-
-    def __set_selobj(self, val): #bruce 080509
-        self.set_selobj(val)
-            # this indirection means a subclass could override set_selobj,
-            # or that we could revise this code to pass it an argument
-        return
-
-    selobj = property( __get_selobj, __set_selobj)
-        #bruce 080509 bugfix for MT crosshighlight sometimes lasting too long
-
     def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
 
         #k not sure whether next things are also needed in the split-out standard_repaint [bruce 050617]
@@ -545,31 +524,6 @@ class GLPane_rendering_methods(object):
             if env.prefs.get(debug_prints_prefs_key, False):
                 print "glpane end_tracking_usage" #bruce 070110
         return
-
-    def validate_selobj_and_hicolor(self): #bruce 070919 split this out, slightly revised behavior, and simplified code
-        """
-        Return the selobj to use, and its highlight color (according to self.graphicsMode),
-        after validating the graphicsmode says it's still ok and has a non-None hicolor.
-        Return a tuple (selobj, hicolor) (with selobj and hicolor not None) or (None, None).
-        """
-        selobj = self.selobj # we'll use this, or set it to None and use None
-        if selobj is None:
-            return None, None
-        if not self.graphicsMode.selobj_still_ok(selobj):
-            #bruce 070919 removed local exception-protection from this method call
-            self.set_selobj(None)
-            return None, None
-        hicolor = self.selobj_hicolor(selobj) # ask the mode; protected from exceptions
-        if hicolor is None:
-            # the mode wants us to not use it.
-            # REVIEW: is anything suboptimal about set_selobj(None) here,
-            # like disabling the stencil buffer optim?
-            # It might be better to retain self.selobj but not draw it in this case.
-            # [bruce 070919 comment]
-            self.set_selobj(None)
-            return None, None
-        # both selobj and hicolor are ok and not None
-        return selobj, hicolor
 
     drawing_phase = '?' # new feature, bruce 070124 (set to different fixed strings for different drawing phases)
         # For now, this is only needed during draw (or draw-like) calls which might run drawing code in the exprs module.
@@ -859,6 +813,31 @@ class GLPane_rendering_methods(object):
 
         return # from standard_repaint_0 (the main rendering submethod of paintGL)
 
+    def validate_selobj_and_hicolor(self): #bruce 070919 split this out, slightly revised behavior, and simplified code
+        """
+        Return the selobj to use, and its highlight color (according to self.graphicsMode),
+        after validating the graphicsmode says it's still ok and has a non-None hicolor.
+        Return a tuple (selobj, hicolor) (with selobj and hicolor not None) or (None, None).
+        """
+        selobj = self.selobj # we'll use this, or set it to None and use None
+        if selobj is None:
+            return None, None
+        if not self.graphicsMode.selobj_still_ok(selobj):
+            #bruce 070919 removed local exception-protection from this method call
+            self.set_selobj(None)
+            return None, None
+        hicolor = self.selobj_hicolor(selobj) # ask the mode; protected from exceptions
+        if hicolor is None:
+            # the mode wants us to not use it.
+            # REVIEW: is anything suboptimal about set_selobj(None) here,
+            # like disabling the stencil buffer optim?
+            # It might be better to retain self.selobj but not draw it in this case.
+            # [bruce 070919 comment]
+            self.set_selobj(None)
+            return None, None
+        # both selobj and hicolor are ok and not None
+        return selobj, hicolor
+
     def selobj_hicolor(self, obj):
         """
         If obj was to be highlighted as selobj
@@ -1110,79 +1089,6 @@ class GLPane_rendering_methods(object):
         glDisable(GL_STENCIL_TEST)
 
         return # from draw_highlighted_objectUnderMouse
-
-    def set_selobj(self, selobj, why = "why?"):
-        """
-        Set self._selobj to selobj (might be None) and do appropriate updates.
-        Possible updates include:
-
-        - env.history.statusbar_msg( selobj.mouseover_statusbar_message(),
-                                     or "" if selobj is None )
-
-        - help the model tree highlight the nodes containing selobj
-
-        @note: as of 080509, all sets of self.selobj call this method, via a
-               property. If some of them don't want all our side effects,
-               they will need to call this method directly and pass options
-               [nim] to prevent those.
-        """
-        # note: this method should access and modify self._selobj,
-        # not self.selobj (setting that here would cause an infinite recursion).
-        if selobj is not self._selobj:
-            previous_selobj = self._selobj
-            self._selobj = selobj #bruce 080507 moved this here
-
-            # Note: we don't call gl_update_highlight here, so the caller needs to
-            # if there will be a net change of selobj. I don't know if we should call it here --
-            # if any callers call this twice with no net change (i.e. use this to set selobj to None
-            # and then back to what it was), it would be bad to call it here. [bruce 070626 comment]
-            if _DEBUG_SET_SELOBJ:
-                # todo: also include "why" argument, and make more calls pass one
-                print_compact_stack("_DEBUG_SET_SELOBJ: %r -> %r: " % (previous_selobj, selobj))
-            #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
-            # Temporary fix, since Build mode's messages are better and should be restored.
-            if selobj is not None:
-                try:
-                    try:
-                        #bruce 050806 let selobj control this
-                        method = selobj.mouseover_statusbar_message
-                            # only defined for some objects which inherit Selobj_API
-                    except AttributeError:
-                        msg = "%s" % (selobj,)
-                    else:
-                        msg = method()
-                except:
-                    msg = "<exception in selobj statusbar message code>"
-                    if debug_flags.atom_debug:
-                        #bruce 070203 added this print; not if 1 in case it's too verbose due as mouse moves
-                        print_compact_traceback(msg + ': ')
-                    else:
-                        print "bug: %s; use ATOM_DEBUG to see details" % msg
-            else:
-                msg = " "
-
-            env.history.statusbar_msg(msg)
-
-            if pref_show_highlighting_in_MT():
-                # help the model tree highlight the nodes containing selobj
-                # [bruce 080507 new feature]
-                self._update_nodes_containing_selobj(
-                    selobj, # might be None, and we do need to call this then
-                    repaint_nodes = True,
-                    # this causes a side effect which is the only reason we're called here
-                    even_if_selobj_unchanged = False
-                    # optimization;
-                    # should be safe, since changes to selobj parents or node parents
-                    # which would otherwise require this to be passed as true
-                    # should also call mt_update separately, thus doing a full
-                    # MT redraw soon enough
-                )
-            pass # if selobj is not self._selobj
-
-        self._selobj = selobj # redundant (as of bruce 080507), but left in for now
-
-        #e notify more observers?
-        return
 
     def preDraw_glselect_dict(self): #bruce 050609
         # We need to draw glselect_dict objects separately, so their drawing code runs now rather than in the past
