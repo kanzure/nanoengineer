@@ -30,6 +30,7 @@ from PyQt4.Qt import QActionGroup
 from utilities.icon_utilities import geticon
 
 from ne1_ui.toolbars.Ui_AbstractFlyout import Ui_AbstractFlyout
+from utilities.debug import print_compact_stack
 
 _superclass = Ui_AbstractFlyout
 
@@ -317,7 +318,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         and show all others the others.
         """
         self.command.activateAtomsTool()
-        self.command.enterToolsCommand('ATOMS_TOOL')
+        
         
     def _activateBondsTool(self):
         """
@@ -334,6 +335,36 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
     
     def getCheckedBondToolAction(self):
         return self.bondToolsActionGroup.checkedAction()
+    
+    def resetStateOfActions(self):
+        """
+        Default implementation does nothing. Overridden in subclasses. 
+        
+        R Resets the state of actions in the flyout toolbar.
+        Generally, it unchecks all the actions except the ExitModeAction.
+        This is called while resuming a command. 
+        
+        
+        Example: if exits is in Insert > Dna command, 
+        the Build > Dna command is resumed. When this happens, program needs to 
+        make sure that the Insert > dna button in the flyout is unchecked. 
+        It is done by using this method. 
+        
+        @see: self.deActivateFlyoutToolbar()
+        @see: self.activateBreakStrands_Command() 
+        @see: BuildDna_EditCommand.resume_gui()
+        
+        @see: baseCommand.command_update_flyout() which calls this method.         
+        @see: BuildAtoms_Command.command_update_state()
+        @see: BuildAtoms_Command.activateAtomsTool()
+        """
+        self.atomsToolAction.setChecked(True)
+        ##self.bondsToolAction.setChecked(False)
+        for action in self.bondToolsActionGroup.actions():
+            action.setChecked(False)
+        
+    
+        
         
     
         

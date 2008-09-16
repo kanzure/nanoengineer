@@ -34,6 +34,8 @@ class AtomsTool_Command(BuildAtoms_Command):
     #Temporary attr 'command_porting_status. See baseCommand for details.
     command_porting_status = None #fully ported. 
     
+    FlyoutToolbar_class = None
+    
     featurename = 'Build Atoms Mode/AtomsTool'
     commandName = 'ATOMS_TOOL'
     

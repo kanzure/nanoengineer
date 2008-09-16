@@ -44,6 +44,8 @@ class BondTool_Command(BuildAtoms_Command):
     
     GraphicsMode_class = BondTool_GraphicsMode
     
+    FlyoutToolbar_class = None
+    
     featurename = 'Build Atoms Mode/BondTool'
     commandName = 'BOND_TOOL'
     

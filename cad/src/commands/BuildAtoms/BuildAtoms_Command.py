@@ -59,6 +59,15 @@ _superclass = SelectAtoms_Command
 
 class BuildAtoms_Command(SelectAtoms_Command):
     """
+    As of 2008-09-16, the BuildAtoms_Command has two tools :
+    Atoms tool and Bonds tool. At any point of time, user is using either
+    of those tools. so, the user is never in the default
+    'BuildAtoms_Command'. When user clicks on Build > Atoms button, 
+    he/she invokes BuildAtoms_Command. As soon as this command is entered, 
+    program invokes one of the two tools (subcommand). By default, 
+    we always invoke 'Atoms Tool'. 
+    @see: command_update_state() 
+    @see: B{AtomsTool_Command} , B{BondsTool_command}
     """
     #Temporary attr 'command_porting_status. See baseCommand for details.
     command_porting_status = None #fully ported. 
@@ -69,6 +78,9 @@ class BuildAtoms_Command(SelectAtoms_Command):
     #The class constant PM_class defines the class for the Property Manager of 
     #this command. See Command.py for more infor about this class constant 
     PM_class = BuildAtomsPropertyManager
+    
+    #Flyout Toolbar
+    FlyoutToolbar_class = BuildAtomsFlyout
     
     commandName = 'DEPOSIT'
     featurename = "Build Atoms Mode"
@@ -147,39 +159,61 @@ class BuildAtoms_Command(SelectAtoms_Command):
         """
         self.w.toolsDepositAtomAction.setChecked(False)  
         
+    def command_update_state(self):
+        """
+        See superclass for documentation. 
+        Note that this method is called only when self is the currentcommand on 
+        the command stack. 
+        @see: BuildAtomsFlyout.resetStateOfActions()
+        @see: self.activateAtomsTool()
+        """
+        _superclass.command_update_state(self)
+        
+        #Make sure that the command Name is DEPOSIT. (because subclasses 
+        #of BuildAtoms_Command might be using this method). 
+        #As of 2008-09-16, the BuildAtoms_Command has two tools :
+        #Atoms tool and Bonds tool. At any point of time, user is using either
+        #of those tools. so, the user is never in the default
+        #'BuildAtoms_Command'. When user clicks on Build > Atoms button, 
+        #he/she invokes BuildAtoms_Command. As soon as this command is entered, 
+        #we need to invoke one of the two tools (subcommand). 
+        #By default, we always invoke 'Atoms Tool'. 
+        if self.commandName == 'DEPOSIT':
+            self.activateAtomsTool()
+                
     #END new command API methods ==============================================
     
+    if not USE_COMMAND_STACK:    
+        def init_gui(self):
+            """
+            Do changes to the GUI while entering this mode. This includes opening 
+            the property manager, updating the command toolbar, connecting widget 
+            slots etc. 
+            
+            Called once each time the mode is entered; should be called only by code 
+            in modes.py
+            
+            @see: L{self.restore_gui}
+            """      
+                               
+            self.command_enter_misc_actions()
+            self.command_enter_PM() 
+            self.command_enter_flyout()
+            self.propMgr.show()
+            return
     
-    def init_gui(self):
-        """
-        Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command toolbar, connecting widget 
-        slots etc. 
-        
-        Called once each time the mode is entered; should be called only by code 
-        in modes.py
-        
-        @see: L{self.restore_gui}
-        """      
-                           
-        self.command_enter_misc_actions()
-        self.command_enter_PM() 
-        self.command_enter_flyout()
-        self.propMgr.show()
-        return
-
-    def restore_gui(self):
-        """
-        Do changes to the GUI while exiting this mode. This includes closing 
-        this mode's property manager, updating the command toolbar, 
-        disconnecting widget slots etc. 
-        @see: L{self.init_gui}
-        """
-        self.command_exit_misc_actions()
-        self.command_exit_flyout()
-        self.command_exit_PM()
-        if self.propMgr:
-            self.propMgr.close()
+        def restore_gui(self):
+            """
+            Do changes to the GUI while exiting this mode. This includes closing 
+            this mode's property manager, updating the command toolbar, 
+            disconnecting widget slots etc. 
+            @see: L{self.init_gui}
+            """
+            self.command_exit_misc_actions()
+            self.command_exit_flyout()
+            self.command_exit_PM()
+            if self.propMgr:
+                self.propMgr.close()
 
     def enterToolsCommand(self, commandName = ''): #REVIEW
         """
@@ -527,8 +561,9 @@ class BuildAtoms_Command(SelectAtoms_Command):
         Activate the atoms tool of the Build Atoms mode 
         hide only the Atoms Tools groupbox in the Build Atoms Property manager
         and show all others the others.
-        """
-                
+        @see: self.command_update_state()
+        @see: BuildAtomsFlyout.resetStateOfActions()
+        """                
         self._currentActiveTool = 'ATOMS_TOOL'
         
         self.propMgr.bondToolsGroupBox.hide()
@@ -536,14 +571,20 @@ class BuildAtoms_Command(SelectAtoms_Command):
         for grpbox in self.propMgr.previewGroupBox, self.propMgr.elementChooser:
             grpbox.show()
         
-        self.propMgr.pw.propertyManagerScrollArea.ensureWidgetVisible(
-            self.propMgr.headerFrame)
+        #Not sure if the following is needed. pw is None when this method is 
+        #called from self.command_update_state() .. cause unknown as 
+        #of 2008-09-16. Commenting out this line [-- Ninad]
+        ##self.propMgr.pw.propertyManagerScrollArea.ensureWidgetVisible(
+            ##self.propMgr.headerFrame)
         
         self.graphicsMode.update_cursor()
         
         self.w.depositState = 'Atoms'
                 
         self.propMgr.updateMessage()
+        
+        self.enterToolsCommand('ATOMS_TOOL')
+        
         self.win.win_update()
                
 
@@ -554,8 +595,7 @@ class BuildAtoms_Command(SelectAtoms_Command):
         Show only the Bond Tools groupbox in the Build Atoms Property manager
         and hide the others.
         @see:self._convert_bonds_bet_selected_atoms()
-        """        
-        
+        """                
         self._currentActiveTool = 'BONDS_TOOL'
         
                         
@@ -571,7 +611,6 @@ class BuildAtoms_Command(SelectAtoms_Command):
         self.propMgr.pw.propertyManagerScrollArea.ensureWidgetVisible(
             self.propMgr.headerFrame)
                 
-        
 
         #note: its okay if the check_action is None
         checked_action = self.flyoutToolbar.getCheckedBondToolAction()
