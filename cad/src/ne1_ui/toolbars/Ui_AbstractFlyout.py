@@ -161,14 +161,35 @@ class Ui_AbstractFlyout(object):
         if current_flyoutToolbar:
             current_flyoutToolbar.deActivateFlyoutToolbar()
         
-        self.win.commandToolbar._f_current_flyoutToolbar = self                     
+        self.win.commandToolbar._f_current_flyoutToolbar = self                    
         
-        self.updateCommandToolbar()
+        #Always reset the state of action within the flyout to their default 
+        #state while 'activating' any flyout toolbar.         
+        #Note: This state may be changed further.       
+        #See baseCommand.command_update_flyout() where this method is called 
+        #first and then, for example, if it is a subcommand, that sub-command
+        #may check the action in the flyout toolbar that invoked it. 
         
+        #Example: Enter Build Atoms command, then enter Bonds Tool, and select
+        #a bond tool from flyout. Now exit BuildAtoms command and reenter it
+        #Upon reentry, it should show the default Atoms Tool in the flyout. 
+        #This is acheived by calling the following method. Note that it is 
+        #not called in deActivateFlyoutToolbar because there could be some 
+        #bugs in how frequently that method is called. So always safe to do it 
+        #here.
+        
+        self.resetStateOfActions()
+        
+        #May be check self.exitModeAction in the default implementation of 
+        #self.resetStateOfActions() and then extend that method in subclasses? 
+        #Okay to do it here.
         self.exitModeAction.setChecked(True)
         
+                
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(True)
+            
+        self.updateCommandToolbar()
                     
     
     def deActivateFlyoutToolbar(self):
@@ -256,8 +277,3 @@ class Ui_AbstractFlyout(object):
         Default implementation does nothing. Should be overridden in subclasses
         """
         pass
-    
-    
-   
-        
-
