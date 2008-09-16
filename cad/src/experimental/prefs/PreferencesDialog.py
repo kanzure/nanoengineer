@@ -413,7 +413,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
     pagenameList[0] always has to be a singular item, it cannot be a list.
     All sub-lists are interpreted as being children of the item preceding it.
     """
-    pagenameList = ["General", 
+    pagenameList = ["TEMP","General", 
                     "Graphics Area", 
                     ["Zoom, Pan and Rotate", "Rulers"],
                     "Atoms",
@@ -915,21 +915,19 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         choosers = {}
         for name in pluginList:
             
-            checkboxes[name] = PM_CheckBox(executablesGroupBox, text = name+'  ')
+            checkboxes[name] = PM_CheckBox(executablesGroupBox, text = name+':  ')
             choosers[name] = PM_FileChooser(executablesGroupBox,
-                                label     = ' ',
+                                label     = '',
                                 text      = 'test path' ,
                                 filter    = "All Files (*.*)",
                                 spanWidth = True,
-                                labelColumn = 1
-                                )
+                                labelColumn = 0)
             aWidgetList = [ ("PM_CheckBox", checkboxes[name], 0),
                             ("PM_FileChooser", choosers[name], 1) ]
                             
             widgetRow = PM_WidgetRow(executablesGroupBox,
                              widgetList = aWidgetList,
-                             labelColumn  = 0,
-                             )
+                             labelColumn  = 0)
         if DEBUG:
             print checkboxes
             print choosers
@@ -1167,14 +1165,17 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                            text = "Cursor text",
                                            widgetColumn = 0)
         cursor_text_font_size_SpinBox = PM_DoubleSpinBox(cursor_text_GroupBox,
-                                                         label = "Font Size", 
+                                                         label = "", 
                                                          suffix = "pt", 
                                                          singleStep = 1,
                                                          )
         cursor_text_reset_Button = PM_PushButton(cursor_text_GroupBox, 
                                                  text = "reset")
-        aWidgetList = [ ("PM_DoubleSpinBox", cursor_text_font_size_SpinBox, 0),
-                        ("PM_PushButton", cursor_text_reset_Button, 1) ]
+        aWidgetList = [ ("QLabel", "Font size: ", 0),
+                        ("PM_DoubleSpinBox", cursor_text_font_size_SpinBox, 1),
+                        ("QLabel", "     ", 2),
+                        ("PM_PushButton", cursor_text_reset_Button, 3),
+                        ("QSpacerItem", 0, 0, 3)]
                             
         widgetRow = PM_WidgetRow(cursor_text_GroupBox,
                          title     = '',
@@ -1316,12 +1317,19 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                         connectTitleButton = False)
         _choices = ["1 (off)", "2 (off)", "3 (off)"]
         light_ComboBox = PM_ComboBox(directional_lighting_GroupBox, 
-                                      label =  "Light:", labelColumn = 0,
+                                      label =  "", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
         light_on_CheckBox = PM_CheckBox(directional_lighting_GroupBox, 
                                              text = ": On",
-                                             widgetColumn = 1)
+                                             widgetColumn = 0)
+        aWidgetList = [ ("QLabel", "Light: ", 0),
+                        ("PM_ComboBox", light_ComboBox, 1),
+                        ("QLabel", " ", 2),
+                        ("PM_CheckBox", light_on_CheckBox, 3)]
+        _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
+                                 spanWidth = True,
+                                 widgetList = aWidgetList)
         light_color_ColorComboBox = PM_ColorComboBox(directional_lighting_GroupBox,
                                                       label = "Color:",
                                                       spanWidth = False)
