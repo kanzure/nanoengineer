@@ -25,6 +25,17 @@ from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGen
 
 _superclass = EditCommand
 class Graphene_EditCommand(EditCommand):
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported.
+    
+    GraphicsMode_class = SelectChunks_GraphicsMode
+    
+    #Property Manager 
+    PM_class = GrapheneGeneratorPropertyManager
+    
+    #Flyout Toolbar
+    FlyoutToolbar_class = GrapheneFlyout
+    
     cmd              =  greenmsg("Build Graphene: ")
     prefix           =  'Graphene'   # used for gensym
     cmdname          = 'Build Graphene'
@@ -38,10 +49,7 @@ class Graphene_EditCommand(EditCommand):
     
     flyoutToolbar = None
     
-    GraphicsMode_class = SelectChunks_GraphicsMode
     
-    #Property Manager 
-    PM_class = GrapheneGeneratorPropertyManager
     
     def _gatherParameters(self):
         """
