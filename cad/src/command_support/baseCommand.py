@@ -566,7 +566,7 @@ class baseCommand(object):
             if self.flyoutToolbar is None:
                 self.flyoutToolbar = self._createFlyoutToolbarObject() 
                 
-     def _createFlyoutToolbarObject(self): #Ninad 2008-09-12
+    def _createFlyoutToolbarObject(self): #Ninad 2008-09-12
         """
         Creates and returns a FlyoutToolbar object of the specified 
         FlyoutToolbar_class. 
