@@ -17,6 +17,8 @@ TODO: 2008-08-04
 @see: Ui_PartLibraryFlyout (a subclass)
 
 REVIEW: should this be moved into the widgets package? [bruce 080827 question]
+-- This doesn't 'create a widget' so it shouldn't. But the current pkg location
+for all UI_*Flyout modules  needs to be reconsidered [Ninad 2008-09-10]
 """
 
 from utilities.exception_classes import AbstractMethod
@@ -26,6 +28,7 @@ from utilities.icon_utilities import geticon
 
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 from utilities.GlobalPreferences import USE_COMMAND_STACK
+from utilities.debug import print_compact_stack
 
 class Ui_AbstractFlyout(object):
     
@@ -128,11 +131,37 @@ class Ui_AbstractFlyout(object):
     def activateFlyoutToolbar(self):
         """
         Updates the flyout toolbar with the actions this class provides. 
+        @see: baseCommand.command_update_flyout()
+        @see: CommandToolbar.updateCommandToolbar()
+        @see: self.deActivateFlyoutToolbar()
+        @see: Commandtoolbar._f_current_flyoutToolbar
         """    
-        if self._isActive:
+        if not USE_COMMAND_STACK:
+            if self._isActive:
+                return
+                
+            self._isActive = True        
+        
+        #CommandToolbar._f_current_flyoutToolbar is the current flyout toolbar 
+        #that is displayed in the 'flyout area' of the command toolbar. 
+        #Example, when Build > Dna command is entered, it sets this attr on the 
+        #commandToolbar class to the 'BuildDnaFlyout' object. 
+        #When that command is exited, BuildDnaFlyout is first 'deactivated' and 
+        #the _f_current_flyoutToolbar is assigned a new value (The flyout 
+        #object of the next command entered. This can even be 'None' if the 
+        #next command doesn't have a flyoutToolbar)
+        current_flyoutToolbar = self.win.commandToolbar._f_current_flyoutToolbar 
+        
+        if self is current_flyoutToolbar:
             return
         
-        self._isActive = True
+        #We want to assign  the _f_current_flyoutToolbar as 'self'. Before doing
+        #that, the 'current' flyout stored in 
+        #CommandToolbar._f_current_flyoutToolbar should be deactivated.         
+        if current_flyoutToolbar:
+            current_flyoutToolbar.deActivateFlyoutToolbar()
+        
+        self.win.commandToolbar._f_current_flyoutToolbar = self                     
         
         self.updateCommandToolbar()
         
@@ -145,11 +174,17 @@ class Ui_AbstractFlyout(object):
     def deActivateFlyoutToolbar(self):
         """
         Updates the flyout toolbar with the actions this class provides.
+        @see: self.activateFlyoutToolbar()
         """
-        if not self._isActive:
-            return 
+        if not USE_COMMAND_STACK:
+            if not self._isActive:
+                return 
+            
+            self._isActive = False
         
-        self._isActive = False
+        if not self is self.win.commandToolbar._f_current_flyoutToolbar:
+            return
+        
         
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(False)   
@@ -166,7 +201,31 @@ class Ui_AbstractFlyout(object):
             obj, 
             entering = bool_entering)
         
-        return
+        return    
+    
+    def resetStateOfActions(self):
+        """
+        Default implementation does nothing. Overridden in subclasses. 
+        
+        R Resets the state of actions in the flyout toolbar.
+        Generally, it unchecks all the actions except the ExitModeAction.
+        This is called while resuming a command. 
+        
+        
+        Example: if exits is in Insert > Dna command, 
+        the Build > Dna command is resumed. When this happens, program needs to 
+        make sure that the Insert > dna button in the flyout is unchecked. 
+        It is done by using this method. 
+        
+        @see: self.deActivateFlyoutToolbar()
+        @see: self.activateBreakStrands_Command() 
+        @see: BuildDna_EditCommand.resume_gui()
+        
+        @see: baseCommand.command_update_flyout() which calls this method.         
+        """
+        pass
+    
+                
     
     def _addWhatsThisText(self):
         """
@@ -181,5 +240,8 @@ class Ui_AbstractFlyout(object):
         Default implementation does nothing. Should be overridden in subclasses
         """
         pass
+    
+    
+   
         
 

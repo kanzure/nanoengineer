@@ -60,6 +60,7 @@ from command_support.GraphicsMode_API import GraphicsMode_API
 from command_support.baseCommand import baseCommand # warning: modified below, if not USE_COMMAND_STACK
 
 import foundation.changes as changes
+from utilities.Comparison import same_vals
 
 if not USE_COMMAND_STACK:
     baseCommand = object
@@ -169,6 +170,7 @@ class anyCommand(baseCommand, StateMixin):
         # 'exit_using_done_cancel' in basicCommand.Done used (= False) for a 
         # typical exit of a temporary mode . See that method for detailed 
         # comment. -- Ninad 2007-11-09
+            
     
     def __repr__(self): #bruce 080829, modified from Utility.py version
         """
@@ -388,6 +390,11 @@ class basicCommand(anyCommand):
         # But when not USE_COMMAND_STACK, it's only used in command classes
         # which call that explicitly. This covers mainly EditCommand subclasses.
         # [bruce 080909 guess ###VERIFY]
+        
+    
+    FlyoutToolbar_class = None
+       #Command subclasses can override this class constant with the appropriate
+       #Flyout Toolbar class. 
        
 
     def __init__(self, commandSequencer):
@@ -524,6 +531,18 @@ class basicCommand(anyCommand):
             #for modes -- ninad 2007-08-29
             if self.propMgr:
                 changes.keep_forever(self.propMgr)  
+                
+    def command_enter_flyout(self):
+        """
+        Overrides superclass method. 
+        
+        @see: baseCommand.command_enter_PM()  for documentation
+        """
+        if not self.flyoutToolbar:
+            self.flyoutToolbar = self._createFlyoutToolbarObject()   
+        
+        if self.flyoutToolbar:
+            self.flyoutToolbar.activateFlyoutToolbar()
                         
     if not USE_COMMAND_STACK:
         def command_exit_PM(self):
@@ -541,12 +560,14 @@ class basicCommand(anyCommand):
     def _createPropMgrObject(self):
         """
         Returns the property manager object for this command.
+        @see: self._createFlyoutToolbarObject()
         """
         if self.PM_class is None:
             return None
     
         propMgr = self.PM_class(self)
         return propMgr
+        
     
     def get_featurename(clas): #bruce 071227, revised into classmethod 080722
         """
@@ -1073,6 +1094,10 @@ class basicCommand(anyCommand):
         [helper method for use in init_gui implementations;
          might need refactoring]
         """
+        
+        if not action_attr:
+            return 
+        
         #bruce 080726 split this out of init_gui methods (by Ninad)
         # of several Commands.
         if parentCommandName is None:
@@ -1821,6 +1846,26 @@ class basicCommand(anyCommand):
         """
         assert not USE_COMMAND_STACK #bruce 080829 ### TODO: do the same things in other methods
         return
+    
+    
+    def _check_command_stack_change_indicator(self): #Ninad 2008-09-10. REVIEW
+        """
+        It compares the global command_stack_change_indicator value of the 
+        assembly with the previous  value of that indicator stored as a class 
+        attr.         
+        """
+        #REVIEW 2008-09-10: This method will be called from command_update_* 
+        #method(s). This method is not defined in the top level class 
+        #(Command superclass), because, it could happen that a subclass calls 
+        #this method but at the same time, also calls a superclass method 
+        #which in turn calls this method. 
+        if same_vals(self._previous_command_stack_change_indicator, 
+                     self.assy.command_stack_change_indicator()):            
+            return 
+        
+        self._previous_command_stack_change_indicator = \
+            self.assy.command_stack_change_indicator()
+        
         
     # [bruce comment 040923; trimmed, 080806]
     #

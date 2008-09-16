@@ -109,6 +109,23 @@ class CommandToolbar(Ui_CommandToolbar):
     The Command Area shows commands based on the checked 
     SubControl Area button.  Thus it could be empty in some situations.
     """
+    
+    _f_current_flyoutToolbar = None
+        #CommandToolbar._f_current_flyoutToolbar is the current flyout toolbar 
+        #that is displayed in the 'flyout area' of the command toolbar. 
+        #This attr value usually changes when the command stack changes or 
+        #when user clicks on a control button (exceptions apply). 
+        #Example: When Build > Dna command is entered, it sets this attr on the 
+        #commandToolbar class to the 'BuildDnaFlyout' object. 
+        #When that command is exited, BuildDnaFlyout is first 'deactivated' and 
+        #the self._f_current_flyoutToolbar is assigned a new value (The flyout 
+        #object of the next command entered. This can even be 'None' if the 
+        #next command doesn't have a flyoutToolbar)
+        #@see: AbstractFlyoutToolbar.activateFlyoutToolbar() 
+        #@see: self._setControlButtonMenu_in_flyoutToolbar() 
+        #In the above methods, this attr value is changed. 
+        #@see: baseCommand.command_update_flyout()
+        
 
     def __init__(self, win):
         """
@@ -118,7 +135,7 @@ class CommandToolbar(Ui_CommandToolbar):
         @type  win: L{MWsemantics}
         """        
         self.flyoutDictionary = None
-        
+                
         Ui_CommandToolbar.__init__(self, win)       
 
         self.setupUi()          
@@ -255,7 +272,15 @@ class CommandToolbar(Ui_CommandToolbar):
         @param btnId: The index of the toolbutton in the control area, 
                       that user clicked on. 
         @type  btnId: int
+        @see: AbstractFlyout.activateFlyoutToolbar() , another place 
+        where the self._f_current_flyoutToolbar value is changed. 
         """
+        #When the menu in the Control button is set in the flyout toolbar, 
+        #make sure to reset the self._f_current_flyoutToolbar value to 'None'
+        #this value will change again when baseCommand.command_update_flyout()
+        #is called (when command stack changes)
+        self._f_current_flyoutToolbar = None
+        
         self.flyoutToolBar.clear()
         menu = self.cmdButtonGroup.button(btnId).menu()
         self.flyoutToolBar.addActions(menu.actions())

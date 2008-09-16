@@ -8,6 +8,11 @@ NOTE: under development, only used when USE_COMMAND_STACK is true
 @author: Bruce
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+
+TODO as of 2008-09-16:
+Get rid of the following methods in subclasses, after completely switching over
+to USE_COMMAND_STACK. : self.command_enter_flyout(), self.command_exit_flyout()
+Also remove _createFlyoutObject() methods in subclasses. 
 """
 
 
@@ -15,6 +20,7 @@ from utilities.debug import print_compact_traceback
 _pct = print_compact_traceback # local abbreviation for readability
 
 from utilities.constants import CL_ABSTRACT 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 DEBUG_USE_COMMAND_STACK = True
 
@@ -54,6 +60,23 @@ class baseCommand(object):
     # - related to parentCommand
     
     _parentCommand = None # parent command object, when self is on command stack
+    
+    
+    FlyoutToolbar_class = None  #Ninad 2008-09-12
+       #Command subclasses can override this class attr with the appropriate
+       #Flyout Toolbar class. This is used to create a FlyoutToolbar object 
+       #for the commands. this attr is also used to do flyout toolbar updates. 
+       #Example: if the value of this attr is None then it either implies the 
+       #command should use the flyout toolbar of the parent command and do 
+       #some more UI changes to it (example check an action) OR the command 
+       #shouldn't do anything with the flyout at all (this is decided using the 
+       #'command_level)
+       #@see: self.command_update_flyout()
+       #@see: self._command_entered_prepare_flyout()
+       #@see: self._createFlyouttoolbarObject()
+       
+    flyoutToolbar = None
+       
     
     def _get_parentCommand( self):
         return self._parentCommand
@@ -286,7 +309,13 @@ class baseCommand(object):
         # note: we call these in the reverse order of how
         # command_entered calls the corresponding _enter_ methods.
         self.command_exit_misc_actions()
-        self.command_exit_flyout()
+        
+        #Note that, as of 2008-09-15, even the command_exit_flyout method 
+        #is not used when USE_COMMAND_STACK is True. It should be removed 
+        #from subclasses when we completely switch over to USE_COMMAND_STACK
+        if not USE_COMMAND_STACK:
+            self.command_exit_flyout()
+            
         self.command_exit_PM()
         return
     
@@ -335,6 +364,9 @@ class baseCommand(object):
         
         @see: Ui_AbstractToolBar.deActivateFlyoutToolbar()
         """
+        #@TODO: Method to be removed (also from the subclasses)
+        #after completely switching over to USE_COMMAND_STACK
+        #used only when NOT using USE_COMMAND_STACK as of 2008-09-16
         return
     
     def command_exit_misc_actions(self):
@@ -466,8 +498,11 @@ class baseCommand(object):
 
         @note: similar to old methods Enter and parts of init_gui.
 
-        [subclasses should extend as needed, typically calling superclass
+        [subclasses should extend as needed, by calling superclass
          implementation at the start]
+        
+        @see: self._command_entered_prepare_flyout()
+        @see: self.command_update_flyout()
         """
 
         self.graphicsMode.Enter_GraphicsMode() ### REVIEW: refactor into a subclass which defines this attr?
@@ -480,9 +515,71 @@ class baseCommand(object):
             self.propMgr = self.parentCommand.propMgr
         
         self.command_enter_PM()
-        self.command_enter_flyout()
+        
+        if self.flyoutToolbar is None:
+            self._command_entered_prepare_flyout()
+                
+        #Do some additional stuff related in the flyout toolbar. 
+        #Note that, as of 2008-09-15, even the command_enter_flyout method 
+        #is NOT used even when USE_COMMAND_STACK is True. It should be removed 
+        #from subclasses when we completely switch over to USE_COMMAND_STACK
+        if not USE_COMMAND_STACK:
+            self.command_enter_flyout()
         self.command_enter_misc_actions()
         return
+    
+    def _command_entered_prepare_flyout(self): #Ninad 2008-09-12
+        """
+        
+        Create flyout toolbar object for the command if needed. Whether to 
+        create it is decided using the class attr self.FlyoutToolbar_class.  
+        
+        Example: if FlyoutToolbar_class is None, 
+        it means the command should use the flyout of the parent command
+        if one exists. When FlyoutToolbar_class is defined by the command, 
+        it uses that to create one for the command. 
+
+        This method is called in self.command_entered(). Subclasses shoule 
+        NEVER override this method. 
+        
+        @see: self.command_update_flyout()  which actually does the updates to 
+              the flyout toolbar. 
+        @see: self.command_entered() which calls this method.
+        """        
+        if self.FlyoutToolbar_class is None:
+            #The FlyoutToolbar_class is not define. This means either of the 
+            #following: A) the command is , for example, a subcommand,
+            #which reuses the flyoutToolbar of the parent command and an action
+            #representing this command is checked in the flyout toolbar. 
+            #B) The command is an internal request command and doesn't have 
+            #a specific action to be checked in the flyout. So all it does is 
+            #to not do any changes to the flyout and just continue using it.
+            
+            #The following line of code makes sure that the self.parentCommand 
+            #exists and if it does, it assigns self's flyout the value of 
+            #parentCommand's flyoutToolbar object.
+            self.flyoutToolbar = self.parentCommand and self.parentCommand.flyoutToolbar             
+                
+        else:
+            #FlyoutToolbar_class is specified. So create a flyoutToolBarObject
+            #if necessary
+            if self.flyoutToolbar is None:
+                self.flyoutToolbar = self._createFlyoutToolbarObject() 
+                
+     def _createFlyoutToolbarObject(self): #Ninad 2008-09-12
+        """
+        Creates and returns a FlyoutToolbar object of the specified 
+        FlyoutToolbar_class. 
+        @see: self._command_entered_prepare_flyout()
+        @see: self.command_update_flyout()
+        @see: self._createPropMgrObject()
+        """
+        if self.FlyoutToolbar_class is None:
+            return None
+        
+        flyout = self.FlyoutToolbar_class(self)
+        return flyout      
+    
 
     def command_enter_PM(self):
         """
@@ -538,7 +635,11 @@ class baseCommand(object):
         
         @see: Ui_AbstractToolBar.activateFlyoutToolbar()
         @see: self.command_exit_flyout() 
+        @see: self.command_update_flyout()
         """
+        #@TODO: Method to be removed (also from the subclasses)
+        #after completely switching over to USE_COMMAND_STACK
+        #used only when NOT using USE_COMMAND_STACK as of 2008-09-16
         return
 
     def command_enter_misc_actions(self):
@@ -661,6 +762,8 @@ class baseCommand(object):
         @see: command_update_internal_state, for prior updates that change
               internal state variables in all active commands (even if those
               are stored in their property manager objects)
+              
+        @see: self.command_update_flyout()
         """
         if self.propMgr:
             self.propMgr.update_UI() ### IMPLEM; must work when PM is shown or not shown, and should not show it
@@ -670,21 +773,91 @@ class baseCommand(object):
                 # after we return.
 
         ### maybe: also something to update the flyout toolbar, from an attribute?
+        #UPDATE 2008-09-16: updating flyout toolbar is now done by 
+        #self.command_update_flyout() See that method for details. 
         
         return
 
-    def command_update_flyout(self): #bruce 080910; TODO: revise docstrings above to reflect existence of this method
+    def command_update_flyout(self): #bruce 080910; Ninad 2008-09-16
         """
-        Subclasses can override this to make sure the
-        correct flyout toolbar is shown, with the correct state.
+        Subclasses should NEVER override this method. 
+        
+        This method is only called for command stack changes involving commands 
+        that afffect flyout.
 
         When this is called, self is the current command and
         all other update methods defined above have been called.
         
-        @note: called only when command stack changed since
+        @note: called only  when command stack changed since
                the last time this was called for any command
+        
+        @see: self.command_update_UI() where updates to PM are done
+        @see: self._command_entered_prepare_flyout() which actually creates the
+              flyout toolbar.
+        @see: command_levels._IGNORE_FLYOUT_LEVELS 
+        @see: AbstractFlyout.resetStateOfActions()
+        @see: AbstractFlyout.activateFlyoutToolbar()
+        
+        """        
+        if self.flyoutToolbar:
+            #activate the flyout toolbar. 
+            self.flyoutToolbar.activateFlyoutToolbar()   
+            
+            if self.FlyoutToolbar_class is None:
+                #@see:self._getFlyoutToolBarActionAndParentCommand() docstring 
+                #for a detailed documentation.
+                flyoutActionToCheck, parentCommandString = self._getFlyoutToolBarActionAndParentCommand()
+                #The following method needs to handle the empty action 
+                #string (flyoutActionToCheck)
+                self._init_gui_flyout_action(flyoutActionToCheck, 
+                                             parentCommandName = parentCommandString)  
+                
+            else:
+                #Its not a subcommand that is using the flyout toolbar. So
+                #make sure that no action is checked when this flyout is shown 
+                #(e.g. an action might be checked because the earlier command 
+                #was a subcommand using this flyout) 
+                self.flyoutToolbar.resetStateOfActions()
+        else:
+            #The flyout toolbar is None. NOTE: self.command_update_flyout is 
+            #only calledfor command stack changes involving commands that 
+            #afffect flyout. Thus, this method is never called for commands whose
+            #command_level is in 'ignore list' (such as CL_VIEW_CHANGE)
+            #What this all means, is when this 'else' condition (i.e. flyoutToolbar 
+            #is None, is reached program needs to reset the flyout toolbar to its
+            #default state. i.e. Check the Build Control button and show the 
+            #Build control button menu in the flyout toolbar. 
+            self.win.commandToolbar.resetToDefaultState()               
+                
+    def _getFlyoutToolBarActionAndParentCommand(self): #Ninad 2008-09-15
         """
-        return
+        Returns text of the action to check in the flyout toolbar and also in 
+        some cases, the name of the parentCommand (value is None or the
+        command name string) 
+        
+        Consider the following cases:
+        A) The command is , for example, a subcommand, which reuses the 
+        flyoutToolbar of the parent command and an action representing this 
+        command is checked in the flyout toolbar. 
+        
+        B) The command is an internal request command and doesn't have 
+        a specific action to be checked in the flyout. So all it does is 
+        to not do any changes to the flyout and just continue using it. 
+                 
+        For case (A) the 'flyoutActionToCheck' returns a string with action name 
+        for case (B), it returns 'None' (indicating that no 
+        modifications are necessary)
+        
+        The 'parentCommandName' string is usually empty. But some commands 
+        like OrderDna (global commands) need to specify this. 
+                
+        @see: self.command_update_flyout()
+        @see: self._init_gui_glyout_action()
+        """
+        flyoutActionToCheck = ''
+        parentCommandName = None        
+        return flyoutActionToCheck, parentCommandName
+            
     
     # == other methods
 
