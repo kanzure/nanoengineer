@@ -35,8 +35,18 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     
-    flyoutToolbar = None      
-         
+    flyoutToolbar = None   
+    
+    
+    def _getFlyoutToolBarActionAndParentCommand(self):
+        """
+        See superclass for documentation.
+        @see: self.command_update_flyout()
+        """
+        flyoutActionToCheck = self._get_init_gui_flyout_action_string()
+        parentCommandName = None        
+        return flyoutActionToCheck, parentCommandName
+             
     
     def _get_init_gui_flyout_action_string(self):
         raise AbstractMethod

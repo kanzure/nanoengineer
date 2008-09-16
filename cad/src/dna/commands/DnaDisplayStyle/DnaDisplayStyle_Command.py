@@ -38,7 +38,7 @@ class DnaDisplayStyle_Command(EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05: ?? check"
+    command_porting_status = None #Fully ported
     
     
     # class constants
@@ -57,30 +57,43 @@ class DnaDisplayStyle_Command(EditCommand):
     command_has_its_own_PM = True
     
     flyoutToolbar = None
+    
+    
+    def _getFlyoutToolBarActionAndParentCommand(self):
+        """
+        See superclass for documentation.
+        @see: self.command_update_flyout()
+        """
+        flyoutActionToCheck = 'editDnaDisplayStyleAction'
+        parentCommandName = 'BUILD_DNA'      
+        return flyoutActionToCheck, parentCommandName
+    
+    
+    if not USE_COMMAND_STACK:
 
-    def init_gui(self):
-        """
-        Initialize GUI for this mode 
-        """
-        self._init_gui_flyout_action( 'editDnaDisplayStyleAction', 'BUILD_DNA')
-        
-        if self.propMgr is None:
-            self.propMgr = DnaDisplayStyle_PropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
-            changes.keep_forever(self.propMgr)  
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
+            self._init_gui_flyout_action( 'editDnaDisplayStyleAction', 'BUILD_DNA')
             
-        self.propMgr.show()
+            if self.propMgr is None:
+                self.propMgr = DnaDisplayStyle_PropertyManager(self)
+                #@bug BUG: following is a workaround for bug 2494.
+                #This bug is mitigated as propMgr object no longer gets recreated
+                #for modes -- niand 2007-08-29
+                changes.keep_forever(self.propMgr)  
+                
+            self.propMgr.show()
+                
             
-        
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-            
-        if self.propMgr is not None:
-            self.propMgr.close()
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+                
+            if self.propMgr is not None:
+                self.propMgr.close()
             
             
      #START new command API methods =============================================

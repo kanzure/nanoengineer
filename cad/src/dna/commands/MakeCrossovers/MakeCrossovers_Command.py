@@ -41,7 +41,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
     
     """
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status =  None
+    command_porting_status =  None #Fully ported
     
     GraphicsMode_class = MakeCrossovers_Graphicsmode
     
@@ -62,35 +62,43 @@ class MakeCrossovers_Command(SelectChunks_Command,
     flyoutToolbar = None    
     
     
-    
-                
-    def Enter(self):
-        ListWidgetItems_Command_Mixin.Enter(self)    
-        _superclass.Enter(self)  
-    
-    def init_gui(self):
+    def _getFlyoutToolBarActionAndParentCommand(self):
         """
-        Initialize GUI for this mode 
+        Overides superclass method. 
+        @see: self.command_update_flyout()
         """
+        flyoutActionToCheck = 'makeCrossoversAction'
+        parentCommandName = None     
+        return flyoutActionToCheck, parentCommandName
+    
+    if not USE_COMMAND_STACK:           
+        def Enter(self):
+            ListWidgetItems_Command_Mixin.Enter(self)    
+            _superclass.Enter(self)  
         
-        self.command_enter_PM()
-        self.command_enter_flyout()
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
             
-        #Now set the initial segment list. The segments within this segment list
-        #will be searched for the crossovers. 
-        selectedSegments = self.win.assy.getSelectedDnaSegments()        
-        self.ensureSegmentListItemsWithinLimit(selectedSegments)
+            self.command_enter_PM()
+            self.command_enter_flyout()
                 
-        self.propMgr.show()
-        
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """       
-        self.command_exit_flyout()
-        self.command_exit_PM()
-        if self.propMgr is not None:
-            self.propMgr.close()
+            #Now set the initial segment list. The segments within this segment list
+            #will be searched for the crossovers. 
+            selectedSegments = self.win.assy.getSelectedDnaSegments()        
+            self.ensureSegmentListItemsWithinLimit(selectedSegments)
+                    
+            self.propMgr.show()
+            
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """       
+            self.command_exit_flyout()
+            self.command_exit_PM()
+            if self.propMgr is not None:
+                self.propMgr.close()
 
             
     def command_entered(self):

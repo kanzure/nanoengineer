@@ -37,7 +37,7 @@ from model.bonds import Bond
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from dna.commands.BuildDna.BuildDna_PropertyManager import BuildDna_PropertyManager
 
-
+_superclass = EditCommand
 class BuildDna_EditCommand(EditCommand):
     """
     BuildDna_EditCommand provides a convenient way to edit or create
@@ -45,13 +45,16 @@ class BuildDna_EditCommand(EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None
+    command_porting_status = None #fully ported
     
     #GraphicsMode
     GraphicsMode_class = BuildDna_GraphicsMode
     
     #Property Manager
     PM_class = BuildDna_PropertyManager
+    
+    #Flyout Toolbar
+    FlyoutToolbar_class = DnaFlyout
     
     cmd              =  greenmsg("Build DNA: ")
     prefix           =  'DnaGroup'   # used for gensym
@@ -81,7 +84,9 @@ class BuildDna_EditCommand(EditCommand):
       
         
     #=== START   NEW COMMAND API methods  ======================================
-    #Used in self.init_gui and self.restore_gui as of 2008-08-11        
+    #Used in self.init_gui and self.restore_gui as of 2008-08-11 
+        
+                
     def command_enter_flyout(self):
         """
         Overrides superclass method. 
@@ -443,7 +448,4 @@ class BuildDna_EditCommand(EditCommand):
             highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
                                                             command = self)
             return
-        
-        
-            
         

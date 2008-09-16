@@ -230,27 +230,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #Graphics handles for editing the structure . 
         self.handles = []        
         self.grabbedHandle = None
-
-
-    def ORIG_command_enter_PM(self):
-        """
-        See superclass dor documentation.
-        """
-        #Note that DnaSegment_EditCommand only act as an edit command for an 
-        #existing structure. The call to self.propMgr.show() is done only during
-        #the call to self.editStructure ..i .e. only after self.struct is 
-        #updated. This is done because of the following reason:
-        # - self.init_gui is called immediately after entering the command. 
-        # - self.init_gui in turn, initialized propMgr object and may also 
-        #  show the property manager. The self.propMgr.show routine calls 
-        #  an update widget method just before the show. This update method 
-        #  updates the widgets based on the parameters from the existing 
-        #  structure of the command (self.editCommand.struct)
-        #  Although, it checks whether this structure exists, the editCommand
-        #  could still have a self.struct attr from a previous run. (Note that 
-        #  EditCommand API was written before the command sequencer API and 
-        #  it has some loose ends like this. ) -- Ninad 2008-01-22
-        self.create_and_or_show_PM_if_wanted(showPropMgr = False)
         
         
     #New Command API method -- implemented on 2008-08-27

@@ -262,22 +262,7 @@ class DnaFlyout(Ui_AbstractFlyout):
        
         self.connect_or_disconnect_signals(True)
     
-        
-    def resetStateOfActions(self):
-        """
-        Resets the state of actions in the flyout toolbar.
-        Uncheck most of the actions. Basically it 
-        unchecks all the actions EXCEPT the ExitDnaAction
-        @see: self.deActivateFlyoutToolbar()
-        @see: self.activateBreakStrands_Command() 
-        @see: BuildDna_EditCommand.resume_gui()
-        """
-        
-        #Uncheck all the actions in the flyout toolbar (subcontrol area)
-        for action in self.subControlActionGroup.actions():
-            if action.isChecked():
-                action.setChecked(False)
-        
+                
             
     def activateDnaDuplex_EditCommand(self, isChecked):
         """
@@ -416,4 +401,27 @@ class DnaFlyout(Ui_AbstractFlyout):
         #in the flyout toolbar (subcontrol area)
         for action in self.subControlActionGroup.actions():
             if action is not self.editDnaDisplayStyleAction and action.isChecked():
+                action.setChecked(False)
+                
+                
+    def resetStateOfActions(self):
+        """
+        Resets the state of actions in the flyout toolbar.
+        It unchecks all the actions EXCEPT the ExitModeAction. This is called 
+        while resuming a command. 
+        
+        Example: if exits is in Insert > Dna command, 
+        the Build > Dna command is resumed. When this happens, program needs to 
+        make sure that the Insert > dna button in the flyout is unchecked. 
+        It is done by using this method. 
+        
+        @see: self.deActivateFlyoutToolbar()
+        @see: self.activateBreakStrands_Command() 
+        @see: BuildDna_EditCommand.resume_gui()
+        @see: AbstractFlyout.resetStateOfActions()
+        @see: baseCommand.command_update_flyout() which calls this method. 
+        """
+        #Uncheck all the actions in the flyout toolbar (subcontrol area)
+        for action in self.subControlActionGroup.actions():
+            if action.isChecked():
                 action.setChecked(False)

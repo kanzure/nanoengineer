@@ -29,8 +29,7 @@ class BreakStrands_Command(BreakOrJoinStrands_Command):
     GraphicsMode_class = BreakStrands_GraphicsMode
     PM_class = BreakStrands_PropertyManager
     
-    
-    
+   
     def _get_init_gui_flyout_action_string(self):
         return 'breakStrandAction'
     

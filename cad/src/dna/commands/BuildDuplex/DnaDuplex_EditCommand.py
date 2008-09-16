@@ -227,6 +227,17 @@ class DnaDuplex_EditCommand(EditCommand):
         
     #=== START   NEW COMMAND API methods  ======================================
     #As of 2008-08-27, these are used as a debug pref only ('USE_COMMAND_STACK')
+    
+    def _getFlyoutToolBarActionAndParentCommand(self):
+        """
+        See superclass for documentation.
+        @see: self.command_update_flyout()
+        """
+        flyoutActionToCheck = 'dnaDuplexAction'
+        parentCommandName = None      
+        return flyoutActionToCheck, parentCommandName
+    
+    
     def command_entered(self):
         """
         Overrides superclass method. See superclass for documentation. 
@@ -269,21 +280,21 @@ class DnaDuplex_EditCommand(EditCommand):
         self._segmentList = []
         
         
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: EditCommand.command_enter_flyout()
-        """
-        self._init_gui_flyout_action( 'dnaDuplexAction' )
+    ##def command_enter_flyout(self):
+        ##"""
+        ##Overrides superclass method. 
+        ##@see: EditCommand.command_enter_flyout()
+        ##"""
+        ##self._init_gui_flyout_action( 'dnaDuplexAction' )
         
                 
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: EditCommand.command_exit_flyout()
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.dnaDuplexAction.setChecked(False)
+    ##def command_exit_flyout(self):
+        ##"""
+        ##Overrides superclass method. 
+        ##@see: EditCommand.command_exit_flyout()
+        ##"""
+        ##if self.flyoutToolbar:
+            ##self.flyoutToolbar.dnaDuplexAction.setChecked(False)
             
     
     
