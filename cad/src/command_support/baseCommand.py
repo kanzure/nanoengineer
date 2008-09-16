@@ -367,7 +367,7 @@ class baseCommand(object):
         #@TODO: Method to be removed (also from the subclasses)
         #after completely switching over to USE_COMMAND_STACK
         #used only when NOT using USE_COMMAND_STACK as of 2008-09-16
-        return
+        assert not USE_COMMAND_STACK
     
     def command_exit_misc_actions(self):
         """
@@ -640,7 +640,7 @@ class baseCommand(object):
         #@TODO: Method to be removed (also from the subclasses)
         #after completely switching over to USE_COMMAND_STACK
         #used only when NOT using USE_COMMAND_STACK as of 2008-09-16
-        return
+        assert not USE_COMMAND_STACK
 
     def command_enter_misc_actions(self):
         """

@@ -207,19 +207,27 @@ class Ui_AbstractFlyout(object):
         """
         Default implementation does nothing. Resets the state of actions in the 
         flyout toolbar. Generally, it unchecks all the actions except the 
-        'ExitModeAction' (but subclasses can implement it differently) This is 
-        called while resuming a command. 
+        'ExitModeAction' (but subclasses can implement it differently) 
         
         This is overridden in subclasses to ensure that the default state of the
-        flyout is restored.
+        flyout is restored. 
+        
+        Who calls this? --
+        This is called by flyout classes of commands that have potential 
+        subcommands which care about flyout  and may do changes to it. 
+        So it is overridden in only such command flyout classes. 
+        See BuildDnaFlyout, BuildAtomsFlyout for example.  
+        
+        In general, it will be used by any command that defines its own 
+        FlyoutToolbar_class. In such cases, it is called whenever command is 
+        entered or resumed.
         
         Example: When its the default DNA command, this method resets all the 
         actions in the flyout toolbar except the 'ExitModeAction'. When
         it is the 'Build Atoms' command, the default state of the toolbar
         is such that the 'Atoms tool' button in the subcontrol area is checked
         along with the 'Exit' button. 
-        
-                   
+                           
         Example: If Insert > Dna command is exited and the Build > Dna command
         is resumed. When this happens, program needs to make sure that the 
         Insert > DNA button in the flyout is unchecked. It is done by using this
