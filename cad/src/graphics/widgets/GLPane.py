@@ -82,6 +82,7 @@ from graphics.widgets.GLPane_lighting_methods import GLPane_lighting_methods
 from graphics.widgets.GLPane_frustum_methods import GLPane_frustum_methods
 from graphics.widgets.GLPane_event_methods import GLPane_event_methods
 from graphics.widgets.GLPane_rendering_methods import GLPane_rendering_methods
+from graphics.widgets.GLPane_highlighting_methods import GLPane_highlighting_methods
 from graphics.widgets.GLPane_text_and_color_methods import GLPane_text_and_color_methods
 from graphics.widgets.GLPane_stereo_methods import GLPane_stereo_methods
 from graphics.widgets.GLPane_view_change_methods import GLPane_view_change_methods
@@ -115,6 +116,7 @@ class GLPane(
     # these don't yet need to come first, but we'll put them first
     # anyway in case someone adds a default def of some method
     # into GLPane_minimal in the future:
+    GLPane_highlighting_methods,
     GLPane_text_and_color_methods,
     GLPane_stereo_methods,
     GLPane_view_change_methods,
