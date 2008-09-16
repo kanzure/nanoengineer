@@ -144,6 +144,9 @@ class PM_FileChooser( QWidget ):
             self.labelWidget = QLabel()
             self.labelWidget.setText(label)
         else:
+            # Create a dummy attribute for PM_GroupBox to see.  This might have
+            # needed to be fixed in PM_GroupBox, but it was done here to try to
+            # avoid causing errors in other PM widgets. -Derrick 20080816
             self.labelWidget = None
         
         self.lineEdit = QLineEdit()
