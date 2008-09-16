@@ -131,6 +131,9 @@ class BuildCrystal_Command(basicMode):
     # class constants
     PM_class = BuildCrystal_PropertyManager
     
+    #Flyout Toolbar
+    FlyoutToolbar_class = BuildCrystalFlyout
+    
     commandName = 'CRYSTAL'
     featurename = "Build Crystal Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
