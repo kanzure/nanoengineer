@@ -58,9 +58,6 @@ class NanotubeFlyout(Ui_AbstractFlyout):
         #including the subcontrolArea actions. 
         allActionsList = []
         
-        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
-        self.subControlActionGroup.setExclusive(False)   
-        self.subControlActionGroup.addAction(self.insertNanotubeAction)
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
@@ -93,6 +90,10 @@ class NanotubeFlyout(Ui_AbstractFlyout):
         self.insertNanotubeAction.setCheckable(True)        
         self.insertNanotubeAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/InsertNanotube.png"))
+        
+        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
+        self.subControlActionGroup.setExclusive(False)   
+        self.subControlActionGroup.addAction(self.insertNanotubeAction)
 
     def _addWhatsThisText(self):
         """

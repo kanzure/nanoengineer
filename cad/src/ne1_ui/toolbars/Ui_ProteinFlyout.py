@@ -66,10 +66,6 @@ class ProteinFlyout:
         #including the subcontrolArea actions. 
         allActionsList = []
 
-        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
-        self.subControlActionGroup.setExclusive(False)   
-        self.subControlActionGroup.addAction(self.buildPeptideAction)
-        self.subControlActionGroup.addAction(self.displayProteinStyleAction)
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
@@ -135,6 +131,12 @@ class ProteinFlyout:
         self.displayProteinStyleAction.setCheckable(True)        
         self.displayProteinStyleAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/EditProteinDisplayStyle.png"))
+        
+        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
+        self.subControlActionGroup.setExclusive(False)   
+        self.subControlActionGroup.addAction(self.buildPeptideAction)
+        self.subControlActionGroup.addAction(self.displayProteinStyleAction)
+        
 
     def _addWhatsThisText(self):
         """

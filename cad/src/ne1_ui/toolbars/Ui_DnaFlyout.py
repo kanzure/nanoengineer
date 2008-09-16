@@ -50,15 +50,8 @@ class DnaFlyout(Ui_AbstractFlyout):
         """
         #'allActionsList' returns all actions in the flyout toolbar 
         #including the subcontrolArea actions. 
-        allActionsList = []
+        allActionsList = []        
         
-        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
-        self.subControlActionGroup.setExclusive(False)   
-        self.subControlActionGroup.addAction(self.dnaDuplexAction)
-        self.subControlActionGroup.addAction(self.breakStrandAction) 
-        self.subControlActionGroup.addAction(self.joinStrandsAction)
-        self.subControlActionGroup.addAction(self.makeCrossoversAction)
-        self.subControlActionGroup.addAction(self.editDnaDisplayStyleAction)
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
@@ -153,6 +146,14 @@ class DnaFlyout(Ui_AbstractFlyout):
         self.editDnaDisplayStyleAction.setCheckable(True)        
         self.editDnaDisplayStyleAction.setIcon(
             geticon("ui/actions/Edit/EditDnaDisplayStyle.png"))
+        
+        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
+        self.subControlActionGroup.setExclusive(False)   
+        self.subControlActionGroup.addAction(self.dnaDuplexAction)
+        self.subControlActionGroup.addAction(self.breakStrandAction) 
+        self.subControlActionGroup.addAction(self.joinStrandsAction)
+        self.subControlActionGroup.addAction(self.makeCrossoversAction)
+        self.subControlActionGroup.addAction(self.editDnaDisplayStyleAction)
         
     def _addWhatsThisText(self):
         """
