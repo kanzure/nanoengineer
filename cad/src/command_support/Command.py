@@ -60,7 +60,6 @@ from command_support.GraphicsMode_API import GraphicsMode_API
 from command_support.baseCommand import baseCommand # warning: modified below, if not USE_COMMAND_STACK
 
 import foundation.changes as changes
-from utilities.Comparison import same_vals
 
 if not USE_COMMAND_STACK:
     baseCommand = object
@@ -536,8 +535,13 @@ class basicCommand(anyCommand):
         """
         Overrides superclass method. 
         
-        @see: baseCommand.command_enter_PM()  for documentation
+        @see: baseCommand.command_enter_flyout()  for documentation
         """
+        #@TODO: Method to be removed (also from the subclasses)
+        #after completely switching over to USE_COMMAND_STACK
+        #used only when NOT using USE_COMMAND_STACK as of 2008-09-16
+        assert not USE_COMMAND_STACK
+        
         if not self.flyoutToolbar:
             self.flyoutToolbar = self._createFlyoutToolbarObject()   
         
@@ -1848,25 +1852,7 @@ class basicCommand(anyCommand):
         return
     
     
-    def _check_command_stack_change_indicator(self): #Ninad 2008-09-10. REVIEW
-        """
-        It compares the global command_stack_change_indicator value of the 
-        assembly with the previous  value of that indicator stored as a class 
-        attr.         
-        """
-        #REVIEW 2008-09-10: This method will be called from command_update_* 
-        #method(s). This method is not defined in the top level class 
-        #(Command superclass), because, it could happen that a subclass calls 
-        #this method but at the same time, also calls a superclass method 
-        #which in turn calls this method. 
-        if same_vals(self._previous_command_stack_change_indicator, 
-                     self.assy.command_stack_change_indicator()):            
-            return 
-        
-        self._previous_command_stack_change_indicator = \
-            self.assy.command_stack_change_indicator()
-        
-        
+
     # [bruce comment 040923; trimmed, 080806]
     #
     # The preceding and following methods, StartOver Cancel
