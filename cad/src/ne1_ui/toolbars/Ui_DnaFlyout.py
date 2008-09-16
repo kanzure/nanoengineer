@@ -406,14 +406,19 @@ class DnaFlyout(Ui_AbstractFlyout):
                 
     def resetStateOfActions(self):
         """
+        See superclass for more documentation. 
+        
         Resets the state of actions in the flyout toolbar.
         It unchecks all the actions EXCEPT the ExitModeAction. This is called 
         while resuming a command. 
         
-        Example: if exits is in Insert > Dna command, 
-        the Build > Dna command is resumed. When this happens, program needs to 
-        make sure that the Insert > dna button in the flyout is unchecked. 
-        It is done by using this method. 
+        This is called while resuming a command.         
+        
+        Example: If Insert > Dna command is exited and the Build > Dna command
+        is resumed. When this happens, program needs to make sure that the 
+        Insert > DNA button in the flyout is unchecked. It is done by using this
+        method. 
+        
         
         @see: self.deActivateFlyoutToolbar()
         @see: self.activateBreakStrands_Command() 

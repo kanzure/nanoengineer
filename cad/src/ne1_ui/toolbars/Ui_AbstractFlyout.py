@@ -205,17 +205,25 @@ class Ui_AbstractFlyout(object):
     
     def resetStateOfActions(self):
         """
-        Default implementation does nothing. Overridden in subclasses. 
+        Default implementation does nothing. Resets the state of actions in the 
+        flyout toolbar. Generally, it unchecks all the actions except the 
+        'ExitModeAction' (but subclasses can implement it differently) This is 
+        called while resuming a command. 
         
-        R Resets the state of actions in the flyout toolbar.
-        Generally, it unchecks all the actions except the ExitModeAction.
-        This is called while resuming a command. 
+        This is overridden in subclasses to ensure that the default state of the
+        flyout is restored.
         
+        Example: When its the default DNA command, this method resets all the 
+        actions in the flyout toolbar except the 'ExitModeAction'. When
+        it is the 'Build Atoms' command, the default state of the toolbar
+        is such that the 'Atoms tool' button in the subcontrol area is checked
+        along with the 'Exit' button. 
         
-        Example: if exits is in Insert > Dna command, 
-        the Build > Dna command is resumed. When this happens, program needs to 
-        make sure that the Insert > dna button in the flyout is unchecked. 
-        It is done by using this method. 
+                   
+        Example: If Insert > Dna command is exited and the Build > Dna command
+        is resumed. When this happens, program needs to make sure that the 
+        Insert > DNA button in the flyout is unchecked. It is done by using this
+        method. 
         
         @see: self.deActivateFlyoutToolbar()
         @see: self.activateBreakStrands_Command() 
