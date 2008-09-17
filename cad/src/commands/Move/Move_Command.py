@@ -45,14 +45,19 @@ from utilities.GlobalPreferences import USE_COMMAND_STACK
 class Move_Command(SelectChunks_Command):
     """
     """
-    GraphicsMode_class = TranslateChunks_GraphicsMode
+    
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
     command_porting_status = None #fully ported. But some refactoring related to the update code is needed in future. 
     
+    GraphicsMode_class = TranslateChunks_GraphicsMode
+    
     #The class constant PM_class defines the class for the Property Manager of 
     #this command. See Command.py for more infor about this class constant
     PM_class = MovePropertyManager
+    
+    #Flyout Toolbar 
+    FlyoutToolbar_class = MoveFlyout
     
     commandName = 'MODIFY'
     featurename = "Move Chunks Mode"
