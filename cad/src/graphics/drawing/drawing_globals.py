@@ -3,12 +3,12 @@
 drawing_globals.py - A module containing global state within the
 graphics.drawing suite.
 
-Variables can be (and are) dynamically added to the module at runtime.
-[Some of that is done in a dangerous way which requires CLEANUP,
-for example, glprefs, assigned at the end of glprefs.py when it's
-first imported. See comment near that assignment for what's wrong with it.
-If any other assignments have similar issues, they also need cleanup.
-bruce 080913 comment]
+Variables can be (and are) dynamically added to this module at runtime.
+
+Note: This should *not* be done as a side effect of loading other modules.  It
+makes the imports of those modules falsely appear unnecessary, since nothing
+defined in them is used.  It also confuses tools which import the module in
+which the assignment is used, but not the one which makes the assignment.
 
 Some of the variables contained here are mode control for the whole drawing
 package, including the ColorSorter suite.  Other parts are communication between
@@ -54,6 +54,10 @@ import utilities.EndUser as EndUser
 import sys
 import os
 
+from graphics.drawing.glprefs import GLPrefs
+import foundation.preferences as preferences # Sets up env.prefs .
+
+# Machinery to load the C renderer.
 if EndUser.getAlternateSourcePath() != None:
     sys.path.append(os.path.join( EndUser.getAlternateSourcePath(),
                                   "experimental/pyrex-opengl"))
@@ -65,7 +69,7 @@ binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0]))
 if binPath not in sys.path:
     sys.path.append(binPath)
 
-global quux_module_import_succeeded
+global quux_module_import_succeeded     # Referenced below in updatePrefsVars().
 try:
     import quux
     quux_module_import_succeeded = True
@@ -83,3 +87,53 @@ except:
         print "WARNING: unable to import C rendering code (quux module).", \
               "Only Python rendering will be available."
     pass
+
+# ==
+
+    # Russ 080915: Extracted from GLPrefs.update() to break an import cycle.
+def updatePrefsVars():
+    """
+    Helper for GLPrefs.update() .
+    """
+    global allow_color_sorting, use_color_sorted_dls, use_color_sorted_vbos
+    global use_sphere_shaders, use_drawing_variant, use_c_renderer
+    allow_color_sorting = env.prefs.get(
+        allow_color_sorting_prefs_key,
+        allow_color_sorting_default)
+
+    use_color_sorted_dls = env.prefs.get(
+        use_color_sorted_dls_prefs_key,
+        use_color_sorted_dls_default)
+
+    use_color_sorted_vbos = env.prefs.get(
+        use_color_sorted_vbos_prefs_key,
+        use_color_sorted_vbos_default)
+
+    use_sphere_shaders = env.prefs.get(
+        use_sphere_shaders_prefs_key,
+        use_sphere_shaders_default)
+
+    use_drawing_variant = env.prefs.get(
+        use_drawing_variant_prefs_key,
+        use_drawing_variant_default)
+
+    use_c_renderer = (
+        quux_module_import_succeeded and
+        env.prefs.get(use_c_renderer_prefs_key,
+                      use_c_renderer_default))
+
+    if use_c_renderer:
+        quux.shapeRendererSetMaterialParameters(self.specular_whiteness,
+                                                self.specular_brightness,
+                                                self.specular_shininess);
+        pass
+    return
+
+# A singleton instance of the GLPrefs class.
+glprefs = GLPrefs()
+
+# Russ 080915: This would be done by GLPrefs.update() under the GLPrefs
+# constructor, except for an awkward inport cycle that otherwise results.
+updatePrefsVars()
+
+# end

@@ -38,10 +38,6 @@ from OpenGL.GLU import gluUnProject
 
 import graphics.drawing.drawing_globals as drawing_globals
 
-import graphics.drawing.glprefs as _junk # just for its side effects (assignment to drawing_globals.glprefs)
-    # TODO: clean that up. See comment at end of graphics.drawing.glprefs
-    # for more info. [bruce 080913]
-
 from graphics.drawing.drawers import drawOriginAsSmallAxis
 from graphics.drawing.drawers import drawaxes
 
