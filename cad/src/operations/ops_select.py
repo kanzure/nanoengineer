@@ -835,9 +835,13 @@ class ops_select_Mixin:
     # I renamed them to distinguish them from the many other "pick" (etc) methods
     # for Node subclasses, with common semantics different than these have.
     # I removed some no-longer-used related methods.
+    
+    # All these methods should be rewritten to be more general;
+    # for more info, see comment about findAtomUnderMouse and jigGLSelect
+    # in def end_selection_curve in Select_GraphicsMode.py.
+    # [bruce 080917 comment]
 
     def pick_at_event(self, event): #renamed from pick; modified
-        # renamed from pick_at_event(). mark 060212.
         """
         Pick whatever visible atom or chunk (depending on 
         self.selwhat) is under the mouse, adding it to the current selection. 

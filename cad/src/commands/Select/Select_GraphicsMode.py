@@ -618,6 +618,30 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                 has_jig_selected = True
 
             if not has_jig_selected:
+                # NOTES about bugs in this code, and how to clean it up:
+                # the following methods rely on findAtomUnderMouse,
+                # even when highlighting is enabled (not sure why -- probably
+                # a bad historical reason or oversight); this means they don't
+                # work for clicking internal bonds (predicted bug), and they
+                # don't work for jigs, which means the above jigGLSelect call
+                # (which internally duplicates the GL_SELECT code used to
+                # update selobj, and the picking effects of the following
+                # depending on selSense) is presently necessary, whether
+                # or not highlighting is enabled.
+                #
+                # TODO: This is a mess, but cleaning it up requires rewriting
+                # all of the following at once:
+                # - this code, and similar call of jigGLSelect in Move_GraphicsMode
+                # - unpick_at_event and the 3 other methods below
+                #   - have them use selobj when highlighting is enabled
+                #   - if desired, have them update selobj even when highlighting
+                #     is disabled, as replacement for findAtomUnderMouse
+                #     which would work for jigs (basically equivalent to
+                #     existing code calling special jig select methods in those
+                #     cases, but without requiring duplicated code)
+                # - this would permit completely removing the methods
+                #   jigGLSelect and get_jig_under_cursor from this class.
+                # [bruce 080917 comment]
                 if self.selSense == SUBTRACT_FROM_SELECTION:
                     self.o.assy.unpick_at_event(event)
                 elif self.selSense == ADD_TO_SELECTION:
@@ -998,10 +1022,10 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # called more than once per frame;
         # that should be fixed too. [bruce 060721 comment]
 
-        # BUG: both methods like this in this class are wrong when left/right stereo is enabled.
-        # The best fix would be to remove them completely, if possible,
-        # since I doubt they should ever have existed at all,
-        # since general highlighting handles jigs. [bruce 080917 comment]
+        # BUG: both methods like this in this class are wrong when left/right
+        # stereo is enabled. Ideally they should be removed.
+        # For more info, see similar comment in jigGLSelect.
+        # [bruce 080917 comment]
 
         if not self.o.jigSelectionEnabled:
             return None
@@ -1321,10 +1345,12 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
         # that should be fixed too. [bruce 060721 comment]
 
-        # BUG: both methods like this in this class are wrong when left/right stereo is enabled.
-        # The best fix would be to remove them completely, if possible,
-        # since I doubt they should ever have existed at all,
-        # since general highlighting handles jigs. [bruce 080917 comment]
+        # BUG: both methods like this in this class are wrong when left/right
+        # stereo is enabled. The best fix would be to remove them completely,
+        # since they should ever have existed at all, since general highlighting
+        # code handles jigs. Unfortunately removing them is hard --
+        # for how to do it, see comment near the call of this method
+        # in this file. [bruce 080917 comment]
 
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()

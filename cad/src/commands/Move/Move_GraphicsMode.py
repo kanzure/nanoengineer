@@ -277,6 +277,11 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
             if self.o.jigSelectionEnabled and self.jigGLSelect(event, selSense):
                 has_jig_selected = True
             if not has_jig_selected:
+                # Note: this code is similar to def end_selection_curve
+                # in Select_GraphicsMode.py. See comment there
+                # about why it handles jigs separately and
+                # how to clean that up (which mentions findAtomUnderMouse
+                # and jigGLSelect). [bruce 080917 comment]
                 if selSense == SUBTRACT_FROM_SELECTION:
                     self.o.assy.unpick_at_event(event)
                 if selSense == ADD_TO_SELECTION:
