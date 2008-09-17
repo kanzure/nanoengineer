@@ -1243,7 +1243,10 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
 # ==
 
 class Symbol(SymbolicExpr):
-    "A kind of Expr that is just a symbol with a given name. Often used via the __Symbols__ module."
+    """
+    A kind of Expr that is just a symbol with a given name.
+    Often used via the __Symbols__ module.
+    """
     # Default values of instance variables.
     # These are normally set (optionally) after __init__, by the code that creates the symbols,
     # and never changed after that.
@@ -1252,7 +1255,7 @@ class Symbol(SymbolicExpr):
     def __init__(self, name = None, doc = None):
         self._e_init_e_serno()
         if name is None:
-            name = "?%s" % compact_stack(skip_innermost_n = 3).split()[-1] # kluge - show line where it's defined
+            name = "?%s" % compact_stack(skip_innermost_n = 2).split()[-1] # kluge - show line where it's defined
         self._e_name = name
         self.__doc__ = doc # default is None, for a Symbol with no individual docstring.
             # (self.__doc__ can optionally be set by caller after we return)

@@ -431,7 +431,8 @@ class HistoryWidget:
         from utilities.debug_prefs import debug_pref, Choice_boolean_False
         if debug_pref("print history.message() call stacks?", Choice_boolean_False): #bruce 060720
             from utilities.debug import compact_stack
-            options['compact_stack'] = compact_stack(skip_innermost_n = 2) # skips compact_stack itself, and this line that calls it
+            options['compact_stack'] = compact_stack(skip_innermost_n = 1)
+                # skips compact_stack itself, and this line that calls it
         if transient_id:
             self.statusbar_msg(msg, repaint = repaint) # (no html allowed in msg!)
             # (Actually we should make a message object now, so the timestamp is

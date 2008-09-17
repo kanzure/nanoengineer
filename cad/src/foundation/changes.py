@@ -133,7 +133,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
             if True or debug or debug_flags.atom_debug:
                 #bruce 070816 included True in that condition, to avoid silently discarding exceptions indicating real bugs.
                 print_compact_traceback("bug: exception in subs %r ignored by %r: " % (sub1, self) )
-                print_compact_stack("bug: here is where that exception occurred: ")
+                print_compact_stack(" note: here is where that exception occurred: ", skip_innermost_n = 1) #bruce 080917 revised
         return        
     def remove_subs(self, func): # note: this has never been used as of long before 061022, and looks potentially unsafe (see below)
         """
@@ -1048,7 +1048,7 @@ def _op_tracker_stack_changed( tracker, infodict ): #bruce 050908 for Undo
                 # infodict is info about the nature of the stack change, passed from the tracker [bruce 060321 for bug 1440 et al]
                 unsub = sub( beginflag, infodict, tracker ) # (we can't always pass tracker.stack[-1] -- it might not exist!)
             except:
-                print_compact_traceback("bug in some element of env.command_segment_subscribers: ")
+                print_compact_traceback("bug in some element of env.command_segment_subscribers (see below for more): ")
                 #e discard it?? nah. (we'd do so by unsub = True)
                 """ note: during Quit, we got this, when we tried to update the menu items no longer present (enable a QAction);
                 this could be related to the crashes on Quit reported recently;
@@ -1057,6 +1057,7 @@ def _op_tracker_stack_changed( tracker, infodict ): #bruce 050908 for Undo
                   underlying C/C++ object has been deleted
                   [changes.py:607] [undo_manager.py:115] [undo_manager.py:154] [undo_manager.py:128] [undo_manager.py:238]
                 """
+                print_compact_stack(" the call that led to that bug: ", skip_innermost_n = 1) # bruce 080917
             if unsub:
                 try:
                     env.command_segment_subscribers.remove(sub)

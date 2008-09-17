@@ -276,19 +276,23 @@ def compact_traceback():
 
 # stack
 
-def print_compact_stack( msg = "current stack:\n", skip_innermost_n = 2, **kws ):
+def print_compact_stack( msg = "current stack:\n", skip_innermost_n = 0, **kws ):
     #bruce 061118 added **kws
     #bruce 080314 pass our msg arg to new msg arg of compact_stack
+    #bruce 080917 revise semantics of skip_innermost_n in all related functions
+    # (now 0 means "only frames outside this function")
     print >> sys.__stderr__, \
-          compact_stack( msg, skip_innermost_n = skip_innermost_n, **kws )
+          compact_stack( msg, skip_innermost_n = skip_innermost_n + 1, **kws )
 
 STACKFRAME_IDS = False # don't commit with True,
     # but set to True in debugger to see more info in compact_stack printout [bruce 060330]
 
-def compact_stack( msg = "", skip_innermost_n = 1, linesep = ' ', frame_repr = None ):
+def compact_stack( msg = "", skip_innermost_n = 0, linesep = ' ', frame_repr = None ):
     #bruce 061118 added linesep, frame_repr; 080314 added msg arg
+    #bruce 080917 revise semantics of skip_innermost_n in all related functions
+    # (now 0 means "only frames outside this function")
     printlines = []
-    frame = sys._getframe( skip_innermost_n)
+    frame = sys._getframe( skip_innermost_n + 1)
     while frame is not None: # innermost first
         filename = frame.f_code.co_filename
         lineno = frame.f_lineno

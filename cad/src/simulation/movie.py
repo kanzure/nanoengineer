@@ -757,7 +757,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
               % (self.win.movie_is_playing, self.isPaused, self.showEachFrame, self.moveToEnd, self.totalFramesActual, self.currentFrame, self.playDirection )
         if kws:
             print "  other args: %r" % kws
-        print_compact_stack("    stack at that time: ", skip_innermost_n = 3) # skips this lineno and 2 internal ones (#e should revise meaning to -2)
+        print_compact_stack("    stack at that time: ", skip_innermost_n = 1) # skips this lineno and all internal ones
 
     def _playToFrame(self, fnum, from_slider = False):
         #bruce 050428 renamed this from _playFrame, since it plays all frames from current to fnum.
