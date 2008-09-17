@@ -1014,7 +1014,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         current_glselect = (wX,wY,3,3)
         self.o._setup_projection( glselect = current_glselect)
 
-        glSelectBuffer(self.o.glselectBufferSize)
+        glSelectBuffer(self.o.SIZE_FOR_glselectBuffer)
         glRenderMode(GL_SELECT)
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
@@ -1331,7 +1331,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         current_glselect = (wX,wY,3,3)
         self.o._setup_projection( glselect = current_glselect)
 
-        glSelectBuffer(self.o.glselectBufferSize)
+        glSelectBuffer(self.o.SIZE_FOR_glselectBuffer)
         glRenderMode(GL_SELECT)
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
