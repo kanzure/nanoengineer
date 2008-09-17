@@ -196,14 +196,19 @@ class Ui_AbstractFlyout(object):
         """
         Updates the flyout toolbar with the actions this class provides.
         @see: self.activateFlyoutToolbar()
+        @see: CommandToolbar.resetToDefaultState()
+        @see: baseCommand.command_update_flyout()
         """
         if not USE_COMMAND_STACK:
             if not self._isActive:
                 return 
             
             self._isActive = False
+            
+        current_flyout = self.win.commandToolbar._f_current_flyoutToolbar
+        previous_flyout = self.win.commandToolbar._f_previous_flyoutToolbar
         
-        if not self is self.win.commandToolbar._f_current_flyoutToolbar:
+        if self not in (current_flyout, previous_flyout):
             return
         
         

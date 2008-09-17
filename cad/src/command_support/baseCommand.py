@@ -797,7 +797,7 @@ class baseCommand(object):
         @see: command_levels._IGNORE_FLYOUT_LEVELS 
         @see: AbstractFlyout.resetStateOfActions()
         @see: AbstractFlyout.activateFlyoutToolbar()
-        
+        @see: CommandToolbar.resetToDefaultState()
         """        
         if self.flyoutToolbar:
             #activate the flyout toolbar. 
@@ -820,17 +820,18 @@ class baseCommand(object):
                 self.flyoutToolbar.resetStateOfActions()
         else:
             #The flyout toolbar is None. NOTE: self.command_update_flyout is 
-            #only calledfor command stack changes involving commands that 
-            #afffect flyout. Thus, this method is never called for commands whose
+            #only called for command stack changes involving commands that 
+            #affect flyout. Thus, this method is never called for commands whose
             #command_level is in 'ignore list' (such as CL_VIEW_CHANGE)
             #What this all means, is when this 'else' condition (i.e. flyoutToolbar 
             #is None, is reached program needs to reset the flyout toolbar to its
             #default state. i.e. Check the Build Control button and show the 
-            #Build control button menu in the flyout toolbar. 
+            #Build control button menu in the flyout toolbar.                 
             self.win.commandToolbar.resetToDefaultState()               
                 
     def _getFlyoutToolBarActionAndParentCommand(self): #Ninad 2008-09-15
         """
+        Subclasses can override this method.
         Returns text of the action to check in the flyout toolbar and also in 
         some cases, the name of the parentCommand (value is None or the
         command name string) 
@@ -853,6 +854,7 @@ class baseCommand(object):
                 
         @see: self.command_update_flyout()
         @see: self._init_gui_glyout_action()
+        @see: DnaDuplex_Editcommand._getFlyoutToolBarActionAndParentCommand()
         """
         flyoutActionToCheck = ''
         parentCommandName = None        
