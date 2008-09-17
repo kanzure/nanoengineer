@@ -21,6 +21,44 @@ set_AMBER_type(struct atom *a, char *type, struct patternMatch *match)
   }
 }
 
+static char *ANY_MAPPING[] = {
+  "Ca", "C0",
+  "F",  "F",
+  "Cl", "Cl",
+  "Br", "Br",
+  "I",  "I",
+  "Na", "IB",
+  "Mg", "MG",
+  "P",  "P",
+  "Cu", "CU",
+  "Fe", "FE",
+  "Li", "Li",
+  "K",  "K",
+  "Rb", "Rb",
+  "Cs", "Cs",
+  "Zn", "Zn",
+  NULL, NULL
+};
+
+static void
+amber_match_ANY(struct patternMatch *match)
+{
+  struct part *p = match->p;
+  struct atom *a = p->atoms[match->atomIndices[0]];
+  char *t = a->type->symbol;
+  int i;
+
+  i = 0;
+  while (ANY_MAPPING[i] != NULL) {
+    if (!strcmp(t, ANY_MAPPING[i])) {
+      set_AMBER_type(a, ANY_MAPPING[i+1], match);
+      return;
+    }
+    i += 2;
+  }
+}
+
+
 static void
 amber_match_CT_CA_CZ(struct patternMatch *match)
 {
@@ -465,11 +503,44 @@ amber_match_OH_OS_OW(struct patternMatch *match)
   }
 }
 
+static void
+amber_match_SH(struct patternMatch *match)
+{
+  struct part *p = match->p;
+  struct atom *a = p->atoms[match->atomIndices[0]];
+
+  set_AMBER_type(a, "SH", match);
+}
+
+static void
+amber_match_S_1(struct patternMatch *match)
+{
+  struct part *p = match->p;
+  struct atom *a = p->atoms[match->atomIndices[0]];
+
+  set_AMBER_type(a, "S", match);
+}
+
+static void
+amber_match_S_2(struct patternMatch *match)
+{
+  struct part *p = match->p;
+  struct atom *a0 = p->atoms[match->atomIndices[0]];
+  struct atom *a1 = p->atoms[match->atomIndices[0]];
+
+  set_AMBER_type(a0, "S", match);
+  set_AMBER_type(a1, "S", match);
+}
+
 void
 createAMBERPatterns(void)
 {
   struct compiledPatternTraversal *t[15];
   struct compiledPatternAtom *a[15];
+
+  a[0] = makePatternAtom(0, "Elt");
+  t[0] = makeTraversal(a[0], a[0], '1');
+  makePattern("AMBER-ANY", amber_match_ANY, 1, 1, t);
 
   a[0] = makePatternAtom(0, "C");
   t[0] = makeTraversal(a[0], a[0], '1');
@@ -744,4 +815,25 @@ createAMBERPatterns(void)
   t[0] = makeTraversal(a[0], a[1], '1');
   t[1] = makeTraversal(a[0], a[2], '1');
   makePattern("AMBER-OH-OS-OW", amber_match_OH_OS_OW, 3, 2, t);
+
+  a[0] = makePatternAtom(0, "S");
+  a[1] = makePatternAtom(1, "H");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  makePattern("AMBER-SH", amber_match_SH, 2, 1, t);
+
+  a[0] = makePatternAtom(0, "S");
+  a[1] = makePatternAtom(1, "C");
+  a[2] = makePatternAtom(2, "C");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[0], a[2], '1');
+  makePattern("AMBER-S-1", amber_match_S_1, 3, 2, t);
+
+  a[0] = makePatternAtom(0, "S");
+  a[1] = makePatternAtom(1, "S");
+  a[2] = makePatternAtom(2, "Elt");
+  a[3] = makePatternAtom(3, "Elt");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[0], a[2], '1');
+  t[2] = makeTraversal(a[1], a[3], '1');
+  makePattern("AMBER-S-2", amber_match_S_2, 3, 2, t);
 }
