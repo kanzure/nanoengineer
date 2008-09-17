@@ -96,7 +96,7 @@ class ExampleCommand(_superclass):
             if self.PM_class and not self.propMgr:
                 self.propMgr = self.PM_class(self)
             _superclass.init_gui(self) # this fixed the "disconnect without connect" bug 
-            #[when _superclass was selectAtoms_Command anyway]
+            #[when _superclass was SelectAtoms_Command anyway]
                 #k will we need to do this first not last? or not do all of it? seems ok so far.
             if self.propMgr:
                 self.propMgr.show()

@@ -170,7 +170,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
     # == START of Empty Space helper methods ===================================
 
     #& The Empty Space, Atom, Bond and Singlet helper methods should probably be
-    #& moved to selectAtoms_GraphicsMode.  I put them here because I think there is a
+    #& moved to SelectAtoms_GraphicsMode.  I put them here because I think there is a
     #& good chance that we'll allow intermixing of atoms, chunks and jigs
     #&(and other stuff) in any mode. Mark 060220.
 
@@ -276,7 +276,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         @type  obj: instance
         @param event: Left drag mouse event
         @type  event: QMouseEvent instance
-        @see: selectAtoms_GraphicsMode.doObjectSpecificLeftDrag
+        @see: SelectAtoms_GraphicsMode.doObjectSpecificLeftDrag
         @see: self.doObjectSpecificLeftUp, self.objectSetup for comments
         """
         #current object is not clicked but is dragged. Important to set this
@@ -330,7 +330,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         @param a: Instance of class Atom
         @type a: B{Atom}
         @param event: the QMouseEvent.
-        @see: selectAtoms_GraphicsMode.atomLeftDown
+        @see: SelectAtoms_GraphicsMode.atomLeftDown
         """
         self.atomSetup(a, event)
 
@@ -341,7 +341,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         @param a: Instance of class Atom
         @type a: B{Atom}
         @param event: the QMouseEvent.
-        @see: selectAtoms_GraphicsMode.atomLeftUp
+        @see: SelectAtoms_GraphicsMode.atomLeftUp
         """
         pass
 
@@ -441,14 +441,14 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
     def bondDrag(self, obj, event):
         """
         Subclasses should override this method
-        @see: selectAtoms_GraphicsMode.bondDrag
+        @see: SelectAtoms_GraphicsMode.bondDrag
         """
         pass
 
     def bondLeftDouble(self):
         """
         Subclasses should override this method
-        @see: selectAtoms_GraphicsMode.bondLeftDouble
+        @see: SelectAtoms_GraphicsMode.bondLeftDouble
         """
         pass
 

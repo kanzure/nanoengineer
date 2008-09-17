@@ -446,7 +446,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
             #k (is this always desirable? note, a few cases above return
             # early just so they can skip it.)
 
-        return # from selectAtoms_GraphicsMode.leftDown
+        return # from SelectAtoms_GraphicsMode.leftDown
 
     def call_leftClick_method(self, method, obj, event):#bruce 071022 split this
                                                         #out
@@ -646,7 +646,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         # not clear this would be good, so *this* is what I won't do for now.
         #self.o.gl_update() #& Now handled in modkey*() methods. mark 060210.
 
-        return # from selectAtoms_GraphicsMode.leftUp
+        return # from SelectAtoms_GraphicsMode.leftUp
 
     def leftUp_reset_a_few_drag_vars(self):
         """
@@ -982,9 +982,9 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
     def drag_selected_atoms(self, offset):
         # WARNING: this (and quite a few other methods) is probably only called
-        #(ultimately) from event handlers
-        # in selectAtoms_GraphicsMode, and probably uses some attrs of self that only
-        # exist in that mode. [bruce 070412 comment]
+        # (ultimately) from event handlers in SelectAtoms_GraphicsMode,
+        # and probably uses some attrs of self that only exist in that mode.
+        # [bruce 070412 comment]
 
         if self.maybe_use_bc and self.dragatoms and self.bc_in_use is None:
             #bruce 060414 move selatoms optimization (unfinished);
@@ -1784,9 +1784,9 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
     def update_cursor_for_no_MB(self):
         """
-        Update the cursor for 'Select Atoms' mode (selectAtoms_GraphicsMode)
+        Update the cursor for 'Select Atoms' mode (SelectAtoms_GraphicsMode)
         """
-        ## print "selectAtoms_GraphicsMode.update_cursor_for_no_MB(): button=",\
+        ## print "SelectAtoms_GraphicsMode.update_cursor_for_no_MB(): button=",\
         ## self.o.button, ", modkeys=", self.o.modkeys
 
         if self.w.selection_filter_enabled:

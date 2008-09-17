@@ -76,8 +76,8 @@ def enter_example_command(widget, example_command_classname):
 ##            if _superclass is SelectAtoms_Command:
 ##                import commands.Select.selectMode as selectMode
 ##                reload(selectMode)
-##                import commands.SelectAtoms.selectAtoms_Command as selectAtoms_Command
-##                reload(selectAtoms_Command)
+##                import commands.SelectAtoms.SelectAtoms_Command as SelectAtoms_Command
+##                reload(SelectAtoms_Command)
 ##            
 ##            # revised 071010 (glpane == commandSequencer), new code UNTESTED:
 ##            glpane._recreate_nullmode()

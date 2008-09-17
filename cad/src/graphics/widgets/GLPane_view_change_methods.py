@@ -55,7 +55,7 @@ class GLPane_view_change_methods(object):
     # note: is_animating is visible as a public attr of the main class
     is_animating = False # mark 060404
         # Set to True while animating between views in animateToView()
-        # so that update_selobj() in selectAtoms_GraphicsMode will not
+        # so that update_selobj() in SelectAtoms_GraphicsMode will not
         # hover highlight objects under the cursor during that time.
 
     _repaint_duration = MIN_REPAINT_TIME
@@ -325,7 +325,7 @@ class GLPane_view_change_methods(object):
         # animation action while this one is still running.
         self.win.enableViews(False)
 
-        # 'is_animating' is checked in selectAtoms_GraphicsMode.update_selobj() to determine whether the 
+        # 'is_animating' is checked in SelectAtoms_GraphicsMode.update_selobj() to determine whether the 
         # GLPane is currently animating between views.  If True, then update_selobj() will 
         # not select any object under the cursor. mark 060404.
         self.is_animating = True
