@@ -114,7 +114,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
     # class constants
 
-    SIZE_FOR_glselectBuffer = 10000 # guess, probably overkill, seems to work, no other value was tried
+    SIZE_FOR_glSelectBuffer = 10000 # guess, probably overkill, seems to work, no other value was tried
     
     # default values of instance variables:
 

@@ -98,7 +98,7 @@ class ThumbView(GLPane_minimal):
 
     # class constants and/or default values of instance variables [not sure which are which]
 
-    SIZE_FOR_glselectBuffer = 500
+    SIZE_FOR_glSelectBuffer = 500
         # different value from that in GLPane_minimal
         # [I don't know whether this matters -- bruce 071003 comment]
     
@@ -446,7 +446,7 @@ class ThumbView(GLPane_minimal):
         # update [bruce 070402 comment]:
         # sharing that code would now be a bit more complicated (but is still desirable),
         # since GLPane.rescale_around_point is now best called by basicMode.rescale_around_point_re_user_prefs.
-        # The real lesson is that even ThumbViews ought to use some kind of "edit mode" (like full-fledged modes,
+        # The real lesson is that even ThumbViews ought to use some kind of "graphicsMode" (like full-fledged modes,
         # even if some aspects of them would not be used), to handle mouse bindings. But this is likely to be
         # nontrivial since full-fledged modes might have extra behavior that's inappropriate but hard to
         # turn off. So if we decide to make ThumbView zoom compatible with that of the main graphics area,
@@ -454,11 +454,18 @@ class ThumbView(GLPane_minimal):
         # into this class.
         
         dScale = 1.0/1200.0
-        if modifiers & Qt.ShiftModifier: dScale *= 0.5
-        if modifiers & Qt.ControlModifier: dScale *= 2.0
+        if modifiers & Qt.ShiftModifier:
+            dScale *= 0.5
+        if modifiers & Qt.ControlModifier:
+            dScale *= 2.0
         self.scale *= 1.0 + dScale * event.delta()
-            ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
-            ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
+            ### BUG: The scale variable needs to set a limit; otherwise, it will
+            # set self.near = self.far = 0.0 because of machine precision,
+            # which will cause OpenGL Error. [Huaicai 10/18/04]
+            # NOTE: this bug may have been fixed in other defs of wheelEvent.
+            # TODO: review, and fix it here too (or, better, use common code).
+            # See also the longer comment above in this method.
+            # [bruce 080917 addendum]
         self.updateGL()
         return
 
@@ -506,16 +513,18 @@ class ThumbView(GLPane_minimal):
         """
         Use the OpenGL picking/selection to select any object. Return the
         selected object, otherwise, return None. Restore projection and 
-        model/view matrices before returning.
+        modelview matrices before returning.
         """
-        ####@@@@ WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
-        # in at least three other places (search for glRenderMode to find them). This is bad; common code
-        # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
-        # that should be fixed too. [bruce 060721 comment]
+        ### NOTE: this code is similar to (and was copied and modified from)
+        # GLPane_highlighting_methods.do_glselect_if_wanted, but also differs
+        # in significant ways (too much to make it worth merging, unless we
+        # decide to merge the differing algorithms as well). It's one of
+        # several instances of hit-test code that calls glRenderMode.
+        # [bruce 060721/080917 comment]
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         gz = wZ[0][0]
         
-        if gz >= GL_FAR_Z: ##Empty space was clicked
+        if gz >= GL_FAR_Z: # Empty space was clicked
             return None
         
         pxyz = A(gluUnProject(wX, wY, gz))
@@ -532,37 +541,45 @@ class ThumbView(GLPane_minimal):
             # and made the scale unreasonable? (To mitigate, we should prevent
             # those from doing anything unless we have a valid model, and also
             # reset that scale when loading a new model (latter is probably
-            # already done, but I didn't check).) [bruce 080220 comment]
+            # already done, but I didn't check). See also the comments
+            # in def wheelEvent.) [bruce 080220 comment]
         dp = - dot(pxyz, pn)
         
-        #Save projection matrix before it's changed.
+        # Save projection matrix before it's changed.
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         
         current_glselect = (wX, wY, 1, 1) 
         self._setup_projection(glselect = current_glselect) 
         
-        glSelectBuffer(self.SIZE_FOR_glselectBuffer)
+        glSelectBuffer(self.SIZE_FOR_glSelectBuffer)
         glRenderMode(GL_SELECT)
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
         # Save model view matrix before it's changed.
         glPushMatrix()
+
+        # Draw model using glRenderMode(GL_SELECT) as set up above 
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
             self.drawModel()
-            glDisable(GL_CLIP_PLANE0)
         except:
-            print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+            #bruce 080917 fixed predicted bugs in this except clause (untested)
+            print_compact_traceback("exception in ThumbView.drawModel() during GL_SELECT; ignored; restoring matrices: ")
+            glDisable(GL_CLIP_PLANE0)
+            glMatrixMode(GL_PROJECTION)
+            glPopMatrix()
+            glMatrixMode(GL_MODELVIEW)
             glPopMatrix()
             glRenderMode(GL_RENDER)
             return None
         else:
+            glDisable(GL_CLIP_PLANE0)
             # Restore model/view matrix
             glPopMatrix()
         
-        #Restore project matrix and set matrix mode to Model/View
+        # Restore projection matrix and set matrix mode to Model/View
         glMatrixMode(GL_PROJECTION)
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
@@ -570,15 +587,19 @@ class ThumbView(GLPane_minimal):
         glFlush()
         
         hit_records = list(glRenderMode(GL_RENDER))
-        if debug_flags.atom_debug and 0:
-            print "%d hits" % len(hit_records)
-        for (near, far, names) in hit_records: # see example code, renderpass.py
-            if debug_flags.atom_debug and 0:
-                print "hit record: near, far, names:", near, far, names
-                # e.g. hit record: near, far, names: 1439181696 1453030144 (1638426L,)
-                # which proves that near/far are too far apart to give actual depth,
-                # in spite of the 1-pixel drawing window (presumably they're vertices
-                # taken from unclipped primitives, not clipped ones).
+        ## print "%d hits" % len(hit_records)
+        for (near, far, names) in hit_records:
+            ## print "hit record: near, far, names:", near, far, names
+            # note from testing: near/far are too far apart to give actual depth,
+            # in spite of the 1-pixel drawing window (presumably they're vertices
+            # taken from unclipped primitives, not clipped ones).
+            ### REVIEW: this just returns the first candidate object found.
+            # The clip plane may restrict the set of candidates well enough to
+            # make sure that's the right one, but this is untested and unreviewed.
+            # (And it's just my guess that that was Huaicai's intention in
+            #  setting up clipping, since it's not documented. I'm guessing that
+            #  the plane is just behind the hitpoint, but haven't confirmed this.)
+            # [bruce 080917 comment]
             if names:
                 name = names[-1]
                 assy = self.assy

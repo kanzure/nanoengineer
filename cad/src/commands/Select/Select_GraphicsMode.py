@@ -964,19 +964,25 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         should override this method as needed.
 
         @see: selectAtoms_GraphicsMode.update_selatom for documentation.
-        #see; selectMode.get_obj_under_cursor
+        @see: selectMode.get_obj_under_cursor
         """
         # REVIEW: are any of the calls to this in selectMode methods,
         # which do nothing except in subclasses of selectAtoms_GraphicsMode,
         # indications that the code they're in doesn't make sense except
         # in such subclasses? [bruce 071025 question]
-
+        
         #I am not sure what you mean above. Assuming you meant: Is there a
         #method in this class selectMode, that calls this method
         # (i.e. calls selectMode.update_selatom)
         #Yes, there is a method self.selectMode.get_obj_under_cursor that calls
         #this method and thats why I kept a default implemetation that does
         #nothing -- Ninad 2007-11-16
+
+        # No, I meant: is the fact that that call (for example) does nothing
+        # (when not using a subclass of SelectAtoms_GraphicsMode)
+        # a sign that some refactoring is desirable, which would (among
+        # other effects) end up moving all calls of update_selatom into
+        # subclasses of SelectAtoms* classes? [bruce 080917 reply]
         pass
 
     def get_jig_under_cursor(self, event):
@@ -992,6 +998,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # called more than once per frame;
         # that should be fixed too. [bruce 060721 comment]
 
+        # BUG: both methods like this in this class are wrong when left/right stereo is enabled.
+        # The best fix would be to remove them completely, if possible,
+        # since I doubt they should ever have existed at all,
+        # since general highlighting handles jigs. [bruce 080917 comment]
+
         if not self.o.jigSelectionEnabled:
             return None
 
@@ -1004,37 +1015,42 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
         pxyz = A(gluUnProject(wX, wY, gz))
         pn = self.o.out
-        pxyz -= 0.0002*pn
+        pxyz -= 0.0002 * pn
         dp = - dot(pxyz, pn)
 
         # Save project matrix before it's changed
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
 
-        current_glselect = (wX,wY,3,3)
+        current_glselect = (wX, wY, 3, 3)
         self.o._setup_projection( glselect = current_glselect)
 
-        glSelectBuffer(self.o.SIZE_FOR_glselectBuffer)
+        glSelectBuffer(self.o.SIZE_FOR_glSelectBuffer)
         glRenderMode(GL_SELECT)
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()  ## Save model/view matrix before it's changed
+        glPushMatrix()  # Save modelview matrix before it's changed
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
             self.o.assy.draw(self.o)
-            self.Draw_after_highlighting(pickCheckOnly=True)
+            self.Draw_after_highlighting(pickCheckOnly = True)
             glDisable(GL_CLIP_PLANE0)
         except:
+            # BUG: this except clause looks wrong. It doesn't return,
+            # therefore it results in two calls of glRenderMode(GL_RENDER).
+            # [bruce 080917 comment]
+            
             # Restore Model view matrix, select mode to render mode
+            msg = "exception in mode.Draw_after_highlighting() during GL_SELECT; ignored; restoring modelview matrix: "
+            print_compact_traceback(msg + ": ")
             glPopMatrix()
             glRenderMode(GL_RENDER)
-            print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
         else:
             # Restore Model view matrix
             glPopMatrix()
 
-        # Restore project matrix and set matrix mode to Model/View
+        # Restore project matrix and set matrix mode to ModelView
         glMatrixMode(GL_PROJECTION)
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
@@ -1042,23 +1058,15 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         glFlush()
 
         hit_records = list(glRenderMode(GL_RENDER))
-        if debug_flags.atom_debug and 0:
-            print "%d hits" % len(hit_records)
         for (near,far,names) in hit_records: # see example code, renderpass.py
             if debug_flags.atom_debug and 0:
                 print "hit record: near,far,names:",near,far,names
-                # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
-                # which proves that near/far are too far apart to give actual depth,
-                # in spite of the 1-pixel drawing window (presumably they're vertices
-                # taken from unclipped primitives, not clipped ones).
             if 1:
                 # partial workaround for bug 1527. This can be removed once that bug (in drawer.py)
                 # is properly fixed. This exists in two places -- GLPane.py and modes.py. [bruce 060217]
                 if names and names[-1] == 0:
                     print "%d(m) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
                     names = names[:-1]
-##                    if names:
-##                        print " new last element maps to %r" % env.obj_with_glselect_name.get(names[-1])
             if names:
                 obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                 #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
@@ -1066,7 +1074,8 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                     return obj
         return None # from get_jig_under_cursor
 
-
+    # ==
+    
     #bruce 060414 move selatoms optimization (won't be enabled by default in A7)
     # (very important for dragging atomsets that are part of big chunks but not
     # all of them)
@@ -1312,6 +1321,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
         # that should be fixed too. [bruce 060721 comment]
 
+        # BUG: both methods like this in this class are wrong when left/right stereo is enabled.
+        # The best fix would be to remove them completely, if possible,
+        # since I doubt they should ever have existed at all,
+        # since general highlighting handles jigs. [bruce 080917 comment]
+
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
 
@@ -1331,7 +1345,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         current_glselect = (wX,wY,3,3)
         self.o._setup_projection( glselect = current_glselect)
 
-        glSelectBuffer(self.o.SIZE_FOR_glselectBuffer)
+        glSelectBuffer(self.o.SIZE_FOR_glSelectBuffer)
         glRenderMode(GL_SELECT)
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
@@ -1362,20 +1376,12 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         if debug_flags.atom_debug and 0:
             print "%d hits" % len(hit_records)
         for (near,far,names) in hit_records: # see example code, renderpass.py
-            if debug_flags.atom_debug and 0:
-                print "hit record: near,far,names:",near,far,names
-                # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
-                # which proves that near/far are too far apart to give actual depth,
-                # in spite of the 1-pixel drawing window (presumably they're vertices
-                # taken from unclipped primitives, not clipped ones).
             if 1:
                 # partial workaround for bug 1527. This can be removed once that bug (in drawer.py)
                 # is properly fixed. This exists in two places -- GLPane.py and modes.py. [bruce 060217]
                 if names and names[-1] == 0:
                     print "%d(m) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
                     names = names[:-1]
-##                    if names:
-##                        print " new last element maps to %r" % env.obj_with_glselect_name.get(names[-1])
             if names:
                 obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                 #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
@@ -1396,12 +1402,13 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
     def toggleJigSelection(self):
         self.o.jigSelectionEnabled = not self.o.jigSelectionEnabled
 
+    pass # end of class Select_basicGraphicsMode
 
+# ==
 
 class Select_GraphicsMode(Select_basicGraphicsMode):
     """
     """
-
     # Imitate the init and property code in GraphicsMode, but don't inherit it.
     # (Remember to replace all the occurrences of its superclass with our own.)
     # (When this is later merged with its superclass, most of this can go away
@@ -1412,7 +1419,6 @@ class Select_GraphicsMode(Select_basicGraphicsMode):
     #  At least we'd probably still need this __init__ method.
     #  If this pattern works, then in *our* subclasses we'd instead post-inherit
     #  this class, Select_GraphicsMode.)
-
 
     def __init__(self, command):
         self.command = command
@@ -1432,5 +1438,9 @@ class Select_GraphicsMode(Select_basicGraphicsMode):
     def set_cmdname(self, name):
         self.command.set_cmdname(name)
         return
+
+    pass
+
+# end
 
     

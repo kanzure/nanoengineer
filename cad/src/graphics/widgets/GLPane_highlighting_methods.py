@@ -2,6 +2,7 @@
 """
 GLPane_highlighting_methods.py - highlight drawing and hit-detection
 
+@author: Bruce
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -53,9 +54,8 @@ class GLPane_highlighting_methods(object):
     (mostly or entirely called from its other mixin GLPane_rendering_methods,
      rather than directly from methods defined in class GLPane)
     """
-    
     # default values for instance variables related to glSelectBuffer feature [bruce 050608]
-    # [note, SIZE_FOR_glselectBuffer is also part of this set, but is now defined in GLPane_minimal.py]
+    # [note, SIZE_FOR_glSelectBuffer is also part of this set, but is now defined in GLPane_minimal.py]
     glselect_wanted = 0 # whether the next paintGL should start with a glSelectBuffer call [bruce 050608]
     current_glselect = False # [bruce 050616] False, or a 4-tuple of parameters for GL_SELECT rendering
         ### TODO: document this better
@@ -93,27 +93,25 @@ class GLPane_highlighting_methods(object):
                 # projection matrix is setup. I'm not sure if there may
                 # be any side effects - see the comment below about
                 # possible optimization.
-            glSelectBuffer(self.SIZE_FOR_glselectBuffer)
+            glSelectBuffer(self.SIZE_FOR_glSelectBuffer)
             glRenderMode(GL_SELECT)
             glInitNames()
-            ## glPushName(0) # this would be ignored if not in GL_SELECT mode, so do it after we enter that! [no longer needed]
             glMatrixMode(GL_MODELVIEW)
 
+            # REVIEW: should we also set up a clipping plane just behind the
+            # hit point, as (I think) is done in ThumbView, to reduce the
+            # number of candidate objects? This might be a significant
+            # optimization, though I don't think it eliminates the chance
+            # of having multiple candidates. [bruce 080917 comment]
+            
             try:
                 self.drawing_phase = 'glselect' #bruce 070124
-
                 for stereo_image in self.stereo_images_to_draw:
                     self._enable_stereo(stereo_image)
-
                     self.graphicsMode.Draw()
-                        # OPTIM: should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
-                        # Note: this might call some display lists which, when created, registered namestack names,
-                        # so we need to still know those names!
-
                     self._disable_stereo()
-
             except:
-                print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+                print_compact_traceback("exception in graphicsMode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                 # now it's important to continue, at least enough to restore other gl state
@@ -139,7 +137,7 @@ class GLPane_highlighting_methods(object):
                 ## print "hit record: near, far, names:", near, far, names
                     # e.g. hit record: near, far, names: 1439181696 1453030144 (1638426L,)
                     # which proves that near/far are too far apart to give actual depth,
-                    # in spite of the 1-pixel drawing window (presumably they're vertices
+                    # in spite of the 1- or 3-pixel drawing window (presumably they're vertices
                     # taken from unclipped primitives, not clipped ones).
                 if 1:
                     # partial workaround for bug 1527. This can be removed once that bug (in drawer.py)
@@ -147,16 +145,24 @@ class GLPane_highlighting_methods(object):
                     if names and names[-1] == 0:
                         print "%d(g) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
                         names = names[:-1]
-##                        if names:
-##                            print " new last element maps to %r" % self.object_for_glselect_name(names[-1])
                 if names:
-                    # for now, len is always 0 or 1, i think; if not, best to use only the last element...
-                    # tho if we ever support "name/subname paths" we'll probably let first name interpret the remaining ones.
-                    ###e in fact, when nodes change projection or viewport for kids, and/or share their kids, they need to
-                    # put their own names on the stack, so we'll know how to redraw the kids, or which ones are meant when shared.
-                    if debug_flags.atom_debug and len(names) > 1: ###@@@ bruce 060725
+                    # For now, we only use the last element of names,
+                    # though (as of long before 080917) it is often longer:
+                    # - some code pushes the same name twice (directly and
+                    #   via ColorSorter) (see 060725 debug print below);
+                    # - chunks push a name even when they draw atoms/bonds
+                    #   which push their own names (see 080411 comment below).
+                    #
+                    # Someday: if we ever support "name/subname paths" we'll
+                    # probably let first name interpret the remaining ones.
+                    # In fact, if nodes change projection or viewport for
+                    # their kids, and/or share their kids, they'd need to
+                    # push their own names on the stack, so we'd know how
+                    # to redraw the kids, or which ones are meant when they
+                    # are shared.
+                    if debug_flags.atom_debug and len(names) > 1: # bruce 060725
                         if len(names) == 2 and names[0] == names[1]:
-                            if not env.seen_before("dual-names bug"): # this happens for Atoms, don't know why (colorsorter bug??)
+                            if not env.seen_before("dual-names bug"): # this happens for Atoms (colorsorter bug??)
                                 print "debug (once-per-session message): why are some glnames duplicated on the namestack?", names
                         else:
                             # Note: as of sometime before 080411, this became common --
@@ -175,10 +181,10 @@ class GLPane_highlighting_methods(object):
                                 print "debug fyi: len(names) == %d (names = %r)" % (len(names), names)
                     obj = self.object_for_glselect_name(names[-1]) #k should always return an obj
                     if obj is None:
-                        print "bug: obj_with_glselect_name returns None for name %r at end of namestack %r" % (names[-1],names)
+                        print "bug: obj_with_glselect_name returns None for name %r at end of namestack %r" % (names[-1], names)
                     self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
             #e maybe we should now sort glselect_dict by "hit priority" (for depth-tiebreaking), or at least put selobj first.
-            # (or this could be done lower down, where it's used.)
+            # (or this could be done lower down, where it's used.) [I think we do this now...]
 
         return # from do_glselect_if_wanted
 
