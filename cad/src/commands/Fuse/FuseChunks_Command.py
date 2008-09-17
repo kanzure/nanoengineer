@@ -61,6 +61,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
     # class constants
     PM_class = FusePropertyManager
     GraphicsMode_class = FuseChunks_GraphicsMode
+    FlyoutToolbar_class = FuseFlyout
     
     commandName = 'FUSECHUNKS'
     featurename = "Fuse Chunks Mode"

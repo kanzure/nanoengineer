@@ -23,6 +23,8 @@ class LinearMotor_EditCommand(Motor_EditCommand):
     The editCommand, depending on what client code needs it to do, may create
     a new linear motor or it may be used for an existing linear motor. 
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported.
     
     PM_class = LinearMotorPropertyManager    
     cmd = greenmsg("Linear Motor: ")  

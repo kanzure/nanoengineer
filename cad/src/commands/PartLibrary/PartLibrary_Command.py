@@ -43,12 +43,21 @@ class PartLibrary_Command(PasteFromClipboard_Command):
     of an existing model.  User can return to previous mode by hitting  'Escape' 
     key or pressing 'Done' button in this mode. 
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported.
+    
     commandName = 'PARTLIB'
     featurename = "Part Library"
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
     
     GraphicsMode_class = PartLibrary_GraphicsMode
+    
+    #Property Manager
+    PM_class = PartLibPropertyManager
+    
+    #Flyout Toolbar
+    FlyoutToolbar_class = PartLibraryFlyout
 
     def _createFlyoutToolBarObject(self):
         """
