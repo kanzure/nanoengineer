@@ -21,6 +21,7 @@ from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 #debug flag to keep signals always connected
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class EditCommand_PM(PM_Dialog):
     """
@@ -88,10 +89,12 @@ class EditCommand_PM(PM_Dialog):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
         """
-        #First exit temporary modes (e.g. Pan mode) if any.
-        currentCommand = self.win.commandSequencer.currentCommand
-        if not currentCommand.command_has_its_own_PM:
-            currentCommand.Done()
+        
+        if not USE_COMMAND_STACK:
+            #First exit temporary modes (e.g. Pan mode) if any.
+            currentCommand = self.win.commandSequencer.currentCommand
+            if not currentCommand.command_has_its_own_PM:
+                currentCommand.Done()
             
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(False)
