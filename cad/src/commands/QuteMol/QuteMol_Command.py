@@ -16,9 +16,12 @@ from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from commands.QuteMol.QuteMolPropertyManager import QuteMolPropertyManager
 
-
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 _superclass = SelectChunks_Command
 class QuteMol_Command(SelectChunks_Command):
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported.
 
     commandName = 'QUTEMOL'
     featurename = "QuteMol"
@@ -26,34 +29,41 @@ class QuteMol_Command(SelectChunks_Command):
     command_level = CL_EXTERNAL_ACTION
     
     GraphicsMode_class = SelectChunks_GraphicsMode
+    
+    PM_class = QuteMolPropertyManager
 
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
 
     flyoutToolbar = None
+    
+    
+    
+    
+    if not USE_COMMAND_STACK:
 
-    def init_gui(self):
-        """
-        Initialize GUI for this mode 
-        """
-        if self.propMgr is None:
-            self.propMgr = QuteMolPropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
-            changes.keep_forever(self.propMgr)  
-
-        self.propMgr.show()
-
-
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-
-        if self.propMgr is not None:
-            self.propMgr.close()
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
+            if self.propMgr is None:
+                self.propMgr = QuteMolPropertyManager(self)
+                #@bug BUG: following is a workaround for bug 2494.
+                #This bug is mitigated as propMgr object no longer gets recreated
+                #for modes -- niand 2007-08-29
+                changes.keep_forever(self.propMgr)  
+    
+            self.propMgr.show()
+    
+    
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+    
+            if self.propMgr is not None:
+                self.propMgr.close()
 
 
             
