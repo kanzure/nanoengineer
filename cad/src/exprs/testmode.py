@@ -412,8 +412,6 @@ class testmode(_superclass_C):
         ## superclass.makeMenus(self) # this makes standard items for selobj if it's atom or bond or Highlightable, and a few more
         
         self.Menu_spec = []
-
-        ditch_generic = False #bruce 070228
         
         # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> here and in selectMode -- mark & bruce 060705]
         # WARNING: This code is duplicated in depositMode.makeMenus(). mark 060314.
@@ -422,36 +420,13 @@ class testmode(_superclass_C):
             self.Menu_spec.append(( 'Adjust atom %s' % selatom, lambda e1 = None, a = selatom: self.localmin(a,0) ))
             self.Menu_spec.append(( 'Adjust 1 layer', lambda e1 = None, a = selatom: self.localmin(a,1) ))
             self.Menu_spec.append(( 'Adjust 2 layers', lambda e1 = None, a = selatom: self.localmin(a,2) ))
-            ditch_generic = True #bruce 070228
             
         # selobj-specific menu items. [revised by bruce 060405; for more info see the same code in depositMode]
         if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
             try:
                 selobj.make_selobj_cmenu_items(self.Menu_spec)
-                ditch_generic = True #bruce 070228
             except:
                 print_compact_traceback("bug: exception (ignored) in make_selobj_cmenu_items for %r: " % selobj)
-
-        if not ditch_generic: #bruce 070228 added this cond; ###BUG: we still have a "Web help: test mode" added by something!
-        
-            # separator and other mode menu items.
-            if self.Menu_spec:
-                self.Menu_spec.append(None)
-            
-            # Enable/Disable Jig Selection.
-            # This is duplicated in depositMode.makeMenus() 
-            #and SelectChunks_Command.makeMenus().
-            if self.o.jigSelectionEnabled:
-                self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'checked')])
-            else:
-                self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'unchecked')])
-                
-            self.Menu_spec.extend( [
-                # mark 060303. added the following:
-                None,
-                ('Edit Color Scheme...', self.w.colorSchemeCommand),
-                ])
-            pass
 
         return # from makeMenus
 

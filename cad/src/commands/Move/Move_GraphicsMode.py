@@ -267,10 +267,11 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         self.picking = False
 
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y(), 0.0)
+                       self.o.MousePos[1] - event.pos().y(),
+                       0.0)
         self.dragdist += vlen(deltaMouse)
 
-        if self.dragdist<7:
+        if self.dragdist < 7:
             # didn't move much, call it a click
             has_jig_selected = False
             if self.o.jigSelectionEnabled and self.jigGLSelect(event, selSense):

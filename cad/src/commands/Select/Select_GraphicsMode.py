@@ -597,7 +597,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
         selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, 0.01)
 
-        if self.selCurve_length/self.o.scale < 0.03:
+        if self.selCurve_length / self.o.scale < 0.03:
             # didn't move much, call it a click
             #bruce 060331 comment: the behavior here is related to what it is
             # when we actually just click,
@@ -609,8 +609,8 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             # in different files). It's not clear to me (reviewing this code)
             # whether the behavior should be (or is) identical;
             # whether or not it's identical, it would be better if common code
-            # was used, to the extentthat the behavior in these two
-            #circumstances is supposed to be related.
+            # was used, to the extent that the behavior in these two
+            # circumstances is supposed to be related.
             has_jig_selected = False
 
             if self.o.jigSelectionEnabled and self.jigGLSelect(event,

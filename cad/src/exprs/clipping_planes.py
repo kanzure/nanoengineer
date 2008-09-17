@@ -1,8 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 clipping_planes.py -- support OpenGL clipping planes.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 from OpenGL.GL import glEnable
 from OpenGL.GL import glClipPlane
@@ -11,7 +13,6 @@ from OpenGL.GL import GL_CLIP_PLANE1
 from OpenGL.GL import GL_CLIP_PLANE2
 from OpenGL.GL import GL_CLIP_PLANE3
 from OpenGL.GL import GL_CLIP_PLANE4
-from OpenGL.GL import GL_CLIP_PLANE5
 
 from geometry.VQT import V
 
@@ -22,7 +23,10 @@ from exprs.instance_helpers import InstanceOrExpr
 from exprs.__Symbols__ import Anything
 
 def clip_below_y0(y0): #070322 #e refile #e someday make it return a smarter object (ClippingPlane) than just a 4-tuple or Numeric array
-    "return a 4-coefficient OpenGL clipping plane (red book p.144) which displays the half-space defined by y >= y0."
+    """
+    return a 4-coefficient OpenGL clipping plane (red book p.144)
+    which displays the half-space defined by y >= y0.
+    """
     # Return V(A,B,C,D) where Ax + By + Cz + D >= 0 defines the visible volume.
     # In this case we want y - y0 >= 0 to be visible.
     y0 = float(y0)
@@ -31,7 +35,10 @@ def clip_below_y0(y0): #070322 #e refile #e someday make it return a smarter obj
     return V(0,1,0,-y0)
 
 def clip_to_right_of_x0(x0):
-    "return a 4-coefficient OpenGL clipping plane (red book p.144) which displays the half-space defined by x <= x0."
+    """
+    return a 4-coefficient OpenGL clipping plane (red book p.144)
+    which displays the half-space defined by x <= x0.
+    """
     # We want x <= x0 to be visible, i.e. x - x0 <= 0, or -x + x0 >= 0.
     x0 = float(x0)
     return V(-1,0,0,+x0)
@@ -42,12 +49,13 @@ ClippingPlane = Anything # stub
 # in which we should allocate them for our own use. They're in backwards order in this table,
 # since other code (in cad/src) tends to use lower numbered planes first, though only plane 0 is
 # excluded completely, since only it appears to be used incompatibly (modes.py sometimes enables it
-# while drawing the entire model, in jigGLSelect, for motivations that are not clear to me).
-# If we ever use this code inside class ThumbView, we'll need to exclude plane 1 as well, as class
-# ThumbView is currently written. [070322; policy subject to revision]
+# while drawing the entire model, in jigGLSelect, for motivations that are not clear to me
+# [later, 080917: probably to make GL_SELECT more likely to return only the correct object,
+#  which matters since it uses the first one rather than figuring out which one to use]).
+# [070322; policy subject to revision]
 
 GL_CLIP_PLANE_table = (
-    GL_CLIP_PLANE5,
+    ## GL_CLIP_PLANE5, # update: now used in stereo mode, so exclude it here. [bruce 080917] UNTESTED
     GL_CLIP_PLANE4,
     GL_CLIP_PLANE3,
     GL_CLIP_PLANE2,
@@ -56,14 +64,18 @@ GL_CLIP_PLANE_table = (
  )
 
 class Clipped(InstanceOrExpr):
-    "#doc"
+    """
+    #doc
+    """
     # note: we're not delegating anything.
     # e.g. the best lbox attrs for this are specified by the caller and relate to the planes passed to us.
     thing = Arg(Widget2D)
     planes = ArgOrOption(list_Expr(ClippingPlane))
     def draw(self):
         planes = self.planes
-        assert len(planes) <= len(GL_CLIP_PLANE_table), "no more than %d clipping planes are permitted" % len(GL_CLIP_PLANE_table)
+        assert len(planes) <= len(GL_CLIP_PLANE_table), \
+               "no more than %d clipping planes are permitted" % \
+               len(GL_CLIP_PLANE_table)
             # even if your OpenGL driver supports more -- no sense writing an expr that not everyone can draw!
             #    WARNING: this ignores the issue of nested Clipped constructs!
             # In fact, it assumes nothing in thing or above self uses any clipping planes.
