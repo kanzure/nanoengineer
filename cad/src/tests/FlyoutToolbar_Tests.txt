@@ -1,0 +1,87 @@
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+Manual tests for Flyout Toolbar.  Flyout Toolbar is the big toolbar on the 
+right hand side of the 'Command Toolbar' It either displays custom actions 
+while in a command or displays the menu of the 'Control buttons' on the 
+left hand portion of the Command Toolbar. 
+
+@author: Ninad
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@version:$Id$
+
+@see: CommandToolbar.py
+"""
+
+#These test procedures were written on 2008-09-17 , to test the 
+#flyout toolbar updates in the new command API (command API enabled using 
+#USE_COMMAND_STACK flag as of 2008-09-16) 
+
+
+Test 1: 
+
+1. Enter Build Dna
+-- it should show Build Dna flyout 
+
+
+Test 2: 
+
+1. Do test 1
+2. Click Insert Dna 
+-- It should enter Insert Dna command and also check the Insert Dna action 
+
+
+Test 3: 
+
+1. Do test 2
+2. Hit Done Button to exit Insert Dna 
+-- It should restore the BuildDna flyout with all actions (except ExitDna) unchecked. 
+
+Test  4:
+
+Do test 3, but this time, just click on Insert Dna to exit that subcommand
+
+Test 5: 
+
+1. Do Test 2
+2. Click on 'Move' control button 
+-- Move control button flyout appears  (repalcing the Dna flyout) 
+3. Hit Done to exit the Insert Dna command 
+-- It should restore the BuildDna flyout 
+
+
+Test 6: 
+
+1. Do Test 2
+2. Hit Zoom to invoke Zoom command 
+-- Flyout toolbar shouldn’t change 
+
+Test 7:
+1. Do Test 6
+2. Exit zoom command 
+-- flyout toolbar should be unaffected. 
+
+
+Test 8:
+
+1. Click Move > Translate from the flyout
+2. Now click on the 'Tools' control button in the flyout
+-- the Flyout area should show the tools control button menu 
+
+Test 9:
+1. Do Test 8
+2. Hit 'Done' from the confirmation corner to exit the Move (translate) command
+-- When program returns to the Default mode (SelectChunks_Command) the flyout toolbar 
+should show the Build control button menu (and Build control button should be 
+checked which is the default state) 
+
+
+Test 10:
+1. Do Test 9
+2. Now click on 'Move' control button 
+--- The flyout toolbar should show the Move Control button menu and 
+NOT the 'Move flyout toolbar' which has, actions that you will see when you 
+exited the Move command.  (remember you are repeating Tests 8 and 9 before 
+doing procedure in Test 10) 
+
+
+
