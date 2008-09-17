@@ -2,6 +2,11 @@
 """
 PM_FontComboBox.py
 
+@author: Derrick
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  All rights reserved.
+
+
 """
 
 from PyQt4.Qt import QFontComboBox
