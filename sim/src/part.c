@@ -224,6 +224,26 @@ addBondToAtom(struct bond *b, struct atom *a)
     a->bonds[a->num_bonds - 1] = b;
 }
 
+// return the n'th atom which is bonded to a, or NULL
+struct atom *
+getBondedAtom(struct atom *a, int n)
+{
+    struct bond *b;
+    
+    if (a == NULL || n < 0 || a->num_bonds <= n) {
+        return NULL;
+    }
+    b = a->bonds[n];
+    if (b->a1 == a) {
+        return b->a2;
+    }
+    if (b->a2 == a) {
+        return b->a1;
+    }
+    fprintf(stderr, "getBondedAtom(): malformed bond\n");
+    return NULL;
+}
+
 // Fill in the bend data structure for a bend centered on the given
 // atom.  The two bonds that make up the bend are indexed in the
 // center atom's bond array.

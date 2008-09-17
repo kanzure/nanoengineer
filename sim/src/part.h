@@ -472,6 +472,8 @@ extern struct part *makePart(char *filename, int (*parseError)(void *), void *st
 
 extern void destroyPart(struct part *p);
 
+extern struct atom *getBondedAtom(struct atom *a, int n);
+
 extern struct part *endPart(struct part *p);
 
 extern void initializePart(struct part *p, int needVDW);

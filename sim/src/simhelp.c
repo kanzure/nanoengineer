@@ -321,6 +321,7 @@ pyrexInitBondTable(void)
     return finish_python_call(Py_None);
 }
 
+/*
 static PyObject *
 dumpPart(void)
 {
@@ -328,6 +329,7 @@ dumpPart(void)
     printPart(stdout, part);
     return finish_python_call(Py_None);
 }
+*/
 
 static PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
