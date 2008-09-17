@@ -18,7 +18,8 @@ doesn't go down at first.  Eventually, something in the graphics card becomes
 the bottleneck.  These tests were done as a series of explorations into finding
 and avoiding those bottlenecks.
 
-To turn it on, enable TEST_DRAWING at the start of graphics/widgets/GLPane.py .
+To turn it on, enable TEST_DRAWING at the start of
+graphics/widgets/GLPane_rendering_methods.py .
 """
 
 # Which rendering mode: 1, 2, 3, 3.1, 3.2, 3.3, 3.4, 4, 5, 6, 7, 8
