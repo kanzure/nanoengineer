@@ -379,7 +379,6 @@ packageMapping_for_files = {
     "ExecSubDir"                       : "top_level",
     "extrudeMode"                      : "unsplit_mode|commands/Extrude",
     "ExtrudePropertyManager"           : "ui/propmgr|commands/Extrude",
-    "fileIO"                           : "graphics_io|graphics/rendering", # should be split into files_mdl and files_povray
     "files_gms"                        : "io|GAMESS", 
     "files_mmp"                        : "io|files/mmp", # along with a sibling doc file, files_mmp_format_version.txt
     "files_mmp_registration"           : "foundation|files/mmp",
@@ -800,7 +799,6 @@ packageGroupMapping = {
 needs_renaming_for_clarity = { # just suggestions, not yet discussed/decided
     "bond_utils" : "bond_menu_helpers",
     "cursors"    : "load_custom_cursors?",
-    "fileIO"     : "povray/files_povray and mdl/files_mdl (split it)", # also needs_refactoring
     "GROMACS"    : "GROMACS_demo?", # temporary demo of atomic-level-DNA GROMACS simulation (maybe for outtakes?)
     "help"       : "Ne1HelpDialog or HelpDialog",
     "HelpDialog" : "Ui_HelpDialog",
@@ -826,7 +824,6 @@ needs_renaming_for_clarity = { # just suggestions, not yet discussed/decided
  }
 
 needs_refactoring = [
-    "fileIO", # needs splitting in two, each part renamed; exports writepovfile, writemdlfile
     "GLPane", # needs splitting into several classes, some for general use and some for "main graphics area"
         # (also needs to not be the same object as the CommandSequencer)
     "HistoryWidget", # needs split into a few cooperating objects (archive, widget, io, storage ops)

@@ -23,7 +23,7 @@ import foundation.env as env
 from foundation.Utility import SimpleCopyMixin, Node
 from utilities.icon_utilities import imagename_to_pixmap
 from graphics.rendering.povray.povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
-from graphics.rendering.fileIO import writepovfile
+from graphics.rendering.povray.writepovfile import writepovfile
 from utilities.Log import redmsg, orangemsg, greenmsg, _graymsg
 from utilities import debug_flags
 from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir

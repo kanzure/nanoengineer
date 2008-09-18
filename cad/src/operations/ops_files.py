@@ -45,10 +45,10 @@ from files.pdb.files_pdb import insertpdb, writepdb
 from files.pdb.files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
 from files.mmp.files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
 from files.amber_in.files_in import insertin
-from  files.ios.files_ios import exportToIOSFormat,importFromIOSFile
+from files.ios.files_ios import exportToIOSFormat,importFromIOSFile
 
-from graphics.rendering.fileIO import writepovfile
-from graphics.rendering.fileIO import writemdlfile
+from graphics.rendering.povray.writepovfile import writepovfile
+from graphics.rendering.mdl.writemdlfile import writemdlfile
 from graphics.rendering.qutemol.qutemol import write_qutemol_pdb_file
 
 
@@ -71,6 +71,7 @@ from utilities.constants import str_or_unicode
 from ne1_ui.FetchPDBDialog import FetchPDBDialog
 from PyQt4.Qt import SIGNAL
 from urllib import urlopen
+
 debug_babel = False   # DO NOT COMMIT with True
 
 def set_waitcursor(on_or_off):

@@ -641,7 +641,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
         You may then make a move of it with:
             mencoder "mf://*.png" -mf fps=25 -o output.avi -ovc lavc -lavcopts vcodec=mpeg4
         """
-        from graphics.rendering.fileIO import writepovfile
+        from graphics.rendering.povray.writepovfile import writepovfile
 
         if not self.isOpen: #bruce 050428 not sure if this is the best condition to use here ###@@@
             if (not self.might_be_playable()) and 0: ## self.why_not_playable:
