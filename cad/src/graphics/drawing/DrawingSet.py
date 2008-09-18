@@ -4,7 +4,7 @@ DrawingSet.py -- Top-level API for drawing with batched primitives (spheres,
 cylinders, cones) supported by specialized OpenGL shader programs.
 
 @author: Russ
-@version: $Id
+@version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
@@ -83,8 +83,14 @@ class DrawingSet:
     def __init__(self, csdlList = None):   # Optional CSDL list.
 
         # Use the integer IDs of the CSDLs as keys in a dictionary.
-        # (The "set" type can only be used on immutable objects.)
-        self.CSDLs = dict([[csdl.csdlId, csdl] for csdl in csdlList])
+        # (The "set" type is not used here, since it can only be used on
+        #  immutable objects.)
+        # [REVIEW: CSDLs probably seem immutable to Python, so maybe
+        #  set could be used. But, there is no need, this is perfectly
+        #  clear. Also, I'm not sure we use a new enough Python on all
+        #  platforms for assuming set() is builtin, and works compatibly.
+        #  [bruce 080918 comment]]
+        self.CSDLs = dict([(csdl.csdlId, csdl) for csdl in csdlList])
 
         # Cache a GLPrimitiveSet to speed drawing.
         self.primSet = None
@@ -145,7 +151,7 @@ class DrawingSet:
         # clear the primSet cache if so.  (Possible optimization: regenerate
         # only some affected parts of the primSet.)
         if self.primSet is not None:
-            for csdl in self.CSDLs:
+            for csdl in self.CSDLs.itervalues():
                 if csdl.changed > self.primSet.created:
                     self.primSet = None
                     break
@@ -153,12 +159,11 @@ class DrawingSet:
 
         # Lazily (re)generate the primSet when needed for drawing.
         if self.primSet is None:
-            self.primSet = GLPrimitiveSet(
-                # Extract a list of CSDLs from the dict.
-                [self.CSDLs[key] for key in self.CSDLs])
-            for csdl in self.CSDLs:
-                csdl.changed = False
-                pass
+            csdls = self.CSDLs.values()
+            self.primSet = GLPrimitiveSet(csdls)
+##            for csdl in csdls:
+##                csdl.changed = False ### REVIEW: looks wrong when CSDLs are shared. Commenting out. [bruce 080918]
+##                pass
             pass
 
         # Draw the primitives.

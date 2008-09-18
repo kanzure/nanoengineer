@@ -3,7 +3,7 @@
 GLPrimitiveBuffer.py -- Manage VBO space for drawing primitives in large batches.
 
 @author: Russ
-@version: $Id
+@version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:

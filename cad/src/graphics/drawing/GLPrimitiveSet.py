@@ -4,7 +4,7 @@ GLPrimitiveSet.py -- Cached data structure for rapidly drawing a set of batched
 primitives collected from the CSDLs in a DrawingSet.
 
 @author: Russ
-@version: $Id
+@version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:

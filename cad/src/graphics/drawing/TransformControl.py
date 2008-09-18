@@ -3,7 +3,7 @@
 TransformControl.py -- A local coordinate frame for a set of CSDLs.
 
 @author: Russ
-@version: $Id
+@version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
