@@ -35,7 +35,6 @@ from utilities.exception_classes import PluginBug, UserError
 from cnt.commands.InsertNanotube.InsertNanotube_PropertyManager import InsertNanotube_PropertyManager
 
 from utilities.constants import gensym
-from utilities.constants import black
 
 from cnt.temporary_commands.NanotubeLineMode import NanotubeLine_GM
 
@@ -59,7 +58,7 @@ class InsertNanotube_EditCommand(EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-08:mostly done, but needs a look. see if refactoring to implement update_* methods is absolutely essential"
+    command_porting_status = None #fully ported
     
     #Graphics Mode set to CntLine graphics mode
     GraphicsMode_class = NanotubeLine_GM
@@ -148,6 +147,21 @@ class InsertNanotube_EditCommand(EditCommand):
                 self.flyoutToolbar.insertNanotubeAction.setChecked(False)
     
             self._segmentList = []
+            
+        def command_enter_flyout(self):
+            """
+            Overrides superclass method. 
+            @see: basecommand.command_enter_flyout() for documentation. 
+            """
+            self._init_gui_flyout_action( 'insertNanotubeAction' )
+                
+        def command_exit_flyout(self):
+            """
+            Overrides superclass method. 
+            @see: basecommand.command_exit_flyout() for documentation. 
+            """
+            if self.flyoutToolbar:
+                self.flyoutToolbar.insertNanotubeAction.setChecked(False)
     
     #START New command API methods==============================================
     
@@ -177,20 +191,16 @@ class InsertNanotube_EditCommand(EditCommand):
         
         _superclass.command_will_exit(self)
         
-    def command_enter_flyout(self):
+    def _getFlyoutToolBarActionAndParentCommand(self):
         """
-        Overrides superclass method. 
-        @see: basecommand.command_enter_flyout() for documentation. 
+        See superclass for documentation.
+        @see: self.command_update_flyout()
         """
-        self._init_gui_flyout_action( 'insertNanotubeAction' )
-            
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: basecommand.command_exit_flyout() for documentation. 
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.insertNanotubeAction.setChecked(False)
+        flyoutActionToCheck = 'insertNanotubeAction'
+        parentCommandName = None      
+        return flyoutActionToCheck, parentCommandName
+        
+    
             
     #START New command API methods==============================================    
     

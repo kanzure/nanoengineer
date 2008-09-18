@@ -41,8 +41,9 @@ class baseCommand(object):
 
     #Temporary attr 'command_porting_status'. Used ONLY to keep a track of
     #commands that are ported to the new command API. the default value is
-    #'None' (fully ported) and is overridden in subclasses.
-    command_porting_status = None
+    #'UNKNOWN'. This is overridden in subclasses. command_porting_status is set 
+    #to 'None' when the command is fully ported to USE_COMMAND_STACK
+    command_porting_status = 'UNKNOWN'
     
     command_level = CL_ABSTRACT
         #doc command_level; see command_levels.py
@@ -800,7 +801,8 @@ class baseCommand(object):
         @see: AbstractFlyout.resetStateOfActions()
         @see: AbstractFlyout.activateFlyoutToolbar()
         @see: CommandToolbar.resetToDefaultState()
-        """        
+        """  
+        
         if self.flyoutToolbar:
             #activate the flyout toolbar. 
             self.flyoutToolbar.activateFlyoutToolbar()   
@@ -812,7 +814,7 @@ class baseCommand(object):
                 #The following method needs to handle the empty action 
                 #string (flyoutActionToCheck)
                 self._init_gui_flyout_action(flyoutActionToCheck, 
-                                             parentCommandName = parentCommandString)  
+                                             parentCommandName = parentCommandString) 
                 
             else:
                 #Its not a subcommand that is using the flyout toolbar. So
@@ -829,7 +831,7 @@ class baseCommand(object):
             #is None, is reached program needs to reset the flyout toolbar to its
             #default state. i.e. Check the Build Control button and show the 
             #Build control button menu in the flyout toolbar.                 
-            self.win.commandToolbar.resetToDefaultState()               
+            self.win.commandToolbar.resetToDefaultState()  
                 
     def _getFlyoutToolBarActionAndParentCommand(self): #Ninad 2008-09-15
         """

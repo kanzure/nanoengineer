@@ -32,14 +32,9 @@ Mark 2008-03-10: Created from copy of DnaSegment_EditCommand.py
 import foundation.env as env
 from command_support.EditCommand       import EditCommand 
 from utilities.exception_classes import PluginBug, UserError
-
-from geometry.VQT import V, Veq, vlen
+from geometry.VQT import V, vlen
 from geometry.VQT import cross, norm
-
 from utilities.constants  import gensym
-from utilities.Log        import redmsg
-from utilities.Comparison import same_vals
-
 from exprs.State_preMixin import State_preMixin
 from exprs.attr_decl_macros import Instance, State
 from exprs.__Symbols__      import _self
@@ -55,7 +50,7 @@ from model.bonds import Bond
 from utilities.debug_prefs import debug_pref, Choice_boolean_True
 from utilities.constants   import noop
 from utilities.Comparison  import same_vals
-from utilities.constants   import black
+
 from utilities.debug import print_compact_stack
 
 from graphics.drawables.RotationHandle  import RotationHandle
@@ -70,6 +65,8 @@ from utilities.prefs_constants import nanotubeSegmentEditCommand_showCursorTextC
 from utilities.prefs_constants import cursorTextColor_prefs_key
 
 from cnt.commands.NanotubeSegment.NanotubeSegment_PropertyManager import NanotubeSegment_PropertyManager
+
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
@@ -97,7 +94,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "NOT_PORTED"
+    command_porting_status = None #fully ported
     
     #Graphics Mode 
     GraphicsMode_class = NanotubeSegment_GraphicsMode
@@ -215,28 +212,31 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         #Initialize DEBUG preference
         pref_nt_segment_resize_by_recreating_nanotube()
         return
-
-    def init_gui(self):
-        """
-        Initialize gui. 
-        """
-
-        #Note that NanotubeSegment_EditCommand only act as an edit command for an 
-        #existing structure. The call to self.propMgr.show() is done only during
-        #the call to self.editStructure ..i .e. only after self.struct is 
-        #updated. This is done because of the following reason:
-        # - self.init_gui is called immediately after entering the command. 
-        # - self.init_gui in turn, initialized propMgr object and may also 
-        #  show the property manager. The self.propMgr.show routine calls 
-        #  an update widget method just before the show. This update method 
-        #  updates the widgets based on the parameters from the existing 
-        #  structure of the command (self.editCommand.struct)
-        #  Although, it checks whether this structure exists, the editCommand
-        #  could still have a self.struct attr from a previous run. (Note that 
-        #  EditCommand API was written before the command sequencer API and 
-        #  it has some loose ends like this. ) -- Ninad 2008-01-22
-        self.create_and_or_show_PM_if_wanted(showPropMgr = False)
-        return
+    
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            Initialize gui. 
+            """
+    
+            #Note that NanotubeSegment_EditCommand only act as an edit command for an 
+            #existing structure. The call to self.propMgr.show() is done only during
+            #the call to self.editStructure ..i .e. only after self.struct is 
+            #updated. This is done because of the following reason:
+            # - self.init_gui is called immediately after entering the command. 
+            # - self.init_gui in turn, initialized propMgr object and may also 
+            #  show the property manager. The self.propMgr.show routine calls 
+            #  an update widget method just before the show. This update method 
+            #  updates the widgets based on the parameters from the existing 
+            #  structure of the command (self.editCommand.struct)
+            #  Although, it checks whether this structure exists, the editCommand
+            #  could still have a self.struct attr from a previous run. (Note that 
+            #  EditCommand API was written before the command sequencer API and 
+            #  it has some loose ends like this. ) -- Ninad 2008-01-22
+            self.create_and_or_show_PM_if_wanted(showPropMgr = False)
+            return
+    
+    
 
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        

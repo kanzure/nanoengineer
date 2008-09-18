@@ -482,7 +482,6 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         @type  inIndex: int
         """
         self.nanotube.setType(str(type))
-        print "Bond Length =", self.nanotube.getBondLength()
         self.bondLengthDoubleSpinBox.setValue(self.nanotube.getBondLength())
         #self.bondLengthDoubleSpinBox.setValue(ntBondLengths[inIndex])
 

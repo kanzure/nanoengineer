@@ -31,26 +31,34 @@ from utilities.constants import gensym
 from ne1_ui.toolbars.Ui_NanotubeFlyout import NanotubeFlyout
 
 from model.chem import Atom 
-from model.chunk import Chunk
 from model.bonds import Bond
-
-##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
 from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode
 from cnt.commands.BuildNanotube.BuildNanotube_PropertyManager import BuildNanotube_PropertyManager
 
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
+_superclass = EditCommand
 class BuildNanotube_EditCommand(EditCommand):
     """
     BuildNanotube_EditCommand provides a convenient way to edit or create
     a NanotubeGroup object     
     """
     
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
+    
+    
     #GraphicsMode
     GraphicsMode_class = BuildNanotube_GraphicsMode
     
     #PropertyManager
     PM_class = BuildNanotube_PropertyManager
+    
+    #Flyout Toolbar
+    FlyoutToolbar_class = NanotubeFlyout
+    
     
     cmd              =  greenmsg("Build Nanotube: ")
     prefix           =  'NanotubeGroup' # used for gensym
@@ -76,52 +84,56 @@ class BuildNanotube_EditCommand(EditCommand):
     #BuildAtoms_Command (earlier depositmode) 
     call_makeMenus_for_each_event = True    
         
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method
-        """
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = NanotubeFlyout(self)
-
-        self.flyoutToolbar.activateFlyoutToolbar()
+    
+            
+            
+    if not USE_COMMAND_STACK:     
         
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method.
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
+        def command_enter_flyout(self):
+            """
+            Overrides superclass method
+            """
+            if self.flyoutToolbar is None:
+                self.flyoutToolbar = NanotubeFlyout(self)
         
+            self.flyoutToolbar.activateFlyoutToolbar()
+        
+        def command_exit_flyout(self):
+            """
+            Overrides superclass method.
+            """
+            if self.flyoutToolbar:
+                self.flyoutToolbar.deActivateFlyoutToolbar()
 
-    def resume_gui(self):
-        """
-        Called when this command, that was suspended earlier, is being resumed. 
-        The temporary command (which was entered by suspending this command)
-        might have made some changes to the model which need to be reflected 
-        while resuming command. 
-
-        Example: A user enters BreakStrands_Command by suspending 
-        BuildNanotube_EditCommand, then breaks a few strands, thereby creating new 
-        strand chunks. Now when the user returns to the BuildNanotube_EditCommand, 
-        the command's property manager needs to update the list of strands 
-        because of the changes done while in BreakStrands_Command.  
-        @see: Command.resume_gui
-        @see: Command._enterMode where this method is called.
-        """
-        #NOTE: Doing command toolbar updates in this method doesn't alwayswork.
-        #consider this situation : You are in a) BuildNanotube_EditCommand, then you 
-        #b) enter CntDuplex_EditCommand(i.e. Cnt line) and from this temporary 
-        #command, you directly c) enter BreakStrands_Command 
-        #-- During b to c, 1) it first exits (b) , 2) resumes (a) 
-        #and then 3)enters (c)
-        #This method is called during operation #2 and any changes to flyout 
-        #toolbar are reset during #3  --- Ninad 2008-01-14
-        if self.propMgr:
-            self.propMgr.updateListWidgets()        
-
-        if self.flyoutToolbar:
-            self.flyoutToolbar.resetStateOfActions()
-        return
+        def resume_gui(self):
+            """
+            Called when this command, that was suspended earlier, is being resumed. 
+            The temporary command (which was entered by suspending this command)
+            might have made some changes to the model which need to be reflected 
+            while resuming command. 
+    
+            Example: A user enters BreakStrands_Command by suspending 
+            BuildNanotube_EditCommand, then breaks a few strands, thereby creating new 
+            strand chunks. Now when the user returns to the BuildNanotube_EditCommand, 
+            the command's property manager needs to update the list of strands 
+            because of the changes done while in BreakStrands_Command.  
+            @see: Command.resume_gui
+            @see: Command._enterMode where this method is called.
+            """
+            #NOTE: Doing command toolbar updates in this method doesn't alwayswork.
+            #consider this situation : You are in a) BuildNanotube_EditCommand, then you 
+            #b) enter CntDuplex_EditCommand(i.e. Cnt line) and from this temporary 
+            #command, you directly c) enter BreakStrands_Command 
+            #-- During b to c, 1) it first exits (b) , 2) resumes (a) 
+            #and then 3)enters (c)
+            #This method is called during operation #2 and any changes to flyout 
+            #toolbar are reset during #3  --- Ninad 2008-01-14
+            if self.propMgr:
+                self.propMgr.updateListWidgets()        
+    
+            if self.flyoutToolbar:
+                self.flyoutToolbar.resetStateOfActions()
+            return
 
     def runCommand(self):
         """
@@ -347,7 +359,7 @@ class BuildNanotube_EditCommand(EditCommand):
         self.Menu_spec = []
 
         highlightedChunk = None
-        if isinstance(selobj, Chunk):
+        if isinstance(selobj, self.assy.Chunk):
             highlightedChunk = selobj
         if isinstance(selobj, Atom):
             highlightedChunk = selobj.molecule
