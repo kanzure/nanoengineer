@@ -58,6 +58,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
     
     #Flyout Toolbar
     FlyoutToolbar_class = PartLibraryFlyout
+    
 
     def _createFlyoutToolBarObject(self):
         """
@@ -69,12 +70,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
         flyoutToolbar = PartLibraryFlyout(self) 
         return flyoutToolbar
     
-    def _createPropMgrObject(self):
-        """
-        """
-        propMgr = PartLibPropertyManager(self)
-        return propMgr
-    
+        
 
     def deposit_from_Library_page(self, atom_or_pos): 
         """
