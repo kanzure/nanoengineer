@@ -1565,7 +1565,7 @@ class Node( StateMixin):
         # to verify it's not called when it shouldn't be (e.g. when that node might still be revived by Undo). ###@@@
         # BTW, as of 060322 the appropriate init, alloc, and draw code for glname is only done (or needed) in Jig.
 
-        ## env.dealloc_my_glselect_name( self, self.glname ) -- only ok for some subclasses; some have ._glname instead
+        ## self.assy.dealloc_my_glselect_name( self, self.glname ) -- only ok for some subclasses; some have ._glname instead
 
         ##e more is needed too... see Atom and Bond methods
         # do we want this:
@@ -1810,7 +1810,7 @@ class Node( StateMixin):
         """
         Default implementation of draw_in_abs_coords. Some implem is needed
         by any nodes or other drawable objects which get registered with
-        env.alloc_my_glselect_name and thereby need to provide Selobj_API.
+        self.assy.alloc_my_glselect_name and thereby need to provide Selobj_API.
 
         [Subclasses which are able to use color for highlighting in Build mode,
          or which want to look different when highlighted in Build mode,

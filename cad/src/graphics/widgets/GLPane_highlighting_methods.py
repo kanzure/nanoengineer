@@ -181,7 +181,7 @@ class GLPane_highlighting_methods(object):
                                 print "debug fyi: len(names) == %d (names = %r)" % (len(names), names)
                     obj = self.object_for_glselect_name(names[-1]) #k should always return an obj
                     if obj is None:
-                        print "bug: obj_with_glselect_name returns None for name %r at end of namestack %r" % (names[-1], names)
+                        print "bug: object_for_glselect_name returns None for name %r at end of namestack %r" % (names[-1], names)
                     self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
             #e maybe we should now sort glselect_dict by "hit priority" (for depth-tiebreaking), or at least put selobj first.
             # (or this could be done lower down, where it's used.) [I think we do this now...]
@@ -192,6 +192,11 @@ class GLPane_highlighting_methods(object):
         """
         """
         return self.assy.object_for_glselect_name(glname)
+
+    def alloc_my_glselect_name(self, obj): #bruce 080917
+        """
+        """
+        return self.assy.alloc_my_glselect_name(obj)
 
     def draw_highlighted_objectUnderMouse(self, selobj, hicolor): #bruce 070920 split this out
         """

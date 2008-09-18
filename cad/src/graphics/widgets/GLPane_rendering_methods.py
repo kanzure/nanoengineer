@@ -94,11 +94,7 @@ class GLPane_rendering_methods(object):
 
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs [of what? paintGL I guess?]
-            # see also self.object_for_glselect_name()
-            # (which replaces env.obj_with_glselect_name[] as of 080220 --
-            #  though in outside code, that's still used as of 080915.
-            #  A fuller story: it's in the middle of an unfinished
-            #  cleanup (changing from global to per-assy), started on 080220.)
+            # see also self.object_for_glselect_name(), defined in GLPane_highlighting_methods
 
         self.makeCurrent() # REVIEW: safe now? needed for loadLighting? [bruce 080913 questions]
 

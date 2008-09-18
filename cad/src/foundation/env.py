@@ -293,18 +293,20 @@ def change_counter_for_changed_objects():
 #  so code can be incrementally switched to access it through assy
 #  or glpane; when all code does that, these will be removed
 #  and each assy will make its own glselect_name_dict.]
+# [bruce 080917: mostly completing this, but see comment in
+#  Assembly._init_glselect_name_dict for what remains.]
 
 from graphics.drawing.glselect_name_dict import glselect_name_dict
 
-_shared_glselect_name_dict = glselect_name_dict()
+_shared_glselect_name_dict = glselect_name_dict() # still used in class Assembly
 
-obj_with_glselect_name = _shared_glselect_name_dict.obj_with_glselect_name
-    # client code should be revised to use assy.object_for_glselect_name
-    # in place of env.obj_with_glselect_name.get
-
-alloc_my_glselect_name = _shared_glselect_name_dict.alloc_my_glselect_name
-
-dealloc_my_glselect_name = _shared_glselect_name_dict.dealloc_my_glselect_name
+##obj_with_glselect_name = _shared_glselect_name_dict.obj_with_glselect_name
+##    # client code should be revised to use assy.object_for_glselect_name
+##    # in place of env.obj_with_glselect_name.get
+##
+##alloc_my_glselect_name = _shared_glselect_name_dict.alloc_my_glselect_name
+##
+##dealloc_my_glselect_name = _shared_glselect_name_dict.dealloc_my_glselect_name
 
 # ==
 

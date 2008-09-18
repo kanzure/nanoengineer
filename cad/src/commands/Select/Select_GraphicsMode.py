@@ -1054,10 +1054,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()  # Save modelview matrix before it's changed
+        assy = self.o.assy
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
-            self.o.assy.draw(self.o)
+            assy.draw(self.o)
             self.Draw_after_highlighting(pickCheckOnly = True)
             glDisable(GL_CLIP_PLANE0)
         except:
@@ -1092,7 +1093,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                     print "%d(m) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
                     names = names[:-1]
             if names:
-                obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                obj = assy.object_for_glselect_name(names[-1])
                 #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
                 if isinstance(obj, Jig):
                     return obj
@@ -1379,10 +1380,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()  ## Save model/view matrix before it's changed
+        assy = self.o.assy
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
-            self.o.assy.draw(self.o)
+            assy.draw(self.o)
             self.Draw_after_highlighting(pickCheckOnly=True)
             glDisable(GL_CLIP_PLANE0)
         except:
@@ -1412,7 +1414,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                     print "%d(m) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
                     names = names[:-1]
             if names:
-                obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                obj = assy.object_for_glselect_name(names[-1])
                 #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
                 if isinstance(obj, Jig):
                     if selSense == SUBTRACT_FROM_SELECTION: #Ctrl key, unpick picked
@@ -1422,7 +1424,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                         if not obj.picked:
                             obj.pick()
                     else:               #Without key press, exclusive pick
-                        self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
+                        assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
                         if not obj.picked:
                             obj.pick()
                     return True

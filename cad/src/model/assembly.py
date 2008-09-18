@@ -597,8 +597,14 @@ class Assembly( StateMixin, Assembly_API):
     
     def _init_glselect_name_dict(self): #bruce 080220
         if 0:
-            # use this code as soon as all users of env.py *glselect_name funcs/attrs
-            # are replaced with calls of our replacement methods below. [bruce 080220]
+            # use this code as soon as:
+            # - all users of env.py *glselect_name funcs/attrs
+            #   are replaced with calls of our replacement methods below.
+            # - moving a Node to a new assy, if it can happen, reallocates its glname
+            #   or can store the same one in the new assy.
+            #   (or decide that makes no sense and retain this shared dict?)
+            # - destroyed bonds (etc) can figure out how to call dealloc_my_glselect_name
+            # [bruce 080220/080917]
             from graphics.drawing.glselect_name_dict import glselect_name_dict
             self._glselect_name_dict = glselect_name_dict()
             # todo: clear this when we are destroyed, and make sure accesses to it
@@ -635,11 +641,15 @@ class Assembly( StateMixin, Assembly_API):
         which was allocated for obj using self.alloc_my_glselect_name.
 
         @return: the object we find, or None if none is found.
-        
-        @see: glselect_name_dict.obj_with_glselect_name (attr) for details.
+
+        @note: old code used env.obj_with_glselect_name.get for this;
+               a cleanup which replaces that with access to this method
+               was partly done as of 080220, and is perhaps being completed
+               on 080917. (Note the spelling differences:
+               obj vs object and with vs for.)
         """
         # (I don't know if the following test for self._glselect_name_dict
-        #  already existing is needed.)
+        #  already existing is needed. Maybe only after we're destroyed (nim)?)
         return self._glselect_name_dict and \
                self._glselect_name_dict.object_for_glselect_name(name)
 

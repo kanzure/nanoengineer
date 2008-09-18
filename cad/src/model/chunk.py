@@ -442,7 +442,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         #glname is needed for highlighting the chunk as an independent object
         #NOTE: See a comment in self.highlight_color_for_modkeys() for more info.
-        self.glname = env.alloc_my_glselect_name(self)
+        if not self.isNullChunk():
+            self.glname = self.assy.alloc_my_glselect_name(self) #bruce 080917 revised
+            ### REVIEW: is this ok or fixed if this chunk is moved to a new assy
+            # (if that's possible)? [bruce 080917 Q]
 
         self.extra_displists = {} # precaution, probably not needed
 

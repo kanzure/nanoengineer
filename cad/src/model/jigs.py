@@ -168,7 +168,9 @@ class Jig(NodeWith3DContents, Selobj_API):
         ## this is now the default for all Nodes [050505]: self.disabled_by_user_choice = False #bruce 050421
 
         # Huaicai 7/15/05: support jig graphically select
-        self.glname = env.alloc_my_glselect_name( self) 
+        self.glname = self.assy.alloc_my_glselect_name( self) #bruce 080917 revised
+            ### REVIEW: is this ok or fixed if this chunk is moved to a new assy
+            # (if that's possible)? [bruce 080917 Q]
         
         return
 

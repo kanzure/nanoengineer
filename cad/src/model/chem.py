@@ -1082,8 +1082,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Ideally we'd remove cycles, not worry about transient refs in change-trackers, make change-trackers robust
         # to being told about destroyed atoms, and that would be enough. Not yet sure whether that's practical.
         # [bruce 060327 comment]
-        env.dealloc_my_glselect_name( self, self._glname )
-        self._glname = 0
+        if self._glname: #bruce 080917 revised this entire statement (never tested, before or after)
+            assy = self._f_assy ###k
+            if assy:
+                assy.dealloc_my_glselect_name( self, self._glname )
+            # otherwise no need, I think (since changing assy deallocates it too)
+            del self._glname
         key = self.key
         for dict1 in _Atom_global_dicts:
             #e even this might be done by StateMixin if we declare these dicts to it for the class
@@ -1979,7 +1983,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         else:
             if style:
                 print "bug (ignored): unknown _draw_atom_style return value for %r: %r" % (self, style,)
-            drawsphere(color, pos, drawrad, level)
+            if 0: #### experiment, unfinished [bruce 080917]
+                verts = [b.center for b in self.bonds]
+                if len(verts) == 4:
+                    drawtetrahedron(color, verts)
+                elif len(verts) == 3:
+                    drawtriangle(color, verts)
+                pass ###
+            else:
+                drawsphere(color, pos, drawrad, level)
         return # from draw_atom_sphere
     
     def draw_wirespheres(self, glpane, disp, pos, pickedrad, special_drawing_prefs = USE_CURRENT):

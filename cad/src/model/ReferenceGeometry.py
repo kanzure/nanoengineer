@@ -65,8 +65,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
     def __init__(self, win):  
         self.win = win
         #Node.__init__(self, win.assy, gensym("%s" % self.sym, win.assy))        
-        Jig.__init__(self, win.assy, self.atoms)        
-        ## redundant with Jig.__init__: self.glname = env.alloc_my_glselect_name( self) 
+        Jig.__init__(self, win.assy, self.atoms) # note: that sets self.glname
         self.glpane = self.assy.o
         #@@Geometry object with a visible direction arrow 
         #(at present used in Plane only) This saves the last geometry object
@@ -198,7 +197,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
         if res:
             our_selobj = self
             glname = self.glname
-            owner = env.obj_with_glselect_name.get(glname, None)
+            owner = glpane.assy.object_for_glselect_name(glname)
             if owner is not our_selobj:
                 res = False
                 # Do debug prints [perhaps never seen as of 061121]

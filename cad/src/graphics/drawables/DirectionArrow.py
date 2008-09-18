@@ -72,7 +72,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         self.glpane = glpane
         self.tailPoint = tailPoint  
         self.direction = defaultDirection        
-        self.glname = env.alloc_my_glselect_name(self)  
+        self.glname = glpane.alloc_my_glselect_name(self) #bruce 080917 revised
         self.flipDirection = False
         self.drawRequested = False
 
@@ -244,7 +244,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         if res:
             our_selobj = self
             glname     = self.glname
-            owner      = env.obj_with_glselect_name.get(glname, None)
+            owner      = glpane.assy.object_for_glselect_name(glname)
             if owner is not our_selobj:
                 res = False
                 # Do debug prints.

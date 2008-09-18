@@ -614,7 +614,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         if at1.molecule is not at2.molecule:
             at1.molecule._f_gained_externs = True
             at2.molecule._f_gained_externs = True
-        self.glname = env.alloc_my_glselect_name( self) #bruce 050610
+        self.glname = at1.molecule.assy.alloc_my_glselect_name( self) #bruce 050610, revised 080917
 
     def _undo_aliveQ(self, archive): #bruce 060405, rewritten 060406; see also new_Bond_oursQ in undo_archive.py
         """
@@ -989,13 +989,18 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         @see: comments in L{Atom.destroy} docstring.
         """
+        if self.glname: #bruce 080917 revised this entire statement (never tested, before or after)
+            if self.at1 and self.at1.molecule and self.at1.molecule.assy:
+                self.at1.molecule.assy.dealloc_my_glselect_name( self, self.glname )
+            else:
+                print "bug: can't find assy for dealloc_my_glselect_name in %r.destroy()" % self
+            del self.glname
         try:
             self.bust() #bruce 080702 precaution
         except:
             pass # necessary for repeated destroy, given current implem -- should fix
         if self._direction:
             self._changed_bond_direction() #bruce 070415
-        env.dealloc_my_glselect_name( self, self.glname )
         key = id(self)
         for dict1 in _Bond_global_dicts:
             dict1.pop(key, None)

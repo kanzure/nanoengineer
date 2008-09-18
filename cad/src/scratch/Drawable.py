@@ -7,8 +7,6 @@ $Id$
 [not yet used]
 """
 
-import foundation.env as env
-
 from graphics.drawables.Selobj import Selobj_API
 
 class Drawable(Selobj_API):
@@ -57,9 +55,10 @@ class Drawable(Selobj_API):
     from both Drawable and Atom or Bond or Jig, the Drawable API would
     win out in terms of how SelectAtoms_GraphicsMode interacted with it.
 
-    *** __init__ must set self.glname using env.alloc_my_glselect_name
+    *** __init__ must set self.glname using alloc_my_glselect_name
     [note, this has been revised, bruce 080220; class Atom now sets
-     self._glname using assy.alloc_my_glselect_name]
+     self._glname using assy.alloc_my_glselect_name; glpane has this
+     method as well, as of before 080917]
     
     *** Needs a draw_in_abs_coords method
     
@@ -141,7 +140,7 @@ class Drawable(Selobj_API):
     see also class Bauble, and handles.py
     """
     def __init__(self):
-        self.glname = env.alloc_my_glselect_name(self)
+        self.glname = self.assy.alloc_my_glselect_name(self) # or self.glpane, or ... #bruce 080917 revised
 
     def draw_in_abs_coords(self, glpane, color):
         raise Exception, 'abstract method, must be overloaded'

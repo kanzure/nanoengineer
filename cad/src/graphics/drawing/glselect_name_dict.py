@@ -74,7 +74,7 @@ class glselect_name_dict(object):
         return self.obj_with_glselect_name.get( glname)
 
     # Todo: add a variant of object_for_glselect_name to which the entire
-    # name stack should be passed. Current code (080220) passes the last
+    # name stack should be passed. Current code (as of 080220) passes the last
     # (innermost) element of the name stack.
     
     # Maybe todo: add methods for temporarily removing glname from dict (without

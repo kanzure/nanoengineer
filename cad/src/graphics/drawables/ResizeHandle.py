@@ -31,7 +31,6 @@ from utilities.constants import black, orange
 from math import pi
 from geometry.VQT import V
 
-import foundation.env as env
 from utilities.debug import print_compact_traceback
 
 from graphics.drawables.DragHandler import DragHandler_API
@@ -67,10 +66,10 @@ class ResizeHandle(DragHandler_API, Selobj_API):
         self.center = handleCenter
         # No texture in handles (drawn ResizeHandle object). 
         # Ideally the following value in the drawer.drawPlane method 
-        #should be False by default.
+        # should be False by default.
         self.textureReady  = False
         self.pickCheckOnly = False        
-        self.glname = env.alloc_my_glselect_name(self)        
+        self.glname = glpane.alloc_my_glselect_name(self) #bruce 080917 revised
         self.type   = None      
     
     def draw(self, hCenter = None):
@@ -256,7 +255,7 @@ class ResizeHandle(DragHandler_API, Selobj_API):
         if res:
             our_selobj = self
             glname     = self.glname
-            owner      = env.obj_with_glselect_name.get(glname, None)
+            owner      = glpane.assy.object_for_glselect_name(glname)
             if owner is not our_selobj:
                 res = False
                 # Do debug prints.

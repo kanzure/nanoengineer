@@ -99,7 +99,7 @@ def PopName(glname, drawenv = 'fake'):
 
 # ==
 
-#e refile recycle_glselect_name in cad/src/env.py, next to alloc_my_glselect_name, or merge this with it somehow
+# maybe todo: refile recycle_glselect_name next to alloc_my_glselect_name (assy method), or merge this with it somehow
 # (and maybe change all that into a gl-displist-context-specific data structure, accessed via a glpane)
 
 def recycle_glselect_name(glpane, glname, newobj): #e refile (see above)
@@ -108,20 +108,21 @@ def recycle_glselect_name(glpane, glname, newobj): #e refile (see above)
     # requires new API (could be optional) in objs that call alloc_my_glselect_name. ##e
     # 2. If the old obj is the glpane's selobj, change that to point to the new obj. [#e might need improvement, see comment]
     # 3. register the new object for this glname.
-    import foundation.env as env
-    oldobj = env.obj_with_glselect_name.get(glname, None) #e should be an attr of the glpane (or of one it shares displaylists with)
+    oldobj = glpane.object_for_glselect_name(glname, None)
     if oldobj is not None and glpane.selobj is oldobj:
         glpane.selobj = None ###### normally newobj -- SEE IF THIS HELPs THE BUG 061120 956p
         printnim("glpane.selobj = None ###### normally newobj") # worse, i suspect logic bug in the idea of reusing the glname....
             ###k we might need to call some update routine instead, like glpane.set_selobj(newobj),
             # but I'm not sure its main side effect (env.history.statusbar_msg(msg)) is a good idea here,
             # so don't do it for now.
-    env.obj_with_glselect_name[glname] = newobj
+    ## env.obj_with_glselect_name[glname] = newobj
+    glpane.assy._glselect_name_dict.obj_with_glselect_name[glname] #bruce 080917 revised; ### TODO: fix private access, by
+        # moving this method into class GLPane and/or class Assembly & class glselect_name_dict
     return
 
-def selobj_for_glname(glname):#e use above? nah, it also has to store into here
-    import foundation.env as env
-    return env.obj_with_glselect_name.get(glname, None)
+##def selobj_for_glname(glname):#e use above? nah, it also has to store into here
+##    import foundation.env as env
+##    return env.obj_with_glselect_name.get(glname, None)
 
 # ==
 
@@ -628,15 +629,17 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         # [and be sure we define necessary methods in self or the new obj]
         glname_handler = self # self may not be the best object to register here, though it works for now
 
+        glpane = self.env.glpane
         if self.glpane_state.glname is None or 'TRY ALLOCATING A NEW NAME EACH TIME 061120 958p':
             # allocate a new glname for the first time (specific to this ipath)
-            import foundation.env as env
-            self.glpane_state.glname = env.alloc_my_glselect_name( glname_handler)
+            glname = glpane.alloc_my_glselect_name( glname_handler) #bruce 080917 revised
+            self.glpane_state.glname = glname
         else:
             # reuse old glname for new self
             if 0:
                 # when we never reused glname for new self, we could do this:
-                self.glpane_state.glname = env.alloc_my_glselect_name( glname_handler)
+                glname = glpane.alloc_my_glselect_name( glname_handler)
+                self.glpane_state.glname = glname
                     #e if we might never be drawn, we could optim by only doing this on demand
             else:
                 # but now that we might be recreated and want to reuse the same glname for a new self, we have to do this:
@@ -760,7 +763,8 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
             #061120 see if this helps -- do we still own this glname?
             our_selobj = self
             glname = self.glname
-            owner = selobj_for_glname(glname)
+##            owner = selobj_for_glname(glname)
+            owner = glpane.assy.object_for_glselect_name(glname) #bruce 080917 revised
             if owner is not our_selobj:
                 res = False
                 # owner might be None, in theory, but is probably a replacement of self at same ipath
