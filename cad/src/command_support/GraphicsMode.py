@@ -668,7 +668,7 @@ class basicGraphicsMode(GraphicsMode_API):
         topnode.call_on_topmost_unpicked_nodes_of_certain_classes(
             lambda node: node.pick_if_all_glpane_content_is_picked(),
             class_list )
-
+        return
 
     def dragstart_using_GL_DEPTH(self, event, **kws):
         """
@@ -908,8 +908,6 @@ class basicGraphicsMode(GraphicsMode_API):
         return False # russ 080527
 
     def Wheel(self, event):
-        #e sometime we need to give this a modifier key binding too;
-        # see some email from Josh with a suggested set of them [bruce 041220]
         mod = event.modifiers()
             ### REVIEW: this might need a fix_buttons call to work the same
             # on the Mac [bruce 041220]
@@ -975,9 +973,6 @@ class basicGraphicsMode(GraphicsMode_API):
         glpane = self.o
         glpane.rescale_around_point(factor, point) # note: point might have been modified above
         return
-
-    # [remaining methods not yet analyzed by bruce 040922]
-
 
     # Key event handling revised by bruce 041220 to fix some bugs;
     # see comments in the GLPane methods, which now contain Mac-specific Delete
