@@ -58,7 +58,7 @@ def startup_script( main_globals):
     # captured.  This is a first attempt to try to capture some of the console
     # prints that would normally be lost.  The default for this code is that
     # it's turned off, and should remain that way until it's improved.
-    if NE1_Build_Constants.NE1_CONSOLE_REDIRECT and os.name=="nt":
+    if NE1_Build_Constants.NE1_CONSOLE_REDIRECT and os.name == "nt":
         capture_console = False
         capture_file = ""
         # if it's not reporting as python is the executable
@@ -85,7 +85,7 @@ def startup_script( main_globals):
             if capture_console or os.path.isdir(tmpFilePath):
                 try: # We made the directory or it already existed, try
                      # creating the log file.
-                    capture_file = os.path.normpath(u"".join((tmpFilePath,\
+                    capture_file = os.path.normpath(u"".join((tmpFilePath, \
                                              "/NE1_console.log")))
                     sys.stdout = open(capture_file, 'w')
                     capture_console = True
