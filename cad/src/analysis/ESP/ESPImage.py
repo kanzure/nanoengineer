@@ -360,13 +360,13 @@ class ESPImage(RectGadget):
                                 dispdef, 
                                 pickCheckOnly = False):
         """
-        For ESPImage class, this does all the drawing. (does it after main
-        drawing code is finished drawing) . This method ensures that the 
+        For ESPImage class, this does all the drawing. (Does it after main
+        drawing code is finished drawing.) This method ensures that the 
         ESP image jig gets selected even when you click inside the 
-        rectangular box (i.e. not just along the edgets of the box)
+        rectangular box (i.e. not just along the edges of the box).
         @see: GraphicsMode.Draw_after_highlighting()
         @see: Node.draw_after_highlighting()
-        @see:Plane.draw_after_highlighting()
+        @see: Plane.draw_after_highlighting()
         """
         anythingDrawn = False
         if self.hidden:

@@ -406,14 +406,14 @@ class Plane(ReferenceGeometry):
     
     def draw_after_highlighting(self,  glpane, dispdef, pickCheckOnly = False):
         """
-        Things to draw after highlighting. Subclasses should override this 
+        Things to draw after highlighting. Subclasses can override this 
         method. This API method ensures that, when user clicks on the filled
         area of a plane, the plane gets selected. 
                 
         @param pickCheckOnly: This flag in conjunction with this API method
                 allows selection of the plane when you click inside the plane 
                  (i.e. not along the highlighted plane borders) . 
-                 (Note flag copied over from the old implementation 
+                 (Note: flag copied over from the old implementation 
                  before 2008-06-20)
         @type pickCheckOnly: boolean
         
@@ -428,7 +428,7 @@ class Plane(ReferenceGeometry):
         anythingDrawn = False
         
         if self.hidden:
-            return False
+            return anythingDrawn
         
         self.pickCheckOnly = pickCheckOnly
         
@@ -479,18 +479,18 @@ class Plane(ReferenceGeometry):
                               self.height, 
                               textureReady,
                               self.opacity, 
-                              SOLID=True, 
-                              pickCheckOnly=self.pickCheckOnly,
-                              hf=self.heightfield)
+                              SOLID = True, 
+                              pickCheckOnly = self.pickCheckOnly,
+                              hf = self.heightfield)
             else:
                 drawPlane(fill_color, 
                           self.width, 
                           self.height, 
                           textureReady,
                           self.opacity, 
-                          SOLID=True, 
-                          pickCheckOnly=self.pickCheckOnly,
-                          tex_coords=self.tex_coords)
+                          SOLID = True, 
+                          pickCheckOnly = self.pickCheckOnly,
+                          tex_coords = self.tex_coords)
      
             glPopMatrix()
             
@@ -503,7 +503,6 @@ class Plane(ReferenceGeometry):
             glPopName()
         
         return anythingDrawn
-            
 
     def setWidth(self, newWidth):
         """

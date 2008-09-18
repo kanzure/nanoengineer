@@ -350,7 +350,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         #bruce 050610 moved self.surface() call elsewhere [it's in Draw_after_highlighting]
         return
 
-    def Draw_after_highlighting(self, pickCheckOnly=False): #bruce 050610
+    def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         # added pickCheckOnly arg.  mark 060207.
         """
         Do more drawing, after the main drawing code has completed its 

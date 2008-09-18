@@ -1203,24 +1203,23 @@ class Group(NodeWithAtomContents):
 
     def draw_after_highlighting(self, glpane, dispdef, pickCheckOnly = False):
         """
-        Things to draw after highlighting. Subclasses should override this
-        method. see superclass method for more documentation
+        Things to draw after highlighting. See superclass method for more info.
         @see: self.draw()
         @see: GraphicsMode.Draw_after_highlighting()
-        @see: Node.draw_after_highlighting() which is overridden here.
+        @see: Node.draw_after_highlighting() which this overrides
         @see: Plane.draw_after_highlighting()
         @see: ESPImage.draw_after_highlighting()
         """
         anythingDrawn = False
-        anythingDrawn_by_any_member = False
 
-        for member in self.members:
-            anythingDrawn_by_any_member = member.draw_after_highlighting(
-                glpane,
-                dispdef,
-                pickCheckOnly = pickCheckOnly )
-            if anythingDrawn_by_any_member and not anythingDrawn:
-                anythingDrawn = anythingDrawn_by_any_member
+        if not self.hidden:
+            for member in self.members:
+                anythingDrawn_by_member = member.draw_after_highlighting(
+                    glpane,
+                    dispdef,
+                    pickCheckOnly = pickCheckOnly )
+                if anythingDrawn_by_member:
+                    anythingDrawn = True
 
         return anythingDrawn
 

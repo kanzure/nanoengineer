@@ -494,26 +494,26 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         pass
 
-
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         """
         Do more drawing, after the main drawing code has completed its
         highlighting/stenciling for selobj.
         Caller will leave glstate in standard form for Draw.
         Implems are free to turn off depth buffer read or write
-        (but must restore standard glstate when done, as for mode.Draw() method).
+        (but must restore standard glstate when done, just as for
+        GraphicsMode Draw() method).
 
         Warning: anything implems do to depth or stencil buffers will affect
         the standard selobj-check in bareMotion
-        (presently only used in BuildAtoms_Graphicsmode).
+        (which as of 050610 was only used in BuildAtoms_Graphicsmode).
 
         [New method in mode API as of bruce 050610.
-        General form not yet defined -- just a hack for Build mode's
+         General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.
 
         UPDATE 2008-06-20: Another example use of this method:
-        Used for selectina Reference Plane when user clicks inside the
-        filled plane (i.e. not along the edges)
+        Used for selecting a Reference Plane when user clicks inside the
+        filled plane (i.e. not along the edges).
         See new API method Node.draw_after_highlighthing
         which is called here. It fixes bug 2900--  Ninad ]
 
@@ -524,7 +524,6 @@ class basicGraphicsMode(GraphicsMode_API):
             self.glpane,
             self.glpane.displayMode,
             pickCheckOnly = pickCheckOnly )
-
 
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; revised 060724
         """

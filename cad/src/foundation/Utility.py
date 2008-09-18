@@ -1772,38 +1772,39 @@ class Node( StateMixin):
                                 dispdef, 
                                 pickCheckOnly = False):
         """
-        Things to draw after highlighting. Subclasses should override this 
-        method. Default implementation returns False (nothing is drawn)
+        Things to draw after highlighting. Subclasses can override this 
+        method. Default implementation draws nothing and returns False
+        (which is correct for most kinds of Nodes, at present).
         
-        Draw anything of self (or its members if its a Group)
-        that needs to be drawn AFTER the main code is done with he main drawing 
+        Draw the part of self's graphical appearance (or that of its members
+        if its a Group) that needs to be drawn AFTER the main drawing 
         code has completed its highlighting/stenciling for selobj.
         
-        @param pickCheckOnly: This flag in conjunction with this API method
-                allows selection of the plane when you click inside the plane 
-                 (i.e. not along the highlighted plane borders) . 
-                 (Note flag copied over from the old implementation 
-                 before 2008-06-20)
+        @param pickCheckOnly: [needs documentation of its effect]
+                              (for example use, see this method in class Plane)
         @type pickCheckOnly: boolean
         
         @return: A boolean flag 'anythingDrawn' that tells whether this method
         drew something. 
         @rtype: boolean
         
-        @TODO: The return type anythingDrawn is retained from the old 
-        implementationas some other code in SelectGraphicsMode._calibrateZ 
-        apparently uses it. Need to check if that code is used anywhere.
-        
         @see: GraphicsMode.Draw_after_highlighting() which returns this method
         @see: Group.draw_after_highlighting()
         @see: Plane.draw_after_highlighting()     
         """
         #Ninad 2008-06-20: This is a new API method that completely 
-        #replaces the implementation originally in method Utility._drawESPImage()
+        #replaces the implementation originally in method Utility._drawESPImage().
         #Also did many bug fixes in the original implementation. 
+        #
+        ###TODO: The return value anythingDrawn is retained from the old 
+        # implementation, as some other code in SelectGraphicsMode._calibrateZ 
+        # apparently uses it. Need to check if that code is used anywhere.
+        # [bruce 080917 adds: Yes, it's used in jigGLSelect and
+        #  get_jig_under_cursor, which are still needed for now,
+        #  though they should be removed someday. That is probably the
+        #  only ultimate use of this return value (not sure).]
         anythingDrawn = False
         return anythingDrawn
-
 
     def draw_in_abs_coords(self, glpane, color): #bruce 050729 to fix some bugs caused by Huaicai's jig-selection code
         """

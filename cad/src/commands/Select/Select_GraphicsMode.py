@@ -1033,7 +1033,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
 
-        gz = self._calibrateZ(wX, wY)
+        gz = self._calibrateZ(wX, wY) # note: this redraws the entire model
         if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
             return None
 
@@ -1315,10 +1315,13 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
     def _calibrateZ(self, wX, wY): # by huaicai; bruce 071013 moved this here from GraphicsMode
         """
-        Because translucent plane drawing or other special drawing,
+        Because of translucent plane drawing or other special drawing,
         the depth value may not be accurate. We need to
         redraw them so we'll have correct Z values.
         """
+        # REVIEW: why does this not need to clear the depth buffer?
+        # If caller needs to, that needs to be documented.
+        # [bruce 080917 comment]
         glMatrixMode(GL_MODELVIEW)
         glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
 
@@ -1355,7 +1358,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
 
-        gz = self._calibrateZ(wX, wY)
+        gz = self._calibrateZ(wX, wY) # note: this redraws the entire model
         if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
             return False
 
