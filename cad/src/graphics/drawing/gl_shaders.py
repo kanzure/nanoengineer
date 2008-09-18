@@ -64,7 +64,7 @@ CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
 #   4   GLEngine          	0x1ea1f896 glTexSubImage2D_Exec + 1350
 #   5   libGL.dylib       	0x91708cdb glTexSubImage2D + 155
 
-from geometry.VQT import V, Q, A, norm, vlen, angleBetween
+from geometry.VQT import A
 import utilities.EndUser as EndUser
 
 import graphics.drawing.drawing_globals as drawing_globals
@@ -73,29 +73,26 @@ from graphics.drawing.gl_buffers import GLBufferObject
 import numpy
 
 from OpenGL.GL import GL_ARRAY_BUFFER_ARB
-from OpenGL.GL import GL_COMPILE_STATUS
 from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import GL_ELEMENT_ARRAY_BUFFER_ARB
-from OpenGL.GL import GL_EXTENSIONS
 from OpenGL.GL import GL_FLOAT
 from OpenGL.GL import GL_FRAGMENT_SHADER
-from OpenGL.GL import GL_NEAREST
+#from OpenGL.GL import GL_NEAREST
 from OpenGL.GL import GL_QUADS
-from OpenGL.GL import GL_RGBA, GL_BGRA
+from OpenGL.GL import GL_RGBA
 from OpenGL.GL import GL_RGBA32F_ARB
 from OpenGL.GL import GL_STATIC_DRAW
 from OpenGL.GL import GL_TEXTURE_2D
-from OpenGL.GL import GL_TEXTURE_MAG_FILTER
-from OpenGL.GL import GL_TEXTURE_MIN_FILTER
-from OpenGL.GL import GL_TEXTURE0
+#from OpenGL.GL import GL_TEXTURE_MAG_FILTER
+#from OpenGL.GL import GL_TEXTURE_MIN_FILTER
+#from OpenGL.GL import GL_TEXTURE0
 from OpenGL.GL import GL_TRUE
 from OpenGL.GL import GL_UNSIGNED_INT
-from OpenGL.GL import GL_UNSIGNED_SHORT
 from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import GL_VERTEX_SHADER
 from OpenGL.GL import GL_VALIDATE_STATUS
 
-from OpenGL.GL import glActiveTexture
+#from OpenGL.GL import glActiveTexture
 from OpenGL.GL import glBindTexture
 from OpenGL.GL import glDisable
 from OpenGL.GL import glDisableClientState
@@ -103,7 +100,6 @@ from OpenGL.GL import glDrawElements
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
 from OpenGL.GL import glGenTextures
-from OpenGL.GL import glGetString
 from OpenGL.GL import glGetTexImage
 from OpenGL.GL import glTexImage2D
 from OpenGL.GL import glTexSubImage2D
@@ -116,11 +112,9 @@ from OpenGL.GL.ARB.shader_objects import glCreateShaderObjectARB
 from OpenGL.GL.ARB.shader_objects import glGetInfoLogARB
 from OpenGL.GL.ARB.shader_objects import glGetObjectParameterivARB
 from OpenGL.GL.ARB.shader_objects import glGetUniformLocationARB
-from OpenGL.GL.ARB.shader_objects import glGetUniformfvARB
 from OpenGL.GL.ARB.shader_objects import glGetUniformivARB
 from OpenGL.GL.ARB.shader_objects import glLinkProgramARB
 from OpenGL.GL.ARB.shader_objects import glShaderSourceARB
-from OpenGL.GL.ARB.shader_objects import glUniform1fARB
 from OpenGL.GL.ARB.shader_objects import glUniform1iARB
 from OpenGL.GL.ARB.shader_objects import glUniform3fvARB
 from OpenGL.GL.ARB.shader_objects import glUniform4fvARB
@@ -135,6 +129,8 @@ from OpenGL.GL.ARB.vertex_program import glVertexAttrib3fARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 
 from OpenGL.GL.ARB.vertex_shader import glGetAttribLocationARB
+
+_warnedVars = {}
 
 class GLSphereShaderObject(object):
     """
@@ -191,7 +187,7 @@ class GLSphereShaderObject(object):
         
         return
 
-    def createShader(self, shaderType, shaderSrc):
+    def createShader(shaderType, shaderSrc):
         """
         Create, load, and compile a shader.
         """
@@ -220,7 +216,7 @@ class GLSphereShaderObject(object):
         glUniform1iARB(self.uniform("perspective"), (1, 0)[glpane.ortho])
 
         # XXX Try built-in "uniform gl_DepthRangeParameters gl_DepthRange;"
-        vdist = glpane.vdist                    # See GLPane._setup_projection().
+        vdist = glpane.vdist            # See GLPane._setup_projection().
         # See GLPane_minimal.setDepthRange_Normal().
         from graphics.widgets.GLPane_minimal import DEPTH_TWEAK 
         near = vdist * (glpane.near + DEPTH_TWEAK)
@@ -242,7 +238,6 @@ class GLSphereShaderObject(object):
             self.use(False)
         return
 
-    warnedVars = {}
     def uniform(self, name):
         """
         Return location of a uniform (input) shader variable.
@@ -263,7 +258,7 @@ class GLSphereShaderObject(object):
             # Lets not be so quiet.
             msg = "Invalid or unused uniform shader variable name '%s'." % name
             if EndUser.enableDeveloperFeatures():
-                # Developers want to know of a mismatch between their Python and
+                # Developers want to know of a mismatch between their Python
                 # and shader programs as soon as possible.  Not doing so causes
                 # logic errors, or at least incorrect assumptions, to silently
                 # propagate through the code and makes debugging more difficult.
@@ -272,10 +267,10 @@ class GLSphereShaderObject(object):
                 # End users on the other hand, may value program stability more.
                 # Just print a warning if the program is released.  Do it only
                 # once per session, since this will be in the inner draw loop!
-                global warnedVars
-                if name not in warnedVars:
+                global _warnedVars
+                if name not in _warnedVars:
                     print "Warning:", msg
-                    warnedVars += [name]
+                    _warnedVars += [name]
                     pass
                 pass
             pass
@@ -285,7 +280,7 @@ class GLSphereShaderObject(object):
         """
         Return value of a uniform (input) shader variable.
         """
-        return glGetUniformivARB(self.progObj, uniform(name))
+        return glGetUniformivARB(self.progObj, self.uniform(name))
 
     def use(self, on):
         """
@@ -352,6 +347,10 @@ class GLSphereBuffer:
         self.Py_radii = []
         self.Py_colors = []
         self.Py_transform_ids = []
+
+        # Cached info for blocks of transforms.
+        self.n_transforms = None        # Size of the block.
+        self.transform_memory = None    # Texture memory handle.
 
         # Collect transformed bounding box vertices, offset indices, and
         # per-vertex radius attributes for buffering.
