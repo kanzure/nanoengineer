@@ -92,16 +92,68 @@ from graphics.drawing.CS_workers import drawwiresphere_worker
 from graphics.drawing.CS_workers import drawtriangle_strip_worker
 from graphics.drawing.gl_lighting import apply_material
 
+# ==
+
+# Russ 080915: Support for lazily updating drawing caches, namely a change
+# timestamp.  Rather than recording a time per se, an event counter is used.
+_event_counter = 0
+def eventStamp():
+    global _event_counter
+    _event_counter += 1
+    return _event_counter
+
+def eventNow():
+    return _event_counter
+
+# ==
+
+_csdl_id_counter = 0
+
 class ColorSortedDisplayList:         #Russ 080225: Added.
     """
     The ColorSorter's parent uses one of these to store color-sorted display
     list state.  It's passed in to ColorSorter.start() .
+
+    CSDLs are now created with a TransformControl reference as an argument (and
+    are internally listed in it while they exist). This TransformControl
+    reference is constant (although the transform in the TransformControl is
+    mutable.)
+
+    For convenience, the TransformControl argument can be left out if you don't
+    want to use a TransformControl to move the CSDL. This has the same effect as
+    giving a TransformControl whose transform remains as the identity matrix.
     """
-    def __init__(self):
+    def __init__(self, transformCtl = None):
+        
+        # [Russ 080915: Added.
+        # A unique integer ID for each CSDL.
+        global _csdl_id_counter
+        _csdl_id_counter += 1
+        self.csdlId = _csdl_id_counter
+
+        # Support for lazily updating drawing caches, namely a
+        # timestamp showing when this CSDL was last changed.
+        self.changed = eventStamp()
+        
+        # Added optional constructor argument.
+        self.transformControl = transformCtl
+        if self.transformControl is not None:
+            # Note: this requires the csdlID to be already set!
+            self.transformControl.addCSDL(self)
+            pass
+        # Russ 080915]
+
         self.clear()
+
         # Whether to draw in the selection over-ride color.
-        self.selected = False 
+        self.selected = False
+
         return
+
+    def __del__(self):                  # Russ 080915: added.
+        # Unregister the CSDL from its TransformControl.
+        if self.transformControl is not None:
+            transformControl.removeCSDL(self.csdlId)
 
     # ==
 
@@ -627,6 +679,9 @@ class ColorSorter:
             pass
 
         if csdl != None:
+            # Russ 080915: This supports lazily updating drawing caches.
+            ColorSorter.parent_csdl.changed = eventStamp()
+
             if not (drawing_globals.allow_color_sorting and
                     (drawing_globals.use_color_sorted_dls
                      or drawing_globals.use_color_sorted_vbos)): #russ 080320
