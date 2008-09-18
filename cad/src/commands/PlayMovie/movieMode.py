@@ -90,6 +90,8 @@ class movieMode(basicMode):
     it will start playing it. [I don't know the extent to which it will start
     from where it left off, in not only frame number but direction, etc. - bruce 050426]
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported. 
 
     # class constants
     commandName = 'MOVIE'
@@ -99,31 +101,74 @@ class movieMode(basicMode):
 
     PM_class = MoviePropertyManager #bruce 080909
     
+    #Flyout Toolbar
+    FlyoutToolbar_class = PlayMovieFlyout
+    
     flyoutToolbar = None
 
     # methods related to entering or exiting this mode
-
-    def Enter(self):
-        basicMode.Enter(self)
+    
+    if not USE_COMMAND_STACK:
+        def Enter(self):
+            basicMode.Enter(self)
+            # [bruce 050427 comment: I'm skeptical of this effect on selection,
+            #  since I can't think of any good reason for it [maybe rendering speed optimization??],
+            #  and once we have movies as nodes in the MT it will be a problem [why? #k],
+            #  but for now I'll leave it in.]
+            self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
+            self.o.assy.permit_pick_atoms()
+            
+        def init_gui(self):
+            self.command_enter_PM()
+            self.command_enter_flyout()
+            self.command_enter_misc_actions()
+            
+        def command_enter_flyout(self):
+            """
+            Overrides superclass method. 
+            
+            @see: baseCommand.command_enter_flyout()  for documentation
+            """
+            if self.flyoutToolbar is None:
+                self.flyoutToolbar = self._createFlyoutToolBarObject() 
+            self.flyoutToolbar.activateFlyoutToolbar()  
+                
+        def command_exit_flyout(self):
+            """
+            Overrides superclass method. 
+            
+            @see: baseCommand.command_exit_flyout()  for documentation
+            """
+            if self.flyoutToolbar:
+                self.flyoutToolbar.deActivateFlyoutToolbar()
+            
+        def _exitMode(self, *args, **kws): # for not-USE_COMMAND_STACK case; happens for Done or Cancel; remove when USE_COMMAND_STACK
+            # note: this definition generates the debug print
+            ## fyi (for developers): subclass movieMode overrides basicMode._exitMode; this is deprecated after mode changes of 040924.
+            # because it's an API violation to override this method; what should be done instead is to do this in one of the other cleanup
+            # functions documented in modes.py. Sometime that doc should be clarified and this method should be redone properly.
+            # [bruce 070613 comment]
+    
+            self._offer_to_rewind_if_necessary()
+            
+            basicMode._exitMode(self, *args, **kws)
+            return
+        
+    def command_entered(self):
+        """
+        Extends superclass method. 
+        @see: baseCommand.command_entered() for documentation.
+        """
+        basicMode.command_entered(self)
+        #UPDATE 2008-09-18: Copying old code from self.Enter()
         # [bruce 050427 comment: I'm skeptical of this effect on selection,
         #  since I can't think of any good reason for it [maybe rendering speed optimization??],
         #  and once we have movies as nodes in the MT it will be a problem [why? #k],
         #  but for now I'll leave it in.]
         self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
         self.o.assy.permit_pick_atoms()
-
-    def _exitMode(self, *args, **kws): # for not-USE_COMMAND_STACK case; happens for Done or Cancel; remove when USE_COMMAND_STACK
-        # note: this definition generates the debug print
-        ## fyi (for developers): subclass movieMode overrides basicMode._exitMode; this is deprecated after mode changes of 040924.
-        # because it's an API violation to override this method; what should be done instead is to do this in one of the other cleanup
-        # functions documented in modes.py. Sometime that doc should be clarified and this method should be redone properly.
-        # [bruce 070613 comment]
-
-        self._offer_to_rewind_if_necessary()
+            
         
-        basicMode._exitMode(self, *args, **kws)
-        return
-
     def command_will_exit(self): # for USE_COMMAND_STACK case; happens for any exit [bruce 080806]
         """
         Extends superclass method, to offer to rewind the movie
@@ -187,10 +232,7 @@ class movieMode(basicMode):
             mrd.exec_()
         return
     
-    def init_gui(self):
-        self.command_enter_PM()
-        self.command_enter_flyout()
-        self.command_enter_misc_actions()
+    
 
             
     #START new command API methods =============================================
@@ -204,14 +246,7 @@ class movieMode(basicMode):
         Extends superclass method.         
         @see: baseCommand.command_enter_PM()  for documentation        
         """
-##        #important to check for old propMgr object. Reusing propMgr object 
-##        #significantly improves the performance.
-##        if not self.propMgr:
-##            self.propMgr = self._createPropMgrObject()
-##            #@bug BUG: following is a workaround for bug 2494.
-##            #This bug is mitigated as propMgr object no longer gets recreated
-##            #for modes -- ninad 2007-08-29
-##            changes.keep_forever(self.propMgr)
+
         basicMode.command_enter_PM(self) #bruce 080909 call this instead of inlining it
             
         if not USE_COMMAND_STACK:
@@ -257,25 +292,7 @@ class movieMode(basicMode):
             if self.propMgr:
                 self.propMgr.close()
             
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_enter_flyout()  for documentation
-        """
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = self._createFlyoutToolBarObject() 
-        self.flyoutToolbar.activateFlyoutToolbar()  
-            
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_flyout()  for documentation
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
-            
+                
     def command_enter_misc_actions(self):
         """
         Overrides superclass method. 
