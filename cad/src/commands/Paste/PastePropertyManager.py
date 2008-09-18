@@ -15,6 +15,7 @@ ninad 2007-08-29: Created to support new 'Paste mode'.
 
 from commands.BuildAtoms.BuildAtomsPropertyManager import BuildAtomsPropertyManager
 from PM.PM_Clipboard           import PM_Clipboard
+from utilities.Comparison import same_vals
 
 class PastePropertyManager(BuildAtomsPropertyManager):
     """
@@ -50,6 +51,7 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         @type  command: L{PasteFromClipboard_Command}    
         """    
         self.clipboardGroupBox = None
+        self._previous_model_changed_params = None
         BuildAtomsPropertyManager.__init__(self, command)
         self.updateMessage("Double click on empty space inside the 3D" \
                  "workspace to paste the item shown in "\
@@ -61,14 +63,53 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         """
         This method should replace model_changed() eventually. 
         This is used with USE_COMMAND_STACK debug flag
-        """     
-        self.model_changed()  
+        @see: PasteFromClipboard_Command.command_update_internal_state() which 
+        is called before any command/ PM update UI.
+        """    
+        currentParams = self._current_model_changed_params()
+        
+        if same_vals(currentParams, self._previous_model_changed_params):
+            return 
+        
+        #update the self._previous_model_changed_params with this new param set.
+        self._previous_model_changed_params = currentParams 
+        
+        self.update_clipboard_items() 
+        # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
+        # Note and bugfix, bruce 060412: doing this now was also causing 
+        # traceback bugs 1726, 1629,
+        # and the traceback part of bug 1677, and some related 
+        #(perhaps unreported) bugs.
+        # The problem was that this is called during pasteBond's addmol 
+        #(due to its addchild), before it's finished,
+        # at a time when the .part structure is invalid (since the added 
+        # mol's .part has not yet been set).
+        # To fix bugs 1726, 1629 and mitigate bug 1677, I revised the 
+        # interface to MMKit.update_clipboard_items
+        # (in the manner which was originally recommented in 
+        #call_after_next_changed_members's docstring) 
+        # so that it only sets a flag and updates (triggering an MMKit 
+        # repaint event), deferring all UI effects to
+        # the next MMKit event.
+        pass 
+    
+    def _current_model_changed_params(self):
+        """
+        Returns a tuple containing the parameters that will be compared
+        against the previously stored parameters. This provides a quick test
+        to determine whether to do more things in self._update_UI_do_updates()
+        @see: self._update_UI_do_updates() which calls this
+        @see: self._previous_model_changed_params attr. 
+        """
+        #As of 2008-09-18, this is used to update the list widget in the PM 
+        #that lists the 'pastable' items. 
+        return self.command.pastables_list
     
     def model_changed(self):
         """
         Overrides BuildAtomsPropertyManager.model_changed. 
         """
-        #This does nothing in this propMGr at present. 
+        #This does nothing in this propMgr at present. 
         return
             
     def _addGroupBoxes(self):
@@ -92,14 +133,6 @@ class PastePropertyManager(BuildAtomsPropertyManager):
                          win = self.command.w, 
                          elementViewer = elementViewer)
                
-    def show(self):
-        """
-        Show this property manager. Also calls the update method of 
-        L{self.clipboardGroupBox} to update the list of clipboard items.
-        """
-        BuildAtomsPropertyManager.show(self)
-        if self.clipboardGroupBox:
-            self.clipboardGroupBox.update()
     
     def connect_or_disconnect_signals(self, isConnect):         
         """

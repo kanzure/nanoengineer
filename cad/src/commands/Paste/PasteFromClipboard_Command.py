@@ -39,6 +39,9 @@ from commands.Paste.PastePropertyManager import PastePropertyManager
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from ne1_ui.toolbars.Ui_PasteFromClipboardFlyout import PasteFromClipboardFlyout
 from commands.Paste.PasteFromClipboard_GraphicsMode import PasteFromClipboard_GraphicsMode
+
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 _superclass = BuildAtoms_Command
 
 class PasteFromClipboard_Command(BuildAtoms_Command):
@@ -66,8 +69,15 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
 
     #See Command.anyCommand for details about the following flag
     command_has_its_own_PM = True
-
+    
+    #GraphicsMode
     GraphicsMode_class = PasteFromClipboard_GraphicsMode
+    
+    #Property Manager
+    PM_class = PastePropertyManager
+    
+    #Flyout Toolbar
+    FlyoutToolbar_class = PasteFromClipboardFlyout
 
     def __init__(self, commandSequencer):
         """
@@ -81,47 +91,76 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         self.pastables_list = [] #@note: not needed here?
         self._previous_model_changed_params = None
         _superclass.__init__(self, commandSequencer) 
-
-    def Enter(self):
+        
+    
+    def command_entered(self):
         """
-        """
-        _superclass.Enter(self)
+        Overrides superclass method
+        @see: baseCommand.command_entered() for documentation.
+        """       
+        _superclass.command_entered(self)
         self.pastable = None #k would it be nicer to preserve it from the past??
-            # note, this is also done redundantly in init_gui.
+                # note, this is also done redundantly in init_gui.
         self.pastables_list = []
             # should be ok, since model_changed comes after this...
-
-    def init_gui(self):
+        
+        
+    if not USE_COMMAND_STACK:
+        def Enter(self):
+            """
+            """
+            _superclass.Enter(self)
+            self.pastable = None #k would it be nicer to preserve it from the past??
+                # note, this is also done redundantly in init_gui.
+            self.pastables_list = []
+                # should be ok, since model_changed comes after this...
+    
+        def init_gui(self):
+            """
+            Do changes to the GUI while entering this mode. This includes opening 
+            the property manager, updating the command toolbar, connecting widget 
+            slots etc. 
+    
+            Called once each time the mode is entered; should be called only by code 
+            in modes.py
+    
+            @see: L{self.restore_gui}
+            """
+            self.pastable = None 
+            _superclass.init_gui(self)
+    
+    
+        def _createFlyoutToolBarObject(self):
+            """
+            Create a flyout toolbar to be shown when this command is active. 
+            Overridden in subclasses. 
+            @see: PasteFromClipboard_Command._createFlyouttoolBar()
+            @see: self.command_enter_flyout()
+            """
+            flyoutToolbar = PasteFromClipboardFlyout(self) 
+            return flyoutToolbar
+        
+    def command_update_internal_state(self):
         """
-        Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command toolbar, connecting widget 
-        slots etc. 
-
-        Called once each time the mode is entered; should be called only by code 
-        in modes.py
-
-        @see: L{self.restore_gui}
+        Extends superclass method.
+        @see: baseCommand.command_update_internal_state()
+        @see: PastePropertyManager._update_UI_do_updates()
         """
-        self.pastable = None 
-        _superclass.init_gui(self)
-
-
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = PasteFromClipboardFlyout(self) 
-        return flyoutToolbar
-
-    def _createPropMgrObject(self):
-        """
-        """
-        propMgr = PastePropertyManager(self)
-        return propMgr
-
+        _superclass.command_update_internal_state(self)
+        
+        currentParams = self._current_model_changed_params()
+        
+        #Optimization. Return from the model_changed method if the 
+        #params are the same. 
+        if same_vals(currentParams, self._previous_model_changed_params):
+            return 
+        
+        #update the self._previous_model_changed_params with this new param set.
+        self._previous_model_changed_params = currentParams 
+        
+        #This was earlier -- self.update_gui_0()
+        self._update_pastables_list()    
+        
 
     def model_changed(self):
         _superclass.model_changed(self)
@@ -279,8 +318,6 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         #that way.) ###@@@ good idea...
 
         return
-
-
 
     def update_pastable(self):
         """
