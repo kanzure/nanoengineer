@@ -2,8 +2,9 @@
 """
 baseCommand.py - base class for command objects on a command sequencer stack
 
-NOTE: under development, only used when USE_COMMAND_STACK is true
-(controlled by debug_pref as of before 080905)
+NOTE: only used when USE_COMMAND_STACK is true
+(controlled by debug_pref as of before 080905;
+not yet used by default as of 080917, but soon will be)
 
 @author: Bruce
 @version: $Id$
@@ -742,7 +743,7 @@ class baseCommand(object):
         @see: command_update_UI, for subsequent updates of UI elements only
         """
         if self.parentCommand:
-            assert self.parentCommand is not self #bruce 080909 debug code
+            assert self.parentCommand is not self
             self.parentCommand.command_update_internal_state()
         return
 
@@ -766,14 +767,14 @@ class baseCommand(object):
         @see: self.command_update_flyout()
         """
         if self.propMgr:
-            self.propMgr.update_UI() ### IMPLEM; must work when PM is shown or not shown, and should not show it
+            self.propMgr.update_UI()
+                # must work when PM is shown or not shown, and should not show it
                 # note: what shows self.propMgr (if it ought to be shown but isn't)
                 # is the base implem of our indirect caller,
                 # commandSequencer._f_update_current_command,
                 # after we return.
 
-        ### maybe: also something to update the flyout toolbar, from an attribute?
-        #UPDATE 2008-09-16: updating flyout toolbar is now done by 
+        # Note: 2008-09-16: updating flyout toolbar is now done by 
         #self.command_update_flyout() See that method for details. 
         
         return
@@ -782,13 +783,14 @@ class baseCommand(object):
         """
         Subclasses should NEVER override this method. 
         
-        This method is only called for command stack changes involving commands 
-        that afffect flyout.
+        This method is only called for command stack changes involving commands
+        that affect the flyout toolbar (according to their command_level).
 
         When this is called, self is the current command and
         all other update methods defined above have been called.
         
-        @note: called only  when command stack changed since
+        @note: called only when command stack changed (counting
+               only commands that affect flyout) since
                the last time this was called for any command
         
         @see: self.command_update_UI() where updates to PM are done
@@ -859,7 +861,6 @@ class baseCommand(object):
         flyoutActionToCheck = ''
         parentCommandName = None        
         return flyoutActionToCheck, parentCommandName
-            
     
     # == other methods
 

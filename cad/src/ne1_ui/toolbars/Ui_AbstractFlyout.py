@@ -238,13 +238,12 @@ class Ui_AbstractFlyout(object):
         This is overridden in subclasses to ensure that the default state of the
         flyout is restored. 
         
-        Who calls this? --
-        This is called by flyout classes of commands that have potential 
-        subcommands which care about flyout  and may do changes to it. 
-        So it is overridden in only such command flyout classes. 
+        Who overrides this? --
+        This is overridden in flyout classes of commands that have potential 
+        subcommands which care about flyout and may do changes to it. 
         See BuildDnaFlyout, BuildAtomsFlyout for example.  
         
-        In general, it will be used by any command that defines its own 
+        In general, it will be called for any command that defines its own 
         FlyoutToolbar_class. In such cases, it is called whenever command is 
         entered or resumed.
         
