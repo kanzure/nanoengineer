@@ -10,7 +10,7 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.CompareProteins.CompareProteins_PropertyManager import CompareProteins_PropertyManager
-
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -28,13 +28,14 @@ class CompareProteins_Command(EditCommand):
     """
     
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
+    
     # class constants
     GraphicsMode_class = CompareProteins_GraphicsMode
     
     PM_class = CompareProteins_PropertyManager
-    
-    
-    
+
     commandName = 'COMPARE_PROTEINS'
     featurename = "Compare Proteins"
     from utilities.constants import CL_SUBCOMMAND
@@ -43,42 +44,53 @@ class CompareProteins_Command(EditCommand):
     from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
     if MODEL_AND_SIMULATE_PROTEINS:
         command_parent = 'MODEL_PROTEIN'
-        
-    
-   
-    
+           
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     
     flyoutToolbar = None
-
-    def init_gui(self):
+    
+    def _getFlyoutToolBarActionAndParentCommand(self):
         """
-        Initialize GUI for this mode 
+        See superclass for documentation.
+        @see: self.command_update_flyout()
         """
-        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        flyoutActionToCheck = 'compareProteinsAction'
         if MODEL_AND_SIMULATE_PROTEINS:
-            self._init_gui_flyout_action( 'compareProteinsAction', 'MODEL_AND_SIMULATE_PROTEIN' )
+            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
         else:
-            self._init_gui_flyout_action( 'compareProteinsAction')
+            parentCommandName = None
             
-        if self.propMgr is None:
-            self.propMgr = CompareProteins_PropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
-            changes.keep_forever(self.propMgr)  
+        return flyoutActionToCheck, parentCommandName
+    
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
+            from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+            if MODEL_AND_SIMULATE_PROTEINS:
+                self._init_gui_flyout_action( 'compareProteinsAction', 'MODEL_AND_SIMULATE_PROTEIN' )
+            else:
+                self._init_gui_flyout_action( 'compareProteinsAction')
+                
+            if self.propMgr is None:
+                self.propMgr = CompareProteins_PropertyManager(self)
+                #@bug BUG: following is a workaround for bug 2494.
+                #This bug is mitigated as propMgr object no longer gets recreated
+                #for modes -- niand 2007-08-29
+                changes.keep_forever(self.propMgr)  
+                
+            self.propMgr.show()
             
-        self.propMgr.show()
-        
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-        EditCommand.restore_gui(self)
-        if self.flyoutToolbar:
-            self.flyoutToolbar.compareProteinsAction.setChecked(False)    
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+            EditCommand.restore_gui(self)
+            if self.flyoutToolbar:
+                self.flyoutToolbar.compareProteinsAction.setChecked(False)    
         
     def keep_empty_group(self, group):
         """

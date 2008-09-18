@@ -111,6 +111,16 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         #self.peptide_cache = []
         #self.peptide_cache.append((0, 0, 0))
         self.updateMessageGroupBox()
+        
+    
+    def show(self):
+        """
+        Extends superclass method.
+        """
+        _superclass.show(self)
+        self.updateMessage("Specify two points in the 3D Graphics " \
+                                   "Area to define the endpoints of the "\
+                                   "peptide chain.")
                 
     def updateMessageGroupBox(self):
        

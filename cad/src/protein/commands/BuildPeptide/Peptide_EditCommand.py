@@ -24,6 +24,7 @@ from utilities.prefs_constants import cursorTextColor_prefs_key
 
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
 from protein.commands.BuildPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 #_superclass = ModelAndSimulateProtein_Command
 _superclass = EditCommand
@@ -31,7 +32,7 @@ class Peptide_EditCommand(EditCommand):
 #class Peptide_EditCommand(ModelAndSimulateProtein_Command):
 
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "NOT_PORTED"
+    command_porting_status = None #fully ported
 
     PM_class = PeptideGeneratorPropertyManager
     
@@ -70,56 +71,98 @@ class Peptide_EditCommand(EditCommand):
         _superclass.__init__(self, commandSequencer)        
         #Maintain a list of peptide segments created while this command was running. 
         self._segmentList = []
-                
-    
-    def init_gui(self):
+        
+    def command_entered(self):
         """
-        Do changes to the GUI while entering this command. This includes opening 
-        the property manager, updating the command toolbar , connecting widget 
-        slots (if any) etc. Note: The slot connection in property manager and 
-        command toolbar is handled in those classes. 
-
-        Called once each time the command is entered; should be called only 
-        by code in modes.py
-
-        @see: L{self.restore_gui}
+        Extends superclass method. 
+        @see: basecommand.command_entered() for documentation
         """
-        _superclass.init_gui(self)  
-
-        if isinstance(self.graphicsMode, PeptideLine_GM):
+        _superclass.command_entered(self)
+        #NOTE: Following code was copied from self.init_gui() that existed 
+        #in old command API -- Ninad 2008-09-18
+        if isinstance(self.graphicsMode, PeptideLine_GM):            
             self._setParamsForPeptideLineGraphicsMode()
             self.mouseClickPoints = []
         #Clear the segmentList as it may still be maintaining a list of segments
         #from the previous run of the command. 
-        self._segmentList = []
-        if MODEL_AND_SIMULATE_PROTEINS:
-            self._init_gui_flyout_action( 'buildPeptideAction', 'MODEL_AND_SIMULATE_PROTEIN' ) 
-        else:
-            self._init_gui_flyout_action( 'buildPeptideAction')
-            
+        self._segmentList = []                    
         ss_idx, self.phi, self.psi, aa_type = self._gatherParameters()
-
-    
-
-    def restore_gui(self):
+        
+    def command_will_exit(self):
         """
-        Do changes to the GUI while exiting this command. This includes closing 
-        this mode's property manager, updating the command toolbar ,
-        Note: The slot connection/disconnection in property manager and 
-        command toolbar is handled in those classes.
-        @see: L{self.init_gui}
-        """                    
-        _superclass.restore_gui(self)
-
+        Extends superclass method. 
+        @see: basecommand.command_will_exit() for documentation
+        """
         if isinstance(self.graphicsMode, PeptideLine_GM):
-            self.mouseClickPoints = []
-
+                self.mouseClickPoints = []    
         self.graphicsMode.resetVariables()   
-
-        if self.flyoutToolbar:
-            self.flyoutToolbar.buildPeptideAction.setChecked(False)
-
         self._segmentList = []
+        
+        _superclass.command_will_exit(self)
+            
+    
+    def _getFlyoutToolBarActionAndParentCommand(self):
+        """
+        See superclass for documentation.
+        @see: self.command_update_flyout()
+        """
+        flyoutActionToCheck = 'buildPeptideAction'
+        if MODEL_AND_SIMULATE_PROTEINS:
+            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
+        else:
+            parentCommandName = None
+            
+        return flyoutActionToCheck, parentCommandName
+                
+    if USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            Do changes to the GUI while entering this command. This includes opening 
+            the property manager, updating the command toolbar , connecting widget 
+            slots (if any) etc. Note: The slot connection in property manager and 
+            command toolbar is handled in those classes. 
+    
+            Called once each time the command is entered; should be called only 
+            by code in modes.py
+    
+            @see: L{self.restore_gui}
+            """
+            _superclass.init_gui(self)  
+    
+            if isinstance(self.graphicsMode, PeptideLine_GM):
+                self._setParamsForPeptideLineGraphicsMode()
+                self.mouseClickPoints = []
+            #Clear the segmentList as it may still be maintaining a list of segments
+            #from the previous run of the command. 
+            self._segmentList = []
+            if MODEL_AND_SIMULATE_PROTEINS:
+                self._init_gui_flyout_action( 'buildPeptideAction', 'MODEL_AND_SIMULATE_PROTEIN' ) 
+            else:
+                self._init_gui_flyout_action( 'buildPeptideAction')
+                
+            ss_idx, self.phi, self.psi, aa_type = self._gatherParameters()
+    
+        
+    
+        def restore_gui(self):
+            """
+            Do changes to the GUI while exiting this command. This includes closing 
+            this mode's property manager, updating the command toolbar ,
+            Note: The slot connection/disconnection in property manager and 
+            command toolbar is handled in those classes.
+            @see: L{self.init_gui}
+            """                    
+            _superclass.restore_gui(self)
+    
+            if isinstance(self.graphicsMode, PeptideLine_GM):
+                self.mouseClickPoints = []
+    
+            self.graphicsMode.resetVariables()   
+    
+            if self.flyoutToolbar:
+                self.flyoutToolbar.buildPeptideAction.setChecked(False)
+    
+            self._segmentList = []
     
     def keep_empty_group(self, group):
         """
@@ -280,25 +323,6 @@ class Peptide_EditCommand(EditCommand):
             _superclass._finalizeStructure(self)
         return
     
-    
-    def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
-        """
-        Create the property manager object if one doesn't already exist 
-        and then show the propMgr if wanted by the user. 
-        @param showPropMgr: If True, show the property manager 
-        @type showPropMgr: boolean
-        """
-        _superclass.create_and_or_show_PM_if_wanted(
-            self,
-            showPropMgr = showPropMgr)
-
-        self.propMgr.updateMessage("Specify two points in the 3D Graphics " \
-                                   "Area to define the endpoints of the "\
-                                   "peptide chain."
-                               )
-        return
-    
-       
             
     def _getStructureType(self):
         """

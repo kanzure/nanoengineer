@@ -8,10 +8,18 @@
 """
 from utilities.debug import print_compact_stack, print_compact_traceback
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
+_superclass = ModelAndSimulateProtein_Command
 class ModelProtein_Command(ModelAndSimulateProtein_Command):
     """
     Class for modeling proteins
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
+    
+    FlyoutToolbar_class = None
+    
     featurename = 'Model and Simulate Protein Mode/Model Protein'
     commandName = 'MODEL_PROTEIN'
     
@@ -27,30 +35,43 @@ class ModelProtein_Command(ModelAndSimulateProtein_Command):
     command_level = CL_SUBCOMMAND
     command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
     
-    def Enter(self):
+    def command_entered(self):
         """
-        Enter modeling protein command
+        Extends superclass method. 
+        @see: baseCommand.command_entered() for documentation
         """
-        ModelAndSimulateProtein_Command.Enter(self)
-        #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
-        self.command_enter_PM()     
-        
+        _superclass.command_entered(self)
         msg = "Select a modeling tool to either modify an existing protein "\
-                "or create a new peptide chain."
+                    "or create a new peptide chain."
         self.propMgr.updateMessage(msg)
-        self.command_enter_flyout()
         
-    def command_enter_flyout(self):
-        """
-        REUSE the flyout toolbar from the parent_command         
-        """
-        self._reuse_attr_of_parentCommand('flyoutToolbar')
+
+    if not USE_COMMAND_STACK:
     
+        def Enter(self):
+            """
+            Enter modeling protein command
+            """
+            ModelAndSimulateProtein_Command.Enter(self)
+            #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
+            self.command_enter_PM()     
+            
+            msg = "Select a modeling tool to either modify an existing protein "\
+                    "or create a new peptide chain."
+            self.propMgr.updateMessage(msg)
+            self.command_enter_flyout()
+            
+        def command_enter_flyout(self):
+            """
+            REUSE the flyout toolbar from the parent_command         
+            """
+            self._reuse_attr_of_parentCommand('flyoutToolbar')
         
-    def init_gui(self):
-          
-        pass
-    
-    def restore_gui(self):
+            
+        def init_gui(self):
+              
+            pass
         
-        pass    
+        def restore_gui(self):
+            
+            pass    

@@ -10,7 +10,9 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_PropertyManager import ProteinDisplayStyle_PropertyManager
+from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -23,14 +25,15 @@ class ProteinDisplayStyle_GraphicsMode(SelectChunks_GraphicsMode ):
     
 # == Command part
 
-from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
-#_superclass = ModelAndSimulateProtein_Command
 _superclass = EditCommand
 class ProteinDisplayStyle_Command(EditCommand): 
 #class ProteinDisplayStyle_Command(ModelAndSimulateProtein_Command): 
     """
     
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
+    
     # class constants
     
     GraphicsMode_class = ProteinDisplayStyle_GraphicsMode
@@ -49,36 +52,50 @@ class ProteinDisplayStyle_Command(EditCommand):
     
     flyoutToolbar = None
     
-    
-    def init_gui(self):
+    def _getFlyoutToolBarActionAndParentCommand(self):
         """
-        Initialize GUI for this mode 
+        See superclass for documentation.
+        @see: self.command_update_flyout()
         """
-        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        flyoutActionToCheck = 'displayProteinStyleAction'
         if MODEL_AND_SIMULATE_PROTEINS:
-            self._init_gui_flyout_action( 'displayProteinStyleAction' , 
-                                      'MODEL_AND_SIMULATE_PROTEIN') 
+            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
         else:
-            self._init_gui_flyout_action( 'displayProteinStyleAction' , 
-                                      'BUILD_PROTEIN') 
-        if self.propMgr is None:
-            self.propMgr = ProteinDisplayStyle_PropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
-            changes.keep_forever(self.propMgr)  
+            parentCommandName = None
             
-        self.propMgr.show()
+        return flyoutActionToCheck, parentCommandName
+    
+    
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
             
-        
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-        EditCommand.restore_gui(self)
-        if self.flyoutToolbar:
-            self.flyoutToolbar.displayProteinStyleAction.setChecked(False)    
-        
+            if MODEL_AND_SIMULATE_PROTEINS:
+                self._init_gui_flyout_action( 'displayProteinStyleAction' , 
+                                          'MODEL_AND_SIMULATE_PROTEIN') 
+            else:
+                self._init_gui_flyout_action( 'displayProteinStyleAction' , 
+                                          'BUILD_PROTEIN') 
+            if self.propMgr is None:
+                self.propMgr = ProteinDisplayStyle_PropertyManager(self)
+                #@bug BUG: following is a workaround for bug 2494.
+                #This bug is mitigated as propMgr object no longer gets recreated
+                #for modes -- niand 2007-08-29
+                changes.keep_forever(self.propMgr)  
+                
+            self.propMgr.show()
+                
+            
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+            EditCommand.restore_gui(self)
+            if self.flyoutToolbar:
+                self.flyoutToolbar.displayProteinStyleAction.setChecked(False)    
+            
     
    
     def keep_empty_group(self, group):

@@ -430,18 +430,28 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
                 
     def resetStateOfActions(self):
         """
-        Resets the state of actions in the flyout toolbar.
-        Uncheck most of the actions. Basically it 
-        unchecks all the actions EXCEPT the ExitDnaAction
+        See superclass for documentation. 
         @see: self.deActivateFlyoutToolbar()
-        
         """
-        #Uncheck all the actions in the flyout toolbar (subcontrol area)
         
-        for action in self.subControlActionGroup.actions():
-            if action.isChecked():
-                action.setChecked(False)     
-        return
+        # Uncheck all the actions in the 'command area' , corresponding to the 
+        #'subControlArea button checked. 
+        #Note :the attrs self.subControlActionGroupFor* are misnamed. Those 
+        #should be somethin like commandAreaActionGroup* 
+        # [-- Ninad 2008-09-17 revised this method for USE_CMMAND_STACK]
+        actionGroup = None
+        current_active_tool = self.command.getCurrentActiveTool()
+        if current_active_tool == 'MODEL_PROTEIN':
+            actionGroup = self.subControlActionGroupForModelProtein
+        elif current_active_tool == 'SIMULATE_PROTEIN':
+            actionGroup = self.subControlActionGroupForSimulateProtein
+        
+        if actionGroup is None:
+            return 
+        
+        for action in actionGroup.actions():
+            action.setChecked(False)   
+                  
     
     def testRosettaAndUpdateCommandToolbar(self, action):
         if action == self.simulateProteinAction:

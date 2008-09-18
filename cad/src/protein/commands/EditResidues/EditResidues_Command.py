@@ -10,7 +10,8 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.EditResidues.EditResidues_PropertyManager import EditResidues_PropertyManager
-
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -28,57 +29,68 @@ class EditResidues_Command(EditCommand):
     """
     
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
+    
     # class constants
     GraphicsMode_class = EditResidues_GraphicsMode
     
     PM_class = EditResidues_PropertyManager
-    
-    
-    
+        
     commandName = 'EDIT_RESIDUES'
     featurename = "Edit Residues"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
-    from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
     if MODEL_AND_SIMULATE_PROTEINS:
         command_parent = 'SIMULATE_PROTEIN'
-        
-    
-   
-    
+
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     
     flyoutToolbar = None
-
-    def init_gui(self):
+    
+    def _getFlyoutToolBarActionAndParentCommand(self):
         """
-        Initialize GUI for this mode 
+        See superclass for documentation.
+        @see: self.command_update_flyout()
         """
-        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+        flyoutActionToCheck = 'editResiduesAction'
         if MODEL_AND_SIMULATE_PROTEINS:
-            self._init_gui_flyout_action( 'editResiduesAction', 'MODEL_AND_SIMULATE_PROTEIN' )
+            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
         else:
-            self._init_gui_flyout_action( 'editResiduesAction')
-        if self.propMgr is None:
-            self.propMgr = EditResidues_PropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494.
-            #This bug is mitigated as propMgr object no longer gets recreated
-            #for modes -- niand 2007-08-29
-            changes.keep_forever(self.propMgr)  
+            parentCommandName = None
             
-        self.propMgr.show()
+        return flyoutActionToCheck, parentCommandName
+    
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
             
-        
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-        EditCommand.restore_gui(self)
-        if self.flyoutToolbar:
-            self.flyoutToolbar.editResiduesAction.setChecked(False)    
+            if MODEL_AND_SIMULATE_PROTEINS:
+                self._init_gui_flyout_action( 'editResiduesAction', 'MODEL_AND_SIMULATE_PROTEIN' )
+            else:
+                self._init_gui_flyout_action( 'editResiduesAction')
+            if self.propMgr is None:
+                self.propMgr = EditResidues_PropertyManager(self)
+                #@bug BUG: following is a workaround for bug 2494.
+                #This bug is mitigated as propMgr object no longer gets recreated
+                #for modes -- niand 2007-08-29
+                changes.keep_forever(self.propMgr)  
+                
+            self.propMgr.show()
+                
+            
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+            EditCommand.restore_gui(self)
+            if self.flyoutToolbar:
+                self.flyoutToolbar.editResiduesAction.setChecked(False)    
         
     def keep_empty_group(self, group):
         """

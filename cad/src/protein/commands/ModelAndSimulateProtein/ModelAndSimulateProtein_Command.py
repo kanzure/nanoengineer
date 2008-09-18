@@ -24,6 +24,9 @@ class ModelAndSimulateProtein_Command(EditCommand):
     
     PM_class = ModelAndSimulateProtein_PropertyManager
     
+    #Flyout Toolbar
+    FlyoutToolbar_class = ProteinFlyout_v2
+    
     cmd              =  greenmsg("Model and simulate protein: ")
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Model and simulate protein"
@@ -44,39 +47,6 @@ class ModelAndSimulateProtein_Command(EditCommand):
     
     #START new command API methods ==============================================
 
-            
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_enter_flyout()  for documentation
-        """
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = self._createFlyoutToolBarObject() 
-        self.flyoutToolbar.activateFlyoutToolbar()  
-        return
-    
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = ProteinFlyout_v2(self) 
-        return flyoutToolbar
-           
-            
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_flyout()  for documentation
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
-            
-        return
-    
     def command_enter_misc_actions(self):
         """
         Overrides superclass method. 
@@ -97,6 +67,9 @@ class ModelAndSimulateProtein_Command(EditCommand):
     
     #END new command API methods ==============================================
     
+    
+    def getCurrentActiveTool(self):
+        return self._currentActiveTool
     
     if not USE_COMMAND_STACK:    
         def init_gui(self):
@@ -133,6 +106,40 @@ class ModelAndSimulateProtein_Command(EditCommand):
             if self.propMgr:
                 self.propMgr.close()
             return
+        
+        def command_enter_flyout(self):
+            """
+            Overrides superclass method. 
+            
+            @see: baseCommand.command_enter_flyout()  for documentation
+            """
+            if self.flyoutToolbar is None:
+                self.flyoutToolbar = self._createFlyoutToolBarObject() 
+            self.flyoutToolbar.activateFlyoutToolbar()  
+            return
+        
+                       
+        
+        def _createFlyoutToolBarObject(self):
+            """
+            Create a flyout toolbar to be shown when this command is active. 
+            Overridden in subclasses. 
+            @see: self.command_enter_flyout()
+            """
+            flyoutToolbar = ProteinFlyout_v2(self) 
+            return flyoutToolbar
+            
+        def command_exit_flyout(self):
+            """
+            Overrides superclass method. 
+            
+            @see: baseCommand.command_exit_flyout()  for documentation
+            """
+            if self.flyoutToolbar:
+                self.flyoutToolbar.deActivateFlyoutToolbar()
+                
+            return
+    
     
     def setCurrentCommandMode(self, commandName):
         """

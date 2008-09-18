@@ -10,7 +10,8 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.FixedBBProteinSim.FixedBBProteinSim_PropertyManager import FixedBBProteinSim_PropertyManager
-
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -41,37 +42,50 @@ class FixedBBProteinSim_Command(EditCommand):
     command_parent = 'SIMULATE_PROTEIN'
       
     
-   
-    
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     
     flyoutToolbar = None
-
-    def init_gui(self):
-        """
-        Initialize GUI for this mode 
-        """
-
-        self._init_gui_flyout_action( 'rosetta_fixedbb_design_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
-        
-        if self.propMgr is None:
-            self.propMgr = FixedBBProteinSim_PropertyManager(self)
-            changes.keep_forever(self.propMgr)  
-            
-        self.propMgr.show()
-        return
     
+    def _getFlyoutToolBarActionAndParentCommand(self):
+        """
+        See superclass for documentation.
+        @see: self.command_update_flyout()
+        """
+        flyoutActionToCheck = 'rosetta_fixedbb_design_Action'
+        if MODEL_AND_SIMULATE_PROTEINS:
+            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
+        else:
+            parentCommandName = None
+            
+        return flyoutActionToCheck, parentCommandName
+    
+    if not USE_COMMAND_STACK:
+
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
+    
+            self._init_gui_flyout_action( 'rosetta_fixedbb_design_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
+            
+            if self.propMgr is None:
+                self.propMgr = FixedBBProteinSim_PropertyManager(self)
+                changes.keep_forever(self.propMgr)  
+                
+            self.propMgr.show()
+            return
         
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-        EditCommand.restore_gui(self)
-        if self.flyoutToolbar:
-            self.flyoutToolbar.rosetta_fixedbb_design_Action.setChecked(False) 
-        return
+            
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+            EditCommand.restore_gui(self)
+            if self.flyoutToolbar:
+                self.flyoutToolbar.rosetta_fixedbb_design_Action.setChecked(False) 
+            return
     
         
     def keep_empty_group(self, group):

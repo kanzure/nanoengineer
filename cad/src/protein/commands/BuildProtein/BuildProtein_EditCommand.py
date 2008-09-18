@@ -21,10 +21,13 @@ class BuildProtein_EditCommand(EditCommand):
     a Protein object
     """
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-11: resume_gui not ported.. implement command_update_* ?"
+    command_porting_status = None #fully ported
     
     #Property Manager
     PM_class = BuildProtein_PropertyManager
+    
+    #Flyout Toolbar
+    FlyoutToolbar_class = ProteinFlyout
     
     
     cmd              =  greenmsg("Build Protein: ")
@@ -40,23 +43,7 @@ class BuildProtein_EditCommand(EditCommand):
     command_can_be_suspended = True
     create_name_from_prefix  =  True
     call_makeMenus_for_each_event = True
-      
-          
-    def command_enter_flyout(self):
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = self._createFlyoutToolBarObject()
-        self.flyoutToolbar.activateFlyoutToolbar()
-
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
-        @see: self.command_enter_flyout()
-        """
-        #from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
-        flyoutToolbar = ProteinFlyout(self.win, self.propMgr) 
-        return flyoutToolbar    
+        
     
     if not USE_COMMAND_STACK:    
         def init_gui(self):
@@ -106,6 +93,22 @@ class BuildProtein_EditCommand(EditCommand):
             
             if self.flyoutToolbar:
                 self.flyoutToolbar.deActivateFlyoutToolbar()
+                
+        def command_enter_flyout(self):
+            if self.flyoutToolbar is None:
+                self.flyoutToolbar = self._createFlyoutToolBarObject()
+            self.flyoutToolbar.activateFlyoutToolbar()
+    
+        def _createFlyoutToolBarObject(self):
+            """
+            Create a flyout toolbar to be shown when this command is active. 
+            Overridden in subclasses. 
+            @see: PasteFromClipboard_Command._createFlyouttoolBar()
+            @see: self.command_enter_flyout()
+            """
+            #from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
+            flyoutToolbar = ProteinFlyout(self.win, self.propMgr) 
+            return flyoutToolbar
 
     def runCommand(self):
         """

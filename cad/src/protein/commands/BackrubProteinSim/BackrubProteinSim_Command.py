@@ -12,6 +12,8 @@ from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.BackrubProteinSim.BackrubProteinSim_PropertyManager import BackrubProteinSim_PropertyManager
 
+from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -29,9 +31,14 @@ class BackrubProteinSim_Command(EditCommand):
     """
     Class for protein sequence design with rosetta when backrub motion is allowed
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
+    
     # class constants
     GraphicsMode_class = BackrubProteinSim_GraphicsMode
     PM_class = BackrubProteinSim_PropertyManager
+    
     
     commandName = 'BACKRUB_PROTEIN_SEQUENCE_DESIGN'
     featurename = "Backrub Protein Sequence Design"
@@ -43,8 +50,7 @@ class BackrubProteinSim_Command(EditCommand):
     #I'm using self._init_gui_flyout_action( 'rosetta_backrub_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
     #explicitly and not using the command parent
     
-    command_parent = 'SIMULATE_PROTEIN'
-      
+    command_parent = 'SIMULATE_PROTEIN'     
     
    
     command_can_be_suspended = False
@@ -52,29 +58,39 @@ class BackrubProteinSim_Command(EditCommand):
     command_has_its_own_PM = True
     
     flyoutToolbar = None
-
-    def init_gui(self):
+    
+    def _getFlyoutToolBarActionAndParentCommand(self):
         """
-        Initialize GUI for this mode 
+        See superclass for documentation.
+        @see: self.command_update_flyout()
         """
-
-        self._init_gui_flyout_action( 'rosetta_backrub_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
-        
-        if self.propMgr is None:
-            self.propMgr = BackrubProteinSim_PropertyManager(self)
-            changes.keep_forever(self.propMgr)  
+        flyoutActionToCheck = 'rosetta_backrub_Action'
+        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'      
+        return flyoutActionToCheck, parentCommandName
+    
+    if not USE_COMMAND_STACK:
+        def init_gui(self):
+            """
+            Initialize GUI for this mode 
+            """
+    
+            self._init_gui_flyout_action( 'rosetta_backrub_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
             
-        self.propMgr.show()
-        return
-        
-    def restore_gui(self):
-        """
-        Restore the GUI 
-        """
-        EditCommand.restore_gui(self)
-        if self.flyoutToolbar:
-            self.flyoutToolbar.rosetta_backrub_Action.setChecked(False) 
-        return    
+            if self.propMgr is None:
+                self.propMgr = BackrubProteinSim_PropertyManager(self)
+                changes.keep_forever(self.propMgr)  
+                
+            self.propMgr.show()
+            return
+            
+        def restore_gui(self):
+            """
+            Restore the GUI 
+            """
+            EditCommand.restore_gui(self)
+            if self.flyoutToolbar:
+                self.flyoutToolbar.rosetta_backrub_Action.setChecked(False) 
+            return    
         
     def keep_empty_group(self, group):
         """
