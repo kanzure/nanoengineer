@@ -358,7 +358,7 @@ matchOneTraversal(struct patternMatch *match,
       printf("found match, checking for duplicate\n");
       printMatch(match);
     }
-    if (checkForDuplicateMatch(match)) {
+    if (pattern->allowDuplicates || checkForDuplicateMatch(match)) {
       traceMatch(match);
       pattern->matchFunction(match); BAIL();
       match->sequenceNumber++;
@@ -524,7 +524,7 @@ makeTraversal(struct compiledPatternAtom *a,
 static int numPatterns;
 static struct compiledPattern **allPatterns;
 
-void
+struct compiledPattern *
 makePattern(char *name,
             void (*matchFunction)(struct patternMatch *match),
             int numAtoms,
@@ -539,6 +539,7 @@ makePattern(char *name,
   pat->matchFunction = matchFunction;
   pat->numberOfAtoms = numAtoms;
   pat->numberOfTraversals = numTraversals;
+  pat->allowDuplicates = 0;
   pat->traversals = (struct compiledPatternTraversal **)
     allocate(sizeof(struct compiledPatternTraversal *) * numTraversals);
   for (i=0; i<numTraversals; i++) {
@@ -548,6 +549,7 @@ makePattern(char *name,
   numPatterns++;
   allPatterns = (struct compiledPattern **)accumulator(allPatterns, sizeof(struct compiledPattern *) * numPatterns, 0);
   allPatterns[numPatterns - 1] = pat;
+  return pat;
 }
 
 void

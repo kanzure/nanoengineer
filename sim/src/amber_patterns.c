@@ -530,6 +530,7 @@ createAMBERPatterns(void)
 {
   struct compiledPatternTraversal *t[15];
   struct compiledPatternAtom *a[15];
+  struct compiledPattern *p;
 
   a[0] = makePatternAtom(0, "Elt");
   t[0] = makeTraversal(a[0], a[0], '1');
@@ -746,7 +747,8 @@ createAMBERPatterns(void)
   t[3] = makeTraversal2(a[3], a[4], "1ag2");
   t[4] = makeTraversal2(a[4], a[5], "1ag2");
   t[5] = makeTraversal2(a[5], a[0], "1ag2");
-  makePattern("AMBER-NC", amber_match_NC, 6, 6, t);
+  p = makePattern("AMBER-NC", amber_match_NC, 6, 6, t);
+  p->allowDuplicates = 1;
 
   a[0] = makePatternAtom(0, "N");
   a[1] = makePatternAtom(1, "Elt"); // N or C
@@ -758,7 +760,8 @@ createAMBERPatterns(void)
   t[2] = makeTraversal2(a[2], a[3], "1ag2");
   t[3] = makeTraversal2(a[3], a[4], "1ag2");
   t[4] = makeTraversal2(a[4], a[0], "1ag2");
-  makePattern("AMBER-NB", amber_match_NB, 5, 5, t);
+  p = makePattern("AMBER-NB", amber_match_NB, 5, 5, t);
+  p->allowDuplicates = 1;
 
   a[0] = makePatternAtom(0, "N");
   a[1] = makePatternAtom(1, "Elt"); // N or C

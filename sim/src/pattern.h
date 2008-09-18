@@ -33,6 +33,10 @@ struct compiledPattern
   void (*matchFunction)(struct patternMatch *match);
   int numberOfAtoms;
   int numberOfTraversals;
+
+  // non-zero if pattern is allowed to match same atoms more than one way
+  int allowDuplicates;
+  
   struct compiledPatternTraversal **traversals;
 };
 
@@ -48,7 +52,7 @@ extern struct compiledPatternTraversal *makeTraversal2(struct compiledPatternAto
 
 extern struct compiledPatternTraversal *makeTraversal(struct compiledPatternAtom *a, struct compiledPatternAtom *b, char bondOrder);
 
-extern void makePattern(char *name, void (*matchFunction)(struct patternMatch *match), int numAtoms, int numTraversals, struct compiledPatternTraversal **traversals);
+extern struct compiledPattern *makePattern(char *name, void (*matchFunction)(struct patternMatch *match), int numAtoms, int numTraversals, struct compiledPatternTraversal **traversals);
 
 extern void matchPartToAllPatterns(struct part *part);
 
