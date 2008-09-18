@@ -190,6 +190,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     """
     #UM 20080702: required for fetching pdb files from the internet
     _pdbCode = ''
+
+    currentOpenBabelImportDirectory = None
+    currentImportDirectory = None
+    currentPDBSaveDirectory = None
+    currentFileInsertDirectory = None
+    currentFileOpenDirectory = None
+
     
     def getCurrentFilename(self, extension = False):
         """
@@ -291,10 +298,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "ViewMol (*.vmol);;"\
             "XYZ cartesian coordinates (*.xyz);;"\
             "YASARA YOB (*.yob);;")
-        
+
+        if (self.currentOpenBabelImportDirectory == None):
+            self.currentOpenBabelImportDirectory = self.currentWorkingDirectory
         import_filename = QFileDialog.getOpenFileName(self, 
                                  "Open Babel Import", 
-                                 self.currentWorkingDirectory, 
+                                 self.currentOpenBabelImportDirectory, 
                                  formats
                                  ) 
         
@@ -364,11 +373,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.glpane.gl_update()
             self.mt.mt_update()
             
-            #@ Bad idea. Maybe we should have "LastImportDirectory" and "LastExportDirectory" 
-            #@  prefs stored in the prefs db. Marked for removal. Mark 2007-06-05
-            # Update the current working directory (CWD).
-            #dir, fil = os.path.split(import_filename)
-            #self.setCurrentWorkingDirectory(dir)
+            dir, fil = os.path.split(import_filename)
+            self.currentOpenBabelImportDirectory = dir
+            self.setCurrentWorkingDirectory(dir)
             
     def fileIOSImport(self): #Urmi 20080618
         """
@@ -402,10 +409,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         formats = \
             "Extensive Markup Language (*.xml);;"
-        
+
+        if (self.currentImportDirectory == None) :
+            self.currentImportDirectory = currentWorkingDirectory
         import_filename = QFileDialog.getOpenFileName(self, 
                                  "IOS Import", 
-                                 self.currentWorkingDirectory, 
+                                 self.currentImportDirectory, 
                                  formats
                                  ) 
         if not import_filename:
@@ -415,6 +424,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         success = importFromIOSFile(self.assy, import_filename)
         if success:
             env.history.message(cmd + "Successfully imported optimized strands from " + import_filename)
+            
+            dir, fil = os.path.split(import_filename)
+            self.currentImportDirectory = dir
+            self.setCurrentWorkingDirectory(dir)
         else:
             env.history.message(cmd + redmsg("Cannot import " + import_filename))
         return 
@@ -868,7 +881,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # Save this file
         formats = \
                 "Protein Data BanK (*.pdb);;"
-        directory = self.currentWorkingDirectory
+        if (self.currentPDBSaveDirectory == None):
+            self.currentPDBSaveDirectory = self.currentWorkingDirectory
+        directory = self.currentPDBSaveDirectory
         fileName = code + ".pdb"
         currentFilename = directory + '/' + fileName
         sfilter = QString("Protein Data Bank (*.pdb)")
@@ -893,6 +908,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         fileObject1.close()
         fileObject2.close()
         dir, fil = os.path.split(str(fn))
+        self.currentPDBSaveDirectory = dir
         self.setCurrentWorkingDirectory(dir)
         env.history.message( "PDB file saved: [ " + os.path.normpath(str(fn)) + " ]")
         
@@ -956,9 +972,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         env.history.message(greenmsg("Insert File:"))
         
+        if (self.currentFileInsertDirectory == None):
+            self.currentFileInsertDirectory = self.currentWorkingDirectory
         fn = QFileDialog.getOpenFileName(self, 
                                          "Insert File", 
-                                         self.currentWorkingDirectory, 
+                                         self.currentFileInsertDirectory, 
                                          formats)
                         
         if not fn:
@@ -1015,6 +1033,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
             # Update the current working directory (CWD). Mark 060729.
             dir, fil = os.path.split(fn)
+            self.currentFileInsertDirectory = dir
             self.setCurrentWorkingDirectory(dir)
 
     def fileOpen(self, recentFile = None):
@@ -1082,9 +1101,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "GROMACS Coordinates (*.gro);;"\
                     "All Files (*.*)"
             
+            if (self.currentFileOpenDirectory == None):
+                self.currentFileOpenDirectory = self.currentWorkingDirectory
             fn = QFileDialog.getOpenFileName(self,
                                              "Open File",
-                                             self.currentWorkingDirectory,
+                                             self.currentFileOpenDirectory,
                                              formats)
                     
             if not fn:
@@ -1215,6 +1236,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             env.history.message(_openmsg)
             QApplication.restoreOverrideCursor() # Restore the cursor
             end_timing(start, "File..Open")
+
+            dir, fil = os.path.split(fn)
+            self.currentFileOpenDirectory = dir
             
         self.setCurrentWorkingDirectory()
         
