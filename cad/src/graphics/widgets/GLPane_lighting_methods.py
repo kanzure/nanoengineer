@@ -11,6 +11,9 @@ bruce 080910 split this out of class GLPane
 from graphics.drawing.gl_lighting import glprefs_data_used_by_setup_standard_lights
 
 from graphics.drawing.gl_lighting import _default_lights # REVIEW: rename as a constant?
+    # note: pylint claims incorrectly that this import of _default_lights is unused.
+    # In fact, it's used, then locally overridden.
+    # (So the code is confusing but does use it. TODO: clean it up. [bruce 080918 comment])
 from graphics.drawing.gl_lighting import setup_standard_lights
 
 from utilities.prefs_constants import glpane_lights_prefs_key
@@ -26,7 +29,6 @@ from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import GL_PROJECTION
 from OpenGL.GL import glLoadIdentity
 from OpenGL.GL import glEnable
-from OpenGL.GL import glDisable
 from OpenGL.GL import GL_NORMALIZE
 
 from utilities.debug import print_compact_traceback

@@ -1178,10 +1178,9 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         pass
 
-    def makemenu(self, menu, lis):
-        # bruce 040909 moved most of this method into GLPane.
+    def makemenu(self, menu_spec, menu = None):
         glpane = self.o
-        return glpane.makemenu(menu, lis)
+        return glpane.makemenu(menu_spec, menu)
 
     def draw_selection_curve(self): # REVIEW: move to a subclass?
         """

@@ -188,6 +188,7 @@ class GLPane(
     def __init__(self, assy, parent = None, name = None, win = None):
         """
         """
+        self.name = name or "glpane" # [bruce circa 080910 revised this; probably not used]
         shareWidget = None
         useStencilBuffer = True
 
@@ -233,8 +234,6 @@ class GLPane(
 ##            if debug_flags.atom_debug:
 ##                print "atom_debug: glGetInteger(GL_STENCIL_BITS) = %r" % ( glGetInteger(GL_STENCIL_BITS) , )
             pass
-
-        self.name = "?" ### REVIEW [bruce circa 080910 revised this; may not be used, not sure]
 
         # [bruce 050419 new feature:]
         # The current Part to be displayed in this GLPane.
@@ -662,10 +661,7 @@ class GLPane(
 
         @see: setDisplayStyle_of_selection method in another class
         """
-        # review docstring: what about diINVISIBLE? diPROTEIN?
-        from utilities.constants import diDNACYLINDER
-        from utilities.constants import diPROTEIN
-        
+        # review docstring: what about diINVISIBLE? diPROTEIN?        
         if disp == diDEFAULT:
             disp = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
         #e someday: if self.displayMode == disp, no actual change needed??
@@ -841,8 +837,8 @@ class GLPane(
             # if any callers call this twice with no net change (i.e. use this to set selobj to None
             # and then back to what it was), it would be bad to call it here. [bruce 070626 comment]
             if _DEBUG_SET_SELOBJ:
-                # todo: also include "why" argument, and make more calls pass one
-                print_compact_stack("_DEBUG_SET_SELOBJ: %r -> %r: " % (previous_selobj, selobj))
+                # todo: make more calls pass "why" argument
+                print_compact_stack("_DEBUG_SET_SELOBJ: %r -> %r (%s): " % (previous_selobj, selobj, why))
             #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
             # Temporary fix, since Build mode's messages are better and should be restored.
             if selobj is not None:

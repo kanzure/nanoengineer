@@ -138,7 +138,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
 
     # == related to DebugMenuMixin
     
-    def makemenu(self, menu_spec, menu):
+    def makemenu(self, menu_spec, menu = None):
         # this overrides the one from DebugMenuMixin (with the same code), but that's ok,
         # since we want to be self-contained in case someone later removes that mixin class;
         # this method is called by our modes to make their context menus.
@@ -215,20 +215,23 @@ class GLPane_event_methods(object, DebugMenuMixin):
     
     # ==
 
+    _cursorWithoutSelectionLock = None #bruce 080918 added def, made private
+    
     def setCursor(self, inCursor = None):
         """
-        Sets the cursor for the glpane
+        Sets the cursor for the glpane.
 
         This method is also responsible for adding special symbols to the 
         cursor that should be persistent as cursors change (i.e. the selection
-        lock symbol).
+        lock symbol). That's controlled by attrs of self, not by arguments.
 
-        @param incursor: Either a cursor or a list of 2 cursors (one for a dark
-                    background, one for a light background). 
-                    If cursor is None, reset the cursor to the
-                    most recent version without the selection lock symbol.
-        @type  type: U{B{QCursor}<http://doc.trolltech.com/4/qcursor.html>} or
-                    a list of two {B{QCursors}<http://doc.trolltech.com/4/qcursor.html>} or
+        @param inCursor: Either a cursor or a list of 2 cursors (one for a dark
+                         background, one for a light background). 
+                         If cursor is None, reset the cursor to the
+                         most recent version without the selection lock symbol.
+        @type  inCursor: U{B{QCursor}<http://doc.trolltech.com/4/qcursor.html>} or
+                         a list of two {B{QCursors}<http://doc.trolltech.com/4/qcursor.html>}
+                         (but None can be used in place of any QCursor).
         """
         # If inCursor is a list (of a dark and light bg cursor), set
         # cursor to one or the other based on the current background.
@@ -240,16 +243,25 @@ class GLPane_event_methods(object, DebugMenuMixin):
             pass
         else:
             cursor = inCursor
-            
-        if not cursor:
-            cursor = self.cursorWithoutSelectionLock
-        self.cursorWithoutSelectionLock = cursor
 
-        if self.mouse_selection_lock_enabled: # Add the selection lock symbol.
+        # Cache unmodified version of cursor,
+        # or use the cached cursor if None is provided.
+        if not cursor:
+            cursor = self._cursorWithoutSelectionLock
+        self._cursorWithoutSelectionLock = cursor
+
+        if not cursor: #bruce 080918
+            print "BUG: can't set cursor from %r -- no cached cursor so far" % (inCursor,) 
+            return None
+        
+        # Apply modifications before setting cursor.
+        # (review: also cache modified cursors as optim? Or does the subr do that? [bruce 080918 Q])
+        if self.mouse_selection_lock_enabled:
+            # Add the selection lock symbol.
             cursor = createCompositeCursor(cursor,
                                            self.win.selectionLockSymbol,
                                            offsetX = 2, offsetY = 19)
-        return QGLWidget.setCursor(self, cursor)
+        return QGLWidget.setCursor(self, cursor) # review: retval used? ever not None? [bruce 080918 Q]
 
     # ==
 
@@ -270,7 +282,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         #  mostly independently of the current mode -- and in particular which are not allowed to depend on the recent APIs
         #  added to selectMode, and/or which might need to be active even if current mode is doing xor-mode OpenGL drawing.]
 
-    _last_event_wXwY = (-1,-1) #bruce 070626
+    _last_event_wXwY = (-1, -1) #bruce 070626
 
     def fix_event(self, event, when, target): #bruce 060220 added support for self.modkeys
         """
@@ -469,7 +481,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
 
         self.debug_event(event, 'mouseDoubleClickEvent')
 
-        but, mod = self.fix_event(event, 'press', self.graphicsMode)
+        but, mod_unused = self.fix_event(event, 'press', self.graphicsMode)
         ## but = event.stateAfter()
         #k I'm guessing this event comes in place of a mousePressEvent;
         # need to test this, and especially whether a releaseEvent then comes
@@ -682,6 +694,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         @note: This should only be called *after* calling the mode-specific 
                event handler for this event!
         """
+        del event
         # (What if there's recursive event processing inside the event handler... when it's entered it'll end us, then begin us...
         #  so an end-checkpoint is still appropriate; not clear it should be passed same begin-retval -- most likely,
         #  the __attrs here should all be moved into env and used globally by all event handlers. I'll solve that when I get to
@@ -827,6 +840,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         @param event: The mouse event after entering the GLpane.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
+        del event
         if DEBUG_BAREMOTION:
             print "enterEvent"
             pass
@@ -858,6 +872,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         @param event: The last mouse event before leaving the GLpane.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
+        del event
         if DEBUG_BAREMOTION:
             print "leaveEvent"
             pass
@@ -879,7 +894,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
             pass
         return
 
-    def timerEvent(self, e): # Mark 060806.
+    def timerEvent(self, event): # Mark 060806.
         """
         When the GLpane's timer expires, a signal is generated calling this
         slot method. The timer is started in L{enterEvent()} and killed in 
@@ -897,6 +912,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
               L{selectMode.mouse_exceeded_distance()}, and 
               L{selectMode.bareMotion()}
         """
+        del event
         if not self.highlightTimer or (self._timer_debug_pref() is None): #bruce 070110
             if debug_flags.atom_debug or DEBUG_BAREMOTION:
                 print "note (not a bug unless happens a lot): GLPane got timerEvent but has no timer"
@@ -1075,6 +1091,8 @@ class GLPane_event_methods(object, DebugMenuMixin):
         and the given plane is not possible or returns a very large number.
         Need to discuss this. 
         """
+        del more_info # REVIEW: is this arg (copied from related method) needed?
+        
         # TODO: refactor this so the caller extracts Plane attributes,
         # and this method only receives geometric parameters (more general).
         # [bruce 080912 comment]

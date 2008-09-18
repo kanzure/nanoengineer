@@ -139,6 +139,7 @@ class GLPane_highlighting_methods(object):
                     # which proves that near/far are too far apart to give actual depth,
                     # in spite of the 1- or 3-pixel drawing window (presumably they're vertices
                     # taken from unclipped primitives, not clipped ones).
+                del near, far
                 if 1:
                     # partial workaround for bug 1527. This can be removed once that bug (in drawer.py)
                     # is properly fixed. This exists in two places -- GLPane.py and modes.py. [bruce 060217]

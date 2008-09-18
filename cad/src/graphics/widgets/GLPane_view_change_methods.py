@@ -175,7 +175,7 @@ class GLPane_view_change_methods(object):
         if self.ortho == projection:
             return
 
-        self.ortho = projection
+        self.ortho = projection # note: ortho is defined in GLPane_minimal.
         self.gl_update()
 
     def snapToNamedView(self, namedView):
@@ -335,14 +335,16 @@ class GLPane_view_change_methods(object):
             # Main animation loop, which doesn't draw the final frame of the loop.  
             # See comments below for explanation.
             for frame in range(1, total_frames): # Notice no +1 here.
+                # TODO: Very desirable to adjust total_frames inside the loop to maintain
+                # animation speed consistency. mark 060127.
+                del frame
                 wxyz1 += rot_inc
                 self.quat = Q(norm(wxyz1))
                 self.pov += pov_inc
                 self.zoomFactor += zoom_inc
                 self.scale += scale_inc
-                self.gl_update_duration()
-                # Very desirable to adjust total_frames inside the loop to maintain
-                # animation speed consistency. mark 060127.
+                self.gl_update_duration() # does the drawing, using recursive event processing
+                continue
 
             # The animation loop did not draw the last frame on purpose.  Instead,
             # we snap to the destination view.  This also eliminates the possibility

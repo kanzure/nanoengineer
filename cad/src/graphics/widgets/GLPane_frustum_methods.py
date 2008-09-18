@@ -93,8 +93,6 @@ import math
 
 from geometry.VQT import vlen
 
-import foundation.env as env
-
 from OpenGL.GL import GL_MODELVIEW_MATRIX
 from OpenGL.GL import GL_PROJECTION_MATRIX
 from OpenGL.GL import glGetFloatv

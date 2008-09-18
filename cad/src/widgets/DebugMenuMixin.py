@@ -105,9 +105,12 @@ class DebugMenuMixin:
         # make the menu -- now done each time it's needed
         return
 
-    def makemenu(self, menu_spec, menu = None): # bruce 050304 added this, so subclasses no longer have to
+    def makemenu(self, menu_spec, menu = None):
         """
         Make and return a menu object for use in this widget, from the given menu_spec.
+        If menu is provided (should be a QMenu), append to it instead.
+        For more info see docstring of widgets.menu_helpers.makemenu_helper.
+        
         [This can be overridden by a subclass, but probably never needs to be,
         unless it needs to make *all* menus differently (thus we do use the overridden
         version if one is present) or unless it uses it independently from this mixin

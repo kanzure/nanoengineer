@@ -51,7 +51,7 @@ from utilities.prefs_constants import enableAntiAliasing_prefs_key
 
 from utilities.constants import default_display_mode
 
-from utilities.debug_prefs import Choice, Choice_boolean_False
+from utilities.debug_prefs import Choice
 from utilities.debug_prefs import debug_pref
 
 from utilities.debug import print_compact_traceback
