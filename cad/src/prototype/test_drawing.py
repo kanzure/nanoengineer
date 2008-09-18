@@ -34,7 +34,7 @@ nSpheres = 132; transformChunkLength = 1000
 # 16x16 sphere array, chunked by columns for vertex shader debugging display.
 #nSpheres = transformChunkLength = 16
 #
-# Short chunks ok w/ texture_xforms = 1, but too many chunks for CONST_XFORMS.
+# Short chunks ok w/ texture_xforms = 1, but too many chunks for N_CONST_XFORMS.
 #nSpheres = 132; transformChunkLength = 70 # 249 chunks.
 #nSpheres = 132; transformChunkLength = 50 # 349 chunks.
 #nSpheres = 132; transformChunkLength = 20 # 872 chunks.
@@ -249,19 +249,19 @@ def test_drawing(glpane):
             # . 3.4 - Big batch draw, with transforms indexed by IDs added.
             #   (Second FPS number with debug colors in the vertex shader off.)
             #   - 90,000 (300x300) spheres, texture_xforms = 1, 26(29) FPS
-            #   - 90,000 (300x300) spheres, CONST_XFORMS = 250, 26(29) FPS
-            #   - 90,000 (300x300) spheres, CONST_XFORMS = 275, 0.3(0.6) FPS
+            #   - 90,000 (300x300) spheres, N_CONST_XFORMS = 250, 26(29) FPS
+            #   - 90,000 (300x300) spheres, N_CONST_XFORMS = 275, 0.3(0.6) FPS
             #     (What happens after 250?  CPU usage goes from 40% to 94%.)
             #   -160,000 (400x400) spheres, texture_xforms = 1, 26 FPS
             #   -250,000 (500x500) spheres, texture_xforms = 1, 26 FPS
             elif testCase == 3.4:
                 print ("Sub-test 3.4, add transforms indexed by IDs.")
                 from graphics.drawing.gl_shaders import texture_xforms
-                from graphics.drawing.gl_shaders import CONST_XFORMS
+                from graphics.drawing.gl_shaders import N_CONST_XFORMS
                 if texture_xforms:
                     print "Transforms in texture memory."
                 else:
-                    print "%d transforms in uniform memory." % CONST_XFORMS
+                    print "%d transforms in uniform memory." % N_CONST_XFORMS
                     pass
                 doTransforms = True
                 pass

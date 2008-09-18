@@ -28,7 +28,7 @@ gl_shaders.py - OpenGL shader objects.
 """
 
 # Whether to use texture memory for transforms, or a uniform array of mat4s.
-texture_xforms = True # False
+texture_xforms = False # True
 # Otherwise, use a fixed-sized block of uniform memory for transforms.
 N_CONST_XFORMS = 250  # (Gets CPU bound at 275.  Dunno why.)
 
@@ -64,7 +64,7 @@ CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
 #   4   GLEngine          	0x1ea1f896 glTexSubImage2D_Exec + 1350
 #   5   libGL.dylib       	0x91708cdb glTexSubImage2D + 155
 
-from geometry.VQT import A
+from geometry.VQT import A, norm
 import utilities.EndUser as EndUser
 
 import graphics.drawing.drawing_globals as drawing_globals
@@ -200,6 +200,7 @@ class GLSphereShaderObject(object):
             print "\n%s shader program compilation error" % types[shaderType]
             print glGetInfoLogARB(shader)
         return shader
+    createShader = staticmethod(createShader)
 
     def configShader(self, glpane):
         """
