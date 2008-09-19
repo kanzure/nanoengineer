@@ -676,6 +676,7 @@ createAMBERPatterns(void)
   a[6] = makePatternAtom(6, "C");
   a[7] = makePatternAtom(7, "N");
   a[8] = makePatternAtom(8, "C");
+  a[9] = makePatternAtom(9, "H");
   t[0] = makeTraversal2(a[0], a[1], "1ag2");
   t[1] = makeTraversal2(a[1], a[2], "1ag2");
   t[2] = makeTraversal2(a[2], a[3], "1ag2");
@@ -686,7 +687,8 @@ createAMBERPatterns(void)
   t[7] = makeTraversal2(a[6], a[7], "1ag2");
   t[8] = makeTraversal2(a[7], a[8], "1ag2");
   t[9] = makeTraversal2(a[8], a[2], "1ag2");
-  makePattern("AMBER-CQ", amber_match_CQ, 9, 10, t);
+  t[10] = makeTraversal(a[6], a[9], '1');
+  makePattern("AMBER-CQ", amber_match_CQ, 10, 11, t);
 
   a[0] = makePatternAtom(0, "C");
   a[1] = makePatternAtom(1, "Elt"); // N or C
