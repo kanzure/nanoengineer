@@ -36,7 +36,8 @@ from PM.PM_WidgetRow             import PM_WidgetRow
 from PM.PM_DockWidget            import PM_DockWidget
 from PM.PM_PushButton            import PM_PushButton
 from PM.PM_LabelRow              import PM_LabelRow
-from PM_FontComboBox             import PM_FontComboBox
+from PM.PM_FontComboBox          import PM_FontComboBox
+from PM.PM_WidgetGrid            import PM_WidgetGrid
 
 from PM.PM_Constants import PM_MAINVBOXLAYOUT_MARGIN
 from PM.PM_Constants import PM_MAINVBOXLAYOUT_SPACING
@@ -413,7 +414,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
     pagenameList[0] always has to be a singular item, it cannot be a list.
     All sub-lists are interpreted as being children of the item preceding it.
     """
-    pagenameList = ["TEMP","General", 
+    pagenameList = ["General", 
                     "Graphics Area", 
                     ["Zoom, Pan and Rotate", "Rulers"],
                     "Atoms",
@@ -668,24 +669,31 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         logosGroupBox = PM_GroupBox( _pageContainer, 
                                      title = "Sponsor logos download permission",
                                      connectTitleButton = False)
-        radiobtns = PM_RadioButtonList (logosGroupBox,
-                                        buttonList = [[ 1, "Always ask before downloading", "always_ask"],
-                                                      [ 2, "Never ask before downloading", "never_ask"],
-                                                      [ 3, "Never download", "never_download"] ])
+        self.logo_download_RadioButtonList = \
+            PM_RadioButtonList (logosGroupBox,
+                                buttonList = [[ 0, 
+                                                "Always ask before downloading", 
+                                                ""],
+                                              [ 1, 
+                                                "Never ask before downloading", 
+                                                ""],
+                                              [ 2, 
+                                                "Never download", 
+                                                ""] ])
         
         buildChunksGroupBox = PM_GroupBox( _pageContainer, 
                                      title = "Build Chunks Settings",
                                      connectTitleButton = False)
-        autobondCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Autobond")
-        hoverHighlightCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Hover highlighting")
-        waterCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Water")
-        autoSelectAtomsCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Auto select atoms of deposited objects")
+        self.autobondCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Autobond")
+        self.hoverHighlightCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Hover highlighting")
+        self.waterCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Water")
+        self.autoSelectAtomsCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Auto select atoms of deposited objects")
 
         offsetFactorPastingGroupBox = PM_GroupBox( _pageContainer, 
                                      title = "Offset factor for pasting objects",
                                      connectTitleButton = False)
-        pasteOffsetForChunks_doublespinbox = PM_DoubleSpinBox(offsetFactorPastingGroupBox, label = "Chunk Objects", singleStep = 1)
-        pasteOffsetForDNA_doublespinbox = PM_DoubleSpinBox(offsetFactorPastingGroupBox, label = "DNA Objects", singleStep = 1)
+        self.pasteOffsetForChunks_doublespinbox = PM_DoubleSpinBox(offsetFactorPastingGroupBox, label = "Chunk Objects", singleStep = 1)
+        self.pasteOffsetForDNA_doublespinbox = PM_DoubleSpinBox(offsetFactorPastingGroupBox, label = "DNA Objects", singleStep = 1)
       
         return
 
@@ -697,42 +705,42 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         atom_tooltip_options_GroupBox = PM_GroupBox(_pageContainer,
                                                     title = "Atom tooltip options",
                                                     connectTitleButton = False)
-        atom_chunk_information_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
+        self.atom_chunk_information_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Chunk Information")
-        atom_mass_information_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
+        self.atom_mass_information_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Mass information")
-        atom_XYZ_coordinates_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
+        self.atom_XYZ_coordinates_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="XYZ coordinates")
-        atom_XYZ_distance_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
+        self.atom_XYZ_distance_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="XYZ distance deltas")
-        atom_include_vdw_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
+        self.atom_include_vdw_CheckBox = PM_CheckBox(atom_tooltip_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="include Vdw radii in atom distance tooltip")
-        atom_distance_precision_SpinBox = PM_SpinBox(atom_tooltip_options_GroupBox,
+        self.atom_distance_precision_SpinBox = PM_SpinBox(atom_tooltip_options_GroupBox,
                                                          label = "Distance precision: ", 
                                                          suffix = " decimal places", 
                                                          singleStep = 1)
-        atom_angle_precision_SpinBox = PM_SpinBox(atom_tooltip_options_GroupBox,
+        self.atom_angle_precision_SpinBox = PM_SpinBox(atom_tooltip_options_GroupBox,
                                                          label = "Angle precision:", 
                                                          suffix = " decimal places", 
                                                          singleStep = 1)
         bond_tooltip_options_GroupBox = PM_GroupBox(_pageContainer,
                                                     title = "Bond tooltip options",
                                                     connectTitleButton = False)
-        bond_distance_between_atoms_CheckBox = PM_CheckBox(bond_tooltip_options_GroupBox,
+        self.bond_distance_between_atoms_CheckBox = PM_CheckBox(bond_tooltip_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Bond distance between atoms")
-        bond_chunk_information_CheckBox = PM_CheckBox(bond_tooltip_options_GroupBox,
+        self.bond_chunk_information_CheckBox = PM_CheckBox(bond_tooltip_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Chunk information")
@@ -746,11 +754,11 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         history_preferences = PM_GroupBox(_pageContainer,
                                           title = "History preferences",
                                           connectTitleButton = False)
-        history_include_message_serial_CheckBox = PM_CheckBox(history_preferences,
+        self.history_include_message_serial_CheckBox = PM_CheckBox(history_preferences,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Include message serial number")
-        history_include_message_timestamp_CheckBox = PM_CheckBox(history_preferences,
+        self.history_include_message_timestamp_CheckBox = PM_CheckBox(history_preferences,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Include message timestamp")                                                              
@@ -765,49 +773,45 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                   title = "DNA default values",
                                                   connectTitleButton = False)
         _choices = ["B-DNA"]
-        conformation_ComboBox = PM_ComboBox(DNA_default_values_GroupBox, 
+        self.conformation_ComboBox = PM_ComboBox(DNA_default_values_GroupBox, 
                                       label =  "Conformation:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
-        bases_per_turn_DoubleSpinBox = PM_DoubleSpinBox(DNA_default_values_GroupBox,
+        self.bases_per_turn_DoubleSpinBox = PM_DoubleSpinBox(DNA_default_values_GroupBox,
                                                          label = "Bases per turn:", 
                                                          suffix = "", 
                                                          singleStep = 1)
-        rise_DoubleSpinBox = PM_DoubleSpinBox(DNA_default_values_GroupBox,
+        self.rise_DoubleSpinBox = PM_DoubleSpinBox(DNA_default_values_GroupBox,
                                                          label = "Rise:", 
                                                          suffix = "Angstroms", 
                                                          singleStep = 10)
-        strand1_ColorComboBox = PM_ColorComboBox(DNA_default_values_GroupBox,
+        self.strand1_ColorComboBox = PM_ColorComboBox(DNA_default_values_GroupBox,
                                                            label = "Strand 1:")
-        strand2_ColorComboBox = PM_ColorComboBox(DNA_default_values_GroupBox,
+        self.strand2_ColorComboBox = PM_ColorComboBox(DNA_default_values_GroupBox,
                                                            label = "Strand 2:")
-        segment_ColorComboBox = PM_ColorComboBox(DNA_default_values_GroupBox,
+        self.segment_ColorComboBox = PM_ColorComboBox(DNA_default_values_GroupBox,
                                                            label = "Segment:")
-        restore_DNA_colors_PushButton = PM_PushButton(DNA_default_values_GroupBox,
+        self.restore_DNA_colors_PushButton = PM_PushButton(DNA_default_values_GroupBox,
                                                       text = "Restore Default Colors",
                                                       spanWidth = False)
-        buttonList = [["QSpacerItem", 40, 0, 0], ["PushButton", restore_DNA_colors_PushButton, 1]]
-        buttonPlacer = PM_WidgetRow(DNA_default_values_GroupBox,
-                                 spanWidth = True,
-                                 widgetList = buttonList)
         strand_arrowhead_display_options_GroupBox = PM_GroupBox(_pageContainer,
                                                   title = "Strand arrowhead display options",
                                                   connectTitleButton = False)
-        show_arrows_on_backbones_CheckBox = PM_CheckBox(strand_arrowhead_display_options_GroupBox,
+        self.show_arrows_on_backbones_CheckBox = PM_CheckBox(strand_arrowhead_display_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Show arrows on backbones")
-        show_arrows_on_3prime_ends_CheckBox = PM_CheckBox(strand_arrowhead_display_options_GroupBox,
+        self.show_arrows_on_3prime_ends_CheckBox = PM_CheckBox(strand_arrowhead_display_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Show arrows on 3' ends")
-        show_arrows_on_5prime_ends_CheckBox = PM_CheckBox(strand_arrowhead_display_options_GroupBox,
+        self.show_arrows_on_5prime_ends_CheckBox = PM_CheckBox(strand_arrowhead_display_options_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Show arrows on 5' ends")
-        three_prime_end_custom_ColorComboBox = PM_ColorComboBox(strand_arrowhead_display_options_GroupBox,
+        self.three_prime_end_custom_ColorComboBox = PM_ColorComboBox(strand_arrowhead_display_options_GroupBox,
                                                            label = "3' end custom color:")
-        five_prime_end_custom_ColorComboBox = PM_ColorComboBox(strand_arrowhead_display_options_GroupBox,
+        self.five_prime_end_custom_ColorComboBox = PM_ColorComboBox(strand_arrowhead_display_options_GroupBox,
                                                            label = "5' end custom color:")        
         return
     
@@ -819,47 +823,43 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         bond_colors_GroupBox = PM_GroupBox(_pageContainer,
                                            title = "Colors",
                                            connectTitleButton = False)
-        bond_highlighting_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
+        self.bond_highlighting_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
                                                            label = "Bond highlighting:")
-        ball_and_stick_cylinder_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
+        self.ball_and_stick_cylinder_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
                                                            label = "Ball and stick cylinder:")
-        bond_stretch_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
+        self.bond_stretch_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
                                                            label = "Bond stretch:")
-        Vane_Ribbon_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
+        self.Vane_Ribbon_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
                                                            label = "Vane/Ribbon:")
-        restore_bond_colors_PushButton = PM_PushButton(bond_colors_GroupBox,
+        self.restore_bond_colors_PushButton = PM_PushButton(bond_colors_GroupBox,
                                                       text = "Restore Default Colors",
                                                       spanWidth = False)
-        buttonList = [["QSpacerItem", 40, 0, 0], ["PushButton", restore_bond_colors_PushButton, 1]]
-        buttonPlacer = PM_WidgetRow(bond_colors_GroupBox,
-                                 spanWidth = True,
-                                 widgetList = buttonList)
-        
+       
         misc_bond_settings_GroupBox = PM_GroupBox(_pageContainer,
                                                   title = "Miscellaneous bond settings",
                                                   connectTitleButton = False)
-        ball_and_stick_bond_scale_SpinBox = PM_SpinBox(misc_bond_settings_GroupBox,
+        self.ball_and_stick_bond_scale_SpinBox = PM_SpinBox(misc_bond_settings_GroupBox,
                                                        label = "Ball and stick bond scale:",
                                                        suffix = "%")
-        bond_line_thickness_SpinBox = PM_SpinBox(misc_bond_settings_GroupBox,
+        self.bond_line_thickness_SpinBox = PM_SpinBox(misc_bond_settings_GroupBox,
                                                        label = "Bond line thickness:",
                                                        suffix = "pixels")
         high_order_bonds_GroupBox = PM_GroupBox(misc_bond_settings_GroupBox,
                                                 title = "High order bonds",
                                                 connectTitleButton = False)
-        high_order_bonds_RadioButtonList = PM_RadioButtonList(high_order_bonds_GroupBox,
+        self.high_order_bonds_RadioButtonList = PM_RadioButtonList(high_order_bonds_GroupBox,
                                         buttonList = [[ 1, "Multiple cylinders", "cylinders"],
                                                       [ 2, "Vanes", "vanes"],
                                                       [ 3, "Ribbons", "ribbons"] ])
-        show_bond_type_letters_CheckBox = PM_CheckBox(misc_bond_settings_GroupBox,
+        self.show_bond_type_letters_CheckBox = PM_CheckBox(misc_bond_settings_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Show bond type letters")
-        show_valence_errors_CheckBox = PM_CheckBox(misc_bond_settings_GroupBox,
+        self.show_valence_errors_CheckBox = PM_CheckBox(misc_bond_settings_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Show valence errors")
-        show_bond_stretch_indicators_CheckBox = PM_CheckBox(misc_bond_settings_GroupBox,
+        self.show_bond_stretch_indicators_CheckBox = PM_CheckBox(misc_bond_settings_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Show bond stretch indicators")
@@ -875,21 +875,21 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                       title = "Rulers",
                                       connectTitleButton = False)
         _choices = ["Both rulers", "Verticle ruler only", "Horizontal ruler only"]
-        display_rulers_ComboBox = PM_ComboBox(rulers_GroupBox, 
+        self.display_rulers_ComboBox = PM_ComboBox(rulers_GroupBox, 
                                       label =  "Display:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
         _choices = ["Lower left", "Upper left", "Lower right", "Upper right"]
-        origin_rulers_ComboBox = PM_ComboBox(rulers_GroupBox, 
+        self.origin_rulers_ComboBox = PM_ComboBox(rulers_GroupBox, 
                                       label =  "Origin:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
-        rulor_color_ColorComboBox = PM_ColorComboBox(rulers_GroupBox,
+        self.rulor_color_ColorComboBox = PM_ColorComboBox(rulers_GroupBox,
                                                       label = "Color:")
-        ruler_opacity_SpinBox = PM_SpinBox(rulers_GroupBox,
+        self.ruler_opacity_SpinBox = PM_SpinBox(rulers_GroupBox,
                                            label = "Opacity",
                                            suffix = "%")
-        show_rulers_in_perspective_view_CheckBox = PM_CheckBox(rulers_GroupBox,
+        self.show_rulers_in_perspective_view_CheckBox = PM_CheckBox(rulers_GroupBox,
                                                                text ="Show rulers in perspective view",
                                                                spanWidth = True,
                                                                widgetColumn = 0)
@@ -911,26 +911,28 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         executablesGroupBox = PM_GroupBox( _pageContainer, 
                                            title = "Location of Executables",
                                            connectTitleButton = False)
-        checkboxes = {}
-        choosers = {}
+        self.checkboxes = {}
+        self.choosers = {}
+        aWidgetList = []
+        _rowNumber = 0
         for name in pluginList:
-            
-            checkboxes[name] = PM_CheckBox(executablesGroupBox, text = name+':  ')
-            choosers[name] = PM_FileChooser(executablesGroupBox,
+            self.checkboxes[name] = PM_CheckBox(executablesGroupBox, text = name+':  ')
+            self.choosers[name] = PM_FileChooser(executablesGroupBox,
                                 label     = '',
                                 text      = 'test path' ,
                                 filter    = "All Files (*.*)",
                                 spanWidth = True,
                                 labelColumn = 0)
-            aWidgetList = [ ("PM_CheckBox", checkboxes[name], 0),
-                            ("PM_FileChooser", choosers[name], 1) ]
-                            
-            widgetRow = PM_WidgetRow(executablesGroupBox,
+            aWidgetList.append( ("PM_CheckBox", self.checkboxes[name], 0, _rowNumber) )
+            aWidgetList.append( ("PM_FileChooser", self.choosers[name], 1, _rowNumber) )
+            _rowNumber = _rowNumber + 1
+                 
+        _widgetGrid = PM_WidgetGrid(executablesGroupBox,
                              widgetList = aWidgetList,
                              labelColumn  = 0)
         if DEBUG:
-            print checkboxes
-            print choosers
+            print self.checkboxes
+            print self.choosers
         return
     
     def populate_Adjust(self, pagename):
@@ -943,47 +945,47 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                            connectTitleButton = False)
         _choices = ["NanoDynamics-1 (Default)", "GROMACS with ND1 Force Field",
                     "Background GROMACS with ND1 Force Field"]
-        detail_level_ComboBox = PM_ComboBox(adjust_physics_engine_GroupBox, 
+        self.detail_level_ComboBox = PM_ComboBox(adjust_physics_engine_GroupBox, 
                                       label =  "", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
-        enable_electrostatics_CheckBox = PM_CheckBox(adjust_physics_engine_GroupBox,
+        self.enable_electrostatics_CheckBox = PM_CheckBox(adjust_physics_engine_GroupBox,
                                                      spanWidth = True,
                                                      widgetColumn = 0,
                                                      text ="Enable electrostatics for DNA reduced model")
         physics_engine_animation_GroupBox = PM_GroupBox(_pageContainer,
                                                         title = "Pysics engine animation options",
                                                         connectTitleButton = False)
-        constant_animation_update_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
+        self.constant_animation_update_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
                                                                text = "Update as often as possible")
-        update_every_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
+        self.update_every_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
                                                                text = "Update Every")
-        update_rate_SpinBox = PM_SpinBox(physics_engine_animation_GroupBox,
+        self.update_rate_SpinBox = PM_SpinBox(physics_engine_animation_GroupBox,
                                            label = "")
         _choices = ["frames", "seconds", "minutes", "hours"]
-        detail_level_ComboBox = PM_ComboBox(physics_engine_animation_GroupBox, 
+        self.detail_level_ComboBox = PM_ComboBox(physics_engine_animation_GroupBox, 
                                       label =  "",
                                       choices = _choices, 
                                       setAsDefault = False)
-        aWidgetList = [ ("PM_RadioButton", update_every_RadioButton, 0),
-                        ("PM_SpinBox", update_rate_SpinBox, 1),
-                        ("PM_ComboBox", detail_level_ComboBox, 3) ]
-        detail_level_row = PM_WidgetRow(physics_engine_animation_GroupBox,
+        aWidgetList = [ ("PM_RadioButton", self.update_every_RadioButton, 0),
+                        ("PM_SpinBox", self.update_rate_SpinBox, 1),
+                        ("PM_ComboBox", self.detail_level_ComboBox, 3) ]
+        self.detail_level_row = PM_WidgetRow(physics_engine_animation_GroupBox,
                                         widgetList = aWidgetList,
                                         spanWidth = False)
         convergence_criteria_GroupBox = PM_GroupBox(_pageContainer,
                                                     title = "Convergence criteria",
                                                     connectTitleButton = False)
-        endRMS_DoubelSpinBox = PM_DoubleSpinBox(convergence_criteria_GroupBox,
+        self.endRMS_DoubelSpinBox = PM_DoubleSpinBox(convergence_criteria_GroupBox,
                                            label = "EndRMS:",
                                            suffix = " pN")
-        endmax_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+        self.endmax_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
                                            label = "EndMax:",
                                            suffix = " pN")
-        cutoverRMS_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+        self.cutoverRMS_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
                                            label = "CutoverRMS:",
                                            suffix = " pN")
-        cutoverMax_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+        self.cutoverMax_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
                                            label = "CutoverMax:",
                                            suffix = " pN")
         return
@@ -996,47 +998,39 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         atom_colors_GroupBox = PM_GroupBox(_pageContainer,
                                            title = "Colors",
                                            connectTitleButton = False)
-        change_element_colors_PushButton = PM_PushButton(atom_colors_GroupBox,
+        self.change_element_colors_PushButton = PM_PushButton(atom_colors_GroupBox,
                                                       text = "Change Element Colors...",
                                                       spanWidth = False)
-        buttonList = [["QSpacerItem", 40, 0, 0], ["PushButton", change_element_colors_PushButton, 0]]
-        buttonPlacer = PM_WidgetRow(atom_colors_GroupBox,
-                                 spanWidth = True,
-                                 widgetList = buttonList)
         atom_colors_sub_GroupBox = PM_GroupBox(atom_colors_GroupBox,
                                                connectTitleButton = False)
-        atom_highlighting_ColorComboBox = PM_ColorComboBox(atom_colors_sub_GroupBox,
+        self.atom_highlighting_ColorComboBox = PM_ColorComboBox(atom_colors_sub_GroupBox,
                                                       label = "Atom Highlighting:")
-        bondpoint_highlighting_ColorComboBox = PM_ColorComboBox(atom_colors_sub_GroupBox,
+        self.bondpoint_highlighting_ColorComboBox = PM_ColorComboBox(atom_colors_sub_GroupBox,
                                                       label = "Bondpoint Highlighting:")
-        bondpoint_hotspots_ColorComboBox = PM_ColorComboBox(atom_colors_sub_GroupBox,
+        self.bondpoint_hotspots_ColorComboBox = PM_ColorComboBox(atom_colors_sub_GroupBox,
                                                       label = "Bondpoint hotspots:")
-        restore_element_colors_PushButton = PM_PushButton(atom_colors_sub_GroupBox,
+        self.restore_element_colors_PushButton = PM_PushButton(atom_colors_sub_GroupBox,
                                                       text = "Restore Default Colors",
                                                       spanWidth = False)
-        buttonList = [["QSpacerItem", 40, 0, 0], ["PushButton", restore_element_colors_PushButton, 1]]
-        buttonPlacer = PM_WidgetRow(atom_colors_GroupBox,
-                                 spanWidth = True,
-                                 widgetList = buttonList)
         misc_atom_settings_GroupBox = PM_GroupBox(_pageContainer,
                                                   title = "Miscellaneous atom options",
                                                   connectTitleButton = False)
         _choices = ["Low", "Medium", "High", "Variable"]
-        detail_level_ComboBox = PM_ComboBox(misc_atom_settings_GroupBox, 
+        self.detail_level_ComboBox = PM_ComboBox(misc_atom_settings_GroupBox, 
                                       label =  "Level of detail:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
-        ball_and_stick_atom_scale_SpinBox = PM_SpinBox(misc_atom_settings_GroupBox,
+        self.ball_and_stick_atom_scale_SpinBox = PM_SpinBox(misc_atom_settings_GroupBox,
                                                        label = "Ball and stick atom scale",
                                                        suffix = "%")
-        CPK_atom_scale_SpinBox = PM_SpinBox(misc_atom_settings_GroupBox,
+        self.CPK_atom_scale_SpinBox = PM_SpinBox(misc_atom_settings_GroupBox,
                                             label = "CPK atom scale",
                                             suffix = "%")
-        overlapping_atom_indicators_CheckBox = PM_CheckBox(misc_atom_settings_GroupBox,
+        self.overlapping_atom_indicators_CheckBox = PM_CheckBox(misc_atom_settings_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
                                                            text ="Overlapping atom indicators")
-        force_to_keep_bonds_during_transmute_CheckBox = PM_CheckBox(misc_atom_settings_GroupBox,
+        self.force_to_keep_bonds_during_transmute_CheckBox = PM_CheckBox(misc_atom_settings_GroupBox,
                                                                     spanWidth = True,
                                                                     widgetColumn = 0,
                                                                     text ="Force to keep bonds during transmute:")
@@ -1050,76 +1044,76 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         window_position_and_size_GroupBox = PM_GroupBox(_pageContainer,
                                                   title = "Window Postion and Size",
                                                   connectTitleButton = False)
-        current_size_x_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
+        self.current_size_x_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
                                                          label = "", 
                                                          suffix = "pixels",
                                                          labelColumn = 0,
                                                          singleStep = 1,
                                                          )
-        current_size_y_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
+        self.current_size_y_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
                                                          label = "",
                                                          labelColumn = 0,
                                                          suffix = "pixels", 
                                                          singleStep = 1,
                                                          )
-        current_size_save_Button = PM_PushButton(window_position_and_size_GroupBox, 
+        self.current_size_save_Button = PM_PushButton(window_position_and_size_GroupBox, 
                                                  text = "Save Current")
         aWidgetList = [ ("QLabel", "Current size:", 0),
-                        ("PM_SpinBox", current_size_x_SpinBox, 1),
+                        ("PM_SpinBox", self.current_size_x_SpinBox, 1),
                         ("QLabel", " x ", 2),
-                        ("PM_SpinBox", current_size_y_SpinBox, 3),
-                        ("PM_PushButton", current_size_save_Button, 4) ]
+                        ("PM_SpinBox", self.current_size_y_SpinBox, 3),
+                        ("PM_PushButton", self.current_size_save_Button, 4) ]
         widgetRow = PM_WidgetRow(window_position_and_size_GroupBox,
                          title     = '',
                          spanWidth = False,
                          widgetList = aWidgetList)        
 
-        saved_size_x_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
+        self.saved_size_x_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
                                                          label = "")
-        saved_size_y_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
+        self.saved_size_y_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
                                                          label = "")
-        saved_size_save_Button = PM_PushButton(window_position_and_size_GroupBox, 
+        self.saved_size_save_Button = PM_PushButton(window_position_and_size_GroupBox, 
                                                  text = "Restore saved")
         aWidgetList = [ ("QLabel", "Saved size:", 0),
-                        ("PM_SpinBox", saved_size_x_LineEdit, 1),
+                        ("PM_SpinBox", self.saved_size_x_LineEdit, 1),
                         ("QLabel", " x ", 2),
-                        ("PM_SpinBox", saved_size_y_LineEdit, 3),
-                        ("PM_PushButton", saved_size_save_Button, 4) ]
+                        ("PM_SpinBox", self.saved_size_y_LineEdit, 3),
+                        ("PM_PushButton", self.saved_size_save_Button, 4) ]
         #widgetRow = PM_WidgetRow(window_position_and_size_GroupBox,
                          #title     = '',
                          #spanWidth = False,
                          #widgetList = aWidgetList)
-        save_size_on_quit = PM_CheckBox(window_position_and_size_GroupBox,
+        self.save_size_on_quit = PM_CheckBox(window_position_and_size_GroupBox,
                                         text = "Always save current position and size when quitting",
                                         widgetColumn = 0,
                                         spanWidth = True)
         window_caption_format_GroupBox = PM_GroupBox(_pageContainer,
                                                   title = "Window caption format",
                                                   connectTitleButton = False)
-        caption_prefix_LineEdit = PM_LineEdit(window_caption_format_GroupBox,
+        self.caption_prefix_LineEdit = PM_LineEdit(window_caption_format_GroupBox,
                                               spanWidth = True,
                                               label = "Window caption prefix for modified file: ")
-        caption_suffix_LineEdit = PM_LineEdit(window_caption_format_GroupBox,
+        self.caption_suffix_LineEdit = PM_LineEdit(window_caption_format_GroupBox,
                                               spanWidth = True,
                                               label = "Window caption suffix for modified file: ")
-        display_full_path_CheckBox = PM_CheckBox(window_caption_format_GroupBox,
+        self.display_full_path_CheckBox = PM_CheckBox(window_caption_format_GroupBox,
                                                  text = "Display full path of part",
                                                  widgetColumn = 0,
                                                  spanWidth = True)
         custom_font_GroupBox = PM_GroupBox(_pageContainer,
                                            title = "Custom Font",
                                            connectTitleButton = False)
-        use_custom_font_CheckBox = PM_CheckBox(custom_font_GroupBox,
+        self.use_custom_font_CheckBox = PM_CheckBox(custom_font_GroupBox,
                                                text = "Use custom font",
                                                spanWidth = True,
                                                widgetColumn = 0)
-        custom_fontComboBox = PM_FontComboBox(custom_font_GroupBox, 
+        self.custom_fontComboBox = PM_FontComboBox(custom_font_GroupBox, 
                                       label =  "Font:", labelColumn = 0,
                                       setAsDefault = False,
                                       spanWidth = False)
-        custom_font_size_SpinBox = PM_SpinBox(custom_font_GroupBox,
+        self.custom_font_size_SpinBox = PM_SpinBox(custom_font_GroupBox,
                                             label = "Size: ")
-        make_default_font_PushButton = PM_PushButton(custom_font_GroupBox, 
+        self.make_default_font_PushButton = PM_PushButton(custom_font_GroupBox, 
                                                      spanWidth = True,
                                                      text = "Make selected font the default font")
         return
@@ -1136,45 +1130,45 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         compassGroupBox = PM_GroupBox(_pageContainer, 
                                        title = "Compass display settings",
                                        connectTitleButton = False)
-        display_compass_CheckBox = PM_CheckBox(compassGroupBox, 
+        self.display_compass_CheckBox = PM_CheckBox(compassGroupBox, 
                                                text = "Display compass: ",
                                                widgetColumn = 0)
         _choices = ["Upper right", "Upper left", "Lower left", "Lower right"]
-        globalDisplayStyleStartupComboBox = PM_ComboBox(compassGroupBox, 
+        self.globalDisplayStyleStartupComboBox = PM_ComboBox(compassGroupBox, 
                                       label =  "Compass Location:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
-        display_compass_labels_checkbox = PM_CheckBox(compassGroupBox, 
+        self.display_compass_labels_checkbox = PM_CheckBox(compassGroupBox, 
                                                text = "Display compass labels ",
                                                spanWidth = True,
                                                widgetColumn = 0)
         axesGroupBox = PM_GroupBox(_pageContainer, 
                                    title = "Axes",
                                    connectTitleButton = False)
-        display_origin_axix_checkbox = PM_CheckBox(axesGroupBox, 
+        self.display_origin_axix_checkbox = PM_CheckBox(axesGroupBox, 
                                                text = "Display origin axis",
                                                widgetColumn = 0)
-        display_pov_axis_checkbox = PM_CheckBox(axesGroupBox, 
+        self.display_pov_axis_checkbox = PM_CheckBox(axesGroupBox, 
                                                text = "Display point of view (POV) axis ",
                                                spanWidth = True,
                                                widgetColumn = 0)
         cursor_text_GroupBox = PM_GroupBox(_pageContainer, 
                                        title = "Cursor text settings",
                                        connectTitleButton = False)
-        cursor_text_CheckBox = PM_CheckBox(cursor_text_GroupBox, 
+        self.cursor_text_CheckBox = PM_CheckBox(cursor_text_GroupBox, 
                                            text = "Cursor text",
                                            widgetColumn = 0)
-        cursor_text_font_size_SpinBox = PM_DoubleSpinBox(cursor_text_GroupBox,
+        self.cursor_text_font_size_SpinBox = PM_DoubleSpinBox(cursor_text_GroupBox,
                                                          label = "", 
                                                          suffix = "pt", 
                                                          singleStep = 1,
                                                          )
-        cursor_text_reset_Button = PM_PushButton(cursor_text_GroupBox, 
+        self.cursor_text_reset_Button = PM_PushButton(cursor_text_GroupBox, 
                                                  text = "reset")
         aWidgetList = [ ("QLabel", "Font size: ", 0),
-                        ("PM_DoubleSpinBox", cursor_text_font_size_SpinBox, 1),
+                        ("PM_DoubleSpinBox", self.cursor_text_font_size_SpinBox, 1),
                         ("QLabel", "     ", 2),
-                        ("PM_PushButton", cursor_text_reset_Button, 3),
+                        ("PM_PushButton", self.cursor_text_reset_Button, 3),
                         ("QSpacerItem", 0, 0, 3)]
                             
         widgetRow = PM_WidgetRow(cursor_text_GroupBox,
@@ -1182,16 +1176,16 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                          spanWidth = True,
                          widgetList = aWidgetList)
 
-        cursor_text_color_ComboBox = PM_ColorComboBox(cursor_text_GroupBox,
+        self.cursor_text_color_ComboBox = PM_ColorComboBox(cursor_text_GroupBox,
                                                       label = "Cursor Text color:",
-                                                      spanWidth = True)
+                                                      spanWidth = False)
         misc_graphics_GroupBox = PM_GroupBox(_pageContainer, 
                                        title = "Other graphics options",
                                        connectTitleButton = False)
-        display_confirmation_corner_CheckBox = PM_CheckBox(misc_graphics_GroupBox, 
+        self.display_confirmation_corner_CheckBox = PM_CheckBox(misc_graphics_GroupBox, 
                                            text = "Display confirmation corner",
                                            widgetColumn = 0)
-        anti_aliasing_CheckBox = PM_CheckBox(misc_graphics_GroupBox, 
+        self.anti_aliasing_CheckBox = PM_CheckBox(misc_graphics_GroupBox, 
                                            text = "Enable anti-aliasing (next session)",
                                            widgetColumn = 0)
         
@@ -1202,29 +1196,29 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        base_orientation_indicatiors_CheckBox = PM_CheckBox(_pageContainer, 
+        self.base_orientation_indicatiors_CheckBox = PM_CheckBox(_pageContainer, 
                                              text = "Display base orientation indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
         base_orientation_GroupBox = PM_GroupBox(_pageContainer, 
                                                       title = "Base orientation indicator parameters",
                                                       connectTitleButton = False)
-        indicators_color_ColorComboBox = PM_ColorComboBox(base_orientation_GroupBox,
+        self.indicators_color_ColorComboBox = PM_ColorComboBox(base_orientation_GroupBox,
                                                       label = "Indicators color:",
                                                       spanWidth = False)
-        inverse_indicators_color_ColorComboBox = PM_ColorComboBox(base_orientation_GroupBox,
+        self.inverse_indicators_color_ColorComboBox = PM_ColorComboBox(base_orientation_GroupBox,
                                                       label = "Color:",
                                                       spanWidth = False)
-        enable_inverse_indicatiors_CheckBox = PM_CheckBox(base_orientation_GroupBox, 
+        self.enable_inverse_indicatiors_CheckBox = PM_CheckBox(base_orientation_GroupBox, 
                                              text = "Display base orientation indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
-        angle_threshold_DoubleSpinBox = PM_DoubleSpinBox(base_orientation_GroupBox,
+        self.angle_threshold_DoubleSpinBox = PM_DoubleSpinBox(base_orientation_GroupBox,
                                                          label = "Angle threshold:", 
                                                          suffix = "",
                                                          spanWidth = False,
                                                          singleStep = .1)
-        terminal_base_distance_SpinBox = PM_SpinBox(base_orientation_GroupBox,
+        self.terminal_base_distance_SpinBox = PM_SpinBox(base_orientation_GroupBox,
                                                          label = "Terminal base distance:", 
                                                          suffix = "",
                                                          spanWidth = False,
@@ -1236,15 +1230,15 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        undo_restore_view_CheckBox = PM_CheckBox(_pageContainer,
+        self.undo_restore_view_CheckBox = PM_CheckBox(_pageContainer,
                                                  text = "Restore view when undoing structural changes",
                                                  widgetColumn = 0,
                                                  spanWidth = True)
-        undo_automatic_checkpoints_CheckBox = PM_CheckBox(_pageContainer,
+        self.undo_automatic_checkpoints_CheckBox = PM_CheckBox(_pageContainer,
                                                  text = "Automatic Checkpoints",
                                                  widgetColumn = 0,
                                                  spanWidth = True)
-        undo_stack_memory_limit_SpinBox = PM_SpinBox(_pageContainer,
+        self.undo_stack_memory_limit_SpinBox = PM_SpinBox(_pageContainer,
                                                      label = "Undo stack memory limit: ",
                                                      suffix = "MB",
                                                      spanWidth = False,
@@ -1263,20 +1257,20 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         view_rotation_settings_GroupBox = PM_GroupBox(_pageContainer, 
                                                       title = "View rotation settings",
                                                       connectTitleButton = False)
-        animate_views_CheckBox = PM_CheckBox(view_rotation_settings_GroupBox, 
+        self.animate_views_CheckBox = PM_CheckBox(view_rotation_settings_GroupBox, 
                                              text = "Animate between views",
                                              widgetColumn = 0)
-        view_animation_speed_Slider = PM_Slider(view_rotation_settings_GroupBox,
+        self.view_animation_speed_Slider = PM_Slider(view_rotation_settings_GroupBox,
                                                 label = "View animation speed: ",
                                                 spanWidth = True)
         labelList = [["QLabel", "slow", 0], ["QSpacerItem", 0, 0, 1], ["QLabel", "fast", 2]]
-        SF1_Label = PM_WidgetRow(view_rotation_settings_GroupBox,
+        self.SF1_Label = PM_WidgetRow(view_rotation_settings_GroupBox,
                                  spanWidth = True,
                                  widgetList = labelList)
-        mouse_rotation_speed_Slider = PM_Slider(view_rotation_settings_GroupBox,
+        self.mouse_rotation_speed_Slider = PM_Slider(view_rotation_settings_GroupBox,
                                                 label = "Mouse rotation speed: ",
                                                 spanWidth = True)
-        SF2_Label = PM_WidgetRow(view_rotation_settings_GroupBox,
+        self.SF2_Label = PM_WidgetRow(view_rotation_settings_GroupBox,
                                  spanWidth = True,
                                  widgetList = labelList)
         mouse_zoom_settings_GroupBox = PM_GroupBox(_pageContainer,
@@ -1284,21 +1278,21 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                    connectTitleButton = False)
         
         _choices = ["Pull/push wheel to zoom in/out", "Push/pull wheel to zoom in/out"]
-        zoom_directon_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
+        self.zoom_directon_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
                                       label =  "Direction:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
         _choices = ["Center about cursor postion", "Center about screen"]
-        zoom_in_center_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
+        self.zoom_in_center_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
                                       label =  "Zoom in:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
         _choices = ["Pull/push wheel to zoom in/out", "Push/pull wheel to zoom in/out"]
-        zoom_out_center_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
+        self.zoom_out_center_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
                                       label =  "Zoom out:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
-        hover_highlighting_timeout_SpinBox = PM_DoubleSpinBox(mouse_zoom_settings_GroupBox,
+        self.hover_highlighting_timeout_SpinBox = PM_DoubleSpinBox(mouse_zoom_settings_GroupBox,
                                                          label = "Hover highlighting\ntimeout interval", 
                                                          suffix = "seconds",
 #                                                         spanWidth = True,
@@ -1310,80 +1304,80 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        lighting_defaults_PushButton = PM_PushButton( _pageContainer,
+        self.lighting_defaults_PushButton = PM_PushButton( _pageContainer,
                                                       text = "Restore Defaults")
         directional_lighting_GroupBox = PM_GroupBox(_pageContainer, 
                                         title = "Directional light properties",
                                         connectTitleButton = False)
         _choices = ["1 (off)", "2 (off)", "3 (off)"]
-        light_ComboBox = PM_ComboBox(directional_lighting_GroupBox, 
+        self.light_ComboBox = PM_ComboBox(directional_lighting_GroupBox, 
                                       label =  "", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
-        light_on_CheckBox = PM_CheckBox(directional_lighting_GroupBox, 
+        self.light_on_CheckBox = PM_CheckBox(directional_lighting_GroupBox, 
                                              text = ": On",
                                              widgetColumn = 0)
         aWidgetList = [ ("QLabel", "Light: ", 0),
-                        ("PM_ComboBox", light_ComboBox, 1),
+                        ("PM_ComboBox", self.light_ComboBox, 1),
                         ("QLabel", " ", 2),
-                        ("PM_CheckBox", light_on_CheckBox, 3)]
+                        ("PM_CheckBox", self.light_on_CheckBox, 3)]
         _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
                                  spanWidth = True,
                                  widgetList = aWidgetList)
-        light_color_ColorComboBox = PM_ColorComboBox(directional_lighting_GroupBox,
+        self.light_color_ColorComboBox = PM_ColorComboBox(directional_lighting_GroupBox,
                                                       label = "Color:",
                                                       spanWidth = False)
-        ambient_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+        self.ambient_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
                                              label = "",
                                              text = ".1")
-        ambient_light_Slider = PM_Slider(directional_lighting_GroupBox)
+        self.ambient_light_Slider = PM_Slider(directional_lighting_GroupBox)
         aWidgetList = [["QLabel", "Ambient:", 0], 
-                       ["PM_LineEdit", ambient_light_LineEdit, 1], 
-                       ["PM_Slider", ambient_light_Slider, 2]]
+                       ["PM_LineEdit", self.ambient_light_LineEdit, 1], 
+                       ["PM_Slider", self.ambient_light_Slider, 2]]
         _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
                                  spanWidth = True,
                                  widgetList = aWidgetList)
 
-        difuse_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+        self.difuse_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
                                              label = "",
                                              text = ".1")
-        difuse_light_Slider = PM_Slider(directional_lighting_GroupBox)
+        self.difuse_light_Slider = PM_Slider(directional_lighting_GroupBox)
         aWidgetList = [["QLabel", "Difuse:", 0], 
-                       ["PM_LineEdit", difuse_light_LineEdit, 1], 
-                       ["PM_Slider", difuse_light_Slider, 2]]
+                       ["PM_LineEdit", self.difuse_light_LineEdit, 1], 
+                       ["PM_Slider", self.difuse_light_Slider, 2]]
         _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
                                  spanWidth = True,
                                  widgetList = aWidgetList)
 
-        specular_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+        self.specular_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
                                              label = "",
                                              text = ".1")
-        specular_light_Slider = PM_Slider(directional_lighting_GroupBox)
+        self.specular_light_Slider = PM_Slider(directional_lighting_GroupBox)
         aWidgetList = [["QLabel", "Specular:", 0], 
-                       ["PM_LineEdit", specular_light_LineEdit, 1], 
-                       ["PM_Slider", specular_light_Slider, 2]]
+                       ["PM_LineEdit", self.specular_light_LineEdit, 1], 
+                       ["PM_Slider", self.specular_light_Slider, 2]]
         _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
                                  spanWidth = True,
                                  widgetList = aWidgetList)
-        X_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+        self.X_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
                                              label = "X:",
                                              text = ".1")
-        Y_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+        self.Y_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
                                              label = "Y:",
                                              text = ".1")
-        Z_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
+        self.Z_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
                                              label = "Z:",
                                              text = ".1")
         material_specular_properties_GroupBox = PM_GroupBox(_pageContainer, 
                                         title = "Material specular properties",
                                         connectTitleButton = False)        
-        material_specular_properties_on_CheckBox = PM_CheckBox(material_specular_properties_GroupBox, 
+        self.material_specular_properties_on_CheckBox = PM_CheckBox(material_specular_properties_GroupBox, 
                                              text = ": On",
                                              widgetColumn = 0)
-        material_specular_properties_finish_LineEdit = PM_LineEdit(material_specular_properties_GroupBox,
+        self.material_specular_properties_finish_LineEdit = PM_LineEdit(material_specular_properties_GroupBox,
                                              label = "Finish: ",
                                              text = ".1")
-        material_specular_properties_finish_Slider = PM_Slider(material_specular_properties_GroupBox)
+        self.material_specular_properties_finish_Slider = PM_Slider(material_specular_properties_GroupBox)
 #        aWidgetList = [["QLabel", "Finish:", 0], 
 #                       ["PM_LineEdit", material_specular_properties_finish_LineEdit, 1], 
 #                       ["PM_Slider", material_specular_properties_finish_Slider, 2]]
@@ -1395,10 +1389,10 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                  spanWidth = True,
                                  widgetList = labelList)
 
-        material_specular_properties_shininess_LineEdit = PM_LineEdit(material_specular_properties_GroupBox,
+        self.material_specular_properties_shininess_LineEdit = PM_LineEdit(material_specular_properties_GroupBox,
                                              label = "Shininess: ",
                                              text = ".1")
-        material_specular_properties_shininess_Slider = PM_Slider(material_specular_properties_GroupBox)
+        self.material_specular_properties_shininess_Slider = PM_Slider(material_specular_properties_GroupBox)
 #        aWidgetList = [["QLabel", "Shininess:", 0], 
 #                       ["PM_LineEdit", material_specular_properties_shininess_LineEdit, 1], 
 #                       ["PM_Slider", material_specular_properties_shininess_Slider, 2]]
@@ -1406,14 +1400,14 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
 #                                 spanWidth = True,
 #                                 widgetList = aWidgetList)
         labelList = [["QLabel", "Flat", 0], ["QSpacerItem", 0, 0, 1], ["QLabel", "Glossy", 2]]
-        SF1_Label = PM_WidgetRow(material_specular_properties_GroupBox,
+        SF2_Label = PM_WidgetRow(material_specular_properties_GroupBox,
                                  spanWidth = True,
                                  widgetList = labelList)
 
-        material_specular_properties_brightness_LineEdit = PM_LineEdit(material_specular_properties_GroupBox,
+        self.material_specular_properties_brightness_LineEdit = PM_LineEdit(material_specular_properties_GroupBox,
                                              label = "Brightness: ",
                                              text = ".1")
-        material_specular_properties_brightness_Slider = PM_Slider(material_specular_properties_GroupBox)
+        self.material_specular_properties_brightness_Slider = PM_Slider(material_specular_properties_GroupBox)
 #        aWidgetList = [["QLabel", "Brightness:", 0], 
 #                       ["PM_LineEdit", material_specular_properties_brightness_LineEdit, 1], 
 #                       ["PM_Slider", material_specular_properties_brightness_Slider, 2]]
@@ -1421,7 +1415,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
 #                                 spanWidth = True,
 #                                 widgetList = aWidgetList)
         labelList = [["QLabel", "Low", 0], ["QSpacerItem", 0, 0, 1], ["QLabel", "High", 2]]
-        SF1_Label = PM_WidgetRow(material_specular_properties_GroupBox,
+        SF3_Label = PM_WidgetRow(material_specular_properties_GroupBox,
                                  spanWidth = True,
                                  widgetList = labelList)
         return
@@ -1431,34 +1425,29 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        minor_groove_error_indicatiors_CheckBox = PM_CheckBox(_pageContainer, 
+        self.minor_groove_error_indicatiors_CheckBox = PM_CheckBox(_pageContainer, 
                                              text = "Display minor groove error indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
         minor_groove_error_parameters_GroupBox = PM_GroupBox(_pageContainer, 
                                                       title = "Error indicator parameters",
                                                       connectTitleButton = False)
-        minor_groove_error_minimum_angle_SpinBox = PM_SpinBox(minor_groove_error_parameters_GroupBox,
+        self.minor_groove_error_minimum_angle_SpinBox = PM_SpinBox(minor_groove_error_parameters_GroupBox,
                                                          label = "Minimum angle:", 
                                                          suffix = " degrees",
                                                          spanWidth = False,
                                                          singleStep = 1)
-        minor_groove_error_maximum_angle_SpinBox = PM_SpinBox(minor_groove_error_parameters_GroupBox,
+        self.minor_groove_error_maximum_angle_SpinBox = PM_SpinBox(minor_groove_error_parameters_GroupBox,
                                                          label = "Maximum angle:", 
                                                          suffix = " degrees",
                                                          spanWidth = False,
                                                          singleStep = 1)
-        minor_groove_error_color_ColorComboBox = PM_ColorComboBox(minor_groove_error_parameters_GroupBox,
+        self.minor_groove_error_color_ColorComboBox = PM_ColorComboBox(minor_groove_error_parameters_GroupBox,
                                                       label = "Color:",
                                                       spanWidth = False)
-        minor_groove_error_reset_PushButton = PM_PushButton(minor_groove_error_parameters_GroupBox,
+        self.minor_groove_error_reset_PushButton = PM_PushButton(minor_groove_error_parameters_GroupBox,
                                                       text = "Reset factory defaults",
                                                       spanWidth = False)
-        buttonList = [["QSpacerItem", 40, 0, 0], ["PushButton", minor_groove_error_reset_PushButton, 1]]
-        buttonPlacer = PM_WidgetRow(minor_groove_error_parameters_GroupBox,
-                                 spanWidth = True,
-                                 widgetList = buttonList)
-        
         return
     
 
