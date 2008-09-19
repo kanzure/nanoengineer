@@ -9,6 +9,8 @@
 from utilities.debug import print_compact_stack, print_compact_traceback
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
 from utilities.GlobalPreferences import USE_COMMAND_STACK
+
+_superclass = ModelAndSimulateProtein_Command
 class SimulateProtein_Command(ModelAndSimulateProtein_Command):
     """
     Class for simulating proteins

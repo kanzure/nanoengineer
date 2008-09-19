@@ -116,8 +116,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
             if self.flyoutToolbar is None:
                 self.flyoutToolbar = self._createFlyoutToolBarObject() 
             self.flyoutToolbar.activateFlyoutToolbar()  
-            return
-        
+            return       
                        
         
         def _createFlyoutToolBarObject(self):

@@ -43,7 +43,7 @@ class EditResidues_Command(EditCommand):
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
     if MODEL_AND_SIMULATE_PROTEINS:
-        command_parent = 'SIMULATE_PROTEIN'
+        command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
 
     command_can_be_suspended = False
     command_should_resume_prevMode = True 

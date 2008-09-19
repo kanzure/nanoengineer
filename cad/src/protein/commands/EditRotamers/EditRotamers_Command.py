@@ -30,7 +30,7 @@ class EditRotamers_Command(EditCommand):
     
     """
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: As of 2008-09-18 it has a bug in opening the protein sequence editor, may be due to PM.update_residue_combobox()??"
+    command_porting_status = None #fully ported
     
     # class constants
     GraphicsMode_class = EditRotamers_GraphicsMode
@@ -44,9 +44,8 @@ class EditRotamers_Command(EditCommand):
     command_parent = 'BUILD_PROTEIN'
     
     if MODEL_AND_SIMULATE_PROTEINS:
-        command_parent = 'MODEL_PROTEIN'
-        
-    
+        command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+            
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
@@ -63,7 +62,6 @@ class EditRotamers_Command(EditCommand):
             parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
         else:
             parentCommandName = None
-            
         return flyoutActionToCheck, parentCommandName
     
     if not USE_COMMAND_STACK:

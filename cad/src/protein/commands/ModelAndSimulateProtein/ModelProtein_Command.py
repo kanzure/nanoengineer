@@ -28,7 +28,7 @@ class ModelProtein_Command(ModelAndSimulateProtein_Command):
     #Urmi 20080806: We may want it to have its own PM
     command_has_its_own_PM = False
     
-    currentActiveTool = 'MODEL_PROTEIN'
+    _currentActiveTool = 'MODEL_PROTEIN'
     from utilities.constants import CL_SUBCOMMAND
 
     #class constants for the NEW COMMAND API -- 2008-07-30

@@ -11,6 +11,7 @@ from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.CompareProteins.CompareProteins_PropertyManager import CompareProteins_PropertyManager
 from utilities.GlobalPreferences import USE_COMMAND_STACK
+from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -41,9 +42,9 @@ class CompareProteins_Command(EditCommand):
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
-    from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
+    
     if MODEL_AND_SIMULATE_PROTEINS:
-        command_parent = 'MODEL_PROTEIN'
+        command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
            
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
