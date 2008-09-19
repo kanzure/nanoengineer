@@ -13,28 +13,16 @@ if TEST_DRAWING:
     from prototype.test_drawing import test_drawing
     pass
 
-from OpenGL.GL import GL_CURRENT_RASTER_POSITION_VALID
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
-from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import GL_LEQUAL
 from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import GL_MODELVIEW_STACK_DEPTH
-from OpenGL.GL import GL_RGB
 from OpenGL.GL import GL_STENCIL_BUFFER_BIT
-from OpenGL.GL import GL_UNSIGNED_BYTE
 from OpenGL.GL import glDepthFunc
-from OpenGL.GL import glDisable
-from OpenGL.GL import glDrawPixels
-from OpenGL.GL import glEnable
 from OpenGL.GL import glFlush
-from OpenGL.GL import glGetBooleanv
 from OpenGL.GL import glGetInteger
 from OpenGL.GL import glMatrixMode
 from OpenGL.GL import glPopMatrix
-from OpenGL.GL import glRasterPos3f
-from OpenGL.GL import glReadPixels
-
-from OpenGL.GLU import gluUnProject
 
 import graphics.drawing.drawing_globals as drawing_globals
 
@@ -54,6 +42,8 @@ from utilities.debug import print_compact_traceback, print_compact_stack
 
 ### from utilities.debug import profile, doProfile ###
 
+from utilities.Comparison import same_vals
+
 import foundation.env as env
 
 from utilities.prefs_constants import displayCompass_prefs_key
@@ -70,9 +60,11 @@ from utilities.debug_prefs import Choice_boolean_False
 from utilities.GlobalPreferences import use_frustum_culling
 from utilities.GlobalPreferences import pref_skip_redraws_requested_only_by_Qt
 
+from graphics.widgets.GLPane_image_methods import GLPane_image_methods
+
 # ==
 
-class GLPane_rendering_methods(object):
+class GLPane_rendering_methods(GLPane_image_methods):
     """
     private mixin for providing rendering methods to class GLPane
     (including calls to highlighting/hit-test methods
@@ -217,6 +209,7 @@ class GLPane_rendering_methods(object):
             # by redrawing a saved image. We're likely to do that for other
             # reasons as well (e.g. to optimize redraws in which only the
             # selection or highlighting changes).
+            # [doing this experimentally, 080919; see class GLPane_image_methods]
 
             # disabling this debug print (see long comment above), bruce 080512
             ## if debug_flags.atom_debug:
@@ -309,97 +302,6 @@ class GLPane_rendering_methods(object):
         ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
 
         return # from _paintGL_drawing
-
-    _conf_corner_bg_image_data = None
-
-    def grab_conf_corner_bg_image(self): #bruce 070626
-        """
-        Grab an image of the top right corner, for use in confirmation corner
-        optimizations which redraw it without redrawing everything.
-        """
-        width = self.width
-        height = self.height
-        subwidth = min(width, 100)
-        subheight = min(height, 100)
-        gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE
-            # these seem to be enough; GL_RGBA, GL_FLOAT also work but look the same
-        image = glReadPixels( width - subwidth,
-                              height - subheight,
-                              subwidth, subheight,
-                              gl_format, gl_type )
-        if type(image) is not type("") and \
-           not env.seen_before("conf_corner_bg_image of unexpected type"):
-            print "fyi: grabbed conf_corner_bg_image of unexpected type %r:" % \
-                  ( type(image), )
-
-        self._conf_corner_bg_image_data = (subwidth, subheight,
-                                           width, height,
-                                           gl_format, gl_type, image)
-
-            # Note: the following alternative form probably grabs a Numeric array, but I'm not sure
-            # our current PyOpenGL (in release builds) supports those, so for now I'll stick with strings, as above.
-            ## image2 = glReadPixelsf( width - subwidth, height - subheight, subwidth, subheight, GL_RGB)
-            ## print "grabbed image2 (type %r):" % ( type(image2), ) # <type 'array'>
-
-        return
-
-    def draw_conf_corner_bg_image(self, pos = None): #bruce 070626 (pos argument is just for development & debugging)
-        """
-        Redraw the previously grabbed conf_corner_bg_image,
-        in the same place from which it was grabbed,
-        or in the specified place (lower left corner of pos, in OpenGL window coords).
-        Note: this modifies the OpenGL raster position.
-        """
-        if not self._conf_corner_bg_image_data:
-            print "self._conf_corner_bg_image_data not yet assigned"
-        else:
-            subwidth, subheight, width, height, gl_format, gl_type, image = self._conf_corner_bg_image_data
-            if width != self.width or height != self.height:
-                # I don't know if this can ever happen; if it can, caller might need
-                # to detect this itself and do a full redraw.
-                # (Or we might make this method return a boolean to indicate it.)
-                print "can't draw self._conf_corner_bg_image_data -- glpane got resized" ###
-            else:
-                if pos is None:
-                    pos = (width - subwidth, height - subheight)
-                x, y = pos
-
-                # If x or y is exactly 0, then numerical roundoff errors can make the raster position invalid.
-                # Using 0.1 instead apparently fixes it, and causes no noticable image quality effect.
-                # (Presumably they get rounded to integer window positions after the view volume clipping,
-                #  though some effects I saw implied that they don't get rounded, so maybe 0.1 is close enough to 0.0.)
-                # This only matters when GLPane size is 100x100 or less,
-                # or when drawing this in lower left corner for debugging,
-                # so we don't have to worry about whether it's perfect.
-                # (The known perfect fix is to initialize both matrices, but we don't want to bother,
-                #  or to worry about exceeding the projection matrix stack depth.)
-                x = max(x, 0.1)
-                y = max(y, 0.1)
-
-                depth = 0.1 # this should not matter, as long as it's within the viewing volume
-                x1, y1, z1 = gluUnProject(x, y, depth)
-                glRasterPos3f(x1, y1, z1) # z1 does matter (when in perspective view), since this is a 3d position
-                    # Note: using glWindowPos would be simpler and better, but it's not defined
-                    # by the PyOpenGL I'm using. [bruce iMac G5 070626]
-
-                if not glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID):
-                    # This was happening when we used x, y = exact 0,
-                    # and was causing the image to not get drawn sometimes (when mousewheel zoom was used).
-                    # It can still happen for extreme values of mousewheel zoom (close to the ones
-                    # which cause OpenGL exceptions), mostly only when pos = (0, 0) but not entirely.
-                    # Sometimes the actual drawing positions can get messed up then, too.
-                    # This doesn't matter much, but indicates that reiniting the matrices would be
-                    # a better solution if we could be sure the projection stack depth was sufficient
-                    # (or if we reset the standard projection when done, rather than using push/pop).
-                    print "bug: not glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID); pos =", pos
-
-                glDisable(GL_DEPTH_TEST) # otherwise it can be obscured by prior drawing into depth buffer
-                # Note: doing more disables would speed up glDrawPixels,
-                # but that doesn't matter unless we do it many times per frame.
-                glDrawPixels(subwidth, subheight, gl_format, gl_type, image)
-                glEnable(GL_DEPTH_TEST)
-            pass
-        return
 
     def _restore_modelview_stack_depth(self):
         """
@@ -524,6 +426,9 @@ class GLPane_rendering_methods(object):
         # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ###e which coord system, incl projection??
         # [end]
 
+    _old_bg_image_data = None # note: holds comparison data, not the image itself
+        # (for that see some attr of class GLPane_image_methods)
+    
     def standard_repaint_0(self):
         """
         [private indirect submethod of paintGL]
@@ -541,12 +446,11 @@ class GLPane_rendering_methods(object):
         self.clear_and_draw_background( GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
             # also sets self.fogColor
 
-        # fog_test_enable debug_pref can be removed if fog is implemented fully
-        # (added by bradg 20060224)
+        # fog added by bradg 20060224
         # piotr 080605 1.1.0 rc1 - replaced fog debug pref with user pref
-        fog_test_enable = env.prefs[fogEnabled_prefs_key]
+        self._fog_test_enable = env.prefs[fogEnabled_prefs_key]
 
-        if fog_test_enable:
+        if self._fog_test_enable:
             # piotr 080515 fixed fog
             # I think that the bbox_for_viewing_model call can be expensive.
             # I have to preserve this value or find another way of computing it.
@@ -561,7 +465,7 @@ class GLPane_rendering_methods(object):
 
         # ask mode to validate self.selobj (might change it to None)
         # (note: self.selobj is used in do_glselect_if_wanted)
-        selobj, hicolor = self.validate_selobj_and_hicolor()
+        self._selobj_and_hicolor = self.validate_selobj_and_hicolor()
 
         # do modelview setup (needed for GL_SELECT or regular drawing)
         self._setup_modelview()
@@ -619,11 +523,11 @@ class GLPane_rendering_methods(object):
             newpicked = self.preDraw_glselect_dict() # retval is new mouseover object, or None
             # now record which object is hit by the mouse in self.selobj
             # (or None if none is hit); and (later) overdraw it for highlighting.
-            if newpicked is not selobj:
+            if newpicked is not self.selobj:
                 self.set_selobj( newpicked, "newpicked")
-                selobj, hicolor = self.validate_selobj_and_hicolor()
-                    # REVIEW: should set_selobj also do this, and save hicolor
-                    # in an attr of self?
+                self._selobj_and_hicolor = self.validate_selobj_and_hicolor()
+                    # REVIEW: should set_selobj also call that, and save hicolor
+                    # in an attr of self, so self._selobj_and_hicolor is not needed?
                 # future: we'll probably need to notify some observers that
                 # selobj changed (if in fact it did).
                 # REVIEW: we used to print this in the statusbar:
@@ -640,66 +544,55 @@ class GLPane_rendering_methods(object):
         # draw according to self.graphicsMode
 
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods
-
-        vboLevel = drawing_globals.use_drawing_variant
         
-        for stereo_image in self.stereo_images_to_draw:
+        draw_saved_bg_image = False # modified below
+        capture_saved_bg_image = False # ditto
+        bg_image_data = None # ditto
+        
+        if debug_pref("GLPane: use cached bg image? (experimental)",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True):
+            # experimental implementation, has bugs (listed here or in
+            # submethods when known)
+            bg_image_data = self._get_bg_image_comparison_data()
+            draw_saved_bg_image = same_vals( bg_image_data, self._old_bg_image_data)
+            capture_saved_bg_image = not draw_saved_bg_image
             
+            if draw_saved_bg_image:
+                self._draw_saved_bg_image() # in GLPane_image_methods
+                    # saved and drawn outside of stereo loop (intentional)
+            else:
+                # capture it below, and only then set this:
+                # self._old_bg_image_data = bg_image_data
+                pass
+            pass
+
+        for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)
                 # note: this relies on modelview matrix already being correctly
                 # set up for non-stereo drawing
 
-            if fog_test_enable:
-                enable_fog()
+            if not draw_saved_bg_image:
+                self._do_drawing_for_bg_image_inside_stereo()
+                # otherwise, no need, we called _draw_saved_bg_image above
                 
-            try:
-                self.drawing_phase = 'main'
-
-                if vboLevel == 6:   # russ 080714
-                    drawing_globals.sphereShader.configShader(self) # review: can we move this outside the stereo loop?
-                    pass
-
-                self.graphicsMode.Draw()
-                    # draw self.part (the model), with chunk & atom selection
-                    # indicators, and graphicsMode-specific extras.
-                    # Some GraphicsModes only draw portions of the model.
-            finally:
-                self.drawing_phase = '?'
-
-            if fog_test_enable:
-                disable_fog()            
-                
-            # highlight selobj if necessary, by drawing it again in highlighted
-            # form (never inside fog).
-            # It was already drawn normally, but we redraw it now for three reasons:
-            # - it might be in a display list in non-highlighted form (and if so,
-            #   the above draw used that form);
-            # - if fog is enabled, the above draw was inside fog; this one won't be;
-            # - we need to draw it into the stencil buffer too, so subsequent calls
-            #   of self.graphicsMode.bareMotion event handlers can find out whether
-            #   the mouse is still over it, and avoid asking for hit-test again
-            #   if it was (probably an important optimization).
-            if selobj is not None:
-                self.draw_highlighted_objectUnderMouse(selobj, hicolor)
-                    # REVIEW: is it ok that the mode had to tell us selobj and hicolor
-                    # (and validate selobj) before drawing the model?
-
-            # draw transparent things (e.g. Build Atoms water surface,
-            # parts of Plane or ESPImage nodes)
-            # [bruce 080919 bugfix: do this inside the stereo loop]
-            try:
-                self.drawing_phase = 'main/Draw_after_highlighting'
-                self.graphicsMode.Draw_after_highlighting()
-                    # e.g. draws water surface in Build mode [###REVIEW: ok inside stereo loop?],
-                    # or transparent parts of ESPImage or Plane (must be inside stereo loop).
-                    # Note: this is called in the main model coordinate system
-                    # (perhaps modified for current stereo image),
-                    # just like self.graphicsMode.Draw() [bruce 061208/080919 comment]
-            finally:
-                self.drawing_phase = '?'
-
+            if not capture_saved_bg_image:
+                self._do_other_drawing_inside_stereo()
+                # otherwise, do this later (don't mess up captured image)
+            
             self._disable_stereo()
             continue # to next stereo_image
+
+        if capture_saved_bg_image:
+            self._capture_saved_bg_image() # in GLPane_image_methods
+            self._old_bg_image_data = bg_image_data
+            for stereo_image in self.stereo_images_to_draw:
+                self._enable_stereo(stereo_image)
+                self._do_other_drawing_inside_stereo()
+                self._disable_stereo()
+                continue # to next stereo_image
+            pass
 
         # let parts (other than the main part) draw a text label, to warn
         # the user that the main part is not being shown [bruce 050408]
@@ -721,6 +614,7 @@ class GLPane_rendering_methods(object):
             # review: needs drawing_phase? [bruce 070124 q]
 
         # draw the "origin axes"
+        ### TODO: put this and GM part of it into _do_other_drawing_inside_stereo
         if env.prefs[displayOriginAxis_prefs_key]:
             for stereo_image in self.stereo_images_to_draw:
                 self._enable_stereo(stereo_image, preserve_colors = True)
@@ -749,23 +643,9 @@ class GLPane_rendering_methods(object):
 
                 self._disable_stereo()
 
-        # draw some test images related to the confirmation corner
-
-        ccdp1 = debug_pref("Conf corner test: redraw at lower left",
-                           Choice_boolean_False,
-                           prefs_key = True)
-        ccdp2 = debug_pref("Conf corner test: redraw in-place",
-                           Choice_boolean_False,
-                           prefs_key = True)
-        
-        if ccdp1 or ccdp2:
-            self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay)
-
-        if ccdp1:
-            self.draw_conf_corner_bg_image((0, 0))
-
-        if ccdp2:
-            self.draw_conf_corner_bg_image()
+        self._draw_cc_test_images()
+            # draw some test images related to the confirmation corner
+            # (needs to be done before draw_overlay)
         
         # draw various overlays
 
@@ -793,6 +673,74 @@ class GLPane_rendering_methods(object):
             #  standard GL state before checking self.redrawGL in paintGL)
 
         return # from standard_repaint_0 (the main rendering submethod of paintGL)
+
+    def _do_drawing_for_bg_image_inside_stereo(self): #bruce 080919 split this out
+        """
+        """
+        if self._fog_test_enable:
+            enable_fog()
+
+        try:
+            self.drawing_phase = 'main'
+
+            if drawing_globals.use_drawing_variant == 6: # russ 080714
+                drawing_globals.sphereShader.configShader(self) # review: can we move this outside the stereo loop?
+                pass
+
+            self.graphicsMode.Draw()
+                # draw self.part (the model), with chunk & atom selection
+                # indicators, and graphicsMode-specific extras.
+                # Some GraphicsModes only draw portions of the model.
+                # Base class method in GraphicsMode also does miscellaneous
+                # special drawing controlled by user prefs.
+                ### todo: Likely refactoring: .Draw only draws model,
+                # then .Draw_special draws other stuff, in case that depends
+                # on more prefs than the model itself does (should help with
+                # the optim of caching a fixed background image).
+                # [bruce 080919 comment]
+        finally:
+            self.drawing_phase = '?'
+
+        if self._fog_test_enable:
+            disable_fog()
+
+        return
+
+    def _do_other_drawing_inside_stereo(self): #bruce 080919 split this out
+        """
+        [might be misnamed -- does not (yet) do *all* other drawing
+         currently done inside stereo]
+        """
+        # highlight selobj if necessary, by drawing it again in highlighted
+        # form (never inside fog).
+        # It was already drawn normally, but we redraw it now for three reasons:
+        # - it might be in a display list in non-highlighted form (and if so,
+        #   the above draw used that form);
+        # - if fog is enabled, the above draw was inside fog; this one won't be;
+        # - we need to draw it into the stencil buffer too, so subsequent calls
+        #   of self.graphicsMode.bareMotion event handlers can find out whether
+        #   the mouse is still over it, and avoid asking for hit-test again
+        #   if it was (probably an important optimization).
+        selobj, hicolor = self._selobj_and_hicolor
+        if selobj is not None:
+            self.draw_highlighted_objectUnderMouse(selobj, hicolor)
+                # REVIEW: is it ok that the mode had to tell us selobj and hicolor
+                # (and validate selobj) before drawing the model?
+
+        # draw transparent things (e.g. Build Atoms water surface,
+        # parts of Plane or ESPImage nodes)
+        # [bruce 080919 bugfix: do this inside the stereo loop]
+        try:
+            self.drawing_phase = 'main/Draw_after_highlighting'
+            self.graphicsMode.Draw_after_highlighting()
+                # e.g. draws water surface in Build mode [###REVIEW: ok inside stereo loop?],
+                # or transparent parts of ESPImage or Plane (must be inside stereo loop).
+                # Note: this is called in the main model coordinate system
+                # (perhaps modified for current stereo image),
+                # just like self.graphicsMode.Draw() [bruce 061208/080919 comment]
+        finally:
+            self.drawing_phase = '?'
+        return
 
     def validate_selobj_and_hicolor(self): #bruce 070919 split this out, slightly revised behavior, and simplified code
         """
