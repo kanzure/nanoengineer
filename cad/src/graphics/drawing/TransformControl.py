@@ -93,7 +93,7 @@ class TransformControl:
     methods.
 
     You can also reset to the identity and apply a rotation and a translation in
-    one operation with the identRotTrans() method.
+    one operation with the identTranslateRotate() method.
     
     If you want the transform back into a rotation quaternion and translation
     vector, use the getRotTrans method.  Normally, we leave the transform in
@@ -137,30 +137,30 @@ class TransformControl:
         self.changed = eventStamp()
         return
         
-    def identRotTrans(self, quat, vec):
+    def identTranslateRotate(self, vec, quat):
         """
-        Clear the transform to the product of a rotate and a translate.
+        Clear the transform to the product of a translate and a rotate.
         """
         self.transform = floatIdent(4)
-        self.rotate(quat)
         self.translate(vec)
+        self.rotate(quat)
         return
     
-    def getRotTrans(self):
+    def getTranslateRotate(self):
         """
-        Return the transform, decomposed into a rotation quaternion and a
-        translation 3-vector.
+        Return the transform, decomposed into a translation 3-vector and a
+        rotation quaternion.
         """
         # With no scales, skews, or perspective the right column is [0, 0, 0,
         # 1].  The upper right 3x3 is a rotation matrix giving the orientation
         # of the new right-handed orthonormal local coordinate frame, and the
         # left-bottom-row 3-vector is the translation that positions the origin
         # of that frame.
+        vec = self.transform[3, 0:3]
         quat = Q(self.transform[0, 0:3],
                  self.transform[1, 0:3],
                  self.transform[2, 0:3])
-        vec = self.transform[3, 0:3]
-        return (quat, vec)
+        return (vec, quat)
 
     # ==
 
