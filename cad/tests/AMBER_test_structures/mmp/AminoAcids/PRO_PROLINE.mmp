@@ -1,0 +1,88 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.252082) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.965474, 0.127192, -0.200452, 0.107242) (9.547311) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (PRO_PROLINE)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (7) (-4985, -1491, -402) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-5759, -1209, 195) def
+bond1 1
+atom 3 (6) (-3808, -618, -721) def
+bond1 1
+atom 4 (1) (-3278, -325, 185) def
+bond1 3
+atom 5 (6) (-4204, 693, -1462) def
+info atom atomtype = sp2
+bond1 3
+atom 6 (8) (-4962, 697, -2408) def
+info atom atomtype = sp2
+bond2 5
+atom 7 (8) (-3623, 1941, -977) def
+bond1 5
+atom 8 (1) (-4257, 2380, -396) def
+bond1 7
+atom 9 (6) (-2835, -1479, -1591) def
+bond1 3
+atom 10 (1) (-1899, -1635, -1072) def
+bond1 9
+atom 11 (1) (-2603, -982, -2524) def
+bond1 9
+atom 12 (6) (-4883, -2831, -1064) def
+bond1 1
+atom 13 (1) (-4892, -3647, -355) def
+bond1 12
+atom 14 (1) (-5705, -3023, -1742) def
+bond1 12
+atom 15 (6) (-3542, -2849, -1859) def
+bond1 12 9
+atom 16 (1) (-3728, -2979, -2917) def
+bond1 15
+atom 17 (1) (-2917, -3671, -1537) def
+bond1 15
+egroup (PRO_PROLINE)
+end1
+group (Clipboard)
+info opengroup open = False
+group (Clipboard item 1)
+info opengroup open = True
+mol (Chunk1) def
+atom 18 (7) (-5956, -1311, 53) def
+info atom atomtype = sp2(graphitic)
+atom 19 (1) (-6647, -648, 393) def
+bond1 18
+atom 20 (1) (-6234, -2264, -166) def
+bond1 18
+atom 21 (6) (-4521, -878, -132) def
+bond1 18
+atom 22 (1) (-4223, -240, 701) def
+bond1 21
+atom 23 (6) (-4335, -23, -1421) def
+info atom atomtype = sp2
+bond1 21
+atom 24 (8) (-4820, -345, -2485) def
+info atom atomtype = sp2
+bond2 23
+atom 25 (8) (-3544, 1199, -1313) def
+bond1 23
+atom 26 (1) (-4100, 1908, -964) def
+bond1 25
+atom 27 (6) (-3527, -2085, -141) def
+bond1 21
+atom 28 (1) (-3647, -2708, 744) def
+bond1 27
+atom 29 (1) (-3647, -2700, -1031) def
+bond1 27
+mol (CYM_CYSTEINE_with_negative_charge.in_frag) def
+atom 30 (16) (-1759, -1529, -132) def
+info atom atomtype = sp2
+bond1 27
+egroup (Clipboard item 1)
+egroup (Clipboard)
+end molecular machine part PRO_PROLINE

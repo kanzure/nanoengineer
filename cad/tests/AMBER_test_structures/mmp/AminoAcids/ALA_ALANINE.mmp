@@ -1,0 +1,44 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.554274) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (ALA_ALANINE)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (7) (-6469, -1679, 111) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-6893, -1391, 887) def
+bond1 1
+atom 3 (1) (-6955, -2127, -544) def
+bond1 1
+atom 4 (6) (-4994, -1415, -86) def
+bond1 1
+atom 5 (1) (-4448, -1699, 804) def
+bond1 4
+atom 6 (6) (-4693, 95, -306) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (8) (-5386, 829, -1358) def
+info atom atomtype = sp2
+bond2 6
+atom 8 (8) (-3718, 784, 532) def
+bond1 6
+atom 9 (1) (-4192, 1188, 1315) def
+bond1 8
+atom 10 (6) (-4373, -2243, -1250) def
+bond1 4
+atom 11 (1) (-4504, -3303, -1078) def
+bond1 10
+atom 12 (1) (-3313, -2047, -1342) def
+bond1 10
+atom 13 (1) (-4843, -1995, -2193) def
+bond1 10
+egroup (ALA_ALANINE)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part ALA_ALANINE

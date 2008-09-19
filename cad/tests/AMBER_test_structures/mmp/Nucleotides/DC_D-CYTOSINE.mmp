@@ -1,0 +1,91 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (11.446953) (0.314756, -0.570569, -1.063136) (1.000000)
+egroup (View Data)
+group (DC_D-CYTOSINE)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (15) (110, -3534, 8075) def
+info atom atomtype = sp3(p)
+atom 2 (8) (-14, -3416, 6407) def
+bond1 1
+atom 3 (8) (-673, -4917, 8589) def
+bond1 1
+atom 4 (1) (-618, -5685, 8006) def
+bond1 3
+atom 5 (8) (-629, -2207, 8768) def
+info atom atomtype = sp2(-)
+bond1 1
+atom 6 (8) (1466, -3577, 8453) def
+info atom atomtype = sp2
+bond2 1
+atom 7 (6) (-1227, -2404, 4531) def
+atom 8 (1) (-526, -2716, 3758) def
+bond1 7
+atom 9 (6) (-950, -949, 5003) def
+bond1 7
+atom 10 (1) (-914, -858, 6089) def
+bond1 9
+atom 11 (8) (-2542, -2366, 3885) def
+bond1 7
+atom 12 (6) (-3069, -1009, 3692) def
+bond1 11
+atom 13 (1) (-3004, -854, 2616) def
+bond1 12
+atom 14 (8) (348, -511, 4485) def
+bond1 9
+atom 15 (1) (1067, -953, 4956) def
+bond1 14
+atom 16 (6) (-2058, -58, 4396) def
+bond1 9 12
+atom 17 (1) (-1640, 652, 3684) def
+bond1 16
+atom 18 (1) (-2552, 521, 5175) def
+bond1 16
+atom 19 (7) (-4488, -936, 4216) def
+info atom atomtype = sp2(graphitic)
+bond1 12
+atom 20 (6) (-1286, -3454, 5681) def
+bond1 2 7
+atom 21 (1) (-1395, -4467, 5296) def
+bond1 20
+atom 22 (1) (-2092, -3243, 6381) def
+bond1 20
+atom 23 (6) (-4774, -1301, 5653) def
+info atom atomtype = sp2
+bond1 19
+atom 24 (1) (-3967, -1608, 6313) def
+bond1 23
+atom 25 (6) (-6224, -1228, 6192) def
+info atom atomtype = sp2
+bond1 23
+atom 26 (1) (-6469, -1612, 7179) def
+bond1 25
+atom 27 (6) (-5622, -500, 3313) def
+info atom atomtype = sp2
+bond1 19
+atom 28 (7) (-7056, -328, 3822) def
+info atom atomtype = sp2
+bond1 27
+atom 29 (6) (-7314, -594, 5295) def
+info atom atomtype = sp2
+bond1 25 28
+atom 30 (7) (-8752, -538, 5739) def
+info atom atomtype = sp2(graphitic)
+bond1 29
+atom 31 (1) (-9006, -823, 6681) def
+bond1 30
+atom 32 (1) (-9470, -215, 5097) def
+bond1 30
+atom 33 (8) (-5393, -284, 2173) def
+info atom atomtype = sp2
+bond2 27
+egroup (DC_D-CYTOSINE)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part DC_D-CYTOSINE

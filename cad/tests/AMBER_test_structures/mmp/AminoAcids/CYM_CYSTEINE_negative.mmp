@@ -1,0 +1,45 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.547120) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (CYM_CYSTEINE_negative)
+info opengroup open = True
+mol (CYM_CYSTEINE_with_negative_charge.in_frag) def
+atom 1 (7) (-5956, -1311, 53) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-6647, -648, 393) def
+bond1 1
+atom 3 (1) (-6234, -2264, -166) def
+bond1 1
+atom 4 (6) (-4521, -878, -132) def
+bond1 1
+atom 5 (1) (-4223, -240, 701) def
+bond1 4
+atom 6 (6) (-4335, -23, -1421) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (8) (-4820, -345, -2485) def
+info atom atomtype = sp2
+bond2 6
+atom 8 (8) (-3544, 1199, -1313) def
+bond1 6
+atom 9 (1) (-4100, 1908, -964) def
+bond1 8
+atom 10 (6) (-3527, -2085, -141) def
+bond1 4
+atom 11 (1) (-3647, -2708, 744) def
+bond1 10
+atom 12 (1) (-3647, -2700, -1031) def
+bond1 10
+atom 13 (16) (-1759, -1529, -132) def
+info atom atomtype = sp2
+bond1 10
+egroup (CYM_CYSTEINE_negative)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part CYM_CYSTEINE_negative

@@ -1,0 +1,55 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.624049) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (ASN_ASPARAGINE)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (7) (-6601, -1899, -95) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-7276, -1473, 383) def
+bond1 1
+atom 3 (1) (-6814, -2583, -688) def
+bond1 1
+atom 4 (6) (-5163, -1476, 92) def
+bond1 1
+atom 5 (1) (-4933, -1409, 1147) def
+bond1 4
+atom 6 (6) (-4886, -62, -494) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (8) (-5224, 229, -1882) def
+info atom atomtype = sp2
+bond2 6
+atom 8 (8) (-4289, 978, 337) def
+bond1 6
+atom 9 (1) (-5020, 1508, 769) def
+bond1 8
+atom 10 (6) (-4150, -2484, -498) def
+bond1 4
+atom 11 (1) (-4274, -3444, -15) def
+bond1 10
+atom 12 (1) (-4325, -2589, -1561) def
+bond1 10
+atom 13 (6) (-2769, -1989, -270) def
+info atom atomtype = sp2
+bond1 10
+atom 14 (7) (-1892, -2735, 457) def
+info atom atomtype = sp2(graphitic)
+bond1 13
+atom 15 (1) (-2157, -3554, 810) def
+bond1 14
+atom 16 (1) (-1026, -2425, 600) def
+bond1 14
+atom 17 (8) (-2386, -809, -780) def
+info atom atomtype = sp2
+bond2 13
+egroup (ASN_ASPARAGINE)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part ASN_ASPARAGINE

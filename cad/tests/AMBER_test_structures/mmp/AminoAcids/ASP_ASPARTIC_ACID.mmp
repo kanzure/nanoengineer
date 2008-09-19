@@ -1,0 +1,51 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.998639) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (ASP_ASPARTIC_ACID)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (7) (-6593, -1506, -30) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-7157, -906, 403) def
+bond1 1
+atom 3 (1) (-6953, -2222, -503) def
+bond1 1
+atom 4 (6) (-5096, -1314, 35) def
+bond1 1
+atom 5 (1) (-4792, -1137, 1058) def
+bond1 4
+atom 6 (6) (-4629, -67, -769) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (8) (-5002, 75, -2171) def
+info atom atomtype = sp2
+bond2 6
+atom 8 (8) (-3817, 962, -129) def
+bond1 6
+atom 9 (1) (-4422, 1667, 244) def
+bond1 8
+atom 10 (6) (-4302, -2555, -433) def
+bond1 4
+atom 11 (1) (-4551, -3401, 195) def
+bond1 10
+atom 12 (1) (-4558, -2781, -1460) def
+bond1 10
+atom 13 (6) (-2847, -2278, -335) def
+info atom atomtype = sp2
+bond1 10
+atom 14 (8) (-2308, -1266, -1033) def
+info atom atomtype = sp2
+bond2 13
+atom 15 (8) (-2035, -3073, 486) def
+info atom atomtype = sp2(-)
+bond1 13
+egroup (ASP_ASPARTIC_ACID)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part ASP_ASPARTIC_ACID

@@ -1,0 +1,108 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.547311) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.965474, 0.127192, -0.200452, 0.107242) (9.547311) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (CYX_CYSTEINE-S-S-CYSTEINE)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (7) (-4876, -1615, 96) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-5409, -1336, 916) def
+bond1 1
+atom 3 (1) (-5219, -2365, -499) def
+bond1 1
+atom 4 (6) (-3581, -916, -239) def
+bond1 1
+atom 5 (1) (-3230, -355, 627) def
+bond1 4
+atom 6 (6) (-3764, 126, -1384) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (8) (-4219, -177, -2467) def
+info atom atomtype = sp2
+bond2 6
+atom 8 (8) (-3364, 1502, -1113) def
+bond1 6
+atom 9 (1) (-4106, 1974, -713) def
+bond1 8
+atom 10 (6) (-2441, -1920, -606) def
+bond1 4
+atom 11 (1) (-2312, -2671, 171) def
+bond1 10
+atom 12 (1) (-2649, -2424, -1548) def
+bond1 10
+atom 13 (7) (3919, -2625, -2687) def
+info atom atomtype = sp2(graphitic)
+atom 14 (1) (4421, -2422, -3548) def
+bond1 13
+atom 15 (1) (4241, -3372, -2078) def
+bond1 13
+atom 16 (6) (2696, -1820, -2316) def
+bond1 13
+atom 17 (1) (2468, -1119, -3118) def
+bond1 16
+atom 18 (6) (2933, -947, -1048) def
+info atom atomtype = sp2
+bond1 16
+atom 19 (8) (3491, -1377, -62) def
+info atom atomtype = sp2
+bond2 18
+atom 20 (8) (2452, 430, -1080) def
+bond1 18
+atom 21 (1) (3151, 1002, -1422) def
+bond1 20
+atom 22 (6) (1430, -2722, -2113) def
+bond1 16
+atom 23 (1) (1491, -3623, -2720) def
+bond1 22
+atom 24 (1) (1302, -3020, -1074) def
+bond1 22
+atom 25 (16) (-793, -1064, -753) def
+bond1 10
+atom 26 (16) (-135, -1875, -2658) def
+bond1 25 22
+egroup (CYX_CYSTEINE-S-S-CYSTEINE)
+end1
+group (Clipboard)
+info opengroup open = False
+group (Clipboard item 1)
+info opengroup open = True
+mol (Chunk1) def
+atom 27 (7) (-5956, -1311, 53) def
+info atom atomtype = sp2(graphitic)
+atom 28 (1) (-6647, -648, 393) def
+bond1 27
+atom 29 (1) (-6234, -2264, -166) def
+bond1 27
+atom 30 (6) (-4521, -878, -132) def
+bond1 27
+atom 31 (1) (-4223, -240, 701) def
+bond1 30
+atom 32 (6) (-4335, -23, -1421) def
+info atom atomtype = sp2
+bond1 30
+atom 33 (8) (-4820, -345, -2485) def
+info atom atomtype = sp2
+bond2 32
+atom 34 (8) (-3544, 1199, -1313) def
+bond1 32
+atom 35 (1) (-4100, 1908, -964) def
+bond1 34
+atom 36 (6) (-3527, -2085, -141) def
+bond1 30
+atom 37 (1) (-3647, -2708, 744) def
+bond1 36
+atom 38 (1) (-3647, -2700, -1031) def
+bond1 36
+mol (CYM_CYSTEINE_with_negative_charge.in_frag) def
+atom 39 (16) (-1759, -1529, -132) def
+info atom atomtype = sp2
+bond1 36
+egroup (Clipboard item 1)
+egroup (Clipboard)
+end molecular machine part CYX_CYSTEINE-S-S-CYSTEINE

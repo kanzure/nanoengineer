@@ -1,0 +1,97 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.306284) (-0.165303, 0.622569, 0.396058) (1.000000)
+egroup (View Data)
+group (DA_D-ADENOSINE)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (15) (72, -3515, 8066) def
+info atom atomtype = sp3(p)
+atom 2 (8) (-25, -3413, 6395) def
+bond1 1
+atom 3 (8) (-710, -4900, 8578) def
+bond1 1
+atom 4 (1) (-635, -5673, 8005) def
+bond1 3
+atom 5 (8) (-689, -2188, 8735) def
+info atom atomtype = sp2(-)
+bond1 1
+atom 6 (8) (1421, -3545, 8466) def
+info atom atomtype = sp2
+bond2 1
+atom 7 (6) (-1208, -2402, 4499) def
+atom 8 (1) (-500, -2718, 3734) def
+bond1 7
+atom 9 (6) (-931, -947, 4972) def
+bond1 7
+atom 10 (1) (-898, -857, 6058) def
+bond1 9
+atom 11 (8) (-2516, -2361, 3837) def
+bond1 7
+atom 12 (6) (-3081, -1011, 3719) def
+bond1 11
+atom 13 (1) (-3117, -830, 2645) def
+bond1 12
+atom 14 (8) (370, -511, 4458) def
+bond1 9
+atom 15 (1) (1087, -946, 4939) def
+bond1 14
+atom 16 (6) (-2035, -56, 4364) def
+bond1 9 12
+atom 17 (1) (-1623, 621, 3616) def
+bond1 16
+atom 18 (1) (-2500, 557, 5134) def
+bond1 16
+atom 19 (7) (-4446, -977, 4360) def
+info atom atomtype = sp2(graphitic)
+bond1 12
+atom 20 (6) (-5732, -552, 3719) def
+info atom atomtype = sp2
+bond1 19
+atom 21 (6) (-6845, -709, 4758) def
+info atom atomtype = sp2
+bond1 20
+atom 22 (6) (-4791, -1361, 5777) def
+info atom atomtype = sp2
+bond1 19
+atom 23 (1) (-4065, -1692, 6514) def
+bond1 22
+atom 24 (7) (-6270, -1218, 6052) def
+info atom atomtype = sp2
+bond1 22 21
+atom 25 (7) (-6004, -45, 2333) def
+info atom atomtype = sp2
+bond1 20
+atom 26 (6) (-8303, -357, 4391) def
+info atom atomtype = sp2
+bond1 21
+atom 27 (6) (-7418, 389, 2017) def
+info atom atomtype = sp2
+bond1 25
+atom 28 (1) (-7622, 896, 1077) def
+bond1 27
+atom 29 (7) (-8556, 131, 2985) def
+info atom atomtype = sp2
+bond1 27 26
+atom 30 (7) (-9421, -493, 5386) def
+info atom atomtype = sp2(graphitic)
+bond1 26
+atom 31 (1) (-9509, -1342, 5941) def
+bond1 30
+atom 32 (1) (-10092, 262, 5507) def
+bond1 30
+atom 33 (6) (-1286, -3450, 5649) def
+bond1 2 7
+atom 34 (1) (-1391, -4457, 5267) def
+bond1 33
+atom 35 (1) (-2098, -3237, 6332) def
+bond1 33
+egroup (DA_D-ADENOSINE)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part DA_D-ADENOSINE

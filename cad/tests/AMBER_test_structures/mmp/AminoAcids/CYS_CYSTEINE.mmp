@@ -1,0 +1,46 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.042905) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (CYS_CYSTEINE)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (7) (-6582, -1092, 18) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-7030, -298, 203) def
+bond1 1
+atom 3 (1) (-7065, -1866, -163) def
+bond1 1
+atom 4 (6) (-5071, -1120, 10) def
+bond1 1
+atom 5 (1) (-4689, -636, 899) def
+bond1 4
+atom 6 (6) (-4476, -333, -1192) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (8) (-4901, -649, -2550) def
+info atom atomtype = sp2
+bond2 6
+atom 8 (8) (-3492, 721, -970) def
+bond1 6
+atom 9 (1) (-3969, 1596, -879) def
+bond1 8
+atom 10 (6) (-4489, -2552, 26) def
+bond1 4
+atom 11 (1) (-4821, -3067, 918) def
+bond1 10
+atom 12 (1) (-4831, -3090, -849) def
+bond1 10
+atom 13 (16) (-2614, -2466, 14) def
+bond1 10
+atom 14 (1) (-2179, -1812, -1119) def
+bond1 13
+egroup (CYS_CYSTEINE)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part CYS_CYSTEINE

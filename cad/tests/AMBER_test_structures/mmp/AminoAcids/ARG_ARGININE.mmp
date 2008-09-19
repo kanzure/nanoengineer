@@ -1,0 +1,76 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.909874) (-0.031137, 0.287926, 0.000000) (1.000000)
+egroup (View Data)
+group (ARG_ARGININE)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (7) (-6582, -1092, 18) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-7030, -298, 203) def
+bond1 1
+atom 3 (1) (-7065, -1866, -163) def
+bond1 1
+atom 4 (6) (-5071, -1120, 10) def
+bond1 1
+atom 5 (1) (-4689, -636, 899) def
+bond1 4
+atom 6 (6) (-4476, -333, -1192) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (8) (-4901, -649, -2550) def
+info atom atomtype = sp2
+bond2 6
+atom 8 (8) (-3492, 721, -970) def
+bond1 6
+atom 9 (1) (-3969, 1596, -879) def
+bond1 8
+atom 10 (6) (-4489, -2552, 26) def
+bond1 4
+atom 11 (1) (-4821, -3067, 918) def
+bond1 10
+atom 12 (1) (-4831, -3090, -849) def
+bond1 10
+atom 13 (6) (-2945, -2481, 16) def
+bond1 10
+atom 14 (1) (-2612, -1967, -876) def
+bond1 13
+atom 15 (1) (-2603, -1944, 891) def
+bond1 13
+atom 16 (6) (-2363, -3914, 32) def
+bond1 13
+atom 17 (1) (-2695, -4429, 924) def
+bond1 16
+atom 18 (1) (-2704, -4452, -843) def
+bond1 16
+atom 19 (7) (-970, -3850, 23) def
+info atom atomtype = sp2(graphitic)
+bond1 16
+atom 20 (1) (-528, -3436, -682) def
+bond1 19
+atom 21 (6) (-248, -4402, 1061) def
+info atom atomtype = sp2
+bond1 19
+atom 22 (7) (-924, -5036, 2140) def
+info atom atomtype = sp2(graphitic)
+bond1 21
+atom 23 (1) (-1853, -5079, 2146) def
+bond1 22
+atom 24 (1) (-438, -5408, 2840) def
+bond1 22
+atom 25 (7) (1173, -4337, 1053) def
+info atom atomtype = sp2(graphitic)
+bond1 21
+atom 26 (1) (1616, -3923, 348) def
+bond1 25
+atom 27 (1) (1660, -4709, 1753) def
+bond1 25
+egroup (ARG_ARGININE)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part ARG_ARGININE

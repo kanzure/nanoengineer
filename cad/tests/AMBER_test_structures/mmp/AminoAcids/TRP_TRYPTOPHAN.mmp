@@ -1,0 +1,117 @@
+mmpformat 080327 required; 080529 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (11.027374) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.965474, 0.127192, -0.200452, 0.107242) (9.547311) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (TRP_TRYPTOPHAN)
+info opengroup open = True
+mol (Chunk1) def
+atom 1 (7) (-4678, -1653, -216) def
+info atom atomtype = sp2(graphitic)
+atom 2 (1) (-5182, -1570, 663) def
+bond1 1
+atom 3 (1) (-4881, -2428, -843) def
+bond1 1
+atom 4 (6) (-3632, -632, -590) def
+bond1 1
+atom 5 (1) (-3394, -8, 272) def
+bond1 4
+atom 6 (6) (-4125, 347, -1695) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (8) (-4731, -37, -2676) def
+info atom atomtype = sp2
+bond2 6
+atom 8 (8) (-3830, 1764, -1520) def
+bond1 6
+atom 9 (1) (-4508, 2162, -958) def
+bond1 8
+atom 10 (6) (-2283, -1282, -1029) def
+bond1 4
+atom 11 (1) (-1522, -514, -1157) def
+bond1 10
+atom 12 (1) (-2407, -1766, -1989) def
+bond1 10
+atom 13 (6) (-1782, -2326, 6) def
+info atom atomtype = sp2
+bond1 10
+atom 14 (6) (-1414, -2051, 1489) def
+info atom atomtype = sp2
+bond1 13
+atom 15 (1) (-1432, -1139, 1946) def
+bond1 14
+atom 16 (6) (-1570, -3844, -235) def
+info atom atomtype = sp2
+bond1 13
+atom 17 (6) (-1110, -4499, 1090) def
+info atom atomtype = sp2
+bond1 16
+atom 18 (7) (-1015, -3387, 2159) def
+info atom atomtype = sp2(graphitic)
+bond1 14 17
+atom 19 (6) (-828, -5876, 1288) def
+info atom atomtype = sp2
+bond1 17
+atom 20 (1) (-529, -6209, 2205) def
+bond1 19
+atom 21 (6) (-1765, -4521, -1468) def
+info atom atomtype = sp2
+bond1 16
+atom 22 (1) (-2070, -4003, -2292) def
+bond1 21
+atom 23 (6) (-1525, -5984, -1558) def
+info atom atomtype = sp2
+bond1 21
+atom 24 (1) (-1665, -6470, -2443) def
+bond1 23
+atom 25 (6) (-1024, -6785, -99) def
+info atom atomtype = sp2
+bond1 19 23
+atom 26 (1) (-850, -7790, -79) def
+bond1 25
+atom 27 (1) (-777, -3404, 3058) def
+bond1 18
+egroup (TRP_TRYPTOPHAN)
+end1
+group (Clipboard)
+info opengroup open = False
+group (Clipboard item 1)
+info opengroup open = True
+mol (Chunk1) def
+atom 28 (7) (-5956, -1311, 53) def
+info atom atomtype = sp2(graphitic)
+atom 29 (1) (-6647, -648, 393) def
+bond1 28
+atom 30 (1) (-6234, -2264, -166) def
+bond1 28
+atom 31 (6) (-4521, -878, -132) def
+bond1 28
+atom 32 (1) (-4223, -240, 701) def
+bond1 31
+atom 33 (6) (-4335, -23, -1421) def
+info atom atomtype = sp2
+bond1 31
+atom 34 (8) (-4820, -345, -2485) def
+info atom atomtype = sp2
+bond2 33
+atom 35 (8) (-3544, 1199, -1313) def
+bond1 33
+atom 36 (1) (-4100, 1908, -964) def
+bond1 35
+atom 37 (6) (-3527, -2085, -141) def
+bond1 31
+atom 38 (1) (-3647, -2708, 744) def
+bond1 37
+atom 39 (1) (-3647, -2700, -1031) def
+bond1 37
+mol (CYM_CYSTEINE_with_negative_charge.in_frag) def
+atom 40 (16) (-1759, -1529, -132) def
+info atom atomtype = sp2
+bond1 37
+egroup (Clipboard item 1)
+egroup (Clipboard)
+end molecular machine part TRP_TRYPTOPHAN
