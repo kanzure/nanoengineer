@@ -7,6 +7,11 @@
 
 History:
 ninad 20070602: Created.
+Summer 2008: Urmi and Piotr added code to support image display and grid display
+             within Plane objects.
+             
+TODO 2008-09-19:
+See Plane_EditCommand.py
 
 """
 from PyQt4.Qt import SIGNAL
@@ -36,6 +41,8 @@ from utilities.prefs_constants import PlanePM_showGridLabels_prefs_key, PlanePM_
 from utilities import debug_flags
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
+_superclass = EditCommand_PM
+
 class PlanePropertyManager(EditCommand_PM):
     """
     The PlanePropertyManager class provides a Property Manager for a 
@@ -63,26 +70,11 @@ class PlanePropertyManager(EditCommand_PM):
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
 
-
         EditCommand_PM.__init__( self, command) 
-
-
-
-        msg = "Insert a Plane parallel to the screen. Note: This feature is "\
-            "experimental for Alpha9 and has known bugs."
-
-        # This causes the "Message" box to be displayed as well.
-        self.updateMessage(msg)
-
-        # self.resized_from_glpane flag makes sure that the 
-        #spinbox.valueChanged()
-        # signal is not emitted after calling spinbox.setValue.
-        self.resized_from_glpane = False
-
-        # Hide Preview and Restore defaults button for Alpha9.
+        
+        # Hide Preview and Restore defaults buttons
         self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON)
-        # needed to figure out if the model has changed or not
-        self.previousPMParams = None
+        
         self.gridColor = black
         self.gridXSpacing = 4.0
         self.gridYSpacing = 4.0
@@ -763,17 +755,25 @@ class PlanePropertyManager(EditCommand_PM):
         """ 	 
 	Update the width and height spinboxes. 	 
         @see: Plane.resizeGeometry()
+        This typically gets called when the plane is resized from the 
+        3D workspace (which marks assy as modified) .So, update the spinboxes
+        that represent the Plane's width and height, but do no emit 'valueChanged'
+        signal when the spinbox value changes. 
+        
+        @see: Plane.resizeGeometry()
+        @see: self._update_UI_do_updates()
+        @see: Plane_EditCommand.command_update_internal_state()        
 	""" 	 
-        # self.resized_from_glpane flag makes sure that the 	 
-        # spinbox.valueChanged() 	 
-        # signal is not emitted after calling spinbox.setValue(). 	 
-        # This flag is used in change_plane_size method.-- Ninad 20070601 	 
-        if self.command and self.command.hasValidStructure(): 	 
-            self.resized_from_glpane = True 	 
-            self.heightDblSpinBox.setValue(self.command.struct.height) 	 
-            self.widthDblSpinBox.setValue(self.command.struct.width) 	 
-            self.win.glpane.gl_update() 	 
-            self.resized_from_glpane = False
+        # blockSignals = True make sure that spinbox.valueChanged() 	 
+        # signal is not emitted after calling spinbox.setValue().  This is done
+        #because the spinbox valu changes as a result of resizing the plane 
+        #from the 3D workspace.
+        if self.command.hasValidStructure():            	 
+            self.heightDblSpinBox.setValue(self.command.struct.height, 
+                                           blockSignals = True) 	 
+            self.widthDblSpinBox.setValue(self.command.struct.width, 
+                                          blockSignals = True) 
+                        
 
     def update_imageFile(self):
         """
@@ -850,15 +850,13 @@ class PlanePropertyManager(EditCommand_PM):
              gridXSpacing, gridYSpacing, originLocation, \
              displayLabelStyle = params
 
-        # self.resized_from_glpane flag makes sure that the 
+        # blockSignals = True  flag makes sure that the 
         # spinbox.valueChanged()
         # signal is not emitted after calling spinbox.setValue(). 
-        # This flag is used in change_plane_size method.-- Ninad 20070601
-        self.resized_from_glpane = True
-        self.widthDblSpinBox.setValue(width)
-        self.heightDblSpinBox.setValue(height)  
+        self.widthDblSpinBox.setValue(width, blockSignals = True)
+        self.heightDblSpinBox.setValue(height, blockSignals = True)  
         self.win.glpane.gl_update()
-        self.resized_from_glpane = False                
+               
 
         self.gpColorTypeComboBox.setColor(gridColor)
         self.gridLineType = gridLineType
@@ -868,6 +866,22 @@ class PlanePropertyManager(EditCommand_PM):
 
         self.gpOriginComboBox.setCurrentIndex(originLocation)
         self.gpPositionComboBox.setCurrentIndex(displayLabelStyle)
+        
+        
+    def getCurrrentDisplayParams(self):
+        """
+        Returns a tuple containing current display parameters such as current 
+        image path and grid display params.
+        @see: Plane_EditCommand.command_update_internal_state() which uses this
+        to decide whether to modify the structure (e.g. because of change in the
+        image path or display parameters.)        
+        """
+        imagePath = self.imageDisplayFileChooser.text
+        gridColor = self.gpColorTypeComboBox.getColor()
+        
+        return (imagePath, gridColor, self.gridLineType, 
+                self.gridXSpacing, self.gridYSpacing, 
+                self.originLocation, self.displayLabelStyle)
 
     def getParameters(self):
         """
@@ -889,7 +903,8 @@ class PlanePropertyManager(EditCommand_PM):
 
         @param newWidth: width in Angstroms.
         @type  newWidth: float
-        """        
+        """      
+        print "****in change_plane_width"
         if self.aspectRatioCheckBox.isChecked():
             self.command.struct.width   =  newWidth
             self.command.struct.height  =  self.command.struct.width / \
@@ -922,9 +937,8 @@ class PlanePropertyManager(EditCommand_PM):
         @param gl_update: Forces an update of the glpane.
         @type  gl_update: bool
         """
-        if not self.resized_from_glpane:
-            self.command.struct.width   =  self.widthDblSpinBox.value()
-            self.command.struct.height  =  self.heightDblSpinBox.value() 
+        self.command.struct.width   =  self.widthDblSpinBox.value()
+        self.command.struct.height  =  self.heightDblSpinBox.value() 
         if gl_update:
             self.command.struct.glpane.gl_update()
 
@@ -995,6 +1009,20 @@ class PlanePropertyManager(EditCommand_PM):
         """
         aspectRatio = self.command.struct.width / self.command.struct.height
         self.aspectRatioSpinBox.setValue(aspectRatio)
+        
+    def _update_UI_do_updates(self):
+        """
+        Overrides superclass method. 
+        @see: PM_Dialog._update_UI_do_updates() for documentation. 
+        
+        @see: Plane.resizeGeometry()
+        @see: self.update_spinboxes()
+        @see: Plane_EditCommand.command_update_internal_state()
+        """
+        #This typically gets called when the plane is resized from the 
+        #3D workspace (which marks assy as modified) . So, update the spinboxes
+        #that represent the Plane's width and height.
+        self.update_spinboxes()
 
 
     def update_props_if_needed_before_closing(self):

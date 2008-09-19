@@ -668,6 +668,10 @@ class Plane(ReferenceGeometry):
 
         @param event: The mouse event.
         @type  event: QEvent
+        
+        @see: PlanePropertyManager._update_UI_do_updates()
+        @see: PlanePropertyManager.update_spinboxes()
+        @see: Plane_EditCommand.command_update_internal_state()
         """ 
 
         #NOTE: mouseray contains all the points 
@@ -744,10 +748,13 @@ class Plane(ReferenceGeometry):
             self.setHeight(new_h)            
 
         self.recomputeCenter(totalOffset)
-        #update the width,height spinboxes(may be more in future)--Ninad20070601
-        if self.editCommand and self.editCommand.propMgr:
-            self.editCommand.propMgr.update_spinboxes()
-
+        
+        #assy.changed() required to make sure that the PM.update_UI() gets 
+        #called (because model is changed) and the spinboxes (or other UI 
+        #elements in the PM) get updated. 
+        self.assy.changed()
+        
+       
 
     def edit(self):
         """

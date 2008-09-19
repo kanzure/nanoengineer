@@ -12,7 +12,8 @@ ninad 2007-10-05: Refactored, Also renamed PlaneGenerator to Plane_EditCommand
                   while refactoring the old GeometryGeneratorBaseClass
 ninad 2007-12-26: Changes to make Plane_EditCommand a command on command stack
 
-
+Summer 2008: Urmi and Piotr added code to support image display and grid display
+             within Plane objects.
 
 @TODO 2008-04-15:
 Note that Plane_EditCommand was originally implemented before the command 
@@ -22,19 +23,22 @@ e.g. in its PM, the method update_props_if_needed_before_closing need to be
 revised because there is any easy way now, to know which command is currently 
 active.Also a general clanup is due -- Ninad
 
+TODO 2008-09-09
+Refactor update ui related code. e.g. see self.command_will_exit() -- 
+self.struct.updatecosmeticProps() should go inside a command_update method. 
+[-- Ninad]
 
 """
-import foundation.env as env
+
 from utilities.Log import greenmsg
 from command_support.EditCommand import EditCommand
 from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
 from model.Plane import Plane
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 from utilities.Comparison import same_vals
-from utilities.prefs_constants import PlanePM_showGridLabels_prefs_key, PlanePM_showGrid_prefs_key
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
-from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
-
+_superclass = EditCommand
 class Plane_EditCommand(EditCommand):
     """
     The Plane_EditCommand class  provides an editCommand Object.
@@ -45,6 +49,8 @@ class Plane_EditCommand(EditCommand):
     #@NOTE: self.struct is the Plane object
     
     PM_class = PlanePropertyManager
+    
+    GraphicsMode_class = SelectAtoms_GraphicsMode
 
     cmd = greenmsg("Plane: ")
     #
@@ -73,58 +79,59 @@ class Plane_EditCommand(EditCommand):
     featurename = "Reference Plane"
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
+    
+    #see self.command_update_internal_state() 
+    _previous_display_params = None
 
-    GraphicsMode_class = SelectAtoms_GraphicsMode
-
-
-    def __init__(self, commandSequencer, struct = None):
+    def command_entered(self):
         """
-        Constructs an Edit Controller Object. The editCommand, 
-        depending on what client code needs it to do, may create a new plane 
-        or it may be used for an existing plane. 
-
-        @param win: The NE1 main window.
-        @type  win: QMainWindow
-
-        @param struct: The model object (in this case plane) that the 
-                       Plane_EditCommand may create and/or edit
-                       If struct object is specified, it means this 
-                       editCommand will be used to edit that struct. 
-        @type  struct: L{Plane} or None
-
-        @see: L{Plane.__init__}
-        """     
-        EditCommand.__init__(self, commandSequencer)
-        self.struct = struct   
-
-    def Enter(self):
-        """
-        Enter this command. 
-        @see: EditCommand.Enter
         """
         #See EditCommand.Enter for a detailed comment on why self.struct is 
         #set to None while entering this command.
-        if self.struct:
-            self.struct = None
-
-        EditCommand.Enter(self)
-
-    def restore_gui(self):
-        """
-        @see: EditCommand.restore_gui
-        """
-        EditCommand.restore_gui(self)
+        self.struct = None
+        _superclass.command_entered(self)
+    
+    def command_will_exit(self):
         #Following call doesn't update the struct with steps similar to 
         #ones in bug 2699. Instead calling struct.updateCosmeticProps directly
-        ##self.propMgr.update_props_if_needed_before_closing()
-        if self.hasValidStructure():
+        #Note 2008-09-09: this code was copied from the former self.restore_gui. 
+        #This needs to do inside an update method. 
+        if self.hasValidStructure():            
             self.struct.updateCosmeticProps() 
+            
+        _superclass.command_will_exit(self)
+        
+          
+    if not USE_COMMAND_STACK:        
+
+        def Enter(self):
+            """
+            Enter this command. 
+            @see: _superclass.Enter
+            """
+            #See _superclass.Enter for a detailed comment on why self.struct is 
+            #set to None while entering this command.
+            if self.struct:
+                self.struct = None
+    
+            _superclass.Enter(self)
+    
+        def restore_gui(self):
+            """
+            @see: _superclass.restore_gui
+            """
+            _superclass.restore_gui(self)
+            #Following call doesn't update the struct with steps similar to 
+            #ones in bug 2699. Instead calling struct.updateCosmeticProps directly
+            ##self.propMgr.update_props_if_needed_before_closing()
+            if self.hasValidStructure():
+                self.struct.updateCosmeticProps() 
 
 
     def _getStructureType(self):
         """
         Subclasses override this method to define their own structure type. 
-        Returns the type of the structure this editCommand supports. 
+        Returns the type of the structure this command supports. 
         This is used in isinstance test. 
         @see: EditCommand._getStructureType() (overridden here)
         """
@@ -232,26 +239,41 @@ class Plane_EditCommand(EditCommand):
 
     ##=====================================##
     
+    def command_update_internal_state(self):
+        """
+        Extends the superclass method.
+        This method should replace model_changed() eventually. This method 
+        calss self.model_changed at the moment.  
+        @see:baseCommand.command_update_internal_state() for documentation
+        
+        @see: PlanePropertyManager._update_UI_do_updates()
+        @see: PlanePropertyManager.update_spinboxes()
+        @see: Plane.resizeGeometry()        
+        """   
+        self.model_changed()
+    
+        
     def model_changed(self):
         
         #check first if the plane object exists first
         if not self.hasValidStructure():
+            return       
+        
+        #NOTE: The following ensures that the image path and other display 
+        #prams are properly updated in the plane. Perhaps its better done using 
+        #env.prefs? Revising this code to fix bugs in resizing because
+        #of the self._modifyStructure call. See also original code in 
+        #Revision 12982  -- Ninad 2008-09-19
+                
+        currentDisplayParams = self.propMgr.getCurrrentDisplayParams()
+                
+        if same_vals(currentDisplayParams, self._previous_display_params):
             return
         
-        # piotr 080617 
-        # fixed plane resizing bug - should return if the plane
-        # is being interactively modified
-        if self.propMgr.resized_from_glpane:
-            return
+        self._previous_display_params = currentDisplayParams
         
-        #see if values in PM has changed
-        currentParams = self._gatherParameters()
-
-        if same_vals(currentParams,self.propMgr.previousPMParams):
-            return
-        
-        self.propMgr.previousPMParams = currentParams
-        self._modifyStructure(currentParams)
+        params = self._gatherParameters()
+        self._modifyStructure(params)
         
     def runCommand(self):
         """
@@ -270,7 +292,7 @@ class Plane_EditCommand(EditCommand):
         EditCommand API method/
         
         """
-        EditCommand.runCommand(self)
+        _superclass.runCommand(self)
         if self.hasValidStructure():             
             self._updatePropMgrParams()
 
@@ -283,7 +305,7 @@ class Plane_EditCommand(EditCommand):
     def editStructure(self, struct = None):
         """
         """
-        EditCommand.editStructure(self, struct)        
+        _superclass.editStructure(self, struct)        
         if self.hasValidStructure():             
             self._updatePropMgrParams()
 
