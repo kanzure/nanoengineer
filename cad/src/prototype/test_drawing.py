@@ -150,6 +150,8 @@ def rainbow(t):
         return [0.0, 4 * (1.0 - t), 1.0]
 
 
+_USE_SHADERS = True # change to false if loading them fails the first time
+
 def test_drawing(glpane):
     """
     When TEST_DRAWING is enabled at the beginning of graphics/widgets/glPane.py,
@@ -157,14 +159,21 @@ def test_drawing(glpane):
     instead of the usual body of paintGL().
     """
     # Load the sphere shaders if needed.
-    if not hasattr(drawing_globals, "sphereShader"):
-        print "Loading sphere shaders."
+    global _USE_SHADERS
+    if _USE_SHADERS:
+        if not hasattr(drawing_globals, "sphereShader"):
+            print "Loading sphere shaders."
 
-        from graphics.drawing.gl_shaders import GLSphereShaderObject
-        drawing_globals.sphereShader = GLSphereShaderObject()
+            try:
+                from graphics.drawing.gl_shaders import GLSphereShaderObject
+                drawing_globals.sphereShader = GLSphereShaderObject()
 
-        print "Sphere-shader initialization is complete.\n"
-        pass
+                print "Sphere-shader initialization is complete.\n"
+            except:
+                _USE_SHADERS = False
+                print "Exception while loading sphere shaders, will reraise and not try again"
+                raise
+            pass
 
     global frame_count, last_frame, last_time, start_pos
     frame_count += 1
