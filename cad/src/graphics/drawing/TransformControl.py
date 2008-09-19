@@ -87,38 +87,40 @@ _transform_id_counter = 0
 class TransformControl:
     """
     Manage a set of CSDL's sharing a common local coordinate frame.
+
+    The 4x4 transform matrix starts out as the identity, and gets a sequence of
+    rotations and translations applied to it by the rotate() and translate()
+    methods.
+
+    You can also reset to the identity and apply a rotation and a translation in
+    one operation with the identRotTrans() method.
+    
+    If you want the transform back into a rotation quaternion and translation
+    vector, use the getRotTrans method.  Normally, we leave the transform in
+    matrix form since that's what we'll need for drawing primitives in shaders.
+    (No quaternion or even rotation matrix functions are built in over there.)
     """
-    # Initialize transforms with an identity matrix.
-    # The first three row vectors are the local coordinate frame.
-    # The fourth is the translate vector that positions the frame.
 
     def __init__(self):
         # A unique integer ID for each TransformControl.
         global _transform_id_counter
         _transform_id_counter += 1
-        self.transformId = _transform_id_counter
+        self.transform_id = _transform_id_counter
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this transform matrix was last changed.
         self.changed = eventStamp()
 
-        # 4x4 transform matrix starts out as the identity.
-        #
-        # We have to use 4x4 matrices, rather than accumulating just a rotate
-        # quaternion and a translate vector, to support applying rotates and
-        # translates in any order.  Rotation and translation don't commute,
-        # e.g. (R1 R2 T1 T2) is not the same as (R1 T1 R2 T2).
         self.transform = floatIdent(4)
 
         # Use the integer IDs of the CSDLs as keys in a dictionary.
-        # (The "set" type can only be used on immutable objects.)
         self.CSDLs = {}
 
         return
 
     # ==
         
-    def rotate(quat):
+    def rotate(self, quat):
         """
         Post-multiply the transform with a rotation given by a quaternion.
         """
@@ -126,15 +128,40 @@ class TransformControl:
         self.changed = eventStamp()
         return
 
-    def translate(v)
+    def translate(self, vec)
         """
         Post-multiply the transform with a translation given by a 3-vector.
         """
         # This only affects the fourth row x,y,z elements.
-        self.transform[3, 0:3] += v
+        self.transform[3, 0:3] += vec
         self.changed = eventStamp()
         return
         
+    def identRotTrans(self, quat, vec):
+        """
+        Clear the transform to the product of a rotate and a translate.
+        """
+        self.transform = floatIdent(4)
+        self.rotate(quat)
+        self.translate(vec)
+        return
+    
+    def getRotTrans(self):
+        """
+        Return the transform, decomposed into a rotation quaternion and a
+        translation 3-vector.
+        """
+        # With no scales, skews, or perspective the right column is [0, 0, 0,
+        # 1].  The upper right 3x3 is a rotation matrix giving the orientation
+        # of the new right-handed orthonormal local coordinate frame, and the
+        # left-bottom-row 3-vector is the translation that positions the origin
+        # of that frame.
+        quat = Q(self.transform[0, 0:3],
+                 self.transform[1, 0:3],
+                 self.transform[2, 0:3])
+        vec = self.transform[3, 0:3]
+        return (quat, vec)
+
     # ==
 
     # A subset of the set-type API.
@@ -142,7 +169,7 @@ class TransformControl:
         """
         Add a CSDL to the TransformControl.
         """
-        self.CSDLs[csdl.csdlID] = csdl
+        self.CSDLs[csdl.csdl_id] = csdl
         return
 
     def removeCSDL(self, csdl):
@@ -150,7 +177,7 @@ class TransformControl:
         Remove a CSDL from the TransformControl.
         Raises KeyError if not present.
         """
-        del self.CSDLs[csdl.csdlID]     # May raise KeyError.
+        del self.CSDLs[csdl.csdl_id]     # May raise KeyError.
         return
 
     def discardCSDL(self, csdl):
@@ -158,8 +185,8 @@ class TransformControl:
         Discard a CSDL from the TransformControl, if present.
         No error if it isn't.
         """
-        if csdl.csdlID in self.CSDLs:
-            del self.CSDLs[csdl.csdlID]
+        if csdl.csdl_id in self.CSDLs:
+            del self.CSDLs[csdl.csdl_id]
             pass
 
         return

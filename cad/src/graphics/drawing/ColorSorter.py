@@ -129,7 +129,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # A unique integer ID for each CSDL.
         global _csdl_id_counter
         _csdl_id_counter += 1
-        self.csdlId = _csdl_id_counter
+        self.csdl_id = _csdl_id_counter
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this CSDL was last changed.
@@ -153,7 +153,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     def __del__(self):                  # Russ 080915: added.
         # Unregister the CSDL from its TransformControl.
         if self.transformControl is not None:
-            transformControl.removeCSDL(self.csdlId)
+            transformControl.removeCSDL(self.csdl_id)
 
     # ==
 

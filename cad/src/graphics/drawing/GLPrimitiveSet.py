@@ -55,9 +55,9 @@ class GLPrimitiveSet:
     Cached data structure for rapidly drawing a list of batched primitives
     collected from the CSDLs in a DrawingSet.
     """
-    def __init__(self, csdlList):
+    def __init__(self, csdl_list):
         # XXX Initial dummy version, just holds the CSDL list.
-        self.CSDLs = csdlList
+        self.CSDLs = csdl_list
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this GLPrimitiveSet was created.

@@ -80,17 +80,13 @@ class DrawingSet:
     """
     Manage a set of CSDLs to be repeatedly drawn together.
     """
-    def __init__(self, csdlList = None):   # Optional CSDL list.
+    def __init__(self, csdl_list = None):   # Optional CSDL list.
 
         # Use the integer IDs of the CSDLs as keys in a dictionary.
-        # (The "set" type is not used here, since it can only be used on
-        #  immutable objects.)
-        # [REVIEW: CSDLs probably seem immutable to Python, so maybe
-        #  set could be used. But, there is no need, this is perfectly
-        #  clear. Also, I'm not sure we use a new enough Python on all
-        #  platforms for assuming set() is builtin, and works compatibly.
-        #  [bruce 080918 comment]]
-        self.CSDLs = dict([(csdl.csdlId, csdl) for csdl in csdlList])
+        # (The "set" type is not used here, since it was introduced in Python
+        # 2.4, and we still support 2.3 could also use id(csdl), but it's easier
+        # to understand if we have small integer IDs when debugging.)
+        self.CSDLs = dict([(csdl.csdl_id, csdl) for csdl in csdl_list])
 
         # Cache a GLPrimitiveSet to speed drawing.
         self.primSet = None
@@ -102,11 +98,11 @@ class DrawingSet:
         """
         Add a CSDL to the DrawingSet.
         """
-        if csdl.csdlId not in self.CSDLs:
+        if csdl.csdl_id not in self.CSDLs:
             # Clear the cache when the set is changing.
             self.primSet = None
 
-            self.CSDLs[csdl.csdlId] = csdl
+            self.CSDLs[csdl.csdl_id] = csdl
             pass
 
         return
@@ -116,12 +112,12 @@ class DrawingSet:
         Remove a CSDL from the DrawingSet.
         Raises KeyError if not present.
         """
-        if csdl.csdlId in self.CSDLs:
+        if csdl.csdl_id in self.CSDLs:
             # Clear the cache when the set is changing.
             self.primSet = None
             pass
 
-        del self.CSDLs[csdl.csdlId]     # May raise KeyError.
+        del self.CSDLs[csdl.csdl_id]     # May raise KeyError.
 
         return
 
@@ -131,11 +127,11 @@ class DrawingSet:
         No error if it isn't.
         """
 
-        if csdl.csdlId in self.CSDLs:
+        if csdl.csdl_id in self.CSDLs:
             # Clear the cache when the set is changing.
             self.primSet = None
 
-            del self.CSDLs[csdl.csdlId]
+            del self.CSDLs[csdl.csdl_id]
             pass
 
         return
@@ -159,11 +155,7 @@ class DrawingSet:
 
         # Lazily (re)generate the primSet when needed for drawing.
         if self.primSet is None:
-            csdls = self.CSDLs.values()
-            self.primSet = GLPrimitiveSet(csdls)
-##            for csdl in csdls:
-##                csdl.changed = False ### REVIEW: looks wrong when CSDLs are shared. Commenting out. [bruce 080918]
-##                pass
+            self.primSet = GLPrimitiveSet(self.CSDLs.values())
             pass
 
         # Draw the primitives.
