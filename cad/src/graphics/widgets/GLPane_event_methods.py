@@ -497,9 +497,9 @@ class GLPane_event_methods(object, DebugMenuMixin):
             # was ever called. Maybe that would fix other bugs... but not cmenu op bugs like 1411 (or new ones the above-mentioned
             # change also caused), since in those, the checkpoint_before_drag happens, but the cmenu swallows up the
             # releaseEvent so the checkpoint_after_drag never has a chance to run. Instead, I'm fixing those by wrapping
-            # most_of_paintGL in its own begin/end checkpoints, and (unlike the obs after_op) putting them after
+            # _paintGL_drawing in its own begin/end checkpoints, and (unlike the obs after_op) putting them after
             # env.postevent_updates (see its call to find them). But I might do the lone-releaseEvent checkpoint too. [bruce 060323]
-            # Update, 060326: reverting the most_of_paintGL checkpointing, since it caused bug 1759 (more info there).
+            # Update, 060326: reverting the _paintGL_drawing checkpointing, since it caused bug 1759 (more info there).
 
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:

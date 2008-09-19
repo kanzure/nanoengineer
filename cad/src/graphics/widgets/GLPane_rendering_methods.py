@@ -133,6 +133,13 @@ class GLPane_rendering_methods(object):
     def _paintGL(self):
         """
         [private; the body of paintGL in GLPane.py]
+
+        Decide whether we need to call _paintGL_drawing,
+        and if so, prepare for that (this might modify the model)
+        and then call it.
+
+        Also (first) call self._call_whatever_waits_for_gl_context_current()
+        if that would be safe.
         """
         if TEST_DRAWING:                # See prototype/test_drawing.py .
             test_drawing(self)
@@ -218,6 +225,8 @@ class GLPane_rendering_methods(object):
 
             return # skip the following repaint
 
+        # at this point, we've decided to call _paintGL_drawing.
+        
         env.redraw_counter += 1 #bruce 050825
 
         #bruce 050707 (for bond inference -- easiest place we can be sure to update bonds whenever needed)
@@ -235,6 +244,7 @@ class GLPane_rendering_methods(object):
             # 080804). They all need to be revised to be fast when no changes
             # are needed, or this will make redraw needlessly slow.
             # [bruce 071115/080804 comment]
+            # TODO: doc what else it does - break interpart bonds? dna updater? undo checkpoint?
 
         # Note: at one point we surrounded this repaint with begin/end undo
         # checkpoints, to fix bugs from missing mouseReleases (like bug 1411)
@@ -247,16 +257,22 @@ class GLPane_rendering_methods(object):
         # its slowness and bugs, but it's not needed for now.
         
         try:
-            self.most_of_paintGL()
+            self._paintGL_drawing()
         except:
-            print_compact_traceback("exception in most_of_paintGL ignored: ")
+            print_compact_traceback("exception in _paintGL_drawing ignored: ")
 
         return # from paintGL
 
-    def most_of_paintGL(self): #bruce 060323 split this out of paintGL
+    def _paintGL_drawing(self):
         """
-        Do most of what paintGL should do.
+        [private submethod of _paintGL]
+        
+        Do whatever OpenGL drawing paintGL should do (then glFlush).
+
+        @note: caller must handle TEST_DRAWING, redrawGL, _needs_repaint.
         """
+        #bruce 080919 renamed this from most_of_paintGL to _paintGL_drawing
+
         self._needs_repaint = False
             # do this now, even if we have an exception during the repaint
 
@@ -292,7 +308,7 @@ class GLPane_rendering_methods(object):
 
         ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
 
-        return # from most_of_paintGL
+        return # from _paintGL_drawing
 
     _conf_corner_bg_image_data = None
 
@@ -510,9 +526,14 @@ class GLPane_rendering_methods(object):
 
     def standard_repaint_0(self):
         """
+        [private indirect submethod of paintGL]
+        
         This is the main rendering routine -- it clears the OpenGL window,
         does all drawing done during paintGL, and does hit-testing if
         requested by event handlers before this call of paintGL.
+
+        @note: self.graphicsMode can control whether this gets called;
+               for details see the call of self.render_scene in this class.
         """
         drawing_globals.glprefs.update()
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
@@ -623,19 +644,25 @@ class GLPane_rendering_methods(object):
         vboLevel = drawing_globals.use_drawing_variant
         
         for stereo_image in self.stereo_images_to_draw:
+            
             self._enable_stereo(stereo_image)
+                # note: this relies on modelview matrix already being correctly
+                # set up for non-stereo drawing
 
             if fog_test_enable:
                 enable_fog()
                 
-            try: # try/finally for drawing_phase
+            try:
                 self.drawing_phase = 'main'
 
                 if vboLevel == 6:   # russ 080714
-                    drawing_globals.sphereShader.configShader(self)
+                    drawing_globals.sphereShader.configShader(self) # review: can we move this outside the stereo loop?
                     pass
 
                 self.graphicsMode.Draw()
+                    # draw self.part (the model), with chunk & atom selection
+                    # indicators, and graphicsMode-specific extras.
+                    # Some GraphicsModes only draw portions of the model.
             finally:
                 self.drawing_phase = '?'
 
@@ -657,32 +684,22 @@ class GLPane_rendering_methods(object):
                     # REVIEW: is it ok that the mode had to tell us selobj and hicolor
                     # (and validate selobj) before drawing the model?
 
+            # draw transparent things (e.g. Build Atoms water surface,
+            # parts of Plane or ESPImage nodes)
+            # [bruce 080919 bugfix: do this inside the stereo loop]
+            try:
+                self.drawing_phase = 'main/Draw_after_highlighting'
+                self.graphicsMode.Draw_after_highlighting()
+                    # e.g. draws water surface in Build mode [###REVIEW: ok inside stereo loop?],
+                    # or transparent parts of ESPImage or Plane (must be inside stereo loop).
+                    # Note: this is called in the main model coordinate system
+                    # (perhaps modified for current stereo image),
+                    # just like self.graphicsMode.Draw() [bruce 061208/080919 comment]
+            finally:
+                self.drawing_phase = '?'
+
             self._disable_stereo()
             continue # to next stereo_image
-
-        ### REVIEW [bruce 080911 question]:
-        # why is Draw_after_highlighting not inside the loop over stereo_image?
-        # Is there any reason it should not be moved into that loop?
-        # I.e. is there a reason to do it only once and not twice?
-        # For water surface this may not matter
-        # but for its use in deprecated ESPImage class
-        # (draw transparent stuff) it seems like a bug.
-        # I am not sure if it has other uses now.
-        # (I'll check shortly, when I have time.)
-        #
-        # Piotr reply: Yes, I think this is a bug.
-        # It should be moved inside the stereo loop.
-        #
-        # Bruce 080915 update: we'll fix that when someone has time to test it.
-
-        try: # try/finally for drawing_phase
-            self.drawing_phase = 'main/Draw_after_highlighting'
-            self.graphicsMode.Draw_after_highlighting()
-                # e.g. draws water surface in Build mode
-                # note: this is called in the main model coordinate system,
-                # just like self.graphicsMode.Draw() [bruce 061208 comment]
-        finally:
-            self.drawing_phase = '?'
 
         # let parts (other than the main part) draw a text label, to warn
         # the user that the main part is not being shown [bruce 050408]
