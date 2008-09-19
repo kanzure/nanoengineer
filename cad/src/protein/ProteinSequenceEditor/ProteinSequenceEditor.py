@@ -202,7 +202,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         seq = str(inSequence)
         inSequence1 = self._convertProteinSequenceToColoredSequence(seq)
         inSequence1 = self._fixedPitchSequence(inSequence1)
-        self.sequenceTextEdit.insertHtml( inSequence1 )
+        self.sequenceTextEdit.setHtml( inSequence1 )
         
         #adjust the cursor so that they match for all three text edits
         if inRestoreCursor:                      
@@ -258,7 +258,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
     
         #Urmi 20080714: Convert inSequence to colored text, each amino acid is 
         # shown by its own color
-        self.sequenceTextEdit.insertHtml( inSequence1)
+        self.sequenceTextEdit.setHtml( inSequence1)
         
         if inRestoreCursor:                      
             cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
@@ -319,7 +319,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             selectionEnd    =  cursor.selectionEnd()
         
         fixedPitchSequence = self._getFormattedSequence(inSequence)
-        self.secStrucTextEdit.insertHtml(fixedPitchSequence)
+        self.secStrucTextEdit.setHtml(fixedPitchSequence)
         if inRestoreCursor:                      
             cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
             cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
@@ -380,7 +380,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
                 i = i + 1
         fixedPitchSequence  =  "<html><bold><font size=3 face=Courier New color=green>"  + rulerText
         fixedPitchSequence +=  "</font></bold></html>"    
-        self.aaRulerTextEdit.insertHtml(fixedPitchSequence)
+        self.aaRulerTextEdit.setHtml(fixedPitchSequence)
         if inRestoreCursor:                      
             cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
             cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
