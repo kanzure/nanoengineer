@@ -22,6 +22,12 @@ To turn it on, enable TEST_DRAWING at the start of
 graphics/widgets/GLPane_rendering_methods.py .
 """
 
+from geometry.VQT import Q, V
+
+ALWAYS_GL_UPDATE = True # always redraw as often as possible
+SPIN = True # spin the view...
+_SPINQUAT = Q(V(1,0,0),V(0,0,1))/90.0 # ... by 1 degree per frame
+
 # Which rendering mode: 1, 2, 3, 3.1, 3.2, 3.3, 3.4, 4, 5, 6, 7, 8
 testCase = 3.4
 
@@ -191,13 +197,14 @@ def test_drawing(glpane):
     #   visited on the average 2.3 times, giving 384 tri-strip vertices.
     # . 17,424 spheres is 6.7 million tri-strip vertices.  (6,690,816)
     if testCase == 1:
+        ### BUG: draws nothing on bruce's intel macbookpro, Mac OS 10.4.11
         if test_csdl is None:
             print ("Test case 1, %d^2 spheres\n  %s." %
                    (nSpheres, "ColorSorter"))
 
             test_csdl = ColorSortedDisplayList()
             ColorSorter.start(test_csdl)
-            drawsphere([127, 127, 127], [0.0, 0.0, 0.0], .5, 2,
+            drawsphere([127, 127, 127], [0.0, 0.0, 0.0], .5, 2, # color, pos, radius, detailLevel
                        testloop = nSpheres)
             ColorSorter.finish()
             pass
@@ -218,7 +225,7 @@ def test_drawing(glpane):
 
             test_dl = glGenLists(1)
             glNewList(test_dl, GL_COMPILE_AND_EXECUTE)
-            drawsphere_worker_loop(([0.0, 0.0, 0.0], .5, 2, nSpheres))
+            drawsphere_worker_loop(([0.0, 0.0, 0.0], .5, 2, nSpheres)) # pos, radius, detailLevel, n
             glEndList()
             pass
         else:
@@ -712,5 +719,20 @@ def test_drawing(glpane):
 
     glMatrixMode(GL_MODELVIEW)
     glFlush()
+    
+    if ALWAYS_GL_UPDATE:
+        glpane.gl_update()
+    
+    if SPIN:
+        ## glpane.quat += _SPINQUAT
+            # that version has cumulative numerical error, causing an exception every few seconds:
+            ##  File "/Nanorex/Working/trunk/cad/src/geometry/VQT.py", line 448, in __iadd__
+            ##    self.normalize()
+            ##  File "/Nanorex/Working/trunk/cad/src/geometry/VQT.py", line 527, in normalize
+            ##    s = ((1.0 - w**2)**0.5) / length
+            ##ValueError: negative number cannot be raised to a fractional power
+        glpane.quat = glpane.quat + _SPINQUAT
+        pass
+    
     return
 
