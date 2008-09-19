@@ -75,6 +75,7 @@ from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
 from utilities.prefs_constants import HHS_HALO
 from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import SS_HALO
+from utilities.debug import print_compact_traceback
 
 import graphics.drawing.drawing_globals as drawing_globals
 if drawing_globals.quux_module_import_succeeded:
@@ -108,6 +109,7 @@ def eventNow():
 # ==
 
 _csdl_id_counter = 0
+_warned_del = False
 
 class ColorSortedDisplayList:         #Russ 080225: Added.
     """
@@ -150,10 +152,32 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         return
 
-    def __del__(self):                  # Russ 080915: added.
-        # Unregister the CSDL from its TransformControl.
+    # Russ 080915: added.
+    def __del__(self):         # Called by Python when an object is being freed.
+        self.destroy()
+        return
+    def destroy(self):         # Called by us to break cyclic reference loops.
+        # Free any OpenGL resources.
+        ## REVIEW: Need to wait for our OpenGL context to become current when
+        ## GLPane calls its method saying it's current again.  See chunk dealloc
+        ## code for details. This hangs NE1 now, so it's commented out.
+        ####self.deallocate_displists()
+
+        # Unregister the CSDL from its TransformControl, breaking the Python
+        # reference cycle so the CSDL can be reclaimed.
         if self.transformControl is not None:
-            transformControl.removeCSDL(self.csdl_id)
+            try:
+                transformControl.removeCSDL(self.csdl_id)
+            except:
+                global _warned_del
+                if not _warned_del:
+                    print_compact_traceback(
+                        "exception in ColorSortedDisplayList.destroy ignored:")
+                    _warned_del = True
+                    pass
+                pass
+            pass
+        return
 
     # ==
 
