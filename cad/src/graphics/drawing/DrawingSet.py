@@ -83,10 +83,17 @@ class DrawingSet:
     def __init__(self, csdl_list = None):   # Optional CSDL list.
 
         # Use the integer IDs of the CSDLs as keys in a dictionary.
-        # (The "set" type is not used here, since it was introduced in Python
-        # 2.4, and we still support 2.3 could also use id(csdl), but it's easier
-        # to understand if we have small integer IDs when debugging.)
-        self.CSDLs = dict([(csdl.csdl_id, csdl) for csdl in csdl_list])
+        #
+        # The "set" type is not used here, since it was introduced in Python
+        # 2.4, and we still support 2.3 .
+        #
+        # Could also use id(csdl) as keys, but it's easier to understand with
+        # small integer IDs when debugging, and runs twice as fast too.
+        if csdl_list is not None:
+            self.CSDLs = dict([(csdl.csdl_id, csdl) for csdl in csdl_list])
+        else:
+            self.CSDLs = {}           # Fill in later.
+            pass
 
         # Cache a GLPrimitiveSet to speed drawing.
         self.primSet = None

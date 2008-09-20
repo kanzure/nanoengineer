@@ -128,7 +128,7 @@ class TransformControl:
         self.changed = eventStamp()
         return
 
-    def translate(self, vec)
+    def translate(self, vec):
         """
         Post-multiply the transform with a translation given by a 3-vector.
         """

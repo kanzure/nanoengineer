@@ -24,18 +24,22 @@ graphics/widgets/GLPane_rendering_methods.py .
 
 from geometry.VQT import Q, V
 
-ALWAYS_GL_UPDATE = True # always redraw as often as possible
+ALWAYS_GL_UPDATE = True  # Always redraw as often as possible.
 SPIN = True # spin the view...
 _SPINQUAT = Q(V(1,0,0),V(0,0,1))/90.0 # ... by 1 degree per frame
 
-# Which rendering mode: 1, 2, 3, 3.1, 3.2, 3.3, 3.4, 4, 5, 6, 7, 8
-testCase = 3.4
-
+# Which rendering case: 1, 2, 3, 3.1, 3.2, 3.3, 3.4, 4, 5, 6, 7, 8, 8.1
 # Draw an array of nSpheres x nSpheres, with divider gaps every 10 and 100.
 # 10, 25, 50, 100, 132, 200, 300, 400, 500...
 
+#testCase = 1; nSpheres = 132
+#testCase = 8; nSpheres = 50; chunkLength = 24
+#testCase = 8; nSpheres = 132; chunkLength = 24
+testCase = 8.1; nSpheres = 50; chunkLength = 24
+#testCase = 8.1; nSpheres = 75; chunkLength = 24
+
 # Longish chunks for test case 3.4 (with transforms)
-nSpheres = 132; transformChunkLength = 1000
+#nSpheres = 132; transformChunkLength = 1000
 #
 # 16x16 sphere array, chunked by columns for vertex shader debugging display.
 #nSpheres = transformChunkLength = 16
@@ -51,9 +55,6 @@ nSpheres = 132; transformChunkLength = 1000
 #nSpheres = 400; transformChunkLength = 8 # 20000 chunks.
 #nSpheres = 500; transformChunkLength = 8 # 31250 chunks.
 
-# Short chunk length for test case 8.
-chunkLength = 8
-
 printFrames = True # False    # Prints frames-per-second if set.
 
 from geometry.VQT import V, Q, A, norm, vlen, angleBetween
@@ -62,6 +63,8 @@ import graphics.drawing.drawing_globals as drawing_globals
 
 from graphics.drawing.gl_shaders import GLSphereBuffer
 
+from graphics.drawing.DrawingSet import DrawingSet
+from graphics.drawing.TransformControl import TransformControl
 from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.ColorSorter import ColorSortedDisplayList
 from graphics.drawing.CS_draw_primitives import drawsphere
@@ -119,6 +122,7 @@ test_dls = None
 test_ibo = None
 test_vbo = None
 test_spheres = None
+test_DrawingSet = None
 
 frame_count = 0
 last_frame = 0
@@ -196,12 +200,14 @@ def test_drawing(glpane):
     glMatrixMode(GL_MODELVIEW)
 
     global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres
+    global test_DrawingSet
 
     # See below for test case descriptions and timings on a MacBook Pro.
     # The Qt event toploop in NE1 tops out at about 60 frames-per-second.
 
     # NE1 with test toploop, single CSDL per draw (test case 1)
     # . 17,424 spheres (132x132, through the color sorter) 4.8 FPS
+    #   Russ 080919: More recently, 12.2 FPS.
     # . Level 2 spheres have 9 triangles x 20 faces, 162 distinct vertices, 
     #   visited on the average 2.3 times, giving 384 tri-strip vertices.
     # . 17,424 spheres is 6.7 million tri-strip vertices.  (6,690,816)
@@ -213,7 +219,8 @@ def test_drawing(glpane):
 
             test_csdl = ColorSortedDisplayList()
             ColorSorter.start(test_csdl)
-            drawsphere([127, 127, 127], [0.0, 0.0, 0.0], .5, 2, # color, pos, radius, detailLevel
+            #           color,          pos,         radius, detailLevel
+            drawsphere([0.5, 0.5, 0.5], [0.0, 0.0, 0.0], .5, 2, 
                        testloop = nSpheres)
             ColorSorter.finish()
             pass
@@ -684,10 +691,34 @@ def test_drawing(glpane):
     # .  10,000 (100x100) spheres  6.4 FPS,  704 chunk buffers of length 8.
     # .  10,000 (100x100) spheres  3.3 FPS, 1250 chunk buffers of length 8.
     # .  17,424 (132x132) spheres  2.1 FPS, 2178 chunk buffers of length 8.
-    elif testCase == 8:
+    # .   2,500 (50x50)   spheres 33.5 FPS,  105 chunk buffers of length 24.
+    # .  17,424 (132x132) spheres  5.5 FPS,  726 chunk buffers of length 24.
+    # Subcase 8.1: CSDLs in a DrawingSet.  (Initial pass-through version.)
+    # .   2,500 (50x50)   spheres 36.5 FPS,  105 chunk buffers of length 24.
+    # .   5,625 (75x75)   spheres 16.1 FPS,  235 chunk buffers of length 24.
+    # .  10,000 (100x100) spheres  0.5 FPS?!, 414 chunk buffers of length 24.
+    #      Has to be <= 250 chunks for constant memory transforms?
+    elif int(testCase) == 8:
         if test_spheres is None:
             print ("Test case 8, %d^2 spheres\n  %s, length %d." %
                    (nSpheres, "Short VBO/IBO chunk buffers", chunkLength))
+            if testCase == 8.1:
+                print ("Sub-test 8.1, chunks are in CSDL's in a DrawingSet.")
+                test_DrawingSet = DrawingSet()
+            ## NIM ## elif testCase == 8.2:
+            ##  print ("Sub-test 8.2, rotate with TransformControls.")
+
+            def sphereCSDL(centers, radii, colors):
+                csdl = ColorSortedDisplayList()
+                ColorSorter.start(csdl)
+                for (color, center, radius) in zip(colors, centers, radii):
+                    drawsphere(color, center, radius, 2)
+                    continue
+                ColorSorter.finish()
+                test_DrawingSet.addCSDL(csdl)
+                return csdl
+            chunkFn = {8: GLSphereBuffer, 8.1: sphereCSDL}
+
             test_spheres = []
             radius = .5
             centers = []
@@ -707,7 +738,8 @@ def test_drawing(glpane):
 
                     # Put out short chunk buffers.
                     if len(centers) >= chunkLength:
-                        test_spheres += [GLSphereBuffer(centers, radii, colors)]
+                        test_spheres += [
+                            chunkFn[testCase](centers, radii, colors)]
                         centers = []
                         radii = []
                         colors = []
@@ -715,15 +747,22 @@ def test_drawing(glpane):
                 continue
             # Remainder fraction buffer.
             if len(centers):
-                test_spheres += [GLSphereBuffer(centers, radii, colors)]
+                test_spheres += [chunkFn[testCase](centers, radii, colors)]
                 pass
             print "%d chunk buffers"%len(test_spheres)
             pass
         else:
             shader = drawing_globals.sphereShader
             shader.configShader(glpane)
-            for chunk in test_spheres:
-                chunk.draw()
+            if testCase == 8:
+                for chunk in test_spheres:
+                    chunk.draw()
+                    continue
+                pass
+            elif testCase == 8.1:
+                test_DrawingSet.draw()
+                pass
+            pass
         pass
 
     glMatrixMode(GL_MODELVIEW)
