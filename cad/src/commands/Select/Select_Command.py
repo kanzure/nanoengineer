@@ -32,6 +32,7 @@ from command_support.Command import basicCommand
 from commands.Select.Select_GraphicsMode import Select_GraphicsMode
 
 from command_support.GraphicsMode_API import GraphicsMode_API
+from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class Select_basicCommand(basicCommand):
     """
@@ -78,13 +79,22 @@ class Select_basicCommand(basicCommand):
         #  to have it for clarity, especially if there is more than one
         #  superclass.)
         return
+    
+    if not USE_COMMAND_STACK:
 
-    def init_gui(self):
-        """
-        Handles all the GUI display when entering a command
-        Subclasses should override this method
-        """
-        pass
+        def init_gui(self):
+            """
+            Handles all the GUI display when entering a command
+            Subclasses should override this method
+            """
+            pass
+        
+        def restore_gui(self):
+            """
+            Handles all the GUI display when leaving a command
+            Subclasses should override this method
+            """
+            pass
 
     def connect_or_disconnect_signals(self, connect):
         """
@@ -92,12 +102,7 @@ class Select_basicCommand(basicCommand):
         """
         pass
 
-    def restore_gui(self):
-        """
-        Handles all the GUI display when leaving a command
-        Subclasses should override this method
-        """
-        pass
+    
 
     def makeMenus(self):
         """
