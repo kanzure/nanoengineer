@@ -14,6 +14,7 @@ bruce 080919 split this into its own file, added new methods & calling code
 """
 
 from OpenGL.GL import GL_CURRENT_RASTER_POSITION_VALID
+from OpenGL.GL import GL_CURRENT_RASTER_POSITION
 from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import GL_RGB
 from OpenGL.GL import GL_UNSIGNED_BYTE
@@ -22,7 +23,7 @@ from OpenGL.GL import GL_UNSIGNED_INT
 from OpenGL.GL import glDisable
 from OpenGL.GL import glDrawPixels
 from OpenGL.GL import glEnable
-from OpenGL.GL import glGetBooleanv
+from OpenGL.GL import glGetBooleanv, glGetFloatv
 from OpenGL.GL import glRasterPos3f
 from OpenGL.GL import glReadPixels
 
@@ -132,11 +133,11 @@ class GLPane_image_methods(object):
         # so we don't have to worry about whether it's perfect.
         # (The known perfect fix is to initialize both matrices, but we don't want to bother,
         #  or to worry about exceeding the projection matrix stack depth.)
-        x = max(x, 0.1)
-        y = max(y, 0.1)
+        x1 = max(x, 0.1)
+        y1 = max(y, 0.1)
 
         depth = 0.1 # this should not matter, as long as it's within the viewing volume
-        x1, y1, z1 = gluUnProject(x, y, depth)
+        x1, y1, z1 = gluUnProject(x1, y1, depth)
         glRasterPos3f(x1, y1, z1) # z1 does matter (when in perspective view), since this is a 3d position
             # Note: using glWindowPos would be simpler and better, but it's not defined
             # by the PyOpenGL I'm using. [bruce iMac G5 070626]
@@ -151,6 +152,16 @@ class GLPane_image_methods(object):
             # a better solution if we could be sure the projection stack depth was sufficient
             # (or if we reset the standard projection when done, rather than using push/pop).
             print "bug: not glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID); pos =", x, y
+                # if this happens, the subsequent effect is that glDrawPixels draws nothing
+        else:
+            # verify correct raster position
+            px, py, pz, pw = glGetFloatv(GL_CURRENT_RASTER_POSITION)
+            if not (0 <= px - x < 0.4) and (0 <= py - y < 0.4): # change to -0.4 < px - x ??
+                print "LIKELY BUG: glGetFloatv(GL_CURRENT_RASTER_POSITION) = %s" % [px, py, pz, pw]
+                # seems to be in window coord space, but with float values,
+                # roughly [0.1, 0.1, 0.1, 1.0] but depends on viewpoint, error about 10**-5
+            pass
+        
         return
     _set_raster_pos = staticmethod(_set_raster_pos)
 
@@ -219,22 +230,24 @@ class GLPane_image_methods(object):
         """
         print "_draw_saved_bg_image", env.redraw_counter
         assert self._cached_bg_color_image is not None
-        self._set_raster_pos(0, 0)
-        
+
+        width = self.width
+        height = self.height
+
         glDisable(GL_DEPTH_TEST) # probably a speedup
         # Note: doing more disables might well speed up glDrawPixels;
         # don't know whether that matters.
         
         # draw the color image part
-        width = self.width
-        height = self.height
         gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE
         color_image = self._cached_bg_color_image
+        self._set_raster_pos(0, 0)
         glDrawPixels(width, height, gl_format, gl_type, color_image)
 
         # draw the depth image part
         gl_format, gl_type = GL_DEPTH_COMPONENT, GL_UNSIGNED_INT
         depth_image = self._cached_bg_depth_image
+        self._set_raster_pos(0, 0) ### adding this line makes the bug less bad, but doesn't fully fix it
         glDrawPixels(width, height, gl_format, gl_type, depth_image)
 
         glEnable(GL_DEPTH_TEST)
