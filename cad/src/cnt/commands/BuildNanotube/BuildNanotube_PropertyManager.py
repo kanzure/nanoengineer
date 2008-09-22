@@ -68,8 +68,11 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Constructor for the Build Nanotube property manager.
         """
         
-        #For model changed signal
-        self.previousSelectionParams = None
+        #For self._update_UI_* check
+        self._previousSelectionParams = None        
+        self._previousStructureParams = None
+        
+        self._previous_model_change_indicator = None
                 
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
@@ -147,6 +150,8 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         This method should replace model_changed() eventually. 
         This is used with USE_COMMAND_STACK debug flag
+        
+        @see: self._currentStructureParams()
         """     
         self.model_changed()  
         
@@ -155,33 +160,41 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         When the command is treated as a 'command' by the 
         commandSequencer, this method will override basicCommand.model_changed.
         For more info, see BuildAtomsPropertyManager.model_changed docstring.
+        
+        @see: self._currentStructureParams()
         """  
-        newSelectionParams = self._currentSelectionParams()          
-        if same_vals(newSelectionParams, self.previousSelectionParams):
+        currentSelectionParams = self._currentSelectionParams() 
+        
+        currentStructParams = self._currentStructureParams()
+        
+        selection_params_unchanged = same_vals(currentSelectionParams,
+                                               self._previousSelectionParams)
+        
+        structure_params_unchanged = same_vals(currentStructParams,
+                                               self._previousStructureParams)
+        
+        
+        if selection_params_unchanged and structure_params_unchanged:
+            #This second condition above fixes bug 2888
             return
         
-        self.previousSelectionParams = newSelectionParams  
-        
-        selectedSegments = newSelectionParams
-
-        self.segmentListWidget.updateSelection(selectedSegments)
-                
-        if len(selectedSegments) == 1:
-            self.editSegmentPropertiesButton.setEnabled(True)
-        else:
-            self.editSegmentPropertiesButton.setEnabled(False)
-                         
-        #Update the segmment list widgets. 
-        #Ideally it should only update when the structure is modified 
-        #example --when structure is deleted. But as of 2008-02-21
-        #this feature is not easily available in the API method.
-        # For more info, see similar comment in BuildDna_PropertyManager.model_changed.
-        # ...
-        #..This probably interferes with the selection
-        #within that list. So better to do it after updating the selection.
-        #if not same_vals(self.strandListWidget.count(), 
-        #                 self._currentStructureParams()):  
-        #    self.updateListWidgets()   
+        if not selection_params_unchanged and structure_params_unchanged:        
+            self._previousSelectionParams = currentSelectionParams            
+            selectedSegments = currentSelectionParams
+            
+            self.segmentListWidget.updateSelection(selectedSegments)
+                    
+            if len(selectedSegments) == 1:
+                self.editSegmentPropertiesButton.setEnabled(True)
+            else:
+                self.editSegmentPropertiesButton.setEnabled(False)
+                        
+        #See self._currentStructureParams()
+        if not structure_params_unchanged:
+            self._previousStructureParams = currentStructParams
+            #Update the list widget 
+            self.updateListWidgets() 
+            
                       
     def _currentSelectionParams(self):
         """
@@ -208,25 +221,23 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                     
         return (selectedSegments)
     
-    def _currentStructureParams_NOT_APPLICABLE(self):
+    def _currentStructureParams(self):
         """
-        Return current structure parameters of interest to self.model_changed. 
-        Right now it only returns the number of strands within the structure
-        (or None). This is a good enough check (and no need to compare 
-        each and every strand within the structure with a previously stored 
-        set of strands).     
-        """
-        #Can it happen that the total number of strands remains the same even 
-        #after some alterations to the strands? Unlikely. (Example: a single
-        #Break strands operation will increase the number of strands by one. 
-        #Or Join strands decrease it by 1)
-        params = None
+        Return current structure parameters of interest to self._update_UI_*. 
+        Right now it only returns the number of nanotube segments in the part
+        (or None). 
         
-        if self.command and self.command.hasValidStructure():
-            strandList = []
-            strandList = self.command.struct.getStrands()
-            params = len(strandList)
-            
+        @ATTENTION: Is this a sufficient check? For optimization, it doesn't
+        compare each and every nanotube in that list with a previously stored 
+        set of nanotubes. In case of bugs, this method should return the list 
+        itself instead of 'len(list)
+        
+        @see: self._update_UI_do_updates()
+        """        
+        params = None
+        part = self.command.assy.part
+        nanotubes = part.get_topmost_subnodes_of_class(self.command.assy.NanotubeSegment)
+        params = len(nanotubes)
         return params 
     
     
