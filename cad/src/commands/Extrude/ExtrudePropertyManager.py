@@ -17,8 +17,9 @@ moved many ui helper methods defined globally in extrudeMode.py to this class.
 import math
 from PyQt4.Qt import SIGNAL
 from commands.Extrude.Ui_ExtrudePropertyManager import Ui_ExtrudePropertyManager
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
-
+_superclass = Ui_ExtrudePropertyManager
 class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
     """
     The ExtrudePropertyManager class provides the Property Manager for the
@@ -36,7 +37,37 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         
         Ui_ExtrudePropertyManager.__init__(self, command)
         
-        self.updateMessage()        
+        self.extrude_pref_toggles = ( self.showEntireModelCheckBox,
+                                      self.showBondOffsetCheckBox,
+                                      self.makeBondsCheckBox,
+                                      self.mergeCopiesCheckBox,
+                                      self.extrudePrefMergeSelection)
+        
+        if KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+        
+                
+        
+        
+    def show(self):
+        """
+        Extends superclass method. 
+        """
+        _superclass.show(self)
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(True)
+        
+        self.updateMessage()
+            
+    def close(self):
+        """
+        Extends superclass method. 
+        """
+        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
+            self.connect_or_disconnect_signals(False)
+            
+        _superclass.close(self)
+    
         
     def connect_or_disconnect_signals(self, connect):
         """
@@ -53,6 +84,11 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         
         # Connect or disconnect widget signals to slots
         
+        for toggle in self.extrude_pref_toggles:
+            change_connect(toggle, 
+                           SIGNAL("stateChanged(int)"), 
+                           self.command.toggle_value_changed)
+            
         change_connect(self.extrudeSpinBox_n,
                        SIGNAL("valueChanged(int)"),
                        self.command.spinbox_value_changed)
@@ -168,20 +204,20 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         tol_str = tol_str + "%"
         return "Tolerance: %s => %s bonds" % (tol_str, nbonds_str)
         
-    def updateMessage(self):
+    def updateMessage(self, msg = ''):
         """
         Updates the message box with an informative message.
         """
-                
-        numCopies = self.extrudeSpinBox_n.value() - 1
         
-        if self.command.product_type == "straight rod":
-            msg = "Drag one of the " + str(numCopies) + " copies on the right \
-                to position them. Bondpoints will highlight in blue and green \
-                pairs whenever bonds can be formed between them."
-        else:
-            msg = "Use the spinboxes below to position the copies. \
-                Bondpoints will highlight in blue and green pairs \
-                whenever bonds can be formed between them."
+        if not msg:                
+            numCopies = self.extrudeSpinBox_n.value() - 1            
+            if self.command.product_type == "straight rod":
+                msg = "Drag one of the " + str(numCopies) + " copies on the right \
+                    to position them. Bondpoints will highlight in blue and green \
+                    pairs whenever bonds can be formed between them."
+            else:
+                msg = "Use the spinboxes below to position the copies. \
+                    Bondpoints will highlight in blue and green pairs \
+                    whenever bonds can be formed between them."
 
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )

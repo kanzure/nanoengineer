@@ -17,6 +17,18 @@ ExtrudePropertyManager)
 
 ninad 20070725: code cleanup to create a propMgr object for extrude mode.
 Moved many ui helper methods to class ExtrudePropertyManager .
+
+Ninad 2008-09-22: ported ExtrudeMode class to use new command API 
+(developed in August - September 2008) .
+
+TODO as of 2008-09-22:
+Extrude mode is a class developed early days of NanoEngineer-1. Lots of things
+have changed since then (example: Qt framework, major architectural changes etc) 
+In genral it needs a major cleanup. Some items are listed below:
+- split it into command/GM parts
+- refactor and move helper functions in this file into their own modules. 
+- several update methods need to be in central update methods in command 
+  and PM classes
 """
 
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
@@ -76,6 +88,7 @@ from utilities.constants import common_prefix
 from utilities.GlobalPreferences import USE_COMMAND_STACK 
 
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
+from ne1_ui.toolbars.Ui_ExtrudeFlyout import ExtrudeFlyout
 
 
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
@@ -120,15 +133,11 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
         x,y,z = (x * rr, y * rr, z * rr)
     self.propMgr.set_extrude_controls_xyz((x,y,z))
 
-    self.extrude_pref_toggles = [self.propMgr.showEntireModelCheckBox,
-                                 self.propMgr.showBondOffsetCheckBox,
-                                 self.propMgr.makeBondsCheckBox,
-                                 self.propMgr.mergeCopiesCheckBox,
-                                 self.propMgr.extrudePrefMergeSelection]
-    for toggle in self.extrude_pref_toggles:
+    
+    for toggle in self.propMgr.extrude_pref_toggles:
         if attr_target and toggle.attr: # do this first, so the attrs needed by the slot functions are there
             setattr(attr_target, toggle.attr, toggle.default) # this is the only place I initialize those attrs!
-    ##for toggle in self.extrude_pref_toggles:
+    ##for toggle in self.propMgr.extrude_pref_toggles:
         ##toggle.setChecked(True) ##### stub; change to use its sense & default if it has one -- via a method on it
 
     #e bonding-slider, and its label, showing tolerance, and # of bonds we wouldd make at current offset\
@@ -149,46 +158,46 @@ class extrudeMode(basicMode):
     """
     Extrude mode.
     """
+    command_porting_status = 'PARTIAL: 2008-09-22: Actually fully ported. But needs more testing to be sure.'
+    
     # class constants    
+    
+    #Property Manager 
+    PM_class = ExtrudePropertyManager
+    
+    #Flyout Toolbar
+    FlyoutToolbar_class = ExtrudeFlyout
+    
+    flyoutToolbar = None
+    
     commandName = 'EXTRUDE'
     featurename = "Extrude Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
-    command_porting_status = 'NOT_PORTED'
+    
 
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
+    
+    mergeables = {} # in case not yet initialized when we Draw (maybe not needed)
+    moused_over = None    
+    
+    #Initialize some class attrs. These are changed later. 
+    #see self.togglevalue_changed() and ExtrudePropertyManager.connect_or_disconnect_signals()
+    #methods  for details
+    
+    show_bond_offsets = False 
+    show_entire_model = True
+    whendone_make_bonds = True
+    whendone_all_one_part = True
+    whendone_merge_selection = True
+    
+    final_msg_accum = ''
+    
 
     # no __init__ method needed
 
     # methods related to entering this mode
-
-    def connect_or_disconnect_signals(self, connect): #bruce 060412 made this from connect_controls (finally!)
-        """
-        Connect or disconnect the dashboard controls to their slots in this
-        method.
-        """
-        if connect:
-            change_connect = self.w.connect
-            # old comment:
-            #k i call this from Enter; depositMode calls the equivalent from init_gui -- which is better?
-            # new comment:
-            # guess as of bruce 060412: init_gui would be better, but I don't think it matters much and I don't want to
-            # take time to change it now (hard to analyze, since other code in Enter might depend on when this is being done).
-        else:
-            change_connect = self.w.disconnect
-            # this is new as of bruce 060412; called from restore_gui; might help with bug 1750
-
-
-        change_connect(self.exitExtrudeAction, SIGNAL("triggered()"),
-                       self.w.toolsDone)
-
-        for toggle in self.extrude_pref_toggles:
-            change_connect(toggle, SIGNAL("stateChanged(int)"), self.toggle_value_changed)
-
-        #connect  or disconnect the signals in the propMgr.
-        self.propMgr.connect_or_disconnect_signals(connect)
-
-        return
+    
 
     def ptype_value_changed(self, val):
         # note: uses val, below
@@ -243,7 +252,7 @@ class extrudeMode(basicMode):
         if not self.isCurrentCommand():
             return
         self.needs_repaint = 0
-        for toggle in self.extrude_pref_toggles:
+        for toggle in self.propMgr.extrude_pref_toggles:
             val = toggle.isChecked()
             attr = toggle.attr
             repaintQ = toggle.repaintQ
@@ -287,23 +296,310 @@ class extrudeMode(basicMode):
     def command_ok_to_enter(self):
         return not self._refuseEnter(warn = True)
     
-    def Enter(self):
+    if not USE_COMMAND_STACK:
+        
+        def haveNontrivialState(self):
+            # note: to port this to USE_COMMAND_STACK, check this condition in command_will_exit
+            # when self.commandSequencer.exit_is_forced -- see similar code in
+            # BuildCrystal_Command.command_will_exit; also relates to "Abandon"
+            # [bruce 080908 comment]
+            return self.ncopies != 1 # more or less...
+        
+        def StateDone(self):
+            return self._stateDoneOrCancel( cancelling = 0)
+        
+        def StateCancel(self): # [bruce 050228 revised/commented this to fix bug 314]
+            self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
+            self.update_from_controls()
+            #e could also change back to rod mode, but if that is needed we'll make the subroutine do it
+            return self._stateDoneOrCancel( cancelling = 1) # closest we can come to cancelling
+
+        def _stateDoneOrCancel(self, cancelling = 0): #e rename? revise? #bruce 050228 to help fix bug 314 and unreported bugs
+            """
+            Common method for StateDone and StateCancel.
+            """
+            ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
+            # restore normal appearance [bruce 070407 revised this in case each mol is not a Chunk]
+            for mol in self.molcopies:
+                # mol might be Chunk, fake_merged_mol, or fake_copied_mol [bruce 070407]
+                for chunk in true_Chunks_in(mol):
+                    try:
+                        del chunk._colorfunc # let class attr [added 050524] be visible again; exception if it already was
+                        #e also unpatch info from the atoms? not needed but might as well [nah]
+                    except:
+                        pass
+                    else:
+                        #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
+                        chunk.changeapp(0)
+                continue
+            self.finalize_product(cancelling = cancelling)
+                # this also emits status messages and does some cleanup of broken_externs...
+            self.o.assy.update_parts()
+                #bruce 050317: fix some of the bugs caused by user dragging some
+                # repeat units into a different Part in the MT, deleting them, etc.
+                # (At least this should fix bug 371 comment #3.)
+                # This is redundant with the fix for that in make_inter_unit_bonds,
+                # but is still the only place we catch the related bug when rebonding
+                # the base unit to whatever we unbonded it from at the start (if anything).
+                # (That bug is untested and this fix for it is untested.)
+            return None
+        
+        def init_gui(self):
+
+            self.propMgr.show()
+            self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from BuildCrystal_Command, choice of cursor not reviewed ###
+    
+            # Disable some QActions that will conflict with this mode.
+            self.w.disable_QActions_for_extrudeMode(True)
+            
+            self.command_enter_flyout()
+    
+            self.w.toolsExtrudeAction.setChecked(1) # make the Extrude tool icon look pressed (and the others not)
+    
+            # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
+            # We do this last, so as not to do it if there are exceptions in the rest of the method,
+            # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
+            # [bruce 060414, to mitigate bug 1625; same thing done in some other modes]
+            import foundation.undo_manager as undo_manager
+            undo_manager.disable_undo_checkpoints('Extrude')
+            undo_manager.disable_UndoRedo('Extrude', "during Extrude")
+                # this makes Undo menu commands and tooltips look like "Undo (not permitted during Extrude)" (and similarly for Redo)
+    
+            ## i think this is safer *after* the first update_from_controls, not before it...
+            # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
+            self.update_from_controls()
+            
+            return
+
+
+        def restore_gui(self):
+            """
+            [#doc]
+            """
+            # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
+            # do it first to protect it from exceptions in the rest of this method
+            # (since if it never happens, Undo/Redo won't work for the rest of the session)
+            # [bruce 060414; same thing done in some other modes]
+            import foundation.undo_manager as undo_manager
+            undo_manager.reenable_undo_checkpoints('Extrude')
+            undo_manager.reenable_UndoRedo('Extrude')
+            self.set_cmdname('Extrude') # this covers all changes while we were in the mode
+                # (somewhat of a kluge, and whether this is the best place to do it is unknown;
+                #  without this the cmdname is "Done")
+    
+            # Re-enable QAction items
+            # [bruce 060414 moved this earlier in the method]
+            self.w.disable_QActions_for_extrudeMode(False)    
+        
+            self.w.toolsExtrudeAction.setChecked(False) #Toggle Extrude icon
+            
+            self.command_exit_flyout()
+    
+            self.propMgr.close()
+    
+            return
+
+    
+        def Enter(self):
+            self.status_msg("preparing to enter %s..." % self.get_featurename())
+                # this msg won't last long enough to be seen, if all goes well
+            self.clear_command_state() ##e see comment there
+            self.initial_down = self.o.down
+            self.initial_out = self.o.out
+    
+            if not self.propMgr:
+                self.propMgr = ExtrudePropertyManager(self)
+                #@bug BUG: following is a workaround for bug 2494
+                changes.keep_forever(self.propMgr)
+    
+            initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], defaultValue = 7.0),
+                                        prefs_key = True, non_debug = True) #bruce 070410
+            reinit_extrude_controls(self, self.o, length = initial_length, attr_target = self)
+    
+            basicMode.Enter(self)
+            self._command_entered_effects()            
+           
+        def clear_command_state(self):
+            assert not USE_COMMAND_STACK
+                # in that case we'll need to do these things in command_enter instead [bruce 080909]
+            self.mergeables = {}
+            self.moused_over = None #k?
+            self.dragdist = 0.0
+            self.have_offset_specific_data = 0 #### also clear that data itself...
+            self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
+            self.offset_for_bonds = None        
+            self.product_type = "straight rod" #e someday have a combobox for this
+            self.circle_n = 0
+            self.__old_ptype = None
+            self.singlet_color = {}
+            #e lots more ivars too
+            return
+        
+        def command_enter_flyout(self):
+            """
+            Overrides superclass method. 
+    
+            @see: baseCommand.command_enter_flyout()  for documentation
+            """
+            if self.flyoutToolbar is None:
+                self.flyoutToolbar = self._createFlyoutToolBarObject() 
+            self.flyoutToolbar.activateFlyoutToolbar()  
+    
+        def command_exit_flyout(self):
+            """
+            Overrides superclass method. 
+    
+            @see: baseCommand.command_exit_flyout()  for documentation
+            """
+            if self.flyoutToolbar:
+                self.flyoutToolbar.deActivateFlyoutToolbar()
+                
+        def _createFlyoutToolBarObject(self):
+            """
+            Create a flyout toolbar to be shown when this command is active. 
+            Overridden in subclasses. 
+            @see: PasteFromClipboard_Command._createFlyouttoolBar()
+            @see: self.command_enter_flyout()
+            """
+            flyoutToolbar = ExtrudeFlyout(self) 
+            return flyoutToolbar
+            
+            
+    def command_entered(self):
+        """
+        Extends superclass method.
+        @see: basecommand.command_entered() for documentation. 
+        """
+        #NOTE: Most of the code below is copied (with some changes)from the 
+        #following methods that existed in the old command API 
+        #on or before 2008-09-22: 
+        #self.init_gui(), self.Enter(), self._command_entered_effects()
+        #self.clear_command_state()
+        # [-- Ninad Comment]
+        
+        # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
+        # We do this last, so as not to do it if there are exceptions in the rest of the method,
+        # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
+        # [bruce 060414, to mitigate bug 1625; same thing done in some other modes]
+        import foundation.undo_manager as undo_manager
+        undo_manager.disable_undo_checkpoints('Extrude')
+        undo_manager.disable_UndoRedo('Extrude', "during Extrude")
+            # this makes Undo menu commands and tooltip
+                
+        basicMode.command_entered(self)
+        #Copying all the code originally in self.Enter() that existed 
+        #on or before  2008-09-19 [--Ninad comment ]
         self.status_msg("preparing to enter %s..." % self.get_featurename())
-            # this msg won't last long enough to be seen, if all goes well
-        self.clear_command_state() ##e see comment there
+                # this msg won't last long enough to be seen, if all goes well
+                
+        #Clear command states (it was called in self.clear_command_state()
+        #in 'not USE_COMMAND_STACK case, before 2008-09-19
+        self.mergeables = {}
+        self.moused_over = None #k?
+        self.dragdist = 0.0
+        self.have_offset_specific_data = 0 #### also clear that data itself...
+        self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
+        self.offset_for_bonds = None        
+        self.product_type = "straight rod" #e someday have a combobox for this
+        self.circle_n = 0
+        self.__old_ptype = None
+        self.singlet_color = {}
+        
+                
         self.initial_down = self.o.down
-        self.initial_out = self.o.out
-
-        if not self.propMgr:
-            self.propMgr = ExtrudePropertyManager(self)
-            #@bug BUG: following is a workaround for bug 2494
-            changes.keep_forever(self.propMgr)
-
+        self.initial_out = self.o.out        
         initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], defaultValue = 7.0),
-                                    prefs_key = True, non_debug = True) #bruce 070410
-        reinit_extrude_controls(self, self.o, length = initial_length, attr_target = self)
-
-        basicMode.Enter(self)
+                                        prefs_key = True, non_debug = True) #bruce 070410
+        
+        self._command_entered_effects()
+        
+        reinit_extrude_controls(self, self.o, length = initial_length, attr_target = self)   
+        
+        #Bruce's comment:
+        ## i think this is safer *after* the first update_from_controls, not before it...
+        # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
+        self.update_from_controls()
+        
+           
+        
+    def command_will_exit(self):
+        """
+        Extends superclass method. 
+        """     
+        
+        #NOTE: Most of the code below is copied (with some changes)from the 
+        #following methods that existed in the old command API 
+        #on or before 2008-09-22: 
+        #self.stateDone(), self.stateCancel(), self.haveNonTrivialState(),
+        #self._stateDoneOrCancel(), self.restore_gui()
+        # [-- Ninad Comment]
+        
+        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
+        # do it first to protect it from exceptions in the rest of this method
+        # (since if it never happens, Undo/Redo won't work for the rest of the session)
+        # [bruce 060414; same thing done in some other modes]
+        import foundation.undo_manager as undo_manager
+        undo_manager.reenable_undo_checkpoints('Extrude')
+        undo_manager.reenable_UndoRedo('Extrude')
+        self.set_cmdname('Extrude') # this covers all changes while we were in the mode
+            # (somewhat of a kluge, and whether this is the best place to do it is unknown;
+            #  without this the cmdname is "Done")
+                
+        cancelling = True
+        if self.commandSequencer.exit_is_forced:
+            if self.ncopies != 1:
+                self._warnUserAboutAbandonedChanges()                
+        elif self.commandSequencer.exit_is_cancel:
+            cancelling = True
+            self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
+            self.update_from_controls()
+        else:
+            cancelling = False
+        
+                
+        #Folloiwng code is copied from self._stateDoneOrCancel==================
+        ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
+        # restore normal appearance [bruce 070407 revised this in case each mol is not a Chunk]
+        for mol in self.molcopies:
+            # mol might be Chunk, fake_merged_mol, or fake_copied_mol [bruce 070407]
+            for chunk in true_Chunks_in(mol):
+                try:
+                    del chunk._colorfunc # let class attr [added 050524] be visible again; exception if it already was
+                    #e also unpatch info from the atoms? not needed but might as well [nah]
+                except:
+                    pass
+                else:
+                    #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
+                    chunk.changeapp(0)
+            continue
+        
+        self.finalize_product(cancelling = cancelling)
+            # this also emits status messages and does some cleanup of broken_externs...
+        self.o.assy.update_parts()
+            #bruce 050317: fix some of the bugs caused by user dragging some
+            # repeat units into a different Part in the MT, deleting them, etc.
+            # (At least this should fix bug 371 comment #3.)
+            # This is redundant with the fix for that in make_inter_unit_bonds,
+            # but is still the only place we catch the related bug when rebonding
+            # the base unit to whatever we unbonded it from at the start (if anything).
+            # (That bug is untested and this fix for it is untested.)
+            
+        #END COpied code from self._stateDoneOrCancel=========================     
+       
+        basicMode.command_will_exit(self)
+        
+    def command_enter_misc_actions(self):
+        self.w.toolsExtrudeAction.setChecked(True)
+        # Disable some QActions that will conflict with this mode.
+        self.w.disable_QActions_for_extrudeMode(True)
+    
+    def command_exit_misc_actions(self):
+        self.w.toolsExtrudeAction.setChecked(False)
+        # Disable some QActions that will conflict with this mode.
+        self.w.disable_QActions_for_extrudeMode(False)
+        
+            
+    def _command_entered_effects(self):
 
         ###
         # find out what's selected, which if ok will be the repeating unit we will extrude... explore its atoms, bonds, externs...
@@ -416,71 +712,6 @@ class extrudeMode(basicMode):
         Update the message box win property manager with an informative message.
         """
         self.propMgr.updateMessage()
-
-    def getFlyoutActionList(self): #Ninad 20070622
-        """
-        Returns a tuple that contains mode specific actionlists in the
-        added in the flyout toolbar of the mode.
-        CommandToolbar._createFlyoutToolBar method calls this
-
-        @return: params: A tuple that contains 3 lists:
-        (subControlAreaActionList, commandActionLists, allActionsList).
-        """
-
-        #'allActionsList' returns all actions in the flyout toolbar
-        #including the subcontrolArea actions
-        allActionsList = []
-
-        #Action List for  subcontrol Area buttons.
-        #In this mode, there is really no subcontrol area.
-        #We will treat subcontrol area same as 'command area'
-        #(subcontrol area buttons will have an empty list as their command area
-        #list). We will set  the Comamnd Area palette background color to the
-        #subcontrol area.
-
-        subControlAreaActionList =[]
-
-        self.exitExtrudeAction = NE1_QWidgetAction(self.w,
-                                                     win = self.win)
-        self.exitExtrudeAction.setText("Exit Extrude")
-        self.exitExtrudeAction.setCheckable(True)
-        self.exitExtrudeAction.setChecked(True)
-        self.exitExtrudeAction.setIcon(
-            geticon("ui/actions/Toolbars/Smart/Exit.png"))
-        subControlAreaActionList.append(self.exitExtrudeAction)
-
-        separator = QtGui.QAction(self.w)
-        separator.setSeparator(True)
-        subControlAreaActionList.append(separator)
-
-        allActionsList.extend(subControlAreaActionList)
-
-        #Empty actionlist for the 'Command Area'
-        commandActionLists = []
-
-        #Append empty 'lists' in 'commandActionLists equal to the
-        #number of actions in subControlArea
-        for i in range(len(subControlAreaActionList)):
-            lst = []
-            commandActionLists.append(lst)
-
-        params = (subControlAreaActionList, commandActionLists, allActionsList)
-
-        return params
-
-    def updateCommandToolbar(self, bool_entering = True): #Ninad 20070622
-        """
-        Update the command toolbar.
-        """
-        # object that needs its own flyout toolbar. In this case it is just
-        #the mode itself.
-
-        action = self.w.toolsFuseChunksAction
-        obj = self
-        self.w.commandToolbar.updateCommandToolbar(action,
-                                                   obj,
-                                                   entering = bool_entering)
-        return
 
     singlet_color = {} # we also do this in clear_command_state()
 
@@ -1105,79 +1336,17 @@ class extrudeMode(basicMode):
 
     # == this belongs higher up...
 
-    def init_gui(self):
-
-        self.propMgr.show()
-        self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from BuildCrystal_Command, choice of cursor not reviewed ###
-
-        # Disable some QActions that will conflict with this mode.
-        self.w.disable_QActions_for_extrudeMode(True)
-
-        self.w.toolsExtrudeAction.setChecked(1) # make the Extrude tool icon look pressed (and the others not)
-
-        # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
-        # We do this last, so as not to do it if there are exceptions in the rest of the method,
-        # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
-        # [bruce 060414, to mitigate bug 1625; same thing done in some other modes]
-        import foundation.undo_manager as undo_manager
-        undo_manager.disable_undo_checkpoints('Extrude')
-        undo_manager.disable_UndoRedo('Extrude', "during Extrude")
-            # this makes Undo menu commands and tooltips look like "Undo (not permitted during Extrude)" (and similarly for Redo)
-
-        # bruce 070813 moved this here from Enter:
-        self.updateCommandToolbar(bool_entering = True) #ninad20070622
-        self.connect_or_disconnect_signals(True)
-        ## i think this is safer *after* the first update_from_controls, not before it...
-        # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
-        self.update_from_controls()
-        return
+    
 
     # methods related to exiting this mode
 
-    def haveNontrivialState(self):
-        # note: to port this to USE_COMMAND_STACK, check this condition in command_will_exit
-        # when self.commandSequencer.exit_is_forced -- see similar code in
-        # BuildCrystal_Command.command_will_exit; also relates to "Abandon"
-        # [bruce 080908 comment]
-        return self.ncopies != 1 # more or less...
+    
 
-    def StateDone(self):
-        return self._stateDoneOrCancel( cancelling = 0)
-
-    def _stateDoneOrCancel(self, cancelling = 0): #e rename? revise? #bruce 050228 to help fix bug 314 and unreported bugs
-        """
-        Common method for StateDone and StateCancel.
-        """
-        ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
-        # restore normal appearance [bruce 070407 revised this in case each mol is not a Chunk]
-        for mol in self.molcopies:
-            # mol might be Chunk, fake_merged_mol, or fake_copied_mol [bruce 070407]
-            for chunk in true_Chunks_in(mol):
-                try:
-                    del chunk._colorfunc # let class attr [added 050524] be visible again; exception if it already was
-                    #e also unpatch info from the atoms? not needed but might as well [nah]
-                except:
-                    pass
-                else:
-                    #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
-                    chunk.changeapp(0)
-            continue
-        self.finalize_product(cancelling = cancelling)
-            # this also emits status messages and does some cleanup of broken_externs...
-        self.o.assy.update_parts()
-            #bruce 050317: fix some of the bugs caused by user dragging some
-            # repeat units into a different Part in the MT, deleting them, etc.
-            # (At least this should fix bug 371 comment #3.)
-            # This is redundant with the fix for that in make_inter_unit_bonds,
-            # but is still the only place we catch the related bug when rebonding
-            # the base unit to whatever we unbonded it from at the start (if anything).
-            # (That bug is untested and this fix for it is untested.)
-        return None
-
-    def finalize_product(self, cancelling = 0): #bruce 050228 adding cancelling=0 to help fix bug 314 and unreported bugs
+    
+    def finalize_product(self, cancelling = False): #bruce 050228 adding cancelling=0 to help fix bug 314 and unreported bugs
         """
         if requested, make bonds and/or join units into one part;
-        cancelling = 1 means just do cleanup, use diff msgs
+        cancelling = True means just do cleanup, use diff msgs
         """
         if not cancelling:
             desc = " (N = %d)" % self.ncopies  #e later, also include circle_n if different and matters; and more for other product_types
@@ -1355,42 +1524,8 @@ class extrudeMode(basicMode):
         print "extrude bug (trying to ignore it): singlet not found",unit,i1
         # can happen until we remove dup i1,i2 from bonds
         return None
-
-    def StateCancel(self): # [bruce 050228 revised/commented this to fix bug 314]
-        self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
-        self.update_from_controls()
-        #e could also change back to rod mode, but if that is needed we'll make the subroutine do it
-        return self._stateDoneOrCancel( cancelling = 1) # closest we can come to cancelling
-
-    def restore_gui(self):
-        """
-        [#doc]
-        """
-        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
-        # do it first to protect it from exceptions in the rest of this method
-        # (since if it never happens, Undo/Redo won't work for the rest of the session)
-        # [bruce 060414; same thing done in some other modes]
-        import foundation.undo_manager as undo_manager
-        undo_manager.reenable_undo_checkpoints('Extrude')
-        undo_manager.reenable_UndoRedo('Extrude')
-        self.set_cmdname('Extrude') # this covers all changes while we were in the mode
-            # (somewhat of a kluge, and whether this is the best place to do it is unknown;
-            #  without this the cmdname is "Done")
-
-        # Re-enable QAction items
-        # [bruce 060414 moved this earlier in the method]
-        self.w.disable_QActions_for_extrudeMode(False)
-
-        self.updateCommandToolbar(bool_entering = False)
-
-        self.connect_or_disconnect_signals(False) #bruce 060412, hoping it helps with bug 1750
-
-        self.w.toolsExtrudeAction.setChecked(False) #Toggle Extrude icon
-
-        self.propMgr.close()
-
-        return
-
+    
+        
     # mouse events
 
     def leftDown(self, event):
@@ -1590,24 +1725,7 @@ class extrudeMode(basicMode):
         """
         self.o.setCursor(QCursor(Qt.ArrowCursor))
 
-    mergeables = {} # in case not yet initialized when we Draw (maybe not needed)
-    moused_over = None
-
-    def clear_command_state(self):
-        assert not USE_COMMAND_STACK
-            # in that case we'll need to do these things in command_enter instead [bruce 080909]
-        self.mergeables = {}
-        self.moused_over = None #k?
-        self.dragdist = 0.0
-        self.have_offset_specific_data = 0 #### also clear that data itself...
-        self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
-        self.offset_for_bonds = None        
-        self.product_type = "straight rod" #e someday have a combobox for this
-        self.circle_n = 0
-        self.__old_ptype = None
-        self.singlet_color = {}
-        #e lots more ivars too
-        return
+    
 
     # drawing code
 
