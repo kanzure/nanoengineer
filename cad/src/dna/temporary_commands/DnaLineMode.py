@@ -56,13 +56,8 @@ class DnaLine_GM( Line_GraphicsMode ):
         
         if  self.command.mouseClickLimit is None:
             if len(self.command.mouseClickPoints) == 2:
-                self.endPoint2 = None
-                                
+                self.endPoint2 = None                                
                 self.command.createStructure()
-                #DISABLED AS OF 2008-01-11. (Implementation changed --
-                #See DnaDuplex_EditCommand.createStructure for new 
-                #implementaion)
-                ##self.command.callback_addSegments()
                 self.glpane.gl_update()          
                 
             return

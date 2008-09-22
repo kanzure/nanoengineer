@@ -52,8 +52,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
     by hitting 'Escape' key  or pressing 'Done' button in the Paste mode. 
     """
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "NOT_PORTED: 2008-09-17: need PM_class, flyout class and need to port model_changed etc"
-    
+    command_porting_status = None #fully ported
     
     commandName = 'PASTE' 
     featurename = "Paste From Clipboard" 

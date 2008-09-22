@@ -85,10 +85,15 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
                 if not USE_COMMAND_STACK:
                     self.command.restore_gui()
                 else:
-                    print_compact_stack("bug: %s.leftUp doesn't handle the case" \
-                    "where mouseclicklimit is not specified. Ideally it should" \
-                    "call most of the code in self.command_will_exit")%(self)
-                    
+                    try:
+                        self.command._f_results_for_caller_and_prepare_for_new_input()
+                    except AttributeError:
+                        print_compact_traceback(
+                            "bug: command %s has no attr"\
+                            "'_f_results_for_caller_and_prepare_for_new_input'.")
+                        self.command.mouseClickPoints = []
+                        self.resetVariables()
+        
                 self.glpane.gl_update()
             return
 
@@ -124,7 +129,7 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 class RotateAboutPoint_Command(Line_Command):
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status =  "PARTIAL: GraphicsMode.leftUp calls restore_gui and corre case in new command API not handled"
+    command_porting_status =  None #fully ported
 
     GraphicsMode_class = RotateAboutPoint_GraphicsMode
 
@@ -206,6 +211,26 @@ class RotateAboutPoint_Command(Line_Command):
         # note: superclass Line_Command.init_gui sets self._results_callback,
         # and superclass restore_gui calls it with this method's return value
         return ()
+    
+    
+    def _f_results_for_caller_and_prepare_for_new_input(self):
+        """
+        This is called only from GraphicsMode.leftUp() 
+        Give results for the caller of this request command and then prepare for 
+        next input (mouse click points) from the user. Note that this is called
+        from RotateAboutPoint_GraphiceMode.leftUp() only when the mouseClickLimit
+        is not specified (i.e. the command is not exited automatically after
+        'n' number of mouseclicks) 
+        
+        @see: RotateAboutPoint_GraphiceMode.leftUp()
+        """
+        if self._results_callback:
+            # note: see comment in command_will_exit version of this code
+            params = self._results_for_request_command_caller()
+            self._results_callback( params)    
+            
+        self.command.mouseClickPoints = []                
+        self.graphiceMode.resetVariables()
 
     pass # end of class RotateAboutPoint_Command
 

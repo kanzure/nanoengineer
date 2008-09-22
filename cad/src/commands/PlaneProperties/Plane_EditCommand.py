@@ -45,6 +45,9 @@ class Plane_EditCommand(EditCommand):
     The editCommand, depending on what client code needs it to do, may create 
     a new plane or it may be used for an existing plane. 
     """
+    
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
 
     #@NOTE: self.struct is the Plane object
     

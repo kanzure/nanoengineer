@@ -29,6 +29,9 @@ class FixedBBProteinSim_Command(EditCommand):
     """
     Class for fixed backbone rosetta sequence design
     """
+    #Temporary attr 'command_porting_status. See baseCommand for details.
+    command_porting_status = None #fully ported
+    
     # class constants
     
     GraphicsMode_class = FixedBBProteinSim_GraphicsMode
