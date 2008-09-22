@@ -80,11 +80,6 @@ class GLPane_image_methods(object):
                               height - subheight,
                               subwidth, subheight,
                               gl_format, gl_type )
-##        if type(image) is not type("") and \
-##           not env.seen_before("conf_corner_bg_image of unexpected type"):
-##            print "fyi: grabbed conf_corner_bg_image of unexpected type %r:" % \
-##                  ( type(image), )
-
         self._conf_corner_bg_image_data = (subwidth, subheight,
                                            width, height,
                                            gl_format, gl_type, image)
@@ -181,9 +176,10 @@ class GLPane_image_methods(object):
             self.part.assy.all_change_indicators(), # TODO: fix view change indicator for this to work fully
                 # note: that's too conservative, since it notices changes in other parts (e.g. from Copy Selection)
 
-            # KLUGE until view change indicator is fixed -- should be enough for now
-            ### + self.quat, # BUG: C version of same_vals fails for this (for bruce iMac g5 anyway, 080919)
-            + self.quat.vec, # workaround for that bug (untested)
+            # KLUGE until view change indicator is fixed -- include view data
+            # directly; should be ok indefinitely
+            + self.quat, # this hit a bug in same_vals (C version), fixed by Eric M 080922 in samevalshelp.c rev 14311
+            ## + self.quat.vec, # workaround for that bug (works)
             + self.pov, self.scale, self.zoomFactor,
             
             self.width,

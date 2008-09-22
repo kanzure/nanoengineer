@@ -811,11 +811,13 @@ class GLPane_rendering_methods(GLPane_image_methods):
 if "test same_vals during import": #bruce 080922, of interest to GLPane_image_methods
     from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
     # not a full test, just look for known bugs and print warnings if found
-    ALWAYS_PRINT = True # for now
+    ALWAYS_PRINT = False
     used_version = SAMEVALS_SPEEDUP and "C" or "python"
         # no way to test the other version (see comment where same_vals is defined)
     from geometry.VQT import Q
     if not same_vals( Q(1,0,0,0), Q(1,0,0,0) ):
+        # this bug was in the C version but not the Python version;
+        # Eric M fixed it in samevalshelp.c rev 14311, 080922
         print "BUG: not same_vals( Q(1,0,0,0), Q(1,0,0,0) ) [%s version]" % used_version
     elif ALWAYS_PRINT:
         print "fyi: same_vals( Q(1,0,0,0), Q(1,0,0,0) ) is True (correct) [%s version]" % used_version
