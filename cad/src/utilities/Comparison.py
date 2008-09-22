@@ -72,6 +72,13 @@ if SAMEVALS_SPEEDUP:
 
 def same_vals(v1, v2): #060303
     """
+    (Note: there is a C version of this method which is normally used by NE1.
+     It has the same name as this method and overwrites this one
+     due to an assignment near the end of this method's source file.
+     This method is the reference version, coded in Python.
+     This version is used by some developers who don't build the C version
+     for some reason.)
+    
     Efficiently scan v1 and v2 in parallel to determine whether they're the same, for purposes of undoable state
     or saved state.
        The only reason we really need this (as opposed to just using Python '==' or '!=' and our own __eq__ methods)
@@ -258,12 +265,22 @@ def _same_vals_helper(v1, v2): #060303
     ###k is it reasonable to treat naive non-InstanceType objects as the same if they are merely __eq__ ?
     # guess: yes, and is even good, but it's not obviously good nor obviously necessary. See also the comments
     # above _same_InstanceType_helper. [bruce 060419]
-    return    
+    return
+
+# ==
 
 if SAMEVALS_SPEEDUP:
     # Replace definition above with the extension's version.
     # (This is done for same_vals here in utilities/Comparison.py,
     #  and for copy_val in state_utils.py.)
     from samevals import same_vals
-
+        # this overwrites the public global which other modules import
+    # note: there is no point in saving the python version before this
+    # assignment (e.g. for testing), since it uses this global for its
+    # recursion, so after this import it would be recursing into the
+    # C version instead of into itself. Fixing this would require
+    # modifying the global before each test -- not presently worth
+    # the trouble. [bruce 080922 comment]
+    pass
+    
 # end

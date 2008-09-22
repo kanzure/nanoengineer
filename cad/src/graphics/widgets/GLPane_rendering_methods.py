@@ -563,6 +563,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 self._draw_saved_bg_image() # in GLPane_image_methods
                     # saved and drawn outside of stereo loop (intentional)
             else:
+                if bg_image_data == self._old_bg_image_data: 
+                    print "DEBUG FYI: must capture since equal values not same_vals:\n%r, \n%r" % \
+                      ( bg_image_data, self._old_bg_image_data ) #####
                 # capture it below, and only then set this:
                 # self._old_bg_image_data = bg_image_data
                 pass
@@ -801,6 +804,21 @@ class GLPane_rendering_methods(GLPane_image_methods):
                    )
         return
     
+    pass
+
+# ==
+
+if "test same_vals during import": #bruce 080922, of interest to GLPane_image_methods
+    from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
+    # not a full test, just look for known bugs and print warnings if found
+    ALWAYS_PRINT = True # for now
+    used_version = SAMEVALS_SPEEDUP and "C" or "python"
+        # no way to test the other version (see comment where same_vals is defined)
+    from geometry.VQT import Q
+    if not same_vals( Q(1,0,0,0), Q(1,0,0,0) ):
+        print "BUG: not same_vals( Q(1,0,0,0), Q(1,0,0,0) ) [%s version]" % used_version
+    elif ALWAYS_PRINT:
+        print "fyi: same_vals( Q(1,0,0,0), Q(1,0,0,0) ) is True (correct) [%s version]" % used_version
     pass
 
 # end
