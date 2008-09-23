@@ -94,6 +94,12 @@ class GLPane_highlighting_methods(object):
                 # be any side effects - see the comment below about
                 # possible optimization.
             glSelectBuffer(self.SIZE_FOR_glSelectBuffer)
+                # Note: this allocates a new select buffer,
+                # and glRenderMode(GL_RENDER) returns it and forgets it, 
+                # so it's required before *each* call of glRenderMode(GL_SELECT) +
+                # glRenderMode(GL_RENDER), not just once to set the size.
+                # Ref: http://pyopengl.sourceforge.net/documentation/opengl_diffs.html
+                # [bruce 080923 comment]
             glRenderMode(GL_SELECT)
             glInitNames()
             glMatrixMode(GL_MODELVIEW)

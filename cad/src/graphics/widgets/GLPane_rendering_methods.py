@@ -687,7 +687,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         self.drawing_phase = 'overlay'
 
-        # Draw ruler(s) if "View > Rulers" is checked.
+        # Draw ruler(s) if "View > Rulers" is checked
+        # (presently in main menus, not in prefs dialog)
         if env.prefs[displayRulers_prefs_key]:
             if (self.ortho or env.prefs[showRulersInPerspectiveView_prefs_key]):
                 self.guides.draw()
