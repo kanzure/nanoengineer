@@ -18,22 +18,23 @@ from OpenGL.GL import GL_CURRENT_RASTER_POSITION
 from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import GL_FALSE, GL_TRUE
 from OpenGL.GL import GL_LIGHTING, GL_TEXTURE_2D
-from OpenGL.GL import GL_RGB, GL_RED
+from OpenGL.GL import GL_RGB, GL_RED, GL_RGBA
 from OpenGL.GL import GL_DEPTH_COMPONENT
 from OpenGL.GL import GL_UNSIGNED_BYTE
 from OpenGL.GL import GL_UNSIGNED_INT, GL_FLOAT
 from OpenGL.GL import glColorMask
 from OpenGL.GL import glDisable
-from OpenGL.GL import glDrawPixels
+from OpenGL.GL import glDrawPixels, glDrawPixelsub, glDrawPixelsf
 from OpenGL.GL import glEnable
 from OpenGL.GL import glGetBooleanv, glGetFloatv
 from OpenGL.GL import glRasterPos3f
-from OpenGL.GL import glReadPixels
+from OpenGL.GL import glReadPixels, glReadPixelsf
+
+from OpenGL.GL import GL_DEPTH_BUFFER_BIT
+from OpenGL.GL import glClear
+
 
 from OpenGL.GLU import gluUnProject
-
-##_GL_FORMAT_FOR_DEPTH = GL_UNSIGNED_INT
-_GL_FORMAT_FOR_DEPTH = GL_FLOAT # makes no difference - HL still fails
 
 from PyQt4.QtOpenGL import QGLWidget
 
@@ -48,11 +49,26 @@ import sys
 
 # ==
 
+##_GL_TYPE_FOR_DEPTH = GL_UNSIGNED_INT
+_GL_TYPE_FOR_DEPTH = GL_FLOAT # makes no difference - HL still fails
+
+## _GL_FORMAT_FOR_COLOR = GL_RGB
+_GL_FORMAT_FOR_COLOR = GL_RGBA # this probably removes the crashes & visual errors for most width values
+
+# ==
+
 def _trim(width):
-    # this fixed the C crash on resizing the main window
-    # (which happened from increasing width, then redraw)
-    ### TEST: would using GL_RGBA (not GL_RGB) also fix that?
-    return width - width % 16
+    """
+    Reduce a width or height (in pixels) to a safe value (e.g. 0 mod 16).
+
+    (This would not be needed if GL functions for images were used properly
+    and had no bugs.)
+    """
+    return width # this seems to work when _GL_FORMAT_FOR_COLOR = GL_RGBA,
+        # whereas this was needed when it was GL_RGB:
+        ## # this fixed the C crash on resizing the main window
+        ## # (which happened from increasing width, then redraw)
+        ## return width - width % 16
 
 # ==
 
@@ -93,8 +109,9 @@ class GLPane_image_methods(object):
         height = self.height
         subwidth = min(width, 100)
         subheight = min(height, 100)
-        gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE
-            # these seem to be enough; GL_RGBA, GL_FLOAT also work but look the same
+        gl_format, gl_type = _GL_FORMAT_FOR_COLOR, GL_UNSIGNED_BYTE
+            # these (but with GL_RGB) seem to be enough;
+            # GL_RGBA, GL_FLOAT also work but look the same
         image = glReadPixels( width - subwidth,
                               height - subheight,
                               subwidth, subheight,
@@ -248,13 +265,14 @@ class GLPane_image_methods(object):
         h = _trim(self.height)
         
         # grab the color image part
-        image = glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE )
-            # these work; GL_RGBA, GL_FLOAT also work but look the same
+        image = glReadPixels( 0, 0, w, h, _GL_FORMAT_FOR_COLOR, GL_UNSIGNED_BYTE )
         self._cached_bg_color_image = image
         
         # grab the depth part
-        image = glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, _GL_FORMAT_FOR_DEPTH )
+        ## image = glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, _GL_TYPE_FOR_DEPTH )
+        image = glReadPixelsf(0, 0, w, h, GL_DEPTH_COMPONENT) #####
         self._cached_bg_depth_image = image
+        print "grabbed depth at 0,0:", image[0][0]######
 
         return
 
@@ -281,19 +299,41 @@ class GLPane_image_methods(object):
         # draw the color image part (review: does this also modify the depth buffer?)
         self._set_raster_pos(0, 0)
         if 0 and 'kluge - draw depth as color':
-            glDrawPixels(w, h, GL_RED, _GL_FORMAT_FOR_DEPTH, depth_image)
+            glDrawPixels(w, h, GL_RED, _GL_TYPE_FOR_DEPTH, depth_image)
         else:
-            glDrawPixels(w, h, GL_RGB, GL_UNSIGNED_BYTE, color_image)
+            glDrawPixels(w, h, _GL_FORMAT_FOR_COLOR, GL_UNSIGNED_BYTE, color_image)
         
         # draw the depth image part; ###BUG: this seems to replace all colors with blue... fixed below
         self._set_raster_pos(0, 0) # adding this makes the all-gray bug slightly less bad
 
+        glClear(GL_DEPTH_BUFFER_BIT) # should not matter, but see whether it does #####
+
         glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE) # don't draw color pixels -
-            # fixes bug where this glDrawPixels replaced all colors with blue ### todo: also try GL_FLOAT
-        glDrawPixels(w, h, GL_DEPTH_COMPONENT, _GL_FORMAT_FOR_DEPTH, depth_image)
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+            # fixes bug where this glDrawPixels replaced all colors with blue
+            # (reference doc for glDrawPixels explains why - it makes fragments
+            #  using current color and depths from image, draws them normally)
+        print "depth_image[0][0] being written now:", depth_image[0][0] #####
+            ## depth_image[0][0] being written now: 0.0632854178548
+
+        ## glDrawPixels(w, h, GL_DEPTH_COMPONENT, _GL_TYPE_FOR_DEPTH, depth_image)
+        # see if this works any better -- not sure which type to try:
+        # types listed at http://pyopengl.sourceforge.net/documentation/ref/gl/drawpixels.html
+        ## print glDrawPixels.__class__ ####
+        glDrawPixelsf(GL_DEPTH_COMPONENT, depth_image) ## if it was PIL, could say .tostring("raw","R",0,-1))######
         
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        if 1:####
+            from OpenGL.GL import glFlush
+            glFlush()######
         self._set_raster_pos(0, 0) # precaution (untested)
+
+        if 1: # confirm if possible
+            print "readback of depth at 0,0:", glReadPixels( 0, 0, 1, 1, GL_DEPTH_COMPONENT, _GL_TYPE_FOR_DEPTH )[0][0] ######
+                ## BUG: readback of depth at 0,0: 1.0
+##            import Numeric
+##            print "min depth:" , Numeric.minimum( glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, _GL_TYPE_FOR_DEPTH ) ) #### 6 args required
+##            ## ValueError: invalid number of arguments
+            print
         
         glEnable(GL_LIGHTING)
         glEnable(GL_DEPTH_TEST)
