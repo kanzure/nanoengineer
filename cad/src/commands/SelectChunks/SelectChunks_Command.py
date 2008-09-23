@@ -38,6 +38,7 @@ from model.chem import Atom
 from model.chunk import Chunk
 from model.bonds import Bond
 
+_superclass = Select_Command
 class SelectChunks_Command(Select_Command):
     """
     The 'Command' part of the Select Chunks Mode (SelectChunks_Command and 
@@ -82,53 +83,20 @@ class SelectChunks_Command(Select_Command):
             """
             """
             self.w.toolsSelectMoleculesAction.setChecked(False)
+            
+        def command_enter_flyout(self):
+            #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
+            #portion) doesn't get updated even when in the default mode. 
+            self.win.commandToolbar.resetToDefaultState()
         
     #START: New Command API methods. ==========================================
-    
-    def command_update_UI(self):
-        """
-        Overrides superclass method. 
-        @see: baseCommand.command_update_UI() for documentation.
-        """
-        if same_vals(self._previous_command_stack_change_indicator, 
-                     self.assy.command_stack_change_indicator()):
-            
-            return 
-        
-        self._previous_command_stack_change_indicator = self.assy.command_stack_change_indicator()
-        
-        #@NOTE: self is *always the current command* . So we can do the 
-        #following 
-                
-        #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
-        #portion) doesn't get updated even when in the default mode. 
-        
-        #Example of what ' commandToolbar.resetToDefaultState()' fixes: 
-        #Enter Move > Translate command, then Exit to come back to the default
-        #command. Without the following code, it continues to show the 
-        #Move control button menu in the flyout area. With the following code, 
-        #it shows the default 'Build' control button  menu in the flyout. 
-        
-        #Subclasses may use this method. So make sure that the 
-        #following code gets called only when this command is the
-        #default command (i.e. SelectChunks_Command as of 2008-09-09)         
-        if self.is_default_command():
-            self.win.commandToolbar.resetToDefaultState()
-            
-        
-    def command_enter_flyout(self):
-        #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
-        #portion) doesn't get updated even when in the default mode. 
-        self.win.commandToolbar.resetToDefaultState()
-        
+
     def command_enter_misc_actions(self):
         self.w.toolsSelectMoleculesAction.setChecked(True)
     
     def command_exit_misc_actions(self):
         self.w.toolsSelectMoleculesAction.setChecked(False)
-        
-    
-        
+
     #END: New Command API methods. ==========================================
            
     
