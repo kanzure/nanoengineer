@@ -18,6 +18,11 @@ from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
 class Motor_EditCommand(EditCommand):
+    """
+    Superclass for various Motor edit commands
+    """
+    __abstract_command_class = True 
+    
     #GraphicsMode
     GraphicsMode_class = SelectAtoms_GraphicsMode
     
@@ -36,6 +41,8 @@ class Motor_EditCommand(EditCommand):
     
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
+    
+    
     
         
     def command_entered(self):
