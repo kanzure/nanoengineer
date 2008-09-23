@@ -159,7 +159,13 @@ class GLSphereShaderObject(object):
         self.progObj = glCreateProgramObjectARB()
         glAttachObjectARB(self.progObj, self.sphereVerts)
         glAttachObjectARB(self.progObj, self.sphereFrags)
-        glLinkProgramARB(self.progObj)  # Checks status, raises error if bad.
+        try:
+            glLinkProgramARB(self.progObj) # Checks status, raises error if bad.
+        except:
+            print "Shader program link error"
+            print glGetInfoLogARB(self.progObj)
+            pass
+
         self.used = False
 
         # Optional, may be useful for debugging.
@@ -199,6 +205,7 @@ class GLSphereShaderObject(object):
             types = {GL_VERTEX_SHADER:"Vertex", GL_FRAGMENT_SHADER:"Fragment"}
             print "\n%s shader program compilation error" % types[shaderType]
             print glGetInfoLogARB(shader)
+            pass
         return shader
     createShader = staticmethod(createShader)
 
