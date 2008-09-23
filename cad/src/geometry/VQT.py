@@ -684,6 +684,11 @@ if __name__ == '__main__':
     assert not (q1 == q2), "different quats equal!" # this bug was fixed on 070227
     assert q1 != V(0, 0, 0) # this did print_compact_traceback after that was fixed; now that's fixed too
     # can't work yet: assert q2 * 2 == 2 * q2
+
+    # this means you have to run this from cad/src as ./ExecSubDir.py geometry/VQT.py
+    from utilities.Comparison import same_vals
+    q3 = Q(1, 0, 0, 0)
+    assert same_vals( q1, q3 ), "BUG: not same_vals( Q(1,0,0,0), Q(1,0,0,0) )"
     print "tests done"
     
 # end

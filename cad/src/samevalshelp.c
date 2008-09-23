@@ -175,7 +175,6 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
 	    printf(" (rich comparison)");
 	printf("\n");
     });
-#endif
     if (typ1->tp_compare != NULL) {
       int i;
 
@@ -185,6 +184,7 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
         return i != 0;
       }
     }
+#endif
     if (PyObject_RichCompareBool(v1, v2, Py_EQ) == 1)
 	return 0;
     return 1;
