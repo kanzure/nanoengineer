@@ -24,6 +24,8 @@ from OpenGL.GL import glGetInteger
 from OpenGL.GL import glMatrixMode
 from OpenGL.GL import glPopMatrix
 
+from PyQt4.QtOpenGL import QGLWidget
+
 import graphics.drawing.drawing_globals as drawing_globals
 
 from graphics.drawing.drawers import drawOriginAsSmallAxis
@@ -426,8 +428,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ###e which coord system, incl projection??
         # [end]
 
-    _old_bg_image_data = None # note: holds comparison data, not the image itself
-        # (for that see some attr of class GLPane_image_methods)
+    _cached_bg_image_comparison_data = None
+        # note: for the image itself, see attrs of class GLPane_image_methods
     
     def standard_repaint_0(self):
         """
@@ -440,6 +442,12 @@ class GLPane_rendering_methods(GLPane_image_methods):
         @note: self.graphicsMode can control whether this gets called;
                for details see the call of self.render_scene in this class.
         """
+        if self.width != QGLWidget.width(self) or \
+           self.height != QGLWidget.height(self): #bruce 080922; never yet seen
+            print "\n*** debug fyi: inconsistent: self width/height %r, %r vs QGLWidget %r, %r" % \
+                  (self.width, self.height, QGLWidget.width, QGLWidget.height)
+            pass
+        
         drawing_globals.glprefs.update()
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
 
@@ -544,32 +552,57 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # draw according to self.graphicsMode
 
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods
-        
-        draw_saved_bg_image = False # modified below
-        capture_saved_bg_image = False # ditto
-        bg_image_data = None # ditto
+
+        # these are modified below as needed:
+        draw_saved_bg_image = False # whether to draw previously cached image, this frame
+        capture_saved_bg_image = False # whether to capture a new image from what we draw this frame
+        bg_image_comparison_data = None # if this changes, discard any previously cached image
         
         if debug_pref("GLPane: use cached bg image? (experimental)",
                       Choice_boolean_False,
                       non_debug = True,
                       prefs_key = True):
             # experimental implementation, has bugs (listed here or in
-            # submethods when known)
-            bg_image_data = self._get_bg_image_comparison_data()
-            draw_saved_bg_image = same_vals( bg_image_data, self._old_bg_image_data)
-            capture_saved_bg_image = not draw_saved_bg_image
-            
-            if draw_saved_bg_image:
-                self._draw_saved_bg_image() # in GLPane_image_methods
-                    # saved and drawn outside of stereo loop (intentional)
+            # submethods when known, mostly in GLPane_image_methods)
+            if self._resize_just_occurred:
+                self._cached_bg_image_comparison_data = None
+                # discard cached image, and do *neither* capture nor draw of
+                # cached image on this frame (the first one drawn after resize).
+                # This seems to prevent crash due to resize (in GEForceFX OpenGL
+                # driver, in a "processing colors" routine),
+                # at least when we meet all of these conditions: [bruce 080922]
+                # - test on iMac G5, Mac OS 10.3.9
+                # - do the print below
+                # - comment out self.do_glselect_if_wanted() above (highlighting)
+                # - comment out drawing the depth part of the cached image
+                ## print "debug fyi: skipping bg image ops due to resize"
+                # ... Actually, crash can still happen if we slightly expand width
+                # and then trigger redraw by mouseover compass.
             else:
-                if bg_image_data == self._old_bg_image_data: 
-                    print "DEBUG FYI: must capture since equal values not same_vals:\n%r, \n%r" % \
-                      ( bg_image_data, self._old_bg_image_data ) #####
-                # capture it below, and only then set this:
-                # self._old_bg_image_data = bg_image_data
+                bg_image_comparison_data = self._get_bg_image_comparison_data()
+                cached_image_is_valid = same_vals( bg_image_comparison_data,
+                                                   self._cached_bg_image_comparison_data)
+                if cached_image_is_valid:
+                    draw_saved_bg_image = True
+                else:
+                    capture_saved_bg_image = True
+                    if bg_image_comparison_data == self._cached_bg_image_comparison_data: 
+                        print "DEBUG FYI: equal values not same_vals:\n%r, \n%r" % \
+                          ( bg_image_comparison_data, self._cached_bg_image_comparison_data ) #####
                 pass
             pass
+        else:
+            self._cached_bg_image_comparison_data = None
+            
+        if draw_saved_bg_image:
+            self._draw_saved_bg_image() # in GLPane_image_methods
+                # saved and drawn outside of stereo loop (intentional)
+                # (instead of ordinary drawing inside it, separate code below)
+        else:
+            # capture it below, and only after that, do this assignment:
+            # self._cached_bg_image_comparison_data = bg_image_comparison_data
+            pass
+        pass
 
         for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)
@@ -589,7 +622,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         if capture_saved_bg_image:
             self._capture_saved_bg_image() # in GLPane_image_methods
-            self._old_bg_image_data = bg_image_data
+            self._cached_bg_image_comparison_data = bg_image_comparison_data
             for stereo_image in self.stereo_images_to_draw:
                 self._enable_stereo(stereo_image)
                 self._do_other_drawing_inside_stereo()

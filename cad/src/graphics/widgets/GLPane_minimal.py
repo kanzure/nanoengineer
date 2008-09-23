@@ -124,6 +124,8 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
     initialised = False
 
+    _resize_counter = 0
+
     # default values of subclass-specific constants
 
     permit_draw_bond_letters = True #bruce 071023
@@ -308,6 +310,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         Called by QtGL when the drawing window is resized.
         """
         #bruce 080912 moved this from GLPane into GLPane_minimal
+
+        self._resize_counter += 1 #bruce 080922
+        
         self.width = width
         self.height = height
 

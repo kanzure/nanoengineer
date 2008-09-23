@@ -185,6 +185,8 @@ class GLPane(
     # GLPane_view_change_methods
     ## self.is_animating = False
 
+    _resize_just_occurred = False #bruce 080922
+
     def __init__(self, assy, parent = None, name = None, win = None):
         """
         """
@@ -306,6 +308,7 @@ class GLPane(
         Called by QtGL when the drawing window is resized.
         """
         #bruce 080912 moved most of this into superclass
+        self._resize_just_occurred = True
         GLPane_minimal.resizeGL(self, width, height) # call superclass method
         self.gl_update() # REVIEW: ok for superclass?
             # needed here? (Guess yes, to set needs_repaint flag)
@@ -325,6 +328,7 @@ class GLPane(
         self._paintGL() # defined in GLPane_rendering_methods
             # (probably paintGL itself would work fine if defined there --
             #  untested, since having it here seems just as well)
+        self._resize_just_occurred = False
         return
     
     # ==

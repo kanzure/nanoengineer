@@ -16,10 +16,13 @@ bruce 080919 split this into its own file, added new methods & calling code
 from OpenGL.GL import GL_CURRENT_RASTER_POSITION_VALID
 from OpenGL.GL import GL_CURRENT_RASTER_POSITION
 from OpenGL.GL import GL_DEPTH_TEST
-from OpenGL.GL import GL_RGB
-from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import GL_FALSE, GL_TRUE
+from OpenGL.GL import GL_LIGHTING, GL_TEXTURE_2D
+from OpenGL.GL import GL_RGB, GL_RED
 from OpenGL.GL import GL_DEPTH_COMPONENT
-from OpenGL.GL import GL_UNSIGNED_INT
+from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import GL_UNSIGNED_INT, GL_FLOAT
+from OpenGL.GL import glColorMask
 from OpenGL.GL import glDisable
 from OpenGL.GL import glDrawPixels
 from OpenGL.GL import glEnable
@@ -29,12 +32,27 @@ from OpenGL.GL import glReadPixels
 
 from OpenGL.GLU import gluUnProject
 
+##_GL_FORMAT_FOR_DEPTH = GL_UNSIGNED_INT
+_GL_FORMAT_FOR_DEPTH = GL_FLOAT # makes no difference - HL still fails
+
+from PyQt4.QtOpenGL import QGLWidget
+
 import foundation.env as env
 
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
 
 from utilities.Comparison import same_vals
+
+import sys
+
+# ==
+
+def _trim(width):
+    # this fixed the C crash on resizing the main window
+    # (which happened from increasing width, then redraw)
+    ### TEST: would using GL_RGBA (not GL_RGB) also fix that?
+    return width - width % 16
 
 # ==
 
@@ -171,6 +189,9 @@ class GLPane_image_methods(object):
     # - some update bugs listed below
     # - drawaxes (origin axes) end up as dotted line; fix: exclude them from bg image (in basicGM.draw())
     # - other special drawing in basicGM.draw
+    # - Build Atoms region sel rubberband is not visible
+    # - preventing crashes or visual image format errors required various kluges, incl _trim
+    # - highlight is not working
     
     def _get_bg_image_comparison_data(self):
         """
@@ -195,62 +216,88 @@ class GLPane_image_methods(object):
             
             self.width,
             self.height,
+            QGLWidget.width(self), # in case it disagrees with self.width
+            QGLWidget.height(self),
+            self._resize_counter, # redundant way to force new grab after resize
+                # (tho it might be safer to completely disable the feature
+                #  for a frame, after resize ### TRYIT)
+            self.ortho,
            )
         return data
 
     _cached_bg_color_image = None
     _cached_bg_depth_image = None
-    
+
+    def _print_data(self):
+        return "%d; %d %d == %#x %#x" % \
+               (env.redraw_counter,
+                self.width, self.height,
+                self.width, self.height,)
+
     def _capture_saved_bg_image(self):
         """
         """
-        print "_capture_saved_bg_image", env.redraw_counter
+        print "_capture_saved_bg_image", self._print_data()
+        sys.stdout.flush()
+        
+        if 1:
+            from OpenGL.GL import glFlush, glFinish
+            glFlush() # might well be needed, based on other code in NE1; not enough by itself
+            glFinish() # try this too if needed
+        w = _trim(self.width)
+        h = _trim(self.height)
         
         # grab the color image part
-        width = self.width
-        height = self.height
-        gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE
-            # these seem to be enough; GL_RGBA, GL_FLOAT also work but look the same
-        image = glReadPixels( 0, 0, # lower left corner position
-                              width, height,
-                              gl_format, gl_type )
+        image = glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE )
+            # these work; GL_RGBA, GL_FLOAT also work but look the same
         self._cached_bg_color_image = image
         
         # grab the depth part
-        gl_format, gl_type = GL_DEPTH_COMPONENT, GL_UNSIGNED_INT
-        image = glReadPixels( 0, 0,
-                              width, height,
-                              gl_format, gl_type )
+        image = glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, _GL_FORMAT_FOR_DEPTH )
         self._cached_bg_depth_image = image
-        
+
         return
 
     def _draw_saved_bg_image(self):
         """
         """
-        print "_draw_saved_bg_image", env.redraw_counter
+        print "_draw_saved_bg_image", self._print_data()
+        sys.stdout.flush()
+        
         assert self._cached_bg_color_image is not None
 
-        width = self.width
-        height = self.height
+        w = _trim(self.width)
+        h = _trim(self.height)
 
         glDisable(GL_DEPTH_TEST) # probably a speedup
-        # Note: doing more disables might well speed up glDrawPixels;
-        # don't know whether that matters.
-        
-        # draw the color image part
-        gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE
+        glDisable(GL_LIGHTING)
+        glDisable(GL_TEXTURE_2D) # probably already the NE1 default (if so, doesn't matter here)        
+            # Note: doing more disables might well speed up glDrawPixels;
+            # don't know whether that matters.
+
         color_image = self._cached_bg_color_image
-        self._set_raster_pos(0, 0)
-        glDrawPixels(width, height, gl_format, gl_type, color_image)
-
-        # draw the depth image part
-        gl_format, gl_type = GL_DEPTH_COMPONENT, GL_UNSIGNED_INT
         depth_image = self._cached_bg_depth_image
-        self._set_raster_pos(0, 0) ### adding this line makes the bug less bad, but doesn't fully fix it
-        glDrawPixels(width, height, gl_format, gl_type, depth_image)
+        
+        # draw the color image part (review: does this also modify the depth buffer?)
+        self._set_raster_pos(0, 0)
+        if 0 and 'kluge - draw depth as color':
+            glDrawPixels(w, h, GL_RED, _GL_FORMAT_FOR_DEPTH, depth_image)
+        else:
+            glDrawPixels(w, h, GL_RGB, GL_UNSIGNED_BYTE, color_image)
+        
+        # draw the depth image part; ###BUG: this seems to replace all colors with blue... fixed below
+        self._set_raster_pos(0, 0) # adding this makes the all-gray bug slightly less bad
 
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE) # don't draw color pixels -
+            # fixes bug where this glDrawPixels replaced all colors with blue ### todo: also try GL_FLOAT
+        glDrawPixels(w, h, GL_DEPTH_COMPONENT, _GL_FORMAT_FOR_DEPTH, depth_image)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        
+        self._set_raster_pos(0, 0) # precaution (untested)
+        
+        glEnable(GL_LIGHTING)
         glEnable(GL_DEPTH_TEST)
+        # (but leave GL_TEXTURE_2D disabled)
 
         return
 
