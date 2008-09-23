@@ -113,18 +113,7 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
     #Protein Display methods         
 
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """
-        self.win.toolsDone()
-
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """
-        self.win.toolsDone()
-
+    
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.

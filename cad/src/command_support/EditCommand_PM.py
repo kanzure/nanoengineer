@@ -190,7 +190,6 @@ class EditCommand_PM(PM_Dialog):
             if hasattr(self.command, 'logMessage'):
                 env.history.message(self.command.logMessage)
                 
-        ## self.win.toolsDone() #bruce 080815 replaced this with superclass call
         PM_Dialog.ok_btn_clicked(self)
 
     def cancel_btn_clicked(self):

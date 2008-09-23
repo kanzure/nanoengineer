@@ -516,19 +516,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             env.prefs[proteinStyleColorsDiscrete_prefs_key] = False
         return
     
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """
-        self.win.toolsDone()
-
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """
-        #TODO: Cancel button needs to be removed. See comment at the top
-        self.win.toolsDone()
-
+    
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
