@@ -254,6 +254,7 @@ def _same_vals_helper(v1, v2): #060303
     same_helper = _known_type_same_helpers.get(typ) # this is a fixed public dictionary
     if same_helper is not None:
         same_helper(v1, v2) # we optimize by not storing any scanner for atomic types, or a few others.
+        return
     # otherwise we assume v1 and v2 are things that can't be or contain a Numeric array, so it's sufficient to use !=.
     # (If not for Numeric arrays of type PyObject, we could safely use != right here on a pair of Numeric arrays --
     #  just not on things that might contain them, in case their type's != method used == on the Numeric arrays,
