@@ -47,7 +47,7 @@ from commands.Select.Select_Command import Select_Command
 #for debugging new command stack API 
 from utilities.GlobalPreferences import USE_COMMAND_STACK 
 
-
+_superclass = Select_Command
 class EditCommand(Select_Command):
     """
     EditCommand class that provides a editCommand object. 
@@ -126,7 +126,21 @@ class EditCommand(Select_Command):
         pass
     
     def command_exit_misc_actions(self):
-        pass                   
+        pass     
+    
+    
+    def command_will_exit(self):
+        """
+        Overrides superclass method. 
+        @see: baseCommand.command_will_exit() for documentation
+        """
+        #@TODO: Do we consider case with self.commandSequencer.exit_is_forced??
+        if self.commandSequencer.exit_is_cancel:
+            self.cancelStructure()
+        else:
+            self.preview_or_finalize_structure(previewing = False)
+        
+        _superclass.command_will_exit(self)
     
     #=== END   NEW command API methods  ========================================
     
@@ -476,6 +490,9 @@ class EditCommand(Select_Command):
         some parameters or hits cancel. Subclasses can override this method. 
         @see: BuildDna_EditCommand.cancelStructure
         """
+        if self.struct is None:
+            return 
+        
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)")
         if self.existingStructForEditing: 
             if self.old_props:

@@ -180,7 +180,7 @@ class EditCommand_PM(PM_Dialog):
 
         [extends superclass method]
         """
-        if self.command:
+        if not USE_COMMAND_STACK:
             self.command.preview_or_finalize_structure(previewing = False)
             #This should be cleaned up in a refactoring. There should be a central
             #updater which should ask when to print a message etc. There could be
