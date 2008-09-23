@@ -58,6 +58,7 @@ from PM.PM_Constants import PM_CANCEL_BUTTON
 from PM.PM_Constants import PM_RESTORE_DEFAULTS_BUTTON
 from PM.PM_Constants import PM_PREVIEW_BUTTON
 from PM.PM_Constants import PM_WHATS_THIS_BUTTON
+from utilities.icon_utilities import geticon
 
 DEBUG = True
 
@@ -414,21 +415,21 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
     pagenameList[0] always has to be a singular item, it cannot be a list.
     All sub-lists are interpreted as being children of the item preceding it.
     """
-    pagenameList = ["General", 
-                    "Graphics Area", 
-                    ["Zoom, Pan and Rotate", "Rulers"],
-                    "Atoms",
-                    "Bonds",
-                    "DNA",
-                    ["Minor groove error indicator", 
-                     "Base orientation indicator"],
-                    "Adjust",
-                    "Lighting",
-                    "Plug-ins",
-                    "Undo",
-                    "Window",
-                    "Reports",
-                    "Tooltips"]
+    #pagenameList = ["General", 
+                    #"Graphics Area", 
+                    #["Zoom, Pan and Rotate", "Rulers"],
+                    #"Atoms",
+                    #"Bonds",
+                    #"DNA",
+                    #["Minor groove error indicator", 
+                     #"Base orientation indicator"],
+                    #"Adjust",
+                    #"Lighting",
+                    #"Plug-ins",
+                    #"Undo",
+                    #"Window",
+                    #"Reports",
+                    #"Tooltips"]
     
     #NOTE: when creating the function names for populating the pages with 
     # widgets...  Create the function name by replacing all spaces with 
@@ -443,19 +444,104 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         """
         Constructor for the prefs dialog.
         """
+        self.pagenameList = ["General", 
+                    "Graphics Area", 
+                    ["Zoom, Pan and Rotate", "Rulers"],
+                    "Atoms",
+                    "Bonds",
+                    "DNA",
+                    ["Minor groove error indicator", 
+                     "Base orientation indicator"],
+                    "Adjust",
+                    "Lighting",
+                    "Plug-ins",
+                    "Undo",
+                    "Window",
+                    "Reports",
+                    "Tooltips"]
         QDialog.__init__(self)
-        self.setupUi(self)
+        self.setupUi()
         self._setupDialog_TopLevelWidgets()
         self._addPages(self.pagenameList)
         self.populatePages()
         return
 
+    def setupUi(self):
+        self.setObjectName("PreferencesDialog")
+        self.resize(QtCore.QSize(QtCore.QRect(0,0,594,574).size()).expandedTo(self.minimumSizeHint()))
+
+        self.vboxlayout = QtGui.QVBoxLayout(self)
+        self.vboxlayout.setSpacing(4)
+        self.vboxlayout.setMargin(2)
+        self.vboxlayout.setObjectName("vboxlayout")
+
+        self.tabWidget = QtGui.QTabWidget(self)
+        self.tabWidget.setObjectName("tabWidget")
+
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
+
+#        self.hboxlayout = QtGui.QHBoxLayout(self.tab)
+        self.pref_splitter = QtGui.QSplitter(self.tab)
+#        self.hboxlayout.setSpacing(4)
+#        self.hboxlayout.setMargin(2)
+#        self.hboxlayout.setObjectName("hboxlayout")
+        self.pref_splitter.setObjectName("pref_splitter")
+
+        self.categoriesTreeWidget = QtGui.QTreeWidget(self.pref_splitter)
+        self.categoriesTreeWidget.setMinimumWidth(100)
+#        self.categoriesTreeWidget.setMaximumWidth(250)
+        self.categoriesTreeWidget.setObjectName("categoriesTreeWidget")
+#        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+#        sizePolicy.setHorizontalStretch(0)
+#        sizePolicy.setVerticalStretch(0)
+#        self.categoriesTreeWidget.setSizePolicy(sizePolicy)
+#        self.hboxlayout.addWidget(self.categoriesTreeWidget)
+        self.pref_splitter.addWidget(self.categoriesTreeWidget)
+
+        self.prefsStackedWidget = QtGui.QStackedWidget(self.pref_splitter)
+#        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+#        self.prefsStackedWidget.setSizePolicy(sizePolicy)
+        self.prefsStackedWidget.setObjectName("prefsStackedWidget")
+
+#        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+#        self.pref_splitter.setSizePolicy(sizePolicy)
+
+        self.pref_splitter.addWidget(self.prefsStackedWidget)
+        self.tabWidget.addTab(self.tab,"")
+        self.vboxlayout.addWidget(self.tabWidget)
+
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setObjectName("hboxlayout1")
+
+        self.whatsThisToolButton = QtGui.QToolButton(self)
+        self.whatsThisToolButton.setObjectName("whatsThisToolButton")
+        self.hboxlayout1.addWidget(self.whatsThisToolButton)
+
+        spacerItem = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem)
+
+        self.okButton = QtGui.QPushButton(self)
+        self.okButton.setObjectName("okButton")
+        self.hboxlayout1.addWidget(self.okButton)
+        self.vboxlayout.addLayout(self.hboxlayout1)
+
+        self.retranslateUi()
+        self.tabWidget.setCurrentIndex(0)
+        self.prefsStackedWidget.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(self)
+
+    def retranslateUi(self):
+        self.setWindowTitle(QtGui.QApplication.translate("PreferencesDialog", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
+        self.categoriesTreeWidget.headerItem().setText(0,QtGui.QApplication.translate("PreferencesDialog", "Categories", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("PreferencesDialog", "System Options", None, QtGui.QApplication.UnicodeUTF8))
+        self.okButton.setText(QtGui.QApplication.translate("PreferencesDialog", "OK", None, QtGui.QApplication.UnicodeUTF8))
+
     def _setupDialog_TopLevelWidgets(self):
         """
         Setup all the main dialog widgets and their signal-slot connection(s).
         """
-
-        #self.setWindowIcon(geticon("ui/actions/Tools/Options.png"))
+#        self.setWindowIcon(geticon("ui/actions/Tools/Options.png"))
 
         # This connects the "itemSelectedChanged" signal generated when the
         # user selects an item in the "Category" QTreeWidget on the left
@@ -905,7 +991,9 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                        "MegaPOV", 
                        "POV include dir",
                        "GROMACS",
-                       "cpp"]
+                       "cpp",
+                       "Rosetta",
+                       "Rosetta DB"]
         #if DEBUG:
             #self._addPageTestWidgets(_pageContainer)
         executablesGroupBox = PM_GroupBox( _pageContainer, 
@@ -919,7 +1007,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             self.checkboxes[name] = PM_CheckBox(executablesGroupBox, text = name+':  ')
             self.choosers[name] = PM_FileChooser(executablesGroupBox,
                                 label     = '',
-                                text      = 'test path' ,
+                                text      = '' ,
                                 filter    = "All Files (*.*)",
                                 spanWidth = True,
                                 labelColumn = 0)
@@ -1453,8 +1541,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
 
 # End of PreferencesDialog class
 
-if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-    pd = PreferencesDialog()
-    pd.show()
-    sys.exit(app.exec_())
+#if __name__ == "__main__":
+    #app = QtGui.QApplication(sys.argv)
+    #pd = PreferencesDialog()
+    #pd.show()
+    #sys.exit(app.exec_())
