@@ -1627,7 +1627,7 @@ class B_Dna_PAM5(B_Dna):
 
 
 
-class B_Dna_PAM3(B_Dna_PAM5):
+class B_Dna_PAM3(B_Dna):
     """
     Provides a PAM3 reduced model of the B form of DNA.
     """
