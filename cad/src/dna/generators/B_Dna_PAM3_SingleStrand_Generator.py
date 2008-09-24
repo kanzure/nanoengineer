@@ -264,10 +264,10 @@ class B_Dna_PAM3_SingleStrand_Generator(B_Dna_PAM3_Generator):
             if fusableAxisAtomPairsDict.has_key(atm_to_keep):
                 atm_to_delete = fusableAxisAtomPairsDict[atm_to_keep]
                 for neighbor in atm_to_delete.axis_neighbors():
-                        if neighbor is not None and \
-                           neighbor not in fusableAxisAtomPairsDict.values():
-                            axis_and_axis_atomPairs_to_bond.append((atm_to_keep,
-                                                               neighbor))
+                    if neighbor is not None and \
+                       neighbor not in fusableAxisAtomPairsDict.values():
+                        axis_and_axis_atomPairs_to_bond.append((atm_to_keep,
+                                                           neighbor))
 
         for atm_to_delete in fusableAxisAtomPairsDict.values():
             try:
