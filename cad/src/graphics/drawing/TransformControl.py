@@ -113,7 +113,7 @@ class TransformControl:
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this transform matrix was last changed.
         self.changed = drawing_globals.eventStamp()
-        self.cached = drawing_globals.noEventYet
+        self.cached = drawing_globals.NO_EVENT_YET
 
         self.transform = floatIdent(4)
 

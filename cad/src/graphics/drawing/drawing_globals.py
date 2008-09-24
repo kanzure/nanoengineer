@@ -141,8 +141,8 @@ updatePrefsVars()
 
 # Russ 080915: Support for lazily updating drawing caches, namely a change
 # timestamp.  Rather than recording a time per se, an event counter is used.
-noEventYet = 0
-_event_counter = noEventYet
+NO_EVENT_YET = 0
+_event_counter = NO_EVENT_YET
 def eventStamp():
     global _event_counter
     _event_counter += 1

@@ -101,7 +101,7 @@ class DrawingSet:
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this DrawingSet was last drawn.
-        self.drawn = drawing_globals.noEventYet
+        self.drawn = drawing_globals.NO_EVENT_YET
 
     # ==
 
