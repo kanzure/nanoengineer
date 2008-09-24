@@ -445,40 +445,6 @@ def _get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
     size = prefs.get(ksize, dsize)
     return pos, size
 
-def validate_gamess_path(parent, gmspath):
-    """
-    Checks that gmspath (GAMESS executable) exists.  If not, the user is asked
-    if they want to use the File Chooser to select the GAMESS executable.
-    This function does not check whether the GAMESS path is actually GAMESS
-    or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS
-    for Windows).
-
-    @return:  "gmspath" if it is validated or if the user does not want to
-              change it for any reason, or
-              "new_gmspath" if gmspath is invalid and the user selected a new
-              GAMESS executable. Return value might be "".
-    """
-
-    if not gmspath: # It is OK if gmspath is empty.
-        return ""
-    elif os.path.exists(gmspath):
-        return gmspath
-    else:
-        ret = QMessageBox.warning( parent, "GAMESS Executable Path",
-                                   gmspath + " does not exist.\nDo you want to use the File Chooser to browse for the GAMESS executable?",
-                                   "&Yes", "&No", "",
-                                   0, 1 )
-
-        if ret == 0: # Yes
-            new_gmspath = get_gamess_path(parent)
-            if not new_gmspath:
-                return gmspath # Cancelled from file chooser.  Just return the original gmspath.
-            else:
-                return new_gmspath
-
-        else: # No
-            return gmspath
-
 def get_pref_or_optval(key, val, optval):
     """
     Return <key>'s value. If <val> is equal to <key>'s value, return <optval>
@@ -510,10 +476,10 @@ class Preferences(PreferencesDialog):
         self.pagenameList = self.getPagenameList()
         if DEBUG:
             print self.pagenameList
-
+        self.changeKey = 0
         # Start of dialog setup.
         #self._setupDialog_TopLevelWidgets()
-        #self._setupPage_General()
+        self._setupPage_General()
         #self._setupPage_Color()
         #self._setupPage_GraphicsArea()
         #self._setupPage_ZoomPanRotate()
@@ -540,6 +506,42 @@ class Preferences(PreferencesDialog):
         return
     # End of _init_()
 
+    def _setupPage_General(self):
+        """
+        Setup the General page.
+        """
+        if env.prefs[sponsor_permanent_permission_prefs_key]:
+            if env.prefs[sponsor_download_permission_prefs_key]:
+                _myID = 1
+            else:
+                _myID = 2
+        else:
+            _myID = 0
+        self.logo_download_RadioButtonList.setDefaultCheckedId(_myID)
+        _checkedButton = self.logo_download_RadioButtonList.getButtonById(_myID)
+        _checkedButton.setChecked(True)
+
+        self.connect(self.logo_download_RadioButtonList.buttonGroup, SIGNAL("buttonClicked(int)"), self.setPrefsLogoDownloadPermissions)
+
+        # Build Atoms option connections.
+        connect_checkbox_with_boolean_pref( self.autobondCheckBox, buildModeAutobondEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.hoverHighlightCheckBox, buildModeHighlightingEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.waterCheckBox, buildModeWaterEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.autoSelectAtomsCheckBox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
+        
+        self.pasteOffsetForChunks_doublespinbox.setValue(\
+            env.prefs[pasteOffsetScaleFactorForChunks_prefs_key])
+
+        self.pasteOffsetForDNA_doublespinbox.setValue(
+            env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key])
+
+        self.connect(self.pasteOffsetForChunks_doublespinbox,
+                     SIGNAL("valueChanged(double)"),
+                     self.change_pasteOffsetScaleFactorForChunks)
+        self.connect(self.pasteOffsetForDNA_doublespinbox,
+                     SIGNAL("valueChanged(double)"),
+                     self.change_pasteOffsetScaleFactorForDnaObjects)   
+        return
 
     def _setupPage_Plugins(self):
         """
@@ -599,6 +601,34 @@ class Preferences(PreferencesDialog):
         self.connect( self.choosers["Rosetta DB"].lineEdit, SIGNAL("editingFinished()"), self.set_rosetta_db_path)
         return
 
+    def setPrefsLogoDownloadPermissions(self, permission):
+        """
+        Set the sponsor logos download permissions in the persistent user
+        preferences database.
+
+        @param permission: The permission, where:
+                        0 = Always ask before downloading
+                        1 = Never ask before downloading
+                        2 = Never download
+        @type  permission: int
+        """
+        _permanentValue = False
+        _downloadValue = True
+        if permission == 1:
+            _permanentValue = True
+            _downloadValue = True
+
+        elif permission == 2:
+            _permanentValue = True
+            _downloadValue = False
+
+        else:
+            _permanentValue = False
+
+        env.prefs[sponsor_permanent_permission_prefs_key] = _permanentValue
+        env.prefs[sponsor_download_permission_prefs_key] = _downloadValue
+        return
+
     def _hideOrShowWidgets(self):
         """
         Permanently hides some widgets in the Preferences dialog.
@@ -653,56 +683,7 @@ class Preferences(PreferencesDialog):
 
     ########## Slot methods for "Plug-ins" page widgets ################
 
-    def choose_gamess_path(self):
-        """
-        Slot for GAMESS path "Choose" button.
-        """
-        gamess_exe = get_filename_and_save_in_prefs(self,
-                                                    gmspath_prefs_key,
-                                                    'Choose GAMESS Executable')
-
-        if gamess_exe:
-            self.gamess_path_lineedit.setText(env.prefs[gmspath_prefs_key])
-
-    def set_gamess_path(self):
-        """
-        Slot for GAMESS path line editor.
-        """
-        env.prefs[gamess_path_prefs_key] = str_or_unicode(newValue)
-
-    def enable_gamess(self, enable = True):
-        """
-        Enables/disables GAMESS plugin.
-
-        @param enable: Enabled when True. Disables when False.
-        @type  enable: bool
-        """
-        if enable:
-            self.gamess_path_lineedit.setEnabled(1)
-            self.gamess_choose_btn.setEnabled(1)
-            env.prefs[gamess_enabled_prefs_key] = True
-
-        else:
-            self.gamess_path_lineedit.setEnabled(0)
-            self.gamess_choose_btn.setEnabled(0)
-            #self.gamess_path_lineedit.setText("")
-            #env.prefs[gmspath_prefs_key] = ''
-            env.prefs[gamess_enabled_prefs_key] = False
-
     # GROMACS slots #######################################
-
-    def choose_gromacs_path(self):
-        """
-        Slot for GROMACS path "Choose" button.
-        """
-
-        mdrun_executable = \
-                         get_filename_and_save_in_prefs(self,
-                                                        gromacs_path_prefs_key,
-                                                        'Choose mdrun executable (GROMACS)')
-
-        if mdrun_executable:
-            self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
 
     def set_gromacs_path(self):
         """
@@ -1088,6 +1069,26 @@ class Preferences(PreferencesDialog):
 
     ########## End of slot methods for "Plug-ins" page widgets ###########
 
+    ########## Slot methods for "General" (former name "Caption") page widgets ################
+
+    def change_pasteOffsetScaleFactorForChunks(self, val):
+        """
+        Slot method for the I{Paste offset scale for chunks} doublespinbox.
+        @param val: The timeout interval in seconds.
+        @type  val: double
+        @see ops_copy_Mixin._pasteGroup()
+        """
+        env.prefs[pasteOffsetScaleFactorForChunks_prefs_key] = val
+
+    def change_pasteOffsetScaleFactorForDnaObjects(self, val):
+        """
+        Slot method for the I{Paste offset scale for dna objects} doublespinbox.
+        @param val: The timeout interval in seconds.
+        @type  val: double
+        """
+        env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key] = val
+    
+    
     ########## Slot methods for "Undo" (former name "Caption") page widgets ################
 
     def change_undo_stack_memory_limit(self, mb_val):
