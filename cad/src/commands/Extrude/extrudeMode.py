@@ -31,7 +31,7 @@ In genral it needs a major cleanup. Some items are listed below:
   and PM classes
 """
 
-extrude_loop_debug = 0 # do not commit with 1, change back to 0
+_EXTRUDE_LOOP_DEBUG = False # do not commit with True
 
 import math
 from utilities import debug_flags
@@ -60,7 +60,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QCursor
 
-from utilities.debug_prefs import debug_pref, Choice, Choice_boolean_False ##, Choice_boolean_True
+from utilities.debug_prefs import debug_pref, Choice, Choice_boolean_False
 
 from command_support.modes import basicMode
 from utilities.debug import print_compact_traceback, print_compact_stack
@@ -69,7 +69,6 @@ from utilities.icon_utilities import geticon
 from utilities.Log import redmsg
 
 from geometry.VQT import check_posns_near, check_quats_near
-##from VQT import check_floats_near
 from geometry.VQT import V, Q, norm, vlen, cross
 
 from commands.Extrude.ExtrudePropertyManager import ExtrudePropertyManager
@@ -90,8 +89,13 @@ from utilities.GlobalPreferences import USE_COMMAND_STACK
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 from ne1_ui.toolbars.Ui_ExtrudeFlyout import ExtrudeFlyout
 
+# ==
 
-MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
+_MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
+
+_KEEP_PICKED = False # whether to keep the units all picked, or all unpicked, during the mode
+
+# ==
 
 def reinit_extrude_controls(win, glpane = None, length = None, attr_target = None):
     """
@@ -168,22 +172,18 @@ class extrudeMode(basicMode):
     #Flyout Toolbar
     FlyoutToolbar_class = ExtrudeFlyout
     
-    flyoutToolbar = None
-    
     commandName = 'EXTRUDE'
     featurename = "Extrude Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
-    
 
-    keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
-    
+        
+    # initial values of some instance variables.
+    # note: some of these might be set by external code (e.g. in self.propMgr).
+    # see self.togglevalue_changed() and ExtrudePropertyManager.connect_or_disconnect_signals()
+    # methods for more info.
+
     mergeables = {} # in case not yet initialized when we Draw (maybe not needed)
-    moused_over = None    
-    
-    #Initialize some class attrs. These are changed later. 
-    #see self.togglevalue_changed() and ExtrudePropertyManager.connect_or_disconnect_signals()
-    #methods  for details
     
     show_bond_offsets = False 
     show_entire_model = True
@@ -191,16 +191,14 @@ class extrudeMode(basicMode):
     whendone_all_one_part = True
     whendone_merge_selection = True
     
-    final_msg_accum = ''
+    final_msg_accum = ""
     
-
     # no __init__ method needed
 
     # methods related to entering this mode
-    
 
     def ptype_value_changed(self, val):
-        # note: uses val, below
+        # note: uses val, below; called from ExtrudePropertyManager.py
         if not self.isCurrentCommand():
             return
         old = self.product_type
@@ -272,11 +270,9 @@ class extrudeMode(basicMode):
             pass
         self.repaint_if_needed()
 
-    def _refuseEnter(self, warn):
-        """
-        If we'd refuse to enter this mode, then (iff warn) tell user why,
-        and (always) return true.
-        """
+    def command_ok_to_enter(self):
+        #bruce 080924 de-inlined _refuseEnter (since this was its only call)
+        warn = True
         ok, mol = assy_extrude_unit(self.o.assy, really_make_mol = 0)
         if not ok:
             whynot = mol
@@ -287,14 +283,11 @@ class extrudeMode(basicMode):
             self.w.toolsExtrudeAction.setChecked(False)
                 # this needs to be refactored away, somehow,
                 # but is tolerable for now [bruce 080806 comment]
-            return 1
+            return False
         else:
             # mol is nonsense, btw
-            return 0
+            return True
         pass
-
-    def command_ok_to_enter(self):
-        return not self._refuseEnter(warn = True)
     
     if not USE_COMMAND_STACK:
         
@@ -365,12 +358,9 @@ class extrudeMode(basicMode):
             undo_manager.disable_UndoRedo('Extrude', "during Extrude")
                 # this makes Undo menu commands and tooltips look like "Undo (not permitted during Extrude)" (and similarly for Redo)
     
-            ## i think this is safer *after* the first update_from_controls, not before it...
-            # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
             self.update_from_controls()
             
             return
-
 
         def restore_gui(self):
             """
@@ -399,7 +389,6 @@ class extrudeMode(basicMode):
     
             return
 
-    
         def Enter(self):
             self.status_msg("preparing to enter %s..." % self.get_featurename())
                 # this msg won't last long enough to be seen, if all goes well
@@ -412,8 +401,11 @@ class extrudeMode(basicMode):
                 #@bug BUG: following is a workaround for bug 2494
                 changes.keep_forever(self.propMgr)
     
-            initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], defaultValue = 7.0),
-                                        prefs_key = True, non_debug = True) #bruce 070410
+            initial_length = debug_pref("Extrude: initial offset length (A)",
+                                        Choice([3.0, 7.0, 15.0, 30.0],
+                                               defaultValue = 7.0 ),
+                                        prefs_key = True,
+                                        non_debug = True ) #bruce 070410
             reinit_extrude_controls(self, self.o, length = initial_length, attr_target = self)
     
             basicMode.Enter(self)
@@ -421,9 +413,9 @@ class extrudeMode(basicMode):
            
         def clear_command_state(self):
             assert not USE_COMMAND_STACK
-                # in that case we'll need to do these things in command_enter instead [bruce 080909]
+                # in that case we'll need to do these things in command_entered instead [bruce 080909]
             self.mergeables = {}
-            self.moused_over = None #k?
+            self.final_msg_accum = ""
             self.dragdist = 0.0
             self.have_offset_specific_data = 0 #### also clear that data itself...
             self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
@@ -463,39 +455,33 @@ class extrudeMode(basicMode):
             """
             flyoutToolbar = ExtrudeFlyout(self) 
             return flyoutToolbar
+
+        pass # end of 'if' statement
             
-            
+    
     def command_entered(self):
         """
         Extends superclass method.
         @see: basecommand.command_entered() for documentation. 
         """
-        #NOTE: Most of the code below is copied (with some changes)from the 
+        #NOTE: Most of the code below is copied (with some changes) from the 
         #following methods that existed in the old command API 
         #on or before 2008-09-22: 
         #self.init_gui(), self.Enter(), self._command_entered_effects()
         #self.clear_command_state()
         # [-- Ninad Comment]
         
-        # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
-        # We do this last, so as not to do it if there are exceptions in the rest of the method,
-        # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
-        # [bruce 060414, to mitigate bug 1625; same thing done in some other modes]
-        import foundation.undo_manager as undo_manager
-        undo_manager.disable_undo_checkpoints('Extrude')
-        undo_manager.disable_UndoRedo('Extrude', "during Extrude")
-            # this makes Undo menu commands and tooltip
-                
         basicMode.command_entered(self)
+
         #Copying all the code originally in self.Enter() that existed 
         #on or before  2008-09-19 [--Ninad comment ]
         self.status_msg("preparing to enter %s..." % self.get_featurename())
                 # this msg won't last long enough to be seen, if all goes well
                 
-        #Clear command states (it was called in self.clear_command_state()
-        #in 'not USE_COMMAND_STACK case, before 2008-09-19
+        #Clear command states (this was copied from self.clear_command_state()
+        #in not USE_COMMAND_STACK case, 2008-09-19)
         self.mergeables = {}
-        self.moused_over = None #k?
+        self.final_msg_accum = ""
         self.dragdist = 0.0
         self.have_offset_specific_data = 0 #### also clear that data itself...
         self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
@@ -504,30 +490,44 @@ class extrudeMode(basicMode):
         self.circle_n = 0
         self.__old_ptype = None
         self.singlet_color = {}
-        
                 
         self.initial_down = self.o.down
         self.initial_out = self.o.out        
-        initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], defaultValue = 7.0),
-                                        prefs_key = True, non_debug = True) #bruce 070410
+        initial_length = debug_pref("Extrude: initial offset length (A)",
+                                    Choice([3.0, 7.0, 15.0, 30.0],
+                                           defaultValue = 7.0 ),
+                                    prefs_key = True,
+                                    non_debug = True ) #bruce 070410
+
+        # Disable Undo/Redo actions, and undo checkpoints, during this mode
+        # (they *must* be reenabled in command_will_exit).
+        # We do this as late as possible before modifying the model [moved this code, bruce 080924],
+        # so as not to do it if there are exceptions in the rest of the method,
+        # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
+        # [bruce 060414, to mitigate bug 1625; same thing done in some other modes]
+        import foundation.undo_manager as undo_manager
+        undo_manager.disable_undo_checkpoints('Extrude')
+        undo_manager.disable_UndoRedo('Extrude', "during Extrude")
+            # this makes Undo menu commands and tooltips look like
+            # "Undo (not permitted during Extrude)" (and similarly for Redo)
         
-        self._command_entered_effects()
+        self._command_entered_effects() # note: this modifies the model
         
         reinit_extrude_controls(self, self.o, length = initial_length, attr_target = self)   
         
-        #Bruce's comment:
-        ## i think this is safer *after* the first update_from_controls, not before it...
+        #Bruce's old comment from before this was refactored 080922:
+        # i think this [self.updateCommandToolbar and self.connect_or_disconnect_signals]
+        # is safer *after* the first update_from_controls, not before it...
         # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
-        self.update_from_controls()
         
-           
+        self.update_from_controls()
+        return
         
     def command_will_exit(self):
         """
         Extends superclass method. 
         """     
-        
-        #NOTE: Most of the code below is copied (with some changes)from the 
+        #NOTE: Most of the code below is copied (with some changes )from the 
         #following methods that existed in the old command API 
         #on or before 2008-09-22: 
         #self.stateDone(), self.stateCancel(), self.haveNonTrivialState(),
@@ -545,46 +545,45 @@ class extrudeMode(basicMode):
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
                 
-        cancelling = True
         if self.commandSequencer.exit_is_forced:
             if self.ncopies != 1:
-                self._warnUserAboutAbandonedChanges()                
-        elif self.commandSequencer.exit_is_cancel:
-            cancelling = True
-            self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
-            self.update_from_controls()
+                self._warnUserAboutAbandonedChanges()
         else:
-            cancelling = False
-        
-                
-        #Folloiwng code is copied from self._stateDoneOrCancel==================
-        ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
-        # restore normal appearance [bruce 070407 revised this in case each mol is not a Chunk]
-        for mol in self.molcopies:
-            # mol might be Chunk, fake_merged_mol, or fake_copied_mol [bruce 070407]
-            for chunk in true_Chunks_in(mol):
-                try:
-                    del chunk._colorfunc # let class attr [added 050524] be visible again; exception if it already was
-                    #e also unpatch info from the atoms? not needed but might as well [nah]
-                except:
-                    pass
-                else:
-                    #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
-                    chunk.changeapp(0)
-            continue
-        
-        self.finalize_product(cancelling = cancelling)
-            # this also emits status messages and does some cleanup of broken_externs...
-        self.o.assy.update_parts()
-            #bruce 050317: fix some of the bugs caused by user dragging some
-            # repeat units into a different Part in the MT, deleting them, etc.
-            # (At least this should fix bug 371 comment #3.)
-            # This is redundant with the fix for that in make_inter_unit_bonds,
-            # but is still the only place we catch the related bug when rebonding
-            # the base unit to whatever we unbonded it from at the start (if anything).
-            # (That bug is untested and this fix for it is untested.)
+            if self.commandSequencer.exit_is_cancel:
+                cancelling = True
+                self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
+                self.update_from_controls()
+            else:
+                cancelling = False
+
+            #Following code is copied from self._stateDoneOrCancel==================
+            ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
+            # restore normal appearance [bruce 070407 revised this in case each mol is not a Chunk]
+            for mol in self.molcopies:
+                # mol might be Chunk, fake_merged_mol, or fake_copied_mol [bruce 070407]
+                for chunk in true_Chunks_in(mol):
+                    try:
+                        del chunk._colorfunc # let class attr [added 050524] be visible again; exception if it already was
+                        #e also unpatch info from the atoms? not needed but might as well [nah]
+                    except:
+                        pass
+                    else:
+                        #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
+                        chunk.changeapp(0)
+                continue
             
-        #END COpied code from self._stateDoneOrCancel=========================     
+            self.finalize_product(cancelling = cancelling)
+                # this also emits status messages and does some cleanup of broken_externs...
+            self.o.assy.update_parts()
+                #bruce 050317: fix some of the bugs caused by user dragging some
+                # repeat units into a different Part in the MT, deleting them, etc.
+                # (At least this should fix bug 371 comment #3.)
+                # This is redundant with the fix for that in make_inter_unit_bonds,
+                # but is still the only place we catch the related bug when rebonding
+                # the base unit to whatever we unbonded it from at the start (if anything).
+                # (That bug is untested and this fix for it is untested.)
+                
+            #END Copied code from self._stateDoneOrCancel=========================     
        
         basicMode.command_will_exit(self)
         
@@ -595,12 +594,13 @@ class extrudeMode(basicMode):
     
     def command_exit_misc_actions(self):
         self.w.toolsExtrudeAction.setChecked(False)
-        # Disable some QActions that will conflict with this mode.
         self.w.disable_QActions_for_extrudeMode(False)
-        
             
     def _command_entered_effects(self):
-
+        """
+        [private] common code for Enter and command_entered
+        (can be inlined once USE_COMMAND_STACK is always true)
+        """
         ###
         # find out what's selected, which if ok will be the repeating unit we will extrude... explore its atoms, bonds, externs...
         # what's selected should be its own molecule if it isn't already...
@@ -673,8 +673,10 @@ class extrudeMode(basicMode):
             # from each repunit to the next (varies only in ring mode)
             # (still nim as of 080727)
 
-        return # from Enter
+        return
 
+    # == end of code refactored for USE_COMMAND_STACK by Ninad on 080922
+    
     def _compute_add_new_nodes_here(self, nodes): #bruce 080626
         """
         If we are copying the given nodes, figure out where we'd like
@@ -901,8 +903,8 @@ class extrudeMode(basicMode):
 
         # limit N for safety
         ncopies_wanted = want_n
-        ncopies_wanted = min(MAX_NCOPIES,ncopies_wanted) # upper limit (in theory, also enforced by the spinbox)
-        ncopies_wanted = max(1,ncopies_wanted) # always at least one copy ###e fix spinbox's value too?? also think about it on exit...
+        ncopies_wanted = min(_MAX_NCOPIES, ncopies_wanted) # upper limit (in theory, also enforced by the spinbox)
+        ncopies_wanted = max(1, ncopies_wanted) # always at least one copy ###e fix spinbox's value too?? also think about it on exit...
         if ncopies_wanted != want_n:
             msg = "ncopies_wanted is limited to safer value %r, not your requested value %r" % (ncopies_wanted, want_n)
             self.status_msg(msg)
@@ -932,7 +934,6 @@ class extrudeMode(basicMode):
         # + check product_type or ptype compares.
 
         (want_x, want_y, want_z) = self.propMgr.get_extrude_controls_xyz()
-
 
         offset_wanted = V(want_x, want_y, want_z) # (what are the offset units btw? i guess angstroms, but verify #k)
 
@@ -1011,7 +1012,7 @@ class extrudeMode(basicMode):
                     # (unless the addmol in copy_single_chunk is also fixed).
                     # [bruce 080626 comment]
                 # end 050216 changes
-                if self.keeppicked:
+                if _KEEP_PICKED:
                     pass ## done later: self.basemol.pick()
                 else:
                     ## self.basemol.unpick()
@@ -1020,7 +1021,7 @@ class extrudeMode(basicMode):
             c, q = self.want_center_and_quat(ii)
             self.molcopies[ii].set_basecenter_and_quat( c, q)
             self.asserts()
-        if self.keeppicked:
+        if _KEEP_PICKED:
             self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
                     #k maybe no longer needed [long before 050216]
         else:
@@ -1156,7 +1157,7 @@ class extrudeMode(basicMode):
                 s1 = sings1[i1]
                 s2 = sings2[i2]
                 (ok, ideal, err) = mergeable_singlets_Q_and_offset(s1, s2)
-                if extrude_loop_debug:
+                if _EXTRUDE_LOOP_DEBUG:
                     print "extrude loop %d, %d got %r" % (i1, i2, (ok, ideal, err))
                 if ok:
                     mergeables[(i1,i2)] = (ideal, err)
@@ -1699,7 +1700,7 @@ class extrudeMode(basicMode):
             del self.dragged_offset
         return
 
-    #==
+    # ==
 
     def leftShiftDown(self, event):
         pass ##self.StartDraw(event, 0)
@@ -1724,8 +1725,6 @@ class extrudeMode(basicMode):
         Update the cursor for 'Extrude' mode (extrudeMode).
         """
         self.o.setCursor(QCursor(Qt.ArrowCursor))
-
-    
 
     # drawing code
 
@@ -2132,7 +2131,7 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
     # within 60 deg. of collinear.
     closeness = - dot(dir1, dir2) # ideal is 1.0, terrible is -1.0
     if closeness < cosine_of_permitted_noncollinearity:
-        if extrude_loop_debug and closeness >= 0.0:
+        if _EXTRUDE_LOOP_DEBUG and closeness >= 0.0:
             print "rejected nonneg closeness of %r since less than %r" % (closeness, cosine_of_permitted_noncollinearity)
         return res_bad
     # ok, we'll merge. Just figure out the offset. At the end, compare to offset2.

@@ -393,7 +393,9 @@ class basicCommand(anyCommand):
     
     FlyoutToolbar_class = None
        #Command subclasses can override this class constant with the appropriate
-       #Flyout Toolbar class. 
+       #Flyout Toolbar class.
+
+    flyoutToolbar = None #bruce 080924, redundant with baseCommand when we use that
        
 
     def __init__(self, commandSequencer):
