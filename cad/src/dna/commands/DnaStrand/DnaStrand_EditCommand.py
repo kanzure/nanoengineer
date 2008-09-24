@@ -78,7 +78,10 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05 ?? check"
+    command_porting_status = None #Fully ported
+    #TODO: self.command_update_UI() needed? Instead command_update_internal_state
+    #needs to be implemented? So far, no bugs observed though 
+    #-- Ninad 2008-09-24
     
     #Graphics Mode 
     GraphicsMode_class = DnaStrand_GraphicsMode

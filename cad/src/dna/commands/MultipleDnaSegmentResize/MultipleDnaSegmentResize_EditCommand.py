@@ -48,7 +48,7 @@ _superclass = DnaSegment_EditCommand
 class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05: may be some update code needs to be in methods like command_update_internal_state"
+    command_porting_status = None #fully ported
     
     #Graphics Mode 
     GraphicsMode_class = MultipleDnaSegmentResize_GraphicsMode

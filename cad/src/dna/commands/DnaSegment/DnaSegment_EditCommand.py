@@ -105,7 +105,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     """
     
     #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = "PARTIAL: 2008-09-05:?? check"
+    command_porting_status =  None #Fully ported
     
     #Graphics Mode 
     GraphicsMode_class = DnaSegment_GraphicsMode
