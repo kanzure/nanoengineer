@@ -44,7 +44,7 @@ from dna.commands.DnaStrand.DnaStrand_GraphicsMode import DnaStrand_GraphicsMode
 from dna.commands.DnaStrand.DnaStrand_ResizeHandle import DnaStrand_ResizeHandle
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength
 from dna.model.Dna_Constants import getDuplexLength
-from dna.commands.BuildDuplex.B_Dna_PAM3_SingleStrand import B_Dna_PAM3_SingleStrand
+from dna.generators.B_Dna_PAM3_SingleStrand_Generator import B_Dna_PAM3_SingleStrand_Generator
 
 from command_support.EditCommand import EditCommand 
 
