@@ -14,6 +14,9 @@ using the equivalent of
   install_name_tool -change
          /Library/Frameworks/Python.framework/Versions/2.3/Python
   /System/Library/Frameworks/Python.framework/Versions/2.3/Python $file
+  install_name_tool -change
+         /Library/Frameworks/Python.framework/Versions/2.4/Python
+  /System/Library/Frameworks/Python.framework/Versions/2.4/Python $file
 and prints names and count of files it modifies (checked by comparing md5 before/after).
 """
 
@@ -86,6 +89,9 @@ for file in files:
     system("install_name_tool -change "
                   "/Library/Frameworks/Python.framework/Versions/2.3/Python "
            "/System/Library/Frameworks/Python.framework/Versions/2.3/Python '%s'" % file)
+    system("install_name_tool -change "
+                  "/Library/Frameworks/Python.framework/Versions/2.4/Python "
+           "/System/Library/Frameworks/Python.framework/Versions/2.4/Python '%s'" % file)
     new = get_md5(file)
     if old != new:
         print file + "       [FIXED]"
