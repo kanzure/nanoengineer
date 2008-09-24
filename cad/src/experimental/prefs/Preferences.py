@@ -540,818 +540,63 @@ class Preferences(PreferencesDialog):
         return
     # End of _init_()
 
-    def _setupPage_General(self):
-        """
-        Setup the "General" page.
-        """
-        # Sponsor logos download permission options in General tab
-        self.logosDownloadPermissionBtnGroup = QButtonGroup()
-        self.logosDownloadPermissionBtnGroup.setExclusive(True)
-        for button in self.sponsorLogosGroupBox.children():
-            if isinstance(button, QAbstractButton):
-                self.logosDownloadPermissionBtnGroup.addButton(button)
-                buttonId = 0
-                if button.text().startsWith("Never ask"):
-                    buttonId = 1
-                elif button.text().startsWith("Never download"):
-                    buttonId = 2
-                self.logosDownloadPermissionBtnGroup.setId(button, buttonId)
-
-        # Check the correct permission radio button.
-        if env.prefs[sponsor_permanent_permission_prefs_key]:
-            if env.prefs[sponsor_download_permission_prefs_key]:
-                self.logoNeverAskRadioBtn.setChecked(True)
-            else:
-                self.logoNeverDownLoadRadioBtn.setChecked(True)
-        else:
-            self.logoAlwaysAskRadioBtn.setChecked(True)
-
-        self.connect(self.logosDownloadPermissionBtnGroup, SIGNAL("buttonClicked(int)"), self.setPrefsLogoDownloadPermissions)
-
-        # Build Atoms option connections.
-        connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
-
-        #Scale factor for copy-paste operation (see ops_copy_Mixin._pasteGroup())
-
-        self.pasteOffsetScaleFactorForChunks_doubleSpinBox.setValue(
-            env.prefs[pasteOffsetScaleFactorForChunks_prefs_key])
-
-        self.pasteOffsetScaleFactorForDnaObjects_doubleSpinBox.setValue(
-            env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key])
-
-
-
-        self.connect(self.pasteOffsetScaleFactorForChunks_doubleSpinBox,
-                     SIGNAL("valueChanged(double)"),
-                     self.change_pasteOffsetScaleFactorForChunks)
-        self.connect(self.pasteOffsetScaleFactorForDnaObjects_doubleSpinBox,
-                     SIGNAL("valueChanged(double)"),
-                     self.change_pasteOffsetScaleFactorForDnaObjects)
-        return
-
-    def _setupPage_Color(self):
-        """
-        Setup the "Color" page.
-        """
-        # Background color widgets and connection(s).
-        self._loadBackgroundColorItems()
-        self.connect(self.backgroundColorComboBox, SIGNAL("activated(int)"), self.changeBackgroundColor)
-
-        # Fog checkbox
-        connect_checkbox_with_boolean_pref( self.enableFogCheckBox, fogEnabled_prefs_key )
-        self.connect(self.enableFogCheckBox, SIGNAL("toggled(bool)"), self.enable_fog)
-
-        # Hover highlighting color style widgets and connection(s).
-        self._loadHoverHighlightingColorStylesItems()
-        self.hoverHighlightingStyleComboBox.setCurrentIndex(HHS_INDEXES.index(env.prefs[hoverHighlightingColorStyle_prefs_key]))
-        self.connect(self.hoverHighlightingStyleComboBox, SIGNAL("activated(int)"), self._change_hhStyle)
-        connect_colorpref_to_colorframe( hoverHighlightingColor_prefs_key, self.hoverHighlightingColorFrame)
-        self.connect(self.hoverHighlightingColorButton, SIGNAL("clicked()"), self._change_hhColor)
-
-        # Selection color style widgets and connection(s).
-        self._loadSelectionColorStylesItems()
-        self.selectionStyleComboBox.setCurrentIndex(SS_INDEXES.index(env.prefs[selectionColorStyle_prefs_key]))
-        self.connect(self.selectionStyleComboBox, SIGNAL("activated(int)"), self._change_selectionStyle)
-        connect_colorpref_to_colorframe( selectionColor_prefs_key, self.selectionColorFrame)
-        self.connect(self.selectionColorButton, SIGNAL("clicked()"), self._change_selectionColor)
-
-        # Halo width spinbox.
-        self.connect(self.haloWidthSpinBox, SIGNAL("valueChanged(int)"), self.change_haloWidth)
-        self.connect(self.haloWidthResetButton, SIGNAL("clicked()"), self.reset_haloWidth)
-
-        self.haloWidthResetButton.setIcon(geticon('ui/dialogs/Reset.png'))
-        self.haloWidthSpinBox.setValue(env.prefs[haloWidth_prefs_key])
-        self.change_haloWidth(env.prefs[haloWidth_prefs_key]) # Needed to update the reset button.
-
-        return
-
-    def _setupPage_GraphicsArea(self):
-        """
-        Setup widgets to initial (default or defined) values on the
-        'Graphics Area' page.
-        """
-        # Setup the Global Display Style at start-up combobox
-        self._setupGlobalDisplayStyleAtStartup_ComboBox()
-
-
-        self.connect(self.compassGroupBox, SIGNAL("stateChanged(int)"), self.display_compass)
-        self.connect(self.compass_position_combox, SIGNAL("activated(int)"), self.set_compass_position)
-
-        connect_checkbox_with_boolean_pref( self.compassGroupBox, displayCompass_prefs_key )
-        connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
-        connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
-        connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
-        self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
-        
-        connect_checkbox_with_boolean_pref( self.display_confirmation_corner_checkbox, displayConfirmationCorner_prefs_key )
-        connect_checkbox_with_boolean_pref( self.enable_antialiasing_checkbox, enableAntiAliasing_prefs_key )
-        
-        # Cursor text font point size spinbox
-        self.connect(self.cursorTextFontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_cursorTextFontSize)
-        
-        # Cursor text font size reset button.
-        self.connect(self.cursorTextFontSizeResetButton, SIGNAL("clicked()"), self.reset_cursorTextFontSize)
-        self.cursorTextFontSizeResetButton.setIcon(geticon('ui/dialogs/Reset.png'))
-        self.cursorTextFontSizeSpinBox.setValue(env.prefs[ cursorTextFontSize_prefs_key ] )
-        self.change_cursorTextFontSize(env.prefs[cursorTextFontSize_prefs_key]) # Needed to update the reset button.
-        
-        # Cursor text color
-        connect_colorpref_to_colorframe(cursorTextColor_prefs_key, self.cursorTextColorFrame)
-        self.connect(self.cursorTextColorButton, SIGNAL("clicked()"), self.change_cursorTextColor)
-        return
-
-    def _setupPage_ZoomPanRotate(self):
-        """
-        Setup widgets to initial (default or defined) values on the
-        'Zoom, Pan Rotate' page.
-        """
-
-        # Animation speed checkbox and slider.
-        connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
-
-        self.resetAnimationSpeed_btn.setIcon(
-            geticon('ui/dialogs/Reset.png'))
-
-        self.connect(self.animation_speed_slider, SIGNAL("sliderReleased()"), self.change_view_animation_speed)
-        self.connect(self.resetAnimationSpeed_btn, SIGNAL("clicked()"), self.reset_animationSpeed)
-
-        speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
-        self.animation_speed_slider.setValue(speed)
-        self._updateResetButton(self.resetAnimationSpeed_btn, animateMaximumTime_prefs_key)
-
-        #mouse speed during rotation slider - ninad060906
-        self.resetMouseSpeedDuringRotation_btn.setIcon(
-            geticon('ui/dialogs/Reset.png'))
-
-        self.connect(self.mouseSpeedDuringRotation_slider, SIGNAL("sliderReleased()"), self.change_mouseSpeedDuringRotation)
-        self.connect(self.resetMouseSpeedDuringRotation_btn, SIGNAL("clicked()"), self.reset_mouseSpeedDuringRotation)
-
-        mouseSpeedDuringRotation = int(env.prefs[mouseSpeedDuringRotation_prefs_key] * 100)
-        self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation)
-        self._updateResetButton(self.resetMouseSpeedDuringRotation_btn, mouseSpeedDuringRotation_prefs_key)
-
-        # Mouse wheel zoom settings combo boxes
-        self.mouseWheelDirectionComboBox.setCurrentIndex(
-            env.prefs[mouseWheelDirection_prefs_key])
-        self.mouseWheelZoomInPointComboBox.setCurrentIndex(
-            env.prefs[zoomInAboutScreenCenter_prefs_key])
-        self.mouseWheelZoomOutPointComboBox.setCurrentIndex(
-            env.prefs[zoomOutAboutScreenCenter_prefs_key])
-
-        self.hhTimeoutIntervalDoubleSpinBox.setValue(env.prefs[mouseWheelTimeoutInterval_prefs_key])
-
-        # Connections for "Mouse controls" page.
-        self.connect(self.mouseWheelDirectionComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_direction)
-        self.connect(self.mouseWheelZoomInPointComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_zoom_in_position)
-        self.connect(self.mouseWheelZoomOutPointComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_zoom_out_position)
-        self.connect(self.hhTimeoutIntervalDoubleSpinBox, SIGNAL("valueChanged(double)"), self.set_mouse_wheel_timeout_interval)
-        return
-
-    def _setupPage_Rulers(self):
-        """
-        Setup the "Rulers" page.
-        """
-
-        self.connect(self.rulerDisplayComboBox, SIGNAL("currentIndexChanged(int)"), self.set_ruler_display)
-        self.connect(self.rulerPositionComboBox, SIGNAL("currentIndexChanged(int)"), self.set_ruler_position)
-        self.connect(self.ruler_color_btn, SIGNAL("clicked()"), self.change_ruler_color)
-        self.connect(self.rulerOpacitySpinBox, SIGNAL("valueChanged(int)"), self.change_ruler_opacity)
-
-        if env.prefs[displayVertRuler_prefs_key] and env.prefs[displayHorzRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(0)
-        elif not env.prefs[displayHorzRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(1)
-        elif not env.prefs[displayVertRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(2)
-
-        self.rulerPositionComboBox.setCurrentIndex(env.prefs[rulerPosition_prefs_key])
-        connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
-        self.rulerOpacitySpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
-        connect_checkbox_with_boolean_pref( self.showRulersInPerspectiveViewCheckBox, showRulersInPerspectiveView_prefs_key )
-        return
-
-    def _setupPage_Atoms(self):
-        """
-        Setup the "Atoms" page.
-        """
-
-        # "Change Element Colors" button.
-        self.connect(self.change_element_colors_btn, SIGNAL("clicked()"), self.change_element_colors)
-
-        # Atom colors
-        connect_colorpref_to_colorframe( atomHighlightColor_prefs_key, self.atom_hilite_color_frame)
-        connect_colorpref_to_colorframe( bondpointHighlightColor_prefs_key, self.bondpoint_hilite_color_frame)
-        connect_colorpref_to_colorframe( bondpointHotspotColor_prefs_key, self.hotspot_color_frame)
-        self.connect(self.atom_hilite_color_btn, SIGNAL("clicked()"), self.change_atom_hilite_color)
-        self.connect(self.bondpoint_hilite_color_btn, SIGNAL("clicked()"), self.change_bondpoint_hilite_color)
-        self.connect(self.hotspot_color_btn, SIGNAL("clicked()"), self.change_hotspot_color)
-        self.connect(self.reset_atom_colors_btn, SIGNAL("clicked()"), self.reset_atom_colors)
-
-        # Level of detail.
-        self.connect(self.level_of_detail_combox, SIGNAL("activated(int)"), self.change_level_of_detail)
-
-        lod = env.prefs[ levelOfDetail_prefs_key ]
-        lod = int(lod)
-        loditem = lod # index of corresponding spinbox item -- this is only correct for 0,1,2; other cases handled below
-        if lod <= -1: # 'variable' (only -1 is used now, but other negative values might be used in future)
-            # [bruce 060215 changed prefs value for 'variable' from 3 to -1, in case we have more LOD levels in the future]
-            # [bruce 060317 fixed bug 1551 (in two files) by removing lod == 3 case from if/elif statement.]
-            loditem = 3 # index of the spinbox item that says "variable"
-        elif lod > 2:
-            loditem = 2
-        self.level_of_detail_combox.setCurrentIndex(loditem)
-
-        # Ball and Stick atom scale factor.
-        self.connect(self.ballStickAtomScaleFactorSpinBox, SIGNAL("valueChanged(int)"), self.change_ballStickAtomScaleFactor)
-        self.connect(self.reset_ballstick_scale_factor_btn, SIGNAL("clicked()"), self.reset_ballStickAtomScaleFactor)
-
-        self.reset_ballstick_scale_factor_btn.setIcon(
-            geticon('ui/dialogs/Reset.png'))
-        _sf = int (env.prefs[diBALL_AtomRadius_prefs_key] * 100.0)
-        self.ballStickAtomScaleFactorSpinBox.setValue(_sf)
-        self.change_ballStickAtomScaleFactor(_sf) # Needed to update the reset button.
-
-        # CPK atom scale factor.
-        self.connect(self.cpkAtomScaleFactorDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_cpkAtomScaleFactor)
-        self.connect(self.reset_cpk_scale_factor_btn, SIGNAL("clicked()"), self.reset_cpkAtomScaleFactor)
-
-        self.reset_cpk_scale_factor_btn.setIcon(
-            geticon('ui/dialogs/Reset.png'))
-        self.cpkAtomScaleFactorDoubleSpinBox.setValue(env.prefs[cpkScaleFactor_prefs_key])
-        self.change_cpkAtomScaleFactor(env.prefs[cpkScaleFactor_prefs_key]) # Needed to update the reset button.
-
-        # Checkboxes.
-        connect_checkbox_with_boolean_pref( self.overlappingAtomIndicatorsCheckBox, indicateOverlappingAtoms_prefs_key )
-        connect_checkbox_with_boolean_pref( self.keepBondsTransmuteCheckBox, keepBondsDuringTransmute_prefs_key)
-        return
-
-    def _setupPage_Bonds(self):
-        """
-        Setup the "Bonds" page.
-        """
-
-        # Create "High order bond display" button group, which lives inside
-        # of self.high_order_bond_display_groupbox (a QGroupBox).
-        self.high_order_bond_display_btngrp = QButtonGroup()
-        self.high_order_bond_display_btngrp.setExclusive(True)
-
-        objId = 0
-        for obj in [self.multCyl_radioButton, self.vanes_radioButton,
-                    self.ribbons_radioButton]:
-            self.high_order_bond_display_btngrp.addButton(obj)
-            self.high_order_bond_display_btngrp.setId(obj, objId)
-            objId +=1
-
-        self.connect(self.high_order_bond_display_btngrp, SIGNAL("buttonClicked(int)"), self.change_high_order_bond_display)
-        self.connect(self.reset_bond_colors_btn, SIGNAL("clicked()"), self.reset_bond_colors)
-        self.connect(self.show_bond_labels_checkbox, SIGNAL("toggled(bool)"), self.change_bond_labels)
-        self.connect(self.show_valence_errors_checkbox, SIGNAL("toggled(bool)"), self.change_show_valence_errors)
-        self.connect(self.ballstick_bondcolor_btn, SIGNAL("clicked()"), self.change_ballstick_bondcolor)
-        self.connect(self.bond_hilite_color_btn, SIGNAL("clicked()"), self.change_bond_hilite_color)
-        self.connect(self.bond_line_thickness_spinbox, SIGNAL("valueChanged(int)"), self.change_bond_line_thickness)
-        self.connect(self.bond_stretch_color_btn, SIGNAL("clicked()"), self.change_bond_stretch_color)
-        self.connect(self.bond_vane_color_btn, SIGNAL("clicked()"), self.change_bond_vane_color)
-
-
-        self.connect(self.cpk_cylinder_rad_spinbox, SIGNAL("valueChanged(int)"), self.change_ballstick_cylinder_radius)
-
-        #bruce 050805 here's the new way: subscribe to the preference value,
-        # but make sure to only have one such subs (for one widget's bgcolor) at a time.
-        # The colors in these frames will now automatically update whenever the prefs value changes.
-        ##e (should modify this code to share its prefskey list with the one for restore_defaults)
-        connect_colorpref_to_colorframe(
-            bondHighlightColor_prefs_key, self.bond_hilite_color_frame)
-        connect_colorpref_to_colorframe(
-            bondStretchColor_prefs_key, self.bond_stretch_color_frame)
-        connect_colorpref_to_colorframe(
-            bondVaneColor_prefs_key, self.bond_vane_color_frame)
-        connect_colorpref_to_colorframe(
-            diBALL_bondcolor_prefs_key, self.ballstick_bondcolor_frame)
-        connect_checkbox_with_boolean_pref(
-            self.showBondStretchIndicators_checkBox,
-            showBondStretchIndicators_prefs_key)
-
-        # also handle the non-color prefs on this page:
-        #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
-        pibondstyle_sym = env.prefs[ pibondStyle_prefs_key]
-        button_code = { 'multicyl':0,'vane':1, 'ribbon':2 }.get( pibondstyle_sym, 0)
-            # Errors in prefs db are not detected -- we just use the first button because (we happen to know) it's the default.
-            # This int encoding is specific to this buttongroup.
-            # The prefs db and the rest of the code uses the symbolic strings listed above.
-        if button_code == 0:
-            self.multCyl_radioButton.setChecked(True)
-        elif button_code ==1:
-            self.vanes_radioButton.setChecked(True)
-        else:
-            self.ribbons_radioButton.setChecked(True)
-
-        #  ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
-        self.show_bond_labels_checkbox.setChecked( env.prefs[ pibondLetters_prefs_key] )
-            # I don't know whether this sends the signal as if the user changed it
-            # (and even if Qt doc says no, this needs testing since I've seen it be wrong about those things before),
-            # but in the present code it doesn't matter unless it causes storing default value explicitly into prefs db
-            # (I can't recall whether or not it does). Later this might matter more, e.g. if we have prefs-value modtimes.
-            # [bruce 050806]
-
-        # ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ),
-        # (This is a per-atom warning, but I decided to put it on the Bonds page since you need it when
-        #  working on high order bonds. And, since I could fit that into the UI more easily.)
-
-        if hasattr(self, 'show_valence_errors_checkbox'):
-            self.show_valence_errors_checkbox.setChecked( env.prefs[ showValenceErrors_prefs_key] )
-            # note: this does cause the checkbox to send its "toggled(bool)" signal to our slot method.
-
-        # Set Lines Dislplay Mode line thickness.  Mark 050831.
-        self.update_bond_line_thickness_suffix()
-        self.bond_line_thickness_spinbox.setValue( env.prefs[linesDisplayModeThickness_prefs_key] )
-
-        # Set CPK Cylinder radius (percentage).  Mark 051003.
-        self.cpk_cylinder_rad_spinbox.setValue(int (env.prefs[diBALL_BondCylinderRadius_prefs_key] * 100.0))
-        return
-
-
-    def _setupPage_Dna(self):
-        """
-        Setup the "DNA" page.
-        """
-        # Connections for "DNA defaults" groupbox widgets.
-        
-        connect_doubleSpinBox_with_pref(self.dnaBasesPerTurnDoubleSpinBox, 
-                                        bdnaBasesPerTurn_prefs_key
-                                        )
-        
-        connect_doubleSpinBox_with_pref(self.dnaRiseDoubleSpinBox,
-                                        bdnaRise_prefs_key)
-                                        
-        
-               
-        self.connect(self.dnaRestoreFactoryDefaultsPushButton, SIGNAL("clicked()"), self.dnaRestoreFactoryDefaults)
-
-        connect_colorpref_to_colorframe(dnaDefaultStrand1Color_prefs_key, self.dnaDefaultStrand1ColorFrame)
-        self.connect(self.dnaDefaultStrand1ColorPushButton, SIGNAL("clicked()"), self.changeDnaDefaultStrand1Color)
-
-        connect_colorpref_to_colorframe(dnaDefaultStrand2Color_prefs_key, self.dnaDefaultStrand2ColorFrame)
-        self.connect(self.dnaDefaultStrand2ColorPushButton, SIGNAL("clicked()"), self.changeDnaDefaultStrand2Color)
-
-        connect_colorpref_to_colorframe(dnaDefaultSegmentColor_prefs_key, self.dnaDefaultSegmentColorFrame)
-        self.connect(self.dnaDefaultSegmentColorPushButton, SIGNAL("clicked()"), self.changeDnaDefaultSegmentColor)
-
-        self.dnaBasesPerTurnDoubleSpinBox.setValue(env.prefs[bdnaBasesPerTurn_prefs_key])
-        self.dnaRiseDoubleSpinBox.setValue(env.prefs[bdnaRise_prefs_key])
-
-        # Connections for "DNA Strand Arrowheads" groupbox widgets.
-        self.connect(self.strandThreePrimeArrowheadsCustomColorPushButton, SIGNAL("clicked()"), self.change_dnaStrandThreePrimeArrowheadCustomColor)
-        self.connect(self.strandFivePrimeArrowheadsCustomColorPushButton, SIGNAL("clicked()"), self.change_dnaStrandFivePrimeArrowheadCustomColor)
-        self.connect(self.strandThreePrimeArrowheadsCustomColorCheckBox, SIGNAL("toggled(bool)"), self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets)
-        self.connect(self.strandFivePrimeArrowheadsCustomColorCheckBox, SIGNAL("toggled(bool)"), self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets)
-
-        # DNA strand arrowheads preferences
-        connect_checkbox_with_boolean_pref(self.arrowsOnBackBones_checkBox, arrowsOnBackBones_prefs_key)
-        connect_checkbox_with_boolean_pref(self.arrowsOnThreePrimeEnds_checkBox, arrowsOnThreePrimeEnds_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnFivePrimeEnds_checkBox,
-            arrowsOnFivePrimeEnds_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.strandThreePrimeArrowheadsCustomColorCheckBox,
-            useCustomColorForThreePrimeArrowheads_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.strandFivePrimeArrowheadsCustomColorCheckBox,
-            useCustomColorForFivePrimeArrowheads_prefs_key)
-
-        #Join strands command may override global strand arrow head options
-
-        connect_colorpref_to_colorframe(
-            dnaStrandThreePrimeArrowheadsCustomColor_prefs_key,
-            self.strandThreePrimeArrowheadsCustomColorFrame)
-
-        connect_colorpref_to_colorframe(
-            dnaStrandFivePrimeArrowheadsCustomColor_prefs_key,
-            self.strandFivePrimeArrowheadsCustomColorFrame)
-
-
-        self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets(
-            env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key])
-
-        self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets(
-            env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key])
-
-    def _setupPage_DnaMinorGrooveErrorIndicator(self):
-        """
-        Setup the "DNA Minor Groove Error Indicator" page.
-        """
-        # Connections for "DNA Minor Groove Error Indicator" groupbox widgets.
-        self.connect(self.dnaMinGrooveAngleSpinBox, SIGNAL("valueChanged(int)"), self.save_dnaMinMinorGrooveAngles)
-        self.connect(self.dnaMaxGrooveAngleSpinBox, SIGNAL("valueChanged(int)"), self.save_dnaMaxMinorGrooveAngles)
-        self.connect(self.dnaGrooveIndicatorColorButton, SIGNAL("clicked()"), self.change_dnaMinorGrooveErrorIndicatorColor)
-        self.connect(self.dnaMinorGrooveRestoreFactoryDefaultsPushButton, SIGNAL("clicked()"), self._restore_dnaMinorGrooveFactoryDefaults)
-
-        # Display Minor Groove Error Indicator groupbox widgets.
-
-        connect_checkbox_with_boolean_pref(
-            self.dnaDisplayMinorGrooveErrorGroupBox,
-            dnaDisplayMinorGrooveErrorIndicators_prefs_key)
-
-        self.dnaMinGrooveAngleSpinBox.setValue(
-            env.prefs[dnaMinMinorGrooveAngle_prefs_key])
-
-        self.dnaMaxGrooveAngleSpinBox.setValue(
-            env.prefs[dnaMaxMinorGrooveAngle_prefs_key])
-
-        connect_colorpref_to_colorframe(
-            dnaMinorGrooveErrorIndicatorColor_prefs_key,
-            self.dnaGrooveIndicatorColorFrame)
-
-    def _setupPage_DnaBaseOrientationIndicators(self):
-        """
-        Setup the "DNA Base Orientation Indicators" page.
-        """
-        # Connections for "DNA base orientation indicator" groupbox widgets.
-        self.connect(self.dnaDisplayBaseOrientationIndicatorsGroupBox, SIGNAL("toggled(bool)"), self.toggle_dnaDisplayBaseOrientationIndicatorsGroupBox)
-        self.connect(self.dnaBaseOrientationIndicatorsInverseCheckBox, SIGNAL("toggled(bool)"), self.toggle_dnaDisplayBaseOrientationInvIndicatorsCheckBox)
-        self.connect(self.dnaBaseOrientationIndicatorsThresholdSpinBox, SIGNAL("valueChanged(double)"), self.change_dnaBaseIndicatorsAngle)
-        self.connect(self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox, SIGNAL("valueChanged(double)"), self.change_dnaBaseIndicatorsDistance)
-        self.connect(self.dnaChooseBaseOrientationIndicatorsColorButton, SIGNAL("clicked()"), self.change_dnaBaseIndicatorsColor)
-        self.connect(self.dnaChooseBaseOrientationIndicatorsInvColorButton, SIGNAL("clicked()"), self.change_dnaBaseInvIndicatorsColor)
-        self.connect(self.dnaBaseIndicatorsPlaneNormalComboBox, SIGNAL("activated(int)"), self.change_dnaBaseOrientIndicatorsPlane)
-
-        # DNA Base Orientation Indicator stuff.
-        self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(
-            env.prefs[dnaBaseIndicatorsEnabled_prefs_key])
-        self.dnaBaseIndicatorsPlaneNormalComboBox.setCurrentIndex(
-            env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key])
-        self.dnaBaseOrientationIndicatorsInverseCheckBox.setChecked(
-            env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key])
-        self.update_dnaBaseIndicatorsAngle()
-        self.update_dnaBaseIndicatorsDistance()
-        connect_colorpref_to_colorframe(dnaBaseIndicatorsColor_prefs_key,
-                                        self.dnaBaseOrientationIndicatorsColorFrame)
-        connect_colorpref_to_colorframe(dnaBaseInvIndicatorsColor_prefs_key,
-                                        self.dnaBaseOrientationIndicatorsInvColorFrame)
-
-    def _setupPage_Adjust(self):
-        """
-        Setup the "Adjust" page.
-        """
-        self.connect(self.adjustEngineCombobox, SIGNAL("activated(int)"), self.set_adjust_minimization_engine)
-        self.connect(self.endRmsDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeEndRms)
-        self.connect(self.endMaxDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeEndMax)
-        self.connect(self.cutoverRmsDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeCutoverRms)
-        self.connect(self.cutoverMaxDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeCutoverMax)
-
-        self.endRmsDoubleSpinBox.setSpecialValueText("Automatic")
-        self.endMaxDoubleSpinBox.setSpecialValueText("Automatic")
-        self.cutoverRmsDoubleSpinBox.setSpecialValueText("Automatic")
-        self.cutoverMaxDoubleSpinBox.setSpecialValueText("Automatic")
-
-        # "Settings for Adjust" groupbox. ###########################
-
-        # Adjust Engine combobox.
-        self.adjustEngineCombobox.setCurrentIndex(
-            env.prefs[Adjust_minimizationEngine_prefs_key])
-
-        # Watch motion in real time checkbox.
-        connect_checkbox_with_boolean_pref(
-            self.watch_motion_groupbox,
-            Adjust_watchRealtimeMinimization_prefs_key )
-
-        self.watch_motion_groupbox.setEnabled(
-            env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
-
-        # "Watch motion..." radio btngroup
-        self.watch_motion_buttongroup = QButtonGroup()
-        self.watch_motion_buttongroup.setExclusive(True)
-        for obj in self.watch_motion_groupbox.children():
-            if isinstance(obj, QAbstractButton):
-                self.watch_motion_buttongroup.addButton(obj)
-
-        #Preference for enabling/disabling electrostatics during Adjustment
-        #for the DNA reduced model. Ninad 20070809
-        connect_checkbox_with_boolean_pref(
-            self.electrostaticsForDnaDuringAdjust_checkBox,
-            electrostaticsForDnaDuringAdjust_prefs_key)
-
-        # Convergence Criteria groupbox
-        # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]
-        self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, 0.0)
-        self.endRmsDoubleSpinBox.setValue(self.endrms)
-
-        self.endmax = get_pref_or_optval(Adjust_endMax_prefs_key, -1.0, 0.0)
-        self.endMaxDoubleSpinBox.setValue(self.endmax)
-
-        self.cutoverrms = get_pref_or_optval(Adjust_cutoverRMS_prefs_key, -1.0, 0.0)
-        self.cutoverRmsDoubleSpinBox.setValue(self.cutoverrms)
-
-        self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, 0.0)
-        self.cutoverMaxDoubleSpinBox.setValue(self.cutovermax)
-
-        return
-
-    def _setupPage_Lighting(self):
-        """
-        Setup the "Lighting" page.
-        """
-        # Connections for "Lighting" page.
-        self.connect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.connect(self.light_ambient_slider, SIGNAL("sliderReleased()"), self.save_lighting)
-        self.connect(self.light_checkbox, SIGNAL("toggled(bool)"), self.toggle_light)
-        self.connect(self.light_color_btn, SIGNAL("clicked()"), self.change_light_color)
-        self.connect(self.light_combobox, SIGNAL("activated(int)"), self.change_active_light)
-        self.connect(self.light_diffuse_slider, SIGNAL("sliderReleased()"), self.save_lighting)
-        self.connect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.connect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.connect(self.light_specularity_slider, SIGNAL("sliderReleased()"), self.save_lighting)
-        self.connect(self.light_x_linedit, SIGNAL("returnPressed()"), self.save_lighting)
-        self.connect(self.light_y_linedit, SIGNAL("returnPressed()"), self.save_lighting)
-        self.connect(self.light_z_linedit, SIGNAL("returnPressed()"), self.save_lighting)
-        self.connect(self.lighting_restore_defaults_btn, SIGNAL("clicked()"), self.restore_default_lighting)
-        self.connect(self.ms_brightness_slider, SIGNAL("sliderReleased()"), self.change_material_brightness_stop)
-        self.connect(self.ms_brightness_slider, SIGNAL("valueChanged(int)"), self.change_material_brightness)
-        self.connect(self.ms_brightness_slider, SIGNAL("sliderPressed()"), self.change_material_brightness_start)
-        self.connect(self.ms_finish_slider, SIGNAL("valueChanged(int)"), self.change_material_finish)
-        self.connect(self.ms_finish_slider, SIGNAL("sliderReleased()"), self.change_material_finish_stop)
-        self.connect(self.ms_finish_slider, SIGNAL("sliderPressed()"), self.change_material_finish_start)
-        self.connect(self.ms_on_checkbox, SIGNAL("toggled(bool)"), self.toggle_material_specularity)
-        self.connect(self.ms_shininess_slider, SIGNAL("sliderReleased()"), self.change_material_shininess_stop)
-        self.connect(self.ms_shininess_slider, SIGNAL("sliderPressed()"), self.change_material_shininess_start)
-        self.connect(self.ms_shininess_slider, SIGNAL("valueChanged(int)"), self.change_material_shininess)
-
-        self._updatePage_Lighting()
-        return
-
-    def _updatePage_Lighting(self, lights = None): #mark 051124
-        """
-        Setup widgets to initial (default or defined) values on the Lighting page.
-        """
-        if not lights:
-            self.lights = self.original_lights = self.glpane.getLighting()
-        else:
-            self.lights = lights
-
-        light_num = self.light_combobox.currentIndex()
-
-        self.update_light_combobox_items()
-
-        # Move lc_prefs_keys upstairs.  Mark.
-        lc_prefs_keys = [light1Color_prefs_key, light2Color_prefs_key, light3Color_prefs_key]
-        self.current_light_key = lc_prefs_keys[light_num] # Get prefs key for current light color.
-        connect_colorpref_to_colorframe(self.current_light_key, self.light_color_frame)
-        self.light_color = env.prefs[self.current_light_key]
-
-        # These sliders generate signals whenever their 'setValue()' slot is called (below).
-        # This creates problems (bugs) for us, so we disconnect them temporarily.
-        self.disconnect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.disconnect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.disconnect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-
-        # self.lights[light_num][0] contains 'color' attribute.
-        # We already have it (self.light_color) from the prefs key (above).
-        a = self.lights[light_num][1] # ambient intensity
-        d = self.lights[light_num][2] # diffuse intensity
-        s = self.lights[light_num][3] # specular intensity
-
-        self.light_ambient_slider.setValue(int (a * 100)) # generates signal
-        self.light_diffuse_slider.setValue(int (d * 100)) # generates signal
-        self.light_specularity_slider.setValue(int (s * 100)) # generates signal
-
-        self.light_ambient_linedit.setText(str(a))
-        self.light_diffuse_linedit.setText(str(d))
-        self.light_specularity_linedit.setText(str(s))
-
-        self.light_x_linedit.setText(str (self.lights[light_num][4]))
-        self.light_y_linedit.setText(str (self.lights[light_num][5]))
-        self.light_z_linedit.setText(str (self.lights[light_num][6]))
-        self.light_checkbox.setChecked(self.lights[light_num][7])
-
-        # Reconnect the slots to the light sliders.
-        self.connect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.connect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.connect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-
-        self._setup_material_group()
-        return
-
-    # _setup_material_group() should be folded back into _updatePage_Lighting(). Mark 051204.
-    def _setup_material_group(self, reset = False):
-        """
-        Setup Material Specularity widgets to initial (default or defined) values on the Lighting page.
-        If reset = False, widgets are reset from the prefs db.
-        If reset = True, widgets are reset from their previous values.
-        """
-
-        if reset:
-            self.material_specularity = self.original_material_specularity
-            self.whiteness = self.original_whiteness
-            self.shininess = self.original_shininess
-            self.brightness = self.original_brightness
-        else:
-            self.material_specularity = self.original_material_specularity = \
-                env.prefs[material_specular_highlights_prefs_key]
-            self.whiteness = self.original_whiteness = \
-                int(env.prefs[material_specular_finish_prefs_key] * 100)
-            self.shininess = self.original_shininess = \
-                int(env.prefs[material_specular_shininess_prefs_key])
-            self.brightness = self.original_brightness= \
-                int(env.prefs[material_specular_brightness_prefs_key] * 100)
-
-        # Enable/disable specular highlights.
-        self.ms_on_checkbox.setChecked(self.material_specularity )
-
-        # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).  The Qt slider range
-        # is 0 - 100, so we multiply by 100 (above) to set the slider.  Mark. 051129.
-        self.ms_finish_slider.setValue(self.whiteness) # generates signal
-        self.ms_finish_linedit.setText(str(self.whiteness * .01))
-
-        # For shininess, the range is 15 (low) to 60 (high).  Mark. 051129.
-        self.ms_shininess_slider.setValue(self.shininess) # generates signal
-        self.ms_shininess_linedit.setText(str(self.shininess))
-
-        # For brightness, the range is 0.0 (low) to 1.0 (high).  Mark. 051203.
-        self.ms_brightness_slider.setValue(self.brightness) # generates signal
-        self.ms_brightness_linedit.setText(str(self.brightness * .01))
-        return
 
     def _setupPage_Plugins(self):
         """
         Setup the "Plug-ins" page.
         """
-        pluginList = [ "QuteMolX", 
-                       "POV-Ray", 
-                       "MegaPOV", 
-                       "POV include dir",
-                       "GROMACS",
-                       "cpp"]
+        pluginList = [ "QuteMolX", \
+                       "POV-Ray", \
+                       "MegaPOV", \
+                       "POV include dir", \
+                       "GROMACS", \
+                       "cpp",
+                       "Rosetta",
+                       "Rosetta DB"]
 
-        # QuteMolX signal-slot connections.
+        # signal-slot connections.
         for name in pluginList:
-            fname = "enable_%s" % "".join([ x for x in name.lower().replace(" ","_") \
+            _pluginFunctionName = "".join([ x for x in name.lower().replace(" ","_") \
                                               if (x in string.ascii_letters or\
                                                   x in string.digits \
                                                   or x == "_") ])
-            if hasattr(self, fname):
-                fcall = getattr(self, fname)
+            _fname = "enable_%s" % _pluginFunctionName
+            if hasattr(self, _fname):
+                fcall = getattr(self, _fname)
                 if callable(fcall):
                     if DEBUG:
-                        print "method defined: %s" % fname
-#                    self.connect(self.checkboxes[name], SIGNAL("toggled(bool)"), self.enable_qutemol)
+                        print "method defined: %s" % _fname
+                    self.connect(self.checkboxes[name], \
+                                                 SIGNAL("toggled(bool)"), \
+                                                 fcall)
                 else:
                     print "Attribute %s exists, but is not a callable method."
             else:
                 if DEBUG:
-                    print "method missing: %s" % fname
+                    print "method missing: %s" % _fname
+            #_fname = "set_%s_path" % _pluginFunctionName
+            #if hasattr(self, _fname):
+                #fcall = getattr(self, _fname)
+                #if callable(fcall):
+                    #if DEBUG:
+                        #print "method defined: %s" % _fname
+                    #self.connect(self.choosers[name].lineEdit,\
+                                               #SIGNAL("edtingFinished()"), \
+                                               #fcall)
+                #else:
+                    #print "Attribute %s exists, but is not a callable method."
+            #else:
+                #if DEBUG:
+                    #print "method missing: %s" % _fname
 
-        #self.connect(self.qutemol_checkbox, SIGNAL("toggled(bool)"), self.enable_qutemol)
-        #self.connect( self.qutemol_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_qutemol_path)
-        #self.connect(self.qutemol_choose_btn, SIGNAL("clicked()"), self.choose_qutemol_path)
-
-        ## NanoHive-1 signal-slot connections.
-        #self.connect(self.nanohive_checkbox, SIGNAL("toggled(bool)"), self.enable_nanohive)
-        #self.connect( self.nanohive_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_nanohive_path)
-        #self.connect(self.nanohive_choose_btn, SIGNAL("clicked()"), self.choose_nanohive_path)
-
-        ## POV-Ray signal-slot connections.
-        #self.connect(self.povray_checkbox, SIGNAL("toggled(bool)"), self.enable_povray)
-        #self.connect( self.povray_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_povray_path)
-        #self.connect(self.povray_choose_btn, SIGNAL("clicked()"), self.choose_povray_path)
-
-        ## POV dir signal-slot connections.
-        #self.connect(self.povdir_checkbox, SIGNAL("toggled(bool)"), self.enable_povdir)
-        #self.connect( self.povdir_lineedit, SIGNAL("textEdited (const QString&) "), self.povdir_lineedit_textChanged )
-        #self.connect(self.povdir_choose_btn, SIGNAL("clicked()"), self.set_povdir)
-        #self.connect( self.povdir_lineedit, SIGNAL("returnPressed()"), self.povdir_lineedit_returnPressed )
-
-        ## MegaPOV signal-slot connections.
-        #self.connect(self.megapov_checkbox, SIGNAL("toggled(bool)"), self.enable_megapov)
-        #self.connect( self.megapov_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_megapov_path )
-        #self.connect(self.megapov_choose_btn, SIGNAL("clicked()"), self.choose_megapov_path)
-
-        ## GAMESS signal-slot connections.
-        #self.connect(self.gamess_checkbox, SIGNAL("toggled(bool)"), self.enable_gamess)
-        #self.connect(self.gamess_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_gamess_path)
-        #self.connect(self.gamess_choose_btn, SIGNAL("clicked()"), self.choose_gamess_path)
-
-        ## GROMACS signal-slot connections.
-        #self.connect(self.gromacs_checkbox, SIGNAL("toggled(bool)"), self.enable_gromacs)
-        #self.connect(self.gromacs_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_gromacs_path)
-        #self.connect(self.gromacs_choose_btn, SIGNAL("clicked()"), self.choose_gromacs_path)
-
-        ## cpp signal-slot connections.
-        #self.connect(self.cpp_checkbox, SIGNAL("toggled(bool)"), self.enable_cpp)
-        #self.connect(self.cpp_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_cpp_path)
-        #self.connect(self.cpp_choose_btn, SIGNAL("clicked()"), self.choose_cpp_path)
-
-        ## Rosetta signal-slots connections.
-        #self.connect(self.rosetta_checkbox, SIGNAL("toggled(bool)"), self.enable_rosetta)
-        #self.connect(self.rosetta_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_rosetta_path)
-        #self.connect(self.rosetta_choose_btn, SIGNAL("clicked()"), self.choose_rosetta_path)
-        
-        ## Rosetta database signal-slots connections.
-        #self.connect(self.rosetta_db_checkbox, SIGNAL("toggled(bool)"), self.enable_rosetta_db)
-        #self.connect(self.rosetta_db_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_rosetta_db_path)
-        #self.connect(self.rosetta_db_choose_btn, SIGNAL("clicked()"), self.choose_rosetta_db_path)
-        
-        ## NanoVision-1 signal-slots connections.
-        #self.connect(self.nv1_checkbox, SIGNAL("toggled(bool)"), self.enable_nv1)
-        #self.connect(self.nv1_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_nv1_path)
-        #self.connect(self.nv1_choose_btn, SIGNAL("clicked()"), self.choose_nv1_path)
-        #return
-
-    def _setupPage_Undo(self):
-        """
-        Setup the "Undo" page.
-        """
-        # Connections for "Undo" page.
-        self.connect(self.undo_stack_memory_limit_spinbox, SIGNAL("valueChanged(int)"), self.change_undo_stack_memory_limit)
-        self.connect(self.update_number_spinbox, SIGNAL("valueChanged(int)"), self.update_number_spinbox_valueChanged)
-        return
-
-    def _setupPage_Window(self):
-        """
-        Setup the "Window" page.
-        """
-        # Connections for "Window" page.
-        self.connect(self.caption_fullpath_checkbox, SIGNAL("stateChanged(int)"), self.set_caption_fullpath)
-        self.connect(self.current_height_spinbox, SIGNAL("valueChanged(int)"), self.change_window_size)
-        self.connect(self.current_width_spinbox, SIGNAL("valueChanged(int)"), self.change_window_size)
-        self.connect(self.restore_saved_size_btn, SIGNAL("clicked()"), self.restore_saved_size)
-        self.connect(self.save_current_btn, SIGNAL("clicked()"), self.save_current_win_pos_and_size)
-
-        # Connections for font widgets (in "Windows" page). Mark 2007-05-27.
-        self.connect(self.selectedFontGroupBox, SIGNAL("toggled(bool)"), self.change_use_selected_font)
-        self.connect(self.fontComboBox, SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
-        self.connect(self.fontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_fontsize)
-        self.connect(self.makeDefaultFontPushButton, SIGNAL("clicked()"), self.change_selected_font_to_default_font)
-
-        # Update the max value of the Current Size spinboxes
-        screen = screen_pos_size()
-        ((x0, y0), (w, h)) = screen
-        self.current_width_spinbox.setRange(1, w)
-        self.current_height_spinbox.setRange(1, h)
-
-        # Set value of the Current Size Spinboxes
-        pos, size = _get_window_pos_size(self.w)
-        self.current_width_spinbox.setValue(size[0])
-        self.current_height_spinbox.setValue(size[1])
-
-        # Set string of Saved Size Lineedits
-        from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
-        keyprefix = mainwindow_geometry_prefs_key_prefix
-        pos, size = _get_prefs_for_window_pos_size( self.w, keyprefix)
-        self.update_saved_size(size[0], size[1])
-
-        connect_checkbox_with_boolean_pref( self.remember_win_pos_and_size_checkbox, rememberWinPosSize_prefs_key )
-
-        self.caption_prefix_linedit.setText(env.prefs[captionPrefix_prefs_key])
-        self.caption_suffix_linedit.setText(env.prefs[captionSuffix_prefs_key])
-            ##e someday we should make a 2-way connector function for LineEdits too
-        connect_checkbox_with_boolean_pref( self.caption_fullpath_checkbox, captionFullPath_prefs_key )
-
-        # Update Display Font widgets
-        self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
-
-        # Connect all QLineEdit widgets last. Otherwise they'll generate signals.
-        self.connect( self.caption_prefix_linedit, SIGNAL("textChanged ( const QString & ) "), self.caption_prefix_linedit_textChanged )
-        self.connect( self.caption_prefix_linedit, SIGNAL("returnPressed()"), self.caption_prefix_linedit_returnPressed )
-        self.connect( self.caption_suffix_linedit, SIGNAL("textChanged ( const QString & ) "), self.caption_suffix_linedit_textChanged )
-        self.connect( self.caption_suffix_linedit, SIGNAL("returnPressed()"), self.caption_suffix_linedit_returnPressed )
-        return
-
-    def _setupPage_Reports(self):
-        """
-        Setup the "Reports" page.
-        """
-        connect_checkbox_with_boolean_pref( self.msg_serial_number_checkbox, historyMsgSerialNumber_prefs_key )
-        connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
-        return
-
-    def _setupPage_Tooltips(self):
-        """
-        Setup the "Tooltips" page.
-        """
-        # Connections for "Tooltips" page.
-        self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox, SIGNAL("valueChanged(int)"), self.change_dynamicToolTipAtomDistancePrecision)
-        self.connect(self.dynamicToolTipBendAnglePrecision_spinbox, SIGNAL("valueChanged(int)"), self.change_dynamicToolTipBendAnglePrecision)
-
-        #Atom related Dynamic tooltip preferences
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomChunkInfo_checkbox, dynamicToolTipAtomChunkInfo_prefs_key)
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomMass_checkbox, dynamicToolTipAtomMass_prefs_key)
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomPosition_checkbox, dynamicToolTipAtomPosition_prefs_key)
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomDistanceDeltas_checkbox, dynamicToolTipAtomDistanceDeltas_prefs_key)
-        connect_checkbox_with_boolean_pref(
-            self.includeVdwRadiiInAtomDistanceInfo,
-            dynamicToolTipVdwRadiiInAtomDistance_prefs_key)
-
-        #Bond related dynamic tool tip preferences
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipBondLength_checkbox, dynamicToolTipBondLength_prefs_key)
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipBondChunkInfo_checkbox, dynamicToolTipBondChunkInfo_prefs_key)
-
-        self.dynamicToolTipAtomDistancePrecision_spinbox.setValue(env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] )
-        self.dynamicToolTipBendAnglePrecision_spinbox.setValue(env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] )
+        self.connect( self.choosers["QuteMolX"].lineEdit, SIGNAL("editingFinished()"), self.set_qutemolx_path)
+        self.connect( self.choosers["POV-Ray"].lineEdit, SIGNAL("editingFinished()"), self.set_povray_path)
+        self.connect( self.choosers["MegaPOV"].lineEdit, SIGNAL("editingFinished()"), self.set_megapov_path)
+        self.connect( self.choosers["POV include dir"].lineEdit, SIGNAL("editingFinished()"), self.set_pov_include_dir)
+        self.connect( self.choosers["GROMACS"].lineEdit, SIGNAL("editingFinished()"), self.set_gromacs_path)
+        self.connect( self.choosers["cpp"].lineEdit, SIGNAL("editingFinished()"), self.set_cpp_path)
+        self.connect( self.choosers["Rosetta"].lineEdit, SIGNAL("editingFinished()"), self.set_rosetta_path)
+        self.connect( self.choosers["Rosetta DB"].lineEdit, SIGNAL("editingFinished()"), self.set_rosetta_db_path)
         return
 
     def _hideOrShowWidgets(self):
@@ -1405,1401 +650,6 @@ class Preferences(PreferencesDialog):
                 widget.hide()
         return
 
-    # caption_prefix slot methods [#e should probably refile these with other slot methods?]
-    def caption_prefix_linedit_textChanged(self, qstring):
-        ## print "caption_prefix_linedit_textChanged: %r" % str(qstring) # this works
-        self.any_caption_text_changed()
-
-    def caption_prefix_linedit_returnPressed(self):
-        ## print "caption_prefix_linedit_returnPressed"
-            # This works, but the Return press also closes the dialog!
-            # [later, bruce 060710 -- probably due to a Qt Designer property on the button, fixable by .setAutoDefault(0) ###@@@]
-            # (Both for the lineedit whose signal we're catching, and the one whose signal catching is initially nim.)
-            # Certainly that makes it a good idea to catch it, though it'd be better to somehow "capture" it
-            # so it would not close the dialog.
-        self.any_caption_text_changed()
-
-    # caption_suffix slot methods can be equivalent to the ones for caption_prefix
-    caption_suffix_linedit_textChanged = caption_prefix_linedit_textChanged
-    caption_suffix_linedit_returnPressed = caption_prefix_linedit_returnPressed
-
-    ###### Private methods ###############################
-
-    def _loadBackgroundColorItems(self):
-        """
-        Load the background color combobox with all the color options and sets
-        the current background color
-        """
-        backgroundIndexes = [BG_EVENING_SKY, BG_BLUE_SKY, BG_SEAGREEN,
-                             BG_BLACK, BG_WHITE, BG_GRAY, BG_CUSTOM]
-
-        backgroundNames   = ["Evening Sky (default)", "Blue Sky", "Sea Green",
-                             "Black", "White", "Gray", "Custom..."]
-
-        backgroundIcons   = ["Background_EveningSky", "Background_BlueSky",
-                             "Background_SeaGreen",
-                             "Background_Black",   "Background_White",
-                             "Background_Gray",    "Background_Custom"]
-
-        backgroundIconsDict = dict(zip(backgroundNames, backgroundIcons))
-        backgroundNamesDict = dict(zip(backgroundIndexes, backgroundNames))
-
-        for backgroundName in backgroundNames:
-
-            basename = backgroundIconsDict[backgroundName] + ".png"
-            iconPath = os.path.join("ui/dialogs/Preferences/",
-                                    basename)
-            self.backgroundColorComboBox.addItem(geticon(iconPath),
-                                                 backgroundName)
-
-        self._updateBackgroundColorComboBoxIndex()
-        return
-
-    def _updateBackgroundColorComboBoxIndex(self):
-        """
-        Set current index in the background color combobox.
-        """
-        if self.glpane.backgroundGradient:
-            self.backgroundColorComboBox.setCurrentIndex(self.glpane.backgroundGradient - 1)
-        else:
-            if (env.prefs[ backgroundColor_prefs_key ] == black):
-                self.backgroundColorComboBox.setCurrentIndex(BG_BLACK)
-            elif (env.prefs[ backgroundColor_prefs_key ] == white):
-                self.backgroundColorComboBox.setCurrentIndex(BG_WHITE)
-            elif (env.prefs[ backgroundColor_prefs_key ] == gray):
-                self.backgroundColorComboBox.setCurrentIndex(BG_GRAY)
-            else:
-                self.backgroundColorComboBox.setCurrentIndex(BG_CUSTOM)
-        return
-
-    def _loadHoverHighlightingColorStylesItems(self):
-        """
-        Load the hover highlighting style combobox with items.
-        """
-        for hoverHighlightingStyle in HHS_OPTIONS:
-            self.hoverHighlightingStyleComboBox.addItem(hoverHighlightingStyle)
-        return
-
-    def _loadSelectionColorStylesItems(self):
-        """
-        Load the selection color style combobox with items.
-        """
-        for selectionStyle in SS_OPTIONS:
-            self.selectionStyleComboBox.addItem(selectionStyle)
-        return
-
-    # = Methods for the "Graphics Area" page.
-
-    def _setupGlobalDisplayStyleAtStartup_ComboBox(self):
-        """
-        Loads the global display style combobox with all the display options
-        and sets the current display style
-        """
-        gdsIconDist = dict(zip(GDS_NAMES, GDS_ICONS))
-
-        for gdsName in GDS_NAMES: # gds = global display style
-            basename = gdsIconDist[gdsName] + ".png"
-            iconPath = os.path.join("ui/actions/View/Display/",
-                                    basename)
-            self.globalDisplayStyleStartupComboBox.addItem(geticon(iconPath), gdsName)
-
-        display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
-        self.globalDisplayStyleStartupComboBox.setCurrentIndex(GDS_INDEXES.index(display_style))
-
-        self.connect(self.globalDisplayStyleStartupComboBox, SIGNAL("activated(int)"), self.setGlobalDisplayStyleAtStartUp)
-
-    def setGlobalDisplayStyleAtStartUp(self, gdsIndexUnused):
-        """
-        Slot method for the "Global Display Style at Start-up" combo box in
-        the Preferences dialog (and not the combobox in the status bar of
-        the main window).
-
-        @param gdsIndexUnused: The current index of the combobox. It is unused.
-        @type  gdsIndexUnused: int
-
-        @note: This changes the global display style of the glpane.
-        """
-
-        # Get the GDS index from the current combox box index.
-        display_style = GDS_INDEXES[self.globalDisplayStyleStartupComboBox.currentIndex()]
-
-        if display_style == env.prefs[startupGlobalDisplayStyle_prefs_key]:
-            return
-
-        # set the pref
-        env.prefs[startupGlobalDisplayStyle_prefs_key] = display_style
-
-        # Set the current display style in the glpane.
-        # (This will be noticed later by chunk.draw of affected chunks.)
-        self.glpane.setGlobalDisplayStyle(display_style)
-        self.glpane.gl_update()
-        return
-
-    #e this is really a slot method -- should refile it
-    def any_caption_text_changed(self):
-        # Update Caption prefs
-        # The prefix and suffix updates should be done via slots [bruce 050811 doing that now] and include a validator.
-        # Will do later.  Mark 050716.
-
-        # (in theory, only one of these has changed, and even though we resave prefs for both,
-        #  only the changed one will trigger any formulas watching the prefs value for changes. [bruce 050811])
-        #bruce 070503 Qt4 bugfix (prefix and suffix): str().strip() rather than QString().stripWhiteSpace()
-        # (but, like the old code, still only allows one space char on the side that can have one,
-        #  in order to most easily require at least one on that side; if mot for that, we'd use rstrip and lstrip)
-        prefix = str_or_unicode(self.caption_prefix_linedit.text())
-        prefix = prefix.strip()
-        if prefix:
-            prefix = prefix + ' '
-        env.prefs[captionPrefix_prefs_key] = prefix
-
-        suffix = str_or_unicode(self.caption_suffix_linedit.text())
-        suffix = suffix.strip()
-        if suffix:
-            suffix = ' ' + suffix
-        env.prefs[captionSuffix_prefs_key] = suffix
-        return
-
-    ###### End of private methods. ########################
-
-    ########## Slot methods for "General" page widgets ################
-
-    def display_compass(self, val):
-        """
-        Slot for the Display Compass checkbox, which enables/disables the
-        Display Compass Labels checkbox.
-        """
-        self.display_compass_labels_checkbox.setEnabled(val)
-
-    def set_compass_position(self, val):
-        """
-        Set position of compass.
-
-        @param val: The position, where:
-                    - 0 = upper right
-                    - 1 = upper left
-                    - 2 = lower left
-                    - 3 = lower right
-        @type  val: int
-        """
-        # set the pref
-        env.prefs[compassPosition_prefs_key] = val
-        # update the glpane
-        self.glpane.compassPosition = val
-        self.glpane.gl_update()
-        return
-    
-    # "Cursor text" slots (on Graphics Area page)
-    
-    def change_cursorTextColor(self):
-        """
-        Change the cursor text color.
-        """
-        self.usual_change_color( cursorTextColor_prefs_key)
-        return
-    
-    def change_cursorTextFontSize(self, ptSize):
-        """
-        Change the cursor text font size.
-        """
-        env.prefs[ cursorTextFontSize_prefs_key ] = ptSize
-        self._updateResetButton(self.cursorTextFontSizeResetButton, cursorTextFontSize_prefs_key)
-        return
-    
-    def reset_cursorTextFontSize(self):
-        """
-        Slot called when pressing the Font size reset button.
-        Restores the default value.
-        """
-        env.prefs.restore_defaults([cursorTextFontSize_prefs_key])
-        self.cursorTextFontSizeSpinBox.setValue(env.prefs[cursorTextFontSize_prefs_key])
-    
-    # End "Cursor text" slots.
-
-    def change_pasteOffsetScaleFactorForChunks(self, val):
-        """
-        Slot method for the I{Paste offset scale for chunks} doublespinbox.
-        @param val: The timeout interval in seconds.
-        @type  val: double
-        @see ops_copy_Mixin._pasteGroup()
-        """
-        env.prefs[pasteOffsetScaleFactorForChunks_prefs_key] = val
-
-    def change_pasteOffsetScaleFactorForDnaObjects(self, val):
-        """
-        Slot method for the I{Paste offset scale for dna objects} doublespinbox.
-        @param val: The timeout interval in seconds.
-        @type  val: double
-        """
-        env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key] = val
-
-    def enable_fog(self, val):
-        """
-        Switches fog.
-        """
-        self.glpane.gl_update()
-
-    def set_default_projection_OBSOLETE(self, projection):
-        """
-        Set the projection.
-
-        @param projection: The projection, where:
-                           - 0 = Perspective
-                           - 1 = Orthographic
-        @type  projection: int
-
-        @deprecated: I'm removing this from the Preferences dialog.
-        The defaultProjection_prefs_key will be set instead by the
-        main window UI (View > Display menu). -Mark 2008-05-20
-        """
-        # set the pref
-        env.prefs[defaultProjection_prefs_key] = projection
-        self.glpane.setViewProjection(projection)
-
-    def change_displayOriginAsSmallAxis(self, value):
-        """"
-        This sets the preference to view origin as small axis so that it is
-        sticky across sessions.
-        """
-        #set the preference
-        env.prefs[displayOriginAsSmallAxis_prefs_key] = value
-            #niand060920 This condition might not be necessary as we are disabling the btn_grp
-            #for the oridin axis radiobuttons
-        if env.prefs[displayOriginAxis_prefs_key]:
-            self.glpane.gl_update()
-
-    def change_high_quality_graphics(self, state): #mark 060315.
-        """
-        Enable/disable high quality graphics during view animations.
-
-        @attention: This has never been implemented. The checkbox has been
-                    removed from the UI file for A9. Mark 060815.
-        """
-        # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
-        msg = "High Quality Graphics is not implemented yet."
-        from utilities.Log import orangemsg
-        env.history.message(orangemsg(msg))
-
-    def change_view_animation_speed(self):
-        """
-        Sets the view animation speed between .25 (fast) and 3.0 (slow) seconds.
-        """
-        # To change the range, edit the maxValue and minValue attr for the slider.
-        # For example, if you want the fastest animation time to be .1 seconds,
-        # change maxValue to -10.  If you want the slowest time to be 4.0 seconds,
-        # change minValue to -400.  mark 060124.
-        env.prefs[animateMaximumTime_prefs_key] = \
-           self.animation_speed_slider.value() / -100.0
-
-        self._updateResetButton(self.resetAnimationSpeed_btn, animateMaximumTime_prefs_key)
-        return
-
-    def _updateResetButton(self, resetButton, key):
-        """
-        Enables/disables I{resetButton} if I{key} is not equal/equal to its
-        default value.
-        """
-        if env.prefs.has_default_value(key):
-            resetButton.setEnabled(0)
-        else:
-            resetButton.setEnabled(1)
-        return
-
-    def reset_animationSpeed(self):
-        """
-        Slot called when pressing the Animation speed reset button.
-        Restores the default value of the animation speed.
-        """
-        env.prefs.restore_defaults([animateMaximumTime_prefs_key])
-        self.animation_speed_slider.setValue(int (env.prefs[animateMaximumTime_prefs_key] * -100))
-        self.resetAnimationSpeed_btn.setEnabled(0)
-        return
-
-    def change_mouseSpeedDuringRotation(self):
-        """
-        Slot that sets the speed factor controlling rotation speed during mouse button drags.
-        0.3 = slow and 1.0 = fast.
-        """
-        env.prefs[mouseSpeedDuringRotation_prefs_key] = \
-           self.mouseSpeedDuringRotation_slider.value() / 100.0
-
-        self._updateResetButton(self.resetMouseSpeedDuringRotation_btn, mouseSpeedDuringRotation_prefs_key)
-        return
-
-    def reset_mouseSpeedDuringRotation(self):
-        """
-        Slot called when pressing the Mouse speed during rotation reset button.
-        Restores the default value of the mouse speed.
-        """
-        env.prefs.restore_defaults([mouseSpeedDuringRotation_prefs_key])
-        self.mouseSpeedDuringRotation_slider.setValue(int (env.prefs[mouseSpeedDuringRotation_prefs_key] * 100.0))
-        self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
-
-    def changeEndRms(self, endRms):
-        """
-        Slot for EndRMS.
-        """
-        if endRms:
-            env.prefs[Adjust_endRMS_prefs_key] = endRms
-        else:
-            env.prefs[Adjust_endRMS_prefs_key] = -1.0
-
-    def changeEndMax(self, endMax):
-        """
-        Slot for EndMax.
-        """
-        if endMax:
-            env.prefs[Adjust_endMax_prefs_key] = endMax
-        else:
-            env.prefs[Adjust_endMax_prefs_key] = -1.0
-
-    def changeCutoverRms(self, cutoverRms):
-        """
-        Slot for CutoverRMS.
-        """
-        if cutoverRms:
-            env.prefs[Adjust_cutoverRMS_prefs_key] = cutoverRms
-        else:
-            env.prefs[Adjust_cutoverRMS_prefs_key] = -1.0
-
-    def changeCutoverMax(self, cutoverMax):
-        """
-        Slot for CutoverMax.
-        """
-        if cutoverMax:
-            env.prefs[Adjust_cutoverMax_prefs_key] = cutoverMax
-        else:
-            env.prefs[Adjust_cutoverMax_prefs_key] = -1.0
-
-    def set_adjust_minimization_engine(self, engine):
-        """
-        Combobox action, sets Adjust_minimizationEngine preference
-        """
-        env.prefs[Adjust_minimizationEngine_prefs_key] = engine
-
-    def setPrefsLogoDownloadPermissions(self, permission):
-        """
-        Set the sponsor logos download permissions in the persistent user
-        preferences database.
-
-        @param permission: The permission, where:
-                        0 = Always ask before downloading
-                        1 = Never ask before downloading
-                        2 = Never download
-        @type  permission: int
-        """
-        if permission == 1:
-            env.prefs[sponsor_permanent_permission_prefs_key] = True
-            env.prefs[sponsor_download_permission_prefs_key] = True
-
-        elif permission == 2:
-            env.prefs[sponsor_permanent_permission_prefs_key] = True
-            env.prefs[sponsor_download_permission_prefs_key] = False
-
-        else:
-            env.prefs[sponsor_permanent_permission_prefs_key] = False
-
-    # = BG color slot methods
-
-    def changeBackgroundColor(self, idx):
-        """
-        Slot method for the background color combobox.
-
-        @note: the pref_keys are set in setBackgroundGradient()
-               and setBackgroundColor().
-        """
-        #print "changeBackgroundColor(): Slot method called. Idx =", idx
-
-        if idx == BG_BLUE_SKY:
-            self.glpane.setBackgroundGradient(idx + 1)
-        elif idx == BG_EVENING_SKY:
-            self.glpane.setBackgroundGradient(idx + 1)
-        elif idx == BG_SEAGREEN:
-            self.glpane.setBackgroundGradient(idx + 1)
-        elif idx == BG_BLACK:
-            self.glpane.setBackgroundColor(black)
-        elif idx == BG_WHITE:
-            self.glpane.setBackgroundColor(white)
-        elif idx == BG_GRAY:
-            self.glpane.setBackgroundColor(gray)
-        elif idx == BG_CUSTOM:
-            #change background color to Custom Color
-            self.chooseCustomBackgroundColor()
-        else:
-            msg = "Unknown color idx=", idx
-            print_compact_traceback(msg)
-
-        self.glpane.gl_update() # Needed!
-        return
-
-    def chooseCustomBackgroundColor(self):
-        """
-        Choose a custom background color.
-        """
-        c = QColorDialog.getColor(RGBf_to_QColor(self.glpane.getBackgroundColor()), self)
-        if c.isValid():
-            self.glpane.setBackgroundColor(QColor_to_RGBf(c))
-        else:
-            # User cancelled. Reset the combobox to the previous item.
-            self._updateBackgroundColorComboBoxIndex()
-
-    def _change_hhStyle(self, idx):
-        """
-        Slot method for Hover Highlighting combobox.
-        Change the (3D) hover highlighting style.
-        """
-        env.prefs[hoverHighlightingColorStyle_prefs_key] = HHS_INDEXES[idx]
-
-    def _change_hhColor(self):
-        """
-        Change the 3D hover highlighting color.
-        """
-        self.usual_change_color(hoverHighlightingColor_prefs_key)
-
-    def _change_selectionStyle(self, idx):
-        """
-        Slot method for Selection Style combobox used to
-        Change the (3D) selection color style.
-        """
-        env.prefs[selectionColorStyle_prefs_key] = SS_INDEXES[idx]
-
-    def _change_selectionColor(self):
-        """
-        Change the 3D selection color.
-        """
-        self.usual_change_color(selectionColor_prefs_key)
-
-    def change_haloWidth(self, width):
-        """
-        Change the halo style width.
-
-        @param width: The width in pixels.
-        @type  width: int
-        """
-        env.prefs[haloWidth_prefs_key] = width
-        self._updateResetButton(self.haloWidthResetButton, haloWidth_prefs_key)
-
-        return
-
-    def reset_haloWidth(self):
-        """
-        Slot called when pressing the Halo width reset button.
-        Restores the default value of the halo width.
-        """
-        env.prefs.restore_defaults([haloWidth_prefs_key])
-        self.haloWidthSpinBox.setValue(env.prefs[haloWidth_prefs_key])
-
-    def set_mouse_wheel_direction(self, direction):
-        """
-        Slot for Mouse Wheel Direction combo box.
-
-        @param direction: The mouse wheel direction for zooming in.
-                          0 = Pull (default), 1 = Push
-        @type  direction: int
-        """
-        env.prefs[mouseWheelDirection_prefs_key] = direction
-        self.w.updateMouseWheelSettings()
-        return
-
-    def set_mouse_wheel_zoom_in_position(self, position):
-        """
-        Slot for Mouse Wheel "Zoom In Position" combo box.
-
-        @param position: The mouse wheel zoom in position, where:
-                        0 = Cursor position (default)
-                        1 = Graphics area center
-        @type  position: int
-        """
-        env.prefs[zoomInAboutScreenCenter_prefs_key] = position
-        self.w.updateMouseWheelSettings()
-        return
-
-    def set_mouse_wheel_zoom_out_position(self, position):
-        """
-        Slot for Mouse Wheel "Zoom Out Position" combo box.
-
-        @param position: The mouse wheel zoom out position, where:
-                        0 = Cursor position (default)
-                        1 = Graphics area center
-        @type  position: int
-        """
-        env.prefs[zoomOutAboutScreenCenter_prefs_key] = position
-        self.w.updateMouseWheelSettings()
-        return
-
-    def set_mouse_wheel_timeout_interval(self, interval):
-        """
-        Slot method for the I{Hover highlighting timeout interval} spinbox.
-        @param interval: The timeout interval in seconds.
-        @type  interval: double
-        """
-        env.prefs[mouseWheelTimeoutInterval_prefs_key] = interval
-
-    # = Ruler slot methods
-
-    def set_ruler_display(self, display):
-        """
-        Set display of individual rulers.
-
-        @param display: The ruler display, where:
-                    - 0 = display both rulers
-                    - 1 = display vertical ruler only
-                    - 2 = display horizontal ruler only
-
-        @type  display: int
-        """
-        env.prefs[displayVertRuler_prefs_key] = True
-        env.prefs[displayHorzRuler_prefs_key] = True
-
-        if display == 1:
-            env.prefs[displayHorzRuler_prefs_key] = False
-
-        elif display == 2:
-            env.prefs[displayVertRuler_prefs_key] = False
-
-        # update the glpane
-        self.glpane.gl_update()
-
-    def set_ruler_position(self, position):
-        """
-        Set position of ruler(s).
-
-        @param position: The ruler position, where:
-                    - 0 = lower left
-                    - 1 = upper left
-                    - 2 = lower right
-                    - 3 = upper right
-
-        @type  position: int
-        """
-        # set the pref
-        env.prefs[rulerPosition_prefs_key] = position
-
-        # update the glpane
-        self.glpane.gl_update()
-
-    def change_ruler_color(self):
-        """
-        Change the ruler color.
-        """
-        self.usual_change_color( rulerColor_prefs_key)
-
-    def change_ruler_opacity(self, opacity):
-        """
-        Change the ruler opacity.
-        """
-        env.prefs[rulerOpacity_prefs_key] = opacity * 0.01
-
-    ########## End of slot methods for "General" page widgets ###########
-
-    ########## Slot methods for "Atoms" page widgets ################
-
-    def change_element_colors(self):
-        """
-        Display the Element Color Settings Dialog.
-        """
-        # Since the prefs dialog is modal, the element color settings dialog must be modal.
-        self.w.showElementColorSettings(self)
-
-    def usual_change_color(self, prefs_key, caption = "choose"): #bruce 050805
-        from widgets.prefs_widgets import colorpref_edit_dialog
-        colorpref_edit_dialog( self, prefs_key, caption = caption)
-
-    def change_atom_hilite_color(self):
-        """
-        Change the atom highlight color.
-        """
-        self.usual_change_color( atomHighlightColor_prefs_key)
-
-    def change_bondpoint_hilite_color(self):
-        """
-        Change the bondpoint highlight color.
-        """
-        self.usual_change_color( bondpointHighlightColor_prefs_key)
-
-    def change_hotspot_color(self): #bruce 050808 implement new slot which Mark recently added to .ui file
-        """
-        Change the free valence hotspot color.
-        """
-        #e fyi, we might rename hotspot to something like "bonding point" someday...
-        self.usual_change_color( bondpointHotspotColor_prefs_key)
-
-    def reset_atom_colors(self):
-        #bruce 050805 let's try it like this:
-        env.prefs.restore_defaults([ #e this list should be defined in a more central place.
-                                     atomHighlightColor_prefs_key,
-                                     bondpointHighlightColor_prefs_key,
-                                     bondpointHotspotColor_prefs_key
-                                     ])
-
-    def change_level_of_detail(self, level_of_detail_item): #bruce 060215 revised this
-        """
-        Change the level of detail, where <level_of_detail_item> is a value
-        between 0 and 3 where:
-            - 0 = low
-            - 1 = medium
-            - 2 = high
-            - 3 = variable (based on number of atoms in the part)
-
-        @note: the prefs db value for 'variable' is -1, to allow for higher LOD
-               levels in the future.
-        """
-        lod = level_of_detail_item
-        if level_of_detail_item == 3:
-            lod = -1
-        env.prefs[levelOfDetail_prefs_key] = lod
-        self.glpane.gl_update()
-        # the redraw this causes will (as of tonight) always recompute the correct drawLevel (in Part._recompute_drawLevel),
-        # and chunks will invalidate their display lists as needed to accomodate the change. [bruce 060215]
-        return
-
-    def change_ballStickAtomScaleFactor(self, scaleFactor):
-        """
-        Change the Ball and Stick atom scale factor.
-
-        @param scaleFactor: The scale factor (%).
-        @type  scaleFactor: int
-        """
-
-        env.prefs[diBALL_AtomRadius_prefs_key] = scaleFactor * .01
-        self._updateResetButton(self.reset_ballstick_scale_factor_btn, diBALL_AtomRadius_prefs_key)
-        return
-
-    def reset_ballStickAtomScaleFactor(self):
-        """
-        Slot called when pressing the CPK Atom Scale Factor reset button.
-        Restores the default value of the CPK Atom Scale Factor.
-        """
-        env.prefs.restore_defaults([diBALL_AtomRadius_prefs_key])
-        self.ballStickAtomScaleFactorSpinBox.setValue(int (env.prefs[diBALL_AtomRadius_prefs_key] * 100.0))
-        return
-
-    def change_cpkAtomScaleFactor(self, scaleFactor):
-        """
-        Change the atom scale factor for CPK display style.
-
-        @param scaleFactor: The scale factor (between 0.5 and 1.0).
-        @type  scaleFactor: float
-        """
-        env.prefs[cpkScaleFactor_prefs_key] = scaleFactor
-        self._updateResetButton(self.reset_cpk_scale_factor_btn, cpkScaleFactor_prefs_key)
-        return
-
-    def reset_cpkAtomScaleFactor(self):
-        """
-        Slot called when pressing the CPK Atom Scale Factor reset button.
-        Restores the default value of the CPK Atom Scale Factor.
-        """
-        env.prefs.restore_defaults([cpkScaleFactor_prefs_key])
-        self.cpkAtomScaleFactorDoubleSpinBox.setValue(env.prefs[cpkScaleFactor_prefs_key])
-
-    ########## End of slot methods for "Atoms" page widgets ###########
-
-    ########## Slot methods for "Bonds" page widgets ################
-
-    def change_bond_hilite_color(self):
-        """
-        Change the bond highlight color.
-        """
-        self.usual_change_color( bondHighlightColor_prefs_key)
-
-    def change_bond_stretch_color(self):
-        """
-        Change the bond stretch color.
-        """
-        self.usual_change_color( bondStretchColor_prefs_key)
-
-    def change_bond_vane_color(self):
-        """
-        Change the bond vane color for pi orbitals.
-        """
-        self.usual_change_color( bondVaneColor_prefs_key)
-
-    def change_ballstick_bondcolor(self): #bruce 060607 renamed this in this file and .ui/.py dialog files
-        """
-        Change the bond cylinder color used in Ball & Stick display mode.
-        """
-        self.usual_change_color( diBALL_bondcolor_prefs_key)
-
-    def reset_bond_colors(self):
-        #bruce 050805 let's try it like this:
-        env.prefs.restore_defaults([ #e this list should be defined in a more central place.
-                                     bondHighlightColor_prefs_key,
-                                     bondStretchColor_prefs_key,
-                                     bondVaneColor_prefs_key,
-                                     diBALL_bondcolor_prefs_key,
-                                     ])
-
-    def change_high_order_bond_display(self, val): #bruce 050806 filled this in
-        """
-        Slot for the button group that sets the high order bond display.
-        """
-        #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
-        try:
-            symbol = {0:'multicyl', 1:'vane', 2:'ribbon'}[val]
-            # note: this decoding must use the same (arbitrary) int->symbol mapping as the button group does.
-            # It's just a coincidence that the order is the same as in the prefs-type listed above.
-        except KeyError: #bruce 060627 added specific exception class (untested)
-            print "bug in change_high_order_bond_display: unknown val ignored:", val
-        else:
-            env.prefs[ pibondStyle_prefs_key ] = symbol
-        return
-
-    def change_bond_labels(self, val): #bruce 050806 filled this in
-        """
-        Slot for the checkbox that turns Pi Bond Letters on/off.
-        """
-        # (BTW, these are not "labels" -- someday we might add user-settable longer bond labels,
-        #  and the term "labels" should refer to that. These are just letters indicating the bond type. [bruce 050806])
-        env.prefs[ pibondLetters_prefs_key ] = not not val
-        # See also the other use of pibondLetters_prefs_key, where the checkbox is kept current when first shown.
-        return
-
-    def change_show_valence_errors(self, val): #bruce 050806 made this up
-        """
-        Slot for the checkbox that turns Show Valence Errors on/off.
-        """
-        env.prefs[ showValenceErrors_prefs_key ] = not not val
-##        if debug_flags.atom_debug:
-##            print showValenceErrors_prefs_key, env.prefs[ showValenceErrors_prefs_key ] #k prints true, from our initial setup of page
-        return
-
-    def change_bond_line_thickness(self, pixel_thickness): #mark 050831
-        """
-        Set the default bond line thickness for Lines display.
-        pixel_thickness can be 1, 2 or 3.
-        """
-        env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
-        self.update_bond_line_thickness_suffix()
-
-    def update_bond_line_thickness_suffix(self):
-        """
-        Updates the suffix for the bond line thickness spinbox.
-        """
-        if env.prefs[linesDisplayModeThickness_prefs_key] == 1:
-            self.bond_line_thickness_spinbox.setSuffix(' pixel')
-        else:
-            self.bond_line_thickness_spinbox.setSuffix(' pixels')
-
-    def change_ballstick_cylinder_radius(self, val):
-        """
-        Change the CPK (Ball and Stick) cylinder radius by % value <val>.
-        """
-        #bruce 060607 renamed change_cpk_cylinder_radius -> change_ballstick_cylinder_radius (in this file and .ui/.py dialog files)
-        env.prefs[diBALL_BondCylinderRadius_prefs_key] = val *.01
-
-        # Bruce wrote:
-        #k gl_update is probably not needed and in some cases is a slowdown [bruce 060607 comment]
-        # so I tested it and confirmed that gl_update() isn't needed.
-        # Mark 2008-01-31
-        #self.glpane.gl_update()
-
-    ########## End of slot methods for "Bonds" page widgets ###########
-
-    ########## Slot methods for "DNA" page widgets ################
-
-   
-    def dnaRestoreFactoryDefaults(self):
-        """
-        Slot for I{Restore Factory Defaults} button.
-        """
-        env.prefs.restore_defaults([
-            bdnaBasesPerTurn_prefs_key,
-            bdnaRise_prefs_key,
-            dnaDefaultStrand1Color_prefs_key,
-            dnaDefaultStrand2Color_prefs_key,
-            dnaDefaultSegmentColor_prefs_key
-        ])
-
-        # These generate signals (good), which calls slots
-        # save_dnaBasesPerTurn() and save_dnaRise()
-        self.dnaBasesPerTurnDoubleSpinBox.setValue(env.prefs[bdnaBasesPerTurn_prefs_key])
-        self.dnaRiseDoubleSpinBox.setValue(env.prefs[bdnaRise_prefs_key])
-
-    def changeDnaDefaultStrand1Color(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA default strand1 color.
-        """
-        self.usual_change_color( dnaDefaultStrand1Color_prefs_key )
-
-    def changeDnaDefaultStrand2Color(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA default strand2 color.
-        """
-        self.usual_change_color( dnaDefaultStrand2Color_prefs_key )
-
-    def changeDnaDefaultSegmentColor(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA default segment color.
-        """
-        self.usual_change_color( dnaDefaultSegmentColor_prefs_key )
-
-    def save_dnaStrutScale(self, scale_factor):
-        """
-        Slot for B{Strut Scale Factor} spinbox.
-        @param scale_factor: The struct scale factor.
-        @type  scale_factor: int
-        """
-        env.prefs[dnaStrutScaleFactor_prefs_key] = scale_factor * .01
-
-    def update_dnaStrandThreePrimeArrowheadCustomColorWidgets(self, enabled_flag):
-        """
-        Slot for the "Custom color" checkbox,for three prime arrowhead
-        used to disable/enable thecolor related widgets (frame and choose button).
-        """
-        self.strandThreePrimeArrowheadsCustomColorFrame.setEnabled(enabled_flag)
-        self.strandThreePrimeArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
-        return
-
-    def update_dnaStrandFivePrimeArrowheadCustomColorWidgets(self, enabled_flag):
-        """
-        Slot for the "Custom color" checkbox, used to disable/enable the
-        color related widgets (frame and choose button).
-        """
-        self.strandFivePrimeArrowheadsCustomColorFrame.setEnabled(enabled_flag)
-        self.strandFivePrimeArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
-        return
-
-    def change_dnaStrandThreePrimeArrowheadCustomColor(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA strand three prime arrowhead color.
-        """
-        self.usual_change_color( dnaStrandThreePrimeArrowheadsCustomColor_prefs_key )
-
-    def change_dnaStrandFivePrimeArrowheadCustomColor(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA strand five prime arrowhead color.
-        """
-        self.usual_change_color( dnaStrandFivePrimeArrowheadsCustomColor_prefs_key )
-
-    def save_dnaMinMinorGrooveAngles(self, minAngle):
-        """
-        Slot for minimum minor groove angle spinboxes.
-
-        @param minAngle: The minimum angle.
-        @type  minAngle: int
-        """
-        env.prefs[dnaMinMinorGrooveAngle_prefs_key] = minAngle
-
-    def save_dnaMaxMinorGrooveAngles(self, maxAngle):
-        """
-        Slot for maximum minor groove angle spinboxes.
-
-        @param maxAngle: The maximum angle.
-        @type  maxAngle: int
-        """
-        env.prefs[dnaMaxMinorGrooveAngle_prefs_key] = maxAngle
-
-    def change_dnaMinorGrooveErrorIndicatorColor(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA minor groove error indicator color.
-        """
-        self.usual_change_color( dnaMinorGrooveErrorIndicatorColor_prefs_key )
-
-    def _restore_dnaMinorGrooveFactoryDefaults(self):
-        """
-        Slot for Minor Groove Error Indicator I{Restore Factory Defaults}
-        button.
-        """
-        env.prefs.restore_defaults([
-            dnaMinMinorGrooveAngle_prefs_key,
-            dnaMaxMinorGrooveAngle_prefs_key,
-            dnaMinorGrooveErrorIndicatorColor_prefs_key,
-        ])
-
-        # These generate signals!
-        self.dnaMinGrooveAngleSpinBox.setValue(
-            env.prefs[dnaMinMinorGrooveAngle_prefs_key])
-        self.dnaMaxGrooveAngleSpinBox.setValue(
-            env.prefs[dnaMaxMinorGrooveAngle_prefs_key])
-
-    # DNA display style piotr 080310
-    def change_dnaStyleStrandsColor(self, value):
-        """
-        Changes DNA Style strands color.
-
-        @param color: The color mode:
-                    - 0 = color same as chunk
-                    - 1 = base oder
-                    - 2 = strand order
-        @type color: int
-        """
-        env.prefs[dnaStyleStrandsColor_prefs_key] = value
-
-    def change_dnaStyleStrutsColor(self, color):
-        """
-        Changes DNA Style struts color.
-
-        @param color: The color mode:
-                    - 0 = color same as chunk
-                    - 1 = strand order
-                    - 2 = base type
-
-        @type color: int
-        """
-        env.prefs[dnaStyleStrutsColor_prefs_key] = color
-
-    def change_dnaStyleAxisColor(self, color):
-        """
-        Changes DNA Style axis color.
-
-        @param color: The color mode:
-                    - 0 = color same as chunk
-                    - 0 = color same as chunk
-                    - 1 = base oder
-                    - 2 = discrete bse order
-                    - 3 = base type
-                    - 4 = strand order
-
-        @type color: int
-        """
-        env.prefs[dnaStyleAxisColor_prefs_key] = color
-
-    def change_dnaStyleBasesColor(self, color):
-        """
-        Changes DNA Style bases color.
-
-        @param color: The color mode:
-                    - 0 = color same as chunk
-                    - 1 = base order
-                    - 2 = strand order
-                    - 3 = base type
-
-        @type color: int
-        """
-        env.prefs[dnaStyleBasesColor_prefs_key] = color
-
-    def change_dnaStyleStrandsShape(self, shape):
-        """
-        Changes DNA Style strands shape.
-
-        @param shape: The shape mode:
-                    - 0 = none (hidden)
-                    - 1 = cylinders
-                    - 2 = tube
-
-        @type shape: int
-        """
-        env.prefs[dnaStyleStrandsShape_prefs_key] = shape
-
-    def change_dnaStyleStrutsShape(self, shape):
-        """
-        Changes DNA Style strands shape.
-
-        @param shape: The shape mode:
-                    - 0 = none (hidden)
-                    - 1 = base-axis-base
-                    - 2 = straight cylinders
-
-        @type shape: int
-        """
-        env.prefs[dnaStyleStrutsShape_prefs_key] = shape
-
-    def change_dnaStyleAxisShape(self, shape):
-        """
-        Changes DNA Style strands shape.
-
-        @param shape: The shape mode:
-                    - 0 = none (hidden)
-                    - 1 = wide tube
-                    - 2 = narrow tube
-
-        @type shape: int
-        """
-        env.prefs[dnaStyleAxisShape_prefs_key] = shape
-
-    def change_dnaStyleBasesShape(self, shape):
-        """
-        Changes DNA Style strands shape.
-
-        @param shape: The shape mode:
-                    - 0 = none (hidden)
-                    - 1 = spheres
-                    - 2 = cartoon-like
-
-        @type shape: int
-        """
-        env.prefs[dnaStyleBasesShape_prefs_key] = shape
-
-    def change_dnaStyleStrandsScale(self, scale_factor):
-        """
-        @param scale_factor: The strands scale factor.
-        @type  scale_factor: float
-        """
-        env.prefs[dnaStyleStrandsScale_prefs_key] = scale_factor
-        #self.update_dnaStyleStrandsScale()
-
-    def update_dnaStyleStrandsScale(self):
-        """
-        Updates the DNA Style Strands Scale spin box.
-        """
-        # Set strands scale.
-
-        self.dnaStyleStrandsScaleSpinBox.setValue(
-            float(env.prefs[dnaStyleStrandsScale_prefs_key]))
-
-    def change_dnaStyleStrutsScale(self, scale_factor):
-        """
-        @param scale_factor: The struts scale factor.
-        @type  scale_factor: float
-        """
-        env.prefs[dnaStyleStrutsScale_prefs_key] = scale_factor
-
-    def change_dnaStyleAxisScale(self, scale_factor):
-        """
-        @param scale_factor: The axis scale factor.
-        @type  scale_factor: float
-        """
-        env.prefs[dnaStyleAxisScale_prefs_key] = scale_factor
-
-    def change_dnaStyleBasesScale(self, scale_factor):
-        """
-        @param scale_factor: The bases scale factor.
-        @type  scale_factor: float
-        """
-        env.prefs[dnaStyleBasesScale_prefs_key] = scale_factor
-        #self.update_dnaStyleBasesScale()
-
-    def update_dnaStyleBasesScale(self):
-        """
-        Updates the DNA Style bases scale spin box.
-        """
-        # Set axis scale.
-        self.dnaStyleBasesScaleSpinBox.setValue(
-            float(env.prefs[dnaStyleBasesScale_prefs_key]))
-
-    def change_dnaBaseIndicatorsAngle(self, angle):
-        """
-        @param angle: The angular threshold for DNA base indicators.
-        @type  angle: double
-        """
-        print "angle (set) = ", angle
-        env.prefs[dnaBaseIndicatorsAngle_prefs_key] = angle
-        self.update_dnaBaseIndicatorsAngle()
-
-    def update_dnaBaseIndicatorsAngle(self):
-        """
-        Updates the DNA base orientation indicators angular threshold spinbox.
-        """
-        self.dnaBaseOrientationIndicatorsThresholdSpinBox.setValue(
-            float(env.prefs[dnaBaseIndicatorsAngle_prefs_key]))
-
-    def change_dnaBaseIndicatorsDistance(self, distance):
-        """
-        @param distance: The distance threshold for DNA base indicators.
-        @type  distance: double
-        """
-        env.prefs[dnaBaseIndicatorsDistance_prefs_key] = distance
-        self.update_dnaBaseIndicatorsDistance()
-
-    def update_dnaBaseIndicatorsDistance(self):
-        """
-        Updates the DNA base orientation indicators distance threshold spinbox.
-        """
-        self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setValue(
-            int(env.prefs[dnaBaseIndicatorsDistance_prefs_key]))
-
-    def change_dnaStyleStrandsArrows(self, shape):
-        """
-        Changes DNA Style strands shape.
-
-        @param shape: The shape mode:
-                    - 0 = none (hidden)
-
-        @type shape: int
-        """
-        env.prefs[dnaStyleStrandsArrows_prefs_key] = shape
-
-    def change_dnaStyleAxisEndingStyle(self, shape):
-        """
-        Changes DNA Style strands ends.
-
-        @param shape: The ending style shape:
-                    - 0 = flat
-                    - 1 = taper beginning
-                    - 2 = taper ending
-                    - 3 = taper both ends
-                    - 4 = spherical
-
-        @type shape: int
-        """
-        env.prefs[dnaStyleAxisEndingStyle_prefs_key] = shape
-
-    def toggle_dnaDisplayStrandLabelsGroupBox(self, state):
-        """
-        Toggles DNA Strand Labels GroupBox.
-
-        @param state: Is the GroupBox enabled?
-                    - True = on
-                    - False = off
-        @type state: boolean
-        """
-        env.prefs[dnaStrandLabelsEnabled_prefs_key] = state
-
-    def toggle_dnaDisplayBaseOrientationIndicatorsGroupBox(self, state):
-        """
-        Toggles DNA Base Orientation Indicators GroupBox.
-
-        @param state: Is the GroupBox enabled?
-                    - True = on
-                    - False = off
-        @type state: boolean
-        """
-        env.prefs[dnaBaseIndicatorsEnabled_prefs_key] = state
-
-    def toggle_dnaDisplayBaseOrientationInvIndicatorsCheckBox(self, state):
-        """
-        Toggles DNA Base Orientation Inverse Indicators CheckBox.
-
-        @param state: Is the CheckBox enabled?
-                    - True = on
-                    - False = off
-        @type state: boolean
-        """
-        env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key] = state
-
-    def toggle_dnaStyleBasesDisplayLettersCheckBox(self, state):
-        """
-        Toggles DNA Base Letters.
-
-        @param state: Is the CheckBox enabled?
-                    - True = on
-                    - False = off
-        @type state: boolean
-        """
-        env.prefs[dnaStyleBasesDisplayLetters_prefs_key] = state
-
-    def change_dnaBaseOrientIndicatorsPlane(self, idx):
-        """
-        Slot for the "Plane" combobox for changing the
-        DNA base indicators plane.
-        """
-        env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key] = idx
-
-    def change_dnaBaseIndicatorsColor(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA base indicators color.
-        """
-        self.usual_change_color( dnaBaseIndicatorsColor_prefs_key )
-
-    def change_dnaBaseInvIndicatorsColor(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA base inverse indicators color.
-        """
-        self.usual_change_color( dnaBaseInvIndicatorsColor_prefs_key )
-
-    def change_dnaStrandLabelsColor(self):
-        """
-        Slot for the I{Choose...} button for changing the
-        DNA strand labels color.
-        """
-        self.usual_change_color( dnaStrandLabelsColor_prefs_key )
-
-    def change_dnaStrandLabelsColorMode(self, mode):
-        """
-        Changes DNA Style strand labels color mode.
-
-        @param mode: The color mode:
-                    - 0 = same as chunk
-                    - 1 = black
-                    - 2 = white
-                    - 3 = custom
-
-        @type mode: int
-        """
-        env.prefs[dnaStrandLabelsColorMode_prefs_key] = mode
-
-    # == End of slot methods for "DNA" page widgets ==
-
-    # == Slot methods for "Lighting" page widgets ==
-
-    def change_lighting(self, specularityValueJunk = None):
-        """
-        Updates glpane lighting using the current lighting parameters from
-        the light checkboxes and sliders. This is also the slot for the light
-        sliders.
-        @param specularityValueJunk: This value from the slider is not used
-                                     We are interested in valueChanged signal
-                                     only
-        @type specularityValueJunk = int or None
-
-        """
-
-        light_num = self.light_combobox.currentIndex()
-
-        light1, light2, light3 = self.glpane.getLighting()
-
-        a = self.light_ambient_slider.value() * .01
-        d = self.light_diffuse_slider.value() * .01
-        s = self.light_specularity_slider.value()  * .01
-
-        self.light_ambient_linedit.setText(str(a))
-        self.light_diffuse_linedit.setText(str(d))
-        self.light_specularity_linedit.setText(str(s))
-
-        new_light = [  self.light_color, a, d, s, \
-                       float(str(self.light_x_linedit.text())), \
-                       float(str(self.light_y_linedit.text())), \
-                       float(str(self.light_z_linedit.text())), \
-                       self.light_checkbox.isChecked()]
-
-        # This is a kludge.  I'm certain there is a more elegant way.  Mark 051204.
-        if light_num == 0:
-            self.glpane.setLighting([new_light, light2, light3])
-        elif light_num == 1:
-            self.glpane.setLighting([light1, new_light, light3])
-        elif light_num == 2:
-            self.glpane.setLighting([light1, light2, new_light])
-        else:
-            print "Unsupported light # ", light_num,". No lighting change made."
-
-    def change_active_light(self, currentIndexJunk = None):
-        """
-        Slot for the Light number combobox.  This changes the current light.
-        @param currentIndexJunk: This index value from the combobox is not used
-                                 We are interested in 'activated' signal only
-        @type currentIndexJunk = int or None
-        """
-        self._updatePage_Lighting()
-
-    def change_light_color(self):
-        """
-        Slot for light color "Choose" button.  Saves the new color in the
-        prefs db.
-
-        Changes the current Light color in the graphics area and the light
-        color swatch in the UI.
-        """
-        self.usual_change_color(self.current_light_key)
-        self.light_color = env.prefs[self.current_light_key]
-        self.save_lighting()
-
-    def update_light_combobox_items(self):
-        """Updates all light combobox items with '(On)' or '(Off)' label.
-        """
-        for i in range(3):
-            if self.lights[i][7]:
-                txt = "%d (On)" % (i+1)
-            else:
-                txt = "%d (Off)" % (i+1)
-            self.light_combobox.setItemText(i, txt)
-
-    def toggle_light(self, on):
-        """
-        Slot for light 'On' checkbox.
-        It updates the current item in the light combobox with '(On)' or
-        '(Off)' label.
-        """
-        if on:
-            txt = "%d (On)" % (self.light_combobox.currentIndex()+1)
-        else:
-            txt = "%d (Off)" % (self.light_combobox.currentIndex()+1)
-        self.light_combobox.setItemText(self.light_combobox.currentIndex(),txt)
-
-        self.save_lighting()
-
-    def save_lighting(self):
-        """
-        Saves lighting parameters (but not material specularity parameters)
-        to pref db. This is also the slot for light sliders (only when
-        released).
-        """
-        self.change_lighting()
-        self.glpane.saveLighting()
-
-    def toggle_material_specularity(self, val):
-        """
-        This is the slot for the Material Specularity Enabled checkbox.
-        """
-        env.prefs[material_specular_highlights_prefs_key] = val
-
-    def change_material_finish(self, finish):
-        """
-        This is the slot for the Material Finish slider.
-        'finish' is between 0 and 100.
-        Saves finish parameter to pref db.
-        """
-        # For whiteness, the stored range is 0.0 (Metal) to 1.0 (Plastic).
-        # The Qt slider range is 0 - 100, so we multiply by 100 to set the slider.  Mark. 051129.
-        env.prefs[material_specular_finish_prefs_key] = float(finish * 0.01)
-        self.ms_finish_linedit.setText(str(finish * 0.01))
-
-    def change_material_shininess(self, shininess):
-        """
-        This is the slot for the Material Shininess slider.
-        'shininess' is between 15 (low) and 60 (high).
-        """
-        env.prefs[material_specular_shininess_prefs_key] = float(shininess)
-        self.ms_shininess_linedit.setText(str(shininess))
-
-    def change_material_brightness(self, brightness):
-        """
-        This is the slot for the Material Brightness slider.
-        'brightness' is between 0 (low) and 100 (high).
-        """
-        env.prefs[material_specular_brightness_prefs_key] = float(brightness * 0.01)
-        self.ms_brightness_linedit.setText(str(brightness * 0.01))
-
-    def change_material_finish_start(self):
-        if debug_sliders: print "Finish slider pressed"
-        env.prefs.suspend_saving_changes() #bruce 051205 new prefs feature - keep updating to glpane but not (yet) to disk
-
-    def change_material_finish_stop(self):
-        if debug_sliders: print "Finish slider released"
-        env.prefs.resume_saving_changes() #bruce 051205 new prefs feature - save accumulated changes now
-
-    def change_material_shininess_start(self):
-        if debug_sliders: print "Shininess slider pressed"
-        env.prefs.suspend_saving_changes()
-
-    def change_material_shininess_stop(self):
-        if debug_sliders: print "Shininess slider released"
-        env.prefs.resume_saving_changes()
-
-    def change_material_brightness_start(self):
-        if debug_sliders: print "Brightness slider pressed"
-        env.prefs.suspend_saving_changes()
-
-    def change_material_brightness_stop(self):
-        if debug_sliders: print "Brightness slider released"
-        env.prefs.resume_saving_changes()
-
-    def reset_lighting(self):
-        """
-        Slot for Reset button.
-        """
-        # This has issues.
-        # I intend to remove the Reset button for A7.  Confirm with Bruce.  Mark 051204.
-        self._setup_material_group(reset = True)
-        self._updatePage_Lighting(self.original_lights)
-        self.glpane.saveLighting()
-
-    def restore_default_lighting(self):
-        """
-        Slot for Restore Defaults button.
-        """
-
-        self.glpane.restoreDefaultLighting()
-
-        # Restore defaults for the Material Specularity properties
-        env.prefs.restore_defaults([
-            material_specular_highlights_prefs_key,
-            material_specular_shininess_prefs_key,
-            material_specular_finish_prefs_key,
-            material_specular_brightness_prefs_key, #bruce 051203 bugfix
-        ])
-
-        self._updatePage_Lighting()
-        self.save_lighting()
-
-    ########## End of slot methods for "Lighting" page widgets ###########
 
     ########## Slot methods for "Plug-ins" page widgets ################
 
@@ -2814,7 +664,7 @@ class Preferences(PreferencesDialog):
         if gamess_exe:
             self.gamess_path_lineedit.setText(env.prefs[gmspath_prefs_key])
 
-    def set_gamess_path(self, newValue):
+    def set_gamess_path(self):
         """
         Slot for GAMESS path line editor.
         """
@@ -2854,11 +704,15 @@ class Preferences(PreferencesDialog):
         if mdrun_executable:
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
 
-    def set_gromacs_path(self, newValue):
+    def set_gromacs_path(self):
         """
         Slot for GROMACS path line editor.
         """
-        env.prefs[gromacs_path_prefs_key] = str_or_unicode(newValue)
+        setPath = str_or_unicode(self.choosers["GROMACS"].text)
+        env.prefs[gromacs_path_prefs_key] = setPath
+        prefs = preferences.prefs_context()
+        prefs[gromacs_path_prefs_key] = setPath
+        return setPath
 
     def enable_gromacs(self, enable = True):
         """
@@ -2868,12 +722,11 @@ class Preferences(PreferencesDialog):
         @type  enable: bool
         """
 
-        state = self.gromacs_checkbox.checkState()
+        state = self.checkboxes["GROMACS"].checkState()
         if enable:
             if (state != Qt.Checked):
-                self.gromacs_checkbox.setCheckState(Qt.Checked)
-            self.gromacs_path_lineedit.setEnabled(True)
-            self.gromacs_choose_btn.setEnabled(True)
+                self.checkboxes["GROMACS"].setCheckState(Qt.Checked)
+            self.choosers["GROMACS"].setEnabled(True)
             env.prefs[gromacs_enabled_prefs_key] = True
 
             # Sets the GROMACS (executable) path to the standard location, if it exists.
@@ -2883,36 +736,27 @@ class Preferences(PreferencesDialog):
                     "/Applications/GROMACS_3.3.3/bin/mdrun",
                     "/usr/local/GROMCAS_3.3.3/bin/mdrun")
 
-            self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
+            self.choosers["GROMACS"].setText(env.prefs[gromacs_path_prefs_key])
 
         else:
             if (state != Qt.Unchecked):
-                self.gromacs_checkbox.setCheckState(Qt.Unchecked)
-            self.gromacs_path_lineedit.setEnabled(False)
-            self.gromacs_choose_btn.setEnabled(False)
+                self.checkboxes["GROMACS"].setCheckState(Qt.Unchecked)
+            self.choosers["GROMACS"].setEnabled(False)
             #self.gromacs_path_lineedit.setText("")
             #env.prefs[gromacs_path_prefs_key] = ''
             env.prefs[gromacs_enabled_prefs_key] = False
 
     # cpp slots #######################################
 
-    def choose_cpp_path(self):
-        """
-        Sets the path to cpp (C pre-processor)
-        """
-
-        cpp_executable = get_filename_and_save_in_prefs(self,
-                                                        cpp_path_prefs_key,
-                                                        'Choose cpp Executable (used by GROMACS)')
-
-        if cpp_executable:
-            self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
-
-    def set_cpp_path(self, newValue):
+    def set_cpp_path(self):
         """
         Slot for cpp path line editor.
         """
-        env.prefs[cpp_path_prefs_key] = str_or_unicode(newValue)
+        setPath = str_or_unicode(self.choosers["cpp"].text)
+        env.prefs[cpp_path_prefs_key] = setPath
+        prefs = preferences.prefs_context()
+        prefs[cpp_path_prefs_key] = setPath
+        return setPath
 
     def enable_cpp(self, enable = True):
         """
@@ -2921,12 +765,11 @@ class Preferences(PreferencesDialog):
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
         """
-        state = self.cpp_checkbox.checkState()
+        state = self.checkboxes["cpp"].checkState()
         if enable:
             if (state != Qt.Checked):
-                self.cpp_checkbox.setCheckState(Qt.Checked)
-            self.cpp_path_lineedit.setEnabled(True)
-            self.cpp_choose_btn.setEnabled(True)
+                self.checkboxes["cpp"].setCheckState(Qt.Checked)
+            self.choosers["cpp"].setEnabled(True)
             env.prefs[cpp_enabled_prefs_key] = True
 
             # Sets the cpp path to the standard location, if it exists.
@@ -2936,92 +779,28 @@ class Preferences(PreferencesDialog):
                     "/Applications/GROMACS_3.3.3/mcpp/bin/mcpp", \
                     "/usr/local/GROMACS_3.3.3/mcpp/bin/mcpp")
 
-            self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
+            self.choosers["cpp"].setText(env.prefs[cpp_path_prefs_key])
 
         else:
             if (state != Qt.Unchecked):
-                self.cpp_checkbox.setCheckState(Qt.Unchecked)
-            self.cpp_path_lineedit.setEnabled(False)
-            self.cpp_choose_btn.setEnabled(False)
+                self.checkboxes["cpp"].setCheckState(Qt.Unchecked)
+            self.choosers["cpp"].setEnabled(False)
             #self.cpp_path_lineedit.setText("")
             #env.prefs[cpp_path_prefs_key] = ''
             env.prefs[cpp_enabled_prefs_key] = False
 
-    # NanoVision-1 slots #######################################
-
-    def choose_nv1_path(self):
-        """
-        Slot for NanoVision-1 path "Choose" button.
-        """
-
-        nv1_executable = get_filename_and_save_in_prefs(self,
-                                                        nv1_path_prefs_key,
-                                                        'Choose NanoVision-1 Executable')
-
-        if nv1_executable:
-            self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
-
-    def set_nv1_path(self, newValue):
-        """
-        Slot for NanoVision-1 path line editor.
-        """
-        env.prefs[nv1_path_prefs_key] = str_or_unicode(newValue)
-
-    def enable_nv1(self, enable = True):
-        """
-        If True, NV1 path is set in Preferences > Plug-ins
-
-        @param enable: Is the path set?
-        @type  enable: bool
-        """
-
-        state = self.nv1_checkbox.checkState()
-        if enable:
-            if (state != Qt.Checked):
-                self.nv1_checkbox.setCheckState(Qt.Checked)
-            self.nv1_path_lineedit.setEnabled(True)
-            self.nv1_choose_btn.setEnabled(True)
-            env.prefs[nv1_enabled_prefs_key] = True
-
-            # Sets the NV1 (executable) path to the standard location, if it exists.
-            if not env.prefs[nv1_path_prefs_key]:
-                env.prefs[nv1_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\Program Files\\Nanorex\\NanoVision-1\\NanoVision-1.exe", \
-                    "/Applications/Nanorex/NanoVision-1 0.1.0/NanoVision-1.app", \
-                    "/usr/local/Nanorex/NanoVision-1 0.1.0/NanoVision-1")
-
-            self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
-
-        else:
-            if (state != Qt.Unchecked):
-                self.nv1_checkbox.setCheckState(Qt.Unchecked)
-            self.nv1_path_lineedit.setEnabled(False)
-            self.nv1_choose_btn.setEnabled(False)
-            #self.nv1_path_lineedit.setText("")
-            #env.prefs[nv1_path_prefs_key] = ''
-            env.prefs[nv1_enabled_prefs_key] = False
-        return
     
     # Rosetta slots #######################################
 
-    def choose_rosetta_path(self):
-        """
-        Slot for Rosetta path "Choose" button.
-        """
-
-        rosetta_executable = get_filename_and_save_in_prefs(self,
-                                                        rosetta_path_prefs_key,
-                                                        'Choose Rosetta Executable')
-
-        if rosetta_executable:
-            self.rosetta_path_lineedit.setText(env.prefs[rosetta_path_prefs_key])
-
-    def set_rosetta_path(self, newValue):
+    def set_rosetta_path(self):
         """
         Slot for Rosetta path line editor.
         """
-        env.prefs[rosetta_path_prefs_key] = str_or_unicode(newValue)
-        return
+        setPath = str_or_unicode(self.choosers["Rosetta"].text)
+        env.prefs[rosetta_path_prefs_key] = setPath
+        prefs = preferences.prefs_context()
+        prefs[rosetta_path_prefs_key] = setPath
+        return setPath
 
     def enable_rosetta(self, enable = True):
         """
@@ -3031,12 +810,11 @@ class Preferences(PreferencesDialog):
         @type  enable: bool
         """
 
-        state = self.rosetta_checkbox.checkState()
+        state = self.checkboxes["Rosetta"].checkState()
         if enable:
             if (state != Qt.Checked):
-                self.rosetta_checkbox.setCheckState(Qt.Checked)
-            self.rosetta_path_lineedit.setEnabled(True)
-            self.rosetta_choose_btn.setEnabled(True)
+                self.checkboxes["Rosetta"].setCheckState(Qt.Checked)
+            self.choosers["Rosetta"].setEnabled(True)
             env.prefs[rosetta_enabled_prefs_key] = True
 
             # Sets the rosetta (executable) path to the standard location, if it exists.
@@ -3046,36 +824,26 @@ class Preferences(PreferencesDialog):
                     "/Users/marksims/Nanorex/Rosetta/rosetta++/rosetta.mactel", \
                     "/usr/local/Rosetta/Rosetta")
 
-            self.rosetta_path_lineedit.setText(env.prefs[rosetta_path_prefs_key])
+            self.choosers["Rosetta"].setText(env.prefs[rosetta_path_prefs_key])
 
         else:
             if (state != Qt.Unchecked):
-                self.rosetta_checkbox.setCheckState(Qt.Unchecked)
-            self.rosetta_path_lineedit.setEnabled(False)
-            self.rosetta_choose_btn.setEnabled(False)
+                self.checkboxes["Rosetta"].setCheckState(Qt.Unchecked)
+            self.choosers["Rosetta"].setEnabled(False)
             env.prefs[rosetta_enabled_prefs_key] = False
         return
     
     # Rosetta DB slots #######################################
     
-    def choose_rosetta_db_path(self):
-        """
-        Slot for Rosetta DB path "Choose" button.
-        """
-
-        rosetta_db_executable = get_filename_and_save_in_prefs(self,
-                                                        rosetta_dbdir_prefs_key,
-                                                        'Choose Rosetta database directory')
-
-        # piotr 081908: this pref key doesn't exist
-        #if rosetta_db_executable:
-        #    self.rosetta_db_path_lineedit.setText(env.prefs[rosetta_db_path_prefs_key])
-
-    def set_rosetta_db_path(self, newValue):
+    def set_rosetta_db_path(self):
         """
         Slot for Rosetta db path line editor.
         """
-        env.prefs[rosetta_dbdir_prefs_key] = str_or_unicode(newValue)
+        setPath = str_or_unicode(self.choosers["Rosetta DB"].text)
+        env.prefs[rosetta_dbdir_prefs_key] = setPath
+        prefs = preferences.prefs_context()
+        prefs[rosetta_dbdir_prefs_key] = setPath
+        return setPath
 
     def enable_rosetta_db(self, enable = True):
         """
@@ -3085,12 +853,11 @@ class Preferences(PreferencesDialog):
         @type  enable: bool
         """
 
-        state = self.rosetta_db_checkbox.checkState()
+        state = self.checkboxes["Rosetta DB"].checkState()
         if enable:
             if (state != Qt.Checked):
-                self.rosetta_db_checkbox.setCheckState(Qt.Checked)
-            self.rosetta_db_path_lineedit.setEnabled(True)
-            self.rosetta_db_choose_btn.setEnabled(True)
+                self.checkboxes["Rosetta DB"].setCheckState(Qt.Checked)
+            self.choosers["Rosetta DB"].setEnabled(True)
             env.prefs[rosetta_database_enabled_prefs_key] = True
 
             # Sets the rosetta (executable) path to the standard location, if it exists.
@@ -3100,36 +867,29 @@ class Preferences(PreferencesDialog):
                     "/Users/marksims/Nanorex/Rosetta/Rosetta_database", \
                     "/usr/local/Rosetta/Rosetta_database")
 
-            self.rosetta_db_path_lineedit.setText(env.prefs[rosetta_dbdir_prefs_key])
+            self.choosers["Rosetta DB"].setText(env.prefs[rosetta_dbdir_prefs_key])
 
         else:
             if (state != Qt.Unchecked):
-                self.rosetta_db_checkbox.setCheckState(Qt.Unchecked)
-            self.rosetta_db_path_lineedit.setEnabled(False)
-            self.rosetta_db_choose_btn.setEnabled(False)
+                self.checkboxes["Rosetta DB"].setCheckState(Qt.Unchecked)
+            self.choosers["Rosetta DB"].setEnabled(False)
             env.prefs[rosetta_database_enabled_prefs_key] = False
         return
 
     # QuteMolX slots #######################################
 
-    def choose_qutemol_path(self):
+    def set_qutemolx_path(self):
         """
         Slot for QuteMolX path "Choose" button.
         """
-        qp = get_filename_and_save_in_prefs(self,
-                                            qutemol_path_prefs_key,
-                                            'Choose QuteMolX Executable')
+        setPath = str_or_unicode(self.choosers["QuteMolX"].text)
+        env.prefs[qutemol_path_prefs_key] = setPath
+        prefs = preferences.prefs_context()
+        prefs[qutemol_path_prefs_key] = setPath
 
-        if qp:
-            self.qutemol_path_lineedit.setText(qp)
+        return setPath
 
-    def set_qutemol_path(self, newValue):
-        """
-        Slot for QuteMol path line editor.
-        """
-        env.prefs[qutemol_path_prefs_key] = str_or_unicode(newValue)
-
-    def enable_qutemol(self, enable = True):
+    def enable_qutemolx(self, enable = True):
         """
         Enables/disables QuteMolX plugin.
 
@@ -3138,7 +898,6 @@ class Preferences(PreferencesDialog):
         """
         if enable:
             self.choosers["QuteMolX"].setEnabled(1)
-            self.qutemol_choose_btn.setEnabled(1)
             env.prefs[qutemol_enabled_prefs_key] = True
 
             # Sets the QuteMolX (executable) path to the standard location, if it exists.
@@ -3148,94 +907,24 @@ class Preferences(PreferencesDialog):
                     "/Applications/Nanorex/QuteMolX 0.5.0/QuteMolX.app", \
                     "/usr/local/Nanorex/QuteMolX 0.5.0/QuteMolX")
 
-            self.qutemol_path_lineedit.setText(env.prefs[qutemol_path_prefs_key])
+            self.choosers["QuteMolX"].setText(env.prefs[qutemol_path_prefs_key])
 
         else:
-            self.qutemol_path_lineedit.setEnabled(0)
-            self.qutemol_choose_btn.setEnabled(0)
-            #self.qutemol_path_lineedit.setText("")
+            self.choosers["QuteMolX"].setEnabled(0)
             #env.prefs[qutemol_path_prefs_key] = ''
             env.prefs[qutemol_enabled_prefs_key] = False
 
-    # NanoHive-1 slots #####################################
-
-    def choose_nanohive_path(self):
-        """
-        Slot for Nano-Hive path "Choose" button.
-        """
-
-        nh = get_filename_and_save_in_prefs(self,
-                                            nanohive_path_prefs_key,
-                                            'Choose Nano-Hive Executable')
-
-        if nh:
-            self.nanohive_path_lineedit.setText(nh)
-
-    def set_nanohive_path(self, newValue):
-        """
-        Slot for NanoHive path line editor.
-        """
-        env.prefs[nanohive_path_prefs_key] = str_or_unicode(newValue)
-
-    def enable_nanohive(self, enable = True):
-        """
-        Enables/disables NanoHive-1 plugin.
-
-        @param enable: Enabled when True. Disables when False.
-        @type  enable: bool
-
-        @attention: This is disabled since the NH1 plugin doesn't work yet.
-        """
-        if enable:
-            self.nanohive_path_lineedit.setEnabled(1)
-            self.nanohive_choose_btn.setEnabled(1)
-            # Leave Nano-Hive action button/menu hidden for A7.  Mark 2006-01-04.
-            # self.w.simNanoHiveAction.setVisible(1)
-
-            # Sets the Nano-Hive (executable) path to the standard location, if it exists.
-            if not env.prefs[nanohive_path_prefs_key]:
-                env.prefs[nanohive_path_prefs_key] = get_default_plugin_path(
-                    "C:\\Program Files\\Nano-Hive\\bin\\win32-x86\\NanoHive.exe", \
-                    "/usr/local/bin/NanoHive", \
-                    "/usr/local/bin/NanoHive")
-
-
-            env.prefs[nanohive_enabled_prefs_key] = True
-            self.nanohive_path_lineedit.setText(env.prefs[nanohive_path_prefs_key])
-
-            # Create the Nano-Hive dialog widget.
-            # Not needed for A7.  Mark 2006-01-05.
-            #if not self.w.nanohive:
-            #    from NanoHive import NanoHive
-            #    self.w.nanohive = NanoHive(self.assy)
-
-        else:
-            self.nanohive_path_lineedit.setEnabled(0)
-            self.nanohive_choose_btn.setEnabled(0)
-            self.w.nanohive = None
-            self.w.simNanoHiveAction.setVisible(0)
-            #self.nanohive_path_lineedit.setText("")
-            #env.prefs[nanohive_path_prefs_key] = ''
-            env.prefs[nanohive_enabled_prefs_key] = False
-
     # POV-Ray slots #####################################
 
-    def choose_povray_path(self):
-        """
-        Slot for POV-Ray path "Choose" button.
-        """
-        povray_exe = get_filename_and_save_in_prefs(self,
-                                                    povray_path_prefs_key,
-                                                    'Choose POV-Ray Executable')
-
-        if povray_exe:
-            self.povray_path_lineedit.setText(povray_exe)
-
-    def set_povray_path(self, newValue):
+    def set_povray_path(self):
         """
         Slot for POV-Ray path line editor.
         """
-        env.prefs[povray_path_prefs_key] = str_or_unicode(newValue)
+        setPath = str_or_unicode(self.choosers["POV-Ray"].text)
+        env.prefs[povray_path_prefs_key] = setPath
+        prefs = preferences.prefs_context()
+        prefs[povray_path_prefs_key] = setPath
+        return setPath
 
     def enable_povray(self, enable = True):
         """
@@ -3245,8 +934,7 @@ class Preferences(PreferencesDialog):
         @type  enable: bool
         """
         if enable:
-            self.povray_path_lineedit.setEnabled(1)
-            self.povray_choose_btn.setEnabled(1)
+            self.choosers["POV-Ray"].setEnabled(1)
             env.prefs[povray_enabled_prefs_key] = True
 
             # Sets the POV-Ray (executable) path to the standard location, if it exists.
@@ -3256,11 +944,10 @@ class Preferences(PreferencesDialog):
                     "/usr/local/bin/pvengine", \
                     "/usr/local/bin/pvengine")
 
-            self.povray_path_lineedit.setText(env.prefs[povray_path_prefs_key])
+            self.choosers["POV-Ray"].setText(env.prefs[povray_path_prefs_key])
 
         else:
-            self.povray_path_lineedit.setEnabled(0)
-            self.povray_choose_btn.setEnabled(0)
+            self.choosers["POV-Ray"].setEnabled(0)
             #self.povray_path_lineedit.setText("")
             #env.prefs[povray_path_prefs_key] = ''
             env.prefs[povray_enabled_prefs_key] = False
@@ -3268,20 +955,15 @@ class Preferences(PreferencesDialog):
 
     # MegaPOV slots #####################################
 
-    def choose_megapov_path(self):
-        """
-        Slot for MegaPOV path "Choose" button.
-        """
-        megapov_exe = get_filename_and_save_in_prefs(self, megapov_path_prefs_key, 'Choose MegaPOV Executable')
-
-        if megapov_exe:
-            self.megapov_path_lineedit.setText(megapov_exe)
-
-    def set_megapov_path(self, newValue):
+    def set_megapov_path(self):
         """
         Slot for MegaPOV path line editor.
         """
-        env.prefs[megapov_path_prefs_key] = str_or_unicode(newValue)
+        setPath = str_or_unicode(self.choosers["MegaPOV"].text)
+        env.prefs[megapov_path_prefs_key] = setPath
+        prefs = preferences.prefs_context()
+        prefs[megapov_path_prefs_key] = setPath
+        return setPath
 
     def enable_megapov(self, enable = True):
         """
@@ -3291,8 +973,7 @@ class Preferences(PreferencesDialog):
         @type  enable: bool
         """
         if enable:
-            self.megapov_path_lineedit.setEnabled(1)
-            self.megapov_choose_btn.setEnabled(1)
+            self.choosers["MegaPOV"].setEnabled(1)
             env.prefs[megapov_enabled_prefs_key] = True
 
             # Sets the MegaPOV (executable) path to the standard location, if it exists.
@@ -3302,11 +983,10 @@ class Preferences(PreferencesDialog):
                     "/usr/local/bin/megapov", \
                     "/usr/local/bin/megapov")
 
-            self.megapov_path_lineedit.setText(env.prefs[megapov_path_prefs_key])
+            self.choosers["MegaPOV"].setText(env.prefs[megapov_path_prefs_key])
 
         else:
-            self.megapov_path_lineedit.setEnabled(0)
-            self.megapov_choose_btn.setEnabled(0)
+            self.choosers["MegaPOV"].setEnabled(0)
             #self.megapov_path_lineedit.setText("")
             #env.prefs[megapov_path_prefs_key] = ''
             env.prefs[megapov_enabled_prefs_key] = False
@@ -3326,15 +1006,13 @@ class Preferences(PreferencesDialog):
         This will work by reading prefs values, so only call it from slot methods after they have updated prefs values.
         """
         enable_checkbox = env.prefs[povray_enabled_prefs_key] or env.prefs[megapov_enabled_prefs_key]
-        self.povdir_checkbox.setEnabled(enable_checkbox)
-        self.povdir_lbl.setEnabled(enable_checkbox)
+        self.checkboxes["POV include dir"].setEnabled(enable_checkbox)
+        self.choosers["POV include dir"].setEnabled(enable_checkbox)
         enable_edits = enable_checkbox and env.prefs[povdir_enabled_prefs_key]
             # note: that prefs value should and presumably does agree with self.povdir_checkbox.isChecked()
-        self.povdir_lineedit.setEnabled(enable_edits)
-        self.povdir_choose_btn.setEnabled(enable_edits)
         return
 
-    def enable_povdir(self, enable = True): #bruce 060710
+    def enable_pov_include_dir(self, enable = True): #bruce 060710
         """
         Slot method for povdir checkbox.
         povdir is enabled when enable = True.
@@ -3342,25 +1020,47 @@ class Preferences(PreferencesDialog):
         """
         env.prefs[povdir_enabled_prefs_key] = not not enable
         self._update_povdir_enables()
-##        self.povdir_lineedit.setText(env.prefs[povdir_path_prefs_key])
+        if enable:
+            self.choosers["POV include dir"].setEnabled(1)
+            env.prefs[povdir_enabled_prefs_key] = True
+
+            # Sets the MegaPOV (executable) path to the standard location, if it exists.
+            #if not env.prefs[povdir_path_prefs_key]:
+                #env.prefs[povdir_path_prefs_key] = get_default_plugin_path( \
+                    #"C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\megapov.exe", \
+                    #"/usr/local/bin/megapov", \
+                    #"/usr/local/bin/megapov")
+
+            self.choosers["POV include dir"].setText(env.prefs[povdir_path_prefs_key])
+
+        else:
+            self.choosers["POV include dir"].setEnabled(0)
+            #self.megapov_path_lineedit.setText("")
+            #env.prefs[megapov_path_prefs_key] = ''
+            env.prefs[povdir_enabled_prefs_key] = False#        self.povdir_lineedit.setText(env.prefs[povdir_path_prefs_key])
         return
 
-    def set_povdir(self): #bruce 060710
+    def set_pov_include_dir(self): #bruce 060710
         """
         Slot for Pov include dir "Choose" button.
         """
-        povdir_path = get_dirname_and_save_in_prefs(self, povdir_path_prefs_key, 'Choose Custom POV-Ray Include directory')
-        # note: return value can't be ""; if user cancels, value is None;
-        # to set "" you have to edit the lineedit text directly, but this doesn't work since
-        # no signal is caught to save that into the prefs db!
-        # ####@@@@ we ought to catch that signal... is it returnPressed?? would that be sent if they were editing it, then hit ok?
-        # or if they clicked elsewhere? (currently that fails to remove focus from the lineedits, on Mac, a minor bug IMHO)
-        # (or uncheck the checkbox for the same effect). (#e do we want a "clear" button, for A8.1?)
+        setPath = str_or_unicode(self.choosers["POV include dir"].text)
+        env.prefs[povdir_path_prefs_key] = setPath
+        prefs = preferences.prefs_context()
+        prefs[povdir_path_prefs_key] = setPath
+        return setPath
+        #povdir_path = get_dirname_and_save_in_prefs(self, povdir_path_prefs_key, 'Choose Custom POV-Ray Include directory')
+        ## note: return value can't be ""; if user cancels, value is None;
+        ## to set "" you have to edit the lineedit text directly, but this doesn't work since
+        ## no signal is caught to save that into the prefs db!
+        ## ####@@@@ we ought to catch that signal... is it returnPressed?? would that be sent if they were editing it, then hit ok?
+        ## or if they clicked elsewhere? (currently that fails to remove focus from the lineedits, on Mac, a minor bug IMHO)
+        ## (or uncheck the checkbox for the same effect). (#e do we want a "clear" button, for A8.1?)
 
-        if povdir_path:
-            self.povdir_lineedit.setText(env.prefs[povdir_path_prefs_key])
-            # the function above already saved it in prefs, under the same condition
-        return
+        #if povdir_path:
+            #self.povdir_lineedit.setText(env.prefs[povdir_path_prefs_key])
+            ## the function above already saved it in prefs, under the same condition
+        #return
 
     def povdir_lineedit_textChanged(self, *args): #bruce 060710
         if debug_povdir_signals():
@@ -3658,6 +1358,5 @@ class Preferences(PreferencesDialog):
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
-#    pd = PreferencesDialog()
     p = Preferences()
     sys.exit(app.exec_())
