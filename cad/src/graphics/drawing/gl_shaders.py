@@ -152,9 +152,12 @@ class GLSphereShaderObject(object):
             prefix += "#define N_CONST_XFORMS %d\n" % N_CONST_XFORMS
             pass
         # Pass the source strings to the shader compiler.
+        self.error = False
         self.sphereVerts = self.createShader(GL_VERTEX_SHADER,
                                              prefix + sphereVertSrc)
         self.sphereFrags = self.createShader(GL_FRAGMENT_SHADER, sphereFragSrc)
+        if self.error:          # May be set by createShader.
+            return              # Can't do anything good after an error.
         # Link the compiled shaders into a shader program.
         self.progObj = glCreateProgramObjectARB()
         glAttachObjectARB(self.progObj, self.sphereVerts)
@@ -164,17 +167,19 @@ class GLSphereShaderObject(object):
         except:
             print "Shader program link error"
             print glGetInfoLogARB(self.progObj)
-            pass
-
+            self.error = True
+            return              # Can't do anything good after an error.
+        
         self.used = False
 
         # Optional, may be useful for debugging.
         glValidateProgramARB(self.progObj)
         status = glGetObjectParameterivARB(self.progObj, GL_VALIDATE_STATUS)
         if (not status):
-            from OpenGL import error
-            raise error.GLError("Shader program validation error",
-                                description = glGetInfoLogARB(self.progObj))
+            print "Shader program validation error"
+            print glGetInfoLogARB(self.progObj)
+            self.error = True
+            return              # Can't do anything good after an error.
 
         # The batched sphere shader has per-vertex attribute inputs.  To avoid
         # alias collisions with built-in attributes, let the linker assign
@@ -205,6 +210,7 @@ class GLSphereShaderObject(object):
             types = {GL_VERTEX_SHADER:"Vertex", GL_FRAGMENT_SHADER:"Fragment"}
             print "\n%s shader program compilation error" % types[shaderType]
             print glGetInfoLogARB(shader)
+            self.error = True
             pass
         return shader
     createShader = staticmethod(createShader)
@@ -213,6 +219,10 @@ class GLSphereShaderObject(object):
         """
         Fill in uniform variables in the shader before using to draw.
         """
+        # Can't do anything good after an error loading the shader programs.
+        if self.error:
+            return
+
         # Shader needs to be active to set uniform variables.
         wasActive = self.used
         if not wasActive:
