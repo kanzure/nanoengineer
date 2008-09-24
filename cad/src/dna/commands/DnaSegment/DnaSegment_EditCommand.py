@@ -68,8 +68,8 @@ from dna.model.Dna_Constants        import getDuplexRise
 from dna.model.Dna_Constants        import getNumberOfBasePairsFromDuplexLength
 from dna.model.Dna_Constants        import getDuplexLength
 
-from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
-from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM5
+from dna.generators.B_Dna_PAM3_Generator import B_Dna_PAM3_Generator
+from dna.generators.B_Dna_PAM5_Generator import B_Dna_PAM5_Generator
 from dna.commands.DnaSegment.DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
 from dna.commands.DnaSegment.DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
 

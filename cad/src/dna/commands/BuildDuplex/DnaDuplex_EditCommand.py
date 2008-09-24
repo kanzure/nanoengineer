@@ -39,8 +39,8 @@ from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
 from geometry.VQT import V, Veq, vlen
-from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
-from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM5
+from dna.generators.B_Dna_PAM3_Generator import B_Dna_PAM3_Generator
+from dna.generators.B_Dna_PAM5_Generator import B_Dna_PAM5_Generator
 
 from utilities.exception_classes import PluginBug, UserError
 from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager

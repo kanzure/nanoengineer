@@ -25,7 +25,7 @@ from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_GraphicsMode
 from dna.model.Dna_Constants    import getDuplexLength 
 from dna.model.Dna_Constants    import getNumberOfBasePairsFromDuplexLength
 
-from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
+from dna.generators.B_Dna_PAM3_Generator import B_Dna_PAM3_Generator
 
 from exprs.attr_decl_macros import Instance, State
 from exprs.__Symbols__      import _self

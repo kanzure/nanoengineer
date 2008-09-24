@@ -28,16 +28,16 @@ delete those atoms and fuse the bare strand with existing atoms
 
 """
 
-from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
-
 from geometry.VQT import Q, norm, vlen, cross
 from Numeric import dot
 from utilities.debug import print_compact_stack
 from model.bonds import bond_at_singlets
 
-class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
+from dna.generators.B_Dna_PAM3_Generator import B_Dna_PAM3_Generator
+
+class B_Dna_PAM3_SingleStrand_Generator(B_Dna_PAM3_Generator):
     """
-    B_Dna_PAM3_SingleStrand allows resizing a single strand of a DNA.
+    B_Dna_PAM3_SingleStrand_Generator allows resizing a single strand of a DNA.
     See self.modify(). Note that self.make() to create a DnaStrnad from scratch
     is not implemented as of 2008-04-02.
     @see: superclass  B_Dna_PAM3 for more documentation,
