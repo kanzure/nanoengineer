@@ -175,7 +175,7 @@ class Dna:
         #(duplex). 
         if numberOfBasePairs < 0:
             numberOfBasePairsToRemove = abs(numberOfBasePairs)
-            self._remove_bases_from_duplex(group, 
+            self._remove_bases_from_dna(group, 
                                            resizeEndAxisAtom,
                                            numberOfBasePairsToRemove)
             return
@@ -428,16 +428,11 @@ class Dna:
         bondPoint3 = None
         bondPoint4 = None
 
-        ##print "***strandPairsToBond =", strandPairsToBond 
-
         if len(strandPairsToBond) == 2:
             firstStrandAtomPair = strandPairsToBond[0]
             secondStrandAtomPair = strandPairsToBond[1]            
             bondablePairs_1 = self._getBondablePairsForStrandAtoms(firstStrandAtomPair)
             bondablePairs_2 = self._getBondablePairsForStrandAtoms(secondStrandAtomPair)
-
-            ##print "***bondablePairs_1 =", bondablePairs_1
-            ##print "***bondablePairs_2 =", bondablePairs_2
 
             if bondablePairs_1[0] is not None and bondablePairs_2[1] is not None:
                 bondPoint1, bondPoint2 = bondablePairs_1[0]                
@@ -633,8 +628,121 @@ class Dna:
         else:
             print_compact_stack("Bug: unable to bond atoms %s and %s: " %
                                 (atm1, atm2) )
+            
+    def _determine_axisAtomsToRemove(self, 
+                                     resizeEndAxisAtom,
+                                     baseatoms, 
+                                     numberOfBasePairsToRemove):
+        """
+        Determine the axis atoms to be removed from the Dna while resizing 
+        a DnaStrand or segment. Returns a list
+        
+        @param resizeEndAxisAtom: The axis atom at the resize end.         
+        @type resizeEndAxisAtom: B{Atom}
+        
+        @param baseatoms: A list of all axis atoms of the dna strand or segment 
+                          to be resized
+                          
+        @type baseatoms: list
+        
+        @param numberOfBasePairsToRemove: Number of bases (if resizing strands) 
+                               or number of base-pairs (it resizing DnaSegments) 
+                               to be removed during the resize operation.
+                               this number is used to determine the axis atoms
+                               to remove (including the resizeEndAxisAtom)
+        @type numberOfBasePairsToRemove: int
+        
+        @return : axis atoms to be removed during resize operation. The caller 
+                  then uses this list to determine which strand base atoms need 
+                  to be deleted. 
+        @rtype: list
+        
+        @see: self._remove_bases_from_dna() which calls this. 
+        """        
+        atm = resizeEndAxisAtom  
+        resizeEnd_strand_neighbors = self._strand_neighbors_to_delete(atm)
+        strand_neighbors_to_delete = resizeEnd_strand_neighbors
+        axisAtomsToRemove = []
+        
+        try:        
+            resizeEndAtom_baseindex = baseatoms.index(resizeEndAxisAtom)
+            # note: this is an index in a list of baseatoms, which is not
+            # necessary equal to the atom's "baseindex" (since that can be
+            # negative for some atoms), but should be in the same order.
+            # [bruce 080807 comment]
+        except:            
+            print_compact_traceback("bug resize end axis atom not in " \
+                                    "segments baseatoms!: ")
+            return
 
-    def _remove_bases_from_duplex(self,
+        if resizeEndAtom_baseindex == 0:
+            axisAtomsToRemove = baseatoms[:numberOfBasePairsToRemove]
+        elif resizeEndAtom_baseindex == len(baseatoms) - 1:
+            axisAtomsToRemove = baseatoms[-numberOfBasePairsToRemove:]
+        else:
+            #The axis atom is not at either 'ends' of the DnaSegment. So, 
+            #check if is a single strand that is being resized. In that case, 
+            #the axis atom at the resize end may not be at the extreme ends. 
+            #see bug 2939 for an example. The following code fixes that bug.
+            if len(resizeEnd_strand_neighbors) == 1:
+                #Axis neighbors of the resize end axis atom (len 0 or 1 or 2) --
+                next_axis_atoms = resizeEndAxisAtom.axis_neighbors() 
+                #strand atom at the resize end
+                resizeEndStrandAtom = resizeEnd_strand_neighbors[0]
+                #Find out the next strand base atom bonded to the the resize 
+                #end strand atom. This will give us the connected axis neighbor
+                #In the following figure, S1 is the resize end strand atom, 
+                #A1 is resize end axis atom. S2 is next_strand_atom  and A2
+                #is next_axis_atom. 
+                #
+                # ---o----o----o----S2----S1----> (strand being resized)
+                # ---x----x----x----A2----A1----x----x----x----x (axis)
+                #<---o----o----o----o ---- o----o----o----o----o (second strand)
+                
+                #Note that resize end strand atom will have only one strand base
+                #atom connected to it. This code will never be reached if it has
+                #more than 1 strand atoms connected! 
+                next_strand_atom = None
+                #The axis neighbor of next_strand_atom
+                next_axis_atom = None
+                for bond_direction in (1, -1):
+                    next_strand_atom = resizeEndStrandAtom.strand_next_baseatom(bond_direction)
+                    if next_strand_atom:
+                        next_axis_atom = next_strand_atom.axis_neighbor()
+                        break    
+                    
+                if not next_axis_atom:
+                    print_compact_stack("bug: end axis atom not at "\
+                                        "either end of list and unable to" \
+                                        "determine axisAtomsToRemove")
+                    return axisAtomsToRemove
+                
+                if not next_axis_atom in resizeEndAxisAtom.axis_neighbors():
+                    print_compact_stack(
+                        "bug:unable to determine axisAtomsToRemove"\
+                        "%s not an axis neighbor of %s"%(next_axis_atom, 
+                                                         resizeEndAxisAtom))
+                    
+                next_axis_atom_baseindex = baseatoms.index(next_axis_atom)
+                if resizeEndAtom_baseindex < next_axis_atom_baseindex:
+                    startindex = resizeEndAtom_baseindex
+                    endindex = startindex + numberOfBasePairsToRemove
+                    axisAtomsToRemove = baseatoms[startindex:endindex]
+                else:
+                    startindex = resizeEndAtom_baseindex - (numberOfBasePairsToRemove - 1)
+                    endindex = resizeEndAtom_baseindex + 1
+                    axisAtomsToRemove = baseatoms[startindex:endindex]
+            else:
+                #Its not a strand resize operation and still the axis atom at resize
+                #end is not at an extreme end. This indicates a bug.
+                print_compact_stack("bug: end axis atom not at either end of list: ") #bruce 080807 added this
+
+        assert len(axisAtomsToRemove) == min(numberOfBasePairsToRemove, len(baseatoms)) #bruce 080807 added this
+        
+        return axisAtomsToRemove
+
+
+    def _remove_bases_from_dna(self,
                                   group, 
                                   resizeEndAxisAtom, 
                                   numberOfBasePairsToRemove):
@@ -652,6 +760,7 @@ class Dna:
         @param numberOfBasePairsToRemove: The total number of base pairs to 
         remove from the duplex. 
         @type numberOfBasePairsToRemove: int
+        @see: self._determine_axisAtomsToRemove()
         """
 
         #Use whole_chain.get_all_baseatoms_in_order() and then remove the 
@@ -677,32 +786,14 @@ class Dna:
             return 
 
         atomsScheduledForDeletionDict = {}
-
-        atm = resizeEndAxisAtom    
-        strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
-
-        try:        
-            resizeEndAtom_baseindex = baseatoms.index(resizeEndAxisAtom)
-            # note: this is an index in a list of baseatoms, which is not
-            # necessary equal to the atom's "baseindex" (since that can be
-            # negative for some atoms), but should be in the same order.
-            # [bruce 080807 comment]
-        except:            
-            print_compact_traceback("bug resize end axis atom not in " \
-                                    "segments baseatoms!: ")
-            return
-
-        if resizeEndAtom_baseindex == 0:
-            axisAtomsToRemove = baseatoms[:numberOfBasePairsToRemove]
-        elif resizeEndAtom_baseindex == len(baseatoms) - 1:
-            axisAtomsToRemove = baseatoms[-numberOfBasePairsToRemove:]
-        else:
-            print_compact_stack("bug: end axis atom not at either end of list: ") #bruce 080807 added this
-
-        assert len(axisAtomsToRemove) == min(numberOfBasePairsToRemove, len(baseatoms)) #bruce 080807 added this
-
-        for atm in axisAtomsToRemove:            
-
+        
+        axisAtomsToRemove = self._determine_axisAtomsToRemove(
+            resizeEndAxisAtom,
+            baseatoms, 
+            numberOfBasePairsToRemove)
+        
+        
+        for atm in axisAtomsToRemove:  
             strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
 
             for a in strand_neighbors_to_delete:
@@ -776,7 +867,7 @@ class Dna:
         or is it just a single strand neighbor on a specific Dna ladder 
         needs to be deleted. The latter is the case while resizing a 
         single strand of a Dna. 
-        @see: self._remove_bases_from_duplex() where this is called.
+        @see: self._remove_bases_from_dna() where this is called.
         @see: B_Dna_PAM3._strand_neighbors_to_delete()
         @see: B_Dna_PAM3_SingleStrand._strand_neighbors_to_delete()
         """
@@ -1834,7 +1925,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         or is it just a single strand neighbor on a specific Dna ladder 
         needs to be deleted. The latter is the case while resizing a 
         single strand of a Dna. 
-        @see: self._remove_bases_from_duplex() where this is called. 
+        @see: self._remove_bases_from_dna() where this is called. 
         @see: Dna._strand_neighbors_to_delete() -- overridden here
         @see: B_Dna_PAM3_SingleStrand._strand_neighbors_to_delete() which 
               overrides this method

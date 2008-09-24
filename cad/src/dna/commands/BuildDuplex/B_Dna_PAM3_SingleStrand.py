@@ -104,7 +104,8 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
             q_new2 = Q(b, q_new.angle)
 
         self.assy.rotateSpecifiedMovables(q_new2, chunkListForRotation, end1)
-
+        
+        
     def _strand_neighbors_to_delete(self, axisAtom):
         """
         Returns a list of strand neighbors of the given axis atom to delete
@@ -115,7 +116,7 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         needs to be deleted. The latter is the case while resizing a
         single strand of a Dna. i.e. in this class, it will find a strand neighbor
         to the given axis atom on the strand being resized.
-        @see: self._remove_bases_from_duplex() where this is called.
+        @see: self._remove_bases_from_dna() where this is called.
         @see: B_Dna_PAM3._strand_neighbors_to_delete() -- overridden here
 
         """
