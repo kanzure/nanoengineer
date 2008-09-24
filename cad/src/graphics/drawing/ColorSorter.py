@@ -92,19 +92,7 @@ from graphics.drawing.CS_workers import drawsurface_worker
 from graphics.drawing.CS_workers import drawwiresphere_worker
 from graphics.drawing.CS_workers import drawtriangle_strip_worker
 from graphics.drawing.gl_lighting import apply_material
-
-# ==
-
-# Russ 080915: Support for lazily updating drawing caches, namely a change
-# timestamp.  Rather than recording a time per se, an event counter is used.
-_event_counter = 0
-def eventStamp():
-    global _event_counter
-    _event_counter += 1
-    return _event_counter
-
-def eventNow():
-    return _event_counter
+from graphics.drawing.TransformControl import TransformControl
 
 # ==
 
@@ -135,7 +123,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this CSDL was last changed.
-        self.changed = eventStamp()
+        self.changed = drawing_globals.eventStamp()
         
         # Added optional constructor argument.
         self.transformControl = transformCtl
@@ -704,7 +692,7 @@ class ColorSorter:
 
         if csdl != None:
             # Russ 080915: This supports lazily updating drawing caches.
-            ColorSorter.parent_csdl.changed = eventStamp()
+            ColorSorter.parent_csdl.changed = drawing_globals.eventStamp()
 
             if not (drawing_globals.allow_color_sorting and
                     (drawing_globals.use_color_sorted_dls

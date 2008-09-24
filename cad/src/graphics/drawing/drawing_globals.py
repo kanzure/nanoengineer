@@ -136,4 +136,19 @@ glprefs = GLPrefs()
 # constructor, except for an awkward inport cycle that otherwise results.
 updatePrefsVars()
 
+# ==
+# Common code for DrawingSet, TransformControl, et al.
+
+# Russ 080915: Support for lazily updating drawing caches, namely a change
+# timestamp.  Rather than recording a time per se, an event counter is used.
+noEventYet = 0
+_event_counter = noEventYet
+def eventStamp():
+    global _event_counter
+    _event_counter += 1
+    return _event_counter
+
+def eventNow():
+    return _event_counter
+
 # end

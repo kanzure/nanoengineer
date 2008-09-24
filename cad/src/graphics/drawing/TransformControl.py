@@ -66,10 +66,13 @@ See design comments on:
   in this DrawingSet.)
 """
 
-from graphics.drawing.ColorSorter import eventStamp
+import graphics.drawing.drawing_globals as drawing_globals
 
 from geometry.VQT import V, Q, A
 import Numeric
+import math
+
+from OpenGL.GL import glTranslatef, glRotatef
 
 def floatIdent(size):
     return Numeric.asarray(Numeric.identity(size), Numeric.Float)
@@ -109,7 +112,8 @@ class TransformControl:
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this transform matrix was last changed.
-        self.changed = eventStamp()
+        self.changed = drawing_globals.eventStamp()
+        self.cached = drawing_globals.noEventYet
 
         self.transform = floatIdent(4)
 
@@ -125,7 +129,7 @@ class TransformControl:
         Post-multiply the transform with a rotation given by a quaternion.
         """
         self.transform = Numeric.matrixmultiply(self.transform, qmat4x4(quat))
-        self.changed = eventStamp()
+        self.changed = drawing_globals.eventStamp()
         return
 
     def translate(self, vec):
@@ -134,7 +138,7 @@ class TransformControl:
         """
         # This only affects the fourth row x,y,z elements.
         self.transform[3, 0:3] += vec
-        self.changed = eventStamp()
+        self.changed = drawing_globals.eventStamp()
         return
         
     def identTranslateRotate(self, vec, quat):
@@ -161,6 +165,25 @@ class TransformControl:
                  self.transform[1, 0:3],
                  self.transform[2, 0:3])
         return (vec, quat)
+
+    def applyTransform(self):
+        """
+        Apply the transform to the GL matrix stack.
+        (Pushing/popping the stack is separate.)
+        """
+        (v, q) = self.getTranslateRotate()
+        glTranslatef(v[0], v[1], v[2])
+        glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
+        return
+
+    def updateSince(self, sinceStamp):
+        """
+        Do any updating necessary on cached drawing transforms.
+        """
+        if self.changed > sinceStamp or self.changed > self.cached:
+            # XXX Update transforms in graphics card RAM here...
+            pass
+        return
 
     # ==
 

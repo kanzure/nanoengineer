@@ -73,6 +73,7 @@ has no name in this proposal.
   then re-allocated in a stable order.
 """
 
+import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveSet import GLPrimitiveSet
 from graphics.drawing.ColorSorter import ColorSortedDisplayList
 
@@ -97,6 +98,10 @@ class DrawingSet:
 
         # Cache a GLPrimitiveSet to speed drawing.
         self.primSet = None
+
+        # Support for lazily updating drawing caches, namely a
+        # timestamp showing when this DrawingSet was last drawn.
+        self.drawn = drawing_globals.noEventYet
 
     # ==
 
@@ -150,6 +155,12 @@ class DrawingSet:
         """
         Draw the set of CSDLs in the DrawingSet.
         """
+        # Lazily update any transform referenced by a CSDL that has changed
+        # since the last draw.
+        for csdl in self.CSDLs.itervalues():
+            if csdl.transformControl is not None:
+                csdl.transformControl.updateSince(self.drawn)
+                
         # See if any of the CSDLs has changed more recently than the primSet and
         # clear the primSet cache if so.  (Possible optimization: regenerate
         # only some affected parts of the primSet.)
@@ -159,6 +170,7 @@ class DrawingSet:
                     self.primSet = None
                     break
                 continue
+            pass
 
         # Lazily (re)generate the primSet when needed for drawing.
         if self.primSet is None:
@@ -167,6 +179,9 @@ class DrawingSet:
 
         # Draw the primitives.
         self.primSet.draw(highlighted, selected, patterning, highlight_color)
+
+        # Timestamp the drawing event.
+        self.drawn = drawing_globals.eventStamp()
         return
 
     pass # End of class DrawingSet.

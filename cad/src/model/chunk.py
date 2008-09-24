@@ -113,6 +113,8 @@ from model.elements import Singlet
 from geometry.BoundingBox import BBox
 from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.TransformControl import TransformControl
+
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor
@@ -1942,13 +1944,24 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Do glPushMatrix(), and then transform from world coords to this chunk's private coords.
         See also self.popMatrix().
-        Warning: this is partially inlined in self.draw().
         """
         glPushMatrix()
-        origin = self.basecenter
-        glTranslatef(origin[0], origin[1], origin[2])
-        q = self.quat
-        glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
+        self.applyMatrix()
+        return
+
+    # Russ 080922: Pulled out of self.pushMatrix to fit with exception logic in self.draw().
+    def applyMatrix(self):
+        # Russ 080922: If there is a transform in the CSDL, use it.
+        tc = self.displist.transformControl
+        if tc is not None:
+            tc.applyTransform()
+        else:
+            origin = self.basecenter
+            glTranslatef(origin[0], origin[1], origin[2])
+            q = self.quat
+            glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
+            pass
+        return
 
     def popMatrix(self): #bruce 050609
         """
@@ -2086,11 +2099,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             glPushMatrix()
 
             try: #bruce 041119: do our glPopMatrix no matter what
-                # (note: as of 050609, this is an inlined version of part of self.pushMatrix())
-                origin = self.basecenter
-                glTranslatef(origin[0], origin[1], origin[2])
-                q = self.quat
-                glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
+                self.applyMatrix() # Russ 080922: This used to be inlined here.
 
                 # Moved to above - piotr 080401
                 # But what if there is an exception in self.get_dispdef ?

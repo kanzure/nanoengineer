@@ -35,8 +35,15 @@ _SPINQUAT = Q(V(1,0,0),V(0,0,1))/90.0 # ... by 1 degree per frame
 #testCase = 1; nSpheres = 132
 #testCase = 8; nSpheres = 50; chunkLength = 24
 #testCase = 8; nSpheres = 132; chunkLength = 24
-testCase = 8.1; nSpheres = 50; chunkLength = 24
+#testCase = 8.1; nSpheres = 50; chunkLength = 24
 #testCase = 8.1; nSpheres = 75; chunkLength = 24
+#testCase = 8.1; nSpheres = 100; chunkLength = 200
+#testCase = 8.1; nSpheres = 100; chunkLength = 50
+### Hangs #testCase = 8.1; nSpheres = 100; chunkLength = 24
+#testCase = 8.2; nSpheres = chunkLength = 10
+#testCase = 8.2; nSpheres = 50; chunkLength = 250
+#testCase = 8.2; nSpheres = 100; chunkLength = 200
+testCase = 8.2; nSpheres = 100; chunkLength = 50
 
 # Longish chunks for test case 3.4 (with transforms)
 #nSpheres = 132; transformChunkLength = 1000
@@ -114,7 +121,7 @@ from OpenGL.GL.ARB.vertex_program import glEnableVertexAttribArrayARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 
 from time import time
-from math import sin, pi
+from math import sin, pi, fmod
 
 test_csdl = None
 test_dl = None
@@ -698,26 +705,57 @@ def test_drawing(glpane):
     # .   5,625 (75x75)   spheres 16.1 FPS,  235 chunk buffers of length 24.
     # .  10,000 (100x100) spheres  0.5 FPS?!, 414 chunk buffers of length 24.
     #      Has to be <= 250 chunks for constant memory transforms?
+    # .  10,000 (100x100) spheres 11.8 FPS, 50 chunk buffers of length 200.
+    #      After a minute of startup.
+    # .  10,000 (100x100) spheres 9.3 FPS, 200 chunk buffers of length 50.
+    #      After a few minutes of startup.
+    # Subcase 8.2: CSDLs in a DrawingSet with transforms. (Pass-through.)
+    # .  10,000 (100x100) spheres  11.5 FPS, 50 chunk buffers of length 200.
+    # .  10,000 (100x100) spheres   FPS, 200 chunk buffers of length 50.
     elif int(testCase) == 8:
+        doTransforms = False
         if test_spheres is None:
+            # Setup.
             print ("Test case 8, %d^2 spheres\n  %s, length %d." %
                    (nSpheres, "Short VBO/IBO chunk buffers", chunkLength))
             if testCase == 8.1:
                 print ("Sub-test 8.1, chunks are in CSDL's in a DrawingSet.")
                 test_DrawingSet = DrawingSet()
-            ## NIM ## elif testCase == 8.2:
-            ##  print ("Sub-test 8.2, rotate with TransformControls.")
+            elif testCase == 8.2:
+                print ("Sub-test 8.2, rotate with TransformControls.")
+                test_DrawingSet = DrawingSet()
+                doTransforms = True
+                pass
+            if doTransforms:
+                # Provide several TransformControls to test separate action.
+                global numTCs, TCs
+                numTCs = 3
+                TCs = [TransformControl() for i in range(numTCs)]
+                pass
 
             def sphereCSDL(centers, radii, colors):
-                csdl = ColorSortedDisplayList()
+                if not doTransforms:
+                    csdl = ColorSortedDisplayList() # Transformless.
+                else:
+                    # Test pattern for TransformControl usage - vertical columns
+                    # of TC domains, separated by X coord of first center point.
+                    # Chunking will be visible when transforms are changed.
+                    xCoord = centers[0][0] - start_pos[0] # Negate centering X.
+                    xPercent = (xCoord / 
+                                (nSpheres + nSpheres/10 + nSpheres/100 - 1))
+                    xTenth = int(xPercent * 10 + .5)
+                    csdl = ColorSortedDisplayList(TCs[xTenth % numTCs])
+                    pass
+
                 ColorSorter.start(csdl)
                 for (color, center, radius) in zip(colors, centers, radii):
                     drawsphere(color, center, radius, 2)
                     continue
                 ColorSorter.finish()
+
                 test_DrawingSet.addCSDL(csdl)
                 return csdl
-            chunkFn = {8: GLSphereBuffer, 8.1: sphereCSDL}
+            chunkFn = {8: GLSphereBuffer, 8.1: sphereCSDL, 8.2: sphereCSDL}
 
             test_spheres = []
             radius = .5
@@ -751,7 +789,7 @@ def test_drawing(glpane):
                 pass
             print "%d chunk buffers"%len(test_spheres)
             pass
-        else:
+        else: # Run.
             shader = drawing_globals.sphereShader
             shader.configShader(glpane)
             if testCase == 8:
@@ -761,7 +799,18 @@ def test_drawing(glpane):
                 pass
             elif testCase == 8.1:
                 test_DrawingSet.draw()
+            elif testCase == 8.2:
+                # Animate TCs, rotating them slowly.
+                slow = 10.0 # Seconds.
+                angle = 2*pi * fmod(time(), slow) / slow
+                # Leave the first one as identity, and rotate the others in
+                # opposite directions around the X axis.
+                TCs[1].identTranslateRotate(V(0, 0, 0), Q(V(1, 0, 0), angle * 2))
+                TCs[2].identTranslateRotate(V(0, 0, 0), Q(V(1, 0, 0), -angle))
+
+                test_DrawingSet.draw()
                 pass
+
             pass
         pass
 

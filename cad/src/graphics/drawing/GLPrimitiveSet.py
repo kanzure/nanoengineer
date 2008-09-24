@@ -46,9 +46,12 @@ See design comments on:
   glMultiDrawElements call, with the relevant VBO hunk arrays enabled in the GL.
 """
 
+import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.ColorSorter import ColorSortedDisplayList
-from graphics.drawing.ColorSorter import eventStamp
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer
+from graphics.drawing.TransformControl import TransformControl
+
+from OpenGL.GL import glPushMatrix, glPopMatrix
 
 class GLPrimitiveSet:
     """
@@ -61,14 +64,46 @@ class GLPrimitiveSet:
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this GLPrimitiveSet was created.
-        self.created = eventStamp()
+        self.created = drawing_globals.eventStamp()
 
         return
 
     def draw(self, highlighted = False, selected = False,
              patterning = True, highlight_color = None):
+        """
+        Draw the cached display.
+        """
+        # Put TransformControl matrices onto the GL matrix stack if present.
+        # Does nothing if the TransformControls all have a tranform of None.
+        # Pushing/popping could be minimized by sorting the cached CSDL's.
+        lastTC = None
+        pushed = False
+
         for csdl in self.CSDLs:
+            tc = csdl.transformControl
+            if tc is not None and tc != lastTC:
+                # Restore matrix stack top to push a different transform.
+                if pushed:
+                    glPopMatrix()
+                    pass
+
+                glPushMatrix()
+                pushed = True
+                tc.applyTransform()
+            elif tc is None and pushed:
+                # Back to transformless drawing.
+                glPopMatrix()
+                pushed = False
+                pass
+            lastTC = tc
+
+
             csdl.draw(highlighted, selected, patterning, highlight_color)
+            continue
+
+        if pushed:
+            glPopMatrix()
+        
         return
 
     pass # End of class GLPrimitiveSet.
