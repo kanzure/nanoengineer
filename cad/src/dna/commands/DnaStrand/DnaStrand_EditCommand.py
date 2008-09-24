@@ -342,7 +342,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                 #  made with)
             name = self.name
 
-        self.dna = B_Dna_PAM3_SingleStrand()
+        self.dna = B_Dna_PAM3_SingleStrand_Generator()
 
         numberOfBases, \
                      dnaForm, \

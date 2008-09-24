@@ -124,7 +124,7 @@ class Dna_Generator:
         - the optional argument resizeEndStrandAtom and assignment of 
           self.resizeEndStrand1Atom needs to be cleaned up.
         - refactoring cleanup and more renaming etc planned post FNANO
-        - See also comments in B_Dna_PAM3_SingleStrand
+        - See also comments in B_Dna_PAM3_SingleStrand_Generator
         """  
         self.assy               =  group.assy         
         assy                    =  group.assy
@@ -325,7 +325,7 @@ class Dna_Generator:
 
     def _replace_overlapping_axisAtoms_of_new_dna(self, new_endBaseAtomList):
         """
-        @see: B_Dna_PAM3_SingleStrand._replace_overlapping_axisAtoms_of_new_dna()
+        @see: B_Dna_PAM3_SingleStrand_Generator._replace_overlapping_axisAtoms_of_new_dna()
         """
         pass
 
@@ -347,7 +347,7 @@ class Dna_Generator:
         only a duplex and thats why the name 'duplex'
 
         @see: self.modify()
-        @see: B_Dna_PAM3_SingleStrand._fuse_new_dna_with_original_duplex()
+        @see: B_Dna_PAM3_SingleStrand_Generator._fuse_new_dna_with_original_duplex()
         """
 
 
@@ -581,7 +581,7 @@ class Dna_Generator:
         @see: self._fuse_new_dna_with_original_duplex()
         @see: self._bond_atoms_in_atomPairs() which calls this
         """
-        #Moved from B_Dna_PAM3_SingleStrand to here, to fix bugs like 
+        #Moved from B_Dna_PAM3_SingleStrand_Generator to here, to fix bugs like 
         #2711 in segment resizing-- Ninad 2008-04-14
         assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
         #Initialize all possible bond points to None
@@ -868,8 +868,8 @@ class Dna_Generator:
         needs to be deleted. The latter is the case while resizing a 
         single strand of a Dna. 
         @see: self._remove_bases_from_dna() where this is called.
-        @see: B_Dna_PAM3._strand_neighbors_to_delete()
-        @see: B_Dna_PAM3_SingleStrand._strand_neighbors_to_delete()
+        @see: B_Dna_PAM3_Generator._strand_neighbors_to_delete()
+        @see: B_Dna_PAM3_SingleStrand_Generator._strand_neighbors_to_delete()
         """
         return ()
 
@@ -1037,7 +1037,7 @@ class Dna_Generator:
                 #Perhaps computing this strand atom  always be done at a later 
                 #stage. But I am unsure if this will cause any bugs. So not 
                 #changing the original implementation . 
-                #See B_Dna_PAM3.orient_for_modify() for details. 
+                #See B_Dna_PAM3_Generator.orient_for_modify() for details. 
                 #This NEEDS CLEANUP -- Ninad 2008-06-02 
                 self._determine_axis_and_strandA_endAtoms_at_end_1(self.baseList[0])
 

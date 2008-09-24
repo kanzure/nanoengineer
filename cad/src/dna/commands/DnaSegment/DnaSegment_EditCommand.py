@@ -664,9 +664,9 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         if dnaForm == 'B-DNA':
             if dnaModel == 'PAM3':
-                dna = B_Dna_PAM3()
+                dna = B_Dna_PAM3_Generator()
             elif dnaModel == 'PAM5':
-                dna = B_Dna_PAM5()
+                dna = B_Dna_PAM5_Generator()
             else:
                 print "bug: unknown dnaModel type: ", dnaModel
         else:
@@ -746,7 +746,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """                
         assert self.struct        
 
-        self.dna = B_Dna_PAM3()
+        self.dna = B_Dna_PAM3_Generator()
 
         number_of_basePairs_from_struct,\
                                        numberOfBases, \

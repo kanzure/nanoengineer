@@ -281,7 +281,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
         @Note: This method is copied from DnaDuplex.py
         
         """
-        #Moved from B_Dna_PAM3_SingleStrand to here, to fix bugs like 
+        #Moved from B_Dna_PAM3_SingleStrand_Generator to here, to fix bugs like 
         #2711 in segment resizing-- Ninad 2008-04-14
         assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
         #Initialize all possible bond points to None
