@@ -134,7 +134,7 @@ class EditCommand(Select_Command):
         Overrides superclass method. 
         @see: baseCommand.command_will_exit() for documentation
         """
-        #@TODO: Do we consider case with self.commandSequencer.exit_is_forced??
+        
         if self.commandSequencer.exit_is_cancel:
             self.cancelStructure()
         else:
