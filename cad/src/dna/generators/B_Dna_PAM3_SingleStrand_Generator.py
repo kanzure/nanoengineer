@@ -1,6 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
-B_Dna_PAM3_SingleStrand allows resizing a single strand of a DNA.
+B_Dna_PAM3_Generator_SingleStrand allows resizing a single strand of a DNA.
 See self.modify(). Note that self.make() to create a DnaStrnad from scratch
 is not implemented as of 2008-04-02.
 
@@ -40,7 +40,7 @@ class B_Dna_PAM3_SingleStrand_Generator(B_Dna_PAM3_Generator):
     B_Dna_PAM3_SingleStrand_Generator allows resizing a single strand of a DNA.
     See self.modify(). Note that self.make() to create a DnaStrnad from scratch
     is not implemented as of 2008-04-02.
-    @see: superclass  B_Dna_PAM3 for more documentation,
+    @see: superclass  B_Dna_PAM3_Generator for more documentation,
     """
     def _strandAinfo(self, index):
         """
@@ -117,7 +117,7 @@ class B_Dna_PAM3_SingleStrand_Generator(B_Dna_PAM3_Generator):
         single strand of a Dna. i.e. in this class, it will find a strand neighbor
         to the given axis atom on the strand being resized.
         @see: self._remove_bases_from_dna() where this is called.
-        @see: B_Dna_PAM3._strand_neighbors_to_delete() -- overridden here
+        @see: B_Dna_PAM3_Generator._strand_neighbors_to_delete() -- overridden here
 
         """
         #Note that sicne we are resizing a single strand, the list this
@@ -425,7 +425,7 @@ class B_Dna_PAM3_SingleStrand_Generator(B_Dna_PAM3_Generator):
         -  Refactor further. May be use superclass method with some mods.
 
         @see: self.modify()
-        @see: B_Dna_PAM3._fuse_new_dna_with_original_duplex()
+        @see: B_Dna_PAM3_Generator._fuse_new_dna_with_original_duplex()
 
 
         """

@@ -295,7 +295,7 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
 
         assert isinstance(self.currentStruct , self.win.assy.DnaSegment)
 
-        self.dna = B_Dna_PAM3()      
+        self.dna = B_Dna_PAM3_Generator()      
 
         duplexRise = self.currentStruct.getDuplexRise()
 

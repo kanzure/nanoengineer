@@ -195,7 +195,7 @@ class B_Dna_PAM3_Generator(B_Dna_Generator):
         It is originally computed in self._determine_axis_and_strandA_endAtoms()
 
         The recomputation is done to fix bug 2889 (for v1.1.0).  
-        See B_Dna_PAM3.orient_for_modify() for details. 
+        See B_Dna_PAM3_Generator.orient_for_modify() for details. 
         This NEEDS CLEANUP 
         @see: self._create_raw_duplex()
         @see: self.orient_for_modify()
@@ -333,7 +333,7 @@ class B_Dna_PAM3_Generator(B_Dna_Generator):
         single strand of a Dna. 
         @see: self._remove_bases_from_dna() where this is called. 
         @see: Dna._strand_neighbors_to_delete() -- overridden here
-        @see: B_Dna_PAM3_SingleStrand._strand_neighbors_to_delete() which 
+        @see: B_Dna_PAM3_Generator_SingleStrand._strand_neighbors_to_delete() which 
               overrides this method
         """
         strand_neighbors_to_delete = axisAtom.strand_neighbors()
