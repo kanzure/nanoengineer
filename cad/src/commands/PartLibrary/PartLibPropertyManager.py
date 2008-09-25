@@ -62,20 +62,11 @@ class PartLibPropertyManager(PastePropertyManager):
         self.updateMessage(
         """The part library contains structures and molecules
         that can be added to a project by selecting from the directory
-        and double clicking in the 3D graphics area."""
-        )
+        and double clicking in the 3D graphics area.""")
         
-    #New command API method -- implemented on 2008-08-27
     def _update_UI_do_updates(self):
         """
-        This method should replace model_changed() eventually. 
-        This is used with USE_COMMAND_STACK debug flag
-        """     
-        self.model_changed()  
-    
-    def model_changed(self):
-        """
-        Overrides BuildAtomsPropertyManager.model_changed. 
+        @see: PM_Dialog._update_UI_do_updates()
         """
         #This does nothing in this propMGr at present. 
         return

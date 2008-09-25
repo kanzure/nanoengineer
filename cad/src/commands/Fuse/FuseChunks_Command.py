@@ -54,10 +54,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
     2. Fuse Atoms - atoms between chunks will be fused when they overlap each
        other.
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. But some refactoring related to the update code is needed in future. 
-    
-    
+       
     # class constants
     PM_class = FusePropertyManager
     GraphicsMode_class = FuseChunks_GraphicsMode
@@ -94,20 +91,10 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
         self.translate_graphicsMode = Translate_in_FuseChunks_GraphicsMode(*args, **kws)
         self.rotate_graphicsMode  = Rotate_in_FuseChunks_GraphicsMode(*args, **kws)
     
-    
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyoutToolBar()
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = FuseFlyout(self) 
-        return flyoutToolbar    
         
     def command_entered(self):
         """
-        Overrides superclass method. 
+        Extends superclass method. 
         @see: baseCommand.command_entered() for documentation. 
         """
         super(FuseChunks_Command, self).command_entered()

@@ -32,7 +32,6 @@ from commands.Select.Select_Command import Select_Command
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
 from utilities.Comparison import same_vals
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from model.chem import Atom
 from model.chunk import Chunk
@@ -53,8 +52,6 @@ class SelectChunks_Command(Select_Command):
       and the code is still clean, *and* no command-half subclass needs
       to override them).
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. 
     
     #GraphicsMode
     GraphicsMode_class = SelectChunks_GraphicsMode
@@ -67,39 +64,13 @@ class SelectChunks_Command(Select_Command):
     
     #This attr is used for comparison purpose in self.command_update_UI()
     _previous_command_stack_change_indicator = None
-    
-    #Old command API methods (under if not USE_COMMAND_STACK block)
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            """
-            self.w.toolsSelectMoleculesAction.setChecked(True)
-            #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
-            #portion) doesn't get updated even when in the default mode. 
-            self.win.commandToolbar.resetToDefaultState()
-                    
-     
-        def restore_gui(self):
-            """
-            """
-            self.w.toolsSelectMoleculesAction.setChecked(False)
-            
-        def command_enter_flyout(self):
-            #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
-            #portion) doesn't get updated even when in the default mode. 
-            self.win.commandToolbar.resetToDefaultState()
-        
-    #START: New Command API methods. ==========================================
 
     def command_enter_misc_actions(self):
         self.w.toolsSelectMoleculesAction.setChecked(True)
     
     def command_exit_misc_actions(self):
         self.w.toolsSelectMoleculesAction.setChecked(False)
-
-    #END: New Command API methods. ==========================================
-           
-    
+   
     call_makeMenus_for_each_event = True
     #bruce 050914 enable dynamic context menus
     # [fixes an unreported bug analogous to 971]

@@ -39,16 +39,10 @@ from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_Grap
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
 from ne1_ui.toolbars.Ui_MoveFlyout import MoveFlyout
 
-#for debugging new command stack API 
-from utilities.GlobalPreferences import USE_COMMAND_STACK 
 
 class Move_Command(SelectChunks_Command):
     """
     """
-    
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. But some refactoring related to the update code is needed in future. 
     
     GraphicsMode_class = TranslateChunks_GraphicsMode
     
@@ -73,10 +67,8 @@ class Move_Command(SelectChunks_Command):
     flyoutToolbar = None
     
     
-    #START new command API methods =============================================
-    #currently [2008-08-01 ] also called in by self,init_gui and 
-    #self.restore_gui.
-    
+    #START command API methods =============================================
+        
     def command_entered(self):
         """
         Overrides superclass method. 
@@ -87,26 +79,6 @@ class Move_Command(SelectChunks_Command):
             
         self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
         self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
-        
-            
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_enter_flyout()  for documentation
-        """
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = self._createFlyoutToolBarObject() 
-        self.flyoutToolbar.activateFlyoutToolbar()  
-            
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_flyout()  for documentation
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
             
     def command_enter_misc_actions(self):
         """
@@ -124,52 +96,10 @@ class Move_Command(SelectChunks_Command):
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
         self.w.toolsMoveMoleculeAction.setChecked(False) 
-        self.w.rotateComponentsAction.setChecked(False)     
-        
-        
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = MoveFlyout(self) 
-        return flyoutToolbar
-
+        self.w.rotateComponentsAction.setChecked(False)  
     
     #END new command API methods ==============================================
-    
-    #Old command api methods (under if not USE_COMMAND_STACK) ====
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            Do changes to the GUI while entering this mode. This includes opening 
-            the property manager, updating the command toolbar, connecting widget 
-            slots etc. 
-            
-            Called once each time the mode is entered; should be called only by code 
-            in modes.py
-            
-            @see: L{self.restore_gui}
-            """        
-            self.command_enter_misc_actions()
-            self.command_enter_PM() 
-            self.command_enter_flyout()
-            self.propMgr.show()
-    
-        def restore_gui(self):
-            """
-            Do changes to the GUI while exiting this mode. This includes closing 
-            this mode's property manager, updating the command toolbar, 
-            disconnecting widget slots etc. 
-            @see: L{self.init_gui}
-            """
-            self.command_exit_misc_actions()
-            self.command_exit_flyout()
-            self.command_exit_PM()
-            if self.propMgr:
-                self.propMgr.close()
+
 
     def _acceptLineModePoints(self, params): #bruce 080801, revises acceptParamsFromTemporaryMode
         """
@@ -179,7 +109,6 @@ class Move_Command(SelectChunks_Command):
         # and/or never called, if Line_Command is terminated early?
         # In current code, it must always be called,
         # and is always called regardless of how Line_Command exits
-        # (at least in USE_COMMAND_STACK case, which Ninad implemented today,
         #  and probably in the old other case as well).
         # [bruce 080904 comment]
         
@@ -220,7 +149,7 @@ class Move_Command(SelectChunks_Command):
         #@TODO: clean this up. This was written just after Rattlesnake rc2
         #for FNANO presentation -- Ninad 2008-04-17
 
-        if USE_COMMAND_STACK and self.commandSequencer._f_command_stack_is_locked:
+        if self.commandSequencer._f_command_stack_is_locked:
             # This is normal when the command is exiting on its own
             # and changes the state of its action programmatically.
             # In this case, redundant exit causes bugs, so skip it.
@@ -248,10 +177,7 @@ class Move_Command(SelectChunks_Command):
             # exit the RotateAboutPoint command
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == "RotateAboutPoint":
-                if not USE_COMMAND_STACK:
-                    currentCommand.Done(exit_using_done_or_cancel_button = False)
-                else:
-                    currentCommand.command_Cancel()
+                currentCommand.command_Cancel()
                 
             self.propMgr.rotateStartCoordLineEdit.setEnabled(False)
             self.propMgr.updateMessage()

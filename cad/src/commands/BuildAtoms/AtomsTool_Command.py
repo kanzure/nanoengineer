@@ -26,14 +26,10 @@ by a central method such as command_update_* or PM._update_UI_*.
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from model.bond_constants import V_SINGLE, V_DOUBLE, V_TRIPLE, V_AROMATIC, V_CARBOMERIC, V_GRAPHITE
 from utilities.constants import CL_SUBCOMMAND
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = BuildAtoms_Command
 class AtomsTool_Command(BuildAtoms_Command):
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. 
-    
+        
     FlyoutToolbar_class = None
     
     featurename = 'Build Atoms Mode/AtomsTool'
@@ -49,36 +45,7 @@ class AtomsTool_Command(BuildAtoms_Command):
     #class constants for the NEW COMMAND API -- 2008-07-30
     command_level = CL_SUBCOMMAND
     command_parent = 'DEPOSIT'
-    
-    def command_enter_flyout(self):
-        """
-        REUSE the flyout toolbar from the parentCommand (BuildAtoms_command 
-        in this case)
-        @TODO: 
-        - may need cleanup in command stack refactoring. But the method name is 
-        such that it fits the new method names in command API.         
-        """
-        self._reuse_attr_of_parentCommand('flyoutToolbar')
-        self.flyoutToolbar.activateFlyoutToolbar()
-    
-    
-    #START OLD command API methods =============================================
-    if not USE_COMMAND_STACK:        
-        def Enter(self):
-            _superclass.Enter(self)
-            #NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
-            self.command_enter_PM()
-            
-            self.command_enter_flyout()
         
-        def init_gui(self):
-            pass
-        
-        def restore_gui(self):
-            pass
-    #END OLD command API methods =============================================
-    
-    
     #TEMPORARILY override the is*ToolActive methods in BuildAtoms_Command. 
     #These methods will go away when BuildAtoms command starts treating 
     #each tool as a subcommand. 

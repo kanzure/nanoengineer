@@ -36,7 +36,6 @@ from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
 from model.Plane import Plane
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 from utilities.Comparison import same_vals
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
 class Plane_EditCommand(EditCommand):
@@ -45,10 +44,6 @@ class Plane_EditCommand(EditCommand):
     The editCommand, depending on what client code needs it to do, may create 
     a new plane or it may be used for an existing plane. 
     """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-
     #@NOTE: self.struct is the Plane object
     
     PM_class = PlanePropertyManager
@@ -104,33 +99,6 @@ class Plane_EditCommand(EditCommand):
             
         _superclass.command_will_exit(self)
         
-          
-    if not USE_COMMAND_STACK:        
-
-        def Enter(self):
-            """
-            Enter this command. 
-            @see: _superclass.Enter
-            """
-            #See _superclass.Enter for a detailed comment on why self.struct is 
-            #set to None while entering this command.
-            if self.struct:
-                self.struct = None
-    
-            _superclass.Enter(self)
-    
-        def restore_gui(self):
-            """
-            @see: _superclass.restore_gui
-            """
-            _superclass.restore_gui(self)
-            #Following call doesn't update the struct with steps similar to 
-            #ones in bug 2699. Instead calling struct.updateCosmeticProps directly
-            ##self.propMgr.update_props_if_needed_before_closing()
-            if self.hasValidStructure():
-                self.struct.updateCosmeticProps() 
-
-
     def _getStructureType(self):
         """
         Subclasses override this method to define their own structure type. 
@@ -252,12 +220,7 @@ class Plane_EditCommand(EditCommand):
         @see: PlanePropertyManager._update_UI_do_updates()
         @see: PlanePropertyManager.update_spinboxes()
         @see: Plane.resizeGeometry()        
-        """   
-        self.model_changed()
-    
-        
-    def model_changed(self):
-        
+        """           
         #check first if the plane object exists first
         if not self.hasValidStructure():
             return       

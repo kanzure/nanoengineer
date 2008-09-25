@@ -16,15 +16,7 @@ For example:
   and the code is still clean, *and* no command-half subclass needs
   to override them).
 
-TODO: [as of 2008-01-04]
-- Flyout toolbar related code needs to go in a file like Ui_BuildAtomsFlyout. 
-  This will also need further cleanup to be done during the Command Toolbar 
-  code cleanup 
-- For all qactions on the flyout toolbar:
-  - move what's this text declarations to whatsThisForAtomsCommandToolbar()
-  - move tooltip text declarations to toolTipsForAtomsCommandToolbar()
-- Do we need to make change bond and delete bond as separate commands? 
-  Not needed immediately but worth doing this in future. 
+TODO: [as of 2008-09-25]
 - Items mentioned in Build_GraphicsMode.py 
 
 History:
@@ -52,9 +44,6 @@ from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from ne1_ui.toolbars.Ui_BuildAtomsFlyout import BuildAtomsFlyout
 
-#for debugging new command stack API 
-from utilities.GlobalPreferences import USE_COMMAND_STACK 
-
 _superclass = SelectAtoms_Command
 
 class BuildAtoms_Command(SelectAtoms_Command):
@@ -69,9 +58,6 @@ class BuildAtoms_Command(SelectAtoms_Command):
     @see: command_update_state() 
     @see: B{AtomsTool_Command} , B{BondsTool_command}
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. 
-    
     #GraphicsMode
     GraphicsMode_class = BuildAtoms_GraphicsMode
     
@@ -107,41 +93,6 @@ class BuildAtoms_Command(SelectAtoms_Command):
         #flyout toolbar. This is used only while activating the 
         #bond tool. See self._convert_bonds_bet_selected_atoms() for details
         self._supress_convert_bonds_bet_selected_atoms = False
-        
-    
-    #START new command API methods =============================================
-    #currently [2008-08-01 ] also called in by self,init_gui and 
-    #self.restore_gui.
-    
-                
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_enter_flyout()  for documentation
-        """
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = self._createFlyoutToolBarObject() 
-        self.flyoutToolbar.activateFlyoutToolbar()  
-        
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = BuildAtomsFlyout(self) 
-        return flyoutToolbar        
-            
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_flyout()  for documentation
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
             
     def command_enter_misc_actions(self):
         """
@@ -180,41 +131,7 @@ class BuildAtoms_Command(SelectAtoms_Command):
         #By default, we always invoke 'Atoms Tool'. 
         if self.commandName == 'DEPOSIT':
             self.activateAtomsTool()
-                
-    #END new command API methods ==============================================
     
-    if not USE_COMMAND_STACK:    
-        def init_gui(self):
-            """
-            Do changes to the GUI while entering this mode. This includes opening 
-            the property manager, updating the command toolbar, connecting widget 
-            slots etc. 
-            
-            Called once each time the mode is entered; should be called only by code 
-            in modes.py
-            
-            @see: L{self.restore_gui}
-            """      
-                               
-            self.command_enter_misc_actions()
-            self.command_enter_PM() 
-            self.command_enter_flyout()
-            self.propMgr.show()
-            return
-    
-        def restore_gui(self):
-            """
-            Do changes to the GUI while exiting this mode. This includes closing 
-            this mode's property manager, updating the command toolbar, 
-            disconnecting widget slots etc. 
-            @see: L{self.init_gui}
-            """
-            self.command_exit_misc_actions()
-            self.command_exit_flyout()
-            self.command_exit_PM()
-            if self.propMgr:
-                self.propMgr.close()
-
     def enterToolsCommand(self, commandName = ''): #REVIEW
         """
         Enter the given tools subcommand (e.g. Atoms tool or one of the bond 

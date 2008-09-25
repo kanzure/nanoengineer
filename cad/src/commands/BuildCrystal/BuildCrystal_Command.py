@@ -66,8 +66,6 @@ from utilities.constants import SELSHAPE_RECT
 
 import foundation.changes as changes
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 # ==
 
 def _init_snapquats():
@@ -125,9 +123,6 @@ class BuildCrystal_Command(basicMode):
     """
     Build Crystal
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. 
-    
     # class constants
     PM_class = BuildCrystal_PropertyManager
     
@@ -177,23 +172,7 @@ class BuildCrystal_Command(basicMode):
         # True = in the process of defining selection curve
         # False = finished/not defining selection curve
 
-    flyoutToolbar = None
-
-    # methods related to entering this mode
-    def __init__(self, commandSequencer):
-        """
-        """
-        basicMode.__init__(self, commandSequencer)
-        if not USE_COMMAND_STACK:
-            if not self.propMgr:
-                self.propMgr =  BuildCrystal_PropertyManager(self)
-                changes.keep_forever(self.propMgr)
-
-        
-    #START new command API methods =============================================
-    #currently [2008-09-08 ] also called in by self,init_gui and
-    #self.restore_gui.
-    
+    # command api methods  
     def _command_enter_effects(self):
         """
         Called from self.command_entered()
@@ -321,25 +300,6 @@ class BuildCrystal_Command(basicMode):
         super(BuildCrystal_Command, self).command_will_exit()
                 
 
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-
-        @see: baseCommand.command_enter_flyout()  for documentation
-        """
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = self._createFlyoutToolBarObject() 
-        self.flyoutToolbar.activateFlyoutToolbar()  
-
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-
-        @see: baseCommand.command_exit_flyout()  for documentation
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
-
     def command_enter_misc_actions(self):
         """
         Overrides superclass method. 
@@ -405,121 +365,7 @@ class BuildCrystal_Command(basicMode):
         self.w.setViewOrthoAction.setEnabled(True)
         self.w.setViewPerspecAction.setEnabled(True)
 
-
-
-        
-    #END new command API methods ===============================================
-    
-    
-    
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = BuildCrystalFlyout(self) 
-        return flyoutToolbar
-    
-    #Old command api methods ===
-    
-    if not USE_COMMAND_STACK: 
-        def Enter(self): 
-            basicMode.Enter(self)
-            self._command_enter_effects()
-        def init_gui(self):
-            """
-            GUI items need initialization every time.
-            """
-            self.command_enter_PM()
-            self.command_enter_flyout()
-            self.command_enter_misc_actions()
-            
-            self.propMgr.show() 
-    
-            self.selectionShape = self.flyoutToolbar.getSelectionShape()
-    
-            #This can't be done in the above call. During this time, 
-            # the ctrlPanel can't find the BuildCrystal_Command, the nullMode
-            # is used instead. I don't know if that's good or not, but
-            # generally speaking, I think the code structure for mode 
-            # operations like enter/init/cancel, etc, are kind of confusing.
-            # The code readability is also not very good. --Huaicai
-            self.setThickness(self.propMgr.layerCellsSpinBox.value()) 
-    
-            # I don't know if this is better to do here or just before setThickness (or if it matters): ####@@@@
-            # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
-            # We do this last, so as not to do it if there are exceptions in the rest of the method,
-            # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
-            # [bruce 060414; same thing done in some other modes]
-            import foundation.undo_manager as undo_manager
-            undo_manager.disable_undo_checkpoints('Build Crystal Mode')
-            undo_manager.disable_UndoRedo('Build Crystal Mode', "in Build Crystal") # optimizing this for shortness in menu text
-                # this makes Undo menu commands and tooltips look like "Undo 
-                #(not permitted in BuildCrutsl command)" (and similarly for Redo)
-    
-    
-        def restore_gui(self):
-            """
-            Restore GUI items when exit every time.
-            """
-            # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
-            # do it first to protect it from exceptions in the rest of this method
-            # (since if it never happens, Undo/Redo won't work for the rest of the session)
-            # [bruce 060414; same thing done in some other modes]
-            import foundation.undo_manager as undo_manager
-            undo_manager.reenable_undo_checkpoints('Build Crystal Mode')
-            undo_manager.reenable_UndoRedo('Build Crystal Mode')
-            self.set_cmdname('Build Crystal') # this covers all changes while we were in the mode
-                # (somewhat of a kluge, and whether this is the best place to do it is unknown;
-                #  without this the cmdname is "Done")
-    
-            self.command_exit_flyout()
-            self.command_exit_PM()
-            self.command_exit_misc_actions()
-            if self.propMgr:
-                self.propMgr.close()
-    
-            if not self.savedOrtho:
-                self.w.setViewPerspecAction.setChecked(True)
-    
-            #Restore GL states
-            self.o.redrawGL = True
-            glDisable(GL_COLOR_LOGIC_OP)
-            glEnable(GL_DEPTH_TEST)
-    
-            # Restore default background color. Ask Bruce if I should create a subclass of Done and place it there. Mark 060815.
-            self.o.backgroundColor = self.glpane_backgroundColor
-            self.o.backgroundGradient = self.glpane_backgroundGradient
-
-        def haveNontrivialState(self):
-            return self.o.shape != None # note that this is stored in the glpane, but not in its assembly.
-    
-        def StateDone(self):
-            if self.o.shape:
-    ##            molmake(self.o.assy, self.o.shape)
-                self.o.shape.buildChunk(self.o.assy)
-            self.o.shape = None
-            return None
-
-        def StateCancel(self):
-            self.o.shape = None
-            # note: it's mostly a matter of taste whether to put this statement
-            # into StateCancel, restore_patches_by_*, or ...
-            # it probably doesn't matter in effect, in this case. To be safe
-            # (e.g. in case of Abandon), I put it in more than one place.
-            #
-            # REVIEW: shouldn't we store shape in the Command object
-            # (self or self.command depending on which method we're in)
-            # rather than in the glpane? Or, if it ought to be a temporary part
-            # of the model, in assy? [bruce 071012 comment]
-    
-            return None
-
-        pass
-    #END Old command api methods ===
-    
+      
     def setFreeView(self, freeView):
         """
         Enables/disables 'free view' mode.
@@ -590,7 +436,7 @@ class BuildCrystal_Command(basicMode):
     # from old Done and Flush methods]
 
     def restore_patches_by_Command(self):
-        self.o.ortho = self.savedOrtho # for USE_COMMAND_STACK, done via setViewProjection in command_will_exit
+        self.o.ortho = self.savedOrtho 
         self.o.shape = None
         self.selCurve_List = []
         self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2])

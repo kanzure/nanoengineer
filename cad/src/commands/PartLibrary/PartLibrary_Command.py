@@ -42,10 +42,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
     in 3D workspace or if it has a hotspot, it can be deposited on a bondpoint 
     of an existing model.  User can return to previous mode by hitting  'Escape' 
     key or pressing 'Done' button in this mode. 
-    """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported.
-    
+    """    
     commandName = 'PARTLIB'
     featurename = "Part Library"
     from utilities.constants import CL_EDIT_GENERIC
@@ -58,19 +55,6 @@ class PartLibrary_Command(PasteFromClipboard_Command):
     
     #Flyout Toolbar
     FlyoutToolbar_class = PartLibraryFlyout
-    
-
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = PartLibraryFlyout(self) 
-        return flyoutToolbar
-    
-        
 
     def deposit_from_Library_page(self, atom_or_pos): 
         """

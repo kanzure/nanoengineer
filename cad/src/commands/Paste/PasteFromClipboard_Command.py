@@ -40,8 +40,6 @@ from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from ne1_ui.toolbars.Ui_PasteFromClipboardFlyout import PasteFromClipboardFlyout
 from commands.Paste.PasteFromClipboard_GraphicsMode import PasteFromClipboard_GraphicsMode
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 _superclass = BuildAtoms_Command
 
 class PasteFromClipboard_Command(BuildAtoms_Command):
@@ -50,10 +48,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
     Its property manager lists the 'pastable' clipboard items and also shows the 
     current selected item in its 'Preview' box. User can return to previous mode 
     by hitting 'Escape' key  or pressing 'Done' button in the Paste mode. 
-    """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
+    """    
     commandName = 'PASTE' 
     featurename = "Paste From Clipboard" 
     from utilities.constants import CL_EDIT_GENERIC
@@ -102,43 +97,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
                 # note, this is also done redundantly in init_gui.
         self.pastables_list = []
             # should be ok, since model_changed comes after this...
-        
-        
-    if not USE_COMMAND_STACK:
-        def Enter(self):
-            """
-            """
-            _superclass.Enter(self)
-            self.pastable = None #k would it be nicer to preserve it from the past??
-                # note, this is also done redundantly in init_gui.
-            self.pastables_list = []
-                # should be ok, since model_changed comes after this...
-    
-        def init_gui(self):
-            """
-            Do changes to the GUI while entering this mode. This includes opening 
-            the property manager, updating the command toolbar, connecting widget 
-            slots etc. 
-    
-            Called once each time the mode is entered; should be called only by code 
-            in modes.py
-    
-            @see: L{self.restore_gui}
-            """
-            self.pastable = None 
-            _superclass.init_gui(self)
-    
-    
-        def _createFlyoutToolBarObject(self):
-            """
-            Create a flyout toolbar to be shown when this command is active. 
-            Overridden in subclasses. 
-            @see: PasteFromClipboard_Command._createFlyouttoolBar()
-            @see: self.command_enter_flyout()
-            """
-            flyoutToolbar = PasteFromClipboardFlyout(self) 
-            return flyoutToolbar
-        
+            
     def command_update_internal_state(self):
         """
         Extends superclass method.
@@ -160,43 +119,6 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
         #This was earlier -- self.update_gui_0()
         self._update_pastables_list()    
         
-
-    def model_changed(self):
-        _superclass.model_changed(self)
-        
-        currentParams = self._current_model_changed_params()
-        
-        #Optimization. Return from the model_changed method if the 
-        #params are the same. 
-        if same_vals(currentParams, self._previous_model_changed_params):
-            return 
-        
-        #update the self._previous_model_changed_params with this new param set.
-        self._previous_model_changed_params = currentParams 
-        
-        #This was earlier -- self.update_gui_0()
-        self._update_pastables_list()
-                
-        self.propMgr.update_clipboard_items() 
-        # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
-        # Note and bugfix, bruce 060412: doing this now was also causing 
-        # traceback bugs 1726, 1629,
-        # and the traceback part of bug 1677, and some related 
-        #(perhaps unreported) bugs.
-        # The problem was that this is called during pasteBond's addmol 
-        #(due to its addchild), before it's finished,
-        # at a time when the .part structure is invalid (since the added 
-        # mol's .part has not yet been set).
-        # To fix bugs 1726, 1629 and mitigate bug 1677, I revised the 
-        # interface to MMKit.update_clipboard_items
-        # (in the manner which was originally recommented in 
-        #call_after_next_changed_members's docstring) 
-        # so that it only sets a flag and updates (triggering an MMKit 
-        # repaint event), deferring all UI effects to
-        # the next MMKit event.
-        pass
-
-
     def _current_model_changed_params(self):
         """
         Returns a tuple containing the parameters that will be compared

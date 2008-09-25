@@ -16,14 +16,10 @@ Move_Command.
 """
 from commands.Move.Move_Command import Move_Command
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
-from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 _superclass = Move_Command
 class RotateChunks_Command(Move_Command):
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported.
-    
-     
+         
     commandName = 'ROTATE_CHUNKS'
     featurename = "Rotate Chunks"
     from utilities.constants import CL_EDIT_GENERIC
@@ -35,27 +31,7 @@ class RotateChunks_Command(Move_Command):
     
     GraphicsMode_class = RotateChunks_GraphicsMode
     
-    if not USE_COMMAND_STACK:
-    
-        def init_gui(self):
-            """
-            Do changes to the GUI while entering this command.      
-            Called once each time the command is entered; should be called only by 
-            code  in modes.py
-            As of 2008-01-25, this method does nothing.
-            
-            @see: L{self.restore_gui}
-            """
-            pass
         
-        def restore_gui(self):
-            """
-            Do changes to the GUI while exiting this command. 
-            As of 2008-01-25, this method does nothing.
-            @see: L{self.init_gui}
-            """
-            pass
-    
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.

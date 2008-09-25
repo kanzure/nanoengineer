@@ -35,7 +35,6 @@ from utilities.debug import reload_once_per_event
 from commands.Select.Select_Command import Select_Command
 from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = Select_Command
 class SelectAtoms_Command(Select_Command):
@@ -52,12 +51,7 @@ class SelectAtoms_Command(Select_Command):
       that the mouse event bindings in the _GM half can do them directly
       and the code is still clean, *and* no command-half subclass needs
       to override them).
-    """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
-    
+    """ 
     GraphicsMode_class = SelectAtoms_GraphicsMode
     
     commandName = 'SELECTATOMS'
@@ -67,17 +61,7 @@ class SelectAtoms_Command(Select_Command):
     
     # Don't highlight singlets in SelectAtoms_Command. Fixes bug 1540.mark 060220.
     highlight_singlets = False    
-    
-    
-    if not USE_COMMAND_STACK:        
-        def Enter(self): 
-            _superclass.Enter(self)        
-            
-            self.w.win_update()
-                #k needed? I doubt it, I bet caller of Enter does it
-                # [bruce comment 050517]
-            return
-    
+        
     call_makeMenus_for_each_event = True     
     
     def makeMenus(self): 

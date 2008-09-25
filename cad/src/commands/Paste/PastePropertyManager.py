@@ -58,11 +58,9 @@ class PastePropertyManager(BuildAtomsPropertyManager):
                  "the <b> Preview </b> box. Click the check mark to exit Paste"
                  " Items")
         
-    #New command API method -- implemented on 2008-08-27
     def _update_UI_do_updates(self):
         """
-        This method should replace model_changed() eventually. 
-        This is used with USE_COMMAND_STACK debug flag
+        Overrides superclass method.
         @see: PasteFromClipboard_Command.command_update_internal_state() which 
         is called before any command/ PM update UI.
         """    
@@ -104,14 +102,7 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         #As of 2008-09-18, this is used to update the list widget in the PM 
         #that lists the 'pastable' items. 
         return self.command.pastables_list
-    
-    def model_changed(self):
-        """
-        Overrides BuildAtomsPropertyManager.model_changed. 
-        """
-        #This does nothing in this propMgr at present. 
-        return
-            
+                
     def _addGroupBoxes(self):
         """
         Add various group boxes to the Paste Property manager.

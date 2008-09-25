@@ -30,7 +30,7 @@ from utilities.constants import CL_SUBCOMMAND
 from model.elements import Singlet
 import foundation.env as env
 from utilities.Log import orangemsg
-from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 
 class BondTool_Command(BuildAtoms_Command):
     """
@@ -39,9 +39,7 @@ class BondTool_Command(BuildAtoms_Command):
     tool, it will enter Single Bond Tool command. , suspending the Build Atoms
     default command.
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. 
-    
+        
     GraphicsMode_class = BondTool_GraphicsMode
     
     FlyoutToolbar_class = None
@@ -75,42 +73,7 @@ class BondTool_Command(BuildAtoms_Command):
         else:
             msg = "Select a bond tool and then click on bonds or "\
                 "bondpoints to convert them to a specific bond type."
-        self.propMgr.updateMessage(msg)
-                
-    def command_enter_flyout(self):
-        """
-        REUSE the flyout toolbar from the parentCommand (BuildAtoms_command 
-        in this case)
-        @TODO: 
-        - may need cleanup in command stack refactoring. But the method name is 
-        such that it fits the new method names in command API.         
-        """
-        self._reuse_attr_of_parentCommand('flyoutToolbar')
-        self.flyoutToolbar.activateFlyoutToolbar()
-    
-    
-    if not USE_COMMAND_STACK:
-        def Enter(self):
-            BuildAtoms_Command.Enter(self)
-            #REVIEW: NEW COMMAND API SHOULD REVISE THIS METHOD -- 2008-07-30
-            self.command_enter_PM()     
-            self._apply_bondTool_on_selected_atoms()
-            
-            name = self.getBondTypeString()
-            if name:
-                msg = "Click bonds or bondpoints to make them %ss." % name 
-            else:
-                msg = "Select a bond tool and then click on bonds or "\
-                    "bondpoints to convert them to a specific bond type."
-            self.propMgr.updateMessage(msg)
-            
-            self.command_enter_flyout()
-        
-        def init_gui(self):
-            pass
-        
-        def restore_gui(self):
-            pass
+        self.propMgr.updateMessage(msg)                
     
     def getBondType(self):
         return V_SINGLE

@@ -31,7 +31,6 @@ from utilities.Log import redmsg, orangemsg
 from commands.PlayMovie.MoviePropertyManager import MoviePropertyManager
 from ne1_ui.toolbars.Ui_PlayMovieFlyout import PlayMovieFlyout
 import foundation.undo_manager as undo_manager
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class _MovieRewindDialog(QDialog):
     """
@@ -90,9 +89,6 @@ class movieMode(basicMode):
     it will start playing it. [I don't know the extent to which it will start
     from where it left off, in not only frame number but direction, etc. - bruce 050426]
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. 
-
     # class constants
     commandName = 'MOVIE'
     featurename = "Movie Player Mode"
@@ -106,54 +102,6 @@ class movieMode(basicMode):
     
     flyoutToolbar = None
 
-    # methods related to entering or exiting this mode
-    
-    if not USE_COMMAND_STACK:
-        def Enter(self):
-            basicMode.Enter(self)
-            # [bruce 050427 comment: I'm skeptical of this effect on selection,
-            #  since I can't think of any good reason for it [maybe rendering speed optimization??],
-            #  and once we have movies as nodes in the MT it will be a problem [why? #k],
-            #  but for now I'll leave it in.]
-            self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
-            self.o.assy.permit_pick_atoms()
-            
-        def init_gui(self):
-            self.command_enter_PM()
-            self.command_enter_flyout()
-            self.command_enter_misc_actions()
-            
-        def command_enter_flyout(self):
-            """
-            Overrides superclass method. 
-            
-            @see: baseCommand.command_enter_flyout()  for documentation
-            """
-            if self.flyoutToolbar is None:
-                self.flyoutToolbar = self._createFlyoutToolBarObject() 
-            self.flyoutToolbar.activateFlyoutToolbar()  
-                
-        def command_exit_flyout(self):
-            """
-            Overrides superclass method. 
-            
-            @see: baseCommand.command_exit_flyout()  for documentation
-            """
-            if self.flyoutToolbar:
-                self.flyoutToolbar.deActivateFlyoutToolbar()
-            
-        def _exitMode(self, *args, **kws): # for not-USE_COMMAND_STACK case; happens for Done or Cancel; remove when USE_COMMAND_STACK
-            # note: this definition generates the debug print
-            ## fyi (for developers): subclass movieMode overrides basicMode._exitMode; this is deprecated after mode changes of 040924.
-            # because it's an API violation to override this method; what should be done instead is to do this in one of the other cleanup
-            # functions documented in modes.py. Sometime that doc should be clarified and this method should be redone properly.
-            # [bruce 070613 comment]
-    
-            self._offer_to_rewind_if_necessary()
-            
-            basicMode._exitMode(self, *args, **kws)
-            return
-        
     def command_entered(self):
         """
         Extends superclass method. 
@@ -169,32 +117,30 @@ class movieMode(basicMode):
         self.o.assy.permit_pick_atoms()
             
         
-    def command_will_exit(self): # for USE_COMMAND_STACK case; happens for any exit [bruce 080806]
+    def command_will_exit(self): 
         """
         Extends superclass method, to offer to rewind the movie
         if it's not at the beginning. (Doesn't offer to prevent
         exit, only to rewind or not when exit is done.)
         """
-        if USE_COMMAND_STACK:
-            ask = not self.commandSequencer.exit_is_forced
-                # It's not be safe to rewind if exit is forced,
-                # since this might happen *after* the check for whether
-                # to offer to save changes in an old file being closed,
-                # but it creates such changes.
-                #
-                # A possible fix is for Open to first exit all current commands
-                # (by implicit Done, as when changing to some unrelated command),
-                # before even doing the check. There are better, more complex fixes,
-                # e.g. checking for changes to ask about saving (or for the need to
-                # ask other questions before exit) by asking all commands on the stack.
-                #
-                # Note: a related necessary change is calling exit_all_commands when
-                # closing a file, but I think it doesn't fix the same issue mentioned
-                # above.
-                #
-                # [bruce 080806/080908 comments]
-        else:
-            ask = True
+        ask = not self.commandSequencer.exit_is_forced
+            # It's not be safe to rewind if exit is forced,
+            # since this might happen *after* the check for whether
+            # to offer to save changes in an old file being closed,
+            # but it creates such changes.
+            #
+            # A possible fix is for Open to first exit all current commands
+            # (by implicit Done, as when changing to some unrelated command),
+            # before even doing the check. There are better, more complex fixes,
+            # e.g. checking for changes to ask about saving (or for the need to
+            # ask other questions before exit) by asking all commands on the stack.
+            #
+            # Note: a related necessary change is calling exit_all_commands when
+            # closing a file, but I think it doesn't fix the same issue mentioned
+            # above.
+            #
+            # [bruce 080806/080908 comments]
+        
         if ask:
             self._offer_to_rewind_if_necessary()
 
@@ -233,12 +179,6 @@ class movieMode(basicMode):
         return
     
     
-
-            
-    #START new command API methods =============================================
-    #currently [2008-08-21 ] also called in by self.init_gui and 
-    #self.restore_gui.
-    
     # see also command_will_exit, elsewhere in this file
     
     def command_enter_PM(self):
@@ -247,10 +187,7 @@ class movieMode(basicMode):
         @see: baseCommand.command_enter_PM()  for documentation        
         """
 
-        basicMode.command_enter_PM(self) #bruce 080909 call this instead of inlining it
-            
-        if not USE_COMMAND_STACK:
-            self.propMgr.show()             
+        basicMode.command_enter_PM(self) #bruce 080909 call this instead of inlining it      
             
         #@WARNING: The following code in command_enter_PM was originally in 
         #def init_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21       
@@ -282,17 +219,7 @@ class movieMode(basicMode):
             self.enableMovieControls(False)         
         return
     
-    def command_exit_PM(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_exit_PM() for documentation
-        """
-        if not USE_COMMAND_STACK:
-            if self.propMgr:
-                self.propMgr.close()
-            
-                
+  
     def command_enter_misc_actions(self):
         """
         Overrides superclass method. 
@@ -343,15 +270,7 @@ class movieMode(basicMode):
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
         self.w.disable_QActions_for_movieMode(False)   
-    
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = PlayMovieFlyout(self) 
-        return flyoutToolbar 
+
     
     #END new command API methods =============================================
     
@@ -364,29 +283,6 @@ class movieMode(basicMode):
         """
         movie = self.o.assy.current_movie
         return movie and movie.might_be_playable()
-
-    def restore_patches_by_Command(self):
-        """
-        This is run when we exit self for any reason.
-        """
-        assert not USE_COMMAND_STACK # done in command_will_exit in that case
-        #bruce 050426 added this, to hold the side effect formerly
-        # done illegally by haveNontrivialState.
-        # ... but why do we need to do this at all?
-        # the only point of what we'd do here would be to stop
-        # having that movie optimize itself for rapid playing....
-        movie = self.o.assy.current_movie
-        if movie:
-            movie._close()
-            # note: this assumes this is the only movie which might be "open",
-            # and that redundant _close is ok.
-        return
-
-    def restore_gui(self):
-        self.command_exit_PM()
-        self.command_exit_flyout()
-        self.command_exit_misc_actions()
-        return
 
     def makeMenus(self):
         self.Menu_spec = [

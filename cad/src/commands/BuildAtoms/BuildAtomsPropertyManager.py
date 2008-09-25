@@ -149,20 +149,15 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
     #New command API method -- implemented on 2008-08-27
     def _update_UI_do_updates(self):
         """
-        This method should replace model_changed() eventually. 
-        This is used with USE_COMMAND_STACK debug flag
-        """     
-        self.model_changed()  
-        
-    def model_changed(self):
-        """
-        Overrides basicMode.model_changed.
+        Overrides superclass method
 
         @warning: This is called frequently, even when nothing has changed.
                   It's used to respond to other kinds of changes as well
                   (e.g. to the selection). So it needs to be fast
                   when nothing has changed.
                   (It will be renamed accordingly in the API.)
+                  
+        @see: PM_Dialog._updateUI)do_updates()
         """  
         newSelectionParams = self._currentSelectionParams()
         

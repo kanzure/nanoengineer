@@ -25,9 +25,7 @@ from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGen
 
 _superclass = EditCommand
 class Graphene_EditCommand(EditCommand):
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported.
-    
+   
     GraphicsMode_class = SelectChunks_GraphicsMode
     
     #Property Manager 
@@ -116,36 +114,7 @@ class Graphene_EditCommand(EditCommand):
 
         self.previousParams = params
 
-        self.struct = self._createStructure()
-    
-        
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: EditCommand.command_enter_flyout()
-        """
-        if self.flyoutToolbar is None:
-            self.flyoutToolbar = self._createFlyoutToolBarObject()
-
-        self.flyoutToolbar.activateFlyoutToolbar()
-                
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: EditCommand.command_exit_flyout()
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.deActivateFlyoutToolbar()
-    
-    def _createFlyoutToolBarObject(self):
-        """
-        Create a flyout toolbar to be shown when this command is active. 
-        Overridden in subclasses. 
-        @see: PasteFromClipboard_Command._createFlyouttoolBar()
-        @see: self.command_enter_flyout()
-        """
-        flyoutToolbar = GrapheneFlyout(self) 
-        return flyoutToolbar 
+        self.struct = self._createStructure()    
     
             
     def _getStructureType(self):
