@@ -198,7 +198,7 @@ class GLSphereShaderObject(object):
         
         return
 
-    def createShader(shaderType, shaderSrc):
+    def createShader(self, shaderType, shaderSrc):
         """
         Create, load, and compile a shader.
         """
@@ -213,7 +213,6 @@ class GLSphereShaderObject(object):
             self.error = True
             pass
         return shader
-    createShader = staticmethod(createShader)
 
     def configShader(self, glpane):
         """
