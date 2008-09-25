@@ -512,12 +512,20 @@ MODEL_AND_SIMULATE_PROTEINS = debug_pref("Enable model and simulate protein flyo
 # ==
 
 def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
-    #-The current code always connects signals while shown a PM and 
-    #disconnects those in the close method. The above flag, if True, signals 
-    #are connected when PM is created (this is a proposed scheme in the new 
-                                      #command stack project)
-   #As of 2008-08-13 this is not implemented for - Flyout toolbars , 
-   #old commands such as Extrude, Movie. 
+    #If the above flag, if True, signals are connected when PM is created 
+    # (always True by default) If this is False, the signals are connected
+    #in show() method of the PM and disconnected in the close() method
+    
+    ##Based on Bruce's comment 2008-09-23: 
+    ## The following bug is unlikely because presumably the user can never see 
+    ## the old PM object and the underlying call is a memory leak 
+    ## issue than anything else (harder to fix) -- 
+    ## What happens when you are in something with signals (e.g. extrude) and do 
+    ## file->close or file->open.
+    ## A bug could happen if the signals remain connected to the old command 
+    ##object. ....
+
+   
     res = debug_pref("Keep signals always connected (NIM) (next session)?",
                      Choice_boolean_True,
                      prefs_key = True
