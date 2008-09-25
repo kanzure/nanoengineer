@@ -466,8 +466,9 @@ def debug_pref_support_Qt_4point2(): #bruce 080725
 # ==
 
 def _debug_pref_use_command_stack(): #bruce 080728
+    #ninad circa 080922 revised default value and menu text
     res = debug_pref("Use new command stack API (next session)?",
-                     Choice_boolean_True,
+                     Choice_boolean_True, 
                      prefs_key = True
                     )
     return res
@@ -525,8 +526,8 @@ def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
     ## A bug could happen if the signals remain connected to the old command 
     ##object. ....
 
-   
-    res = debug_pref("Keep signals always connected (NIM) (next session)?",
+    res = debug_pref("Keep signals always connected (next session)?",
+                     #bruce 080925 revised menu text
                      Choice_boolean_True,
                      prefs_key = True
                     )
@@ -534,23 +535,13 @@ def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
 
 KEEP_SIGNALS_ALWAYS_CONNECTED = _debug_pref_keep_signals_always_connected()
 
-
-def _debug_pref_cseq_is_not_glpane(): #bruce 080813
-    res = debug_pref("CommandSequencer is not GLPane (next session)?",
-                     Choice_boolean_False,
-                     prefs_key = True
-                    )
-    return res
-
-# todo: XXX = not _debug_pref_cseq_is_not_glpane()
-
-
+# ==
 
 def _debug_pref_break_strands_feature(): #Ninad 2008-08-18
     #debug flag for experimental code Ninad is
-#working on (various break strands options). 
-#Note that this flag is also used in BreakStrand_Command
-#UPDATE 2008-08-19: This preference is set to True by default
+    #working on (various break strands options). 
+    #Note that this flag is also used in BreakStrand_Command
+    #UPDATE 2008-08-19: This preference is set to True by default
     res = debug_pref("DNA: debug new break strands options feature (next session)",
                      Choice_boolean_False,
                      prefs_key = True
@@ -558,7 +549,5 @@ def _debug_pref_break_strands_feature(): #Ninad 2008-08-18
     return res
 
 DEBUG_BREAK_OPTIONS_FEATURE = _debug_pref_break_strands_feature()
-
-
 
 # end
