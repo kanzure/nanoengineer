@@ -9,7 +9,7 @@ To run, type:
 python PreferencesDialog.py
 """
 
-import sys
+import sys, os
 from PyQt4.Qt import *
 from PyQt4 import QtCore, QtGui
 from Ui_PreferencesDialog import Ui_PreferencesDialog
@@ -61,6 +61,8 @@ from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from utilities.icon_utilities import geticon
 
 DEBUG = True
+GDS_NAMES   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
+GDS_ICONS   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
 
 class ContainerWidget(QFrame):
     """
@@ -1211,10 +1213,18 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        _choices = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
-        globalDisplayStyleStartupComboBox = PM_ComboBox(_pageContainer, 
+        gdsIconDist = dict(zip(GDS_NAMES, GDS_ICONS))
+
+        _choices = []
+        self.globalDisplayStyleStartupComboBox = PM_ComboBox(_pageContainer, 
                                       label =  "Global display style at start-up:", 
                                       choices = _choices, setAsDefault = False)
+        for gdsName in GDS_NAMES: # gds = global display style
+            basename = gdsIconDist[gdsName] + ".png"
+            iconPath = os.path.join("ui/actions/View/Display/",
+                                    basename)
+            self.globalDisplayStyleStartupComboBox.addItem(geticon(iconPath), gdsName)
+
         compassGroupBox = PM_GroupBox(_pageContainer, 
                                        title = "Compass display settings",
                                        connectTitleButton = False)
@@ -1222,7 +1232,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                text = "Display compass: ",
                                                widgetColumn = 0)
         _choices = ["Upper right", "Upper left", "Lower left", "Lower right"]
-        self.globalDisplayStyleStartupComboBox = PM_ComboBox(compassGroupBox, 
+        self.compass_location_ComboBox = PM_ComboBox(compassGroupBox, 
                                       label =  "Compass Location:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
@@ -1233,7 +1243,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         axesGroupBox = PM_GroupBox(_pageContainer, 
                                    title = "Axes",
                                    connectTitleButton = False)
-        self.display_origin_axix_checkbox = PM_CheckBox(axesGroupBox, 
+        self.display_origin_axis_checkbox = PM_CheckBox(axesGroupBox, 
                                                text = "Display origin axis",
                                                widgetColumn = 0)
         self.display_pov_axis_checkbox = PM_CheckBox(axesGroupBox, 
@@ -1243,9 +1253,9 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         cursor_text_GroupBox = PM_GroupBox(_pageContainer, 
                                        title = "Cursor text settings",
                                        connectTitleButton = False)
-        self.cursor_text_CheckBox = PM_CheckBox(cursor_text_GroupBox, 
-                                           text = "Cursor text",
-                                           widgetColumn = 0)
+        #self.cursor_text_CheckBox = PM_CheckBox(cursor_text_GroupBox, 
+                                           #text = "Cursor text",
+                                           #widgetColumn = 0)
         self.cursor_text_font_size_SpinBox = PM_DoubleSpinBox(cursor_text_GroupBox,
                                                          label = "", 
                                                          suffix = "pt", 

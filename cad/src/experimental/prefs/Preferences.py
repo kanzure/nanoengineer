@@ -37,7 +37,9 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_False
 import foundation.env as env
 from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 from widgets.widget_helpers import double_fixup
-from widgets.prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
+from widgets.prefs_widgets import connect_colorpref_to_colorframe, \
+     connect_checkbox_with_boolean_pref, connect_comboBox_with_pref, \
+     connect_doubleSpinBox_with_pref
 from utilities import debug_flags
 from utilities.constants import str_or_unicode
 from platform_dependent.PlatformDependent import screen_pos_size
@@ -233,6 +235,10 @@ from widgets.prefs_widgets import connect_doubleSpinBox_with_pref
 # Preferences widgets constants. I suggest that these be moved to another
 # file (i.e. prefs_constants.py or another file). Discuss with Bruce. -Mark
 
+# Setting some Qt constants just to make things more sane
+CHECKED = Qt.Checked
+UNCHECKED = Qt.Unchecked
+
 # Widget constants for the "Graphics Area" page.
 
 BG_EVENING_SKY = 0
@@ -274,7 +280,8 @@ from utilities.prefs_constants import SS_OPTIONS
 # = end of Preferences widgets constants.
 
 debug_sliders = False # Do not commit as True
-DEBUG = True
+DEBUG = True # Do not commit as True
+CURSOR_TEXT_KEY = True
 
 def debug_povdir_signals():
     return 0 and env.debug()
@@ -481,7 +488,7 @@ class Preferences(PreferencesDialog):
         #self._setupDialog_TopLevelWidgets()
         self._setupPage_General()
         #self._setupPage_Color()
-        #self._setupPage_GraphicsArea()
+        self._setupPage_Graphics_Area()
         #self._setupPage_ZoomPanRotate()
         #self._setupPage_Rulers()
         #self._setupPage_Atoms()
@@ -506,6 +513,8 @@ class Preferences(PreferencesDialog):
         return
     # End of _init_()
 
+
+    # PAGE: GENERAL    
     def _setupPage_General(self):
         """
         Setup the General page.
@@ -540,9 +549,112 @@ class Preferences(PreferencesDialog):
                      self.change_pasteOffsetScaleFactorForChunks)
         self.connect(self.pasteOffsetForDNA_doublespinbox,
                      SIGNAL("valueChanged(double)"),
-                     self.change_pasteOffsetScaleFactorForDnaObjects)   
+                     self.change_pasteOffsetScaleFactorForDnaObjects)
         return
 
+    def setGlobalDisplayStyleAtStartUp(self, junk):
+        """
+        Slot method for the "Global Display Style at Start-up" combo box in
+        the Preferences dialog (and not the combobox in the status bar of
+        the main window).
+
+        @param gdsIndexUnused: The current index of the combobox. It is unused.
+        @type  gdsIndexUnused: int
+
+        @note: This changes the global display style of the glpane.
+        """
+
+        # Get the GDS index from the current combox box index.
+        display_style = GDS_INDEXES[self.globalDisplayStyleStartupComboBox.currentIndex()]
+
+        if display_style == env.prefs[startupGlobalDisplayStyle_prefs_key]:
+            return
+
+        # set the pref
+        env.prefs[startupGlobalDisplayStyle_prefs_key] = display_style
+
+        # Set the current display style in the glpane.
+        # (This will be noticed later by chunk.draw of affected chunks.)
+#UNCOMMENT LATER
+#        self.glpane.setGlobalDisplayStyle(display_style)
+#        self.glpane.gl_update()
+        return
+
+    # PAGE: GRAPHICS AREA
+    def _setupPage_Graphics_Area(self):
+        """
+        Setup the Graphics Area page
+        """
+        
+        display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
+        self.globalDisplayStyleStartupComboBox.setCurrentIndex(GDS_INDEXES.index(display_style))
+        self.connect(self.globalDisplayStyleStartupComboBox, SIGNAL("currentIndexChanged(int)"), self.setGlobalDisplayStyleAtStartUp)
+        
+        # GROUPBOX: Compass display settings
+        # Check if the compass is set to display
+        if env.prefs[displayCompass_prefs_key]:
+            self.display_compass_CheckBox.setCheckState(CHECKED)
+        else:
+            self.display_compass_CheckBox.setCheckState(UNCHECKED)
+        # Call the display_compass function no matter what it know's what to do.
+        self.display_compass(env.prefs[displayCompass_prefs_key])
+        self.connect(self.display_compass_CheckBox, SIGNAL("toggled(bool)"), self.display_compass)
+        connect_comboBox_with_pref(self.compass_location_ComboBox, compassPosition_prefs_key)
+        connect_checkbox_with_boolean_pref(self.display_compass_labels_checkbox, displayCompassLabels_prefs_key)
+        
+        # GROUPBOX: Axes
+        connect_checkbox_with_boolean_pref(self.display_origin_axis_checkbox, displayOriginAxis_prefs_key)
+        connect_checkbox_with_boolean_pref(self.display_pov_axis_checkbox, displayPOVAxis_prefs_key)
+        
+        # GROUPBOX: Cursor text settings
+        #if CURSOR_TEXT_KEY:
+            #self.cursor_text_CheckBox.setCheckState(CHECKED)
+        #else:
+            #self.cursor_text_CheckBox.setCheckState(UNCHECKED)
+        #self.cursor_text_enable_fields(CURSOR_TEXT_KEY)
+        connect_doubleSpinBox_with_pref(self.cursor_text_font_size_SpinBox,cursorTextFontSize_prefs_key)
+        self.connect(self.cursor_text_reset_Button, SIGNAL("clicked()"), self.cursor_text_font_size_reset)
+        self.cursor_text_color_ComboBox.setColor(env.prefs[cursorTextColor_prefs_key], default = True)
+        self.connect(self.cursor_text_color_ComboBox, SIGNAL("editingFinished()"), self.store_cursor_text_color)
+
+        # GROUPBOX: Other graphics options groupbox
+        connect_checkbox_with_boolean_pref(self.display_confirmation_corner_CheckBox, displayConfirmationCorner_prefs_key)
+        connect_checkbox_with_boolean_pref(self.anti_aliasing_CheckBox, enableAntiAliasing_prefs_key)
+        return
+ 
+    def cursor_text_font_size_reset(self):
+        if not env.prefs.has_default_value(cursorTextFontSize_prefs_key):
+            _tmp = env.prefs.get_default_value(cursorTextFontSize_prefs_key)
+            self.cursor_text_font_size_SpinBox.setValue(_tmp)
+            env.prefs[cursorTextFontSize_prefs_key] = _tmp
+        return
+    def store_cursor_text_color(self):
+        _newColor = self.cursor_text_color_ComboBox.getColor()
+        env.prefs[cursorTextColor_prefs_key] = _newColor
+        return
+
+# Code for dealing with cursor text checkbox (removed)
+#    def cursor_text_enable_fields(self, val):
+#        return
+    
+    def display_compass(self, val):
+        """
+        Slot for the Display Compass checkbox, which enables/disables the
+        Display Compass Labels checkbox.
+        """
+        val = not not val
+        # Enable or disable the appropriate things
+        self.compass_location_ComboBox.setEnabled(val)
+        self.compass_location_ComboBox.labelWidget.setEnabled(val)
+        self.display_compass_labels_checkbox.setEnabled(val)
+        # If the value is different from the saved value, then save the new one.
+        # This method is called at startup, so this could be used simply to
+        # set the initial state of the 
+        if val != env.prefs[displayCompass_prefs_key]:
+            env.prefs[displayCompass_prefs_key] = val
+        return
+    
+    # PAGE: PLUGINS
     def _setupPage_Plugins(self):
         """
         Setup the "Plug-ins" page.
@@ -1358,6 +1470,7 @@ class Preferences(PreferencesDialog):
 # end
 
 if __name__ == "__main__":
+    _iconprefix = "/Users/derrickhendricks/trunks/trunk/cad/src"
     app = QtGui.QApplication(sys.argv)
     p = Preferences()
     sys.exit(app.exec_())
