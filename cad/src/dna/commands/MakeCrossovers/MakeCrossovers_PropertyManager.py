@@ -35,7 +35,7 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_MakeCrossoversPropertyManager
 from utilities.Log import orangemsg
 
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED, USE_COMMAND_STACK
+from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
 _superclass = PM_Dialog
 class MakeCrossovers_PropertyManager( PM_Dialog, 
@@ -162,13 +162,9 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(True)
-            
-        ##self.updateListWidgets()       
+             
         self._deactivateAddRemoveSegmentsTool()
-        
-        if not USE_COMMAND_STACK:
-            self._previous_model_changed_params = None
-
+     
     def close(self):
         
         _superclass.close(self)
@@ -215,20 +211,11 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
             label     = "",
             text      = "Make All Crossovers",
             spanWidth = True )
-        
-     #new command API method  
+
     def _update_UI_do_updates(self):
         """
-        This method should replace model_changed() eventually. 
-        This is used with USE_COMMAND_STACK debug flag
-        """
-        if USE_COMMAND_STACK: #just for safety
-            self.model_changed()
-               
-
-    def model_changed(self): 
-        """
-        @see: DnaSegment_EditCommand.model_changed()
+        @see: PM_Dialog._update_UI_do_updates()
+        @see: DnaSegment_EditCommand.command_update_UI()
         @see: DnaSegment_EditCommand.hasResizableStructure()
         @see: self._current_model_changed_params()
         """

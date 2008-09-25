@@ -29,7 +29,6 @@ from utilities.Log import orangemsg
 
 from dna.commands.MakeCrossovers.ListWidgetItems_Command_Mixin import ListWidgetItems_Command_Mixin
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 MAXIMUM_ALLOWED_DNA_SEGMENTS_FOR_CROSSOVER = 8
 
@@ -40,8 +39,6 @@ class MakeCrossovers_Command(SelectChunks_Command,
     """
     
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status =  None #Fully ported
     
     GraphicsMode_class = MakeCrossovers_Graphicsmode
     
@@ -70,37 +67,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
         flyoutActionToCheck = 'makeCrossoversAction'
         parentCommandName = None     
         return flyoutActionToCheck, parentCommandName
-    
-    if not USE_COMMAND_STACK:           
-        def Enter(self):
-            ListWidgetItems_Command_Mixin.Enter(self)    
-            _superclass.Enter(self)  
-        
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-            
-            self.command_enter_PM()
-            self.command_enter_flyout()
-                
-            #Now set the initial segment list. The segments within this segment list
-            #will be searched for the crossovers. 
-            selectedSegments = self.win.assy.getSelectedDnaSegments()        
-            self.ensureSegmentListItemsWithinLimit(selectedSegments)
-                    
-            self.propMgr.show()
-            
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """       
-            self.command_exit_flyout()
-            self.command_exit_PM()
-            if self.propMgr is not None:
-                self.propMgr.close()
 
-            
     def command_entered(self):
         #Set the initial segment list. The segments within this segment list
         #will be searched for the crossovers. 
@@ -109,24 +76,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
         _superclass.command_entered(self)
         
         selectedSegments = self.win.assy.getSelectedDnaSegments()        
-        self.ensureSegmentListItemsWithinLimit(selectedSegments)
-                      
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: EditCommand.command_enter_flyout()
-        """
-        self._init_gui_flyout_action( 'makeCrossoversAction' ) 
-        
-        
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: EditCommand.command_exit_flyout()
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.makeCrossoversAction.setChecked(False)
-                      
+        self.ensureSegmentListItemsWithinLimit(selectedSegments)                     
             
     def logMessage(self, type = 'DEFAULT'): 
         """

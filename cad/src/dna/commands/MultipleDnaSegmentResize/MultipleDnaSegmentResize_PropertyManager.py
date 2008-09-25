@@ -106,17 +106,9 @@ class MultipleDnaSegmentResize_PropertyManager( DnaOrCnt_PropertyManager ):
                         SIGNAL("toggled(bool)"), 
                         self.activateRemoveSegmentsTool)
         
-        
-    #New command API method -- implemented on 2008-08-27
     def _update_UI_do_updates(self):
         """
-        This method should replace model_changed() eventually. 
-        This is used with USE_COMMAND_STACK debug flag
-        """     
-        self.model_changed()  
-        
-    def model_changed(self): 
-        """
+        @see: PM_Dialog._update_UI_do_updates()
         @see: DnaSegment_EditCommand.model_changed()
         @see: DnaSegment_EditCommand.hasResizableStructure()
         @see: self._current_model_changed_params()

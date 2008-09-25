@@ -280,18 +280,10 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
                        SIGNAL('stateChanged(int)'), 
                        self._update_state_of_cursorTextGroupBox)
         
-        
-    #New command API method -- implemented on 2008-08-27
     def _update_UI_do_updates(self):
         """
-        This method should replace model_changed() eventually. 
-        This is used with USE_COMMAND_STACK debug flag
-        """     
-        self.model_changed()  
-        
-    def model_changed(self): 
-        """
-        @see: DnaStrand_EditCommand.model_changed()
+        @see: PM_Dialog. _update_UI_do_updates()
+        @see: DnaStrand_EditCommand.command_update_UI()
         @see: DnaStrand_EditCommand.hasResizableStructure()
         """
         isStructResizable, why_not = self.command.hasResizableStructure()

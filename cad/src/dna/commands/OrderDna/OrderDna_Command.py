@@ -13,8 +13,6 @@ from dna.commands.OrderDna.OrderDna_PropertyManager import OrderDna_PropertyMana
 
 from graphics.drawing.drawDnaLabels import draw_dnaBaseNumberLabels
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -37,9 +35,7 @@ class OrderDna_Command(EditCommand):
     """
     
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
+   
     # class constants
     
     commandName = 'ORDER_DNA'
@@ -65,72 +61,6 @@ class OrderDna_Command(EditCommand):
         flyoutActionToCheck = 'orderDnaAction'
         parentCommandName = 'BUILD_DNA'    
         return flyoutActionToCheck, parentCommandName
-    
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-            self._init_gui_flyout_action( 'orderDnaAction' , 'BUILD_DNA') 
-            
-                    
-            if self.propMgr is None:
-                self.propMgr = OrderDna_PropertyManager(self)
-                #@bug BUG: following is a workaround for bug 2494.
-                #This bug is mitigated as propMgr object no longer gets recreated
-                #for modes -- niand 2007-08-29
-                changes.keep_forever(self.propMgr)  
-                
-            self.propMgr.show()
-            
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """
-            if self.propMgr is not None:
-                self.propMgr.close()
-        
-        def command_enter_PM(self):
-            """
-            Overrides superclass method. 
-            
-            @see: baseCommand.command_enter_PM()  for documentation
-            """
-            #important to check for old propMgr object. Reusing propMgr object 
-            #significantly improves the performance.
-            if not self.propMgr:
-                self.propMgr = self._createPropMgrObject()
-                #@bug BUG: following is a workaround for bug 2494.
-                #This bug is mitigated as propMgr object no longer gets recreated
-                #for modes -- ninad 2007-08-29
-                changes.keep_forever(self.propMgr)  
-                
-            
-            if not USE_COMMAND_STACK:
-                self.propMgr.show()    
-                
-                
-        def command_enter_flyout(self):
-            """
-            Overrides superclass method. 
-            @see: EditCommand.command_enter_flyout()
-            """
-            self._init_gui_flyout_action( 'orderDnaAction' , 'BUILD_DNA') 
-            
-                    
-        def command_exit_flyout(self):
-            """
-            Overrides superclass method. 
-            @see: EditCommand.command_exit_flyout()
-            """
-            if self.flyoutToolbar:
-                self.flyoutToolbar.orderDnaAction.setChecked(False)
-            
-            
-        def _createPropMgrObject(self):
-            propMgr = OrderDna_PropertyManager(self)
-            return propMgr
-  
     
     def keep_empty_group(self, group):
         """

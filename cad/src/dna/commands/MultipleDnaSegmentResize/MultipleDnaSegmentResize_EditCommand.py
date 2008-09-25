@@ -47,8 +47,6 @@ ORIGIN = V(0, 0, 0)
 _superclass = DnaSegment_EditCommand
 class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
     
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
     
     #Graphics Mode 
     GraphicsMode_class = MultipleDnaSegmentResize_GraphicsMode

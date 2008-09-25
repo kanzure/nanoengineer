@@ -36,7 +36,6 @@ from model.bonds import Bond
 
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from dna.commands.BuildDna.BuildDna_PropertyManager import BuildDna_PropertyManager
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
 class BuildDna_EditCommand(EditCommand):
@@ -44,10 +43,7 @@ class BuildDna_EditCommand(EditCommand):
     BuildDna_EditCommand provides a convenient way to edit or create
     a DnaGroup object
     """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
+        
     #GraphicsMode
     GraphicsMode_class = BuildDna_GraphicsMode
     
@@ -81,66 +77,6 @@ class BuildDna_EditCommand(EditCommand):
     #BuildAtoms_Command (earlier depositmode)
     call_makeMenus_for_each_event = True
         
-    if not USE_COMMAND_STACK:    
-        def command_enter_flyout(self):
-            """
-            Overrides superclass method. 
-            @see: EditCommand.command_enter_flyout()
-            """
-            if self.flyoutToolbar is None:
-                self.flyoutToolbar = self._createFlyoutToolBarObject()
-    
-            self.flyoutToolbar.activateFlyoutToolbar()
-                    
-        def command_exit_flyout(self):
-            """
-            Overrides superclass method. 
-            @see: EditCommand.command_exit_flyout()
-            """
-            if self.flyoutToolbar:
-                self.flyoutToolbar.deActivateFlyoutToolbar()
-                
-        def _createFlyoutToolBarObject(self):
-            """
-            Create a flyout toolbar to be shown when this command is active. 
-            Overridden in subclasses. 
-            @see: PasteFromClipboard_Command._createFlyouttoolBar()
-            @see: self.command_enter_flyout()
-            """
-            flyoutToolbar = DnaFlyout(self) 
-            return flyoutToolbar
-        
-       
-        def resume_gui(self):
-            """
-            Called when this command, that was suspended earlier, is being resumed.
-            The temporary command (which was entered by suspending this command)
-            might have made some changes to the model which need to be reflected
-            while resuming command.
-    
-            Example: A user enters BreakStrands_Command by suspending
-            BuildDna_EditCommand, then breaks a few strands, thereby creating new
-            strand chunks. Now when the user returns to the BuildDna_EditCommand,
-            the command's property manager needs to update the list of strands
-            because of the changes done while in BreakStrands_Command.
-            @see: Command.resume_gui
-            @see: Command._enterMode where this method is called.
-            """
-            #NOTE: Doing command toolbar updates in this method doesn't alwayswork.
-            #consider this situation : You are in a) BuildDna_EditCommand, then you
-            #b) enter DnaDuplex_EditCommand(i.e. Dna line) and from this temporary
-            #command, you directly c) enter BreakStrands_Command
-            #-- During b to c, 1) it first exits (b) , 2) resumes (a)
-            #and then 3)enters (c)
-            #This method is called during operation #2 and any changes to flyout
-            #toolbar are reset during #3  --- Ninad 2008-01-14
-            if self.propMgr:
-                self.propMgr.updateListWidgets()
-    
-            if self.flyoutToolbar:
-                self.flyoutToolbar.resetStateOfActions()
-
-
     def runCommand(self):
         """
         Overrides EditCommand.runCommand

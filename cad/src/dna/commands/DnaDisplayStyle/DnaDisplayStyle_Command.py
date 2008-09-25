@@ -12,7 +12,7 @@ from utilities.constants import red
 from dna.commands.DnaDisplayStyle.DnaDisplayStyle_PropertyManager import DnaDisplayStyle_PropertyManager
 
 from graphics.drawing.drawDnaLabels import draw_dnaBaseNumberLabels
-from utilities.GlobalPreferences import USE_COMMAND_STACK
+
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -36,11 +36,7 @@ class DnaDisplayStyle_Command(EditCommand):
     """
     
     """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #Fully ported
-    
-    
+     
     # class constants
     
     GraphicsMode_class = DnaDisplayStyle_GraphicsMode
@@ -68,54 +64,6 @@ class DnaDisplayStyle_Command(EditCommand):
         parentCommandName = 'BUILD_DNA'      
         return flyoutActionToCheck, parentCommandName
     
-    
-    if not USE_COMMAND_STACK:
-
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-            self._init_gui_flyout_action( 'editDnaDisplayStyleAction', 'BUILD_DNA')
-            
-            if self.propMgr is None:
-                self.propMgr = DnaDisplayStyle_PropertyManager(self)
-                #@bug BUG: following is a workaround for bug 2494.
-                #This bug is mitigated as propMgr object no longer gets recreated
-                #for modes -- niand 2007-08-29
-                changes.keep_forever(self.propMgr)  
-                
-            self.propMgr.show()
-                
-            
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """
-                
-            if self.propMgr is not None:
-                self.propMgr.close()
-            
-            
-     #START new command API methods =============================================
-        
-      
-            
-            
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: EditCommand.command_enter_flyout()
-        """
-        self._init_gui_flyout_action( 'editDnaDisplayStyleAction', 'BUILD_DNA')
-        
-                
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. 
-        @see: EditCommand.command_exit_flyout()
-        """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.editDnaDisplayStyleAction.setChecked(False)
 
     def keep_empty_group(self, group):
         """

@@ -24,9 +24,6 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     A superclass for Break Strands and Join Strands commands
     """   
     
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported (includind subclasses Break and JoinStrands commands
-    
     #Property Manager class (overridden in subclasses)
     PM_class = None
     
@@ -58,22 +55,8 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     
     def _get_init_gui_flyout_action_string(self):
         raise AbstractMethod
-        
-                
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. See superclass for documentation.
-        """        
-        self.flyoutToolbar = None
-        actionText = self._get_init_gui_flyout_action_string()
-        self._init_gui_flyout_action(str(actionText))
+                  
             
-    def command_exit_flyout(self):
-        """
-        Overrides superclass method. See superclass for documentation.
-        """
-        pass
-        
     def command_enter_misc_actions(self):
         """
         Overrides superclass method. See superclass for documentation.

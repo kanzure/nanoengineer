@@ -116,9 +116,10 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                        self._update_state_of_cursorTextGroupBox)
 
 
-    def model_changed(self): 
+    def _update_UI_do_updates(self): 
         """
-        @see: DnaSegment_EditCommand.model_changed()
+        @see: PM_Dialog._update_UI_do_updates()
+        @see: DnaSegment_EditCommand.command_update_UI()
         @see: DnaSegment_EditCommand.hasResizableStructure()
         @see: self._current_model_changed_params()
         """

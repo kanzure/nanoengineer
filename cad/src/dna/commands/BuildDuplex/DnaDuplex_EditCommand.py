@@ -59,7 +59,6 @@ from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_nu
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key
 from utilities.prefs_constants import cursorTextColor_prefs_key
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
 
@@ -74,11 +73,7 @@ class DnaDuplex_EditCommand(EditCommand):
     two end points for each dna duplex.This uses DnaLineMode_GM  class as its
     GraphicsMode 
     """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
-    
+
     #Graphics Mode set to DnaLine graphics mode
     GraphicsMode_class = DnaDuplex_GraphicsMode
     
@@ -168,82 +163,6 @@ class DnaDuplex_EditCommand(EditCommand):
                                                self.win.assy.part.topnode )
             
     
-    
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            Do changes to the GUI while entering this command. This includes opening 
-            the property manager, updating the command toolbar , connecting widget 
-            slots (if any) etc. Note: The slot connection in property manager and 
-            command toolbar is handled in those classes. 
-    
-            Called once each time the command is entered; should be called only 
-            by code in modes.py
-    
-            @see: L{self.restore_gui}
-            """
-            _superclass.init_gui(self)        
-    
-            if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
-                self._setParamsForDnaLineGraphicsMode()
-                self.mouseClickPoints = []
-    
-            #Clear the segmentList as it may still be maintaining a list of segments
-            #from the previous run of the command. 
-            self._segmentList = []
-    
-            parentCommand_if_BUILD_DNA = self._init_gui_flyout_action( 'dnaDuplexAction' )
-            if parentCommand_if_BUILD_DNA:
-                params = parentCommand_if_BUILD_DNA.provideParamsForTemporaryMode_in_BuildDna()
-                    #bruce 080801 revised this; that method should be renamed
-                self._parentDnaGroup = params
-            else:
-                #Should this be an assertion? Should we always kill _parentDnaGroup
-                #if its not None? ..not a good idea. Lets just make it to None. 
-                self._parentDnaGroup = None             
-                self._createFallbackDnaGroup()
-                
-            self.updateDrawingPlane(plane = None)
-
-        def restore_gui(self):
-            """
-            Do changes to the GUI while exiting this command. This includes closing 
-            this mode's property manager, updating the command toolbar ,
-            Note: The slot connection/disconnection in property manager and 
-            command toolbar is handled in those classes.
-            @see: L{self.init_gui}
-            """                    
-            _superclass.restore_gui(self)
-    
-            if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
-                self.mouseClickPoints = []
-    
-            self.graphicsMode.resetVariables()   
-    
-            if self.flyoutToolbar:
-                self.flyoutToolbar.dnaDuplexAction.setChecked(False)
-    
-            self._parentDnaGroup = None 
-            self._fallbackDnaGroup = None
-            self._segmentList = []
-            
-        def command_enter_flyout(self):
-            """
-            Overrides superclass method. 
-            @see: EditCommand.command_enter_flyout()
-            """
-            self._init_gui_flyout_action( 'dnaDuplexAction' )
-            
-                    
-        def command_exit_flyout(self):
-            """
-            Overrides superclass method. 
-            @see: EditCommand.command_exit_flyout()
-            """
-            if self.flyoutToolbar:
-                self.flyoutToolbar.dnaDuplexAction.setChecked(False)
-    #=== START   NEW COMMAND API methods  ======================================
-    #As of 2008-08-27, these are used as a debug pref only ('USE_COMMAND_STACK')
     
     def _getFlyoutToolBarActionAndParentCommand(self):
         """

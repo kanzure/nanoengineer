@@ -152,16 +152,6 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
                                    "DNA duplex."   )
 
     
-    def _update_widgets_in_PM_before_show(self):
-        """
-        Update various widgets  in this Property manager.
-        Overrides superclass method
-
-        @see: MotorPropertyManager._update_widgets_in_PM_before_show
-        @see: self.show where it is called.
-        """
-        pass
-
     
     def _addGroupBoxes( self ):
         """
