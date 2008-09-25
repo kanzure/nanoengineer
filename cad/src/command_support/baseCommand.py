@@ -23,6 +23,9 @@ _pct = print_compact_traceback # local abbreviation for readability
 from utilities.constants import CL_ABSTRACT 
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
+from commandSequencer.command_levels import FIXED_PARENT_LEVELS
+from commandSequencer.command_levels import AFFECTS_FLYOUT_LEVELS
+
 DEBUG_USE_COMMAND_STACK = True
 
 # ==
@@ -113,7 +116,6 @@ class baseCommand(object):
         @note: it works to call this classmethod directly on the class,
                or on an instance
         """
-        from commandSequencer.command_levels import FIXED_PARENT_LEVELS
         return cls.command_level in FIXED_PARENT_LEVELS
     
     is_fixed_parent_command = classmethod(is_fixed_parent_command)
@@ -131,7 +133,6 @@ class baseCommand(object):
         @note: it works to call this classmethod directly on the class,
                or on an instance
         """
-        from commandSequencer.command_levels import AFFECTS_FLYOUT_LEVELS
         return cls.command_level in AFFECTS_FLYOUT_LEVELS
     
     command_affects_flyout = classmethod(command_affects_flyout)

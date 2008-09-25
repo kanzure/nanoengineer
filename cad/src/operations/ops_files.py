@@ -2100,9 +2100,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                                     warn_about_abandoned_changes )            
                 #bruce 080909 new features:
                 # 1. exit all commands here, rather than (or in addition to)
-                # when initing new assy. This is needed when not
-                # GLPANE_IS_COMMAND_SEQUENCER; otherwise it might be a
-                # behavior change, but if so it is probably ok or good.
+                # when initing new assy.
                 # 2. but tell that not to warn about abandoning changes
                 # stored in commands, if user already said to discard changes
                 # stored in assy (according to caller passing False for warn_about_abandoned_changes).
@@ -2115,8 +2113,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.glpane.setAssy(self.assy)
             # notes: this calls assy.set_glpane, and _reinit_modes
             # (which leaves currentCommand as nullmode)
-            # (whether or not USE_COMMAND_STACK,
-            #  and whether or not GLPANE_IS_COMMAND_SEQUENCER).
+            # (whether or not USE_COMMAND_STACK).
+            ### TODO: move _reinit_modes out of that, do it somewhere else.
         self.assy.set_modelTree(self.mt)
         
         ### Hack by Huaicai 2/1 to fix bug 369

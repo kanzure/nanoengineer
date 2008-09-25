@@ -1,10 +1,7 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 CommandSequencer.py - class for sequencing commands and maintaining command stack.
-
-Historically this was a mixin class for the GLPane, named modeMixin.
-On 080909 it was renamed to CommandSequencer, and soon the option
-to make it a separate object owned by each Assembly will be turned on.
+Each Assembly owns one of these.
 
 @author: Bruce (partly based on older code by Josh)
 @version: $Id$
@@ -23,11 +20,13 @@ Bruce 2008 made "not GLPANE_IS_COMMAND_SEQUENCER" work (not yet on by default)
 
 Bruce 2008 (with Ninad working in other files) made USE_COMMAND_STACK work
 
-bruce 080909 class renamed from modeMixin to CommandSequencer
+Bruce 080909 class renamed from modeMixin to CommandSequencer
+
+Bruce 080911 turned off GLPANE_IS_COMMAND_SEQUENCER by default
+
+Bruce 080925 remove support for GLPANE_IS_COMMAND_SEQUENCER
 
 TODO:
-
-turn off GLPANE_IS_COMMAND_SEQUENCER by default; strip out old code
 
 turn on USE_COMMAND_STACK by default; strip out old code
 
@@ -49,10 +48,8 @@ from command_support.modes import nullMode
 
 from command_support.Command import anyCommand # only for isinstance assertion
 from command_support.baseCommand import baseCommand # ditto
-from command_support.GraphicsMode_API import GraphicsMode_API # ditto
 
 from utilities.GlobalPreferences import USE_COMMAND_STACK
-from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 
 _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 
@@ -68,11 +65,11 @@ _DEBUG_COMMAND_STACK_LOCKING = False
 
 class CommandSequencer(object):
     """
-    Mixin class for supporting command-switching in GLPane. Basically it's
-    a primitive Command Sequencer which for historical reasons lives
-    temporarily as a mixin in the GLPane
-    (until GLPANE_IS_COMMAND_SEQUENCER is always false).
+    Controller/owner class for command stack and command switching behavior.
 
+    (Each Assembly owns one of these. Before 080911/080925, it was instead
+    a mixin of class GLPane.)
+    
     External API for changing command stack (will be revised):
     to enter a given command:
     - userEnterCommand
@@ -116,8 +113,7 @@ class CommandSequencer(object):
     enter_target -- if not None, the goal of the exit is ultimately to enter
     the command of this commandName
     """
-    # TODO: turn this into a standalone command sequencer object,
-    # which also contains some logic now in class Command
+    # Note: works directly with some code in class baseCommand and basicCommand
     #
     # older comment: this class will be replaced with an aspect of the command
     # sequencer, and will use self.currentCommand rather than self.mode...
@@ -156,37 +152,27 @@ class CommandSequencer(object):
         pass
 
     def __init__(self, assy): #bruce 080813
-        assert not GLPANE_IS_COMMAND_SEQUENCER
-        self.assy = assy
-        self.win = assy.win
-        assert self.assy
-        assert self.win
-        self._init_modeMixin()
-        return
-    
-    def _init_modeMixin(self):
-        # todo: will be merged into __init__ when this class is no longer a mixin,
-        # i.e. when GLPANE_IS_COMMAND_SEQUENCER is always False;
-        # used when USE_COMMAND_STACK or not;
-        # should try to clean up init code (see docstring) when USE_COMMAND_STACK is always true
         """
-        [semi-private]
-        
-        Call this near the start of __init__ in a subclass that mixes us in
-        (i.e. GLPane), or in our own __init__ method (when we're not used as a mixin).
-
+        WARNING: This only partly initializes self.
         Subsequent init calls should also be made, namely:
         - _reinit_modes, from glpane.setAssy, from _make_and_init_assy or GLPane.__init__
         - start_using_initial_mode - end of MWsemantics.__init__, or _make_and_init_assy.
 
-        To reuse self "from scratch", perhaps with new command objects (necessary
-        if self is reused with a new assy, as happens when GLPANE_IS_COMMAND_SEQUENCER)
+        To reuse self "from scratch", perhaps with new command objects (as used to be necessary
+        when self was a GLPane mixin which could be reused with a new assy)
         and/or new command classes (e.g. after a developer reloads some of them),
         first call self.exit_all_commands(), then do only the "subsequent init calls"
         mentioned above -- don't call this method again.
         """
+        # note: used when USE_COMMAND_STACK or not.
+        # should try to clean up init code (see docstring) when USE_COMMAND_STACK is always true.
         if _DEBUG_CSEQ_INIT:
-            print "_DEBUG_CSEQ_INIT: _init_modeMixin"###
+            print "_DEBUG_CSEQ_INIT: __init__"###
+
+        self.assy = assy
+        self.win = assy.win
+        assert self.assy
+        assert self.win
 
         # make sure certain attributes are present (important once we're a
         # standalone object, since external code expects us to have these
@@ -217,7 +203,7 @@ class CommandSequencer(object):
         # REVIEW: still ok for USE_COMMAND_STACK? guess yes, for now;
         # and still needed, since it's part of how to init or reset the
         # command sequencer in its current external API
-        # (see doc for _init_modeMixin) [bruce 080814, still true 080909]
+        # (see docstring for __init__) [bruce 080814, still true 080909]
 
         # note: as of 080812, not called directly in this file; called from:
         # - GLPane.setAssy (end of function),
@@ -277,6 +263,10 @@ class CommandSequencer(object):
         # effectively done before today's refactoring split out this new file)
         # (might help with bug 2614?)
         from commandSequencer.builtin_command_loaders import preloaded_command_classes # don't move this import to toplevel!
+            # review: could this be toplevel now that GLPANE_IS_COMMAND_SEQUENCER
+            # is never true? I don't know; I can't recall why this should not be
+            # toplevel, though I do recall I had a good reason when I added
+            # that comment fairly recently. [bruce 080925 comment]
         for command_class in preloaded_command_classes():
             commandName = command_class.commandName
             assert not self._commandTable.has_key(commandName)
@@ -551,7 +541,7 @@ class CommandSequencer(object):
         just after self is created or _reinit_modes is called.
 
         @note: this is called, and is part of our external API for init/reinit,
-               whether or not USE_COMMAND_STACK. See docstring of _init_modeMixin.
+               whether or not USE_COMMAND_STACK. See docstring of __init__.
 
         @see: exit_all_commands
         """
@@ -1715,26 +1705,6 @@ class CommandSequencer(object):
             """
             return self._command_stack_change_counter
         pass
-    
-    # graphicsMode
-
-    def _get_graphicsMode(self):
-        # TODO: wrap with an API enforcement proxy for GraphicsMode.
-        # WARNING: if we do that, any 'is' test on .graphicsMode
-        # will need revision.
-        # (Searching for ".graphicsMode is" will find at least one such test.)
-        res = self._raw_currentCommand.graphicsMode
-            # may or may not be same as self._raw_currentCommand (due to an unsplit mode)
-            ### FIX in nullMode #}
-        assert isinstance(res, GraphicsMode_API)
-        if not GLPANE_IS_COMMAND_SEQUENCER:
-            print_compact_stack( "deprecated: direct ref of cseq.graphicsMode: ") #bruce 080813
-        return res
-
-    def _set_graphicsMode(self, command):
-        assert 0, "illegal to set %r.graphicsMode directly" % self
-
-    graphicsMode = property( _get_graphicsMode, _set_graphicsMode)
 
     # ==
 

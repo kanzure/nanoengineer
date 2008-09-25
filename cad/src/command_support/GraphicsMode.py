@@ -45,7 +45,6 @@ from graphics.behaviors.shape import get_selCurve_color
 from utilities.constants import SELSHAPE_RECT
 from utilities.constants import yellow
 
-from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
@@ -158,9 +157,8 @@ class basicGraphicsMode(GraphicsMode_API):
         # initialize attributes used by methods to refer to
         # important objects in their runtime environment
 
-        if not GLPANE_IS_COMMAND_SEQUENCER:
-            # make sure we didn't get passed the commandSequencer by accident
-            glpane.gl_update # not a call, just make sure it has this method
+        # make sure we didn't get passed the commandSequencer by accident
+        glpane.gl_update # not a call, just make sure it has this method
 
         self.glpane = glpane
         self.win = glpane.win

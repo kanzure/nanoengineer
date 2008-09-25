@@ -52,7 +52,6 @@ from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.constants import str_or_unicode
 from utilities.constants import RECENTFILES_QSETTINGS_KEY
-from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 
 from ne1_ui.Ui_MainWindow import Ui_MainWindow
 from ne1_ui.Ui_PartWindow import Ui_PartWindow
@@ -68,6 +67,8 @@ from foundation.changes import register_postinit_object
 import foundation.preferences as preferences
 import foundation.env as env
 import foundation.undo_internals as undo_internals
+
+from commandSequencer.CommandSequencer import CommandSequencer
 
 from operations.ops_select import objectSelected
 from operations.ops_select import ATOMS
@@ -283,7 +284,7 @@ class MWsemantics(QMainWindow,
         self.rosettaArgs = []
         return
 
-    def _make_a_main_assy(self): #bruce 080813 split this out
+    def _make_a_main_assy(self): #bruce 080813 split this out, revised
         """
         [private]
         
@@ -292,17 +293,11 @@ class MWsemantics(QMainWindow,
         Called during __init__, and by _make_and_init_assy (in a mixin class)
         for fileClose and fileOpen.
         """
-        if GLPANE_IS_COMMAND_SEQUENCER:
-            commandSequencerClass_for_assy = None
-        else:
-            #bruce 080813
-            from commandSequencer.CommandSequencer import CommandSequencer
-            commandSequencerClass_for_assy = CommandSequencer
         res = Assembly(self,
                        "Untitled",
                        own_window_UI = True,
                        run_updaters = True,
-                       commandSequencerClass = commandSequencerClass_for_assy
+                       commandSequencerClass = CommandSequencer
                       )
             #bruce 060127 added own_window_UI flag to help fix bug 1403;
             # it's required for this assy to support Undo.
@@ -447,18 +442,10 @@ class MWsemantics(QMainWindow,
         self.mouseWheelZoomInPoint  = env.prefs[zoomInAboutScreenCenter_prefs_key]
         self.mouseWheelZoomOutPoint = env.prefs[zoomOutAboutScreenCenter_prefs_key]
 
-    def _get_commandSequencer(self):
-        if GLPANE_IS_COMMAND_SEQUENCER:
-            # WARNING: if this causes infinite recursion, we just get an AttributeError
-            # from the inner call (saying self has no attr 'commandSequencer')
-            # rather than an understandable exception.
-            return self.glpane #bruce 071008; will revise when we have a separate one
-        else:
-            #bruce 080813
-            res = self.assy.commandSequencer
-            assert res
-            return res
-        pass
+    def _get_commandSequencer(self): #bruce 080813 revised
+        res = self.assy.commandSequencer
+        assert res
+        return res
 
     commandSequencer = property(_get_commandSequencer)
 
@@ -861,9 +848,6 @@ class MWsemantics(QMainWindow,
                 msg = orangemsg("Nothing to paste. Paste Command cancelled.")
                 env.history.message(msg)
                 return
-
-            commandSequencer = self.commandSequencer
-            currentCommand = commandSequencer.currentCommand
             
             #pre-commandstack refactoring/cleanup comment: 
             #Make 'paste' as a general command to fix this bug: Enter Dna command
@@ -871,7 +855,7 @@ class MWsemantics(QMainWindow,
             #toolbar for dna is not visible . This whole thing will get revised 
             #after the command stack cleanup (to be coded soon)
             # -- Ninad 2008-07-29
-            commandSequencer.userEnterCommand('PASTE')
+            self.commandSequencer.userEnterCommand('PASTE')
         else:
             msg = orangemsg("Clipboard is empty. Paste Command cancelled.")
             env.history.message(msg)

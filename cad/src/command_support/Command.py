@@ -48,7 +48,6 @@ from foundation.state_utils import StateMixin
 
 from utilities.constants import noop
 
-from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from model.jigs import Jig
@@ -419,8 +418,9 @@ class basicCommand(anyCommand):
         """
         glpane = commandSequencer.assy.glpane
         assert glpane
-        if GLPANE_IS_COMMAND_SEQUENCER:
-            assert glpane is commandSequencer
+        assert glpane is not commandSequencer
+            # this might happen due to bugs in certain callers,
+            # since in old code they were the same object
         
         self.pw = None # pw = part window
             # TODO: remove this, or rename it -- most code uses .win for the same thing

@@ -32,11 +32,6 @@ in their own files]
 - move more common code into GLPane_minimal [mostly done, 080914 or so,
 except for GL_SELECT code, common to several files];
 
-- most urgently, make the main GLPane not be the
-same object as the CommandSequencer. [see GLPANE_IS_COMMAND_SEQUENCER --
-this is now done by default on 080911, but still needs code cleanup
-to completely remove support for the old value, after the next release.]
-
 Some of this will make more practical some ways of optimizing the graphics code.
 
 History:
@@ -45,6 +40,8 @@ Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-2
 Revised by many other developers since then (and perhaps before).
 
 bruce 080910 splitting class GLPane into several mixin classes in other files.
+
+bruce 080925 removed support for GLPANE_IS_COMMAND_SEQUENCER
 """
 
 # TEST_DRAWING has been moved to GLPane_rendering_methods
@@ -75,7 +72,6 @@ from utilities.constants import diDNACYLINDER
 from utilities.constants import diPROTEIN
 from utilities.constants import default_display_mode
 
-from utilities.GlobalPreferences import GLPANE_IS_COMMAND_SEQUENCER
 from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 
 from graphics.widgets.GLPane_lighting_methods import GLPane_lighting_methods
@@ -91,15 +87,6 @@ from graphics.widgets.GLPane_minimal import GLPane_minimal
 
 from foundation.changes import SubUsageTrackingMixin
 from graphics.widgets.GLPane_mixin_for_DisplayListChunk import GLPane_mixin_for_DisplayListChunk
-
-# ==
-
-if GLPANE_IS_COMMAND_SEQUENCER: #bruce 080813
-    from commandSequencer.CommandSequencer import CommandSequencer
-    _CommandSequencer_for_glpane = CommandSequencer
-else:
-    class _CommandSequencer_for_glpane(object):
-        pass
 
 # ==
 
@@ -123,7 +110,6 @@ class GLPane(
 
     GLPane_minimal, # the "main superclass"; inherits QGLWidget
 
-    _CommandSequencer_for_glpane,
     SubUsageTrackingMixin,
     GLPane_mixin_for_DisplayListChunk
     ):
@@ -153,18 +139,12 @@ class GLPane(
     * some old code stores miscellaneous attributes
       inside it (e.g. shape, stored by Build Crystal)
 
-    Also mixes in class CommandSequencer when GLPANE_IS_COMMAND_SEQUENCER is true.
-    This will soon be deprecated and turned off.
-
     A few of the GLPane's public attributes:
 
     * several "point of view" attributes (some might be inherited
       from superclass GLPane_minimal)
 
     * graphicsMode - an instance of GraphicsMode_API
-
-    * currentCommand [when GLPANE_IS_COMMAND_SEQUENCER] - a command object
-      (see Command.py and/or baseCommand.py)
     """
     # Note: classes GLPane and ThumbView still share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal.
@@ -196,12 +176,6 @@ class GLPane(
 
         GLPane_minimal.__init__(self, parent, shareWidget, useStencilBuffer)
         self.win = win
-
-        if GLPANE_IS_COMMAND_SEQUENCER: #bruce 080813 made this conditional
-            CommandSequencer._init_modeMixin(self)
-            # otherwise, each Assembly owns one, as assy.commandSequencer
-            # (this might belong in GLPane_event_methods, but we'll remove
-            #  it soon so it doesn't matter)
 
         self.partWindow = parent # used in GLPane_event_methods superclass
 
@@ -332,30 +306,17 @@ class GLPane(
         return
     
     # ==
+            
+    #bruce 080813 get .graphicsMode from commandSequencer
     
-    if not GLPANE_IS_COMMAND_SEQUENCER:
-        
-        #bruce 080813 get .graphicsMode from commandSequencer
-        
-        def _get_graphicsMode(self):
-            res = self.assy.commandSequencer.currentCommand.graphicsMode
-                # don't go through commandSequencer.graphicsMode,
-                # maybe that attr is not needed
-            assert isinstance(res, GraphicsMode_API)
-            return res
+    def _get_graphicsMode(self):
+        res = self.assy.commandSequencer.currentCommand.graphicsMode
+            # don't go through commandSequencer.graphicsMode,
+            # maybe that attr is not needed
+        assert isinstance(res, GraphicsMode_API)
+        return res
 
-        graphicsMode = property( _get_graphicsMode)
-
-        # same with .currentCommand, but complain;
-        # uses should go through command sequencer
-
-        def _get_currentCommand(self):
-            print_compact_stack( "deprecated: direct ref of glpane.currentCommand: ") #bruce 080813
-            return self.assy.commandSequencer.currentCommand
-
-        currentCommand = property( _get_currentCommand)
-
-        pass # end of if statement
+    graphicsMode = property( _get_graphicsMode)
 
     # ==
 
@@ -502,12 +463,8 @@ class GLPane(
 
         self.set_part( mainpart)
 
-        if GLPANE_IS_COMMAND_SEQUENCER:
-            # defined in CommandSequencer [bruce 040922]; requires self.assy
-            self._reinit_modes() # leaves mode as nullmode as of 050911
-        else:
-            self.assy.commandSequencer._reinit_modes()
-                # todo: move this out of this method, once it's the usual case
+        self.assy.commandSequencer._reinit_modes()
+            # TODO: move this out of this method, now that it's the usual case
 
         return # from GLPane.setAssy
 
