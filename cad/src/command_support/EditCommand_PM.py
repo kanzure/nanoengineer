@@ -88,14 +88,7 @@ class EditCommand_PM(PM_Dialog):
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        
-        if not USE_COMMAND_STACK:
-            #First exit temporary modes (e.g. Pan mode) if any.
-            currentCommand = self.win.commandSequencer.currentCommand
-            if not currentCommand.command_has_its_own_PM:
-                currentCommand.Done()
-            
+        """            
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(False)
             
@@ -174,34 +167,6 @@ class EditCommand_PM(PM_Dialog):
         """
         raise AbstractMethod()
 
-    def ok_btn_clicked(self):
-        """
-        Implements Done button
-
-        [extends superclass method]
-        """
-        if not USE_COMMAND_STACK:
-            self.command.preview_or_finalize_structure(previewing = False)
-            #This should be cleaned up in a refactoring. There should be a central
-            #updater which should ask when to print a message etc. There could be
-            #mab=ny subclasses without a logMessage. Also, I am not removing 
-            #the call that prints history message as some subclasses might be 
-            #using it. For now, just do a hasattr test -- Ninad 2008-07-23
-            if hasattr(self.command, 'logMessage'):
-                env.history.message(self.command.logMessage)
-                
-        PM_Dialog.ok_btn_clicked(self)
-
-    def cancel_btn_clicked(self):
-        """
-        Implements Cancel button
-
-        [extends superclass method]
-        """
-        if self.command:
-            self.command.cancelStructure()
-        ## self.win.toolsCancel() #bruce 080815 replaced this with superclass call
-        PM_Dialog.cancel_btn_clicked(self)
 
     def preview_btn_clicked(self):
         """
