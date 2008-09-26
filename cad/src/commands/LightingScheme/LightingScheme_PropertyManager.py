@@ -668,14 +668,7 @@ class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self._updatePage_Lighting()
         self.save_lighting()
-    
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """  
-        #TODO: Cancel button needs to be removed. See comment at the top
-        self.win.toolsDone()
-        
+            
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.

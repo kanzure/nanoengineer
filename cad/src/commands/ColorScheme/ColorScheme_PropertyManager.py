@@ -442,13 +442,6 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         env.prefs[selectionColor_prefs_key] = color
         return
 
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """
-        #TODO: Cancel button needs to be removed. See comment at the top
-        self.win.toolsDone()
-
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.

@@ -117,15 +117,6 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
                        SIGNAL("valueChanged(int)"),
                        self._stereoModeAngleSliderChanged )
 
-    def cancel_btn_clicked(self):
-        """
-        Implements Cancel button. Called by its slot method in PM_Dialog
-        """  
-        #TODO: Cancel button needs to be removed. See comment at the top
-        self.win.toolsDone()
-            # note: not toolsCancel (I don't know whether this matters)
-            # [bruce 080815 comment]
-
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
