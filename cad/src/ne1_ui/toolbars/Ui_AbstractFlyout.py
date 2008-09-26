@@ -27,7 +27,6 @@ from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
 
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 from utilities.debug import print_compact_stack
 
 class Ui_AbstractFlyout(object):
@@ -115,19 +114,12 @@ class Ui_AbstractFlyout(object):
                        self._exitModeActionSlot)
         return
 
-    def _exitModeActionSlot(self): #bruce 080827 split this out, revised for USE_COMMAND_STACK
+    def _exitModeActionSlot(self): #bruce 080827 split this out, 
         """
         Do what's appropriate when self.exitModeAction is triggered. 
-        """
-        if USE_COMMAND_STACK:
-            self.command_for_exit_action.command_Done()
-        else:
-            # note: this would not always exit the correct command.
-            # as of 080827 the action appears to be disabled in those cases.
-            # [bruce 080827 comment]
-            self.win.toolsDone()
-        return
-
+        """        
+        self.command_for_exit_action.command_Done()
+        
     def activateFlyoutToolbar(self):
         """
         Updates the flyout toolbar with the actions this class provides. 
@@ -135,13 +127,7 @@ class Ui_AbstractFlyout(object):
         @see: CommandToolbar.updateCommandToolbar()
         @see: self.deActivateFlyoutToolbar()
         @see: Commandtoolbar._f_current_flyoutToolbar
-        """    
-        if not USE_COMMAND_STACK:
-            if self._isActive:
-                return
-                
-            self._isActive = True        
-        
+        """      
         #CommandToolbar._f_current_flyoutToolbar is the current flyout toolbar 
         #that is displayed in the 'flyout area' of the command toolbar. 
         #Example, when Build > Dna command is entered, it sets this attr on the 
@@ -199,12 +185,7 @@ class Ui_AbstractFlyout(object):
         @see: CommandToolbar.resetToDefaultState()
         @see: baseCommand.command_update_flyout()
         """
-        if not USE_COMMAND_STACK:
-            if not self._isActive:
-                return 
-            
-            self._isActive = False
-            
+                    
         current_flyout = self.win.commandToolbar._f_current_flyoutToolbar
         previous_flyout = self.win.commandToolbar._f_previous_flyoutToolbar
         
