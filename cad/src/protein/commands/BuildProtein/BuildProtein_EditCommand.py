@@ -12,7 +12,6 @@ from utilities.Log  import greenmsg
 from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
 
 from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
 class BuildProtein_EditCommand(EditCommand):
@@ -20,8 +19,6 @@ class BuildProtein_EditCommand(EditCommand):
     BuildProtein_EditCommand provides a convenient way to edit or create
     a Protein object
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
     
     #Property Manager
     PM_class = BuildProtein_PropertyManager
@@ -44,72 +41,6 @@ class BuildProtein_EditCommand(EditCommand):
     create_name_from_prefix  =  True
     call_makeMenus_for_each_event = True
         
-    
-    if not USE_COMMAND_STACK:    
-        def init_gui(self):
-            """
-            Do changes to the GUI while entering this command. This includes opening
-            the property manager, updating the command toolbar , connecting widget
-            slots (if any) etc. Note: The slot connection in property manager and
-            command toolbar is handled in those classes.
-    
-            Called once each time the command is entered; should be called only
-            by code in modes.py
-    
-            @see: L{self.restore_gui}
-            """
-            EditCommand.init_gui(self)
-            self.command_enter_flyout()
-            
-        def resume_gui(self):
-            """
-            Called when this command, that was suspended earlier, is being resumed.
-            The temporary command (which was entered by suspending this command)
-            might have made some changes to the model which need to be reflected
-            while resuming command.
-    
-            Example: A user enters BreakStrands_Command by suspending
-            BuildDna_EditCommand, then breaks a few strands, thereby creating new
-            strand chunks. Now when the user returns to the BuildDna_EditCommand,
-            the command's property manager needs to update the list of strands
-            because of the changes done while in BreakStrands_Command.
-            @see: Command.resume_gui
-            @see: Command._enterMode where this method is called.
-            """
-            
-            if self.flyoutToolbar:
-                self.flyoutToolbar.resetStateOfActions()
-    
-    
-        def restore_gui(self):
-            """
-            Do changes to the GUI while exiting this command. This includes closing
-            this mode's property manager, updating the command toolbar ,
-            Note: The slot connection/disconnection in property manager and
-            command toolbar is handled in those classes.
-            @see: L{self.init_gui}
-            """
-            EditCommand.restore_gui(self)
-            
-            if self.flyoutToolbar:
-                self.flyoutToolbar.deActivateFlyoutToolbar()
-                
-        def command_enter_flyout(self):
-            if self.flyoutToolbar is None:
-                self.flyoutToolbar = self._createFlyoutToolBarObject()
-            self.flyoutToolbar.activateFlyoutToolbar()
-    
-        def _createFlyoutToolBarObject(self):
-            """
-            Create a flyout toolbar to be shown when this command is active. 
-            Overridden in subclasses. 
-            @see: PasteFromClipboard_Command._createFlyouttoolBar()
-            @see: self.command_enter_flyout()
-            """
-            #from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
-            flyoutToolbar = ProteinFlyout(self.win, self.propMgr) 
-            return flyoutToolbar
-
     def runCommand(self):
         """
         Overrides EditCommand.runCommand

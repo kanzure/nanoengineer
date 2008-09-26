@@ -11,7 +11,6 @@ from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.EditRotamers.EditRotamers_PropertyManager import EditRotamers_PropertyManager
 from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -29,9 +28,6 @@ class EditRotamers_Command(EditCommand):
     """
     
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
     # class constants
     GraphicsMode_class = EditRotamers_GraphicsMode
     
@@ -64,34 +60,6 @@ class EditRotamers_Command(EditCommand):
             parentCommandName = None
         return flyoutActionToCheck, parentCommandName
     
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-            
-            if MODEL_AND_SIMULATE_PROTEINS:
-                self._init_gui_flyout_action( 'editRotamersAction', 'MODEL_AND_SIMULATE_PROTEIN' )  
-            else:
-                self._init_gui_flyout_action( 'editRotamersAction')
-            if self.propMgr is None:
-                self.propMgr = EditRotamers_PropertyManager(self)
-                #@bug BUG: following is a workaround for bug 2494.
-                #This bug is mitigated as propMgr object no longer gets recreated
-                #for modes -- niand 2007-08-29
-                changes.keep_forever(self.propMgr)  
-                
-            self.propMgr.show()
-                
-            
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """
-            EditCommand.restore_gui(self)
-            if self.flyoutToolbar:
-                self.flyoutToolbar.editRotamersAction.setChecked(False)    
-        
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 

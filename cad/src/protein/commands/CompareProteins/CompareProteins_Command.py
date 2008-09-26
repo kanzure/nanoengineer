@@ -10,7 +10,6 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.CompareProteins.CompareProteins_PropertyManager import CompareProteins_PropertyManager
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
@@ -29,9 +28,6 @@ class CompareProteins_Command(EditCommand):
     """
     
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
     # class constants
     GraphicsMode_class = CompareProteins_GraphicsMode
     
@@ -65,34 +61,6 @@ class CompareProteins_Command(EditCommand):
             
         return flyoutActionToCheck, parentCommandName
     
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-            from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
-            if MODEL_AND_SIMULATE_PROTEINS:
-                self._init_gui_flyout_action( 'compareProteinsAction', 'MODEL_AND_SIMULATE_PROTEIN' )
-            else:
-                self._init_gui_flyout_action( 'compareProteinsAction')
-                
-            if self.propMgr is None:
-                self.propMgr = CompareProteins_PropertyManager(self)
-                #@bug BUG: following is a workaround for bug 2494.
-                #This bug is mitigated as propMgr object no longer gets recreated
-                #for modes -- niand 2007-08-29
-                changes.keep_forever(self.propMgr)  
-                
-            self.propMgr.show()
-            
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """
-            EditCommand.restore_gui(self)
-            if self.flyoutToolbar:
-                self.flyoutToolbar.compareProteinsAction.setChecked(False)    
-        
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 

@@ -10,7 +10,6 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.FixedBBProteinSim.FixedBBProteinSim_PropertyManager import FixedBBProteinSim_PropertyManager
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
@@ -28,10 +27,7 @@ class FixedBBProteinSim_GraphicsMode(SelectChunks_GraphicsMode ):
 class FixedBBProteinSim_Command(EditCommand): 
     """
     Class for fixed backbone rosetta sequence design
-    """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
+    """    
     # class constants
     
     GraphicsMode_class = FixedBBProteinSim_GraphicsMode
@@ -64,33 +60,6 @@ class FixedBBProteinSim_Command(EditCommand):
             
         return flyoutActionToCheck, parentCommandName
     
-    if not USE_COMMAND_STACK:
-
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-    
-            self._init_gui_flyout_action( 'rosetta_fixedbb_design_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
-            
-            if self.propMgr is None:
-                self.propMgr = FixedBBProteinSim_PropertyManager(self)
-                changes.keep_forever(self.propMgr)  
-                
-            self.propMgr.show()
-            return
-        
-            
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """
-            EditCommand.restore_gui(self)
-            if self.flyoutToolbar:
-                self.flyoutToolbar.rosetta_fixedbb_design_Action.setChecked(False) 
-            return
-    
-        
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 

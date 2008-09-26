@@ -12,7 +12,6 @@ from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.BackrubProteinSim.BackrubProteinSim_PropertyManager import BackrubProteinSim_PropertyManager
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 # == GraphicsMode part
 
@@ -31,9 +30,6 @@ class BackrubProteinSim_Command(EditCommand):
     """
     Class for protein sequence design with rosetta when backrub motion is allowed
     """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
     
     # class constants
     GraphicsMode_class = BackrubProteinSim_GraphicsMode
@@ -68,30 +64,6 @@ class BackrubProteinSim_Command(EditCommand):
         parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'      
         return flyoutActionToCheck, parentCommandName
     
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-    
-            self._init_gui_flyout_action( 'rosetta_backrub_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
-            
-            if self.propMgr is None:
-                self.propMgr = BackrubProteinSim_PropertyManager(self)
-                changes.keep_forever(self.propMgr)  
-                
-            self.propMgr.show()
-            return
-            
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """
-            EditCommand.restore_gui(self)
-            if self.flyoutToolbar:
-                self.flyoutToolbar.rosetta_backrub_Action.setChecked(False) 
-            return    
-        
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 

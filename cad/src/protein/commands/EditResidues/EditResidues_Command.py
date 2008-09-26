@@ -10,7 +10,6 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.EditResidues.EditResidues_PropertyManager import EditResidues_PropertyManager
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
@@ -28,10 +27,7 @@ class EditResidues_GraphicsMode(SelectChunks_GraphicsMode ):
 class EditResidues_Command(EditCommand): 
     """
     
-    """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
+    """    
     # class constants
     GraphicsMode_class = EditResidues_GraphicsMode
     
@@ -63,34 +59,7 @@ class EditResidues_Command(EditCommand):
             parentCommandName = None
             
         return flyoutActionToCheck, parentCommandName
-    
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-            
-            if MODEL_AND_SIMULATE_PROTEINS:
-                self._init_gui_flyout_action( 'editResiduesAction', 'MODEL_AND_SIMULATE_PROTEIN' )
-            else:
-                self._init_gui_flyout_action( 'editResiduesAction')
-            if self.propMgr is None:
-                self.propMgr = EditResidues_PropertyManager(self)
-                #@bug BUG: following is a workaround for bug 2494.
-                #This bug is mitigated as propMgr object no longer gets recreated
-                #for modes -- niand 2007-08-29
-                changes.keep_forever(self.propMgr)  
-                
-            self.propMgr.show()
-                
-            
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """
-            EditCommand.restore_gui(self)
-            if self.flyoutToolbar:
-                self.flyoutToolbar.editResiduesAction.setChecked(False)    
+     
         
     def keep_empty_group(self, group):
         """
