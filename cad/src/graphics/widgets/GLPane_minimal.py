@@ -82,7 +82,8 @@ DEPTH_TWEAK_VALUE = 100000
     #
     # [bruce 070926]
 
-DEPTH_TWEAK = DEPTH_TWEAK_UNITS * DEPTH_TWEAK_VALUE
+    # Russ 080925: Moved DEPTH_TWEAK in to GLPane_minimal.
+    # DEPTH_TWEAK = DEPTH_TWEAK_UNITS * DEPTH_TWEAK_VALUE
     # changed by setDepthRange_setup_from_debug_pref
 
 DEPTH_TWEAK_CHOICE = \
@@ -185,6 +186,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
             # was chosen, which makes zoomFactor useless. Someday we should
             # consider removing it, unless we think it might be useful for
             # something in the future. [bruce 080910 comment]
+
+        # Initial value of depth "constant" (changeable by prefs.)
+        self.DEPTH_TWEAK = DEPTH_TWEAK_UNITS * DEPTH_TWEAK_VALUE
 
         self.trackball = Trackball(10, 10)
 
@@ -501,17 +505,16 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     # ==
 
     def setDepthRange_setup_from_debug_pref(self):
-        global DEPTH_TWEAK
-        DEPTH_TWEAK = DEPTH_TWEAK_UNITS * \
+        self.DEPTH_TWEAK = DEPTH_TWEAK_UNITS * \
                     debug_pref("GLPane: depth tweak", DEPTH_TWEAK_CHOICE)
         return
 
     def setDepthRange_Normal(self):
-        glDepthRange(0.0 + DEPTH_TWEAK, 1.0) # args are near, far
+        glDepthRange(0.0 + self.DEPTH_TWEAK, 1.0) # args are near, far
         return
 
     def setDepthRange_Highlighting(self):
-        glDepthRange(0.0, 1.0 - DEPTH_TWEAK)
+        glDepthRange(0.0, 1.0 - self.DEPTH_TWEAK)
         return
 
     # ==

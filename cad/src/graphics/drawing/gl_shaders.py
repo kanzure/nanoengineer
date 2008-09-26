@@ -235,8 +235,7 @@ class GLSphereShaderObject(object):
         # XXX Try built-in "uniform gl_DepthRangeParameters gl_DepthRange;"
         vdist = glpane.vdist            # See GLPane._setup_projection().
         # See GLPane_minimal.setDepthRange_Normal().
-        from graphics.widgets.GLPane_minimal import DEPTH_TWEAK 
-        near = vdist * (glpane.near + DEPTH_TWEAK)
+        near = vdist * (glpane.near + glpane.DEPTH_TWEAK)
         far = vdist * glpane.far
         glUniform4fvARB(self.uniform("clip"), 1,
                         [near, far, 0.5*(far + near), 1.0/(far - near)])
