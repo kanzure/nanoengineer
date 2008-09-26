@@ -22,7 +22,6 @@ from model.chem import Atom # for isinstance check as of 2008-04-17
 from geometry.VQT import cross, norm, Q
 from Numeric import dot
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 from utilities.debug import print_compact_stack
 
 _superclass_for_GM = Line_GraphicsMode
@@ -81,18 +80,14 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             if len(self.command.mouseClickPoints) == 2:
                 self.endPoint2 = None
                 self.command.rotateAboutPoint()
-                
-                if not USE_COMMAND_STACK:
-                    self.command.restore_gui()
-                else:
-                    try:
-                        self.command._f_results_for_caller_and_prepare_for_new_input()
-                    except AttributeError:
-                        print_compact_traceback(
-                            "bug: command %s has no attr"\
-                            "'_f_results_for_caller_and_prepare_for_new_input'.")
-                        self.command.mouseClickPoints = []
-                        self.resetVariables()
+                try:
+                    self.command._f_results_for_caller_and_prepare_for_new_input()
+                except AttributeError:
+                    print_compact_traceback(
+                        "bug: command %s has no attr"\
+                        "'_f_results_for_caller_and_prepare_for_new_input'.")
+                    self.command.mouseClickPoints = []
+                    self.resetVariables()
         
                 self.glpane.gl_update()
             return
@@ -208,8 +203,10 @@ class RotateAboutPoint_Command(Line_Command):
         [overrides Line_GraphicsMode method]
         """
         #bruce 080801 split this out of restore_gui (now inherited).
-        # note: superclass Line_Command.init_gui sets self._results_callback,
-        # and superclass restore_gui calls it with this method's return value
+        
+        # note (updated 2008-09-26): superclass Line_Command.command_entered()
+        # sets self._results_callback,and superclass command_will_exit()
+        #calls it with this method's return value
         return ()
     
     

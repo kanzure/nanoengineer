@@ -10,7 +10,6 @@ Zoom in/out mode functionality.
 
 from Numeric import exp
 from temporary_commands.TemporaryCommand import TemporaryCommand_Overdrawing
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 # == GraphicsMode part
 
@@ -59,12 +58,7 @@ class ZoomInOutMode(TemporaryCommand_Overdrawing):
     """
     Encapsulates the Zoom In/Out functionality.
     """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status =  None
-    
-    # class constants
-    
+    # class constants    
     commandName = 'ZOOMINOUT'
     featurename = "Zoom In/Out Tool"
     from utilities.constants import CL_VIEW_CHANGE
@@ -72,15 +66,6 @@ class ZoomInOutMode(TemporaryCommand_Overdrawing):
 
     GraphicsMode_class = ZoomInOutMode_GM
     
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            self.win.zoomInOutAction.setChecked(1) # toggle on the Zoom In/Out icon
-            return    
-            
-        def restore_gui(self):
-            self.win.zoomInOutAction.setChecked(0) # toggle off the Zoom In/Out icon
-
-    #START new command API methods==============================================
     def command_enter_misc_actions(self):
         """
         See superclass method for documentation

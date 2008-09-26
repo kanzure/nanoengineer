@@ -43,10 +43,7 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
         # ESC - Exit our command, if it permits exit due to ESC key.
         if key == Qt.Key_Escape:
             if self.command.should_exit_when_ESC_key_pressed():
-                self.command.Done(exit_using_done_or_cancel_button = False)
-                    # when USE_COMMAND_STACK, equivalent to command.command_Done()
-                    # (replace it with that (everywhere) when that flag is always true)
-                    # [bruce 080829 comment]
+                self.command.command_Done()
             else:
                 self.glpane.assy.selectNone()
         else:

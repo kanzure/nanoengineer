@@ -24,8 +24,6 @@ TODOs:
 
 from commands.Select.Select_Command import Select_Command
 from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 
 # == Command part
 
@@ -72,7 +70,7 @@ class Line_Command(Select_Command):
         Assign values obtained from the parent mode to the instance variables
         of this command object. 
         """
-        # REVIEW: I think this is only called from self.init_gui,
+        # REVIEW: I think this is only called from self.command_entered(),
         # and ought to be private or inlined. I revised it to accept a tuple
         # of length 1 rather than an int. If old code had bugs of calling it
         # from the wrong places (which pass tuples of length 5), those are
@@ -94,19 +92,8 @@ class Line_Command(Select_Command):
         ### REVIEW: make this a Request Command API method??
         return (self.mouseClickPoints,)
 
-
-    #START New Command API methods. (used when USE_COMMAND_STACK is True)======
     def command_entered(self):
         super(Line_Command, self).command_entered()
-        self._command_enter_effects()
-
-    def _command_enter_effects(self):
-        """
-	common code for Enter and command_entered
-	"""
-        #@TODO: merge into command_entered when USE_COMMAND_STACK is 
-        # always true and Enter is removed
-        #clear the list (for safety) which may still have old data in it
         self.mouseClickPoints = []
         self.glpane.gl_update()
 
@@ -120,13 +107,12 @@ class Line_Command(Select_Command):
             # maybe: set default params?
             self._results_callback = None
             
-            
     def command_will_exit(self):
         super(Line_Command, self).command_will_exit()
         if self._results_callback:
             # note: _results_callback comes from an argument to
             # callRequestCommand. Under the current command sequencer
-            # API (without or with USE_COMMAND_STACK), it's important to
+            # API, it's important to
             # call the callback no matter how self is exited (except possibly
             # when self.commandSequencer.exit_is_forced). This code always
             # calls it. [bruce 080904 comment]
@@ -138,47 +124,3 @@ class Line_Command(Select_Command):
 
         self.graphicsMode.resetVariables()
         return  
-    
-
-    #END New Command API methods ===============================================
-    
-    
-    #START - OLD command api methods init_gui, restore_gui =====================
-    if not USE_COMMAND_STACK:
-
-        def init_gui(self):
-            """
-            Initialize GUI for this mode 
-            """
-            #clear the list (for safety) which may still have old data in it
-            self.mouseClickPoints = []
-            self.glpane.gl_update()
-    
-            params, results_callback = self._args_and_callback_for_request_command()
-            if params is not None:
-                self.setParams(params)
-                self._results_callback = results_callback
-                # otherwise we were not called as a request command;
-                # method above prints something in that case, for now ###
-            else:
-                # maybe: set default params?
-                self._results_callback = None
-            return   
-    
-    
-        def restore_gui(self):
-            """
-            Restore the GUI 
-            """
-            if self._results_callback:
-                # note: see comment in command_will_exit version of this code
-                params = self._results_for_request_command_caller()
-                self._results_callback( params)
-    
-            #clear the list [bruce 080801 revision, not fully analyzed: always do this]
-            self.mouseClickPoints = []
-    
-            self.graphicsMode.resetVariables()
-            return
-        
-    #END - OLD command api methods init_gui, restore_gui =======================
