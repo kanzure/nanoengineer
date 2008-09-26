@@ -30,7 +30,8 @@ gl_shaders.py - OpenGL shader objects.
 # Whether to use texture memory for transforms, or a uniform array of mat4s.
 texture_xforms = False # True
 # Otherwise, use a fixed-sized block of uniform memory for transforms.
-N_CONST_XFORMS = 250  # (Gets CPU bound at 275.  Dunno why.)
+# (This is a max, refined using GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB later.)
+N_CONST_XFORMS = 270  # (Gets CPU bound at 275.  Dunno why.)
 
 # Turns on a debug info message.
 CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
@@ -77,6 +78,7 @@ from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import GL_ELEMENT_ARRAY_BUFFER_ARB
 from OpenGL.GL import GL_FLOAT
 from OpenGL.GL import GL_FRAGMENT_SHADER
+from OpenGL.GL import GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB
 #from OpenGL.GL import GL_NEAREST
 from OpenGL.GL import GL_QUADS
 from OpenGL.GL import GL_RGBA
@@ -100,6 +102,7 @@ from OpenGL.GL import glDrawElements
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
 from OpenGL.GL import glGenTextures
+from OpenGL.GL import glGetInteger
 from OpenGL.GL import glGetTexImage
 from OpenGL.GL import glTexImage2D
 from OpenGL.GL import glTexSubImage2D
@@ -143,6 +146,21 @@ class GLSphereShaderObject(object):
     """
 
     def __init__(self):
+        # Configure the max constant RAM used.
+        global N_CONST_XFORMS
+        oldNCX = N_CONST_XFORMS
+        maxComponents = glGetInteger(GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB)
+        N_CONST_XFORMS = min(
+            N_CONST_XFORMS,
+            # Each matrix takes sixteen components.  Leave slack for other vars.
+            (maxComponents - 25) / 16)
+        if N_CONST_XFORMS == oldNCX:
+            print ("N_CONST_XFORMS unchanged at %d.  %d max components." %
+                   (N_CONST_XFORMS, maxComponents))
+        else:
+            print ("N_CONST_XFORMS changed to %d, was %d.  %d max components." %
+                   (N_CONST_XFORMS, oldNCX, maxComponents))
+
         # Version statement has to come first in GLSL source.
         prefix = """// requires GLSL version 1.10
                     #version 110
