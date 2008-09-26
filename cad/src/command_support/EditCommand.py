@@ -134,7 +134,8 @@ class EditCommand(Select_Command):
         Overrides superclass method. 
         @see: baseCommand.command_will_exit() for documentation
         """
-        
+        if self.commandSequencer.exit_is_forced:
+            pass
         if self.commandSequencer.exit_is_cancel:
             self.cancelStructure()
         else:
@@ -294,8 +295,6 @@ class EditCommand(Select_Command):
               editCommand
         @see: L{Plane.edit} and L{Plane_EditCommand._createPropMgrObject} 
         """
-        
-        print "***in EditCommand.editStructure"
 
         if struct is not None:
             self.struct = struct                
