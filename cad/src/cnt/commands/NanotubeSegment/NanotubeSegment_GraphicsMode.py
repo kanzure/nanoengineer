@@ -339,15 +339,15 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
             ###Exit this command by directly calling command.Done.
             ###This skips call of command.preview_or_finalize_structure
             ###Not calling 'preview_or_finialize_structure before calling
-            ###command.Done(), has an advantage. As of 2008-02-20, we
+            ###command.command_Done(), has an advantage. As of 2008-02-20, we
             ###remove the structure (segment) and recreate it upon done.
             ###This also removes, for instance, any cross overs you created
             ###earlier. although same thing happens when you hit 'Done button',
             ###it is likely to happen by accident while you are in segment edit
             ###mode and just click on empty space, Therefore, we simply call
-            ###Command.Done(). See a related bug mentioned in
+            ###Command.command_Done(). See a related bug mentioned in
             ###NanotubeSegment_EditCommand.setStructureName
-            ##self.command.Done()
+            ##self.command.command_Done()
 
 
     def leftDrag(self, event):

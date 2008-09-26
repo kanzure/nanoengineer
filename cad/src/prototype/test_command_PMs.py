@@ -114,12 +114,12 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
     
     def ok_btn_clicked(self):
         print "ok_btn_clicked, doing Done in", self.command
-        self.command.Done()
+        self.command.command_Done()
         pass
     
     def cancel_btn_clicked(self):
         print "cancel_btn_clicked, doing Cancel in", self.command
-        self.command.Cancel()
+        self.command.command_Cancel()
         pass
         
     def preview_btn_clicked(self):
@@ -188,12 +188,12 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
 ##    def ok_btn_clicked(self):
 ##        print "ok_btn_clicked, doing super then Done (kluge)", self
 ##        GeneratorBaseClass.ok_btn_clicked(self)
-##        self.command.Done() ###k both command and Done -- and, kluge, instead GBC should call a done method in self.command
+##        self.command.command_Done() ###k both command and Done -- and, kluge, instead GBC should call a done method in self.command
 ##        pass
 ##    def cancel_btn_clicked(self):
 ##        print "cancel_btn_clicked, doing super then Done (kluge)", self
 ##        GeneratorBaseClass.cancel_btn_clicked(self)
-##        self.command.Done()
+##        self.command.command_Done() #update 2008-09-26: should this be command_Cancel()? [-- Ninad]
 ##        pass
 ##
 ##    pass # end of class ExampleCommand2_PM

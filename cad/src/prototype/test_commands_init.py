@@ -44,18 +44,16 @@ def construct_cmdrun( cmd_class, commandSequencer):
 def start_cmdrun( cmdrun):
     ## ideally:  cmd.Start() #######
     commandSequencer = cmdrun.commandSequencer
-    if cmdrun.test_commands_start_as_temporary_command or USE_COMMAND_STACK:
-        # bruce 071011
-        # note: was written for commands with no PM of their own, but was only tested for a command that has one (and works)...
-        # also do we need the Draw delegation to prevMode as in TemporaryCommand_Overdrawing? ### REVIEW
-        #
-        # update, bruce 080730:
-        # TODO: print a warning if cmdrun.command_level is not something
-        # we'd consider "nestable", per the likely intent of starting it
-        # as a temporary command.
-        commandSequencer.userEnterTemporaryCommand( cmdrun, always_update = True)
-    else:
-        commandSequencer.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
+    # bruce 071011
+    # note: was written for commands with no PM of their own, but was only tested for a command that has one (and works)...
+    # also do we need the Draw delegation to prevMode as in TemporaryCommand_Overdrawing? ### REVIEW
+    #
+    # update, bruce 080730:
+    # TODO: print a warning if cmdrun.command_level is not something
+    # we'd consider "nestable", per the likely intent of starting it
+    # as a temporary command.
+    commandSequencer.userEnterTemporaryCommand( cmdrun, always_update = True)
+    
     print "done with start_cmdrun for", cmdrun
         # returns as soon as user is in it, doesn't wait for it to "finish" -- so run is not a good name -- use Enter??
         # problem: Enter is only meant to be called internally by glue code in CommandSequencer.

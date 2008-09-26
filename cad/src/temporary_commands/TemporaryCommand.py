@@ -34,7 +34,7 @@ class TemporaryCommand_preMixin(commonCommand):
 class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
     """
     A pre-mixin class for GraphicsModes which overrides their keyPress method
-    to call self.command.Done() when the ESC key is pressed
+    to call self.command.command_Done() when the ESC key is pressed
     if self.command.should_exit_when_ESC_key_pressed() returns true,
     or to call assy.selectNone otherwise,
     but which delegates all other keypresses to the superclass.
