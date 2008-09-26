@@ -42,7 +42,6 @@ from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckB
 from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key
 from utilities.prefs_constants import insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key
 from utilities.prefs_constants import cursorTextColor_prefs_key
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _superclass = EditCommand
 class InsertNanotube_EditCommand(EditCommand):
@@ -103,68 +102,6 @@ class InsertNanotube_EditCommand(EditCommand):
         #Maintain a list of segments created while this command was running. 
         self._segmentList = []       
         
-    if not USE_COMMAND_STACK:  
-        def init_gui(self):
-            """
-            Do changes to the GUI while entering this command. This includes opening 
-            the property manager, updating the command toolbar , connecting widget 
-            slots (if any) etc. Note: The slot connection in property manager and 
-            command toolbar is handled in those classes. 
-    
-            Called once each time the command is entered; should be called only 
-            by code in modes.py
-    
-            @see: L{self.restore_gui}
-            """
-            _superclass.init_gui(self)  
-    
-            if isinstance(self.graphicsMode, NanotubeLine_GM):
-                self._setParamsForCntLineGraphicsMode()
-                self.mouseClickPoints = []
-    
-            #Clear the segmentList as it may still be maintaining a list of segments
-            #from the previous run of the command. 
-            self._segmentList = []
-            
-            self._init_gui_flyout_action( 'insertNanotubeAction' )     
-    
-        def restore_gui(self):
-            """
-            Do changes to the GUI while exiting this command. This includes closing 
-            this mode's property manager, updating the command toolbar ,
-            Note: The slot connection/disconnection in property manager and 
-            command toolbar is handled in those classes.
-            @see: L{self.init_gui}
-            """                    
-            _superclass.restore_gui(self)
-    
-            if isinstance(self.graphicsMode, NanotubeLine_GM):
-                self.mouseClickPoints = []
-    
-            self.graphicsMode.resetVariables()   
-    
-            if self.flyoutToolbar:
-                self.flyoutToolbar.insertNanotubeAction.setChecked(False)
-    
-            self._segmentList = []
-            
-        def command_enter_flyout(self):
-            """
-            Overrides superclass method. 
-            @see: basecommand.command_enter_flyout() for documentation. 
-            """
-            self._init_gui_flyout_action( 'insertNanotubeAction' )
-                
-        def command_exit_flyout(self):
-            """
-            Overrides superclass method. 
-            @see: basecommand.command_exit_flyout() for documentation. 
-            """
-            if self.flyoutToolbar:
-                self.flyoutToolbar.insertNanotubeAction.setChecked(False)
-    
-    #START New command API methods==============================================
-    
     def command_entered(self):
         """
         Overrides superclass method. 
@@ -200,9 +137,6 @@ class InsertNanotube_EditCommand(EditCommand):
         parentCommandName = None      
         return flyoutActionToCheck, parentCommandName
         
-    
-            
-    #START New command API methods==============================================    
     
     def runCommand(self):
         """

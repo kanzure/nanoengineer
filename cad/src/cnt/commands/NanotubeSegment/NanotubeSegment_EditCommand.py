@@ -66,8 +66,6 @@ from utilities.prefs_constants import cursorTextColor_prefs_key
 
 from cnt.commands.NanotubeSegment.NanotubeSegment_PropertyManager import NanotubeSegment_PropertyManager
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
 ORIGIN = V(0,0,0)
@@ -212,31 +210,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         #Initialize DEBUG preference
         pref_nt_segment_resize_by_recreating_nanotube()
         return
-    
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            """
-            Initialize gui. 
-            """
-    
-            #Note that NanotubeSegment_EditCommand only act as an edit command for an 
-            #existing structure. The call to self.propMgr.show() is done only during
-            #the call to self.editStructure ..i .e. only after self.struct is 
-            #updated. This is done because of the following reason:
-            # - self.init_gui is called immediately after entering the command. 
-            # - self.init_gui in turn, initialized propMgr object and may also 
-            #  show the property manager. The self.propMgr.show routine calls 
-            #  an update widget method just before the show. This update method 
-            #  updates the widgets based on the parameters from the existing 
-            #  structure of the command (self.editCommand.struct)
-            #  Although, it checks whether this structure exists, the editCommand
-            #  could still have a self.struct attr from a previous run. (Note that 
-            #  EditCommand API was written before the command sequencer API and 
-            #  it has some loose ends like this. ) -- Ninad 2008-01-22
-            self.create_and_or_show_PM_if_wanted(showPropMgr = False)
-            return
-    
-    
+        
 
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        

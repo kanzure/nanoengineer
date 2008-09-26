@@ -40,7 +40,6 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 from cnt.model.NanotubeSegment import NanotubeSegment
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -148,19 +147,9 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     #New command API method -- implemented on 2008-08-27
     def _update_UI_do_updates(self):
         """
-        This method should replace model_changed() eventually. 
-        This is used with USE_COMMAND_STACK debug flag
+        Overrides superclass method. 
         
-        @see: self._currentStructureParams()
-        """     
-        self.model_changed()  
-        
-    def model_changed(self):
-        """       
-        When the command is treated as a 'command' by the 
-        commandSequencer, this method will override basicCommand.model_changed.
-        For more info, see BuildAtomsPropertyManager.model_changed docstring.
-        
+        @see: PM_Dialog._update_UI_do_updates() for documentation        
         @see: self._currentStructureParams()
         """  
         currentSelectionParams = self._currentSelectionParams() 
@@ -200,7 +189,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Returns a tuple containing current selection parameters. These 
         parameters are then used to decide whether updating widgets
-        in this property manager is needed when L{self.model_changed}
+        in this property manager is needed when L{self._update_UI_do_updates()}
         method is called.
         
         @return: A tuple that contains following selection parameters
@@ -257,10 +246,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         As of 2007-11-20, it also shows the Sequence Editor widget and hides 
         the history widget. This implementation may change in the near future
         """
-        EditCommand_PM.show(self) 
-        if not USE_COMMAND_STACK:
-            self.updateListWidgets()    
-            
+        EditCommand_PM.show(self)             
         self.updateMessage("Use appropriate command in the command "\
                            "toolbar to create or modify a CNT Object"\
                            "<br>" )
@@ -280,21 +266,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             ##selectedSegments = self.command.struct.getSelectedSegments()
             ##if len(selectedSegments) == 1:
                 ##selectedSegments[0].edit()
-    
-    def _update_widgets_in_PM_before_show(self):
-        """
-        Update various widgets  in this Property manager.
-        Overrides EditCommand_PM._update_widgets_in_PM_before_show. 
-        The various  widgets , (e.g. spinboxes) will get values from the 
-        structure for which this propMgr is constructed for 
-        (self.editcCommand.struct)
-        
-        @see: MotorPropertyManager._update_widgets_in_PM_before_show
-        @see: self.show  
-        """  
-        if not USE_COMMAND_STACK:
-            self.updateListWidgets()
-        
+            
     def updateListWidgets(self):
         """
         Update the Cnt segment list widget in this property manager
