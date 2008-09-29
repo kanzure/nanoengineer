@@ -48,20 +48,17 @@ from foundation.state_utils import StateMixin
 
 from utilities.constants import noop
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 from model.jigs import Jig
     # this is used only for cmenu making
     # TODO: probably it should be factored into a method on the object being tested
 
 from command_support.GraphicsMode_API import GraphicsMode_API
 
-from command_support.baseCommand import baseCommand # warning: modified below, if not USE_COMMAND_STACK
+from command_support.baseCommand import baseCommand 
 
 import foundation.changes as changes
 
-if not USE_COMMAND_STACK:
-    baseCommand = object
+DEBUG_TO_HELP_STRIP_OUT_OLD_COMMAND_API_METHODS = False # Temporary debug flag, can be removed when safe -- Ninad 2008-09-26
 
 # ==
 
@@ -128,9 +125,9 @@ class anyCommand(baseCommand, StateMixin):
         # commandSequencer.userEnterTemporaryCommand.
         # [bruce 071011, to be revised (replaces need for customized Done methods)]
         #
-        # WARNING: when USE_COMMAND_STACK, this no longer controls command
-        # nesting as described above, but it has other effects, e.g. on
-        # want_confirmation_corner_type.
+        # WARNING: in the new command API as of 2008-09-26, this no longer 
+        #controls command nesting as described above, but it has other effects,
+        #e.g. on want_confirmation_corner_type.
     
     command_has_its_own_PM = True
         # note: following comment predates the command stack refactoring circa 080806.
@@ -180,18 +177,7 @@ class anyCommand(baseCommand, StateMixin):
     # (default methods that should be noops in both nullCommand and Command
     #  can be put here instead if desired; for docstrings, see basicCommand)
     
-    def model_changed(self): #bruce 070925; TODO [bruce 080804]: revise/rename (in Commands and their PMs)
-        return
-
-    if not USE_COMMAND_STACK:
-        def command_post_event_ui_updater(self): #bruce 070925; bruce 080812 renamed this, from state_may_have_changed
-            """
-            This is called after every user event (###verify).
-            Overridden only in basicCommand as of 080731 (###describe).
-            """
-            # note: called by MWsemantics.post_event_ui_updater [080731 comment]
-            return
-
+    
     def isCurrentCommand(self): #bruce 071008
         # WARNING: this value of False means the nullCommand should never itself
         # run code which assumes that this returns true when self is current.
@@ -383,11 +369,9 @@ class basicCommand(anyCommand):
         #in a few command classes [ -- Ninad comment]. This comment can be 
         #deleted when all commands that have their own PM start using this.
 
-        # Note: when USE_COMMAND_STACK is true, this is always used,
+        # Note: for the new command API as of 2008-09-26, this is always used,
         # since base class command_enter_PM calls _createPropMgrObject.
-        # But when not USE_COMMAND_STACK, it's only used in command classes
-        # which call that explicitly. This covers mainly EditCommand subclasses.
-        # [bruce 080909 guess ###VERIFY]
+        # [bruce 080909]
         
     
     FlyoutToolbar_class = None
@@ -436,19 +420,18 @@ class basicCommand(anyCommand):
         # later note: as of 070521, we always get warned "subclass movieMode
         # overrides basicMode._exitMode". I am not sure whether this override is
         # legitimate, so I'm not removing the warning for now. [bruce 070521]
-        weird_to_override = ['Cancel', 'StartOver',
-                             '_f_userEnterCommand', '_exitMode', 'Abandon', '_cleanup',
-                             'clear', #bruce 080806
+        weird_to_override = [ 'StartOver'                              
+                             #bruce 080806
                             ]
             # not 'modifyTransmute', 'keyPress', they are normal to override;
             # not 'draw_selection_curve', 'Wheel', they are none of my business;
             # not 'makemenu' since no relation to new mode changes per se.
             # [bruce 040924]
-        if USE_COMMAND_STACK:
-            weird_to_override += [
-                             'command_Done', 'command_Cancel', #bruce 080827
-                            ]
-        if USE_COMMAND_STACK and 0: ### TODO: enable this once we'll never go back, to help strip out obsolete code
+    
+        weird_to_override += [
+                         'command_Done', 'command_Cancel', #bruce 080827
+                        ]
+        if DEBUG_TO_HELP_STRIP_OUT_OLD_COMMAND_API_METHODS: ### TODO: enable this once we'll never go back, to help strip out obsolete code
             # also complain about commands not fully ported to the new API
             # (i.e. in which obsolete methods are still defined)
             for methodname, howtofix in (
@@ -509,13 +492,6 @@ class basicCommand(anyCommand):
 
     # ==
 
-    # remove these once we always inherit from baseCommand,
-    # from which they're copied; see it for their docstrings: ###
-    if not USE_COMMAND_STACK:
-        def command_ok_to_enter(self):
-            return True
-           
-    # ==
     
     def command_enter_PM(self):
         """
@@ -532,36 +508,6 @@ class basicCommand(anyCommand):
             #for modes -- ninad 2007-08-29
             if self.propMgr:
                 changes.keep_forever(self.propMgr)  
-                
-    def command_enter_flyout(self):
-        """
-        Overrides superclass method. 
-        
-        @see: baseCommand.command_enter_flyout()  for documentation
-        """
-        #@TODO: Method to be removed (also from the subclasses)
-        #after completely switching over to USE_COMMAND_STACK
-        #used only when NOT using USE_COMMAND_STACK as of 2008-09-16
-        assert not USE_COMMAND_STACK
-        
-        if not self.flyoutToolbar:
-            self.flyoutToolbar = self._createFlyoutToolbarObject()   
-        
-        if self.flyoutToolbar:
-            self.flyoutToolbar.activateFlyoutToolbar()
-                        
-    if not USE_COMMAND_STACK:
-        def command_exit_PM(self):
-            """
-            Temporary method, will be removed after command stack refactoring. 
-            Used when USE_COMMAND_STACK is false (e.g. method called in restore_gui)
-            Commented on 2008-09-02.
-            For USE_COMMAND_STACK = true case, this is already implemented in 
-            baseCommand
-            @see: baseCommand.command_exit_PM()  
-            
-            """
-            pass
     
     def _createPropMgrObject(self):
         """
@@ -807,8 +753,9 @@ class basicCommand(anyCommand):
         private method, and a kluge;
         see KLUGE_current_PropertyManager docstring for more info
         """
-        if USE_COMMAND_STACK and not get_old_PM:
+        if not get_old_PM:
             return self.propMgr
+        
         pw = self.w.activePartWindow()
         if not pw:
             # I don't know if pw can be None
@@ -928,122 +875,7 @@ class basicCommand(anyCommand):
             res = '+'.join(res)
         return res
     
-    # == methods related to entering this command
-    
-    def _enterMode(self, resuming = False, has_its_own_gui = True): #### obsolete after USE_COMMAND_STACK;
-        # called only by self.commandSequencer.start_using_mode
-        #bruce 070813 added resuming option
-        """
-        Friend method for command sequencer -- immediately
-        enter this command, i.e. prepare it for use, not worrying at
-        all about any prior current command.  Return something false
-        (e.g. None) normally, or something true if you want to
-        refuse entry to the new command (see comments in the call to
-        this for why you might want to do that).  Note that the
-        calling command sequencer has not yet set its self.currentCommand to point to us
-        when it calls this method, and it will never do so unless
-        we return something false (as we usually do).  Should not
-        be overridden by subclasses.
-
-        @param resuming: whether we're resuming this command (after a completed
-                         subcommand); otherwise we're entering it as if anew.
-                         This is for use by Subcommands resuming their parent
-                         commands.
-        @type resuming: bool
-        @param has_its_own_gui:  This flag determines whether the current mode
-                                 uses its own gui (such as PM, flyout
-                                 toolbar). The flag was introduced to 
-                                 fix bugs like 2566. Note that this flag is 
-                                 about the  mode the user has *just exited*
-                                 and not the 'new_mode' that he is has just 
-                                 entered. See class anyCommand.has_its_own_gui 
-                                 for a detailed comment.
-                                 
-        @type has_its_own_gui: boolean
-        """
-        assert not USE_COMMAND_STACK # obsolete otherwise [080806]
-        if not resuming:
-##            refused = self.refuseEnter(warn = 1)
-            refused = not self.command_ok_to_enter()
-            if not refused:
-                # do command-specific entry initialization;
-                # this method is still allowed to refuse, as well
-                refused = self.Enter() 
-                if refused:
-                    print "fyi: late refusal by %r, better if it had been " \
-                          "in command_ok_to_enter" % self # (but sometimes it might be necessary)
-        else:
-            refused = False
-        if not refused:
-            if resuming and (not has_its_own_gui):
-                self.resume_gui()
-                pass # Do nothing if the command doesn't have its own gui and is 
-                     # going to resume the previous mode uses previous Mode Gui. 
-                     # This fixes bug 2566 which used to reconnect signals in the 
-                     # PM of the previous mode upon re-entering it. 
-            else:
-                self.init_gui()
-                    ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
-                self.resume_gui()
-                ## method no longer exists [bruce 080910]: self.update_mode_status_text()
-        # caller (our command sequencer) will set its self.currentCommand to point to us,
-        # but only if we return false
-        return refused
-    
-    def Enter(self): # see also: baseCommand.command_entered
-        """
-        Subclasses should override this: first call superclass.Enter(self)
-        for your superclass (update 071010: for old code that might be
-        basicMode, for new code it might be Command).
         
-        Then set whatever internal state you need to upon being entered,
-        modify settings in your command or its model or glpane (self.o) if necessary,
-        and return None.
-        
-        If something goes wrong, so that you don't accept being the
-        new current command, emit an error message explaining why
-        (perhaps in a dialog or status bar), and return True -- but
-        it's better if you can figure this out earlier, in
-        command_ok_to_enter().        
-        """
-                
-        # TODOs:
-        # - We are likely to create a Enter_Command method instead of just
-        #   the 'Enter' method
-        # - An example of the worry in current scheme -- what if that 
-        #   update_cursor call in basicGraphicsMode.Enter_GraphicsMode tries to 
-        #   use some Command attrs to decide on the cursor which are only 
-        #   initialized in the subclass command.Enter?
-        #     [later, bruce 080819: that update_cursor call needs to be moved
-        #      to an update method, when USE_COMMAND_STACK.]
-        # - Maybe we should call Enter_GraphicsMode in or after method 
-        #   CommandSequencer.start_using_mode? Not sure if that method actually 
-        #   uses some things from graphicsMode.Enter. 
-        # - [bruce writes]: If calls to methods such as update_cursor (done in 
-        #   Enter_GraphicsMode part) need some command attrs to be set, then,
-        #   maybe in the Enter_Command scheme, the default Enter would do 
-        #   3 things: Enter_Command, Enter_GM, and whatever update calls are
-        #   then needed, like update_cursor . Or whoever calls Enter could do it.
-        # - NOTE, the split Enter method (Enter_GraphicsMode and proposed 
-        #   Enter_Command method) scheme doesn't consider the effect 
-        #   on the non-split modes such as extrudeMode. But some basic tests 
-        #   indicate that this may not be an issue. (looks safe)
-        # [Ninad 2007-12-28 comment]
-                
-        self.graphicsMode.Enter_GraphicsMode()
-
-        #bruce 080813 experiment; if it works, we can remove most or all
-        # current defs of command_enter_PM, if all they do is call
-        # self._reuse_attr_of_parentCommand('propMgr'), since they are now
-        # redundant (for commands with command_has_its_own_PM = False).
-        # [code copied from baseCommand.command_entered:]
-        if not self.command_has_its_own_PM:
-            # should work: self.propMgr = self.find_parentCommand().propMgr
-            # but use this form for now (more error checks):
-            self._reuse_attr_of_parentCommand('propMgr')
-        
-        return None
-
     def should_exit_when_ESC_key_pressed(self): # not overridden, as of 080815
         """
         @return: whether this command should exit when the ESC key is pressed
@@ -1061,18 +893,7 @@ class basicCommand(anyCommand):
         """
         return (self.command_should_resume_prevMode and not self.is_default_command())
 
-    def init_gui(self):
-        """
-        Subclasses should define this to set up UI stuff like dashboards,
-        cursors, toggle icons, etc.
-
-        It should be called only once each time the command is entered.
-        Therefore, it should not be called by other code nor defined by 
-        commands to do things that need redoing many times while the command 
-        remains active (for that, see model_changed()).
-        """
-        pass
-
+    
     def _init_gui_flyout_action( self, action_attr, parentCommandName = None ):
         """
         [helper method for command entry]
@@ -1118,12 +939,10 @@ class basicCommand(anyCommand):
             # that's always defined, and if it's true, interpret
             # command_parent = None as being the name of the default command.
             # [bruce 080814 comment]
-        if not USE_COMMAND_STACK:
-            parentCommand = self.commandSequencer.prevMode # _init_gui_flyout_action: flyoutToolbar
-        else:
-            #bruce 080804
-            parentCommand = self.parentCommand
-            assert parentCommand # should be already set by now (during command_entered)
+        
+        #bruce 080804
+        parentCommand = self.parentCommand
+        assert parentCommand # should be already set by now (during command_entered)
         if parentCommand.commandName == parentCommandName:
             try:
                 self.flyoutToolbar = parentCommand.flyoutToolbar
@@ -1138,120 +957,22 @@ class basicCommand(anyCommand):
                 self.flyoutToolbar = None
             return parentCommand
         else:
-            if USE_COMMAND_STACK:
-                print "fyi: _init_gui_flyout_action in %r found wrong kind " \
-                      "of parent command" % self # not sure if this ever happens; might be a bug if so
+            print "fyi: _init_gui_flyout_action in %r found wrong kind " \
+                  "of parent command" % self # not sure if this ever happens; might be a bug if so
             return None
-        pass
-    
-    def resume_gui(self): # TODO [bruce 080804]: replace, or revise docstring; called in _enterMode; used in 3 commands [080806]
-        """
-        Called when this command, that was suspended earlier, is being resumed. 
-        The temporary command (which was entered by suspending this command)
-        might have made some changes to the model which need to be reflected 
-        somehow in this resuming command. Default implementation does nothing.
-        
-        Example: A user enters BreakStrands_Command by suspending 
-        BuildDna_EditCommand, then breaks a few strands, thereby creating new 
-        strand chunks. Now when the user returns to the BuildDna_EditCommand, 
-        the command's property manager needs to update the list of strands 
-        because of the changes done while in BreakStrands_Command. 
-        @see: BuildDna_EditCommand.resume_gui. 
-        @see: self._enterMode
-        """
         pass
     
     def is_default_command(self): #bruce 080709 refactoring
         return self.commandName == self.commandSequencer.default_commandName()
     
-    if not USE_COMMAND_STACK:
-        def command_post_event_ui_updater(self): #bruce 080804 revision
-            """
-            #doc
-
-            FYI: This is called by env.do_post_event_updates() by a registered
-            "post_event_ui_updater" set up by MWsemantics. [still true 080804]
-            """
-            self.model_changed() # TODO: revise or rename this
-            return
-
-    def model_changed(self): #bruce 070925 added this to Command API.
-        # bruce 080804 revised docstring
-        # TODO [bruce 080804]: replace, or rename.
-        """
-        Subclasses should extend this (or make sure their self.propMgr defines
-        it) to check whether any program state has changed that should be
-        reflected in their UI, and if so, update their UI accordingly.
-
-        Program state checked by any implem of this method should NOT be
-        updated by this method. (At least, not normally, and doing so might
-        cause bugs of a variety of kinds unless carefully analyzed --
-        for example, bugs in the division of changes into undoable commands,
-        or in the consistency of state which requires update calls after
-        it's changed (due to relative ordering of calls of this, updaters,
-        drawing, and other user events).)
-        
-        Program state checked by an implem of this method might include:
-        - model state (see Assembly.model_change_indicator)
-        - selection state (see Assembly.selection_change_indicator)
-        - view state (see Assembly.view_change_indicator)
-          - should include Ortho/Perspective, but I guess it doesn't ###FIX
-          - includes view center, direction, scale(?)
-        - hover-highlighted object (glpane.selobj)
-
-        This method will be called at most approximately once per user mouse or key
-        event. The calling code should try to only call it when needed,
-        but needn't guarantee this, so implementations should try to be fast
-        when the call was not needed, e.g. by checking applicable change
-        counters, or diffing old and new state.
-        """
-        if self.propMgr:
-            if hasattr( self.propMgr, 'model_changed'):
-                self.propMgr.model_changed()
-        return
-    
-    # methods for changing to some other command
-    
-    def _f_userEnterCommand(self, commandName, **options): # renamed from userSetMode [bruce 071011]
-        """
-        [friend method, to be called only by self.commandSequencer]
-        
-        User has asked to change to the command with the given commandName;
-        we might or might not permit this, depending on our own state.
-        If we permit it, do it (after appropriate cleanup, depending on
-        options, which can include suspend_old_mode); if not, show an
-        appropriate error message. Exception: if we're already in the
-        requested command, do nothing.
-
-        Special case: commandName can be an actual command instance object,
-        not a command name. In that case we switch to it (if we permit
-        ourselves switching to anything like it) even if it has the same
-        commandname as self.
-        """
-        assert not USE_COMMAND_STACK
-        if self.commandName == commandName:
-            # note that this implies commandName is a string, not a command instance
-            if self.isCurrentCommand():
-                # changing from the active command to itself -- do nothing
-                # (special case, not equivalent to behavior without it)
-                return
-            else:
-                # I don't think this can happen, but if it does,
-                # it's either a bug or we're some fake command like nullMode. #k
-                print "fyi (for developers): self.commandName == commandName %r " \
-                      "but not self.isCurrentCommand() (probably ok)" % commandName
-                # but fall through to change commands in the normal way
-        # bruce 041007 removing code for warning about changes and requiring
-        # explicit Done or Cancel if self.haveNontrivialState()
-        self.Done( commandName, **options)
-        return
-
+            
     # methods for leaving this command (from a dashboard tool or an
     # internal request).
 
     # Notes on state-accumulating modes, e.g. Build Crystal, Extrude,
     # and [we hoped at the time] Build Atoms [bruce 040923]:
-    # [mostly obsolete after USE_COMMAND_STACK]
+    # [mostly obsolete after USE_COMMAND_STACK (new command API , which 
+    # is the default API as of 2008-09-26) ]
     #
     # Each command which accumulates state, meant to be put into its
     # model (assembly) in the end, decides how much to put in as it
@@ -1287,384 +1008,9 @@ class basicCommand(anyCommand):
     # self.haveNontrivialState() returns true; if it returns false,
     # neither of them will be called.
     #
-    # -- bruce 040923
-
-    def Done(self, 
-             new_mode = None, 
-             suspend_old_mode = False,
-             exit_using_done_or_cancel_button = True,
-             **new_mode_options):
-        # options ever passed:
-        # - exit_using_done_or_cancel_button - common
-        # - new_mode - once
-        # - whichever are passed to _f_userEnterCommand
-        """
-        Called by the slot method for the Done tool in the dashboard;
-        also called internally (in _f_userEnterCommand and elsewhere)
-        if user asks to start a new command (new_mode) and the current
-        command has decided to permit that in spite of the lack of an
-        explicit Done.
-
-        Revision of API for subclasses [bruce 040922]: Done should not be
-        overridden in subclasses; instead they should override
-        haveNontrivialState and/or StateDone and/or StateCancel as
-        appropriate.
-        
-        @param exit_using_done_or_cancel_button: 
-                       This flag is usually true. Only temporary modes such as 
-                       Zoom/Pan/rotate , which don't have their own gui, set it 
-                       to False for a regular temporary mode exit (such as 
-                       pressing the 'Escape key'. Example: If user is in Build
-                       Atoms mode , then invokes Pan tool, and hits 'Escape' key
-                       the program, based on this flag decides whether to exit 
-                       the 'Pan mode' or 'also exit build Atoms mode' .  In this 
-                       case, (Escape key exit) the flag is set to False by the 
-                       caller, so program knows that user actually didn't press
-                       'done' or Cancel button from the Build Atoms PM. 
-                       (and thus exit_using_done_or_cancel_button was 'False')
-        @type exit_using_done_or_cancel_button: boolean                       
-        """
-        if USE_COMMAND_STACK:
-            # compatibility method for old code.
-            # New code should call what this calls more directly.
-            # [bruce 080827]
-            assert not (new_mode or suspend_old_mode or new_mode_options), \
-                   "nim: opts %r" % ((new_mode, suspend_old_mode, new_mode_options),)
-            if not exit_using_done_or_cancel_button:
-                command_to_exit = self
-            else:
-                command_to_exit = self.command_that_supplies_PM()
-            command_to_exit.command_Done()
-            return
-            
-        # TODO: most or all of the following should be done by the CommandSequencer
-        # rather than by self. Same goes for several of the methods this calls.
-        # [bruce 071011 comment]
-        
-        #TODO: About the  parameter exit_using_done_or_cancel_button: 
-        # This is a bit complicated but is needed in the present implementation
-        # and can be cleaned up while doing a general cleanup of the Done and 
-        # other methods -- 2007-11-08
-        
-        resuming = False
-        if self.command_should_resume_prevMode:
-            # (Historical note: this imitates the overrides of Done formerly done
-            #  in specific TemporaryCommands.)
-            # TODO: review whether to do this somewhere else, so it also covers Cancel;
-            # and/or refactor it further so the Command Sequencer fully handles it
-            # (as said just above). # [bruce 071011 change and comment]
-            ##assert not suspend_old_mode
-            ##    # bruce 071011 added this; old code just pretended it was false
-            
-            if new_mode is None:
-                try:
-                    new_mode = self.commandSequencer.prevMode 
-                    if new_mode and not self.command_has_its_own_PM:
-                        if exit_using_done_or_cancel_button:                           
-                            # This fixes bugs like 2566, 2565 
-                            # @bug: But it doesn't fix the
-                            # following bug: As of 2007-11-09, the 
-                            # commandSequencer does 
-                            # not consider various editController as commands. 
-                            # Because of this, there is a bug in this 
-                            # conditional. The bug and related NFR is documented
-                            # in bug 2583 
-                            if new_mode.command_has_its_own_PM:
-                                #Example: command has a PM which in turn has a 
-                                #done/cancel button or a formal way to exit a 
-                                #regular mode. 
-                                new_mode.Done()
-                            else:
-                                #new Command is a temporary mode with no special
-                                #ui to exit it.
-                                new_mode.Done(exit_using_done_or_cancel_button = False)
-                            resuming = False
-                            new_mode = None
-                        else:                            
-                            resuming = True
-                except:
-                    print_compact_traceback("bug, ignoring: ") #bruce 071011 added this
-            else:
-                #TEMPORARY FIX FOR BUG 2593, 2800 NEEDS CLEANUP
-                # This code is not copied in Cancel 
-                # method as it seems unnecessary to do so (as of 2007-12-21) 
-                #(This part of the code is reached only when user explicitly
-                #invokes a new command and before entering that command, we
-                #execute 'autoDone' on the current command
-                #If the current command is a temporary command, it is necessary
-                #to properly exit the previous command from which it was invoked. 
-                #before entering the 'new_mode' (not 'None' in this elase 
-                #statement) The new_mode  is supplied to the this method as a 
-                #parameter, This fixes bugs like 2593, 2800.  
-                previous_command = self.commandSequencer.prevMode
-                if previous_command is not new_mode:
-                    self._exit_previous_command(exit_using_done_or_cancel_button)
-            if resuming:
-                new_mode_options['resuming'] = True
-                new_mode_options['has_its_own_gui'] = self.command_has_its_own_PM
-            else:
-                assert new_mode_options.get('resuming', False) == False
-                    # bruce 071011 added this; old code just pretended it was false
-        if not suspend_old_mode:
-            if self.haveNontrivialState():
-                # use this (tho it should be just an optim), to make sure
-                # it's not giving false negatives
-                refused = self.StateDone()
-                if refused:
-                    # subclass says not to honor the Done request
-                    # (and it already emitted an appropriate message)
-                    return
-        new_mode_options['suspend_old_mode'] = suspend_old_mode
-        
-        self._exitMode( new_mode, **new_mode_options)
-        if resuming:
-            assert new_mode is self.commandSequencer.prevMode
-            # presumably we are now back in new_mode == prevMode (having resumed it);
-            # if not, print a debug warning (probably redundant with some existing error message);
-            # if so, remove it from the "command stack" by setting prevMode to None.
-            if new_mode is self.commandSequencer._raw_currentCommand:
-                # note: this private access is a sign we belong inside CommandSequencer
-                self.commandSequencer.prevMode = None
-                    #bruce 071011 added this behavior; in theory it might fix bugs;
-                    # if not then I think it has no effect
-            else:
-                print "warning: failed to enter", new_mode # remove if fully redundant
-        return
+    # -- bruce 040923    
     
-    def _exit_previous_command(self, exit_using_done_or_cancel_button): # has exactly one call, in Done, as of 080804
-        """
-        NEEDS CLEANUP. Called in self.Done, when a new command to enter 
-        is specified. Example: when a temporary command is not going to resume
-        a previous command but rather enter a new command invoked by the user, 
-        this function first exits any pending previous mode commands. 
-        @see: comment in self.Done. 
-        """
-        assert not USE_COMMAND_STACK # this method will be replaced when USE_COMMAND_STACK is true
-        previous_command = self.commandSequencer.prevMode
-        #Fixed bug 2800. The original if conditional was as follows --
-        #if previous_command and not self.command_has_its_own_PM
-        #But it could happen that the current command is a temporary command 
-        #that usually resumes the previous mode and it still has its own gui.
-        #(e.g. Join Strand command). So 'if not self.command_has_its_own_PM
-        #is incorrect. -- Ninad 2008-04-12. See also bug 2583
-        
-        if previous_command:           
-            if exit_using_done_or_cancel_button:
-                if previous_command.command_has_its_own_PM:
-                    previous_command.Done()
-                else:
-                    #new Command is a temporary mode with no special ui to exit it.
-                    previous_command.Done(exit_using_done_or_cancel_button = False)
-        return
-        
-    def StateDone(self):
-        """
-        Mode objects (e.g. BuildCrystal_Command) which might have accumulated
-        state which is not yet put into their model (assembly)
-        should override this StateDone method to put that
-        state into the model, and return None.  If, however, for
-        some reason they want to refuse to let the user's Done
-        event be honored, they should instead (not changing the
-        model) emit an error message and return True.
-        """
-        assert 0, "bug: command subclass %r needs custom StateDone method, " \
-                  "since its haveNontrivialState() apparently returned True" % \
-               self.__class__.__name__
-    
-    def Cancel(self, 
-               new_mode = None, 
-               exit_using_done_or_cancel_button = True,
-               **new_mode_options):
-        # options ever passed [as of 080815]:
-        # - exit_using_done_or_cancel_button (and one typo version of that, not sure if it is ever executed)
-        # - new_mode
-        """
-        Cancel tool in dashboard; might also be called internally
-        (but is not as of 040922, I think).  Change [bruce 040922]:
-        Should not be overridden in subclasses; instead they should
-        override haveNontrivialState and/or StateDone and/or
-        StateCancel as appropriate.
-        """
-        if USE_COMMAND_STACK:
-            # compatibility method for old code.
-            # New code should call what this calls more directly.
-            # [bruce 080827]
-            assert not (new_mode or new_mode_options), \
-                   "nim: opts %r" % ((new_mode, new_mode_options),)
-            if not exit_using_done_or_cancel_button:
-                command_to_exit = self
-            else:
-                command_to_exit = self.command_that_supplies_PM()
-            command_to_exit.command_Cancel()
-            return
-
-        ###REVIEW: any need to support suspend_old_mode here? I doubt it...
-        # but maybe complain if it's passed. [bruce 070814]
-        if self.haveNontrivialState():
-            refused = self.StateCancel()
-            if refused:
-                # subclass says not to honor the Cancel request
-                # (and it already emitted an appropriate message)
-                return      
-        
-        #TODO: Following code is mostly duplicated from self.Done. Need to 
-        #refactor these methods to use common code
-        resuming = False
-        if self.command_should_resume_prevMode:
-            if new_mode is None:
-                try:
-                    new_mode = self.commandSequencer.prevMode
-                    if new_mode and not self.command_has_its_own_PM:
-                        if exit_using_done_or_cancel_button:
-                            # This fixes bugs like 2566, 2565 
-                            # @bug: But it doesn't fix the
-                            # following bug: As of 2007-11-09, the 
-                            # commandSequencer does 
-                            # not consider various editController as commands. 
-                            # Because of this, there is a bug in this 
-                            # conditional. The bug and related NFR is documented
-                            # in bug 2583    
-                            if new_mode.command_has_its_own_PM:
-                                new_mode.Cancel()
-                            else:
-                                print "fyi: passing typo option exit_using_don_or_cancel" # does this ever happen?
-                                new_mode.Cancel(exit_using_don_or_cancel = False) ### TYPO! don't fix without analyzing the effects.
-                                
-                            resuming = False
-                            new_mode = None
-                        else:                            
-                            resuming = True
-                except:
-                    print_compact_traceback("bug, ignoring: ")
-            else:
-                #TEMPORARY FIX FOR BUG 2593 NEEDS CLEANUP 
-                #(just like in self.Done)
-                # This code is not copied in Cancel 
-                # method as it seems unnecessary to do so (as of 2007-12-21) [but wait, this *is* the Cancel method here...]
-                #(This part of the code is reached only when user explicitly
-                #invokes a new command and before entering that command, we
-                #execute 'autoDone' on the current command
-                #If the current command is a temporary command, it is necessary
-                #to properly exit the previous command from which it was invoked. 
-                #before entering the 'new_mode' (not 'None' in this elase 
-                #statement) The new_mode  is supplied to the this method as a 
-                #parameter, This fixes bugs like 2593.  
-                previous_command = self.commandSequencer.prevMode
-                if previous_command is not new_mode: 
-                    if previous_command and not self.command_has_its_own_PM:            
-                        if exit_using_done_or_cancel_button:
-                            if previous_command.command_has_its_own_PM:
-                                previous_command.Cancel()
-                            else:
-                                #new Command is a temporary mode with no special ui to exit it.
-                                previous_command.Cancel(exit_using_done_or_cancel_button = False)                                        
-            if resuming:
-                new_mode_options['resuming'] = True
-                new_mode_options['has_its_own_gui'] = self.command_has_its_own_PM
-            else:
-                assert new_mode_options.get('resuming', False) == False
-                    # bruce 071011 added this; old code just pretended it was false
-        
-        
-        self._exitMode( new_mode, **new_mode_options)
-
-    def StateCancel(self):
-        """
-        Mode objects (e.g. BuildAtoms_Command) which might have
-        accumulated state directly into their model (assembly)
-        should override this StateCancel method to undo
-        those changes in the model, and return None.
-
-        Alternatively, if they are unable to remove that state from
-        the model (e.g. if that code is not yet implemented, or too
-        hard to implement correctly), they should warn the user,
-        and then either leave all state unchanged (in command object
-        and model) and return True (to refuse to honor the user's
-        Cancel request), or go ahead and leave the unwanted state
-        in the model, and return None (which honors the Cancel but
-        leaves the user with unwanted new state in the model).
-        Perhaps, when they warn the user, they would ask which of
-        those two things to do.
-        """
-#bruce 080826 reenabled the assert 0 below
-##        return None # this is correct for all existing modes except BuildAtoms_Command
-##                    # -- bruce 040923
-        assert 0, "bug: command subclass %r needs custom StateCancel method, " \
-                  "since its haveNontrivialState() apparently returned True" % \
-                  self.__class__.__name__
-
-    def haveNontrivialState(self):
-        """
-        Subclasses which accumulate state (either in the command
-        object or in their model (assembly), or both) should
-        override this appropriately (see long comment above for
-        details). False positive is annoying, but permitted (its
-        only harm is forcing the user to explicitly Cancel or Done
-        when switching directly into some other command); but false
-        negative would be a bug, and would cause lost state after
-        Done or (for some modes) incorrectly
-        uncancelled/un-warned-about state after Cancel.
-        """
-        # note: obsolete when USE_COMMAND_STACK is true.
-        # TODO: fully remove it sometime after USE_COMMAND_STACK is always true.
-        # [bruce 080908 comment]
-        return False
-    
-    def _exitMode(self, new_mode = None, suspend_old_mode = False, **new_mode_options): # called from Done & Cancel
-        """
-        Internal method -- immediately leave this command, discarding
-        any internal state it might have without checking whether
-        that's ok (if that check might be needed, we assume it
-        already happened). Ask our command sequencer to change to new_mode
-        (which might be a commandName or a command object or None), if provided
-        (and if that command accepts being the new currentCommand), otherwise to
-        its default command.
-
-        [Unlikely to be overridden by subclasses.]
-        """
-        assert not USE_COMMAND_STACK
-        if not suspend_old_mode:
-            self._cleanup()
-        if new_mode is None:
-            new_mode = '$DEFAULT_MODE'
-        self.commandSequencer.start_using_mode(new_mode, **new_mode_options) # in _exitMode
-            ## REVIEW: is suspend_old_mode needed in start_using_mode?
-            # Tentative conclusion: its only effects would be:
-            # - help us verify expected relations between flags in new mode class
-            #   and suspend_old_mode (differs for temporary commands vs others)
-            # - how to fall back
-            #   if using the new command fails -- it would make us fall back to
-            #   old command rather than to default command.
-            # Ideally we'd use a
-            # continuation-like style, wrapping new_mode with a fallback
-            # command, and pass that as new_mode. So it's not worth fixing this
-            # for now -- save it for when we have a real command-sequencer.
-            # [bruce 070814 comment]
-        return
-
-    def Abandon(self, warn_about_abandoned_changes = True):
-        # note: this is only called by exit_all_commands, as of before 080908.
-        """
-        This is only used when we are forced to Cancel, whether or not this
-        is ok (with the user) to do now -- someday it should never be called.
-        Basically, every call of this is by definition a bug -- but
-        one that can't be fixed in the command-related code alone.
-        [But it would be easy to fix in the file-opening code, once we
-        agree on how.]
-
-        @param warn_about_abandoned_changes: same meaning as in _exit_currentCommand_with_flags 
-        """
-        assert not USE_COMMAND_STACK
-        if self.haveNontrivialState() and warn_about_abandoned_changes:
-            self._warnUserAboutAbandonedChanges()
-        # don't do self._exitMode(), since it sets a new current command and
-        #ultimately asks command sequencer to update for that... which is
-        #premature now.  #e should we extend _exitMode to accept
-        #commandNames of 'nullMode', and not update? also 'default'?
-        #probably not...
-        self._cleanup()
-
-    def _warnUserAboutAbandonedChanges(self): #bruce 080908 split this out; can be called even after USE_COMMAND_STACK
+    def _warnUserAboutAbandonedChanges(self): #bruce 080908 split this out
         """
         Private helper method for command subclasses overriding command_will_exit
         which (when commandSequencer.exit_is_forced is true) need to warn the user
@@ -1674,14 +1020,13 @@ class basicCommand(anyCommand):
         only commands that store changes in self rather than in assy might
         need to call it.
 
-        When USE_COMMAND_STACK, does nothing if
-        self.commandSequencer.warn_about_abandoned_changes is False.
-
-        @see: old methods (pre-USE_COMMAND_STACK) Abandon and haveNontrivialState.
+        It does nothing if self.commandSequencer.warn_about_abandoned_changes 
+        is False.
+        @see: ExtrudeMode.command_will_exit() where it is called. 
         """
-        if USE_COMMAND_STACK:
-            if not self.commandSequencer.warn_about_abandoned_changes:
-                return
+        
+        if not self.commandSequencer.warn_about_abandoned_changes:
+            return
         
         msg = "%s with changes is being forced to abandon those changes!\n" \
               "Sorry, no choice for now." % (self.get_featurename(),)
@@ -1762,98 +1107,9 @@ class basicCommand(anyCommand):
             ##e also linebreak it if it's very long? i might hope that some
             # arg to the messagebox could do this...
             QMessageBox.warning(self.o, prefix, msg) # args are widget, title, content
-        return
-
-    def _cleanup(self): # called only from _exitMode & Abandon, in this file; only caller of stop_sending_us_events [080805]
-        """
-        [guess at doc, 080806:]
-        Do some things needed by all ways of exiting a command.
-
-        [private; should not be overridden]
-        """
-        assert not USE_COMMAND_STACK #bruce 080829 ### TODO: do the same things in other methods
-        
-        # (the following are probably only called together, but it's
-        # good to split up their effects as documented in case we
-        # someday call them separately, and also just for code
-        # clarity. -- bruce 040923)
-        
-        self.commandSequencer.stop_sending_us_events( self)
-            # stop receiving events from our command sequencer or glpane
-            # (i.e. change current command to nullMode)
-            # [not needed when USE_COMMAND_STACK -- bruce 080805 guess ### REVIEW]
-        
-        self.restore_gui()
-            # [not needed when USE_COMMAND_STACK]
-        
-        self.w.setFocus() #bruce 041010 bugfix (needed in two places)
-            # (I think that was needed to prevent key events from being sent to
-            #  no-longer-shown command dashboards. [bruce 041220])
-            #
-            # a test with USE_COMMAND_STACK (which doesn't call this line)
-            # seems to indicate that this is no longer needed [bruce 080909 comment]
-
-        #### TODO: either rename the following for new command API,
-        # or copy their code into new command API methods and abandon them.
-        # Guess: the latter -- just do them from per-subclass overrides of command_will_exit.
-        # Done for restore_patches_by_GraphicsMode, others need TODO/REVIEW.
-        # [bruce 080806/080909 comment]
-        
-        self.graphicsMode.restore_patches_by_GraphicsMode()
-            # Note: this is no longer part of the GraphicsMode API when USE_COMMAND_STACK is true,
-            # but certain commands retain it as an essentially private method and call it from
-            # self.command.command_will_exit in that case. [bruce 080829/080909 comment]
-
-        self.restore_patches_by_Command()
-            # only defined in movieMode & Build Crystal;
-            # code copied into command_will_exit in those cases [bruce 080909]
-        
-        self.clear_command_state() # clear our internal state, if any
-        
-        return # from _cleanup
-        
-    def restore_gui(self):
-        """
-        subclasses use this to restore UI stuff like dashboards, cursors,
-        toggle icons, etc.
-        """
-        pass
-
-    def restore_patches_by_Command(self):
-        """
-        subclasses should restore anything they temporarily modified in
-        their environment (such as temporary objects stored in major objects
-        like win or glpane or assy, or settings changes in them)
-
-        @see: GraphicsMode.restore_patches_by_GraphicsMode
-
-        @note: no longer part of the Command API when USE_COMMAND_STACK is true;
-               commands needing this should just extend command_will_exit
-        """
-        assert not USE_COMMAND_STACK #bruce 080829
-        # as of 080909, all individual commands do the same things in other
-        # methods that overrides of this method used to do
-        pass
+        return   
     
-    def clear(self): #bruce 080806 deprecated this (old name of clear_command_state) ### rename in subs, in calls
-        print_compact_stack("%r is calling clear, should use new name clear_command_state: " % self)
-        self.clear_command_state()
-        return
-    
-    def clear_command_state(self):
-        #bruce 080806 renamed clear -> clear_command_state
-        """
-        subclasses with internal state should reset it to null values
-        (somewhat redundant with Enter; best to clear things now)
-
-        @note: no longer part of the Command API when USE_COMMAND_STACK is true;
-               commands needing this should just extend command_will_exit and/or
-               command_entered
-        """
-        assert not USE_COMMAND_STACK #bruce 080829 ### TODO: do the same things in other methods
-        return
-    
-    
+        
 
     # [bruce comment 040923; trimmed, 080806]
     #
@@ -1884,17 +1140,10 @@ class basicCommand(anyCommand):
 
         [subclasses should NOT override this]
         """
-        if USE_COMMAND_STACK:
-            #bruce 080827 guess; UNTESTED ###
-            self.command_Cancel()
-            self.commandSequencer.userEnterCommand(self.commandName)
-        else:
-            # old code; may work (not tested recently) [bruce 080806 comment]
-            # older comment: works, but has wrong error message when nim
-            # in sketch command -- fix later
-            self.Cancel(new_mode = self.commandName)
-        return
-    
+        #bruce 080827 guess; UNTESTED ###
+        self.command_Cancel()
+        self.commandSequencer.userEnterCommand(self.commandName)
+           
     # ==
 
     def find_self_or_parent_command_named(self, commandName): #bruce 080801; maybe untested
@@ -1945,72 +1194,11 @@ class basicCommand(anyCommand):
             # note: this doesn't run when self.is_fixed_parent_command() and
             # self.command_parent is None, meaning the default command!
             # ok for now, since it's only an assert.
-        if USE_COMMAND_STACK:
-            assert res is self.parentCommand
-            # maybe: if not, add a property to make this always true... then use it
-            # to replace all calls of _reuse_attr_of_parentCommand with direct assignments.
+        
+        assert res is self.parentCommand
+        # maybe: if not, add a property to make this always true... then use it
+        # to replace all calls of _reuse_attr_of_parentCommand with direct assignments.
         return res
-
-    def _reuse_attr_of_parentCommand(self, attr_name = ''): # by Ninad; moved here by bruce 080813; might be revised
-        """
-        [helper method for use in subclasses; not part of Command API]
-        
-        Reuse the given attr of self's parentCommand in self,
-        by assigning self.attr = self.parentCommand.attr
-        (in the correct way based on how parentCommand should be found,
-         which depends on USE_COMMAND_STACK).
-        
-        Example: reuse 'flyoutToolbar' or 'propMgr' attrs in self. 
-        @see: AtomsTool_Command.command_enter_flyout() for an example.
-        """        
-        #@TODO: this could be a new command API method. That gets automatically
-        #called based on some CL_* flags that decides whether to use certain 
-        #attrs such as flyouttoolbar or PM of the parent command
-        #-- Ninad 2008-08-01
-
-        # It's not good to add this to Command API, for several reasons,
-        # one of which is that it's probably not the best way to do what
-        # it's doing. Also, it's only correct for commands which define
-        # self.command_parent [that has been fixed as of 080813].
-        #
-        # For now, to avoid duplicated code, I'll add it here anyway,
-        # since I want to use it in more commands.
-        #
-        # Ultimately, all uses of this should be replaced with direct
-        # assignments of the appropriate attrs.
-        # [bruce 080801/080813 comments]
-        
-        if not attr_name:
-            print_compact_stack("bug: trying to set an attr with no name "
-                                "in this command: ")
-            return
-        
-        parentCommand = self.find_parentCommand()
-            #bruce 080813 generalization -- should be same as before
-            # when command_parent is defined,
-            # but also work for nestables like Zoom.
-        
-        if parentCommand:
-            try:
-                parent_attr = getattr(parentCommand, attr_name)
-            except:
-                msg = "bug: parent command %s doesn't have an " \
-                      "attr named %r" % (parentCommand, attr_name)
-                print_compact_traceback( msg + ": " )
-                return                
-
-            # can't do this check -- wrong for reusable nestable commands;
-            # if not for that (or if exit would reset .propMgr to None -- probably it should)
-            # it would be desirable
-            ## assert getattr(self, attr_name, None) in (None, parent_attr)
-            # [bruce 080813]
-            
-            setattr(self, attr_name, parent_attr)
-
-        else:
-            msg = "bug: %r has no parentCommand!" % self
-            print_compact_stack( msg + ": " )
-        return
 
     # ==
 

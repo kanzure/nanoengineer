@@ -26,9 +26,7 @@ Bruce 080911 turned off GLPANE_IS_COMMAND_SEQUENCER by default
 
 Bruce 080925 remove support for GLPANE_IS_COMMAND_SEQUENCER
 
-TODO:
-
-turn on USE_COMMAND_STACK by default; strip out old code
+Ninad 2008-09-26: Turned on USE_COMMAND_STACK by default; stripped out old code
 
 [old comment:]
 roughly: mode -> command or currentCommand, prevMode -> _prevCommand or worse...
@@ -41,15 +39,10 @@ import os
 import sys
 
 from utilities.constants import DEFAULT_COMMAND
-
 from commandSequencer.command_levels import allowed_parent
 
 from command_support.modes import nullMode
-
-from command_support.Command import anyCommand # only for isinstance assertion
 from command_support.baseCommand import baseCommand # ditto
-
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 
@@ -127,29 +120,23 @@ class CommandSequencer(object):
     # Note: see "new code" far below for comments and definitions about the
     # attributes of self which we maintain, namely mode, graphicsMode,
     # currentCommand.
+    
+    prevMode = property() # hopefully this causes errors on any access of it ### check this
 
-    if not USE_COMMAND_STACK:
-        
-        prevMode = None #bruce 071011 added this initialization
-        
-    else:
-        
-        prevMode = property() # hopefully this causes errors on any access of it ### check this
+    _command_stack_change_counter = 0
+    _flyout_command_change_counter = 0
 
-        _command_stack_change_counter = 0
-        _flyout_command_change_counter = 0
+    _previous_flyout_update_indicators = None
+    
+    # these are documented in our class docstring:
+    exit_is_cancel = False
+    exit_is_forced = False
+    warn_about_abandoned_changes = True
+    exit_is_implicit = False
+    exit_target = None
+    enter_target = None
 
-        _previous_flyout_update_indicators = None
-        
-        # these are documented in our class docstring:
-        exit_is_cancel = False
-        exit_is_forced = False
-        warn_about_abandoned_changes = True
-        exit_is_implicit = False
-        exit_target = None
-        enter_target = None
-
-        pass
+    pass
 
     def __init__(self, assy): #bruce 080813
         """
@@ -353,50 +340,30 @@ class CommandSequencer(object):
         """
         #bruce 080806 split this out; used in _reinit_modes and extrude_reload
         #bruce 080909 new feature, warn_about_abandoned_changes can be false
-        if USE_COMMAND_STACK:
-            while self._raw_currentCommand and \
-                  not self.currentCommand.is_null and \
-                  not self.currentCommand.is_default_command():
-                # exit current command
-                old_commandName = self.currentCommand.commandName
-                try:
-                    self._exit_currentCommand_with_flags(
-                        forced = True,
-                        warn_about_abandoned_changes = warn_about_abandoned_changes
-                     )
-                except:
-                    print_compact_traceback()
-                if self._raw_currentCommand and \
-                   self.currentCommand.commandName == old_commandName:
-                    print "bug: failed to exit", self.currentCommand
-                    break
-                continue
-            # Now we're in the default command. Some callers require us to exit
-            # that too. Exiting it in the above loop would fail, but fortunately
-            # we can just discard it (unlike for a general command). [Note: this
-            # might change if it was given a PM.]
-            self._use_nullmode()
-            return
-        else:
-            if not self._raw_currentCommand.is_null:
-                # old comment from when this was inlined into _reinit_modes --
-                # might be wrong now:
-                ###e need to give current mode a chance to exit cleanly,
-                ###or refuse -- but callers have no provision for our
-                ###refusing (which is a bug); so for now just abandon
-                # work, with a warning if necessary
-                try:
-                    self.currentCommand.Abandon(warn_about_abandoned_changes = \
-                                                warn_about_abandoned_changes )
-                except:
-                    msg = "bug: error while abandoning old mode; trying to ignore"
-                    print_compact_traceback( msg + ": " )
-            self._use_nullmode()
-                # not sure what glpane bgcolor nullmode has, but it won't last long...
-            self.prevMode = None #bruce 080806
-            return
-        pass
-
+        while self._raw_currentCommand and \
+              not self.currentCommand.is_null and \
+              not self.currentCommand.is_default_command():
+            # exit current command
+            old_commandName = self.currentCommand.commandName
+            try:
+                self._exit_currentCommand_with_flags(
+                    forced = True,
+                    warn_about_abandoned_changes = warn_about_abandoned_changes
+                 )
+            except:
+                print_compact_traceback()
+            if self._raw_currentCommand and \
+               self.currentCommand.commandName == old_commandName:
+                print "bug: failed to exit", self.currentCommand
+                break
+            continue
+        # Now we're in the default command. Some callers require us to exit
+        # that too. Exiting it in the above loop would fail, but fortunately
+        # we can just discard it (unlike for a general command). [Note: this
+        # might change if it was given a PM.]
+        self._use_nullmode()
+        return
+        
     def _exit_currentCommand_with_flags(self,
                                         cancel = False,
                                         forced = False,
@@ -422,7 +389,6 @@ class CommandSequencer(object):
         
         @param enter_target: value for self.enter_target, default None
         """
-        assert USE_COMMAND_STACK
         assert self.currentCommand and self.currentCommand.parentCommand
         # set attrs for telling command_will_exit what side effects to do
         self.exit_is_cancel = cancel
@@ -473,23 +439,12 @@ class CommandSequencer(object):
         Stop sending events to the given command (or to any actual command
         object besides the nullCommand).
         """
-        if USE_COMMAND_STACK:
-            ### REVIEW: probably obsolete
-            print "stop_sending_us_events doing nothing since USE_COMMAND_STACK"
-            return
-        else:
-            if not self.is_this_command_current(command):
-                # we weren't sending you events anyway, what are you
-                # talking about?!?" #k not sure this is an error
-                # (note: this can happen when a protein or dna subcommand is current
-                #  and a non-protein or non-dna command (resp) is directly entered
-                #  -- bruce 080812 comment)
-                print "fyi (for developers): stop_sending_us_events called " \
-                      "from %r which is not currentCommand %r" % \
-                      (command, self._raw_currentCommand)
-            self._use_nullmode()
-            return
-        pass
+        
+        ### REVIEW: probably obsolete
+        print "stop_sending_us_events doing nothing since new command API as"\
+              "of 2008-09-26"
+        return
+        
 
     def _use_nullmode(self):
         """
@@ -498,12 +453,11 @@ class CommandSequencer(object):
         """
         # note: 4 calls, all in this file, as of before 080805; making it private
         #
-        # Note: when USE_COMMAND_STACK is true, this is only called during
+        # Note: This is only called during
         # exit_all_commands (with current command being default command),
         # and during init or reinit of self (with current command always being
         # nullMode, according to debug prints no longer present).
-        # When not USE_COMMAND_STACK, it is also called during most changes
-        # from one command to another. [bruce 080814/080909 comment]
+        #[bruce 080814/080909 comment]
         self._raw_currentCommand = self.nullmode
 
     def is_this_command_current(self, command):
@@ -550,130 +504,16 @@ class CommandSequencer(object):
         # - _make_and_init_assy
         # - extrude_reload
         assert mode in ('$STARTUP_MODE', '$DEFAULT_MODE')
-        if USE_COMMAND_STACK:
-            #bruce 080814 guess
-            self._raw_currentCommand = None ###??
-            command_instance = self._find_command_instance( mode)
-                # note: exception if this fails to find command (never returns false)
-            entered = command_instance._command_do_enter_if_ok()
-            assert entered
-            return
-        else:
-            self.start_using_mode( mode)
-            return
-        pass
-    
-    def start_using_mode(self, mode, resuming = False, has_its_own_gui = True):
-        """
-        Semi-internal method (meant to be called only from self
-        (typically a GLPane) or from one of our mode objects,
-        but this is not strictly obeyed):
-        Start using the given mode (name or object), ignoring any prior mode.
-        If the new mode refuses to become current
-        (e.g. if it requires certain kinds of selection which are not present),
-        it should emit an appropriate message and return True; we'll then
-        start using our default mode, or if that fails, some always-safe mode.
+        ##if USE_COMMAND_STACK:
+        #bruce 080814 guess
+        self._raw_currentCommand = None ###??
+        command_instance = self._find_command_instance( mode)
+            # note: exception if this fails to find command (never returns false)
+        entered = command_instance._command_do_enter_if_ok()
+        assert entered
+        return
 
-        @param resuming: see _enterMode method. ###TODO: describe it here,
-                         and fix rest of docstring re this.
-        """
-        assert not USE_COMMAND_STACK # other case not needed [bruce 080909]
-        # as of 080812, this is called from:
-        # - start_using_initial_mode
-        # - at end of userEnterCommand, in case of bug
-        # - basicCommand._exitMode (called from Done & Cancel)
-        # Note that it is also called indirectly by userEnterCommand entering
-        # its new mode normally, via basicCommand._f_userEnterCommand and Done.
-        # It is probably the only way to start using a new current command
-        # (aside from nullmode). [### verify]
-        if _DEBUG_CSEQ_INIT:
-            print "_DEBUG_CSEQ_INIT: start_using_mode", mode ###
-        #bruce 070813 added resuming option
-        # note: resuming option often comes from **new_mode_options in callers
-
-        self._update_model_between_commands()
-        
-        #e (Q: If the new mode refuses to start,
-        #   would it be better to go back to using the immediately
-        #   prior mode, if different? Probably not... if so, we'd need
-        #   to split this into the query to the new mode for whether
-        #   it will accept, and the switch to it, so the prior mode
-        #   needn't worry about its state if the new mode won't even
-        #   accept.)
-        if not resuming:
-            self._use_nullmode()
-            # temporary (prevent bug-risk of reentrant event processing by
-            # current mode)
-
-        #bruce 050911: we'll try a list of modes in order, but never try to
-        # enter the same mode-object more than once.
-        modes = [mode, '$DEFAULT_MODE', '$SAFE_MODE']
-        del mode
-        mode_objects = [] # so we don't try the same object twice
-            # Note: we keep objects, not ids, to make sure objects are kept
-            # alive, so their ids are not recycled by python.
-            # This doesn't matter as of 050911, but it might in the future
-            # if mode objects become more transient (though at that point
-            # the test might fail to avoid trying some mode-classes twice,
-            # so it will need review).
-        for mode in modes:
-            # mode can be mode name (perhaps symbolic) or mode object
-            try:
-                entering_msg = "entering/resuming some mode"
-                    # only used in case of unlikely bugs
-                commandName = '???'
-                    # in case of exception before (or when) we set it from
-                    # mode object
-                mode = self._find_command_instance(mode)
-                    # [#k can this ever fail?? should it know default mode?##]
-                commandName = mode.commandName
-                    # store this now, so we can handle exceptions later,
-                    # or get one from this line
-                if id(mode) in map(id, mode_objects):
-                    continue
-                entering_msg = self._Entering_Mode_message( mode,
-                                                            resuming = resuming)
-                    # return value saved in entering_msg only for error messages
-                    #bruce 050515: moved this "Entering Mode" message to before
-                    # _enterMode so it comes before any history messages that
-                    # emits. If the new mode refuses (but has no exception),
-                    # assume it will emit a message about that.
-                    #bruce 050106: added this status/history message about new
-                    # mode... I'm not sure this is the best place to put it,
-                    # but it's the best existing single place I could find.
-                refused = mode._enterMode(resuming = resuming, 
-                                          has_its_own_gui = has_its_own_gui)
-                    # let the mode get ready for use; it can assume
-                    # self.currentCommand will be set to it, but not that it
-                    # already has been. It should emit a message and return True
-                    # if it wants to refuse becoming the new mode.
-            except:
-                msg = "bug: exception %s" % (entering_msg,)
-                print_compact_traceback("%s: " % msg)
-                from utilities.Log import redmsg
-                msg2 = "internal error entering mode, trying default or safe mode"
-                env.history.message( redmsg( msg2 ))
-                    ###TODO: modify message when resuming is true
-                    # Emit this whether or not it's too_early!
-                    # Assuming not too early, no need to name mode
-                    # since prior histmsg did so.
-                refused = 1
-            if not refused:
-                # We're in the new command -- start sending glpane events to its
-                # graphicsMode, and other events from command sequencer directly
-                # to it.
-                self._raw_currentCommand = mode
-                break
-                #bruce 050515: this is old location of Entering Mode histmsg,
-                # now moved before _enterMode
-                # [that comment is from before the for loop existed]
-            # exception or refusal: try the next mode in the list (if any)
-            continue
-        # if even $SAFE_MODE failed (serious bug), we might as well just stick
-        # with self.currentCommand being nullMode...
-        self._cseq_update_after_new_mode()
-        return # from start_using_mode
-
+     
     def _cseq_update_after_new_mode(self): # rename?
         """
         Do whatever updates are needed after self.currentCommand (including
@@ -913,8 +753,7 @@ class CommandSequencer(object):
 
         @see: callRequestCommand, which calls this.
         """
-        assert USE_COMMAND_STACK
-        
+                
         # note: this code is similar to parts of userEnterCommand
         old_commandName = self.currentCommand.commandName
         command_instance = self._find_command_instance( commandName)
@@ -991,7 +830,6 @@ class CommandSequencer(object):
         
         @param implicit: @see: baseCommand.command_Done and self.exit_is_implicit
         """
-        assert USE_COMMAND_STACK
         self._f_assert_command_stack_unlocked()
         if DEBUG_COMMAND_SEQUENCER:
             print "DEBUG_COMMAND_SEQUENCER: _f_exit_active_command wants to exit back to", command
@@ -1105,64 +943,14 @@ class CommandSequencer(object):
 
         @see: MWsemantics.ensureInCommand
         """
-        if USE_COMMAND_STACK:
-            options = {}
-            options['always_update'] = always_update
-                # review: most options might not be needed anymore
-            self.userEnterCommand_for_USE_COMMAND_STACK( commandName, **options)
-            return
-        
-        # Note: _f_userEnterCommand has a special case for already being in
-        # the same-named command, provided that is a basicCommand subclass
-        # (i.e. not nullCommand). A lot of callers have a test for this
-        # before the call, but they don't need it, except that it
-        # avoids the call herein of self._cseq_update_after_new_mode().
-        # CHANGING THIS NOW: avoid that update here too, and simplify the callers.
-        # [bruce 080730]
-        try:
-            already_in_command = (self.currentCommand.commandName == commandName)
-            
-            if not already_in_command:
-                self.currentCommand._f_userEnterCommand(commandName, **options)
-
-            if always_update or not already_in_command:
-                # REVIEW: the following _cseq_update_after_new_mode looks redundant with
-                # the one at the end of start_using_mode, if that one has always
-                # run at this point (which I think, but didn't prove).
-                # [bruce 070813 comment]
-                
-                # TODO, maybe: let current command decide whether/how to do
-                # this update:
-                self._cseq_update_after_new_mode()
-            pass
-        except:
-            # This should never happen unless there's a bug in some command --
-            # so don't bother trying to get into the user's requested
-            # command, just get into a safe state.
-            print_compact_traceback("_f_userEnterCommand: ")
-            print "bug: _f_userEnterCommand(%r) had bug when in mode %r; " \
-                  "changing back to default mode" % \
-                  (commandName, self.currentCommand,)
-            # For some bugs, the old mode will have left its toolbar
-            # up; we should probably try to call its restore_gui
-            # method directly... ok, I added this, though it's
-            # untested! ###k It looks safe, and only runs if there's a
-            # definite bug anyway. [bruce 040924]
-            try:
-                self.win.setFocus() #bruce 041010 bugfix (needed in two places)
-                    # (I think that was needed to prevent key events from being
-                    #  sent to no-longer-shown mode dashboards. [bruce 041220])
-                    # a test with USE_COMMAND_STACK (which doesn't call this line)
-                    # seems to indicate that this is no longer needed [bruce 080909 comment]
-                self.currentCommand.restore_gui()
-                    ###REVIEW: restore_gui is probably wrong when options caused
-                    # us merely to suspend, not exit, the old mode.
-                    # [bruce 070814 comment]
-            except:
-                print "(...even the old mode's restore_gui method, " \
-                      "run by itself, had a bug...)"
-            self.start_using_mode( '$DEFAULT_MODE' ) # at end of userEnterCommand, in case of bug
+        ##if USE_COMMAND_STACK:
+        options = {}
+        options['always_update'] = always_update
+            # review: most options might not be needed anymore
+        self.userEnterCommand_for_USE_COMMAND_STACK( commandName, **options)
         return
+        
+        
 
     def userEnterTemporaryCommand(self, commandName, always_update = False):
         #bruce 071011;  # needs revision or replacement for USE_COMMAND_STACK
@@ -1181,86 +969,10 @@ class CommandSequencer(object):
 
         @see: userEnterCommand
         """
-        if USE_COMMAND_STACK:
-            ### REVIEW: is this always correct?
-            self.userEnterCommand(commandName,
-                                  always_update = always_update )
-            return
-
-        # REVIEW: do we need to generalize command.command_can_be_suspended
-        # to a relation between two commands
-        # that says whether one can be suspended by another,
-        # or whether one can suspend another,
-        # based on which commands they are?
-         
-        # REVIEW: should this method be an option on userEnterCommand or
-        # _f_userEnterCommand rather than a separate method? Will those need
-        # to call this if the command they are asked to enter is marked as
-        # being a temporary one?]
-
-        # TODO: Whatever the answers, ultimately the command sequencer needs
-        # to be responsible for deciding how to enter and exit each command,
-        # rather than relying on the commands themselves to do this.
-        # In particular, no command should override Done to know about
-        # prevMode -- instead, the sequencer should record how the command
-        # was entered and whether it suspended prevMode then. The command
-        # can just declare its type and options in ways which influence
-        # the sequencer re this.
-        
-        #bruce 071011 split this out of Zoom/Pan/Rotate support in ops_view.py;
-        # also using it for Paste/Partlib commands in MWsemantics.py (not sure
-        # it's identical to what they did, but if not it might be safer)
-
-        # Implementation:
-        #
-        # If the current command is suspendable,
-        # save it in self.prevMode (TODO: make that private)
-        # and suspend it while entering the new one.
-        # (For now we never have more than one suspended command
-        #  at a time.)
-        #
-        # Otherwise, effectively, immediately exit the current command
-        # (which is non-suspendable, probably temporary)
-        # and don't change prevMode (so that the suspended
-        # command to be resumed later is not changed),
-        # and enter the new command in the normal way (###k??).
-        #
-        # But this is most easily done in a different way with the
-        # same effect: exit the current command first (resuming prevMode)
-        # and then immediately enter the new one (saving the same value
-        # of prevMode again), entering it in the same way as otherwise.
-        # [Implem revised by bruce 070814; comment updated by bruce 071011.]
-        
-        prior_command = self._raw_currentCommand # might be changed below
-   
-        assert not prior_command.is_null
-            # neither case below looks correct for nullmode
-
-        if not prior_command.command_can_be_suspended:
-            # (This usually means we're already in a temporary command)
-            # Since we can't suspend the prior command, just exit it.
-            # (If this toggles off its button and runs this method recursively,
-            #  that will cause bugs. TODO -- detect that, fix it if it happens.)
-            prior_command.Done(exit_using_done_or_cancel_button = False)
-                # presumably this reenters the prior suspended command, prevMode
-                # (since there probably was one if prior_command was temporary),
-                # but if so, we'll immediately resuspend it below.
-            prior_command = self._raw_currentCommand # (an even more prior cmd)
-            assert prior_command.command_can_be_suspended # also implies it's not null
-        
-        # Set self.prevMode (our depth-1 suspended command stack)
-        self.prevMode = prior_command
-            # bruce 070813 save command object, not commandName
+        ### REVIEW: is this always correct? (Bruce's comment while 
         self.userEnterCommand(commandName,
-                              suspend_old_mode = True,
-                              always_update = always_update)
-                # todo: remove always_update from callers if ok.
-            # TODO: if this can become the only use of suspend_old_mode,
-            # make it a private option _suspend_old_mode.
-            # Indeed, it's now the only use except for internal and
-            # commented out ones... [071011 eve]
+                              always_update = always_update )
         return
-
     # ==
 
     def find_innermost_command_named(self, commandName, starting_from = None):
@@ -1293,34 +1005,34 @@ class CommandSequencer(object):
         """
         # note: could be written as a generator, but there's no need
         # (the command stack is never very deep).
-        if not USE_COMMAND_STACK:
-            # current code (maybe untested)
-            commands = [self.currentCommand]
-            if self.prevMode is not None:
-                commands.append(self.prevMode)
-            if starting_from is not None:
-                if starting_from in commands:
-                    where = commands.index(starting_from)
-                    commands = commands[where:]
-                        # include starting_from, but not what's before it
-                else:
-                    # this can happen during command transitions
-                    # when current command is nullMode; for now, ignore this
-                    # error if nullmode is in the list -- hopefully it'll
-                    # go away after USE_COMMAND_STACK. [bruce 080801]
-                    if not commands[0].is_null:
-                        print "error: %r is not in %r" % (starting_from, commands)
-        else:
-            # new code (untested)
-            if starting_from is None:
-                starting_from = self.currentCommand
-            # maybe: assert starting_from is an active command
-            commands = [starting_from]
-            command = starting_from.parentCommand # might be None
-            while command is not None:
-                commands.append(command)
-                command = command.parentCommand
-            pass
+        ######if not USE_COMMAND_STACK:
+            ####### current code (maybe untested)
+            ######commands = [self.currentCommand]
+            ######if self.prevMode is not None:
+                ######commands.append(self.prevMode)
+            ######if starting_from is not None:
+                ######if starting_from in commands:
+                    ######where = commands.index(starting_from)
+                    ######commands = commands[where:]
+                        ####### include starting_from, but not what's before it
+                ######else:
+                    ####### this can happen during command transitions
+                    ####### when current command is nullMode; for now, ignore this
+                    ####### error if nullmode is in the list -- hopefully it'll
+                    ####### go away after USE_COMMAND_STACK. [bruce 080801]
+                    ######if not commands[0].is_null:
+                        ######print "error: %r is not in %r" % (starting_from, commands)
+        ######else:
+        # new code (untested)
+        if starting_from is None:
+            starting_from = self.currentCommand
+        # maybe: assert starting_from is an active command
+        commands = [starting_from]
+        command = starting_from.parentCommand # might be None
+        while command is not None:
+            commands.append(command)
+            command = command.parentCommand
+            
         return commands
         
     # ==
@@ -1343,37 +1055,37 @@ class CommandSequencer(object):
         # We'd need a flag or variant method to say whether to call it in
         # the Command or GraphicsMode part. (Or pass a lambda?? Seems like in
         # that case we should just let caller find the parentCommand instead...)
-        if not USE_COMMAND_STACK:
-            # old code (soon to be removed):
-            # We define "parentCommand" relative to calling_command... but so far we only
-            # know how to do that for the current command.
-            # WARNING/TODO:
-            # this implem assumes there is at most one saved command
-            # which should be drawn. If this changes, we'll need to replace
-            # self.prevMode with a deeper command stack in the Command Sequencer
-            # which provides a way to draw whatever each suspended command
-            # thinks it needs to; or we'll need to arrange for prevMode
-            # to *be* that stack, delegating Draw to each stack element in turn.
-            # [bruce 071011]
-            assert self._raw_currentCommand is calling_command, \
-                   "parentCommand_Draw doesn't yet work except from " \
-                   "currentCommand %r (was called from %r)" % \
-                   ( self._raw_currentCommand, calling_command)
-                # (Maybe we'll need to generalize that to knowing how to do it
-                # for calling_command == prevMode too, which is presumably just
-                # to return False, given the depth-1 command stack we have at
-                # present.)
-            parentCommand = self.prevMode
-                # really a Command object of some kind -- TODO, rename to
-                # _savedCommand or so
-        else:
-            # new code (untested and not fully implemented; 080730)
-            parentCommand = calling_command.parentCommand
-            # can be None, if calling_command is default command,
-            # though this is unexpected and probably a bug:
-            if parentCommand is None:
-                print "unexpected: %r.parentCommand is None" % calling_command
-            pass
+        #####if not USE_COMMAND_STACK:
+            ###### old code (soon to be removed):
+            ###### We define "parentCommand" relative to calling_command... but so far we only
+            ###### know how to do that for the current command.
+            ###### WARNING/TODO:
+            ###### this implem assumes there is at most one saved command
+            ###### which should be drawn. If this changes, we'll need to replace
+            ###### self.prevMode with a deeper command stack in the Command Sequencer
+            ###### which provides a way to draw whatever each suspended command
+            ###### thinks it needs to; or we'll need to arrange for prevMode
+            ###### to *be* that stack, delegating Draw to each stack element in turn.
+            ###### [bruce 071011]
+            #####assert self._raw_currentCommand is calling_command, \
+                   #####"parentCommand_Draw doesn't yet work except from " \
+                   #####"currentCommand %r (was called from %r)" % \
+                   #####( self._raw_currentCommand, calling_command)
+                ###### (Maybe we'll need to generalize that to knowing how to do it
+                ###### for calling_command == prevMode too, which is presumably just
+                ###### to return False, given the depth-1 command stack we have at
+                ###### present.)
+            #####parentCommand = self.prevMode
+                ###### really a Command object of some kind -- TODO, rename to
+                ###### _savedCommand or so
+        #####else:
+        # new code (untested and not fully implemented; 080730)
+        parentCommand = calling_command.parentCommand
+        # can be None, if calling_command is default command,
+        # though this is unexpected and probably a bug:
+        if parentCommand is None:
+            print "unexpected: %r.parentCommand is None" % calling_command
+        pass
         
         if parentCommand is not None:
             assert not parentCommand.is_null
@@ -1409,12 +1121,8 @@ class CommandSequencer(object):
         callback be called no matter how the request command exits).
 
         The request command should exit itself by calling one of its methods
-        command_Done or command_Cancel (if USE_COMMAND_STACK is true),
-        or by calling self.Done(exit_using_done_or_cancel_button = False)
-        (for self being the request command) (if USE_COMMAND_STACK is False).
-        The latter call works in both cases, during the initial implementation
-        of USE_COMMAND_STACK.
-
+        command_Done or command_Cancel 
+        
         The format and nature of its arguments and results depend on
         the particular request command, but by convention (possibly
         enforced) they are always tuples.
@@ -1437,8 +1145,7 @@ class CommandSequencer(object):
 
         assert accept_results is not None
         
-        if USE_COMMAND_STACK:
-            self._f_assert_command_stack_unlocked()
+        self._f_assert_command_stack_unlocked()
             
         assert self._entering_request_command == False
         assert self._request_arguments is None
@@ -1449,12 +1156,8 @@ class CommandSequencer(object):
         self._accept_request_results = accept_results
         self._fyi_request_data_was_accessed = False
         
-        try:
-            if not USE_COMMAND_STACK:
-                self.userEnterTemporaryCommand(commandName)
-            else:
-                self._enterRequestCommand(commandName)
-                    
+        try:            
+            self._enterRequestCommand(commandName)                    
             if not self._fyi_request_data_was_accessed:
                 print "bug: request command forgot to call _args_and_callback_for_request_command:", commandName
         finally:
@@ -1595,115 +1298,59 @@ class CommandSequencer(object):
         
     # ==
 
-    if not USE_COMMAND_STACK:
-        
-        # new code, mostly for the transition to a real command sequencer
-        # and a separate currentCommand and graphicsMode
-        # [bruce 071010]
+    # USE_COMMAND_STACK case [bruce 080814] (very similar but not the same) ### TODO: review uses of _raw_currentCommand re this ###
 
-        # Note (from point of view of class GLPane, into which we are mixed):
-        # external code expects self.currentCommand to always be a
-        # working Command object, which has certain callable methods,
-        # and expects self.graphicsMode to be a working GraphicsMode object.
-        # We'll make this true as soon as possible, and
-        # make sure it remains true after that -- even during
-        # __init__ and during transitions between commands, when
-        # no events should come unless there are reentrance
-        # bugs in event processing. [bruce 040922, revised 071011]
+    # provide:
+    # - a private attr we store it on directly, and modify by direct assignment;
+    #   (named the same as before, __raw_currentCommand)
+    #   (might be None, briefly during init or while it's being modified)
+    # - get and set methods which implement _f_currentCommand, for internal & external (friend-only) use, get and set allowed
+    #   - but _f_set_currentCommand can also be called directly
+    #   - value can be None, otherwise might as well just use .currentCommand
+    #   - if we ever wrap with proxies, this holds the not-wrapped version
+    # - for back-compat (for now), make _raw_currentCommand identical to _f_currentCommand,
+    #   for get and set, many internal and one external use
+    # - currentCommand itself has only a get method, asserts it's not None and correct class
 
-        # We store the actual currentCommand object on self.__raw_currentCommand
-        # (starts with two underscores); to set that directly (only within this
-        # class's internal code), use the property for self._raw_currentCommand
-        # (starts with one underscore).
+    __raw_currentCommand = None
 
-        __raw_currentCommand = None
+    def _get_raw_currentCommand(self):
+        return self.__raw_currentCommand
+    
+    def _set_raw_currentCommand(self, command):
+        assert command is None or isinstance(command, baseCommand)
 
-        def _get_raw_currentCommand(self):
-            return self.__raw_currentCommand
-        
-        def _set_raw_currentCommand(self, command):
-            assert isinstance(command, anyCommand)
-            self.__raw_currentCommand = command
-            return
+        self.__raw_currentCommand = command
 
-        _raw_currentCommand = property( _get_raw_currentCommand, _set_raw_currentCommand)
+        self._command_stack_change_counter += 1
+        if command and command.command_affects_flyout():
+            self._flyout_command_change_counter += 1
+        return
 
-        # Old and new code can access this in various ways;
-        # these are illegal to set in new code, but setting them
-        # might be allowed (with a complaint) in old code;
-        # for each attribute we make a property with both set and get methods
-        # (so direct sets never happen without intervention)
+    _raw_currentCommand = property( _get_raw_currentCommand, _set_raw_currentCommand)
+    _f_currentCommand = _raw_currentCommand
+    _f_set_currentCommand = _set_raw_currentCommand
 
-        # currentCommand
+    def _get_currentCommand(self):
+        assert self._raw_currentCommand is not None
+        return self._raw_currentCommand
 
-        def _get_currentCommand(self):
-            # TODO: wrap with an API enforcement proxy for Command.
-            # WARNING: if we do that, the 'is' test in isCurrentCommand
-            # will need revision!
-            # (Searching for ".currentCommand is" will find that test.)
-            return self._raw_currentCommand
+    def _set_currentCommand(self, command):
+        assert 0, "illegal to set %r.currentCommand directly" % self
 
-        def _set_currentCommand(self, command):
-            assert 0, "illegal to set %r.currentCommand directly" % self
+    currentCommand = property( _get_currentCommand, _set_currentCommand)
 
-        currentCommand = property( _get_currentCommand, _set_currentCommand)
+    def command_stack_change_indicator(self):
+        """
+        Return the current value of a "change indicator"
+        for the command stack as a whole. Any change to the command stack
+        causes this to change, provided it's viewed during one of the
+        command_update* methods in the Command API (see baseCommand
+        for their default defs and docstrings).
 
-        pass
-
-    else:
-        # USE_COMMAND_STACK case [bruce 080814] (very similar but not the same) ### TODO: review uses of _raw_currentCommand re this ###
-
-        # provide:
-        # - a private attr we store it on directly, and modify by direct assignment;
-        #   (named the same as before, __raw_currentCommand)
-        #   (might be None, briefly during init or while it's being modified)
-        # - get and set methods which implement _f_currentCommand, for internal & external (friend-only) use, get and set allowed
-        #   - but _f_set_currentCommand can also be called directly
-        #   - value can be None, otherwise might as well just use .currentCommand
-        #   - if we ever wrap with proxies, this holds the not-wrapped version
-        # - for back-compat (for now), make _raw_currentCommand identical to _f_currentCommand,
-        #   for get and set, many internal and one external use
-        # - currentCommand itself has only a get method, asserts it's not None and correct class
-
-        __raw_currentCommand = None
-
-        def _get_raw_currentCommand(self):
-            return self.__raw_currentCommand
-        
-        def _set_raw_currentCommand(self, command):
-            assert command is None or isinstance(command, baseCommand)
-
-            self.__raw_currentCommand = command
-
-            self._command_stack_change_counter += 1
-            if command and command.command_affects_flyout():
-                self._flyout_command_change_counter += 1
-            return
-
-        _raw_currentCommand = property( _get_raw_currentCommand, _set_raw_currentCommand)
-        _f_currentCommand = _raw_currentCommand
-        _f_set_currentCommand = _set_raw_currentCommand
-
-        def _get_currentCommand(self):
-            assert self._raw_currentCommand is not None
-            return self._raw_currentCommand
-
-        def _set_currentCommand(self, command):
-            assert 0, "illegal to set %r.currentCommand directly" % self
-
-        currentCommand = property( _get_currentCommand, _set_currentCommand)
-
-        def command_stack_change_indicator(self):
-            """
-            Return the current value of a "change indicator"
-            for the command stack as a whole. Any change to the command stack
-            causes this to change, provided it's viewed during one of the
-            command_update* methods in the Command API (see baseCommand
-            for their default defs and docstrings).
-
-            @see: same-named method in class Assembly.
-            """
-            return self._command_stack_change_counter
+        @see: same-named method in class Assembly.
+        """
+        return self._command_stack_change_counter
         pass
 
     # ==

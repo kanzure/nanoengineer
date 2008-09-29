@@ -28,7 +28,7 @@ from Numeric import exp
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QMenu
 
-from geometry.VQT import V, Q, vlen, norm, planeXline, ptonline, cross
+from geometry.VQT import V, Q, vlen, norm, planeXline, ptonline
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.CS_draw_primitives import drawTag
 from graphics.drawing.drawers import drawOriginAsSmallAxis
@@ -38,15 +38,10 @@ from graphics.drawing.drawers import drawrectangle
 from utilities.debug import print_compact_traceback
 
 from utilities import debug_flags
-
 import foundation.env as env
 from graphics.behaviors.shape import get_selCurve_color
-
 from utilities.constants import SELSHAPE_RECT
 from utilities.constants import yellow
-
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
 from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
 from utilities.prefs_constants import displayOriginAxis_prefs_key
@@ -54,17 +49,10 @@ from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
 from utilities.prefs_constants import displayPOVAxis_prefs_key
 from utilities.prefs_constants import displayConfirmationCorner_prefs_key
 
-from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
-from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
-from utilities.prefs_constants import useCustomColorForThreePrimeArrowheads_prefs_key
-from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_prefs_key
-from utilities.prefs_constants import useCustomColorForFivePrimeArrowheads_prefs_key
-from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
-
 from model.chem import Atom
 from model.bonds import Bond
 from foundation.Utility import Node
-from foundation.Group import Group
+
 
 import time
 
@@ -185,14 +173,8 @@ class basicGraphicsMode(GraphicsMode_API):
         Perform side effects in self (a GraphicsMode) when entering it
         or reentering it. Typically this involves resetting or initializing
         state variables.
-
-        @note: if not USE_COMMAND_STACK, this calls self.update_cursor(),
-               but that ought to be unnecessary, so it's not done when
-               when USE_COMMAND_STACK is true, as it soon always will be.
         
-        @note: when not USE_COMMAND_STACK, this method is called in
-               self.command.Enter. When USE_COMMAND_STACK, it's called
-               in self.command.command_entered.
+        @note: Called in self.command.command_entered.
         
         @see: B{basicCommand.Enter}
         @see: B{baseCommand.command_entered}
@@ -201,13 +183,7 @@ class basicGraphicsMode(GraphicsMode_API):
         # to be done
 
         self.picking = False
-        if not USE_COMMAND_STACK:
-            # the call in glpane.update_after_new_graphicsMode ought to cover this
-            # (probably in both cases of USE_COMMAND_STACK, but for now I'll disable this
-            #  only in the new case; ultimately we can remove this call altogether)
-            # [bruce 080820 added condition] 
-            self.update_cursor()
-
+        
     def isCurrentGraphicsMode(self): #bruce 071010, for GraphicsMode API
         """
         Return a boolean to indicate whether self is the currently active GraphicsMode.
@@ -284,9 +260,9 @@ class basicGraphicsMode(GraphicsMode_API):
             # they have a 1-1 correspondence, it may not matter much.
             # But in the future if weird GraphicsModes needed their own
             # conf. corner styles or implems, it might need revision.
-        if USE_COMMAND_STACK:
-            #bruce 080905 fix bug 2933 (at least when USE_COMMAND_STACK is true)
-            command = command.command_that_supplies_PM()
+       
+        #bruce 080905 fix bug 2933 
+        command = command.command_that_supplies_PM()
         
         # figure out what kind of confirmation corner command wants, and draw it
         import graphics.behaviors.confirmation_corner as confirmation_corner
@@ -342,24 +318,6 @@ class basicGraphicsMode(GraphicsMode_API):
                 print "atom_debug: fyi: ccinstance %r with no want_event_position method" % (self._ccinstance,)
         return None
 
-    # ==
-
-    def restore_patches_by_GraphicsMode(self):
-        """
-        subclasses should restore anything they temporarily modified in
-        their environment (such as temporary objects stored in major objects
-        like win or glpane or assy, or settings changes in them)
-
-        @see: Command.restore_patches_by_Command
-
-        @note: no longer part of the GraphicsMode API when USE_COMMAND_STACK is true
-        """
-        assert not USE_COMMAND_STACK #bruce 080829
-            # note: this is still defined privately by ZoomToAreaMode
-            # and called in its command.command_will_exit method.
-            # If we add this back into the GraphicsMode API, we'll rename it,
-            # perhaps to graphicsMode_will_exit.
-        pass
 
     # ==
 

@@ -10,10 +10,6 @@ not yet used by default as of 080917, but soon will be)
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
-TODO as of 2008-09-16:
-Get rid of the following methods in subclasses, after completely switching over
-to USE_COMMAND_STACK. : self.command_enter_flyout(), self.command_exit_flyout()
-Also remove _createFlyoutObject() methods in subclasses. 
 """
 
 
@@ -21,12 +17,12 @@ from utilities.debug import print_compact_traceback
 _pct = print_compact_traceback # local abbreviation for readability
 
 from utilities.constants import CL_ABSTRACT 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 from commandSequencer.command_levels import FIXED_PARENT_LEVELS
 from commandSequencer.command_levels import AFFECTS_FLYOUT_LEVELS
 
-DEBUG_USE_COMMAND_STACK = True
+
+DEBUG_USE_COMMAND_STACK = False #turn off the debug prints by default
 
 # ==
 
@@ -311,14 +307,7 @@ class baseCommand(object):
         """
         # note: we call these in the reverse order of how
         # command_entered calls the corresponding _enter_ methods.
-        self.command_exit_misc_actions()
-        
-        #Note that, as of 2008-09-15, even the command_exit_flyout method 
-        #is not used when USE_COMMAND_STACK is True. It should be removed 
-        #from subclasses when we completely switch over to USE_COMMAND_STACK
-        if not USE_COMMAND_STACK:
-            self.command_exit_flyout()
-            
+        self.command_exit_misc_actions()            
         self.command_exit_PM()
         return
     
@@ -332,45 +321,6 @@ class baseCommand(object):
         """
         return
     
-    def command_exit_flyout(self):
-        """
-        Undo whatever was done (to the parent command's flyout toolbar)
-        by self.command_enter_flyout() when this command was entered.
-        
-        NOTE: This method is not responsible for the 'next flyout toolbar' 
-        the program is going to display. All it needs to do is to a) either 
-        deactiavate the flyout toolbar or b) if the command is reusing the 
-        flyout toolbar of the parent command, just uncheck the action 
-        that corresponds to the command. 
-        
-        Example: 
-        - While in Default mode, the user invoked Play Movie command 
-          by first clicking on the 'Simulation' button in the 'Control Area' of 
-          the 'Command Toolbar' and then clicking on the 'Movie' button in the 
-          flyout toolbar that appears. 
-        - User thus enters the Movie command and the custom flyout toolbar is 
-          displayed. 
-        - When user exits the Movie command, the 'command_exit_flyout' method 
-          of the movie command only deactivates the flyout toolbar it was 
-          displaying while in that command. 
-        - But it is not responsible for displaying the 'next flyout' after
-          exiting self. That part is handled by the next command 
-          (SelectChunks_Command == default command, in this case). The default 
-          command then resets the flyout toolbar such that it displays the 
-          'Build' flyout (actions such as 'Build Dna', 'Build Crystal' etc).
-          That command should do this in its command_update_UI method -- not in
-          its command_enter_flyout method, since it is not necessarily being
-          entered. (In the example given, the default command was already active
-          and is only being "resumed"; it's only entered once per opened file.)
-        
-        [subclasses should override this as needed]
-        
-        @see: Ui_AbstractToolBar.deActivateFlyoutToolbar()
-        """
-        #@TODO: Method to be removed (also from the subclasses)
-        #after completely switching over to USE_COMMAND_STACK
-        #used only when NOT using USE_COMMAND_STACK as of 2008-09-16
-        assert not USE_COMMAND_STACK
     
     def command_exit_misc_actions(self):
         """
@@ -497,7 +447,7 @@ class baseCommand(object):
                "suspended upon entry" by a subcommand being pushed on top of it.
 
         @note: base class implementation calls other methods of self,
-               command_enter_flyout and command_enter_misc_actions.
+               and command_enter_misc_actions.
 
         @note: similar to old methods Enter and parts of init_gui.
 
@@ -509,8 +459,7 @@ class baseCommand(object):
         """
 
         self.graphicsMode.Enter_GraphicsMode() ### REVIEW: refactor into a subclass which defines this attr?
-            # note: existing implems do some state-resetting (good) and some UI updates (bad),
-            # including update_cursor. The latter is being turned off when USE_COMMAND_STACK is true.
+            # note: existing implems do some state-resetting (good)
         
         if not self.command_has_its_own_PM:
             # note: that flag must be True (so this doesn't run) in the default
@@ -522,12 +471,6 @@ class baseCommand(object):
         if self.flyoutToolbar is None:
             self._command_entered_prepare_flyout()
                 
-        #Do some additional stuff related in the flyout toolbar. 
-        #Note that, as of 2008-09-15, even the command_enter_flyout method 
-        #is NOT used even when USE_COMMAND_STACK is True. It should be removed 
-        #from subclasses when we completely switch over to USE_COMMAND_STACK
-        if not USE_COMMAND_STACK:
-            self.command_enter_flyout()
         self.command_enter_misc_actions()
         return
     
@@ -627,24 +570,7 @@ class baseCommand(object):
         """
         return
 
-    def command_enter_flyout(self):
-        """
-        incrementally modify flyout toolbar of parent command
-        (available as self.parentCommand).
-
-        @note: Called by base class implementation of command_entered.
-
-        [subclasses should override as needed]
-        
-        @see: Ui_AbstractToolBar.activateFlyoutToolbar()
-        @see: self.command_exit_flyout() 
-        @see: self.command_update_flyout()
-        """
-        #@TODO: Method to be removed (also from the subclasses)
-        #after completely switching over to USE_COMMAND_STACK
-        #used only when NOT using USE_COMMAND_STACK as of 2008-09-16
-        assert not USE_COMMAND_STACK
-
+    
     def command_enter_misc_actions(self):
         """
         incrementally modify the state of miscellaneous UI actions
