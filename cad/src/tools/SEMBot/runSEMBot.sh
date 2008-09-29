@@ -9,10 +9,15 @@ echo `date +"%a %b %e %T EDT %Y"` > SEMBot.timestamp
 rm -f SVN-D/cad/src/epydoc.config
 
 # Update codebase
-svn update
+svn update 
 cd SVN-D
 svn update
 cd ..
+if [ "$LC_ALL" = "" ]
+then
+  LC_ALL="C"
+  export LC_ALL
+fi
 
 # Check if the codebase update was successful by checking for the existence of
 # the file we deleted earlier.
@@ -53,3 +58,5 @@ echo ${RESULT} > QA_TestHarness.result
 # Run nightly build
 #./runNightlyBuild.sh &>NightlyBuild.log
 
+REVNUM=`svn info | grep "Revision:" | cut -d ":" -f 2`
+echo "Completed on revision:$REVNUM" > SEMBot.result
