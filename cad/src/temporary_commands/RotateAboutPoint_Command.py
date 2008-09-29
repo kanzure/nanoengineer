@@ -101,7 +101,8 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             self._standardAxisVectorForDrawingSnapReference = None
             self.glpane.gl_update()
             self.command.rotateAboutPoint()
-            self.command.Done(exit_using_done_or_cancel_button = False)
+            #Exit this GM's command (i.e. the command 'RotateAboutPoint')
+            self.command.command_Done()
             return
 
 

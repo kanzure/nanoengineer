@@ -190,7 +190,7 @@ class viewSlotsMixin:
             if command.commandName == commandName:
                 #bruce 071011 change, an educated guess, may increase prints, may cause bugs ### TEST
                 # we're now in the command being turned off, as expected.
-                if USE_COMMAND_STACK and commandSequencer._f_command_stack_is_locked:
+                if commandSequencer._f_command_stack_is_locked:
                     # this is normal when the command is exiting on its own
                     # and changes the state of its action programmatically.
                     # In this case, redundant exit causes bugs, so skip it.
@@ -200,9 +200,10 @@ class viewSlotsMixin:
                     # [bruce 080829]
                     ## print "DEBUG fyi: _zoomPanRotateTool skipping Done of %r since command stack locked" % commandName
                     ##     # remove when works, or soon after
-                    pass
+                    pass               
                 else:
-                    command.Done(exit_using_done_or_cancel_button = False)
+                    #Exit this temporary command.
+                    command.command_Done()
             else:
                 if command is not commandSequencer.nullmode:
                     # bruce 071009 add condition to fix bug 2512

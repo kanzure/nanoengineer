@@ -467,8 +467,9 @@ class Line_GraphicsMode( Select_GraphicsMode ):
             self.endPoint2 = None
             self._snapOn = False
             self._standardAxisVectorForDrawingSnapReference = None
-            self.glpane.gl_update()
-            self.command.Done(exit_using_done_or_cancel_button = False)            
+            self.glpane.gl_update()   
+            #Exit this GM's command (i.e. the command 'Line')
+            self.command.command_Done()
             return
 
 

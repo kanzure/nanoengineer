@@ -1566,7 +1566,7 @@ class MWsemantics(QMainWindow,
             commandSequencer.userEnterTemporaryCommand( commandName)
         else:
             # exit command, if already in it
-            currentCommand.Done(exit_using_done_or_cancel_button = False)
+            currentCommand.command_Done()
         return
         
     def enterBreakStrandCommand(self, isChecked = False):
@@ -1863,14 +1863,15 @@ class MWsemantics(QMainWindow,
         subclasses, and (when not USE_COMMAND_STACK) the "Exit xxx"
         toolbuttons (e.g. Exit DNA) via a signal set up in
         Ui_AbstractFlyout.py.
-
+        
         When USE_COMMAND_STACK is true, the calls from
         ok_btn_clicked and cancel_btn_clicked methods are probably
         correct, but are deprecated, and should be replaced by calls of
         self.command.command_Done (where self is the calling PM).
         """
         #bruce 080815/080827 docstring
-        self.currentCommand.Done()
+        command_to_exit  = self.currentCommand.command_that_supplies_PM()
+        command_to_exit.command_Done()
         return
 
     def toolsCancel(self):
@@ -1881,13 +1882,11 @@ class MWsemantics(QMainWindow,
         @note: called only from cancel_btn_clicked methods in PM_Dialog or its
         subclasses, but some of those call toolsDone instead.
         
-        When USE_COMMAND_STACK is true, the calls from
-        cancel_btn_clicked methods are probably correct, but are deprecated,
-        and should be replaced by calls of self.command.command_Cancel
         (where self is the calling PM).
         """
         #bruce 080815/080827 docstring
-        self.currentCommand.Cancel()
+        command_to_exit = self.currentCommand.command_that_supplies_PM()
+        command_to_exit.command_Cancel()
         return
 
     ######################################

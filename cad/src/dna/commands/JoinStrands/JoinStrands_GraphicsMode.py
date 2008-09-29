@@ -72,7 +72,8 @@ class JoinStrands_GraphicsMode( BreakOrJoinstrands_GraphicsMode ):
         #class definition
         if self.exit_command_on_leftUp:
             self.exit_command_on_leftUp = False
-            self.command.Done()
+            #Exit this GM's command (i.e. the command 'JoinStrands')
+            self.command.command_Done()
  
             
     def deposit_from_MMKit(self, atom_or_pos):
