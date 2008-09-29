@@ -44,8 +44,6 @@ from utilities.exception_classes import AbstractMethod
 
 from commands.Select.Select_Command import Select_Command
 
-#for debugging new command stack API 
-from utilities.GlobalPreferences import USE_COMMAND_STACK 
 
 _superclass = Select_Command
 class EditCommand(Select_Command):
@@ -100,26 +98,7 @@ class EditCommand(Select_Command):
         return
          
     #=== START   NEW COMMAND API methods  ======================================
-    #Used in self.init_gui and self.restore_gui as of 2008-08-11 
-    
-    def command_enter_flyout(self):
-        """
-        Setup GUI related to the Flyout Toolbar when this command enters
-        the command stack.
-        May be overridden in subclasses. Default implementation does nothing.
-        @see: self.command_exit_flyout()
-        @see: self.command_enter_PM()
-        """
-        pass
-    
-            
-    def command_exit_flyout(self):
-        """
-        Reset/ change GUI related to the Flyout Toolbar when this command exits
-        the command stack.
-        May be overridden in subclasses. Default implementation does nothing.
-        """
-        pass
+   
     
     
     def command_enter_misc_actions(self):
@@ -136,71 +115,13 @@ class EditCommand(Select_Command):
         """
         if self.commandSequencer.exit_is_forced:
             pass
-        if self.commandSequencer.exit_is_cancel:
+        elif self.commandSequencer.exit_is_cancel:
             self.cancelStructure()
         else:
             self.preview_or_finalize_structure(previewing = False)
         
         _superclass.command_will_exit(self)
     
-    #=== END   NEW command API methods  ========================================
-    
-    if not USE_COMMAND_STACK:
-        
-        def Enter(self):
-            """
-    
-            """
-            #@@TODO: Should the structure always be reset while entering,
-            #(for instance), Plane_EditCommand PM? The client must explicitely use, 
-            #for example, editCommand.editStructre(self) so that this command
-            #knows what to edit. But that must be done after entering the command. 
-            #see Plane.edit for example.
-            #setting self.struct to None is needed in Enter as
-            #update_props_if_needed_before_closing is called which may update 
-            #the cosmetic props of the old structure from some previous run. 
-            #This will be cleaned up (the update_props_... method was designed 
-            # for the 'guest Property Managers' i.e. at the time when the 
-            #editCommand was not a 'command'. ) -- Ninad 2007-12-26
-    
-            #UPDATE: For BuildDna_EditCommand, setting the struct to None
-            #is a bug. #(The BuildDna edit command gets 'segments' from the 
-            #temporary command  'DnaDuplex_EditCommand' and during this process
-            #it reenters the BuildDna_EditCommand (from the temporary mode)
-            #so, don't set self.struct to None. Do it in subclasses instead. OR 
-            #better fix the update_props_if_needed_before_closing problem soon 
-            #-- Ninad 2008-01-09
-            ##if self.struct:
-                ##self.struct = None                    
-            Select_Command.Enter(self)
-           
-
-        def init_gui(self):
-            
-            """
-            Do changes to the GUI while entering this command. This includes opening
-            the property manager, updating the command toolbar , connecting widget
-            slots (if any) etc. Note: The slot connection in property manager and
-            command toolbar is handled in those classes.
-    
-            Called once each time the command is entered; should be called only
-            by code in modes.py
-    
-            @see: L{self.restore_gui}
-            """
-            self.create_and_or_show_PM_if_wanted()
-            self.command_enter_flyout()
-            self.command_enter_misc_actions()
-                
-        def restore_gui(self):
-            """
-            """
-            
-            self.command_exit_flyout()
-            self.command_exit_misc_actions()
-            if self.propMgr:
-                self.propMgr.close()
-        
     
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
         """
