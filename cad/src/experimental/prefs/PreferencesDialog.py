@@ -63,6 +63,11 @@ from utilities.icon_utilities import geticon
 DEBUG = True
 GDS_NAMES   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
 GDS_ICONS   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
+# currently, [x][3] is not used, if it does become used by radiobuttonlist.
+# if that changes, this will probably break --Derrick
+HIGH_ORDER_BOND_STYLES = [[ 0, "Multiple cylinders", "", "multicyl"],
+                          [ 1, "Vanes", "", "vane"],
+                          [ 2, "Ribbons", "", "ribbon"] ]
 
 class ContainerWidget(QFrame):
     """
@@ -455,7 +460,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                     ["Minor groove error indicator", 
                      "Base orientation indicator"],
                     "Adjust",
-                    "Lighting",
+#                    "Lighting",
                     "Plug-ins",
                     "Undo",
                     "Window",
@@ -556,9 +561,9 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.connect(self.okButton, SIGNAL("clicked()"), self.accept)
         self.connect(self.whatsThisToolButton, SIGNAL("clicked()"),QWhatsThis.enterWhatsThisMode)
 
-        #self.whatsThisToolButton.setIcon(
-        #    geticon("ui/actions/Properties Manager/WhatsThis.png"))
-        #self.whatsThisToolButton.setIconSize(QSize(22, 22))
+        self.whatsThisToolButton.setIcon(
+            geticon("ui/actions/Properties Manager/WhatsThis.png"))
+        self.whatsThisToolButton.setIconSize(QSize(22, 22))
         self.whatsThisToolButton.setToolTip('Enter "What\'s This?" help mode')
         return
 
@@ -867,12 +872,14 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                       setAsDefault = False)
         self.bases_per_turn_DoubleSpinBox = PM_DoubleSpinBox(DNA_default_values_GroupBox,
                                                          label = "Bases per turn:", 
-                                                         suffix = "", 
-                                                         singleStep = 1)
+                                                         suffix = "",
+                                                         decimals = 2,
+                                                         singleStep = .1)
         self.rise_DoubleSpinBox = PM_DoubleSpinBox(DNA_default_values_GroupBox,
                                                          label = "Rise:", 
-                                                         suffix = "Angstroms", 
-                                                         singleStep = 10)
+                                                         suffix = " Angstroms",
+                                                         decimals = 3,
+                                                         singleStep = .01)
         self.strand1_ColorComboBox = PM_ColorComboBox(DNA_default_values_GroupBox,
                                                            label = "Strand 1:")
         self.strand2_ColorComboBox = PM_ColorComboBox(DNA_default_values_GroupBox,
@@ -917,7 +924,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                            label = "Ball and stick cylinder:")
         self.bond_stretch_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
                                                            label = "Bond stretch:")
-        self.Vane_Ribbon_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
+        self.vane_ribbon_ColorComboBox = PM_ColorComboBox(bond_colors_GroupBox,
                                                            label = "Vane/Ribbon:")
         self.restore_bond_colors_PushButton = PM_PushButton(bond_colors_GroupBox,
                                                       text = "Restore Default Colors",
@@ -928,17 +935,17 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                   connectTitleButton = False)
         self.ball_and_stick_bond_scale_SpinBox = PM_SpinBox(misc_bond_settings_GroupBox,
                                                        label = "Ball and stick bond scale:",
+                                                       maximum = 100,
                                                        suffix = "%")
         self.bond_line_thickness_SpinBox = PM_SpinBox(misc_bond_settings_GroupBox,
                                                        label = "Bond line thickness:",
+                                                       minimum = 1,
                                                        suffix = "pixels")
         high_order_bonds_GroupBox = PM_GroupBox(misc_bond_settings_GroupBox,
                                                 title = "High order bonds",
                                                 connectTitleButton = False)
         self.high_order_bonds_RadioButtonList = PM_RadioButtonList(high_order_bonds_GroupBox,
-                                        buttonList = [[ 1, "Multiple cylinders", "cylinders"],
-                                                      [ 2, "Vanes", "vanes"],
-                                                      [ 3, "Ribbons", "ribbons"] ])
+                                        buttonList = HIGH_ORDER_BOND_STYLES)
         self.show_bond_type_letters_CheckBox = PM_CheckBox(misc_bond_settings_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
@@ -972,7 +979,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                       label =  "Origin:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
-        self.rulor_color_ColorComboBox = PM_ColorComboBox(rulers_GroupBox,
+        self.ruler_color_ColorComboBox = PM_ColorComboBox(rulers_GroupBox,
                                                       label = "Color:")
         self.ruler_opacity_SpinBox = PM_SpinBox(rulers_GroupBox,
                                            label = "Opacity",
@@ -1111,11 +1118,28 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                       choices = _choices, 
                                       setAsDefault = False)
         self.ball_and_stick_atom_scale_SpinBox = PM_SpinBox(misc_atom_settings_GroupBox,
-                                                       label = "Ball and stick atom scale",
+                                                       label = "",
+                                                       maximum = 100,
                                                        suffix = "%")
-        self.CPK_atom_scale_SpinBox = PM_SpinBox(misc_atom_settings_GroupBox,
-                                            label = "CPK atom scale",
-                                            suffix = "%")
+        self.ball_and_stick_atom_scale_reset_ToolButton = PM_ToolButton(misc_atom_settings_GroupBox,
+                                                                   iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
+        self.CPK_atom_scale_doubleSpinBox = PM_DoubleSpinBox(misc_atom_settings_GroupBox,
+                                            label = "",
+                                            suffix = "",
+                                            decimals = 3,
+                                            singleStep = 0.005)
+        self.CPK_atom_scale_reset_ToolButton = PM_ToolButton(misc_atom_settings_GroupBox,
+                                                                   iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
+        aWidgetList = [ ("QLabel", "Ball and stick atom scale:", 0, 0),
+                        ("PM_SpinBox", self.ball_and_stick_atom_scale_SpinBox, 1, 0),
+                        ("PM_ToolButton", self.ball_and_stick_atom_scale_reset_ToolButton, 2, 0),
+                        ("QLabel", "CPK atom scale", 0, 1),
+                        ("PM_SpinBox", self.CPK_atom_scale_doubleSpinBox, 1, 1),
+                        ("PM_ToolButton", self.CPK_atom_scale_reset_ToolButton, 2, 1) ]
+        widget_grid_1 = PM_WidgetGrid(misc_atom_settings_GroupBox,
+                                      spanWidth = True,
+                                      widgetList = aWidgetList)
+        
         self.overlapping_atom_indicators_CheckBox = PM_CheckBox(misc_atom_settings_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
@@ -1359,18 +1383,34 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                              text = "Animate between views",
                                              widgetColumn = 0)
         self.view_animation_speed_Slider = PM_Slider(view_rotation_settings_GroupBox,
-                                                label = "View animation speed: ",
-                                                spanWidth = True)
-        labelList = [["QLabel", "slow", 0], ["QSpacerItem", 0, 0, 1], ["QLabel", "fast", 2]]
-        self.SF1_Label = PM_WidgetRow(view_rotation_settings_GroupBox,
-                                 spanWidth = True,
-                                 widgetList = labelList)
+                                                label = "",
+                                                minimum = -300, maximum = -25,
+                                                spanWidth = False)
+        self.view_animation_speed_Slider.singeleStep = .01
+        self.view_animation_speed_reset_ToolButton = PM_ToolButton(view_rotation_settings_GroupBox,
+                                                                   iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
+        aWidgetList = [["QLabel", "View Animation Speed: ", 0, 0],
+                       ["PM_Slider", self.view_animation_speed_Slider, 1, 0],
+                       ["PM_PushButton", self.view_animation_speed_reset_ToolButton, 3, 0],
+                       ["QLabel", "slow ", 1, 1], 
+                       ["QLabel", "                                       fast", 1, 1]]
+        widget_grid_1 = PM_WidgetGrid(view_rotation_settings_GroupBox,
+                                      spanWidth = True,
+                                      widgetList = aWidgetList)
         self.mouse_rotation_speed_Slider = PM_Slider(view_rotation_settings_GroupBox,
-                                                label = "Mouse rotation speed: ",
+                                                label = "",
+                                                minimum = 30, maximum = 100,
                                                 spanWidth = True)
-        self.SF2_Label = PM_WidgetRow(view_rotation_settings_GroupBox,
-                                 spanWidth = True,
-                                 widgetList = labelList)
+        self.mouse_rotation_speed_reset_ToolButton = PM_ToolButton(view_rotation_settings_GroupBox,
+                                                                   iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
+        aWidgetList = [["QLabel", "Mouse rotation speed: ", 0, 0],
+                       ["PM_Slider", self.mouse_rotation_speed_Slider, 1, 0],
+                       ["PM_PushButton", self.mouse_rotation_speed_reset_ToolButton, 3, 0],
+                       ["QLabel", "slow ", 1, 1], 
+                       ["QLabel", "                                        fast", 1, 1]]
+        widget_grid_2 = PM_WidgetGrid(view_rotation_settings_GroupBox,
+                                      spanWidth = True,
+                                      widgetList = aWidgetList)
         mouse_zoom_settings_GroupBox = PM_GroupBox(_pageContainer,
                                                    title = "Mouse wheel zoom settings",
                                                    connectTitleButton = False)
@@ -1392,7 +1432,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                       setAsDefault = False)
         self.hover_highlighting_timeout_SpinBox = PM_DoubleSpinBox(mouse_zoom_settings_GroupBox,
                                                          label = "Hover highlighting\ntimeout interval", 
-                                                         suffix = "seconds",
+                                                         suffix = " seconds",
 #                                                         spanWidth = True,
                                                          singleStep = .1)
         return

@@ -39,7 +39,7 @@ from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 from widgets.widget_helpers import double_fixup
 from widgets.prefs_widgets import connect_colorpref_to_colorframe, \
      connect_checkbox_with_boolean_pref, connect_comboBox_with_pref, \
-     connect_doubleSpinBox_with_pref
+     connect_doubleSpinBox_with_pref, connect_spinBox_with_pref
 from utilities import debug_flags
 from utilities.constants import str_or_unicode
 from platform_dependent.PlatformDependent import screen_pos_size
@@ -254,6 +254,8 @@ GDS_INDEXES = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
 GDS_NAMES   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
 GDS_ICONS   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
 
+from PreferencesDialog import HIGH_ORDER_BOND_STYLES
+   
 # Widget constants for the "Colors" page.
 
 # HHS = hover highlighting styles
@@ -489,11 +491,11 @@ class Preferences(PreferencesDialog):
         self._setupPage_General()
         #self._setupPage_Color()
         self._setupPage_Graphics_Area()
-        #self._setupPage_ZoomPanRotate()
-        #self._setupPage_Rulers()
-        #self._setupPage_Atoms()
-        #self._setupPage_Bonds()
-        #self._setupPage_Dna()
+        self._setupPage_Zoom_Pan_and_Rotate()
+        self._setupPage_Rulers()
+        self._setupPage_Atoms()
+        self._setupPage_Bonds()
+        self._setupPage_DNA()
         #self._setupPage_DnaMinorGrooveErrorIndicator()
         #self._setupPage_DnaBaseOrientationIndicators()
         #self._setupPage_Adjust()
@@ -550,6 +552,34 @@ class Preferences(PreferencesDialog):
         self.connect(self.pasteOffsetForDNA_doublespinbox,
                      SIGNAL("valueChanged(double)"),
                      self.change_pasteOffsetScaleFactorForDnaObjects)
+        return
+
+    def setPrefsLogoDownloadPermissions(self, permission):
+        """
+        Set the sponsor logos download permissions in the persistent user
+        preferences database.
+
+        @param permission: The permission, where:
+                        0 = Always ask before downloading
+                        1 = Never ask before downloading
+                        2 = Never download
+        @type  permission: int
+        """
+        _permanentValue = False
+        _downloadValue = True
+        if permission == 1:
+            _permanentValue = True
+            _downloadValue = True
+
+        elif permission == 2:
+            _permanentValue = True
+            _downloadValue = False
+
+        else:
+            _permanentValue = False
+
+        env.prefs[sponsor_permanent_permission_prefs_key] = _permanentValue
+        env.prefs[sponsor_download_permission_prefs_key] = _downloadValue
         return
 
     def setGlobalDisplayStyleAtStartUp(self, junk):
@@ -612,23 +642,24 @@ class Preferences(PreferencesDialog):
         #else:
             #self.cursor_text_CheckBox.setCheckState(UNCHECKED)
         #self.cursor_text_enable_fields(CURSOR_TEXT_KEY)
-        connect_doubleSpinBox_with_pref(self.cursor_text_font_size_SpinBox,cursorTextFontSize_prefs_key)
-        self.connect(self.cursor_text_reset_Button, SIGNAL("clicked()"), self.cursor_text_font_size_reset)
+        connect_doubleSpinBox_with_pref(self.cursor_text_font_size_SpinBox, cursorTextFontSize_prefs_key)
+        self.connect(self.cursor_text_reset_Button, SIGNAL("clicked()"), self.reset_cursor_text_font_size)
         self.cursor_text_color_ComboBox.setColor(env.prefs[cursorTextColor_prefs_key], default = True)
-        self.connect(self.cursor_text_color_ComboBox, SIGNAL("editingFinished()"), self.store_cursor_text_color)
+        self.connect(self.cursor_text_color_ComboBox, SIGNAL("editingFinished()"), self.set_cursor_text_color)
 
         # GROUPBOX: Other graphics options groupbox
         connect_checkbox_with_boolean_pref(self.display_confirmation_corner_CheckBox, displayConfirmationCorner_prefs_key)
         connect_checkbox_with_boolean_pref(self.anti_aliasing_CheckBox, enableAntiAliasing_prefs_key)
         return
  
-    def cursor_text_font_size_reset(self):
+    def reset_cursor_text_font_size(self):
         if not env.prefs.has_default_value(cursorTextFontSize_prefs_key):
             _tmp = env.prefs.get_default_value(cursorTextFontSize_prefs_key)
             self.cursor_text_font_size_SpinBox.setValue(_tmp)
             env.prefs[cursorTextFontSize_prefs_key] = _tmp
         return
-    def store_cursor_text_color(self):
+    
+    def set_cursor_text_color(self):
         _newColor = self.cursor_text_color_ComboBox.getColor()
         env.prefs[cursorTextColor_prefs_key] = _newColor
         return
@@ -654,7 +685,384 @@ class Preferences(PreferencesDialog):
             env.prefs[displayCompass_prefs_key] = val
         return
     
-    # PAGE: PLUGINS
+    #PAGE: ZOOM, PAN, AND ROTATE
+    def _setupPage_Zoom_Pan_and_Rotate(self):
+        """
+        Setup the Zoom, Pan and Rotate page.
+        """
+        # GROUPBOX: View rotation settings
+        connect_checkbox_with_boolean_pref(self.animate_views_CheckBox, animateStandardViews_prefs_key)
+        self.view_animation_speed_Slider.setValue(int (env.prefs[animateMaximumTime_prefs_key] * -100))
+        self.mouse_rotation_speed_Slider.setValue(int (env.prefs[mouseSpeedDuringRotation_prefs_key] * 100))
+        if env.prefs.has_default_value(animateMaximumTime_prefs_key):
+            self.view_animation_speed_reset_ToolButton.setEnabled(False)
+        if env.prefs.has_default_value(mouseSpeedDuringRotation_prefs_key):
+            self.mouse_rotation_speed_reset_ToolButton.setEnabled(False)
+        self.connect(self.view_animation_speed_Slider, SIGNAL("sliderReleased()"), self.set_view_animation_speed)
+        self.connect(self.view_animation_speed_reset_ToolButton, SIGNAL("clicked()"), self.reset_view_animation_speed)
+        self.connect(self.mouse_rotation_speed_Slider, SIGNAL("sliderReleased()"), self.set_mouse_rotation_speed)
+        self.connect(self.mouse_rotation_speed_reset_ToolButton, SIGNAL("clicked()"), self.reset_mouse_rotation_speed)
+
+        # GROUPBOX: Mouse wheel zoom settings
+        connect_comboBox_with_pref(self.zoom_directon_ComboBox, mouseWheelDirection_prefs_key)
+        connect_comboBox_with_pref(self.zoom_in_center_ComboBox, zoomInAboutScreenCenter_prefs_key)
+        connect_comboBox_with_pref(self.zoom_out_center_ComboBox, zoomOutAboutScreenCenter_prefs_key)
+        connect_doubleSpinBox_with_pref(self.hover_highlighting_timeout_SpinBox, mouseWheelTimeoutInterval_prefs_key)
+        return
+    
+    def set_view_animation_speed(self):
+        env.prefs[animateMaximumTime_prefs_key] = \
+           self.view_animation_speed_Slider.value() / -100.0
+        self.view_animation_speed_reset_ToolButton.setEnabled(True)
+        return
+    
+    def reset_view_animation_speed(self):
+        env.prefs.restore_defaults([animateMaximumTime_prefs_key])
+        self.view_animation_speed_Slider.setValue(int (env.prefs[animateMaximumTime_prefs_key] * -100))
+        self.view_animation_speed_reset_ToolButton.setEnabled(False)
+    
+    def set_mouse_rotation_speed(self):
+        env.prefs[mouseSpeedDuringRotation_prefs_key] = \
+           self.mouse_rotation_speed_Slider.value() / 100.0
+        self.mouse_rotation_speed_reset_ToolButton.setEnabled(True)
+        return
+    
+    def reset_mouse_rotation_speed(self):
+        env.prefs.restore_defaults([mouseSpeedDuringRotation_prefs_key])
+        self.mouse_rotation_speed_Slider.setValue(int (env.prefs[mouseSpeedDuringRotation_prefs_key] * 100))
+        self.mouse_rotation_speed_reset_ToolButton.setEnabled(False)
+
+    # PAGE: RULERS
+    
+    def _setupPage_Rulers(self):
+        """
+        Setup the "Rulers" page.
+        """
+        # GROUPBOX: Rulers
+        if env.prefs[displayVertRuler_prefs_key] and env.prefs[displayHorzRuler_prefs_key]:
+            self.display_rulers_ComboBox.setCurrentIndex(0)
+        elif not env.prefs[displayHorzRuler_prefs_key]:
+            self.display_rulers_ComboBox.setCurrentIndex(1)
+        elif not env.prefs[displayVertRuler_prefs_key]:
+            self.display_rulers_ComboBox.setCurrentIndex(2)
+
+        self.connect(self.display_rulers_ComboBox, SIGNAL("currentIndexChanged(int)"), self.set_ruler_display)
+        connect_comboBox_with_pref(self.origin_rulers_ComboBox, rulerPosition_prefs_key)
+        self.ruler_color_ColorComboBox.setColor(env.prefs[rulerColor_prefs_key], default = True)
+        self.connect(self.ruler_color_ColorComboBox, SIGNAL("editingFinished()"), self.set_ruler_color)
+        connect_spinBox_with_pref(self.ruler_opacity_SpinBox, rulerOpacity_prefs_key)
+        connect_checkbox_with_boolean_pref(self.show_rulers_in_perspective_view_CheckBox,\
+                                           showRulersInPerspectiveView_prefs_key)
+        return
+
+    def set_ruler_display(self, indx):
+        if indx == 0:
+            env.prefs[displayVertRuler_prefs_key] = True
+            env.prefs[displayHorzRuler_prefs_key] = True
+        elif indx == 1:
+            env.prefs[displayVertRuler_prefs_key] = True
+            env.prefs[displayHorzRuler_prefs_key] = False
+        else:
+            env.prefs[displayVertRuler_prefs_key] = False
+            env.prefs[displayHorzRuler_prefs_key] = True
+        return
+    
+    def set_ruler_color(self):
+        _newColor = self.ruler_color_ComboBox.getColor()
+        env.prefs[rulerColor_prefs_key] = _newColor
+        return
+
+    
+    # PAGE: ATOMS ============================================================
+    def _setupPage_Atoms(self):
+        """
+        Setup the "Atoms" page.
+        """
+
+        # "Change Element Colors" button.
+        self.connect(self.change_element_colors_PushButton, SIGNAL("clicked()"), self.change_element_colors)
+        
+        # GROUPBOX: Colors sub
+        self.atom_highlighting_ColorComboBox.setColor(env.prefs[atomHighlightColor_prefs_key], default = True)
+        self.connect(self.atom_highlighting_ColorComboBox, SIGNAL("editingFinished()"), self.set_atom_highlighting_color)
+        self.bondpoint_highlighting_ColorComboBox.setColor(env.prefs[bondpointHighlightColor_prefs_key], default = True)
+        self.connect(self.bondpoint_highlighting_ColorComboBox, SIGNAL("editingFinished()"), self.set_bondpoint_highlighting_color)
+        self.bondpoint_hotspots_ColorComboBox.setColor(env.prefs[bondpointHotspotColor_prefs_key], default = True)
+        self.connect(self.bondpoint_hotspots_ColorComboBox, SIGNAL("editingFinished()"), self.set_bondpoint_hotspots_color)
+        self.connect(self.restore_element_colors_PushButton, SIGNAL("clicked()"), self.reset_atom_and_bondpoint_colors)
+        
+        lod = env.prefs[levelOfDetail_prefs_key]
+        if lod == -1:
+            lod = 3
+        self.detail_level_ComboBox.setCurrentIndex(lod)
+        self.connect(self.detail_level_ComboBox, SIGNAL("currentIndexChanged(int)"), self.set_level_of_detail)
+        self.set_ball_and_stick_atom_scale(env.prefs[diBALL_AtomRadius_prefs_key])
+        self.set_CPK_atom_scale(env.prefs[cpkScaleFactor_prefs_key])
+        self.ball_and_stick_atom_scale_SpinBox.setValue(round(env.prefs[diBALL_AtomRadius_prefs_key] * 100.0))
+        self.CPK_atom_scale_doubleSpinBox.setValue(env.prefs[cpkScaleFactor_prefs_key])
+        self.connect(self.ball_and_stick_atom_scale_SpinBox,
+                     SIGNAL("valueChanged(int)"),self.set_ball_and_stick_atom_scale)
+        self.connect(self.CPK_atom_scale_doubleSpinBox,
+                     SIGNAL("valueChanged(double)"),self.set_CPK_atom_scale)
+        self.connect(self.ball_and_stick_atom_scale_reset_ToolButton,
+                     SIGNAL("clicked()"),self.reset_ball_and_stick_atom_scale)
+        self.connect(self.CPK_atom_scale_reset_ToolButton,
+                     SIGNAL("clicked()"),self.reset_CPK_atom_scale)
+        connect_checkbox_with_boolean_pref(self.overlapping_atom_indicators_CheckBox,
+                                           indicateOverlappingAtoms_prefs_key)
+        connect_checkbox_with_boolean_pref(self.force_to_keep_bonds_during_transmute_CheckBox,
+                                           keepBondsDuringTransmute_prefs_key)
+        return
+
+    def set_atom_highlighting_color(self):
+        _newColor = self.atom_highlighting_ColorComboBox.getColor()
+        env.prefs[atomHighlightColor_prefs_key] = _newColor
+        return
+
+    def set_bondpoint_highlighting_color(self):
+        _newColor = self.bondpoint_highlighting_ColorComboBox.getColor()
+        env.prefs[bondpointHighlightColor_prefs_key] = _newColor
+        return
+
+    def set_bondpoint_hotspots_color(self):
+        _newColor = self.bondpoint_hotspots_ColorComboBox.getColor()
+        env.prefs[bondpointHotspotColor_prefs_key] = _newColor
+        return
+
+    def reset_atom_and_bondpoint_colors(self):
+        env.prefs.restore_defaults([atomHighlightColor_prefs_key, 
+                                    bondpointHighlightColor_prefs_key, 
+                                    bondpointHotspotColor_prefs_key])
+        self.atom_highlighting_ColorComboBox.setColor(env.prefs.get_default_value(atomHighlightColor_prefs_key))
+        self.bondpoint_highlighting_ColorComboBox.setColor(env.prefs.get_default_value(bondpointHighlightColor_prefs_key))
+        self.bondpoint_hotspots_ColorComboBox.setColor(env.prefs.get_default_value(bondpointHotspotColor_prefs_key))
+        return
+    
+    def change_element_colors(self):
+        """
+        Display the Element Color Settings Dialog.
+        """
+        # Since the prefs dialog is modal, the element color settings dialog must be modal.
+        self.w.showElementColorSettings(self)
+        return
+
+    def set_level_of_detail(self, level_of_detail_item): #bruce 060215 revised this
+        """
+        Change the level of detail, where <level_of_detail_item> is a value
+        between 0 and 3 where:
+            - 0 = low
+            - 1 = medium
+            - 2 = high
+            - 3 = variable (based on number of atoms in the part)
+
+        @note: the prefs db value for 'variable' is -1, to allow for higher LOD
+               levels in the future.
+        """
+        lod = level_of_detail_item
+        if level_of_detail_item == 3:
+            lod = -1
+        env.prefs[levelOfDetail_prefs_key] = lod
+#        self.glpane.gl_update()
+        # the redraw this causes will (as of tonight) always recompute the correct drawLevel (in Part._recompute_drawLevel),
+        # and chunks will invalidate their display lists as needed to accomodate the change. [bruce 060215]
+        return
+
+    def set_ball_and_stick_atom_scale(self, value):
+        if env.prefs[diBALL_AtomRadius_prefs_key] != value:
+            env.prefs[diBALL_AtomRadius_prefs_key] = round(float(value) / 100.0, 2)
+        if env.prefs.has_default_value(diBALL_AtomRadius_prefs_key):
+            self.ball_and_stick_atom_scale_reset_ToolButton.setEnabled(False)
+        else:
+            self.ball_and_stick_atom_scale_reset_ToolButton.setEnabled(True)
+        return
+    
+    def set_CPK_atom_scale(self, value):
+        if env.prefs[cpkScaleFactor_prefs_key] != value:
+            env.prefs[cpkScaleFactor_prefs_key] = value
+        # direct comparison with has_default_value didn't work on this level
+        # of precision
+        if round(env.prefs.get_default_value(cpkScaleFactor_prefs_key), 3 ) \
+           == round(value, 3):
+            self.CPK_atom_scale_reset_ToolButton.setEnabled(False)
+        else:
+            self.CPK_atom_scale_reset_ToolButton.setEnabled(True)
+        return
+    
+    def reset_ball_and_stick_atom_scale(self):
+        _resetValue = env.prefs.get_default_value(diBALL_AtomRadius_prefs_key)
+        _resetValue = int((_resetValue + .005) * 100)
+        self.set_ball_and_stick_atom_scale(_resetValue)
+        self.ball_and_stick_atom_scale_SpinBox.setValue(_resetValue, 
+                                                              blockSignals = True)
+        return
+
+    def reset_CPK_atom_scale(self):
+        _resetValue = env.prefs.get_default_value(cpkScaleFactor_prefs_key)
+        self.set_CPK_atom_scale(_resetValue)
+        self.CPK_atom_scale_doubleSpinBox.setValue(_resetValue,
+                                                   blockSignals = True)
+        return
+    
+    # PAGE: BONDS ============================================================
+    
+    def _setupPage_Bonds(self):
+        """
+        Setup the "Bonds" page.
+        """
+        # GROUPBOX Colors
+        self.bond_highlighting_ColorComboBox.setColor(env.prefs[bondHighlightColor_prefs_key])
+        self.connect(self.bond_highlighting_ColorComboBox, SIGNAL("editingFinished()"), self.set_bond_highlighting_color)
+        self.ball_and_stick_cylinder_ColorComboBox.setColor(env.prefs[diBALL_bondcolor_prefs_key])
+        self.connect(self.ball_and_stick_cylinder_ColorComboBox, SIGNAL("editingFinished()"), self.set_ball_and_stick_cylinder_color)
+        self.bond_stretch_ColorComboBox.setColor(env.prefs[bondStretchColor_prefs_key])
+        self.connect(self.bond_stretch_ColorComboBox, SIGNAL("editingFinished()"), self.set_bond_stretch_color)
+        self.vane_ribbon_ColorComboBox.setColor(env.prefs[bondVaneColor_prefs_key])
+        self.connect(self.vane_ribbon_ColorComboBox, SIGNAL("editingFinished()"), self.set_vane_ribbon_color)
+        self.connect(self.restore_bond_colors_PushButton, SIGNAL("clicked()"), self.reset_default_colors)
+        # GROUPBOX Miscellaneous bond settings
+        self.set_ball_and_stick_bond_scale(env.prefs[diBALL_BondCylinderRadius_prefs_key] * 100)
+        self.set_bond_line_thickness(env.prefs[linesDisplayModeThickness_prefs_key])
+        self.ball_and_stick_bond_scale_SpinBox.setValue(round(env.prefs[diBALL_BondCylinderRadius_prefs_key] * 100))
+        self.bond_line_thickness_SpinBox.setValue(env.prefs[linesDisplayModeThickness_prefs_key])
+        self.connect(self.ball_and_stick_bond_scale_SpinBox,
+                     SIGNAL("valueChanged(int)"),self.set_ball_and_stick_bond_scale)
+        self.connect(self.bond_line_thickness_SpinBox,
+                     SIGNAL("valueChanged(int)"),self.set_bond_line_thickness)
+        # GROUPBOX: High order bonds
+        if env.prefs[pibondStyle_prefs_key] == "multicyl":
+            _myID = 0
+        elif env.prefs[pibondStyle_prefs_key] == "vane":
+            _myID = 1
+        else:
+            _myID = 2
+        _checkedButton = self.high_order_bonds_RadioButtonList.getButtonById(_myID)
+        _checkedButton.setChecked(True)
+        self.connect(self.high_order_bonds_RadioButtonList.buttonGroup, SIGNAL("buttonClicked(int)"), self.set_high_order_bonds)
+        connect_checkbox_with_boolean_pref(self.show_bond_type_letters_CheckBox, pibondLetters_prefs_key)
+        connect_checkbox_with_boolean_pref(self.show_valence_errors_CheckBox, showValenceErrors_prefs_key)
+        connect_checkbox_with_boolean_pref(self.show_bond_stretch_indicators_CheckBox, showBondStretchIndicators_prefs_key)
+        return
+
+    def set_bond_highlighting_color(self):
+        _newColor = self.bond_highlighting_ColorComboBox.getColor()
+        env.prefs[bondHighlightColor_prefs_key] = _newColor
+        return
+    
+    def set_ball_and_stick_cylinder_color(self):
+        _newColor = self.ball_and_stick_cylinder_ColorComboBox.getColor()
+        env.prefs[diBALL_bondcolor_prefs_key] = _newColor
+        return
+    
+    def set_bond_stretch_color(self):
+        _newColor = self.bond_stretch_ColorComboBox.getColor()
+        env.prefs[bondStretchColor_prefs_key] = _newColor
+        return
+    
+    def set_vane_ribbon_color(self):
+        _newColor = self.vane_ribbon_ColorComboBox.getColor()
+        env.prefs[bondVaneColor_prefs_key] = _newColor
+        return
+
+    def reset_default_colors(self):
+        env.prefs.restore_defaults([bondHighlightColor_prefs_key,
+                                    bondStretchColor_prefs_key,
+                                    bondVaneColor_prefs_key,
+                                    diBALL_bondcolor_prefs_key])
+        self.bond_highlighting_ColorComboBox.setColor(env.prefs.get_default_value(bondHighlightColor_prefs_key))
+        self.ball_and_stick_cylinder_ColorComboBox.setColor(env.prefs.get_default_value(diBALL_bondcolor_prefs_key))
+        self.bond_stretch_ColorComboBox.setColor(env.prefs.get_default_value(bondStretchColor_prefs_key))
+        self.vane_ribbon_ColorComboBox.setColor(env.prefs.get_default_value(bondVaneColor_prefs_key))
+        return
+    
+    def set_ball_and_stick_bond_scale(self, value):
+        if env.prefs[diBALL_BondCylinderRadius_prefs_key] != value:
+            env.prefs[diBALL_BondCylinderRadius_prefs_key] = round(float(value) / 100.0, 2)
+        #if env.prefs.has_default_value(diBALL_BondCylinderRadius_prefs_key):
+            #self.ball_and_stick_atom_scale_reset_ToolButton.setEnabled(False)
+        #else:
+            #self.ball_and_stick_atom_scale_reset_ToolButton.setEnabled(True)
+        return
+
+    def set_bond_line_thickness(self, value):
+        if env.prefs[linesDisplayModeThickness_prefs_key] != value:
+            env.prefs[linesDisplayModeThickness_prefs_key] = value
+        #if env.prefs.has_default_value(linesDisplayModeThickness_prefs_key):
+            #self.ball_and_stick_atom_scale_reset_ToolButton.setEnabled(False)
+        #else:
+            #self.ball_and_stick_atom_scale_reset_ToolButton.setEnabled(True)
+        return
+    
+    def set_high_order_bonds(self, value):
+        env.prefs[pibondStyle_prefs_key] = HIGH_ORDER_BOND_STYLES[value][3]
+        return
+
+    # PAGE: DNA ==============================================================
+    def _setupPage_DNA(self):
+        """
+        Setup the "DNA" page.
+        """
+        # GROUPBOX: DNA default values
+        # Uncomment next line when a DB Pref is made for it.
+        #connect_comboBox_with_pref(self.conformation_ComboBox, <SOME_VALUE>)
+        
+        connect_doubleSpinBox_with_pref(self.bases_per_turn_DoubleSpinBox,
+                                        bdnaBasesPerTurn_prefs_key)
+        connect_doubleSpinBox_with_pref(self.rise_DoubleSpinBox, bdnaRise_prefs_key)
+        self.strand1_ColorComboBox.setColor(env.prefs[dnaDefaultStrand1Color_prefs_key])
+        self.connect(self.strand1_ColorComboBox, SIGNAL("editingFinished()"), self.set_strand1_color)
+        self.strand2_ColorComboBox.setColor(env.prefs[dnaDefaultStrand2Color_prefs_key])
+        self.connect(self.strand1_ColorComboBox, SIGNAL("editingFinished()"), self.set_strand2_color)
+        self.segment_ColorComboBox.setColor(env.prefs[dnaDefaultSegmentColor_prefs_key])
+        self.connect(self.segment_ColorComboBox, SIGNAL("editingFinished()"), self.set_segment_color)
+        self.connect(self.restore_DNA_colors_PushButton, SIGNAL("clicked()"), self.reset_DNA_colors)
+        # GROUPBOX: Strand arrowhead display options
+        connect_checkbox_with_boolean_pref(self.show_arrows_on_backbones_CheckBox,
+                                           arrowsOnBackBones_prefs_key)
+        connect_checkbox_with_boolean_pref(self.show_arrows_on_3prime_ends_CheckBox,
+                                           arrowsOnThreePrimeEnds_prefs_key)
+        connect_checkbox_with_boolean_pref(self.show_arrows_on_5prime_ends_CheckBox,
+                                           arrowsOnFivePrimeEnds_prefs_key)
+        self.three_prime_end_custom_ColorComboBox.setColor(env.prefs[dnaStrandThreePrimeArrowheadsCustomColor_prefs_key])
+        self.connect(self.three_prime_end_custom_ColorComboBox, SIGNAL("editingFinished()"), self.set_three_prime_end_color)
+        self.five_prime_end_custom_ColorComboBox.setColor(env.prefs[dnaStrandFivePrimeArrowheadsCustomColor_prefs_key])
+        self.connect(self.five_prime_end_custom_ColorComboBox, SIGNAL("editingFinished()"), self.set_five_prime_end_color)
+        return
+    
+    def set_strand1_color(self):
+        _newColor = self.strand1_ColorComboBox.getColor()
+        env.prefs[dnaDefaultStrand1Color_prefs_key] = _newColor
+        return
+    
+    def set_strand2_color(self):
+        _newColor = self.strand2_ColorComboBox.getColor()
+        env.prefs[dnaDefaultStrand2Color_prefs_key] = _newColor
+        return
+    
+    def set_segment_color(self):
+        _newColor = self.segment_ColorComboBox.getColor()
+        env.prefs[dnaDefaultSegmentColor_prefs_key] = _newColor
+        return
+
+    def reset_DNA_colors(self):
+        env.prefs.restore_defaults([dnaDefaultStrand1Color_prefs_key,
+                                    dnaDefaultStrand2Color_prefs_key,
+                                    dnaDefaultSegmentColor_prefs_key])
+        self.strand1_ColorComboBox.setColor(env.prefs.get_default_value(dnaDefaultStrand1Color_prefs_key))
+        self.strand2_ColorComboBox.setColor(env.prefs.get_default_value(dnaDefaultStrand2Color_prefs_key))
+        self.segment_ColorComboBox.setColor(env.prefs.get_default_value(dnaDefaultSegmentColor_prefs_key))
+        return
+
+    def set_three_prime_end_color(self):
+        _newColor = self.three_prime_end_custom_ColorComboBox.getColor()
+        env.prefs[dnaStrandThreePrimeArrowheadsCustomColor_prefs_key] = _newColor
+        return
+    
+    def set_five_prime_end_color(self):
+        _newColor = self.five_prime_end_custom_ColorComboBox.getColor()
+        env.prefs[dnaStrandFivePrimeArrowheadsCustomColor_prefs_key] = _newColor
+        return
+    
+    # PAGE: PLUGINS ==========================================================
     def _setupPage_Plugins(self):
         """
         Setup the "Plug-ins" page.
@@ -713,33 +1121,6 @@ class Preferences(PreferencesDialog):
         self.connect( self.choosers["Rosetta DB"].lineEdit, SIGNAL("editingFinished()"), self.set_rosetta_db_path)
         return
 
-    def setPrefsLogoDownloadPermissions(self, permission):
-        """
-        Set the sponsor logos download permissions in the persistent user
-        preferences database.
-
-        @param permission: The permission, where:
-                        0 = Always ask before downloading
-                        1 = Never ask before downloading
-                        2 = Never download
-        @type  permission: int
-        """
-        _permanentValue = False
-        _downloadValue = True
-        if permission == 1:
-            _permanentValue = True
-            _downloadValue = True
-
-        elif permission == 2:
-            _permanentValue = True
-            _downloadValue = False
-
-        else:
-            _permanentValue = False
-
-        env.prefs[sponsor_permanent_permission_prefs_key] = _permanentValue
-        env.prefs[sponsor_download_permission_prefs_key] = _downloadValue
-        return
 
     def _hideOrShowWidgets(self):
         """
