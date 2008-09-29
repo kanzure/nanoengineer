@@ -126,8 +126,7 @@ class EditCommand(Select_Command):
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
         """
         Create the property manager object if one doesn't already exist 
-        and then (if not USE_COMMAND_STACK) show the propMgr if wanted
-        by the user
+        and then show the propMgr if wanted by the user
         
         @param showPropMgr: If True, show the property manager 
         @type showPropMgr: boolean

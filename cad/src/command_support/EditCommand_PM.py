@@ -21,7 +21,6 @@ from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
 #debug flag to keep signals always connected
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class EditCommand_PM(PM_Dialog):
     """

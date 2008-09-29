@@ -14,8 +14,6 @@ TODO:
 from command_support.EditCommand import EditCommand
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 _superclass = EditCommand
 class Motor_EditCommand(EditCommand):
     """
@@ -54,39 +52,3 @@ class Motor_EditCommand(EditCommand):
         _superclass.command_entered(self)
         self.o.assy.permit_pick_atoms()        
      
-    #Old command API methods (in if not USE_COMMAND_STACK condition block)
-    if not USE_COMMAND_STACK:   
-        def Enter(self):
-            """
-            Enter this command. 
-            @see: EditCommand.Enter
-            """
-            #See EditCommand.Enter for a detailed comment on why self.struct is 
-            #set to None while entering this command.
-            #May not be needed for RotaryMotor and Linear motor edit commands, 
-            # but safe to do it for now -- Ninad 2008-01-14
-            if self.struct:
-                self.struct = None        
-            EditCommand.Enter(self)
-            self.o.assy.permit_pick_atoms()
-    
-        def init_gui(self):
-            """
-            NOT IMPLEMENTED YET.
-            TODO: Move calls that create/ show PM  in EditCommand.createStructure
-                  out of that method. (That code was written before converting the 
-                  editCommands into 'Commands'. After this conversion, a better 
-                  implementation is necessary, in which PM creation and 
-                  display will be handled  in init_gui method.
-            """
-            #Note: This method overrides EditCommand.init_gui. This is just to 
-            #prevent the call of self.create_and_or_show_PM_if_wanted. , As that 
-            # method is called in self.createStructure. (to be cleaned up)
-            pass 
-    
-        def restore_gui(self):
-            """
-            """
-            if self.propMgr:
-                self.propMgr.close()
-

@@ -24,7 +24,6 @@ from utilities.prefs_constants import ORTHOGRAPHIC
 from utilities.prefs_constants import PERSPECTIVE
 from model.NamedView import NamedView
 from model.PovrayScene import PovrayScene
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 class viewSlotsMixin:
     """

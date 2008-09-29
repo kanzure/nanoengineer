@@ -48,7 +48,6 @@ from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
 from command_support.GraphicsMode import GraphicsMode
 from command_support.Command import Command
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 # ==
 
@@ -88,28 +87,6 @@ class ExampleCommand(_superclass):
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
     __abstract_command_class = True
-
-    if not USE_COMMAND_STACK:
-        def init_gui(self):
-            print "init_gui in", self ###
-            # note: propMgr is initialized to None in our superclass anyMode
-            if self.PM_class and not self.propMgr:
-                self.propMgr = self.PM_class(self)
-            _superclass.init_gui(self) # this fixed the "disconnect without connect" bug 
-            #[when _superclass was SelectAtoms_Command anyway]
-                #k will we need to do this first not last? or not do all of it? seems ok so far.
-            if self.propMgr:
-                self.propMgr.show()
-            return
-
-        def restore_gui(self):
-            print "restore_gui in", self ###
-            if self.propMgr:
-                self.propMgr.close() # removes PM tab -- better than the prior .hide() call [bruce 070829]
-            _superclass.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
-            return
-
-    pass
 
 # ==
 

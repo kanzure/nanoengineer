@@ -1080,10 +1080,10 @@ class BuildCrystal_Command(basicMode):
 
     def makeMenus(self):
         self.Menu_spec = [
-            ('Cancel', self.Cancel),
+            ('Cancel', self.command_Cancel),
             ('Start Over', self.StartOver),
             ('Backup', self._Backup),
-            ('Done', self.Done), # bruce 041217
+            ('Done', self.command_Done), # bruce 041217
             #None,
             #('Add New Layer', self.addLayer),
             # bruce 041103 removed Copy, per Ninad email;

@@ -286,9 +286,9 @@ class movieMode(basicMode):
 
     def makeMenus(self):
         self.Menu_spec = [
-            ('Cancel', self.Cancel),
+            ('Cancel', self.command_Cancel),
             ('Reset Movie', self.ResetMovie),
-            ('Done', self.Done),
+            ('Done', self.command_Done),
             None,
             ('Edit Color Scheme...', self.w.colorSchemeCommand),
         ]

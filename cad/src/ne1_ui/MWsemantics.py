@@ -1860,13 +1860,10 @@ class MWsemantics(QMainWindow,
         """
         @note: called from several places, including ok_btn_clicked
         (and in some cases, cancel_btn_clicked) of PM_Dialog and its
-        subclasses, and (when not USE_COMMAND_STACK) the "Exit xxx"
-        toolbuttons (e.g. Exit DNA) via a signal set up in
-        Ui_AbstractFlyout.py.
+        subclasses
         
-        When USE_COMMAND_STACK is true, the calls from
-        ok_btn_clicked and cancel_btn_clicked methods are probably
-        correct, but are deprecated, and should be replaced by calls of
+        The calls from ok_btn_clicked and cancel_btn_clicked methods are 
+        probablycorrect, but are deprecated, and should be replaced by calls of
         self.command.command_Done (where self is the calling PM).
         """
         #bruce 080815/080827 docstring

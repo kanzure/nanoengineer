@@ -1713,9 +1713,9 @@ class extrudeMode(basicMode):
     def makeMenus(self): #e not yet reviewed for being good choices of what needs including in extrude cmenu
 
         self.Menu_spec = [
-            ('Cancel', self.Cancel),
+            ('Cancel', self.command_Cancel),
             ('Start Over', self.StartOver),
-            ('Done', self.Done), #bruce 041217
+            ('Done', self.command_Done), #bruce 041217
         ]
 
         self.debug_Menu_spec = [

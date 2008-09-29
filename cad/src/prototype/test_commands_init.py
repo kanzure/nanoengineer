@@ -15,7 +15,6 @@ from utilities.debug import register_debug_menu_command
 
 import utilities.EndUser as EndUser, utilities.Initialize as Initialize
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
 
 # ==
 
