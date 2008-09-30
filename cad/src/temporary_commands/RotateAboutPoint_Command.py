@@ -75,6 +75,7 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
     def leftUp(self, event):
         """
         Event handler for Left Mouse button left-up event
+        @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
         """
         if  self.command.mouseClickLimit is None:
             if len(self.command.mouseClickPoints) == 2:
@@ -124,9 +125,7 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 
 class RotateAboutPoint_Command(Line_Command):
     
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status =  None #fully ported
-
+   
     GraphicsMode_class = RotateAboutPoint_GraphicsMode
 
     commandName = 'RotateAboutPoint'
@@ -202,6 +201,7 @@ class RotateAboutPoint_Command(Line_Command):
                  self as a "request command"
         
         [overrides Line_GraphicsMode method]
+        @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
         """
         #bruce 080801 split this out of restore_gui (now inherited).
         
@@ -211,25 +211,6 @@ class RotateAboutPoint_Command(Line_Command):
         return ()
     
     
-    def _f_results_for_caller_and_prepare_for_new_input(self):
-        """
-        This is called only from GraphicsMode.leftUp() 
-        Give results for the caller of this request command and then prepare for 
-        next input (mouse click points) from the user. Note that this is called
-        from RotateAboutPoint_GraphiceMode.leftUp() only when the mouseClickLimit
-        is not specified (i.e. the command is not exited automatically after
-        'n' number of mouseclicks) 
-        
-        @see: RotateAboutPoint_GraphiceMode.leftUp()
-        """
-        if self._results_callback:
-            # note: see comment in command_will_exit version of this code
-            params = self._results_for_request_command_caller()
-            self._results_callback( params)    
-            
-        self.command.mouseClickPoints = []                
-        self.graphiceMode.resetVariables()
-
-    pass # end of class RotateAboutPoint_Command
+        pass # end of class RotateAboutPoint_Command
 
 # end

@@ -31,9 +31,7 @@ class Line_Command(Select_Command):
     """
     Encapsulates the Line_Command tool functionality.
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status =  None
-    
+        
     # class constants
 
     commandName = 'Line_Command'
@@ -79,6 +77,26 @@ class Line_Command(Select_Command):
         # change might cause bugs. [bruce 080801]
         assert len(params) == 1 #bruce 080801
         (self.mouseClickLimit,) = params
+        
+    def _f_results_for_caller_and_prepare_for_new_input(self):
+        """
+        This is called only from GraphicsMode.leftUp() 
+        Give results for the caller of this request command and then prepare for 
+        next input (mouse click points) from the user. Note that this is called
+        from Line_GraphiceMode.leftUp() only when the mouseClickLimit
+        is not specified (i.e. the command is not exited automatically after
+        'n' number of mouseclicks) 
+        
+        @see: Line_GraphiceMode.leftUp()
+        @see: RotateAboutPoints_GraphiceMode.leftUp()
+        """
+        if self._results_callback:
+            # note: see comment in command_will_exit version of this code
+            params = self._results_for_request_command_caller()
+            self._results_callback( params)    
+            
+        self.command.mouseClickPoints = []                
+        self.graphiceMode.resetVariables()
 
 
     def _results_for_request_command_caller(self):
@@ -87,6 +105,8 @@ class Line_Command(Select_Command):
                  self as a "request command"
 
         [overridden in subclasses]
+        @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
+        @see: RotateAboutPoint_Command._results_for_request_command_caller()
         """
         #bruce 080801 split this out of restore_gui
         ### REVIEW: make this a Request Command API method??

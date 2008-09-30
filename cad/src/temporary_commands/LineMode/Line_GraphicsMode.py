@@ -440,6 +440,7 @@ class Line_GraphicsMode( Select_GraphicsMode ):
     def leftUp(self, event):
         """
         Event handler for Left Mouse button left-up event
+        @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
         """   
         if self.isSpecifyPlaneToolActive():
             if self.cursor_over_when_LMB_pressed == 'Empty Space':
@@ -456,7 +457,7 @@ class Line_GraphicsMode( Select_GraphicsMode ):
         if  self.command.mouseClickLimit is None:
             if len(self.command.mouseClickPoints) == 2:
                 self.endPoint2 = None
-                self.command.restore_gui()
+                self.command._f_results_for_caller_and_prepare_for_new_input()
                 self.glpane.gl_update()            
             return
 
@@ -494,7 +495,7 @@ class Line_GraphicsMode( Select_GraphicsMode ):
         Example: You entered line mode, started drawing line, and hit Done 
         button. This exits the Graphics mode (without the 'leftup' which usually
         terminates the command *from Graphics mode') . In the above case, the 
-        command.restore_gui needs to tell its graphics mode about what just 
+        command.command_will_exit() needs to tell its graphics mode about what just 
         happened , so that all the assigned values get cleared and ready to use
         next time this graphicsMode is active.
         """
