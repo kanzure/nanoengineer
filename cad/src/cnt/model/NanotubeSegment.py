@@ -124,7 +124,7 @@ class NanotubeSegment(Group):
         @see: NanotubeSegment_EditCommand
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('NANOTUBE_SEGMENT')
+        commandSequencer.userEnterCommand('NANOTUBE_SEGMENT')
         assert commandSequencer.currentCommand.commandName == 'NANOTUBE_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
         return

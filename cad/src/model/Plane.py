@@ -761,7 +761,7 @@ class Plane(ReferenceGeometry):
         Overrides node.edit and shows the property manager.
         """
         commandSequencer = self.win.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('REFERENCE_PLANE', always_update = True)
+        commandSequencer.userEnterCommand('REFERENCE_PLANE', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'REFERENCE_PLANE'
         #When a Plane object read from an mmp file is edited, we need to assign 

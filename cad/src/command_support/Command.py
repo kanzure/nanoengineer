@@ -96,7 +96,7 @@ class anyCommand(baseCommand, StateMixin):
         # (which it is presumed to have suspended when it was entered).
         # TODO: make this also control whether it *does* save prevMode when it's entered;
         # presently that is done by entering it using a special method,
-        # commandSequencer.userEnterTemporaryCommand.
+        # commandSequencer.userEnterCommand.
         # [bruce 071011, to be revised (replaces need for customized Done methods)]
         #
         # WARNING: in the new command API as of 2008-09-26, this no longer 

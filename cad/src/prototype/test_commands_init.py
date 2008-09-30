@@ -51,7 +51,7 @@ def start_cmdrun( cmdrun):
     # TODO: print a warning if cmdrun.command_level is not something
     # we'd consider "nestable", per the likely intent of starting it
     # as a temporary command.
-    commandSequencer.userEnterTemporaryCommand( cmdrun, always_update = True)
+    commandSequencer.userEnterCommand( cmdrun, always_update = True)
     
     print "done with start_cmdrun for", cmdrun
         # returns as soon as user is in it, doesn't wait for it to "finish" -- so run is not a good name -- use Enter??

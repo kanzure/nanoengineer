@@ -141,7 +141,7 @@ class BuildAtoms_Command(SelectAtoms_Command):
             return 
         
         commandSequencer = self.win.commandSequencer
-        commandSequencer.userEnterTemporaryCommand( commandName)
+        commandSequencer.userEnterCommand( commandName)
         
     def getBondTypeString(self):
         """

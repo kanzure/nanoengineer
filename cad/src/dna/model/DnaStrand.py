@@ -65,7 +65,7 @@ class DnaStrand(DnaStrandOrSegment):
         @see: DnaStrand_EditCommand
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('DNA_STRAND')
+        commandSequencer.userEnterCommand('DNA_STRAND')
         assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
         commandSequencer.currentCommand.editStructure(self)
 

@@ -66,7 +66,6 @@ class CommandSequencer(object):
     External API for changing command stack (will be revised):
     to enter a given command:
     - userEnterCommand
-    - userEnterTemporaryCommand (will be replaced with userEnterCommand after refactoring)
     to exit a command (and perhaps then enter a specific new one):
     - command.command_Done, others
     other:
@@ -615,11 +614,6 @@ class CommandSequencer(object):
 
     # user requests a specific new command.
 
-    def userEnterTemporaryCommand(self, commandName, always_update = False):
-        ### TODO: replace all calls of this with calls of userEnterCommand
-        self.userEnterCommand(commandName, always_update = always_update )
-        return
-
     def userEnterCommand(self, want_commandName, always_update = False):
         """
         [main public method for changing command stack
@@ -627,9 +621,6 @@ class CommandSequencer(object):
         
         Exit and enter commands as needed, so that the current command
         has the given commandName.
-
-        @see: userEnterTemporaryCommand (an equivalent method which exists
-              only for historical reasons)
 
         @see: userEnterCommand_OLD_DOCSTRING
         """

@@ -47,7 +47,7 @@ class jigmakers_Mixin:
             return
         
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR')
+        commandSequencer.userEnterCommand('ROTARY_MOTOR')
         assert commandSequencer.currentCommand.commandName == 'ROTARY_MOTOR'
         commandSequencer.currentCommand.runCommand()
       
@@ -69,7 +69,7 @@ class jigmakers_Mixin:
             return
                     
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR')
+        commandSequencer.userEnterCommand('LINEAR_MOTOR')
         assert commandSequencer.currentCommand.commandName == 'LINEAR_MOTOR'
         commandSequencer.currentCommand.runCommand()
 

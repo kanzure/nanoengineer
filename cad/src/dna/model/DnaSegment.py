@@ -89,7 +89,7 @@ class DnaSegment(DnaStrandOrSegment):
         @see: DnaSegment_EditCommand
         """
         commandSequencer = self.assy.w.commandSequencer       
-        commandSequencer.userEnterTemporaryCommand('DNA_SEGMENT')
+        commandSequencer.userEnterCommand('DNA_SEGMENT')
         assert commandSequencer.currentCommand.commandName == 'DNA_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
         
@@ -417,9 +417,6 @@ class DnaSegment(DnaStrandOrSegment):
             quat = glpane.quat
             vec = atmPosition2 - atmPosition1
             vec = quat.rot(vec)
-            ##print "~~~~~~~~~~~~~~~~~~~~~~"
-            ##print "***vec =", vec
-            ##print "***vec[0] = 0?", vec[0] == 0.0
             if vec[0] < 0.0:
                 atm1, atm2 = atm2, atm1
             elif vec[0] == 0.0 and vec[1] < 0.0:

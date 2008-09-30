@@ -217,7 +217,7 @@ class viewSlotsMixin:
         else:
             # The Zoom/Pan/Rotate button was toggled on.
 
-            commandSequencer.userEnterTemporaryCommand(commandName, always_update = True)
+            commandSequencer.userEnterCommand(commandName, always_update = True)
                 #bruce 071011, encapsulating the code that was here before
 
             # Emit a help message on entering the new temporary command. Ideally this

@@ -187,7 +187,7 @@ class BuildDna_GraphicsMode(
 
         commandSequencer = self.win.commandSequencer
 
-        commandSequencer.userEnterTemporaryCommand('JOIN_STRANDS')
+        commandSequencer.userEnterCommand('JOIN_STRANDS')
 
         assert commandSequencer.currentCommand.commandName == 'JOIN_STRANDS'
 

@@ -78,7 +78,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
             return 
         
         commandSequencer = self.win.commandSequencer       
-        commandSequencer.userEnterTemporaryCommand( commandName)
+        commandSequencer.userEnterCommand( commandName)
         return    
     
     def makeMenus(self):

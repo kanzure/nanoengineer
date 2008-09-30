@@ -102,7 +102,7 @@ class ExampleCommand(_superclass):
 ##    command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
 ##    test_commands_start_as_temporary_command = True # enter in different way
 ##        ### maybe todo: set up a similar thing in Command API?
-##        # it would replace all calls of userEnterTemporaryCommand.
+##        # it would replace all calls of userEnterCommand.
 ##        # [later, 080730: that idea might be obsolete or invalid in its details.
 ##        #  revisit after ongoing command stack refactoring.]
 ##    pass

@@ -293,7 +293,7 @@ class RotaryMotor(Motor):
         Overrides jig.edit. 
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR', always_update = True)
+        commandSequencer.userEnterCommand('ROTARY_MOTOR', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'ROTARY_MOTOR'
         #When a Motor object read from an mmp file is edited, we need to assign 
@@ -603,13 +603,13 @@ class LinearMotor(Motor):
 
     def __init__(self, 
                  assy, 
-                 editCommand = None,
+                 command = None,
                  atomlist = []):
         """
         create a blank Linear Motor not connected to anything
         """
         # [note (bruce 071128): future copy-code cleanup will require either
-        # that the atomlist argument comes before the editCommand argument,
+        # that the atomlist argument comes before the command argument,
         # or that _um_initargs is overridden.]
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Motor.__init__(self, assy, atomlist)
@@ -626,21 +626,21 @@ class LinearMotor(Motor):
         self.width = 2.0 # default box width
         self.sradius = 0.2 #default spoke radius
         self.cancelled = True # We will assume the user will cancel
-        self.editCommand = editCommand
+        self.command = command
 
     def edit(self):
         """
         Overrides jig.edit. 
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR', always_update = True)
+        commandSequencer.userEnterCommand('LINEAR_MOTOR', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'LINEAR_MOTOR'
         #When a Motor object read from an mmp file is edited, we need to assign 
-        #it an editCommand. So, when it is resized, the propMgr spinboxes
+        #it an command. So, when it is resized, the propMgr spinboxes
         #are properly updated. See also Plane.resizeGeometry. 
-        if self.editCommand is None:
-            self.editCommand = currentCommand
+        if self.command is None:
+            self.command = currentCommand
             
         currentCommand.editStructure(self)
         

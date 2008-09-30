@@ -867,7 +867,7 @@ class MWsemantics(QMainWindow,
         a part from the partlib into the 3D workspace. It also stores the command
         NE1 should return to after exiting this temporary command.
         """
-        self.commandSequencer.userEnterTemporaryCommand('PARTLIB') #bruce 071011 guess ### REVIEW
+        self.commandSequencer.userEnterCommand('PARTLIB') #bruce 071011 guess ### REVIEW
         return
 
     # TODO: rename killDo to editDelete
@@ -890,7 +890,7 @@ class MWsemantics(QMainWindow,
         selectedSegments = self.assy.getSelectedDnaSegments()
         if len(selectedSegments) > 0:
             commandSequencer = self.commandSequencer
-            commandSequencer.userEnterTemporaryCommand('MULTIPLE_DNA_SEGMENT_RESIZE')
+            commandSequencer.userEnterCommand('MULTIPLE_DNA_SEGMENT_RESIZE')
             assert commandSequencer.currentCommand.commandName == 'MULTIPLE_DNA_SEGMENT_RESIZE'
             commandSequencer.currentCommand.editStructure(list(selectedSegments))
         return
@@ -1160,7 +1160,7 @@ class MWsemantics(QMainWindow,
 
     def createPlane(self):
         commandSequencer = self.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('REFERENCE_PLANE')
+        commandSequencer.userEnterCommand('REFERENCE_PLANE')
         commandSequencer.currentCommand.runCommand()
 
     def makeGridPlane(self):
@@ -1563,7 +1563,7 @@ class MWsemantics(QMainWindow,
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != commandName:
             # enter command, if not already in it
-            commandSequencer.userEnterTemporaryCommand( commandName)
+            commandSequencer.userEnterCommand( commandName)
         else:
             # exit command, if already in it
             currentCommand.command_Done()
@@ -1686,7 +1686,7 @@ class MWsemantics(QMainWindow,
         Show the QuteMol property manager. 
         """
         commandSequencer = self.commandSequencer
-        commandSequencer.userEnterTemporaryCommand('QUTEMOL')
+        commandSequencer.userEnterCommand('QUTEMOL')
         # note: if we make the Qutemol action a 'ckeckable action'
         # (so when unchecked by the user, it should exit the QuteMol command),
         # then replace the above by a call to self.enterOrExitTemporaryCommand.

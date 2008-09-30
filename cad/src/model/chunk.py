@@ -768,7 +768,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #post dna_model implementation .
         if self.isStrandChunk():
             commandSequencer = self.assy.w.commandSequencer
-            commandSequencer.userEnterTemporaryCommand('DNA_STRAND')                
+            commandSequencer.userEnterCommand('DNA_STRAND')                
             assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
             commandSequencer.currentCommand.editStructure(self)
         else:
@@ -3191,6 +3191,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             #e (though it might be faster to just delete it, if many moves
             #   will happen before we need it again)
             self.bbox.data += offset
+            
 
         # Now, do the move. Note that this might destructively modify the object
         # self.basecenter rather than replacing it with a new one.
