@@ -57,11 +57,12 @@ import foundation.changes as changes
 
 class anyCommand(baseCommand, StateMixin):
     """
-    abstract superclass for all Command objects, including nullCommand.
+    abstract superclass for all Command objects in NE1, including nullCommand.
 
     @note: command base class methods are divided somewhat arbitrarily between
            baseCommand, anyCommand, and basicCommand. In some cases, methods
            defined in baseCommand are overridden in anyCommand or basicCommand.
+           For more info see baseCommand docstring.
     """
     #bruce 071008 added object superclass; 071009 split anyMode -> anyCommand
 
@@ -298,6 +299,7 @@ class basicCommand(anyCommand):
     @note: command base class methods are divided somewhat arbitrarily between
            baseCommand, anyCommand, and basicCommand. In some cases, methods
            defined in baseCommand are overridden in anyCommand or basicCommand.
+           For more info see baseCommand docstring.
     """
     # TODO: split into minimalCommand, which does as little as possible
     # which meets the Command API and permits switching between commands

@@ -2113,7 +2113,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.glpane.setAssy(self.assy)
             # notes: this calls assy.set_glpane, and _reinit_modes
             # (which leaves currentCommand as nullmode)
-            # (whether or not USE_COMMAND_STACK).
+            # (even after USE_COMMAND_STACK).
             ### TODO: move _reinit_modes out of that, do it somewhere else.
         self.assy.set_modelTree(self.mt)
         

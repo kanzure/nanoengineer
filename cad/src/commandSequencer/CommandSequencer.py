@@ -148,8 +148,8 @@ class CommandSequencer(object):
         first call self.exit_all_commands(), then do only the "subsequent init calls"
         mentioned above -- don't call this method again.
         """
-        # note: used when USE_COMMAND_STACK or not.
-        # should try to clean up init code (see docstring) when USE_COMMAND_STACK is always true.
+        # todo: should try to clean up init code (see docstring)
+        # now that USE_COMMAND_STACK is always true.
         if _DEBUG_CSEQ_INIT:
             print "_DEBUG_CSEQ_INIT: __init__"###
 
@@ -166,17 +166,12 @@ class CommandSequencer(object):
         
         self._registered_command_classes = {} #bruce 080805
 
-        # When not USE_COMMAND_STACK, these might be noops,
-        # but more likely, we need a nullmode then just as we do now
-        # (in case of unexpected uses of currentCommand during init).
-        # So call them in that case too.
         self._recreate_nullmode()
         self._use_nullmode()
         # see docstring for additional inits needed as external calls
         return
 
     def _recreate_nullmode(self): # only called from this file, as of 080805
-        # REVIEW whether still needed when USE_COMMAND_STACK; presently still used then
         self.nullmode = nullMode()
             # TODO: rename self.nullmode; note that it's semi-public [###REVIEW: what uses it?];
             # it's a safe place to absorb events that come at the wrong time
@@ -184,11 +179,9 @@ class CommandSequencer(object):
         return
     
     def _reinit_modes(self): #revised, bruce 050911, 080209
-        # REVIEW: still ok for USE_COMMAND_STACK? guess yes, for now;
-        # and still needed, since it's part of how to init or reset the
-        # command sequencer in its current external API
-        # (see docstring for __init__) [bruce 080814, still true 080909]
-
+        """
+        @see: docstring for __init__
+        """
         # note: as of 080812, not called directly in this file; called from:
         # - GLPane.setAssy (end of function),
         #   which is called from:
@@ -203,6 +196,8 @@ class CommandSequencer(object):
         # by the main calls of this listed above; and/or make the reinit of
         # command objects lazy (per-command-class), so calling this is optional,
         # at least in methods like extrude_reload.
+
+        # old docstring:
         """
         [bruce comment 040922, when I split this out from GLPane's
         setAssy method; comment is fairly specific to GLPane:]
@@ -306,8 +301,7 @@ class CommandSequencer(object):
 
     def exit_all_commands(self, warn_about_abandoned_changes = True):
         """
-        Exit all currently active commands
-        (even the default command, even when USE_COMMAND_STACK),
+        Exit all currently active commands (even the default command),
         and leave the current command as nullMode.
 
         During the exiting, make sure self.exit_is_forced is true
@@ -449,24 +443,28 @@ class CommandSequencer(object):
         # has been wrapped by an API-enforcement (or any other) proxy.
         return self._raw_currentCommand is command
 
-    def _update_model_between_commands(self): #bruce 080806 split this out
-        #bruce 050317: do update_parts to insulate new mode from prior one's bugs
-        # WARNING: when USE_COMMAND_STACK, this might be needed (as much as it ever was),
-        # but calling it might be NIM [bruce 080909 comment]
-        try:
-            self.assy.update_parts()
-            # Note: this is overkill (only known to be needed when leaving
-            # extrude, and really it's a bug that it doesn't do this itself),
-            # and potentially too slow (though I doubt it),
-            # and not a substitute for doing this at the end of operations
-            # that need it (esp. once we have Undo); but doing it here will make
-            # things more robust. Ideally we should "assert_this_was_not_needed".
-        except:
-            print_compact_traceback("bug: update_parts: ")
-        else:
-            if debug_flags.atom_debug:
-                self.assy.checkparts() #bruce 050315 assy/part debug code
-        return
+# not used as of before 080929, but keep for now:
+##    def _update_model_between_commands(self): 
+##        # review: when USE_COMMAND_STACK, this might be needed (as much as it ever was),
+##        # but calling it is NIM. For now, we'll try not calling it and
+##        # see if this ever matters. It may be that we even do update_parts
+##        # before redraw or undo checkpoint, which makes this even less necessary.
+##        # [bruce 080909 comment]
+##        #bruce 050317: do update_parts to insulate new mode from prior one's bugs
+##        try:
+##            self.assy.update_parts()
+##            # Note: this is overkill (only known to be needed when leaving
+##            # extrude, and really it's a bug that it doesn't do this itself),
+##            # and potentially too slow (though I doubt it),
+##            # and not a substitute for doing this at the end of operations
+##            # that need it (esp. once we have Undo); but doing it here will make
+##            # things more robust. Ideally we should "assert_this_was_not_needed".
+##        except:
+##            print_compact_traceback("bug: update_parts: ")
+##        else:
+##            if debug_flags.atom_debug:
+##                self.assy.checkparts() #bruce 050315 assy/part debug code
+##        return
         
     def start_using_initial_mode(self, mode): #bruce 080812
         """
@@ -475,8 +473,7 @@ class CommandSequencer(object):
         which must be one of the strings '$STARTUP_MODE' or '$DEFAULT_MODE',
         just after self is created or _reinit_modes is called.
 
-        @note: this is called, and is part of our external API for init/reinit,
-               even after USE_COMMAND_STACK. See docstring of __init__.
+        @see: docstring of __init__.
 
         @see: exit_all_commands
         """
@@ -553,9 +550,7 @@ class CommandSequencer(object):
         pre-050911 code, never return some other command than asked for;
         let caller use a different one if desired.
         """
-        #bruce 050911 and 060403 revised this;
-        # as of 080804/080929, looks ok for USE_COMMAND_STACK, except for
-        # the old term MODE used in the string constants
+        # todo: clean up the old term MODE used in the string constants
         assert commandName_or_obj, "commandName_or_obj arg should be a command object " \
                "or commandName, not None or whatever false value it is here: %r" % \
                (commandName_or_obj,)
@@ -856,7 +851,7 @@ class CommandSequencer(object):
             # note: this can happen even if error is True
             # (when exiting multiple commands at once)
             
-            ##### REVIEW: should we call self._update_model_between_commands() like old code did?
+            # review: should we call self._update_model_between_commands() like old code did?
             # Note that no calls to it are implemented in USE_COMMAND_STACK case
             # (not for entering commands, either). This might cause new bugs.
             

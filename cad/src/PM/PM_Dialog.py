@@ -204,7 +204,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         """
         pass
 
-    def update_UI(self): #bruce 080819
+    def update_UI(self):
         """
         Update whatever is shown in this PM based on current state
         of the rest of the system, especially the state of self.command
@@ -214,9 +214,6 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         submethods '_update_UI_check_change_indicators' and 
         '_update_UI_do_updates'
         """
-        # Note: this is only called when USE_COMMAND_STACK is true.
-        # API details subject to revision.
-        
         anything_changed = self._update_UI_check_change_indicators()
         
         if not anything_changed:

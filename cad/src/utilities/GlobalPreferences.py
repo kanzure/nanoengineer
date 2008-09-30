@@ -465,18 +465,6 @@ def debug_pref_support_Qt_4point2(): #bruce 080725
 
 # ==
 
-def _debug_pref_use_command_stack(): #bruce 080728
-    #ninad circa 080922 revised default value and menu text
-    res = debug_pref("Use new command stack API (next session)?",
-                     Choice_boolean_True, 
-                     prefs_key = True
-                    )
-    return res
-
-USE_COMMAND_STACK = _debug_pref_use_command_stack()
-
-# ==
-
 ENABLE_PROTEINS = debug_pref("Enable Proteins? (next session)",
                              Choice_boolean_True,
                              non_debug = True,

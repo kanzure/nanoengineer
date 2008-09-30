@@ -333,7 +333,6 @@ class PM_SelectionListWidget(PM_ListWidget):
                 try:
                     listWidgetItem.setIcon(geticon(item.iconPath))
                 except:
-                    #bruce 080829 added this while debugging Zoom in or after Insert Dna in USE_COMMAND_STACK
                     print_compact_traceback()
 
             self._itemDictionary[listWidgetItem] = item  

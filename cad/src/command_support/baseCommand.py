@@ -2,16 +2,10 @@
 """
 baseCommand.py - base class for command objects on a command sequencer stack
 
-NOTE: only used when USE_COMMAND_STACK is true
-(controlled by debug_pref as of before 080905;
-not yet used by default as of 080917, but soon will be)
-
 @author: Bruce
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-
 """
-
 
 from utilities.debug import print_compact_traceback
 _pct = print_compact_traceback # local abbreviation for readability
@@ -22,7 +16,7 @@ from commandSequencer.command_levels import FIXED_PARENT_LEVELS
 from commandSequencer.command_levels import AFFECTS_FLYOUT_LEVELS
 
 
-DEBUG_USE_COMMAND_STACK = False #turn off the debug prints by default
+DEBUG_USE_COMMAND_STACK = False
 
 # ==
 
@@ -31,11 +25,13 @@ class baseCommand(object):
     Abstract base class for command objects compatible with Command Sequencer.
 
     @note: all actual command objects are instances of subclasses of our
-           subclass anyCommand.
+           subclass anyCommand. The intended division of methods is that
+           those needed for CommandSequencer are defined here, whereas
+           those needed only by other code in NE1 are defined in anyCommand
+           or basicCommand. This is roughly followed but not completely.
 
-    @note: command base class methods are divided somewhat arbitrarily between
-           baseCommand, anyCommand, and basicCommand. In some cases, methods
-           defined in baseCommand are overridden in anyCommand or basicCommand.
+    @note: In some cases, methods defined in baseCommand are overridden
+           in anyCommand or basicCommand.
     """
     __abstract_command_class = True
     

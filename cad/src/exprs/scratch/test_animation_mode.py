@@ -56,8 +56,6 @@ from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_PushButton import PM_PushButton
 from PM.PM_CheckBox import PM_CheckBox
 
-from utilities.GlobalPreferences import USE_COMMAND_STACK
-
 ##from modes import *
 ##from modes import basicMode
 from command_support.Command import Command
@@ -1220,8 +1218,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
 
     # class constants needed by mode API
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
-    commandName = 'test_animation_mode' # bruce 080910 'TEST_ANIMATION' -> 'test_animation_mode' so it works with
-        # USE_COMMAND_STACK and/or with new asserts in CommandSequencer
+    commandName = 'test_animation_mode' # must be same as module basename, for 'custom mode' to work
     featurename = "Prototype: Example Animation Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
