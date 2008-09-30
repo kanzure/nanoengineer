@@ -81,14 +81,7 @@ class anyCommand(baseCommand, StateMixin):
     # if they need one. [in command_enter_PM (after refactoring) or __init__]
     propMgr = None
     
-    # note: the following 2 command_ attributes may be ignored or revised
-    # after the current command stack refactoring is complete [070830]:
-    
-    command_can_be_suspended = False
-        # Boolean; whether this command can be suspended while temporary commands run,
-        # to be resumed when they finish. Should be True for most real commands
-        # (so is True in basicCommand) but is often False for other temporary commands.
-        # [bruce 071011]
+        
 
     command_should_resume_prevMode = False
         # Boolean; whether this command, when exiting, should resume the prior command
@@ -321,7 +314,6 @@ class basicCommand(anyCommand):
     
     __abstract_command_class = True
 
-    command_can_be_suspended = True # good default value for most commands [bruce 071011]
     
     PM_class = None
         #Command subclasses can override this class constant with the appropriate

@@ -54,10 +54,7 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
 
-    command_can_be_suspended = True #bruce 071011, 
-                                    #GUESS ### REVIEW whether correct when 
-                                    #entering Zoom/Pan/Rotate
-
+    
     #Don't resume previous mode (buggy if set to True) [ninad circa 080102]
     command_should_resume_prevMode = False
 

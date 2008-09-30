@@ -41,8 +41,7 @@ class ColorScheme_Command(EditCommand):
     GraphicsMode_class = ColorScheme_GraphicsMode
     
     PM_class = ColorScheme_PropertyManager
-        
-    command_can_be_suspended = False
+    
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     

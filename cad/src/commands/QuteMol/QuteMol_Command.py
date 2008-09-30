@@ -27,7 +27,6 @@ class QuteMol_Command(SelectChunks_Command):
     
     PM_class = QuteMolPropertyManager
 
-    command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
 

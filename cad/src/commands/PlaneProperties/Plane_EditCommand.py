@@ -58,11 +58,6 @@ class Plane_EditCommand(EditCommand):
     create_name_from_prefix = False 
     #See Command.anyCommand for details about the following flags
 
-    #command_can_be_suspended = False mitigates bug similar to bug 2699
-    #(atleast it removes the property manager) . Actual fix will be cleanup of 
-    #command/command sequencer and inscreasing the command stack depth
-    #-- Ninad 2008-04-15
-    command_can_be_suspended = False 
     command_should_resume_prevMode = True
     command_has_its_own_PM = True
         # When <command_should_resume_prevMode> and <command_has_its_own_PM>

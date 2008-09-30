@@ -47,7 +47,6 @@ class BondTool_Command(BuildAtoms_Command):
     featurename = 'Build Atoms Mode/BondTool'
     commandName = 'BOND_TOOL'
     
-    command_can_be_suspended = True
     command_should_resume_prevMode = False
     command_has_its_own_PM = False
     
@@ -186,8 +185,7 @@ class SingleBondTool(BondTool_Command):
     
     featurename = 'Build Atoms Mode/SingleBondTool'    
     commandName = 'SINGLE_BOND_TOOL' 
-    
-    command_can_be_suspended = False
+  
     command_should_resume_prevMode = True
     
     def getBondType(self):
@@ -202,8 +200,7 @@ class SingleBondTool(BondTool_Command):
 class DoubleBondTool(BondTool_Command):
     featurename = 'Build Atoms Mode/DoubleBondTool'
     commandName = 'DOUBLE_BOND_TOOL'
-    
-    command_can_be_suspended = False
+   
     command_should_resume_prevMode = True
     
     def getBondType(self):
@@ -219,7 +216,6 @@ class TripleBondTool(BondTool_Command):
     featurename = 'Build Atoms Mode/TripleBondTool'
     commandName = 'TRIPLE_BOND_TOOL'
     
-    command_can_be_suspended = False
     command_should_resume_prevMode = True
     
     def getBondType(self):
@@ -235,7 +231,6 @@ class AromaticBondTool(BondTool_Command):
     featurename = 'Build Atoms Mode/AromaticBondTool'
     commandName = 'AROMATIC_BOND_TOOL'
     
-    command_can_be_suspended = False
     command_should_resume_prevMode = True
     
     def getBondType(self):
@@ -251,7 +246,6 @@ class GraphiticBondTool(BondTool_Command):
     featurename = 'Build Atoms Mode/GraphiticBondTool'
     commandName = 'GRAPHITIC_BOND_TOOL'
     
-    command_can_be_suspended = False
     command_should_resume_prevMode = True
     
     def getBondType(self):
@@ -268,7 +262,6 @@ class DeleteBondTool(BondTool_Command):
     featurename = 'Build Atoms Mode/DeleteBondTool'
     commandName = 'DELETE_BOND_TOOL'
     
-    command_can_be_suspended = False
     command_should_resume_prevMode = True
     
     def _apply_bondTool_on_selected_atoms(self):

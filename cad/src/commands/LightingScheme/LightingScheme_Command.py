@@ -42,7 +42,5 @@ class LightingScheme_Command(EditCommand):
     
     PM_class = LightingScheme_PropertyManager
    
-    
-    command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True    

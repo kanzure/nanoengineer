@@ -124,8 +124,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     command_should_resume_prevMode = True
     command_has_its_own_PM = True
-    command_can_be_suspended = False
-
+    
     # Generators for DNA, nanotubes and graphene have their MT name 
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 

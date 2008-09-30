@@ -27,7 +27,6 @@ class TranslateChunks_Command(Move_Command):
     from utilities.constants import CL_EDIT_GENERIC
     command_level = CL_EDIT_GENERIC
     
-    command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = False    
     GraphicsMode_class = TranslateChunks_GraphicsMode

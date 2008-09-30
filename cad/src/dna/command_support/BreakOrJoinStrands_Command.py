@@ -34,7 +34,6 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
     command_parent = 'BUILD_DNA'
     __abstract_command_class = True #bruce 080905
     
-    command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     

@@ -60,7 +60,6 @@ class Move_Command(SelectChunks_Command):
 
     pw = None
 
-    command_can_be_suspended = True
     command_should_resume_prevMode = False
     command_has_its_own_PM = True
     

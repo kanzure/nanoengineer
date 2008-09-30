@@ -48,7 +48,6 @@ class DnaDisplayStyle_Command(EditCommand):
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
 
-    command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     

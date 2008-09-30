@@ -51,8 +51,6 @@ class MakeCrossovers_Command(SelectChunks_Command,
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
     
-        
-    command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     

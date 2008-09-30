@@ -55,7 +55,6 @@ class Peptide_EditCommand(EditCommand):
     
     structGenerator = PeptideGenerator()
     
-    command_can_be_suspended = False
     command_should_resume_prevMode = True
     command_has_its_own_PM = True
 

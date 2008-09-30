@@ -98,7 +98,6 @@ class ExampleCommand(_superclass):
 ##    # Warning: currently only one level of temporary commands is permitted;
 ##    # if you enter one of these commands and then enter another TemporaryCommand (e.g. Zoom Tool)
 ##    # it exits the first temporary commmand you were in.
-##    command_can_be_suspended = False #bruce 071011
 ##    command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
 ##    test_commands_start_as_temporary_command = True # enter in different way
 ##        ### maybe todo: set up a similar thing in Command API?

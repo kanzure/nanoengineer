@@ -22,7 +22,6 @@ class TemporaryCommand_preMixin(commonCommand):
     A pre-Mixin class for Command subclasses
     which want to act as temporary commands.
     """
-    command_can_be_suspended = False #bruce 071011
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
     #See Command.anyCommand for detailed explanation of the following flag
     command_has_its_own_PM = False

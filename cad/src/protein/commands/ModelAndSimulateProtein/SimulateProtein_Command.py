@@ -19,7 +19,6 @@ class SimulateProtein_Command(ModelAndSimulateProtein_Command):
     featurename = 'Model and Simulate Protein Mode/Simulate Protein'
     commandName = 'SIMULATE_PROTEIN'
     
-    command_can_be_suspended = False
     command_should_resume_prevMode = True
     #Urmi 20080806: We may want it to have its own PM
     command_has_its_own_PM = False
