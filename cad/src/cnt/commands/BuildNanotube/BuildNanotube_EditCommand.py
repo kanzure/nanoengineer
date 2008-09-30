@@ -42,10 +42,7 @@ class BuildNanotube_EditCommand(EditCommand):
     BuildNanotube_EditCommand provides a convenient way to edit or create
     a NanotubeGroup object     
     """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
+      
     
     #GraphicsMode
     GraphicsMode_class = BuildNanotube_GraphicsMode

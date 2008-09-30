@@ -91,9 +91,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     widgets showing the properties of selected segment.
     """
     
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
     #Graphics Mode 
     GraphicsMode_class = NanotubeSegment_GraphicsMode
     

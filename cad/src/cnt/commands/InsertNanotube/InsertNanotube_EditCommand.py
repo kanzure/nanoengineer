@@ -55,10 +55,7 @@ class InsertNanotube_EditCommand(EditCommand):
     two end points for each nanotube. This uses NanotubeLineMode_GM  class as its
     GraphicsMode 
     """
-    
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported
-    
+        
     #Graphics Mode set to CntLine graphics mode
     GraphicsMode_class = NanotubeLine_GM
     

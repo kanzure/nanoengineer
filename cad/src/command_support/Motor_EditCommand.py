@@ -24,9 +24,6 @@ class Motor_EditCommand(EditCommand):
     #GraphicsMode
     GraphicsMode_class = SelectAtoms_GraphicsMode
     
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status = None #fully ported. But need cleanup in PMs of subclasses to move update_widgets_in_PM_* method to perhaps _update_UI_* method. 
-    
     prefix = '' # Not used by jigs.
     # All jigs like rotary and linear motors already created their
     # name, so do not (re)create it from the prefix.

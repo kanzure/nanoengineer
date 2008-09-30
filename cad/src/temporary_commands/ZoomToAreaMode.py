@@ -204,8 +204,6 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
     """
     Encapsulates the Zoom Tool functionality.
     """
-    #Temporary attr 'command_porting_status. See baseCommand for details.
-    command_porting_status =  None
     
     # TODO: rename to ZoomTool or ZoomCommand or TemporaryCommand_Zoom or ...
     
