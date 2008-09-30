@@ -61,6 +61,10 @@ from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from utilities.icon_utilities import geticon
 
 DEBUG = True
+#global display preferences
+from utilities.constants import diDEFAULT ,diTrueCPK, diLINES
+from utilities.constants import diBALL, diTUBES, diDNACYLINDER
+GDS_INDEXES = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
 GDS_NAMES   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
 GDS_ICONS   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
 # currently, [x][3] is not used, if it does become used by radiobuttonlist.
@@ -1042,7 +1046,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                            connectTitleButton = False)
         _choices = ["NanoDynamics-1 (Default)", "GROMACS with ND1 Force Field",
                     "Background GROMACS with ND1 Force Field"]
-        self.detail_level_ComboBox = PM_ComboBox(adjust_physics_engine_GroupBox, 
+        self.physics_engine_choice_ComboBox = PM_ComboBox(adjust_physics_engine_GroupBox, 
                                       label =  "", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
@@ -1053,10 +1057,14 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         physics_engine_animation_GroupBox = PM_GroupBox(_pageContainer,
                                                         title = "Pysics engine animation options",
                                                         connectTitleButton = False)
+        self.watch_motion_in_realtime_CheckBox = PM_CheckBox(physics_engine_animation_GroupBox,
+                                                             spanWidth = True,
+                                                             widgetColumn = 0,
+                                                             text = "Watch motion in real time")
         self.constant_animation_update_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
                                                                text = "Update as often as possible")
         self.update_every_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
-                                                               text = "Update Every")
+                                                               text = "Update Every  ")
         self.update_rate_SpinBox = PM_SpinBox(physics_engine_animation_GroupBox,
                                            label = "")
         _choices = ["frames", "seconds", "minutes", "hours"]
@@ -1073,17 +1081,21 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         convergence_criteria_GroupBox = PM_GroupBox(_pageContainer,
                                                     title = "Convergence criteria",
                                                     connectTitleButton = False)
-        self.endRMS_DoubelSpinBox = PM_DoubleSpinBox(convergence_criteria_GroupBox,
+        self.endRMS_DoubleSpinBox = PM_DoubleSpinBox(convergence_criteria_GroupBox,
                                            label = "EndRMS:",
+                                           maximum = 100,
                                            suffix = " pN")
-        self.endmax_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+        self.endmax_DoubleSpinBox = PM_DoubleSpinBox(convergence_criteria_GroupBox,
                                            label = "EndMax:",
+                                           maximum = 100,
                                            suffix = " pN")
-        self.cutoverRMS_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+        self.cutoverRMS_DoubleSpinBox = PM_DoubleSpinBox(convergence_criteria_GroupBox,
                                            label = "CutoverRMS:",
+                                           maximum = 100,
                                            suffix = " pN")
-        self.cutoverMax_SpinBox = PM_SpinBox(convergence_criteria_GroupBox,
+        self.cutoverMax_DoubleSpinBox = PM_DoubleSpinBox(convergence_criteria_GroupBox,
                                            label = "CutoverMax:",
+                                           maximum = 100,
                                            suffix = " pN")
         return
     
@@ -1322,25 +1334,30 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                              text = "Display base orientation indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
-        base_orientation_GroupBox = PM_GroupBox(_pageContainer, 
+        self.base_orientation_GroupBox = PM_GroupBox(_pageContainer, 
                                                       title = "Base orientation indicator parameters",
                                                       connectTitleButton = False)
-        self.indicators_color_ColorComboBox = PM_ColorComboBox(base_orientation_GroupBox,
+        _choices = ["View place (up)", "View place (out)", "View place (right)"]
+        self.plane_normal_ComboBox = PM_ComboBox(self.base_orientation_GroupBox,
+                                                 label = "Plane normal:",
+                                                 choices = _choices)
+        self.indicators_color_ColorComboBox = PM_ColorComboBox(self.base_orientation_GroupBox,
                                                       label = "Indicators color:",
                                                       spanWidth = False)
-        self.inverse_indicators_color_ColorComboBox = PM_ColorComboBox(base_orientation_GroupBox,
+        self.inverse_indicators_color_ColorComboBox = PM_ColorComboBox(self.base_orientation_GroupBox,
                                                       label = "Color:",
                                                       spanWidth = False)
-        self.enable_inverse_indicatiors_CheckBox = PM_CheckBox(base_orientation_GroupBox, 
+        self.enable_inverse_indicatiors_CheckBox = PM_CheckBox(self.base_orientation_GroupBox, 
                                              text = "Display base orientation indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
-        self.angle_threshold_DoubleSpinBox = PM_DoubleSpinBox(base_orientation_GroupBox,
+        self.angle_threshold_DoubleSpinBox = PM_DoubleSpinBox(self.base_orientation_GroupBox,
                                                          label = "Angle threshold:", 
                                                          suffix = "",
+                                             maximum = 360,
                                                          spanWidth = False,
                                                          singleStep = .1)
-        self.terminal_base_distance_SpinBox = PM_SpinBox(base_orientation_GroupBox,
+        self.terminal_base_distance_SpinBox = PM_SpinBox(self.base_orientation_GroupBox,
                                                          label = "Terminal base distance:", 
                                                          suffix = "",
                                                          spanWidth = False,
@@ -1363,6 +1380,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.undo_stack_memory_limit_SpinBox = PM_SpinBox(_pageContainer,
                                                      label = "Undo stack memory limit: ",
                                                      suffix = "MB",
+                                                     maximum = 99999,
                                                      spanWidth = False,
                                                      singleStep = 1)
         vSpacer = QtGui.QSpacerItem(1, 1, 
@@ -1567,23 +1585,25 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                              text = "Display minor groove error indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
-        minor_groove_error_parameters_GroupBox = PM_GroupBox(_pageContainer, 
+        self.minor_groove_error_parameters_GroupBox = PM_GroupBox(_pageContainer, 
                                                       title = "Error indicator parameters",
                                                       connectTitleButton = False)
-        self.minor_groove_error_minimum_angle_SpinBox = PM_SpinBox(minor_groove_error_parameters_GroupBox,
+        self.minor_groove_error_minimum_angle_SpinBox = PM_SpinBox(self.minor_groove_error_parameters_GroupBox,
                                                          label = "Minimum angle:", 
                                                          suffix = " degrees",
                                                          spanWidth = False,
+                                                         maximum = 360,
                                                          singleStep = 1)
-        self.minor_groove_error_maximum_angle_SpinBox = PM_SpinBox(minor_groove_error_parameters_GroupBox,
+        self.minor_groove_error_maximum_angle_SpinBox = PM_SpinBox(self.minor_groove_error_parameters_GroupBox,
                                                          label = "Maximum angle:", 
                                                          suffix = " degrees",
                                                          spanWidth = False,
+                                                         maximum = 360,
                                                          singleStep = 1)
-        self.minor_groove_error_color_ColorComboBox = PM_ColorComboBox(minor_groove_error_parameters_GroupBox,
+        self.minor_groove_error_color_ColorComboBox = PM_ColorComboBox(self.minor_groove_error_parameters_GroupBox,
                                                       label = "Color:",
                                                       spanWidth = False)
-        self.minor_groove_error_reset_PushButton = PM_PushButton(minor_groove_error_parameters_GroupBox,
+        self.minor_groove_error_reset_PushButton = PM_PushButton(self.minor_groove_error_parameters_GroupBox,
                                                       text = "Reset factory defaults",
                                                       spanWidth = False)
         return

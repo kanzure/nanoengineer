@@ -250,9 +250,7 @@ BG_GRAY = 5
 BG_CUSTOM = 6
 
 # GDS = global display style
-GDS_INDEXES = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
-GDS_NAMES   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
-GDS_ICONS   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
+from PreferencesDialog import GDS_NAMES, GDS_ICONS, GDS_INDEXES
 
 from PreferencesDialog import HIGH_ORDER_BOND_STYLES
    
@@ -496,15 +494,15 @@ class Preferences(PreferencesDialog):
         self._setupPage_Atoms()
         self._setupPage_Bonds()
         self._setupPage_DNA()
-        #self._setupPage_DnaMinorGrooveErrorIndicator()
-        #self._setupPage_DnaBaseOrientationIndicators()
-        #self._setupPage_Adjust()
+        self._setupPage_DNA_Minor_Groove_Error_Indicator()
+        self._setupPage_DNA_Base_Orientation_Indicators()
+        self._setupPage_Adjust()
         #self._setupPage_Lighting()
         self._setupPage_Plugins()
-        #self._setupPage_Undo()
-        #self._setupPage_Window()
-        #self._setupPage_Reports()
-        #self._setupPage_Tooltips()
+        self._setupPage_Undo()
+        self._setupPage_Window()
+        self._setupPage_Reports()
+        self._setupPage_Tooltips()
 
         # Assign "What's This" text for all widgets.
         #from ne1_ui.prefs.WhatsThisText_for_PreferencesDialog import whatsThis_PreferencesDialog
@@ -1062,6 +1060,126 @@ class Preferences(PreferencesDialog):
         env.prefs[dnaStrandFivePrimeArrowheadsCustomColor_prefs_key] = _newColor
         return
     
+    # PAGE: DNA MINOR GROOVE ERROR INDICATOR
+    def _setupPage_DNA_Minor_Groove_Error_Indicator(self):
+        """
+        Setup the "DNA Minor_Groove Error Indicator" page.
+        """
+        self.set_DNA_minor_groove_error_indicator_status()
+        self.connect(self.minor_groove_error_indicatiors_CheckBox, 
+                     SIGNAL("toggled(bool)"), 
+                     self.set_DNA_minor_groove_error_indicator_status)
+        connect_spinBox_with_pref(self.minor_groove_error_minimum_angle_SpinBox,
+                                  dnaMinMinorGrooveAngle_prefs_key)
+        connect_spinBox_with_pref(self.minor_groove_error_maximum_angle_SpinBox,
+                                  dnaMaxMinorGrooveAngle_prefs_key)
+        self.minor_groove_error_color_ColorComboBox.setColor(env.prefs[dnaMinorGrooveErrorIndicatorColor_prefs_key])
+        self.connect(self.minor_groove_error_color_ColorComboBox, 
+                     SIGNAL("editingFinished()"), 
+                     self.set_minor_groove_error_color)
+        self.connect(self.minor_groove_error_reset_PushButton, 
+                     SIGNAL("clicked()"),
+                     self.reset_minor_groove_error_prefs)
+        return
+    
+    def set_DNA_minor_groove_error_indicator_status(self, status = None):
+        if (status == None and env.prefs[dnaDisplayMinorGrooveErrorIndicators_prefs_key]) \
+           or status:
+            self.minor_groove_error_parameters_GroupBox.setEnabled(True)
+            self.minor_groove_error_indicatiors_CheckBox.setCheckState(CHECKED)
+            env.prefs[dnaDisplayMinorGrooveErrorIndicators_prefs_key] = True
+        else:
+            self.minor_groove_error_parameters_GroupBox.setEnabled(False)
+            self.minor_groove_error_indicatiors_CheckBox.setCheckState(UNCHECKED)
+            env.prefs[dnaDisplayMinorGrooveErrorIndicators_prefs_key] = False
+        return
+
+    def set_minor_groove_error_color(self):
+        _newColor = self.minor_groove_error_color_ColorComboBox.getColor()
+        env.prefs[dnaMinorGrooveErrorIndicatorColor_prefs_key] = _newColor
+        return
+    
+    def reset_minor_groove_error_prefs(self):
+        self.minor_groove_error_color_ColorComboBox.setColor(env.prefs.get_default_value(dnaMinorGrooveErrorIndicatorColor_prefs_key))
+        self.minor_groove_error_minimum_angle_SpinBox.setValue(env.prefs.get_default_value(dnaMinMinorGrooveAngle_prefs_key))
+        self.minor_groove_error_maximum_angle_SpinBox.setValue(env.prefs.get_default_value(dnaMaxMinorGrooveAngle_prefs_key))
+        env.prefs.restore_defaults([dnaMinorGrooveErrorIndicatorColor_prefs_key,
+                                    dnaMinMinorGrooveAngle_prefs_key,
+                                    dnaMaxMinorGrooveAngle_prefs_key])
+        return
+
+    # PAGE: DNA BASE ORIENTATION INDICATORS
+    def _setupPage_DNA_Base_Orientation_Indicators(self):
+        self.set_DNA_base_orientation_indicator_status()
+        self.connect(self.base_orientation_indicatiors_CheckBox, 
+                     SIGNAL("toggled(bool)"), 
+                     self.set_DNA_base_orientation_indicator_status)
+        connect_comboBox_with_pref(self.plane_normal_ComboBox,
+                                   dnaBaseIndicatorsPlaneNormal_prefs_key)
+        self.indicators_color_ColorComboBox.setColor(env.prefs[dnaBaseIndicatorsColor_prefs_key])
+        self.connect(self.indicators_color_ColorComboBox, 
+                     SIGNAL("editingFinished()"), 
+                     self.set_indicators_color)
+        self.inverse_indicators_color_ColorComboBox.setColor(env.prefs[dnaBaseInvIndicatorsColor_prefs_key])
+        self.connect(self.inverse_indicators_color_ColorComboBox, 
+                     SIGNAL("editingFinished()"), 
+                     self.set_inverse_indicators_color)
+        connect_checkbox_with_boolean_pref(self.enable_inverse_indicatiors_CheckBox,
+                                           dnaBaseInvIndicatorsEnabled_prefs_key)
+        connect_doubleSpinBox_with_pref(self.angle_threshold_DoubleSpinBox,
+                                        dnaBaseIndicatorsAngle_prefs_key)
+        connect_spinBox_with_pref(self.terminal_base_distance_SpinBox,
+                                  dnaBaseIndicatorsDistance_prefs_key)
+        return
+    
+    def set_DNA_base_orientation_indicator_status(self, status = None):
+        if (status == None and env.prefs[dnaBaseIndicatorsEnabled_prefs_key]) \
+           or status:
+            self.base_orientation_GroupBox.setEnabled(True)
+            self.base_orientation_indicatiors_CheckBox.setCheckState(CHECKED)
+            env.prefs[dnaBaseIndicatorsEnabled_prefs_key] = True
+        else:
+            self.base_orientation_GroupBox.setEnabled(False)
+            self.base_orientation_indicatiors_CheckBox.setCheckState(UNCHECKED)
+            env.prefs[dnaBaseIndicatorsEnabled_prefs_key] = False
+        return
+    
+    def set_indicators_color(self):
+        _newColor = self.indicators_color_ColorComboBox.getColor()
+        env.prefs[dnaBaseIndicatorsColor_prefs_key] = _newColor
+        return
+
+    def set_inverse_indicators_color(self):
+        _newColor = self.inverse_indicators_color_ColorComboBox.getColor()
+        env.prefs[dnaBaseInvIndicatorsColor_prefs_key] = _newColor
+        return
+    
+    # PAGE: ADJUST
+    def _setupPage_Adjust(self):
+        """
+        Setup the "Adjust" page.
+        """
+        connect_comboBox_with_pref(self.physics_engine_choice_ComboBox,
+                                   Adjust_minimizationEngine_prefs_key)
+        connect_checkbox_with_boolean_pref(self.enable_electrostatics_CheckBox,
+            electrostaticsForDnaDuringAdjust_prefs_key)
+        connect_checkbox_with_boolean_pref(
+            self.watch_motion_in_realtime_CheckBox,
+            Adjust_watchRealtimeMinimization_prefs_key)
+        connect_doubleSpinBox_with_pref(self.endRMS_DoubleSpinBox,
+                                        Adjust_endRMS_prefs_key)
+        connect_doubleSpinBox_with_pref(self.endmax_DoubleSpinBox,
+                                        Adjust_endMax_prefs_key)
+        connect_doubleSpinBox_with_pref(self.cutoverRMS_DoubleSpinBox,
+                                        Adjust_cutoverRMS_prefs_key)
+        connect_doubleSpinBox_with_pref(self.cutoverMax_DoubleSpinBox,
+                                        Adjust_cutoverMax_prefs_key)
+        self.endRMS_DoubleSpinBox.setSpecialValueText("Automatic")
+        self.endmax_DoubleSpinBox.setSpecialValueText("Automatic")
+        self.cutoverRMS_DoubleSpinBox.setSpecialValueText("Automatic")
+        self.cutoverMax_DoubleSpinBox.setSpecialValueText("Automatic")
+        return
+    
     # PAGE: PLUGINS ==========================================================
     def _setupPage_Plugins(self):
         """
@@ -1581,223 +1699,54 @@ class Preferences(PreferencesDialog):
         """
         env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key] = val
     
+    # PAGE: UNDO
     
-    ########## Slot methods for "Undo" (former name "Caption") page widgets ################
-
-    def change_undo_stack_memory_limit(self, mb_val):
-        """
-        Slot for 'Undo Stack Memory Limit' spinbox.
-        Sets the RAM limit for the Undo Stack.
-        <mb-val> can range from 0-99999 (MB).
-        """
-        env.prefs[undoStackMemoryLimit_prefs_key] = mb_val
-
-    def change_historyHeight(self, value):
-        """
-        Slot for  history height spinbox.
-        """
-        env.prefs[ historyHeight_prefs_key] = value
-
-    ########## End of slot methods for "Undo" page widgets ###########
-
-    ########## Start slot methods for "ToolTips" page widgets ###########
-    def change_dynamicToolTipAtomDistancePrecision(self, value):
-        """
-        Update the atom distance precision for the dynamic tool tip.
-        """
-        env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] = value
-
-    def change_dynamicToolTipBendAnglePrecision(self, value):
-        """
-        Update the bend angle precision for the dynamic tool tip.
-        """
-        env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] = value
-
-    ########## End of slot methods for "ToolTips" page widgets ###########
+    def _setupPage_Undo(self):
+        connect_checkbox_with_boolean_pref(self.undo_restore_view_CheckBox,
+                                           undoRestoreView_prefs_key)
+        connect_checkbox_with_boolean_pref(
+            self.undo_automatic_checkpoints_CheckBox,
+            undoAutomaticCheckpoints_prefs_key)
+        connect_spinBox_with_pref(self.undo_stack_memory_limit_SpinBox,
+                                  undoStackMemoryLimit_prefs_key)
+        return
     
-    ########## Slot methods for "Window" (former name "Caption") page widgets ################
-
-    #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]
-
-    def change_window_size(self, val = 0):
-        """
-        Slot for both the width and height spinboxes that change the current
-        window size.
-
-        Also called from other slots to change the window size based on new
-        values in spinboxes. <val> is not used.
-        """
-        w = self.current_width_spinbox.value()
-        h = self.current_height_spinbox.value()
-        self.w.resize(w,h)
-
-    def update_saved_size(self, w, h):
-        """
-        Update the saved width and height text.
-        """
-        self.saved_width_lineedit.setText(QString(str(w) + " pixels"))
-        self.saved_height_lineedit.setText(QString(str(h) + " pixels"))
-
-    def save_current_win_pos_and_size(self): #bruce 051218; see also debug.py's _debug_save_window_layout
-        from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
-        keyprefix = mainwindow_geometry_prefs_key_prefix
-        save_window_pos_size( self.w, keyprefix) # prints history message
-        size = self.w.size()
-        self.update_saved_size(size.width(), size.height())
+    # PAGE: WINDOW
+    def _setupPage_Window(self):
         return
-
-    def restore_saved_size(self):
-        """
-        Restore the window size, but not the position, from the prefs db.
-        """
-        from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
-        keyprefix = mainwindow_geometry_prefs_key_prefix
-        pos, size = _get_prefs_for_window_pos_size( self.w, keyprefix)
-        w = size[0]
-        h = size[1]
-        self.update_saved_size(w, h)
-        self.current_width_spinbox.setValue(w)
-        self.current_height_spinbox.setValue(h)
-        self.change_window_size()
+    
+    # PAGE: REPORTS
+    def _setupPage_Reports(self):
+        connect_checkbox_with_boolean_pref(
+            self.history_include_message_serial_CheckBox,
+            historyMsgSerialNumber_prefs_key)
+        connect_checkbox_with_boolean_pref(
+            self.history_include_message_timestamp_CheckBox,
+            historyMsgTimestamp_prefs_key)
         return
-
-    def change_use_selected_font(self, use_selected_font):
-        """
-        Slot for "Use Selected Font" checkbox on the groupbox.
-        Called when the checkbox is toggled.
-        """
-        env.prefs[useSelectedFont_prefs_key] = use_selected_font
-        self.set_font()
+    
+    # PAGE: TOOLTIPS
+    def _setupPage_Tooltips(self):
+        connect_checkbox_with_boolean_pref(self.atom_chunk_information_CheckBox,
+                                           dynamicToolTipAtomChunkInfo_prefs_key)
+        connect_checkbox_with_boolean_pref(self.atom_mass_information_CheckBox,
+                                           dynamicToolTipAtomMass_prefs_key)
+        connect_checkbox_with_boolean_pref(self.atom_XYZ_coordinates_CheckBox,
+                                           dynamicToolTipAtomPosition_prefs_key)
+        connect_checkbox_with_boolean_pref(self.atom_XYZ_distance_CheckBox,
+                                           dynamicToolTipAtomDistanceDeltas_prefs_key)
+        connect_checkbox_with_boolean_pref(self.atom_include_vdw_CheckBox,
+                                           dynamicToolTipVdwRadiiInAtomDistance_prefs_key)
+        connect_spinBox_with_pref(self.atom_distance_precision_SpinBox,
+                                  dynamicToolTipAtomDistancePrecision_prefs_key)
+        connect_spinBox_with_pref(self.atom_angle_precision_SpinBox,
+                                  dynamicToolTipBendAnglePrecision_prefs_key)
+        connect_checkbox_with_boolean_pref(
+            self.bond_distance_between_atoms_CheckBox,
+           dynamicToolTipBondLength_prefs_key) 
+        connect_checkbox_with_boolean_pref(self.bond_chunk_information_CheckBox,
+                                           dynamicToolTipBondChunkInfo_prefs_key)
         return
-
-    def change_font(self, font):
-        """
-        Slot for the Font combobox.
-        Called whenever the font is changed.
-        """
-        env.prefs[displayFont_prefs_key] = str_or_unicode(font.family())
-        self.set_font()
-        return
-
-    def change_fontsize(self, pointsize):
-        """
-        Slot for the Font size spinbox.
-        """
-        env.prefs[displayFontPointSize_prefs_key] = pointsize
-        self.set_font()
-        return
-
-    def change_selected_font_to_default_font(self):
-        """
-        Slot for "Make the selected font the default font" button.
-        The default font will be displayed in the Font and Size
-        widgets.
-        """
-        font = self.w.defaultFont
-        env.prefs[displayFont_prefs_key] = str_or_unicode(font.family())
-        env.prefs[displayFontPointSize_prefs_key] = font.pointSize()
-        self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
-
-        if debug_flags.atom_debug:
-            print "change_selected_font_to_default_font(): " \
-                  "Button clicked. Default font: ", font.family(), \
-                  ", size=", font.pointSize()
-        return
-
-    def set_font_widgets(self, setFontFromPrefs = True):
-        """
-        Update font widgets based on font prefs.
-        Unconnects signals from slots, updates widgets, then reconnects slots.
-
-        @param setFontFromPrefs: when True (default), sets the display font
-                                (based on font prefs).
-        @type  setFontFromPrefs: bool
-        """
-
-        if debug_flags.atom_debug:
-            print "set_font_widgets(): Here!"
-
-
-        if env.prefs[displayFont_prefs_key] == "defaultFont":
-            # Set the font and point size prefs to the application's default font.
-            # This code only called the first time NE1 is run (or the prefs db does not exist)
-            font = self.w.defaultFont
-            font_family = str_or_unicode(font.family())
-                # Note: when this used str() rather than str_or_unicode(),
-                # it prevented NE1 from running on some international systems
-                # (when it had never run before and needed to initialize this
-                #  prefs value).
-                # We can now reproduce the bug (see bug 2883 for details),
-                # so I am using str_or_unicode to try to fix it. [bruce 080529]
-            font_size = font.pointSize()
-            env.prefs[displayFont_prefs_key] = font_family
-            env.prefs[displayFontPointSize_prefs_key] = font_size
-            if debug_flags.atom_debug:
-                print "set_font_widgets(): No prefs db. " \
-                      "Using default font: ", font.family(), \
-                      ", size=", font.pointSize()
-
-        else:
-            font_family = env.prefs[displayFont_prefs_key]
-            font_size = env.prefs[displayFontPointSize_prefs_key]
-            font = QFont(font_family, font_size)
-
-        self.disconnect(self.selectedFontGroupBox, SIGNAL("toggled(bool)"), self.change_use_selected_font)
-        self.disconnect(self.fontComboBox, SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
-        self.disconnect(self.fontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_fontsize)
-        self.disconnect(self.makeDefaultFontPushButton, SIGNAL("clicked()"), self.change_selected_font_to_default_font)
-
-        self.selectedFontGroupBox.setChecked(env.prefs[useSelectedFont_prefs_key]) # Generates signal!
-        self.fontComboBox.setCurrentFont(font) # Generates signal!
-        self.fontSizeSpinBox.setValue(font_size) # Generates signal!
-
-        self.connect(self.selectedFontGroupBox, SIGNAL("toggled(bool)"), self.change_use_selected_font)
-        self.connect(self.fontComboBox, SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
-        self.connect(self.fontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_fontsize)
-        self.connect(self.makeDefaultFontPushButton, SIGNAL("clicked()"), self.change_selected_font_to_default_font)
-
-        if setFontFromPrefs:
-            self.set_font()
-        return
-
-    def set_font(self):
-        """
-        Set the current display font using the font prefs.
-        """
-
-        use_selected_font = env.prefs[useSelectedFont_prefs_key]
-
-        if use_selected_font:
-            font = self.fontComboBox.currentFont()
-            font_family = str_or_unicode(font.family())
-            fontsize = self.fontSizeSpinBox.value()
-            font.setPointSize(fontsize)
-            env.prefs[displayFont_prefs_key] = font_family
-            env.prefs[displayFontPointSize_prefs_key] = fontsize
-            if debug_flags.atom_debug:
-                print "set_font(): Using selected font: ", font.family(), ", size=", font.pointSize()
-
-        else: # Use default font
-            font = self.w.defaultFont
-            if debug_flags.atom_debug:
-                print "set_font(): Using default font: ", font.family(), ", size=", font.pointSize()
-
-        # Set font
-        self.w.setFont(font)
-        return
-
-    def set_caption_fullpath(self, val): #bruce 050810 revised this
-        # there is now a separate connection which sets the pref, so this is not needed:
-        ## self.win.caption_fullpath = val
-        # and there is now a Formula in MWsemantics which makes the following no longer needed:
-        ## self.win.update_mainwindow_caption(self.win.assy.has_changed())
-        pass
-
-    def update_number_spinbox_valueChanged(self,a0):
-        # some day we'll use this to set a user preferences, for now it's a no-op
-        pass
-
-    ########## End of slot methods for "Window" page widgets ###########
 
     ########## Slot methods for top level widgets ################
 
