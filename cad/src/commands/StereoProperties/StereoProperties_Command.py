@@ -5,11 +5,8 @@
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-import foundation.changes as changes
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
-from command_support.Command import Command
-from utilities.constants import red
 from commands.StereoProperties.StereoProperties_PropertyManager import StereoProperties_PropertyManager
 
 # == GraphicsMode part
