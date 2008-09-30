@@ -136,6 +136,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
         if that would be safe.
         """
         if TEST_DRAWING:                # See prototype/test_drawing.py .
+            from prototype.test_drawing import test_drawing
+                # intentionally redundant with toplevel import [bruce 080930]
             test_drawing(self)
             return
         

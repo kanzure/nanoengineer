@@ -46,10 +46,9 @@ from commands.Rotate.RotateChunks_Command import RotateChunks_Command
 from commands.Translate.TranslateChunks_Command import TranslateChunks_Command
 from commands.Fuse.FuseChunks_Command import FuseChunks_Command
 from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
-# Urmi background color chooser PM 080523
+from commands.TestGraphics.TestGraphics_Command import TestGraphics_Command
 from commands.ColorScheme.ColorScheme_Command import ColorScheme_Command
 from commands.LightingScheme.LightingScheme_Command import LightingScheme_Command
-from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
 from commands.QuteMol.QuteMol_Command import QuteMol_Command
 
 from temporary_commands.ZoomToAreaMode import ZoomToAreaMode
@@ -59,13 +58,12 @@ from temporary_commands.RotateMode import RotateMode
 from temporary_commands.LineMode.Line_Command import Line_Command
 from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
 
-#Carbon nanotube command imports 
+# Carbon nanotube commands 
 from cnt.commands.BuildNanotube.BuildNanotube_EditCommand import BuildNanotube_EditCommand
 from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
 from cnt.commands.NanotubeSegment.NanotubeSegment_EditCommand import NanotubeSegment_EditCommand
 
-#DNA command imports =======
-
+# DNA commands
 from dna.commands.BuildDna.BuildDna_EditCommand     import BuildDna_EditCommand
 from dna.commands.BuildDuplex.DnaDuplex_EditCommand import DnaDuplex_EditCommand
 from dna.commands.DnaSegment.DnaSegment_EditCommand import DnaSegment_EditCommand
@@ -78,7 +76,7 @@ from dna.commands.DnaDisplayStyle.DnaDisplayStyle_Command import DnaDisplayStyle
 from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand import MultipleDnaSegmentResize_EditCommand
 from dna.temporary_commands.DnaLineMode             import DnaLineMode
 
-# Protein command imports
+# Protein commands
 from protein.commands.BuildPeptide.Peptide_EditCommand import Peptide_EditCommand
 from protein.commands.BuildProtein.BuildProtein_EditCommand import BuildProtein_EditCommand
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
@@ -91,7 +89,8 @@ from protein.commands.ModelAndSimulateProtein.ModelProtein_Command import ModelP
 from protein.commands.ModelAndSimulateProtein.SimulateProtein_Command import SimulateProtein_Command
 from protein.commands.FixedBBProteinSim.FixedBBProteinSim_Command import FixedBBProteinSim_Command
 from protein.commands.BackrubProteinSim.BackrubProteinSim_Command import BackrubProteinSim_Command
-#Graphene commands 
+
+# Graphene commands 
 from commands.InsertGraphene.Graphene_EditCommand import Graphene_EditCommand
 
 from commands.BuildAtoms.BondTool_Command import SingleBondTool
@@ -161,6 +160,7 @@ def preloaded_command_classes():
         FuseChunks_Command,
         RotateAboutPoint_Command,        
         StereoProperties_Command,
+        TestGraphics_Command,
         QuteMol_Command,
         ColorScheme_Command,
         Peptide_EditCommand,

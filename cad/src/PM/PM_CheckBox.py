@@ -1,10 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PM_CheckBox.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  All rights reserved.
+@copyright: 2006-2008 Nanorex, Inc.  All rights reserved.
 
 History:
 
@@ -151,8 +151,7 @@ class PM_CheckBox( QCheckBox ):
         self.defaultState = state
         pass
     
-                
-    def setCheckState(self, state, setAsDefault = False):###bruce 070815 bugfix True -> False
+    def setCheckState(self, state, setAsDefault = False):
         """
         Sets the check box's check state to I{state}.
         
@@ -178,7 +177,8 @@ class PM_CheckBox( QCheckBox ):
         if self.setAsDefault:
             self.setCheckState(self.defaultState)
 
-    def connectWithState(self, stateref,
+    def connectWithState(self,
+                         stateref,
                          set_metainfo = True,
                          debug_metainfo = False):
         """
@@ -188,16 +188,16 @@ class PM_CheckBox( QCheckBox ):
         to correspond to what the stateref provides.
 
         @param stateref: a reference to state of type boolean,
-                         which meets the state-reference interface StateRef_API.
+                         which meets the state-reference interface StateRef_API
         @type stateref: StateRef_API
 
         @param set_metainfo: whether to also set defaultValue,
-        if it's provided by the stateref.
+                             if it's provided by the stateref
         
         @type set_metainfo: bool
 
         @param debug_metainfo: whether to print debug messages
-        about the actions taken by set_metainfo, when it's true.
+                               about the actions taken by set_metainfo
         
         @type debug_metainfo: bool
         """
