@@ -1145,7 +1145,10 @@ class extrudeMode(basicMode):
         return
 
     def draw_bond_lines(self, unit1, unit2): #bruce 050203 experiment ####@@@@ PROBABLY NEEDS OPTIMIZATION
-        "draw white lines showing the bonds we presently propose to make between the given adjacent units"
+        """
+        draw white lines showing the bonds we presently propose to make
+        between the given adjacent units
+        """
         # works now, but probably needs optim or memo of find_singlets before commit --
         # just store a mark->singlet table in the molcopies -- once when each one is made should be enough i think.
         hh = self.bonds_for_current_offset_and_tol
@@ -1164,15 +1167,8 @@ class extrudeMode(basicMode):
             ## s2.overdraw_with_special_color(yellow)
         return
 
-    # == this belongs higher up...
-
-    
-
     # methods related to exiting this mode
 
-    
-
-    
     def finalize_product(self, cancelling = False): #bruce 050228 adding cancelling=0 to help fix bug 314 and unreported bugs
         """
         if requested, make bonds and/or join units into one part;
@@ -1757,7 +1753,7 @@ class extrudeMode(basicMode):
         try:
             self.propMgr.extrudeSpinBox_n.setValue(1)
             self.update_from_controls()
-            print "reset ncopies to 1, to avoid dialog from Abandon, and ease next use of the mode"
+            print "reset ncopies to 1, to avoid dialog from exit_is_forced, and ease next use of the mode"
         except:
             print_compact_traceback("exception in resetting ncopies to 1 and updating, ignored: ")
 

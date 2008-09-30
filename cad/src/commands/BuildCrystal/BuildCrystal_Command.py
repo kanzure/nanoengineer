@@ -432,15 +432,6 @@ class BuildCrystal_Command(basicMode):
             self.o.shape.changeDisplayMode(self.cookieDisplayMode)
             self.o.gl_update()
 
-    # methods related to exiting this mode [bruce 040922 made these
-    # from old Done and Flush methods]
-
-    def restore_patches_by_Command(self):
-        self.o.ortho = self.savedOrtho 
-        self.o.shape = None
-        self.selCurve_List = []
-        self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2])
-
     def _Backup(self): # called only from our glpane context menu [made private by bruce 080806]
         if self.o.shape:
             self.o.shape.undo(self.currentLayer)

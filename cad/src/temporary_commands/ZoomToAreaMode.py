@@ -173,7 +173,7 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         self.glpane.setCursor(self.win.ZoomCursor)
 
-    def restore_patches_by_GraphicsMode(self):
+    def _restore_patches_by_GraphicsMode(self):
         """
         This is run when we exit this command for any reason.
         """
@@ -183,11 +183,12 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         #(comment slightly updated on 2008-09-26 : removed reference to 
         #the 'new command api' because it is now the default API we use 
         # -- Ninad)
+        # [bruce 080929 made this private]
         
         # If OpenGL states changed during this mode, we need to restore
         # them before exit. Currently, only leftDown() will change that.
         # [bruce 071011/071012 change: do this in
-        #  restore_patches_by_GraphicsMode, not in Done]
+        #  _restore_patches_by_GraphicsMode, not in Done]
         if self.command.glStatesChanged:
             self.glpane.redrawGL = True
             glDisable(GL_COLOR_LOGIC_OP)
@@ -249,7 +250,7 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
         super(ZoomToAreaMode, self).command_exit_misc_actions()
 
     def command_will_exit(self):        
-        self.graphicsMode.restore_patches_by_GraphicsMode()
+        self.graphicsMode._restore_patches_by_GraphicsMode()
         super(ZoomToAreaMode, self).command_will_exit()
         return
     

@@ -181,8 +181,7 @@ class viewSlotsMixin:
         if not val:
             # The Zoom/Pan/Rotate button was toggled off. We are presumably
             # in the associated temporary command, and the user wants us to
-            # exit it. Do so and return to 'prevMode' (using command.Done,
-            # which is overridden in these commands to do that).
+            # exit it. Do so and return to parent command.
             command = commandSequencer.currentCommand
 
             ## if command.commandName in modes_we_are_called_for:
@@ -219,7 +218,7 @@ class viewSlotsMixin:
             # The Zoom/Pan/Rotate button was toggled on.
 
             commandSequencer.userEnterTemporaryCommand(commandName, always_update = True)
-                #bruce 071011, encapsulating the prevMode code that was here before
+                #bruce 071011, encapsulating the code that was here before
 
             # Emit a help message on entering the new temporary command. Ideally this
             # should be done in its Enter or init_gui methods, but that made it

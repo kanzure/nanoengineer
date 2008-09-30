@@ -12,6 +12,8 @@ bruce 071009 split modes.py into Command.py and GraphicsMode.py,
 leaving only temporary compatibility mixins in modes.py.
 For prior history see modes.py docstring before the split.
 
+Bruce & Ninad did a big command sequencer refactoring, circa 080812
+
 TODO:
 
 A lot of methods in class Command are private helper methods,
@@ -20,20 +22,13 @@ but are not yet named as private or otherwise distinguished
 from API methods. We should turn anyCommand into Command_API,
 add all the API methods to it, and rename the other methods
 in class Command to look private.
-
-Methods such as basicCommand.Done, basicCommand._enterMode, 
-basicCommand._exitMode and CommandSequencer.start_using_mode need cleanup
-(needs to be done together).
-
-This is happening as part of a big command sequencer refactoring
-by Bruce & Ninad, circa 080812 (ongoing).
 """
 
 from PyQt4.Qt import QToolButton
 
 from utilities.debug import print_compact_traceback, print_compact_stack
 
-from utilities.debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 from utilities import debug_flags
 from platform_dependent.PlatformDependent import shift_name
@@ -58,13 +53,15 @@ from command_support.baseCommand import baseCommand
 
 import foundation.changes as changes
 
-DEBUG_TO_HELP_STRIP_OUT_OLD_COMMAND_API_METHODS = False # Temporary debug flag, can be removed when safe -- Ninad 2008-09-26
-
 # ==
 
 class anyCommand(baseCommand, StateMixin):
     """
-    abstract superclass for all Command objects, including nullCommand
+    abstract superclass for all Command objects, including nullCommand.
+
+    @note: command base class methods are divided somewhat arbitrarily between
+           baseCommand, anyCommand, and basicCommand. In some cases, methods
+           defined in baseCommand are overridden in anyCommand or basicCommand.
     """
     #bruce 071008 added object superclass; 071009 split anyMode -> anyCommand
 
@@ -75,37 +72,13 @@ class anyCommand(baseCommand, StateMixin):
 
     # note: soon, command_level and command_parent, and some other of the
     # following default values, will be inherited from a new superclass baseCommand.
-
-    from utilities.constants import CL_ABSTRACT
-    command_level = CL_ABSTRACT
-        # command_level is not yet documented, part of command stack refactoring
     __abstract_command_class = True
-    
-    command_parent = None
-        # Subclasses should set this to the commandName of the parent command
-        # they require, if any (and if that is not the default command).
-        # (Whether they require a parent command at all is determined by
-        #  their command_level attribute.)
-        #
-        # For example, BreakStrands_Command requires parent command "Build Dna",
-        # so it sets this to 'BUILD_DNA' == BuildDna_EditCommand.commandName.
-        # This attr is used in a revised command stack scheme as of 2008-07-28
-        # (still being developed).
-    
-    is_null = False # overridden only in nullCommand
-    
-    # internal name of command, e.g. 'DEPOSIT',
-    # only seen by users in "debug" error messages;
-    # might be used to create some prefs_keys and/or in some prefs values
-    # [but I don't know if any such uses remain -- bruce 080727 comment]
-    commandName = "(bug: missing commandName 1)" 
 
     featurename = ""
     
     # Command's property manager. Subclasses should initialize the propMgr object 
     # if they need one. [in command_enter_PM (after refactoring) or __init__]
     propMgr = None
-
     
     # note: the following 2 command_ attributes may be ignored or revised
     # after the current command stack refactoring is complete [070830]:
@@ -165,7 +138,6 @@ class anyCommand(baseCommand, StateMixin):
         # 'exit_using_done_cancel' in basicCommand.Done used (= False) for a 
         # typical exit of a temporary mode . See that method for detailed 
         # comment. -- Ninad 2007-11-09
-            
     
     def __repr__(self): #bruce 080829, modified from Utility.py version
         """
@@ -177,16 +149,12 @@ class anyCommand(baseCommand, StateMixin):
     # (default methods that should be noops in both nullCommand and Command
     #  can be put here instead if desired; for docstrings, see basicCommand)
     
-    
     def isCurrentCommand(self): #bruce 071008
         # WARNING: this value of False means the nullCommand should never itself
         # run code which assumes that this returns true when self is current.
         # The reason for this stub value is in case this method is ever called on nullCommand
         # at an early stage of startup, before the usual method would work.
         return False
-
-    def get_featurename(self):
-        return "null command" # should never be seen [revised, bruce 080727]
 
     def keep_empty_group(self, group): #bruce 080305
         """
@@ -271,13 +239,13 @@ class anyCommand(baseCommand, StateMixin):
     
     pass # end of class anyCommand
 
+# ==
 
 class nullCommand(anyCommand):
     """
     do-nothing command (for internal use only) to avoid crashes
     in case of certain bugs during transition between commands
     """
-
     # needs no __init__ method; constructor takes no arguments
     
     # WARNING: the next two methods are similar in all "null objects", of which
@@ -302,8 +270,6 @@ class nullCommand(anyCommand):
 
     # Command-specific attribute null values
 
-    # TODO: revise the 'mode' term in the following attribute names
-
     # (the nullCommand instance is not put into the command sequencer's _commandTable)
 
     is_null = True
@@ -315,10 +281,6 @@ class nullCommand(anyCommand):
     
     # Command-specific null methods
     
-    def Done(self, *args, **kws):
-        #bruce 060316 added this to remove frequent harmless debug print
-        pass
-
     def autodelete_empty_groups(self, topnode):
         return
     
@@ -332,11 +294,14 @@ class basicCommand(anyCommand):
     and old-code-compatibility class basicMode.
     Will be merged with class Command (keeping that one's name)
     when basicMode is no longer needed.
+
+    @note: command base class methods are divided somewhat arbitrarily between
+           baseCommand, anyCommand, and basicCommand. In some cases, methods
+           defined in baseCommand are overridden in anyCommand or basicCommand.
     """
     # TODO: split into minimalCommand, which does as little as possible
     # which meets the Command API and permits switching between commands
-    # in conjunction with the Command Sequencer (e.g. it implements
-    # Done, _f_userEnterCommand, init_gui, etc etc); and basicCommand, which
+    # in conjunction with the Command Sequencer; and basicCommand, which
     # has all the rest (the basic functionality of an NE1 command).
     # (This is not urgent, since all commands should have that basic
     #  functionality. It might make things clearer or ease refactoring
@@ -351,12 +316,10 @@ class basicCommand(anyCommand):
     # and pass the CommandSequencer in which this command can run.
     commandName = "(bug: missing commandName)"
     featurename = "Undocumented Command"
-    from utilities.constants import CL_ABSTRACT
-    command_level = CL_ABSTRACT
+    
     __abstract_command_class = True
 
     command_can_be_suspended = True # good default value for most commands [bruce 071011]
-    
     
     PM_class = None
         #Command subclasses can override this class constant with the appropriate
@@ -371,15 +334,7 @@ class basicCommand(anyCommand):
 
         # Note: for the new command API as of 2008-09-26, this is always used,
         # since base class command_enter_PM calls _createPropMgrObject.
-        # [bruce 080909]
-        
-    
-    FlyoutToolbar_class = None
-       #Command subclasses can override this class constant with the appropriate
-       #Flyout Toolbar class.
-
-    flyoutToolbar = None #bruce 080924, redundant with baseCommand when we use that
-       
+        # [bruce 080909]       
 
     def __init__(self, commandSequencer):
         """
@@ -416,10 +371,7 @@ class basicCommand(anyCommand):
         
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
-        ### bruce 050130 removing 'Done' temporarily; see PanMode.Done for why.
-        # later note: as of 070521, we always get warned "subclass movieMode
-        # overrides basicMode._exitMode". I am not sure whether this override is
-        # legitimate, so I'm not removing the warning for now. [bruce 070521]
+        # [most methods have been removed after the command api was revised -- bruce 080929]
         weird_to_override = [ 'StartOver'                              
                              #bruce 080806
                             ]
@@ -431,25 +383,6 @@ class basicCommand(anyCommand):
         weird_to_override += [
                          'command_Done', 'command_Cancel', #bruce 080827
                         ]
-        if DEBUG_TO_HELP_STRIP_OUT_OLD_COMMAND_API_METHODS: ### TODO: enable this once we'll never go back, to help strip out obsolete code
-            # also complain about commands not fully ported to the new API
-            # (i.e. in which obsolete methods are still defined)
-            for methodname, howtofix in (
-                ('Enter', ""),
-                ('init_gui', ""),
-                ('resume_gui', ""),
-                ('Done', ""),
-                ('StateDone', ""),
-                ('StateCancel', ""),
-                ('restore_gui', ""),
-                ('restore_patches_by_Command', ""),
-                ('clear_command_state', ""),
-                ('haveNontrivialState', ""),
-            ):
-                weird_to_override += [methodname]
-                # todo: print howtofix when needed
-                continue
-            pass
         for attr in weird_to_override:
             def same_method(m1, m2):
                 # m1/m2.im_class will differ (it's the class of the query,
@@ -459,7 +392,7 @@ class basicCommand(anyCommand):
                                 getattr(basicCommand, attr) ):
                 print "fyi (for developers): subclass %s overrides basicCommand.%s; " \
                       "this is deprecated after mode changes of 040924." % \
-                      (self.__class__.__name__, attr) # todo: print howtofix as well
+                      (self.__class__.__name__, attr)
 
         # other inits
         self.glpane = glpane # REVIEW: needed?
@@ -491,7 +424,6 @@ class basicCommand(anyCommand):
         return # from basicCommand.__init__
 
     # ==
-
     
     def command_enter_PM(self):
         """
@@ -519,7 +451,6 @@ class basicCommand(anyCommand):
     
         propMgr = self.PM_class(self)
         return propMgr
-        
     
     def get_featurename(clas): #bruce 071227, revised into classmethod 080722
         """
@@ -528,6 +459,8 @@ class basicCommand(anyCommand):
         concrete subclass.
 
         Usually, this is one or a few space-separated capitalized words.
+
+        [overrides baseCommand method]
         """
         # (someday: add debug command to list all known featurenames,
         #  by object type -- optionally as wiki help links, for testing;
@@ -743,57 +676,6 @@ class basicCommand(anyCommand):
 
     # confirmation corner methods [bruce 070405-070409, 070627]
 
-    # Note [obs?]: if we extend the conf. corner to "generators" in the short term,
-    # before the "command sequencer" is implemented, some of the following methods
-    # may be revised to delegate to the "current generator" or its PM.
-    # If so, when doing this, note that many modes currently act as their own PM widget.
-
-    def _KLUGE_current_PM(self, get_old_PM = False): #bruce 070627; new option 080819
-        """
-        private method, and a kluge;
-        see KLUGE_current_PropertyManager docstring for more info
-        """
-        if not get_old_PM:
-            return self.propMgr
-        
-        pw = self.w.activePartWindow()
-        if not pw:
-            # I don't know if pw can be None
-            print "fyi: _KLUGE_current_PM sees pw of None" ###
-            return None
-        try:
-            res = pw.KLUGE_current_PropertyManager()
-            if res is not self.propMgr and not get_old_PM:
-                # I think this should now be rare, now that Ninad removed
-                # all official "guest PM" commands; let's find out...
-                # unfortunately it's common, apparently due to a logic bug
-                # in terms of when we access this vs. when various things are
-                # updated, since the PMs don't match the command objects in the
-                # debug prints (see below, when entering or exiting Break Strands) --
-                # or maybe it's a side effect of an exception in entering it, in
-                # current code? Try again when that bug is fixed... #### trying this now, 080812
-                #
-                ## debug note: _KLUGE_current_PM returns
-                ## <dna.commands.BreakStrands.BreakStrands_PropertyManager.BreakStrands_PropertyManager
-                ## object at 0xb333858>, but <commands.SelectChunks.SelectChunks_Command.SelectChunks_Command
-                ## object at 0x9f66870>.propMgr is None
-                #
-                # [bruce 080806]
-                ## pass
-                print "debug note: _KLUGE_current_PM returns %r, but %r.propMgr is %r" % \
-                      (res, self, self.propMgr) ### if happens, fix; if not, clean up all calls
-##                assert 0, "failure in _KLUGE_current_PM, see console prints"
-##                    #bruce 080812 (temporary) -- make this un-missable by
-##                    # developers, for next few days -- also added 'raise' below
-            return res
-        except:
-##            raise #bruce 080812 (temporary) -- goes with above assert 0
-            # I don't know if this can happen
-            msg = "ignoring exception in %r.KLUGE_current_PropertyManager()" % (pw,)
-            print_compact_traceback(msg + ": ")
-            return None
-        pass
-
     def _KLUGE_visible_PM_buttons(self): #bruce 070627
         """
         private method (but ok for use by self._ccinstance), and a kluge:
@@ -803,7 +685,12 @@ class basicCommand(anyCommand):
         Used both for deciding what CC buttons to show, and for acting on the buttons
         (assuming they are QToolButtons).
         """
-        pm = self._KLUGE_current_PM()
+        # note: this is now much less of a kluge, but still somewhat klugy
+        # (since it makes one UI element depend on another one),
+        # so I'm not renaming it. [bruce 080929 comment]
+        
+        pm = self.propMgr #bruce 080929 revision, used to call _KLUGE_current_PM
+            # (but recently, it passed an option that made it equivalent)
         if not pm:
             return None, None # no CC if no PM is visible
         def examine(buttonname):
@@ -874,7 +761,6 @@ class basicCommand(anyCommand):
         else:
             res = '+'.join(res)
         return res
-    
         
     def should_exit_when_ESC_key_pressed(self): # not overridden, as of 080815
         """
@@ -892,86 +778,15 @@ class basicCommand(anyCommand):
         @see: ESC_to_exit_GraphicsMode_preMixin.keyPress()
         """
         return (self.command_should_resume_prevMode and not self.is_default_command())
-
     
-    def _init_gui_flyout_action( self, action_attr, parentCommandName = None ):
-        """
-        [helper method for command entry]
-        
-        If our direct parent command has the expected commandName,
-        copy self.flyoutToolbar from it and call setChecked on the specified
-        action in it (if it has that action) (setting self.flyoutToolbar = None
-        if any of this fails by raising AttributeError, with no error message)
-        and return the parent command. Otherwise return None.
-
-        @param action_attr: attribute name of this command's action in
-                            this or parent command's flyout toolbar.
-                            Example: 'breakStrandAction'
-        @type: string
-
-        @param parentCommandName: commandName of expected parent command;
-                                  if not provided or None, we use
-                                  self.command_parent for this.
-                                  Example: 'BUILD_DNA'
-        @type: string
-
-        @return: parent command, if it has expected commandName, otherwise None.
-        @rtype: Command or None
-        
-        [helper method for use in init_gui implementations;
-         might need refactoring]
-        """
-        
-        if not action_attr:
-            return 
-        
-        #bruce 080726 split this out of init_gui methods (by Ninad)
-        # of several Commands.
-        if parentCommandName is None:
-            parentCommandName = self.command_parent
-            assert self.command_parent, \
-                   "_init_gui_flyout_action in %r requires " \
-                   "self.command_parent assignment" % self
-            # note: it's ok that we don't interpret command_parent = None
-            # as the default commandName here, since the default command has no
-            # flyout toolbar. This only works by accident; it might be more
-            # principled to check self.is_fixed_parent_command() instead, once
-            # that's always defined, and if it's true, interpret
-            # command_parent = None as being the name of the default command.
-            # [bruce 080814 comment]
-        
-        #bruce 080804
-        parentCommand = self.parentCommand
-        assert parentCommand # should be already set by now (during command_entered)
-        if parentCommand.commandName == parentCommandName:
-            try:
-                self.flyoutToolbar = parentCommand.flyoutToolbar
-                #Need a better way to deal with changing state of the 
-                #corresponding action in the flyout toolbar. To be revised 
-                #during command toolbar cleanup
-                action = getattr(self.flyoutToolbar, action_attr)
-                action.setChecked(True)
-            except AttributeError:
-                # REVIEW: this could have several causes; would any of them
-                # be bugs and deserve an error message? [bruce 080726 questions]
-                self.flyoutToolbar = None
-            return parentCommand
-        else:
-            print "fyi: _init_gui_flyout_action in %r found wrong kind " \
-                  "of parent command" % self # not sure if this ever happens; might be a bug if so
-            return None
-        pass
-    
-    def is_default_command(self): #bruce 080709 refactoring
-        return self.commandName == self.commandSequencer.default_commandName()
-    
-            
     # methods for leaving this command (from a dashboard tool or an
     # internal request).
 
     # Notes on state-accumulating modes, e.g. Build Crystal, Extrude,
     # and [we hoped at the time] Build Atoms [bruce 040923]:
-    # [mostly obsolete after USE_COMMAND_STACK (new command API , which 
+    #
+    # [WARNING: these comments are MOSTLY OBSOLETE now that
+    # USE_COMMAND_STACK is true (new command API, which 
     # is the default API as of 2008-09-26) ]
     #
     # Each command which accumulates state, meant to be put into its
@@ -1038,7 +853,7 @@ class basicCommand(anyCommand):
         print_compact_stack( "fyi: deprecated method basicCommand.warning(*%r, **%r) was called: " % (args, kws))
         self._warning_for_abandon(*args, **kws)
 
-    def _warning_for_abandon(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
+    def _warning_for_abandon(self, str1, bother_user_with_dialog = 0, ensure_visible = 1):
         """
         Show a warning to the user, without interrupting them
         (i.e. not in a dialog) unless bother_user_with_dialog is
@@ -1073,8 +888,7 @@ class basicCommand(anyCommand):
         # and renamed it, and added a deprecated compatibility
         # call from the old method name (warning).
 
-        # TODO: cleanup; rename str to not mask python builtin;
-        # merge with other 'def warning' methods and with
+        # TODO: cleanup; merge with other 'def warning' methods and with
         # env.history / statusbar methods.
         # Or, perhaps just inline it into its sole real caller.
 
@@ -1090,8 +904,8 @@ class basicCommand(anyCommand):
             ### guarantee it lasts
         else:
             prefix = "warning"
-        str = str[0].upper() + str[1:] # capitalize the sentence
-        msg = "%s: %s" % (prefix, str,)
+        str1 = str1[0].upper() + str1[1:] # capitalize the sentence
+        msg = "%s: %s" % (prefix, str1,)
         ###e add a timestamp prefix, at least for the printed one
 
         # always print it so there's a semi-permanent record they can refer to
@@ -1107,14 +921,13 @@ class basicCommand(anyCommand):
             ##e also linebreak it if it's very long? i might hope that some
             # arg to the messagebox could do this...
             QMessageBox.warning(self.o, prefix, msg) # args are widget, title, content
-        return   
+        return
     
-        
-
     # [bruce comment 040923; trimmed, 080806]
     #
     # The preceding and following methods, StartOver Cancel
     # Done, handle the common tools on the dashboards.
+    # [note: as of before 080929, only StartOver still exists.]
     #
     # Each dashboard uses instances of the same tools, for a uniform
     # look and action; the tool itself does not know which command it
@@ -1152,16 +965,14 @@ class basicCommand(anyCommand):
         which has the given commandName, or None if none does
         (often an error, but no error message is printed).
         """
-        # note: this implem ought to work both before and after the
-        # command stack refactoring related to USE_COMMAND_STACK;
-        # after it, it could be rewritten to not use self.commandSequencer
+        # note: this could be rewritten to not use self.commandSequencer
         # at all (a nice cleanup, but not urgent or required).
         cseq = self.commandSequencer
         res = cseq.find_innermost_command_named( commandName,
                                                  starting_from = self )
         return res
 
-    def find_parent_command_named(self, commandName): #bruce 080801; maybe untested
+    def find_parent_command_named(self, commandName): #bruce 080801
         """
         Return the first of self's parentCommands (if any)
         which has the given commandName, or None if none does
@@ -1171,34 +982,14 @@ class basicCommand(anyCommand):
                commandName (at a given time), but this may not be checked
                or enforced.
         """
-        # note: this implem ought to work both before and after the
-        # command stack refactoring related to USE_COMMAND_STACK;
-        # after it, it should be reviewed for possible simplification.
+        # review: can this be simplified, now that new command api is always used?
+        # e.g. it could probably work without referencing self.commandSequencer.
         cseq = self.commandSequencer
         commands = cseq.all_active_commands( starting_from = self )
         for command in commands[1:]: # only look at our parent commands
             if command.commandName == commandName:
                 return command
         return None
-
-    def find_parentCommand(self): #bruce 080813; won't be needed once .parentCommand always works
-        cseq = self.commandSequencer
-        commands = cseq.all_active_commands( starting_from = self )
-        commands = commands[1:] # only look at our parent commands
-        if not commands:
-            res = None
-        else:
-            res = commands[0]
-        if self.command_parent:
-            assert res is self.find_parent_command_named( self.command_parent) # not sure this is always required...
-            # note: this doesn't run when self.is_fixed_parent_command() and
-            # self.command_parent is None, meaning the default command!
-            # ok for now, since it's only an assert.
-        
-        assert res is self.parentCommand
-        # maybe: if not, add a property to make this always true... then use it
-        # to replace all calls of _reuse_attr_of_parentCommand with direct assignments.
-        return res
 
     # ==
 
@@ -1259,7 +1050,6 @@ class Command(basicCommand):
         # dependent then on the API of those GraphicsMode methods,
         # and not on their implem until it had to be instantiated.
         # Eventually, to librarify this code, we'll need to solve that problem.
-        
 
     def __init__(self, commandSequencer):
         basicCommand.__init__(self, commandSequencer)

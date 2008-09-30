@@ -1293,45 +1293,8 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         self.cmd_Stop()
         if TESTING_KLUGES:
             print "KLUGE FOR TESTING: set cannonWidth in cmd_Stop"
-            self.cannonWidth = 2.0########### DOES IT FIX THE BUG? THEN ZAP.
+            self.cannonWidth = 2.0 ########### DOES IT FIX THE BUG? THEN ZAP.
         return
-
-    if not USE_COMMAND_STACK: ########## in USE_COMMAND_STACK we get infinite recursion somehow; maybe fixed after that?
-        # all these will need porting to other methods of new command API when USE_COMMAND_STACK
-        def clear_command_state(self): # this will need to be inlined (copied) into command_will_exit
-            """
-            (part of command API, when not USE_COMMAND_STACK)
-            """
-            self._clear_command_state()
-            ## this line seems to mess up the reload of test_animation_mode when i reenter it when in itself:
-            ## super(test_animation_mode, self).clear_command_state()
-            return
-        
-        def Enter(self): # this will need to go into command_entered [done]
-            self._command_enter_effects()            
-            return _superclass.Enter(self)
-        
-        def init_gui(self): #050528
-            ## self.w.modifyToolbar.hide()
-            self.hidethese = hidethese = []
-            for tbname in annoyers:
-                try:
-                    tb = getattr(self.w, tbname)
-                    if tb.isVisible(): # someone might make one not visible by default
-                        tb.hide()
-                        hidethese.append(tb) # only if hiding it was needed and claims it worked
-                except:
-                    print_compact_traceback("hmm %s: " % tbname) # someone might rename one of them
-
-            self.propMgr = self.PM_class(self)
-            self.propMgr.show()
-
-        def restore_gui(self): #050528
-            ## self.w.modifyToolbar.show()
-            for tb in self.hidethese:
-                tb.show()
-
-            self.propMgr.hide()
 
     # ==
 
@@ -1342,7 +1305,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
     
     def command_enter_PM(self):
         if not self.propMgr:
-            self.propMgr = self.PM_class(self) # UNTESTED and not well reviewed re other code [080910 change]
+            self.propMgr = self.PM_class(self) # [080910 change]
         return
     
     def _command_enter_effects(self):
@@ -1382,7 +1345,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         self._command_enter_effects()
         return
         
-    def command_enter_misc_actions(self): #bruce 080909 guess, UNTESTED
+    def command_enter_misc_actions(self): #bruce 080909 guess
         self.hidethese = hidethese = []
         for tbname in annoyers:
             try:
@@ -1394,7 +1357,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
                 print_compact_traceback("hmm %s: " % tbname) # someone might rename one of them
         return
     
-    def command_exit_misc_actions(self): #bruce 080909 guess, UNTESTED
+    def command_exit_misc_actions(self): #bruce 080909 guess
         for tb in self.hidethese:
             tb.show()
         return

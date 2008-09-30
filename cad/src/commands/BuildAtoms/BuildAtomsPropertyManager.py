@@ -157,7 +157,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                   when nothing has changed.
                   (It will be renamed accordingly in the API.)
                   
-        @see: PM_Dialog._updateUI)do_updates()
+        @see: PM_Dialog._updateUI.do_updates()
         """  
         newSelectionParams = self._currentSelectionParams()
         

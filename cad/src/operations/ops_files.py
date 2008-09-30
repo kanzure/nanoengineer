@@ -1073,7 +1073,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 # Discard
                 warn_about_abandoned_changes = False
                     # note: this is about *subsequent* discards on same old
-                    # model, if any (related to "Abandon" or exit_is_forced)
+                    # model, if any (related to exit_is_forced)
                 #Huaicai 12/06/04: don't clear assy, since user may cancel the file open action below
                 pass ## self._make_and_init_assy()
             elif ret == 2:

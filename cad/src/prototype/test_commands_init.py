@@ -45,7 +45,7 @@ def start_cmdrun( cmdrun):
     commandSequencer = cmdrun.commandSequencer
     # bruce 071011
     # note: was written for commands with no PM of their own, but was only tested for a command that has one (and works)...
-    # also do we need the Draw delegation to prevMode as in TemporaryCommand_Overdrawing? ### REVIEW
+    # also do we need the Draw delegation to parentCommand as in TemporaryCommand_Overdrawing? ### REVIEW
     #
     # update, bruce 080730:
     # TODO: print a warning if cmdrun.command_level is not something
@@ -101,9 +101,9 @@ def enter_example_command(widget, example_command_classname):
 def enter_example_command_doit(glpane, example_command_classname):
     example_command_class = globals()[example_command_classname]
     example_command_class.commandName += 'x'
-        # kluge to defeat _f_userEnterCommand (and now userEnterCommand)
-        # comparison of commandName -- not sure if it works; pretty sure
-        # it's needed for now
+        # kluge to defeat userEnterCommand comparison of commandName --
+        # seems to work; pretty sure it's needed for now
+        # (and still needed even with new command api).
         # TODO: replace it with a new option to pass to that method.
     commandSequencer = glpane.assy.commandSequencer
     cmdrun = construct_cmdrun(example_command_class, commandSequencer)

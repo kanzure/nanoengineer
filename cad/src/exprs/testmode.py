@@ -175,7 +175,10 @@ class testmode_GM(_superclass_GM):
         return
 
     def get_obj_under_cursor(self, event): #070322 [assume part of GraphicsMode even though not in all subclasses of that]
-        "this is called in *some cases* by various mode event handler methods to find out what object the cursor is over"
+        """
+        this is called in *some cases* by various event handler methods
+        to find out what object the cursor is over
+        """
         # The kinds of calls of this method (whose interface assumptions we need to be sensitive to):
         # - depositMode.singletLeftUp indirectly calls it and checks whether the return value is an instance of Atom,
         #   handling it specially if so.
@@ -352,48 +355,53 @@ class testmode(_superclass_C):
         # Note: this is stored in the Command instance, but usually accessed
         # from the GraphicsMode instance using .command._background_object.
         # [bruce 071010]
-    
-    def Enter(self):
-        print
-        print "entering testmode again", time.asctime()
-        self.reload()
-##        self.assy = self.w.assy # [now done by basicCommand]
-        self.o.pov = V(0,0,0)
-        self.o.quat = Q(1,0,0,0)
 
-        res = _superclass_C.Enter(self)
-        if 1:
-            # new 070103; needs reload??
-            import exprs.testdraw as testdraw
-            testdraw.end_of_Enter(self.o)
-        return res
+    if 0:
+        ### TODO: port these methods to new command API!
+        # the code works without it, but presumably some of these side effects
+        # were desirable. [bruce 080929 comment, and 'if 0']
 
-    def init_gui(self): #050528; revised 070123
-        ## self.w.modifyToolbar.hide()
-        self.hidethese = hidethese = []
-        win = self.w
-        for tbname in annoyers:
-            try:
+        def Enter(self):
+            print
+            print "entering testmode again", time.asctime()
+            self.reload()
+    ##        self.assy = self.w.assy # [now done by basicCommand]
+            self.o.pov = V(0,0,0)
+            self.o.quat = Q(1,0,0,0)
+
+            res = _superclass_C.Enter(self)
+            if 1:
+                # new 070103; needs reload??
+                import exprs.testdraw as testdraw
+                testdraw.end_of_Enter(self.o)
+            return res
+
+        def init_gui(self): #050528; revised 070123
+            ## self.w.modifyToolbar.hide()
+            self.hidethese = hidethese = []
+            win = self.w
+            for tbname in annoyers:
                 try:
-                    tb = getattr(win, tbname)
-                except AttributeError: # someone might rename one of them
-                    ## import __main__
-                    if 0: ## __main__.USING_Qt3: # most of them are not defined in Qt4 so don't bother printing this then [bruce 070123]
-                        print "testmode: fyi: toolbar missing: %s" % tbname # someone might rename one of them
-                else:
-                    if tb.isVisible(): # someone might make one not visible by default
-                        tb.hide()
-                        hidethese.append(tb) # only if hiding it was needed and claims it worked
-            except:
-                # bug
-                print_compact_traceback("bug in hiding toolbar %r in testmode init_gui: " % tbname)
-            continue
-        return
+                    try:
+                        tb = getattr(win, tbname)
+                    except AttributeError: # someone might rename one of them
+                        ## import __main__
+                        if 0: ## __main__.USING_Qt3: # most of them are not defined in Qt4 so don't bother printing this then [bruce 070123]
+                            print "testmode: fyi: toolbar missing: %s" % tbname # someone might rename one of them
+                    else:
+                        if tb.isVisible(): # someone might make one not visible by default
+                            tb.hide()
+                            hidethese.append(tb) # only if hiding it was needed and claims it worked
+                except:
+                    # bug
+                    print_compact_traceback("bug in hiding toolbar %r in testmode init_gui: " % tbname)
+                continue
+            return
 
-    def restore_gui(self): #050528
-        ## self.w.modifyToolbar.show()
-        for tb in self.hidethese:
-            tb.show()
+        def restore_gui(self): #050528
+            ## self.w.modifyToolbar.show()
+            for tb in self.hidethese:
+                tb.show()
 
     def makeMenus(self):
         ### WARNING: this copies and slightly modifies selectMode.makeMenus (not those of our superclass, depositMode!);

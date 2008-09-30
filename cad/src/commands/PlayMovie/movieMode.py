@@ -124,7 +124,7 @@ class movieMode(basicMode):
         exit, only to rewind or not when exit is done.)
         """
         ask = not self.commandSequencer.exit_is_forced
-            # It's not be safe to rewind if exit is forced,
+            # It's not safe to rewind if exit is forced,
             # since this might happen *after* the check for whether
             # to offer to save changes in an old file being closed,
             # but it creates such changes.
@@ -144,8 +144,9 @@ class movieMode(basicMode):
         if ask:
             self._offer_to_rewind_if_necessary()
 
-        # copied the old self.restore_patches_by_Command():
-        #bruce 050426 added this, to hold the side effect formerly
+        #bruce 050426 added this [originally in a method called
+        # restore_patches_by_Command, no longer part of command API]
+        # , to hold the side effect formerly
         # done illegally by haveNontrivialState.
         # ... but why do we need to do this at all?
         # the only point of what we'd do here would be to stop

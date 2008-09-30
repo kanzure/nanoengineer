@@ -563,16 +563,12 @@ class BuildAtoms_Command(SelectAtoms_Command):
                 bondTool_commandName = objectName[len(prefix):]
             
         self.enterToolsCommand(bondTool_commandName)
-        
-        
-    #======================    
-    # methods related to exiting this mode    
     
     # Now uses superclass method 'restore_patches()'. mark 060207.
     # [not true anymore, evidently -- so what does it use? bruce 071011]
-    # [guessing it's more like restore_patches_by_GraphicsMode than _by_Command
+    # [guessing it's more like _restore_patches_by_GraphicsMode than _by_Command
     # -- bruce 071012]
-    #    def restore_patches_by_GraphicsMode(self):
+    #    def _restore_patches_by_GraphicsMode(self):
     #        self.o.setGlobalDisplayStyle(self.saveDisp)
     #            #bruce 041129; see notes for bug 133
     #        self.o.selatom = None
