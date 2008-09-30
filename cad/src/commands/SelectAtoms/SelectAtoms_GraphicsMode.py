@@ -95,8 +95,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         """
         Things needed while entering the GraphicsMode (e.g. updating cursor,
         setting some attributes etc).
-        This method is called in self.command.Enter
-        @see: B{SelectAtoms_basicCommand.Enter} B{basicCommand.Enter}
+        This method is called in self.command.command_entered()
         @see: B{Select_basicGraphicsMode.Enter_GraphicsMode()}
         """
 

@@ -53,8 +53,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         """
         Things needed while entering the GraphicsMode (e.g. updating cursor,
         setting some attributes etc).
-        This method is called in self.command.Enter
-        @see: B{basicCommand.Enter}
+        This method is called in self.command.command_entered()
         @see: B{GraphicsMode.Enter_GraphicsMode}
         """
         _superclass.Enter_GraphicsMode(self)

@@ -654,7 +654,7 @@ class ops_select_Mixin:
         then win_update
         [warning: not for general use -- doesn't change which select mode is in use]
         """
-        # This is called only by Move_Command.Enter.
+        # This is called by Move_GraphicsMode.Enter_GraphicsMode.
         # (Why not selectChunksMode? because SelectChunks_GraphicsMode calls it w/o update, instead:
         #   self.o.assy.selectChunksWithSelAtoms_noupdate() # josh 10/7 to avoid race in assy init
         # )

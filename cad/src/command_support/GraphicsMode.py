@@ -176,7 +176,6 @@ class basicGraphicsMode(GraphicsMode_API):
         
         @note: Called in self.command.command_entered.
         
-        @see: B{basicCommand.Enter}
         @see: B{baseCommand.command_entered}
         """
         #NOTE: See a comment in basicCommand.Enter for things still needed
