@@ -241,7 +241,7 @@ class BuildCrystal_Command(basicMode):
         self.setThickness(self.propMgr.layerCellsSpinBox.value()) 
 
         # I don't know if this is better to do here or just before setThickness (or if it matters): ####@@@@
-        # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
+        # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in command_will_exit()).
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
         # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
         # [bruce 060414; same thing done in some other modes]
@@ -259,7 +259,8 @@ class BuildCrystal_Command(basicMode):
         @NOTE: This method also calls the method that creates the crystal when 
                the user hits 'Done' button.                
         """
-        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
+        # Reenable Undo/Redo actions, and undo checkpoints 
+        #(disabled in command_entered);
         # do it first to protect it from exceptions in the rest of this method
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
         # [bruce 060414; same thing done in some other modes]

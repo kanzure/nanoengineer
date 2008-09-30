@@ -203,7 +203,7 @@ class RotateAboutPoint_Command(Line_Command):
         [overrides Line_GraphicsMode method]
         @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
         """
-        #bruce 080801 split this out of restore_gui (now inherited).
+        #bruce 080801 split this out of former restore_gui method (now inherited).
         
         # note (updated 2008-09-26): superclass Line_Command.command_entered()
         # sets self._results_callback,and superclass command_will_exit()

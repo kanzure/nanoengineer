@@ -315,7 +315,6 @@ class BuildDna_EditCommand(EditCommand):
 
         @see DnaDuplex_EditCommand._createSegment(),
         @see: DnaDuplex_EditCommand.createStructure()
-        @see: DnaDuplex_EditCommand.restore_gui()
         """
         params = ()
 
@@ -328,8 +327,7 @@ class BuildDna_EditCommand(EditCommand):
             #segments directly to it.
             #See: DnaDuplex_EditCommand._createSegment(),
             #    DnaDuplex_EditCommand.createStructure(), and
-            #    DnaDuplex_EditCommand.restore_gui()
-
+            
             #following condition (hasValidStructure) fixes bug 2815.Earlier
             #ondition was just checking if self.struct is None.
             #self.hasValidStructure checks if the structure is killed etc

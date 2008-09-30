@@ -221,7 +221,7 @@ class viewSlotsMixin:
                 #bruce 071011, encapsulating the code that was here before
 
             # Emit a help message on entering the new temporary command. Ideally this
-            # should be done in its Enter or init_gui methods, but that made it
+            # should be done in its command_entered method, but that made it
             # appear before the green "Entering Mode: Zoom" msg. So I put it here.
             # [Mark 050130; comment paraphrased by bruce 070814]
             # TODO: do this in a new postEnter command-specific method which is called

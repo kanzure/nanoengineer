@@ -106,7 +106,7 @@ class anyCommand(baseCommand, StateMixin):
         # fully implemented? [bruce 080905 question]
         #
         #command_has_its_own_PM means, for example, the command has its own PM,
-        #and flyout toolbar and/or the Done/Cancel button corner (confirmation 
+        #and/or the Done/Cancel button corner (confirmation 
         #corner). 
         #For most of the commands, this is True (e.g. BuildAtoms mode , 
         #BuildCrystal Mode, DnaDuplexEdit Controller etc.) 
@@ -121,9 +121,6 @@ class anyCommand(baseCommand, StateMixin):
         # flyout toolbar from Build Atoms mode, giving the user an impression
         # that he is still operating on the old mode.         
         # This flag is also used in fixing bugs like 2566. 
-        # When user exits these temporary modes(i.e. 'tempoary commands') ,
-        # with this flag set to 'False', it skips the init_gui method etc. 
-        # of the previous mode, while resuming 'that' (previouse) mode. 
         # This flag also means that if you hit 'Done' or 'Cancel' of the
         # previous mode (while in a temporary mode) , then 'that previous mode'
         # will exit. The related code makes sure to first leave the temporary 
@@ -502,7 +499,7 @@ class basicCommand(anyCommand):
         actions should have an effect.
 
         Warning: this is False while a command is still being entered (i.e.
-        during the calls of Enter and init_gui).
+        during the calls of command_entered ).
         But it's not a good idea to rely on that behavior -- if you do, you should
         redefine this function to guarantee it, and add suitable comments near the
         places which *could* in principle be modified to set .currentCommand to the

@@ -259,7 +259,8 @@ class movieMode(basicMode):
         #@WARNING: The following code in  was originally in 
         #def restore_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21
         
-        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
+        # Reenable Undo/Redo actions, and undo checkpoints 
+        #(disabled in command_entered);
         # do it first to protect it from exceptions in the rest of this method
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
         # [bruce 060414; same thing done in some other modes]

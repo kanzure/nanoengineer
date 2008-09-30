@@ -107,7 +107,7 @@ class Line_Command(Select_Command):
         @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
         @see: RotateAboutPoint_Command._results_for_request_command_caller()
         """
-        #bruce 080801 split this out of restore_gui
+        #bruce 080801
         ### REVIEW: make this a Request Command API method??
         return (self.mouseClickPoints,)
 

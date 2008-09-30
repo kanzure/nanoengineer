@@ -177,12 +177,11 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #whether to update the sequence. 
         self._previousNumberOfBases = None
 
-    def command_enter_PM(self):
+    def command_enter_PM(self): # TO BE REVIEWED
         """
         See superclass dor documentation.
         """
-        #@see DnaSegment_EditCommand.init_gui() for a detailed note. 
-        #This command implements similar thing 
+        #@REVIEW: Check if this is really required. -- Ninad 2008-09-30
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
         
         

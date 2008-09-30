@@ -423,7 +423,6 @@ class DnaFlyout(Ui_AbstractFlyout):
         
         @see: self.deActivateFlyoutToolbar()
         @see: self.activateBreakStrands_Command() 
-        @see: BuildDna_EditCommand.resume_gui()
         @see: AbstractFlyout.resetStateOfActions()
         @see: baseCommand.command_update_flyout() which calls this method. 
         """

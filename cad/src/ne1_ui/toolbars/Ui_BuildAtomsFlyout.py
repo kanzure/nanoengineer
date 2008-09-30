@@ -352,8 +352,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         
         @see: self.deActivateFlyoutToolbar()
         @see: self.activateBreakStrands_Command() 
-        @see: BuildDna_EditCommand.resume_gui()
-        
+                
         @see: baseCommand.command_update_flyout() which calls this method.         
         @see: BuildAtoms_Command.command_update_state()
         @see: BuildAtoms_Command.activateAtomsTool()

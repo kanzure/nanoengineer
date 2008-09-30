@@ -166,7 +166,7 @@ class NanotubeFlyout(Ui_AbstractFlyout):
         Uncheck most of the actions. Basically it 
         unchecks all the actions EXCEPT the ExitCntAction
         @see: self.deActivateFlyoutToolbar()
-        @see: InsertNanotube_EditCommand.resume_gui()
+        @see: baseCommand.command_update_flyout()
         """
         
         #Uncheck all the actions in the flyout toolbar (subcontrol area)

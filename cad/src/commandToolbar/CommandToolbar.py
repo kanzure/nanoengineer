@@ -192,8 +192,8 @@ class CommandToolbar(Ui_CommandToolbar):
         the user sees when NE1 is started -- Build button in the control area
         of the toolbar checked and the flyout toolbar on the right hand side
         shows the sub-menu items of the build control area.
-        @see: SelectChunks_Command.init_gui() which calls this while entering 
-        the NE1 default select chunks mode. (fixes bugs like 2682, 2937)
+        @see: baseCommand.command_update_flyout() which calls this while entering
+        the NE1 default command 'SelectChunks_Command(fixes bugs like 2682, 2937)
         
         @see: self._setControlButtonMenu_in_flyoutToolbar()
         """

@@ -129,7 +129,7 @@ class DnaDuplex_EditCommand(EditCommand):
         #parent BuildDna_EditCommand. (so if this group gets created, it should
         #be considered as a bug. While exiting the command the list of segments 
         #of this group is given to the BuildDna_EditCommand where they get 
-        #their new parent. @see self.restore_gui
+        #their new parent. @see self.command_will_exit()
         self._fallbackDnaGroup = None
 
         #_parentDnaGroup is the dnagroup of BuildDna_EditCommand 
@@ -152,7 +152,7 @@ class DnaDuplex_EditCommand(EditCommand):
         While exiting this command, these segments will be added first taken 
         away from the temporary group and then added to the DnaGroup of
         BuildDna_EditCommand 
-        @see: self.restore_gui
+        @see: self.command_will_exit()
         @see: BuildDna_EditCommand.callback_addSegments()
         """
         if self._fallbackDnaGroup is None:
