@@ -121,26 +121,7 @@ class EditCommand(Select_Command):
             self.preview_or_finalize_structure(previewing = False)
         
         _superclass.command_will_exit(self)
-    
-    
-    def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
-        """
-        Create the property manager object if one doesn't already exist 
-        and then show the propMgr if wanted by the user
-        
-        @param showPropMgr: If True, show the property manager 
-        @type showPropMgr: boolean
-        """
-        if not self.propMgr:                 
-            self.propMgr = self._createPropMgrObject()
-            if self.propMgr:
-                #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
-                # (REVIEW: still needed, given that it's stored in self? [bruce 080819 question])
-                changes.keep_forever(self.propMgr)
-            
-        if showPropMgr and self.propMgr:
-            self.propMgr.show()
-                
+                    
     def runCommand(self):
         """        
         Used to run this editCommand . Depending upon the
@@ -152,12 +133,11 @@ class EditCommand(Select_Command):
         Default implementation, subclasses should override this method.
         NEED TO DOCUMENT THIS FURTHER ?
         """
-        self.existingStructForEditing = False
-        if self.struct:
-            self.struct = None
+        self.existingStructForEditing = False        
+        self.struct = None
         self.createStructure()
 
-    def createStructure(self, showPropMgr = True):
+    def createStructure(self):
         """
         Default implementation of createStructure method. 
         Might be overridden in  subclasses. Creates an instance (object)
@@ -168,26 +148,17 @@ class EditCommand(Select_Command):
         Example: If its a plane editCommand, this method will create an 
                 object of class Plane. 
 
-        This method also creates a propMgr objects if it doesn't
-        exist , shows the property manager and sets the model (the plane) 
-        in preview state.
-
         @see: L{self.editStructure} (another top level command that facilitates
               editing an existing object (existing structure). 
         """
-
+        
         assert not self.struct
-
+        
         self.struct = self._createStructure()
 
         if not self.hasValidStructure():
-            return
-
-        self.create_and_or_show_PM_if_wanted(showPropMgr = showPropMgr)
-
-        if not showPropMgr:
-            return
-
+            return                 
+       
         if self.struct:
             #When a structure is created first, set the self.previousParams 
             #to the struture parameters. This makes sure that it doesn't 
@@ -215,46 +186,11 @@ class EditCommand(Select_Command):
               editCommand
         @see: L{Plane.edit} and L{Plane_EditCommand._createPropMgrObject} 
         """
-
-        if struct is not None:
-            self.struct = struct                
-            self.propMgr = None
-
-        assert self.struct
-
-        if not self.propMgr:
-            self.propMgr = self._createPropMgrObject()
-
-        assert self.propMgr
-
-        #Following is needed to make sure that when a dna line is drawn 
-        #(using DNA Line mode), it takes input and gives output to the 
-        # currently active editCommand 
-        #(see SelectChunks_GraphicsMode.provideParametersForTemporaryMode where we are 
-        # using self.win.dnaEditCommand) Fixes bug 2588
-        # [note: that method no longer exists. I'm not sure if the one being
-        #  referred to is the one now called provideParamsForTemporaryMode_in_BuildDna,
-        #  in BuildDna_EditCommand, used in DnaDuplex_EditCommand, or something else.
-        #  [bruce 080822 update]]
-
-        #Following line of code that fixed bug 2588 mentioned in above comment 
-        # was disabled on 2007-12-20, aftter dnaDuplexEditCommand was 
-        #converted in to a command on command sequencer. The bug doesn't appear
-        # right now. (but there is another unrelated bug due to the missing 
-        # 'endpoints' because of which the propMgr always reset its values
-        #even when editing an existing structure. It will be fixed after dna 
-        #data model implementation
-        ##self.win.dnaEditCommand = self
-
-        #Important to set the edit controller for the property manager 
-        #because we are reusing the propMgr object so it needs to know the 
-        # current edit controller. 
-        self.propMgr.setEditCommand(self)
-
+        assert struct        
+        self.struct = struct
         self.existingStructForEditing = True
         self.old_props = self.struct.getProps()
-        self.propMgr.show() 
-
+        
     def hasValidStructure(self):
         """
         Tells the caller if this edit command has a valid structure.
@@ -293,7 +229,6 @@ class EditCommand(Select_Command):
         """
         print "bug: EditCommand._getStructureType not overridden in a subclass"
         raise AbstractMethod()
-
 
 
     def _createStructure(self):

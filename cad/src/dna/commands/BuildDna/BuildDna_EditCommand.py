@@ -75,15 +75,15 @@ class BuildDna_EditCommand(EditCommand):
     #See also other examples of its use in older Commands such as
     #BuildAtoms_Command (earlier depositmode)
     call_makeMenus_for_each_event = True
-        
+    
+           
     def runCommand(self):
         """
         Overrides EditCommand.runCommand
         """
         self.struct = None
         self.existingStructForEditing = False
-        self.propMgr.updateListWidgets()
-
+       
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted.
@@ -105,7 +105,7 @@ class BuildDna_EditCommand(EditCommand):
         return bool_keep
 
     
-    def createStructure(self, showPropMgr = True):
+    def createStructure(self):
         """
         Overrides superclass method. It doesn't do anything for this type
         of editcommand

@@ -107,7 +107,7 @@ class BuildNanotube_EditCommand(EditCommand):
         return bool_keep
        
 
-    def createStructure(self, showPropMgr = True):
+    def createStructure(self):
         """
         Overrides superclass method. It doesn't do anything for this type
         of editcommand

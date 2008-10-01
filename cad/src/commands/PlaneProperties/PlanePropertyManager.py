@@ -69,11 +69,6 @@ class PlanePropertyManager(EditCommand_PM):
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
-
-        EditCommand_PM.__init__( self, command) 
-        
-        # Hide Preview and Restore defaults buttons
-        self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON)
         
         self.gridColor = black
         self.gridXSpacing = 4.0
@@ -82,6 +77,12 @@ class PlanePropertyManager(EditCommand_PM):
         self.displayLabels = False
         self.originLocation = PLANE_ORIGIN_LOWER_LEFT
         self.displayLabelStyle = LABELS_ALONG_ORIGIN
+
+        EditCommand_PM.__init__( self, command) 
+        
+        # Hide Preview and Restore defaults buttons
+        self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON)        
+        
 
     def _addGroupBoxes(self):
         """
@@ -904,7 +905,6 @@ class PlanePropertyManager(EditCommand_PM):
         @param newWidth: width in Angstroms.
         @type  newWidth: float
         """      
-        print "****in change_plane_width"
         if self.aspectRatioCheckBox.isChecked():
             self.command.struct.width   =  newWidth
             self.command.struct.height  =  self.command.struct.width / \

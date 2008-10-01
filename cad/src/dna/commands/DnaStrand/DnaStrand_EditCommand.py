@@ -162,9 +162,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         State_preMixin.__init__(self, glpane)        
         EditCommand.__init__(self, commandSequencer)
         
-        #DnaSegment object to which this strand belongs 
-        self._parentDnaSegment = None
-
+        
         #It uses BuildDna_EditCommand.flyoutToolbar ( in other words, that 
         #toolbar is still accessible and not changes while in this command)
         flyoutToolbar = None
@@ -175,15 +173,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
         #This is used for comarison purpose in model_changed method to decide
         #whether to update the sequence. 
-        self._previousNumberOfBases = None
-
-    def command_enter_PM(self): # TO BE REVIEWED
-        """
-        See superclass dor documentation.
-        """
-        #@REVIEW: Check if this is really required. -- Ninad 2008-09-30
-        self.create_and_or_show_PM_if_wanted(showPropMgr = False)
-        
+        self._previousNumberOfBases = None                
         
     #New Command API method -- implemented on 2008-08-27
     
@@ -472,12 +462,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         """
         EditCommand.editStructure(self, struct)        
         if self.hasValidStructure():
-            self._updatePropMgrParams()            
-
-            #TO BE REVISED post dna data model - 2008-02-14
-            if isinstance(self.struct.dad , self.assy.DnaSegment):
-                self._parentDnaSegment = self.struct.dad   
-
+            self._updatePropMgrParams()   
             #For Rattlesnake, we do not support resizing of PAM5 model. 
             #So don't append the exprs handles to the handle list (and thus 
             #don't draw those handles. See self.model_changed() 

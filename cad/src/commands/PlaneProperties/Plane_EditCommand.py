@@ -36,6 +36,7 @@ from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
 from model.Plane import Plane
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 from utilities.Comparison import same_vals
+from utilities.debug import print_compact_stack
 
 _superclass = EditCommand
 class Plane_EditCommand(EditCommand):
@@ -76,14 +77,7 @@ class Plane_EditCommand(EditCommand):
     #see self.command_update_internal_state() 
     _previous_display_params = None
 
-    def command_entered(self):
-        """
-        """
-        #See EditCommand.Enter for a detailed comment on why self.struct is 
-        #set to None while entering this command.
-        self.struct = None
-        _superclass.command_entered(self)
-    
+        
     def command_will_exit(self):
         #Following call doesn't update the struct with steps similar to 
         #ones in bug 2699. Instead calling struct.updateCosmeticProps directly
@@ -215,7 +209,14 @@ class Plane_EditCommand(EditCommand):
         @see: PlanePropertyManager._update_UI_do_updates()
         @see: PlanePropertyManager.update_spinboxes()
         @see: Plane.resizeGeometry()        
-        """           
+        """   
+        
+        if not self.propMgr:
+            print_compact_stack("bug: self.propMgr not defined when"\
+                "Plane_EditCommand.command_update_internal_state called."\
+                "Returning.")
+            return
+        
         #check first if the plane object exists first
         if not self.hasValidStructure():
             return       
@@ -256,7 +257,6 @@ class Plane_EditCommand(EditCommand):
         _superclass.runCommand(self)
         if self.hasValidStructure():             
             self._updatePropMgrParams()
-
             #Store the previous parameters. Important to set it after you 
             #set attrs in the propMgr. 
             #self.previousParams is used in self._previewStructure and 

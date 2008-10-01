@@ -167,7 +167,7 @@ class InsertNanotube_EditCommand(EditCommand):
         return bool_keep
         
 
-    def createStructure(self, showPropMgr = True):
+    def createStructure(self):
         """
         Overrides superclass method. Creates the structure (NanotubeSegment) 
 

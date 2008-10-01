@@ -572,12 +572,6 @@ class baseCommand(object):
         @note: base class implementation of command_entered calls this,
                after setting self.propMgr to PM from parent command if
                self.command_has_its_own_PM is false.
-
-        @note: some subclasses also update the PM state in this method
-               (e.g EditCommand calls create_and_or_show_PM_if_wanted,
-                which is often extended to call self.propMgr.updateMessage),
-               but it is better to do that in an appropriate update method,
-               such as self.command_update_UI() or self.propMgr.update_UI().
                
         @see: CommandSequencer._f_update_current_command() which calls PM.show()
               for the desired PM.              

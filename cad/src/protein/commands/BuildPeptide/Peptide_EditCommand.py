@@ -229,7 +229,7 @@ class Peptide_EditCommand(EditCommand):
         self._segmentList = []	
         self.win.win_update()    
     
-    def createStructure(self, showPropMgr = True):
+    def createStructure(self):
         """
         Overrides superclass method. Creates the structure 
 

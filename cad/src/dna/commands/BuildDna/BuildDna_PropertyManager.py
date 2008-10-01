@@ -68,10 +68,12 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Constructor for the Build DNA property manager.
         """
         
-        #For model changed signal
-        self._previousSelectionParams = None
-        
-        self._previousStructureParams = None
+        #Attributes for self._update_UI_do_updates() to keep track of changes
+        #in these , since the last call of that method. These are used to 
+        #determine whether certain UI updates are needed. 
+        self._previousSelectionParams = None        
+        self._previousStructureParams = None        
+        self._previousCommandStackParams = None
                 
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
@@ -161,31 +163,53 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Overrides superclass method. 
         @see: PM_Dialog._update_UI_do_updates()
-        """     
-                
+        """                     
+        
         newSelectionParams = self._currentSelectionParams()   
+        
+        current_struct_params = self._currentStructureParams()
         
         selection_params_unchanged = same_vals(newSelectionParams,
                                                self._previousSelectionParams)
         
-        #introducing self._previousStructureParams and adding structure_params_unchanged
-        #check to the 'if' condition below fixes bug 2910. 
+        #introducing self._previousStructureParams and 
+        #adding structure_params_unchanged check to the 'if' condition below 
+        #fixes bug 2910. 
         structure_params_unchanged = same_vals(self._previousStructureParams, 
-                                                self._currentStructureParams())
+                                                current_struct_params)
         
-        if selection_params_unchanged and \
-           structure_params_unchanged:
-            #This second condition above fixes bug 2888
+        current_command_stack_params = self._currentCommandStackParams()
+        
+        #Check if command stack params changed since last call of this 
+        #PM update method. This is used to fix bugs like 2940
+        command_stack_params_unchanged = same_vals(
+            self._previousCommandStackParams, current_command_stack_params)
+              
+        #No need to proceed if any of the selection/ structure and commandstack 
+        #parameters remained unchanged since last call. --- [CONDITION A]
+        if selection_params_unchanged and structure_params_unchanged and command_stack_params_unchanged:
+            #This second condition above fixes bug 2888              
             return
         
-        self._previousStructureParams = self._currentStructureParams()
+        self._previousStructureParams = current_struct_params
+        self._previousSelectionParams =  newSelectionParams         
+        self._previousCommandStackParams  = current_command_stack_params
         
-        if not selection_params_unchanged and structure_params_unchanged:            
+        ##if not selection_params_unchanged or not command_stack_params_unchanged and structure_params_unchanged: 
+        if structure_params_unchanged: 
+            #NOTE: We checked if either of the selection struct or command stack
+            #parameters or both changed. (this was referred as '[CONDITION A]' 
+            #above). So, this condition (structure_params_unchanged)also means 
+            #either selection or command stack or both parameters were changed.    
             
-            self._previousSelectionParams = newSelectionParams  
+            if not command_stack_params_unchanged:
+                #update the list widgets *before* updating the selection if 
+                #the command stack changed. This ensures that the selection box
+                #appears around the list widget items that are selected.
+                self.updateListWidgets()
+                
+            selectedStrands, selectedSegments = newSelectionParams    
             
-            selectedStrands, selectedSegments = newSelectionParams
-                       
             self.strandListWidget.updateSelection(selectedStrands) 
             self.segmentListWidget.updateSelection(selectedSegments)
             
@@ -206,24 +230,47 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 self.editSegmentPropertiesButton.setText("Edit Properties...")
                 self.editSegmentPropertiesButton.setEnabled(False)
                 self.searchForCrossoversButton.setEnabled(False)
-                         
-        #Update the strand and segmment list widgets. 
-        #Ideally it should only update when the structure is modified
-        #example --when structure is deleted. But as of 2008-02-21
-        #this feature is not easily available in the API method. 
-        #The list widgets are updated even when selection changes.
-        # [bruce 080804 addendum: use of change counters could fix that.]
-        #
-        #NOTE: If this is called before listwidget's 'updateSelection' call, 
-        #done above, it 'may give' (as of 2008-02-25, it is unlikely to happen 
-        #because of a better implementation)  C/C++ object deleted errors. 
-        #So better to do it in the end. Cause -- unknown. 
-        #Guess : something to do with clearing the widget list and then reading
-        #items (done by self.updateListWidgets).
-        #...This probably interferes with the selection
-        #within that list. So better to do it after updating the selection.
-        if not structure_params_unchanged:  
-            self.updateListWidgets()   
+                
+            return
+                                         
+        ##if not structure_params_unchanged or not command_stack_params_unchanged: 
+        if selection_params_unchanged:
+            #Fixes bug 2940
+            #Thies means either stuct params or command stack params or both were 
+            #changed. (Because we checked '[CONDITION A]' at the beginning)
+            self.updateListWidgets()  
+            return
+            
+    
+    def _currentCommandStackParams(self):
+        """
+        The return value is supposed to be used by BUILD_DNA command PM ONLY
+        and NOT by any subclasses.         
+        
+        Returns a tuple containing current scommand stack change indicator and 
+        the name of the command 'BUILD_DNA'. These 
+        parameters are then used to decide whether updating widgets
+        in this property manager is needed, when self._update_UI_do_updates()
+        is called. 
+        
+        @NOTE: 
+        - PM_Dialog.update_UI() already does a check to see if 
+          any of the global change indicators in assembly (command_stack_change, 
+          model_change, selection_change) changed since last call and then only
+          calls self._update_UI_do_updates(). 
+        - But this method is just used to keep track of the 
+          local command stack change counter in order to update the list 
+          widgets.      
+        - This is used to fix bug 2940
+        
+        @see: self._update_UI_do_updates()
+        """
+        commandStackCounter = self.command.assy.command_stack_change_indicator()
+        #Append 'BUILD_DNA to the tuple to be returned. This is just to remind 
+        #us that this method is meant for BUIL_DNA command PM only. (and not 
+        #by any subclasses) Should we assert this? I think it will slow things 
+        #down so this comment is enough -- Ninad 2008-09-30
+        return (commandStackCounter, 'BUILD_DNA')
                       
     def _currentSelectionParams(self):
         """
@@ -342,7 +389,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Update List Widgets (strand list and segment list)
         in this property manager
         @see: self.updateSegmentListWidgets, self.updateStrandListWidget
-        """
+        """            
         self.updateStrandListWidget() 
         self.updateSegmentListWidget()
           
@@ -363,14 +410,14 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #doesn't implement the dna data model yet. Until that's implemented, we
         #will do an isinstance(node, Chunk) check. Note that it includes both  
         #Strands and Axis chunks -- Ninad 2008-01-09
-        
-        if self.command and self.command.hasValidStructure():
+    
+        if self.command.hasValidStructure():
             strandChunkList = self.command.struct.getStrands()
                         
             self.strandListWidget.insertItems(
                 row = 0,
                 items = strandChunkList)
-        else:
+        else:           
             self.strandListWidget.clear()
     
     def updateSegmentListWidget(self):
@@ -380,17 +427,18 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         
         segmentList = []
-        if self.command and self.command.hasValidStructure(): 
-            def func(node):
-                if isinstance(node, self.win.assy.DnaSegment):
-                    segmentList.append(node)    
-                    
-            self.command.struct.apply2all(func)
-            self.segmentListWidget.insertItems(
-                row = 0,
-                items = segmentList)
-        else:
-            self.segmentListWidget.clear()
+        if self.command.isCurrentCommand():
+            if self.command.hasValidStructure(): 
+                def func(node):
+                    if isinstance(node, self.win.assy.DnaSegment):
+                        segmentList.append(node)    
+                        
+                self.command.struct.apply2all(func)
+                self.segmentListWidget.insertItems(
+                    row = 0,
+                    items = segmentList)
+            else:
+                self.segmentListWidget.clear()
              
             
     def _addGroupBoxes( self ):
