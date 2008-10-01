@@ -1068,13 +1068,13 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.update_rate_SpinBox = PM_SpinBox(physics_engine_animation_GroupBox,
                                            label = "")
         _choices = ["frames", "seconds", "minutes", "hours"]
-        self.detail_level_ComboBox = PM_ComboBox(physics_engine_animation_GroupBox, 
+        self.animation_detail_level_ComboBox = PM_ComboBox(physics_engine_animation_GroupBox, 
                                       label =  "",
                                       choices = _choices, 
                                       setAsDefault = False)
         aWidgetList = [ ("PM_RadioButton", self.update_every_RadioButton, 0),
                         ("PM_SpinBox", self.update_rate_SpinBox, 1),
-                        ("PM_ComboBox", self.detail_level_ComboBox, 3) ]
+                        ("PM_ComboBox", self.animation_detail_level_ComboBox, 3) ]
         self.detail_level_row = PM_WidgetRow(physics_engine_animation_GroupBox,
                                         widgetList = aWidgetList,
                                         spanWidth = False)
@@ -1125,7 +1125,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                   title = "Miscellaneous atom options",
                                                   connectTitleButton = False)
         _choices = ["Low", "Medium", "High", "Variable"]
-        self.detail_level_ComboBox = PM_ComboBox(misc_atom_settings_GroupBox, 
+        self.atoms_detail_level_ComboBox = PM_ComboBox(misc_atom_settings_GroupBox, 
                                       label =  "Level of detail:", labelColumn = 0,
                                       choices = _choices, 
                                       setAsDefault = False)
@@ -1134,14 +1134,14 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                        maximum = 100,
                                                        suffix = "%")
         self.ball_and_stick_atom_scale_reset_ToolButton = PM_ToolButton(misc_atom_settings_GroupBox,
-                                                                   iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
+                                                                        iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
         self.CPK_atom_scale_doubleSpinBox = PM_DoubleSpinBox(misc_atom_settings_GroupBox,
                                             label = "",
                                             suffix = "",
                                             decimals = 3,
                                             singleStep = 0.005)
         self.CPK_atom_scale_reset_ToolButton = PM_ToolButton(misc_atom_settings_GroupBox,
-                                                                   iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
+                                                             iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
         aWidgetList = [ ("QLabel", "Ball and stick atom scale:", 0, 0),
                         ("PM_SpinBox", self.ball_and_stick_atom_scale_SpinBox, 1, 0),
                         ("PM_ToolButton", self.ball_and_stick_atom_scale_reset_ToolButton, 2, 0),
@@ -1170,13 +1170,13 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         window_position_and_size_GroupBox = PM_GroupBox(_pageContainer,
                                                   title = "Window Postion and Size",
                                                   connectTitleButton = False)
-        self.current_size_x_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
+        self.current_width_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
                                                          label = "", 
                                                          suffix = "pixels",
                                                          labelColumn = 0,
                                                          singleStep = 1,
                                                          )
-        self.current_size_y_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
+        self.current_height_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
                                                          label = "",
                                                          labelColumn = 0,
                                                          suffix = "pixels", 
@@ -1185,31 +1185,34 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.current_size_save_Button = PM_PushButton(window_position_and_size_GroupBox, 
                                                  text = "Save Current")
         aWidgetList = [ ("QLabel", "Current size:", 0),
-                        ("PM_SpinBox", self.current_size_x_SpinBox, 1),
+                        ("PM_SpinBox", self.current_width_SpinBox, 1),
                         ("QLabel", " x ", 2),
-                        ("PM_SpinBox", self.current_size_y_SpinBox, 3),
+                        ("PM_SpinBox", self.current_height_SpinBox, 3),
                         ("PM_PushButton", self.current_size_save_Button, 4) ]
         widgetRow = PM_WidgetRow(window_position_and_size_GroupBox,
                          title     = '',
-                         spanWidth = False,
+                         spanWidth = True,
                          widgetList = aWidgetList)        
 
-        self.saved_size_x_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
-                                                         label = "")
-        self.saved_size_y_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
-                                                         label = "")
-        self.saved_size_save_Button = PM_PushButton(window_position_and_size_GroupBox, 
-                                                 text = "Restore saved")
-        aWidgetList = [ ("QLabel", "Saved size:", 0),
-                        ("PM_SpinBox", self.saved_size_x_LineEdit, 1),
-                        ("QLabel", " x ", 2),
-                        ("PM_SpinBox", self.saved_size_y_LineEdit, 3),
-                        ("PM_PushButton", self.saved_size_save_Button, 4) ]
+        #self.saved_size_x_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
+                                                         #label = "")
+        #self.saved_size_y_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
+                                                         #label = "")
+                                                         
+        self.restore_saved_size_Button = PM_PushButton(window_position_and_size_GroupBox, 
+                                                 text = "Restore saved",
+                                                 label = "Saved size: 640 x 480   ")
+        self.saved_size_label = self.restore_saved_size_Button.labelWidget
+
         #widgetRow = PM_WidgetRow(window_position_and_size_GroupBox,
                          #title     = '',
                          #spanWidth = False,
                          #widgetList = aWidgetList)
-        self.save_size_on_quit = PM_CheckBox(window_position_and_size_GroupBox,
+        #self.xlabel = QtGui.QLabel(widgetRow)
+        #self.xlabel.setText("Saved size: 640 x 480")
+        #widgetRow.gridLayout.addWidget(self.xlabel, 0, 0, 0, 0)
+        #widgetRow.addPmWidget(self.saved_size_save_Button)
+        self.save_size_on_quit_CheckBox = PM_CheckBox(window_position_and_size_GroupBox,
                                         text = "Always save current position and size when quitting",
                                         widgetColumn = 0,
                                         spanWidth = True)
@@ -1217,11 +1220,29 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                   title = "Window caption format",
                                                   connectTitleButton = False)
         self.caption_prefix_LineEdit = PM_LineEdit(window_caption_format_GroupBox,
-                                              spanWidth = True,
-                                              label = "Window caption prefix for modified file: ")
+                                              spanWidth = False,
+                                              label = "")
         self.caption_suffix_LineEdit = PM_LineEdit(window_caption_format_GroupBox,
-                                              spanWidth = True,
-                                              label = "Window caption suffix for modified file: ")
+                                              spanWidth = False,
+                                              label = "")
+        self.caption_prefix_save_ToolButton = PM_ToolButton(window_caption_format_GroupBox,
+                                                            iconPath = "ui/actions/Properties Manager/Save.png")
+        self.caption_suffix_save_ToolButton = PM_ToolButton(window_caption_format_GroupBox,
+                                                            iconPath = "ui/actions/Properties Manager/Save.png")
+        aWidgetList = [ ("QLabel", "Window caption prefix \nfor modified file: ", 0),
+                        ("PM_LineEdit", self.caption_prefix_LineEdit, 1),
+                        ("PM_ToolButton", self.caption_prefix_save_ToolButton, 2) ]
+        widgetRow1 = PM_WidgetRow(window_caption_format_GroupBox,
+                         title     = '',
+                         spanWidth = True,
+                         widgetList = aWidgetList)
+        aWidgetList = [ ("QLabel", "Window caption suffix \nfor modified file: ", 0),
+                        ("PM_LineEdit", self.caption_suffix_LineEdit, 1),
+                        ("PM_ToolButton", self.caption_suffix_save_ToolButton, 2) ]
+        widgetRow2 = PM_WidgetRow(window_caption_format_GroupBox,
+                         title     = '',
+                         spanWidth = True,
+                         widgetList = aWidgetList)
         self.display_full_path_CheckBox = PM_CheckBox(window_caption_format_GroupBox,
                                                  text = "Display full path of part",
                                                  widgetColumn = 0,

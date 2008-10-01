@@ -792,8 +792,8 @@ class Preferences(PreferencesDialog):
         lod = env.prefs[levelOfDetail_prefs_key]
         if lod == -1:
             lod = 3
-        self.detail_level_ComboBox.setCurrentIndex(lod)
-        self.connect(self.detail_level_ComboBox, SIGNAL("currentIndexChanged(int)"), self.set_level_of_detail)
+        self.atoms_detail_level_ComboBox.setCurrentIndex(lod)
+        self.connect(self.atoms_detail_level_ComboBox, SIGNAL("currentIndexChanged(int)"), self.set_level_of_detail)
         self.set_ball_and_stick_atom_scale(env.prefs[diBALL_AtomRadius_prefs_key])
         self.set_CPK_atom_scale(env.prefs[cpkScaleFactor_prefs_key])
         self.ball_and_stick_atom_scale_SpinBox.setValue(round(env.prefs[diBALL_AtomRadius_prefs_key] * 100.0))
@@ -1713,8 +1713,198 @@ class Preferences(PreferencesDialog):
     
     # PAGE: WINDOW
     def _setupPage_Window(self):
+        self.connect(self.current_size_save_Button, SIGNAL("clicked()"),
+                     self.save_window_size)
+        self.connect(self.restore_saved_size_Button, SIGNAL("clicked()"),
+                     self.restore_saved_size)
+        self.connect(self.current_height_SpinBox, SIGNAL("valueChanged(int)"), self.change_window_size)
+        self.connect(self.current_width_SpinBox, SIGNAL("valueChanged(int)"), self.change_window_size)
+        ((x0, y0), (w, h)) = screen_pos_size()
+        self.current_width_SpinBox.setRange(1, w)
+        self.current_height_SpinBox.setRange(1, h)
+        if not DEBUG:
+            pos, size = _get_window_pos_size(self.w)
+            self.current_width_spinbox.setValue(size[0])
+            self.current_height_spinbox.setValue(size[1])
+            from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
+            keyprefix = mainwindow_geometry_prefs_key_prefix
+            pos, size = _get_prefs_for_window_pos_size( self.w, keyprefix)
+        else:
+            self.current_width_SpinBox.setValue(640)
+            self.current_height_SpinBox.setValue(480)
+            size = [640, 480]
+
+        self.update_saved_size(size[0], size[1])    
+
+        connect_checkbox_with_boolean_pref(self.save_size_on_quit_CheckBox,
+                                           rememberWinPosSize_prefs_key)
+        self.caption_prefix_LineEdit.setText(env.prefs[captionPrefix_prefs_key])
+        self.caption_suffix_LineEdit.setText(env.prefs[captionSuffix_prefs_key])
+        self.connect(self.caption_prefix_save_ToolButton, SIGNAL("clicked()"),
+                     self.set_caption_prefix)
+        self.connect(self.caption_suffix_save_ToolButton, SIGNAL("clicked()"),
+                     self.set_caption_suffix)
+        connect_checkbox_with_boolean_pref(self.display_full_path_CheckBox,
+                                           captionFullPath_prefs_key)
+        self.set_use_custom_font_status()
+        self.connect(self.use_custom_font_CheckBox, 
+                     SIGNAL("toggled(bool)"), 
+                     self.set_use_custom_font_status)
+        font_family = env.prefs[displayFont_prefs_key]
+        font_size = env.prefs[displayFontPointSize_prefs_key]
+        font = QFont(font_family, font_size)
+        self.custom_fontComboBox.setCurrentFont(font)
+        self.custom_font_size_SpinBox.setValue(font_size)
+        self.connect(self.custom_fontComboBox, SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
+        self.connect(self.custom_font_size_SpinBox, SIGNAL("valueChanged(int)"), self.set_fontsize)
+        self.connect(self.make_default_font_PushButton, SIGNAL("clicked()"), self.change_selected_font_to_default_font)
+        return
+
+    def change_window_size(self, val = 0):
+        """
+        Slot for both the width and height spinboxes that change the current
+        window size.
+
+        Also called from other slots to change the window size based on new
+        values in spinboxes. <val> is not used.
+        """
+        w = self.current_width_spinbox.value()
+        h = self.current_height_spinbox.value()
+        if not DEBUG:
+            self.w.resize(w,h)
+        return
+
+    def update_saved_size(self, w, h):
+        _text = "Saved size: %d pixels x %d pixels  " % (w, h)
+        self.saved_size_label.setText(_text)
         return
     
+    def save_window_size(self):
+        if not DEBUG:
+            from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
+            keyprefix = mainwindow_geometry_prefs_key_prefix
+            save_window_pos_size( self.w, keyprefix) # prints history message
+            size = self.w.size()
+            self.update_saved_size(size.width(), size.height())
+        else:
+            width = self.current_width_SpinBox.value()
+            height = self.current_height_SpinBox.value()
+            self.update_saved_size(width, height)
+        return
+    
+    def restore_saved_size(self):
+        """
+        Restore the window size, but not the position, from the prefs db.
+        """
+        if not DEBUG:
+            from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
+            keyprefix = mainwindow_geometry_prefs_key_prefix
+            pos, size = _get_prefs_for_window_pos_size( self.w, keyprefix)
+        else:
+            size = [640, 480]
+        w = size[0]
+        h = size[1]
+        self.update_saved_size(w, h)
+        self.current_width_SpinBox.setValue(w)
+        self.current_height_SpinBox.setValue(h)
+        self.change_window_size()
+        return
+    
+    def change_window_size(self, val = 0):
+        """
+        Slot for both the width and height spinboxes that change the current
+        window size.
+
+        Also called from other slots to change the window size based on new
+        values in spinboxes. <val> is not used.
+        """
+        w = self.current_width_SpinBox.value()
+        h = self.current_height_SpinBox.value()
+        #UNCOMMENT before committing to normal tree
+#        self.w.resize(w,h)
+        return
+
+    def set_caption_prefix(self):
+        prefix = str_or_unicode(self.caption_prefix_LineEdit.text())
+        prefix = prefix.strip()
+        if prefix:
+            prefix = prefix + ' '
+        env.prefs[captionPrefix_prefs_key] = prefix
+        self.caption_prefix_LineEdit.setText(env.prefs[captionPrefix_prefs_key])
+        return
+        
+    def set_caption_suffix(self):
+        suffix = str_or_unicode(self.caption_suffix_LineEdit.text())
+        suffix = suffix.strip()
+        if suffix:
+            suffix = ' ' + suffix
+        env.prefs[captionSuffix_prefs_key] = suffix
+        self.caption_suffix_LineEdit.setText(env.prefs[captionSuffix_prefs_key])
+        return
+    
+    def set_use_custom_font_status(self, status = None):
+        if (status == None and env.prefs[useSelectedFont_prefs_key]) \
+           or status:
+            self.custom_fontComboBox.setEnabled(True)
+            self.custom_font_size_SpinBox.setEnabled(True)
+            self.custom_fontComboBox.labelWidget.setEnabled(True)
+            self.custom_font_size_SpinBox.labelWidget.setEnabled(True)
+            self.make_default_font_PushButton.setEnabled(True)
+            self.use_custom_font_CheckBox.setCheckState(CHECKED)
+            env.prefs[useSelectedFont_prefs_key] = True
+        else:
+            self.custom_fontComboBox.setEnabled(False)
+            self.custom_font_size_SpinBox.setEnabled(False)
+            self.custom_fontComboBox.labelWidget.setEnabled(False)
+            self.custom_font_size_SpinBox.labelWidget.setEnabled(False)
+            self.make_default_font_PushButton.setEnabled(False)
+            self.use_custom_font_CheckBox.setCheckState(UNCHECKED)
+            env.prefs[useSelectedFont_prefs_key] = False
+        return
+
+    def change_font(self, font):
+        """
+        Slot for the Font combobox.
+        Called whenever the font is changed.
+        """
+        env.prefs[displayFont_prefs_key] = str_or_unicode(font.family())
+        self.set_font()
+        return
+
+    def set_font(self):
+        """
+        Set the current display font using the font prefs.
+        """
+
+        use_selected_font = env.prefs[useSelectedFont_prefs_key]
+
+        if use_selected_font:
+            font = self.custom_fontComboBox.currentFont()
+            font_family = str_or_unicode(font.family())
+            fontsize = self.custom_font_size_SpinBox.value()
+            font.setPointSize(fontsize)
+            env.prefs[displayFont_prefs_key] = font_family
+            env.prefs[displayFontPointSize_prefs_key] = fontsize
+            if debug_flags.atom_debug:
+                print "set_font(): Using selected font: ", font.family(), ", size=", font.pointSize()
+
+        else: # Use default font
+#            font = self.w.defaultFont
+            if debug_flags.atom_debug:
+                print "set_font(): Using default font: ", font.family(), ", size=", font.pointSize()
+
+        # Set font
+#        self.w.setFont(font)
+        return
+
+    def set_fontsize(self, pointsize):
+        """
+        Slot for the Font size spinbox.
+        """
+        env.prefs[displayFontPointSize_prefs_key] = pointsize
+#        self.set_font()
+        return
+ 
     # PAGE: REPORTS
     def _setupPage_Reports(self):
         connect_checkbox_with_boolean_pref(
@@ -1724,6 +1914,63 @@ class Preferences(PreferencesDialog):
             self.history_include_message_timestamp_CheckBox,
             historyMsgTimestamp_prefs_key)
         return
+    
+    def change_selected_font_to_default_font(self):
+        """
+        Slot for "Make the selected font the default font" button.
+        The default font will be displayed in the Font and Size
+        widgets.
+        """
+        font = self.w.defaultFont
+        env.prefs[displayFont_prefs_key] = str_or_unicode(font.family())
+        env.prefs[displayFontPointSize_prefs_key] = font.pointSize()
+        self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
+
+        if debug_flags.atom_debug:
+            print "change_selected_font_to_default_font(): " \
+                  "Button clicked. Default font: ", font.family(), \
+                  ", size=", font.pointSize()
+        return
+
+    def set_font_widgets(self, setFontFromPrefs = True):
+        """
+        Update font widgets based on font prefs.
+        Unconnects signals from slots, updates widgets, then reconnects slots.
+
+        @param setFontFromPrefs: when True (default), sets the display font
+                                (based on font prefs).
+        @type  setFontFromPrefs: bool
+        """
+
+        if debug_flags.atom_debug:
+            print "set_font_widgets(): Here!"
+
+
+        if env.prefs[displayFont_prefs_key] == "defaultFont":
+            # Set the font and point size prefs to the application's default font.
+            # This code only called the first time NE1 is run (or the prefs db does not exist)
+            font = self.w.defaultFont
+            font_family = str_or_unicode(font.family())
+                # Note: when this used str() rather than str_or_unicode(),
+                # it prevented NE1 from running on some international systems
+                # (when it had never run before and needed to initialize this
+                #  prefs value).
+                # We can now reproduce the bug (see bug 2883 for details),
+                # so I am using str_or_unicode to try to fix it. [bruce 080529]
+            font_size = font.pointSize()
+            env.prefs[displayFont_prefs_key] = font_family
+            env.prefs[displayFontPointSize_prefs_key] = font_size
+            if debug_flags.atom_debug:
+                print "set_font_widgets(): No prefs db. " \
+                      "Using default font: ", font.family(), \
+                      ", size=", font.pointSize()
+
+        else:
+            font_family = env.prefs[displayFont_prefs_key]
+            font_size = env.prefs[displayFontPointSize_prefs_key]
+            font = QFont(font_family, font_size)
+        return
+    
     
     # PAGE: TOOLTIPS
     def _setupPage_Tooltips(self):
