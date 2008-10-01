@@ -71,14 +71,16 @@ popd
 # (their output files have links in index.php)
 
 # W0403 - Relative import %s. Emitted when an import statement uses a package-relative pathname.
-grep W0403 SVN-D/cad/src/pylint_* > W0403.txt
+cd Logs
+grep -r W0403 *  > ../W0403.txt
 
 # W0611 - Unused import %s. Emitted when an imported module or variable is not used.
-grep W0611 SVN-D/cad/src/pylint_* > W0611.txt
+grep -r W0611 * > ../W0611.txt
 
 # E0602 - Undefined variable %s. Emitted when a non-builtin symbol is used, but no 
 # definition or import of it can be found.
-grep E0602 SVN-D/cad/src/pylint_* > E0602.txt
+grep -r E0602 * > ../E0602.txt
+cd ..
 
 # Consider adding summary reports for the following:
 # W0311 - Bad indentation
