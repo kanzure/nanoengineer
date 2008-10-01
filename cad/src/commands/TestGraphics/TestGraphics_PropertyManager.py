@@ -26,6 +26,8 @@ from utilities.prefs_constants import levelOfDetail_prefs_key
 
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
+_NSPHERES_CHOICES = map(str, [1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+
 # ==
 
 class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
@@ -139,6 +141,12 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                       choices = self.command.testCaseChoicesText,
                                       setAsDefault = False )
         self.testCase_ComboBox.setCurrentIndex(self.command.testCaseIndex)
+
+        self.nSpheres_ComboBox = PM_ComboBox(pmGroupBox, 
+                                      label =  "n x n spheres:", labelColumn = 0,
+                                      choices = _NSPHERES_CHOICES,
+                                      setAsDefault = False )
+        self.nSpheres_ComboBox.setCurrentIndex(3) # nSpheres = 10 by default
         
         self.detail_level_ComboBox = PM_ComboBox(pmGroupBox, 
                                       label =  "Level of detail:", labelColumn = 0,
@@ -176,19 +184,26 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
         else:
             change_connect = self.win.disconnect 
 
+        change_connect(self.testCase_ComboBox,
+                       SIGNAL("currentIndexChanged(int)"),
+                       self.command._set_testCaseIndex )
+
+        change_connect(self.nSpheres_ComboBox,
+                       SIGNAL("currentIndexChanged(int)"),
+                       self._set_nSpheresIndex )
+
         change_connect(self.detail_level_ComboBox,
                        SIGNAL("currentIndexChanged(int)"),
                            # in current code, SIGNAL("activated(int)")
                        self.set_level_of_detail )
 
-        change_connect(self.testCase_ComboBox,
-                       SIGNAL("currentIndexChanged(int)"),
-                       self.command._set_testCaseIndex )
-
         return
 
     # ==
-    
+
+    def _set_nSpheresIndex(self, index):
+        self.command.nSpheres = int( _NSPHERES_CHOICES[index] )
+        
     def set_level_of_detail(self, level_of_detail_item): # copied from other code
         """
         Change the level of detail, where <level_of_detail_item> is a value

@@ -5,8 +5,8 @@
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
-from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
+from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
+from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command
 from commands.TestGraphics.TestGraphics_PropertyManager import TestGraphics_PropertyManager
 
 from utilities.debug import register_debug_menu_command
@@ -19,7 +19,7 @@ from prototype.test_drawing import AVAILABLE_TEST_CASES_ITEMS
 
 # == GraphicsMode part
 
-class TestGraphics_GraphicsMode(BuildAtoms_GraphicsMode ):
+class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
     """
     Graphics mode for TestGraphics command. 
     """
@@ -27,7 +27,7 @@ class TestGraphics_GraphicsMode(BuildAtoms_GraphicsMode ):
 
 # == Command part
 
-class TestGraphics_Command(BuildAtoms_Command): 
+class TestGraphics_Command(SelectAtoms_Command): 
     """
 
     """
@@ -45,7 +45,12 @@ class TestGraphics_Command(BuildAtoms_Command):
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
 
-    FlyoutToolbar_class = None ### PROBLEM: this doesn't prevent inheriting superclass flyout -- why not? ###
+    FlyoutToolbar_class = None
+        # minor bug, when superclass is Build Atoms: the atoms button in the
+        # default flyout remains checked when we enter this command,
+        # probably due to command_enter_misc_actions() not being overridden in
+        # this command.
+
 
     # state methods (which mostly don't use self)
 
@@ -120,7 +125,20 @@ class TestGraphics_Command(BuildAtoms_Command):
     testCaseChoicesText = []
     for testCase, desc in AVAILABLE_TEST_CASES_ITEMS:
         testCaseChoicesText.append( "%s: %s" % (testCase, desc) ) # fix format
-    
+
+    def _get_nSpheres(self):
+        return test_drawing.nSpheres
+
+    def _set_nSpheres(self, value):
+        test_drawing.nSpheres = value
+        test_drawing.delete_caches()
+        self.glpane.gl_update()
+
+    nSpheres = property( _get_nSpheres,
+                           _set_nSpheres,
+                           doc = "number on a side of a square of spheres"
+                         )
+        
     pass
     
 # == UI for entering this command
