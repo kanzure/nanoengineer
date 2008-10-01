@@ -43,16 +43,16 @@ class TestGraphics_Command(BuildAtoms_Command):
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
 
-    flyoutToolbar_class = None ###k
+    FlyoutToolbar_class = None ### PROBLEM: this doesn't prevent inheriting superclass flyout -- why not? ###
 
-    # state methods
+    # state methods (which mostly don't use self)
 
     def _get_bypass_paintgl(self):
-        print "_get_bypass_paintgl returns %r" % (GLPane_rendering_methods.TEST_DRAWING,)######
+        print "bypass_paintgl starts out as %r" % (GLPane_rendering_methods.TEST_DRAWING,) #
         return GLPane_rendering_methods.TEST_DRAWING
 
     def _set_bypass_paintgl(self, enabled):
-        print "_set_bypass_paintgl gets %r" % (enabled,)######
+        print "bypass_paintgl = %r" % (enabled,) #
         GLPane_rendering_methods.TEST_DRAWING = enabled
         self.glpane.gl_update()
 
@@ -85,7 +85,7 @@ class TestGraphics_Command(BuildAtoms_Command):
                            _set_spin_model,
                            doc = "spin model whenever it's redrawn"
                          )
-    
+        
     pass
     
 # == UI for entering this command
