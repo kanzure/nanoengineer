@@ -172,7 +172,7 @@ def delete_caches():
 
     # Start at the lower-left corner, offset so the whole pattern comes
     # up centered on the origin.
-    start_pos = V(-(nSpheres-1)/2.0, -(nSpheres-1)/2.0, 0) ### todo: fix this if nSpheres changes at runtime
+    start_pos = V(-(nSpheres-1)/2.0, -(nSpheres-1)/2.0, 0)
 
     return
 
@@ -257,7 +257,6 @@ def test_drawing(glpane):
     #   visited on the average 2.3 times, giving 384 tri-strip vertices.
     # . 17,424 spheres is 6.7 million tri-strip vertices.  (6,690,816)
     if testCase == 1:
-        ### BUG: draws nothing on bruce's intel macbookpro, Mac OS 10.4.11 [since fixed, i think]
         if test_csdl is None:
             print ("Test case 1, %d^2 spheres\n  %s." %
                    (nSpheres, "ColorSorter"))
