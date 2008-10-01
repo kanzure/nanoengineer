@@ -1,5 +1,8 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+TestGraphics_Command.py -- command to "Test Graphics Performance"
+(for now, available from the debug menu -> 'other' submenu)
+
 @author:    Bruce
 @version:   $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -57,7 +60,15 @@ class TestGraphics_Command(SelectAtoms_Command):
         # this command.
 
 
-    # state methods (which mostly don't use self)
+    # state methods (which mostly don't use self, except for self.glpane.gl_update)
+    
+    # note: these use property rather than State since they are providing access
+    # to externally stored state. This is ok except that it provides no direct
+    # way of usage tracking or change tracking, which means, it's only suitable
+    # when only one external thing at a time wants to provide a UI for displaying
+    # and perhaps changing this state.
+
+    # bypass_paintgl
 
     def _get_bypass_paintgl(self):
         print "bypass_paintgl starts out as %r" % (GLPane_rendering_methods.TEST_DRAWING,) #
@@ -74,6 +85,8 @@ class TestGraphics_Command(SelectAtoms_Command):
                                      "(draw specific test cases instead)"
                              )
 
+    # redraw_continuously
+    
     def _get_redraw_continuously(self):
         return test_drawing.ALWAYS_GL_UPDATE
 
@@ -87,6 +100,8 @@ class TestGraphics_Command(SelectAtoms_Command):
                                           "(cpu can get hot!)"
                                   )
 
+    # spin_model
+    
     def _get_spin_model(self):
         return test_drawing.SPIN
 
@@ -97,7 +112,9 @@ class TestGraphics_Command(SelectAtoms_Command):
                            _set_spin_model,
                            doc = "spin model whenever it's redrawn"
                          )
-        
+
+    # print_fps
+    
     def _get_print_fps(self):
         return test_drawing.printFrames
 
@@ -108,7 +125,9 @@ class TestGraphics_Command(SelectAtoms_Command):
                            _set_print_fps,
                            doc = "print frames-per-second to console every second"
                          )
-        
+
+    # testCaseIndex, testCaseChoicesText
+    
     def _get_testCaseIndex(self):
         for testCase, desc in AVAILABLE_TEST_CASES_ITEMS:
             if test_drawing.testCase == testCase:
@@ -131,6 +150,8 @@ class TestGraphics_Command(SelectAtoms_Command):
     for testCase, desc in AVAILABLE_TEST_CASES_ITEMS:
         testCaseChoicesText.append( "%s: %s" % (testCase, desc) ) # fix format
 
+    # nSpheres
+    
     def _get_nSpheres(self):
         return test_drawing.nSpheres
 
@@ -143,6 +164,8 @@ class TestGraphics_Command(SelectAtoms_Command):
                            _set_nSpheres,
                            doc = "number on a side of a square of spheres"
                          )
+
+    # detailLevel
 
     def _get_detailLevel(self):
         # note: this might not agree, initially, with env.prefs[levelOfDetail_prefs_key];
