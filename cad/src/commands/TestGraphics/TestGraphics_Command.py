@@ -15,6 +15,8 @@ from utilities.debug import register_debug_menu_command
 import graphics.widgets.GLPane_rendering_methods as GLPane_rendering_methods
 import prototype.test_drawing as test_drawing
 
+from prototype.test_drawing import AVAILABLE_TEST_CASES_ITEMS
+
 # == GraphicsMode part
 
 class TestGraphics_GraphicsMode(BuildAtoms_GraphicsMode ):
@@ -86,6 +88,39 @@ class TestGraphics_Command(BuildAtoms_Command):
                            doc = "spin model whenever it's redrawn"
                          )
         
+    def _get_print_fps(self):
+        return test_drawing.printFrames
+
+    def _set_print_fps(self, enabled):
+        test_drawing.printFrames = enabled
+
+    print_fps = property( _get_print_fps,
+                           _set_print_fps,
+                           doc = "print frames-per-second to console every second"
+                         )
+        
+    def _get_testCaseIndex(self):
+        for testCase, desc in AVAILABLE_TEST_CASES_ITEMS:
+            if test_drawing.testCase == testCase:
+                return AVAILABLE_TEST_CASES_ITEMS.index((testCase, desc))
+        print "bug in _get_testCaseIndex"
+        return 0 # fallback to first choice
+
+    def _set_testCaseIndex(self, index): # doesn't yet work well
+        testCase, desc_unused = AVAILABLE_TEST_CASES_ITEMS[index]
+        test_drawing.testCase = testCase
+        test_drawing.delete_caches()
+        self.glpane.gl_update()
+
+    testCaseIndex = property( _get_testCaseIndex,
+                             _set_testCaseIndex,
+                             doc = "which testCase to run"
+                            )
+
+    testCaseChoicesText = []
+    for testCase, desc in AVAILABLE_TEST_CASES_ITEMS:
+        testCaseChoicesText.append( "%s: %s" % (testCase, desc) ) # fix format
+    
     pass
     
 # == UI for entering this command

@@ -28,7 +28,28 @@ ALWAYS_GL_UPDATE = True  # Always redraw as often as possible.
 SPIN = True # spin the view...
 _SPINQUAT = Q(V(1,0,0),V(0,0,1))/90.0 # ... by 1 degree per frame
 
-# Which rendering case: 1, 2, 3, 3.1, 3.2, 3.3, 3.4, 4, 5, 6, 7, 8, 8.1
+DRAWSPHERE_DETAIL_LEVEL = 2
+
+AVAILABLE_TEST_CASES_DICT = {
+    # (testCase: description for combobox item text)
+    1: "",
+    2: "",
+    3: "",
+    3.1: "",
+    3.2: "",
+    3.3: "",
+    3.4: "",
+    4: "",
+    5: "",
+    6: "",
+    7: "",
+    8: "",
+    8.1: "",
+    8.2: "",
+ }
+AVAILABLE_TEST_CASES_ITEMS = AVAILABLE_TEST_CASES_DICT.items()
+AVAILABLE_TEST_CASES_ITEMS.sort()
+
 # Draw an array of nSpheres x nSpheres, with divider gaps every 10 and 100.
 # 10, 25, 50, 100, 132, 200, 300, 400, 500...
 
@@ -123,23 +144,40 @@ from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 from time import time
 from math import sin, pi, fmod
 
-test_csdl = None
-test_dl = None
-test_dls = None
-test_ibo = None
-test_vbo = None
-test_spheres = None
-test_DrawingSet = None
+def delete_caches():
+    """
+    External code which modifies certain parameters (e.g. testCase, nSpheres)
+    can call this to remove our caches, so the change takes effect.
+    """
+    #bruce 080930; not sure it contains enough to make runtime change of testCase fully correct;
+    # should it contain _USE_SHADERS?
+    # Ideally we'd refactor this whole file so each testCase was its own class,
+    # with instances containing the cached objects and draw methods.
+    global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres, test_DrawingSet
+    global frame_count, last_frame, last_time, C_array, start_pos
 
-frame_count = 0
-last_frame = 0
-last_time = time()
+    test_csdl = None
+    test_dl = None
+    test_dls = None
+    test_ibo = None
+    test_vbo = None
+    test_spheres = None
+    test_DrawingSet = None
 
-C_array = None
+    frame_count = 0
+    last_frame = 0
+    last_time = time()
 
-# Start at the lower-left corner, offset so the whole pattern comes
-# up centered on the origin.
-start_pos = V(-nSpheres/2.0, -nSpheres/2.0, 0)
+    C_array = None
+
+    # Start at the lower-left corner, offset so the whole pattern comes
+    # up centered on the origin.
+    start_pos = V(-(nSpheres-1)/2.0, -(nSpheres-1)/2.0, 0) ### todo: fix this if nSpheres changes at runtime
+
+    return
+
+delete_caches() # initialize globals
+
 
 # From drawsphere_worker_loop().
 def sphereLoc(x, y):                    # Assume int x, y in the sphere array.
@@ -219,16 +257,18 @@ def test_drawing(glpane):
     #   visited on the average 2.3 times, giving 384 tri-strip vertices.
     # . 17,424 spheres is 6.7 million tri-strip vertices.  (6,690,816)
     if testCase == 1:
-        ### BUG: draws nothing on bruce's intel macbookpro, Mac OS 10.4.11
+        ### BUG: draws nothing on bruce's intel macbookpro, Mac OS 10.4.11 [since fixed, i think]
         if test_csdl is None:
             print ("Test case 1, %d^2 spheres\n  %s." %
                    (nSpheres, "ColorSorter"))
 
             test_csdl = ColorSortedDisplayList()
             ColorSorter.start(test_csdl)
-            #           color,          pos,         radius, detailLevel
-            drawsphere([0.5, 0.5, 0.5], [0.0, 0.0, 0.0], .5, 2, 
-                       testloop = nSpheres)
+            drawsphere([0.5, 0.5, 0.5], # color
+                       [0.0, 0.0, 0.0], # pos
+                       .5, # radius
+                       DRAWSPHERE_DETAIL_LEVEL,
+                       testloop = nSpheres )
             ColorSorter.finish()
             pass
         else:
@@ -248,7 +288,10 @@ def test_drawing(glpane):
 
             test_dl = glGenLists(1)
             glNewList(test_dl, GL_COMPILE_AND_EXECUTE)
-            drawsphere_worker_loop(([0.0, 0.0, 0.0], .5, 2, nSpheres)) # pos, radius, detailLevel, n
+            drawsphere_worker_loop(([0.0, 0.0, 0.0], # pos
+                                    .5, # radius
+                                    DRAWSPHERE_DETAIL_LEVEL,
+                                    nSpheres ))
             glEndList()
             pass
         else:
@@ -742,14 +785,14 @@ def test_drawing(glpane):
                     # Chunking will be visible when transforms are changed.
                     xCoord = centers[0][0] - start_pos[0] # Negate centering X.
                     xPercent = (xCoord / 
-                                (nSpheres + nSpheres/10 + nSpheres/100 - 1))
+                                (nSpheres + nSpheres/10 + nSpheres/100 - 1 + (nSpheres <= 1)))
                     xTenth = int(xPercent * 10 + .5)
                     csdl = ColorSortedDisplayList(TCs[xTenth % numTCs])
                     pass
 
                 ColorSorter.start(csdl)
                 for (color, center, radius) in zip(colors, centers, radii):
-                    drawsphere(color, center, radius, 2)
+                    drawsphere(color, center, radius, DRAWSPHERE_DETAIL_LEVEL)
                     continue
                 ColorSorter.finish()
 

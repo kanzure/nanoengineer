@@ -21,9 +21,8 @@ from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 
-##from utilities.prefs_constants import stereoViewMode_prefs_key
-##from utilities.prefs_constants import stereoViewAngle_prefs_key
-##from utilities.prefs_constants import stereoViewSeparation_prefs_key
+from utilities.prefs_constants import levelOfDetail_prefs_key
+
 
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
@@ -60,17 +59,18 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
         # review: some of the following are probably not needed:
         self.w = self.command.w
         self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane                 
+        self.pw = self.command.pw
+        self.o = self.win.glpane
 
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title) # todo: clean up so superclass knows attrnames?
 
         DebugMenuMixin._init1( self )
 
-        self.showTopRowButtons( PM_DONE_BUTTON | \
+        self.showTopRowButtons( PM_DONE_BUTTON |
                                 PM_WHATS_THIS_BUTTON)
 
-        msg = "Test the performance effect of graphics settings below."
+        msg = "Test the performance effect of graphics settings below. " \
+              "(To avoid bugs, choose testCase before bypassing paintGL.)"
 
         self.updateMessage(msg)
         
@@ -78,37 +78,11 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.connect_or_disconnect_signals(True)
             
 
-    def connect_or_disconnect_signals(self, isConnect):
-        """
-        Connect or disconnect widget signals sent to their slot methods.
-        This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
-        @type  isConnect: boolean
-        """
-        if isConnect:
-            change_connect = self.win.connect
-        else:
-            change_connect = self.win.disconnect 
-
-##        change_connect( self.stereoModeComboBox,
-##                        SIGNAL("currentIndexChanged(int)"),
-##                        self._stereoModeComboBoxChanged )
-##
-##        change_connect(self.stereoSeparationSlider,
-##                       SIGNAL("valueChanged(int)"),
-##                       self._stereoModeSeparationSliderChanged )
-##
-##        change_connect(self.stereoAngleSlider,
-##                       SIGNAL("valueChanged(int)"),
-##                       self._stereoModeAngleSliderChanged )
-
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
         PM_Dialog.show(self)
-        # self.updateDnaDisplayStyleWidgets()
         
         if not KEEP_SIGNALS_ALWAYS_CONNECTED:
             self.connect_or_disconnect_signals(True)
@@ -130,8 +104,6 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                          title = "Settings") ### fix title
         self._loadGroupBox1( self._pmGroupBox1 )
 
-        #@ self._pmGroupBox1.hide()
-
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box.
@@ -141,61 +113,44 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self._cb1 = \
             PM_CheckBox(pmGroupBox,
                         text         = 'bypass paintGL',
-                        widgetColumn = 1,
-                        ## setter = self._set_bypass_paintgl -- TODO - put this in if there's nothing wrong with it as an API
                         )
         self._cb1.connectWithState( ObjAttr_StateRef( self.command, 'bypass_paintgl' ))
 
         self._cb2 = \
             PM_CheckBox(pmGroupBox,
                         text         = 'redraw continuously',
-                        widgetColumn = 1
                         )        
         self._cb2.connectWithState( ObjAttr_StateRef( self.command, 'redraw_continuously' ))
 
         self._cb3 = \
             PM_CheckBox(pmGroupBox,
                         text         = 'spin model',
-                        widgetColumn = 1
                         )        
         self._cb3.connectWithState( ObjAttr_StateRef( self.command, 'spin_model' ))
 
-##        stereoModeChoices = ['Relaxed view', 
-##                             'Cross-eyed view',
-##                             'Red/blue anaglyphs',
-##                             'Red/cyan anaglyphs',
-##                             'Red/green anaglyphs']
-##
-##        self.stereoModeComboBox  = \
-##            PM_ComboBox( pmGroupBox,
-##                         label         =  "Stereo Mode:", 
-##                         choices       =  stereoModeChoices,
-##                         setAsDefault  =  True)
-##
-##        self.stereoModeComboBox.setCurrentIndex(env.prefs[stereoViewMode_prefs_key] - 1)
-##            
-##        self.stereoSeparationSlider =  \
-##            PM_Slider( pmGroupBox,
-##                       currentValue = 50,
-##                       minimum      = 0,
-##                       maximum      = 300,
-##                       label        = 'Separation'
-##                       )        
-##
-##        self.stereoSeparationSlider.setValue(env.prefs[stereoViewSeparation_prefs_key])
-##
-##        self.stereoAngleSlider =  \
-##            PM_Slider( pmGroupBox,
-##                       currentValue = 50,
-##                       minimum      = 0,
-##                       maximum      = 100,
-##                       label        = 'Angle'
-##                       )
-##
-##        self.stereoAngleSlider.setValue(env.prefs[stereoViewAngle_prefs_key])
+        self._cb4 = \
+            PM_CheckBox(pmGroupBox,
+                        text         = 'print fps to console',
+                        )        
+        self._cb4.connectWithState( ObjAttr_StateRef( self.command, 'print_fps' ))
+
+        self.testCase_ComboBox = PM_ComboBox(pmGroupBox, 
+                                      label =  "testCase:", labelColumn = 0,
+                                      choices = self.command.testCaseChoicesText,
+                                      setAsDefault = False )
+        self.testCase_ComboBox.setCurrentIndex(self.command.testCaseIndex)
+        
+        self.detail_level_ComboBox = PM_ComboBox(pmGroupBox, 
+                                      label =  "Level of detail:", labelColumn = 0,
+                                      choices = ["Low", "Medium", "High", "Variable"],
+                                      setAsDefault = False )
+        lod = env.prefs[levelOfDetail_prefs_key]
+        if lod == -1:
+            lod = 3
+        self.detail_level_ComboBox.setCurrentIndex(lod)
 
 ##        self._updateWidgets()
-                
+    
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the Stereo Property Manager.  
@@ -208,47 +163,61 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         pass
 
-##    def _stereoModeComboBoxChanged(self, mode):
-##        """
-##        Change stereo mode.
-##        
-##        @param mode: stereo mode (0=relaxed, 1=cross-eyed, 2=red/blue,
-##        3=red/cyan, 4=red/green)
-##        @type value: int
-##        """
-##        env.prefs[stereoViewMode_prefs_key] = mode + 1
-##
-##        self._updateSeparationSlider()
-##        
-##    def _stereoModeSeparationSliderChanged(self, value):
-##        """
-##        Change xxx separation.
-##        
-##        @param value: separation (0..300)
-##        @type value: int
-##        """
-##        env.prefs[stereoViewSeparation_prefs_key] = value
-##
-##    def _stereoModeAngleSliderChanged(self, value):
-##        """
-##        Change xxx angle.
-##        
-##        @param value: stereo angle (0..100)
-##        @type value: int
-##        """
-##        env.prefs[stereoViewAngle_prefs_key] = value
-##
-##    def _updateSeparationSlider(self):
-##        """ 
-##        Update the separation slider widget.
-##        """
-##        if self.stereoModeComboBox.currentIndex() >= 2: 
-##            # for anaglyphs disable the separation slider 
-##            self.stereoSeparationSlider.setEnabled(False)
-##        else:
-##            # otherwise, enable the separation slider
-##            self.stereoSeparationSlider.setEnabled(True)
-##
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect 
+
+        change_connect(self.detail_level_ComboBox,
+                       SIGNAL("currentIndexChanged(int)"),
+                           # in current code, SIGNAL("activated(int)")
+                       self.set_level_of_detail )
+
+        change_connect(self.testCase_ComboBox,
+                       SIGNAL("currentIndexChanged(int)"),
+                       self.command._set_testCaseIndex )
+
+        return
+
+    # ==
+    
+    def set_level_of_detail(self, level_of_detail_item): # copied from other code
+        """
+        Change the level of detail, where <level_of_detail_item> is a value
+        between 0 and 3 where:
+            - 0 = low
+            - 1 = medium
+            - 2 = high
+            - 3 = variable (based on number of atoms in the part)
+
+        @note: the prefs db value for 'variable' is -1, to allow for higher LOD
+               levels in the future.
+        """
+        lod = level_of_detail_item
+        if level_of_detail_item == 3:
+            lod = -1
+        env.prefs[levelOfDetail_prefs_key] = lod
+
+        if lod != -1:
+            # kluge: not synced at init, -1 should be disallowed, should be in self.command
+            import prototype.test_drawing as test_drawing
+            test_drawing.DRAWSPHERE_DETAIL_LEVEL = lod
+        
+#        self.glpane.gl_update()
+        # the redraw this causes will (as of tonight) always recompute the
+        # correct drawLevel (in Part._recompute_drawLevel),
+        # and chunks will invalidate their display lists as needed to
+        # accomodate the change. [bruce 060215]
+        return
+
 ##    def _updateWidgets(self):
 ##        """
 ##        Update stereo PM widgets.
