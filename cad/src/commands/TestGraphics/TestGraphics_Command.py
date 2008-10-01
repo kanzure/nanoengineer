@@ -17,6 +17,11 @@ import prototype.test_drawing as test_drawing
 
 from prototype.test_drawing import AVAILABLE_TEST_CASES_ITEMS
 
+import foundation.env as env
+
+from utilities.prefs_constants import levelOfDetail_prefs_key
+
+
 # == GraphicsMode part
 
 class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
@@ -138,6 +143,44 @@ class TestGraphics_Command(SelectAtoms_Command):
                            _set_nSpheres,
                            doc = "number on a side of a square of spheres"
                          )
+
+    def _get_detailLevel(self):
+        # note: this might not agree, initially, with env.prefs[levelOfDetail_prefs_key];
+        # doesn't matter for now, since nothing calls this getter
+        return test_drawing.DRAWSPHERE_DETAIL_LEVEL
+
+    def _set_detailLevel(self, detailLevel):
+
+        if detailLevel not in (0, 1, 2, -1):
+            print "bug: illegal detailLevel", detailLevel
+            detailLevel = -1
+        
+        env.prefs[levelOfDetail_prefs_key] = detailLevel
+
+        if detailLevel != -1:
+            ### kluges/bugs:
+            # maybe not synced at init;
+            # -1 should be disallowed in combobox when test_drawing is used;
+            # not known for sure how this works in test_drawing --
+            # maybe it doesn't work for all testCases; conceivably it depends on env.prefs too
+            test_drawing.DRAWSPHERE_DETAIL_LEVEL = detailLevel
+
+        test_drawing.delete_caches()
+        
+        self.glpane.gl_update()
+        # when not bypassing paintGL:
+            # this gl_update is redundant with the prefs change;
+            # the redraw this causes will (as of tonight) always recompute the
+            # correct drawLevel (in Part._recompute_drawLevel),
+            # and chunks will invalidate their display lists as needed to
+            # accomodate the change. [bruce 060215]
+        # otherwise, explicit gl_update iight be needed.
+        return
+
+    detailLevel = property( _get_detailLevel,
+                             _set_detailLevel,
+                             doc = "detail level of spheres (when made of triangles)"
+                            )
         
     pass
     

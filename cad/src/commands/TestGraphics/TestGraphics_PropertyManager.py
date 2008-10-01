@@ -147,17 +147,24 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                       choices = _NSPHERES_CHOICES,
                                       setAsDefault = False )
         self.nSpheres_ComboBox.setCurrentIndex(3) # nSpheres = 10 by default
+        self._set_nSpheresIndex(3)
         
         self.detail_level_ComboBox = PM_ComboBox(pmGroupBox, 
                                       label =  "Level of detail:", labelColumn = 0,
                                       choices = ["Low", "Medium", "High", "Variable"],
                                       setAsDefault = False )
         lod = env.prefs[levelOfDetail_prefs_key]
-        if lod == -1:
+        if lod > 2:
+            lod = 2
+        if lod < 0: # only lod == -1 is legal here
             lod = 3
         self.detail_level_ComboBox.setCurrentIndex(lod)
+        self.set_level_of_detail_index(lod)
 
-##        self._updateWidgets()
+        self._updateWidgets()
+
+##    def updateUI(self): # BUG: this is not being called -- I guess the bypassed paintGL doesn't call it.
+##        self._updateWidgets() ### will this be too slow?
     
     def _addWhatsThisText( self ):
         """
@@ -195,7 +202,7 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
         change_connect(self.detail_level_ComboBox,
                        SIGNAL("currentIndexChanged(int)"),
                            # in current code, SIGNAL("activated(int)")
-                       self.set_level_of_detail )
+                       self.set_level_of_detail_index )
 
         return
 
@@ -204,9 +211,9 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _set_nSpheresIndex(self, index):
         self.command.nSpheres = int( _NSPHERES_CHOICES[index] )
         
-    def set_level_of_detail(self, level_of_detail_item): # copied from other code
+    def set_level_of_detail_index(self, level_of_detail_index): # copied from other code, renamed, revised
         """
-        Change the level of detail, where <level_of_detail_item> is a value
+        Change the level of detail, where <level_of_detail_index> is a value
         between 0 and 3 where:
             - 0 = low
             - 1 = medium
@@ -216,34 +223,20 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
         @note: the prefs db value for 'variable' is -1, to allow for higher LOD
                levels in the future.
         """
-        lod = level_of_detail_item
-        if level_of_detail_item == 3:
+        lod = level_of_detail_index
+        if lod == 3:
             lod = -1
-        env.prefs[levelOfDetail_prefs_key] = lod
+        self.command.detailLevel = lod
 
-        if lod != -1:
-            # kluge: not synced at init, -1 should be disallowed, should be in self.command
-            import prototype.test_drawing as test_drawing
-            test_drawing.DRAWSPHERE_DETAIL_LEVEL = lod
-        
-#        self.glpane.gl_update()
-        # the redraw this causes will (as of tonight) always recompute the
-        # correct drawLevel (in Part._recompute_drawLevel),
-        # and chunks will invalidate their display lists as needed to
-        # accomodate the change. [bruce 060215]
+    def _updateWidgets(self):
+        """
+        Update widget configuration based on state of prior widgets.
+        """
+##        # presently, the LOD is not noticed by the test cases... oops, not true!
+##        self.detail_level_ComboBox.setEnabled( not self.command.bypass_paintgl )
         return
+    
+    pass
 
-##    def _updateWidgets(self):
-##        """
-##        Update stereo PM widgets.
-##        """
-##        if self._cb1.isChecked():
-##            self.stereoModeComboBox.setEnabled(True)
-##            self.stereoSeparationSlider.setEnabled(True)
-##            self.stereoAngleSlider.setEnabled(True)
-##            self._updateSeparationSlider()
-##        else:
-##            self.stereoModeComboBox.setEnabled(False)
-##            self.stereoSeparationSlider.setEnabled(False)
-##            self.stereoAngleSlider.setEnabled(False)
-##            
+# end
+
