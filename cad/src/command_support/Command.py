@@ -422,7 +422,6 @@ class basicCommand(anyCommand):
         
         @see: baseCommand.command_enter_PM()  for documentation
         """
-        print "*** in command_enter_PM"
         #important to check for old propMgr object. Reusing propMgr object 
         #significantly improves the performance.
         if not self.propMgr:
