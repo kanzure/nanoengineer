@@ -2072,6 +2072,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             #  since we're outside the begin/end for that, and that's good, since we include this in havelist
             #  instead, which avoids some unneeded redrawing, e.g. if pref changed and changed back while
             #  displaying a different Part. [bruce 060215])
+            # update, bruce 080930: that point is probably moot, since drawLevel is part of havelist.
 
         disp = self.get_dispdef(glpane) 
             # piotr 080401: Moved it here, because disp is required by 

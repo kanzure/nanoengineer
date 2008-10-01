@@ -60,16 +60,23 @@ from graphics.drawing.drawers import drawPoint
 from graphics.drawing.gl_GLE import gleGetNumSides, gleSetNumSides
 
 def drawsphere(color, pos, radius, detailLevel,
-               opacity = 1.0, testloop = 0):
+               opacity = 1.0,
+               testloop = 0
+               ):
     """
     Schedule a sphere for rendering whenever ColorSorter thinks is appropriate.
+
+    @param detailLevel: 0 (icosahedron), or 1 (4x as many triangles),
+                        or 2 (16x as many triangles)
+    @type detailLevel: int (0, 1, or 2)
     """
-    ColorSorter.schedule_sphere(color, 
-                                pos, 
-                                radius, 
-                                detailLevel, 
-                                opacity = opacity,
-                                testloop = testloop)
+    ColorSorter.schedule_sphere(
+        color, 
+        pos, 
+        radius, 
+        detailLevel, # see: _NUM_SPHERE_SIZES, len(drawing_globals.sphereList)
+        opacity = opacity,
+        testloop = testloop )
 
 def drawwiresphere(color, pos, radius, detailLevel = 1):
     """

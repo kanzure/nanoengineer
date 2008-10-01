@@ -539,7 +539,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # even if it was, it might elsewhere be incrementally updated.
         return
 
-    def nodes_in_mmpfile_order(self, nodeclass = None): #bruce 050325 to help with movie writing; might not be needed
+    def nodes_in_mmpfile_order(self, nodeclass = None):
         """
         Return a list of leaf nodes in this part (only of the given class, if provided)
         in the same order as they appear in its nodetree (depth first),
@@ -569,29 +569,32 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     _inputs_for_drawLevel = ['natoms']
     def _recompute_drawLevel(self):
         """
-        This is used to control the detail level of sphere subdivision when drawing atoms.
+        Recompute and set the value of self.drawLevel,
+        which controls the detail level of spheres used to draw atoms.
         """
-        num = self.natoms # this must be accessed whether or not its value is needed, due to limitations in InvalMixin
-            #e (it might be good to optimize by not using InvalMixin so we don't need to recompute self.natoms when it's not needed)
+        num = self.natoms # note: self.natoms must be accessed whether or not
+            # its value is needed, due to limitations in InvalMixin.
+            # Review: it might be good to optimize by not using InvalMixin
+            # so we don't need to recompute self.natoms when it's not needed.
         lod = env.prefs[ levelOfDetail_prefs_key ] # added by mark, revised by bruce, 060215
         lod = int(lod)
-        #bruce 060317 fix bug 1551 (in two files) by removing lod == 3 case. It should never be reactivated.
-        # This comment and commented-out code can be removed after A7 release.
-##        if lod == 3:
-##            # illegal value for now; this case should be removed in a few days (before A7 release) [bruce 060215]
-##            env.prefs[ levelOfDetail_prefs_key ] = lod = -1
         if lod > 2:
-            # presume we're running old code (e.g. A7) using a prefs db written by newer code (e.g. A8)
+            # presume we're running old code (e.g. A7)
+            # using a prefs db written by newer code (e.g. A8)
             lod = 2 # max LOD current code can handle
+                # (see _NUM_SPHERE_SIZES, len(drawing_globals.sphereList))
         # now set self.drawLevel from lod
         if lod < 0:
             # -1 means "Variable based on the number of atoms in the part."
-            # [bruce 060215 changed that from 3, so we can expand number of levels of LOD in the future.]
+            # [bruce 060215 changed that from 3, so we can expand number of
+            #  LOD levels in the future.]
             self.drawLevel = 2
-            if num > LARGE_MODEL: self.drawLevel = 1
-            if num > HUGE_MODEL: self.drawLevel = 0
+            if num > LARGE_MODEL:
+                self.drawLevel = 1
+            if num > HUGE_MODEL:
+                self.drawLevel = 0
         else:
-            # High (2), medium (1) or low (0).
+            # High (2), medium (1) or low (0)
             self.drawLevel = lod
         return
 

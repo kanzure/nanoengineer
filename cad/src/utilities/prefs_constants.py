@@ -157,7 +157,7 @@ cursorTextFontSize_prefs_key = "V120/Cursor text font size"
 cursorTextColor_prefs_key = "V120/Cursor text color"
      
 #General preferences for copy-paste operation (see ops_copy_mixin._pasteGroup
-#for detail) Feature introduced in v1.1.0, on 2008-06-06
+#for details) Feature introduced in v1.1.0, on 2008-06-06
 pasteOffsetScaleFactorForChunks_prefs_key = 'V110/Scale factor is used to offset chunks to be pasted w.r.t. original chunks'
 pasteOffsetScaleFactorForDnaObjects_prefs_key = 'V110/Scale factor is used to offset dna objects to be pasted w.r.t. original dna objects'
 

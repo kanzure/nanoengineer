@@ -84,7 +84,7 @@ from graphics.drawing.shape_vertices import indexVerts
 
 import numpy
 
-numSphereSizes = 3
+_NUM_SPHERE_SIZES = 3
 
 def setup_drawer():
     """
@@ -96,15 +96,13 @@ def setup_drawer():
     drawer.py, since the allocated display list names are stored in globals set
     by this function, but in general those names might differ if this was called
     in different GL contexts.
-    """
-    #bruce 060613 added docstring, cleaned up display list name allocation
-    
-    spherelistbase = glGenLists(numSphereSizes)
+    """    
+    spherelistbase = glGenLists(_NUM_SPHERE_SIZES)
     sphereList = []
-    for i in range(numSphereSizes):
+    for i in range(_NUM_SPHERE_SIZES):
         sphereList += [spherelistbase+i]
         glNewList(sphereList[i], GL_COMPILE)
-        glBegin(GL_TRIANGLE_STRIP) # GL_LINE_LOOP to see edges.
+        glBegin(GL_TRIANGLE_STRIP) # GL_LINE_LOOP to see edges
         stripVerts = getSphereTriStrips(i)
         for vertNorm in stripVerts:
             glNormal3fv(vertNorm)
@@ -120,7 +118,7 @@ def setup_drawer():
     # Can use in converter-wrappered calls like glVertexPointerfv,
     # but the python arrays are re-copied to C each time.
     sphereArrays = []
-    for i in range(numSphereSizes):
+    for i in range(_NUM_SPHERE_SIZES):
         sphereArrays += [getSphereTriStrips(i)]
         continue
     drawing_globals.sphereArrays = sphereArrays
@@ -129,8 +127,8 @@ def setup_drawer():
     # (Cache and re-use the work of converting a C version.)
     # Used in thinly-wrappered calls like glVertexPointer.
     sphereCArrays = []
-    for i in range(numSphereSizes):
-        CArray = numpy.array(sphereArrays[i], dtype=numpy.float32)
+    for i in range(_NUM_SPHERE_SIZES):
+        CArray = numpy.array(sphereArrays[i], dtype = numpy.float32)
         sphereCArrays += [CArray]
         continue
     drawing_globals.sphereCArrays = sphereCArrays
@@ -140,7 +138,7 @@ def setup_drawer():
     # Can use in converter-wrappered calls like glDrawElementsui,
     # but the python arrays are re-copied to C each time.
     sphereElements = []             # Pairs of lists (index, verts) .
-    for i in range(numSphereSizes):
+    for i in range(_NUM_SPHERE_SIZES):
         sphereElements += [indexVerts(sphereArrays[i], .0001)]
         continue
     drawing_globals.sphereElements = sphereElements
@@ -149,7 +147,7 @@ def setup_drawer():
     sphereCIndexTypes = []          # numpy index unsigned types.
     sphereGLIndexTypes = []         # GL index types for drawElements.
     sphereCElements = []            # Pairs of numpy arrays (Cindex, Cverts) .
-    for i in range(numSphereSizes):
+    for i in range(_NUM_SPHERE_SIZES):
         (index, verts) = sphereElements[i]
         if len(index) < 256:
             Ctype = numpy.uint8
@@ -160,8 +158,8 @@ def setup_drawer():
             pass
         sphereCIndexTypes += [Ctype]
         sphereGLIndexTypes += [GLtype]
-        sphereCIndex = numpy.array(index, dtype=Ctype)
-        sphereCVerts = numpy.array(verts, dtype=numpy.float32)
+        sphereCIndex = numpy.array(index, dtype = Ctype)
+        sphereCVerts = numpy.array(verts, dtype = numpy.float32)
         sphereCElements += [(sphereCIndex, sphereCVerts)]
         continue
     drawing_globals.sphereCIndexTypes = sphereCIndexTypes
@@ -172,7 +170,7 @@ def setup_drawer():
 
         # A GLBufferObject version for glDrawArrays.
         sphereArrayVBOs = []
-        for i in range(numSphereSizes):
+        for i in range(_NUM_SPHERE_SIZES):
             vbo = GLBufferObject(GL_ARRAY_BUFFER_ARB,
                                  sphereCArrays[i], GL_STATIC_DRAW)
             sphereArrayVBOs += [vbo]
@@ -181,7 +179,7 @@ def setup_drawer():
 
         # A GLBufferObject version for glDrawElements indexed verts.
         sphereElementVBOs = []              # Pairs of (IBO, VBO)
-        for i in range(numSphereSizes):
+        for i in range(_NUM_SPHERE_SIZES):
             ibo = GLBufferObject(GL_ELEMENT_ARRAY_BUFFER_ARB,
                                  sphereCElements[i][0], GL_STATIC_DRAW)
             vbo = GLBufferObject(GL_ARRAY_BUFFER_ARB,

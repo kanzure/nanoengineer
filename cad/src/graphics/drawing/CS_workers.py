@@ -238,7 +238,7 @@ def drawcylinder_worker(params):
     function and its parameters can be passed to another function for
     deferment.  Right now this is only ColorSorter.schedule (see below)
 
-    WARNING: our circular cross-section is approximated by a 13-gon
+    @warning: our circular cross-section is approximated by a 13-gon
     whose alignment around the axis is chosen arbitrary, in a way
     which depends on the direction of the axis; negating the axis usually
     causes a different alignment of that 13-gon. This effect can cause

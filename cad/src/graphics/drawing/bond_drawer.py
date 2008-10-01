@@ -203,7 +203,7 @@ def draw_bond(self,
               glpane,
               dispdef,
               col,
-              level,
+              detailLevel,
               highlighted = False,
               bool_fullBondLength = False,
               special_drawing_handler = None,
@@ -275,7 +275,7 @@ def draw_bond(self,
 
     try: #bruce 050610 to ensure calling glPopName    
         povfile = None
-        draw_bond_main(self, glpane, disp, col, level, highlighted, 
+        draw_bond_main(self, glpane, disp, col, detailLevel, highlighted, 
                        povfile, bool_fullBondLength,
                        special_drawing_handler = special_drawing_handler,
                        special_drawing_prefs = special_drawing_prefs )
@@ -295,7 +295,7 @@ def draw_bond_main(self,
                    glpane,
                    disp,
                    col,
-                   level,
+                   detailLevel,
                    highlighted,
                    povfile = None,
                    bool_fullBondLength = False,
@@ -306,7 +306,7 @@ def draw_bond_main(self,
     [private helper function for this module only.]
     self is a bond. For other doc, see the calls.
     """
-    _our_args = (self, glpane, disp, col, level, highlighted, povfile,
+    _our_args = (self, glpane, disp, col, detailLevel, highlighted, povfile,
                  bool_fullBondLength)
         # This must be kept in agreement with all args of this function except
         # special_*.  We include self in the tuple, since this function is not a
@@ -655,7 +655,7 @@ def draw_bond_main(self,
                     # Correct in either abs or rel coords.
                     geom = self.geom_from_posns(a1posm, a2posm)
                     draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
-                                  bondcolor, highlighted, level,
+                                  bondcolor, highlighted, detailLevel,
                                   cylrad, shorten_tubes, geom, v6_for_bands,
                                   povfile, dir_info, bool_fullBondLength)
 
@@ -664,7 +664,7 @@ def draw_bond_main(self,
         geom = selfgeom #e could be optimized to compute less for CPK case
         cylrad = sigmabond_cyl_radius
         draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
-                      bondcolor, highlighted, level,
+                      bondcolor, highlighted, detailLevel,
                       cylrad, shorten_tubes, geom, v6_for_bands,
                       povfile, dir_info, bool_fullBondLength)
 
@@ -743,7 +743,7 @@ def multicyl_pvecs(howmany, a2py, a2pz):
     pass
 
 def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
-                  bondcolor, highlighted, level,
+                  bondcolor, highlighted, detailLevel,
                   sigmabond_cyl_radius, shorten_tubes, geom, v6,
                   povfile, dir_info, bool_fullBondLength = False):
     """
@@ -944,7 +944,7 @@ def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
                         # without this fix, it can be slightly rotated, causing
                         # part of the unhighlighted one to show through.
                 if not (v1 and v2):
-                    drawsphere(black, center, sigmabond_cyl_radius, level)
+                    drawsphere(black, center, sigmabond_cyl_radius, detailLevel)
         else:
             if highlighted:
                 toolong_color = _default_toolong_hicolor ## not yet in prefs db
@@ -954,13 +954,13 @@ def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
             if v1:
                 drawcylinder(color1, a1pos, c1, sigmabond_cyl_radius)
             else:
-                drawsphere(black, c1, sigmabond_cyl_radius, level)
+                drawsphere(black, c1, sigmabond_cyl_radius, detailLevel)
             if v2:
                 drawcylinder(color2, c2, a2pos, sigmabond_cyl_radius)
                     #bruce 070921 bugfix: draw in consistent direction!
                     # See comment above.
             else:
-                drawsphere(black, c2, sigmabond_cyl_radius, level)
+                drawsphere(black, c2, sigmabond_cyl_radius, detailLevel)
         if banding:
             drawcylinder(band_color, bandpos1, bandpos2,
                          sigmabond_cyl_radius * 1.2)
@@ -1066,10 +1066,10 @@ def writepov_bond(self, file, dispdef, col):
     if disp in (diLINES, diBALL, diTUBES, diDNACYLINDER):
         # (note: self is a bond.)
         povfile = writepov_to_file(file, col)
-        level = 2 #k value probably has no effect
+        detailLevel = 2 #k value probably has no effect
         glpane = None #k value probably has no effect
         highlighted = False
-        draw_bond_main(self, glpane, disp, col, level, highlighted, povfile)
+        draw_bond_main(self, glpane, disp, col, detailLevel, highlighted, povfile)
     return
 
 def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos,

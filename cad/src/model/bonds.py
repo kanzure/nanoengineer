@@ -1808,7 +1808,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         #bruce 080702 split this out of Chunk._draw_external_bonds
         return self.atom1.molecule.picked and self.atom2.molecule.picked
     
-    def draw(self, glpane, dispdef, col, level,
+    def draw(self, glpane, dispdef, col, detailLevel,
              highlighted = False,
              bool_fullBondLength = False,
              special_drawing_handler = None,
@@ -1818,7 +1818,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         Draw the bond. Note that for external bonds, this is [or used to be?]
         called twice, once for each bonded molecule (in arbitrary order)
         (and is never cached in either mol's display list);
-        each of these calls gets dispdef, col, and level from a different mol.
+        each of these calls gets dispdef, col, and detailLevel from a different mol.
         [bruce, 041104, thinks that leads to some bugs in bond looks.]
            Bonds are drawn only in certain display modes.
         The display mode is inherited from the atoms or molecule (as passed in
@@ -1849,7 +1849,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             import graphics.drawing.bond_drawer as bond_drawer
             reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event
         from graphics.drawing.bond_drawer import draw_bond
-        draw_bond( self, glpane, dispdef, col, level, highlighted,
+        draw_bond( self, glpane, dispdef, col, detailLevel, highlighted,
                    bool_fullBondLength,
                    special_drawing_handler = special_drawing_handler,
                    special_drawing_prefs = special_drawing_prefs
