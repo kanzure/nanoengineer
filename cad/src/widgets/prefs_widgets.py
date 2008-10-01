@@ -527,11 +527,11 @@ class _twoway_Qt_connection(object):
         self.connected = False
     def destroy(self):
         if self.vars: #bruce 080930 make destroy twice legal and a noop
-            self.vars = None # error to use self after this
             if self.connected:
                 self.disconnect()
             if self.conn1:
                 self.conn1.destroy()
+            self.vars = None # error to use self after this, except for destroy
         return
     def connect_the_other_way(self):
         self.conn1 = Formula( self.usage_tracked_getter, self.careful_widget_setter, debug = self.debug )
