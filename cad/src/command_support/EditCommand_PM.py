@@ -9,101 +9,26 @@ EditCommand for generating the object. e.g. PlanePropertyManager inherits
 from this class to use common methods such as ok_btn_cliked.
 
 """
-
 import foundation.env as env
-
-from PM.PM_Dialog import PM_Dialog
-from PyQt4.Qt import SIGNAL
-
-from utilities.exception_classes import AbstractMethod
-from utilities.icon_utilities import geticon
-from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
-
+from command_support.Command_PropertyManager import Command_PropertyManager
 #debug flag to keep signals always connected
 from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
-class EditCommand_PM(PM_Dialog):
+_superclass = Command_PropertyManager
+
+class EditCommand_PM(Command_PropertyManager):
     """
     This is a superclass for the property managers of various objects that use
     EditCommand for generating the object. e.g. PlanePropertyManager
     inherits from this class to use common methods
-    """
-    # The title that appears in the Property Manager header.
-    title = "Property Manager"
-    # The name of this Property Manager. This will be set to
-    # the name of the PM_Dialog object via setObjectName().
-    pmName = title
-    # The relative path to the PNG file that appears in the header
-    iconPath = ""
-
-    def __init__(self, command):
-        """
-        Constructor for the EditCommand_PM
-        """
-        # pw = part window.
-        # Its subclasses will create their partwindow objects
-        # (and destroy them after Done) -- @@ not be a good idea if we have
-        # multiple partwindow support? (i.e. when win object is replaced(?) by
-        # partwindow object for each partwindow).  But this works fine.
-        # ..same guess -- because opening multiple windows is not supported
-        # When we begin supporting that, lots of things will change and this
-        # might be one of them .--- ninad 20070613
-
-        self.command = command
-
-        self.win =  self.command.win
-        self.w = self.command.win
-        self.pw       =  None
-        
-        PM_Dialog.__init__(self,
-                           self.pmName,
-                           self.iconPath,
-                           self.title
-                       )       
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
-    def setEditCommand(self, command):
-        """
-        """
-        assert command
-        self.command = command
-        
+    """ 
         
     def show(self):
         """
-        Shows the Property Manager. Overrides PM_Dialog.show)
+        Shows the Property Manager. Extends superclass method.
         """
         self._update_widgets_in_PM_before_show()
-        PM_Dialog.show(self)
-        
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-            
-        self.enable_or_disable_gui_actions(bool_enable = False)
-        
-
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """            
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        self.enable_or_disable_gui_actions(bool_enable = True)
-        PM_Dialog.close(self)
-
-    def connect_or_disconnect_signals(self, isConnect):
-        """
-        Connect or disconnect widget signals sent to their slot methods.
-        This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot
-                          method.
-        @type  isConnect: boolean
-        """
-        pass
-    
+        _superclass.show(self)                  
 
     def _update_widgets_in_PM_before_show(self):
         """
@@ -142,30 +67,6 @@ class EditCommand_PM(PM_Dialog):
         if self.command.struct and hasattr(self.command.struct, 'updateCosmeticProps'):
             self.command.struct.updateCosmeticProps()
         self.enable_or_disable_gui_actions(bool_enable = True)
-
-    def enable_or_disable_gui_actions(self, bool_enable = False):
-        """
-        Enable or disable some gui actions when this property manager is
-        opened or closed, depending on the bool_enable.
-        Subclasses can override this method.
-        """
-        pass
-
-
-    def _addGroupBoxes(self):
-        """
-        Add various group boxes to this PM.
-        Abstract method.
-        """
-        raise AbstractMethod()
-
-    def _addWhatsThisText(self):
-        """
-        Add what's this text.
-        Abstract method.
-        """
-        raise AbstractMethod()
-
 
     def preview_btn_clicked(self):
         """
