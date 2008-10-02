@@ -602,7 +602,7 @@ class BuildCrystal_Command(basicMode):
         if not self.drawingCookieSelCurve:
             return
         if self.Rubber:
-            # Doing a poly-rubber-band selection.  bareMotion() is updating the current rubber-band segment.
+            # Doing a poly-rubber-band selection. bareMotion() is updating the current rubber-band segment.
             return
         if not self.selectionShape in ['DEFAULT', 'LASSO']:
             return
@@ -733,11 +733,11 @@ class BuildCrystal_Command(basicMode):
 
     def bareMotion(self, event):
         if self.freeView or not self.drawingCookieSelCurve:
-            return False # russ 080527        
+            return False # False means not discarded [russ 080527]
 
         if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO']: 
             if not self.selCurve_List:
-                return
+                return False
             p1, p2 = self._getPoints(event)
             try: 
                 if self.Rubber:
@@ -754,7 +754,7 @@ class BuildCrystal_Command(basicMode):
                 env.history.statusbar_msg("Left click to end selection; Press <Esc> key to cancel selection.")
             self.draw_selection_curve()
             ######self.o.gl_update()
-        return False # russ 080527        
+        return False
 
     def _afterCookieSelection(self):
         """

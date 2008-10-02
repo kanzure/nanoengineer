@@ -223,7 +223,7 @@ class Line_GraphicsMode( Select_GraphicsMode ):
         #activated/deactivated
         self.update_cursor()  
 
-        return value # russ 080527   
+        return value   
 
     def snapLineEndPoint(self):
         """

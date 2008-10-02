@@ -96,12 +96,12 @@ class BuildDna_GraphicsMode(
         """
         value = _superclass.bareMotion(self, event)
 
-        #When the cursor is over a specifit atom, we need to display
+        #When the cursor is over a specific atom, we need to display
         #a different icon. (e.g. when over a strand atom, it should display
         # rotate cursor)
         self.update_cursor()
 
-        return value # russ 080527
+        return value
 
     def leftDown(self, event):
         """

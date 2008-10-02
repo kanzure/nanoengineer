@@ -366,7 +366,11 @@ class PM_SelectionListWidget(PM_ListWidget):
         """
         Clear the previously drawn tags if any.
         """
-        self.glpane.graphicsMode.drawTags(tagPositions = ())
+        ### TODO: this should not go through the current graphicsMode,
+        # in case that belongs to a temporary command or to nullCommand
+        # (which would cause bugs). Rather, it should find "this PM's graphicsMode".
+        # [bruce 081002 comment]
+        self.glpane.graphicsMode.setDrawTags(tagPositions = ())
 
     def setTagInstruction(self, tagInstruction = 'TAG_ITEM_IN_GLPANE'):
         """
@@ -391,6 +395,8 @@ class PM_SelectionListWidget(PM_ListWidget):
             return
 
         graphicsMode = self.glpane.graphicsMode
+            # TODO: fix this, in the same way as described in self.clearTags.
+            # [bruce 081002 comment]
 
         #Clear the previous tags if any
         self.clearTags()        
@@ -434,8 +440,8 @@ class PM_SelectionListWidget(PM_ListWidget):
                     tagPositions.append(item.posn())
 
             if tagPositions: 
-                graphicsMode.drawTags(tagPositions = tagPositions, 
-                                      tagColor = yellow)            
+                graphicsMode.setDrawTags(tagPositions = tagPositions, 
+                                         tagColor = yellow)            
 
         self.glpane.gl_update()
 

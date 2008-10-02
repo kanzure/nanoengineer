@@ -415,7 +415,6 @@ class BuildAtoms_Command(SelectAtoms_Command):
     def isHighlightingEnabled(self):
         """
         overrides superclass method.  
-        Note that this deprecates use of self.hover_highlighiting_enabled
         @see: anyCommand.isHighlightingEnabled()
         """
         return env.prefs[buildModeHighlightingEnabled_prefs_key]

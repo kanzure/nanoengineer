@@ -201,7 +201,6 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         
     #Boolean flag that is used in combination with 
     #self.command.isHighlightingEnabled(). 
-    #Note -- this deprecates use of self.hover_highlighting_enabled
     _supress_highlighting = False
 
 
@@ -1206,7 +1205,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
     def selobj_highlight_color(self, selobj):
         """
-        [mode API method]
+        [GraphicsMode API method]
 
         If we'd like this selobj to be highlighted on mouseover
         (whenever it's stored in glpane.selobj), return the desired highlight

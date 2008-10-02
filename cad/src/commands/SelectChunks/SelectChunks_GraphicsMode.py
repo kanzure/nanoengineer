@@ -969,6 +969,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self._supress_highlighting = False
 
         _superclass.bareMotion(self, event)
+            ### REVIEW: why do we now return False, rather than whatever this returns?
+            # Needs explanation. [bruce 081002 question]
 
         return False
 

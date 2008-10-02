@@ -88,21 +88,10 @@ class nullGraphicsMode(GraphicsMode_API):
 
     # GraphicsMode-specific null methods
 
-    def Draw(self):
-        # Note: this does happen... maybe due to how soon we call
-        # .start_using_mode( '$DEFAULT_MODE')" (or start_using_initial_mode?).
-        # If so, it's ok that it happens and good
-        # that we make it a noop. [bruce 040924]
-        pass
-    def Draw_after_highlighting(self):
-        pass
-    def keyPressEvent(self, e):
-        pass
-    def keyReleaseEvent(self, e):
-        pass
-    def bareMotion(self, e):
-        return False # russ 080527
-    def drawTags(self, *args, **kws): #bruce 080325
+    def setDrawTags(self, *args, **kws):
+        # This would not be needed here if calls were fixed,
+        # as commented on them; thus, not part of GraphicsMode_API
+        # [bruce 081002 comment]
         pass
 
     pass # end of class nullGraphicsMode
@@ -135,7 +124,9 @@ class basicGraphicsMode(GraphicsMode_API):
     # for details.
     _tagPositions = ()
     _tagColor = yellow
-
+    
+    picking = False # used as instance variable in some mouse methods
+    
     def __init__(self, glpane):
         """
         """
@@ -375,29 +366,38 @@ class basicGraphicsMode(GraphicsMode_API):
             self.o.assy.checkpicked(always_print = 0)
         return
 
-    def drawTags(self, tagPositions = (), tagColor = yellow): # by Ninad
+    def setDrawTags(self, tagPositions = (), tagColor = yellow): # by Ninad
         """
         Public method that accepts requests to draw tags at the given
         tagPositions.
+
+        @note: this saves its arguments as private state in self, but does
+        not actually draw them -- that is done later by self._drawTags().
+        Thus, this method is safe to call outside of self.Draw() and without
+        ensuring that self.glpane is the current OpenGL context.
+        
         @param tagPositions: The client can provide a list or tuple of tag
                             base positions. The default value for this parameter
                             is an empty tuple. Thus, if no tag position is
                             specified, it won't draw any tags and will also
                             clear the previously drawn tags.
         @type tagPositions: list or tuple
+        
         @param tagColor: The color of the tags
         @type tagColor:  B{A}
+        
         @see: self._drawTags
         @see: DnaDuplexPropertyManager.clearTags for an example
         """
+        #bruce 081002 renamed from drawTags -> setDrawTags, to avoid confusion,
+        # since it sets state but doesn't do any drawing
         self._tagPositions = list(tagPositions)
         self._tagColor = tagColor
 
     def _drawTags(self):
         """
         Private method, called in self.Draw that actually draws the tags
-        for self._tagPositions.
-        @see: self.drawTag
+        saved in self._tagPositions by self.setDrawTags.
         """
 
         if self._tagPositions:
@@ -480,13 +480,18 @@ class basicGraphicsMode(GraphicsMode_API):
             self.glpane.displayMode,
             pickCheckOnly = pickCheckOnly )
 
-    def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; revised 060724
+    def selobj_still_ok(self, selobj):
         """
-        Say whether a highlighted mouseover object from a prior draw (in the same mode) is still ok.
-        If the mode's special cases don't hold, we ask the selobj; if that doesn't work, we assume it
-        defines .killed (and answer yes unless it's been killed).
-
-        [overrides anyMode method; subclasses might want to override this one]
+        [overrides GraphicsMode_API method]
+        
+        Say whether a highlighted mouseover object from a prior draw
+        (done by the same GraphicsMode) is still ok.
+        
+        In this implementation: if our special cases of various classes
+        of selobj don't hold, we ask selobj (using a method of the same name
+        in the selobj API, though it's not defined in Selobj_API for now);
+        if that doesn't work, we assume selobj defines .killed, and answer yes
+        unless it's been killed.
         """
         try:
             # This sequence of conditionals fix bugs 1648 and 1676. mark 060315.
@@ -499,9 +504,9 @@ class basicGraphicsMode(GraphicsMode_API):
             elif isinstance(selobj, Node): # e.g. Jig
                 return not selobj.killed() and selobj.part is self.o.part
             else:
-                #bruce 060724 new feature, related to Drawable API
                 try:
                     method = selobj.selobj_still_ok
+                        # REVIEW: this method is not defined in Selobj_API; can it be?
                 except AttributeError:
                     pass
                 else:
@@ -521,8 +526,10 @@ class basicGraphicsMode(GraphicsMode_API):
             return True # let the selobj remain
         pass
 
-    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008 for graphics mode API
+    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
         """
+        [overrides GraphicsMode_API method]
+
         Subclasses should override this as needed, though most don't need to:
 
         Draw selobj in highlighted form for being the object under the mouse,
@@ -533,72 +540,6 @@ class basicGraphicsMode(GraphicsMode_API):
         Note: selobj is typically glpane.selobj, but don't assume this.
         """
         selobj.draw_in_abs_coords(glpane, hicolor)
-
-    # left mouse button actions -- overridden in modes that respond to them
-    def leftDown(self, event):
-        pass
-
-    def leftDrag(self, event):
-        pass
-
-    def leftUp(self, event):
-        pass
-
-    def leftShiftDown(self, event):
-        pass
-
-    def leftShiftDrag(self, event):
-        pass
-
-    def leftShiftUp(self, event):
-        pass
-
-    def leftCntlDown(self, event):
-        pass
-
-    def leftCntlDrag(self, event):
-        pass
-
-    def leftCntlUp(self, event):
-        pass
-
-    def leftDouble(self, event):
-        pass
-
-    # middle mouse button actions -- these support a trackball, and
-    # are the same for all modes (with a few exceptions)
-    def middleDown(self, event):
-        """
-        Set up for rotating the view with MMB+Drag.
-        """
-        self.update_cursor()
-        self.o.SaveMouse(event)
-        self.o.trackball.start(self.o.MousePos[0], self.o.MousePos[1])
-        self.picking = True
-
-        # Turn off hover highlighting while rotating the view with middle mouse button. Fixes bug 1657. Mark 060805.
-        self.o.selobj = None # <selobj> is the object highlighted under the cursor.
-
-    def middleDrag(self, event):
-        """
-        Rotate the view with MMB+Drag.
-        """
-        # Huaicai 4/12/05: Originally 'self.picking = False in both middle*Down
-        # and middle*Drag methods. Change it as it is now is to prevent
-        # possible similar bug that happened in the Move_Command where
-        # a *Drag method is called before a *Down() method. This
-        # comment applies to all three *Down/*Drag/*Up methods.
-        if not self.picking:
-            return
-
-        self.o.SaveMouse(event)
-        q = self.o.trackball.update(self.o.MousePos[0], self.o.MousePos[1])
-        self.o.quat += q
-        self.o.gl_update()
-
-    def middleUp(self, event):
-        self.picking = False
-        self.update_cursor()
 
     def end_selection_from_GLPane(self):
         """
@@ -641,24 +582,6 @@ class basicGraphicsMode(GraphicsMode_API):
     def dragstart_using_plane_depth(self, event, plane, **kws):
         res = self.o.dragstart_using_plane_depth(event, plane, **kws) # note: res is a tuple whose length depends on **kws
         return res
-
-    def middleShiftDown(self, event):
-        """
-        Set up for panning the view with MMB+Shift+Drag.
-        """
-        self.update_cursor()
-        # Setup pan operation
-        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
-        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
-            # REVIEW: needed? the subclasses that use it also set it, so probably not.
-            # TODO: confirm that guess, then remove this set. (In fact, this makes me wonder
-            # if some or all of the other things in this method are redundant now.) [bruce 071012 comment]
-
-        self.o.SaveMouse(event) #k still needed?? probably yes; might even be useful to help dragto for atoms #e [bruce 060316 comment]
-        self.picking = True
-
-        # Turn off hover highlighting while panning the view with middle mouse button. Fixes bug 1657. Mark 060808.
-        self.o.selobj = None # <selobj> is the object highlighted under the cursor.
 
     def dragto(self, point, event, perp = None):
         """
@@ -716,6 +639,61 @@ class basicGraphicsMode(GraphicsMode_API):
         center and its dragpoint differ, and of how the offset between them rotates as the object does.
         """
         return self.dragto(point + offset, event) - offset
+
+    # middle mouse button actions -- these support a trackball, and
+    # are the same for all GraphicsModes (with a few exceptions)
+    
+    def middleDown(self, event):
+        """
+        Set up for rotating the view with MMB+Drag.
+        """
+        self.update_cursor()
+        self.o.SaveMouse(event)
+        self.o.trackball.start(self.o.MousePos[0], self.o.MousePos[1])
+        self.picking = True
+
+        # Turn off hover highlighting while rotating the view with middle mouse button. Fixes bug 1657. Mark 060805.
+        self.o.selobj = None # <selobj> is the object highlighted under the cursor.
+
+    def middleDrag(self, event):
+        """
+        Rotate the view with MMB+Drag.
+        """
+        # Huaicai 4/12/05: Originally 'self.picking = False in both middle*Down
+        # and middle*Drag methods. Change it as it is now is to prevent
+        # possible similar bug that happened in the Move_Command where
+        # a *Drag method is called before a *Down() method. This
+        # comment applies to all three *Down/*Drag/*Up methods.
+        if not self.picking:
+            return
+
+        self.o.SaveMouse(event)
+        q = self.o.trackball.update(self.o.MousePos[0], self.o.MousePos[1])
+        self.o.quat += q
+        self.o.gl_update()
+
+    def middleUp(self, event):
+        self.picking = False
+        self.update_cursor()
+
+    def middleShiftDown(self, event):
+        """
+        Set up for panning the view with MMB+Shift+Drag.
+        """
+        self.update_cursor()
+        # Setup pan operation
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
+        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
+            # REVIEW: needed? the subclasses that use it also set it, so probably not.
+            # TODO: confirm that guess, then remove this set. (In fact, this makes me wonder
+            # if some or all of the other things in this method are redundant now.) [bruce 071012 comment]
+
+        self.o.SaveMouse(event) #k still needed?? probably yes; might even be useful to help dragto for atoms #e [bruce 060316 comment]
+        self.picking = True
+
+        # Turn off hover highlighting while panning the view with middle mouse button. Fixes bug 1657. Mark 060808.
+        self.o.selobj = None # <selobj> is the object highlighted under the cursor.
+
 
     def middleShiftDrag(self, event):
         """
@@ -790,9 +768,6 @@ class basicGraphicsMode(GraphicsMode_API):
         self.picking = False
         self.update_cursor()
 
-    def middleDouble(self, event):
-        pass
-
     # right button actions... #doc
 
     def rightDown(self, event):
@@ -819,12 +794,6 @@ class basicGraphicsMode(GraphicsMode_API):
         # the corresponding mouseup methods, but that requires worrying about the
         # above-described issues.
 
-    def rightDrag(self, event):
-        pass
-
-    def rightUp(self, event):
-        pass
-
     def rightShiftDown(self, event):
         self._setup_menus_in_each_cmenu_event()
         # Previously we did this:
@@ -836,31 +805,12 @@ class basicGraphicsMode(GraphicsMode_API):
         # and Qt does not give us the latter. So forget about the 3.
         self._Menu2.exec_(event.globalPos())
 
-
-    def rightShiftDrag(self, event):
-        pass
-
-    def rightShiftUp(self, event):
-        pass
-
     def rightCntlDown(self, event):
         self._setup_menus_in_each_cmenu_event()
         # see note above
         self._Menu3.exec_(event.globalPos())
 
-    def rightCntlDrag(self, event):
-        pass
-
-    def rightCntlUp(self, event):
-        pass
-
-    def rightDouble(self, event):
-        pass
-
     # other events
-
-    def bareMotion(self, event):
-        return False # russ 080527
 
     def Wheel(self, event):
         mod = event.modifiers()
@@ -933,10 +883,10 @@ class basicGraphicsMode(GraphicsMode_API):
     # see comments in the GLPane methods, which now contain Mac-specific Delete
     # key fixes that used to be done here. For the future: The keyPressEvent and
     # keyReleaseEvent methods must be overridden by any mode which needs to know
-    # more about key events than e.key() (which is the same for 'A' and 'a',
+    # more about key events than event.key() (which is the same for 'A' and 'a',
     # for example). As of 041220 no existing mode needs to do this.
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, event):
         """
         [some modes will need to override this in the future]
         """
@@ -947,21 +897,22 @@ class basicGraphicsMode(GraphicsMode_API):
         # Mark 050412
         #bruce 060516 extending this by adding keyPressAutoRepeating and keyReleaseAutoRepeating,
         # usually but not always ignored.
-        if e.isAutoRepeat():
-            self.keyPressAutoRepeating(e.key())
+        if event.isAutoRepeat():
+            self.keyPressAutoRepeating(event.key())
         else:
-            self.keyPress(e.key())
+            self.keyPress(event.key())
         return
 
-    def keyReleaseEvent(self, e):
-
+    def keyReleaseEvent(self, event):
+        """
+        """
         # Ignore autorepeating key events.  Read comments in keyPressEvent above for more detail.
         # Mark 050412
         #bruce 060516 extending this; see same comment.
-        if e.isAutoRepeat():
-            self.keyReleaseAutoRepeating(e.key())
+        if event.isAutoRepeat():
+            self.keyReleaseAutoRepeating(event.key())
         else:
-            self.keyRelease(e.key())
+            self.keyRelease(event.key())
         return
 
     # the old key event API (for modes which don't override keyPressEvent etc)
@@ -1156,13 +1107,6 @@ class basicGraphicsMode(GraphicsMode_API):
             pl = zip(self.o.selArea_List[:-1], self.o.selArea_List[1:])
             for pp in pl:
                 drawline(color, pp[0], pp[1])
-
-    def surfset(self, num):
-        """
-        noop method, meant to be overridden in BuildCrystal_Command
-        for setting diamond surface orientation
-        """
-        pass
 
     def get_prefs_value(self, prefs_key): #bruce 080605
         """

@@ -1,35 +1,38 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 GraphicsMode_API.py -- API class for whatever is used as a GraphicsMode
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
-bruce 071028 split this out of GraphicsMode.py, in which it was
+Bruce 071028 split this out of GraphicsMode.py, in which it was
 called anyGraphicsMode. All external refs to anyGraphicsMode
 are now refs to GraphicsMode_API.
 
-TODO:
-
-Add all the attributes and methods in the true GraphicsMode API
-to this class (to fully document the API). Use null methods and
+Bruce 081002 added all GraphicsMode API methods to this class, AFAIK
+(to fully document the API). Used null methods and
 values (legal to use, which do nothing) unless no real GraphicsMode
 can be correct without overriding them (like for Command.commandName).
 
-See also the TODO comment in module GraphicsMode.
+Note that this API consists mainly of methods/attrs expected by GLPane,
+rather than by self.command, since when a Command expects certain
+methods in its GraphicsMode, it's enough for those to be defined in
+that command's own GraphicsMode_class (assuming subclasses of that
+command use graphicsmode classes which are subclasses of that GM class,
+as should generally be true).
+
+TODO:
+
+See the TODO comment in module GraphicsMode.
 """
 
 class GraphicsMode_API(object):
     """
-    API class (incomplete) and abstract superclass for all GraphicsMode objects,
+    API class and abstract superclass for all GraphicsMode objects,
     including nullGraphicsMode; used for isinstance tests
     """
-    # history:
-    # bruce 071008 added object superclass, 071009 split anyMode -> anyGraphicsMode
-    # bruce 071028 renamed anyGraphicsMode -> GraphicsMode_API and gave it its own file
-
     
     # GraphicsMode-specific attribute null values
     
@@ -43,33 +46,141 @@ class GraphicsMode_API(object):
         # Note: to use this, override it with a method (or set it to a
         # callable) which is compatible with GLPane.render_scene()
         # but which receives a single argument which will be the GLPane.
-    
 
     check_target_depth_fudge_factor = 0.0001
         # affects GLPane's algorithm for finding objectUnderMouse (selobj)
 
-    picking = False # used as instance variable in some mouse methods
 
+    # default methods of various kinds:
+
+    # selobj-related
     
-    # default methods for both nullGraphicsMode and basicGraphicsMode
-    
-    def selobj_highlight_color(self, selobj): #bruce 050612 added this to GraphicsMode API; see BuildAtoms_Graphicsmode version for docstring
+    def selobj_highlight_color(self, selobj):
+        """
+        @see: Select_GraphicsMode version, for docstring
+        """
         return None
 
-    def selobj_still_ok(self, selobj): #bruce 050702 added this to GraphicsMode API; overridden in GraphicsMode, and docstring is there
+    def selobj_still_ok(self, selobj):
+        """
+        @see: GraphicsMode version, for docstring
+        """
         return True
 
-    def draw_overlay(self): #bruce 070405
+    # also: glpane asks for self.command.isHighlightingEnabled()
+    # (as part of a kluge used for updates during event processing);
+    # review: should we define that in this API, and delegate it to command
+    # in basicGraphicsMode? Or, better, refactor the sole call in GLPane_*.py
+    # to call selobj_highlight_color instead (which is None whenever
+    # the selobj should not be highlighted). [bruce 081002 comment]
+
+    # drawing stages
+
+    def Draw(self):
         return
 
-    def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
+    def Draw_after_highlighting(self):
+        return
+
+    def draw_overlay(self): # misnamed
+        return
+
+    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
+        """
+        @see: GraphicsMode version, for docstring
+        """
+        return
+    
+    # cursor
+
+    def update_cursor(self):
+        return
+
+    # key events
+    
+    def keyPressEvent(self, event):
+        return
+
+    def keyReleaseEvent(self, event):
+        return
+
+    # mouse wheel event
+
+    def Wheel(self, event):
+        return
+    
+    # mouse events
+    # (todo: refactor to have fewer methods, let GraphicsMode
+    #  split them up if desired, since some GMs don't want to)
+    
+    def mouse_event_handler_for_event_position(self, wX, wY):
         return None
+    
+    def bareMotion(self, event):
+        """
+        Mouse motion with no buttons pressed.
 
-    def update_cursor(self): #bruce 070410
-        return
+        @return: whether this event was "discarded" due to the last mouse wheel
+                 event occurring too recently
+        @rtype: boolean
 
-    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008
-        pass
+        @note: GLPane sometimes generates a fake bareMotion event with
+               no actual mouse motion
+
+        @see: Select_GraphicsMode_MouseHelpers_preMixin.bareMotion
+        @see: SelectChunks_GraphicsMode.bareMotion for 'return True'
+        """
+        return False # russ 080527 added return value to API
+
+
+    def leftDouble(self, event): pass
+
+    def leftDown(self, event): pass
+    def leftDrag(self, event): pass
+    def leftUp(self, event): pass
+
+    def leftShiftDown(self, event): pass
+    def leftShiftDrag(self, event): pass
+    def leftShiftUp(self, event): pass
+
+    def leftCntlDown(self, event): pass
+    def leftCntlDrag(self, event): pass
+    def leftCntlUp(self, event): pass
+    
+
+    def middleDouble(self, event): pass
+
+    def middleDown(self, event): pass
+    def middleDrag(self, event): pass
+    def middleUp(self, event): pass
+        
+    def middleShiftDown(self, event): pass
+    def middleShiftDrag(self, event): pass
+    def middleShiftUp(self, event): pass
+    
+    def middleCntlDown(self, event): pass
+    def middleCntlDrag(self, event): pass
+    def middleCntlUp(self, event): pass
+    
+    def middleShiftCntlDown(self, event): pass
+    def middleShiftCntlDrag(self, event): pass
+    def middleShiftCntlUp(self, event): pass
+
+
+    def rightDouble(self, event): pass
+
+    def rightDown(self, event): pass
+    def rightDrag(self, event): pass
+    def rightUp(self, event): pass
+
+    def rightShiftDown(self, event): pass
+    def rightShiftDrag(self, event): pass
+    def rightShiftUp(self, event): pass
+
+    def rightCntlDown(self, event): pass
+    def rightCntlDrag(self, event): pass
+    def rightCntlUp(self, event): pass
+
 
     pass # end of class GraphicsMode_API
 
