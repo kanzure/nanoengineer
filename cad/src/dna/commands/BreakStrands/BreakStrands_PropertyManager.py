@@ -11,13 +11,6 @@ BreakStrands_PropertyManager.py
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 
-TODO: as of 2008-02-13:
-- Remove 'Cancel' button -- This needs to be supported in transient done-cancel
-button code (confirmation_corner)
-- methods such as ok_btn_clicked need cleanup in the superclass. This workis 
-pending because of some remaining things in GBC cleanup (such as 
-NanotubeGenerator etc) 
-
 Ninad 2008-06-05: 
 Revised and refactored arrowhead display code and moved part common to both 
 Break and JoinStrands PMs into new module BreakOrJoinStrands_PropertyManager
@@ -94,10 +87,7 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False 
-        
-        self.command = command
-        self.win = self.command.win
-        
+               
         _superclass.__init__(self, command)
   
         msg = "Click on a strand's backbone bond to break a strand."

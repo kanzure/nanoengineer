@@ -14,9 +14,6 @@ JoinStrands_PropertyManager.py
 TODO: as of 2008-02-13:
 - Remove 'Cancel' button -- This needs to be supported in transient done-cancel
 button code (confirmation_corner)
-- methods such as ok_btn_clicked need cleanup in the superclass. This workis 
-pending because of some remaining things in GBC cleanup (such as 
-NanotubeGenerator etc) 
 
 Ninad 2008-06-04 - 2008-06-05: 
 Revised and refactored arrowhead display code and moved part common to both 

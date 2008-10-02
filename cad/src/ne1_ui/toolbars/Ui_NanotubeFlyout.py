@@ -15,15 +15,14 @@ History:
 - Mark 2008-03-8: This file created from a copy of Ui_DnaFlyout.py and edited.
 """
 
-import foundation.env as env
-from PyQt4 import QtCore, QtGui
-from PyQt4.Qt import Qt
+
+from PyQt4 import QtGui
 from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
-from utilities.Log import greenmsg
+
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+
 
 from ne1_ui.toolbars.Ui_AbstractFlyout import Ui_AbstractFlyout
 
@@ -131,33 +130,6 @@ class NanotubeFlyout(Ui_AbstractFlyout):
         change_connect(self.insertNanotubeAction, 
                              SIGNAL("triggered(bool)"),
                              self.activateInsertNanotubeLine_EditCommand)
-    
-    def ORIGINAL_activateFlyoutToolbar(self):#Unused as of 2008-08-13 (and onwards)
-        #This method can be removed in the near future. Testing has not discovered
-        #any new bugs after Ui_DnaFlyout was inherited from Ui_AbstractFlyout
-        """
-        Updates the flyout toolbar with the actions this class provides. 
-        """    
-               
-        if self._isActive:
-            return
-        
-        self._isActive = True
-        
-        #Temporary workaround for bug 2600 
-        #until the Command Toolbar code is revised
-        #When NanotubeFlyout toolbar is activated, it should switch to (check) the 
-        #'Build Button' in the control area. So that the NanotubeFlyout 
-        #actions are visible in the flyout area of the command toolbar. 
-        #-- Ninad 2008-01-21. 
-        self.win.commandToolbar.cmdButtonGroup.button(0).setChecked(True)
-        #Now update the command toolbar (flyout area)
-        self.win.commandToolbar.updateCommandToolbar(self.win.buildNanotubeAction,
-                                                     self)
-        #self.win.commandToolbar._setControlButtonMenu_in_flyoutToolbar(
-                    #self.cmdButtonGroup.checkedId())
-        self.exitNanotubeAction.setChecked(True)
-        self.connect_or_disconnect_signals(True)
     
         
     def resetStateOfActions(self):

@@ -25,7 +25,6 @@ from PyQt4.Qt import QColorDialog
 
 from commands.BuildCrystal.Ui_BuildCrystal_PropertyManager import Ui_BuildCrystal_PropertyManager
 
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
 _superclass = Ui_BuildCrystal_PropertyManager
 class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
@@ -33,17 +32,10 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
     def __init__(self, command):
         """
         """
-        self.w = command.w
-        self.command = command
-            #bruce 071008, probably redundant with some other attribute
-                                       
-        self.pw = None # pw is active part window
-        
+                                              
+               
         _superclass.__init__(self, command)
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-        
+              
         msg = "Draw the Crystal geometry selecting the desired shape from the "\
             "flyout toolbar at the top."
         self.updateMessage(msg = msg) 
@@ -98,9 +90,7 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
         """
   
         _superclass.show(self)
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-                        
+      
         self.latticeCBox.setEnabled(True)
 
         # Other things that have been lost at this point:
@@ -115,12 +105,8 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
     def close(self):
         """
         Restore GUI items when exiting from the PM (command).
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-          
-        _superclass.close(self) 
-            
+        """        
+        _superclass.close(self)            
         
         # Enable all those view options
         self.enableViewChanges(True)
