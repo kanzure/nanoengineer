@@ -182,6 +182,18 @@ class GraphicsMode_API(object):
     def rightCntlUp(self, event): pass
 
 
+    ### REVIEW:
+    # other methods/attrs that may be part of the GraphicsMode API,
+    # even though they are not called from GLPane itself
+    # (some of them are called on "current GraphicsMode"):
+    # - end_selection_from_GLPane
+    # - isCurrentGraphicsMode
+    # - get_prefs_value
+    # - UNKNOWN_SELOBJ attr
+    # - command attr
+    # See also TODO comment in DynamicTip.py, suggesting a new API method
+    # to ask what to display in the tooltip.
+
     pass # end of class GraphicsMode_API
 
 # end
