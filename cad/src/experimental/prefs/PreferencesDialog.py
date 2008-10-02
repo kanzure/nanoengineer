@@ -1318,12 +1318,13 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                          suffix = "pt", 
                                                          singleStep = 1,
                                                          )
-        self.cursor_text_reset_Button = PM_PushButton(cursor_text_GroupBox, 
-                                                 text = "reset")
+        self.cursor_text_reset_Button = PM_ToolButton(cursor_text_GroupBox, 
+                                                 iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
+
         aWidgetList = [ ("QLabel", "Font size: ", 0),
                         ("PM_DoubleSpinBox", self.cursor_text_font_size_SpinBox, 1),
                         ("QLabel", "     ", 2),
-                        ("PM_PushButton", self.cursor_text_reset_Button, 3),
+                        ("PM_ToolButton", self.cursor_text_reset_Button, 3),
                         ("QSpacerItem", 0, 0, 3)]
                             
         widgetRow = PM_WidgetRow(cursor_text_GroupBox,

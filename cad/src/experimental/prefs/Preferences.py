@@ -239,128 +239,75 @@ from widgets.prefs_widgets import connect_doubleSpinBox_with_pref
 CHECKED = Qt.Checked
 UNCHECKED = Qt.Unchecked
 
-# Widget constants for the "Graphics Area" page.
+# Default Plug-in paths for all of the known plugins.  Add more here.  They are
+# indexed in the dictionary by the string value preferences key and sub indexed
+# by platform.  This was moved here to make it easier to modify later.
+# Note: This and other variables like it could be moved into another module and
+# imported lazily to save on memory if and when it became useful to do so.
+DEFAULT_PLUGIN_PATHS = { 
+    gromacs_path_prefs_key : 
+    { 
+      "win32" : "C:\\GROMACS_3.3.3\\bin\\mdrun.exe", 
+      "darwin" : "/Applications/GROMACS_3.3.3/bin/mdrun",
+      "linux" : "/usr/local/GROMCAS_3.3.3/bin/mdrun"
+    },
+    cpp_path_prefs_key :
+    { 
+      "win32" : "C:\\GROMACS_3.3.3\\MCPP\\bin\\mcpp.exe", 
+      "darwin" : "/Applications/GROMACS_3.3.3/mcpp/bin/mcpp",
+      "linux" : "/usr/local/GROMACS_3.3.3/mcpp/bin/mcpp"
+    },
+    rosetta_path_prefs_key :
+    { 
+      "win32" : "C:\\Rosetta\\rosetta.exe", 
+      "darwin" : "/Users/marksims/Nanorex/Rosetta/rosetta++/rosetta.mactel",
+      "linux" : "/usr/local/Rosetta/Rosetta"
+    },
+    rosetta_dbdir_prefs_key :
+    { 
+      "win32" : "C:\\Rosetta\\rosetta_database", 
+      "darwin" : "/Users/marksims/Nanorex/Rosetta/Rosetta_database",
+      "linux" : "/usr/local/Rosetta/Rosetta_database"
+    },
+    qutemol_path_prefs_key :
+    { 
+      "win32" : "C:\\Program Files\\Nanorex\\QuteMolX\\QuteMolX.exe", 
+      "darwin" : "/Applications/Nanorex/QuteMolX 0.5.1/QuteMolX.app",
+      "linux" : "/usr/local/Nanorex/QuteMolX 0.5.1/QuteMolX"
+    },
+    povray_path_prefs_key :
+    { 
+      "win32" : 
+          "C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\pvengine.exe", 
+      "darwin" : "/usr/local/bin/pvengine",
+      "linux" : "/usr/local/bin/pvengine"
+    },
+    megapov_path_prefs_key :
+    { 
+      "win32" : "C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\megapov.exe", 
+      "darwin" : "/usr/local/bin/megapov",
+      "linux" : "/usr/local/bin/megapov"
+    },
+    povdir_path_prefs_key :
+    { 
+      "win32" : 
+       "C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\megapov.exe", 
+      "darwin" : "/usr/local/bin/megapov",
+      "linux" : "/usr/local/bin/megapov"
+    } }
 
-BG_EVENING_SKY = 0
-BG_BLUE_SKY = 1
-BG_SEAGREEN = 2
-BG_BLACK = 3
-BG_WHITE = 4
-BG_GRAY = 5
-BG_CUSTOM = 6
+# variable for the value which denotes the variable detail level.  This is
+# stored in the database as -1, but changed for use in the combobox
+VARIABLE_DETAIL_LEVEL_INDX = 3
 
 # GDS = global display style
 from PreferencesDialog import GDS_NAMES, GDS_ICONS, GDS_INDEXES
 
 from PreferencesDialog import HIGH_ORDER_BOND_STYLES
    
-# Widget constants for the "Colors" page.
-
-# HHS = hover highlighting styles
-from utilities.prefs_constants import HHS_HALO
-from utilities.prefs_constants import HHS_SOLID
-from utilities.prefs_constants import HHS_SCREENDOOR1
-from utilities.prefs_constants import HHS_CROSSHATCH1
-from utilities.prefs_constants import HHS_BW_PATTERN
-from utilities.prefs_constants import HHS_POLYGON_EDGES
-from utilities.prefs_constants import HHS_DISABLED
-from utilities.prefs_constants import HHS_INDEXES
-from utilities.prefs_constants import HHS_OPTIONS
-
-# SS = selection styles
-from utilities.prefs_constants import SS_HALO
-from utilities.prefs_constants import SS_SOLID
-from utilities.prefs_constants import SS_SCREENDOOR1
-from utilities.prefs_constants import SS_CROSSHATCH1
-from utilities.prefs_constants import SS_BW_PATTERN
-from utilities.prefs_constants import SS_POLYGON_EDGES
-from utilities.prefs_constants import SS_INDEXES
-from utilities.prefs_constants import SS_OPTIONS
-
-# = end of Preferences widgets constants.
-
 debug_sliders = False # Do not commit as True
 DEBUG = True # Do not commit as True
 CURSOR_TEXT_KEY = True
-
-def debug_povdir_signals():
-    return 0 and env.debug()
-
-# This list of mode names correspond to the names listed in the modes combo box.
-# [TODO: It needs to be renamed, since "modes" is too generic to search for
-#  as a global name, which in theory could referenced from other modules.]
-modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'CRYSTAL', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
-    ### REVIEW: is this constant still used anywhere?
-    # If not, it should be removed.
-    # [bruce 080815 question]
-
-def parentless_open_dialog_pref(): #bruce 060710 for Mac A8
-    # see if setting this True fixes the Mac-specific bugs in draggability of this dialog, and CPU usage while it's up
-    from utilities.debug_prefs import debug_pref, Choice_boolean_False
-    return debug_pref("parentless open file dialogs?", Choice_boolean_False,
-                      prefs_key = "A8.1 devel/parentless open file dialogs")
-
-parentless_open_dialog_pref()
-
-def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
-    """
-    Present user with the Qt file chooser to select a file.
-    prefs_key is the key to save the filename in the prefs db
-    caption is the string for the dialog caption.
-    """
-    # see also get_dirname_and_save_in_prefs, which has similar code
-
-    if parentless_open_dialog_pref():
-        parent = None
-
-    filename = str_or_unicode(QFileDialog.getOpenFileName(
-        parent,
-        caption,
-        get_rootdir(), # '/' on Mac or Linux, something else on Windows
-    ))
-
-    if not filename: # Cancelled.
-        return None
-
-    # Save filename in prefs db.
-    prefs = preferences.prefs_context()
-    prefs[prefs_key] = os.path.normpath(filename)
-
-    return filename
-
-def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 for Mac A8
-    """
-    Present user with the Qt file chooser to select an existing directory.
-    If they do that, and if prefs_key is not null, save its full pathname in
-    env.prefs[prefs_key].
-
-    @param prefs_key: the pref_key to save the pathname.
-    @type  prefs_key: text
-
-    @param caption: the string for the dialog caption.
-    @type  caption: text
-    """
-    # see also get_filename_and_save_in_prefs, which has similar code
-
-    if parentless_open_dialog_pref():
-        parent = None
-
-    filename = str_or_unicode(QFileDialog.getExistingDirectory(
-        parent,### if this was None, it might fix the Mac bug where you can't drag the dialog around [bruce 060710]
-        caption,
-        get_rootdir(), # '/' on Mac or Linux -- maybe not the best choice if they've chosen one before?
-    ))
-
-    if not filename: # Cancelled.
-        return None
-
-    # Save filename in prefs db.
-    prefs = preferences.prefs_context()
-    prefs[prefs_key] = filename
-
-    return filename
-
-# main window layout save/restore
 
 def _fullkey(keyprefix, *subkeys): #e this func belongs in preferences.py
     res = keyprefix
@@ -452,17 +399,16 @@ def _get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
     size = prefs.get(ksize, dsize)
     return pos, size
 
-def get_pref_or_optval(key, val, optval):
-    """
-    Return <key>'s value. If <val> is equal to <key>'s value, return <optval>
-    instead.
-    """
-    if env.prefs[key] == val:
-        return optval
-    else:
-        return env.prefs[key]
+#def get_pref_or_optval(key, val, optval):
+    #"""
+    #Return <key>'s value. If <val> is equal to <key>'s value, return <optval>
+    #instead.
+    #"""
+    #if env.prefs[key] == val:
+        #return optval
+    #else:
+        #return env.prefs[key]
 
-#class Preferences(QDialog, PreferencesDialog):
 class Preferences(PreferencesDialog):
     """
     The Preferences dialog used for accessing and changing user
@@ -474,7 +420,6 @@ class Preferences(PreferencesDialog):
     def __init__(self):
         QDialog.__init__(self)
         super(Preferences, self).__init__()
-#        self.setupUi(self)
 
         # Some important attrs.
  #       self.glpane = assy.o
@@ -485,9 +430,7 @@ class Preferences(PreferencesDialog):
             print self.pagenameList
         self.changeKey = 0
         # Start of dialog setup.
-        #self._setupDialog_TopLevelWidgets()
         self._setupPage_General()
-        #self._setupPage_Color()
         self._setupPage_Graphics_Area()
         self._setupPage_Zoom_Pan_and_Rotate()
         self._setupPage_Rulers()
@@ -497,7 +440,6 @@ class Preferences(PreferencesDialog):
         self._setupPage_DNA_Minor_Groove_Error_Indicator()
         self._setupPage_DNA_Base_Orientation_Indicators()
         self._setupPage_Adjust()
-        #self._setupPage_Lighting()
         self._setupPage_Plugins()
         self._setupPage_Undo()
         self._setupPage_Window()
@@ -519,6 +461,7 @@ class Preferences(PreferencesDialog):
         """
         Setup the General page.
         """
+        # GROUPBOX: Sponsor logos download permission
         if env.prefs[sponsor_permanent_permission_prefs_key]:
             if env.prefs[sponsor_download_permission_prefs_key]:
                 _myID = 1
@@ -532,24 +475,17 @@ class Preferences(PreferencesDialog):
 
         self.connect(self.logo_download_RadioButtonList.buttonGroup, SIGNAL("buttonClicked(int)"), self.setPrefsLogoDownloadPermissions)
 
-        # Build Atoms option connections.
+        # GROUPBOX: Build Chunks Settings
         connect_checkbox_with_boolean_pref( self.autobondCheckBox, buildModeAutobondEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.hoverHighlightCheckBox, buildModeHighlightingEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.waterCheckBox, buildModeWaterEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.autoSelectAtomsCheckBox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
         
-        self.pasteOffsetForChunks_doublespinbox.setValue(\
-            env.prefs[pasteOffsetScaleFactorForChunks_prefs_key])
-
-        self.pasteOffsetForDNA_doublespinbox.setValue(
-            env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key])
-
-        self.connect(self.pasteOffsetForChunks_doublespinbox,
-                     SIGNAL("valueChanged(double)"),
-                     self.change_pasteOffsetScaleFactorForChunks)
-        self.connect(self.pasteOffsetForDNA_doublespinbox,
-                     SIGNAL("valueChanged(double)"),
-                     self.change_pasteOffsetScaleFactorForDnaObjects)
+        # GROUPBOX: Offset factor for pasting objects
+        connect_doubleSpinBox_with_pref(self.pasteOffsetForChunks_doublespinbox,
+                                        pasteOffsetScaleFactorForChunks_prefs_key)
+        connect_doubleSpinBox_with_pref(self.pasteOffsetForDNA_doublespinbox,
+                                        pasteOffsetScaleFactorForDnaObjects_prefs_key)
         return
 
     def setPrefsLogoDownloadPermissions(self, permission):
@@ -635,12 +571,9 @@ class Preferences(PreferencesDialog):
         connect_checkbox_with_boolean_pref(self.display_pov_axis_checkbox, displayPOVAxis_prefs_key)
         
         # GROUPBOX: Cursor text settings
-        #if CURSOR_TEXT_KEY:
-            #self.cursor_text_CheckBox.setCheckState(CHECKED)
-        #else:
-            #self.cursor_text_CheckBox.setCheckState(UNCHECKED)
-        #self.cursor_text_enable_fields(CURSOR_TEXT_KEY)
-        connect_doubleSpinBox_with_pref(self.cursor_text_font_size_SpinBox, cursorTextFontSize_prefs_key)
+        self.set_cursor_text_font_size()
+        self.connect(self.cursor_text_font_size_SpinBox, 
+                     SIGNAL("valueChanged(double)"), self.set_cursor_text_font_size)
         self.connect(self.cursor_text_reset_Button, SIGNAL("clicked()"), self.reset_cursor_text_font_size)
         self.cursor_text_color_ComboBox.setColor(env.prefs[cursorTextColor_prefs_key], default = True)
         self.connect(self.cursor_text_color_ComboBox, SIGNAL("editingFinished()"), self.set_cursor_text_color)
@@ -649,22 +582,43 @@ class Preferences(PreferencesDialog):
         connect_checkbox_with_boolean_pref(self.display_confirmation_corner_CheckBox, displayConfirmationCorner_prefs_key)
         connect_checkbox_with_boolean_pref(self.anti_aliasing_CheckBox, enableAntiAliasing_prefs_key)
         return
- 
-    def reset_cursor_text_font_size(self):
+
+    def set_cursor_text_font_size(self, font_size = -1):
+        """
+        Slot for cursor text font size doubleSpinBox.  If passed a positive 
+        number for font_size, it sets the value of the environment pref.  If
+        called with a negative number, it sets the spinbox to the environment
+        pref.  In either case, it will then determine if the value is equal to
+        the default and enable/disable the reset button.
+        """
+        if font_size >0:
+            env.prefs[cursorTextFontSize_prefs_key] = font_size
+        else:
+            self.cursor_text_font_size_SpinBox.setValue(
+                env.prefs[cursorTextFontSize_prefs_key])
+        if env.prefs.has_default_value(cursorTextFontSize_prefs_key):
+            self.cursor_text_reset_Button.setEnabled(False)
+        else:
+            self.cursor_text_reset_Button.setEnabled(True)
+    
+    def reset_cursor_text_font_size(self, test = 0):
+        """
+        Slot to reset the cursor text font size.
+        """
         if not env.prefs.has_default_value(cursorTextFontSize_prefs_key):
             _tmp = env.prefs.get_default_value(cursorTextFontSize_prefs_key)
             self.cursor_text_font_size_SpinBox.setValue(_tmp)
             env.prefs[cursorTextFontSize_prefs_key] = _tmp
+        self.cursor_text_reset_Button.setEnabled(False)
         return
     
     def set_cursor_text_color(self):
+        """
+        Slot to set the cursor text color combobox.
+        """
         _newColor = self.cursor_text_color_ComboBox.getColor()
         env.prefs[cursorTextColor_prefs_key] = _newColor
         return
-
-# Code for dealing with cursor text checkbox (removed)
-#    def cursor_text_enable_fields(self, val):
-#        return
     
     def display_compass(self, val):
         """
@@ -709,23 +663,37 @@ class Preferences(PreferencesDialog):
         return
     
     def set_view_animation_speed(self):
+        """
+        Slot for setting the view animation speed slider.
+        """
         env.prefs[animateMaximumTime_prefs_key] = \
            self.view_animation_speed_Slider.value() / -100.0
         self.view_animation_speed_reset_ToolButton.setEnabled(True)
         return
     
     def reset_view_animation_speed(self):
+        """
+        Slot for resetting the view animation speed slider through the 
+        view animation speed reset toolbutton.
+        """
         env.prefs.restore_defaults([animateMaximumTime_prefs_key])
         self.view_animation_speed_Slider.setValue(int (env.prefs[animateMaximumTime_prefs_key] * -100))
         self.view_animation_speed_reset_ToolButton.setEnabled(False)
     
     def set_mouse_rotation_speed(self):
+        """
+        Slot for setting the mouse rotation speed slider.
+        """
         env.prefs[mouseSpeedDuringRotation_prefs_key] = \
            self.mouse_rotation_speed_Slider.value() / 100.0
         self.mouse_rotation_speed_reset_ToolButton.setEnabled(True)
         return
     
     def reset_mouse_rotation_speed(self):
+        """
+        Slot for resetting the mouse rotation speed slider through the 
+        mouse rotation speed reset toolbutton.
+        """
         env.prefs.restore_defaults([mouseSpeedDuringRotation_prefs_key])
         self.mouse_rotation_speed_Slider.setValue(int (env.prefs[mouseSpeedDuringRotation_prefs_key] * 100))
         self.mouse_rotation_speed_reset_ToolButton.setEnabled(False)
@@ -754,6 +722,12 @@ class Preferences(PreferencesDialog):
         return
 
     def set_ruler_display(self, indx):
+        """
+        Slot for setting which rulers should be displayed.
+        indx == 0: verticle and horizontal are displayed.
+        indx == 1: Just verticle is displayed
+        indx == other (normally 2): Just horizontal is displayed
+        """
         if indx == 0:
             env.prefs[displayVertRuler_prefs_key] = True
             env.prefs[displayHorzRuler_prefs_key] = True
@@ -766,7 +740,10 @@ class Preferences(PreferencesDialog):
         return
     
     def set_ruler_color(self):
-        _newColor = self.ruler_color_ComboBox.getColor()
+        """
+        Slot to set the ruler color from the ruler color colorcombobox.
+        """
+        _newColor = self.ruler_color_ColorComboBox.getColor()
         env.prefs[rulerColor_prefs_key] = _newColor
         return
 
@@ -777,6 +754,7 @@ class Preferences(PreferencesDialog):
         Setup the "Atoms" page.
         """
 
+        # GROUPBOX: Colors
         # "Change Element Colors" button.
         self.connect(self.change_element_colors_PushButton, SIGNAL("clicked()"), self.change_element_colors)
         
@@ -789,9 +767,10 @@ class Preferences(PreferencesDialog):
         self.connect(self.bondpoint_hotspots_ColorComboBox, SIGNAL("editingFinished()"), self.set_bondpoint_hotspots_color)
         self.connect(self.restore_element_colors_PushButton, SIGNAL("clicked()"), self.reset_atom_and_bondpoint_colors)
         
+        #GROUPBOX: Miscellaneous atom options
         lod = env.prefs[levelOfDetail_prefs_key]
         if lod == -1:
-            lod = 3
+            lod = VARIABLE_DETAIL_LEVEL_INDX
         self.atoms_detail_level_ComboBox.setCurrentIndex(lod)
         self.connect(self.atoms_detail_level_ComboBox, SIGNAL("currentIndexChanged(int)"), self.set_level_of_detail)
         self.set_ball_and_stick_atom_scale(env.prefs[diBALL_AtomRadius_prefs_key])
@@ -813,21 +792,35 @@ class Preferences(PreferencesDialog):
         return
 
     def set_atom_highlighting_color(self):
+        """
+        Slot for the atom highlighting colorcombobox.
+        """
         _newColor = self.atom_highlighting_ColorComboBox.getColor()
         env.prefs[atomHighlightColor_prefs_key] = _newColor
         return
 
     def set_bondpoint_highlighting_color(self):
+        """
+        Slot for the bondpoint highlighting colorcombobox.
+        """
         _newColor = self.bondpoint_highlighting_ColorComboBox.getColor()
         env.prefs[bondpointHighlightColor_prefs_key] = _newColor
         return
 
     def set_bondpoint_hotspots_color(self):
+        """
+        Slot for the bondpoint hotspots colorcombobox.
+        """
         _newColor = self.bondpoint_hotspots_ColorComboBox.getColor()
         env.prefs[bondpointHotspotColor_prefs_key] = _newColor
         return
 
     def reset_atom_and_bondpoint_colors(self):
+        """
+        Slot for the restore element colors pushbutton.  This will reset the
+        atom highlighting, bondpoint highlighting, and bondpoint hotspots
+        colorcomboboxes
+        """
         env.prefs.restore_defaults([atomHighlightColor_prefs_key, 
                                     bondpointHighlightColor_prefs_key, 
                                     bondpointHotspotColor_prefs_key])
@@ -839,6 +832,7 @@ class Preferences(PreferencesDialog):
     def change_element_colors(self):
         """
         Display the Element Color Settings Dialog.
+        Note: This dialog has not been converted to using PM_Widgets
         """
         # Since the prefs dialog is modal, the element color settings dialog must be modal.
         self.w.showElementColorSettings(self)
@@ -857,7 +851,7 @@ class Preferences(PreferencesDialog):
                levels in the future.
         """
         lod = level_of_detail_item
-        if level_of_detail_item == 3:
+        if level_of_detail_item == VARIABLE_DETAIL_LEVEL_INDX:
             lod = -1
         env.prefs[levelOfDetail_prefs_key] = lod
 #        self.glpane.gl_update()
@@ -866,6 +860,10 @@ class Preferences(PreferencesDialog):
         return
 
     def set_ball_and_stick_atom_scale(self, value):
+        """
+        Slot for ball_and_stick_atom_scale_SpinBox.  Also enables and disables
+        the reset button.
+        """
         if env.prefs[diBALL_AtomRadius_prefs_key] != value:
             env.prefs[diBALL_AtomRadius_prefs_key] = round(float(value) / 100.0, 2)
         if env.prefs.has_default_value(diBALL_AtomRadius_prefs_key):
@@ -875,6 +873,10 @@ class Preferences(PreferencesDialog):
         return
     
     def set_CPK_atom_scale(self, value):
+        """
+        Slot for CPK_atom_scale_doubleSpinBox.  Also enables and disables the 
+        reset button.
+        """
         if env.prefs[cpkScaleFactor_prefs_key] != value:
             env.prefs[cpkScaleFactor_prefs_key] = value
         # direct comparison with has_default_value didn't work on this level
@@ -887,6 +889,9 @@ class Preferences(PreferencesDialog):
         return
     
     def reset_ball_and_stick_atom_scale(self):
+        """
+        Slot for ball_and_stick_atom_scale_reset_ToolButton.
+        """
         _resetValue = env.prefs.get_default_value(diBALL_AtomRadius_prefs_key)
         _resetValue = int((_resetValue + .005) * 100)
         self.set_ball_and_stick_atom_scale(_resetValue)
@@ -895,6 +900,9 @@ class Preferences(PreferencesDialog):
         return
 
     def reset_CPK_atom_scale(self):
+        """
+        Slot for CPK_atom_scale_reset_ToolButton.
+        """
         _resetValue = env.prefs.get_default_value(cpkScaleFactor_prefs_key)
         self.set_CPK_atom_scale(_resetValue)
         self.CPK_atom_scale_doubleSpinBox.setValue(_resetValue,
@@ -926,7 +934,7 @@ class Preferences(PreferencesDialog):
                      SIGNAL("valueChanged(int)"),self.set_ball_and_stick_bond_scale)
         self.connect(self.bond_line_thickness_SpinBox,
                      SIGNAL("valueChanged(int)"),self.set_bond_line_thickness)
-        # GROUPBOX: High order bonds
+        # GROUPBOX: High order bonds (sub box)
         if env.prefs[pibondStyle_prefs_key] == "multicyl":
             _myID = 0
         elif env.prefs[pibondStyle_prefs_key] == "vane":
@@ -942,26 +950,43 @@ class Preferences(PreferencesDialog):
         return
 
     def set_bond_highlighting_color(self):
+        """
+        Slot for bond_highlighting_ColorComboBox
+        """
         _newColor = self.bond_highlighting_ColorComboBox.getColor()
         env.prefs[bondHighlightColor_prefs_key] = _newColor
         return
     
     def set_ball_and_stick_cylinder_color(self):
+        """
+        Slot for ball_and_stick_cylinder_ColorComboBox
+        """
         _newColor = self.ball_and_stick_cylinder_ColorComboBox.getColor()
         env.prefs[diBALL_bondcolor_prefs_key] = _newColor
         return
     
     def set_bond_stretch_color(self):
+        """
+        Slot for bond_stretch_ColorComboBox
+        """
         _newColor = self.bond_stretch_ColorComboBox.getColor()
         env.prefs[bondStretchColor_prefs_key] = _newColor
         return
     
     def set_vane_ribbon_color(self):
+        """
+        Slot for vane_ribbon_ColorComboBox
+        """
         _newColor = self.vane_ribbon_ColorComboBox.getColor()
         env.prefs[bondVaneColor_prefs_key] = _newColor
         return
 
     def reset_default_colors(self):
+        """
+        Slot for restore_bond_colors_PushButton.  This will reset the preference
+        keys and their respective colorcomboboxes back to the database default
+        values
+        """
         env.prefs.restore_defaults([bondHighlightColor_prefs_key,
                                     bondStretchColor_prefs_key,
                                     bondVaneColor_prefs_key,
@@ -973,6 +998,9 @@ class Preferences(PreferencesDialog):
         return
     
     def set_ball_and_stick_bond_scale(self, value):
+        """
+        Slot for ball_and_stick_bond_scale_SpinBox
+        """
         if env.prefs[diBALL_BondCylinderRadius_prefs_key] != value:
             env.prefs[diBALL_BondCylinderRadius_prefs_key] = round(float(value) / 100.0, 2)
         #if env.prefs.has_default_value(diBALL_BondCylinderRadius_prefs_key):
@@ -982,6 +1010,9 @@ class Preferences(PreferencesDialog):
         return
 
     def set_bond_line_thickness(self, value):
+        """
+        Slot for bond_line_thickness_SpinBox
+        """
         if env.prefs[linesDisplayModeThickness_prefs_key] != value:
             env.prefs[linesDisplayModeThickness_prefs_key] = value
         #if env.prefs.has_default_value(linesDisplayModeThickness_prefs_key):
@@ -991,6 +1022,9 @@ class Preferences(PreferencesDialog):
         return
     
     def set_high_order_bonds(self, value):
+        """
+        Slot for high_order_bonds_RadioButtonList
+        """
         env.prefs[pibondStyle_prefs_key] = HIGH_ORDER_BOND_STYLES[value][3]
         return
 
@@ -1027,21 +1061,33 @@ class Preferences(PreferencesDialog):
         return
     
     def set_strand1_color(self):
+        """
+        Slot for strand1_ColorComboBox
+        """
         _newColor = self.strand1_ColorComboBox.getColor()
         env.prefs[dnaDefaultStrand1Color_prefs_key] = _newColor
         return
     
     def set_strand2_color(self):
+        """
+        Slot for strand2_ColorComboBox
+        """
         _newColor = self.strand2_ColorComboBox.getColor()
         env.prefs[dnaDefaultStrand2Color_prefs_key] = _newColor
         return
     
     def set_segment_color(self):
+        """
+        Slot for segment_ColorComboBox
+        """
         _newColor = self.segment_ColorComboBox.getColor()
         env.prefs[dnaDefaultSegmentColor_prefs_key] = _newColor
         return
 
     def reset_DNA_colors(self):
+        """
+        Slot for restore_DNA_colors_PushButton
+        """
         env.prefs.restore_defaults([dnaDefaultStrand1Color_prefs_key,
                                     dnaDefaultStrand2Color_prefs_key,
                                     dnaDefaultSegmentColor_prefs_key])
@@ -1051,11 +1097,17 @@ class Preferences(PreferencesDialog):
         return
 
     def set_three_prime_end_color(self):
+        """
+        Slot for three_prime_end_custom_ColorComboBox
+        """
         _newColor = self.three_prime_end_custom_ColorComboBox.getColor()
         env.prefs[dnaStrandThreePrimeArrowheadsCustomColor_prefs_key] = _newColor
         return
     
     def set_five_prime_end_color(self):
+        """
+        Slot for ifive_prime_end_custom_ColorComboBox
+        """
         _newColor = self.five_prime_end_custom_ColorComboBox.getColor()
         env.prefs[dnaStrandFivePrimeArrowheadsCustomColor_prefs_key] = _newColor
         return
@@ -1069,6 +1121,7 @@ class Preferences(PreferencesDialog):
         self.connect(self.minor_groove_error_indicatiors_CheckBox, 
                      SIGNAL("toggled(bool)"), 
                      self.set_DNA_minor_groove_error_indicator_status)
+        # GROUPBOX: connect_doubleSpinBox_with_pref
         connect_spinBox_with_pref(self.minor_groove_error_minimum_angle_SpinBox,
                                   dnaMinMinorGrooveAngle_prefs_key)
         connect_spinBox_with_pref(self.minor_groove_error_maximum_angle_SpinBox,
@@ -1083,6 +1136,10 @@ class Preferences(PreferencesDialog):
         return
     
     def set_DNA_minor_groove_error_indicator_status(self, status = None):
+        """
+        Slot for minor_groove_error_indicatiors_CheckBox.  This also 
+        enables/disables the associated groupbox and it's child widgets.
+        """
         if (status == None and env.prefs[dnaDisplayMinorGrooveErrorIndicators_prefs_key]) \
            or status:
             self.minor_groove_error_parameters_GroupBox.setEnabled(True)
@@ -1095,11 +1152,18 @@ class Preferences(PreferencesDialog):
         return
 
     def set_minor_groove_error_color(self):
+        """
+        Slot for minor_groove_error_color_ColorComboBox
+        """
         _newColor = self.minor_groove_error_color_ColorComboBox.getColor()
         env.prefs[dnaMinorGrooveErrorIndicatorColor_prefs_key] = _newColor
         return
     
     def reset_minor_groove_error_prefs(self):
+        """
+        Slot for minor_groove_error_reset_PushButton.  This is a reset button
+        for the widgets in the groupbox and their associated attributes.
+        """
         self.minor_groove_error_color_ColorComboBox.setColor(env.prefs.get_default_value(dnaMinorGrooveErrorIndicatorColor_prefs_key))
         self.minor_groove_error_minimum_angle_SpinBox.setValue(env.prefs.get_default_value(dnaMinMinorGrooveAngle_prefs_key))
         self.minor_groove_error_maximum_angle_SpinBox.setValue(env.prefs.get_default_value(dnaMaxMinorGrooveAngle_prefs_key))
@@ -1114,6 +1178,7 @@ class Preferences(PreferencesDialog):
         self.connect(self.base_orientation_indicatiors_CheckBox, 
                      SIGNAL("toggled(bool)"), 
                      self.set_DNA_base_orientation_indicator_status)
+        #GROUPBOX: Base orientation indicator parameters
         connect_comboBox_with_pref(self.plane_normal_ComboBox,
                                    dnaBaseIndicatorsPlaneNormal_prefs_key)
         self.indicators_color_ColorComboBox.setColor(env.prefs[dnaBaseIndicatorsColor_prefs_key])
@@ -1133,6 +1198,10 @@ class Preferences(PreferencesDialog):
         return
     
     def set_DNA_base_orientation_indicator_status(self, status = None):
+        """
+        Slot for base_orientation_indicatiors_CheckBox.  Also, this will
+        enable/disable the associated groupbox and it's child widgets.
+        """
         if (status == None and env.prefs[dnaBaseIndicatorsEnabled_prefs_key]) \
            or status:
             self.base_orientation_GroupBox.setEnabled(True)
@@ -1145,11 +1214,17 @@ class Preferences(PreferencesDialog):
         return
     
     def set_indicators_color(self):
+        """
+        Slot for indicators_color_ColorComboBox
+        """
         _newColor = self.indicators_color_ColorComboBox.getColor()
         env.prefs[dnaBaseIndicatorsColor_prefs_key] = _newColor
         return
 
     def set_inverse_indicators_color(self):
+        """
+        Slot for inverse_indicators_color_ColorComboBox
+        """
         _newColor = self.inverse_indicators_color_ColorComboBox.getColor()
         env.prefs[dnaBaseInvIndicatorsColor_prefs_key] = _newColor
         return
@@ -1159,13 +1234,16 @@ class Preferences(PreferencesDialog):
         """
         Setup the "Adjust" page.
         """
+        # GROUPBOX: Adjust physics engine
         connect_comboBox_with_pref(self.physics_engine_choice_ComboBox,
                                    Adjust_minimizationEngine_prefs_key)
         connect_checkbox_with_boolean_pref(self.enable_electrostatics_CheckBox,
             electrostaticsForDnaDuringAdjust_prefs_key)
+        # GROUPBOX: Pysics engine animation options
         connect_checkbox_with_boolean_pref(
             self.watch_motion_in_realtime_CheckBox,
             Adjust_watchRealtimeMinimization_prefs_key)
+        # GROUPBOX: Convergence criteria
         connect_doubleSpinBox_with_pref(self.endRMS_DoubleSpinBox,
                                         Adjust_endRMS_prefs_key)
         connect_doubleSpinBox_with_pref(self.endmax_DoubleSpinBox,
@@ -1185,6 +1263,7 @@ class Preferences(PreferencesDialog):
         """
         Setup the "Plug-ins" page.
         """
+        # GROUPBOX: Location of executables
         pluginList = [ "QuteMolX", \
                        "POV-Ray", \
                        "MegaPOV", \
@@ -1323,10 +1402,9 @@ class Preferences(PreferencesDialog):
 
             # Sets the GROMACS (executable) path to the standard location, if it exists.
             if not env.prefs[gromacs_path_prefs_key]:
+                _tmppaths = DEFAULT_PLUGIN_PATHS[gromacs_path_prefs_key]
                 env.prefs[gromacs_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\GROMACS_3.3.3\\bin\\mdrun.exe", \
-                    "/Applications/GROMACS_3.3.3/bin/mdrun",
-                    "/usr/local/GROMCAS_3.3.3/bin/mdrun")
+                    _tmppaths["win32"], _tmppaths["darwin"], _tmppaths["linux"])
 
             self.choosers["GROMACS"].setText(env.prefs[gromacs_path_prefs_key])
 
@@ -1366,10 +1444,9 @@ class Preferences(PreferencesDialog):
 
             # Sets the cpp path to the standard location, if it exists.
             if not env.prefs[cpp_path_prefs_key]:
+                _tmppaths = DEFAULT_PLUGIN_PATHS[cpp_path_prefs_key]
                 env.prefs[cpp_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\GROMACS_3.3.3\\MCPP\\bin\\mcpp.exe", \
-                    "/Applications/GROMACS_3.3.3/mcpp/bin/mcpp", \
-                    "/usr/local/GROMACS_3.3.3/mcpp/bin/mcpp")
+                    _tmppaths["win32"], _tmppaths["darwin"], _tmppaths["linux"])
 
             self.choosers["cpp"].setText(env.prefs[cpp_path_prefs_key])
 
@@ -1411,10 +1488,9 @@ class Preferences(PreferencesDialog):
 
             # Sets the rosetta (executable) path to the standard location, if it exists.
             if not env.prefs[rosetta_path_prefs_key]:
+                _tmppaths = DEFAULT_PLUGIN_PATHS[rosetta_path_prefs_key]
                 env.prefs[rosetta_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\Rosetta\\rosetta.exe", \
-                    "/Users/marksims/Nanorex/Rosetta/rosetta++/rosetta.mactel", \
-                    "/usr/local/Rosetta/Rosetta")
+                    _tmppaths["win32"], _tmppaths["darwin"], _tmppaths["linux"])
 
             self.choosers["Rosetta"].setText(env.prefs[rosetta_path_prefs_key])
 
@@ -1454,10 +1530,9 @@ class Preferences(PreferencesDialog):
 
             # Sets the rosetta (executable) path to the standard location, if it exists.
             if not env.prefs[rosetta_dbdir_prefs_key]:
+                _tmppaths = DEFAULT_PLUGIN_PATHS[rosetta_dbdir_prefs_key]
                 env.prefs[rosetta_dbdir_prefs_key] = get_default_plugin_path( \
-                    "C:\\Rosetta\\rosetta_database", \
-                    "/Users/marksims/Nanorex/Rosetta/Rosetta_database", \
-                    "/usr/local/Rosetta/Rosetta_database")
+                    _tmppaths["win32"], _tmppaths["darwin"], _tmppaths["linux"])
 
             self.choosers["Rosetta DB"].setText(env.prefs[rosetta_dbdir_prefs_key])
 
@@ -1494,10 +1569,9 @@ class Preferences(PreferencesDialog):
 
             # Sets the QuteMolX (executable) path to the standard location, if it exists.
             if not env.prefs[qutemol_path_prefs_key]:
+                _tmppaths = DEFAULT_PLUGIN_PATHS[qutemol_path_prefs_key]
                 env.prefs[qutemol_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\Program Files\\Nanorex\\QuteMolX\\QuteMolX.exe", \
-                    "/Applications/Nanorex/QuteMolX 0.5.0/QuteMolX.app", \
-                    "/usr/local/Nanorex/QuteMolX 0.5.0/QuteMolX")
+                    _tmppaths["win32"], _tmppaths["darwin"], _tmppaths["linux"])
 
             self.choosers["QuteMolX"].setText(env.prefs[qutemol_path_prefs_key])
 
@@ -1531,10 +1605,9 @@ class Preferences(PreferencesDialog):
 
             # Sets the POV-Ray (executable) path to the standard location, if it exists.
             if not env.prefs[povray_path_prefs_key]:
+                _tmppaths = DEFAULT_PLUGIN_PATHS[povray_path_prefs_key]
                 env.prefs[povray_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\pvengine.exe", \
-                    "/usr/local/bin/pvengine", \
-                    "/usr/local/bin/pvengine")
+                    _tmppaths["win32"], _tmppaths["darwin"], _tmppaths["linux"])
 
             self.choosers["POV-Ray"].setText(env.prefs[povray_path_prefs_key])
 
@@ -1570,10 +1643,9 @@ class Preferences(PreferencesDialog):
 
             # Sets the MegaPOV (executable) path to the standard location, if it exists.
             if not env.prefs[megapov_path_prefs_key]:
+                _tmppaths = DEFAULT_PLUGIN_PATHS[megapov_path_prefs_key]
                 env.prefs[megapov_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\megapov.exe", \
-                    "/usr/local/bin/megapov", \
-                    "/usr/local/bin/megapov")
+                    _tmppaths["win32"], _tmppaths["darwin"], _tmppaths["linux"])
 
             self.choosers["MegaPOV"].setText(env.prefs[megapov_path_prefs_key])
 
@@ -1618,10 +1690,9 @@ class Preferences(PreferencesDialog):
 
             # Sets the MegaPOV (executable) path to the standard location, if it exists.
             #if not env.prefs[povdir_path_prefs_key]:
+                #_tmppaths = DEFAULT_PLUGIN_PATHS[povdir_path_prefs_key]
                 #env.prefs[povdir_path_prefs_key] = get_default_plugin_path( \
-                    #"C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\megapov.exe", \
-                    #"/usr/local/bin/megapov", \
-                    #"/usr/local/bin/megapov")
+                    #_tmppaths["win32"], _tmppaths["darwin"], _tmppaths["linux"])
 
             self.choosers["POV include dir"].setText(env.prefs[povdir_path_prefs_key])
 
@@ -1671,37 +1742,24 @@ class Preferences(PreferencesDialog):
                 print_compact_traceback("bug, ignored: ")
         return
 
-    def povdir_lineedit_returnPressed(self, *args): #bruce 060710
-        if debug_povdir_signals():
-            print "povdir_lineedit_returnPressed",args
-            # this happens when return is pressed in the widget, but NOT when user clicks outside it
-            # or presses OK on the dialog -- which means it's useless when taken alone,
-            # in case user edits text and then presses ok without ever pressing return.
+    #def povdir_lineedit_returnPressed(self, *args): #bruce 060710
+        #if debug_povdir_signals():
+            #print "povdir_lineedit_returnPressed",args
+            ## this happens when return is pressed in the widget, but NOT when user clicks outside it
+            ## or presses OK on the dialog -- which means it's useless when taken alone,
+            ## in case user edits text and then presses ok without ever pressing return.
 
     ########## End of slot methods for "Plug-ins" page widgets ###########
 
     ########## Slot methods for "General" (former name "Caption") page widgets ################
 
-    def change_pasteOffsetScaleFactorForChunks(self, val):
-        """
-        Slot method for the I{Paste offset scale for chunks} doublespinbox.
-        @param val: The timeout interval in seconds.
-        @type  val: double
-        @see ops_copy_Mixin._pasteGroup()
-        """
-        env.prefs[pasteOffsetScaleFactorForChunks_prefs_key] = val
-
-    def change_pasteOffsetScaleFactorForDnaObjects(self, val):
-        """
-        Slot method for the I{Paste offset scale for dna objects} doublespinbox.
-        @param val: The timeout interval in seconds.
-        @type  val: double
-        """
-        env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key] = val
     
     # PAGE: UNDO
     
     def _setupPage_Undo(self):
+        """
+        Setup the "Undo" page.
+        """
         connect_checkbox_with_boolean_pref(self.undo_restore_view_CheckBox,
                                            undoRestoreView_prefs_key)
         connect_checkbox_with_boolean_pref(
@@ -1713,6 +1771,10 @@ class Preferences(PreferencesDialog):
     
     # PAGE: WINDOW
     def _setupPage_Window(self):
+        """
+        Setup the "Window" page.
+        """
+        # GROUPBOX: Window Postion and Size
         self.connect(self.current_size_save_Button, SIGNAL("clicked()"),
                      self.save_window_size)
         self.connect(self.restore_saved_size_Button, SIGNAL("clicked()"),
@@ -1735,9 +1797,9 @@ class Preferences(PreferencesDialog):
             size = [640, 480]
 
         self.update_saved_size(size[0], size[1])    
-
         connect_checkbox_with_boolean_pref(self.save_size_on_quit_CheckBox,
                                            rememberWinPosSize_prefs_key)
+        # GROUPBOX: Window caption format
         self.caption_prefix_LineEdit.setText(env.prefs[captionPrefix_prefs_key])
         self.caption_suffix_LineEdit.setText(env.prefs[captionSuffix_prefs_key])
         self.connect(self.caption_prefix_save_ToolButton, SIGNAL("clicked()"),
@@ -1746,6 +1808,7 @@ class Preferences(PreferencesDialog):
                      self.set_caption_suffix)
         connect_checkbox_with_boolean_pref(self.display_full_path_CheckBox,
                                            captionFullPath_prefs_key)
+        # GROUPBOX: Custom Font
         self.set_use_custom_font_status()
         self.connect(self.use_custom_font_CheckBox, 
                      SIGNAL("toggled(bool)"), 
@@ -1775,11 +1838,17 @@ class Preferences(PreferencesDialog):
         return
 
     def update_saved_size(self, w, h):
+        """
+        Helper function to update the "Saved size" label.
+        """
         _text = "Saved size: %d pixels x %d pixels  " % (w, h)
         self.saved_size_label.setText(_text)
         return
     
     def save_window_size(self):
+        """
+        Slot for current_size_save_Button
+        """
         if not DEBUG:
             from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
             keyprefix = mainwindow_geometry_prefs_key_prefix
@@ -1825,6 +1894,11 @@ class Preferences(PreferencesDialog):
         return
 
     def set_caption_prefix(self):
+        """
+        Slot for caption_prefix_save_ToolButton.  The caption is only saved 
+        to the database if the user clicks on this button.  The contents of the
+        associated LineEdit are read and stored in the database.
+        """
         prefix = str_or_unicode(self.caption_prefix_LineEdit.text())
         prefix = prefix.strip()
         if prefix:
@@ -1834,6 +1908,11 @@ class Preferences(PreferencesDialog):
         return
         
     def set_caption_suffix(self):
+        """
+        Slot for caption_suffix_save_ToolButton.  The caption is only saved 
+        to the database if the user clicks on this button.  The contents of the
+        associated LineEdit are read and stored in the database.
+        """
         suffix = str_or_unicode(self.caption_suffix_LineEdit.text())
         suffix = suffix.strip()
         if suffix:
@@ -1843,6 +1922,10 @@ class Preferences(PreferencesDialog):
         return
     
     def set_use_custom_font_status(self, status = None):
+        """
+        Slot for use_custom_font_CheckBox.  This will enable/disable all the
+        other widgets in this groupbox
+        """
         if (status == None and env.prefs[useSelectedFont_prefs_key]) \
            or status:
             self.custom_fontComboBox.setEnabled(True)
@@ -1904,17 +1987,7 @@ class Preferences(PreferencesDialog):
         env.prefs[displayFontPointSize_prefs_key] = pointsize
 #        self.set_font()
         return
- 
-    # PAGE: REPORTS
-    def _setupPage_Reports(self):
-        connect_checkbox_with_boolean_pref(
-            self.history_include_message_serial_CheckBox,
-            historyMsgSerialNumber_prefs_key)
-        connect_checkbox_with_boolean_pref(
-            self.history_include_message_timestamp_CheckBox,
-            historyMsgTimestamp_prefs_key)
-        return
-    
+     
     def change_selected_font_to_default_font(self):
         """
         Slot for "Make the selected font the default font" button.
@@ -1945,7 +2018,6 @@ class Preferences(PreferencesDialog):
         if debug_flags.atom_debug:
             print "set_font_widgets(): Here!"
 
-
         if env.prefs[displayFont_prefs_key] == "defaultFont":
             # Set the font and point size prefs to the application's default font.
             # This code only called the first time NE1 is run (or the prefs db does not exist)
@@ -1971,9 +2043,26 @@ class Preferences(PreferencesDialog):
             font = QFont(font_family, font_size)
         return
     
+    # PAGE: REPORTS
+    def _setupPage_Reports(self):
+        """
+        Setup the "Reports" page.
+        """
+        # GROUPBOX: History Preferences
+        connect_checkbox_with_boolean_pref(
+            self.history_include_message_serial_CheckBox,
+            historyMsgSerialNumber_prefs_key)
+        connect_checkbox_with_boolean_pref(
+            self.history_include_message_timestamp_CheckBox,
+            historyMsgTimestamp_prefs_key)
+        return
     
     # PAGE: TOOLTIPS
     def _setupPage_Tooltips(self):
+        """
+        Setup the "Tooltips" page.
+        """
+        # GROUPBOX: Atom tooltip options
         connect_checkbox_with_boolean_pref(self.atom_chunk_information_CheckBox,
                                            dynamicToolTipAtomChunkInfo_prefs_key)
         connect_checkbox_with_boolean_pref(self.atom_mass_information_CheckBox,
@@ -1988,6 +2077,7 @@ class Preferences(PreferencesDialog):
                                   dynamicToolTipAtomDistancePrecision_prefs_key)
         connect_spinBox_with_pref(self.atom_angle_precision_SpinBox,
                                   dynamicToolTipBendAnglePrecision_prefs_key)
+        # GROUPBOX: Bond tooltip options
         connect_checkbox_with_boolean_pref(
             self.bond_distance_between_atoms_CheckBox,
            dynamicToolTipBondLength_prefs_key) 
