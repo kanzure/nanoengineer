@@ -310,7 +310,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         groupbox
         Example: If user clicks on Move groupbox button, it will toggle the 
         display of the groupbox, connect its actions and Hide the other groupbox 
-        i.e. Rotate Compomnents groupbox and also disconnect actions inside it.
+        i.e. Rotate Components groupbox and also disconnect actions inside it.
         """
 
         self.translateGroupBox.toggleExpandCollapse()
@@ -323,7 +323,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         groupbox.
         Example: If user clicks on Move groupbox button, it will toggle the 
         display of the groupbox, connect its actions and Hide the other groupbox 
-        i.e. Rotate Compomnents groupbox and also  disconnect actions inside it
+        i.e. Rotate Components groupbox and also disconnect actions inside it
        """
 
         self.rotateGroupBox.toggleExpandCollapse()
@@ -333,7 +333,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         """" 
         Sets the  'last checked button value' Program remembers the last checked 
         button in a groupbox (either Translate or rotate (components)) . 
-        When that groupbox is displayed, it checkes this last button again 
+        When that groupbox is displayed, it checks this last button again 
         (see get method)
         """
         self.lastCheckedRotateButton = lastCheckedButton
@@ -341,7 +341,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
     def setLastCheckedMoveButton(self, lastCheckedButton):
         """" Sets the  'last checked button value' Program remembers the last 
         checked button in a groupbox (either Translate components or rotate 
-        components) . When that groupbox is displayed, it checkes this last 
+        components) . When that groupbox is displayed, it checks this last 
         button again (see get method)
         """
         self.lastCheckedTranslateButton = lastCheckedButton
