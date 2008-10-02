@@ -167,7 +167,7 @@ from model.chunk import Chunk
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
 # piotr 080519: made this method a global function
-# it needs to be moved to a more apppropriate location
+# it needs to be moved to a more appropriate location
 def get_dna_base_orientation_indicators(chunk, normal):
     """
     Returns two lists for DNA bases perpendicular and anti-perpendicular
@@ -320,7 +320,7 @@ def get_dna_base_orientation_indicator_dict(chunk,
 class DnaCylinderChunks(ChunkDisplayMode):
     """
     Implements DNA Cylinder display mode, which draws PAM-model DNA objects
-    using simplified represenations for individual compomenets.
+    using simplified represenations for individual components.
     
     There are four components treated independently: "axis", "strands", "struts"
     and "nucleotides". Each of these components has its own set of settings.
@@ -349,9 +349,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
     disp_label = 'DNA Cylinder' # label for statusbar fields, menu text, etc.
     featurename = "Set Display DNA Cylinder"
     
-    # Pretty sure Bruce's intention is to define icons for subclasses
-    # of ChunkDisplayMode here, not in mticon_names[] and hideicon_names[] 
-    # in chunks.py. Ask him to be sure. Mark 2008-02-12
     icon_name = "modeltree/DnaCylinder.png"
     hide_icon_name = "modeltree/DnaCylinder-hide.png"
     ### also should define icon as an icon object or filename, 
@@ -375,8 +372,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         
         @return: spline value at t
         """
-        t2 = t*t
-        t3 = t2*t
+        t2 = t * t
+        t3 = t2 * t
         x0 = data[idx-1]
         x1 = data[idx]
         x2 = data[idx+1]
@@ -413,7 +410,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
     def _get_full_rainbow_color(self, hue, saturation, value):
         """
         Gets a color from a full hue range (red - red). Can be used for
-        color wrapping (color at hue==0 is the same as color at hue==1).
+        color wrapping (color at hue == 0 is the same as color at hue == 1).
         
         @param hue: color hue (0..1)
         @type hue: float
@@ -515,7 +512,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
     def _get_full_rainbow_color_in_range(self, pos, count, saturation, value):
         """
         Gets a color from a full hue range (red to red). Can be used for
-        color wrapping (color at hue==0 is the same as color at hue==1).
+        color wrapping (color at hue == 0 is the same as color at hue == 1).
         The color corresponds to a "pos" value from (0..count) range.
         
         @param pos: position in (0..count range) 
@@ -647,7 +644,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         @return: positions of the DNA axis cylinder 
         """
         n_atoms = len(atom_list)
-        if color_style==2 or color_style==3: 
+        if color_style == 2 or color_style == 3: 
             # Use discrete colors. Below is an explanation of how the "discrete"
             # colors work. piotr 080827
             # The GLE "polycylinder" (and related methods, e.g. glePolyCone) 
@@ -661,30 +658,30 @@ class DnaCylinderChunks(ChunkDisplayMode):
             # will be replaced by:
             # New sequence: (P0,C0) - (P1,C0) - (P1,C1) - (P2,C1) - (P2,C2)
             # where (Px,Cx) is a (position,color) pair of an individual link.
-            positions = [None] * (2*n_atoms+2)
+            positions = [None] * (2 * n_atoms + 2)
             pos = 2
             for i in range (1, n_atoms):
                 pos1 = chunk.abs_to_base(atom_list[i-1].posn())
                 pos2 = chunk.abs_to_base(atom_list[i].posn())                
-                positions[pos] = 0.5*(pos1+pos2)
-                positions[pos+1] = 0.5*(pos1+pos2)
+                positions[pos] = 0.5*(pos1 + pos2)
+                positions[pos + 1] = 0.5*(pos1 + pos2)
                 pos += 2
             positions[1] = chunk.abs_to_base(atom_list[0].posn())
-            positions[0] = 2*positions[1] - positions[2]
-            positions[pos] = chunk.abs_to_base(atom_list[n_atoms-1].posn())
-            positions[pos+1] = 2*positions[pos] - positions[pos-1]
+            positions[0] = 2 * positions[1] - positions[2]
+            positions[pos] = chunk.abs_to_base(atom_list[n_atoms - 1].posn())
+            positions[pos + 1] = 2 * positions[pos] - positions[pos - 1]
         else:    
-            positions = [None] * (n_atoms+2)
-            for i in range(1, n_atoms+1):
+            positions = [None] * (n_atoms + 2)
+            for i in range(1, n_atoms + 1):
                 positions[i] = chunk.abs_to_base(atom_list[i-1].posn())
             if n_atoms > 1:
                 positions[0] = 2 * positions[1] - positions[2]
             else:
                 positions[0] = positions[1]
             if n_atoms > 1:    
-                positions[n_atoms+1] = 2*positions[n_atoms] - positions[n_atoms-1]
+                positions[n_atoms + 1] = 2 * positions[n_atoms] - positions[n_atoms - 1]
             else:
-                positions[n_atoms+1] = positions[n_atoms]                    
+                positions[n_atoms + 1] = positions[n_atoms]                    
         return positions
 
     def _get_axis_atom_color_per_base(self, pos, strand_atoms_lists):
@@ -708,11 +705,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
             if strand_atoms_lists[0] and strand_atoms_lists[1]:
                 len1 = len(strand_atoms_lists[0])
                 len2 = len(strand_atoms_lists[1])
-                if pos>=0 and pos<len1 and pos<len2:
+                if pos>=0 and pos < len1 and pos < len2:
                     base_name = strand_atoms_lists[0][pos].getDnaBaseName()
-                    if base_name=='A' or base_name=='T':
+                    if base_name == 'A' or base_name == 'T':
                         color = [0.0, 1.0, 0.5]
-                    elif base_name=='G' or base_name=='C':
+                    elif base_name == 'G' or base_name == 'C':
                         color = [1.0, 0.5, 0.0]
         return color                    
 
@@ -741,40 +738,40 @@ class DnaCylinderChunks(ChunkDisplayMode):
             # in glePolyCylinder routine (colors are interpolated on links
             # with zero length, so the interpolation effects are not visible.)
             # Also, look at comments in _get_axis_positions.
-            colors = [None] * (2*n_atoms+2)
+            colors = [None] * (2 * n_atoms + 2)
             pos = 2
             for i in range (1, n_atoms):
-                if color_style==2: 
+                if color_style == 2: 
                     color1 = self._get_rainbow_color_in_range(
                         i-1, n_atoms, 0.75, 1.0)
                     color2 = self._get_rainbow_color_in_range(
                         i, n_atoms, 0.75, 1.0)
-                elif color_style==3:
+                elif color_style == 3:
                     color1 = self._get_axis_atom_color_per_base(
                         i-1, strand_atoms_lists)
                     color2 = self._get_axis_atom_color_per_base(
                         i, strand_atoms_lists)
                 colors[pos] = color1
-                colors[pos+1] = color2
+                colors[pos + 1] = color2
                 pos += 2
             colors[1] = colors[2] 
             colors[0] = colors[1] 
-            colors[pos] = colors[pos-1] 
-            colors[pos+1] = colors[pos] 
+            colors[pos] = colors[pos - 1] 
+            colors[pos + 1] = colors[pos] 
         else:
-            colors = [None] * (n_atoms+2)
+            colors = [None] * (n_atoms + 2)
             if color_style == 1:                    
-                for i in range(1, n_atoms+1):
+                for i in range(1, n_atoms + 1):
                     colors[i] = self._get_rainbow_color_in_range(
                         i-1, n_atoms, 0.75, 1.0)
             elif color_style == 4:
-                for i in range(1, n_atoms+1):
+                for i in range(1, n_atoms + 1):
                     colors[i] = group_color
             else:
-                for i in range(1, n_atoms+1):
+                for i in range(1, n_atoms + 1):
                     colors[i] = chunk_color
             colors[0] = colors[1]
-            colors[n_atoms+1] = colors[n_atoms]
+            colors[n_atoms + 1] = colors[n_atoms]
 
         return colors
 
@@ -794,32 +791,32 @@ class DnaCylinderChunks(ChunkDisplayMode):
         
         @param ending_style: ending style of the axis component (blunt/tapered)
         """
-        if shape==1:
-            rad = 7.0*scale
+        if shape == 1:
+            rad = 7.0 * scale
         else:    
-            rad = 2.0*scale
+            rad = 2.0 * scale
         n_atoms = len(atom_list)
-        if color_style==2 or color_style==3: 
+        if color_style == 2 or color_style == 3: 
             # Discrete colors.
             # For discrete colors duplicate a number of nodes.
-            length = 2*n_atoms+2
+            length = 2 * n_atoms + 2
             radii = [rad] * (length)
             # Append radii for the virtual ends.
-            if ending_style==2 or ending_style==3:
+            if ending_style == 2 or ending_style == 3:
                 radii[1] = 0.0
-                radii[2] = 0.5*rad
-                radii[3] = 0.5*rad
-            if ending_style==1 or ending_style==3:
+                radii[2] = 0.5 * rad
+                radii[3] = 0.5 * rad
+            if ending_style == 1 or ending_style == 3:
                 radii[length-4] = 0.5 * rad
                 radii[length-3] = 0.5 * rad
                 radii[length-2] = 0.0
         else:
-            length = n_atoms+2
+            length = n_atoms + 2
             radii = [rad] * (length)
-            if ending_style==2 or ending_style==3:
+            if ending_style == 2 or ending_style == 3:
                 radii[1] = 0.0
                 radii[2] = 0.66 * rad
-            if ending_style==1 or ending_style==3:
+            if ending_style == 1 or ending_style == 3:
                 radii[length-3] = 0.66 * rad
                 radii[length-2] = 0.0        
 
@@ -835,17 +832,17 @@ class DnaCylinderChunks(ChunkDisplayMode):
         @param atom_list: list of strand atom positions 
         """
         n_atoms = len(atom_list)
-        positions = [None] * (n_atoms+2)
-        for i in range(1, n_atoms+1):
+        positions = [None] * (n_atoms + 2)
+        for i in range(1, n_atoms + 1):
             positions[i] = chunk.abs_to_base(atom_list[i-1].posn())
         if n_atoms < 3:
             positions[0] = positions[1]
-            positions[n_atoms+1] = positions[n_atoms]
+            positions[n_atoms + 1] = positions[n_atoms]
         else:
             positions[0] = 3.0 * positions[1] \
                      - 3.0 * positions[2] \
                      + positions[3]
-            positions[n_atoms+1] = 3.0 * positions[n_atoms] \
+            positions[n_atoms + 1] = 3.0 * positions[n_atoms] \
                      - 3.0 * positions[n_atoms - 1] \
                      + positions[n_atoms - 2] 
 
@@ -872,11 +869,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
         @type length: integer
         """
         if n_atoms > 1:
-            step = float(end-start)/float(n_atoms-1)
+            step = float(end - start)/float(n_atoms - 1)
         else:
             step = 0.0
         if length > 1:
-            ilength = 1.0 / float(length-1)
+            ilength = 1.0 / float(length - 1)
         else:
             ilength = 1.0
         q = ilength * (start + step * idx)
@@ -909,14 +906,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
         @param group_color: color of the group        
         """
         n_atoms = len(atom_list)
-        colors = [None] * (n_atoms+2)
+        colors = [None] * (n_atoms + 2)
         pos = 0
         if n_atoms > 1:
-            step = float(end-start)/float(n_atoms-1)
+            step = float(end - start)/float(n_atoms - 1)
         else:
             step = 0.0
         if length > 1:
-            ilength = 1.0 / float(length-1)
+            ilength = 1.0 / float(length - 1)
         else:
             ilength = 1.0
         r = start
@@ -931,11 +928,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 r += step
             else:
                 col = group_color
-            colors[i+1] = V(col[0], col[1], col[2])
+            colors[i + 1] = V(col[0], col[1], col[2])
             # Has to convert to array, otherwise spline interpolation
             # doesn't work (why - I suppose because tuples are immutable ?)
         colors[0] = colors[1]
-        colors[n_atoms+1] = colors[n_atoms]
+        colors[n_atoms + 1] = colors[n_atoms]
         return colors
     pass
 
@@ -949,11 +946,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
         @param radius: scale factor of the strands
         """
         n_atoms = len(atom_list)
-        radii = [None] * (n_atoms+2)
-        for i in range(1, n_atoms+1):
+        radii = [None] * (n_atoms + 2)
+        for i in range(1, n_atoms + 1):
             radii[i] = radius
         radii[0] = radii[1]
-        radii[n_atoms+1] = radii[n_atoms]
+        radii[n_atoms + 1] = radii[n_atoms]
         return radii
     pass
 
@@ -1035,14 +1032,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
             # fixed bug 2877 (exception when "positions" 
             # is set to None) - piotr 080516
             n_points = len(positions)            
-            if self.dnaStyleAxisShape>0:
+            if self.dnaStyleAxisShape > 0:
                 # spherical ends    
                 if self.dnaStyleAxisEndingStyle == 4:
                     drawsphere(colors[1], 
                                       positions[1], 
                                       radii[1], 2)
                     drawsphere(colors[n_points - 2], 
-                                      positions[n_points-2], 
+                                      positions[n_points - 2], 
                                       radii[n_points - 2], 2)                    
 
                 # set polycone parameters
@@ -1050,9 +1047,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
                 
                 # draw the polycone                
-                if self.dnaStyleAxisColor==1 \
-                   or self.dnaStyleAxisColor==2 \
-                   or self.dnaStyleAxisColor==3: 
+                if self.dnaStyleAxisColor == 1 \
+                   or self.dnaStyleAxisColor == 2 \
+                   or self.dnaStyleAxisColor == 3: 
                     # render discrete colors                
                     drawpolycone_multicolor([0, 0, 0, -2], 
                                                    positions, 
@@ -1069,7 +1066,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
             if positions:                    
                 if self.dnaStyleStrandsColor == 1:
-                    # opactity value == -2 is a flag enabling 
+                    # opacity value == -2 is a flag enabling 
                     # the "GL_COLOR_MATERIAL" mode, the
                     # color argument is ignored and colors array
                     # is used instead
@@ -1119,7 +1116,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 drawcylinder(color, 
                                     a1pos, 
                                     bposn, 
-                                    0.20*self.dnaStyleBasesScale, True) 
+                                    0.20 * self.dnaStyleBasesScale, True) 
                                 
                                 if bname == 'G' or \
                                    bname == 'A': 
@@ -1127,16 +1124,16 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     drawcylinder(color, 
                                         aposn - 0.25 * self.dnaStyleBasesScale * normal,
                                         aposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                        0.7*self.dnaStyleBasesScale, True)                            
+                                        0.7 * self.dnaStyleBasesScale, True)                            
                                     drawcylinder(color, 
                                         cposn - 0.25 * self.dnaStyleBasesScale * normal,
                                         cposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                        0.9*self.dnaStyleBasesScale, True)
+                                        0.9 * self.dnaStyleBasesScale, True)
                                 else:
                                     drawcylinder(color, 
                                         bposn - 0.25 * self.dnaStyleBasesScale * normal,
                                         bposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                        0.9*self.dnaStyleBasesScale, True)                            
+                                        0.9 * self.dnaStyleBasesScale, True)                            
                             
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """
@@ -1201,11 +1198,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 n_bases = len(axis_atoms)
                 pos = axis_atoms.index(axis_atom)
                 atom0 = axis_atom
-                if pos < n_bases-1:
-                    atom1 = axis_atoms[pos+1]
+                if pos < n_bases - 1:
+                    atom1 = axis_atoms[pos + 1]
                     dpos = atom1.posn() - atom0.posn()
                 else:
-                    atom1 = axis_atoms[pos-1]
+                    atom1 = axis_atoms[pos - 1]
                     atom2 = axis_atoms[pos]
                     dpos = atom2.posn() - atom1.posn()
                 last_dpos = dpos
@@ -1356,11 +1353,13 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
                 if self.dnaStyleBasesDisplayLetters: 
                     # calculate text size
-                    font_scale = int(500.0/glpane.scale)
+                    font_scale = int(500.0 / glpane.scale)
                     if sys.platform == "darwin":
                         font_scale *= 2                        
-                    if font_scale<9: font_scale = 9
-                    if font_scale>50: font_scale = 50
+                    if font_scale < 9:
+                        font_scale = 9
+                    if font_scale > 50:
+                        font_scale = 50
 
                     # create the label font
                     labelFont = QFont( QString("Lucida Grande"), font_scale)
@@ -1381,7 +1380,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         # get atom base name
                         label_text = QString(atom.getDnaBaseName())
                         # move the text center to the atom position
-                        textpos -= 0.5*(dx+dy)   
+                        textpos -= 0.5*(dx + dy)   
                         # render the text
                         glpane.renderText(textpos[0], textpos[1], textpos[2], 
                                           label_text, labelFont)                    
@@ -1398,19 +1397,21 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
                     labels_color_mode = env.prefs[dnaStrandLabelsColorMode_prefs_key]
 
-                    if labels_color_mode==1:
+                    if labels_color_mode == 1:
                         labels_color = black
-                    elif labels_color_mode==2:
+                    elif labels_color_mode == 2:
                         labels_color = white
                     else: 
                         labels_color = env.prefs[dnaStrandLabelsColor_prefs_key]
 
                     # calculate the text size
-                    font_scale = int(500.0/glpane.scale)
+                    font_scale = int(500.0 / glpane.scale)
                     if sys.platform == "darwin":
                         font_scale *= 2                        
-                    if font_scale<9: font_scale = 9
-                    if font_scale>50: font_scale = 50
+                    if font_scale < 9:
+                        font_scale = 9
+                    if font_scale > 50:
+                        font_scale = 50
 
                     if chunk.isStrandChunk():                
                         if self.dnaStyleStrandsShape > 0 or \
@@ -1419,11 +1420,15 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
                             # REVIEW: Is the following comment still valid?
                             #
-                            # the following is copied from DnaStrand.py
+                            # Q. the following is copied from DnaStrand.py
                             # I need to find a 5' sugar atom of the strand
                             # is there any more efficient way of doing that?
                             # this is terribly slow... I need something like
-                            # "get_strand_chunks_in_bond_direction"...             
+                            # "get_strand_chunks_in_bond_direction"...
+                            #
+                            # A [bruce 081001]: yes, there is an efficient way.
+                            # The strand rail atoms are in order, and it's possible
+                            # to determine which end is 5'. I forget the details.
 
                             strandGroup = chunk.parent_node_of_class(chunk.assy.DnaStrand)
                             if strandGroup is None:
@@ -1441,7 +1446,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 # and the next atom for extra positioning
                                 next_atom = atom.strand_next_baseatom(1)
 
-                                if atom.molecule==chunk and atom and next_atom: 
+                                if atom.molecule is chunk and atom and next_atom: 
                                     # draw labels only for the first chunk
 
                                     # vector to move the label slightly away from the atom center
@@ -1482,7 +1487,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                         textpos -= dx
 
                                     # center the label vertically
-                                    textpos -= 0.5*dy
+                                    textpos -= 0.5 * dy
 
                                     # draw the label
                                     glDisable(GL_LIGHTING)
@@ -1501,7 +1506,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             
             # As of 080520, this code is less buggy, but still quite slow.
             # REVIEW: Suggestions for speedup?
-            # suggestion added by piotr 080910
+            # suggestion added by piotr 080910:
             # The 2D representation is drawn in intermediate mode. 
             # This code uses multiple individual OpenGL calls (glVertex, 
             # glColor). These calls should be replaced by single OpenGL
@@ -1525,17 +1530,19 @@ class DnaCylinderChunks(ChunkDisplayMode):
             if axis:
                 # Calculate the font scale.
                 if mode == 0:
-                    font_scale = int(500.0/glpane.scale)
+                    font_scale = int(500.0 / glpane.scale)
                 else:
-                    font_scale = int(300.0/glpane.scale)
+                    font_scale = int(300.0 / glpane.scale)
                     
                 # Rescale font scale for OSX.
                 if sys.platform == "darwin":
                     font_scale *= 2         
     
                 # Limit the font scale.            
-                if font_scale<9: font_scale = 9
-                if font_scale>100: font_scale = 100
+                if font_scale < 9:
+                    font_scale = 9
+                if font_scale > 100:
+                    font_scale = 100
     
                 # Number of bases
                 n_bases = len(axis)
@@ -1577,11 +1584,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 # Prepare a list of bases to render and their positions.
                 for pos in range(0, n_bases):
                     atom0 = axis_atoms[pos]
-                    if pos < n_bases-1:
-                        atom1 = axis_atoms[pos+1]
+                    if pos < n_bases - 1:
+                        atom1 = axis_atoms[pos + 1]
                         dpos = atom1.posn() - atom0.posn()
                     else:
-                        atom1 = axis_atoms[pos-1]
+                        atom1 = axis_atoms[pos - 1]
                         atom2 = axis_atoms[pos]
                         dpos = atom2.posn() - atom1.posn()                           
                     last_dpos = dpos
@@ -1883,14 +1890,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
         
         # Render the axis cylinder        
         n_points = len(positions)            
-        if self.dnaStyleAxisShape>0:
+        if self.dnaStyleAxisShape > 0:
             # spherical ends    
             if self.dnaStyleAxisEndingStyle == 4:
                 writesphere(colors[1], 
                             positions[1], 
                             radii[1])                
                 writesphere(colors[n_points - 2], 
-                            positions[n_points-2], 
+                            positions[n_points - 2], 
                             radii[n_points - 2])                    
             
             # draw the polycone
@@ -1923,22 +1930,22 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 writecylinder( 
                                     a1pos, 
                                     bposn, 
-                                    0.20*self.dnaStyleBasesScale, color) 
+                                    0.20 * self.dnaStyleBasesScale, color) 
                                 if bname == 'G' \
                                    or bname == 'A': # draw two purine rings                                
                                     writecylinder(
                                         aposn - 0.25 * self.dnaStyleBasesScale * normal,
                                         aposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                        0.7*self.dnaStyleBasesScale, color)                            
+                                        0.7 * self.dnaStyleBasesScale, color)                            
                                     writecylinder( 
                                         cposn - 0.25 * self.dnaStyleBasesScale * normal,
                                         cposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                        0.9*self.dnaStyleBasesScale, color)
+                                        0.9 * self.dnaStyleBasesScale, color)
                                 else:
                                     writecylinder( 
                                         bposn - 0.25 * self.dnaStyleBasesScale * normal,
                                         bposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                        0.9*self.dnaStyleBasesScale, color)                            
+                                        0.9 * self.dnaStyleBasesScale, color)                            
         
     def compute_memo(self, chunk):
         """
@@ -1963,8 +1970,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         appearance can, the access would need to be in drawchunk;
         otherwise it could be in drawchunk or in this method compute_memo().
 
-        @param chunk: The chunk.
-        @type  chunk: chunk
+        @param chunk: The chunk
+        @type  chunk: Chunk
         """
 
         # REVIEW: Does this take into account curved strand shapes?
@@ -2002,7 +2009,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         # controlled independently: central axis, strands, structs, and bases.
         
         if not hasattr(chunk, 'ladder'):
-            # DNA updater is off ? Don't render 
+            # DNA updater is off? Don't render 
             # (should display a warning message?)
             return None
 
@@ -2011,7 +2018,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             return None
 
         n_bases = chunk.ladder.baselength()    
-        if n_bases<1: 
+        if n_bases < 1: 
             # no bases - return
             return None
 
@@ -2037,7 +2044,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         strand_atoms = [None] * num_strands
         for i in range(0, num_strands):
             strand_atoms[i] = chunk.ladder.strand_rails[i].baseatoms
-            if chunk.ladder.strand_rails[i].baseatoms[0].molecule == chunk:
+            if chunk.ladder.strand_rails[i].baseatoms[0].molecule is chunk:
                 current_strand = i
 
         # empty list for strand colors
@@ -2173,7 +2180,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         end_index = all_atoms.index(end_atom) - 1
                         total_strand_length = len(all_atoms) - 2           
                     
-            if self.dnaStyleStrandsShape>0: 
+            if self.dnaStyleStrandsShape > 0: 
             
                 # Get positions, colors and radii for current strand chunk
                 positions = self._get_strand_positions(
@@ -2210,7 +2217,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 for bond in chunk.externs:
                     if bond.atom1.molecule.dad == bond.atom2.molecule.dad: # same group
                         if bond.atom1.molecule != bond.atom2.molecule: # but different chunks
-                            if bond.atom1.molecule == chunk:
+                            if bond.atom1.molecule is chunk:
                                 idx = strand_atoms[current_strand].index(bond.atom1)
                                 if self.dnaStyleStrandsColor == 0:
                                     color = chunk.color
@@ -2232,9 +2239,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 
                 if strand_direction == 1:                
                     draw_5p = (strand_atoms[current_strand][0] == five_prime_atom)
-                    draw_3p = (strand_atoms[current_strand][n_atoms-1] == three_prime_atom)
-                    if draw_5p and (self.dnaStyleStrandsArrows==1 or 
-                                    self.dnaStyleStrandsArrows==3):
+                    draw_3p = (strand_atoms[current_strand][n_atoms - 1] == three_prime_atom)
+                    if draw_5p and (self.dnaStyleStrandsArrows == 1 or 
+                                    self.dnaStyleStrandsArrows == 3):
                         arrvec = arrlen * norm(positions[2] - positions[1])                    
                         arrows.append((colors[1],
                                       [positions[1] + arrvec,
@@ -2245,8 +2252,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                         radii[1]*2.0, 
                                         radii[1]*2.0]))
                         
-                    if draw_3p and (self.dnaStyleStrandsArrows==2 or 
-                                    self.dnaStyleStrandsArrows==3):
+                    if draw_3p and (self.dnaStyleStrandsArrows == 2 or 
+                                    self.dnaStyleStrandsArrows == 3):
                         arrvec = arrlen * norm(positions[n-3] - positions[n-2])
                         arrows.append((colors[n-2],
                                             [positions[n-2],
@@ -2257,10 +2264,10 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                               radii[n-2]*2.0, 
                                               0.0, 0.0]))
                 else:
-                    draw_5p = (strand_atoms[current_strand][n_atoms-1] == five_prime_atom)
+                    draw_5p = (strand_atoms[current_strand][n_atoms - 1] == five_prime_atom)
                     draw_3p = (strand_atoms[current_strand][0] == three_prime_atom)
-                    if draw_3p and (self.dnaStyleStrandsArrows==2 or 
-                                    self.dnaStyleStrandsArrows==3):
+                    if draw_3p and (self.dnaStyleStrandsArrows == 2 or 
+                                    self.dnaStyleStrandsArrows == 3):
                         arrvec = arrlen * norm(positions[2] - positions[1])
                         arrows.append((colors[1],
                                             [positions[1],
@@ -2271,8 +2278,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                               radii[1]*2.0, 
                                               0.0, 0.0]))
                         
-                    if draw_5p and (self.dnaStyleStrandsArrows==1 or 
-                                    self.dnaStyleStrandsArrows==3):
+                    if draw_5p and (self.dnaStyleStrandsArrows == 1 or 
+                                    self.dnaStyleStrandsArrows == 3):
                         arrvec = arrlen * norm(positions[n-3] - positions[n-2])
                         arrows.append((colors[n-2],
                                             [positions[n-2] + arrvec,
@@ -2285,7 +2292,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
    
                         
             # Make struts.            
-            if self.dnaStyleStrutsShape>0:
+            if self.dnaStyleStrutsShape > 0:
                 if num_strands > 1:
                     for pos in range(0, n_atoms):
                         atom1 = strand_atoms[current_strand][pos]
@@ -2322,27 +2329,27 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 for pos in range(0, n_atoms):
                     atom = strand_atoms[current_strand][pos]
                     bname = atom.getDnaBaseName()
-                    if self.dnaStyleBasesColor==0:
+                    if self.dnaStyleBasesColor == 0:
                         # color by chunk color
                         color = chunk_color
-                    elif self.dnaStyleBasesColor==1:
+                    elif self.dnaStyleBasesColor == 1:
                         # color by base order
                         color = self._get_rainbow_color_in_range(pos, n_atoms, 0.75, 1.0)
-                    elif self.dnaStyleBasesColor==2:
+                    elif self.dnaStyleBasesColor == 2:
                         # color by group color
                         color = group_color
                     else:
                         # color by base type
                         color = self._get_base_color(atom.getDnaBaseName())
 
-                    if self.dnaStyleBasesShape==1: 
+                    if self.dnaStyleBasesShape == 1: 
                         # draw spheres
                         atom1_pos = chunk.abs_to_base(atom.posn())
-                    elif self.dnaStyleBasesShape==2 and \
+                    elif self.dnaStyleBasesShape == 2 and \
                          num_strands > 1: 
                         # draw a schematic 'cartoon' shape
                         atom1_pos = chunk.abs_to_base(strand_atoms[current_strand][pos].posn())
-                        atom3_pos = chunk.abs_to_base(strand_atoms[1-current_strand][pos].posn())                        
+                        atom3_pos = chunk.abs_to_base(strand_atoms[1 - current_strand][pos].posn())                        
                         atom2_pos = chunk.abs_to_base(axis_atoms[pos].posn())                        
                         # figure out a normal to the bases plane
                         v1 = atom1_pos - atom2_pos
@@ -2351,7 +2358,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     
                     base_cartoons.append((
                         color, atom1_pos, atom2_pos, atom3_pos, normal, bname))
-          
+        
         # For current chunk, returns: list of positions, colors, radii, arrows, 
         # strut cylinders and base cartoons
         return (positions,

@@ -819,7 +819,7 @@ def test_drawing(glpane):
                     # Put out short chunk buffers.
                     if len(centers) >= chunkLength:
                         test_spheres += [
-                            chunkFn[testCase](centers, radii, colors)]
+                            chunkFn[testCase](centers, radii, colors) ]
                         centers = []
                         radii = []
                         colors = []
@@ -829,7 +829,7 @@ def test_drawing(glpane):
             if len(centers):
                 test_spheres += [chunkFn[testCase](centers, radii, colors)]
                 pass
-            print "%d chunk buffers"%len(test_spheres)
+            print "%d chunk buffers" % len(test_spheres)
             pass
         else: # Run.
             shader = drawing_globals.sphereShader

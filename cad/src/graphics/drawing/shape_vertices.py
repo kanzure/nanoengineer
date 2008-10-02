@@ -50,6 +50,9 @@ degreesPerRadian = 180.0 / pi
 from geometry.VQT import norm, vlen, V, Q, A
 from utilities.constants import DIAMOND_BOND_LENGTH
 import graphics.drawing.drawing_globals as drawing_globals
+    # REVIEW: probably we should refactor so we don't depend on assignments
+    # into drawing_globals as a side effect of importing this module.
+    # [bruce 081001 comment]
 
 def init_icos():
     global icosa, icosix
@@ -488,13 +491,18 @@ init_cube()
 
 
 # Some variables used by the Lonsdaleite lattice construction.
-ux = 1.262; uy = 0.729; dz = 0.5153; ul = 1.544
+ux = 1.262
+uy = 0.729
+dz = 0.5153
+ul = 1.544
 drawing_globals.XLen = XLen = 2*ux
 drawing_globals.YLen = YLen = 6*uy
 drawing_globals.ZLen = ZLen = 2*(ul + dz)
 
 def _makeLonsCell():
-    """Data structure to construct a Lonsdaleite lattice cell"""
+    """
+    Data structure to construct a Lonsdaleite lattice cell
+    """
     lVp = [# 2 outward vertices
            [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
            # Layer 1: 7 vertices
