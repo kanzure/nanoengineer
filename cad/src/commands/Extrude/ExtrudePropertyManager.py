@@ -17,7 +17,6 @@ moved many ui helper methods defined globally in extrudeMode.py to this class.
 import math
 from PyQt4.Qt import SIGNAL
 from commands.Extrude.Ui_ExtrudePropertyManager import Ui_ExtrudePropertyManager
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
 _superclass = Ui_ExtrudePropertyManager
 class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
@@ -33,41 +32,17 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         @param command: The parent mode where this Property Manager is used
         @type  command: L{ExtrudeMode}
         """
-        self.suppress_valuechanged = 0
-        
-        Ui_ExtrudePropertyManager.__init__(self, command)
-        
-        self.extrude_pref_toggles = ( self.showEntireModelCheckBox,
-                                      self.showBondOffsetCheckBox,
-                                      self.makeBondsCheckBox,
-                                      self.mergeCopiesCheckBox,
-                                      self.extrudePrefMergeSelection)
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-        
-                
-        
-        
+        self.suppress_valuechanged = 0        
+        _superclass.__init__(self, command)
+       
     def show(self):
         """
         Extends superclass method. 
         """
         _superclass.show(self)
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-        
+                
         self.updateMessage()
-            
-    def close(self):
-        """
-        Extends superclass method. 
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        _superclass.close(self)
-    
+                
         
     def connect_or_disconnect_signals(self, connect):
         """

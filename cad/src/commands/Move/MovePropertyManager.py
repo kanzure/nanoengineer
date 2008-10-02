@@ -13,10 +13,7 @@ ninad 2007-08-20: Code cleanup to use new PM module classes.
 
 
 from commands.Move.Ui_MovePropertyManager import Ui_MovePropertyManager
-from PyQt4.Qt import Qt, SIGNAL
-
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from PyQt4.Qt import SIGNAL
 
 
 class MovePropertyManager(Ui_MovePropertyManager):
@@ -27,17 +24,14 @@ class MovePropertyManager(Ui_MovePropertyManager):
     """
 
     def __init__(self, command):
-        Ui_MovePropertyManager.__init__(self, command) 
-        
         #see self.connect_or_disconnect_signals for comment about this flag
-        self.isAlreadyConnected =  False
-                
+        self.isAlreadyConnected =  False                
         self.lastCheckedRotateButton = None 
-        self.lastCheckedTranslateButton = None                     
+        self.lastCheckedTranslateButton = None  
+        
+        Ui_MovePropertyManager.__init__(self, command)                            
         self.updateMessage()
         
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
         
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -574,11 +568,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         else: 
             return (-delX, -delY, -delZ) # Minus
         
-    def show(self):
-        Ui_MovePropertyManager.show(self)
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
+   
     def close(self):
         """
         Closes this Property Manager.
@@ -595,10 +585,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         self.translateGroupBox.collapse()
         self.rotateGroupBox.collapse()
-        
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
+                
         Ui_MovePropertyManager.close(self)
 
     def updateMessage(self, msg = ''): # Mark 2007-06-23

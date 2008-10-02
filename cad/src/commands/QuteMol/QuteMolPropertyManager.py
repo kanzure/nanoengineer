@@ -19,10 +19,7 @@ from PyQt4.Qt import Qt
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_ComboBox      import PM_ComboBox
 from PM.PM_ToolButton    import PM_ToolButton
-from PM.PM_CheckBox      import PM_CheckBox
-from PM.PM_Dialog        import PM_Dialog
-
-from PM.PM_Constants     import PM_RESTORE_DEFAULTS_BUTTON, PM_PREVIEW_BUTTON
+from PM.PM_Constants     import PM_DONE_BUTTON, PM_WHATS_THIS_BUTTON
 
 import foundation.env as env
 
@@ -32,10 +29,10 @@ from files.pdb.files_pdb import EXCLUDE_HIDDEN_ATOMS
 from files.pdb.files_pdb import EXCLUDE_DNA_AXIS_BONDS
 from files.pdb.files_pdb import EXCLUDE_DNA_AXIS_ATOMS
 
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from command_support.Command_PropertyManager import Command_PropertyManager
 
-class QuteMolPropertyManager(PM_Dialog):
+_superclass = Command_PropertyManager
+class QuteMolPropertyManager(Command_PropertyManager):
     """
     The QuteMolPropertyManager class provides a Property Manager for 
     QuteMolX, allowing its launch for external rendering of the model.
@@ -67,14 +64,10 @@ class QuteMolPropertyManager(PM_Dialog):
         Constructor for the property manager.
         """
 
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane 
+        _superclass.__init__(self, command)
         
-              
-        PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
         msg = "Select a QuteMolX rendering style and click the "\
         "<b>Launch QuteMolX</b> button when ready."
@@ -82,12 +75,6 @@ class QuteMolPropertyManager(PM_Dialog):
         # This causes the "Message" box to be displayed as well.
         self.updateMessage(msg)
         
-        # Hide Preview and Restore defaults button for Alpha9.
-        self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON | PM_PREVIEW_BUTTON)
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
     def _addGroupBoxes(self):
         """
         Add the 1st group box to the Property Manager.
@@ -153,31 +140,7 @@ class QuteMolPropertyManager(PM_Dialog):
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_QuteMolPropertyManager
         ToolTip_QuteMolPropertyManager(self)
     
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """  
-        #TODO: Cancel button needs to be removed. See comment at the top
-        self.win.toolsDone()
-
-    def show(self):
-        """
-        Shows the Property Manager. Overrides PM_Dialog.show.
-        """
-        PM_Dialog.show(self)
-        # self.updateDnaDisplayStyleWidgets()
-        
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        PM_Dialog.close(self)    
+  
     
     def connect_or_disconnect_signals(self, isConnect):
         """

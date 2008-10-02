@@ -13,8 +13,7 @@ and moved it to this class.
 from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 import foundation.env as env
-from PM.PM_Dialog import PM_Dialog
-from widgets.DebugMenuMixin import DebugMenuMixin
+from command_support.Command_PropertyManager import Command_PropertyManager
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_ColorComboBox import PM_ColorComboBox
@@ -32,11 +31,9 @@ from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_pr
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from PM.PM_DnaBaseNumberLabelsGroupBox import PM_DnaBaseNumberLabelsGroupBox
 
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
-
-class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
+_superclass = Command_PropertyManager
+class BreakOrJoinStrands_PropertyManager(Command_PropertyManager):
     
     _baseNumberLabelGroupBox = None
             
@@ -44,24 +41,11 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         Constructor for the property manager.
         """
-
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane             
-                        
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-        
-        DebugMenuMixin._init1( self )
-
+        _superclass.__init__(self, command)    
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:            
-            self.connect_or_disconnect_signals(True)
-        
+                
         return
     
     def connect_or_disconnect_signals(self, isConnect):
@@ -104,26 +88,14 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     
     def show(self):
         """
-        Shows the Property Manager. Overrides PM_Dialog.show.
+        Shows the Property Manager. Extends superclass method. 
+        @see: Command_PropertyManager.show()
         """
-        PM_Dialog.show(self)   
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True) 
-        
+        _superclass.show(self)        
         #Required to update the color combobox for Dna base number labels.
         self._baseNumberLabelGroupBox.updateWidgets()
    
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        # this is important since these pref keys are used in other command modes 
-        # as well and we do not want to see the 5' end arrow in Inset DNA mode       
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)    
-            
-        PM_Dialog.close(self)
-        
+           
     def _connect_checkboxes_to_global_prefs_keys(self, isConnect = True):
         """
         #doc

@@ -10,20 +10,14 @@ LightingScheme_PropertyManager.py
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 """
-import os, time, fnmatch, string
+import os, time, fnmatch
 import foundation.env as env
-
-from widgets.DebugMenuMixin import DebugMenuMixin
 
 from utilities.prefs_constants import getDefaultWorkingDirectory
 from utilities.Log import greenmsg
 
 from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import Qt
-from PyQt4 import QtGui
 from PyQt4.Qt import QFileDialog, QString, QMessageBox
-from PyQt4.Qt import QColorDialog
-from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_CheckBox import PM_CheckBox
@@ -33,13 +27,6 @@ from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 
-from utilities.constants import yellow, orange, red, magenta, cyan, blue
-from utilities.constants import white, black, gray, green, darkgreen
-
-from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
-from widgets.prefs_widgets import connect_colorpref_to_colorframe
-
-from utilities.icon_utilities import geticon
 from utilities.debug import print_compact_traceback
 
 from utilities.prefs_constants import material_specular_highlights_prefs_key
@@ -53,10 +40,6 @@ from utilities.prefs_constants import light3Color_prefs_key
 from utilities.prefs_constants import glpane_lights_prefs_key
 import foundation.preferences as preferences
 
-from utilities.constants import black, white, gray
-
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
 lightingSchemePrefsList = \
                      [light1Color_prefs_key,
@@ -354,8 +337,10 @@ def saveFavoriteFile( savePath, fromPath ):
     return    
 
 # =
+from command_support.Command_PropertyManager import Command_PropertyManager
 
-class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
+_superclass = Command_PropertyManager
+class LightingScheme_PropertyManager(Command_PropertyManager):
     """
     The LightingScheme_PropertyManager class provides a Property Manager 
     for changing light properties as well as material properties.
@@ -382,17 +367,8 @@ class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Constructor for the property manager.
         """
 
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane
+        _superclass.__init__(self, command)
         
-                    
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-        
-        DebugMenuMixin._init1( self )
-
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         
@@ -401,9 +377,7 @@ class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             "changing the ambient, diffuse, and specular properites."
         self.updateMessage(msg)
         
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-        
+                
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -671,23 +645,12 @@ class LightingScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             
     def show(self):
         """
-        Shows the Property Manager. Overrides PM_Dialog.show.
+        Shows the Property Manager. extends superclass method. 
         """
-        PM_Dialog.show(self)
-        
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
+        _superclass.show(self)
             
         self._updateAllWidgets()
 
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        PM_Dialog.close(self)
         
     def _addGroupBoxes( self ):
         """

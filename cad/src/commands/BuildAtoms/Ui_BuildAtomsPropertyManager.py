@@ -22,12 +22,10 @@ ninad 2007-08-29: Created: Rewrote all UI to make it use the 'PM' module
 
 from PyQt4.Qt import Qt
 
-from PM.PM_Dialog          import PM_Dialog
 from PM.PM_GroupBox        import PM_GroupBox
 from PM.PM_CheckBox        import PM_CheckBox
 from PM.PM_ComboBox        import PM_ComboBox
 from PM.PM_LineEdit        import PM_LineEdit
-from PM.PM_DoubleSpinBox   import PM_DoubleSpinBox
 
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_ToolButtonRow       import PM_ToolButtonRow
@@ -45,8 +43,10 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 import foundation.env as env
 from utilities.prefs_constants import reshapeAtomsSelection_prefs_key
 
+from command_support.Command_PropertyManager import Command_PropertyManager
 
-class Ui_BuildAtomsPropertyManager(PM_Dialog):
+_superclass = Command_PropertyManager
+class Ui_BuildAtomsPropertyManager(Command_PropertyManager):
     """
     The Ui_BuildAtomsPropertyManager class defines UI elements for the Property 
     Manager of the B{Build Atoms mode}.
@@ -78,13 +78,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         
         @param command: The parent mode where this Property Manager is used
         @type  command: L{depositMode}        
-        """
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane 
-        
+        """              
         
         self.previewGroupBox = None
         self.regularElementChooser = None
@@ -103,7 +97,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self.selectedAtomPosGroupBox = None
         self.showSelectedAtomInfoCheckBox = None
         
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+        _superclass.__init__(self, command)
         
         self.showTopRowButtons(PM_DONE_BUTTON | PM_WHATS_THIS_BUTTON)        
         msg = ''

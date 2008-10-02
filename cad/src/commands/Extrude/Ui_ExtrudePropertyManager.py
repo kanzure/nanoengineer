@@ -15,7 +15,6 @@ ninad 2007-09-10: Code clean up to use PM module classes
 
 from PyQt4.Qt import Qt
 
-from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_Slider        import PM_Slider
@@ -27,8 +26,10 @@ from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_Constants     import PM_CANCEL_BUTTON
 
+from command_support.Command_PropertyManager import Command_PropertyManager
 
-class Ui_ExtrudePropertyManager(PM_Dialog):
+_superclass = Command_PropertyManager
+class Ui_ExtrudePropertyManager(Command_PropertyManager):
     """
     The Ui_ExtrudePropertyManager class defines UI elements for the Property
     Manager of the B{Extrude mode}.
@@ -61,13 +62,8 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         @param command: The parent mode where this Property Manager is used
         @type  command: L{extrudeMode}
         """
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw
-        self.o = self.win.glpane
-
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+        
+        _superclass.__init__(self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
@@ -84,6 +80,17 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
         self._addProductSpecsGroupBox()
         self._addAdvancedOptionsGroupBox()
+        
+        #Define extrude preference toggles. This needs to be defined before 
+        #the superclass calls connect_or_disconnect_signals! Defining it in 
+        #_addGroupBoxes is not intuitive. But the problem is the superclass method
+        #also makes connections in its __init__ method. This can be cleaned up
+        #during major reafctoring of extrude Mode --  Ninad 2008-10-02
+        self.extrude_pref_toggles = ( self.showEntireModelCheckBox,
+                                      self.showBondOffsetCheckBox,
+                                      self.makeBondsCheckBox,
+                                      self.mergeCopiesCheckBox,
+                                      self.extrudePrefMergeSelection)
 
     def _addProductSpecsGroupBox(self):
         """

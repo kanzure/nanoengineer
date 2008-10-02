@@ -162,7 +162,6 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self._previous_all_change_indicators = None
         
         
-            
     def keyPressEvent(self, event):
         """
         Handles keyPress event. 
@@ -203,51 +202,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         Subclasses should override this method. 
         """
         pass
-
-    def update_UI(self):
-        """
-        Update whatever is shown in this PM based on current state
-        of the rest of the system, especially the state of self.command
-        and of the model it shows.
-        
-        This method SHOULD NOT BE overridden in subclasses. Instead override the 
-        submethods '_update_UI_check_change_indicators' and 
-        '_update_UI_do_updates'
-        """
-        anything_changed = self._update_UI_check_change_indicators()
-        
-        if not anything_changed:
-            return
-        
-        self._update_UI_do_updates()        
-        return
     
-    def _update_UI_check_change_indicators(self):
-        """
-        This method does a basic check to see if something in the assembly 
-        changed since last call of this method.
-        It compares various change indicators defined in assembly class against
-        an attribute of this class. This class attr stores the previous values
-        of all these change indicators when it was last called. 
-        
-        @see: self.update_UI()        
-        """
-        current_change_indicators = (self.win.assy.model_change_indicator(),
-                              self.win.assy.selection_change_indicator(), 
-                              self.win.assy.command_stack_change_indicator())
-        
-        if same_vals(current_change_indicators, 
-                     self._previous_all_change_indicators):     
-            return False
-        
-        self._previous_all_change_indicators = current_change_indicators        
-        return True
-        
-    def _update_UI_do_updates(self):
-        """
-        Subclasses must override this method to do the actual updates. 
-        """
-        pass    
     
     def show(self):
         """

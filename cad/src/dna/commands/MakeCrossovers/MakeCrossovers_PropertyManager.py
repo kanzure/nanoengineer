@@ -13,8 +13,7 @@ See MakeCrossovers_Command for details.
 """
 import foundation.env as env
 
-from widgets.DebugMenuMixin import DebugMenuMixin
-from PM.PM_Dialog import PM_Dialog
+
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_PushButton import PM_PushButton
@@ -35,12 +34,11 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_MakeCrossoversPropertyManager
 from utilities.Log import orangemsg
 
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from command_support.Command_PropertyManager import Command_PropertyManager
 
-_superclass = PM_Dialog
-class MakeCrossovers_PropertyManager( PM_Dialog, 
-                                      ListWidgetItems_PM_Mixin,
-                                      DebugMenuMixin ):
+_superclass = Command_PropertyManager
+class MakeCrossovers_PropertyManager( Command_PropertyManager, 
+                                      ListWidgetItems_PM_Mixin ):
     """
     The MakeCrossovers_PropertyManager class provides a Property Manager 
     for the B{Make Crossovers} command on the flyout toolbar in the 
@@ -68,25 +66,16 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         Constructor for the property manager.
         """
 
-        self.command = command
-        #We will use self.command hereonwards. self.command is still declared
-        #for safety -- 2008-05-29
-        self.command = self.command
-
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane        
+            
 
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
 
         self._previous_model_changed_params = None
 
-        _superclass.__init__(self, self.pmName, self.iconPath, self.title)
+        _superclass.__init__(self, command)
 
-        DebugMenuMixin._init1( self )
-
+        
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         
@@ -96,10 +85,7 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
 
         self.updateMessage(self.defaultLogMessage)
         
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
-
+      
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -158,19 +144,10 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         Overrides the superclass method
         @see: self._deactivateAddRemoveSegmentsTool
         """
-        _superclass.show(self)
-        
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-             
+        _superclass.show(self)             
         self._deactivateAddRemoveSegmentsTool()
      
-    def close(self):
-        
-        _superclass.close(self)
-                
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
+    
 
     def _makeAllCrossovers(self):
         self.command.makeAllCrossovers()
@@ -214,7 +191,7 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
 
     def _update_UI_do_updates(self):
         """
-        @see: PM_Dialog._update_UI_do_updates()
+        @see: Command_PropertyManager._update_UI_do_updates()
         @see: DnaSegment_EditCommand.command_update_UI()
         @see: DnaSegment_EditCommand.hasResizableStructure()
         @see: self._current_model_changed_params()

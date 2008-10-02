@@ -30,8 +30,6 @@ from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
 from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
-#for debugging 'keep signals conencted all the time'
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
@@ -69,22 +67,11 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         # implementing connectWithState. 
         self.model_changed_from_glpane = True
         
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-        
     def show(self):
-        _superclass.show(self)
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-            
+        _superclass.show(self)                  
         self.updateMessage()
         
-    def close(self):
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        _superclass.close(self)
-    
+        
     def connect_or_disconnect_signals(self, isConnect): 
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -157,7 +144,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                   when nothing has changed.
                   (It will be renamed accordingly in the API.)
                   
-        @see: PM_Dialog._updateUI.do_updates()
+        @see: Command_PropertyManager._updateUI_do_updates()
         """  
         newSelectionParams = self._currentSelectionParams()
         

@@ -11,8 +11,6 @@ from this class to use common methods such as ok_btn_cliked.
 """
 import foundation.env as env
 from command_support.Command_PropertyManager import Command_PropertyManager
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
 _superclass = Command_PropertyManager
 

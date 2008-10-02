@@ -149,7 +149,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Overrides superclass method. 
         
-        @see: PM_Dialog._update_UI_do_updates() for documentation        
+        @see: Command_PropertyManager._update_UI_do_updates() for documentation        
         @see: self._currentStructureParams()
         """  
         currentSelectionParams = self._currentSelectionParams() 

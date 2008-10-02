@@ -22,7 +22,7 @@ Ninad 2008-08-23: Renamed Ui_CookiePropertyManager to
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QSize
 
-from PM.PM_Dialog        import PM_Dialog
+
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_ComboBox      import PM_ComboBox
@@ -38,8 +38,10 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 
 from utilities.icon_utilities import geticon
 
+from command_support.Command_PropertyManager import Command_PropertyManager
 
-class Ui_BuildCrystal_PropertyManager(PM_Dialog):
+_superclass = Command_PropertyManager
+class Ui_BuildCrystal_PropertyManager(Command_PropertyManager):
     """
     The Ui_BuildCrystal_PropertyManager class defines UI elements for the Property 
     Manager of the B{Crystal mode}.
@@ -72,14 +74,9 @@ class Ui_BuildCrystal_PropertyManager(PM_Dialog):
         @param command: The parent mode where this Property Manager is used
         @type  command: L{BuildCrystal_Command}  
         """
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.command.o
+                
         
-        
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+        _superclass.__init__(self, command)
         
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \

@@ -11,17 +11,14 @@ Build > Protein > Simulate mode.
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 """
-import string
 import foundation.env as env
 from utilities.Log import redmsg
-from widgets.DebugMenuMixin import DebugMenuMixin
+from command_support.Command_PropertyManager import Command_PropertyManager
+
 from utilities.prefs_constants import rosetta_backrub_enabled_prefs_key
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
-from PyQt4 import QtGui
-from PyQt4.Qt import QString
 from PM.PM_PushButton   import PM_PushButton
-from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_TextEdit import PM_TextEdit
 from PM.PM_CheckBox import PM_CheckBox
@@ -31,10 +28,9 @@ from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ComboBox import PM_ComboBox
 
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
-class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
+_superclass = Command_PropertyManager
+class BackrubProteinSim_PropertyManager(Command_PropertyManager):
     """
     The BackrubProteinSim_PropertyManager class provides a Property Manager 
     for the B{Fixed backbone Protein Sequence Design} command on the flyout toolbar in the 
@@ -60,27 +56,14 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def __init__( self, command ):
         """
         Constructor for the property manager.
-        """
-
-        self.command = command
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane                 
-        
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-
-        DebugMenuMixin._init1( self )
-
+        """                  
+        _superclass.__init__(self, command)
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
-
         msg = "Choose various parameters from below to design an optimized" \
             " protein sequence with Rosetta with backrub motion allowed."
         self.updateMessage(msg)
         
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
     def connect_or_disconnect_signals(self, isConnect = True):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -116,7 +99,7 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
     
     def show(self):
         """
-        Shows the Property Manager. Overrides PM_Dialog.show.
+        Shows the Property Manager. Exends superclass method. 
         """
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.sequenceEditor.hide()
@@ -130,23 +113,9 @@ class BackrubProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.minresSpinBox.setMaximum(numResidues)
             self.maxresSpinBox.setMaximum(numResidues)
         
-        PM_Dialog.show(self)
-        
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
+        _superclass.show(self)       
+       
         return
-    
-        
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        PM_Dialog.close(self)
-        return
-    
 
     def _addGroupBoxes( self ):
         """

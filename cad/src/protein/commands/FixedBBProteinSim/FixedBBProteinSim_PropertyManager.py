@@ -14,14 +14,11 @@ Build > Protein mode.
 import string
 import foundation.env as env
 
-from widgets.DebugMenuMixin import DebugMenuMixin
-
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 from PyQt4 import QtGui
 from PyQt4.Qt import QString
 from PM.PM_PushButton   import PM_PushButton
-from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_TextEdit import PM_TextEdit
 from PM.PM_CheckBox import PM_CheckBox
@@ -29,10 +26,11 @@ from PM.PM_Constants import PM_DONE_BUTTON
 from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from PM.PM_SpinBox import PM_SpinBox
 
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from command_support.Command_PropertyManager import Command_PropertyManager
 
-class FixedBBProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
+_superclass = Command_PropertyManager
+
+class FixedBBProteinSim_PropertyManager(Command_PropertyManager):
     """
     The FixedBBProteinSim_PropertyManager class provides a Property Manager 
     for the B{Fixed backbone Protein Sequence Design} command on the flyout toolbar in the 
@@ -60,25 +58,14 @@ class FixedBBProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Constructor for the property manager.
         """
 
-        self.command = command
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane                 
-        
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-
-        DebugMenuMixin._init1( self )
+        _superclass.__init__(self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
         msg = "Choose various parameters from below to design an optimized" \
             "protein sequence with Rosetta."
-        self.updateMessage(msg)
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-            
+        self.updateMessage(msg)            
         return
     
 
@@ -117,27 +104,18 @@ class FixedBBProteinSim_PropertyManager( PM_Dialog, DebugMenuMixin ):
     
     def show(self):
         """
-        Shows the Property Manager. Overrides PM_Dialog.show.
+        Shows the Property Manager. 
         """
+        #@REVIEW: Why does it create sequence editor here? Also, is it
+        #required to be done before the superclass.show call? Similar code 
+        #found in CompareProteins_PM and some other files --Ninad 2008-10-02
+        
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.sequenceEditor.hide()
-        PM_Dialog.show(self)
         
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
+        _superclass.show(self)
         return
         
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        PM_Dialog.close(self)
-        return
-    
-
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.

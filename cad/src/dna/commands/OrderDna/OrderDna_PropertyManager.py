@@ -12,11 +12,9 @@ OrderDna_PropertyManager.py
 """
 import os, time
 
-from widgets.DebugMenuMixin import DebugMenuMixin
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
-from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_LineEdit import PM_LineEdit
@@ -29,8 +27,8 @@ from platform_dependent.PlatformDependent import open_file_in_editor
 
 from dna.model.DnaStrand import DnaStrand
 
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from command_support.Command_PropertyManager import Command_PropertyManager
+
 
 def writeDnaOrderFile(fileName, assy, dnaSequence):
     """
@@ -64,7 +62,9 @@ def writeDnaOrderFile(fileName, assy, dnaSequence):
     f.write("Name,Sequence,Notes\n") # Per IDT's Excel format.
     f.write(dnaSequence)
 
-class OrderDna_PropertyManager( PM_Dialog, DebugMenuMixin ):
+
+_superclass = Command_PropertyManager
+class OrderDna_PropertyManager(Command_PropertyManager):
     """
     The OrderDna_PropertyManager class provides a Property Manager 
     for the B{Order Dna} command on the flyout toolbar in the 
@@ -90,25 +90,16 @@ class OrderDna_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Constructor for the property manager.
         """
-
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw        
-        self.o = self.win.glpane
-        self.assy = self.win.assy
-                    
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
-        DebugMenuMixin._init1( self )
+        _superclass.__init__(self, command)
+        
+        self.assy = self.win.assy
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         
         self.update_includeStrands() # Updates the message box.
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
+   
        
         ##if self.getNumberOfBases():
             ##msg = "Click on <b>View DNA Order File...</b> to preview a "\
@@ -139,22 +130,7 @@ class OrderDna_PropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("activated(int)"),
                       self.update_includeStrands )
         
-    def show(self):
-        """
-        Shows the Property Manager. Overrides PM_Dialog.show.
-        """
-        PM_Dialog.show(self)
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-        PM_Dialog.close(self)
-    
+       
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.

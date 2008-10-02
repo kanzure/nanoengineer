@@ -108,7 +108,7 @@ class MultipleDnaSegmentResize_PropertyManager( DnaOrCnt_PropertyManager ):
         
     def _update_UI_do_updates(self):
         """
-        @see: PM_Dialog._update_UI_do_updates()
+        @see: Command_PropertyManager._update_UI_do_updates()
         @see: DnaSegment_EditCommand.model_changed()
         @see: DnaSegment_EditCommand.hasResizableStructure()
         @see: self._current_model_changed_params()

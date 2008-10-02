@@ -66,7 +66,7 @@ class PartLibPropertyManager(PastePropertyManager):
         
     def _update_UI_do_updates(self):
         """
-        @see: PM_Dialog._update_UI_do_updates()
+        @see: Command_PropertyManager._update_UI_do_updates()
         """
         #This does nothing in this propMGr at present. 
         return

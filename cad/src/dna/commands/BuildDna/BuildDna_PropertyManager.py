@@ -162,7 +162,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def _update_UI_do_updates(self):
         """
         Overrides superclass method. 
-        @see: PM_Dialog._update_UI_do_updates()
+        @see: Command_PropertyManager._update_UI_do_updates()
         """                     
         
         newSelectionParams = self._currentSelectionParams()   
@@ -254,7 +254,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         is called. 
         
         @NOTE: 
-        - PM_Dialog.update_UI() already does a check to see if 
+        - Command_PropertyManager.update_UI() already does a check to see if 
           any of the global change indicators in assembly (command_stack_change, 
           model_change, selection_change) changed since last call and then only
           calls self._update_UI_do_updates(). 

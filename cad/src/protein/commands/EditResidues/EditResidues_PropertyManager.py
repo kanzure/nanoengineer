@@ -16,7 +16,6 @@ Build > Protein mode.
 import os, sys, time, fnmatch, string, re
 import foundation.env as env
 
-from widgets.DebugMenuMixin import DebugMenuMixin
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 from utilities.prefs_constants import getDefaultWorkingDirectory
@@ -41,7 +40,7 @@ from PyQt4 import QtGui
 
 from PyQt4.Qt import QFileDialog, QString, QMessageBox, QSlider
 from PM.PM_PushButton   import PM_PushButton
-from PM.PM_Dialog   import PM_Dialog
+from command_support.Command_PropertyManager import Command_PropertyManager
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_LineEdit import PM_LineEdit
@@ -56,10 +55,8 @@ from PM.PM_ColorComboBox import PM_ColorComboBox
 from PM.PM_TableWidget import PM_TableWidget
 from PM.PM_WidgetGrid import PM_WidgetGrid
 
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
-
-class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
+_superclass = Command_PropertyManager
+class EditResidues_PropertyManager(Command_PropertyManager):
     """
     The ProteinDisplayStyle_PropertyManager class provides a Property Manager 
     for the B{Display Style} command on the flyout toolbar in the 
@@ -90,18 +87,11 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Constructor for the property manager.
         """
-
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        
-        self.pw = self.command.pw        
-        self.o = self.win.glpane                 
+               
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
         
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-
-        DebugMenuMixin._init1( self )
+        _superclass.__init__(self, command)
+        
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
@@ -111,9 +101,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.editingItem = False
         
         self.updateMessage(msg)
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
+      
 
     def connect_or_disconnect_signals(self, isConnect = True):
         
@@ -194,7 +182,7 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
     
     def show(self):
         """
-        Shows the Property Manager. Overrides PM_Dialog.show.
+        Shows the Property Manager. Extends superclass method.
         """
         env.history.statusbar_msg("")
         #Urmi 20080728: Set the current protein and this will be used for accessing
@@ -205,10 +193,8 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
         else:
             self.showSequencePushButton.setEnabled(False)
         self.sequenceEditor.hide()    
-        PM_Dialog.show(self)
         
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
+        _superclass.show(self)
             
         self._fillSequenceTable()
         
@@ -250,15 +236,6 @@ class EditResidues_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     break
         return
         
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        PM_Dialog.close(self)
-
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.

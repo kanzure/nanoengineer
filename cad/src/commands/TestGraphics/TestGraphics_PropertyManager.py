@@ -8,12 +8,7 @@ TestGraphics_PropertyManager.py
 
 """
 import foundation.env as env
-
-from widgets.DebugMenuMixin import DebugMenuMixin
-
 from PyQt4.Qt import SIGNAL
-from PM.PM_Dialog   import PM_Dialog
-from PM.PM_Slider   import PM_Slider
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_CheckBox import PM_CheckBox
@@ -24,13 +19,12 @@ from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from utilities.prefs_constants import levelOfDetail_prefs_key
 
 
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
-
 _NSPHERES_CHOICES = map(str, [1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
 
+from command_support.Command_PropertyManager import Command_PropertyManager
 # ==
-
-class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
+_superclass = Command_PropertyManager
+class TestGraphics_PropertyManager(Command_PropertyManager):
     """
     The TestGraphics_PropertyManager class provides a Property Manager 
     for the Test Graphics command. 
@@ -56,17 +50,7 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Constructor for the property manager.
         """
-        self.command = command
-
-        # review: some of the following are probably not needed:
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw
-        self.o = self.win.glpane
-
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title) # todo: clean up so superclass knows attrnames?
-
-        DebugMenuMixin._init1( self )
+        _superclass.__init__(self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON |
                                 PM_WHATS_THIS_BUTTON)
@@ -75,28 +59,7 @@ class TestGraphics_PropertyManager( PM_Dialog, DebugMenuMixin ):
               "(To avoid bugs, choose testCase before bypassing paintGL.)"
 
         self.updateMessage(msg)
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-            
 
-    def show(self):
-        """
-        Shows the Property Manager. Overrides PM_Dialog.show.
-        """
-        PM_Dialog.show(self)
-        
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        PM_Dialog.close(self)
 
     def _addGroupBoxes( self ):
         """

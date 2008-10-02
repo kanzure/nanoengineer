@@ -18,7 +18,7 @@ the Preferences dialog.
 import os, time, fnmatch, string
 import foundation.env as env
 
-from widgets.DebugMenuMixin import DebugMenuMixin
+from command_support.Command_PropertyManager import Command_PropertyManager
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 from utilities.prefs_constants import getDefaultWorkingDirectory
@@ -29,7 +29,6 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 from PyQt4 import QtGui
 from PyQt4.Qt import QFileDialog, QString, QMessageBox
-from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_StackedWidget import PM_StackedWidget
@@ -66,8 +65,6 @@ from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
 from utilities.prefs_constants import dnaStrandLabelsEnabled_prefs_key
 from utilities.prefs_constants import dnaStrandLabelsColorMode_prefs_key
 
-#debug flag to keep signals always connected
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
 
 dnaDisplayStylePrefsList = \
                          [dnaRendition_prefs_key,
@@ -302,8 +299,8 @@ def saveFavoriteFile( savePath, fromPath ):
     return
 
 # =
-
-class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
+_superclass = Command_PropertyManager
+class DnaDisplayStyle_PropertyManager( Command_PropertyManager):
     """
     The DnaDisplayStyle_PropertyManager class provides a Property Manager
     for the B{Display Style} command on the flyout toolbar in the
@@ -331,28 +328,15 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Constructor for the property manager.
         """
 
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.pw = self.command.pw
-        self.o = self.win.glpane
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
 
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+        _superclass.__init__(self, command)
 
-        DebugMenuMixin._init1( self )
-
+        
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
-        
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-            
-
         msg = "Modify the DNA display settings below."
         self.updateMessage(msg)
-        
-        
 
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -466,9 +450,12 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     
     def show(self):
         """
-        Shows the Property Manager. Overrides PM_Dialog.show.
+        Shows the Property Manager. Extends superclass method
         """
-        PM_Dialog.show(self)
+        _superclass.show(self)
+        
+        #@REVIEW: Is it safe to do the follwoing before calling superclass.show()?
+        #-- Ninad 2008-10-02
 
         # Force the Global Display Style to "DNA Cylinder" so the user
         # can see the display style setting effects on any DNA in the current
@@ -486,17 +473,12 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         #causing unneccessary repaints of the model view.
         self.updateDnaDisplayStyleWidgets(blockSignals = True)
         
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
+        
     def close(self):
         """
-        Closes the Property Manager. Overrides PM_Dialog.close.
+        Closes the Property Manager. Extends superclass method.
         """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        PM_Dialog.close(self)
+        _superclass.close(self)
 
         # Restore the original global display style.
         self.o.setGlobalDisplayStyle(self.originalDisplayStyle)

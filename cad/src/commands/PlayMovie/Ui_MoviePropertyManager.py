@@ -35,8 +35,10 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 
 from widgets.NE1ToolBar import NE1ToolBar
 from utilities.icon_utilities import geticon
+from command_support.Command_PropertyManager import Command_PropertyManager
 
-class Ui_MoviePropertyManager(PM_Dialog):
+_superclass = Command_PropertyManager
+class Ui_MoviePropertyManager(Command_PropertyManager):
     """
     The Ui_MoviePropertyManager class defines UI elements for the Property 
     Manager of the B{Movie mode}.
@@ -69,13 +71,7 @@ class Ui_MoviePropertyManager(PM_Dialog):
         @param command: The parent mode where this Property Manager is used
         @type  command: L{movieMode}        
         """
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-        self.o = self.win.glpane
-        self.pw = self.command.pw
-        
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+        _superclass.__init__(self, command)
         
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \

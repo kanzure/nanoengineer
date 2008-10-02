@@ -1013,7 +1013,7 @@ class PlanePropertyManager(EditCommand_PM):
     def _update_UI_do_updates(self):
         """
         Overrides superclass method. 
-        @see: PM_Dialog._update_UI_do_updates() for documentation. 
+        @see: Command_PropertyManager._update_UI_do_updates() for documentation. 
         
         @see: Plane.resizeGeometry()
         @see: self.update_spinboxes()

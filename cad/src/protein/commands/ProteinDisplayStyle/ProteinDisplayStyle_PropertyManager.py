@@ -13,10 +13,9 @@ History: Urmi copied this from DnaDisplayStyle_PropertyManager.py and modified
          it to suit the needs of protein display.
 
 """
-import os, time, fnmatch, string
+import os, time, fnmatch
 import foundation.env as env
-from widgets.DebugMenuMixin import DebugMenuMixin
-from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+
 from utilities.prefs_constants import getDefaultWorkingDirectory
 from utilities.prefs_constants import workingDirectory_prefs_key
 from utilities.Log import greenmsg
@@ -24,16 +23,12 @@ from utilities.constants import yellow, orange, red, magenta
 from utilities.constants import cyan, blue, white, black, gray
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
-from PyQt4 import QtGui
-from PyQt4.Qt import QFileDialog, QString, QMessageBox, QSlider
-from PM.PM_Dialog   import PM_Dialog
+from PyQt4.Qt import QFileDialog, QString, QMessageBox
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
-from PM.PM_StackedWidget import PM_StackedWidget
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
-from PM.PM_Slider import PM_Slider
 from PM.PM_Constants import PM_DONE_BUTTON
 from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 from PM.PM_ColorComboBox import PM_ColorComboBox
@@ -50,9 +45,9 @@ from utilities.prefs_constants import proteinStyleColorsDiscrete_prefs_key
 from utilities.prefs_constants import proteinStyleHelixColor_prefs_key 
 from utilities.prefs_constants import proteinStyleStrandColor_prefs_key
 from utilities.prefs_constants import proteinStyleCoilColor_prefs_key
+from utilities.Log import redmsg
 
-
-from utilities.GlobalPreferences import KEEP_SIGNALS_ALWAYS_CONNECTED
+from command_support.Command_PropertyManager import Command_PropertyManager
 
 proteinDisplayStylePrefsList = \
                          [proteinStyle_prefs_key,
@@ -247,8 +242,8 @@ def saveFavoriteFile( savePath, fromPath ):
     return
 
 # =
-
-class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
+_superclass = Command_PropertyManager
+class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
     """
     The ProteinDisplayStyle_PropertyManager class provides a Property Manager 
     for the B{Display Style} command on the flyout toolbar in the 
@@ -275,24 +270,16 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Constructor for the property manager.
         """
 
-        self.command = command
-        self.w = self.command.w
-        self.win = self.command.w
-
-        self.pw = self.command.pw        
-        self.o = self.win.glpane                 
+                     
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
         
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-
-        DebugMenuMixin._init1( self )
+        _superclass.__init__(self, command)        
+        
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         
-        if KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
-
+     
         msg = "Modify the protein display settings below."
         self.updateMessage(msg)
 
@@ -519,24 +506,17 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     
     def show(self):
         """
-        Shows the Property Manager. Overrides PM_Dialog.show.
+        Shows the Property Manager.Extends superclass method. 
         """
+        #@REVIEW: See comment in CompareProteins_PropertyManager
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
-        self.sequenceEditor.hide()
-        PM_Dialog.show(self)
+        self.sequenceEditor.hide()        
+        
         self.updateProteinDisplayStyleWidgets()
         
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(True)
+        _superclass.show(self)
 
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        if not KEEP_SIGNALS_ALWAYS_CONNECTED:
-            self.connect_or_disconnect_signals(False)
-            
-        PM_Dialog.close(self)
+   
 
     def _addGroupBoxes( self ):
         """

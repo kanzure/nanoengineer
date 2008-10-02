@@ -282,7 +282,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         
     def _update_UI_do_updates(self):
         """
-        @see: PM_Dialog. _update_UI_do_updates()
+        @see: Command_PropertyManager. _update_UI_do_updates()
         @see: DnaStrand_EditCommand.command_update_UI()
         @see: DnaStrand_EditCommand.hasResizableStructure()
         """
