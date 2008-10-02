@@ -30,8 +30,6 @@ from PyQt4.Qt import QString
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
-
-from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 
 from PM.PM_Constants     import PM_DONE_BUTTON
@@ -41,7 +39,7 @@ from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 from cnt.model.NanotubeSegment import NanotubeSegment
 
-class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+class BuildNanotube_PropertyManager(EditCommand_PM):
     """
     The BuildNanotube_PropertyManager class provides a Property Manager 
     for the B{Build > CNT } command.
@@ -80,9 +78,6 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.sequenceEditor = None              
         
         EditCommand_PM.__init__( self, command)
-
-
-        DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)

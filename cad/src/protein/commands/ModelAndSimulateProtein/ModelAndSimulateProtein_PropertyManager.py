@@ -13,7 +13,6 @@ from PM.PM_ComboBox      import PM_ComboBox
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_PushButton import PM_PushButton
-from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
@@ -21,7 +20,7 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
 
 _superclass = EditCommand_PM
-class ModelAndSimulateProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+class ModelAndSimulateProtein_PropertyManager(EditCommand_PM):
     """
     The ModelAndSimulate_PropertyManager class provides a Property Manager 
     for the B{Build > Protein } command.
@@ -56,9 +55,6 @@ class ModelAndSimulateProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.isAlreadyDisconnected = False           
         
         EditCommand_PM.__init__( self, command)
-
-
-        DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \

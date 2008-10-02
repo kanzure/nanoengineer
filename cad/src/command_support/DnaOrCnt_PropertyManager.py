@@ -33,13 +33,12 @@ from PM.PM_RadioButtonList     import PM_RadioButtonList
 from utilities.constants       import lightgreen_2
 
 from command_support.EditCommand_PM import EditCommand_PM
-from widgets.DebugMenuMixin         import DebugMenuMixin
 
 from PM.PM_ColorChooser import PM_ColorChooser
 from PM.PM_ColorComboBox import PM_ColorComboBox
 
 _superclass = EditCommand_PM
-class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
+class DnaOrCnt_PropertyManager(EditCommand_PM):
     """
     DnaOrCnt_PropertyManager class provides common functionality 
     (e.g. groupboxes etc) to the subclasses that define various Dna and Cnt
@@ -72,8 +71,6 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
 
         _superclass.__init__( self, command)
 
-        DebugMenuMixin._init1( self )
-        
         
     def show(self):
         """

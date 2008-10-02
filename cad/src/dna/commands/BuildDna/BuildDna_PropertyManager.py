@@ -28,8 +28,6 @@ from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
-
-from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 
 from PM.PM_Constants     import PM_DONE_BUTTON
@@ -40,7 +38,7 @@ from utilities.Comparison import same_vals
 from PM.PM_DnaBaseNumberLabelsGroupBox import PM_DnaBaseNumberLabelsGroupBox
 
 DEBUG_CHANGE_COUNTERS =  False
-class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+class BuildDna_PropertyManager(EditCommand_PM):
     """
     The BuildDna_PropertyManager class provides a Property Manager 
     for the B{Build > DNA } command.
@@ -80,9 +78,6 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.isAlreadyDisconnected = False           
         
         EditCommand_PM.__init__( self, command)
-
-
-        DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
