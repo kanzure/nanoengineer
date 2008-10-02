@@ -254,6 +254,14 @@ class GLPane_image_methods(object):
     def _capture_saved_bg_image(self):
         """
         """
+        # TODO: investigate better ways to do this, which don't involve the CPU.
+        # For example, frame buffer objects, or "render to texture":
+        # - by glCopyTexImage2D,
+        #   http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=36
+        #   (which can do color -- I don't know about depth),
+        # - or by more platform-specific ways, e.g. pbuffer.
+        # [bruce 081002]
+        
         print "_capture_saved_bg_image", self._print_data()
         sys.stdout.flush()
         
