@@ -1341,9 +1341,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # for each atom display style. One list is for normal use,
     # one for hidden chunks.
     #
-    # Note: these lists should *not* include icons for ChunkDisplayModes
-    # such as DnaCylinderChunks. See 'def node_icon' below for the code
-    # that handles those. [bruce comment 080213]
+    # Note: these lists should *not* include icons for ChunkDisplayMode
+    # subclasses such as DnaCylinderChunks. See 'def node_icon' below
+    # for the code that handles those. [bruce comment 080213]
 
     mticon_names = [
         "Default.png",
@@ -2112,33 +2112,42 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 hd = None
                 if 1:
                     #bruce 060608 look for a display mode handler for this chunk
-                    # (whether it's a whole-chunk mode, or one we'll pass to the atoms as we draw them (nim)).
+                    # (whether it's a whole-chunk mode, or one we'll pass to the
+                    #  atoms as we draw them (nim)).
                     hd = get_display_mode_handler(disp)
-                    # see if it's a chunk-only handler. If so, we don't draw atoms or chunk selection wireframe ourselves
-                    # (we delegate those tasks to it).
+                    # see if it's a chunk-only handler. If so, we don't draw
+                    # atoms or chunk selection wireframe ourselves -- instead,
+                    # we delegate those tasks to it
                     if hd:
                         chunk_only = hd.chunk_only
     ##                    delegate_selection_wireframe = chunk_only
                         delegate_draw_atoms = chunk_only
-                        delegate_draw_chunk = chunk_only #e maybe later, we'll let hd tell us each of these, based on the chunk state.
+                        delegate_draw_chunk = chunk_only
+                            #e maybe later, we'll let hd tell us each of these,
+                            # based on the chunk state.
                     pass
 
-                #bruce 060608 moved drawing of selection wireframe from here to after the new increment of _havelist_inval_counter
-                # (and split it into a new submethod), even though it's done outside of the display list.
-                # This was necessary for _drawchunk_selection_frame's use of memoized data to work.            
+                #bruce 060608 moved drawing of selection wireframe from here to
+                # after the new increment of _havelist_inval_counter
+                # (and split it into a new submethod), even though it's done
+                # outside of the display list. This was necessary for
+                # _f_drawchunk_selection_frame's use of memoized data to work.            
                 ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
 
-                # cache chunk display (other than selection wireframe or hover highlighting) as OpenGL display list
+                # cache chunk display (other than selection wireframe or hover
+                # highlighting) as OpenGL display list
 
                 # [bruce 050415 changed value of self.havelist when it's not 0,
                 #  from 1 to (disp,),
-                #  to fix bug 452 item 15 (no havelist inval for non-current parts
-                #  when global default display mode is changed); this will incidentally
-                #  optimize some related behaviors by avoiding some needless havelist invals,
-                #  now that we've also removed the now-unneeded changeapp of all mols upon
-                #  global dispdef change (in GLPane.setGlobalDisplayStyle).]
-                # [bruce 050419 also including something for element radius and color prefs,
-                #  to fix bugs in updating display when those change (eg bug 452 items 12-A, 12-B).]
+                #  to fix bug 452 item 15 (no havelist inval for non-current
+                #  parts when global default display mode is changed); this
+                #  will incidentally optimize some related behaviors by avoiding
+                #  some needless havelist invals, now that we've also removed
+                #  the now-unneeded changeapp of all chunks upon global dispdef
+                #  change (in GLPane.setGlobalDisplayStyle).]
+                # [bruce 050419 also including something for element radius and
+                #  color prefs, to fix bugs in updating display when those
+                #  change (eg bug 452 items 12-A, 12-B).]
 
                 eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
                 matprefs = drawing_globals.glprefs.materialprefs_summary() #bruce 051126
@@ -2229,7 +2238,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
                 # piotr 080320
                 if hd:
-                    hd._drawchunk_realtime(glpane, self)
+                    hd._f_drawchunk_realtime(glpane, self)
 
                 if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
                     self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
@@ -2453,7 +2462,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 ##                    print_compact_traceback("exception in drawlinelist: ")
 ##                    print "(self.polyhedron is %r)" % self.polyhedron
 ##            else:
-##                hd._drawchunk_selection_frame(glpane, self, PickedColor, highlighted = False)
+##                hd._f_drawchunk_selection_frame(glpane, self, PickedColor, highlighted = False)
 ##            pass
 ##        return
 
@@ -2542,7 +2551,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         # draw something for the chunk as a whole
         if delegate_draw_chunk:
-            hd._drawchunk(self.glpane, self)
+            hd._f_drawchunk(self.glpane, self)
         else:
             self.standard_draw_chunk(glpane, disp0)
 
@@ -2660,7 +2669,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # Highlight "realtime" objects (e.g. 2D DNA cylinder style).
             hd = get_display_mode_handler(disp)
             if hd:
-                hd._drawchunk_realtime(glpane, self, highlighted = True)
+                hd._f_drawchunk_realtime(glpane, self, highlighted = True)
                 pass
 
             # russ 080530: Support for patterned highlighting drawing modes.
