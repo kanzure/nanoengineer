@@ -78,7 +78,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         
-        self._loadSequenceEditor()
+        
         
         msg = "Use resize handles to resize the strand. Use sequence editor"\
                    "to assign a new sequence or the current one to a file."
@@ -96,6 +96,11 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         self._displayOptionsGroupBox = PM_GroupBox( self, 
                                                     title = "Display Options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
+        
+        #Sequence Editor. This is NOT a groupbox, needs cleanup. Doing it here 
+        #so that the sequence editor gets connected! Perhaps 
+        #superclass should define _loadAdditionalWidgets. -- Ninad2008-10-03
+        self._loadSequenceEditor()
     
     def _loadGroupBox1(self, pmGroupBox):
         """
