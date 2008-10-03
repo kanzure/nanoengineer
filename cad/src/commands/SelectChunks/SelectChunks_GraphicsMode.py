@@ -767,7 +767,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # [update, bruce 071121: it looks like it's turned back on
         #  in bareMotion instead.]
         
-        self._supress_highlighting = True
+        self._suppress_highlighting = True
 
         # This flag is required in various leftUp methods. It helps them
         # decide what to do upon left up. The flag value is set in
@@ -875,7 +875,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #sure that the object is not highlighted. The value of elapsed time
         #is selected as 2.0 seconds arbitrarily. Based on some tests, this value
         #seems OK. Following fixes bug 2536. Note, another fix would be to
-        #set self._supress_highlighting to True. But this fix looks more
+        #set self._suppress_highlighting to True. But this fix looks more
         #appropriate at the moment -- Ninad 2007-09-19
         #
         # Note: I think 2.0 is too long -- this should probably be more like 0.5.
@@ -915,10 +915,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                           (self, time_since_wheel_event)
                 return True
 
-        #Turn the highlighting back on if it was supressed during, 
+        #Turn the highlighting back on if it was suppressed during, 
         #for example, leftDrag
-        if self._supress_highlighting:
-            self._supress_highlighting = False
+        if self._suppress_highlighting:
+            self._suppress_highlighting = False
 
         _superclass.bareMotion(self, event)
             ### REVIEW: why do we now return False, rather than whatever this returns?

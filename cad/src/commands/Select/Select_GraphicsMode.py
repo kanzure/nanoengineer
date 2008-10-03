@@ -201,7 +201,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         
     #Boolean flag that is used in combination with 
     #self.command.isHighlightingEnabled(). 
-    _supress_highlighting = False
+    _suppress_highlighting = False
 
 
     def __init__(self, glpane):
@@ -735,7 +735,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # It may be that it's not called when highlighting is on, and it has no
         # excuse to be, but I suspect it is anyway.
         # [bruce 060726 comment]
-        if self.command.isHighlightingEnabled() and not self._supress_highlighting:
+        if self.command.isHighlightingEnabled() and not self._suppress_highlighting:
             self.update_selatom(event) #bruce 041130 in case no update_selatom
                                        #happened yet
             # update_selatom() updates self.o.selatom and self.o.selobj.

@@ -342,7 +342,7 @@ class MultipleDnaSegmentResize_PropertyManager( DnaOrCnt_PropertyManager ):
         
     def listWidgetHasFocus(self):
         """
-        Checkes if the list widget that lists dnasegments to be resized has the 
+        Checks if the list widget that lists dnasegments to be resized has the 
         Qt focus. This is used to just remove items from the list widget 
         (without actually 'deleting' the corresponding Dnasegment in the GLPane)
         @see: MultipleDnaSegment_GraphicsMode.keyPressEvent() where it is called

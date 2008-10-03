@@ -304,7 +304,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM):
         
     def listWidgetHasFocus(self):
         """
-        Checkes if the list widget that lists the referecne plane, on which 
+        Checks if the list widget that lists the referecne plane, on which 
         the dna will be created, has the Qt focus. This is used to just remove 
         items from the list widget (without actually 'deleting' the 
         corresponding Plane in the GLPane)

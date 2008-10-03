@@ -52,7 +52,7 @@ class BondTool_Command(BuildAtoms_Command):
     
     currentActiveTool = 'BONDS_TOOL'
     
-    _supress_apply_bondTool_on_selected_atoms = False
+    _suppress_apply_bondTool_on_selected_atoms = False
     
     
     #class constants for the NEW COMMAND API -- 2008-07-30
@@ -99,7 +99,7 @@ class BondTool_Command(BuildAtoms_Command):
         #be reviewed for further optimization (not urgent) -- Ninad
         #This flag is set while activating the bond tool. 
         #see self.activateBondsTool()
-        if self._supress_apply_bondTool_on_selected_atoms:
+        if self._suppress_apply_bondTool_on_selected_atoms:
             return
         
         bondTypeString = self.getBondTypeString()
@@ -131,7 +131,7 @@ class BondTool_Command(BuildAtoms_Command):
                     bond_type_changed = self.graphicsMode.bond_change_type(
                         b, 
                         allow_remake_bondpoints = True,
-                        supress_history_message = True
+                        suppress_history_message = True
                     )
                     if bond_type_changed:
                         converted_bonds += 1
@@ -279,7 +279,7 @@ class DeleteBondTool(BondTool_Command):
         #be reviewed for further optimization (not urgent) -- Ninad
         #This flag is set while activating the bond tool. 
         #see self.activateBondsTool()
-        if self._supress_apply_bondTool_on_selected_atoms:
+        if self._suppress_apply_bondTool_on_selected_atoms:
             return
                       
         deleted_bonds = 0

@@ -89,7 +89,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         #Flag used in self.sequenceChanged so that it doesn't get called 
         #recusrively in the text changed signal while changing the sequence
         #in self.textEdit while in that method. 
-        self._supress_textChanged_signal = False
+        self._suppress_textChanged_signal = False
         #Initial complement sequence set while reading in the strand sequence
         #of the strand being edited. 
         #@see: self.setComplementSequence(), self._determine_complementSequence()
@@ -104,7 +104,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                           method. 
         @type  isConnect: boolean
         """
-                
+                        
         #@see: BuildDna_PropertyManager.connect_or_disconnect_signals
         #for a comment about these flags.
         if isConnect and self.isAlreadyConnected:
@@ -216,10 +216,10 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         textedit.  Other methods...
         """ 
         
-        if self._supress_textChanged_signal:
+        if self._suppress_textChanged_signal:
             return
         
-        self._supress_textChanged_signal = True
+        self._suppress_textChanged_signal = True
         
         cursorPosition  =  self.getCursorPosition()
         theSequence     =  self.getPlainSequence()
@@ -245,7 +245,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
 
         self.synchronizeLengths()
         
-        self._supress_textChanged_signal = False
+        self._suppress_textChanged_signal = False
         
     
     def getPlainSequence( self, inOmitSymbols = False ):

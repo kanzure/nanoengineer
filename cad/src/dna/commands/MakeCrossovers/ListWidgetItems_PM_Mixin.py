@@ -69,7 +69,7 @@ class ListWidgetItems_PM_Mixin:
     
     def listWidgetHasFocus(self):
         """
-        Checkes if the list widget that lists dnasegments (that will undergo 
+        Checks if the list widget that lists dnasegments (that will undergo 
         special operations such as 'resizing them at once or making 
         crossovers between the segments etc) has the 
         Qt focus. This is used to just remove items from the list widget 

@@ -141,11 +141,11 @@ class PM_SelectionListWidget(PM_ListWidget):
         self._tagInstruction = 'TAG_ITEM_IN_GLPANE'
         self._itemDictionary = {}
 
-        #The following flag supresses the itemSelectionChanged signal
+        #The following flag suppresses the itemSelectionChanged signal
         #see self.updateSelection for more comments. 
-        self._supress_itemSelectionChanged_signal = False
+        self._suppress_itemSelectionChanged_signal = False
 
-        #The following flag supresses the itemChanged signal
+        #The following flag suppresses the itemChanged signal
         #ItemChanged signal is emitted too frequently. We use this to know that
         #the data of an item has changed...example : to know that the renaming
         #operation of the widget is completed. When a widgetItem is renamed, 
@@ -158,7 +158,7 @@ class PM_SelectionListWidget(PM_ListWidget):
         #is sent, the flag is explicitely set to False -- Ninad 2008-04-16
         #@see: self.renameItemValue(), 
         #@self.editItem() (This is a QListWidget method)
-        self._supress_itemChanged_signal = False
+        self._suppress_itemChanged_signal = False
 
         PM_ListWidget.__init__(self, 
                                parentWidget, 
@@ -220,11 +220,7 @@ class PM_SelectionListWidget(PM_ListWidget):
         change_connect(self, 
                        SIGNAL('itemChanged ( QListWidgetItem *)'),
                        self.renameItemValue)
-
-        #Not USED -- editing widgets items is not supported
-        #change_connect(self, 
-                        #SIGNAL('itemDoubleClicked(QListWidgetItem *)'), 
-                        #self.editItem)   
+  
 
 
     def editItem(self, item):
@@ -235,7 +231,7 @@ class PM_SelectionListWidget(PM_ListWidget):
         @self.editItem() (This is a QListWidget method
         """
         #explicitely set the flag to False for safety. 
-        self._supress_itemChanged_signal = False
+        self._suppress_itemChanged_signal = False
         PM_ListWidget.editItem(self, item)
 
 
@@ -256,7 +252,7 @@ class PM_SelectionListWidget(PM_ListWidget):
 
         #See a detailed note in self.__init__  where the following flag is 
         #declared. The flag is set to True when 
-        if self._supress_itemChanged_signal:
+        if self._suppress_itemChanged_signal:
             return
 
 
@@ -300,7 +296,7 @@ class PM_SelectionListWidget(PM_ListWidget):
                              it is used.
 
         @see: self.renameItemValue() for a comment about 
-              self._supress_itemChanged_signal
+              self._suppress_itemChanged_signal
 
         """       
 
@@ -309,7 +305,7 @@ class PM_SelectionListWidget(PM_ListWidget):
         del setAsDefault
 
         #self.__init__ for a comment about this flag
-        self._supress_itemChanged_signal = True
+        self._suppress_itemChanged_signal = True
 
         #Clear the previous contents of the self._itemDictionary 
         self._itemDictionary.clear()
@@ -337,8 +333,8 @@ class PM_SelectionListWidget(PM_ListWidget):
 
             self._itemDictionary[listWidgetItem] = item  
 
-        #Reset the flag that temporarily supresses itemChange signal.   
-        self._supress_itemChanged_signal = False
+        #Reset the flag that temporarily suppresses itemChange signal.   
+        self._suppress_itemChanged_signal = False
 
     def setColor(self, color):    
         """
@@ -391,7 +387,7 @@ class PM_SelectionListWidget(PM_ListWidget):
         corresponding item in the GLPane based on the self._tagInstruction
         @see: self.setTagInstruction 
         """   
-        if self._supress_itemSelectionChanged_signal:
+        if self._suppress_itemSelectionChanged_signal:
             return
 
         graphicsMode = self.glpane.graphicsMode
@@ -421,9 +417,7 @@ class PM_SelectionListWidget(PM_ListWidget):
 
             #Now pick the items selected in this list widget 
             self._pick_selected_listWidgetItems_in_glpane()
-
-        #Note: 2008-03-18 Following tag instruction is deprecated sometime ago 
-        #LKeeping this code intact for now. 
+ 
         if self._tagInstruction != 'PICK_ITEM_IN_GLPANE':
             tagPositions = []
             #Note: method selectedItems() is inherited from QListWidget 
@@ -482,15 +476,14 @@ class PM_SelectionListWidget(PM_ListWidget):
         @type  selectedItemList: list
         @see: B{BuildDna_PropertyManager.model_changed}
         """
-        #The following flag supresses the itemSelectionChanged signal , thereby 
+        #The following flag suppresses the itemSelectionChanged signal , thereby 
         #prevents self.tagItems from calling. This is done because the 
         #items selection was changed from the 3D workspace. After this, the 
         #selection state of the corresponding items in the list widget must be
         #updated. 
-        self._supress_itemSelectionChanged_signal = True
-
-        for key, value in self._itemDictionary.iteritems():
-
+        self._suppress_itemSelectionChanged_signal = True
+        
+        for key, value in self._itemDictionary.iteritems(): 
             if value in selectedItemList:
                 if not key.isSelected():
                     key.setSelected(True)     
@@ -498,7 +491,7 @@ class PM_SelectionListWidget(PM_ListWidget):
                 if key.isSelected():
                     key.setSelected(False) 
 
-        self._supress_itemSelectionChanged_signal = False
+        self._suppress_itemSelectionChanged_signal = False
 
 
     def clear(self):

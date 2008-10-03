@@ -41,7 +41,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         Ui_ProteinSequenceEditor.__init__(self, win)   
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
-        self._supress_textChanged_signal = False
+        self._suppress_textChanged_signal = False
         self.connect_or_disconnect_signals(True)
         self.win = win
         self.maxSeqLength = 0
@@ -125,9 +125,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         Assumes the sequence changed directly by user's keystroke in the 
         textedit.  Other methods...
         """ 
-        if self._supress_textChanged_signal:
+        if self._suppress_textChanged_signal:
             return
-        self._supress_textChanged_signal = True
+        self._suppress_textChanged_signal = True
         cursorPosition  =  self.getCursorPosition()
         theSequence     =  self.getPlainSequence()
         # How has the text changed?
@@ -139,13 +139,13 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             msg = "Cannot change the length of the sequence."\
                 "You need to have exactly" + str(self.maxSeqLength) + " amino acids."
             QMessageBox.warning(self.win, "Warning!", msg)
-            self._supress_textChanged_signal = False
+            self._suppress_textChanged_signal = False
             return
         #Urmi 20080725: Some time later we need to have a method here which 
         #would allow us to set the sequence of the protein chunk. We will also
         #update the secondary structure sequence or will it be the same as the
         #original one? 
-        self._supress_textChanged_signal = False
+        self._suppress_textChanged_signal = False
         return
     
     def getPlainSequence( self, inOmitSymbols = False ):

@@ -15,7 +15,7 @@ TODOs:
   Examples: If 'theta_snap' between dragged line and the  two reference enties 
             is the same, then the snap should use the entity with shortest  
             distance
-            Should horizontal/vertical snap checkes always be done before 
+            Should horizontal/vertical snap checks always be done before 
             standard axis  snap checks -- guess-- No. The current implementation
             however skips the standard axis snap check if the 
             horizontal/vertical snap checks succeed.           

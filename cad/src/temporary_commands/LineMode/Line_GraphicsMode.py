@@ -15,7 +15,7 @@ TODOs:
   Examples: If 'theta_snap' between dragged line and the  two reference enties 
             is the same, then the snap should use the entity with shortest  
             distance
-            Should horizontal/vertical snap checkes always be done before 
+            Should horizontal/vertical snap checks always be done before 
             standard axis  snap checks -- guess-- No. The current implementation
             however skips the standard axis snap check if the 
             horizontal/vertical snap checks succeed.           
@@ -81,7 +81,7 @@ class Line_GraphicsMode( Select_GraphicsMode ):
     #self.Draw. Example: This class draws cursor text at the end of the draw 
     #method. Subclass of this class (say DnaLine_GM) calls this Draw mthod 
     #and then do some more drawing and then again want to draw the cursor text
-    #So that subclass can temporarily supress cursor text. 
+    #So that subclass can temporarily suppress cursor text. 
     #@see: DnaLine_GM.Draw()
     _ok_to_render_cursor_text = True
 

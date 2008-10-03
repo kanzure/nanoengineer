@@ -1268,7 +1268,7 @@ def writepdb(part,
         EXCLUDE_HIDDEN_ATOMS = 2 (excludes invisible atoms)
         EXCLUDE_DNA_ATOMS = 4 (excludes PAM3 and PAM5 pseudo atoms)
         EXCLUDE_DNA_AXIS_ATOMS = 8 (excludes PAM3 axis atoms)
-        EXCLUDE_DNA_AXIS_BONDS = 16 (supresses PAM3 axis bonds)
+        EXCLUDE_DNA_AXIS_BONDS = 16 (suppresses PAM3 axis bonds)
     @type  excludeFlags: integer
     
     @note: Atoms and bonds of hidden chunks are never written.

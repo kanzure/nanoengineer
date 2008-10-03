@@ -92,7 +92,7 @@ class BuildAtoms_Command(SelectAtoms_Command):
         #bonds between the selected atoms to the bondtyp specified in the 
         #flyout toolbar. This is used only while activating the 
         #bond tool. See self._convert_bonds_bet_selected_atoms() for details
-        self._supress_convert_bonds_bet_selected_atoms = False
+        self._suppress_convert_bonds_bet_selected_atoms = False
             
     def command_enter_misc_actions(self):
         """

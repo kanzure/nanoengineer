@@ -252,7 +252,7 @@ def delete_bond(bond): #bruce 080228 to fix update bug reported by EricM
 def apply_btype_to_bond(btype, 
                         bond, 
                         allow_remake_bondpoints = True,
-                        supress_history_message = False): #bruce 060703 added allow_remake_bondpoints for bug 833-1
+                        suppress_history_message = False): #bruce 060703 added allow_remake_bondpoints for bug 833-1
     """
     Apply the given bond-type name (e.g. 'single') to the given bond, iff this is permitted by its atomtypes
     (or, new feature 060523, if it's permitted by its real atoms' possible atomtypes and their number of real bonds),
@@ -260,7 +260,7 @@ def apply_btype_to_bond(btype,
     Emit an appropriate history message. Do appropriate invals/updates.
     [#e should the inference policy and/or some controlling object be another argument? Maybe even a new first arg 'self'?]
     
-    @param supress_history_message: If True, it quietly converts the bondtypes 
+    @param suppress_history_message: If True, it quietly converts the bondtypes 
             without printing any history message. 
     """
     # Note: this can be called either from a bond's context menu, or by using a Build mode dashboard tool to click on bonds
@@ -275,7 +275,7 @@ def apply_btype_to_bond(btype,
     def changeit(also_atypes = None):
         if v6 == bond.v6:
             bond_type_changed = False
-            if not supress_history_message:
+            if not suppress_history_message:
                 env.history.message( "bond type of %s is already %s" % (oldname, btype))
         else:
             if also_atypes:
@@ -283,7 +283,7 @@ def apply_btype_to_bond(btype,
                 atype1, atype2 = also_atypes
                 def changeatomtype(atom, atype):
                     if atom.atomtype is not atype:
-                        if not supress_history_message:
+                        if not suppress_history_message:
                             msg = "changed %r from %s to %s" % (atom, 
                                                                 atom.atomtype.name, 
                                                                 atype.name )
@@ -300,7 +300,7 @@ def apply_btype_to_bond(btype,
             bond.set_v6(v6) # this doesn't affect anything else or do any checks ####k #####@@@@@ check that
             ##e now do inferences on other bonds
             bond.changed() ###k needed?? maybe it's now done by set_v6??
-            if not supress_history_message:
+            if not suppress_history_message:
                 env.history.message( "changed bond type of %s to %s" % (oldname,
                                                                         btype))
             ###k not sure if it does gl_update when needed... how does menu use of this do that?? ###@@@
@@ -334,7 +334,7 @@ def apply_btype_to_bond(btype,
     poss.sort() #k not really needed, it's same mutable list, but keep this in case someone changes that
     if poss2 == poss : # note, this happens if poss2 == poss1, or if they differ but allow_remake_bondpoints is true
         # permitting changing of atomtypes wouldn't make any difference
-        if not supress_history_message:
+        if not suppress_history_message:
             msg = "can't change bond type of %s to %s" % (oldname, btype)
             msg2 = " -- permitted types are %s" % (poss)
                 #e improve message -- %s of list looks like repr (for strings too)
@@ -365,7 +365,7 @@ def apply_btype_to_bond(btype,
             unless_msg = greenmsg( "unless you %s" % (unless,) )
         else:
             unless_msg = redmsg( "due to a bug")
-        if not supress_history_message:
+        if not suppress_history_message:
             env.history.message( orangemsg( msg) + ( unless_msg) )
             
         
@@ -382,7 +382,7 @@ def apply_btype_to_bond(btype,
         msg2 = " -- permitted types are %s, or %s if you change atomtypes" % (poss1, extra)
             #e improve message -- %s of list looks like repr (for strings too)
         bond_type_changed = False
-        if not supress_history_message:
+        if not suppress_history_message:
             env.history.message( orangemsg( msg) + msg2 )
             
     return bond_type_changed # from apply_btype_to_bond

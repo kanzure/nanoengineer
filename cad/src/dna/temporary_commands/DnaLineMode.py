@@ -91,7 +91,7 @@ class DnaLine_GM( Line_GraphicsMode ):
         #a ladder with arrow heads for the beams is the current implementation 
         # -Ninad 2007-10-30
         
-        #@see: Line_GraphicsMode class definition about this flag. Basically we supress
+        #@see: Line_GraphicsMode class definition about this flag. Basically we suppress
         #cursor text drawing in the superclass and draw later in this method
         #after everyting is drawn.
         self._ok_to_render_cursor_text = False

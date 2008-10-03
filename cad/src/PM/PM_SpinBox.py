@@ -167,7 +167,7 @@ class PM_SpinBox( QSpinBox ):
         self.setAsDefault = setAsDefault
         self.spanWidth    = spanWidth
         
-        self._supress_valueChanged_signal = False
+        self._suppress_valueChanged_signal = False
         
         if label: # Create this widget's QLabel.
             self.labelWidget = QLabel()

@@ -365,7 +365,7 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
 
         #NOTE:
         #In SelectChunks_GraphicsMode.leftDrag, there is a condition statement
-        #which checkes if self.drag_handler is in assy.getSelecteedMovables
+        #which checks if self.drag_handler is in assy.getSelecteedMovables
         #I don't know why it does that... I think it always assums that the
         #drag handler is officially a node in the MT? In our case,
         #the drag handler is a 'Highlightable' object (actually

@@ -219,7 +219,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
     def bond_change_type(self, 
                          b, 
                          allow_remake_bondpoints = True,
-                         supress_history_message = False): 
+                         suppress_history_message = False): 
         #bruce 050727; revised 060703
         """
         Change bondtype of bond <b> to new bondtype determined by the dashboard 
@@ -243,7 +243,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 btype, 
                 b, 
                 allow_remake_bondpoints = allow_remake_bondpoints,
-                supress_history_message = supress_history_message
+                suppress_history_message = suppress_history_message
             )
                 # checks whether btype is ok, and if so, new; emits history 
                 #message; does [#e or should do] needed invals/updates
