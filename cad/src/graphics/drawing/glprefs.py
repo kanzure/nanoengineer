@@ -151,6 +151,9 @@ class GLPrefs:
                               drawing_globals.use_drawing_variant_default),)
         res += (env.prefs.get(drawing_globals.use_sphere_shaders_prefs_key,
                               drawing_globals.use_sphere_shaders_default),)
+        res += (env.prefs.get(
+            drawing_globals.use_batched_primitive_shaders_prefs_key,
+            drawing_globals.use_batched_primitive_shaders_default),)
 
         # russ 080530: Selection style preference controls select_dl contents.
         res += (env.prefs[selectionColorStyle_prefs_key],)

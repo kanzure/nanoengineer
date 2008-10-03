@@ -40,6 +40,9 @@ use_drawing_variant_prefs_key = "use_drawing_variant"
 #russ 080819: Added.
 use_sphere_shaders = use_sphere_shaders_default = False
 use_sphere_shaders_prefs_key = "use_sphere_shaders"
+# Russ 081002: Added.
+use_batched_primitive_shaders = use_batched_primitive_shaders_default = False
+use_batched_primitive_shaders_prefs_key = "use_batched_primitive_shaders"
 
 # Experimental native C renderer (quux module in
 # cad/src/experimental/pyrex-opengl)
@@ -96,7 +99,8 @@ def updatePrefsVars():
     Helper for GLPrefs.update() .
     """
     global allow_color_sorting, use_color_sorted_dls, use_color_sorted_vbos
-    global use_sphere_shaders, use_drawing_variant, use_c_renderer
+    global use_sphere_shaders, use_batched_primitive_shaders, use_drawing_variant
+    global use_c_renderer
     allow_color_sorting = env.prefs.get(
         allow_color_sorting_prefs_key,
         allow_color_sorting_default)
@@ -112,6 +116,10 @@ def updatePrefsVars():
     use_sphere_shaders = env.prefs.get(
         use_sphere_shaders_prefs_key,
         use_sphere_shaders_default)
+
+    use_batched_primitive_shaders = env.prefs.get(
+        use_batched_primitive_shaders_prefs_key,
+        use_batched_primitive_shaders_default)
 
     use_drawing_variant = env.prefs.get(
         use_drawing_variant_prefs_key,

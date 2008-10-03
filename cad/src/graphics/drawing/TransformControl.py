@@ -85,7 +85,7 @@ def qmat4x4(quat):
     mat[0:3, 0:3] = quat.matrix
     return mat
 
-_transform_id_counter = 0
+_transform_id_counter = -1
 
 class TransformControl:
     """

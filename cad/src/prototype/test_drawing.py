@@ -56,7 +56,7 @@ AVAILABLE_TEST_CASES_ITEMS.sort()
 #testCase = 1; nSpheres = 132
 #testCase = 8; nSpheres = 50; chunkLength = 24
 #testCase = 8; nSpheres = 132; chunkLength = 24
-#testCase = 8.1; nSpheres = 50; chunkLength = 24
+testCase = 8.1; nSpheres = 50; chunkLength = 24
 #testCase = 8.1; nSpheres = 75; chunkLength = 24
 #testCase = 8.1; nSpheres = 100; chunkLength = 200
 #testCase = 8.1; nSpheres = 100; chunkLength = 50
@@ -64,7 +64,7 @@ AVAILABLE_TEST_CASES_ITEMS.sort()
 #testCase = 8.2; nSpheres = chunkLength = 10
 #testCase = 8.2; nSpheres = 50; chunkLength = 250
 #testCase = 8.2; nSpheres = 100; chunkLength = 200
-testCase = 8.2; nSpheres = 100; chunkLength = 50
+#testCase = 8.2; nSpheres = 100; chunkLength = 50
 
 # Longish chunks for test case 3.4 (with transforms)
 #nSpheres = 132; transformChunkLength = 1000
@@ -89,7 +89,7 @@ from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 
 import graphics.drawing.drawing_globals as drawing_globals
 
-from graphics.drawing.gl_shaders import GLSphereBuffer
+from graphics.drawing.GLSphereBuffer import GLSphereBuffer
 
 from graphics.drawing.DrawingSet import DrawingSet
 from graphics.drawing.TransformControl import TransformControl
@@ -402,7 +402,8 @@ def test_drawing(glpane):
                 print ("%d primitives in %d transform chunks of size <= %d" %
                        (nSpheres * nSpheres, len(transforms),
                         transformChunkLength))
-                test_spheres.setupTransforms(transforms)
+                shader = drawing_globals.sphereShader
+                shader.setupTransforms(transforms)
             pass
         else:
             shader = drawing_globals.sphereShader

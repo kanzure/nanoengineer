@@ -75,12 +75,14 @@ from OpenGL.GL import glVertex3fv
 from geometry.VQT import norm, vlen, V, Q, A
 
 from utilities.debug_prefs import Choice
+from utilities.debug import print_compact_stack, print_compact_traceback
 
 import graphics.drawing.drawing_globals as drawing_globals
-from graphics.drawing.gl_buffers import GLBufferObject
 from graphics.drawing.shape_vertices import getSphereTriStrips
 from graphics.drawing.shape_vertices import getSphereTriangles
 from graphics.drawing.shape_vertices import indexVerts
+from graphics.drawing.gl_buffers import GLBufferObject
+from graphics.drawing.GLSphereBuffer import GLSphereBuffer
 
 import numpy
 
@@ -413,7 +415,7 @@ def setup_drawer():
     drawing_globals.use_color_sorted_dls_pref = debug_pref(
         "Use Color-sorted Display Lists?", initial_choice,
         prefs_key = drawing_globals.use_color_sorted_dls_prefs_key)
-    #russ 080225: Added.
+    #russ 080225: Added.  Russ 081002: XXX Deprecated, will be cleaned out.
     initial_choice = choices[drawing_globals.use_color_sorted_vbos_default]
     drawing_globals.use_color_sorted_vbos_pref = debug_pref(
         "Use Color-sorted Vertex Buffer Objects?", initial_choice,
@@ -423,6 +425,12 @@ def setup_drawer():
     drawing_globals.use_sphere_shaders_pref = debug_pref(
         "Use Color-sorted sphere-shaders?", initial_choice,
         prefs_key = drawing_globals.use_sphere_shaders_prefs_key)
+    # Russ 081002: Added.
+    initial_choice = choices[
+        drawing_globals.use_batched_primitive_shaders_default]
+    drawing_globals.use_batched_primitive_shaders_pref = debug_pref(
+        "Use batched primitive shaders?", initial_choice,
+        prefs_key = drawing_globals.use_batched_primitive_shaders_prefs_key)
 
     #russ 080403: Added drawing variant selection
     variants = [
@@ -447,32 +455,68 @@ def setup_drawer():
         print "\nnote: this session WILL use color sorted display lists"
     else:
         print "\nnote: this session will NOT use color sorted display lists"
-    if (drawing_globals.allow_color_sorting_pref and
-        drawing_globals.use_color_sorted_vbos_pref):
-        print "note: this session WILL use", \
-              "color sorted Vertex Buffer Objects\n"
-    else:
-        print "note: this session will NOT use", \
-              "color sorted Vertex Buffer Objects\n"
+        pass
+
+    def initSphereShader():
+        try:
+            from graphics.drawing.gl_shaders import GLSphereShaderObject
+            drawing_globals.sphereShader = GLSphereShaderObject()
+            print "Sphere-shader initialization is complete.\n"
+        except:
+            print "Error initializing sphere shaders, NOT using them."
+            drawing_globals.use_sphere_shaders_pref = False
+
+            # Could we support shaders with the older GL_ARB_vertex_program and
+            # GL_ARB_fragment_program with some work?  Get assembly-like vertex
+            # and fragment programs from the GLSL source using an option of the
+            # nVidia Cg compiler.  Needs some loading API changes too...
+            return False
+        return True
+
     if (drawing_globals.allow_color_sorting_pref and
         drawing_globals.use_sphere_shaders_pref):
         if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
             print "note: this session WILL use", \
-                  "sphere-shader Vertex Buffer Objects"
-
-            from graphics.drawing.gl_shaders import GLSphereShaderObject
-            drawing_globals.sphereShader = GLSphereShaderObject()
-
-            print "Sphere-shader initialization is complete.\n"
+                  "sphere-shaders"
+            initSphereShader()
+            pass
         else:
             print "note: this session WOULD use", \
-              "sphere-shader Vertex Buffer Objects,\n", \
+              "sphere-shaders,\n", \
               "but GL_EXTENSION GL_ARB_shader_objects is not supported.\n"
             pass
         pass
     else:
         print "note: this session will NOT use", \
-              "sphere-shader Vertex Buffer Objects\n"
+              "sphere-shaders\n"
+        pass
+
+    if (drawing_globals.allow_color_sorting_pref and
+        drawing_globals.use_batched_primitive_shaders_pref):
+        print "note: this session WILL use", \
+              "batched primitive shaders\n"
+        
+        try:
+            # GLSphereBuffer requires GLSphereShaderObject.
+            if not drawing_globals.use_sphere_shaders_pref:
+                if not initSphereShader():
+                    raise ValueError, "sphere shader setup failed."
+                pass
+
+            from graphics.drawing.GLSphereBuffer import GLSphereBuffer
+            drawing_globals.spherePrimitives = GLSphereBuffer()
+            print "Sphere primitive buffer initialization is complete.\n"
+        except:
+            print_compact_traceback(
+                "Error setting up sphere primitive buffers, NOT using them.\n")
+            drawing_globals.use_sphere_shaders_pref = False
+            pass
+        
+        pass
+    else:
+        print "note: this session will NOT use", \
+              "batched primitive shaders\n"
+        pass
 
     # 20060313 grantham Added use_c_renderer debug pref, can
     # take out when C renderer used by default.

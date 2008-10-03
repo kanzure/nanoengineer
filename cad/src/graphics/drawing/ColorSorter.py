@@ -113,7 +113,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     want to use a TransformControl to move the CSDL. This has the same effect as
     giving a TransformControl whose transform remains as the identity matrix.
     """
-    def __init__(self, transformCtl = None):
+    def __init__(self, transformControl = None):
         
         # [Russ 080915: Added.
         # A unique integer ID for each CSDL.
@@ -124,9 +124,12 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this CSDL was last changed.
         self.changed = drawing_globals.eventStamp()
-        
-        # Added optional constructor argument.
-        self.transformControl = transformCtl
+
+        # Cached drawing-primitive IDs.
+        self.spheres = []
+
+        # TransformControl constructor argument is optional.
+        self.transformControl = transformControl
         if self.transformControl is not None:
             # Note: this requires the csdlID to be already set!
             self.transformControl.addCSDL(self)
@@ -140,7 +143,17 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         return
 
-    # Russ 080915: added.
+    # Russ 080925: Added.
+    def transform_id(self):
+        """
+        Return the transform_id of the CSDL, or None if there is no associated
+        TransformControl.
+        """
+        if self.transformControl is None:
+            return None
+        return self.transformControl.transform_id
+
+    # Russ 080915: Added.
     def __del__(self):         # Called by Python when an object is being freed.
         self.destroy()
         return
@@ -167,6 +180,36 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
             pass
         return
 
+    # ==
+
+    # Russ 080925: For batched primitive drawing, drawing-primitive functions
+    # conditionally collect lists of primitive IDs here in the CSDL, rather than
+    # sending them down through the ColorSorter schedule methods into the DL
+    # layer. Later, those primitive lists are are collected across the CSDLs in
+    # a DrawingSet, into the per-primitive-type VBO caches and MultiDraw indices
+    # managed by its GLPrimitiveSet.  Most of the intermediate stuff will be
+    # cached in the underlying GLPrimitiveBuffer, since glPrimitiveSet is meant
+    # to be very transient.
+    #
+    # This can be factored when we get a lot of primitive shaders.  For now,
+    # simply cache the drawing-primitive IDs at the top level of CSDL.
+    def clearPrimitives(self):
+        # Free them in the primitive
+        if drawing_globals.use_batched_primitive_shaders:
+            drawing_globals.spherePrimitives.releasePrimitives(self.spheres)
+        self.spheres = []
+        return
+        
+    def addSphere(self, center, radius, color, transform_id):
+        """
+        Allocate a sphere primitive and add its ID to the sphere list.
+        color is a list of components: [R, G, B].
+        transform_id may be None.
+        """
+        self.spheres += drawing_globals.spherePrimitives.addSpheres(
+            [center], radius, color, self.transform_id())
+        return
+    
     # ==
 
     def draw(self, highlighted = False, selected = False,
@@ -506,10 +549,12 @@ class ColorSorter:
                 raise ValueError, \
                       "unexpected different sphere LOD levels within same frame"
             ColorSorter.sphereLevel = detailLevel
+            pass
         else: # Older sorted material rendering
             vboLevel = drawing_globals.use_drawing_variant
-            if vboLevel == 6:
-                #russ 080714: "Shader spheres" are signaled
+            sphereBatches = drawing_globals.use_batched_primitive_shaders
+            if vboLevel == 6 and not sphereBatches:
+                #russ 080714: Individual "shader spheres" are signaled
                 # by an opacity of -3 (4th component of the color.)
                 lcolor = (color[0], color[1], color[2], -3)
             elif len(color) == 3:		
@@ -522,11 +567,19 @@ class ColorSorter:
                 worker = drawsphere_worker_loop
             else:
                 worker = drawsphere_worker
-            ColorSorter.schedule(
-                lcolor, worker, (pos, radius, detailLevel, testloop))
+                pass
+            
+            if sphereBatches and ColorSorter.parent_csdl: # Russ 080925: Added.
+                # Collect lists of primitives in the CSDL, rather than sending
+                # them down through the ColorSorter schedule methods into DLs.
+                ColorSorter.parent_csdl.addSphere(
+                    pos, radius, lcolor,
+                    ColorSorter.parent_csdl.transform_id())
+            else:
+                ColorSorter.schedule(
+                    lcolor, worker, (pos, radius, detailLevel, testloop))
 
     schedule_sphere = staticmethod(schedule_sphere)
-
 
     def schedule_wiresphere(color, pos, radius, detailLevel = 1):
         """
@@ -692,7 +745,10 @@ class ColorSorter:
 
         if csdl != None:
             # Russ 080915: This supports lazily updating drawing caches.
-            ColorSorter.parent_csdl.changed = drawing_globals.eventStamp()
+            csdl.changed = drawing_globals.eventStamp()
+
+            # Clear the primitive data to start collecting a new set.
+            csdl.clearPrimitives()
 
             if not (drawing_globals.allow_color_sorting and
                     (drawing_globals.use_color_sorted_dls
@@ -714,7 +770,8 @@ class ColorSorter:
                     print ("data related to following exception: csdl.dl = %r" %
                            (csdl.dl,)) #bruce 070521
                     raise
-
+                pass
+            pass
         assert not ColorSorter.sorting, \
                "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True

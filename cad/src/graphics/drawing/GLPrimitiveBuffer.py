@@ -109,18 +109,455 @@ See design comments on:
   small number of glMultiDrawElements calls, no more than the number of active
   allocation hunks of each primitive type that needs to be drawn.
 """
+import graphics.drawing.drawing_globals as drawing_globals
+from gl_buffers import GLBufferObject
 
-class GLPrimitiveBuffer:
+import numpy
+
+from OpenGL.GL import GL_ARRAY_BUFFER_ARB
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import GL_ELEMENT_ARRAY_BUFFER_ARB
+from OpenGL.GL import GL_FLOAT
+from OpenGL.GL import GL_QUADS
+from OpenGL.GL import GL_STATIC_DRAW
+from OpenGL.GL import GL_TEXTURE_2D
+#from OpenGL.GL import GL_TEXTURE0
+from OpenGL.GL import GL_UNSIGNED_INT
+from OpenGL.GL import GL_VERTEX_ARRAY
+
+#from OpenGL.GL import glActiveTexture
+from OpenGL.GL import glBindTexture
+from OpenGL.GL import glDisable
+from OpenGL.GL import glDisableClientState
+from OpenGL.GL import glDrawElements
+from OpenGL.GL import glEnable
+from OpenGL.GL import glEnableClientState
+from OpenGL.GL import glVertexPointer
+
+#from OpenGL.GL.ARB.shader_objects import glUniform1iARB
+
+from OpenGL.GL.ARB.vertex_program import glDisableVertexAttribArrayARB
+from OpenGL.GL.ARB.vertex_program import glEnableVertexAttribArrayARB
+from OpenGL.GL.ARB.vertex_program import glVertexAttrib1fARB
+from OpenGL.GL.ARB.vertex_program import glVertexAttrib3fARB
+from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
+
+from OpenGL.GL.ARB.vertex_shader import glGetAttribLocationARB
+
+# Constants.
+HUNK_SIZE = 10000               # The number of primitives in each VBO hunk.
+BYTES_PER_FLOAT = 4             # All per-vertex attributes are floats in GLSL.
+
+class GLPrimitiveBuffer(object):
     """
     Manage VBO space for drawing primitives in large batches.
     """
-    def __init__(self):
-        # The number of primitives to put in each VBO hunk.
-        self.hunkSize = 10000
-        self.hunks = []
-        self.freePrimSlotIDs = []
+    def __init__(self, drawingMode, vertexBlock, indexBlock):
+        """
+        Fill in the vertex VBO and IBO drawing pattern for this primitive type.
+
+        drawingMode - What kind of primitives to render, e.g. GL_QUADS.
+
+        vertexBlock, indexBlock - Single blocks (lists) of vertices and indices
+        making up the drawing pattern for this primitive.
+        See description in the file docstring.
+        """
+        # Shared data for drawing calls to follow.
+        self.drawingMode = drawingMode
+
+        # Remember the drawing pattern.  (We may want to make transformed vertex
+        # blocks someday, losing the one-hunk-per-type goodness in favor of some
+        # other greater goodness like minimizing use of constant registers.)
+        # See below for filling the vertex VBO and IBO with these.
+        self.nVertices = len(vertexBlock)
+        self.vertexBlock = vertexBlock
+        self.indexBlock = indexBlock
+
+        # Allocation of primitives within hunks.
+        self.nPrims = 0             # Number of primitives allocated.
+        self.freePrimSlotIDs = []   # Free list of freed primitives.
+        self.nHunks = 0             # Number of hunks allocated.
+
+        # Common per-vertex attribute hunk VBOs for all primitive types.
+        # (The hunkVertVBO and hunkIndexIBO are shared by all hunks.)
+        self.colorHunks = HunkBuffer("color", self.nVertices, 4)
+        self.transform_id_Hunks = HunkBuffer("transform_id", self.nVertices, 1)
+        # Subclasses may add their own attributes to the hunkBuffers list.
+        self.hunkBuffers = [self.colorHunks, self.transform_id_Hunks]
+
+        # Support for lazily updating drawing caches, namely a timestamp showing
+        # when this GLPrimitiveBuffer was last flushed to graphics card RAM.
+        self.flushed = drawing_globals.NO_EVENT_YET
+
+        # Fill in shared data in the graphics card RAM.
+        self._setupSharedVertexData()
+
+        # Cached info for blocks of transforms.
+        # Transforms here are lists (or Numpy arrays) of 16 numbers.
+        self.transforms = []
+        self.identityTransform = ([1.0] + 4*[0.0]) * 3 + [1.0]
+
         return
-    
-    # ...
+
+    def color4(self,color):
+        """
+        Minor helper function for colors.  Converts a given (R, G, B) 3-tuple to
+        (R, G, B, A) by adding an opacity of 1.0 .
+        """
+        if len(color) == 3:
+            # Add opacity to color if missing.
+            color = (color[0], color[1], color[2], 1.0)
+            pass
+        return color
+
+    def newPrimitives(self, n):
+        """
+        Allocate a group of primitives. Returns a list of n IDs.
+        """
+        primIDs = []
+        for i in range(n):
+            # Take ones from the free list first.
+            if len(self.freePrimSlotIDs):
+                primID = self.freePrimSlotIDs.pop()
+            else:
+                # Allocate a new one.
+                primID = self.nPrims     # ID is a zero-origin subscript.
+                self.nPrims += 1        # nPrims is a counter.
+
+                # Allocate another set of hunks if the new ID has passed a hunk
+                # boundary.
+                if (primID + HUNK_SIZE) / HUNK_SIZE > self.nHunks:
+                    for buffer in self.hunkBuffers:
+                        buffer.addHunk()
+                        continue
+                    self.nHunks += 1
+                pass
+            primIDs += [primID]
+            continue
+        return primIDs
+
+    def releasePrimitives(self, idList):
+        """
+        Release the given primitive IDs into the free-list.
+        """
+        self.freePrimSlotIDs += idList
+        return
+
+    def _setupSharedVertexData(self):
+        """
+        Gather data for the drawing pattern Vertex and Index Buffer Objects
+        shared by all hunks of the same primitive type.  The drawing pattern is
+        replicated HUNK_SIZE times and sent to graphics card RAM for use in
+        every draw command for collections of primitives of this type.
+        
+        In theory, the vertex shader processes each vertex only once, even if
+        it is indexed many times in different faces within the same draw.  In
+        practice, locality of vertex referencing in the drawing pattern is
+        optimal, since there may be a cache of the most recent N transformed
+        vertices in that stage of the drawing pipeline on graphics card.
+        
+        For indexed gl(Multi)DrawElements, the index is a list of faces
+        (typically triangles or quads, specified by the drawingMode.)  Each
+        face is represented by a list of subscripts into the vertex block.
+        """
+        self.nIndices = len(self.indexBlock) * len(self.indexBlock[0])
+        indexOffset = 0
+        # (May cache these someday.  No need now since they don't change.)
+        Py_iboIndices = []
+        Py_vboVerts = []
+        for i in range(HUNK_SIZE):
+            # Accumulate a hunk full of blocks of vertices.  Each block is
+            # identical, with coordinates relative to its local primitive
+            # origin.  Hence, the vertex VBO may be shared among all hunks of
+            # primitives of the same type.  A per-vertex attribute gives the
+            # spatial location of the primitive origin, and is combined with the
+            # local vertex coordinates in the vertex shader program.
+            Py_vboVerts += self.vertexBlock
+
+            # Accumulate a hunk full of index blocks, offsetting the indices in
+            # each block to point to the vertices for the corresponding
+            # primitive block in the vertex hunk.
+            for face in self.indexBlock:
+                Py_iboIndices += [idx + indexOffset for idx in face]
+                indexOffset += self.nIndices
+                continue
+            continue
+
+        # Push shared vbo/ibo hunk data through C to the graphics card RAM.
+        C_vboVerts = numpy.array(Py_vboVerts, dtype=numpy.float32)
+        self.hunkVertVBO = GLBufferObject(
+            GL_ARRAY_BUFFER_ARB, C_vboVerts, GL_STATIC_DRAW)
+        self.hunkVertVBO.unbind()
+        
+        C_iboIndices = numpy.array(Py_iboIndices, dtype=numpy.uint32)
+        self.hunkIndexIBO = GLBufferObject(
+            GL_ELEMENT_ARRAY_BUFFER_ARB, C_iboIndices, GL_STATIC_DRAW)
+        self.hunkIndexIBO.unbind()
+
+        return
+
+    def draw(self, primIdSet = None):
+        """
+        Draw the buffered geometry, binding vertex attribute values for the
+        shaders.
+
+        If no primIdSet is given, the whole array is drawn.
+        """
+        shader = drawing_globals.sphereShader
+        shader.use(True)            # Turn on the sphere shader.
+
+        glEnableClientState(GL_VERTEX_ARRAY)
+
+        if texture_xforms:
+            # Activate a texture unit for transforms.
+            ## XXX Not necessary for custom shader programs.
+            ##glEnable(GL_TEXTURE_2D)
+            glBindTexture(GL_TEXTURE_2D, self.transform_memory)
+
+            # Set the sampler to the handle for the active texture image (0).
+            ## XXX Not needed if only one texture is being used?
+            ##glActiveTexture(GL_TEXTURE0)
+            ##glUniform1iARB(shader.uniform("transforms"), 0)
+            pass        
+
+        glDisable(GL_CULL_FACE)
+
+        # Draw the hunks.
+        for hunkNumber in range(self.nHunks):
+            # Bind the per-vertex generic attribute arrays for one hunk.
+            for buffer in self.hunkBuffers:
+                buffer.bindHunk(hunkNumber)
+                continue
+
+            # Shared vertex coordinate data VBO: GL_ARRAY_BUFFER_ARB.
+            self.hunkVertVBO.bind()
+            glVertexPointer(3, GL_FLOAT, 0, None)
+
+            # XXX Temporary code -- For initial tests, draw all primitives.
+            # glMultiDrawElements on the GLPrimitiveSet goes here.
+            if hunkNumber < self.nHunks-1:
+                nToDraw = HUNK_SIZE # Hunks before the last.
+            else:
+                nToDraw = self.nPrims - self.nHunks * HUNK_SIZE
+            # Shared vertex index data IBO: GL_ELEMENT_ARRAY_BUFFER_ARB
+            self.hunkIndexIBO.bind()
+            glDrawElements(GL_QUADS, self.nVertices * nToDraw,
+                       GL_UNSIGNED_INT, None)
+
+        shader.use(False)           # Turn off the sphere shader.
+        glEnable(GL_CULL_FACE)
+
+        self.hunkIndexIBO.unbind()   # Deactivate the ibo.
+        self.hunkVertVBO.unbind()    # Deactivate all vbo's.
+
+        glDisableClientState(GL_VERTEX_ARRAY)
+        for buffer in self.hunkBuffers:
+            buffer.bindHunk(hunkNumber) # glDisableVertexAttribArrayARB.
+            continue
+        return
 
     pass # End of class GLPrimitiveBuffer.
+
+class HunkBuffer:
+    """
+    Helper class to manage updates to Vertex Buffer Objects for groups of
+    fixed-size HUNKS of per-vertex attributes in graphics card RAM.
+    """
+    def __init__(self, attribName, nVertices, nCoords):
+        """
+        Allocate a Buffer Object for the hunk, but don't fill it in yet.
+
+        attribName - String name of an attrib variable in the vertex shader.
+
+        nVertices - The number of vertices in the primitive drawing pattern.
+
+        nCoords - The number of coordinates per attribute (e.g. 1 for float, 3
+        for vec3, 4 for vec4), so the right size storage can be allocated.
+        """
+        self.attribName = attribName
+        self.nVertices = nVertices
+        self.nCoords = nCoords
+
+        self.hunks = []
+
+        # Look up the location of the named generic vertex attribute in the
+        # previously linked shader program object.
+        shader = drawing_globals.sphereShader
+        self.attribLocation = glGetAttribLocationARB(shader.progObj, attribName)
+
+        # Cache the Python data that will be sent to the graphics card RAM.
+        # Internally, the data is a list, block-indexed by primitive ID, but
+        # replicated in block sublists by a factor of self.nVertices to match
+        # the vertex buffer.  What reaches the attribute VBO is automatically
+        # flattened into a sequence.
+        self.data = []
+
+        return
+
+    def addHunk(self):
+        """
+        Allocate a new hunk VBO when needed.
+        """
+        hunkNumber = len(self.hunks)
+        self.hunks += [Hunk(hunkNumber, self.nVertices, self.nCoords)]
+        return
+
+    def bindHunk(self, hunkNumber):
+        glEnableVertexAttribArrayARB(self.attribLocation)
+        hunks[hunkNumber].VBO.bind()
+        glVertexAttribPointerARB(self.attribLocation, self.nCoords,
+                                 GL_FLOAT, 0, 0, None)
+        return
+
+    def unbindHunk(self):
+        glDisableVertexAttribArrayARB(self.attribLocation)
+        return
+
+    def setData(self, primID, value):
+        """
+        Add data for a primitive.  The ID will always be within the array, or
+        one past the end when allocating new ones.
+
+        primID - In Python, this is just a subscript.
+        value - The new data.
+        """
+
+        # Internally, the data is a list, block-indexed by primitive ID, but
+        # replicated in block sublists by a factor of self.nVertices to match
+        # the vertex buffer size.  What reaches the attribute VBO is
+        # automatically flattened into a sequence of floats.
+        replicatedValue = self.nVertices * [value]
+
+        if primID >= len(self.data):
+            assert primID == len(self.data)
+            self.data += [replicatedValue]
+        else:
+            assert primID >= 0
+            self.data[primID] = replicatedValue
+            pass
+        self.changedRange(primID, primID+1)
+        return
+
+    # Maybe a range setter would be useful, too:
+    # def setDataRange(self, primLow, primHigh, valueList):
+
+    def changedRange(self, chgLowID, chgHighID):
+        """
+        Record a range of data changes, for later flushing.
+
+        chgLowID and chgHighID are primitive IDs, possibly spanning many hunks.
+
+        The high end is the index of the one *after* the end of the range, as
+        usual in Python.
+
+        Just passes it on to the relevant hunks for the range.
+        """
+        (lowHunk, highHunk) = (chgLowID / HUNK_SIZE, chgHighID / HUNK_SIZE)
+        for hunk in self.hunks[lowHunk:highHunk+1]:
+            hunk.changedRange(chgLowID, chgHighID)
+            continue
+        return
+
+    def flush(self):
+        """
+        Update a changed range of the data, sending it to the Buffer Objects in
+        graphics card RAM.
+
+        This level just passes the flush() on to the Hunks.
+        """
+        for hunk in self.hunks:
+            hunk.flush(self.data)
+
+    pass # End of class HunkBuffer.
+
+class Hunk:
+    """
+    Helper class to wrap low-level VBO objects with data caches, change ranges,
+    and flushing of the changed range to the hunk VBO in graphics card RAM.
+    """
+    def __init__(self, hunkNumber, nVertices, nCoords):
+        """
+        hunkNumber - The index of this hunk, e.g. 0 for the first in a group.
+        Specifies the range of IDs residing in this hunk.
+        
+        nVertices - The number of vertices in the primitive drawing pattern.
+
+        nCoords - The number of entries per attribute, e.g. 1 for float, 3 for
+        vec3, 4 for vec4, so the right size storage can be allocated.
+        """
+        self.nVertices = nVertices
+        self.hunkNumber = hunkNumber
+        self.nCoords = nCoords
+
+        self.VBO = GLBufferObject(
+            GL_ARRAY_BUFFER_ARB,
+            # Per-vertex attributes are all multiples (1-4) of Float32.
+            HUNK_SIZE * self.nVertices * self.nCoords * BYTES_PER_FLOAT,
+            GL_STATIC_DRAW)
+
+        # Low- and high-water marks to optimize for sending a range of data.
+        self.low = self.high = 0
+        return
+
+    def changedRange(self, chgLowID, chgHighID):
+        """
+        Record a range of data changes, for later flushing.
+
+        chgLowID and chgHighID are primitive IDs, possibly spanning many hunks.
+
+        The high end is the index of the one *after* the end of the range, as
+        usual in Python.
+        """
+        (lowHunk, lowIndex) = (chgLowID / HUNK_SIZE, chgLowID % HUNK_SIZE)
+        (highHunk, highIndex) = (chgHighID / HUNK_SIZE, chgHighID % HUNK_SIZE)
+
+        if self.hunkNumber < lowHunk or self.hunkNumber > highHunk:
+            return              # This hunk is not in the hunk range.
+
+        if lowHunk < self.hunkNumber:
+            self.low = 0
+        else:
+            self.low = min(self.low, lowIndex) # Maybe extend the range.
+            pass
+
+        if highHunk > self.hunkNumber:
+            self.high = HUNK_SIZE
+        else:
+            self.high = max(self.high, highIndex) # Maybe extend the range.
+            pass
+
+        return
+
+    def flush(self, allData):
+        """
+        Update a changed range of the data that applies to this hunk, sending it
+        to the Buffer Object in graphics card RAM.
+
+        allData - List of data blocks for the whole hunk-list.  We'll extract
+        just the part relevant to the changed part of this particular hunk.
+
+        Internally, the data is a list, block-indexed by primitive ID, but
+        replicated in block sublists by a factor of self.nVertices to match the
+        vertex buffer size.  What reaches the attribute VBO is automatically
+        flattened into a sequence.
+        """
+        rangeSize = self.high - self.low
+        assert rangeSize >= 0
+        lowID = (self.hunkNumber * HUNK_SIZE) + self.low
+        highID = (self.hunkNumber * HUNK_SIZE) + self.high
+
+        # Send all or part of the Python data to C.
+        C_data = numpy.array(allData[lowId:highID], dtype=numpy.float32)
+
+        if rangeSize == HUNK_SIZE:
+            # Special case to send the whole thing.
+            self.VBO.updateAll(C_data)
+        else:
+            # Send a portion, with a byte offset within the VBO.
+            offset = self.low * self.nVertices * self.nCoords * BYTES_PER_FLOAT
+            self.VBO.update(offset, C_data)
+            pass
+        return
+            
+    pass # End of class HunkBuffer.
+
