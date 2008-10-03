@@ -44,7 +44,8 @@ from utilities.debug import debug_timing_test_pycode_from_a_dialog
 from utilities.debug import debug_run_command
 from utilities.constants import debugModifiers
 from utilities.constants import noop
-
+from time import clock
+from utilities.debug import profile, doProfile
 
 # enable the undocumented debug menu by default [bruce 040920]
 # (moved here from GLPane, now applies to all widgets using DebugMenuMixin [bruce 050112])
@@ -180,6 +181,13 @@ class DebugMenuMixin:
             res.extend( [
                 ('measure graphics performance', self._debug_do_benchmark),
             ] )
+            
+        #command entered profiling
+        res.extend( [
+            ('Profile entering BuildAtoms command',
+             self._debug_command_entered_profiling),
+        ] )
+            
 
         if debug_flags.atom_debug: # since it's a dangerous command
             res.extend( [
@@ -359,6 +367,24 @@ class DebugMenuMixin:
         profile(self._draw_hundred_frames, self, None)
         tm1 = clock()
         print "Benchmark complete. FPS = ", 100.0/(tm1-tm0)
+        
+    def _debug_command_entered_profiling(self):
+        """
+        Debug option for profiling code to enter BuildAtoms command. 
+        """      
+        #Note: To profile other commands, simply repalce call to 
+        #'toolsBuildAtoms' with the appropriate method. Other option is 
+        #to just do "win.commandSequencer.userEnterCommand('COMMAND_NAME')"
+        # -- Ninad 2008-10-03
+        
+        print "Profiling command enter for BuildAtoms command"
+        win = self._debug_win
+        doProfile(True)
+        tm0 = clock()
+        profile(self.win.toolsBuildAtoms)
+        tm1 = clock()
+        print "Profiling complete. Total time to enter Build Atoms = ", (tm1-tm0)
+        doProfile(False)
 
     def debug_menu_source_name(self): #bruce 050112
         """
