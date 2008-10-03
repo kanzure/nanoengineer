@@ -552,18 +552,20 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         """
         Setup all the main dialog widgets and their signal-slot connection(s).
         """
-#        self.setWindowIcon(geticon("ui/actions/Tools/Options.png"))
+        self.setWindowIcon(geticon("ui/actions/Tools/Options.png"))
 
         # This connects the "itemSelectedChanged" signal generated when the
         # user selects an item in the "Category" QTreeWidget on the left
         # side of the Preferences dialog (inside the "Systems Option" tab)
         # to the slot for turning to the correct page in the QStackedWidget
         # on the right side.
-        self.connect(self.categoriesTreeWidget, SIGNAL("itemSelectionChanged()"), self.showPage)
+        self.connect(self.categoriesTreeWidget, 
+                     SIGNAL("itemSelectionChanged()"), self.showPage)
 
         # Connections for OK and What's This buttons at the bottom of the dialog.
         self.connect(self.okButton, SIGNAL("clicked()"), self.accept)
-        self.connect(self.whatsThisToolButton, SIGNAL("clicked()"),QWhatsThis.enterWhatsThisMode)
+        self.connect(self.whatsThisToolButton, SIGNAL("clicked()"), 
+                     QWhatsThis.enterWhatsThisMode)
 
         self.whatsThisToolButton.setIcon(
             geticon("ui/actions/Properties Manager/WhatsThis.png"))
@@ -770,13 +772,13 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             PM_RadioButtonList (logosGroupBox,
                                 buttonList = [[ 0, 
                                                 "Always ask before downloading", 
-                                                ""],
+                                                "Always ask permission to download sponsor logos from the Nanorex server"],
                                               [ 1, 
                                                 "Never ask before downloading", 
-                                                ""],
+                                                "Never ask permission before downloading sponsor logos from the Nanorex server"],
                                               [ 2, 
                                                 "Never download", 
-                                                ""] ])
+                                                "Never download sponsor logos from the Nanorex server"] ])
         
         buildChunksGroupBox = PM_GroupBox( _pageContainer, 
                                      title = "Build Chunks Settings",
@@ -987,6 +989,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                       label = "Color:")
         self.ruler_opacity_SpinBox = PM_SpinBox(rulers_GroupBox,
                                            label = "Opacity",
+                                           maximum = 100,
                                            suffix = "%")
         self.show_rulers_in_perspective_view_CheckBox = PM_CheckBox(rulers_GroupBox,
                                                                text ="Show rulers in perspective view",
@@ -1370,13 +1373,13 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                       label = "Color:",
                                                       spanWidth = False)
         self.enable_inverse_indicatiors_CheckBox = PM_CheckBox(self.base_orientation_GroupBox, 
-                                             text = "Display base orientation indicators",
+                                             text = "Enable inverse indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
         self.angle_threshold_DoubleSpinBox = PM_DoubleSpinBox(self.base_orientation_GroupBox,
                                                          label = "Angle threshold:", 
                                                          suffix = "",
-                                             maximum = 360,
+                                                         maximum = 360,
                                                          spanWidth = False,
                                                          singleStep = .1)
         self.terminal_base_distance_SpinBox = PM_SpinBox(self.base_orientation_GroupBox,

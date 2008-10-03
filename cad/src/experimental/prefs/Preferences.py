@@ -430,6 +430,7 @@ class Preferences(PreferencesDialog):
             print self.pagenameList
         self.changeKey = 0
         # Start of dialog setup.
+        self._setupDialog_TopLevelWidgets()
         self._setupPage_General()
         self._setupPage_Graphics_Area()
         self._setupPage_Zoom_Pan_and_Rotate()
@@ -448,7 +449,8 @@ class Preferences(PreferencesDialog):
 
         # Assign "What's This" text for all widgets.
         #from ne1_ui.prefs.WhatsThisText_for_PreferencesDialog import whatsThis_PreferencesDialog
-        #whatsThis_PreferencesDialog(self)
+        from WhatsThisText_for_PreferencesDialog import whatsThis_PreferencesDialog
+        whatsThis_PreferencesDialog(self)
 
         #self._hideOrShowWidgets()
         self.show()
@@ -716,7 +718,8 @@ class Preferences(PreferencesDialog):
         connect_comboBox_with_pref(self.origin_rulers_ComboBox, rulerPosition_prefs_key)
         self.ruler_color_ColorComboBox.setColor(env.prefs[rulerColor_prefs_key], default = True)
         self.connect(self.ruler_color_ColorComboBox, SIGNAL("editingFinished()"), self.set_ruler_color)
-        connect_spinBox_with_pref(self.ruler_opacity_SpinBox, rulerOpacity_prefs_key)
+        self.ruler_opacity_SpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
+        self.connect(self.ruler_opacity_SpinBox, SIGNAL("valueChanged(int)"), self.set_ruler_opacity)
         connect_checkbox_with_boolean_pref(self.show_rulers_in_perspective_view_CheckBox,\
                                            showRulersInPerspectiveView_prefs_key)
         return
@@ -745,6 +748,13 @@ class Preferences(PreferencesDialog):
         """
         _newColor = self.ruler_color_ColorComboBox.getColor()
         env.prefs[rulerColor_prefs_key] = _newColor
+        return
+
+    def set_ruler_opacity(self, opacity):
+        """
+        Change the ruler opacity.
+        """
+        env.prefs[rulerOpacity_prefs_key] = opacity * 0.01
         return
 
     
