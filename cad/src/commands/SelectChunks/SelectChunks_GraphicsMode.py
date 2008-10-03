@@ -246,29 +246,19 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #method self.end_selection_from_GLPane() (which is also called in this
         #method.) Needs cleanup -- Ninad 2008-04-17
 
-        if self._is_dnaGroup_highlighting_enabled():
-            #If this graphicsmode highlights the whole DnaGroup,
-            #pick that whole dna group when leftDown event occurs.
-            dnaGroup = a_chunk.getDnaGroup()
-            if dnaGroup is not None:
-                m = dnaGroup
-        else:
-            #Fixed bug 2661 (see also similar code in self.chunkLeftUp() )
-            #Select the whole parent DnaStrand or DnaSegment group (used when Dna
-            # updater is enabled) instead of the chunk.
-            #Note that this will be effective only in graphics modes where the
-            #whole DnaGroup highlighting is disabled. (i.e. where the
-            #highlighting of individual strands and segments is allowed)
-            #-- Ninad 2008-03-14
-            strandOrSegment = a_chunk.parent_node_of_class(
-                self.win.assy.DnaStrandOrSegment)
-            if 0:
-                print "debug fyi: chunk %r .picked %r is in DnaStrandOrSegment %r .picked %r" % \
-                  (a_chunk, a_chunk.picked,
-                   strandOrSegment, strandOrSegment.picked) ###### @@@@@@ bruce 080430 debug code
-                        ##### for 'rapid click selects subset of strand chunks' bug
-            if strandOrSegment is not None:
-                m = strandOrSegment
+        #Fixed bug 2661 (see also similar code in self.chunkLeftUp() )
+        #Select the whole parent DnaStrand or DnaSegment group 
+        #instead of the chunk.
+        #-- Ninad 2008-03-14
+        strandOrSegment = a_chunk.parent_node_of_class(
+            self.win.assy.DnaStrandOrSegment)
+        if 0:
+            print "debug fyi: chunk %r .picked %r is in DnaStrandOrSegment %r .picked %r" % \
+              (a_chunk, a_chunk.picked,
+               strandOrSegment, strandOrSegment.picked) ###### @@@@@@ bruce 080430 debug code
+                    ##### for 'rapid click selects subset of strand chunks' bug
+        if strandOrSegment is not None:
+            m = strandOrSegment
 
         if not m.picked and self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
@@ -345,23 +335,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #method self.end_selection_from_GLPane() (which is also called in this
         #method.) Needs cleanup -- Ninad 2008-04-17
 
-        if self._is_dnaGroup_highlighting_enabled():
-            #If this graphicsmode highlights the whole DnaGroup,
-            #pick that whole dna group when leftDown event occurs.
-            dnaGroup = a_chunk.getDnaGroup()
-            if dnaGroup is not None:
-                m = dnaGroup
-        else:
-            #Fixed bug 2661 (see also similar code in self.chunkLeftDown() )
-            #Select the whole parent DnaStrand or DnaSegment group (used when Dna
-            # updater is enabled) instead of the chunk.
-            #Note that this will be effective only in graphics modes where the
-            #whole DnaGroup highlighting is disabled. (i.e. where the
-            #highlighting of individual strands and segments is allowed)
-            #-- Ninad 2008-03-14
-            strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaStrandOrSegment)
-            if strandOrSegment is not None:
-                m = strandOrSegment
+        #Fixed bug 2661 (see also similar code in self.chunkLeftDown() )
+        #Select the whole parent DnaStrand or DnaSegment group 
+        #instead of the chunk.
+        #-- Ninad 2008-03-14
+        strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaStrandOrSegment)
+        if strandOrSegment is not None:
+            m = strandOrSegment
 
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
@@ -470,37 +450,23 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.chunkLeftDown(chunk1, event)
             return
 
-        if self._is_dnaGroup_highlighting_enabled():
-            dnaGroup1 = chunk1.getDnaGroup()
-            dnaGroup2 = chunk2.getDnaGroup()
+        #@TODO Fixes part of bug 2749. Method needs refactoring
+        #-- Ninad 2008-04-07
+        dnaStrandOrSegment1 = chunk1.parent_node_of_class(
+            self.win.assy.DnaStrandOrSegment)
+        dnaStrandOrSegment2 = chunk2.parent_node_of_class(
+            self.win.assy.DnaStrandOrSegment)
 
-            if dnaGroup1 is not None and dnaGroup1 is dnaGroup2:
-                self.chunkLeftDown(chunk1, event)
-                return
+        if dnaStrandOrSegment1 is not None and \
+           dnaStrandOrSegment1 is dnaStrandOrSegment2:
+            self.chunkLeftDown(chunk1, event)
+            return
 
-            if dnaGroup1 is not None:
-                chunk1 = dnaGroup1
+        if dnaStrandOrSegment1 is not None:
+            chunk1 = dnaStrandOrSegment1
 
-            if dnaGroup2 is not None:
-                chunk2 = dnaGroup2
-        else:
-            #@TODO Fixes part of bug 2749. Method needs refactoring
-            #-- Ninad 2008-04-07
-            dnaStrandOrSegment1 = chunk1.parent_node_of_class(
-                self.win.assy.DnaStrandOrSegment)
-            dnaStrandOrSegment2 = chunk2.parent_node_of_class(
-                self.win.assy.DnaStrandOrSegment)
-
-            if dnaStrandOrSegment1 is not None and \
-               dnaStrandOrSegment1 is dnaStrandOrSegment2:
-                self.chunkLeftDown(chunk1, event)
-                return
-
-            if dnaStrandOrSegment1 is not None:
-                chunk1 = dnaStrandOrSegment1
-
-            if dnaStrandOrSegment2 is not None:
-                chunk2 = dnaStrandOrSegment2
+        if dnaStrandOrSegment2 is not None:
+            chunk2 = dnaStrandOrSegment2
 
         if self.o.modkeys is None:
             if chunk1.picked and chunk2.picked:
@@ -563,44 +529,30 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.chunkLeftUp(chunk1, event)
             return
 
-        if self._is_dnaGroup_highlighting_enabled():
-            dnaGroup1 = chunk1.getDnaGroup()
-            dnaGroup2 = chunk2.getDnaGroup()
+        #@TODO Fixes part of bug 2749. Method needs refactoring
+        #-- Ninad 2008-04-07
+        dnaStrandOrSegment1 = chunk1.parent_node_of_class(
+            self.win.assy.DnaStrandOrSegment)
+        dnaStrandOrSegment2 = chunk2.parent_node_of_class(
+            self.win.assy.DnaStrandOrSegment)
 
-            if dnaGroup1 is not None and dnaGroup1 is dnaGroup2:
+        if dnaStrandOrSegment1 is not None and \
+           dnaStrandOrSegment1 is dnaStrandOrSegment2:
+            if self.o.modkeys != 'Shift+Control':
                 self.chunkLeftDown(chunk1, event)
-                return
-
-            if dnaGroup1 is not None:
-                chunk1 = dnaGroup1
-
-            if dnaGroup2 is not None:
-                chunk2 = dnaGroup2
-        else:
-            #@TODO Fixes part of bug 2749. Method needs refactoring
-            #-- Ninad 2008-04-07
-            dnaStrandOrSegment1 = chunk1.parent_node_of_class(
-                self.win.assy.DnaStrandOrSegment)
-            dnaStrandOrSegment2 = chunk2.parent_node_of_class(
-                self.win.assy.DnaStrandOrSegment)
-
-            if dnaStrandOrSegment1 is not None and \
-               dnaStrandOrSegment1 is dnaStrandOrSegment2:
-                if self.o.modkeys != 'Shift+Control':
-                    self.chunkLeftDown(chunk1, event)
-                else:
-                    self.leftShiftCntlUp(event,
-                                         parentNodesOfObjUnderMouse = (chunk1))
-                return
+            else:
+                self.leftShiftCntlUp(event,
+                                     parentNodesOfObjUnderMouse = (chunk1))
+            return
 
 
-            if dnaStrandOrSegment1 is not None:
-                chunk1 = dnaStrandOrSegment1
+        if dnaStrandOrSegment1 is not None:
+            chunk1 = dnaStrandOrSegment1
 
-            if dnaStrandOrSegment2 is not None:
-                chunk2 = dnaStrandOrSegment2
+        if dnaStrandOrSegment2 is not None:
+            chunk2 = dnaStrandOrSegment2
 
-            pass
+            
 
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
@@ -1015,7 +967,6 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                  (usually, this is just whether we drew something)
         @rtype: boolean
         @see: self._get_objects_to_highlight()
-        @see: self._is_dnaGroup_highlighting_enabled()
         @see : self.drawHighlightedObjectUnderMouse()
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into
@@ -1064,7 +1015,6 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         - may be hiColors should be in a list to make it more general
         @return: dictionary of objects to be highlighted.
         @rtype: dict
-        @see: self._is_dnaGroup_highlighting_enabled()
         @see: self.drawHighlightedChunk()
         @see : self.drawHighlightedObjectUnderMouse()
         """
@@ -1122,46 +1072,12 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                         chunkList.append(c)
                 colorList = [hiColor1, hiColor2]
 
-        if self._is_dnaGroup_highlighting_enabled():
-            for c in chunkList:
-                i = chunkList.index(c)
-                dnaGroup = c.getDnaGroup()
-                if dnaGroup is not None:
-                    if not objectDict.has_key(dnaGroup):
-                        objectDict[dnaGroup] = colorList[i]
-                else:
-                    objectDict[c] = colorList[i]
-        else:
-            for c in chunkList:
-                i = chunkList.index(c)
-                objectDict[c] = colorList[i]
+        for c in chunkList:
+            i = chunkList.index(c)
+            objectDict[c] = colorList[i]
 
         return objectDict
-
-    def _is_dnaGroup_highlighting_enabled(self):
-        """
-        NOTE: TO BE DEPRECATED: 2008-04-07 onwards, the whole DnaGroup will never be highlighted
-        So this flag will always returns True in this class and in subclasses
-        See bug Bug 2749 for implementation change details. post FNANO, this
-        method and its calls can be removed (provided implementation doesn't
-        change). Returning 'False' is as good as not using this feature in the
-        UI so no problem.
-
-        Returns a boolean that decides whether to highlight the whole
-        DnaGroup or just the chunk of the glpane.selobj.
-        Example: In default mode (SelectChunks_graphicsMode) if the cursor is
-        over an atom or a bond which belongs to a DnaGroup, the whole
-        DnaGroup is highlighted. But if you are in buildDna mode, the
-        individual strand and axis chunks will be highlighted in this case.
-        Therefore, subclasses of SelectChunks_graphicsMode should override this
-        method to enable or disable the DnaGroup highlighting. (the Default
-        implementation returns True)
-        @see: self._get_objects_to_highlight()
-        @see: self.drawHighlightedChunk()
-        @see : self.drawHighlightedObjectUnderMouse()
-        """
-        return False
-
+    
     def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
         """
         [overrides superclass method]

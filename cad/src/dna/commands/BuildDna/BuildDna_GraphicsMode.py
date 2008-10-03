@@ -538,25 +538,7 @@ class BuildDna_GraphicsMode(
         self.o.gl_update()
         return
 
-    def _is_dnaGroup_highlighting_enabled(self):
-        """
-        Overrides SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()
-
-        Returns a boolean that decides whether to highlight the whole
-        DnaGroup or just the chunk of the glpane.selobj.
-        Example: In default mode (SelectChunks_graphicsMode) if the cursor is
-        over an atom or a bond which belongs to a DnaGroup, the whole
-        DnaGroup is highlighted. But if you are in buildDna mode, the
-        individual strand and axis chunks will be highlighted in this case.
-        Therefore, subclasses of SelectChunks_graphicsMode should override this
-        method to enable or disable the DnaGroup highlighting. (the Default
-        implementation returns True)
-        @see: self._get_objects_to_highlight()
-        @see: self.drawHighlightedChunk()
-        @see : self.drawHighlightedObjectUnderMouse()
-        """
-        return False
-
+    
     def editObjectOnSingleClick(self):
         """
         Subclasses can override this method. If this method returns True,

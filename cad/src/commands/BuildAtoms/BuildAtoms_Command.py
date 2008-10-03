@@ -130,6 +130,7 @@ class BuildAtoms_Command(SelectAtoms_Command):
         #we need to invoke one of the two tools (subcommand). 
         #By default, we always invoke 'Atoms Tool'. 
         if self.commandName == 'DEPOSIT':
+            print "**** in BuildAtoms.command_update_state"
             self.activateAtomsTool()
     
     def enterToolsCommand(self, commandName = ''): #REVIEW

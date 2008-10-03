@@ -101,8 +101,7 @@ class DnaSegment(DnaStrandOrSegment):
         @param color: The highlight color
         @see: Chunk.draw_highlighted()
         @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
-        @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
-        @see: SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()        
+        @see: SelectChunks_GraphicsMode._get_objects_to_highlight()        
         """            
         #Note: As of 2008-04-07, there is no 'highlightPolicy' for 
         #a DnaSegment like in DnaStrand. 

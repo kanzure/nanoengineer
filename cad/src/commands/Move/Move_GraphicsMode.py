@@ -511,12 +511,6 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         """
         return
 
-    def _is_dnaGroup_highlighting_enabled(self):
-        """
-        Overrides SelectChunks_basicGraphicsMode method.
-        """
-        return False
-
 
 
 

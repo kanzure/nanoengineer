@@ -193,7 +193,6 @@ class NanotubeGroup(Group):
         @see: Chunk.draw_highlighted()
         @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
-        @see: SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()   #@
         """
         for c in self.getSegments():
             c.draw_highlighted(glpane, color)
