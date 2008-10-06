@@ -48,6 +48,9 @@ char *BaseFileName;
 char *GromacsOutputBaseName;
 char *PathToCpp;
 char *SystemParametersFileName;
+char *AmberBondedParametersFileName;
+char *AmberNonbondedParametersFileName;
+char *AmberChargesFileName;
 int QualityWarningLevel;
 float SimpleMovieForceScale;
 double MinimizeThresholdCutoverRMS;
@@ -155,6 +158,9 @@ reinit_globals(void)
     GromacsOutputBaseName = NULL;
     PathToCpp = NULL;
     SystemParametersFileName = NULL;
+    AmberBondedParametersFileName = NULL;
+    AmberNonbondedParametersFileName = NULL;
+    AmberChargesFileName = NULL;
     QualityWarningLevel = 5;
     SimpleMovieForceScale = 1.0;
     TimeReversal = 0;
@@ -245,6 +251,15 @@ printGlobals()
     if (SystemParametersFileName != NULL && LoadedSystemParameters) {
         write_traceline("# SystemParametersFileName: %s\n", SystemParametersFileName);
     }
+    if (AmberBondedParametersFileName != NULL) {
+        write_traceline("# AmberBondedParametersFileName: %s\n", AmberBondedParametersFileName);
+    }        
+    if (AmberNonbondedParametersFileName != NULL) {
+        write_traceline("# AmberNonbondedParametersFileName: %s\n", AmberNonbondedParametersFileName);
+    }        
+    if (AmberChargesFileName != NULL) {
+        write_traceline("# AmberChargesFileName: %s\n", AmberChargesFileName);
+    }        
     if (UserParametersFileName != NULL && LoadedUserParameters) {
         write_traceline("# UserParametersFileName: %s\n", UserParametersFileName);
     }

@@ -1067,6 +1067,14 @@ initializeBondTable(void)
   int reloadSystemOverlay = 0;
   int reloadUserOverlay = 0;
 
+  if (UseAMBER) {
+    if (AmberNonbondedParametersFileName != NULL) {
+      read_amber_itp_file(AmberNonbondedParametersFileName);
+    }
+    if (AmberBondedParametersFileName != NULL) {
+      read_amber_itp_file(AmberBondedParametersFileName);
+    }
+  }
   if (bondStretchHashtable == NULL) {
     reloadSystemOverlay = 1;
     reloadUserOverlay = 1;

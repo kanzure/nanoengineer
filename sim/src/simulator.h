@@ -146,6 +146,7 @@
 
 #include "readmmp.h"
 #include "readxyz.h"
+#include "read_amber_itp.h"
 #include "printers.h"
 #include "dynamics.h"
 #include "jigs.h"

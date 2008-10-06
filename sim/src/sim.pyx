@@ -58,6 +58,10 @@ cdef extern from "simhelp.c":
     char *GromacsOutputBaseName
     char *PathToCpp
     char *SystemParametersFileName
+    char *AmberBondedParametersFileName
+    char *AmberNonbondedParametersFileName
+    char *AmberChargesFileName
+
     double Dt
     double Dx
     double Dmass
@@ -200,6 +204,21 @@ cdef class _Simulator:
                 # should we raise an AttributeError here?
                 return ""
             return SystemParametersFileName
+        elif strcmp(key, "AmberBondedParametersFileName") == 0:
+            if AmberBondedParametersFileName == NULL:
+                # should we raise an AttributeError here?
+                return ""
+            return AmberBondedParametersFileName
+        elif strcmp(key, "AmberNonbondedParametersFileName") == 0:
+            if AmberNonbondedParametersFileName == NULL:
+                # should we raise an AttributeError here?
+                return ""
+            return AmberNonbondedParametersFileName
+        elif strcmp(key, "AmberChargesFileName") == 0:
+            if AmberChargesFileName == NULL:
+                # should we raise an AttributeError here?
+                return ""
+            return AmberChargesFileName
         elif strcmp(key, "Dt") == 0:
             return Dt
         elif strcmp(key, "Dx") == 0:
@@ -308,6 +327,15 @@ cdef class _Simulator:
         elif strcmp(key, "SystemParametersFileName") == 0:
             global SystemParametersFileName
             SystemParametersFileName = value
+        elif strcmp(key, "AmberBondedParametersFileName") == 0:
+            global AmberBondedParametersFileName
+            AmberBondedParametersFileName = value
+        elif strcmp(key, "AmberNonbondedParametersFileName") == 0:
+            global AmberNonbondedParametersFileName
+            AmberNonbondedParametersFileName = value
+        elif strcmp(key, "AmberChargesFileName") == 0:
+            global AmberChargesFileName
+            AmberChargesFileName = value
         elif strcmp(key, "Dt") == 0:
             global Dt
             Dt = value
