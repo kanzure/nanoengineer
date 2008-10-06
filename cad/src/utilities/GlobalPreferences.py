@@ -284,7 +284,7 @@ pref_drop_onto_Group_puts_nodes_at_top()
 # ==
 
 def _kluge_global_mt_update():
-    from foundation import env
+    import foundation.env as env
         # note: this doesn't cause a module import cycle,
         # but it might be an undesirable inter-package import.
         # (it's also done in a few other places in this file.)
