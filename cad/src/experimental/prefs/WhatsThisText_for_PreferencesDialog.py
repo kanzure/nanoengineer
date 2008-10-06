@@ -124,13 +124,13 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     setWhatsThis_Bonds(_pd)
     setWhatsThis_DNA(_pd)
     setWhatsThis_Minor_groove_error_indicator(_pd)
-    setWhatsThis_Base_orientation_indicator(_pd)
+#    setWhatsThis_Base_orientation_indicator(_pd)
     setWhatsThis_Adjust(_pd)
     setWhatsThis_Plugins(_pd)
     setWhatsThis_Undo(_pd)
     setWhatsThis_Window(_pd)
-    setWhatsThis_Reports(_pd)
-    setWhatsThis_Tooltips(_pd)
+    #setWhatsThis_Reports(_pd)
+    #setWhatsThis_Tooltips(_pd)
     return
 
 def setWhatsThis_General(pd):
@@ -397,50 +397,83 @@ def setWhatsThis_Bonds(pd):
     return
 
 def setWhatsThis_DNA(pd):
-    pd.conformation_ComboBox.setWhatsThis(""" """)
-    pd.bases_per_turn_DoubleSpinBox.setWhatsThis(""" """)
-    pd.rise_DoubleSpinBox.setWhatsThis(""" """)
-    pd.strand1_ColorComboBox.setWhatsThis(""" """)
-    pd.strand2_ColorComboBox.setWhatsThis(""" """)
-    pd.segment_ColorComboBox.setWhatsThis(""" """)
-    pd.restore_DNA_colors_PushButton.setWhatsThis(""" """)
-    pd.show_arrows_on_backbones_CheckBox.setWhatsThis(""" """)
-    pd.show_arrows_on_3prime_ends_CheckBox.setWhatsThis(""" """)
-    pd.show_arrows_on_5prime_ends_CheckBox.setWhatsThis(""" """)
-    pd.three_prime_end_custom_ColorComboBox.setWhatsThis(""" """)
-    pd.five_prime_end_custom_ColorComboBox.setWhatsThis(""" """)
+#    pd.conformation_ComboBox.setWhatsThis(""" """)
+#    pd.bases_per_turn_DoubleSpinBox.setWhatsThis(""" """)
+#    pd.rise_DoubleSpinBox.setWhatsThis(""" """)
+#    pd.strand1_ColorComboBox.setWhatsThis(""" """)
+#    pd.strand2_ColorComboBox.setWhatsThis(""" """)
+#    pd.segment_ColorComboBox.setWhatsThis(""" """)
+    pd.restore_DNA_colors_PushButton.setWhatsThis(
+        """<p>Restores the default colors for strand 1, strand 2, and segments
+        of DNA.</p>""")
+#    pd.show_arrows_on_backbones_CheckBox.setWhatsThis(""" """)
+#    pd.show_arrows_on_3prime_ends_CheckBox.setWhatsThis(""" """)
+#    pd.show_arrows_on_5prime_ends_CheckBox.setWhatsThis(""" """)
+#    pd.three_prime_end_custom_ColorComboBox.setWhatsThis(""" """)
+#    pd.five_prime_end_custom_ColorComboBox.setWhatsThis(""" """)
     return
 
 def setWhatsThis_Minor_groove_error_indicator(pd):
-    pd.minor_groove_error_indicatiors_CheckBox.setWhatsThis(""" """)
-    pd.minor_groove_error_minimum_angle_SpinBox.setWhatsThis(""" """)
-    pd.minor_groove_error_maximum_angle_SpinBox.setWhatsThis(""" """)
-    pd.minor_groove_error_color_ColorComboBox.setWhatsThis(""" """)
-    pd.minor_groove_error_reset_PushButton.setWhatsThis(""" """)
+#    pd.minor_groove_error_indicatiors_CheckBox.setWhatsThis(""" """)
+#    pd.minor_groove_error_minimum_angle_SpinBox.setWhatsThis(""" """)
+#    pd.minor_groove_error_maximum_angle_SpinBox.setWhatsThis(""" """)
+#    pd.minor_groove_error_color_ColorComboBox.setWhatsThis(""" """)
+    pd.minor_groove_error_reset_PushButton.setWhatsThis(
+        """<p>Resets all minor groove error indicator settings to their 
+        default values.</p>""")
     return
 
 def setWhatsThis_Base_orientation_indicator(pd):
-    pd.base_orientation_indicatiors_CheckBox.setWhatsThis(""" """)
-    pd.plane_normal_ComboBox.setWhatsThis(""" """)
-    pd.indicators_color_ColorComboBox.setWhatsThis(""" """)
-    pd.inverse_indicators_color_ColorComboBox.setWhatsThis(""" """)
-    pd.enable_inverse_indicatiors_CheckBox.setWhatsThis(""" """)
-    pd.angle_threshold_DoubleSpinBox.setWhatsThis(""" """)
-    pd.terminal_base_distance_SpinBox.setWhatsThis(""" """)
+#    pd.base_orientation_indicatiors_CheckBox.setWhatsThis(""" """)
+#    pd.plane_normal_ComboBox.setWhatsThis(""" """)
+#    pd.indicators_color_ColorComboBox.setWhatsThis(""" """)
+#    pd.inverse_indicators_color_ColorComboBox.setWhatsThis(""" """)
+#    pd.enable_inverse_indicatiors_CheckBox.setWhatsThis(""" """)
+#    pd.angle_threshold_DoubleSpinBox.setWhatsThis(""" """)
+#    pd.terminal_base_distance_SpinBox.setWhatsThis(""" """)
     return
 
 def setWhatsThis_Adjust(pd):
-    pd.physics_engine_choice_ComboBox.setWhatsThis(""" """)
-    pd.enable_electrostatics_CheckBox.setWhatsThis(""" """)
-    pd.watch_motion_in_realtime_CheckBox.setWhatsThis(""" """)
-    pd.constant_animation_update_RadioButton.setWhatsThis(""" """)
-    pd.update_every_RadioButton.setWhatsThis(""" """)
-    pd.update_rate_SpinBox.setWhatsThis(""" """)
-    pd.animation_detail_level_ComboBox.setWhatsThis(""" """)
-    pd.endRMS_DoubleSpinBox.setWhatsThis(""" """)
-    pd.endmax_DoubleSpinBox.setWhatsThis(""" """)
-    pd.cutoverRMS_DoubleSpinBox.setWhatsThis(""" """)
-    pd.cutoverMax_DoubleSpinBox.setWhatsThis(""" """)
+    pd.physics_engine_choice_ComboBox.setWhatsThis(
+        """This selects which physics engine to use as the default.""")
+    #pd.enable_electrostatics_CheckBox.setWhatsThis(""" """)
+    pd.watch_motion_in_realtime_CheckBox.setWhatsThis("""<p><b>Watch motion in real time</b></p>
+        <p>
+        <p>Enables/disables realtime graphical updates during adjust operations
+        when using <b>Adjust All</b> or <b>Adjust Selection</b></p>""")
+    #pd.animation_detail_level_RadioButtonList.setWhatsThis(""" """)
+    pd.constant_animation_update_RadioButton.setWhatsThis(
+        """<b>Update as fast as possible</b>
+        <p>
+        Update every 2 seconds, or faster (up to 20x/sec)if it doesn't
+        slow adjustments by more than 20%
+        </p>""")
+    pd.update_every_RadioButton.setWhatsThis("""<b>Update every <i>n units.</u></b>
+        <p>
+        Specify how often to update the model during the adjustment.
+        This allows the user to monitor results during adjustments.
+        </p>""")
+    pd.update_rate_SpinBox.setWhatsThis("""<b>Update every <i>n units.</u></b>
+        <p>
+        Specify how often to update the model during the adjustment.
+        This allows the user to monitor results during adjustments.
+        </p>""")
+#    pd.animation_detail_level_ComboBox.setWhatsThis(""" """)
+    pd.endRMS_DoubleSpinBox.setWhatsThis("""<b>EndRMS</b>
+        <p>
+        Continue until this RMS force is reached.
+        </p>""")
+    pd.endmax_DoubleSpinBox.setWhatsThis("""<b>EndMax</b>
+        <p>
+        Continue until no interaction exceeds this force.
+        </p>""")
+    pd.cutoverRMS_DoubleSpinBox.setWhatsThis("""<b>CutoverRMS</b>
+        <p>
+        Use steepest descent until this RMS force is reached.
+        </p>""")
+    pd.cutoverMax_DoubleSpinBox.setWhatsThis("""<b>CutoverMax</b>
+        <p>Use steepest descent until no interaction exceeds this force.
+        </p>""")
     return
 
 def setWhatsThis_Plugins(pd):
@@ -453,42 +486,83 @@ def setWhatsThis_Plugins(pd):
     return
     
 def setWhatsThis_Undo(pd):
-    pd.undo_restore_view_CheckBox.setWhatsThis(""" """)
-    pd.undo_automatic_checkpoints_CheckBox.setWhatsThis(""" """)
-    pd.undo_stack_memory_limit_SpinBox.setWhatsThis(""" """)
+    pd.undo_restore_view_CheckBox.setWhatsThis(
+        """<p><b>Restore view when undoing structural changes</b></p>
+        <p>
+        <p>When checked, the current view is stored along with each
+        <b><i>structural change</i></b> on the undo stack.  The view is then
+        restored when the user undoes a structural change.</p>
+        <p><b><i>Structural changes</i></b> include any operation that modifies
+        the model. Examples include adding, deleting or moving an atom,
+        chunk or jig. </p>
+        <p>Selection (picking/unpicking) and view changes are examples of
+        operations that do not modify the model
+        (i.e. are not structural changes).
+        </p>""")
+    pd.undo_automatic_checkpoints_CheckBox.setWhatsThis(
+        """<p><b>Automatic checkpoints</b></p>
+        <p>
+        Specifies whether <b>automatic checkpointing</b> is enabled/disabled
+        during program startup only. It does not enable/disable
+        <b>automatic checkpointing</b> when the program is running.
+        <p><b>Automatic checkpointing</b> can be enabled/disabled by the user
+        at any time from <b>Edit > Automatic checkpointing</b>. When enabled,
+        the program maintains the undo stack automatically.  When disabled,
+        the user is required to manually set undo checkpoints using the
+        <b>set checkpoint</b> button in the Edit Toolbar/Menu.</p>
+        <p><b>Automatic checkpointing</b> can impact program performance. By
+        disabling automatic checkpointing, the program will run faster.</p>
+        <p><b><i>Remember to you must set your own undo checkpoints manually
+        when automatic checkpointing is disabled.</i></b></p>
+        <p>""")
+    _text = """<p><b>Undo stack memory limit</b></p>
+        <p>This is the maximum amount of system memory that will be assigned 
+        to handle the <b>undo stack</b>.</p>"""
+    pd.undo_stack_memory_limit_SpinBox.setWhatsThis(_text)
+    pd.undo_stack_memory_limit_SpinBox.labelWidget.setWhatsThis(_text)
     return
 
 def setWhatsThis_Window(pd):
-    pd.current_width_SpinBox.setWhatsThis(""" """)
-    pd.current_height_SpinBox.setWhatsThis(""" """)
-    pd.current_size_save_Button.setWhatsThis(""" """)
-    pd.restore_saved_size_Button.setWhatsThis(""" """)
-    pd.saved_size_label.setWhatsThis(""" """)
-    pd.save_size_on_quit_CheckBox.setWhatsThis(""" """)
-    pd.caption_prefix_LineEdit.setWhatsThis(""" """)
-    pd.caption_suffix_LineEdit.setWhatsThis(""" """)
-    pd.caption_prefix_save_ToolButton.setWhatsThis(""" """)
-    pd.caption_suffix_save_ToolButton.setWhatsThis(""" """)
-    pd.display_full_path_CheckBox.setWhatsThis(""" """)
-    pd.use_custom_font_CheckBox.setWhatsThis(""" """)
-    pd.custom_fontComboBox.setWhatsThis(""" """)
-    pd.custom_font_size_SpinBox.setWhatsThis(""" """)
-    pd.make_default_font_PushButton.setWhatsThis(""" """)
+    #pd.current_width_SpinBox.setWhatsThis(""" """)
+    #pd.current_height_SpinBox.setWhatsThis(""" """)
+    pd.current_size_save_Button.setWhatsThis(
+        """<p>Saves the main window's current position and size for the next
+        time the program starts.</p>""")
+    pd.restore_saved_size_Button.setWhatsThis(
+        """<p>Restores the main window's current position from the last time
+        the program was closed</p>""")
+    #pd.saved_size_label.setWhatsThis(""" """)
+    #pd.save_size_on_quit_CheckBox.setWhatsThis(""" """)
+    _text = """<p>Format prefix and suffix text the delimits the part name in the
+        caption in window border.</p>"""
+    pd.caption_prefix_LineEdit.setWhatsThis(_text)
+    pd.caption_suffix_LineEdit.setWhatsThis(_text)
+#    pd.caption_prefix_LineEdit.labelWidget.setWhatsThis(_text)
+#    pd.caption_suffix_LineEdit.labelWidget.setWhatsThis(_text)
+    pd.display_full_path_CheckBox.setWhatsThis(_text)
+    pd.caption_prefix_save_ToolButton.setWhatsThis(
+        """Saves the current caption prefix.""")
+    pd.caption_suffix_save_ToolButton.setWhatsThis(
+        """Saves the current caption suffix.""")
+    #pd.use_custom_font_CheckBox.setWhatsThis(""" """)
+    #pd.custom_fontComboBox.setWhatsThis(""" """)
+    #pd.custom_font_size_SpinBox.setWhatsThis(""" """)
+    #pd.make_default_font_PushButton.setWhatsThis(""" """)
     return
 
 def setWhatsThis_Reports(pd):
-    pd.history_include_message_serial_CheckBox.setWhatsThis(""" """)
-    pd.history_include_message_timestamp_CheckBox.setWhatsThis(""" """)
+#    pd.history_include_message_serial_CheckBox.setWhatsThis(""" """)
+#    pd.history_include_message_timestamp_CheckBox.setWhatsThis(""" """)
     return
 
 def setWhatsThis_Tooltips(pd):
-    pd.atom_chunk_information_CheckBox.setWhatsThis(""" """)
-    pd.atom_mass_information_CheckBox.setWhatsThis(""" """)
-    pd.atom_XYZ_coordinates_CheckBox.setWhatsThis(""" """)
-    pd.atom_XYZ_distance_CheckBox.setWhatsThis(""" """)
-    pd.atom_include_vdw_CheckBox.setWhatsThis(""" """)
-    pd.atom_distance_precision_SpinBox.setWhatsThis(""" """)
-    pd.atom_angle_precision_SpinBox.setWhatsThis(""" """)
-    pd.bond_distance_between_atoms_CheckBox.setWhatsThis(""" """)
-    pd.bond_chunk_information_CheckBox.setWhatsThis(""" """)
+#    pd.atom_chunk_information_CheckBox.setWhatsThis(""" """)
+#    pd.atom_mass_information_CheckBox.setWhatsThis(""" """)
+#    pd.atom_XYZ_coordinates_CheckBox.setWhatsThis(""" """)
+#    pd.atom_XYZ_distance_CheckBox.setWhatsThis(""" """)
+#    pd.atom_include_vdw_CheckBox.setWhatsThis(""" """)
+#    pd.atom_distance_precision_SpinBox.setWhatsThis(""" """)
+#    pd.atom_angle_precision_SpinBox.setWhatsThis(""" """)
+#    pd.bond_distance_between_atoms_CheckBox.setWhatsThis(""" """)
+#    pd.bond_chunk_information_CheckBox.setWhatsThis(""" """)
     return

@@ -500,8 +500,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.pref_splitter.setObjectName("pref_splitter")
 
         self.categoriesTreeWidget = QtGui.QTreeWidget(self.pref_splitter)
-        self.categoriesTreeWidget.setMinimumWidth(100)
-#        self.categoriesTreeWidget.setMaximumWidth(250)
+        self.categoriesTreeWidget.setMinimumWidth(150)
         self.categoriesTreeWidget.setObjectName("categoriesTreeWidget")
 #        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
 #        sizePolicy.setHorizontalStretch(0)
@@ -519,6 +518,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
 #        self.pref_splitter.setSizePolicy(sizePolicy)
 
         self.pref_splitter.addWidget(self.prefsStackedWidget)
+        self.pref_splitter.setStretchFactor(0, 2)
+        self.pref_splitter.setStretchFactor(1, 13)
         self.tabWidget.addTab(self.tab,"")
         self.vboxlayout.addWidget(self.tabWidget)
 
@@ -1065,22 +1066,26 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                              widgetColumn = 0,
                                                              text = "Watch motion in real time")
         self.constant_animation_update_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
-                                                               text = "Update as often as possible")
+                                                               text = "Update as often\nas possible")
         self.update_every_RadioButton = PM_RadioButton(physics_engine_animation_GroupBox,
-                                                               text = "Update Every  ")
+                                                               text = "Update every  ")
         self.update_rate_SpinBox = PM_SpinBox(physics_engine_animation_GroupBox,
-                                           label = "")
+                                              minimum = 1,
+                                              label = "")
         _choices = ["frames", "seconds", "minutes", "hours"]
         self.animation_detail_level_ComboBox = PM_ComboBox(physics_engine_animation_GroupBox, 
                                       label =  "",
                                       choices = _choices, 
                                       setAsDefault = False)
-        aWidgetList = [ ("PM_RadioButton", self.update_every_RadioButton, 0),
-                        ("PM_SpinBox", self.update_rate_SpinBox, 1),
-                        ("PM_ComboBox", self.animation_detail_level_ComboBox, 3) ]
-        self.detail_level_row = PM_WidgetRow(physics_engine_animation_GroupBox,
+        aWidgetList = [ 
+            ("PM_RadioButton", self.constant_animation_update_RadioButton, 0, 0),
+            ("PM_RadioButton", self.update_every_RadioButton, 0, 1),
+            ("PM_SpinBox", self.update_rate_SpinBox, 1, 1),
+            ("PM_ComboBox", self.animation_detail_level_ComboBox, 2, 1) ]
+        self.animation_detail_level_RadioButtonList = PM_WidgetGrid(
+                                        physics_engine_animation_GroupBox,
                                         widgetList = aWidgetList,
-                                        spanWidth = False)
+                                        spanWidth = True)
         convergence_criteria_GroupBox = PM_GroupBox(_pageContainer,
                                                     title = "Convergence criteria",
                                                     connectTitleButton = False)

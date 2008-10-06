@@ -1250,9 +1250,13 @@ class Preferences(PreferencesDialog):
         connect_checkbox_with_boolean_pref(self.enable_electrostatics_CheckBox,
             electrostaticsForDnaDuringAdjust_prefs_key)
         # GROUPBOX: Pysics engine animation options
-        connect_checkbox_with_boolean_pref(
-            self.watch_motion_in_realtime_CheckBox,
-            Adjust_watchRealtimeMinimization_prefs_key)
+        self.watch_motion_in_realtime_CheckBox.setChecked(
+            env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
+        self.set_and_enable_realtime(
+            env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
+        self.connect(self.watch_motion_in_realtime_CheckBox, 
+                     SIGNAL("toggled(bool)"), self.set_and_enable_realtime)
+        self.constant_animation_update_RadioButton.setChecked(True)
         # GROUPBOX: Convergence criteria
         connect_doubleSpinBox_with_pref(self.endRMS_DoubleSpinBox,
                                         Adjust_endRMS_prefs_key)
@@ -1266,6 +1270,12 @@ class Preferences(PreferencesDialog):
         self.endmax_DoubleSpinBox.setSpecialValueText("Automatic")
         self.cutoverRMS_DoubleSpinBox.setSpecialValueText("Automatic")
         self.cutoverMax_DoubleSpinBox.setSpecialValueText("Automatic")
+        return
+    
+    def set_and_enable_realtime(self, state):
+        if env.prefs[Adjust_watchRealtimeMinimization_prefs_key] != state:
+            env.prefs[Adjust_watchRealtimeMinimization_prefs_key] = state
+        self.animation_detail_level_RadioButtonList.setEnabled(state)
         return
     
     # PAGE: PLUGINS ==========================================================
@@ -1405,8 +1415,8 @@ class Preferences(PreferencesDialog):
 
         state = self.checkboxes["GROMACS"].checkState()
         if enable:
-            if (state != Qt.Checked):
-                self.checkboxes["GROMACS"].setCheckState(Qt.Checked)
+            if (state != CHECKED):
+                self.checkboxes["GROMACS"].setCheckState(CHECKED)
             self.choosers["GROMACS"].setEnabled(True)
             env.prefs[gromacs_enabled_prefs_key] = True
 
@@ -1419,8 +1429,8 @@ class Preferences(PreferencesDialog):
             self.choosers["GROMACS"].setText(env.prefs[gromacs_path_prefs_key])
 
         else:
-            if (state != Qt.Unchecked):
-                self.checkboxes["GROMACS"].setCheckState(Qt.Unchecked)
+            if (state != UNCHECKED):
+                self.checkboxes["GROMACS"].setCheckState(UNCHECKED)
             self.choosers["GROMACS"].setEnabled(False)
             #self.gromacs_path_lineedit.setText("")
             #env.prefs[gromacs_path_prefs_key] = ''
@@ -1447,8 +1457,8 @@ class Preferences(PreferencesDialog):
         """
         state = self.checkboxes["cpp"].checkState()
         if enable:
-            if (state != Qt.Checked):
-                self.checkboxes["cpp"].setCheckState(Qt.Checked)
+            if (state != CHECKED):
+                self.checkboxes["cpp"].setCheckState(CHECKED)
             self.choosers["cpp"].setEnabled(True)
             env.prefs[cpp_enabled_prefs_key] = True
 
@@ -1461,8 +1471,8 @@ class Preferences(PreferencesDialog):
             self.choosers["cpp"].setText(env.prefs[cpp_path_prefs_key])
 
         else:
-            if (state != Qt.Unchecked):
-                self.checkboxes["cpp"].setCheckState(Qt.Unchecked)
+            if (state != UNCHECKED):
+                self.checkboxes["cpp"].setCheckState(UNCHECKED)
             self.choosers["cpp"].setEnabled(False)
             #self.cpp_path_lineedit.setText("")
             #env.prefs[cpp_path_prefs_key] = ''
@@ -1491,8 +1501,8 @@ class Preferences(PreferencesDialog):
 
         state = self.checkboxes["Rosetta"].checkState()
         if enable:
-            if (state != Qt.Checked):
-                self.checkboxes["Rosetta"].setCheckState(Qt.Checked)
+            if (state != CHECKED):
+                self.checkboxes["Rosetta"].setCheckState(CHECKED)
             self.choosers["Rosetta"].setEnabled(True)
             env.prefs[rosetta_enabled_prefs_key] = True
 
@@ -1505,8 +1515,8 @@ class Preferences(PreferencesDialog):
             self.choosers["Rosetta"].setText(env.prefs[rosetta_path_prefs_key])
 
         else:
-            if (state != Qt.Unchecked):
-                self.checkboxes["Rosetta"].setCheckState(Qt.Unchecked)
+            if (state != UNCHECKED):
+                self.checkboxes["Rosetta"].setCheckState(UNCHECKED)
             self.choosers["Rosetta"].setEnabled(False)
             env.prefs[rosetta_enabled_prefs_key] = False
         return
@@ -1533,8 +1543,8 @@ class Preferences(PreferencesDialog):
 
         state = self.checkboxes["Rosetta DB"].checkState()
         if enable:
-            if (state != Qt.Checked):
-                self.checkboxes["Rosetta DB"].setCheckState(Qt.Checked)
+            if (state != CHECKED):
+                self.checkboxes["Rosetta DB"].setCheckState(CHECKED)
             self.choosers["Rosetta DB"].setEnabled(True)
             env.prefs[rosetta_database_enabled_prefs_key] = True
 
@@ -1547,8 +1557,8 @@ class Preferences(PreferencesDialog):
             self.choosers["Rosetta DB"].setText(env.prefs[rosetta_dbdir_prefs_key])
 
         else:
-            if (state != Qt.Unchecked):
-                self.checkboxes["Rosetta DB"].setCheckState(Qt.Unchecked)
+            if (state != UNCHECKED):
+                self.checkboxes["Rosetta DB"].setCheckState(UNCHECKED)
             self.choosers["Rosetta DB"].setEnabled(False)
             env.prefs[rosetta_database_enabled_prefs_key] = False
         return
