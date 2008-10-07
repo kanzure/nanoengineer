@@ -59,8 +59,18 @@ class GLPrimitiveSet:
     collected from the CSDLs in a DrawingSet.
     """
     def __init__(self, csdl_list):
-        # XXX Initial dummy version, just holds the CSDL list.
         self.CSDLs = csdl_list
+        
+        # Collect lists of primitives to draw in batches, and those CSDLs with
+        # display lists to draw as well.  (A given CSDL may have both.)
+        self.primitives = []
+        self.CSDLs_with_DLs = []
+        for csdl in self.CSDLs:
+            self.primitives += csdl.spheres
+            if len(csdl.per_color_dls) > 0:
+                self.CSDLs_with_DLs += [csdl]
+                pass
+            continue
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this GLPrimitiveSet was created.
@@ -73,13 +83,19 @@ class GLPrimitiveSet:
         """
         Draw the cached display.
         """
+        # XXX Need to generate and cache index lists for selective drawing of
+        # primitives through glMultiDrawElements().  For initial testing,
+        # GLPrimitiveBuffer now draws the whole set of sphere primitives using
+        # glDrawElements().
+        if len(self.primitives) > 0:
+            drawing_globals.spherePrimitives.draw()
+
         # Put TransformControl matrices onto the GL matrix stack if present.
         # Does nothing if the TransformControls all have a tranform of None.
-        # Pushing/popping could be minimized by sorting the cached CSDL's.
+        # (Pushing/popping could be minimized by sorting the cached CSDL's.)
         lastTC = None
         pushed = False
-
-        for csdl in self.CSDLs:
+        for csdl in self.CSDLs_with_DLs:
             tc = csdl.transformControl
             if tc is not None and tc != lastTC:
                 # Restore matrix stack top to push a different transform.

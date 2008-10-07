@@ -142,8 +142,6 @@ from OpenGL.GL.ARB.vertex_program import glVertexAttrib1fARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttrib3fARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 
-from OpenGL.GL.ARB.vertex_shader import glGetAttribLocationARB
-
 # Constants.
 HUNK_SIZE = 10000               # The number of primitives in each VBO hunk.
 BYTES_PER_FLOAT = 4             # All per-vertex attributes are floats in GLSL.
@@ -279,8 +277,8 @@ class GLPrimitiveBuffer(object):
             # primitive block in the vertex hunk.
             for face in self.indexBlock:
                 Py_iboIndices += [idx + indexOffset for idx in face]
-                indexOffset += self.nIndices
                 continue
+            indexOffset += self.nVertices
             continue
 
         # Push shared vbo/ibo hunk data through C to the graphics card RAM.
@@ -308,7 +306,7 @@ class GLPrimitiveBuffer(object):
 
         glEnableClientState(GL_VERTEX_ARRAY)
 
-        if texture_xforms:
+        if shader.get_texture_xforms():
             # Activate a texture unit for transforms.
             ## XXX Not necessary for custom shader programs.
             ##glEnable(GL_TEXTURE_2D)
@@ -338,10 +336,10 @@ class GLPrimitiveBuffer(object):
             if hunkNumber < self.nHunks-1:
                 nToDraw = HUNK_SIZE # Hunks before the last.
             else:
-                nToDraw = self.nPrims - self.nHunks * HUNK_SIZE
+                nToDraw = self.nPrims - (self.nHunks-1) * HUNK_SIZE
             # Shared vertex index data IBO: GL_ELEMENT_ARRAY_BUFFER_ARB
             self.hunkIndexIBO.bind()
-            glDrawElements(GL_QUADS, self.nVertices * nToDraw,
+            glDrawElements(GL_QUADS, self.nIndices * nToDraw,
                        GL_UNSIGNED_INT, None)
 
         shader.use(False)           # Turn off the sphere shader.
@@ -383,7 +381,7 @@ class HunkBuffer:
         # Look up the location of the named generic vertex attribute in the
         # previously linked shader program object.
         shader = drawing_globals.sphereShader
-        self.attribLocation = glGetAttribLocationARB(shader.progObj, attribName)
+        self.attribLocation = shader.attribute(attribName)
 
         # Cache the Python data that will be sent to the graphics card RAM.
         # Internally, the data is a list, block-indexed by primitive ID, but
@@ -404,7 +402,7 @@ class HunkBuffer:
 
     def bindHunk(self, hunkNumber):
         glEnableVertexAttribArrayARB(self.attribLocation)
-        hunks[hunkNumber].VBO.bind()
+        self.hunks[hunkNumber].VBO.bind()
         glVertexAttribPointerARB(self.attribLocation, self.nCoords,
                                  GL_FLOAT, 0, 0, None)
         return

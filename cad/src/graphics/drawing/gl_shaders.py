@@ -131,6 +131,8 @@ from OpenGL.GL.ARB.shader_objects import glUniformMatrix4fvARB
 from OpenGL.GL.ARB.shader_objects import glUseProgramObjectARB
 from OpenGL.GL.ARB.shader_objects import glValidateProgramARB
 
+from OpenGL.GL.ARB.vertex_shader import glGetAttribLocationARB
+
 _warnedVars = {}
 
 class GLSphereShaderObject(object):
@@ -316,6 +318,33 @@ class GLSphereShaderObject(object):
         """
         return glGetUniformivARB(self.progObj, self.uniform(name))
 
+    def attribute(self, name):
+        """
+        Return location of an attribute (per-vertex input) shader variable.
+        Raise a ValueError if it isn't found.
+        """
+        loc = glGetAttribLocationARB(self.progObj, name)
+        if loc == -1:
+            msg = "Invalid or unused attribute variable name '%s'." % name
+            if EndUser.enableDeveloperFeatures():
+                # Developers want to know of a mismatch between their Python
+                # and shader programs as soon as possible.  Not doing so causes
+                # logic errors, or at least incorrect assumptions, to silently
+                # propagate through the code and makes debugging more difficult.
+                assert 0, msg
+            else:
+                # End users on the other hand, may value program stability more.
+                # Just print a warning if the program is released.  Do it only
+                # once per session, since this will be in the inner draw loop!
+                global _warnedVars
+                if name not in _warnedVars:
+                    print "Warning:", msg
+                    _warnedVars += [name]
+                    pass
+                pass
+            pass
+        return loc
+
     def use(self, on):
         """
         Activate a shader.
@@ -481,11 +510,11 @@ uniform int n_transforms;
 // Attribute variables, which are bound to VBO arrays for each vertex coming in.
 attribute vec4 center_rad;       // Per-vertex sphere center point and radius.
 // The following may be set to constants, when no arrays are provided.
-attribute vec4 color_opacity;   // Per-vertex sphere color and opacity.
+attribute vec4 color;           // Per-vertex sphere color and opacity (RGBA).
 attribute float transform_id;   // Ignored if zero.  (Attribs can't be ints.)
 
 // Varying outputs, through the pipeline to the fragment (pixel) shader.
-varying vec3 var_basecolor;     // Vertex color, interpolated to pixels.
+varying vec4 var_basecolor;     // Vertex color, interpolated to pixels.
 varying float var_opacity;      // Vertex opacity, interpolated to pixels.
 varying vec3 var_vert;          // Viewing direction vector.
 varying vec3 var_center;        // Transformed sphere var_center.
@@ -495,8 +524,7 @@ varying float var_radius_squared;  // Transformed sphere radius, squared.
 void main(void) {
 
   // Fragment (pixel) color will be interpolated from the vertex colors.
-  var_basecolor = color_opacity.xyz;
-  var_opacity = color_opacity.w;
+  var_basecolor = color;
 
   // The center point and radius are combined in one attribute: center_rad.
   vec4 center = vec4(center_rad.xyz, 1.0);
@@ -564,13 +592,14 @@ void main(void) {
     data = transform_id / float(n_transforms);
 
   // Default - Column-major indexing: red is column index, green is row index.
-  var_basecolor = vec3(float(col)/float(n_transforms),
+  var_basecolor = vec4(float(col)/float(n_transforms),
                        float(row)/float(n_transforms),
-                       data);
-  ///if (data == 0.0) var_basecolor = vec3(1.0, 1.0, 1.0);  // Zeros in white.
-  if (data > 0.0) var_basecolor = vec3(data, data, data);  // Fractions in gray.
+                       data, 1.0);
+  ///if (data == 0.0) var_basecolor = vec4(1.0); // Zeros in white.
+  if (data > 0.0)
+    var_basecolor = vec4(data, data, data, 1.0); // Fractions in gray.
   // Matrix labels (1 + xform/100) in blue.
-  if (data > 1.0) var_basecolor = vec3(0.0, 0.0, (data - 1.0) * 8.0);
+  if (data > 1.0) var_basecolor = vec4(0.0, 0.0, (data - 1.0) * 8.0, 1.0);
     
   /// When debugging, don't use the xform'ed vertex, which could be all zeros.
   // Transform the vertex through the modeling and viewing matrix to 'eye' space.
@@ -642,7 +671,7 @@ varying vec3 var_eye;
 varying vec3 var_vert;
 varying vec3 var_center;
 varying float var_radius_squared;
-varying vec3 var_basecolor;
+varying vec4 var_basecolor;
 
 uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
 
@@ -697,7 +726,8 @@ void main(void) {
   specular *= material[2]; // Specular intensity.
 
   float ambient = material[0];
-  gl_FragColor = vec4(var_basecolor * vec3(diffuse) + vec3(ambient + specular),
-                      1.0);
+  gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse) +
+                        vec3(ambient + specular),
+                      var_basecolor.a);
 }
 """
