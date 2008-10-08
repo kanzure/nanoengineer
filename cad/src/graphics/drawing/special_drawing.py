@@ -24,6 +24,8 @@ from foundation.changes import SubUsageTrackingMixin
 
 from utilities.debug import print_compact_traceback
 
+from utilities import debug_flags
+
 from OpenGL.GL import glCallList
 
 DEBUG_COMPARATOR = False
@@ -31,13 +33,25 @@ DEBUG_COMPARATOR = False
 # ==
 
 class _USE_CURRENT_class(object):
+    """
+    ###TODO: doc
+    """
     def __getitem__(self, key):
         # get the "current glpane" and its graphicsMode
         # (for purposes of determining modes & prefs)
         # (how we do it is not necessarily a kluge, given that this is being
         #  used to define a constant value for use when a better one was
         #  not passed)
-        win = env.mainWindow()
+        if debug_flags.atom_debug:
+            print "fyi: getting %r from %r" % (key, self)
+            # does this ever happen? I just fixed a typo below that would have
+            # caused an exception every time it happens. Conceivably, this
+            # will cause new bugs by making subsequent calling code work
+            # differently than it has been. [bruce 081003]
+            # Yes, this happens 5 or 6 times when entering Build Atoms command.
+            # Not sure why; not sure why exception got silently discarded before;
+            # not sure if enabling this code might make anything slower. ###
+        win = env.mainwindow()
         glpane = win.glpane
         graphicsMode = glpane.graphicsMode
         # let the graphicsMode interpret the prefs key,
@@ -56,7 +70,7 @@ class _USE_CURRENT_class(object):
         return res
     pass
 
-USE_CURRENT = _USE_CURRENT_class()
+USE_CURRENT = _USE_CURRENT_class() ### TODO: doc
 
 # ==
 
@@ -79,10 +93,37 @@ ALL_SPECIAL_DRAWING_KINDS = [SPECIAL_DRAWING_STRAND_END]
 
 class UsedValueTrackerAndComparator(object):
     """
-    Client code will have one of these...
-    when worried, call self.do_we_need_to_recompute,
-    then if true, call self.before_recompute,
-    do the computation, call self.after_recompute.
+    Abstract class. Subclasses must define method _compute_current_value,
+    which computes the current value associated with some sort of key,
+    e.g. a prefs key. They must also have "recomputation code"
+    which calls self.get_value as described below.
+
+    ### REVIEW whether this later guess is correct:
+    It is *not* necessary for _compute_current_value to do
+    "standard usage tracking" of the kind defined in changes.py.
+    This class is not directly related to that facility.
+    However, clients may want it to do that for their own purposes,
+    to track usage into the context in which they're called.
+    NOTE THAT WE CACHE VALUES and this will defeat that tracking
+    unless client code calls self.invalidate whenever they might
+    have changed. ###
+
+    Client code will have an instance of this class for each recomputation
+    it wants to track separately for the need to be redone.
+    
+    When the client wants to use the result of the computation and is
+    worried it might not be current, it calls self.do_we_need_to_recompute(),
+    which checks whether self.invalidate() has been called, and if not,
+    whether all keys that were used (i.e. passed to self.get_value)
+    last time it recomputed still have the same value (according to same_vals).
+
+    If that's false, our client can safely use its cached result from
+    the last time it recomputed.
+    
+    But if that's true, the client calls self.before_recompute(),
+    then does the computation and records the result
+    (independently of this object except for calls to self.get_value),
+    then calls self.after_recompute().
     """
 
     _recomputing = False
@@ -102,6 +143,8 @@ class UsedValueTrackerAndComparator(object):
         Prepare for the client to do another recomputation
         which will call self.get_value for all keys whose values
         we need to track usage of.
+
+        See class docstring for more info.
         """
         assert not self._recomputing
         self._ordered_key_val_pairs = [] # in order of usage
@@ -119,14 +162,14 @@ class UsedValueTrackerAndComparator(object):
         ... call this while redoing the client computation...
         It will record the value it returns, both to optimize repeated calls,
         and so it can be compared to the new current value
-        by self.are_all_values_still_the_same()
+        by self.do_we_need_to_recompute()
         when the client next considers doing a recomputation.
         """
         # usage note: current code calls this (indirectly) in place of env.prefs
         # when drawing extra displist contents
         if not self._keys_used.has_key(key):
             val = self._compute_current_value(key, context)
-            # inline _track_use
+            # inline our implementation of _track_use
             self._keys_used[key] = val
             self._ordered_key_val_pairs += [(key, val)]
         else:
@@ -144,6 +187,8 @@ class UsedValueTrackerAndComparator(object):
         # safe public version, ok to call more than once for same key;
         # inlined by get_value;
         # REVIEW: perhaps this has no direct calls and can be removed?
+        # NOTE: not directly related to env.track_use or the associated
+        # usage tracking system in changes.py.
         if not self._keys_used.has_key(key):
             self._keys_used[key] = val
             self._ordered_key_val_pairs += [(key, val)]
@@ -151,7 +196,9 @@ class UsedValueTrackerAndComparator(object):
 
     def after_recompute(self):
         """
-        ... must be called by the client after it finishes its recomputation ...
+        Must be called by the client after it finishes its recomputation.
+        
+        See class docstring for more info.
         """
         assert self._recomputing
         del self._recomputing
@@ -178,13 +225,15 @@ class UsedValueTrackerAndComparator(object):
         Do we need to recompute, now that we're in the current state
         of the given context (for purposes of current values at keys,
         as computed by self._compute_current_value)?
+
+        See class docstring for more info.
         """
         assert not self._recomputing
         if not self.valid:
             # following code would be wrong in this case
             return True
         for key, val in self.ordered_key_val_pairs():
-            # Note: doesn't call _track_use, which would be a noop.
+            # Note: doesn't call self._track_use, which would be a noop.
             newval = self._compute_current_value(key, context)
             if not same_vals(val, newval):
                 #e Could optim the test for specific keys; probably not worth it
@@ -214,8 +263,7 @@ class UsedValueTrackerAndComparator(object):
 
 # ==
 
-class SpecialDrawing_UsedValueTrackerAndComparator(
-    UsedValueTrackerAndComparator):
+class SpecialDrawing_UsedValueTrackerAndComparator( UsedValueTrackerAndComparator):
     """
     ... if necessary, reset and re-track the values used this time... knows how
     to compute them...
@@ -247,7 +295,14 @@ class SpecialDrawing_UsedValueTrackerAndComparator(
         ### TODO to fix this kluge: make a "prefs value object" which
         # wraps this object but stores glpane, to use instead of this object.
         # But note that ThumbView has no graphicsMode attribute!
-        win = env.mainWindow()
+        if debug_flags.atom_debug:
+            print "fyi: getting %r from %r" % (key, self)
+            # does this ever happen? I just fixed a typo below that would have
+            # caused an exception every time it happens. Conceivably, this
+            # will cause new bugs by making subsequent calling code work
+            # differently than it has been. [bruce 081003]
+            # Yes, it happens a lot in Break Strands command.
+        win = env.mainwindow()
         glpane = win.glpane
         graphicsMode = glpane.graphicsMode
 
@@ -260,6 +315,9 @@ class SpecialDrawing_UsedValueTrackerAndComparator(
 
 class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     """
+    Abstract class. Subclass must define method
+    _construct_args_for_drawing_functions.
+    
     Holds one ColorSortedDisplayList used for doing some kind of extra
     drawing associated with a Chunk but not drawn as part of its main
     CSDL, along with the state that determines whether this CSDL is invalid,
