@@ -46,6 +46,7 @@ from utilities.constants import debugModifiers
 from utilities.constants import noop
 from time import clock
 from utilities.debug import profile, doProfile
+from widgets.simple_dialogs import grab_text_line_using_dialog
 
 # enable the undocumented debug menu by default [bruce 040920]
 # (moved here from GLPane, now applies to all widgets using DebugMenuMixin [bruce 050112])
@@ -184,7 +185,7 @@ class DebugMenuMixin:
             
         #command entered profiling
         res.extend( [
-            ('Profile entering BuildAtoms command',
+            ('Profile entering a command...',
              self._debug_command_entered_profiling),
         ] )
             
@@ -377,14 +378,39 @@ class DebugMenuMixin:
         #to just do "win.commandSequencer.userEnterCommand('COMMAND_NAME')"
         # -- Ninad 2008-10-03
         
-        print "Profiling command enter for BuildAtoms command"
+        ALLOWED_COMMAND_NAMES = ('DEPOSIT', 
+                                 'BUILD_DNA', 
+                                 'DNA_SEGMENT', 
+                                 'DNA_STRAND',
+                                 'CRYSTAL', 
+                                 'BUILD_NANOTUBE')
+        
+        ok, commandName =  grab_text_line_using_dialog(
+            title = "profile entering given command", 
+            label = "Enter the command.commandName e.g. 'BUILD_DNA' , 'DEPOSIT'"
+        )
+        if not ok:
+            print "No command name entered , returning"
+            return
+        
+        commandName = str(commandName)
+        commandName = commandName.upper()
+        if not commandName in ALLOWED_COMMAND_NAMES:
+            print "Invalid command name %s. Returning."%(commandName)
+            return 
+        
+        print "Profiling command enter for %s"%(commandName)
+                 
         win = self._debug_win
+        meth = self.win.commandSequencer.userEnterCommand
         doProfile(True)
         tm0 = clock()
-        profile(self.win.toolsBuildAtoms)
+        profile(meth, commandName)
         tm1 = clock()
-        print "Profiling complete. Total time to enter Build Atoms = ", (tm1-tm0)
+        print "Profiling complete. Total time to enter %s = %s"%(commandName,
+                                                                 (tm1-tm0))
         doProfile(False)
+    
 
     def debug_menu_source_name(self): #bruce 050112
         """
