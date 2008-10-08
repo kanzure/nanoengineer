@@ -378,6 +378,10 @@ def startup_script( main_globals):
     # Derrick 20080520
     if ((len(sys.argv) >= 2) and sys.argv[1].endswith(".mmp")):
         foo.fileOpen(sys.argv[1])
+
+    # Do other post-startup, pre-event-loop, non-profiled things, if any
+    # (such as run optional startup commands for debugging).
+    startup_misc.just_before_event_loop()
             
     # Finally, run the main Qt event loop --
     # perhaps with profiling, depending on local variables set above.

@@ -77,6 +77,13 @@ class TestGraphics_Command(SelectAtoms_Command):
     def _set_bypass_paintgl(self, enabled):
         print "bypass_paintgl = %r" % (enabled,) #
         GLPane_rendering_methods.TEST_DRAWING = enabled
+        if enabled:
+            # BUG in test_drawing.py as of 081008
+            # on systems with not enough shader constant memory:
+            # even in a test case that doesn't use shaders, eg testCase 1,
+            # an error in setting up shaders makes the test fail;
+            # trying again gets past this somehow. Print warning about this:
+            print "\n*** bug workaround: if shader error traceback occurs, disable and reenable to retry ***\n" ###
         self.glpane.gl_update()
 
     bypass_paintgl = property( _get_bypass_paintgl,
@@ -135,7 +142,7 @@ class TestGraphics_Command(SelectAtoms_Command):
         print "bug in _get_testCaseIndex"
         return 0 # fallback to first choice
 
-    def _set_testCaseIndex(self, index): # doesn't yet work well
+    def _set_testCaseIndex(self, index): # BUG: doesn't yet work well when done during a test run
         testCase, desc_unused = AVAILABLE_TEST_CASES_ITEMS[index]
         test_drawing.testCase = testCase
         test_drawing.delete_caches()
@@ -165,6 +172,8 @@ class TestGraphics_Command(SelectAtoms_Command):
                            doc = "number on a side of a square of spheres"
                          )
 
+    _NSPHERES_CHOICES = map(str, [1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+        
     # detailLevel
 
     def _get_detailLevel(self):
@@ -213,5 +222,32 @@ def _enter_test_graphics_command(glpane):
     glpane.assy.w.enterOrExitTemporaryCommand('TEST_GRAPHICS')
 
 register_debug_menu_command( "Test Graphics Performance ...", _enter_test_graphics_command )
+
+# or for entering at startup due to debug_pref:
+
+def enter_TestGraphics_Command_at_startup(win):
+    """
+    Meant to be called only from startup_misc.just_before_event_loop().
+    To cause this to be called then (in current code as of 081006),
+    set the debug_pref "startup in Test Graphics command (next session)?".
+    """
+    # set properties the way we want them (from globals in test_drawing module).
+    # KLUGE: this has to be done before entering command, so UI in
+    # command.propMgr is set up properly.
+    from prototype import test_drawing
+    cached_command_instance = win.commandSequencer._find_command_instance( 'TEST_GRAPHICS')
+    cached_command_instance.bypass_paintgl = True
+    cached_command_instance.nSpheres = test_drawing.nSpheres
+    
+    win.commandSequencer.userEnterCommand('TEST_GRAPHICS')
+    currentCommand = win.commandSequencer.currentCommand
+    if currentCommand.commandName == 'TEST_GRAPHICS':
+        win.update() # try to make sure new PM becomes visible (BUG: doesn't
+            # work, requires click to make PM show up; don't know why ###)
+        print "\n*** bug workaround: click in GLPane to show Test Graphics PM ***" ###
+    else:
+        print "bug: tried to startup in %r, but currentCommand.commandName == %r" % \
+              ('TEST_GRAPHICS', currentCommand.commandName)
+    return
 
 # end

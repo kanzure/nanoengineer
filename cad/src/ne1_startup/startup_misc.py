@@ -297,9 +297,27 @@ def _init_miscellaneous_commands():
 def _initialize_plugin_generators(): #bruce 060621
     # The CoNTub generator isn't working - commented out until it's fixed.
     # Brian Helfrich, 2007/06/04
+    # (see also some related code in main_startup.py)
     pass
     #import CoNTubGenerator
         # note: this adds the Insert -> Heterojunction menu item.
         # kluge (sorry): as of 060621, it adds it at a hardcoded menu index.
+
+def just_before_event_loop():
+    """
+    do post-startup, pre-event-loop, non-profiled things, if any
+    (such as run optional startup commands for debugging)
+    """
+    #bruce 081003
+    from utilities.debug_prefs import debug_pref, Choice_boolean_False
+    if debug_pref("startup in Test Graphics command (next session)?",
+                  Choice_boolean_False, 
+                  prefs_key = True ):
+        import foundation.env as env
+        win = env.mainwindow()
+        from commands.TestGraphics.TestGraphics_Command import enter_TestGraphics_Command_at_startup
+        enter_TestGraphics_Command_at_startup( win)
+        pass
+    return
 
 # end

@@ -53,10 +53,14 @@ AVAILABLE_TEST_CASES_ITEMS.sort()
 # Draw an array of nSpheres x nSpheres, with divider gaps every 10 and 100.
 # 10, 25, 50, 100, 132, 200, 300, 400, 500...
 
+# safe default values for general use.
+# Uncomment one of the overriding assignments below when debugging.
+testCase = 1; nSpheres = 10; chunkLength = 24
+
 #testCase = 1; nSpheres = 132
 #testCase = 8; nSpheres = 50; chunkLength = 24
 #testCase = 8; nSpheres = 132; chunkLength = 24
-testCase = 8.1; nSpheres = 50; chunkLength = 24
+#testCase = 8.1; nSpheres = 50; chunkLength = 24
 #testCase = 8.1; nSpheres = 75; chunkLength = 24
 #testCase = 8.1; nSpheres = 100; chunkLength = 200
 #testCase = 8.1; nSpheres = 100; chunkLength = 50

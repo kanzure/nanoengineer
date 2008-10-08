@@ -19,7 +19,6 @@ from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from utilities.prefs_constants import levelOfDetail_prefs_key
 
 
-_NSPHERES_CHOICES = map(str, [1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
 
 from command_support.Command_PropertyManager import Command_PropertyManager
 # ==
@@ -77,9 +76,13 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
         
         self._cb1 = \
             PM_CheckBox(pmGroupBox,
-                        text         = 'bypass paintGL',
+                        text         = 'bypass paintGL (and\nuse these options)',
                         )
         self._cb1.connectWithState( ObjAttr_StateRef( self.command, 'bypass_paintgl' ))
+            # note: this state (unlike the highest-quality staterefs)
+            # is not change-tracked [as of 081003], so nothing aside from
+            # user clicks on this checkbox should modify it after this runs,
+            # or our UI state will become out of sync with the state.
 
         self._cb2 = \
             PM_CheckBox(pmGroupBox,
@@ -107,10 +110,11 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
 
         self.nSpheres_ComboBox = PM_ComboBox(pmGroupBox, 
                                       label =  "n x n spheres:", labelColumn = 0,
-                                      choices = _NSPHERES_CHOICES,
+                                      choices = self.command._NSPHERES_CHOICES,
                                       setAsDefault = False )
-        self.nSpheres_ComboBox.setCurrentIndex(3) # nSpheres = 10 by default
-        self._set_nSpheresIndex(3)
+        nSpheres_index = self.command._NSPHERES_CHOICES.index( str( self.command.nSpheres) )
+        self.nSpheres_ComboBox.setCurrentIndex( nSpheres_index)
+        self._set_nSpheresIndex( nSpheres_index)
         
         self.detail_level_ComboBox = PM_ComboBox(pmGroupBox, 
                                       label =  "Level of detail:", labelColumn = 0,
@@ -172,7 +176,7 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
     # ==
 
     def _set_nSpheresIndex(self, index):
-        self.command.nSpheres = int( _NSPHERES_CHOICES[index] )
+        self.command.nSpheres = int( self.command._NSPHERES_CHOICES[index] )
         
     def set_level_of_detail_index(self, level_of_detail_index): # copied from other code, renamed, revised
         """
