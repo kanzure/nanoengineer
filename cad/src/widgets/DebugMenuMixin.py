@@ -383,7 +383,12 @@ class DebugMenuMixin:
                                  'DNA_SEGMENT', 
                                  'DNA_STRAND',
                                  'CRYSTAL', 
-                                 'BUILD_NANOTUBE')
+                                 'BUILD_NANOTUBE', 
+                                 'NANOTUBE_SEGMENT',
+                                 'EXTRUDE', 
+                                 'MODIFY',
+                                 'MOVIE'
+                                 )
         
         ok, commandName =  grab_text_line_using_dialog(
             title = "profile entering given command", 
