@@ -138,7 +138,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
         if TEST_DRAWING:                # See prototype/test_drawing.py .
             from prototype.test_drawing import test_drawing
                 # intentionally redundant with toplevel import [bruce 080930]
+            self.graphicsMode.gm_start_of_paintGL(self)
             test_drawing(self)
+            self.graphicsMode.gm_end_of_paintGL(self)
             return
         
         self._frustum_planes_available = False
@@ -273,6 +275,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
         self._needs_repaint = False
             # do this now, even if we have an exception during the repaint
 
+        self.graphicsMode.gm_start_of_paintGL(self)
+
         #k not sure whether _restore_modelview_stack_depth is also needed
         # in the split-out standard_repaint [bruce 050617]
         self._restore_modelview_stack_depth()
@@ -302,6 +306,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
             method( self) # let the graphicsMode override it
 
         glFlush()
+
+        self.graphicsMode.gm_end_of_paintGL(self)
 
         ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
 
@@ -838,8 +844,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
                     self.graphicsMode.compass_moved_in_from_corner,
                     env.prefs[displayCompassLabels_prefs_key]
                    )
-        return
-    
+        return    
+
     pass
 
 # ==

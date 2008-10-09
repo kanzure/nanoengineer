@@ -76,6 +76,9 @@ class GraphicsMode_API(object):
 
     # drawing stages
 
+    def gm_start_of_paintGL(self, glpane):
+        return
+
     def Draw(self):
         return
 
@@ -89,6 +92,9 @@ class GraphicsMode_API(object):
         """
         @see: GraphicsMode version, for docstring
         """
+        return
+
+    def gm_end_of_paintGL(self, glpane):
         return
     
     # cursor

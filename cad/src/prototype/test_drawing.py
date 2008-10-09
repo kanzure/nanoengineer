@@ -19,14 +19,9 @@ the bottleneck.  These tests were done as a series of explorations into finding
 and avoiding those bottlenecks.
 
 To turn it on, enable TEST_DRAWING at the start of
-graphics/widgets/GLPane_rendering_methods.py .
+graphics/widgets/GLPane_rendering_methods.py,
+and set the debug_pref which invokes the TestGraphics_Command.
 """
-
-from geometry.VQT import Q, V
-
-ALWAYS_GL_UPDATE = True  # Always redraw as often as possible.
-SPIN = True # spin the view...
-_SPINQUAT = Q(V(1,0,0),V(0,0,1))/90.0 # ... by 1 degree per frame
 
 DRAWSPHERE_DETAIL_LEVEL = 2
 
@@ -87,8 +82,6 @@ testCase = 1; nSpheres = 10; chunkLength = 24
 #nSpheres = 400; transformChunkLength = 8 # 20000 chunks.
 #nSpheres = 500; transformChunkLength = 8 # 31250 chunks.
 
-printFrames = True # False    # Prints frames-per-second if set.
-
 from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 
 import graphics.drawing.drawing_globals as drawing_globals
@@ -145,8 +138,8 @@ from OpenGL.GL.ARB.vertex_program import glDisableVertexAttribArrayARB
 from OpenGL.GL.ARB.vertex_program import glEnableVertexAttribArrayARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 
-from time import time
-from math import sin, pi, fmod
+import time
+from math import sin, pi, fmod, floor
 
 def delete_caches():
     """
@@ -158,7 +151,7 @@ def delete_caches():
     # Ideally we'd refactor this whole file so each testCase was its own class,
     # with instances containing the cached objects and draw methods.
     global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres, test_DrawingSet
-    global frame_count, last_frame, last_time, C_array, start_pos
+    global C_array, start_pos
 
     test_csdl = None
     test_dl = None
@@ -167,10 +160,6 @@ def delete_caches():
     test_vbo = None
     test_spheres = None
     test_DrawingSet = None
-
-    frame_count = 0
-    last_frame = 0
-    last_time = time()
 
     C_array = None
 
@@ -207,9 +196,12 @@ _USE_SHADERS = True # change to false if loading them fails the first time
 
 def test_drawing(glpane):
     """
-    When TEST_DRAWING is enabled at the beginning of graphics/widgets/glPane.py,
-    this file is loaded and GLPane.paintGL() calls the test_drawing() function
-    instead of the usual body of paintGL().
+    When TEST_DRAWING is enabled at the start of
+    graphics/widgets/GLPane_rendering_methods.py,
+    and when TestGraphics_Command is run (see its documentation
+    for various ways to do that),
+    this file is loaded and GLPane.paintGL() calls the
+    test_drawing() function instead of the usual body of paintGL().
     """
     # Load the sphere shaders if needed.
     global _USE_SHADERS
@@ -228,14 +220,7 @@ def test_drawing(glpane):
                 raise
             pass
 
-    global frame_count, last_frame, last_time, start_pos
-    frame_count += 1
-    now = time()
-    if printFrames and int(now) > int(last_time):
-        print "  %4.1f fps" % ((frame_count - last_frame) / (now - last_time))
-        last_frame = frame_count
-        last_time = now
-        pass
+    global start_pos
 
     glpane.scale = nSpheres * .6
     glpane._setup_modelview()
@@ -414,7 +399,8 @@ def test_drawing(glpane):
             shader.configShader(glpane)
 
             # Update portions for animation.
-            pulse = time() - last_time  # 0 to 1 in each second.
+            pulse = time.time()
+            pulse -= floor(pulse) # 0 to 1 in each second
 
             # Test animating updates on 80% of the radii in 45% of the columns.
 
@@ -849,7 +835,7 @@ def test_drawing(glpane):
             elif testCase == 8.2:
                 # Animate TCs, rotating them slowly.
                 slow = 10.0 # Seconds.
-                angle = 2*pi * fmod(time(), slow) / slow
+                angle = 2*pi * fmod(time.time(), slow) / slow
                 # Leave the first one as identity, and rotate the others in
                 # opposite directions around the X axis.
                 TCs[1].identTranslateRotate(V(0, 0, 0), Q(V(1, 0, 0), angle * 2))
@@ -863,20 +849,6 @@ def test_drawing(glpane):
 
     glMatrixMode(GL_MODELVIEW)
     glFlush()
-    
-    if ALWAYS_GL_UPDATE:
-        glpane.gl_update()
-    
-    if SPIN:
-        ## glpane.quat += _SPINQUAT
-            # that version has cumulative numerical error, causing an exception every few seconds:
-            ##  File "/Nanorex/Working/trunk/cad/src/geometry/VQT.py", line 448, in __iadd__
-            ##    self.normalize()
-            ##  File "/Nanorex/Working/trunk/cad/src/geometry/VQT.py", line 527, in normalize
-            ##    s = ((1.0 - w**2)**0.5) / length
-            ##ValueError: negative number cannot be raised to a fractional power
-        glpane.quat = glpane.quat + _SPINQUAT
-        pass
     
     return
 

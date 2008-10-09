@@ -24,13 +24,98 @@ import foundation.env as env
 
 from utilities.prefs_constants import levelOfDetail_prefs_key
 
+from time import time
+
+from geometry.VQT import Q, V
+
+# ==
+
+# globals which can be changed at runtime; only used by TestGraphics_GraphicsMode
+
+class test_globals:
+    ALWAYS_GL_UPDATE = True  # redraw as often as possible
+    SPIN = True # spin the view on each redraw ...
+    SPINQUAT = Q(V(1,0,0),V(0,0,1))/90.0 # ... by 1 degree per frame
+    printFrames = True # print frames-per-second to console
+    ### REVIEW: TEST_DRAWING too?
+
+# other globals
+frame_count = 0
+last_frame = 0
+last_time = time()
+
 
 # == GraphicsMode part
+
+_superclass_GM = SelectAtoms_GraphicsMode
 
 class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
     """
     Graphics mode for TestGraphics command. 
     """
+##    ### todo (elsewhere):
+##    parentGraphicsMode = self.command.parentCommand.graphicsMode
+    
+    def gm_start_of_paintGL(self, glpane):
+        """
+        This is called near the start of every call of glpane.paintGL
+        (but after whatever model updates, etc, are required before redraw),
+        unless the redraw will be skipped for some reason.
+        """
+        # maybe: if it returns true, skip the rest, including the end call?
+        # maybe: only call it if higher-level skips don't happen?
+
+        # TODO: store time for single-frame timing (so we know how much of
+        # the frame time implied by printed fps occurs outside of paintGL)
+
+        if test_globals.SPIN:
+            ## glpane.quat += SPINQUAT
+                # that version has cumulative numerical error, causing an exception every few seconds:
+                ##  File "/Nanorex/Working/trunk/cad/src/geometry/VQT.py", line 448, in __iadd__
+                ##    self.normalize()
+                ##  File "/Nanorex/Working/trunk/cad/src/geometry/VQT.py", line 527, in normalize
+                ##    s = ((1.0 - w**2)**0.5) / length
+                ##ValueError: negative number cannot be raised to a fractional power
+            glpane.quat = glpane.quat + test_globals.SPINQUAT
+
+##        # finally, delegate to parentCommand version
+##        self.parentGraphicsMode.gm_start_of_paintGL(glpane)
+        _superclass_GM.gm_start_of_paintGL(self, glpane)
+        return
+
+# maybe we'll revise superclass and do this:
+##    def Draw(self):
+##        self.parentGraphicsMode.Draw()
+##            # see also: parentCommand_Draw, TemporaryCommand_Overdrawing
+##            # (related, but they do nothing besides this that we need here)
+##        return
+    
+    def gm_end_of_paintGL(self, glpane):
+        """
+        This is called near the end of every call of glpane.paintGL,
+        after all drawing and the glFlush,
+        if gm_start_of_paintGL was called near the start of it.
+        """
+##        # first, delegate to parentCommand version
+##        self.parentGraphicsMode.gm_end_of_paintGL(glpane)
+        _superclass_GM.gm_end_of_paintGL(self, glpane)
+        
+        # then, do our special code
+
+        # print fps
+        global frame_count, last_frame, last_time # todo: make instance vars?
+        frame_count += 1
+        now = time()
+        if test_globals.printFrames and int(now) > int(last_time):
+            print "  %4.1f fps" % ((frame_count - last_frame) / (now - last_time))
+            last_frame = frame_count
+            last_time = now
+            pass
+
+        if test_globals.ALWAYS_GL_UPDATE:
+            glpane.gl_update()
+        
+        return
     pass
 
 # == Command part
@@ -59,7 +144,15 @@ class TestGraphics_Command(SelectAtoms_Command):
         # probably due to command_enter_misc_actions() not being overridden in
         # this command.
 
+    # ==
+    
+    def delete_caches(self):
+        test_drawing.delete_caches()
+        # someday: also reset some of our own instance vars
+        return
 
+    # ==
+    
     # state methods (which mostly don't use self, except for self.glpane.gl_update)
     
     # note: these use property rather than State since they are providing access
@@ -95,10 +188,10 @@ class TestGraphics_Command(SelectAtoms_Command):
     # redraw_continuously
     
     def _get_redraw_continuously(self):
-        return test_drawing.ALWAYS_GL_UPDATE
+        return test_globals.ALWAYS_GL_UPDATE
 
     def _set_redraw_continuously(self, enabled):
-        test_drawing.ALWAYS_GL_UPDATE = enabled
+        test_globals.ALWAYS_GL_UPDATE = enabled
         self.glpane.gl_update()
 
     redraw_continuously = property( _get_redraw_continuously,
@@ -110,10 +203,10 @@ class TestGraphics_Command(SelectAtoms_Command):
     # spin_model
     
     def _get_spin_model(self):
-        return test_drawing.SPIN
+        return test_globals.SPIN
 
     def _set_spin_model(self, enabled):
-        test_drawing.SPIN = enabled
+        test_globals.SPIN = enabled
 
     spin_model = property( _get_spin_model,
                            _set_spin_model,
@@ -123,10 +216,10 @@ class TestGraphics_Command(SelectAtoms_Command):
     # print_fps
     
     def _get_print_fps(self):
-        return test_drawing.printFrames
+        return test_globals.printFrames
 
     def _set_print_fps(self, enabled):
-        test_drawing.printFrames = enabled
+        test_globals.printFrames = enabled
 
     print_fps = property( _get_print_fps,
                            _set_print_fps,
@@ -145,7 +238,7 @@ class TestGraphics_Command(SelectAtoms_Command):
     def _set_testCaseIndex(self, index): # BUG: doesn't yet work well when done during a test run
         testCase, desc_unused = AVAILABLE_TEST_CASES_ITEMS[index]
         test_drawing.testCase = testCase
-        test_drawing.delete_caches()
+        self.delete_caches()
         self.glpane.gl_update()
 
     testCaseIndex = property( _get_testCaseIndex,
@@ -164,7 +257,7 @@ class TestGraphics_Command(SelectAtoms_Command):
 
     def _set_nSpheres(self, value):
         test_drawing.nSpheres = value
-        test_drawing.delete_caches()
+        self.delete_caches()
         self.glpane.gl_update()
 
     nSpheres = property( _get_nSpheres,
@@ -197,7 +290,7 @@ class TestGraphics_Command(SelectAtoms_Command):
             # maybe it doesn't work for all testCases; conceivably it depends on env.prefs too
             test_drawing.DRAWSPHERE_DETAIL_LEVEL = detailLevel
 
-        test_drawing.delete_caches()
+        self.delete_caches()
         
         self.glpane.gl_update()
         # when not bypassing paintGL:

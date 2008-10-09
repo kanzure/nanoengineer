@@ -74,33 +74,33 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
         """
         from widgets.prefs_widgets  import ObjAttr_StateRef ### toplevel
         
+        self._cb2 = \
+            PM_CheckBox(pmGroupBox,
+                        text         = "redraw continuously",
+                        )        
+        self._cb2.connectWithState( ObjAttr_StateRef( self.command, 'redraw_continuously' ))
+
+        self._cb3 = \
+            PM_CheckBox(pmGroupBox,
+                        text         = "spin model",
+                        )        
+        self._cb3.connectWithState( ObjAttr_StateRef( self.command, 'spin_model' ))
+
+        self._cb4 = \
+            PM_CheckBox(pmGroupBox,
+                        text         = "print fps to console",
+                        )        
+        self._cb4.connectWithState( ObjAttr_StateRef( self.command, 'print_fps' ))
+
         self._cb1 = \
             PM_CheckBox(pmGroupBox,
-                        text         = 'bypass paintGL (and\nuse these options)',
+                        text         = "replace paintGL with testCase",
                         )
         self._cb1.connectWithState( ObjAttr_StateRef( self.command, 'bypass_paintgl' ))
             # note: this state (unlike the highest-quality staterefs)
             # is not change-tracked [as of 081003], so nothing aside from
             # user clicks on this checkbox should modify it after this runs,
             # or our UI state will become out of sync with the state.
-
-        self._cb2 = \
-            PM_CheckBox(pmGroupBox,
-                        text         = 'redraw continuously',
-                        )        
-        self._cb2.connectWithState( ObjAttr_StateRef( self.command, 'redraw_continuously' ))
-
-        self._cb3 = \
-            PM_CheckBox(pmGroupBox,
-                        text         = 'spin model',
-                        )        
-        self._cb3.connectWithState( ObjAttr_StateRef( self.command, 'spin_model' ))
-
-        self._cb4 = \
-            PM_CheckBox(pmGroupBox,
-                        text         = 'print fps to console',
-                        )        
-        self._cb4.connectWithState( ObjAttr_StateRef( self.command, 'print_fps' ))
 
         self.testCase_ComboBox = PM_ComboBox(pmGroupBox, 
                                       label =  "testCase:", labelColumn = 0,
