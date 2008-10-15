@@ -41,7 +41,7 @@ class test_globals:
 
 # other globals
 frame_count = 0
-last_frame = 0
+last_frame_printed = 0
 last_time = time()
 
 
@@ -103,12 +103,15 @@ class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
         # then, do our special code
 
         # print fps
-        global frame_count, last_frame, last_time # todo: make instance vars?
+        global frame_count, last_frame_printed, last_time # todo: make instance vars?
         frame_count += 1
         now = time()
         if test_globals.printFrames and int(now) > int(last_time):
-            print "  %4.1f fps" % ((frame_count - last_frame) / (now - last_time))
-            last_frame = frame_count
+            nframes = frame_count - last_frame_printed
+            duration = now - last_time
+            print "  %4.1f fps     %4.1f msec/frame" % ( nframes / duration,
+                                                         duration * 1000.0 / nframes )
+            last_frame_printed = frame_count
             last_time = now
             pass
 
