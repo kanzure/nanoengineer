@@ -59,7 +59,7 @@ class DrawInCorner_projection(DelegatingInstanceOrExpr):
     delegate = Arg(Widget2D)
     corner = Arg(int, LOWER_RIGHT)
     def draw(self):
-        # this code is modified from GLPane.drawcompass
+        # this code is modified from drawcompass
 
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()

@@ -35,7 +35,7 @@ from graphics.drawing.gl_lighting import disable_fog
 from graphics.drawing.gl_lighting import enable_fog
 from graphics.drawing.gl_lighting import setup_fog
 
-from graphics.drawing.drawcompass import drawcompass
+from graphics.drawing.drawcompass import Compass
 from graphics.drawing.Guides import Guides
 
 from utilities import debug_flags
@@ -105,6 +105,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         self.guides = Guides(self) # rulers, and soon, grid lines. Mark 2008-02-24.
 
+        self.compass = Compass(self) #bruce 081015 refactored this
+        
         return
     
     def model_is_valid(self): #bruce 080117
@@ -419,7 +421,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
     drawing_phase = '?' # new feature, bruce 070124 (set to different fixed strings for different drawing phases)
         # For now, this is only needed during draw (or draw-like) calls which might run drawing code in the exprs module.
-        # (Thus it's not needed around internal drawing calls like drawcompass, whose drawing code can't use the exprs module.)
+        # (Thus it's not needed around internal drawing calls like self.drawcompass, whose drawing code can't use the exprs module.)
         # The purpose is to let some of the drawing code behave differently in these different phases.
         #
         # Note, there are direct calls of GL_SELECT drawing not from class GLPane, which now need to set this but don't.
@@ -658,7 +660,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # review: needs drawing_phase? [bruce 070124 q]
 
         # draw the "origin axes"
-        ### TODO: put this and GM part of it into _do_other_drawing_inside_stereo
+        ### TODO: put this, and the GM part of it (now at start of basicGraphicsMode.Draw),
+        # into one of the methods
+        # _do_other_drawing_inside_stereo or _do_drawing_for_bg_image_inside_stereo
         if env.prefs[displayOriginAxis_prefs_key]:
             for stereo_image in self.stereo_images_to_draw:
                 self._enable_stereo(stereo_image, preserve_colors = True)
@@ -837,14 +841,16 @@ class GLPane_rendering_methods(GLPane_image_methods):
     def drawcompass(self):
         #bruce 080910 moved body into its own file
         #bruce 080912 removed aspect argument
-        drawcompass(self,
-                    self.aspect,
-                    self.quat,
-                    self.compassPosition,
-                    self.graphicsMode.compass_moved_in_from_corner,
-                    env.prefs[displayCompassLabels_prefs_key]
-                   )
-        return    
+        #bruce 081015 put constant parts into a display list (possible speedup),
+        # and created class Compass to make this easier
+        self.compass.draw(
+            self.aspect,
+            self.quat,
+            self.compassPosition,
+            self.graphicsMode.compass_moved_in_from_corner,
+            env.prefs[displayCompassLabels_prefs_key]
+         )
+        return
 
     pass
 
