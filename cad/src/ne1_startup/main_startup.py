@@ -325,37 +325,55 @@ def startup_script( main_globals):
     # to record the decision, which are used later when running
     # the Qt event loop.
     
-    # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSHOT = True, use hotshot, otherwise
-    # fall back to vanilla Python profiler.
+    # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSHOT = True,
+    # use hotshot, otherwise fall back to vanilla Python profiler.
+    # (Note: to work, it probably has to import this module
+    #  and set this variable in this module's namespace.)
     try:
         PROFILE_WITH_HOTSHOT
     except NameError:
         PROFILE_WITH_HOTSHOT = False
     
     try:
-        # user can set this to a filename in .atom-debug-rc,
-        # to enable profiling into that file
+        # user can set atom_debug_profile_filename to a filename in .atom-debug-rc,
+        # to enable profiling into that file. For example:
+        # % cd
+        # % cat > .atom-debug-rc
+        # atom_debug_profile_filename = '/tmp/profile-output'
+        # ^D
+        # ... then run NE1, and quit it
+        # ... then in a python shell:
+        # import pstats
+        # p = pstats.Stats('<filename>')
+        # p.strip_dirs().sort_stats('time').print_stats(100) # order by internal time (top 100 functions)
+        # p.strip_dirs().sort_stats('cumulative').print_stats(100) # order by cumulative time
         atom_debug_profile_filename = main_globals['atom_debug_profile_filename']
         if atom_debug_profile_filename:
             print ("\nUser's .atom-debug-rc requests profiling into file %r" %
                    (atom_debug_profile_filename,))
             if not type(atom_debug_profile_filename) in [type("x"), type(u"x")]:
-                print ("error: atom_debug_profile_filename must be a string;" +
-                       "running without profiling")
+                print "error: atom_debug_profile_filename must be a string"
                 assert 0 # caught and ignored, turns off profiling
             if PROFILE_WITH_HOTSHOT:
                 try:
                     import hotshot
                 except:
-                    print "error during 'import hotshot'; running without profiling"
+                    print "error during 'import hotshot'"
                     raise # caught and ignored, turns off profiling
             else:
                 try:
-                    import cProfile
-                except:
-                    print "error during 'import profile'; running without profiling"
-                    raise # caught and ignored, turns off profiling
+                    import cProfile as py_Profile
+                except ImportError:
+                    print "Unable to import cProfile. Using profile module instead."
+                    py_Profile = None
+                if py_Profile is None:
+                    try:
+                        import profile as py_Profile
+                    except:
+                        print "error during 'import profile'"
+                        raise # caught and ignored, turns off profiling
     except:
+        print "exception setting up profiling (hopefully reported above); running without profiling"
         atom_debug_profile_filename = None
 
 
@@ -395,12 +413,12 @@ def startup_script( main_globals):
             profile = hotshot.Profile(atom_debug_profile_filename)
             profile.run('app.exec_()')
         else:
-            cProfile.run('from ne1_startup.main_startup import app; app.exec_()',
-                         atom_debug_profile_filename)
+            py_Profile.run('from ne1_startup.main_startup import app; app.exec_()',
+                           atom_debug_profile_filename)
         print ("\nProfile data was presumably saved into %r" %
                (atom_debug_profile_filename,))
     else:
-        # if you change this code, also change the string literals just above
+        # if you change this code, also change both string literals just above
         app.exec_() 
 
 

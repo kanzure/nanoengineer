@@ -356,7 +356,6 @@ class DebugMenuMixin:
     def _debug_do_benchmark(self):
         # simple graphics benchmark, piotr 080311
         from time import clock
-        from utilities.debug import profile
         print "Entering graphics benchmark. Drawing 100 frames... please wait."
         win = self._debug_win
         self.win.resize(1024,768) # resize the window to a constant size
@@ -412,10 +411,10 @@ class DebugMenuMixin:
         tm0 = clock()
         profile(meth, commandName)
         tm1 = clock()
-        print "Profiling complete. Total time to enter %s = %s"%(commandName,
-                                                                 (tm1-tm0))
+        print "Profiling complete. Total time to enter %s = %s" % \
+              (commandName, (tm1 - tm0))
         doProfile(False)
-    
+        return
 
     def debug_menu_source_name(self): #bruce 050112
         """

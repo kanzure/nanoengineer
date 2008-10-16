@@ -42,8 +42,6 @@ from utilities import debug_flags
 
 from utilities.debug import print_compact_traceback, print_compact_stack
 
-### from utilities.debug import profile, doProfile ###
-
 from utilities.Comparison import same_vals
 
 import foundation.env as env
@@ -121,10 +119,6 @@ class GLPane_rendering_methods(GLPane_image_methods):
         [overrides GLPane_minimal method]
         """
         return True
-
-    ### def _paintGL(self):                             ###
-    ###     profile( self.paintGL2)                     ###
-    ###     doProfile(False)                            ###
 
     def _paintGL(self):
         """

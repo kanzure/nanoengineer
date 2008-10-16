@@ -744,14 +744,14 @@ def profile(func, *args, **keywordArgs):
         try:
             import cProfile as py_Profile
         except ImportError:
-            print "Unable to import cProfile. using profile module instead."
+            print "Unable to import cProfile. Using profile module instead."
             import profile as py_Profile
             
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0])) + "/" + _profile_output_file
         filePath = os.path.normpath(filePath) 
         print "Capturing profile..."
-        print "Profile output file: %s"%(filePath)
+        print "Profile output file: %s" % (filePath,)
         py_Profile.run('from utilities.debug import _run_profile; _run_profile()', _profile_output_file)
         print "...end of profile capture"  
         
