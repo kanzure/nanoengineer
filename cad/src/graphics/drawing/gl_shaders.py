@@ -49,6 +49,10 @@ texture_xforms = False # True
 # Otherwise, use a fixed-sized block of uniform memory for transforms.
 # (This is a max, refined using GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB later.)
 N_CONST_XFORMS = 270  # (Gets CPU bound at 275.  Dunno why.)
+# Used in fine-tuning N_CONST_XFORMS to leave room for other GPU vars and temps.
+# If you increase the complexity of the vertex shader program a little bit, and
+# rendering slows down by 100x, maybe you ran out of room.  Try increasing this.
+VERTEX_SHADER_GPU_VAR_SLACK = 96
 
 # Turns on a debug info message.
 CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
@@ -158,7 +162,7 @@ class GLSphereShaderObject(object):
             N_CONST_XFORMS = min(
                 N_CONST_XFORMS,
                 # Each matrix has 16 components. Leave slack for other vars too.
-                (maxComponents - 25) / 16)
+                (maxComponents - VERTEX_SHADER_GPU_VAR_SLACK) / 16)
             if N_CONST_XFORMS <= 0:
                 print (
                     "N_CONST_XFORMS not positive, is %d. %d max components." %
@@ -514,12 +518,11 @@ attribute vec4 color;           // Per-vertex sphere color and opacity (RGBA).
 attribute float transform_id;   // Ignored if zero.  (Attribs can't be ints.)
 
 // Varying outputs, through the pipeline to the fragment (pixel) shader.
-varying vec4 var_basecolor;     // Vertex color, interpolated to pixels.
-varying float var_opacity;      // Vertex opacity, interpolated to pixels.
-varying vec3 var_vert;          // Viewing direction vector.
-varying vec3 var_center;        // Transformed sphere var_center.
-varying vec3 var_eye;           // Var_eye point (different for perspective.)
+varying vec3 var_vert; // Vertex direction vec; pixel sample vec in frag shader.
+varying vec3 var_center;        // Transformed sphere center point.
+varying vec3 var_eye;           // Eye point (different for perspective.)
 varying float var_radius_squared;  // Transformed sphere radius, squared.
+varying vec4 var_basecolor;     // Vertex color, interpolated to pixels.
 
 void main(void) {
 
@@ -532,13 +535,13 @@ void main(void) {
 
   // The vertices are in unit coordinates, relative to the center point.
   // Scale by the radius and add to the center point.
-  vec4 vertex = center + radius * gl_Vertex;
+  vec4 vertex = vec4(center.xyz + radius * gl_Vertex.xyz, 1.0);
 
   mat4 xform;
-  if (n_transforms > 0) {
+  if (n_transforms > 0 && int(transform_id) > -1) {
     // Apply a transform, indexed by a transform slot ID vertex attribute.
 
-#ifdef N_CONST_XFORMS 
+#ifdef N_CONST_XFORMS
     // Get transforms from a fixed-sized block of uniform (constant) memory.
     // The GL_EXT_bindable_uniform extension allows sharing this through a VBO.
     vertex = transforms[int(transform_id)] * vertex;
@@ -633,7 +636,7 @@ void main(void) {
   }
 
   // Transform to screen coords.
-  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  gl_Position = gl_ModelViewProjectionMatrix * vertex;
 }
 """
 sphereFragSrc = """
@@ -648,6 +651,9 @@ sphereFragSrc = """
 
 // requires GLSL version 1.10
 #version 110
+
+// Lighting properties for the material.
+uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
 
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform int perspective;
@@ -667,13 +673,11 @@ uniform vec3 light2H;
 uniform vec3 light3H;
 
 // Inputs, interpolated by raster conversion from the vertex shader outputs.
-varying vec3 var_eye;
-varying vec3 var_vert;
-varying vec3 var_center;
-varying float var_radius_squared;
-varying vec4 var_basecolor;
-
-uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
+varying vec3 var_vert; // Pixel sample vec; vertex direction vec in vert shader.
+varying vec3 var_center;        // Transformed sphere center point.
+varying vec3 var_eye;           // Eye point (different for perspective.)
+varying float var_radius_squared;  // Transformed sphere radius, squared.
+varying vec4 var_basecolor;     // Vertex color, interpolated to pixels.
 
 void main(void) {
   // Vertex direction vectors were interpolated into pixel sample vectors.

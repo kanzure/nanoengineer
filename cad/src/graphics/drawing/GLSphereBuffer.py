@@ -83,8 +83,8 @@ class GLSphereBuffer(GLPrimitiveBuffer):
             assert len(transform_ids) == nSpheres
         else:
             if transform_ids is None:
-                 # This disables transform logic in the shader.
-                transform_ids = 0
+                 # This bypasses transform logic in the shader for this sphere.
+                transform_ids = -1
                 pass
             transform_ids = nSpheres * [transform_ids]
             pass

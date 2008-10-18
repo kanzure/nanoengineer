@@ -55,11 +55,22 @@ testCase = 1; nSpheres = 10; chunkLength = 24
 #testCase = 1; nSpheres = 132
 #testCase = 8; nSpheres = 50; chunkLength = 24
 #testCase = 8; nSpheres = 132; chunkLength = 24
+
 #testCase = 8.1; nSpheres = 50; chunkLength = 24
 #testCase = 8.1; nSpheres = 75; chunkLength = 24
 #testCase = 8.1; nSpheres = 100; chunkLength = 200
 #testCase = 8.1; nSpheres = 100; chunkLength = 50
-### Hangs #testCase = 8.1; nSpheres = 100; chunkLength = 24
+### Hangs initial pass-through version: 8.1/100/24
+#testCase = 8.1; nSpheres = 100; chunkLength = 24
+#testCase = 8.1; nSpheres = 100; chunkLength = 8
+#testCase = 8.1; nSpheres = 132; chunkLength = 200
+#testCase = 8.1; nSpheres = 132; chunkLength = 8
+#testCase = 8.1; nSpheres = 200; chunkLength = 8
+#testCase = 8.1; nSpheres = 300; chunkLength = 8
+testCase = 8.1; nSpheres = 400; chunkLength = 8
+#testCase = 8.1; nSpheres = 500; chunkLength = 8
+#testCase = 8.1; nSpheres = 600; chunkLength = 8
+
 #testCase = 8.2; nSpheres = chunkLength = 10
 #testCase = 8.2; nSpheres = 50; chunkLength = 250
 #testCase = 8.2; nSpheres = 100; chunkLength = 200
@@ -733,6 +744,7 @@ def test_drawing(glpane):
     # .  17,424 (132x132) spheres  2.1 FPS, 2178 chunk buffers of length 8.
     # .   2,500 (50x50)   spheres 33.5 FPS,  105 chunk buffers of length 24.
     # .  17,424 (132x132) spheres  5.5 FPS,  726 chunk buffers of length 24.
+    #
     # Subcase 8.1: CSDLs in a DrawingSet.  (Initial pass-through version.)
     # .   2,500 (50x50)   spheres 36.5 FPS,  105 chunk buffers of length 24.
     # .   5,625 (75x75)   spheres 16.1 FPS,  235 chunk buffers of length 24.
@@ -744,7 +756,44 @@ def test_drawing(glpane):
     #      After a few minutes of startup.
     # Subcase 8.2: CSDLs in a DrawingSet with transforms. (Pass-through.)
     # .  10,000 (100x100) spheres  11.5 FPS, 50 chunk buffers of length 200.
-    # .  10,000 (100x100) spheres   FPS, 200 chunk buffers of length 50.
+    #
+    # Subcase 8.1: CSDLs in a DrawingSet.  (First HunkBuffer version.)
+    # Measured with auto-rotate on, ignoring startup and occasional outliers.
+    # As before, on a 2 core, 2.4 GHz Intel MacBook Pro with GeForce 8600M GT.
+    # HUNK_SIZE = 10000
+    # .   2,500 (50x50)   spheres 140-200 FPS, 105 chunks of length 24.
+    # .   5,625 (75x75)   spheres 155-175 FPS, 235 chunks of length 24.
+    # .  10,000 (100x100) spheres 134-145 FPS, 50 chunks of length 200.
+    # .  10,000 (100x100) spheres 130-143 FPS, 200 chunks of length 50.
+    # .  10,000 (100x100) spheres 131-140 FPS, 1,250 chunks of length 8.
+    #      Chunks are gathered into hunk buffers, so no chunk size speed diff.
+    # .  17,424 (132x132) spheres 134-140 FPS, 88 chunks of length 200.
+    # .  17,424 (132x132) spheres 131-140 FPS, 2,178 chunks of length 8.
+    # HUNK_SIZE = 20000
+    # .  17,424 (132x132) spheres 131-140 FPS, 88 chunks of length 200.
+    # .  17,424 (132x132) spheres 130-141 FPS, 2,178 chunks of length 8.
+    # HUNK_SIZE = 10000
+    # .  40,000 (200x200) spheres 77.5-82.8 FPS, 5,000 chunks of length 8.
+    # .  90,000 (300x300) spheres 34.9-42.6 FPS, 11,2500 chunks of length 8.
+    #      Spheres are getting down to pixel size, causing moire patterns.
+    #      Rotate the sphere-array off-axis 45 degrees to minimize.
+    #      (Try adding multi-sampled anti-aliasing, to the drawing test...)
+    # . 160,000 (400x400) spheres 26.4-27.1 FPS, 20,000 chunks of length 8.
+    # . 250,000 (500x500) spheres 16.8-17.1 FPS, 31,250 chunks of length 8.
+    #      The pattern is getting too large, far-clipping is setting in.
+    # . 360,000 (600x600) spheres 11.6-11.8 FPS, 45,000 chunks of length 8.
+    #      Extreme far-clipping in the drawing test pattern.
+    # HUNK_SIZE = 20000; no significant speed-up.
+    # .  40,000 (200x200) spheres 75.9-81.5 FPS,  5,000 chunks of length 8.
+    # .  90,000 (300x300) spheres 41.2-42.4 FPS, 11,250 chunks of length 8.
+    #      Spheres are getting down to pixel size, causing moire patterns.
+    # . 160,000 (400x400) spheres 26.5-26.9 FPS, 20,000 chunks of length 8.
+    # . 250,000 (500x500) spheres 16.5-17.1 FPS, 31,250 chunks of length 8.
+    # . 360,000 (600x600) spheres 11.8-12.1 FPS, 45,000 chunks of length 8.
+    # HUNK_SIZE = 5000; no significant slowdown or CPU load difference.
+    # .  40,000 (200x200) spheres 81.0-83.8 FPS,  5,000 chunks of length 8.
+    # . 160,000 (400x400) spheres 27.3-29.4 FPS, 20,000 chunks of length 8.
+    # . 360,000 (600x600) spheres 11.7-12.1 FPS, 45,000 chunks of length 8.
     elif int(testCase) == 8:
         doTransforms = False
         if test_spheres is None:

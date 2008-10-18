@@ -143,7 +143,7 @@ from OpenGL.GL.ARB.vertex_program import glVertexAttrib3fARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 
 # Constants.
-HUNK_SIZE = 10000               # The number of primitives in each VBO hunk.
+HUNK_SIZE = 5000 # 10000 # 20000   # The number of primitives in each VBO hunk.
 BYTES_PER_FLOAT = 4             # All per-vertex attributes are floats in GLSL.
 
 class GLPrimitiveBuffer(object):
@@ -302,10 +302,12 @@ class GLPrimitiveBuffer(object):
         If no primIdSet is given, the whole array is drawn.
         """
         shader = drawing_globals.sphereShader
-        shader.use(True)            # Turn on the sphere shader.
+        shader.use(True)             # Turn on the sphere shader.
 
         glEnableClientState(GL_VERTEX_ARRAY)
 
+        # XXX No transform data until that is more implemented.
+        ###shader.setupTransforms(self.transforms)
         if shader.get_texture_xforms():
             # Activate a texture unit for transforms.
             ## XXX Not necessary for custom shader programs.
@@ -324,6 +326,7 @@ class GLPrimitiveBuffer(object):
         for hunkNumber in range(self.nHunks):
             # Bind the per-vertex generic attribute arrays for one hunk.
             for buffer in self.hunkBuffers:
+                buffer.flush()      # Sync graphics card copies of the VBO data.
                 buffer.bindHunk(hunkNumber)
                 continue
 
@@ -342,7 +345,7 @@ class GLPrimitiveBuffer(object):
             glDrawElements(GL_QUADS, self.nIndices * nToDraw,
                        GL_UNSIGNED_INT, None)
 
-        shader.use(False)           # Turn off the sphere shader.
+        shader.use(False)            # Turn off the sphere shader.
         glEnable(GL_CULL_FACE)
 
         self.hunkIndexIBO.unbind()   # Deactivate the ibo.
@@ -350,7 +353,7 @@ class GLPrimitiveBuffer(object):
 
         glDisableClientState(GL_VERTEX_ARRAY)
         for buffer in self.hunkBuffers:
-            buffer.bindHunk(hunkNumber) # glDisableVertexAttribArrayARB.
+            buffer.unbindHunk()      # glDisableVertexAttribArrayARB.
             continue
         return
 
@@ -494,6 +497,13 @@ class Hunk:
             GL_STATIC_DRAW)
 
         # Low- and high-water marks to optimize for sending a range of data.
+        self.unchanged()
+        return
+
+    def unchanged(self):
+        """
+        Mark a Hunk as unchanged.  (Empty or flushed.) 
+        """
         self.low = self.high = 0
         return
 
@@ -541,20 +551,26 @@ class Hunk:
         """
         rangeSize = self.high - self.low
         assert rangeSize >= 0
+        if rangeSize == 0:
+            # Nothing to do.
+            return
+        
         lowID = (self.hunkNumber * HUNK_SIZE) + self.low
         highID = (self.hunkNumber * HUNK_SIZE) + self.high
 
         # Send all or part of the Python data to C.
-        C_data = numpy.array(allData[lowId:highID], dtype=numpy.float32)
+        C_data = numpy.array(allData[lowID:highID], dtype=numpy.float32)
 
         if rangeSize == HUNK_SIZE:
-            # Special case to send the whole thing.
+            # Special case to send the whole Hunk's worth of data.
             self.VBO.updateAll(C_data)
         else:
             # Send a portion, with a byte offset within the VBO.
             offset = self.low * self.nVertices * self.nCoords * BYTES_PER_FLOAT
             self.VBO.update(offset, C_data)
             pass
+
+        self.unchanged()             # Now we're in sync.
         return
             
     pass # End of class HunkBuffer.
