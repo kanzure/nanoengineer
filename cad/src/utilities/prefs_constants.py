@@ -311,7 +311,7 @@ joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key = 'A110/ Whil
 joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand three-prime arrowheads/spheres'
 joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Join strands command,use custom color for five-prime arrowheads/spheres'
 joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand five-prime arrowheads/spheres'
-
+joinStrandsCommand_clickToJoinDnaStrands_prefs_key = 'V112/ Click on a strand to join it with the nearest strand on the same segment'
 #Urmi 20080617: display grid in Plane Property Manager pref keys
 PlanePM_showGrid_prefs_key = 'V111/Show Grid on the Plane'
 PlanePM_showGridLabels_prefs_key = 'V111/Show Grid Labels on the Plane'
@@ -798,6 +798,7 @@ prefs_table = (
     ('', 'color', joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),
+    ('', 'boolean', joinStrandsCommand_clickToJoinDnaStrands_prefs_key, False),
     
     #Dna base number label prefs
     ('', 'int',   dnaBaseNumberLabelChoice_prefs_key, 0),

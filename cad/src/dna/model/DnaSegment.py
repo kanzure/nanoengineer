@@ -257,6 +257,7 @@ class DnaSegment(DnaStrandOrSegment):
                 content_strand_chunks.extend(ladder.strand_chunks())
                 
         return content_strand_chunks
+            
     
     def getAllAxisAtoms(self):
         allAtomList = []
@@ -266,6 +267,49 @@ class DnaSegment(DnaStrandOrSegment):
                 
         return allAtomList
     
+    def get_all_content_strand_atoms(self):
+        """
+        Return a list of all strand atoms contained within this DnaSegment
+        """
+        ladders = self.getDnaLadders()        
+        
+        strand_rails = []        
+        for ladder in ladders:
+            strand_rails.extend(ladder.strand_rails)
+            
+        strand_atoms = []
+        for rail in strand_rails:
+            strand_atoms.extend(rail.baseatoms)
+        return strand_atoms
+    
+    def get_all_content_three_prime_ends(self):
+        """
+        Return a list of all the three prime end base atoms, contained within
+        this DnaSegment
+        @see:self.get_all_content_strand_atoms()
+        @see:self.get_all_content_five_prime_ends()
+        """
+        strand_atoms = self.get_all_content_strand_atoms()
+        
+        three_prime_end_atoms = filter(lambda atm: atm.isThreePrimeEndAtom(), 
+                                       strand_atoms)
+        return three_prime_end_atoms
+    
+    
+    def get_all_content_five_prime_ends(self):
+        """
+        Return a list of all the five prime end base atoms, contained within
+        this DnaSegment
+        @see:self.get_all_content_strand_atoms()
+        @see:self.get_all_content_three_prime_ends()
+        """
+        strand_atoms = self.get_all_content_strand_atoms()
+        
+        five_prime_end_atoms = filter(lambda atm: atm.isFivePrimeEndAtom(), 
+                                       strand_atoms)
+        return five_prime_end_atoms
+           
+  
     def is_PAM3_DnaSegment(self):
         """
         Returns true if all the baseatoms in the DnaLadders of this segment

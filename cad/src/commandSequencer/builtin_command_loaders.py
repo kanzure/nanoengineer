@@ -75,6 +75,7 @@ from dna.commands.OrderDna.OrderDna_Command       import OrderDna_Command
 from dna.commands.DnaDisplayStyle.DnaDisplayStyle_Command import DnaDisplayStyle_Command
 from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand import MultipleDnaSegmentResize_EditCommand
 from dna.temporary_commands.DnaLineMode             import DnaLineMode
+from dna.commands.JoinStrands.ClickToJoinStrands_Command import ClickToJoinStrands_Command
 
 # Protein commands
 from protein.commands.BuildPeptide.Peptide_EditCommand import Peptide_EditCommand
@@ -144,6 +145,7 @@ def preloaded_command_classes():
         RotaryMotor_EditCommand,
         BreakStrands_Command,
         JoinStrands_Command,
+        ClickToJoinStrands_Command,
         MakeCrossovers_Command,
         BuildDna_EditCommand,
         DnaSegment_EditCommand, 

@@ -222,6 +222,9 @@ def loadCursors(w):
     w.specifyPlaneCursor = \
      QCursor(getCursorPixmap("SpecifyPlaneCursor.png"), 0, 0)
     
+    w.clickToJoinStrandsCursor = QCursor(getCursorPixmap(
+        "ClickToJoinStrands_Cursor.png"), 0, 0)
+    
     return # from loadCursors
 
 def createCompositeCursor(cursor, overlayCursor, 

@@ -22,6 +22,7 @@ Break and JoinStrands PMs into new module BreakOrJoinStrands_PropertyManager
 
 import sys
 from PM.PM_GroupBox import PM_GroupBox
+from PM.PM_CheckBox import PM_CheckBox
 
 import foundation.env as env
 from utilities.prefs_constants import joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
@@ -30,6 +31,10 @@ from utilities.prefs_constants import joinStrandsCommand_useCustomColorForThreeP
 from utilities.prefs_constants import joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
+
+from utilities.prefs_constants import joinStrandsCommand_clickToJoinDnaStrands_prefs_key
+
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 from dna.command_support.BreakOrJoinStrands_PropertyManager import BreakOrJoinStrands_PropertyManager
 
@@ -79,13 +84,31 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
         """
         Add the DNA Property Manager group boxes.
         """                  
+        self._joinOptionsGroupBox = PM_GroupBox(self, title = "Join Options")
+        self._loadJoinOptionsGroupbox(self._joinOptionsGroupBox)
         self._displayOptionsGroupBox = PM_GroupBox( self, title = "Display options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox ) 
         self._baseNumberLabelGroupBox = PM_GroupBox( self, title = "Base number labels" )
         self._loadBaseNumberLabelGroupBox(self._baseNumberLabelGroupBox)
+        
+        
         return
     
-    
+    def _loadJoinOptionsGroupbox(self, pmGroupBox):
+        """
+        Load widgets in this group box.
+        """        
+        
+        self.clickToJoinDnaStrandsCheckBox = \
+            PM_CheckBox(pmGroupBox ,
+                        text         = 'Click on strand to join',
+                        widgetColumn = 0, 
+                        spanWidth = True)
+        
+        connect_checkbox_with_boolean_pref(
+            self.clickToJoinDnaStrandsCheckBox, 
+            joinStrandsCommand_clickToJoinDnaStrands_prefs_key )
+        
     #Return varius prefs_keys for arrowhead display options ui elements =======     
     def _prefs_key_arrowsOnThreePrimeEnds(self):
         """
