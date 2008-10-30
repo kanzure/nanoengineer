@@ -379,9 +379,13 @@ class extrudeMode(basicMode):
             if self.commandSequencer.exit_is_cancel:
                 cancelling = True
                 self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
-                self.update_from_controls()
             else:
                 cancelling = False
+            
+            #bugfix after changes in rev 14435. Always make sure to call 
+            #update from controls while exiting the command. (This should 
+            #be in an command_update_* method when extrude modeis refactored)
+            self.update_from_controls()
 
             #Following code is copied from old method self._stateDoneOrCancel 
             #(that method existed before 2008-09-25)
