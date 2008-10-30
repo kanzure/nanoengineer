@@ -16,6 +16,7 @@ moved many ui helper methods defined globally in extrudeMode.py to this class.
 
 import math
 from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import Qt
 from commands.Extrude.Ui_ExtrudePropertyManager import Ui_ExtrudePropertyManager
 
 _superclass = Ui_ExtrudePropertyManager
@@ -32,7 +33,8 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         @param command: The parent mode where this Property Manager is used
         @type  command: L{ExtrudeMode}
         """
-        self.suppress_valuechanged = 0        
+        self.suppress_valuechanged = False
+                
         _superclass.__init__(self, command)
        
     def show(self):
@@ -93,7 +95,32 @@ class ExtrudePropertyManager(Ui_ExtrudePropertyManager):
         change_connect(self.extrude_productTypeComboBox,
                        SIGNAL("activated(int)"), 
                        self.command.ptype_value_changed)
-            
+        
+    def keyPressEvent(self, event):
+        """
+        Extends superclass method. Provides a way to update 3D workspace
+        when user hits Enter key.
+        @see: self.preview_btn_clicked()
+        """
+        #The following implements a NFR Mark needs. While in extrude mode, 
+        #if user changes values in the spinboxes, don't immediatey update
+        #it on the 3D workspace -- because it takes long time to do so 
+        #on a big model. Instead provide a way to update , when, for example,
+        #user hits 'Enter' after changing a spinbox value or hits preview 
+        #button.  -- Ninad 2008-10-30
+        
+        if event.key() == Qt.Key_Return:
+            self.command.update_from_controls()
+        
+        _superclass.keyPressEvent(self, event)
+    
+    def preview_btn_clicked(self):
+        """
+        Provides a way to update 3D workspace when user hits Preview button
+        @see: a comment in self.keyPressEvent()
+        @see: extrudeMode.update_from_controls()
+        """
+        self.command.update_from_controls()
                 
     def set_extrude_controls_xyz(self, (x, y, z) ):
         self.set_extrude_controls_xyz_nolength((x, y, z))

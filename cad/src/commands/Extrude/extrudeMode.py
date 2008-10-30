@@ -560,6 +560,11 @@ class extrudeMode(basicMode):
     def spinbox_value_changed(self, valjunk):
         """
         Call this when any extrude spinbox value changed, except length.
+        Note that this doesn't update the 3D workspace. For updating the workspace
+        user needs to hit Preview or hit Enter.
+        @see: self.update_from_controls()
+        @see: ExtrudePropertyManager.keyPressEvent() 
+        @see: ExtrudePropertyManager.preview_btn_clicked()
         """
         del valjunk
 
@@ -570,17 +575,15 @@ class extrudeMode(basicMode):
             ##print "fyi: not isCurrentCommand" # this happens when you leave and reenter mode... need to break qt connections
             return
         self.propMgr.update_length_control_from_xyz()
-        self.update_from_controls()
-            # use now-current value, not the one passed
-            # (hoping something collapsed multiple signals into one event...)
-            #e probably that won't happen unless we do something here to
-            # generate an event.... probably doesn't matter anyway,
-            #e unless code to adjust to one more or less copy is way to slow.
-        self.updateMessage()
 
     def length_value_changed(self, valjunk):
         """
         Call this when the length spinbox changes.
+        Note that this doesn't update the 3D workspace. For updating the workspace
+        user needs to hit Preview or hit Enter.
+        @see: self.update_from_controls()
+        @see: ExtrudePropertyManager.keyPressEvent() 
+        @see: ExtrudePropertyManager.preview_btn_clicked()
         """
         del valjunk
         if self.propMgr.suppress_valuechanged:
@@ -589,7 +592,8 @@ class extrudeMode(basicMode):
             ##print "fyi: not isCurrentCommand"
             return
         self.propMgr.update_xyz_controls_from_length()
-        self.update_from_controls()
+        
+        
 
     should_update_model_tree = 0 # avoid doing this when we don't need to (like during a drag)
 
@@ -722,6 +726,8 @@ class extrudeMode(basicMode):
         When that's not possible (e.g. when no record of prior value to compare to current value),
         we'd better check an invalid flag for some of what we compute,
         and/or a changed flag for some of the inputs we use.
+        @see: ExtrudePropertyManager.keyPressEvent() (the caller)
+        @see: ExtrudePropertyManager.preview_btn_clicked() (the caller)
         """
         self.asserts()
 

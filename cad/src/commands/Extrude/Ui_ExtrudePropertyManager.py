@@ -25,6 +25,7 @@ from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_Constants     import PM_CANCEL_BUTTON
+from PM.PM_Constants     import PM_PREVIEW_BUTTON
 
 from command_support.Command_PropertyManager import Command_PropertyManager
 
@@ -67,6 +68,7 @@ class Ui_ExtrudePropertyManager(Command_PropertyManager):
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
+                                PM_PREVIEW_BUTTON|\
                                 PM_WHATS_THIS_BUTTON)
 
 
