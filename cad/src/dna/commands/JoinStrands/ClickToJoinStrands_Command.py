@@ -14,7 +14,7 @@ TODOs as of 2008-10-26:
 - Method _bond_two_strandAtoms needs refactoring and to be moved to a dna_helper
 package. 
 """
-
+import foundation.env as env
 from dna.commands.JoinStrands.JoinStrands_PropertyManager import JoinStrands_PropertyManager
 from commands.Select.Select_Command import Select_Command
 from dna.commands.JoinStrands.ClickToJoinStrands_GraphicsMode import ClickToJoinStrands_GraphicsMode
@@ -24,7 +24,7 @@ from utilities.debug import print_compact_stack
 from utilities.constants import CL_SUBCOMMAND
 from model.bonds import bond_at_singlets
 from geometry.NeighborhoodGenerator import NeighborhoodGenerator 
-
+from utilities.prefs_constants import joinStrandsCommand_recursive_clickToJoinDnaStrands_prefs_key
 # == Command part
 
 _superclass = Select_Command
@@ -90,66 +90,86 @@ class ClickToJoinStrands_Command(Select_Command):
             return
         
         if endChoice == 'THREE_PRIME_END':
-            endAtom = strand.get_three_prime_end_base_atom()
-            if endAtom is None:
-                return 
+            current_strand = strand
             
-            #Now find the nearest five prime end atom on a strand of the 
-            #*same* Dna segment. 
-            axis_atom = endAtom.axis_neighbor()
-            if axis_atom is None:
-                return 
+            count = 0
             
-            segment = strand.get_DnaSegment_with_content_atom(endAtom)
-            
-            if segment is None:
-                return 
-            
-            #find all five prime end base atoms contained by this DnaSegment.             
-            raw_five_prime_ends = segment.get_all_content_five_prime_ends()
-            
-            def func(atm):
-                """
-                Returns true if the given atom's strand is not same as 
-                the 'strand' which is 'endAoms' parent DnaStrand 
+            #This implements a NFR by Mark. Recursively join the DnaStrand's
+            #3 prime end with the 5' end of a neighboring strand. 
+            #This is SLOW for recursively joining strands.
+            while(True):
+                #If the 'recursivly join DnaStrand option is not checked
+                #return immediately after the first interation (which joins
+                #the two neighboring strands)
+                if count == 1 and \
+                   not env.prefs[joinStrandsCommand_recursive_clickToJoinDnaStrands_prefs_key]:
+                    return
+                                
+                endAtom = current_strand.get_three_prime_end_base_atom()
+                if endAtom is None:
+                    return 
                 
-                """
-                if atm.getDnaStrand() is strand:
-                    return False
+                #Now find the nearest five prime end atom on a strand of the 
+                #*same* Dna segment. 
+                axis_atom = endAtom.axis_neighbor()
+                if axis_atom is None:
+                    return 
                 
-                return True
-            
-            #Following ensures that the three prime end of <strand> won't be 
-            #bonded to the five prime end of the same strand. 
-            five_prime_ends = filter(lambda atm: func(atm), raw_five_prime_ends)
-                       
-            #Max radius within which to search for the 'neighborhood' atoms 
-            #(five prime ends) 
-            maxBondLength = 10.0
-            neighborHood = NeighborhoodGenerator(five_prime_ends, maxBondLength)
-            
-            pos = endAtom.posn()
-            region_atoms = neighborHood.region(pos)
-                        
-            #minor optimization
-            if not region_atoms:
-                print_compact_stack("No five prime end atoms found within %f A "\
-                                    "radius of the strand's 3 prime end"%(maxBondLength))
-                return
-            elif len(region_atoms) == 1:
-                five_prime_end_atom = region_atoms[0]
-            else:          
-                lst = []
-                for atm in region_atoms:
-                    length = vlen(pos - atm.posn())
-                    lst.append((length, atm))
-                lst.sort()
+                segment = current_strand.get_DnaSegment_with_content_atom(endAtom)
                 
-                #Five prime end atom nearest to the 'endAtom' is the contained
-                #within the first tuple of the sorted list 'tpl'
-                length, five_prime_end_atom = lst[0]
-                                     
-            self._bond_two_strandAtoms(endAtom, five_prime_end_atom)                                            
+                if segment is None:
+                    return 
+                
+                #find all five prime end base atoms contained by this DnaSegment.             
+                raw_five_prime_ends = segment.get_all_content_five_prime_ends()
+                
+                def func(atm):
+                    """
+                    Returns true if the given atom's strand is not same as 
+                    the 'strand' which is 'endAoms' parent DnaStrand 
+                    
+                    """
+                    if atm.getDnaStrand() is current_strand:
+                        return False
+                    
+                    return True
+                
+                #Following ensures that the three prime end of <strand> won't be 
+                #bonded to the five prime end of the same strand. 
+                five_prime_ends = filter(lambda atm: func(atm), raw_five_prime_ends)
+                           
+                #Max radius within which to search for the 'neighborhood' atoms 
+                #(five prime ends) 
+                maxBondLength = 10.0
+                neighborHood = NeighborhoodGenerator(five_prime_ends, maxBondLength)
+                
+                pos = endAtom.posn()
+                region_atoms = neighborHood.region(pos)
+                            
+                #minor optimization
+                if not region_atoms:
+                    print_compact_stack("No five prime end atoms found within %f A "\
+                                        "radius of the strand's 3 prime end"%(maxBondLength))
+                    return
+                elif len(region_atoms) == 1:
+                    five_prime_end_atom = region_atoms[0]
+                else:          
+                    lst = []
+                    for atm in region_atoms:
+                        length = vlen(pos - atm.posn())
+                        lst.append((length, atm))
+                    lst.sort()
+                    
+                    #Five prime end atom nearest to the 'endAtom' is the contained
+                    #within the first tuple of the sorted list 'tpl'
+                    length, five_prime_end_atom = lst[0]
+                                         
+                self._bond_two_strandAtoms(endAtom, five_prime_end_atom)
+                self.assy.update_parts()
+                
+                current_strand = endAtom.getDnaStrand()
+                count += 1
+                
         elif endChoice == 'FIVE_PRIME_END':
             #NOT IMPLEMENTED AS OF 2008-10-26
             endAtom = strand.get_five_prime_end_base_atom()

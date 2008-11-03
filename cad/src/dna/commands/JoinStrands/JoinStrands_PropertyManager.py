@@ -23,6 +23,7 @@ Break and JoinStrands PMs into new module BreakOrJoinStrands_PropertyManager
 import sys
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_CheckBox import PM_CheckBox
+from PyQt4.Qt import SIGNAL
 
 import foundation.env as env
 from utilities.prefs_constants import joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
@@ -33,6 +34,7 @@ from utilities.prefs_constants import joinStrandsCommand_useCustomColorForFivePr
 from utilities.prefs_constants import joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
 
 from utilities.prefs_constants import joinStrandsCommand_clickToJoinDnaStrands_prefs_key
+from utilities.prefs_constants import joinStrandsCommand_recursive_clickToJoinDnaStrands_prefs_key
 
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
@@ -78,8 +80,30 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
         
         self.updateMessage(msg)
         return
+    
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect         
+
+        _superclass.connect_or_disconnect_signals(self, isConnect)
         
- 
+        change_connect(self.clickToJoinDnaStrandsCheckBox,
+                       SIGNAL("toggled(bool)"),
+                       self.clickToJoinDnaStrandsCheckBox_toggled)
+        
+    def clickToJoinDnaStrandsCheckBox_toggled(self, enable):        
+        self.recursive_clickToJoinDnaStrandsCheckBox.setEnabled(enable)
+        
+            
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
@@ -108,6 +132,16 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
         connect_checkbox_with_boolean_pref(
             self.clickToJoinDnaStrandsCheckBox, 
             joinStrandsCommand_clickToJoinDnaStrands_prefs_key )
+        
+        self.recursive_clickToJoinDnaStrandsCheckBox = \
+            PM_CheckBox(pmGroupBox ,
+                        text         = 'Recursively join strands',
+                        widgetColumn = 1, 
+                        spanWidth = True)
+        
+        connect_checkbox_with_boolean_pref(
+            self.recursive_clickToJoinDnaStrandsCheckBox, 
+            joinStrandsCommand_recursive_clickToJoinDnaStrands_prefs_key)
         
     #Return varius prefs_keys for arrowhead display options ui elements =======     
     def _prefs_key_arrowsOnThreePrimeEnds(self):
