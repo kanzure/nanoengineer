@@ -52,7 +52,8 @@ class JoinStrands_Command(BreakOrJoinStrands_Command):
         #implements different mouse behavior in its graphics mode and will stay
         #there. 
         if self.commandName == 'JOIN_STRANDS' and \
-           env.prefs[joinStrandsCommand_clickToJoinDnaStrands_prefs_key]:
+           env.prefs[joinStrandsCommand_clickToJoinDnaStrands_prefs_key] \
+           and not self.graphicsMode.exit_command_on_leftUp:
             
             self.commandSequencer.userEnterCommand('CLICK_TO_JOIN_STRANDS')
     

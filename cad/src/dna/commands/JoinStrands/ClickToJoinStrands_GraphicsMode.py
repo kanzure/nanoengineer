@@ -11,6 +11,21 @@ History:
 TODO:
 """
 
+from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
+from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key 
+from utilities.prefs_constants import useCustomColorForThreePrimeArrowheads_prefs_key 
+from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_prefs_key 
+from utilities.prefs_constants import useCustomColorForFivePrimeArrowheads_prefs_key 
+from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
+
+from utilities.prefs_constants import joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
+from utilities.prefs_constants import joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key 
+from utilities.prefs_constants import joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key 
+from utilities.prefs_constants import joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key 
+from utilities.prefs_constants import joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key 
+from utilities.prefs_constants import joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
+
+
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 
 _superclass = BuildDna_GraphicsMode
@@ -51,3 +66,25 @@ class ClickToJoinStrands_GraphicsMode(BuildDna_GraphicsMode):
         self.command.joinNeighboringStrands(strand)
     
     
+    _GLOBAL_TO_LOCAL_PREFS_KEYS = {
+        arrowsOnThreePrimeEnds_prefs_key:
+            joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key,
+        arrowsOnFivePrimeEnds_prefs_key:
+            joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key,
+        useCustomColorForThreePrimeArrowheads_prefs_key:
+            joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key,
+        useCustomColorForFivePrimeArrowheads_prefs_key:
+            joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key,
+        dnaStrandThreePrimeArrowheadsCustomColor_prefs_key:
+            joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key,
+        dnaStrandFivePrimeArrowheadsCustomColor_prefs_key:
+            joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key,
+     }
+        
+    def get_prefs_value(self, prefs_key): #bruce 080605
+        """
+        [overrides superclass method for certain prefs_keys]
+        """
+        # map global keys to local ones, when we have them
+        prefs_key = self._GLOBAL_TO_LOCAL_PREFS_KEYS.get( prefs_key, prefs_key)
+        return _superclass.get_prefs_value( self, prefs_key)
