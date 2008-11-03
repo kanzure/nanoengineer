@@ -60,6 +60,7 @@ from model.bonds import Bond
 
 from utilities.constants   import noop
 from utilities.constants    import black, applegreen
+from utilities.Comparison import same_vals
 
 from graphics.drawables.RotationHandle  import RotationHandle
 
@@ -218,6 +219,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """
         Constructor for DnaDuplex_EditCommand
         """
+        #used by self.command_update_internal_state()
+        self._previous_model_change_indicator = None
 
         glpane = commandSequencer.assy.glpane
         State_preMixin.__init__(self, glpane)        
@@ -255,21 +258,32 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #an issue mentioned in bug 2729   - Ninad 2008-04-07
         if self.grabbedHandle is not None:
             return
-                
-
+        
+        current_model_change_indicator = self.assy.model_change_indicator()
+        
+        #This should be OK even when a subclass calls this method. 
+        #(the model change indicator is updated globally , using self.assy. )
+        if same_vals(current_model_change_indicator, 
+                     self._previous_model_change_indicator):
+            return 
+        
+        self._previous_model_change_indicator = current_model_change_indicator
+        
         #PAM5 segment resizing  is not supported. 
         #@see: self.hasResizableStructure()
-        if self.hasValidStructure():
-            isStructResizable, why_not = self.hasResizableStructure()
-            if not isStructResizable:
-                self.handles = []
-                return
-            elif len(self.handles) == 0:
-                self._updateHandleList()
+        if not self.hasValidStructure():
+            return
+        
+        isStructResizable, why_not = self.hasResizableStructure()
+        if not isStructResizable:
+            self.handles = []
+            return
+        elif len(self.handles) == 0:
+            self._updateHandleList()
 
-            self.updateHandlePositions()  
+        self.updateHandlePositions()  
 
-            self._update_previousParams_in_model_changed()
+        self._update_previousParams_in_model_changed()
 
     def _update_previousParams_in_model_changed(self):
         #The following fixes bug 2802. The bug comment has details of what
@@ -289,7 +303,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             if new_numberOfBasePairs != self.previousParams[0]:
                 self.propMgr.numberOfBasePairsSpinBox.setValue(new_numberOfBasePairs)
                 self.previousParams = self.propMgr.getParameters()
-
 
 
     def editStructure(self, struct = None):
