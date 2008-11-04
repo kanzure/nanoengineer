@@ -143,6 +143,9 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
             self.recursive_clickToJoinDnaStrandsCheckBox, 
             joinStrandsCommand_recursive_clickToJoinDnaStrands_prefs_key)
         
+        if not env.prefs[joinStrandsCommand_clickToJoinDnaStrands_prefs_key]:
+            self.recursive_clickToJoinDnaStrandsCheckBox.setEnabled(False)
+        
     #Return varius prefs_keys for arrowhead display options ui elements =======     
     def _prefs_key_arrowsOnThreePrimeEnds(self):
         """

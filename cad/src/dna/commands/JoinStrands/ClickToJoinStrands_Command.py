@@ -46,7 +46,7 @@ class ClickToJoinStrands_Command(Select_Command):
     #class constants for the NEW COMMAND API -- 2008-07-30
     command_level = CL_SUBCOMMAND
     command_parent = 'JOIN_STRANDS'
-    
+       
                
     def command_update_state(self):
         """
@@ -89,6 +89,8 @@ class ClickToJoinStrands_Command(Select_Command):
             print_compact_stack("bug: %s is not a DnaStrand instance"%strand)
             return
         
+        bool_recursively_join_strands = env.prefs[joinStrandsCommand_recursive_clickToJoinDnaStrands_prefs_key]
+        
         if endChoice == 'THREE_PRIME_END':
             current_strand = strand
             
@@ -101,8 +103,7 @@ class ClickToJoinStrands_Command(Select_Command):
                 #If the 'recursivly join DnaStrand option is not checked
                 #return immediately after the first interation (which joins
                 #the two neighboring strands)
-                if count == 1 and \
-                   not env.prefs[joinStrandsCommand_recursive_clickToJoinDnaStrands_prefs_key]:
+                if count == 1 and not bool_recursively_join_strands:
                     return
                                 
                 endAtom = current_strand.get_three_prime_end_base_atom()
@@ -148,8 +149,11 @@ class ClickToJoinStrands_Command(Select_Command):
                             
                 #minor optimization
                 if not region_atoms:
-                    print_compact_stack("No five prime end atoms found within %f A "\
-                                        "radius of the strand's 3 prime end"%(maxBondLength))
+                    if not bool_recursively_join_strands:
+                        print_compact_stack(
+                            "No five prime end atoms found" \
+                            "within %f A radius of the "\
+                            "strand's 3 prime end"%(maxBondLength))
                     return
                 elif len(region_atoms) == 1:
                     five_prime_end_atom = region_atoms[0]
