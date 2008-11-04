@@ -61,6 +61,8 @@ class ClickToJoinStrands_GraphicsMode(BuildDna_GraphicsMode):
 
         _superclass.chunkLeftUp(self, aChunk, event)
         
+        if not self.glpane.modkeys is None:
+            return 
         
         strand = aChunk.getDnaStrand()        
         self.command.joinNeighboringStrands(strand)
