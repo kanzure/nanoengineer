@@ -87,6 +87,9 @@ def draw_dnaBaseNumberLabels(glpane):
     
     def func(strandOrSegmentList):        
         for strandOrSegment in strandOrSegmentList:
+            #Don't draw the labels if the strand or segment is hidden
+            if strandOrSegment.all_content_is_hidden():
+                continue
             whole_chain = strandOrSegment.get_wholechain()
             if whole_chain is None:
                 continue
