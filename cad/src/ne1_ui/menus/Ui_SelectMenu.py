@@ -22,6 +22,7 @@ def setupUi(win):
     win.selectionMenu.addAction(win.selectDoublyAction)
     win.selectionMenu.addAction(win.selectExpandAction)
     win.selectionMenu.addAction(win.selectContractAction)
+    win.selectionMenu.addAction(win.selectByNameAction)
     
 def retranslateUi(win):
     """

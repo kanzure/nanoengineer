@@ -38,6 +38,7 @@ import foundation.env as env
 from utilities.debug import print_compact_traceback
 
 from utilities.prefs_constants import captionFullPath_prefs_key
+from ne1_ui.SelectNodeByNameDockWidget import SelectNodeByNameDockWidget
 
 DEBUG = False # Do not commit set to True.
 
@@ -266,7 +267,9 @@ class Ui_PartWindow(QWidget):
             "")
 
         # Finally, add the "pwProjectTabWidget" to the left channel layout.
+        
         leftChannelVBoxLayout.addWidget(self.pwProjectTabWidget)
+       
 
         # Create the glpane and make it a child of the part splitter.
         self.glpane = GLPane(assy, self, 'glpane name', parent)
@@ -310,11 +313,21 @@ class Ui_PartWindow(QWidget):
         # sequence editor.
         pwBottomArea.hide()
         
+        #This widget implementation is subject to heavy revision. The purpose
+        #is to implement a NFR that Mark urgently needs : The NFR is: Need a 
+        #way to quickly find a node in the MT by entering its name.
+        #-- Ninad 2008-11-06
+        self.pwSpecialDockWidgetInLeftChannel = SelectNodeByNameDockWidget(self.glpane.win)
+        leftChannelVBoxLayout.addWidget(self.pwSpecialDockWidgetInLeftChannel)
+                
         # See the resizeEvent() docstring for more information about
         # resizeTimer.
         self.resizeTimer = QTimer(self)
         self.resizeTimer.setSingleShot(True)
         return
+    
+    def getLeftChannelDockWidget(self):
+        return self.pwSpecialDockWidgetInLeftChannel
 
     def updateWindowTitle(self, changed = False):
         #by mark; bruce 050810 revised this in several ways, fixed bug 785

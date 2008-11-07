@@ -1,0 +1,223 @@
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+
+@author: Ninad
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@version:$Id$
+
+History:
+Created on 2008-11-06
+TODO:
+Created as a part of a NFR by Mark on Nov 6, 2008. This is a quick implementation
+subjected to a number of changes / revisions. 
+"""
+
+from PyQt4.Qt import QToolButton
+from PyQt4.Qt import QPalette
+from PyQt4.Qt import QTextOption
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QAction, QMenu
+from PyQt4.Qt import Qt, SIGNAL
+
+from PM.PM_Colors    import getPalette
+from PM.PM_Colors    import sequenceEditStrandMateBaseColor
+
+from PM.PM_DockWidget import PM_DockWidget
+from PM.PM_WidgetRow  import PM_WidgetRow
+from PM.PM_ToolButton import PM_ToolButton
+from PM.PM_ComboBox   import PM_ComboBox
+from PM.PM_TextEdit   import PM_TextEdit
+from PM.PM_LineEdit   import PM_LineEdit
+from PM.PM_PushButton import PM_PushButton
+from PM.PM_SelectionListWidget import PM_SelectionListWidget
+
+from utilities.icon_utilities import geticon, getpixmap
+
+_superclass = PM_DockWidget
+class SelectNodeByNameDockWidget(PM_DockWidget):
+    """
+    The Ui_DnaSequenceEditor class defines UI elements for the Sequence Editor
+    object. The sequence editor is usually visible while in DNA edit mode.
+    It is a DockWidget that is doced at the bottom of the MainWindow
+    """
+    _title         =  "Select Node by Name"
+    _groupBoxCount = 0
+    _lastGroupBox = None
+
+    def __init__(self, win):
+        """
+        Constructor for the Ui_DnaSequenceEditor 
+        @param win: The parentWidget (MainWindow) for the sequence editor 
+        """
+        
+        self.win = win
+        parentWidget = win 
+        
+        _superclass.__init__(self, parentWidget, title = self._title)
+        
+        win.addDockWidget(Qt.BottomDockWidgetArea, self)
+        self.setFixedHeight(120)
+        ##self.setFixedWidth(90)        
+        self.connect_or_disconnect_signals(True)
+        
+        if not self.win.selectByNameAction.isChecked():
+            self.close()
+        
+        
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        
+        
+        if isConnect:
+            change_connect = self.win.connect     
+        else:
+            change_connect = self.win.disconnect 
+          
+        self._listWidget.connect_or_disconnect_signals(isConnect) 
+        
+        change_connect( self.searchToolButton,
+                      SIGNAL("clicked()"),
+                      self.searchNodes)
+        
+        
+    def searchNodes(self):
+        """
+        ONLY implementd for DnaStrand or DnaSegments. 
+        """
+        nodeNameString = self.findLineEdit.text() 
+        assy = self.win.assy
+        
+       
+        
+        
+        topnode = assy.part.topnode
+        lst = []         
+        def func(node):
+            if isinstance(node, assy.DnaStrandOrSegment):
+                lst.append(node)
+                        
+        topnode.apply2all(func)
+        
+        
+        def func2(node):  
+            n = len(nodeNameString)
+            if len(node.name)< n:
+                return False
+                        
+            if node.name[:n] == nodeNameString:
+                return True
+            
+            return False
+    
+        nodes = filter(lambda m:func2(m), lst)
+        
+        self._listWidget.insertItems(
+                row = 0,
+                items = nodes)
+        
+        
+        
+        
+        
+        
+        
+        
+    def closeEvent(self, event):
+        self.win.selectByNameAction.setChecked(False)
+        _superclass.closeEvent(self, event)
+        
+        
+        
+    def _loadWidgets(self):
+        """
+        Overrides PM.PM_DockWidget._loadWidgets. Loads the widget in this
+        dockwidget.
+        """
+        self._loadMenuWidgets()
+        self._loadListWidget()
+        
+    def _loadListWidget(self):
+        self._listWidget = PM_SelectionListWidget(self,
+                                                  self.win,
+                                                  label = "",
+                                                  heightByRows = 9 )
+        self._listWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
+
+    def _loadMenuWidgets(self):
+        """
+        Load the various menu widgets (e.g. Open, save sequence options, 
+        Find and replace widgets etc. 
+        """
+        #Note: Find and replace widgets might be moved to their own class.
+
+        #Find and replace widgets --
+        self.findLineEdit = \
+            PM_LineEdit( self, 
+                         label        = "",
+                         spanWidth    = False)
+        
+        self.findLineEdit.setMaximumWidth(80)
+
+        self.findOptionsToolButton = PM_ToolButton(self)
+        self.findOptionsToolButton.setMaximumWidth(12)
+        self.findOptionsToolButton.setAutoRaise(True)
+
+        ##self.findOptionsToolButton.setPopupMode(QToolButton.MenuButtonPopup)
+
+        ##self._setFindOptionsToolButtonMenu()
+
+        self.searchToolButton = PM_ToolButton(
+            self,            
+            iconPath = "ui/actions/Properties Manager/Find_Next.png")
+        self.searchToolButton.setAutoRaise(False)
+
+        
+        self.warningSign = QLabel(self)
+        self.warningSign.setPixmap(
+            getpixmap('ui/actions/Properties Manager/Warning.png'))
+        self.warningSign.hide()
+
+        self.phraseNotFoundLabel = QLabel(self)
+        self.phraseNotFoundLabel.setText("Not Found")
+        self.phraseNotFoundLabel.hide()
+
+        # NOTE: Following needs cleanup in the PM_WidgetRow/ PM_WidgetGrid
+        # but this explanation is sufficient  until thats done -- 
+
+        # When the widget type starts with the word 'PM_' , the 
+        # PM_WidgetRow treats it as a well defined widget and thus doesn't try
+        # to create a QWidget object (or its subclasses)
+        # This is the reason why qLabels such as self.warningSign and
+        # self.phraseNotFoundLabel  are defined as PM_Labels and not 'QLabels'
+        # If they were defined as 'QLabel'(s) then PM_WidgetRow would have
+        # recreated the label. Since we want to show/hide the above mentioned 
+        # labels (and if they were recreated as mentioned above), 
+        # we would have needed to define  those something like this:
+        # self.phraseNotFoundLabel = widgetRow._widgetList[-2] 
+        #Cleanup in PM_widgetGrid could be to check if the widget starts with 
+        #'Q'  instead of 'PM_' 
+
+
+        #Widgets to include in the widget row. 
+        widgetList = [
+                      ('QLabel', "     Search for name:", 1),
+                      ('PM_LineEdit', self.findLineEdit, 2),
+                      ('PM_ToolButton', self.findOptionsToolButton, 3),
+                      ('PM_ToolButton', self.searchToolButton, 4), 
+                      ('PM_Label', self.warningSign, 5),
+                      ('PM_Label', self.phraseNotFoundLabel, 6),
+                      ('QSpacerItem', 5, 5, 7) ]
+
+        widgetRow = PM_WidgetRow(self,
+                                 title     = '',
+                                 widgetList = widgetList,
+                                 label = "",
+                                 spanWidth = True )
+        
+        

@@ -773,6 +773,12 @@ def setupUi(win):
         geticon("ui/actions/Tools/Select/Selection_Unlocked.png"))
     win.selectLockAction.setObjectName("selectLockAction")
     win.selectLockAction.setCheckable(True)
+    
+    win.selectByNameAction = QtGui.QAction(MainWindow)
+    win.selectByNameAction.setIcon(
+        geticon("ui/actions/Tools/Select/Select_By_Name.png"))
+    win.selectByNameAction.setObjectName("selectByNameAction")
+    win.selectByNameAction.setCheckable(True)
 
     #= "Simulation" (menu and toolbar) widgets.
 
@@ -1873,7 +1879,13 @@ def retranslateUi(win):
     win.selectLockAction.setIconText(QtGui.QApplication.translate("MainWindow", "Lock", None, QtGui.QApplication.UnicodeUTF8))
     win.selectLockAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Lock (Ctrl+L)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectLockAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+L", None, QtGui.QApplication.UnicodeUTF8))
-
+    
+    win.selectByNameAction.setText(QtGui.QApplication.translate(
+        "MainWindow", 
+        "Select By Name", 
+        None, 
+        QtGui.QApplication.UnicodeUTF8))
+    
     #= "Simulation" (menu and toolbar) actions.
     win.simSetupAction.setText(QtGui.QApplication.translate(
         "MainWindow", " Run Dynamics...", None, QtGui.QApplication.UnicodeUTF8))

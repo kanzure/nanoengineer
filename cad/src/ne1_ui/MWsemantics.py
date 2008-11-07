@@ -161,7 +161,6 @@ class MWsemantics(QMainWindow,
                                     #for details
                                     
         self._proteinSequenceEditor = None
-
        
         # These boolean flags, if True, stop the execution of slot
         # methods that are called because the state of 'self.viewFullScreenAction
@@ -1812,7 +1811,8 @@ class MWsemantics(QMainWindow,
             #the MainWindow attrs
 
         return self._dnaSequenceEditor
-
+    
+    
     def createProteinSequenceEditorIfNeeded(self):
         """
         Returns a Sequence editor object (a dockwidget).
@@ -1828,8 +1828,16 @@ class MWsemantics(QMainWindow,
             self._proteinSequenceEditor = ProteinSequenceEditor(self)
             self._proteinSequenceEditor.setObjectName("protein_sequence_editor")
 
-        return self._proteinSequenceEditor
+        return self._proteinSequenceEditor    
     
+    def toggle_selectByNameDockWidget(self, bool_toggle):
+        pw = self._activepw
+        leftChannelDockWidget = pw.getLeftChannelDockWidget()
+        if bool_toggle:
+            leftChannelDockWidget.show()
+        else:
+            leftChannelDockWidget.close()
+        
 
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()

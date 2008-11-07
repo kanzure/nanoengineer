@@ -142,6 +142,8 @@ class Assembly( StateMixin, Assembly_API):
     from model.jigs       import Jig
     from model.Plane      import Plane
     
+    from foundation.Utility import Node
+    
     from dna.model.Block  import Block
     from dna.model.DnaGroup   import DnaGroup
     from dna.model.DnaSegment import DnaSegment
@@ -1807,7 +1809,7 @@ class Assembly( StateMixin, Assembly_API):
         self.tree.apply2all(func)
         self.shelf.apply2all(func)
         return res
-    
+        
     def get_part_files_directory(self): # Mark 060703.
         """
         Returns the Part Files directory for this Assembly, even if it doesn't exist.

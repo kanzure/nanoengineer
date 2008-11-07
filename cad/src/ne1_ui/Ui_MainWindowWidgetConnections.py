@@ -211,6 +211,7 @@ def setupUi(win):
     win.connect(win.selectInvertAction,SIGNAL("triggered()"),win.selectInvert)
     win.connect(win.selectNoneAction,SIGNAL("triggered()"),win.selectNone)
     win.connect(win.selectLockAction,SIGNAL("toggled(bool)"),win.selectLock)
+    win.connect(win.selectByNameAction,SIGNAL("toggled(bool)"),win.toggle_selectByNameDockWidget)
     
     ##win.connect(win.helpTipAction,SIGNAL("triggered()"), win.toggleQuickHelpTip)
 
