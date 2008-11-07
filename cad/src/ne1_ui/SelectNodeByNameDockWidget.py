@@ -91,9 +91,8 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
         ONLY implementd for DnaStrand or DnaSegments. 
         """
         nodeNameString = self.findLineEdit.text() 
-        assy = self.win.assy
-        
-       
+        nodeNameString = str(nodeNameString)
+        assy = self.win.assy       
         
         
         topnode = assy.part.topnode
@@ -103,14 +102,15 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
                 lst.append(node)
                         
         topnode.apply2all(func)
-        
-        
+              
         def func2(node):  
             n = len(nodeNameString)
             if len(node.name)< n:
                 return False
-                        
-            if node.name[:n] == nodeNameString:
+            
+            nameString = str(node.name[:n])
+            
+            if  nameString.lower() == nodeNameString.lower():
                 return True
             
             return False
