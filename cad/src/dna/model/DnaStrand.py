@@ -408,10 +408,17 @@ class DnaStrand(DnaStrandOrSegment):
         
         """
         strandInfo = ""        
-        strandInfo += "Parent strand: " + self.name + "\n"        
+        strandInfo += "<font color=\"#0000FF\">Parent strand: </font>" + self.name + "<br>"        
         allAtoms = self.get_strand_atoms_in_bond_direction(filterBondPoints = True)
-        strandInfo += "Number of bases: %s"%(len(allAtoms))        
+        strandInfo += "<font color=\"#0000FF\">Number of bases: </font>%s"%(len(allAtoms))        
         return strandInfo
+    
+    def getAllAtoms(self):
+        """
+        Method provided for convenience
+        """
+        allAtoms = self.get_strand_atoms_in_bond_direction(filterBondPoints = True)
+        return allAtoms
         
         
     def getTooltipInfoForBond(self, bond):

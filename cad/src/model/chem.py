@@ -3073,7 +3073,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         
         strand = atom.getDnaStrand()
         if strand:
-            atomInfoStr += "\n" + strand.getDefaultToolTipInfo()
+            atomInfoStr += "<br>" + strand.getDefaultToolTipInfo()
 
         if atom.display:
             # show display style of atoms that have one [bruce 080206]
