@@ -827,6 +827,26 @@ class Bond(BondBase, StateMixin, Selobj_API):
     
     #- DNA helper functions. ------------------------------------------
     
+    def getDnaSegment(self):
+        """
+        """
+        segment = None
+        
+        if self.is_open_bond():
+            return None
+        
+        atom1 = self.atom1
+        atom2 = self.atom2
+        for atm in (atom1, atom2):
+            if atm.is_singlet():
+                continue
+            segment = atm.getDnaSegment()
+            if segment:
+                return segment
+        
+        return segment
+        
+    
     def getDnaStrand(self):
         """
         Return the parent DnaStrand of the bond if its a strand bond. 
@@ -956,17 +976,20 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         Returns a string that has bond related info, for use in Dynamic Tool Tip
         """
-        bondInfoStr = str(self) # might be extended below
+        bondInfoStr = ""
+        bondInfoStr += "%s"%(self) # might be extended below
         dna_error = self._dna_updater_error_tooltip_info() #bruce 080206
-        if self.isStrandBond():            
-            pass
-        
+                
         if dna_error:
             bondInfoStr += "\n" + dna_error
         else:
             strand = self.getDnaStrand()
+            segment = self.getDnaSegment()
             if strand:
-                bondInfoStr += "\n" + strand.getTooltipInfoForBond(self)
+                bondInfoStr += "\n" + strand.getToolTipInfoForBond(self)            
+            elif segment:
+                bondInfoStr += "\n" + segment.getToolTipInfoForBond()
+                
         # check for user pref 'bond_chunk_info'
         if isBondChunkInfo:
             bondChunkInfo = self.getBondChunkInfo()
@@ -992,7 +1015,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
             #ninad060822 I am not checking if chunk 1 and 2 are the same.
             #I think it's not needed as the tooltip string won't be compact
             #even if it is implemented. so leaving it as is
-        bondChunkInfo = str(a1) + " in [" + str(chunk1) + "]\n" + str(a2) + " in [" + str(chunk2) + "]"
+        bondChunkInfo = str(a1) + " in [" + \
+                      str(chunk1) + "]\n" + \
+                      str(a2) + " in [" + str(chunk2) + "]"
         return bondChunkInfo
             
     def getBondLength(self, atomDistPrecision):#Ninad 060830

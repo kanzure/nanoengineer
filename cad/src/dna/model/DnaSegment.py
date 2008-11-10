@@ -122,6 +122,29 @@ class DnaSegment(DnaStrandOrSegment):
         numberOfBasePairs = self.getNumberOfAxisAtoms()
             
         return numberOfBasePairs
+    
+    def getDefaultToolTipInfo(self):
+        """
+        """
+        tooltipString = ""
+        n = self.getNumberOfAxisAtoms()
+        tooltipString += "<font color=\"#0000FF\">Parent segment:</font> %s"%(self.name)
+        tooltipString += "<br><font color=\"#0000FF\">Number of axis atoms: </font> %d"%(n)
+        return tooltipString
+    
+    def getToolTipInfoForBond(self):
+        """
+        @see: self.getDefaultToolTipInfo(). This method essentially returns 
+        the same string, but its a non-htl version as of 2008-11-10. 
+        For some reason, the html tags don't work -- see bonds.getToolTipInfo()
+        there is some issue with adding 'self' i.e. Bond name to the string.
+        """
+        tooltipString = ""
+        n = self.getNumberOfAxisAtoms()
+        tooltipString += "Parent segment: %s"%(self.name)
+        tooltipString += "\nNumber of axis atoms: %d"%(n)
+        return tooltipString
+        
         
     
     def getNumberOfAxisAtoms(self): 
@@ -386,17 +409,35 @@ class DnaSegment(DnaStrandOrSegment):
         
         """
         all_content_chunk_list = []
-                    
+                            
         for member in self.members:
             if isinstance(member, DnaAxisChunk):
                 ladder = member.ladder
                 all_content_chunk_list.extend(ladder.all_chunks())
-            elif isinstance(member, Chunk):
-                if member.isAxisChunk() or member.isStrandChunk():
-                    #This code will only be called when dna_updater is disabled
-                    #the conditional check should be removed post dna_data model
-                    all_content_chunk_list.append(member)
-        
+                
+        ##TEST CODE =======================                                                    
+        #Now search for any strand chunks whose strand atoms are not connected 
+        #to the axis atoms, but still logically belong to the DnaSegment. 
+        #A hairpin loop is an example of such a strand chunk
+        axis_end_atoms = self.getAxisEndAtoms()
+        for atm in axis_end_atoms:
+            if not atm:
+                continue
+            strand_atoms = atm.strand_neighbors()
+            ##print "~~~~~~~~~~~~~~~~"
+            for s_atom in strand_atoms:
+                rail = s_atom.molecule.get_ladder_rail()
+                next_rail_base_atoms = rail.neighbor_baseatoms
+                ##print "*** next_rail_base_atoms = ", next_rail_base_atoms
+                for a in next_rail_base_atoms:
+                    if a is None:
+                        continue
+                    ##print "***a.axis_neighbor() = ", a.axis_neighbor()
+                    if not a.axis_neighbor(): 
+                        if a.molecule not in all_content_chunk_list:
+                            all_content_chunk_list.append(a.molecule)
+        ##===================================
+                        
         return all_content_chunk_list 
     
     def getAxisEndAtomAtPosition(self, position):

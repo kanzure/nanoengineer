@@ -3531,8 +3531,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         strand =  self.getDnaStrand()
         toolTipInfoString = ''
         if strand:
-            toolTipInfoString = strand.getDefaultToolTipInfo()
+            toolTipInfoString = strand.getDefaultToolTipInfo()   
+            return toolTipInfoString
         
+        segment = self.getDnaSegment()
+        if segment:
+            toolTipInfoString = segment.getDefaultToolTipInfo()
+                    
         return toolTipInfoString
                     
 

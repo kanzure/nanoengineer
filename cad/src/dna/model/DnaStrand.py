@@ -421,7 +421,7 @@ class DnaStrand(DnaStrandOrSegment):
         return allAtoms
         
         
-    def getTooltipInfoForBond(self, bond):
+    def getToolTipInfoForBond(self, bond):
         """
         Tooltip information when the cursor is over a strand bond. 
         As of 2008-11-09, it gives the information in the following form:
