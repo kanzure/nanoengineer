@@ -36,6 +36,7 @@ from model.bonds import Bond
 
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from dna.commands.BuildDna.BuildDna_PropertyManager import BuildDna_PropertyManager
+from utilities.Comparison import same_vals
 
 _superclass = EditCommand
 class BuildDna_EditCommand(EditCommand):
@@ -76,6 +77,32 @@ class BuildDna_EditCommand(EditCommand):
     #BuildAtoms_Command (earlier depositmode)
     call_makeMenus_for_each_event = True
     
+    _previous_command_stack_change_indicator = None
+    
+    def command_update_state(self):
+        """
+        @see superclass for documentation
+        """
+        #Ths following code fixes a bug reported by Mark on 2008-11-10
+        #the bug is:
+            #1. Insert DNA
+            #2. Enter Break Strands command. Exit command.
+            #3. Do a region selection to select the middle of the DNA duplex.
+            #Notice that atoms are selected, not the strands/segment chunks.
+        #The problem is the selection state is not changed back to the Select Chunks
+        #the code that does this is in Enter_GraphicsMode. 
+        #(See SelectChunks_GraphicsMode) but when a command is 'resumed', that
+        #method is not called. The fix for this is to check if the command stack
+        #indicator changed in the command_update_state method, if it is changed
+        #and if currentCommand is BuildDna_EditCommand, call the code that 
+        #ensures that chunks will be selcted when you draw a selection lasso.
+        #-- Ninad 2008-11-10
+        if same_vals(self._previous_command_stack_change_indicator,
+                     self.assy.command_stack_change_indicator()):
+            return 
+        
+        if self.win.commandSequencer.currentCommand is self:
+            self.assy.selectChunksWithSelAtoms_noupdate()
            
     def runCommand(self):
         """
