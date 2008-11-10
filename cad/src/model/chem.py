@@ -3065,8 +3065,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         atomStr        = atom.getInformationString( mention_ghost = False)
         elementNameStr = " [" + atom.element.name + "]"
-
+        
+        
         atomInfoStr = atomStr + elementNameStr
+        
+        #Display tooltip info if its a PAM atom. (implemented for Ss atoms only)
+        
+        strand = atom.getDnaStrand()
+        if strand:
+            atomInfoStr += "\n" + strand.getDefaultToolTipInfo()
 
         if atom.display:
             # show display style of atoms that have one [bruce 080206]

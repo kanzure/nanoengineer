@@ -273,29 +273,31 @@ class DynamicTip: # Mark and Ninad 060817.
         glpane        = self.glpane
         atomposn      = None
         atomChunkInfo = None
+        selobj = glpane.selobj
                 
         #      ---- Atom Info ----
-        if isinstance(glpane.selobj, Atom):
-            selAtom     = glpane.selobj
-            atomInfoStr = selAtom.getToolTipInfo(self.isAtomPosition,
+        if isinstance(selobj, Atom):
+            atomInfoStr = selobj.getToolTipInfo(self.isAtomPosition,
                                                  self.isAtomChunkInfo, 
                                                  self.isAtomMass, 
                                                  atomDistPrecision)
             return atomInfoStr
            
         #       ----Bond Info----
-        if isinstance(glpane.selobj, Bond):
-            selBond     = glpane.selobj
-            bondInfoStr = selBond.getToolTipInfo(self.isBondChunkInfo, 
+        if isinstance(selobj, Bond):
+            bondInfoStr = selobj.getToolTipInfo(self.isBondChunkInfo, 
                                                  self.isBondLength, 
                                                  atomDistPrecision)
             return  bondInfoStr
             
         #          ---- Jig Info ----
-        if isinstance(glpane.selobj, Jig):
-            jig    = glpane.selobj
-            jigStr = jig.getToolTipInfo()
+        if isinstance(selobj, Jig):
+            jigStr = selobj.getToolTipInfo()
             return jigStr
+        
+        if isinstance(selobj, glpane.assy.Chunk):
+            chunkStr = selobj.getToolTipInfo()
+            return chunkStr
         
         #@@@ninad060818 In future if we support other object types in glpane, do we need a check for that? 
         # e.g. else: return "unknown object" .

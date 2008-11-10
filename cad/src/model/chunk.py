@@ -3522,6 +3522,19 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Return number of atoms (real atoms or bondpoints) in self.
         """
         return len(self.atoms)
+    
+    def getToolTipInfo(self):
+        """
+        Return the tooltip string for this chunk
+        """
+        #As of 2008-11-09, this is only implemented for a DnaStrand.
+        strand =  self.getDnaStrand()
+        toolTipInfoString = ''
+        if strand:
+            toolTipInfoString = strand.getDefaultToolTipInfo()
+        
+        return toolTipInfoString
+                    
 
     def getinfo(self):
         # Return information about the selected chunk for the msgbar [mark 2004-10-14]

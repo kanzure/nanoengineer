@@ -23,7 +23,8 @@ from operations.bond_chains import grow_directional_bond_chain
 from dna.model.Dna_Constants import MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
 from utilities.constants import MODEL_PAM3
 from utilities.constants import MODEL_PAM5
-
+from PyQt4.Qt import QFont, QString
+from model.bond_constants import bond_left_atom
 
 class DnaStrand(DnaStrandOrSegment):
     """
@@ -350,7 +351,7 @@ class DnaStrand(DnaStrandOrSegment):
      
     def getDnaLadders(self):
         """
-        Returns a list of all DnaLadders within this segment
+        Returns a list of all DnaLadders within this strand
         """
         ladderList = []
         
@@ -400,6 +401,139 @@ class DnaStrand(DnaStrandOrSegment):
             if isinstance(m, self.assy.Chunk) and m.isStrandChunk():
                 strandChunkList.append(m)
         return strandChunkList
+    
+    def getDefaultToolTipInfo(self):
+        """
+        Default strand info in the tooltip when the cursor is over an atom 
+        
+        """
+        strandInfo = ""        
+        strandInfo += "Parent strand: " + self.name + "\n"        
+        allAtoms = self.get_strand_atoms_in_bond_direction(filterBondPoints = True)
+        strandInfo += "Number of bases: %s"%(len(allAtoms))        
+        return strandInfo
+        
+        
+    def getTooltipInfoForBond(self, bond):
+        """
+        Tooltip information when the cursor is over a strand bond. 
+        As of 2008-11-09, it gives the information in the following form:
+        
+        """
+                
+        #Bond direction will always be atm1 --> atm2
+        #@see: Bond.bond_direction_from() 
+        atm1 = bond.atom1
+        atm2 = bond.atom2
+        
+        strandInfo = ""
+        
+                               
+        if not (atm1 and atm2):
+            strandInfo = self.getDefaultToolTipInfo()
+            return strandInfo
+
+        
+        threePrimeEndAtom = self.get_three_prime_end_base_atom()
+        fivePrimeEndAtom  = self.get_five_prime_end_base_atom()
+        allAtoms = self.get_strand_atoms_in_bond_direction(filterBondPoints = True)
+                        
+        tooltipDirection = "3<--5"
+        left_atom = bond_left_atom(bond, quat = self.assy.glpane.quat)
+        right_atom = bond.other(left_atom)
+                     
+        if bond.bond_direction_from(left_atom) == 1:
+            tooltipDirection = "5-->3"
+        else:
+            tooltipDirection = "3<--5"
+            
+        left_atm_index = None        
+
+        try:
+            left_atm_index = allAtoms.index(left_atom)
+        except:
+            print_compact_traceback("bug in getting strand info string "\
+                                    "atom %s not in list"%left_atom)
+        
+        if left_atm_index:
+            #@BUG: The computation of numOfBases_next_crossover_5prime and 
+            #numOfBases_next_crossover_3prime is wrong in some cases. So, 
+            #that information is not displayed. 
+            numOfBases_next_crossover_5prime, numOfBases_next_crossover_3prime = \
+                                            self._number_of_atoms_before_next_crossover(
+                                                left_atom, 
+                                                tooltipDirection = tooltipDirection)           
+                
+            if threePrimeEndAtom and fivePrimeEndAtom:                                                
+                if tooltipDirection == "3<--5":  
+                    numOfBasesDown_3PrimeDirection = len(allAtoms[left_atm_index:])
+                    #Note: This does not include atm1 , which is intentional--
+                    numOfBasesDown_5PrimeDirection = len(allAtoms[:left_atm_index])                    
+                    ##strandInfo += " 3' < " + str(numOfBasesDown_3PrimeDirection) + "/" + str(numOfBases_next_crossover_3prime)
+                    strandInfo += " 3' < " + str(numOfBasesDown_3PrimeDirection)
+                    strandInfo += " --(%s)-- "%(len(allAtoms))  
+                    ##strandInfo += str(numOfBases_next_crossover_5prime) + "/" + str(numOfBasesDown_5PrimeDirection) + " < 5'"
+                    strandInfo += str(numOfBasesDown_5PrimeDirection) + " < 5'"
+                else:
+                    numOfBasesDown_3PrimeDirection = len(allAtoms[left_atm_index + 1:])
+                    #Note: This does not include atm1 , which is intentional--
+                    numOfBasesDown_5PrimeDirection = len(allAtoms[:left_atm_index + 1])
+                    ##strandInfo += " 5' > " + str(numOfBasesDown_5PrimeDirection)  + "/" + str(numOfBases_next_crossover_5prime)                                    
+                    strandInfo += " 5' > " + str(numOfBasesDown_5PrimeDirection)   
+                    strandInfo += " --(%s)-- "%(len(allAtoms))  
+                    ##strandInfo += str(numOfBases_next_crossover_3prime) + "/" + str(numOfBasesDown_3PrimeDirection) + " > 3'"
+                    strandInfo += str(numOfBasesDown_3PrimeDirection) + " > 3'"
+     
+        return strandInfo
+    
+    
+    def _number_of_atoms_before_next_crossover(self, 
+                                               atm, 
+                                               tooltipDirection = ''):
+        """
+        """
+        numOfBases_down_3prime = ''
+        numOfBases_down_5prime = ''
+        
+        rail = atm.molecule.get_ladder_rail()
+        
+        atm_index = rail.baseatoms.index(atm)
+        
+        end_baseatoms = rail.end_baseatoms()
+        
+        if len(end_baseatoms) == 2:
+            atm_a = end_baseatoms[0]
+            atm_b = end_baseatoms[1]
+            
+            if atm_a and atm_b:
+                atm_a_index = rail.baseatoms.index(atm_a)
+                atm_b_index = rail.baseatoms.index(atm_b) 
+                
+                if tooltipDirection == "3<--5":
+                    ##print "~~~~"
+                    ##print "***tooltipDirection =", tooltipDirection                                   
+                    numOfBases_down_3prime = abs(atm_a_index - atm_index) + 1
+                    numOfBases_down_5prime = abs(atm_b_index - atm_index)
+                    ##print "****numOfBases_down_3prime = ", numOfBases_down_3prime
+                    ##print "****numOfBases_down_5prime = ", numOfBases_down_5prime
+                    
+                elif tooltipDirection == "5-->3":                    
+                    ##print "####################"    
+                    numOfBases_down_3prime = abs(atm_b_index - atm_index) 
+                    numOfBases_down_5prime = abs(atm_a_index - atm_index) + 1
+                    ##print "****numOfBases_down_3prime = ", numOfBases_down_3prime
+                    ##print "****numOfBases_down_5prime = ", numOfBases_down_5prime
+                    
+        return (str(numOfBases_down_5prime), 
+                str(numOfBases_down_3prime))
+    
+    
+    def get_neighboring_DnaStrands_in_same_DnaSegment(self):
+        """
+        """
+        
+        pass
+                
 
     def _get_commandNames_honoring_highlightPolicy(self):
         """

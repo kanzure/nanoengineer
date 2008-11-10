@@ -827,12 +827,25 @@ class Bond(BondBase, StateMixin, Selobj_API):
     
     #- DNA helper functions. ------------------------------------------
     
-    def getStrandName(self): # probably by Mark
-        # Note: used only in SelectAtoms_GraphicsMode.bondDelete,
-        # for a history message, as of before 080225. Probably obsolete
-        # (if not, needs renaming and revision for dna data model).
-        # See also: Atom.getDnaStrandId_for_generators.
-        # [bruce 080225 comment]
+    def getDnaStrand(self):
+        """
+        Return the parent DnaStrand of the bond if its a strand bond. 
+        Returns None otherwise.
+        """
+        if not self.isStrandBond():
+            return None
+        
+        chunk = self.atom1.molecule
+        
+        #Assume that there is no DNA updater error, so, the chunk of self.atom2
+        #has the same strand as the one for chunk of atom1. 
+        if chunk and not chunk.isNullChunk():
+            return chunk.getDnaStrand()
+        
+        return None
+        
+    
+    def getStrandName(self): # probably by Mark        
         """
         Return the strand name, which is this bond's chunk name.
         
@@ -841,9 +854,19 @@ class Bond(BondBase, StateMixin, Selobj_API):
         @rtype:  str
         
         @see: L{setStrandName}
+        @see: Atom.getDnaStrandId_for_generators
+        @see:SelectAtoms_GraphicsMode.bondDelete
+        
         """
-        if self.atom1.molecule is self.atom2.molecule:
-            return self.atom1.molecule.name
+        # Note: used only in SelectAtoms_GraphicsMode.bondDelete,
+        # for a history message, as of before 080225.
+        # See also: Atom.getDnaStrandId_for_generators.
+        # [bruce 080225 comment]        
+        
+        strand = self.getDnaStrand()
+        if strand:
+            return strand.name
+        
         return ""
         
     def isStrandBond(self): # by Mark
@@ -935,8 +958,15 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         bondInfoStr = str(self) # might be extended below
         dna_error = self._dna_updater_error_tooltip_info() #bruce 080206
+        if self.isStrandBond():            
+            pass
+        
         if dna_error:
             bondInfoStr += "\n" + dna_error
+        else:
+            strand = self.getDnaStrand()
+            if strand:
+                bondInfoStr += "\n" + strand.getTooltipInfoForBond(self)
         # check for user pref 'bond_chunk_info'
         if isBondChunkInfo:
             bondChunkInfo = self.getBondChunkInfo()
