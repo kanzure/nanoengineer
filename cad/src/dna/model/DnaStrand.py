@@ -25,6 +25,7 @@ from utilities.constants import MODEL_PAM3
 from utilities.constants import MODEL_PAM5
 from PyQt4.Qt import QFont, QString
 from model.bond_constants import bond_left_atom
+from utilities.Log import quote_html
 
 class DnaStrand(DnaStrandOrSegment):
     """
@@ -490,6 +491,9 @@ class DnaStrand(DnaStrandOrSegment):
                     strandInfo += " --(%s)-- "%(len(allAtoms))  
                     ##strandInfo += str(numOfBases_next_crossover_3prime) + "/" + str(numOfBasesDown_3PrimeDirection) + " > 3'"
                     strandInfo += str(numOfBasesDown_3PrimeDirection) + " > 3'"
+        
+        #Make sure that symbol like > are converted to html
+        strandInfo = quote_html(strandInfo)
      
         return strandInfo
     

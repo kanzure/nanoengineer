@@ -132,21 +132,7 @@ class DnaSegment(DnaStrandOrSegment):
         tooltipString += "<br><font color=\"#0000FF\">Number of axis atoms: </font> %d"%(n)
         return tooltipString
     
-    def getToolTipInfoForBond(self):
-        """
-        @see: self.getDefaultToolTipInfo(). This method essentially returns 
-        the same string, but its a non-htl version as of 2008-11-10. 
-        For some reason, the html tags don't work -- see bonds.getToolTipInfo()
-        there is some issue with adding 'self' i.e. Bond name to the string.
-        """
-        tooltipString = ""
-        n = self.getNumberOfAxisAtoms()
-        tooltipString += "Parent segment: %s"%(self.name)
-        tooltipString += "\nNumber of axis atoms: %d"%(n)
-        return tooltipString
-        
-        
-    
+
     def getNumberOfAxisAtoms(self): 
         """
         Returns the number of axis atoms present within this dna segment 

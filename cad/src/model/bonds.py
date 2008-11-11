@@ -38,7 +38,7 @@ from utilities.debug import reload_once_per_event
 from utilities import debug_flags
 
 from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
-
+from utilities.Log import quote_html
 from model.elements import Singlet
 
 from model.bond_constants import V_SINGLE
@@ -977,27 +977,28 @@ class Bond(BondBase, StateMixin, Selobj_API):
         Returns a string that has bond related info, for use in Dynamic Tool Tip
         """
         bondInfoStr = ""
-        bondInfoStr += "%s"%(self) # might be extended below
+                
+        bondInfoStr += quote_html(str(self)) # might be extended below
         dna_error = self._dna_updater_error_tooltip_info() #bruce 080206
                 
         if dna_error:
-            bondInfoStr += "\n" + dna_error
+            bondInfoStr += "<br>" + dna_error
         else:
             strand = self.getDnaStrand()
             segment = self.getDnaSegment()
             if strand:
-                bondInfoStr += "\n" + strand.getToolTipInfoForBond(self)            
+                bondInfoStr += "<br>" + strand.getToolTipInfoForBond(self)            
             elif segment:
-                bondInfoStr += "\n" + segment.getToolTipInfoForBond()
+                bondInfoStr += "<br>" + segment.getDefaultToolTipInfo()
                 
         # check for user pref 'bond_chunk_info'
         if isBondChunkInfo:
             bondChunkInfo = self.getBondChunkInfo()
-            bondInfoStr +=  "\n" + bondChunkInfo
+            bondInfoStr +=  "<br>" + bondChunkInfo
         #check for user pref 'bond length'
         if isBondLength:
             bondLength = self.getBondLength(atomDistPrecision)
-            bondInfoStr += "\n" + bondLength
+            bondInfoStr += "<br>" + bondLength
                 #ninad060823  don't use "<br>" ..it is weird. doesn't break into a new line.
                 #perhaps because I am not using html stuff in getBondLength etc functions??
         return bondInfoStr
@@ -1016,7 +1017,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             #I think it's not needed as the tooltip string won't be compact
             #even if it is implemented. so leaving it as is
         bondChunkInfo = str(a1) + " in [" + \
-                      str(chunk1) + "]\n" + \
+                      str(chunk1) + "]<br>" + \
                       str(a2) + " in [" + str(chunk2) + "]"
         return bondChunkInfo
             
