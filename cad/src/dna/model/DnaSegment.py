@@ -67,6 +67,9 @@ class DnaSegment(DnaStrandOrSegment):
     iconPath = "ui/modeltree/DnaSegment.png"
     hide_iconPath = "ui/modeltree/DnaSegment-hide.png"
     
+    copyable_attrs = DnaStrandOrSegment.copyable_attrs + ('_duplexRise', 
+                                                          '_basesPerTurn')
+    
     def __init__(self, name, assy, dad, members = (), editCommand = None):
         
         self._duplexRise = 3.18 #Default value.
@@ -111,7 +114,14 @@ class DnaSegment(DnaStrandOrSegment):
             if isinstance(c, DnaAxisChunk):
                 c.draw_highlighted(glpane, color)   
                 
-    
+    def getNumberOfNucleotides(self):
+        """
+        Method provided for conveneince. Returns the number of basepairs 
+        of this dna segment. 
+        @see: PM_DnaSearchResultTable
+        """
+        return self.getNumberOfAxisAtoms()
+                
     def getNumberOfBasePairs(self):  
         #@REVIEW: Is it okay to simply return the number of axis atoms within 
         #the segment (like done below)? But what if there is a bare axis atom 

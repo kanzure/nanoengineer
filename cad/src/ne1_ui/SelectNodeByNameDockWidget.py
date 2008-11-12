@@ -11,6 +11,7 @@ TODO:
 Created as a part of a NFR by Mark on Nov 6, 2008. This is a quick implementation
 subjected to a number of changes / revisions. 
 """
+import foundation.env as env
 
 from PyQt4.Qt import QToolButton
 from PyQt4.Qt import QPalette
@@ -29,9 +30,13 @@ from PM.PM_ComboBox   import PM_ComboBox
 from PM.PM_TextEdit   import PM_TextEdit
 from PM.PM_LineEdit   import PM_LineEdit
 from PM.PM_PushButton import PM_PushButton
+from PM.PM_SpinBox    import PM_SpinBox
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
+from PM.PM_DnaSearchResultTable import PM_DnaSearchResultTable
 
 from utilities.icon_utilities import geticon, getpixmap
+from utilities.prefs_constants import dnaSearchTypeLabelChoice_prefs_key
+from widgets.prefs_widgets import connect_comboBox_with_pref
 
 _superclass = PM_DockWidget
 class SelectNodeByNameDockWidget(PM_DockWidget):
@@ -62,6 +67,14 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
         
         if not self.win.selectByNameAction.isChecked():
             self.close()
+            
+    def show(self):
+        """
+        Overrides superclass method.
+        """
+        _superclass.show(self)
+        val = env.prefs[dnaSearchTypeLabelChoice_prefs_key]
+        self.searchTypeComboBox_indexChanged(val)
         
         
     def connect_or_disconnect_signals(self, isConnect):
@@ -85,15 +98,32 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
                       SIGNAL("clicked()"),
                       self.searchNodes)
         
+        prefs_key = dnaSearchTypeLabelChoice_prefs_key
+        connect_comboBox_with_pref(self.searchTypeComboBox, 
+                                   prefs_key )
         
+        change_connect( self.searchTypeComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self.searchTypeComboBox_indexChanged)
+                      
+    def searchTypeComboBox_indexChanged(self, val):
+        if val == 0:
+            ##self._widgetRow1.show()
+            ##self._widgetRow2.hide()
+            self._widgetRow1.setEnabled(True)
+            self._widgetRow2.setEnabled(False)
+        else:
+            ##self._widgetRow2.show()
+            ##self._widgetRow1.hide()
+            self._widgetRow2.setEnabled(True)
+            self._widgetRow1.setEnabled(False)
+
     def searchNodes(self):
         """
         ONLY implementd for DnaStrand or DnaSegments. 
         """
-        nodeNameString = self.findLineEdit.text() 
-        nodeNameString = str(nodeNameString)
-        assy = self.win.assy       
         
+        assy = self.win.assy       
         
         topnode = assy.part.topnode
         lst = []         
@@ -102,7 +132,41 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
                 lst.append(node)
                         
         topnode.apply2all(func)
-              
+        
+        choice = env.prefs[dnaSearchTypeLabelChoice_prefs_key]
+        
+        if choice == 0:
+            nodes = self._searchNodesByName(lst)
+        elif choice == 1:
+            nodes = self._searchNodesByNucleotides(lst)
+            
+        self._listWidget.insertItems(
+                row = 0,
+                items = nodes)
+        
+    def _searchNodesByNucleotides(self, nodeList):
+        lst = nodeList
+        min_val = self._nucleotidesSpinBox_1.value()
+        max_val = self._nucleotidesSpinBox_2.value()
+        if min_val > max_val:
+            print "Lower value for number of nucleotides exceeds max search value"
+            return ()
+        
+        def func2(node):
+            n = node.getNumberOfNucleotides()
+            
+            return (n >= min_val and n <= max_val)
+        
+        return filter(lambda m:func2(m), lst)
+        
+        
+        
+     
+    def _searchNodesByName(self, nodeList):
+        nodeNameString = self.findLineEdit.text() 
+        nodeNameString = str(nodeNameString)
+        
+        lst = nodeList
         def func2(node):  
             n = len(nodeNameString)
             if len(node.name)< n:
@@ -115,15 +179,7 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
             
             return False
     
-        nodes = filter(lambda m:func2(m), lst)
-        
-        self._listWidget.insertItems(
-                row = 0,
-                items = nodes)
-        
-        
-        
-        
+        return filter(lambda m:func2(m), lst)
         
         
         
@@ -132,22 +188,17 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
         self.win.selectByNameAction.setChecked(False)
         _superclass.closeEvent(self, event)
         
-        
-        
+                
     def _loadWidgets(self):
         """
         Overrides PM.PM_DockWidget._loadWidgets. Loads the widget in this
         dockwidget.
         """
         self._loadMenuWidgets()
-        self._loadListWidget()
+        self._loadTableWidget()
         
-    def _loadListWidget(self):
-        self._listWidget = PM_SelectionListWidget(self,
-                                                  self.win,
-                                                  label = "",
-                                                  heightByRows = 9 )
-        self._listWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
+    def _loadTableWidget(self):        
+        self._listWidget = PM_DnaSearchResultTable(self, self.win)
 
     def _loadMenuWidgets(self):
         """
@@ -155,15 +206,39 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
         Find and replace widgets etc. 
         """
         #Note: Find and replace widgets might be moved to their own class.
+        
+        self.searchTypeComboBox  = \
+            PM_ComboBox( self,
+                         label         =  "Search Type:",
+                         choices       =  ["Node name", "Number of nucleotides"],
+                         setAsDefault  =  True)
+        
 
-        #Find and replace widgets --
+        #Find  widgets --        
+        self._nucleotidesSpinBox_1 = PM_SpinBox(self,
+                        label         =  "",
+                        value         =  10,
+                        setAsDefault  =  False,
+                        singleStep = 10,
+                        minimum       =  1,
+                        maximum       =  50000)
+        
+        self._nucleotidesSpinBox_2 = PM_SpinBox(self,
+                        label         =  "",
+                        value         =  50,
+                        setAsDefault  =  False,
+                        singleStep = 10,
+                        minimum       =  1,
+                        maximum       =  50000)
+        
+                
         self.findLineEdit = \
             PM_LineEdit( self, 
                          label        = "",
                          spanWidth    = False)
         
         self.findLineEdit.setMaximumWidth(80)
-
+        
         self.findOptionsToolButton = PM_ToolButton(self)
         self.findOptionsToolButton.setMaximumWidth(12)
         self.findOptionsToolButton.setAutoRaise(True)
@@ -205,7 +280,9 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
 
 
         #Widgets to include in the widget row. 
-        widgetList = [
+        
+        
+        widgetList1 = [
                       ('QLabel', "     Search for name:", 1),
                       ('PM_LineEdit', self.findLineEdit, 2),
                       ('PM_ToolButton', self.findOptionsToolButton, 3),
@@ -213,11 +290,39 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
                       ('PM_Label', self.warningSign, 5),
                       ('PM_Label', self.phraseNotFoundLabel, 6),
                       ('QSpacerItem', 5, 5, 7) ]
+        
+        widgetList2 = [
+                      ('QLabel', "     Nucleotides: >=", 1),
+                      ('PM_SpinBox', self._nucleotidesSpinBox_1, 2),
+                      ('QLabel', "     <=", 3),
+                      ('PM_SpinBox', self._nucleotidesSpinBox_2, 4),
+                      ('QSpacerItem', 5, 5, 5)]
+                      
+        widgetList3 = [            
+                      ('QSpacerItem', 5, 5, 1),
+                      ('PM_ToolButton', self.searchToolButton, 2), 
+                      ('PM_Label', self.warningSign, 3),
+                      ('PM_Label', self.phraseNotFoundLabel, 4),
+                      ('QSpacerItem', 5, 5, 5) ]
+        
 
-        widgetRow = PM_WidgetRow(self,
+        self._widgetRow1 = PM_WidgetRow(self,
                                  title     = '',
-                                 widgetList = widgetList,
+                                 widgetList = widgetList1,
                                  label = "",
                                  spanWidth = True )
+        
+        self._widgetRow2 = PM_WidgetRow(self,
+                                 title     = '',
+                                 widgetList = widgetList2,
+                                 label = "",
+                                 spanWidth = True )
+        
+        self._widgetRow3 = PM_WidgetRow(self,
+                                 title     = '',
+                                 widgetList = widgetList3,
+                                 label = "",
+                                 spanWidth = True )
+        
         
         

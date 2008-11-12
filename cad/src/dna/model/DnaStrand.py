@@ -290,6 +290,15 @@ class DnaStrand(DnaStrandOrSegment):
                 strandEndAtom = atm
                 break
         return strandEndAtom
+    
+    def getNumberOfNucleotides(self):
+        """
+        Method provided for conveneince. Returns the number of bases of this 
+        DnaStrand.
+        @see: PM_DnaSearchResultTable
+        """
+        
+        return self.getNumberOfBases()
 
     def getNumberOfBases(self):
         """

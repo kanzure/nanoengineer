@@ -351,6 +351,8 @@ dnaStrandEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text w
 dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key = 'A110/Show number of bases info in cursor text while in DnaStrand_Editcommand'
 dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key = 'A110/Show changed number of basepairs info in cursor text while in DnaStrand_Editcommand'
 
+#DNA srand or segment search type preference
+dnaSearchTypeLabelChoice_prefs_key = 'V112/Dna Strand or sgment search type choice'
 
 makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key = 'A110/search for crossover sites between the given dna segments only'
 # DNA Minor Groove Error Indicator prefs
@@ -781,6 +783,7 @@ prefs_table = (
     ('', 'color', dnaDefaultStrand2Color_prefs_key, darkblue),
     ('', 'color', dnaDefaultSegmentColor_prefs_key, gray),
     ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
+    ('', 'int', dnaSearchTypeLabelChoice_prefs_key, 0),
 
     # Strand arrowheads display option prefs.
     ('', 'boolean', arrowsOnBackBones_prefs_key, True), 
