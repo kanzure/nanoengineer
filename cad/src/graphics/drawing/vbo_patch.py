@@ -34,3 +34,20 @@ glBufferSubDataARB = wrapper.wrapper( glBufferSubDataARB ).setPyConverter(
 ).setReturnValues(
         wrapper.returnPyArgument( 'data' )
 )
+
+# For VBO drawing, the "indices" argument to glMultiDrawElements is an array of
+# byte offsets within the bound Index Buffer Object in graphics card RAM, rather
+# than of an array of pointers to parts of client-side index arrays.  See the
+# docs for glBindBuffer, glDrawElements, and glMultiDrawElements.
+#
+# Changed the "indices" argument type from ctypes.POINTER(ctypes.c_void_p) to
+# arrays.GLintArray, like the "first" argument of glMultiDrawArrays.
+glMultiDrawElementsVBO = platform.createExtensionFunction( 
+	'glMultiDrawElementsEXT', dll=platform.GL,
+	resultType=None, 
+	argTypes=(constants.GLenum, arrays.GLsizeiArray,
+              constants.GLenum, arrays.GLintArray, constants.GLsizei,),
+	doc = ('glMultiDrawElementsEXT( GLenum(mode), GLsizeiArray(count), '
+           'GLenum(type), GLintArray(indices), GLsizei(primcount) ) -> None'),
+	argNames = ('mode', 'count', 'type', 'indices', 'primcount',),
+)

@@ -268,7 +268,8 @@ class TestGraphics_Command(SelectAtoms_Command):
                            doc = "number on a side of a square of spheres"
                          )
 
-    _NSPHERES_CHOICES = map(str, [1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+    _NSPHERES_CHOICES = map(str, [1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+                                  132, 200, 300, 400, 500, 600])
         
     # detailLevel
 

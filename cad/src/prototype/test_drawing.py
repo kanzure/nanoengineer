@@ -4,23 +4,22 @@ test_drawing.py -- Replaces GLPane.paintGL() to try various OpenGL rendering
 models, determine whether the performance bottleneck is in OpenGL, Qt, or
 somewhere else, and find a better alternative.
 
-It simply renders an array of n^2 unit spheres, n by n.  Spin them around with
-the NE1 rotate control, getting frames per second off the MacOS OpenGl Profiler
-or the internal FPS counter (enable printFames.)
+It simply renders an array of n^2 unit spheres, n by n.
 
-You won't get redraws, and hence frame counts printed, unless you are generating
-a steady stream of mouse events with the left mouse button pressed.  It's more
-interesting to put NE1 in pan or rotate mode so you can see the redraws.
+To turn it on, enable TEST_DRAWING at the start of
+graphics/widgets/GLPane_rendering_methods.py.
+
+For manual measurements, you can spin them around with
+the NE1 rotate control, getting frames per second off the MacOS OpenGl Profiler.
+
+For automatic measurements, set the debug_pref 'startup in Test Graphics command
+(next session)?', which invokes the TestGraphics_Command.
 
 With a low number of spheres, the frame rate is bottlenecked by Qt.  You'll know
 that's the case because as you increase the number of spheres, the frame rate
 doesn't go down at first.  Eventually, something in the graphics card becomes
 the bottleneck.  These tests were done as a series of explorations into finding
 and avoiding those bottlenecks.
-
-To turn it on, enable TEST_DRAWING at the start of
-graphics/widgets/GLPane_rendering_methods.py,
-and set the debug_pref which invokes the TestGraphics_Command.
 """
 
 DRAWSPHERE_DETAIL_LEVEL = 2
@@ -50,7 +49,7 @@ AVAILABLE_TEST_CASES_ITEMS.sort()
 
 # safe default values for general use.
 # Uncomment one of the overriding assignments below when debugging.
-testCase = 1; nSpheres = 10; chunkLength = 24
+#testCase = 1; nSpheres = 10; chunkLength = 24
 
 #testCase = 1; nSpheres = 132
 #testCase = 8; nSpheres = 50; chunkLength = 24
@@ -61,13 +60,13 @@ testCase = 1; nSpheres = 10; chunkLength = 24
 #testCase = 8.1; nSpheres = 100; chunkLength = 200
 #testCase = 8.1; nSpheres = 100; chunkLength = 50
 ### Hangs initial pass-through version: 8.1/100/24
-#testCase = 8.1; nSpheres = 100; chunkLength = 24
-#testCase = 8.1; nSpheres = 100; chunkLength = 8
+##testCase = 8.1; nSpheres = 100; chunkLength = 24
+testCase = 8.1; nSpheres = 100; chunkLength = 8
 #testCase = 8.1; nSpheres = 132; chunkLength = 200
 #testCase = 8.1; nSpheres = 132; chunkLength = 8
 #testCase = 8.1; nSpheres = 200; chunkLength = 8
 #testCase = 8.1; nSpheres = 300; chunkLength = 8
-testCase = 8.1; nSpheres = 400; chunkLength = 8
+#testCase = 8.1; nSpheres = 400; chunkLength = 8
 #testCase = 8.1; nSpheres = 500; chunkLength = 8
 #testCase = 8.1; nSpheres = 600; chunkLength = 8
 
@@ -794,6 +793,16 @@ def test_drawing(glpane):
     # .  40,000 (200x200) spheres 81.0-83.8 FPS,  5,000 chunks of length 8.
     # . 160,000 (400x400) spheres 27.3-29.4 FPS, 20,000 chunks of length 8.
     # . 360,000 (600x600) spheres 11.7-12.1 FPS, 45,000 chunks of length 8.
+    #
+    # Retest after updating MacOS to 10.5.5, with TestGraphics, HUNK_SIZE = 5000
+    # .  40,000 (200x200) spheres 68.7-74.4 FPS,  5,000 chunks of length 8.
+    # .  90,000 (300x300) spheres 39.4-42.0 FPS, 11,250 chunks of length 8.
+    # . 160,000 (400x400) spheres 24.4-25.2 FPS, 20,000 chunks of length 8.
+    # Retest with glMultiDrawElements in use, HUNK_SIZE = 5000
+    # .  40,000 (200x200) spheres 52.8-54.4 FPS,  5,000 chunks of length 8.
+    # .  90,000 (300x300) spheres 22.8-23.3 FPS, 11,250 chunks of length 8.
+    # . 160,000 (400x400) spheres 13.5-15.2 FPS, 20,000 chunks of length 8.
+    #
     elif int(testCase) == 8:
         doTransforms = False
         if test_spheres is None:

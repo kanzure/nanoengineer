@@ -132,7 +132,11 @@ from OpenGL.GL import glDisableClientState
 from OpenGL.GL import glDrawElements
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
+###from OpenGL.GL import glMultiDrawElements
 from OpenGL.GL import glVertexPointer
+
+# Pass an array of byte offsets into the graphics card index buffer object.
+from graphics.drawing.vbo_patch import glMultiDrawElementsVBO
 
 #from OpenGL.GL.ARB.shader_objects import glUniform1iARB
 
@@ -143,8 +147,15 @@ from OpenGL.GL.ARB.vertex_program import glVertexAttrib3fARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 
 # Constants.
-HUNK_SIZE = 5000 # 10000 # 20000   # The number of primitives in each VBO hunk.
 BYTES_PER_FLOAT = 4             # All per-vertex attributes are floats in GLSL.
+BYTES_PER_UINT = 4                   # We use unsigned ints for vertex indices.
+HUNK_SIZE = 5000 # 10000 # 20000   # The number of primitives in each VBO hunk.
+
+def decodePrimID(ID):
+    """
+    Decode primitive IDs into a Hunk number and an index within the Hunk.
+    """
+    return (ID / HUNK_SIZE, ID % HUNK_SIZE)
 
 class GLPrimitiveBuffer(object):
     """
@@ -245,7 +256,7 @@ class GLPrimitiveBuffer(object):
         """
         Gather data for the drawing pattern Vertex and Index Buffer Objects
         shared by all hunks of the same primitive type.  The drawing pattern is
-        replicated HUNK_SIZE times and sent to graphics card RAM for use in
+        replicated HUNK_SIZE times, and sent to graphics card RAM for use in
         every draw command for collections of primitives of this type.
         
         In theory, the vertex shader processes each vertex only once, even if
@@ -256,7 +267,13 @@ class GLPrimitiveBuffer(object):
         
         For indexed gl(Multi)DrawElements, the index is a list of faces
         (typically triangles or quads, specified by the drawingMode.)  Each
-        face is represented by a list of subscripts into the vertex block.
+        face is represented by a block of subscripts into the vertex block.
+
+        For glMultiDrawElements, there is an additional pair of arrays that give
+        offsets into blocks of the index block list, and the lengths of each
+        block of indices.  Because the index blocks are all the same length to
+        draw individual primitives, we set up a single array containing a Hunk's
+        worth of the index block length constant and use it for each Hunk draw.
         """
         self.nIndices = len(self.indexBlock) * len(self.indexBlock[0])
         indexOffset = 0
@@ -292,14 +309,17 @@ class GLPrimitiveBuffer(object):
             GL_ELEMENT_ARRAY_BUFFER_ARB, C_iboIndices, GL_STATIC_DRAW)
         self.hunkIndexIBO.unbind()
 
+        # A Hunk-length of index block length constants for glMultiDrawElements.
+        self.C_indexBlockLengths = numpy.array(HUNK_SIZE * [self.nIndices],
+                                               dtype=numpy.uint32)
         return
 
-    def draw(self, primIdSet = None):
+    def draw(self, drawIndex = None):
         """
         Draw the buffered geometry, binding vertex attribute values for the
         shaders.
 
-        If no primIdSet is given, the whole array is drawn.
+        If no drawIndex is given, the whole array is drawn.
         """
         shader = drawing_globals.sphereShader
         shader.use(True)             # Turn on the sphere shader.
@@ -334,16 +354,27 @@ class GLPrimitiveBuffer(object):
             self.hunkVertVBO.bind()
             glVertexPointer(3, GL_FLOAT, 0, None)
 
-            # XXX Temporary code -- For initial tests, draw all primitives.
-            # glMultiDrawElements on the GLPrimitiveSet goes here.
-            if hunkNumber < self.nHunks-1:
-                nToDraw = HUNK_SIZE # Hunks before the last.
-            else:
-                nToDraw = self.nPrims - (self.nHunks-1) * HUNK_SIZE
             # Shared vertex index data IBO: GL_ELEMENT_ARRAY_BUFFER_ARB
             self.hunkIndexIBO.bind()
-            glDrawElements(GL_QUADS, self.nIndices * nToDraw,
-                       GL_UNSIGNED_INT, None)
+            
+            if drawIndex is not None:
+                # Draw the selected primitives for this Hunk.
+                index = drawIndex[hunkNumber]
+                primcount = len(index)
+                glMultiDrawElementsVBO(
+                    self.drawingMode, self.C_indexBlockLengths,
+                    GL_UNSIGNED_INT, index, primcount)
+            else:
+                # For initial testing, draw all primitives in the Hunk.
+                if hunkNumber < self.nHunks-1:
+                    nToDraw = HUNK_SIZE # Hunks before the last.
+                else:
+                    nToDraw = self.nPrims - (self.nHunks-1) * HUNK_SIZE
+                    pass
+                glDrawElements(self.drawingMode, self.nIndices * nToDraw,
+                               GL_UNSIGNED_INT, None)
+                pass
+            continue
 
         shader.use(False)            # Turn off the sphere shader.
         glEnable(GL_CULL_FACE)
@@ -356,6 +387,36 @@ class GLPrimitiveBuffer(object):
             buffer.unbindHunk()      # glDisableVertexAttribArrayARB.
             continue
         return
+
+    def makeDrawIndex(self, prims):
+        """
+        Make a drawing index to be used by glMultiDrawElements on Hunk data.
+
+        The return is a list of offset arrays, one for each Hunk of primitives.
+        Each value in an offset array gives the *byte* offset in the IBO to the
+        block of indices for a given primitive ID within the Hunk.
+        """
+        hunkOffsets = [[] for i in range(self.nHunks)]
+
+        # Collect the offsets to index blocks for individual primitives.
+        for primID in prims:
+            (hunk, index) = decodePrimID(primID)
+            hunkOffsets[hunk] += [index * self.nIndices * BYTES_PER_UINT]
+            continue
+
+        # The indices for each hunk could be sorted here, which might go faster.
+        # (But don't worry about it if drawing all primitives in random order is
+        # as fast as the test that draws all primitives with glDrawElements.)
+        #
+        # The sorted offsets arrays could also be reduced to draw contiguous
+        # runs of primitives, rather than single primitives.  A list of run
+        # lengths for each Hunk would have to be produced as well, rather than
+        # using the shared list of constant lengths for individual primitives.
+
+        # Push the offset arrays into C for faster use by glMultiDrawElements.
+        C_hunkOffsets = [numpy.array(offset, dtype=numpy.uint32)
+                         for offset in hunkOffsets]
+        return C_hunkOffsets
 
     pass # End of class GLPrimitiveBuffer.
 
@@ -516,8 +577,8 @@ class Hunk:
         The high end is the index of the one *after* the end of the range, as
         usual in Python.
         """
-        (lowHunk, lowIndex) = (chgLowID / HUNK_SIZE, chgLowID % HUNK_SIZE)
-        (highHunk, highIndex) = (chgHighID / HUNK_SIZE, chgHighID % HUNK_SIZE)
+        (lowHunk, lowIndex) = decodePrimID(chgLowID)
+        (highHunk, highIndex) = decodePrimID(chgHighID)
 
         if self.hunkNumber < lowHunk or self.hunkNumber > highHunk:
             return              # This hunk is not in the hunk range.

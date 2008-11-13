@@ -25,7 +25,7 @@ See design comments on:
   by DrawingSet.draw() from the possibly-large sequences of primitive types and
   IDs contained in the CSDLs in the DrawingSet.
 
-* Each GLPrimitiveSet caches an "index" for glMultiDrawElements, which gives the
+* Each GLPrimitiveSet caches a drawIndex for glMultiDrawElements, which gives the
   locations and lengths of blocks of indices in a hunk IBO to draw.
 
 * It is generated from the primitive IDs contained in the CSDL's of a
@@ -63,7 +63,7 @@ class GLPrimitiveSet:
         
         # Collect lists of primitives to draw in batches, and those CSDLs with
         # display lists to draw as well.  (A given CSDL may have both.)
-        self.primitives = []
+        self.primitives = []            # Generalize to a dict of lists?
         self.CSDLs_with_DLs = []
         for csdl in self.CSDLs:
             self.primitives += csdl.spheres
@@ -71,6 +71,8 @@ class GLPrimitiveSet:
                 self.CSDLs_with_DLs += [csdl]
                 pass
             continue
+
+        self.drawIndex = None           # Generated on demand.
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this GLPrimitiveSet was created.
@@ -83,12 +85,21 @@ class GLPrimitiveSet:
         """
         Draw the cached display.
         """
-        # XXX Need to generate and cache index lists for selective drawing of
-        # primitives through glMultiDrawElements().  For initial testing,
-        # GLPrimitiveBuffer now draws the whole set of sphere primitives using
-        # glDrawElements().
+        # Generate and cache index lists for selective drawing of primitives
+        # through glMultiDrawElements().
+        spheres = drawing_globals.spherePrimitives
         if len(self.primitives) > 0:
-            drawing_globals.spherePrimitives.draw()
+            if True: # False  ## True for indexed drawing, False for unindexed.
+                if self.drawIndex is None:
+                    self.drawIndex = spheres.makeDrawIndex(self.primitives)
+                    pass
+                spheres.draw(self.drawIndex)
+            else:
+                # For initial testing, GLPrimitiveBuffer draws the whole set of
+                # sphere primitives using glDrawElements().
+                spheres.draw()
+                pass
+            pass
 
         # Put TransformControl matrices onto the GL matrix stack if present.
         # Does nothing if the TransformControls all have a tranform of None.
