@@ -217,6 +217,12 @@ class OrderDna_PropertyManager(Command_PropertyManager):
             dnaSequenceString += strandSequenceString
             
         return len(dnaSequenceString)
+    
+    def _update_UI_do_updates(self):
+        """
+        Overrides superclass method.
+        """
+        self.update_includeStrands()
         
     def getDnaSequence(self, format = 'CSV'):
         """
