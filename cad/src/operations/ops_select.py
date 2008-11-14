@@ -35,6 +35,14 @@ from dna.model.DnaGroup import DnaGroup
 from dna.model.DnaStrand import DnaStrand
 from cnt.model.NanotubeGroup import NanotubeGroup
 
+
+from foundation.Group import Group
+from dna.model.DnaLadderRailChunk import DnaAxisChunk
+from dna.model.DnaLadderRailChunk import DnaStrandChunk
+from dna.model.DnaMarker import DnaMarker
+from dna.model.DnaSegment import DnaSegment
+from cnt.model.NanotubeSegment import NanotubeSegment
+
 # Object flags, used by objectSelected() and its callers. 
 ATOMS = 1
 CHUNKS = 2
@@ -85,6 +93,33 @@ def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
             return True
 
     return False
+
+def renameableLeafNode(obj, groups_renameable = False):
+    """
+    Returns True if obj is a visible, renameable leaf node in the model tree. 
+    Otherwise, returns False.
+    
+    If obj is a Group or DnaGroup and groups_renameable is True,
+    return True.
+    """
+    
+    _nodeList = [[DnaAxisChunk,    False], # Chunk subclass
+                 [DnaStrandChunk,  False], # Chunk subclass
+                 [DnaMarker,       False], # Jig subclass
+                 [DnaSegment,      True], # Group subclass
+                 [DnaStrand,       True], # Group subclass
+                 [NanotubeSegment, True], # Group subclass
+                 [DnaGroup,        groups_renameable], # Group subclass
+                 [Group,           groups_renameable]] # Group must be last in list.
+    
+    if not obj.rename_enabled():
+        return False
+    
+    for _class, _renameable in _nodeList:
+        if isinstance(obj, _class):
+            return _renameable
+        
+    return True   
 
 class ops_select_Mixin:
     """

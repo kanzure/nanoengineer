@@ -57,8 +57,9 @@ def setupUi(win):
                 SIGNAL("triggered()"), 
                 win.enterProteinDisplayStyleCommand)
     
-    win.connect(win.editRenameAction,SIGNAL("triggered()"),win.editRename)
-    win.connect(win.editRenameObjectsAction,SIGNAL("triggered()"),win.editRenameSelectedObjects)
+    # editRenameAction deprecated. Use editRenameSelection. Mark 2008-11-13.
+    #win.connect(win.editRenameAction,SIGNAL("triggered()"),win.editRename)
+    win.connect(win.editRenameSelectionAction,SIGNAL("triggered()"),win.editRenameSelection)
     win.connect(win.editAddSuffixAction,SIGNAL("triggered()"),win.editAddSuffix)
     win.connect(win.pasteFromClipboardAction, 
                 SIGNAL("triggered()"),

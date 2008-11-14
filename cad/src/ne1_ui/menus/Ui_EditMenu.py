@@ -37,8 +37,7 @@ def setupUi(win):
     win.editMenu.addAction(win.colorSchemeAction)
     win.editMenu.addAction(win.lightingSchemeAction)
     win.editMenu.addSeparator()
-    win.editMenu.addAction(win.editRenameAction)
-    win.editMenu.addAction(win.editRenameObjectsAction)
+    win.editMenu.addAction(win.editRenameSelectionAction)
     win.editMenu.addAction(win.editAddSuffixAction)
 
 def retranslateUi(win):

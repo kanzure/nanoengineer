@@ -173,14 +173,16 @@ def setupUi(win):
     win.editDeleteAction.setIcon(geticon("ui/actions/Edit/Delete.png"))
     win.editDeleteAction.setObjectName("editDeleteAction")
 
+    # editRenameAction has been deprecated. Use editRenameSelectionAction.
+    # Mark 2008-11-13.
     win.editRenameAction = QtGui.QAction(MainWindow)
     win.editRenameAction.setIcon(geticon("ui/actions/Edit/Rename.png"))
     win.editRenameAction.setObjectName("editRenameAction")
 
-    win.editRenameObjectsAction = QtGui.QAction(MainWindow)
-    win.editRenameObjectsAction.setIcon(
-        geticon("ui/actions/Edit/Rename_Objects.png"))
-    win.editRenameObjectsAction.setObjectName("editRenameObjectsAction")
+    win.editRenameSelectionAction = QtGui.QAction(MainWindow)
+    win.editRenameSelectionAction.setIcon(
+        geticon("ui/actions/Edit/Rename.png"))
+    win.editRenameSelectionAction.setObjectName("editRenameSelectionAction")
 
     win.editAddSuffixAction = QtGui.QAction(MainWindow)
     win.editAddSuffixAction.setIcon(geticon("ui/actions/Edit/Add_Suffixes.png"))
@@ -1231,17 +1233,17 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Shift+R", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.editRenameObjectsAction.setText(
+    win.editRenameSelectionAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Rename Objects",
+            "MainWindow", "Rename Selection",
             None, QtGui.QApplication.UnicodeUTF8))
-    win.editRenameObjectsAction.setIconText(
+    win.editRenameSelectionAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Rename Objects", 
+            "MainWindow", "Rename Selection", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.editRenameObjectsAction.setToolTip(
+    win.editRenameSelectionAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Rename Objects", 
+            "MainWindow", "Rename Selection", 
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.editAddSuffixAction.setText(

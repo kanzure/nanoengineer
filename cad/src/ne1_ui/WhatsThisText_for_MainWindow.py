@@ -379,9 +379,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         Style</b> is set to <i>Protein</i>.
         </p>""") 
    
-    #Rename
+    #Rename (deprecated by Rename Selection)
     EditrenameActionText = \
-        "<u><b>Rename Chunk</b></u> "\
+        "<u><b>Rename</b></u> "\
         "<p>"\
         "<img source=\"ui/actions/Edit/Rename.png\">"\
         "<br> "\
@@ -390,25 +390,29 @@ def createWhatsThisTextForMainWindowWidgets(win):
      
     win.editRenameAction.setWhatsThis( EditrenameActionText )
     
-    #Rename Object
-    EditrenameobjectsActionText = \
-        "<u><b>Rename Object</b></u> "\
+    #Rename selection
+    _text = \
+        "<u><b>Rename Selection</b></u> "\
         "<p>"\
-        "<img source=\"ui/actions/Edit/Rename_Objects\">"\
+        "<img source=\"ui/actions/Edit/Rename.png\">"\
         "<br> "\
-        "Allows the user to rename the selected object "\
+        "Rename the selected object(s). Only leaf nodes in the model tree are "\
+        "renamed. Specifically, group nodes are not renamed, even if they are "\
+        "selected)."\
+        "</p>"\
+        "To uniquely name multiple objects, include the <b>#</b> character "\
+        "at the end of the name. This (re)numbers the selected objects."\
         "</p>"
      
-    win.editRenameObjectsAction.setWhatsThis( EditrenameobjectsActionText )
+    win.editRenameSelectionAction.setWhatsThis( _text )
     
     #editAddSuffixAction
     EditeditAddSuffixActionActionText = \
         "<u><b>Add Suffix</b></u> "\
         "<p>"\
-        "<img source=\"ui/actions/Edit/Add_Suffix\">"\
+        "<img source=\"ui/actions/Edit/Add_Suffix.png\">"\
         "<br> "\
-        "Allows the user to add a suffix to the name of the selected object "\
-        "or objects"\
+        "Add suffix to the name of the selected object(s)."\
         "</p>"
      
     win.editAddSuffixAction.setWhatsThis( EditeditAddSuffixActionActionText )

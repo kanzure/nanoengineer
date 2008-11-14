@@ -62,6 +62,7 @@ from operations.ops_files import fileSlotsMixin
 from operations.ops_view import viewSlotsMixin
 from operations.ops_display import displaySlotsMixin
 from operations.ops_modify import modifySlotsMixin
+from operations.ops_select import renameableLeafNode
 
 from foundation.changes import register_postinit_object
 import foundation.preferences as preferences
@@ -935,7 +936,7 @@ class MWsemantics(QMainWindow,
              % (_number_renamed, len(_renameList))
         env.history.message(_cmd + _msg)
 
-    def editRenameSelectedObjects(self):
+    def editRenameSelection(self):
         """
         Renames multiple selected objects (chunks or jigs).
         """
@@ -943,7 +944,7 @@ class MWsemantics(QMainWindow,
         if self.glpane.is_animating:
             return
 
-        _cmd = greenmsg("Rename selected objects: ")
+        _cmd = greenmsg("Rename: ")
 
         if not objectSelected(self.assy):
             if objectSelected(self.assy, objectFlags = ATOMS):
@@ -956,24 +957,40 @@ class MWsemantics(QMainWindow,
         _renameList = self.assy.getSelectedRenameables()
 
         ok, new_name = grab_text_line_using_dialog(
-            title = "Rename Nodes",
-            label = "New name of selected nodes:",
-            iconPath = "ui/actions/Edit/Rename_Objects.png")
+            title = "Rename",
+            label = "New name:",
+            iconPath = "ui/actions/Edit/Rename.png")
 
         if not ok:
+            # No msg. Ok for now. --Mark
             return
+        
+        # Renumber the selected objects if the last character is "#"
+        # i.e. the # character will be replaced by a number, resulting in 
+        # uniquely named (numbered) nodes in the model tree. 
+        # IIRC, the numbering is not guaranteed to be in any specific order,
+        # but testing has shown that leaf nodes are numbered in the order
+        # they appear in the model tree. --Mark 2008-11-12
+        if new_name[-1] == "#":
+            _renumber = True
+            new_name = new_name[:-1]
+        else:
+            _renumber = False
 
         _number_renamed = 0
         for _object in _renameList:
-            if _object.rename_enabled():
-                ok, info = _object.try_rename(new_name)
+            if renameableLeafNode(_object):
+                if _renumber:
+                    ok, info = _object.try_rename(new_name + str(_number_renamed + 1))
+                else:
+                    ok, info = _object.try_rename(new_name)
                 if ok:
                     _number_renamed += 1
 
         _msg = "%d of %d selected objects renamed." \
              % (_number_renamed, len(_renameList))
         env.history.message(_cmd + _msg)
-
+        return
 
     def renameObject(self, object):
         """
@@ -1019,6 +1036,7 @@ class MWsemantics(QMainWindow,
         Renames the selected node/object.
 
         @note: Does not work for DnaStrands or DnaSegments.
+        @deprecated: Use editRenameSelection instead.
         """
         _cmd = greenmsg("Rename: ")
 
