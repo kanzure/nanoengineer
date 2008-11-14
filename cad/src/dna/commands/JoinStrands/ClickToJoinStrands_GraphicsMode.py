@@ -51,6 +51,7 @@ class ClickToJoinStrands_GraphicsMode(BuildDna_GraphicsMode):
         """
         return False
     
+        
     def chunkLeftUp(self, aChunk, event):
         """
         Upon chunkLeftUp, join the 3' end of a strand with a five prime end of 

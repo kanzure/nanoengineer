@@ -66,6 +66,7 @@ class BuildDna_GraphicsMode(
     cursor_over_when_LMB_pressed = ''
 
     def Enter_GraphicsMode(self):
+        print "*** in BuildDna_GM.Enter_GraphicsMode"
         _superclass.Enter_GraphicsMode(self)
         #Precaution
         self.clear_leftA_variables()
@@ -158,17 +159,18 @@ class BuildDna_GraphicsMode(
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
         self.leftADown(objectUnderMouse, event)
 
+    
+    
     def singletLeftDown(self, s, event):
         """
         Handles SingletLeftDown (left down on a bond point) event.
         @see: JoinStrands_GraphicsMode.leftUp()
         """
-
         #@see: class JoinStrands_GraphicsMode for a detailed explanation.
         #copying some portion in that comment below --
         #Example: In this BuildDna_EditCommand (graphicsMode), if you want to
         #join  two strands, upon 'singletLeftDown'  it enters
-        #JoinStrands_Command , also calling leftDown method of its graphicsmode.
+        #JoinStrands_By_DND_Command , also calling leftDown method of its graphicsmode.
         #Now, when user releases theLMB, it calls
         #JoinStrands_GraphicsMode.leftUp()  which in turn exits that command
         #if the flag 'exit_command_on_leftUp' is set to True(to go back to the
@@ -179,17 +181,12 @@ class BuildDna_GraphicsMode(
         #So, for some significant amount of time, we may continue to use
         #this flag to temporarily enter/exit this command.
         #@see: self.leftUp(), BuildDna_GraphicsMode.singletLeftDown()
-
-        #Note: Going back and forth between joinstrands command has a bug
-        #due to commandstack depth. It won't go back to DnaStrand and Segment
-        #edit commands (if the previous command was one of those) instead it
-        #will always return to BuildDna_EditCommand.
-
+        
         commandSequencer = self.win.commandSequencer
 
-        commandSequencer.userEnterCommand('JOIN_STRANDS')
+        commandSequencer.userEnterCommand('JoinStrands_By_DND')
 
-        assert commandSequencer.currentCommand.commandName == 'JOIN_STRANDS'
+        assert commandSequencer.currentCommand.commandName == 'JoinStrands_By_DND'
 
         #Make sure that the glpane selobj is set to 's' (this bondpoint)
         #when we enter a different command, all that information is probably
