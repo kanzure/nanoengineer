@@ -30,7 +30,7 @@ from dna.model.DnaStrand import DnaStrand
 from command_support.Command_PropertyManager import Command_PropertyManager
 
 
-def writeDnaOrderFile(fileName, assy, dnaSequence):
+def writeDnaOrderFile(fileName, assy, numberOfBases, dnaSequence):
     """
     Open a temporary file and write the specified Dna sequence into it.
     
@@ -51,10 +51,15 @@ def writeDnaOrderFile(fileName, assy, dnaSequence):
                     " ( The mmp file was probably not saved when the "\
                     " sequence was written)"
     
-    fileNameInfo_header = "#This sequence is created for file '%s\n\n" \
+    fileNameInfo_header = "#This sequence is created for file '%s'\n" \
                         % mmpFileName
     
-    headerString = headerString + timestr + fileNameInfo_header
+    numberOfBases_header = "#Total number of bases: %d\n\n" % numberOfBases
+    
+    headerString = headerString \
+                 + timestr \
+                 + fileNameInfo_header\
+                 + numberOfBases_header
     
     f = open(fileName,'w')             
     # Write header
@@ -278,6 +283,7 @@ class OrderDna_PropertyManager(Command_PropertyManager):
             temporaryFile = os.path.join(tmpdir, "%s.csv" % fileBaseName)            
             writeDnaOrderFile(temporaryFile, 
                               self.assy,
+                              self.getNumberOfBases(),
                               dnaSequence)      
 
             if openFileInEditor:
