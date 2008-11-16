@@ -51,7 +51,7 @@ def writeDnaOrderFile(fileName, assy, dnaSequence):
                     " ( The mmp file was probably not saved when the "\
                     " sequence was written)"
     
-    fileNameInfo_header = "#This sequence is created for file '%s\n\n'" \
+    fileNameInfo_header = "#This sequence is created for file '%s\n\n" \
                         % mmpFileName
     
     headerString = headerString + timestr + fileNameInfo_header
@@ -59,7 +59,7 @@ def writeDnaOrderFile(fileName, assy, dnaSequence):
     f = open(fileName,'w')             
     # Write header
     f.write(headerString)
-    f.write("Name,Sequence,Notes\n") # Per IDT's Excel format.
+    f.write("Name,Length,Sequence,Notes\n") # Per IDT's Excel format.
     f.write(dnaSequence)
 
 
@@ -143,18 +143,18 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         Load widgets in group box.
         """
         
-        includeStrandsChoices = ["All strands in model",
+        includeStrandsChoices = ["All bases in model",
                                  "Selected strands only"]
         
         self.includeStrandsComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Include strands:", 
+                         label         =  "Count:", 
                          choices       =  includeStrandsChoices,
                          setAsDefault  =  True)
         
         self.numberOfBasesLineEdit  = \
             PM_LineEdit( pmGroupBox,
-                         label  =  "Number of bases:",
+                         label  =  "Total nucleotides:",
                          text   = str(self.getNumberOfBases()))
         self.numberOfBasesLineEdit.setEnabled(False)
         
@@ -245,7 +245,8 @@ class OrderDna_PropertyManager(Command_PropertyManager):
             strandSequenceString = str(strand.getStrandSequence())
             if strandSequenceString: 
                 strandSequenceString = strandSequenceString.upper()
-                dnaSequenceString = dnaSequenceString + strandSequenceString
+                strandLength = str(len(strandSequenceString)) + separator
+                dnaSequenceString = dnaSequenceString + strandLength + strandSequenceString
                 
             dnaSequenceString = dnaSequenceString + "\n"
             
@@ -292,7 +293,7 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         includeType = ["model", "selection"]
         
         _numberOfBases = self.getNumberOfBases()
-        self.numberOfBasesLineEdit.setText(str(_numberOfBases))
+        self.numberOfBasesLineEdit.setText(str(_numberOfBases) + " bases")
         
         if _numberOfBases > 0:
             self.viewDnaOrderFileButton.setEnabled(True)
