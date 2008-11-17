@@ -1498,3 +1498,41 @@ def WhatsThis_EditProteinDisplayStyle_PropertyManager(propMgr):
         the <b>Load Favorite</b> button.
         """)   
     return
+
+def whatsThis_OrderDna_PropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the Color Scheme Property 
+    Manager.
+    """
+    propMgr.includeStrandsComboBox.setWhatsThis(
+        """<b>Include strands</b>
+        <p>
+        Strands to include in the DNA order file.
+        """)
+    
+    propMgr.numberOfBasesLineEdit.setWhatsThis(
+        """<b>Total nucleotides</b>
+        <p>
+        The total number of nucleotides (bases) that will be written to the 
+        DNA order file.
+        </p>
+        """)
+    
+    propMgr.numberOfXBasesLineEdit.setWhatsThis(
+        """<b>Unassigned</b>
+        <p>
+        The total number of unassigned "X" bases that will be written to the 
+        DNA order file. There should be 0 unassigned bases if the file will
+        be used to place an order.
+        </p>
+        """)
+    
+    propMgr.viewDnaOrderFileButton.setWhatsThis(
+        """<b>View DNA Order File</b>
+        <p>
+        View the DNA Order file in comma-separated values (CVS) format.
+        The file is temporary and should be saved via the text editor to a
+        permanant name/location.
+        </p>
+        """)
+    return

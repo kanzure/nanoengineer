@@ -28,21 +28,28 @@ from platform_dependent.PlatformDependent import open_file_in_editor
 from dna.model.DnaStrand import DnaStrand
 
 from command_support.Command_PropertyManager import Command_PropertyManager
+from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_OrderDna_PropertyManager
 
 
-def writeDnaOrderFile(fileName, assy, numberOfBases, dnaSequence):
+def writeDnaOrderFile(fileName, 
+                      assy, 
+                      numberOfBases, 
+                      numberOfUnassignedBases, 
+                      dnaSequence):
     """
-    Open a temporary file and write the specified Dna sequence into it.
+    Writes a DNA Order file in comma-separated value (CSV) format.
     
-    @param fileName: The full path of the temporary file to be opened
+    @param fileName: The full path of the DNA order file.
     @param assy: The assembly.
+    @param numberOfBase: The number of bases.
+    @param numberOfUnassignedBases: The number of unassigned (i.e. X) bases.
     @param  dnaSequence: The dnaSequence string to be written to the file.
     @see: self.orderDna
     """
     
     #Create Header
-    headerString = '#NanoEngineer-1 DNA Order Form created on: '
-    timestr = "%s\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
+    date_header = "#NanoEngineer-1 DNA Order Form created on %s\n" \
+               % time.strftime("%Y-%m-%d at %H:%M:%S")
     
     if assy.filename:
         mmpFileName = "[" + os.path.normpath(assy.filename) + "]"
@@ -54,18 +61,33 @@ def writeDnaOrderFile(fileName, assy, numberOfBases, dnaSequence):
     fileNameInfo_header = "#This sequence is created for file '%s'\n" \
                         % mmpFileName
     
-    numberOfBases_header = "#Total number of bases: %d\n\n" % numberOfBases
+    numberOfBases_header = "#Total number of bases: %d\n" % numberOfBases
     
-    headerString = headerString \
-                 + timestr \
-                 + fileNameInfo_header\
-                 + numberOfBases_header
+    unassignedBases_header = ""
+    if numberOfUnassignedBases:
+        unassignedBases_header = \
+            "#WARNING: This order includes %d unassigned (i.e. \"X\") bases.\n"\
+            % numberOfUnassignedBases
     
-    f = open(fileName,'w')             
-    # Write header
-    f.write(headerString)
-    f.write("Name,Length,Sequence,Notes\n") # Per IDT's Excel format.
+    info_header = "#This file is written in comma-separated value (CSV) format. "\
+                "Open with Excel or any other program that supports CSV format.\n"
+    
+    column_header = "Name,Length,Sequence,Notes\n"
+    
+    file_header = date_header \
+                + fileNameInfo_header \
+                + numberOfBases_header \
+                + unassignedBases_header \
+                + info_header \
+                + "\n" \
+                + column_header
+    
+    # Write file
+    f = open(fileName,'w')
+    f.write(file_header)
     f.write(dnaSequence)
+    f.close()
+    return
 
 
 _superclass = Command_PropertyManager
@@ -104,14 +126,7 @@ class OrderDna_PropertyManager(Command_PropertyManager):
                                 PM_WHATS_THIS_BUTTON)
         
         self.update_includeStrands() # Updates the message box.
-   
-       
-        ##if self.getNumberOfBases():
-            ##msg = "Click on <b>View DNA Order File...</b> to preview a "\
-                ##"DNA order for all DNA strands in the current model."
-        ##else:
-            ##msg = "<font color=red>There is no DNA in the current model."
-        ##self.updateMessage(msg)
+        return
         
         
     def connect_or_disconnect_signals(self, isConnect):
@@ -134,7 +149,7 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         change_connect( self.includeStrandsComboBox,
                       SIGNAL("activated(int)"),
                       self.update_includeStrands )
-        
+        return
        
     def _addGroupBoxes( self ):
         """
@@ -148,12 +163,12 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         Load widgets in group box.
         """
         
-        includeStrandsChoices = ["All bases in model",
+        includeStrandsChoices = ["All strands in model",
                                  "Selected strands only"]
         
         self.includeStrandsComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Count:", 
+                         label         =  "Include strands:", 
                          choices       =  includeStrandsChoices,
                          setAsDefault  =  True)
         
@@ -163,18 +178,26 @@ class OrderDna_PropertyManager(Command_PropertyManager):
                          text   = str(self.getNumberOfBases()))
         self.numberOfBasesLineEdit.setEnabled(False)
         
+        self.numberOfXBasesLineEdit  = \
+            PM_LineEdit( pmGroupBox,
+                         label  =  "Unassigned:",
+                         text   = str(self.getNumberOfBases(unassignedOnly = True)))
+        self.numberOfXBasesLineEdit.setEnabled(False)
+        
         self.viewDnaOrderFileButton = \
             PM_PushButton( pmGroupBox,
                            label     = "",
                            text      = "View DNA Order File...",
                            spanWidth = True)
+        return
     
-    def _addWhatsThisText( self ):
+    def _addWhatsThisText(self):
         """
-        What's This text for widgets in the DNA Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
-        pass
-                
+        whatsThis_OrderDna_PropertyManager(self)
+        return
+    
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in the DNA Property Manager.  
@@ -205,13 +228,18 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         
         return dnaStrandList
     
-    def getNumberOfBases(self, selectedOnly = False):
+    def getNumberOfBases(self, selectedOnly = False, unassignedOnly = False):
         """
         Returns the number of bases count for all the DNA strands in the 
         current part, or only the selected strand if I{selectedOnly} is True.
         
-        @param selectedOnly: If True, return only the selected DNA strands.
+        @param selectedOnly: If True, return only the number of bases in the
+                             selected DNA strands.
         @type  selectedOnly: bool
+        
+        @param unassignedOnly: If True, return only the number of unassigned
+                               bases (i.e. base letters = X).
+        @type  unassignedOnly: bool
         """
         dnaSequenceString = ''
         selectedOnly = self.includeStrandsComboBox.currentIndex()
@@ -220,7 +248,10 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         for strand in strandList:
             strandSequenceString = str(strand.getStrandSequence())
             dnaSequenceString += strandSequenceString
-            
+        
+        if unassignedOnly:
+            return dnaSequenceString.count("X")
+        
         return len(dnaSequenceString)
     
     def _update_UI_do_updates(self):
@@ -228,6 +259,7 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         Overrides superclass method.
         """
         self.update_includeStrands()
+        return
         
     def getDnaSequence(self, format = 'CSV'):
         """
@@ -259,17 +291,11 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         
     def viewDnaOrderFile(self, openFileInEditor = True):
         """
-        Opens a text editor and loads a temporary text file containing all the 
-        DNA strand names and their sequences in the current DNA object. It will
-        look something like this: 
+        Writes a DNA Order file in comma-separated values (CSV) format 
+        and opens it in a text editor.
 
-        Strand1,ATCAGCTACGCATCGCT
-        Strand2,TAGTCGATGCGTAGCGA
-        ...
-        Strandn, ...
-
-        The user can then save the file to a permanent location using the 
-        text editor the file is loaded (and displayed) in.
+        The user must save the file to a permanent location using the 
+        text editor.
 
         @see: Ui_DnaFlyout.orderDnaCommand
         @see: writeDnaOrderFile()
@@ -284,10 +310,13 @@ class OrderDna_PropertyManager(Command_PropertyManager):
             writeDnaOrderFile(temporaryFile, 
                               self.assy,
                               self.getNumberOfBases(),
+                              self.getNumberOfBases(unassignedOnly = True),
                               dnaSequence)      
 
             if openFileInEditor:
                 open_file_in_editor(temporaryFile)
+                
+        return
 
     def update_includeStrands(self, ignoreVal = 0):
         """
@@ -301,6 +330,9 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         _numberOfBases = self.getNumberOfBases()
         self.numberOfBasesLineEdit.setText(str(_numberOfBases) + " bases")
         
+        _numberOfXBases = self.getNumberOfBases(unassignedOnly = True)
+        self.numberOfXBasesLineEdit.setText(str(_numberOfXBases) + " bases")
+        
         if _numberOfBases > 0:
             self.viewDnaOrderFileButton.setEnabled(True)
             msg = "Click on <b>View DNA Order File...</b> to preview a " \
@@ -313,4 +345,4 @@ class OrderDna_PropertyManager(Command_PropertyManager):
                 % includeType[idx]
                 
         self.updateMessage(msg)
-            
+        return
