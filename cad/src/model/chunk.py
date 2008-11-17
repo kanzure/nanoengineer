@@ -503,6 +503,27 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if command is None:
             return
         
+        #Start Standard context menu items rename and delete . 
+        parent_node_classes = (self.assy.DnaStrandOrSegment, 
+                               self.assy.NanotubeSegment)
+        
+        parent_node = self
+        
+        for cls in parent_node_classes:
+            parent_node = self.parent_node_of_class(cls)
+            if parent_node:
+                break                
+        
+        item = (("Rename.."), 
+                parent_node.rename_using_dialog)
+        contextMenuList.append(item)
+        
+        item = (("Delete"), 
+                parent_node.kill_with_contents)
+        contextMenuList.append(item)
+        #End Standard context menu items rename and delete .
+                
+
         def addDnaGroupMenuItems(dnaGroup):
             if dnaGroup is None:
                 return

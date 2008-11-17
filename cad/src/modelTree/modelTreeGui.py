@@ -1622,37 +1622,9 @@ class ModelTreeGui_common(ModelTreeGui_api):
         [newly in public API -- ###doc that. Used by callers in more than one file.]
         Put up a dialog to let the user rename the given node. (Only one node for now.)
         Emit an appropriate statusbar message, and do necessary updates if successful.
+        @see: Node.rename_using_dialog()
         """
-        # Don't allow renaming while animating (b/w views).
-        if self.win.glpane.is_animating:
-            return
-        
-        # Note: see similar code in setModelData in another class.
-        ##e Question: why is renaming the toplevel node not permitted? Because we'll lose the name when opening the file?
-        oldname = node.name
-        ok = node.rename_enabled()
-        # Various things below can set ok to False (if it's not already)
-        # and set text to the reason renaming is not ok (for use in error messages).
-        # Or they can put the new name in text, leave ok True, and do the renaming.
-        if not ok:
-            text = "Renaming this node is not permitted."
-                #e someday we might want to call try_rename on fake text
-                # to get a more specific error message... for now it doesn't have one.
-        else:
-            ok, text = grab_text_line_using_dialog(
-                            title = "Rename",
-                            label = "new name for node [%s]:" % oldname,
-                            iconPath = "ui/actions/Edit/Rename.png",
-                            default = oldname )
-        if ok:
-            ok, text = node.try_rename(text)
-        if ok:
-            msg = "Renamed node [%s] to [%s]" % (oldname, text) ##e need quote_html??
-            self.statusbar_message(msg)
-            self.mt_update() #e might be redundant with caller; if so, might be a speed hit
-        else:
-            msg = "Can't rename node [%s]: %s" % (oldname, text) # text is reason why not
-            self.statusbar_message(msg)
+        node.rename_using_dialog()
         return
 
     pass # end of class ModelTreeGui_common

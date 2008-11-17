@@ -40,6 +40,8 @@ from utilities.icon_utilities import imagename_to_pixmap
 
 from foundation.Assembly_API import Assembly_API
 
+from widgets.simple_dialogs import grab_text_line_using_dialog
+
 debug_undoable_attrs = False
 
 # ==
@@ -771,6 +773,54 @@ class Node( StateMixin):
             self.assy.changed()
         ###e should inval any observers (i.e. model tree) -- not yet needed, I think [bruce 050119]
         return (True, name)
+    
+    def rename_using_dialog(self):
+        """        
+        Rename this node using a popup dialog, whn, user chooses to do
+        so either from the MT or from the 3D workspace. 
+        
+        """
+        #This method is moved (with some modifications) from modelTreeGui.py so as
+        #to facilitate renaming nodes from the 3D workspace as well.
+        #The method was originally written by Bruce  -- Ninad 2008-11-17
+        
+        # Don't allow renaming while animating (b/w views). 
+        
+        assy = self.assy
+        win = assy.win
+        glpane = assy.glpane
+        
+        if glpane.is_animating:
+            return
+        # Note: see similar code in setModelData in another class.
+        ##e Question: why is renaming the toplevel node not permitted? Because we'll lose the name when opening the file?
+        oldname = self.name
+        ok = self.rename_enabled()
+        # Various things below can set ok to False (if it's not already)
+        # and set text to the reason renaming is not ok (for use in error messages).
+        # Or they can put the new name in text, leave ok True, and do the renaming.
+        if not ok:
+            text = "Renaming this node is not permitted."
+                #e someday we might want to call try_rename on fake text
+                # to get a more specific error message... for now it doesn't have one.
+        else:
+            ok, text = grab_text_line_using_dialog(
+                            title = "Rename",
+                            label = "new name for node [%s]:" % oldname,
+                            iconPath = "ui/actions/Edit/Rename.png",
+                            default = oldname )
+        if ok:
+            ok, text = self.try_rename(text)
+        if ok:
+            msg = "Renamed node [%s] to [%s]" % (oldname, text) ##e need quote_html??
+            env.history.statusbar_msg(msg)
+            win.mt.mt_update() #e might be redundant with caller; if so, might be a speed hit
+        else:
+            msg = "Can't rename node [%s]: %s" % (oldname, text) # text is reason why not
+            env.history.statusbar_msg(msg)
+        return
+    
+        
 
     def drag_move_ok(self): # renamed/split from drag_enabled; docstring revised 050201
         """
