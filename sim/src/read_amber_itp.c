@@ -97,11 +97,11 @@ read_amber_itp_file(char *filename)
   write_traceline("# reading parameter file: %s\n", filename);
   while (fgets(buf, 4096, f)) {
     lineNumber++;
-    s = index(buf, ';');
+    s = strchr(buf, ';');
     if (s != NULL) {
       *s = '\0';
     }
-    s = index(buf, '#');
+    s = strchr(buf, '#');
     if (s != NULL) {
       *s = '\0';
     }
