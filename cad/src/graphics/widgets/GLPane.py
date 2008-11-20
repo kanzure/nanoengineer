@@ -88,6 +88,7 @@ from graphics.widgets.GLPane_minimal import GLPane_minimal
 from foundation.changes import SubUsageTrackingMixin
 from graphics.widgets.GLPane_mixin_for_DisplayListChunk import GLPane_mixin_for_DisplayListChunk
 
+from PyQt4.Qt  import QApplication, QCursor, Qt
 # ==
 
 class GLPane(
@@ -153,7 +154,7 @@ class GLPane(
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
     assy = None #bruce 080314
-
+    
     # the stereo attributes are maintained by the methods in
     # our superclass GLPane_stereo_methods, and used in that class,
     # and GLPane_rendering_methods, and GLPane_event_methods.
@@ -166,6 +167,13 @@ class GLPane(
     ## self.is_animating = False
 
     _resize_just_occurred = False #bruce 080922
+    
+    #Because of the performance reasons, whenever the global display style
+    #changes, he current cursor is replaced with an hour glass cursor. 
+    #The following flag determines whether to turn off this wait cursor 
+    #.(It is turned off after global display style operation is complete.
+    #self.setWaitCursor_globalDisplayStyle()
+    _waitCursor_for_globalDisplayStyleChange = False 
 
     def __init__(self, assy, parent = None, name = None, win = None):
         """
@@ -597,6 +605,53 @@ class GLPane(
                 self.scale = atom_preferred_scale
 
         return
+    
+    def setWaitCursor_globalDisplayStyle(self):
+        """
+        Because of the performance reasons, whenever the global display style
+        changes, the current cursor is replaced with an hour glass cursor. 
+        It is done by this method. 
+        @see: self._paintGL()
+        @see: self.setGlobalDisplayStyle()
+        @see: self.setWaitCursor()
+        @see: self.resetWaitCursor_globalDisplayStyle
+        """
+        self._waitCursor_for_globalDisplayStyleChange = True
+        self.setWaitCursor()
+    
+    def resetWaitCursor_globalDisplayStyle(self):
+        """
+        Reset hour glass cursor that was set while NE1 was changing the global
+        display style of the model. 
+        
+        @see: self._paintGL()
+        @see: self.setGlobalDisplayStyle()
+        @see: self.setWaitCursor()
+        @see: self.setWaitCursor_globalDisplayStyle()
+        
+        """
+        if self._waitCursor_for_globalDisplayStyleChange:
+            self.resetWaitCursor()
+            
+    
+    def setWaitCursor(self):
+        """
+        Set the hour glass cursor whenever required.
+        """        
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        
+        
+    def resetWaitCursor(self):
+        """
+        Reset the hour glass cursor.
+        @see: self._paintGL()
+        @see: self.setGlobalDisplayStyle()
+        @see: self.setWaitCursor()
+        @see: self.setWaitCursor_globalDisplayStyle()
+        """
+        QApplication.restoreOverrideCursor()
+        
+        
 
     def setGlobalDisplayStyle(self, disp):
         """
@@ -621,7 +676,11 @@ class GLPane(
         @see: setDisplayStyle methods in some model classes
 
         @see: setDisplayStyle_of_selection method in another class
+        @see: self.self.setWaitCursor_globalDisplayStyle()
         """
+        
+        self.setWaitCursor_globalDisplayStyle()
+                        
         # review docstring: what about diINVISIBLE? diPROTEIN?        
         if disp == diDEFAULT:
             disp = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
@@ -647,6 +706,7 @@ class GLPane(
         # display style set, because their draw methods compare self.displayMode
         # (or their currently set individual display style) to the one they used
         # to make their display lists. [bruce 080305 comment]
+        
         return
     
     _needs_repaint = True #bruce 050516

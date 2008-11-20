@@ -130,24 +130,37 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         Also (first) call self._call_whatever_waits_for_gl_context_current()
         if that would be safe.
+        
+        @NOTE 2008-11-20: This method calls self.resetWaitCursor_globalDisplayStyle()
+        just before returning. This is done to avoid any unforeseen bugs
+        when _paintGL is terminated early. In absence of any bugs, just 
+        one call in self._paintGL_drawing() should be sufficient.
         """
+                    
         if TEST_DRAWING:                # See prototype/test_drawing.py .
             from prototype.test_drawing import test_drawing
                 # intentionally redundant with toplevel import [bruce 080930]
             self.graphicsMode.gm_start_of_paintGL(self)
             test_drawing(self)
             self.graphicsMode.gm_end_of_paintGL(self)
+            #Reset the wait cursor for global display style
+            self.resetWaitCursor_globalDisplayStyle()
             return
         
         self._frustum_planes_available = False
 
         if not self.initialised:
+            #Reset the wait cursor for global display style
+            self.resetWaitCursor_globalDisplayStyle()
             return
         
         if not self.model_is_valid():
             #bruce 080117 bugfix in GLPane and potential bugfix in ThumbView;
             # for explanation see my same-dated comment in files_mmp
             # near another check of assy_valid.
+            
+            #Reset the wait cursor for global display style
+            self.resetWaitCursor_globalDisplayStyle()
             return
         
         env.after_op() #bruce 050908; moved a bit lower, 080117
@@ -162,6 +175,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # forms (e.g. for XOR-mode drawing). [bruce 050707 comment]
 
         if not self.redrawGL:
+            #Reset the wait cursor for global display style
+            self.resetWaitCursor_globalDisplayStyle()
             return
         
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
@@ -217,6 +232,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
             ## if debug_flags.atom_debug:
             ##     sys.stdout.write("#") # indicate a repaint is being skipped
             ##     sys.stdout.flush()
+            
+            #Reset the wait cursor for global display style
+            self.resetWaitCursor_globalDisplayStyle()
 
             return # skip the following repaint
 
@@ -304,6 +322,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
         glFlush()
 
         self.graphicsMode.gm_end_of_paintGL(self)
+        #Reset the wait cursor for global display style
+        self.resetWaitCursor_globalDisplayStyle()
 
         ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
 
