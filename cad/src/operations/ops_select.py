@@ -329,7 +329,19 @@ class ops_select_Mixin:
                 nodes += [obj]
         self.topnode.apply2all(addRenameableNode)
         return selected_renameables
-
+    
+    def getSelectedNodes(self):
+        """
+        Return a list of all selected nodes in the MT.
+        """
+        selected_nodes = []
+        def func(obj):
+            if obj.picked:
+                selected_nodes.append(obj)
+        self.topnode.apply2all(func)
+        return selected_nodes
+        
+        
     def selectAll(self):
         """
         Select all atoms or all chunks, depending on the select mode.
@@ -640,8 +652,8 @@ class ops_select_Mixin:
         """
         Unhides the current selection.
         
-        If the current selection mode is "Select Chunks", the selected movables
-        (i.e. chunks, jigs, planes, etc.) are unhidden. If all the movables
+        If the current selection mode is "Select Chunks", the selected nodes
+        (i.e. chunks, jigs, planes, etc.) are unhidden. If all the nodes
         were already visible (unhidden), then we unhide any invisble atoms
         inside chunks by changing their display style to default (even if 
         their display style before they were hidden was something different).
@@ -656,15 +668,17 @@ class ops_select_Mixin:
         cmd = "Unhide: "
         env.history.message(greenmsg(cmd))
         
-        _movable_was_unhidden = False
+        _node_was_unhidden = False
         
-        # Unhide any movables. This includes chunks, jigs, etc. (but not atoms).
-        for mov in self.getSelectedMovables():
-            if mov.hidden:
-                _movable_was_unhidden = True
-                mov.unhide()
+        selectedNodes = self.getSelectedNodes()
                 
-        if _movable_was_unhidden:
+        # Unhide any movables. This includes chunks, jigs, etc. (but not atoms).
+        for node in selectedNodes:
+            if node.hidden:
+                _node_was_unhidden = True
+                node.unhide()
+                
+        if _node_was_unhidden:
             self.w.win_update()
             return
         
