@@ -70,6 +70,35 @@ class SelectChunks_Command(Select_Command):
     
     def command_exit_misc_actions(self):
         self.w.toolsSelectMoleculesAction.setChecked(False)
+        
+        
+    def command_update_UI(self):
+        """
+        Extends superclass method.
+        """
+        _superclass.command_update_UI(self)
+        #Ths following code fixes a bug reported by Mark on 2008-11-10
+        #the bug is:
+            #1. Insert DNA
+            #2. Enter Break Strands command. Exit command.
+            #3. Do a region selection to select the middle of the DNA duplex.
+            #Notice that atoms are selected, not the strands/segment chunks.
+        #The problem is the selection state is not changed back to the Select Chunks
+        #the code that does this is in Enter_GraphicsMode. 
+        #(See SelectChunks_GraphicsMode) but when a command is 'resumed', that
+        #method is not called. The fix for this is to check if the command stack
+        #indicator changed in the command_update_state method, if it is changed
+        #and if currentCommand is BuildDna_EditCommand, call the code that 
+        #ensures that chunks will be selected when you draw a selection lasso.
+        #-- Ninad 2008-11-10
+        indicator = self.assy.command_stack_change_indicator()
+        if same_vals(self._previous_command_stack_change_indicator,
+                     indicator):
+            return 
+        
+        self._previous_command_stack_change_indicator = indicator
+        self.assy.selectChunksWithSelAtoms_noupdate()
+        
    
     call_makeMenus_for_each_event = True
     #bruce 050914 enable dynamic context menus

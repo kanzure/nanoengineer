@@ -79,10 +79,13 @@ class BuildDna_EditCommand(EditCommand):
     
     _previous_command_stack_change_indicator = None
     
-    def command_update_state(self):
+    
+    def command_update_UI(self):
         """
-        @see superclass for documentation
+        Extends superclass method.
         """
+        _superclass.command_update_UI(self)
+        
         #Ths following code fixes a bug reported by Mark on 2008-11-10
         #the bug is:
             #1. Insert DNA
@@ -95,15 +98,16 @@ class BuildDna_EditCommand(EditCommand):
         #method is not called. The fix for this is to check if the command stack
         #indicator changed in the command_update_state method, if it is changed
         #and if currentCommand is BuildDna_EditCommand, call the code that 
-        #ensures that chunks will be selcted when you draw a selection lasso.
+        #ensures that chunks will be selected when you draw a selection lasso.
         #-- Ninad 2008-11-10
+        indicator = self.assy.command_stack_change_indicator()
         if same_vals(self._previous_command_stack_change_indicator,
-                     self.assy.command_stack_change_indicator()):
+                     indicator):
             return 
         
-        if self.win.commandSequencer.currentCommand is self:
-            self.assy.selectChunksWithSelAtoms_noupdate()
-           
+        self._previous_command_stack_change_indicator = indicator
+        self.assy.selectChunksWithSelAtoms_noupdate()
+                   
     def runCommand(self):
         """
         Overrides EditCommand.runCommand

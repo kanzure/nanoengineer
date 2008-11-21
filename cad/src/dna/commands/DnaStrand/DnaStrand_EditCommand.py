@@ -66,6 +66,8 @@ HANDLE_RADIUS_DEFAULT_VALUE = 1.5
 
 ORIGIN = V(0,0,0)
 
+_superclass = EditCommand
+
 class DnaStrand_EditCommand(State_preMixin, EditCommand):
     """
     Command to edit a DnaStrand (chunk object as of 2008-02-14)
@@ -179,7 +181,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     
     def command_update_UI(self):
         """
-        Overrides superclass method. 
+        Extends superclass method. 
         @see: baseCommand.command_update_UI()
         """     
         #This MAY HAVE BUG. WHEN --
@@ -194,9 +196,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #'call command_update_UI only when needed' but its NOT done because of
         #an issue mentioned in bug 2729   - Ninad 2008-04-07
         
-        
-        if self.propMgr:
-            self.propMgr.update_UI()
+        _superclass.command_update_UI(self)
             
         if self.grabbedHandle is not None:
             return
