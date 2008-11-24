@@ -77,7 +77,7 @@ class BuildDna_EditCommand(EditCommand):
     #BuildAtoms_Command (earlier depositmode)
     call_makeMenus_for_each_event = True
     
-    _previous_command_stack_change_indicator = None
+    __previous_command_stack_change_indicator = None
     
     
     def command_update_UI(self):
@@ -101,11 +101,11 @@ class BuildDna_EditCommand(EditCommand):
         #ensures that chunks will be selected when you draw a selection lasso.
         #-- Ninad 2008-11-10
         indicator = self.assy.command_stack_change_indicator()
-        if same_vals(self._previous_command_stack_change_indicator,
+        if same_vals(self.__previous_command_stack_change_indicator,
                      indicator):
             return 
         
-        self._previous_command_stack_change_indicator = indicator
+        self.__previous_command_stack_change_indicator = indicator
         self.assy.selectChunksWithSelAtoms_noupdate()
                    
     def runCommand(self):

@@ -63,7 +63,13 @@ class SelectChunks_Command(Select_Command):
     command_level = CL_DEFAULT_MODE # error if command subclass fails to override this
     
     #This attr is used for comparison purpose in self.command_update_UI()
-    _previous_command_stack_change_indicator = None
+    #Note the extra '_' at the beginning of this attr name.This is because 
+    #two classes use _previous_command_stack_change_indicator attr. If one of the
+    #class is superclass of the other, then it could create a potential bug 
+    #(because we call _superclass.command_update_UI' in def command_update_UI)
+    #But this is only a fix to a potential bug. As of 2008-11-24, SelectChunks_Command
+    #is not a superclass of EditCommand.
+    __previous_command_stack_change_indicator = None
 
     def command_enter_misc_actions(self):
         self.w.toolsSelectMoleculesAction.setChecked(True)
@@ -92,11 +98,11 @@ class SelectChunks_Command(Select_Command):
         #ensures that chunks will be selected when you draw a selection lasso.
         #-- Ninad 2008-11-10
         indicator = self.assy.command_stack_change_indicator()
-        if same_vals(self._previous_command_stack_change_indicator,
+        if same_vals(self.__previous_command_stack_change_indicator,
                      indicator):
             return 
         
-        self._previous_command_stack_change_indicator = indicator
+        self.__previous_command_stack_change_indicator = indicator
         self.assy.selectChunksWithSelAtoms_noupdate()
         
    
