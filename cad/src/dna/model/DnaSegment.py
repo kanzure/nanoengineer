@@ -286,9 +286,10 @@ class DnaSegment(DnaStrandOrSegment):
                 
         return allAtomList
     
-    def get_all_content_strand_atoms(self):
+    def get_all_content_strand_rail_end_baseatoms(self):
         """
-        Return a list of all strand atoms contained within this DnaSegment
+        Return a list of all strand end baseatoms of the 'strand rails'
+        contained within this DnaSegment        
         """
         ladders = self.getDnaLadders()        
         
@@ -298,20 +299,22 @@ class DnaSegment(DnaStrandOrSegment):
             
         strand_atoms = []
         for rail in strand_rails:
-            strand_atoms.extend(rail.baseatoms)
+            strand_atoms.extend(rail.end_baseatoms())
+        
         return strand_atoms
     
     def get_all_content_three_prime_ends(self):
         """
         Return a list of all the three prime end base atoms, contained within
         this DnaSegment
-        @see:self.get_all_content_strand_atoms()
+        @see:self.get_all_content_strand_rail_end_baseatoms()
         @see:self.get_all_content_five_prime_ends()
         """
-        strand_atoms = self.get_all_content_strand_atoms()
+        strand_atoms = self.get_all_content_strand_rail_end_baseatoms()
         
         three_prime_end_atoms = filter(lambda atm: atm.isThreePrimeEndAtom(), 
                                        strand_atoms)
+        
         return three_prime_end_atoms
     
     
@@ -319,13 +322,14 @@ class DnaSegment(DnaStrandOrSegment):
         """
         Return a list of all the five prime end base atoms, contained within
         this DnaSegment
-        @see:self.get_all_content_strand_atoms()
+        @see:self.get_all_content_strand_rail_end_baseatoms()
         @see:self.get_all_content_three_prime_ends()
         """
-        strand_atoms = self.get_all_content_strand_atoms()
+        strand_atoms = self.get_all_content_strand_rail_end_baseatoms()
         
         five_prime_end_atoms = filter(lambda atm: atm.isFivePrimeEndAtom(), 
                                        strand_atoms)
+        
         return five_prime_end_atoms
            
   
@@ -411,7 +415,7 @@ class DnaSegment(DnaStrandOrSegment):
                 ladder = member.ladder
                 all_content_chunk_list.extend(ladder.all_chunks())
                 
-        ##TEST CODE =======================                                                    
+        
         #Now search for any strand chunks whose strand atoms are not connected 
         #to the axis atoms, but still logically belong to the DnaSegment. 
         #A hairpin loop is an example of such a strand chunk
@@ -420,7 +424,6 @@ class DnaSegment(DnaStrandOrSegment):
             if not atm:
                 continue
             strand_atoms = atm.strand_neighbors()
-            ##print "~~~~~~~~~~~~~~~~"
             for s_atom in strand_atoms:
                 rail = s_atom.molecule.get_ladder_rail()
                 next_rail_base_atoms = rail.neighbor_baseatoms
@@ -432,7 +435,6 @@ class DnaSegment(DnaStrandOrSegment):
                     if not a.axis_neighbor(): 
                         if a.molecule not in all_content_chunk_list:
                             all_content_chunk_list.append(a.molecule)
-        ##===================================
                         
         return all_content_chunk_list 
     
