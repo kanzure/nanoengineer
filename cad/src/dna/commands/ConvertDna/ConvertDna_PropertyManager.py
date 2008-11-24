@@ -21,6 +21,10 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
     Provides a Property Manager for the B{Convert Dna} command. 
     """
     
+    title         =  "Convert Dna"
+    pmName        =  title
+    iconPath      =  "ui/actions/Command Toolbar/Convert3to5.png"
+    
     def __init__( self, command ):
         """
         Constructor for the property manager.
