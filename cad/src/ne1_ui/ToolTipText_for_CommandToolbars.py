@@ -31,8 +31,7 @@ def toolTipTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.breakStrandAction.setToolTip("Break Strands")
     commandToolbar.joinStrandsAction.setToolTip("Join Strands")
     commandToolbar.dnaOrigamiAction.setToolTip("Origami")
-    commandToolbar.convertPAM3to5Action.setToolTip("Convert PAM3 to PAM5")
-    commandToolbar.convertPAM5to3Action.setToolTip("Convert PAM5 to PAM3")
+    commandToolbar.convertDnaAction.setToolTip("Convert DNA")
     commandToolbar.orderDnaAction.setToolTip("Order DNA")
         
     return

@@ -21,8 +21,6 @@ from utilities.Log import greenmsg
 from ne1_ui.NE1_QWidgetAction import NE1_QWidgetAction
 from ne1_ui.toolbars.Ui_AbstractFlyout import Ui_AbstractFlyout
 
-
-
 _superclass = Ui_AbstractFlyout
 class DnaFlyout(Ui_AbstractFlyout):  
     
@@ -63,8 +61,7 @@ class DnaFlyout(Ui_AbstractFlyout):
         subControlAreaActionList.append(self.breakStrandAction)
         subControlAreaActionList.append(self.joinStrandsAction)
         subControlAreaActionList.append(self.makeCrossoversAction)
-        subControlAreaActionList.append(self.convertPAM3to5Action)
-        subControlAreaActionList.append(self.convertPAM5to3Action)
+        subControlAreaActionList.append(self.convertDnaAction)
         subControlAreaActionList.append(self.orderDnaAction)
         subControlAreaActionList.append(self.editDnaDisplayStyleAction)
 
@@ -122,17 +119,11 @@ class DnaFlyout(Ui_AbstractFlyout):
         self.dnaOrigamiAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/DNA_Origami.png"))
         
-        self.convertPAM3to5Action = NE1_QWidgetAction(parentWidget,
+        self.convertDnaAction = NE1_QWidgetAction(parentWidget,
                                                       win = self.win)
-        self.convertPAM3to5Action.setText("PAM3 to PAM5")
-        self.convertPAM3to5Action.setIcon(
+        self.convertDnaAction.setText("Convert DNA")
+        self.convertDnaAction.setIcon(
             geticon("ui/actions/Command Toolbar/Convert3to5.png"))
-        
-        self.convertPAM5to3Action = NE1_QWidgetAction(parentWidget,
-                                                      win = self.win)
-        self.convertPAM5to3Action.setText("PAM5 to PAM3")
-        self.convertPAM5to3Action.setIcon(
-            geticon("ui/actions/Command Toolbar/Convert5to3.png"))
         
         self.orderDnaAction = NE1_QWidgetAction(parentWidget,
                                                 win = self.win)
@@ -209,13 +200,11 @@ class DnaFlyout(Ui_AbstractFlyout):
                              SIGNAL("triggered()"),
                              self.activateDnaOrigamiEditCommand)
         
-        change_connect(self.convertPAM3to5Action, 
+        change_connect(self.convertDnaAction, 
                              SIGNAL("triggered()"),
-                             self.convertPAM3to5Command)
+                             self.convertDnaCommand)
         
-        change_connect(self.convertPAM5to3Action, 
-                             SIGNAL("triggered()"),
-                             self.convertPAM5to3Command)
+        
         
         if 1: # the new way, with the "DNA Order" PM.
             change_connect(self.orderDnaAction, 
@@ -350,27 +339,23 @@ class DnaFlyout(Ui_AbstractFlyout):
         msg2 = "Not implemented yet."
         final_msg = msg1 + msg2
         env.history.message(final_msg)
+        
     
-    def convertPAM3to5Command(self):
+    def convertDnaCommand(self):
         """
-        Slot for B{Convert PAM3 to PAM5} action.
-        @see: ops_atoms_Mixin.convertPAM3to5Command
+        Slot for B{Convert DNA} action.
         """
-        self.win.assy.convertPAM3to5Command()
-        
-    def convertPAM5to3Command(self):
-        """
-        Slot for B{Convert PAM5 to PAM3} action.
-        @see: ops_atoms_Mixin.convertPAM5to3Command
-        """
-        self.win.assy.convertPAM5to3Command()
-        
+        cs = self.win.commandSequencer
+        cs.userEnterCommand('CONVERT_DNA')
+        return
+    
     def orderDnaCommand(self):
         """
         Slot for B{Order DNA} action.
         @see: MWSemantics.orderDna
         """
         self.win.orderDna()
+        return
     
     def activateOrderDna_Command(self, isChecked):
         """
