@@ -632,6 +632,7 @@ class GLPane(
         """
         if self._waitCursor_for_globalDisplayStyleChange:
             self.resetWaitCursor()
+        self._waitCursor_for_globalDisplayStyleChange = False
             
     
     def setWaitCursor(self):
