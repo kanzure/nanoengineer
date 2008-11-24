@@ -94,7 +94,7 @@ def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
 
     return False
 
-def renameableLeafNode(obj, groups_renameable = False):
+def renameableLeafNode(obj, groups_renameable = False): # probably by Mark
     """
     Returns True if obj is a visible, renameable leaf node in the model tree. 
     Otherwise, returns False.
@@ -102,6 +102,11 @@ def renameableLeafNode(obj, groups_renameable = False):
     If obj is a Group or DnaGroup and groups_renameable is True,
     return True.
     """
+    # TODO: refactor this so that it doesn't hardcode a lot of classes.
+    # (The result is probably deducible from existing class attrs;
+    #  if not, we should add one. There might already be a method on
+    #  class Node related to this -- see try_rename or its calls to find out.)
+    # [bruce 081124 comment]
     
     _nodeList = [[DnaAxisChunk,    False], # Chunk subclass
                  [DnaStrandChunk,  False], # Chunk subclass
@@ -664,7 +669,12 @@ class ops_select_Mixin:
         was something different).
         """
         # Added by Mark 2008-02-25. [slight revisions, bruce 080305]
+        # [subsequently modified and/or bugfixed by Ninad]
 
+        # TODO: fix possible speed issue: this looks like it might be slow for
+        #  deep nesting in model tree, since it may unhide selected groups
+        #  as a whole, as well as each node they contain. [bruce 081124 comment]
+        
         cmd = "Unhide: "
         env.history.message(greenmsg(cmd))
         

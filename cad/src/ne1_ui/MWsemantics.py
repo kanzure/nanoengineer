@@ -936,7 +936,7 @@ class MWsemantics(QMainWindow,
              % (_number_renamed, len(_renameList))
         env.history.message(_cmd + _msg)
 
-    def editRenameSelection(self):
+    def editRenameSelection(self): # probably by Mark
         """
         Renames multiple selected objects (chunks or jigs).
         """
@@ -980,6 +980,8 @@ class MWsemantics(QMainWindow,
         _number_renamed = 0
         for _object in _renameList:
             if renameableLeafNode(_object):
+                # REVIEW: should renameableLeafNode be tested by getSelectedRenameables?
+                # [bruce 081124 question]
                 if _renumber:
                     ok, info = _object.try_rename(new_name + str(_number_renamed + 1))
                 else:
