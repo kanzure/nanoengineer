@@ -333,7 +333,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         # is no obvious way to tell the Movie Property manager that the
         # movie has changed. So this is a kludge.
         # See bug 2428 comment 8 for further details -- Ninad 2007-10-02
-        currentCommand = self.w.assy.o.currentCommand
+        currentCommand = self.win.commandSequencer.currentCommand
         if currentCommand.commandName == "MOVIE":
             if currentCommand.propMgr:
                 if not msg:
