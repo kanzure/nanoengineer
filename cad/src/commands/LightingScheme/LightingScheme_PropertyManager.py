@@ -1093,13 +1093,14 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
                 self.win.glpane.gl_update()             
         return
     
-    #def _addWhatsThisText( self ):
-        #"""
-        #What's This text for widgets in the Lighting Scheme Property Manager.  
-        #"""
-        #from ne1_ui.WhatsThisText_for_PropertyManagers import WhatsThis_LightingScheme_PropertyManager
-        #WhatsThis_LightingScheme_PropertyManager(self)
-                
+    def _addWhatsThisText( self ):
+        """
+        What's This text for widgets in the Lighting Scheme Property Manager.  
+        """
+        from ne1_ui.WhatsThisText_for_PropertyManagers import WhatsThis_LightingScheme_PropertyManager
+        WhatsThis_LightingScheme_PropertyManager(self)
+        return
+    
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in the Lighting Scheme Property Manager.  
@@ -1107,5 +1108,6 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         #modify this for lighting schemes
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_LightingScheme_PropertyManager 
         ToolTip_LightingScheme_PropertyManager(self)
+        return
     
     

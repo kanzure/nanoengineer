@@ -1428,7 +1428,175 @@ def WhatsThis_ColorScheme_PropertyManager(propMgr):
         file is saved with a .txt entension so that it can loaded back using
         the <b>Load Favorite</b> button.
         """)
+    propMgr.backgroundColorComboBox.setWhatsThis(
+        """ <b>Background Color </b>
+        <p>
+        Allows user to change the color of the background.
+        </p>""")
+    propMgr.hoverHighlightingStyleComboBox.setWhatsThis(
+        """ <b>Highlighting Style </b>
+        <p>
+        Allows user to change the type of pattern the indicates a highlighted object.
+        </p>""")
+    propMgr.hoverHighlightingColorComboBox.setWhatsThis(
+        """ <b>Highlighting Color </b>
+        <p>
+        Allows user to change the color of the highlight.
+        </p>""") 
+    propMgr.selectionStyleComboBox.setWhatsThis(
+        """ <b>Selection Style </b>
+        <p>
+        Allows user to change the type of pattern the indicates a selected object.
+        </p>""")
+    propMgr.selectionColorComboBox.setWhatsThis(
+        """ <b>Selction Color </b>
+        <p>
+        Allows user to change the color of a selected object.
+        </p>""")
+    propMgr.enableFogCheckBox.setWhatsThis(
+        """ <b>Fog </b>
+        <p>
+        Enable/Disable a fog over the working area.
+        </p>""")
     return
+
+def WhatsThis_LightingScheme_PropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the Lighting Scheme Property 
+    Manager.
+    """
+    propMgr.favoritesComboBox.setWhatsThis(
+        """<b>Lighting Scheme Favorites</b>
+        <p>
+        A list of lighting scheme favorites added by the user that can be
+        applied to NanoEngineer-1 by pressing the <b>Apply Favorite</b>
+        button.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/ApplyLightingSchemeFavorite.png\"><br>
+        The <b>Apply Favorite</b> button must be clicked to apply the 
+        current favorite selected from this list. <b>Factory default
+        settings</b> resets all color options to their default
+        settings.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+        The <b>Add Favorite</b> button allows new favorite color schemes to
+        be added to the list. This saves the current color settings
+        to a user specified name.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+        The <b>Delete Favorite</b> button allows an existing favorite to
+        be deleted from the list. <b>Factory default settings</b> can
+        never be deleted, however.
+        """)
+    
+    propMgr.applyFavoriteButton.setWhatsThis(
+        """<b>Apply Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/ApplyLightingSchemeFavorite.png\"><br>
+        Applies the lighting settings stored in the selected Lighting Scheme
+        Favorite to the current color scheme.
+        """)
+        
+    propMgr.addFavoriteButton.setWhatsThis(
+        """<b>Add Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+        Allows a new Lighting Scheme Favorite to be added to the list. 
+        This saves the current color settings to a user specified name.
+        """)
+    
+    propMgr.deleteFavoriteButton.setWhatsThis(
+        """<b>Delete Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+        Allows an existing favorite to be deleted from the list. 
+        <b>Factory default settings</b> can never be deleted, however.
+        """)
+    
+    propMgr.loadFavoriteButton.setWhatsThis(
+        """<b>Load Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/LoadFavorite.png\"><br>
+        Allows the user to load a <i>favorites file</i> from disk to be
+        added to the favorites list. Favorites files must have a .txt extension.
+        """)
+    propMgr.saveFavoriteButton.setWhatsThis(
+        """<b>Save Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/SaveFavorite.png\"><br>
+        Writes the selected favorite (selected in the combobox) to a file that
+        can be given to another NE1 user (i.e. as an email attachment). The 
+        file is saved with a .txt entension so that it can loaded back using
+        the <b>Load Favorite</b> button.
+        """)
+    propMgr.lightComboBox.setWhatsThis(
+        """<b> Light </b>
+        <p>
+        The current light to modify. NanoEngineer-1 supports up to 3 light 
+        sources.
+        </p>""")
+    propMgr.enableLightCheckBox.setWhatsThis(
+        """<b> On Check Box</b>
+        <p>
+        Enables/disables the current light.
+        </p>""")
+    propMgr.lightColorComboBox.setWhatsThis(
+        """<b> Color </b>
+        <p>
+        Change color of the current light.
+        </p>""")
+    propMgr.ambientDoubleSpinBox.setWhatsThis(
+        """<b> Ambient </b>
+        <p>
+        The ambient value (between 0-1) of the current light.
+        </p>""")
+    propMgr.diffuseDoubleSpinBox.setWhatsThis(
+        """<b> Diffuse </b>
+        <p>
+        The diffuse value (between 0-1) of the current light.
+        </p>""")
+    propMgr.specularDoubleSpinBox.setWhatsThis(
+        """<b> Specular </b>
+        <p>
+        The specularity value (between 0-1) of the current light.
+        </p>""")
+    propMgr.xDoubleSpinBox.setWhatsThis(
+        """<b> X Position </b>
+        <p>
+        The X coordinite of the current light position.
+        </p>""")
+    propMgr.yDoubleSpinBox.setWhatsThis(
+        """<b> Y Position </b>
+        <p>
+        The Y coordinite of the current light position.
+        </p>""")
+    propMgr.zDoubleSpinBox.setWhatsThis(
+        """<b> Z Position </b>
+        <p>
+        The Z coordinite of the current light position.
+        </p>""")
+    propMgr.enableMaterialPropertiesCheckBox.setWhatsThis(
+        """<b> Material Properties</b>
+        <p>
+        Enables/Disables the material properties.
+        </p>""")
+    propMgr.finishDoubleSpinBox.setWhatsThis(
+        """<b> Finish </b>
+        <p>
+        Material finish value (between 0-1)
+        </p>""")
+    propMgr.shininessDoubleSpinBox.setWhatsThis(
+        """<b> Shininess </b>
+        <p>
+        Material shininess value (between 0-60).
+        </p>""")
+    propMgr.brightnessDoubleSpinBox.setWhatsThis(
+        """<b> Brightness </b>
+        <p>
+        Material brightness value (between 0-1).
+        </p>""")
+    return
+
 def WhatsThis_EditProteinDisplayStyle_PropertyManager(propMgr):
     """
     Add "What's This" text for widgets in the Edit Protein Display Style Property 
