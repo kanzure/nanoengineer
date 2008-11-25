@@ -109,8 +109,14 @@ class baseCommand(object):
     # - related to a command's property manager (PM)
     
     command_has_its_own_PM = True
+        # TODO: merge related code from our toplevel subclasses
+        # REVIEW: can this be replaced by the condition (self.PM_class is not None)?
+        # [bruce 081125 comments]
     
-    propMgr = None # will be set to the PM to use with self (whether or not created by self)
+    propMgr = None # will be set to the PM to use with self (whether or not created by self);
+        # some methods assume that object is a subclass of PM_Dialog,
+        # or perhaps (more likely) of its subclass Command_PropertyManager.
+        # [bruce 081125 comment]
 
     # == access methods
 

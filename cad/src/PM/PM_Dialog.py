@@ -161,7 +161,23 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         #'_update_UI_wanted_as_something_changed'
         self._previous_all_change_indicators = None
         
+
+    def update_UI(self):
+        """
+        Update whatever is shown in this PM based on current state
+        of the rest of the system, especially the state of self.command
+        and of the model it shows.
+
+        This is part of the PM API required by baseCommand,
+        since it's called by baseCommand.command_update_UI.
         
+        @note: Overridden in Command_PropertyManager, but should not be
+               overridden in its subclasses. See that method's docstring
+               for details.
+        """
+        #bruce 081125 defined this here, to fix bugs in example commands
+        return
+    
     def keyPressEvent(self, event):
         """
         Handles keyPress event. 
