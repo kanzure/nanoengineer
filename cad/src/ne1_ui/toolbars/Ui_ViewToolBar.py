@@ -35,7 +35,8 @@ def setupUi(win, toolbarArea):
     win.viewToolBar.addAction(win.rotateToolAction)
     win.viewToolBar.addSeparator()
     win.viewToolBar.addAction(win.standardViewsAction) # A menu with views.
-    win.viewToolBar.addAction(win.viewRotate180Action)
+    win.viewToolBar.addAction(win.viewFlipViewVertAction)
+    win.viewToolBar.addAction(win.viewFlipViewHorzAction)
     win.viewToolBar.addAction(win.viewRotatePlus90Action)
     win.viewToolBar.addAction(win.viewRotateMinus90Action)
     win.viewToolBar.addSeparator()

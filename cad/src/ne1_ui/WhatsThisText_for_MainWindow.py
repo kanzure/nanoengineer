@@ -686,7 +686,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # Parallel To
 
-    viewParallelToActionText = \
+    _text = \
         "<u><b>Set View Parallel To</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Set_View_Parallel_To.png\"><br> "\
@@ -694,11 +694,11 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "2 selected atoms."\
         "</p>"
 
-    win.viewParallelToAction.setWhatsThis( viewParallelToActionText ) 
+    win.viewParallelToAction.setWhatsThis( _text ) 
 
     # Save Named View
 
-    saveNamedViewActionText = \
+    _text = \
         "<u><b>Save Named View</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Modify/Save_Named_View.png\"><br> "\
@@ -711,99 +711,110 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "menu in the Model Tree."\
         "</p>"
 
-    win.saveNamedViewAction.setWhatsThis( saveNamedViewActionText ) 
+    win.saveNamedViewAction.setWhatsThis( _text ) 
 
     # Front View
 
-    viewFrontActionText = \
+    _text = \
         "<u><b>Front View</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Front.png\"><br> "\
         "Orients the view to the Front View."\
         "</p>"
 
-    win.viewFrontAction.setWhatsThis( viewFrontActionText )  
+    win.viewFrontAction.setWhatsThis( _text )  
 
     # Back View
 
-    viewBackActionText = \
+    _text = \
         "<u><b>Back View</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Back.png\"><br> "\
         "Orients the view to the Back View."\
         "</p>"
 
-    win.viewBackAction.setWhatsThis( viewBackActionText )     
+    win.viewBackAction.setWhatsThis( _text )     
 
     # Top View
 
-    viewTopActionText = \
+    _text = \
         "<u><b>Top View</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Top.png\"><br> "\
         "Orients the view to the Top View."\
         "</p>"
 
-    win.viewTopAction.setWhatsThis( viewTopActionText )      
+    win.viewTopAction.setWhatsThis( _text )      
 
     # Bottom View
 
-    viewBottomActionText = \
+    _text = \
         "<u><b>Bottom View</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Bottom.png\"><br> "\
         "Orients the view to the Bottom View."\
         "</p>"
 
-    win.viewBottomAction.setWhatsThis( viewBottomActionText )  
+    win.viewBottomAction.setWhatsThis( _text )  
 
     # Left View
 
-    viewLeftActionText = \
+    _text = \
         "<u><b>Left View</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Left.png\"><br> "\
         "Orients the view to the Left View."\
         "</p>"
 
-    win.viewLeftAction.setWhatsThis( viewLeftActionText )
+    win.viewLeftAction.setWhatsThis( _text )
 
     # Right View
 
-    viewRightActionText = \
+    _text = \
         "<u><b>Right View</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Right.png\"><br> "\
         "Orients the view to the Right View."\
         "</p>"
 
-    win.viewRightAction.setWhatsThis( viewRightActionText )
+    win.viewRightAction.setWhatsThis( _text )
 
     #Isometric View 
 
-    viewIsometricActionText = \
+    _text = \
         "<u><b>IsometricView</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Isometric.png\"><br> "\
         "Orients the view to the Isometric View."\
         "</p>"
 
-    win.viewIsometricAction.setWhatsThis( viewIsometricActionText )
+    win.viewIsometricAction.setWhatsThis( _text )
 
-    # Rotate View 180
+    # Flip View Vertically
 
-    viewRotate180ActionText = \
-        "<u><b>Rotate View 180</b></u>"\
+    _text = \
+        "<u><b>Flip View Vertically</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/View/Rotate_View_180.png\"><br> "\
-        "Rotates the view 180 degrees."\
+        "<img source=\"ui/actions/View/FlipViewVert.png\"><br> "\
+        "Flip the view vertically."\
         "</p>"
 
-    win.viewRotate180Action.setWhatsThis( viewRotate180ActionText )
+    win.viewFlipViewVertAction.setWhatsThis( _text )
+    
+    # Flip View Horizontally
+
+    _text = \
+        "<u><b>Flip View Horizontally</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/View/FlipViewHorz.png\"><br> "\
+        "Flip the view horizontally."\
+        "</p>"
+
+    win.viewFlipViewHorzAction.setWhatsThis( _text )
 
     # Rotate View +90
 
-    viewRotatePlus90ActionText = \
+    _text = \
         "<u><b>Rotate View +90</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Rotate_View_+90.png\"><br> "\
@@ -811,11 +822,11 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "around the vertical axis."\
         "</p>"
 
-    win.viewRotatePlus90Action.setWhatsThis( viewRotatePlus90ActionText )
+    win.viewRotatePlus90Action.setWhatsThis( _text )
 
     # Rotate View -90
 
-    viewRotateMinus90ActionText = \
+    _text = \
         "<u><b>Rotate View -90</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Rotate_View_-90.png\"><br> "\
@@ -823,18 +834,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "around the vertical axis."\
         "</p>"
 
-    win.viewRotateMinus90Action.setWhatsThis( viewRotateMinus90ActionText )
+    win.viewRotateMinus90Action.setWhatsThis( _text )
 
     # Orientation Window
     
-    viewOrientationActionText = \
+    _text = \
         "<u><b>Orientation Window</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Modify/Orientation.png\"><br> "\
         "Opens the Orientation Menu "\
         "</p>"
 
-    win.viewOrientationAction.setWhatsThis( viewOrientationActionText ) 
+    win.viewOrientationAction.setWhatsThis( _text ) 
     
     # Set Current View to Home View
     

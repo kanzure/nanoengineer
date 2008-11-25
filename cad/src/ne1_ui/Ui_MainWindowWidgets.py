@@ -321,10 +321,15 @@ def setupUi(win):
     win.viewIsometricAction.setIcon(geticon("ui/actions/View/Isometric.png"))
     win.viewIsometricAction.setObjectName("Isometric")
 
-    win.viewRotate180Action = QtGui.QAction(MainWindow)
-    win.viewRotate180Action.setIcon(
-        geticon("ui/actions/View/Rotate_View_180.png"))
-    win.viewRotate180Action.setObjectName("Rotate180")
+    win.viewFlipViewVertAction = QtGui.QAction(MainWindow)
+    win.viewFlipViewVertAction.setIcon(
+        geticon("ui/actions/View/FlipViewVert.png"))
+    win.viewFlipViewVertAction.setObjectName("FlipViewVert")
+    
+    win.viewFlipViewHorzAction = QtGui.QAction(MainWindow)
+    win.viewFlipViewHorzAction.setIcon(
+        geticon("ui/actions/View/FlipViewHorz.png"))
+    win.viewFlipViewHorzAction.setObjectName("FlipViewHorz")
 
     win.viewRotatePlus90Action = QtGui.QAction(MainWindow)
     win.viewRotatePlus90Action.setIcon(
@@ -1459,10 +1464,16 @@ def retranslateUi(win):
     win.viewLeftAction.setIconText(QtGui.QApplication.translate("MainWindow", "Left", None, QtGui.QApplication.UnicodeUTF8))
     win.viewLeftAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Left View", None, QtGui.QApplication.UnicodeUTF8))
 
-    win.viewRotate180Action.setText(QtGui.QApplication.translate("MainWindow", "Rotate View 180", None, QtGui.QApplication.UnicodeUTF8))
-    win.viewRotate180Action.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate View 180", None, QtGui.QApplication.UnicodeUTF8))
-    win.viewRotate180Action.setToolTip(QtGui.QApplication.translate("MainWindow", "Rotate View 180", None, QtGui.QApplication.UnicodeUTF8))
-    win.viewRotate180Action.setStatusTip(QtGui.QApplication.translate("MainWindow", "Rotate View 180", None, QtGui.QApplication.UnicodeUTF8))
+    win.viewFlipViewVertAction.setText(QtGui.QApplication.translate("MainWindow", "Flip View Vertically", None, QtGui.QApplication.UnicodeUTF8))
+    win.viewFlipViewVertAction.setIconText(QtGui.QApplication.translate("MainWindow", "Flip View Vertically", None, QtGui.QApplication.UnicodeUTF8))
+    win.viewFlipViewVertAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Flip View Vertically", None, QtGui.QApplication.UnicodeUTF8))
+    win.viewFlipViewVertAction.setStatusTip(QtGui.QApplication.translate("MainWindow", "Flip View Vertically", None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.viewFlipViewHorzAction.setText(QtGui.QApplication.translate("MainWindow", "Flip View Horizontally", None, QtGui.QApplication.UnicodeUTF8))
+    win.viewFlipViewHorzAction.setIconText(QtGui.QApplication.translate("MainWindow", "Flip View Horizontally", None, QtGui.QApplication.UnicodeUTF8))
+    win.viewFlipViewHorzAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Flip View Horizontally", None, QtGui.QApplication.UnicodeUTF8))
+    win.viewFlipViewHorzAction.setStatusTip(QtGui.QApplication.translate("MainWindow", "Flip View Horizontally", None, QtGui.QApplication.UnicodeUTF8))
+    
     win.viewIsometricAction.setText(QtGui.QApplication.translate("MainWindow", "&Isometric", None, QtGui.QApplication.UnicodeUTF8))
     win.viewIsometricAction.setIconText(QtGui.QApplication.translate("MainWindow", "Isometric", None, QtGui.QApplication.UnicodeUTF8))
     win.resetChunkColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Reset Color of Selected Chunks", None, QtGui.QApplication.UnicodeUTF8))

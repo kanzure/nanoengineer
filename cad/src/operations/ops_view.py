@@ -370,31 +370,28 @@ class viewSlotsMixin:
         info = 'View set parallel to the vector defined by the 2 selected atoms.'
         env.history.message(cmd + info)
 
-    def viewRotate180(self):
+    def viewFlipViewVert(self):
         """
-        Set view to the opposite of current view.
+        Flip view vertically.
         """
-        cmd = greenmsg("Opposite View: ")
-        info = 'Current view opposite to the previous view'
-        env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi))
+        
+    def viewFlipViewHorz(self):
+        """
+        Flip view horizontally.
+        """
+        self.glpane.rotateView(self.glpane.quat + Q(V(1,0,0), math.pi))
 
     def viewRotatePlus90(self): # Added by Mark. 051013.
         """
         Increment the current view by 90 degrees around the vertical axis.
         """
-        cmd = greenmsg("Rotate View +90 : ")
-        info = 'View incremented by 90 degrees'
-        env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi/2))
 
     def viewRotateMinus90(self): # Added by Mark. 051013.
         """
         Decrement the current view by 90 degrees around the vertical axis.
         """
-        cmd = greenmsg("Rotate View -90 : ")
-        info = 'View decremented by 90 degrees'
-        env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), -math.pi/2))
 
     def viewBack(self):

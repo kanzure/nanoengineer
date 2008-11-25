@@ -1994,7 +1994,8 @@ class MWsemantics(QMainWindow,
         self.setViewFitToWindowAction.setEnabled(enableFlag)
         self.setViewRecenterAction.setEnabled(enableFlag)
 
-        self.viewRotate180Action.setEnabled(enableFlag)
+        self.viewFlipViewVertAction.setEnabled(enableFlag)
+        self.viewFlipViewHorzAction.setEnabled(enableFlag)
         self.viewRotatePlus90Action.setEnabled(enableFlag)
         self.viewRotateMinus90Action.setEnabled(enableFlag)
         return

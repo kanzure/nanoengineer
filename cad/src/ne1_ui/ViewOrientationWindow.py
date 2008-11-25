@@ -106,9 +106,13 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
         itemViewIsometric.setIcon(win.viewIsometricAction.icon())
         win.standardViewMethodDict[itemViewIsometric] = win.viewIsometric
         
-        itemViewRotate180 = QtGui.QListWidgetItem(win.viewRotate180Action.objectName(), self.orientationViewList)
-        itemViewRotate180.setIcon(win.viewRotate180Action.icon())
-        win.standardViewMethodDict[itemViewRotate180] = win.viewRotate180
+        itemViewFlipViewVert = QtGui.QListWidgetItem(win.viewFlipViewVertAction.objectName(), self.orientationViewList)
+        itemViewFlipViewVert.setIcon(win.viewFlipViewVertAction.icon())
+        win.standardViewMethodDict[itemViewFlipViewVert] = win.viewFlipViewVert
+        
+        itemViewFlipViewHorz = QtGui.QListWidgetItem(win.viewFlipViewHorzAction.objectName(), self.orientationViewList)
+        itemViewFlipViewHorz.setIcon(win.viewFlipViewHorzAction.icon())
+        win.standardViewMethodDict[itemViewFlipViewHorz] = win.viewFlipViewHorz
         
         itemViewRotatePlus90 = QtGui.QListWidgetItem(win.viewRotatePlus90Action.objectName(), self.orientationViewList)
         itemViewRotatePlus90.setIcon(win.viewRotatePlus90Action.icon())
@@ -117,6 +121,7 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
         itemViewRotateMinus90 = QtGui.QListWidgetItem(win.viewRotateMinus90Action.objectName(), self.orientationViewList)
         itemViewRotateMinus90.setIcon(win.viewRotateMinus90Action.icon())
         win.standardViewMethodDict[itemViewRotateMinus90] = win.viewRotateMinus90
+        return
         
     def updateOrientationViewList(self, viewList=None):
         """
