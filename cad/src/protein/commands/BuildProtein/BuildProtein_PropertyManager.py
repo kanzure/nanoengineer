@@ -41,8 +41,8 @@ class BuildProtein_PropertyManager(EditCommand_PM):
 
     title         =  "Build Protein"
     pmName        =  title
-    #change this ico path later
-    iconPath      =  "ui/actions/Tools/Build Structures/Peptide.png"
+    #change this icon path later
+    iconPath      =  "ui/actions/Tools/Build Structures/Protein.png"
 
     def __init__( self, command ):
         """
