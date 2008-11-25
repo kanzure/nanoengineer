@@ -120,7 +120,7 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
 
     def searchNodes(self):
         """
-        ONLY implementd for DnaStrand or DnaSegments. 
+        ONLY implemented for DnaStrand or DnaSegments. 
         """
         
         assy = self.win.assy       
@@ -159,9 +159,7 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
         
         return filter(lambda m:func2(m), lst)
         
-        
-        
-     
+
     def _searchNodesByName(self, nodeList):
         nodeNameString = self.findLineEdit.text() 
         nodeNameString = str(nodeNameString)
@@ -209,8 +207,8 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
         
         self.searchTypeComboBox  = \
             PM_ComboBox( self,
-                         label         =  "Search Type:",
-                         choices       =  ["Node name", "Number of nucleotides"],
+                         label         =  "Search options:",
+                         choices       =  ["By node name", "By # of bases (DNA only)"],
                          setAsDefault  =  True)
         
 
@@ -292,7 +290,7 @@ class SelectNodeByNameDockWidget(PM_DockWidget):
                       ('QSpacerItem', 5, 5, 7) ]
         
         widgetList2 = [
-                      ('QLabel', "     Nucleotides: >=", 1),
+                      ('QLabel', "     Number of bases: >=", 1),
                       ('PM_SpinBox', self._nucleotidesSpinBox_1, 2),
                       ('QLabel', "     <=", 3),
                       ('PM_SpinBox', self._nucleotidesSpinBox_2, 4),

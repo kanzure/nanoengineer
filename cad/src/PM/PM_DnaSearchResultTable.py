@@ -115,7 +115,7 @@ class PM_DnaSearchResultTable(PM_TableWidget):
         #See U{<http://doc.trolltech.com/4.2/qlistwidget.html>} for details
         self.clear()
         
-        seq = ['Node Name', 'Nucleotides']
+        seq = ['Node name', 'Number of bases']
         self.setHorizontalHeaderLabels(seq)
         self.setRowCount(len(items))
         
