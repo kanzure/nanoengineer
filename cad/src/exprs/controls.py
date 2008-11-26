@@ -2,7 +2,7 @@
 """
 controls.py - some simple controls, like ChoiceButton, ChoiceColumn/Row, checkbox_v3
 
-@author: bruce
+@author: Bruce
 @version: $Id$
 @copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -246,8 +246,8 @@ class checkbox_v3(InstanceMacro): ##e rename # note: this can do something check
 ##        # solved: it's probably from above: import Set; from Set import something else but not Set
     _value = Highlightable(
         If( var,
-            checkbox_image('mac_checkbox_on.jpg'),
-            checkbox_image('mac_checkbox_off.jpg'),
+            checkbox_image('mac_checkbox_on.png'),
+            checkbox_image('mac_checkbox_off.png'),
         ),
         ## on_press = Set(var, not_Expr(var) ) # wanted (sort of), but doesn't work yet, as explained here:
             ## AssertionError:... <C_rule_for_formula at 0xff2de10 for 'var' in 'checkbox_v3'> should implement set_for_our_cls
@@ -300,8 +300,8 @@ class checkbox_pref(InstanceMacro):
         ## AssertionError: compute method asked for on non-Instance <PrefsKey_StateRef#47221(a)>
     var = stateref.value
     checkbox = If( var,
-            checkbox_image('mac_checkbox_on.jpg'),
-            checkbox_image('mac_checkbox_off.jpg'),
+            checkbox_image('mac_checkbox_on.png'),
+            checkbox_image('mac_checkbox_off.png'),
         )
     _value = DisplayListChunk( Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
                                ## on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), #070119 debug_evals_of_Expr - worked

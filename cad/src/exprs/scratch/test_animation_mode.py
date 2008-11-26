@@ -98,7 +98,7 @@ _key_command = 16777249
 
 ###TODO:
 
-# works in exprs/test.py: Image("/Users/bruce/Desktop/IMG_0560 clouds1.jpg")
+# works in exprs/test.py: Image("/Users/bruce/Desktop/IMG_0560 clouds1.png")
 # see test_commands.py...
 
 # WARNING: if you have test_animation_mode.py OR test_animation_mode.pyc in cad/src, that one gets imported instead of one in ~/Nanorex/Modes.
@@ -1268,7 +1268,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         if 0:
             expr = Rect() # works
         if 1:
-            expr = Image("/Users/bruce/Desktop/IMG_0560 clouds g5 2.jpg", size = Rect(), two_sided = True)
+            expr = Image("/Users/bruce/Desktop/IMG_0560 clouds g5 2.png", size = Rect(), two_sided = True)
         
         # note: this code is similar to _expr_instance_for_imagename in confirmation_corner.py
         ih = get_glpane_InstanceHolder(glpane)

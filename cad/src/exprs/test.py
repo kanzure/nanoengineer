@@ -1,11 +1,11 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 exprs/test.py - tests of exprs package, accessible from testmode UI;
 also some exprs/testmode support code (which ought to be refiled)
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 #e during devel, see drawtest1_innards for main entry point from testdraw.py
@@ -407,7 +407,7 @@ testexpr_10d = ToggleShow(ToggleShow( Rect(2,3,yellow) )) # works
 
 # Image
 
-blueflake = "blueflake.jpg"
+blueflake = "blueflake.png"
 
 testexpr_11a = Image(courierfile) # works
 testexpr_11a1 = Image("courier-128.png") # works (note: same image)
@@ -516,18 +516,18 @@ testexpr_11pcy2 = imagetest("win_collapse_icon.png", convert = 'RGBA', _tmpmode 
 # more translucent image tests inserted (& finally working after new options added) - 070403; 070404 works with decal = False default
 
 testexpr_11pd1 = Overlay( Closer(DraggableObject(Image("win_collapse_icon.png", convert = 'RGBA', decal = True))),
-                          DraggableObject(Image("blueflake.jpg"))
+                          DraggableObject(Image("blueflake.png"))
                     ) # works, but closer image has no transparency (as expected with decal = True)
 testexpr_11pd2 = Overlay( Closer(DraggableObject(Image("win_collapse_icon.png", convert = 'RGBA', decal = False))),
-                          DraggableObject(Image("blueflake.jpg"))
+                          DraggableObject(Image("blueflake.png"))
                     ) # works, but without blend option being set, still no transparency (expected)
                       # (but does change image bg color from blue (prior test, might be an accident of color setting leakage) to black)
 testexpr_11pd3 = Overlay( Closer(DraggableObject(Image("win_collapse_icon.png", convert = 'RGBA', decal = False, blend = True))),
-                          DraggableObject(Image("blueflake.jpg"))
+                          DraggableObject(Image("blueflake.png"))
                     ) # works, incl transparency after 070403-late changes in image.py,
                       # but translucent image obscures the other one (expected, since drawn first, with depthwrite on)
                       # (fyi, screenshot in 'translucent first+depthwrite.jpg', not in cvs)
-testexpr_11pd4 = Overlay( DraggableObject(Image("blueflake.jpg")),
+testexpr_11pd4 = Overlay( DraggableObject(Image("blueflake.png")),
                           Closer(DraggableObject(Image("win_collapse_icon.png", convert = 'RGBA', decal = False, blend = True))),
                     ) # works, including proper translucency, and (after GL_ALPHA_TEST added) properly not highlightable in fully transparent pixels
                       ###e should add option to turn off depth buffer writing
@@ -553,7 +553,7 @@ def test_translucent_icons(_files, _dir = ""): #e refile into images.py? (along 
     if type(_files) == type(""):
         # permit single file arg [untested, as is _dir = "" with os.path.join]
         _files = [_files]
-    _tmp = DraggableObject(SimpleColumn(Image("blueflake.jpg", size = Rect(5)),
+    _tmp = DraggableObject(SimpleColumn(Image("blueflake.png", size = Rect(5)),
                                         TextRect("drag blueflake under icons to see\n"
                                                  "their translucency over it")),
                            translation = (0,0,0))
@@ -611,10 +611,11 @@ testexpr_11pd7 = DraggableObject( ok_image( _dir1 + "OK_Cancel_TrianglesOutline_
 
 testexpr_11pd8 = DraggableObject( ok_image_2( _dir1 + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = False )) # works
 testexpr_11pd9 = DraggableObject( cancel_image( _dir1 + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = True )) # works (expected grab caveats)
-testexpr_11pd10 = DraggableObject( ok_image( "blueflake.jpg", alpha_test = True, convert = False )) # works (subtri of opaque image)
+testexpr_11pd10 = DraggableObject( ok_image( "blueflake.png", alpha_test = True, convert = False )) # works (subtri of opaque image)
+    # [comment from when this was blueflake.jpg:]
     # tests different native size, jpg not png, perhaps different native format (RGB vs RGBA, don't know), tri coords ok for diff native size,
     # and finding filename in usual way. BTW, with convert = RGBA or RGB has SystemError: unknown raw mode (and message mentions CMYK).
-testexpr_11pd10a = DraggableObject( ok_image( "blueflake.jpg", blend = False, convert = False )) # works (tests tri not needing blend)
+testexpr_11pd10a = DraggableObject( ok_image( "blueflake.png", blend = False, convert = False )) # works (tests tri not needing blend)
 
 # try some images only available on bruce's g4
 
@@ -675,15 +676,15 @@ testexpr_11r1 = Image(blueflake, rescale = False) # works; I can't really tell w
 testexpr_11r1b = Image(blueflake, rescale = False, ideal_width = 512, ideal_height = 512) # works, but note unexpected black border on left
 testexpr_11r1c = SimpleRow(testexpr_11r1, testexpr_11r1b) # works (but not aligned or even at same scale -- hard to compare)
 
-testexpr_11r2 = Image("redblue-34x66.jpg", rescale = False) # works, except the desired image is in upper left corner of black padding,
+testexpr_11r2 = Image("redblue-34x66.png", rescale = False) # works, except the desired image is in upper left corner of black padding,
     # not lower left as expected, and maybe some filtering happened when it pasted,
     # and the black padding itself is destined to be undrawn
     ###BUG that some of that is nim ##e
-testexpr_11r2b = Image("redblue-34x66.jpg") # works (rescaled to wider aspect ratio, like before)
+testexpr_11r2b = Image("redblue-34x66.png") # works (rescaled to wider aspect ratio, like before)
 
-testexpr_11s = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)) # try the new size option [061130] -- works [broken] [works again]
-testexpr_11s1 = Highlightable(Image("blueflake.jpg",size=Rect(7,0.4))) # make sure this fixes mouseover stickiness and sbar text -- works [broken] [works again]
-testexpr_11s2 = Boxed(Image("blueflake.jpg",size=Rect(7,0.4))) # test its lbox -- won't work? coded a fix, but that broke the use of size entirely!! [fixed, works]
+testexpr_11s = Translate(Image("blueflake.png",size=Rect(7,0.4)),(1,0)) # try the new size option [061130] -- works [broken] [works again]
+testexpr_11s1 = Highlightable(Image("blueflake.png",size=Rect(7,0.4))) # make sure this fixes mouseover stickiness and sbar text -- works [broken] [works again]
+testexpr_11s2 = Boxed(Image("blueflake.png",size=Rect(7,0.4))) # test its lbox -- won't work? coded a fix, but that broke the use of size entirely!! [fixed, works]
 
 testexpr_11t = imagetest("storyV3-p31.tiff") # 070222; local to bruce G5 (not in cvs); -- fails, IOError: cannot identify image file
 testexpr_11tx = imagetest("storyV3-p31x.tiff") # different error -- that means _11t finds the file and can't load it -- why?
@@ -738,7 +739,7 @@ testexpr_13x7 = Boxed(PixelGrabber(Rect(1,1,red))) # simpler test -- works, save
 testexpr_13x8 = Boxed(PixelGrabber(SimpleColumn(Rect(1,1,red),Rect(1,1,blue)))) # this also had lbox bug, now i fixed it, now works.
     # It was a simple lbox misunderstanding in PixelGrabber code. [###e maybe it means lbox attr signs are wrongly designed?]
 
-savedimage = "redblue-34x66.jpg"
+savedimage = "redblue-34x66.png"
     ## was "/tmp/PixelGrabber-test.jpg" - use that too but not as a "test" since it's not deterministic;
     ## it'd actually be a "command to see the last PixelGrabber test which saved into the default file"
 testexpr_13z = Boxed(bordercolor=purple)(Image(savedimage)) # works, but aspect ratio wrong -- that's a feature for now...
@@ -828,7 +829,7 @@ testexpr_15b = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = 
 niceargs = dict(background = Rect(3,1,green), background_off = IconImage("espwindow-hide.png"))
 testexpr_15c = ChoiceColumn(6,2, content = TextRect("zz",1,30), **niceargs) # bug more likely at far right end of text, but not consistent
 testexpr_15d = ChoiceColumn(6,2, content = Rect(7,0.3,white), **niceargs) # compare Rect here -- works, reliable except right after click [which is a ###BUG]
-testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image -- works
+testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.png",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image -- works
     # see also _22
 
 # State [061203]
@@ -855,8 +856,8 @@ class checkbox_v1(InstanceMacro):
     var = State(int, 0) #e bool, False?
     _value = Highlightable(
         list_Expr( 
-            checkbox_image('mac_checkbox_off.jpg'),
-            checkbox_image('mac_checkbox_on.jpg'),
+            checkbox_image('mac_checkbox_off.png'),
+            checkbox_image('mac_checkbox_on.png'),
         )[ mod_Expr(var,2) ],
             #e or use If
         on_press = Set(var, mod_Expr(var+1,2) ) #e or use not_Expr
@@ -875,8 +876,8 @@ class checkbox_v2(InstanceMacro):
         # (but i don't know if the arg or option decl can be part of the same decl, unless it's renamed, e.g. StateArg)
     _value = Highlightable(
         If( var,
-            checkbox_image('mac_checkbox_on.jpg'),
-            checkbox_image('mac_checkbox_off.jpg'),
+            checkbox_image('mac_checkbox_on.png'),
+            checkbox_image('mac_checkbox_off.png'),
         ),
         on_press = Set(var, not_Expr(var) )
     )
@@ -1257,7 +1258,7 @@ testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]; works in 
 ##niceargs = dict(background = Rect(3,1,green), background_off = IconImage("espwindow-hide.png"))
 ##testexpr_15c = ChoiceColumn(6,2, content = TextRect("zz",1,30), **niceargs) # bug more likely at far right end of text, but not consistent
 ##testexpr_15d = ChoiceColumn(6,2, content = Rect(7,0.3,white), **niceargs) # compare Rect here -- works, reliable except right after click [which is a ###BUG]
-##testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image -- works
+##testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.png",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image -- works
 
 testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default options are far from perfect)
     # see also kluge_dragtool_state_prefs_default and _19*

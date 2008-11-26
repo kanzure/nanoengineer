@@ -1,8 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 test_statearray_2.py
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 test code for one kind of constrained dragging
 
@@ -11,7 +13,6 @@ used in testexpr_35a in exprs/test.py
 DEPRECATED -- replaced by test_statearray_3.py
 
 """
-__author__ = 'bruce'
 
 # maybe some of these imports are not needed
 
@@ -117,7 +118,7 @@ class _height_dragger(DelegatingInstanceOrExpr):
     drag_handler = Instance( xxx_drag_behavior( _self._delegate, height_ref, Ray(ORIGIN, DX) )) ### DX for initial test, then DZ
         # note: passing _self._delegate (not _self.delegate) fixed my "undiagnosed bug".
     delegate = DraggableObject(
-        Image("blueflake.jpg"), ###e needs an option to be visible from both sides (default True, probably)
+        Image("blueflake.png"), ###e needs an option to be visible from both sides (default True, probably)
 ##        constrain_delta = _self.constrain_delta, ###IMPLEM constrain_delta in DraggableObject
 ##        delta_stateref = height_ref ###IMPLEM delta_stateref [done] (and rename it); and change this to make height_ref a number not vector;
             ##e and maybe include the constraint in that transform, since it seems implicit in it anyway. ####HOW in semantics?
