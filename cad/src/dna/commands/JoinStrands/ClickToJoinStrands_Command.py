@@ -36,7 +36,7 @@ class ClickToJoinStrands_Command(Select_Command):
     # class constants
     
     commandName = 'CLICK_TO_JOIN_STRANDS'
-    featureName = "Click To Join Strands"   
+    featurename = "Click To Join Strands"   
     GraphicsMode_class = ClickToJoinStrands_GraphicsMode     
     
     FlyoutToolbar_class = None    

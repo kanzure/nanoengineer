@@ -386,8 +386,8 @@ class CommandSequencer(object):
         self.exit_is_implicit = implicit
         # set attrs to let command_exit methods construct dialog text, etc
         # (when used along with the other attrs)
-        self.exit_target = exit_target # a commandName, if we're exiting it as a goal ### FIX to featureName?
-        self.enter_target = enter_target # a commandName, if we're entering it as a goal ### FIX to featureName?
+        self.exit_target = exit_target # a commandName, if we're exiting it as a goal ### FIX to featurename?
+        self.enter_target = enter_target # a commandName, if we're entering it as a goal ### FIX to featurename?
         # exit the current command, return whether it worked
         try:
             res = self.currentCommand._f_command_do_exit_if_ok()

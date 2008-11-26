@@ -47,7 +47,7 @@ class JoinStrands_By_DND_RequestCommand(JoinStrands_Command):
     
     command_level = CL_REQUEST
     commandName = 'JoinStrands_By_DND'
-    featureName = 'JoinStrands_By_DND'
+    featurename = 'JoinStrands By DND RequestCommand'
     GraphicsMode_class = JoinStrands_GraphicsMode
     
     
