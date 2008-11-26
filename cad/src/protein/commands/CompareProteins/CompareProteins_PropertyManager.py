@@ -66,7 +66,7 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
-        msg = "Select protein structures to compare."
+        msg = "Select two protein structures to compare."
         self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, isConnect = True):

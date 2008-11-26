@@ -32,7 +32,7 @@ class Peptide_EditCommand(EditCommand):
 
     PM_class = PeptideGeneratorPropertyManager
     
-    cmd              =  greenmsg("Build Peptide: ")
+    cmd              =  greenmsg("Insert Peptide: ")
     prefix           =  'Peptide'   # used for gensym
     cmdname          = 'Build Peptide'
 
@@ -176,6 +176,7 @@ class Peptide_EditCommand(EditCommand):
                                                    pos2, 
                                                    fake_chain=False, 
                                                    secondary=self.secondary)
+        
         self.win.assy.part.topnode.addmember(struct)
         self.win.win_update()
         return struct

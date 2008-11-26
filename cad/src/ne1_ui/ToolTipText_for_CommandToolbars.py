@@ -33,7 +33,26 @@ def toolTipTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.dnaOrigamiAction.setToolTip("Origami")
     commandToolbar.convertDnaAction.setToolTip("Convert DNA")
     commandToolbar.orderDnaAction.setToolTip("Order DNA")
+    commandToolbar.editDnaDisplayStyleAction.setToolTip("Edit DNA Display Style")
         
+    return
+
+def toolTipTextForProteinCommandToolbar(commandToolbar):
+    """
+    "ToolTip" text for the Build Protein Command Toolbar
+    """
+    commandToolbar.modelProteinAction.setToolTip("Model Protein")
+    commandToolbar.simulateProteinAction.setToolTip("Simulate Protein using Rosetta")
+    
+    commandToolbar.buildPeptideAction.setToolTip("Insert Peptide")
+    commandToolbar.editRotamersAction.setToolTip("Edit Rotamers")
+    commandToolbar.compareProteinsAction.setToolTip("Compare Proteins")
+    commandToolbar.displayProteinStyleAction.setToolTip("Edit Protein Display Style")
+    
+    commandToolbar.rosetta_fixedbb_design_Action.setToolTip("Fixed Backbone Protein Sequence Design")
+    commandToolbar.rosetta_backrub_Action.setToolTip("Backrub Motion")
+    commandToolbar.editResiduesAction.setToolTip("Edit Residues")
+    commandToolbar.rosetta_score_Action.setToolTip("Compute Rosetta Score")
     return
 
 def toolTipTextForNanotubeCommandToolbar(commandToolbar):

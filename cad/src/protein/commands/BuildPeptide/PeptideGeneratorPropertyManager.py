@@ -83,7 +83,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
     for the "Build > Peptide" command.
     """
     # The title that appears in the property manager header.
-    title = "Peptide Generator"
+    title = "Insert Peptide"
     # The name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName().
     pmName = title
@@ -99,7 +99,6 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
                
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
-                                PM_PREVIEW_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
         # phi psi angles will define the secondary structure of the peptide chain

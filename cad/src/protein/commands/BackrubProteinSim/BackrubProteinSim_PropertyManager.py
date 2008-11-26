@@ -48,7 +48,7 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
     @type iconPath: str
     """
 
-    title         =  "Protein Sequence Design with Backrub motion"
+    title         =  "Backrub Motion"
     pmName        =  title
     iconPath      = "ui/actions/Simulation/Rosetta.png"
 

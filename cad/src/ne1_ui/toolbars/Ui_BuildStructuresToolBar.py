@@ -25,17 +25,14 @@ def setupUi(win, toolbarArea):
     # Begin with "Builders", then add single shot "Generators".
     win.buildStructuresToolBar.addAction(win.toolsDepositAtomAction)
     win.buildStructuresToolBar.addAction(win.buildDnaAction)   
-    
+    win.buildStructuresToolBar.addAction(win.buildProteinAction)
     win.buildStructuresToolBar.addAction(win.buildNanotubeAction) 
     win.buildStructuresToolBar.addAction(win.buildCrystalAction)
-    
-    win.buildStructuresToolBar.addSeparator() # Generators after this.
-    
-    # This adds the Peptide Generator (piotr 080304)
-    win.buildStructuresToolBar.addAction(win.insertPeptideAction)
     win.buildStructuresToolBar.addAction(win.insertGrapheneAction)
     
     # This adds the Atom Generator example for developers.
+    # It is enabled (displayed) if the "Atom Generator" debug pref is set to True.
+    # Otherwise, it is disabled (hidden) from the UI.
     win.buildStructuresToolBar.addAction(win.insertAtomAction)
 
 def retranslateUi(win):

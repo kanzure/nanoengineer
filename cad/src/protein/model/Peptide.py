@@ -38,11 +38,6 @@ ntEndings = ["Hydrogen", "None"] # "Capped" NIY. "Nitrogen" removed. --mark
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 sqrt3 = 3 ** 0.5
 
-# no longer used:
-##basepath_ok, basepath = find_plugin_dir("Peptide")
-##if not basepath_ok:
-##    env.history.message(orangemsg("The cad/plugins/Peptide directory is missing."))
-
 class Peptide:
     """
     Peptide class. Supports both Carbon Peptides (CNTs) or Boron Nitride

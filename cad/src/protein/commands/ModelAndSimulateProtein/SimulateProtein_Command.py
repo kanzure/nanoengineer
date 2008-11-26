@@ -37,6 +37,6 @@ class SimulateProtein_Command(ModelAndSimulateProtein_Command):
         @see: baseCommand.command_entered() for documentation
         """
         _superclass.command_entered(self)
-        msg = "Select a simulation tool to either design or score "\
-                    "a protein sequence."
+        msg = "Select a Rosetta simulation tool to either design or score "\
+            "a peptide/protein sequence."
         self.propMgr.updateMessage(msg)

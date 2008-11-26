@@ -667,10 +667,10 @@ def setupUi(win):
     win.insertAtomAction.setObjectName("insertAtomAction")
 
     # Peptide Generator, piotr 080304
-    win.insertPeptideAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
-    win.insertPeptideAction.setIcon(
+    win.buildProteinAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
+    win.buildProteinAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Peptide.png"))
-    win.insertPeptideAction.setObjectName("insertPeptideAction")
+    win.buildProteinAction.setObjectName("buildProteinAction")
 
     #== "Tools > Build Tools" (menu and toolbar) widgets.
 
@@ -1783,23 +1783,23 @@ def retranslateUi(win):
     # on the Build Structures toolbar.
     from utilities.GlobalPreferences import ENABLE_PROTEINS
     if ENABLE_PROTEINS:    
-        win.insertPeptideAction.setIconText(QtGui.QApplication.translate(
+        win.buildProteinAction.setIconText(QtGui.QApplication.translate(
             "MainWindow", 
             "Protein", 
             None, 
             QtGui.QApplication.UnicodeUTF8))
-        win.insertPeptideAction.setToolTip(QtGui.QApplication.translate(
+        win.buildProteinAction.setToolTip(QtGui.QApplication.translate(
             "MainWindow", 
             "Build Protein", 
             None, 
             QtGui.QApplication.UnicodeUTF8))
     else:
-        win.insertPeptideAction.setIconText(QtGui.QApplication.translate(
+        win.buildProteinAction.setIconText(QtGui.QApplication.translate(
             "MainWindow", 
             "Peptide", 
             None, 
             QtGui.QApplication.UnicodeUTF8))
-        win.insertPeptideAction.setToolTip(QtGui.QApplication.translate(
+        win.buildProteinAction.setToolTip(QtGui.QApplication.translate(
             "MainWindow", 
             "Generate Peptide", 
             None, 

@@ -48,7 +48,7 @@ class FixedBBProteinSim_PropertyManager(Command_PropertyManager):
     @type iconPath: str
     """
 
-    title         =  "Fixed Backbone Protein Sequence Design"
+    title         =  "Fixed Backbone Design"
     pmName        =  title
     iconPath      = "ui/actions/Simulation/Rosetta.png"
 
@@ -63,8 +63,8 @@ class FixedBBProteinSim_PropertyManager(Command_PropertyManager):
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
-        msg = "Choose various parameters from below to design an optimized" \
-            "protein sequence with Rosetta."
+        msg = "Choose from the various options below to design "\
+            "an optimized <b>fixed backbone protein sequence</b> with Rosetta."
         self.updateMessage(msg)            
         return
     
@@ -223,7 +223,7 @@ class FixedBBProteinSim_PropertyManager(Command_PropertyManager):
         self.otherCommandLineOptions.setFixedHeight(80)
         
         self.okButton = PM_PushButton( pmGroupBox,
-                         text         =  "Run Rosetta",
+                         text         =  "Launch Rosetta",
                          setAsDefault  =  True,
                          spanWidth = True)
         return

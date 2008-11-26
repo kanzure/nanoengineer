@@ -92,23 +92,103 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
     """
     "What's This" text for the Build Protein Command Toolbar
     """
-    commandToolbar.exitProteinAction.setWhatsThis(
+    commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Protein</b>
         <p>
         Exits <b>Build Protein</b>.
         </p>""")
     
+    commandToolbar.modelProteinAction.setWhatsThis(
+        """<b>Model Protein</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/BuildPeptide.png\"><br> 
+        Enter protein modeling mode. Modeling options are displayed to the right
+        in the flyout toolbar.
+        </p>""")
+    
+    commandToolbar.simulateProteinAction.setWhatsThis(
+        """<b>Simulate Protein with Rosetta</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/Simulate.png\"><br> 
+        Enter protein simulation mode using Rosetta. Rosetta is a collection of
+        computational tools for the prediction and design of protein structures 
+        and protein-protein interactions. A subset of Rosetta simulation options
+        are available in NanoEngineer-1, including:
+        <lo>
+        Option 1
+        Option 2
+        </lo>
+        </p>
+        <p><a href=Rosetta_for_NanoEngineer-1> 
+        Click here for more information about Rosetta for NanoEngineer-1</a>
+        </p>""")
+    
     commandToolbar.buildPeptideAction.setWhatsThis(
         """<b>Insert Peptide</b>
         <p>
-        Insert a peptide into the 3D graphics area.
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png\"><br> 
+        Insert a peptide chain by clicking two endpoints 
+        in the 3D graphics area. The user can also specify different
+        conformation options (i.e. Alpha helix, Beta sheet, etc.) in the 
+        property manager.
         </p>""")
+    
+    commandToolbar.editRotamersAction.setWhatsThis(
+        """<b>Edit Rotamers</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/Rotamers.png\"><br> 
+        Edit rotamers in a peptide chain.
+        </p>""")
+    
+    commandToolbar.compareProteinsAction.setWhatsThis(
+        """<b>Compare Proteins</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/Compare.png\"><br> 
+        Select two protein structures and compare them visually.
+        </p>""")
+    
     commandToolbar.displayProteinStyleAction.setWhatsThis(
         """<b>Edit (Protein Display) Style</b>
         <p>
-        Edit the Protein Display Style settings used whenever the <b>Global Display
-        Style</b> is set to <i>Protein</i>.
-        </p>""")   
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/EditProteinDisplayStyle.png\"><br> 
+        Edit the Protein Display Style settings used whenever the 
+        <b>Global Display Style</b> is set to <i>Protein</i>.
+        </p>""")
+    
+    commandToolbar.rosetta_fixedbb_design_Action.setWhatsThis(
+        """<b>Fixed Backbone Protein Sequence Design</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/FixedBackbone.png\"><br> 
+        Design an optimized fixed backbone protein sequence using Rosetta.
+        </p>""")
+    
+    commandToolbar.rosetta_backrub_Action.setWhatsThis(
+        """<b>Backrub Motion</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/Backrub.png\"><br> 
+        Design an optimized backbone protein sequence using Rosetta 
+        with backrub motion allowed.
+        </p>""")
+    
+    commandToolbar.editResiduesAction.setWhatsThis(
+        """<b>Edit Residues</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/Residues.png\"><br> 
+        Provides an interface to edit residues so that Rosetta can predict
+        the optimized sequence of an initial sequence (peptide chain).
+        </p>""")
+    
+    commandToolbar.rosetta_score_Action.setWhatsThis(
+        """<b>Compute Rosetta Score</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/Score.png\"><br> 
+        Produce the Rosetta score, which is useful for predicting errors in a 
+        peptide/protein structure. </p>
+        <p>
+        The Rosetta scoring function is an all-atom force field that focuses 
+        on short-range interactions (i.e., van der Waals packing, hydrogen 
+        bonding and desolvation) while neglecting long-range electrostatics. 
+        </p>""")
     
     return
 
@@ -176,13 +256,15 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.makeCrossoversAction.setWhatsThis(
         """<b>Make Crossovers</b>
         <p>
-        Enters the interative <b>Make Crossovers</b> command.<br>
-        To create crossovers, select the DNA Segments to be searched for 
-        potential crossover sites. The crossover sites get updated as you, 
-        for instance, rotate a DNA segment around its axis or translate it etc. 
-        The crossover sites are shown as transparent green spheres. 
-        Clicking on a white colored cylinder pair (if one exists) in the 
-        3D-Workspace creates that crossover. 
+        Creates crossovers interactively between two or more selected DNA 
+        segments.</p>
+        <p>
+        To create crossovers, select the DNA segments to be searched for 
+        potential crossover sites. Crossover sites, displayed as transparent
+        green spheres on the strands, are updated as you move (rotate or 
+        translate) a DNA segment. After you are finished moving a DNA segment, 
+        crossover sites are shown as a pair of white cylinders.    
+        Clicking on a highlighted crossover site creates the crossover.
         </p>""") 
     
     return

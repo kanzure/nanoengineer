@@ -37,6 +37,7 @@ class ModelProtein_Command(ModelAndSimulateProtein_Command):
         @see: baseCommand.command_entered() for documentation
         """
         _superclass.command_entered(self)
-        msg = "Select a modeling tool to either modify an existing protein "\
-                    "or create a new peptide chain."
+        msg = "Select <b>Insert Peptide</b> to create a peptide chain or "\
+            "select another modeling tool to modify an existing "\
+            "peptide/protein sequence."
         self.propMgr.updateMessage(msg)

@@ -30,7 +30,7 @@ def setupUi(mainWindow):
 # probably needs a retranslateUi to add tooltips too...
 
 def activateProteinFlyout(mainWindow):
-    mainWindow.commandToolbar.updateCommandToolbar(mainWindow.insertPeptideAction, 
+    mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildProteinAction, 
                                                    _theProteinFlyout)
 
 class ProteinFlyout:    
@@ -101,10 +101,10 @@ class ProteinFlyout:
 
         self.buildPeptideAction = NE1_QWidgetAction(parentWidget,
                                                       win = self.win)
-        self.buildPeptideAction.setText("Peptide")
+        self.buildPeptideAction.setText("Insert Peptide")
         self.buildPeptideAction.setCheckable(True)  
         self.buildPeptideAction.setIcon(
-            geticon("ui/actions/Command Toolbar/BuildProtein/Peptide.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png"))
 
         self.editRotamersAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.editRotamersAction.setText("Rotamers")
@@ -204,7 +204,7 @@ class ProteinFlyout:
 
         self.win.commandToolbar.cmdButtonGroup.button(0).setChecked(True)
         #Now update the command toolbar (flyout area)
-        self.win.commandToolbar.updateCommandToolbar(self.win.insertPeptideAction,
+        self.win.commandToolbar.updateCommandToolbar(self.win.buildProteinAction,
                                                      self)
         #self.win.commandToolbar._setControlButtonMenu_in_flyoutToolbar(
                     #self.cmdButtonGroup.checkedId())
@@ -223,7 +223,7 @@ class ProteinFlyout:
         self.resetStateOfActions()
 
         self.connect_or_disconnect_signals(False)    
-        self.win.commandToolbar.updateCommandToolbar(self.win.insertPeptideAction,
+        self.win.commandToolbar.updateCommandToolbar(self.win.buildProteinAction,
                                                      self,
                                                      entering = False)
 

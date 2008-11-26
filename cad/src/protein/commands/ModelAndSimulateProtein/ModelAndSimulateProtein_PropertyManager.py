@@ -37,10 +37,9 @@ class ModelAndSimulateProtein_PropertyManager(EditCommand_PM):
     @type iconPath: str
     """
 
-    title         =  "Model and Simulate Protein"
+    title         =  "Model/Simulate Protein"
     pmName        =  title
-    #change this ico path later
-    iconPath      =  "ui/actions/Tools/Build Structures/Peptide.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildProtein/ModelProtein.png"
 
     def __init__( self, command):
         """
@@ -59,6 +58,7 @@ class ModelAndSimulateProtein_PropertyManager(EditCommand_PM):
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
+        return
         
     def _updateProteinListForShow(self):
         """
@@ -100,8 +100,10 @@ class ModelAndSimulateProtein_PropertyManager(EditCommand_PM):
         env.history.statusbar_msg("")
         self._updateProteinListForShow()
         self._showProteinParametersAndSequenceEditor()
-        EditCommand_PM.show(self)  
-        self.updateMessage()
+        EditCommand_PM.show(self)
+        msg = "Select <b>Insert Peptide</b> to create a peptide chain or "\
+            "select another modeling tool to modify an existing protein."
+        self.updateMessage(msg)
         return
     
     def close(self):
@@ -277,7 +279,7 @@ class ModelAndSimulateProtein_PropertyManager(EditCommand_PM):
         """
         Add the DNA Property Manager group boxes.
         """  
-        self._pmGroupBox1 = PM_GroupBox(self, title = "Parameters")
+        self._pmGroupBox1 = PM_GroupBox(self, title = "Current Peptides")
         self._loadGroupBox1(self._pmGroupBox1)
         return
     
@@ -301,7 +303,7 @@ class ModelAndSimulateProtein_PropertyManager(EditCommand_PM):
         #value in a spinbox does not work otherwise. 
         self.numberOfAASpinBox = \
             PM_SpinBox( pmGroupBox, 
-                        label         =  "Amino Acids:", 
+                        label         =  "Amino acids:", 
                         value         =  0,
                         setAsDefault  =  False,
                         minimum       =  0,

@@ -9,6 +9,9 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_True
 def setupUi(win):
     """
     Populates the "Build Structures" menu, a submenu of the "Tools" menu.
+    
+    @note: This also specifies the default (Build) command toolbar options
+        in the flyout.
 
     @param win: NE1's main window object.
     @type  win: Ui_MainWindow
@@ -18,10 +21,14 @@ def setupUi(win):
     # Start with "Builders", then add single shot "Generators".
     win.buildStructuresMenu.addAction(win.toolsDepositAtomAction)
     win.buildStructuresMenu.addAction(win.buildDnaAction)
-    win.buildStructuresMenu.addAction(win.insertPeptideAction) # piotr 080304
+    win.buildStructuresMenu.addAction(win.buildProteinAction)
     win.buildStructuresMenu.addAction(win.buildNanotubeAction) 
     win.buildStructuresMenu.addAction(win.buildCrystalAction)
     win.buildStructuresMenu.addAction(win.insertGrapheneAction)
+    
+    # This adds the Atom Generator example for developers.
+    # It is enabled (displayed) if the "Atom Generator" debug pref is set to True.
+    # Otherwise, it is disabled (hidden) from the UI.
     win.buildStructuresMenu.addAction(win.insertAtomAction)
     return
     

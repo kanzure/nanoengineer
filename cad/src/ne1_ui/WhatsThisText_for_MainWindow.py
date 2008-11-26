@@ -981,7 +981,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Build DNA</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/DNA.png\"><br> "\
-        "Invokes the interactive DNA Builder."\
+        "Invokes the interactive DNA modeller."\
         "</p>"
 
     win.buildDnaAction.setWhatsThis(buildDnaActionText )
@@ -989,17 +989,14 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
    # Build Peptide
    
-    buildPeptideActionText = \
-        "<u><b>Build Peptide</b></u>"\
+    _text = \
+        "<u><b>Build Protein</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/Tools/Build Structures/Peptide.png\"><br> "\
-        "Displays peptide property manager where peptides can be created from"\
-        " a list of amino acids, click the Preview button "\
-        "located at the top of the Property Manager :<br> "\
-        "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
+        "<img source=\"ui/actions/Tools/Build Structures/Protein.png\"><br> "\
+        "Invokes the interactive protein modeller and simulator."\
         "</p>"
 
-    win.insertPeptideAction.setWhatsThis(buildPeptideActionText )
+    win.buildProteinAction.setWhatsThis( _text )
     
     # POV-Ray Scene
 
@@ -1600,7 +1597,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Build Atoms</b></u><!-- [[Feature:Build Atoms]] -->"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/Atoms.png\"><br> "\
-        "<b>Build Atoms</b> provides an interactive molecular modeler "\
+        "<b>Build Atoms</b> provides an interactive molecular modeller "\
         "that allows the user to easily build molecular structures one "\
         "atom at a time.</p>"
 

@@ -32,7 +32,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         Required action in the 'Control Area' as a reference for this 
         flyout toolbar. See superclass method for documentation and todo note.
         """
-        return self.win.insertPeptideAction
+        return self.win.buildProteinAction
         
     
     def _getExitActionText(self):
@@ -136,7 +136,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.modelProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.modelProteinAction.setText("Model")
         self.modelProteinAction.setIcon(geticon(
-            'ui/actions/Command Toolbar/BuildProtein/Peptide.png'))
+            'ui/actions/Command Toolbar/BuildProtein/ModelProtein.png'))
         self.modelProteinAction.setCheckable(True)
         self.modelProteinAction.setChecked(True)
         self.modelProteinAction.setObjectName('ACTION_MODEL_PROTEINS')
@@ -144,7 +144,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.simulateProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.simulateProteinAction.setText("Simulate")
         self.simulateProteinAction.setIcon(geticon(
-            "ui/actions/Simulation/Rosetta.png"))
+            "ui/actions/Command Toolbar/BuildProtein/Simulate.png"))
         self.simulateProteinAction.setCheckable(True)
         self.simulateProteinAction.setObjectName('ACTION_SIMULATE_PROTEINS')
     
@@ -171,10 +171,10 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         
         self.buildPeptideAction = NE1_QWidgetAction(parentWidget,
                                                       win = self.win)
-        self.buildPeptideAction.setText("Peptide")
+        self.buildPeptideAction.setText("Insert Peptide")
         self.buildPeptideAction.setCheckable(True)  
         self.buildPeptideAction.setIcon(
-            geticon("ui/actions/Command Toolbar/BuildProtein/Peptide.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png"))
 
         self.editRotamersAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.editRotamersAction.setText("Rotamers")
@@ -217,14 +217,14 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.rosetta_fixedbb_design_Action.setText("Fixed BB")
         self.rosetta_fixedbb_design_Action.setCheckable(True)  
         self.rosetta_fixedbb_design_Action.setIcon(
-            geticon("ui/actions/Simulation/Rosetta.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/FixedBackbone.png"))
         
         self.rosetta_backrub_Action = NE1_QWidgetAction(parentWidget,
                                                       win = self.win)
         self.rosetta_backrub_Action.setText("Backrub")
         self.rosetta_backrub_Action.setCheckable(True)  
         self.rosetta_backrub_Action.setIcon(
-            geticon("ui/actions/Simulation/Rosetta.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/Backrub.png"))
 
         self.editResiduesAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.editResiduesAction.setText("Residues")
@@ -237,7 +237,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.rosetta_score_Action.setText("Score")
         self.rosetta_score_Action.setCheckable(True)  
         self.rosetta_score_Action.setIcon(
-            geticon("ui/actions/Simulation/Rosetta.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/Score.png"))
         
         self.subControlActionGroupForSimulateProtein = QActionGroup(parentWidget)
         self.subControlActionGroupForSimulateProtein.setExclusive(True)   
@@ -245,6 +245,22 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.subControlActionGroupForSimulateProtein.addAction(self.rosetta_backrub_Action)
         self.subControlActionGroupForSimulateProtein.addAction(self.editResiduesAction)
         self.subControlActionGroupForSimulateProtein.addAction(self.rosetta_score_Action)
+        return
+    
+    def _addWhatsThisText(self):
+        """
+        Add 'What's This' help text for all actions on toolbar. 
+        """
+        from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForProteinCommandToolbar
+        whatsThisTextForProteinCommandToolbar(self)
+        return
+
+    def _addToolTipText(self):
+        """
+        Add 'Tool tip' help text for all actions on toolbar. 
+        """
+        from ne1_ui.ToolTipText_for_CommandToolbars import toolTipTextForProteinCommandToolbar
+        toolTipTextForProteinCommandToolbar(self)
         return
     
     def connect_or_disconnect_signals(self, isConnect):

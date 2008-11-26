@@ -296,7 +296,7 @@ def setupUi(win):
     #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
     win.connect(win.insertAtomAction,SIGNAL("triggered()"),win.insertAtom)
 
-    win.connect(win.insertPeptideAction,SIGNAL("triggered()"),win.activateProteinTool)
+    win.connect(win.buildProteinAction,SIGNAL("triggered()"),win.activateProteinTool)
 
     QtCore.QObject.connect(win.fileExitAction,
                            QtCore.SIGNAL("activated()"),

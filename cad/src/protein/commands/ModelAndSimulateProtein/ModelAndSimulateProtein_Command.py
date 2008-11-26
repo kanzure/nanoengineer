@@ -46,7 +46,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
         
         @see: baseCommand.command_enter_misc_actions()  for documentation
         """
-        self.w.insertPeptideAction.setChecked(True)
+        self.w.buildProteinAction.setChecked(True)
         return
             
     def command_exit_misc_actions(self):
@@ -55,7 +55,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
         
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        self.w.insertPeptideAction.setChecked(False)  
+        self.w.buildProteinAction.setChecked(False)  
         return   
     
     def getCurrentActiveTool(self):
