@@ -616,6 +616,9 @@ class GLPane(
         @see: self.setWaitCursor()
         @see: self.resetWaitCursor_globalDisplayStyle
         """
+        if self._waitCursor_for_globalDisplayStyleChange:
+            #This avoids setting the wait cursor twice.
+            return
         self._waitCursor_for_globalDisplayStyleChange = True
         self.setWaitCursor()
     
@@ -630,9 +633,10 @@ class GLPane(
         @see: self.setWaitCursor_globalDisplayStyle()
         
         """
+        
         if self._waitCursor_for_globalDisplayStyleChange:
             self.resetWaitCursor()
-        self._waitCursor_for_globalDisplayStyleChange = False
+            self._waitCursor_for_globalDisplayStyleChange = False
             
     
     def setWaitCursor(self):
