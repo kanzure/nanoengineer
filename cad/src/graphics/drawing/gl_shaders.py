@@ -52,7 +52,7 @@ N_CONST_XFORMS = 270  # (Gets CPU bound at 275.  Dunno why.)
 # Used in fine-tuning N_CONST_XFORMS to leave room for other GPU vars and temps.
 # If you increase the complexity of the vertex shader program a little bit, and
 # rendering slows down by 100x, maybe you ran out of room.  Try increasing this.
-VERTEX_SHADER_GPU_VAR_SLACK = 96
+VERTEX_SHADER_GPU_VAR_SLACK = 100
 
 # Turns on a debug info message.
 CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
@@ -128,6 +128,7 @@ from OpenGL.GL.ARB.shader_objects import glGetUniformLocationARB
 from OpenGL.GL.ARB.shader_objects import glGetUniformivARB
 from OpenGL.GL.ARB.shader_objects import glLinkProgramARB
 from OpenGL.GL.ARB.shader_objects import glShaderSourceARB
+from OpenGL.GL.ARB.shader_objects import glUniform1fARB
 from OpenGL.GL.ARB.shader_objects import glUniform1iARB
 from OpenGL.GL.ARB.shader_objects import glUniform3fvARB
 from OpenGL.GL.ARB.shader_objects import glUniform4fvARB
@@ -250,6 +251,16 @@ class GLSphereShaderObject(object):
         wasActive = self.used
         if not wasActive:
             self.use(True)
+            pass
+            
+        # Drawing phase controls glnames-as-color mode.
+        self.draw_for_mouseover = int(
+            glpane.drawing_phase == "glselect_glname_color")
+        glUniform1iARB(self.uniform("draw_for_mouseover"),
+                       self.draw_for_mouseover)
+
+        # Default override_opacity, multiplies the normal color alpha component.
+        glUniform1fARB(self.uniform("override_opacity"), 0.25) #1.0)
 
         # XXX Hook in full NE1 lighting scheme and material settings.
         # Material is [ambient, diffuse, specular, shininess].
@@ -493,11 +504,16 @@ sphereVertSrc = """
 // the eye point to the pixel on the bounding volume surface.
 // 
 // In the fragment shader, the sphere radius comparison is done using these
-// points and vectors.  That is, if the pixel is within the sphere radius of the
-// sphere center point, a depth and normal are calculated as a function of the
-// distance from the center.
+// points and vectors.  That is, if the ray from the eye through the pixel
+// center passes within the sphere radius of the sphere center point, a depth
+// and normal on the sphere surface are calculated as a function of the distance
+// from the center.
 
 // Uniform variables, which are constant inputs for the whole shader execution.
+uniform int draw_for_mouseover; // Use normal color = 0, glname_color = 1.
+uniform int highlight_mode;     // 0=normal, 1=override_color, 2=pattern, 3=halo
+uniform vec4 override_color;
+
 uniform int perspective;        // perspective=1 orthographic=0
 
 uniform int n_transforms;
@@ -512,10 +528,11 @@ uniform int n_transforms;
 #endif
 
 // Attribute variables, which are bound to VBO arrays for each vertex coming in.
-attribute vec4 center_rad;       // Per-vertex sphere center point and radius.
+attribute vec4 center_rad;      // Sphere center point and radius.
 // The following may be set to constants, when no arrays are provided.
-attribute vec4 color;           // Per-vertex sphere color and opacity (RGBA).
+attribute vec4 color;           // Sphere color and opacity (RGBA).
 attribute float transform_id;   // Ignored if zero.  (Attribs can't be ints.)
+attribute vec4 glname_color;    // Mouseover id (glname) as RGBA for drawing.
 
 // Varying outputs, through the pipeline to the fragment (pixel) shader.
 varying vec3 var_vert; // Vertex direction vec; pixel sample vec in frag shader.
@@ -527,8 +544,13 @@ varying vec4 var_basecolor;     // Vertex color, interpolated to pixels.
 void main(void) {
 
   // Fragment (pixel) color will be interpolated from the vertex colors.
-  var_basecolor = color;
-
+  if (draw_for_mouseover == 1)
+    var_basecolor = glname_color;
+  else if (highlight_mode == 1)
+    var_basecolor = override_color;
+  else
+    var_basecolor = color;
+  
   // The center point and radius are combined in one attribute: center_rad.
   vec4 center = vec4(center_rad.xyz, 1.0);
   float radius = center_rad.w;         // per-vertex sphere radius.
@@ -652,6 +674,9 @@ sphereFragSrc = """
 // requires GLSL version 1.10
 #version 110
 
+// Uniform variables, which are constant inputs for the whole shader execution.
+uniform float override_opacity; // Multiplies the normal color alpha component.
+
 // Lighting properties for the material.
 uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
 
@@ -732,6 +757,6 @@ void main(void) {
   float ambient = material[0];
   gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse) +
                         vec3(ambient + specular),
-                      var_basecolor.a);
+                      var_basecolor.a * override_opacity);
 }
 """

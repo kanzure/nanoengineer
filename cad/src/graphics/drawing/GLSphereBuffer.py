@@ -47,20 +47,23 @@ class GLSphereBuffer(GLPrimitiveBuffer):
         self.hunkBuffers += [self.ctrRadHunks]
 
         return
-
-    def addSpheres(self, centers, radii, colors, transform_ids):
+    def addSpheres(self, centers, radii, colors, transform_ids, glnames):
         """
         Sphere centers must be a list of VQT points.
 
-        Lists or single values may be given for the radii, colors, and
-        transform_ids of the spheres.  A single value is replicated for the
-        whole batch.
+        Lists or single values may be given for the attributes of the spheres
+        (radii, colors, transform_ids, and selection glnames).  A single value
+        is replicated for the whole batch.  The lengths of attribute lists must
+        match the center points list.
 
-        Colors are tuples of components: (R, G, B) or (R, G, B, A).
+        radii and colors are required.  Radii are numbers.  Colors are tuples of
+        components: (R, G, B) or (R, G, B, A).
 
         transform_ids may be None for centers in global modeling coordinates.
 
-        The lengths of centers, radii, colors and transform_id lists must match.
+        glnames may be None if mouseover drawing will not be done.  glnames are
+        32-bit integers, allocated sequentially and associated with selected
+        objects in a global object dictionary
 
         The return value is a list of allocated primitive IDs for the spheres.
         """
@@ -89,15 +92,28 @@ class GLSphereBuffer(GLPrimitiveBuffer):
             transform_ids = nSpheres * [transform_ids]
             pass
 
+        if type(glnames) == type([]):
+            assert len(glnames) == nSpheres
+        else:
+            if glnames is None:
+                glnames = 0
+                pass
+            glnames = nSpheres * [glnames]
+            pass
+
         newIDs = self.newPrimitives(nSpheres)
-        for (newID, ctr, radius, color, transform_id) in \
-            zip(newIDs, centers, radii, colors, transform_ids):
+        for (newID, ctr, radius, color, transform_id, glname) in \
+            zip(newIDs, centers, radii, colors, transform_ids, glnames):
 
             # Combine the center and radius into one vertex attribute.
             ctrRad = V(ctr[0], ctr[1], ctr[2], radius)
             self.ctrRadHunks.setData(newID, ctrRad)
             self.colorHunks.setData(newID, color)
             self.transform_id_Hunks.setData(newID, transform_id)
+            # Break the glname into RGBA pixel color components.
+            rgba = (glname >> 24 & 0xff, glname >> 16 & 0xff,
+                    glname >> 8 & 0xff, glname & 0xff)
+            self.glname_color_Hunks.setData(newID, rgba)
             continue
 
         return newIDs

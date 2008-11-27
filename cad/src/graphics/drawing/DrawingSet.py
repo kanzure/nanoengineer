@@ -151,7 +151,7 @@ class DrawingSet:
     # ==
 
     def draw(self, highlighted = False, selected = False,
-             patterning = True, highlight_color = None):
+             patterning = True, highlight_color = None, opacity=1.0):
         """
         Draw the set of CSDLs in the DrawingSet.
         """
@@ -178,7 +178,8 @@ class DrawingSet:
             pass
 
         # Draw the primitives.
-        self.primSet.draw(highlighted, selected, patterning, highlight_color)
+        self.primSet.draw(highlighted, selected,
+                          patterning, highlight_color, opacity)
 
         # Timestamp the drawing event.
         self.drawn = drawing_globals.eventStamp()

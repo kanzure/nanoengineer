@@ -138,14 +138,17 @@ class GLPane_rendering_methods(GLPane_image_methods):
         """
                     
         if TEST_DRAWING:                # See prototype/test_drawing.py .
-            from prototype.test_drawing import test_drawing
+            from prototype.test_drawing import test_drawing, USE_GRAPHICSMODE_DRAW
                 # intentionally redundant with toplevel import [bruce 080930]
-            self.graphicsMode.gm_start_of_paintGL(self)
-            test_drawing(self)
-            self.graphicsMode.gm_end_of_paintGL(self)
-            #Reset the wait cursor for global display style
-            self.resetWaitCursor_globalDisplayStyle()
-            return
+            if USE_GRAPHICSMODE_DRAW:  # Init and continue on if this is set.
+                test_drawing(self, True)
+            else:
+                self.graphicsMode.gm_start_of_paintGL(self)
+                test_drawing(self)
+                self.graphicsMode.gm_end_of_paintGL(self)
+                #Reset the wait cursor for global display style
+                self.resetWaitCursor_globalDisplayStyle()
+                return
         
         self._frustum_planes_available = False
 

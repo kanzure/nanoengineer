@@ -44,31 +44,65 @@ AVAILABLE_TEST_CASES_DICT = {
 AVAILABLE_TEST_CASES_ITEMS = AVAILABLE_TEST_CASES_DICT.items()
 AVAILABLE_TEST_CASES_ITEMS.sort()
 
+# Used for tests with graphicsMode.Draw() from TestGraphics_GraphicsMode.
+USE_GRAPHICSMODE_DRAW = False # Changed to True in cases that use the following.
+def test_Draw(glpane):
+    if first_time:
+        return    # Do nothing during the initial setup script.
+
+    if testCase == 1:
+        test_csdl.draw()
+    elif testCase == 2 or testCase == 5:
+        glColor3i(127, 127, 127)
+        glCallList(test_dl)
+    elif int(testCase) == 3:
+        test_spheres.draw() 
+    elif int(testCase) == 8:
+        shader = drawing_globals.sphereShader
+        shader.configShader(glpane)
+        test_DrawingSet.draw()
+        pass
+    return
+
 # Draw an array of nSpheres x nSpheres, with divider gaps every 10 and 100.
 # 10, 25, 50, 100, 132, 200, 300, 400, 500...
 
 # safe default values for general use.
 # Uncomment one of the overriding assignments below when debugging.
 #testCase = 1; nSpheres = 10; chunkLength = 24
+#testCase = 1; nSpheres = 10; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
 
 #testCase = 1; nSpheres = 132
 #testCase = 8; nSpheres = 50; chunkLength = 24
 #testCase = 8; nSpheres = 132; chunkLength = 24
 
+# 50x50 is okay for either shader spheres, or Display Lists.
 #testCase = 8.1; nSpheres = 50; chunkLength = 24
+testCase = 8.1; nSpheres = 50; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.1; nSpheres = 75; chunkLength = 24
 #testCase = 8.1; nSpheres = 100; chunkLength = 200
 #testCase = 8.1; nSpheres = 100; chunkLength = 50
 ### Hangs initial pass-through version: 8.1/100/24
 ##testCase = 8.1; nSpheres = 100; chunkLength = 24
-testCase = 8.1; nSpheres = 100; chunkLength = 8
+#testCase = 8.1; nSpheres = 100; chunkLength = 8
+#testCase = 8.1; nSpheres = 100; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.1; nSpheres = 132; chunkLength = 200
 #testCase = 8.1; nSpheres = 132; chunkLength = 8
+
+# 132x132 is like one DNAO tile.  Horribly slow on Display Lists.
+##testCase = 8.1; nSpheres = 132; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
+
 #testCase = 8.1; nSpheres = 200; chunkLength = 8
 #testCase = 8.1; nSpheres = 300; chunkLength = 8
 #testCase = 8.1; nSpheres = 400; chunkLength = 8
 #testCase = 8.1; nSpheres = 500; chunkLength = 8
 #testCase = 8.1; nSpheres = 600; chunkLength = 8
+
+#testCase = 8.1; nSpheres = 200; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
+#testCase = 8.1; nSpheres = 300; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
+#testCase = 8.1; nSpheres = 400; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
+#testCase = 8.1; nSpheres = 500; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
+#testCase = 8.1; nSpheres = 600; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
 
 #testCase = 8.2; nSpheres = chunkLength = 10
 #testCase = 8.2; nSpheres = 50; chunkLength = 250
@@ -161,7 +195,7 @@ def delete_caches():
     # Ideally we'd refactor this whole file so each testCase was its own class,
     # with instances containing the cached objects and draw methods.
     global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres, test_DrawingSet
-    global C_array, start_pos
+    global C_array, start_pos, first_time
 
     test_csdl = None
     test_dl = None
@@ -176,6 +210,9 @@ def delete_caches():
     # Start at the lower-left corner, offset so the whole pattern comes
     # up centered on the origin.
     start_pos = V(-(nSpheres-1)/2.0, -(nSpheres-1)/2.0, 0)
+
+    # Enable set-up logic.
+    first_time = True
 
     return
 
@@ -204,7 +241,7 @@ def rainbow(t):
 
 _USE_SHADERS = True # change to false if loading them fails the first time
 
-def test_drawing(glpane):
+def test_drawing(glpane, initOnly=False):
     """
     When TEST_DRAWING is enabled at the start of
     graphics/widgets/GLPane_rendering_methods.py,
@@ -230,18 +267,25 @@ def test_drawing(glpane):
                 raise
             pass
 
-    global start_pos
+    global start_pos, first_time
 
-    glpane.scale = nSpheres * .6
-    glpane._setup_modelview()
-    glpane._setup_projection()
-    ##glpane._compute_frustum_planes()
+    if first_time:
+        # Set up the viewing scale, but then let interactive zooming work.
+        glpane.scale = nSpheres * .6
+        pass
 
-    glClearColor(64.0, 64.0, 64.0, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
-    ##glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
+    # This same function gets called to set up for drawing, and to draw.
+    if not initOnly:
+        glpane._setup_modelview()
+        glpane._setup_projection()
+        ##glpane._compute_frustum_planes()
 
-    glMatrixMode(GL_MODELVIEW)
+        glClearColor(64.0, 64.0, 64.0, 1.0)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
+        ##glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
+
+        glMatrixMode(GL_MODELVIEW)
+        pass
 
     global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres
     global test_DrawingSet
@@ -817,6 +861,11 @@ def test_drawing(glpane):
                 test_DrawingSet = DrawingSet()
                 doTransforms = True
                 pass
+
+            if USE_GRAPHICSMODE_DRAW:
+                print ("Use graphicsMode.Draw for DrawingSet in paintGL.")
+                pass
+
             if doTransforms:
                 # Provide several TransformControls to test separate action.
                 global numTCs, TCs
@@ -833,20 +882,29 @@ def test_drawing(glpane):
                     # Chunking will be visible when transforms are changed.
                     xCoord = centers[0][0] - start_pos[0] # Negate centering X.
                     xPercent = (xCoord / 
-                                (nSpheres + nSpheres/10 + nSpheres/100 - 1 + (nSpheres <= 1)))
+                                (nSpheres + nSpheres/10 +
+                                 nSpheres/100 - 1 + (nSpheres <= 1)))
                     xTenth = int(xPercent * 10 + .5)
                     csdl = ColorSortedDisplayList(TCs[xTenth % numTCs])
                     pass
 
+                # Test selection using the CSDL glname.
+                ColorSorter.pushName(csdl.glname)
                 ColorSorter.start(csdl)
                 for (color, center, radius) in zip(colors, centers, radii):
+                    # Through the ColorSorter to the sphere primitive buffer...
                     drawsphere(color, center, radius, DRAWSPHERE_DETAIL_LEVEL)
                     continue
                 ColorSorter.finish()
+                ColorSorter.popName()
 
                 test_DrawingSet.addCSDL(csdl)
                 return csdl
-            chunkFn = {8: GLSphereBuffer, 8.1: sphereCSDL, 8.2: sphereCSDL}
+            if testCase == 8:
+                chunkFn = GLSphereBuffer
+            else:
+                chunkFn = sphereCSDL
+                pass
 
             test_spheres = []
             radius = .5
@@ -868,7 +926,7 @@ def test_drawing(glpane):
                     # Put out short chunk buffers.
                     if len(centers) >= chunkLength:
                         test_spheres += [
-                            chunkFn[testCase](centers, radii, colors) ]
+                            chunkFn(centers, radii, colors) ]
                         centers = []
                         radii = []
                         colors = []
@@ -876,11 +934,11 @@ def test_drawing(glpane):
                 continue
             # Remainder fraction buffer.
             if len(centers):
-                test_spheres += [chunkFn[testCase](centers, radii, colors)]
+                test_spheres += [chunkFn(centers, radii, colors)]
                 pass
             print "%d chunk buffers" % len(test_spheres)
             pass
-        else: # Run.
+        elif not initOnly: # Run.
             shader = drawing_globals.sphereShader
             shader.configShader(glpane)
             if testCase == 8:
@@ -905,8 +963,11 @@ def test_drawing(glpane):
             pass
         pass
 
-    glMatrixMode(GL_MODELVIEW)
-    glFlush()
-    
+    if not initOnly:
+        glMatrixMode(GL_MODELVIEW)
+        glFlush()
+        pass
+
+    first_time = False
     return
 

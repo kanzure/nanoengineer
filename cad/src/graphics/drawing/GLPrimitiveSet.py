@@ -81,26 +81,33 @@ class GLPrimitiveSet:
         return
 
     def draw(self, highlighted = False, selected = False,
-             patterning = True, highlight_color = None):
+             patterning = True, highlight_color = None, opacity = 1.0):
         """
         Draw the cached display.
         """
-        # Generate and cache index lists for selective drawing of primitives
-        # through glMultiDrawElements().
-        spheres = drawing_globals.spherePrimitives
-        if len(self.primitives) > 0:
-            if True: # False  ## True for indexed drawing, False for unindexed.
-                if self.drawIndex is None:
-                    self.drawIndex = spheres.makeDrawIndex(self.primitives)
+        # Draw primitives from CSDLs through shaders, if that's turned on.
+        if drawing_globals.use_batched_primitive_shaders_pref:
+            spheres = drawing_globals.spherePrimitives
+            if len(self.primitives) > 0:
+
+                if True: # False  ## True for indexed drawing, False unindexed.
+                    # Generate and cache index lists for selective drawing of
+                    # primitives through glMultiDrawElements().
+                    if self.drawIndex is None:
+                        self.drawIndex = spheres.makeDrawIndex(self.primitives)
+                        pass
+                    # With a drawIndex, draw calls glMultiDrawElements().
+                    spheres.draw(self.drawIndex, highlighted, selected,
+                              patterning, highlight_color, opacity)
+                else:
+                    # (For initial testing.)  Here GLPrimitiveBuffer draws the
+                    # entire set of sphere primitives using glDrawElements().
+                    spheres.draw()
                     pass
-                spheres.draw(self.drawIndex)
-            else:
-                # For initial testing, GLPrimitiveBuffer draws the whole set of
-                # sphere primitives using glDrawElements().
-                spheres.draw()
                 pass
             pass
 
+        # Draw CSDLs with Display Lists in them.
         # Put TransformControl matrices onto the GL matrix stack if present.
         # Does nothing if the TransformControls all have a tranform of None.
         # (Pushing/popping could be minimized by sorting the cached CSDL's.)
@@ -123,7 +130,6 @@ class GLPrimitiveSet:
                 pushed = False
                 pass
             lastTC = tc
-
 
             csdl.draw(highlighted, selected, patterning, highlight_color)
             continue

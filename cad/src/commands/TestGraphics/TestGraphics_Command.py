@@ -18,7 +18,7 @@ from utilities.debug import register_debug_menu_command
 import graphics.widgets.GLPane_rendering_methods as GLPane_rendering_methods
 import prototype.test_drawing as test_drawing
 
-from prototype.test_drawing import AVAILABLE_TEST_CASES_ITEMS
+from prototype.test_drawing import AVAILABLE_TEST_CASES_ITEMS, test_Draw
 
 import foundation.env as env
 
@@ -81,6 +81,11 @@ class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
 ##        # finally, delegate to parentCommand version
 ##        self.parentGraphicsMode.gm_start_of_paintGL(glpane)
         _superclass_GM.gm_start_of_paintGL(self, glpane)
+        return
+
+    # Redirect Draw to test_drawing.
+    def Draw(self):
+        test_Draw(self.glpane)
         return
 
 # maybe we'll revise superclass and do this:

@@ -136,6 +136,11 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
             pass
         # Russ 080915]
 
+        # Russ 081122: Mark CSDLs with a glname for selection.
+        self.glname = env._shared_glselect_name_dict.\
+                      alloc_my_glselect_name(self)
+        self.glname = 0x12345678 ###
+
         self.clear()
 
         # Whether to draw in the selection over-ride color.
@@ -200,14 +205,14 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         self.spheres = []
         return
         
-    def addSphere(self, center, radius, color, transform_id):
+    def addSphere(self, center, radius, color, transform_id, glname):
         """
         Allocate a sphere primitive and add its ID to the sphere list.
         color is a list of components: [R, G, B].
         transform_id may be None.
         """
         self.spheres += drawing_globals.spherePrimitives.addSpheres(
-            [center], radius, color, self.transform_id())
+            [center], radius, color, self.transform_id(), glname)
         return
     
     # ==
@@ -574,7 +579,9 @@ class ColorSorter:
                 # them down through the ColorSorter schedule methods into DLs.
                 ColorSorter.parent_csdl.addSphere(
                     pos, radius, lcolor,
-                    ColorSorter.parent_csdl.transform_id())
+                    ColorSorter.parent_csdl.transform_id(),
+                    # Mouseover glnames come from ColorSorter.pushName() .
+                    ColorSorter._gl_name_stack[-1])
             else:
                 ColorSorter.schedule(
                     lcolor, worker, (pos, radius, detailLevel, testloop))

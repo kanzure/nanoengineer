@@ -190,9 +190,11 @@ class GLPrimitiveBuffer(object):
         # Common per-vertex attribute hunk VBOs for all primitive types.
         # (The hunkVertVBO and hunkIndexIBO are shared by all hunks.)
         self.colorHunks = HunkBuffer("color", self.nVertices, 4)
+        self.glname_color_Hunks = HunkBuffer("glname_color", self.nVertices, 4)
         self.transform_id_Hunks = HunkBuffer("transform_id", self.nVertices, 1)
         # Subclasses may add their own attributes to the hunkBuffers list.
-        self.hunkBuffers = [self.colorHunks, self.transform_id_Hunks]
+        self.hunkBuffers = [self.colorHunks, self.glname_color_Hunks,
+                            self.transform_id_Hunks]
 
         # Support for lazily updating drawing caches, namely a timestamp showing
         # when this GLPrimitiveBuffer was last flushed to graphics card RAM.
@@ -314,7 +316,8 @@ class GLPrimitiveBuffer(object):
                                                dtype=numpy.uint32)
         return
 
-    def draw(self, drawIndex = None):
+    def draw(self, drawIndex = None, highlighted = False, selected = False,
+             patterning = True, highlight_color = None, opacity = 1.0):
         """
         Draw the buffered geometry, binding vertex attribute values for the
         shaders.
