@@ -13,6 +13,8 @@ from PM.PM_PushButton import PM_PushButton
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 
+from dna.model.DnaStrand import DnaStrand
+
 from command_support.Command_PropertyManager import Command_PropertyManager
 
 _superclass = Command_PropertyManager
@@ -21,7 +23,7 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
     Provides a Property Manager for the B{Convert Dna} command. 
     """
     
-    title         =  "Convert Dna"
+    title         =  "Convert DNA"
     pmName        =  title
     iconPath      =  "ui/actions/Command Toolbar/BuildDna/ConvertDna.png"
     
@@ -63,11 +65,48 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
                       ##self.update_includeStrands )
         return
     
+    # Ask Bruce where this should live (i.e. class Part?) --Mark
+    # This method was copied from OrderDna_PropertyManager.py
+    def _getAllDnaStrands(self, selectedOnly = False):
+        """
+        Returns a list of all the DNA strands in the current part, or only
+        the selected strands if I{selectedOnly} is True.
+        
+        @param selectedOnly: If True, return only the selected DNA strands.
+        @type  selectedOnly: bool
+        """
+        
+        dnaStrandList = []
+         
+        def func(node):
+            if isinstance(node, DnaStrand):
+                if selectedOnly:
+                    if node.picked:
+                        dnaStrandList.append(node)
+                else:
+                    dnaStrandList.append(node)
+                    
+        self.win.assy.part.topnode.apply2all(func)
+        
+        return dnaStrandList
+    
     def _convertDna(self):
+        
+        _dnaStrandList = []
+        _dnaStrandList = self._getAllDnaStrands(selectedOnly = True)
+        
+        if not _dnaStrandList:
+            msg = "<font color=red>" \
+                "Nothing converted since no DNA strands are currently selected."
+            self.updateMessage(msg)
+            return
+            
         if self._convertChoiceComboBox.currentIndex() == 0:
             self._convertPAM3ToPAM5()
         else:
             self._convertPAM5ToPAM3()
+            
+        self.updateMessage()
         return
             
     def _convertPAM3ToPAM5(self):
@@ -82,7 +121,7 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
         """
         Add the Property Manager group boxes.
         """        
-        self._pmGroupBox1 = PM_GroupBox( self, title = "Options" )
+        self._pmGroupBox1 = PM_GroupBox( self, title = "Conversion Options" )
         self._loadGroupBox1( self._pmGroupBox1 )
         return
     
@@ -91,20 +130,21 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
         Load widgets in group box.
         """
         
-        convertChoices = ["PAM3 to PAM5",
-                        "PAM5 to PAM3"]
+        convertChoices = ["Convert from PAM3 to PAM5",
+                        "Convert from PAM5 to PAM3"]
         
         self._convertChoiceComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Convert options:", 
+                         label         =  "", 
                          choices       =  convertChoices,
                          index         =  0,
-                         setAsDefault  =  True)
+                         setAsDefault  =  True,
+                         spanWidth     =  True)
         
         self._convertButton = \
             PM_PushButton( pmGroupBox,
                            label     = "",
-                           text      = "Convert Now",
+                           text      = "Convert Selection Now",
                            spanWidth = True)
         return
     
@@ -120,14 +160,23 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
         """
         pass
     
+    def show(self):
+        """
+        Show this property manager. Overrides EditCommand_PM.show()
+        We need this here to force the message update whenever we show the PM
+        since an old message might still be there.
+        """
+        _superclass.show(self)
+        self.updateMessage()
+    
     def updateMessage(self, msg = ''):
         """
         
         """
         if not msg:
-            msg = "To contert DNA, select the DNA you want to convert and "\
-                " press the <b>Convert Now</b> button."
-                
+            msg = "Select the DNA you want to convert, then select the appropriate "\
+                "conversion option and press the <b>Convert Selection Now</b> button."
+            
         _superclass.updateMessage(self, msg)
         return
     
