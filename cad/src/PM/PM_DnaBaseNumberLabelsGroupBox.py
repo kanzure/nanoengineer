@@ -36,7 +36,7 @@ class PM_DnaBaseNumberLabelsGroupBox(PM_GroupBox):
     def __init__(self, 
                  parentWidget, 
                  command,
-                 title = 'Base number labels' ):
+                 title = 'Base Number Labels' ):
         """
         """
         

@@ -111,7 +111,7 @@ class OrderDna_PropertyManager(Command_PropertyManager):
 
     title         =  "Order Dna"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/Order_DNA.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildDna/OrderDna.png"
     
     def __init__( self, command ):
         """

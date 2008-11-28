@@ -320,7 +320,7 @@ class DnaDisplayStyle_PropertyManager( Command_PropertyManager):
 
     title         =  "Edit DNA Display Style"
     pmName        =  title
-    iconPath      =  "ui/actions/Edit/EditDnaDisplayStyle.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildDna/EditDnaDisplayStyle.png"
 
 
     def __init__( self, command ):
@@ -492,7 +492,7 @@ class DnaDisplayStyle_PropertyManager( Command_PropertyManager):
         self._loadGroupBox1( self._pmGroupBox1 )
 
         self._pmGroupBox2 = PM_GroupBox( self,
-                                         title = "Current display settings")
+                                         title = "Current Display Settings")
         self._loadGroupBox2( self._pmGroupBox2 )
 
     def _loadGroupBox1(self, pmGroupBox):

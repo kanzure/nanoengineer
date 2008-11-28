@@ -61,7 +61,7 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
 
     title         =  "Join Strands"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/Join_Strands.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildDna/JoinStrands.png"
     
     def __init__( self, command ):
         """
@@ -110,9 +110,9 @@ class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
         """                  
         self._joinOptionsGroupBox = PM_GroupBox(self, title = "Join Options")
         self._loadJoinOptionsGroupbox(self._joinOptionsGroupBox)
-        self._displayOptionsGroupBox = PM_GroupBox( self, title = "Display options" )
+        self._displayOptionsGroupBox = PM_GroupBox( self, title = "Display Options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox ) 
-        self._baseNumberLabelGroupBox = PM_GroupBox( self, title = "Base number labels" )
+        self._baseNumberLabelGroupBox = PM_GroupBox( self, title = "Base Number Labels" )
         self._loadBaseNumberLabelGroupBox(self._baseNumberLabelGroupBox)
         
         

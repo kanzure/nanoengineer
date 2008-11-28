@@ -76,7 +76,7 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
 
     title         =  "Break Strands"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/Break_Strand.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildDna/BreakStrand.png"
     
     
     def __init__( self, command ):
@@ -199,10 +199,10 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         self._loadBreakOptionsGroupbox( self._breakOptionsGroupbox )
         
          
-        self._displayOptionsGroupBox = PM_GroupBox( self, title = "Display options" )
+        self._displayOptionsGroupBox = PM_GroupBox( self, title = "Display Options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
         
-        self._baseNumberLabelGroupBox = PM_GroupBox( self, title = "Base number labels" )
+        self._baseNumberLabelGroupBox = PM_GroupBox( self, title = "Base Number Labels" )
         self._loadBaseNumberLabelGroupBox(self._baseNumberLabelGroupBox)
         
             

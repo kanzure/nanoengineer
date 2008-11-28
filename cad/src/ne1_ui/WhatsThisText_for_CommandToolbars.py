@@ -101,7 +101,7 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
     commandToolbar.modelProteinAction.setWhatsThis(
         """<b>Model Protein</b>
         <p>
-        <img source=\"ui/actions/Command Toolbar/BuildProtein/BuildPeptide.png\"><br> 
+        <img source=\"ui/actions/Command Toolbar/BuildProtein/ModelProtein.png\"><br> 
         Enter protein modeling mode. Modeling options are displayed to the right
         in the flyout toolbar.
         </p>""")
@@ -152,7 +152,7 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
         <p>
         <img source=\"ui/actions/Command Toolbar/BuildProtein/EditProteinDisplayStyle.png\"><br> 
         Edit the Protein Display Style settings used whenever the 
-        <b>Global Display Style</b> is set to <i>Protein</i>.
+        <b>Global Display Style</b> is set to <b>Protein</b>.
         </p>""")
     
     commandToolbar.rosetta_fixedbb_design_Action.setWhatsThis(
@@ -206,65 +206,108 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.dnaDuplexAction.setWhatsThis(
         """<b>Insert DNA</b>
         <p>
-        Insert a double stranded (ds) DNA helix by clicking two
-        points in the 3D graphics area.
+        <img source=\"ui/actions/Command Toolbar/BuildDna/InsertDna.png\"><br>
+        Insert a DNA duplex by clicking two endpoints in the graphics area.
         </p>""")
     
     commandToolbar.breakStrandAction.setWhatsThis(
         """<b>Break Strands</b>
         <p>
-        Enters Break Strand Mode where left clicking on a bond between DNA
-        pseudo-atoms breaks the bond. 
+        <img source=\"ui/actions/Command Toolbar/BuildDna/BreakStrand.png\"><br>
+        This command provides an interactive mode where the user can 
+        break strands by clicking on a bond in a DNA strand. </p>
+        <p>
+        You can also join strands while in this command by dragging and 
+        dropping strand arrow heads onto their strand conjugate 
+        (i.e. 3' on to 5' and vice versa). </p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> Changing the <b>Global display style</b> to <b>CPK</b>  
+        results in faster interactive graphics while in this command.
         </p>""")
+    
     commandToolbar.joinStrandsAction.setWhatsThis(
         """<b>Join Strands</b>
         <p>
-        Enters Join Strand Mode where strands may be joined by dragging and 
-        dropping strand arrow heads on to their strand conjugate i.e. 3' on to
-        5' and vice versa. 
-        </p>""")
-    commandToolbar.dnaOrigamiAction.setWhatsThis(
-        """<b>Origami</b>
+        <img source=\"ui/actions/Command Toolbar/BuildDna/JoinStrands.png\"><br>
+        This command provides an interactive mode where the user can
+        join strands by dragging and dropping strand arrow heads onto their 
+        strand conjugate (i.e. 3' on to 5' and vice versa). </p>
         <p>
-        Enters DNA Origami mode- currently not implemented 
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> Changing the <b>Global display style</b> to <b>CPK</b>  
+        results in faster interactive graphics while in this command.
         </p>""")
     
     commandToolbar.convertDnaAction.setWhatsThis(
         """<b>Convert DNA </b>
         <p>
-        Converts the selected DNA from PAM3 to PAM5 or PAM5 to PAM3.
+        <img source=\"ui/actions/Command Toolbar/BuildDna/ConvertDna.png\"><br>
+        Converts the selected DNA from PAM3 to PAM5 or PAM5 to PAM3. The only
+        reason to convert to PAM5 is to get more accurate minimizations of DNA 
+        nanostructures.</p>
+        <p>
+        Here is the protocol for producing more accurate minimizations:<br>
+        1. Make sure the current model is saved.
+        2. Select <b>File > Save As...</b> to save the model under a new name (i.e. <i>model_name</i>_minimized).<br>
+        3. Select <b>Build > DNA > Convert</b> to convert the entire model from PAM3 to PAM5.<br>
+        4. Select <b>Tools > Minimize Energy</b>.<br>
+        5. In the Minimize Energy dialog, select <b>GROMACS with ND1 force field</b> as the Physics engine.<br>
+        6. Click the <b>Minimize Energy</b> button.<br>
+        7. After minimize completes, convert from PAM5 to PAM3.</p>
+        <p>
+        Next, visually inspect the model for structural distortions such as 
+        puckering, warping, or other unwanted strained areas that will require 
+        model changes to correct. Model changes should be made in a version
+        of the model that hasn't been minimized. You can either click
+        <b>Edit > Undo</b> or save this model and reopen the previous 
+        version.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> Changing the <b>Global display style</b> to <b>CPK</b> or 
+        <b>DNA Cylinder</b> may make the model easier to visually inspect.</p>
+        <p>
+        <a href=PAM3_and_PAM5_Model_Descriptions>Click here for a technical 
+        overview of the NanoEngineer-1 PAM3 and PAM5 reduced models.</a>
         </p>""")
-    
-    
     
     commandToolbar.orderDnaAction.setWhatsThis(
         """<b>Order DNA</b>
         <p>
-        Produces a text file containing the DNA strands and their assigned base
-        pair sequences for the all strands in the <b>selected</b> node. 
+        <img source=\"ui/actions/Command Toolbar/BuildDna/OrderDna.png\"><br>
+        Produces a comma-separated value (.CSV) text file containing all  
+        DNA strand sequences in the model.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> This file can be used to order 
+        oligos from suppliers of custom oligonucleotides such as 
+        Integrated DNA Technologies and Gene Link.
         </p>""")
         
     commandToolbar.editDnaDisplayStyleAction.setWhatsThis(
         """<b>Edit (DNA Display) Style</b>
         <p>
+        <img source=\"ui/actions/Command Toolbar/BuildDna/EditDnaDisplayStyle.png\"><br>
         Edit the DNA Display Style settings used whenever the <b>Global Display
-        Style</b> is set to <i>DNA Cylinder</i>. These settings also apply
+        Style</b> is set to <b>DNA Cylinder</b>. These settings also apply
         to DNA strands and segments that have had their display style set
-        to <i>DNA Cylinder</i>.
+        to <b>DNA Cylinder</b>.
         </p>""")    
     
     commandToolbar.makeCrossoversAction.setWhatsThis(
         """<b>Make Crossovers</b>
         <p>
+        <img source=\"ui/actions/Command Toolbar/BuildDna/MakeCrossovers.png\"><br>
         Creates crossovers interactively between two or more selected DNA 
         segments.</p>
         <p>
         To create crossovers, select the DNA segments to be searched for 
-        potential crossover sites. Crossover sites, displayed as transparent
-        green spheres on the strands, are updated as you move (rotate or 
+        potential crossover sites. Transparent green spheres indicating 
+        potential crossover sites are displayed as you move (rotate or 
         translate) a DNA segment. After you are finished moving a DNA segment, 
-        crossover sites are shown as a pair of white cylinders.    
-        Clicking on a highlighted crossover site creates the crossover.
+        crossover sites are displayed as a pair of white cylinders that can 
+        be highlighted/selected. Clicking on a highlighted crossover site 
+        makes a crossover.
         </p>""") 
     
     return

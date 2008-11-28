@@ -90,28 +90,28 @@ class DnaFlyout(Ui_AbstractFlyout):
         self.dnaDuplexAction.setText("Insert DNA")
         self.dnaDuplexAction.setCheckable(True)        
         self.dnaDuplexAction.setIcon(
-            geticon("ui/actions/Tools/Build Structures/InsertDsDna.png"))
+            geticon("ui/actions/Command Toolbar/BuildDna/InsertDna.png"))
         
         self.breakStrandAction = NE1_QWidgetAction(parentWidget,
                                                    win = self.win)
         self.breakStrandAction.setText("Break Strand")
         self.breakStrandAction.setCheckable(True)        
         self.breakStrandAction.setIcon(
-            geticon("ui/actions/Command Toolbar/Break_Strand.png"))
+            geticon("ui/actions/Command Toolbar/BuildDna/BreakStrand.png"))
         
         self.joinStrandsAction = NE1_QWidgetAction(parentWidget,
                                                    win = self.win)
         self.joinStrandsAction.setText("Join Strands")
         self.joinStrandsAction.setCheckable(True)        
         self.joinStrandsAction.setIcon(
-            geticon("ui/actions/Command Toolbar/Join_Strands.png"))
+            geticon("ui/actions/Command Toolbar/BuildDna/JoinStrands.png"))
         
         self.makeCrossoversAction = NE1_QWidgetAction(parentWidget,
                                                       win = self.win)
         self.makeCrossoversAction.setText("Crossovers")
         self.makeCrossoversAction.setCheckable(True)        
         self.makeCrossoversAction.setIcon(
-            geticon("ui/actions/Command Toolbar/Crossover.png"))
+            geticon("ui/actions/Command Toolbar/BuildDna/MakeCrossovers.png"))
 
         self.dnaOrigamiAction = NE1_QWidgetAction(parentWidget,
                                                   win = self.win)
@@ -121,22 +121,22 @@ class DnaFlyout(Ui_AbstractFlyout):
         
         self.convertDnaAction = NE1_QWidgetAction(parentWidget,
                                                       win = self.win)
-        self.convertDnaAction.setText("Convert DNA")
+        self.convertDnaAction.setText("Convert")
         self.convertDnaAction.setIcon(
-            geticon("ui/actions/Command Toolbar/Convert3to5.png"))
+            geticon("ui/actions/Command Toolbar/BuildDna/ConvertDna.png"))
         
         self.orderDnaAction = NE1_QWidgetAction(parentWidget,
                                                 win = self.win)
         self.orderDnaAction.setText("Order DNA")
         self.orderDnaAction.setIcon(
-            geticon("ui/actions/Command Toolbar/Order_DNA.png"))
+            geticon("ui/actions/Command Toolbar/BuildDna/OrderDna.png"))
         
         self.editDnaDisplayStyleAction = NE1_QWidgetAction(parentWidget,
                                                            win = self.win)
         self.editDnaDisplayStyleAction.setText("Edit Style")
         self.editDnaDisplayStyleAction.setCheckable(True)        
         self.editDnaDisplayStyleAction.setIcon(
-            geticon("ui/actions/Edit/EditDnaDisplayStyle.png"))
+            geticon("ui/actions/Command Toolbar/BuildDna/EditDnaDisplayStyle.png"))
         
         self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
         self.subControlActionGroup.setExclusive(False)   

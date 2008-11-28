@@ -73,7 +73,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
 
     title         =  "Insert DNA"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/InsertDsDna.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildDna/InsertDna.png"
 
     def __init__( self, command ):
         """

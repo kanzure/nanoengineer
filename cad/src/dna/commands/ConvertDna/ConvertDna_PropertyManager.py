@@ -23,7 +23,7 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
     
     title         =  "Convert Dna"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/Convert3to5.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildDna/ConvertDna.png"
     
     def __init__( self, command ):
         """
@@ -98,14 +98,13 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
             PM_ComboBox( pmGroupBox,
                          label         =  "Convert options:", 
                          choices       =  convertChoices,
+                         index         =  0,
                          setAsDefault  =  True)
         
-        
-                
         self._convertButton = \
             PM_PushButton( pmGroupBox,
                            label     = "",
-                           text      = "Convert now",
+                           text      = "Convert Now",
                            spanWidth = True)
         return
     
@@ -127,7 +126,7 @@ class ConvertDna_PropertyManager(Command_PropertyManager):
         """
         if not msg:
             msg = "To contert DNA, select the DNA you want to convert and "\
-                " press the <b>Convert now</b> button."
+                " press the <b>Convert Now</b> button."
                 
         _superclass.updateMessage(self, msg)
         return

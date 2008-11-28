@@ -46,8 +46,9 @@ class GrapheneGeneratorPropertyManager(EditCommand_PM):
         """
         _superclass.__init__( self, command )
                
-        msg = "Edit the Graphene sheet parameters and select <b>Preview</b> to" \
-            "preview the structure. Click <b>Done</b> to insert it into the model."
+        msg = "Edit the parameters below and click the <b>Preview</b> "\
+            "button to preview the graphene sheet. Clicking <b>Done</b> "\
+            "inserts it into the model."
         
         self.updateMessage(msg = msg)
         

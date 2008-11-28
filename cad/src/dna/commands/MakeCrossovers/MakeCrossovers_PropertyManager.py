@@ -58,7 +58,7 @@ class MakeCrossovers_PropertyManager( Command_PropertyManager,
 
     title         =  "Make Crossovers"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/Crossover.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildDna/MakeCrossovers.png"
 
 
     def __init__( self, command):
@@ -157,7 +157,7 @@ class MakeCrossovers_PropertyManager( Command_PropertyManager,
         """
         Add the Property Manager group boxes.
         """        
-        self._pmGroupBox1 = PM_GroupBox( self, title = "Segments for crossover search" )
+        self._pmGroupBox1 = PM_GroupBox( self, title = "Segments for Crossover Search" )
         self._loadGroupBox1( self._pmGroupBox1 )
 
 
