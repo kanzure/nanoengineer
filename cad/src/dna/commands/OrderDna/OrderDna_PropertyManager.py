@@ -109,7 +109,7 @@ class OrderDna_PropertyManager(Command_PropertyManager):
     @type iconPath: str
     """
 
-    title         =  "Order Dna"
+    title         =  "Order DNA"
     pmName        =  title
     iconPath      =  "ui/actions/Command Toolbar/BuildDna/OrderDna.png"
     
