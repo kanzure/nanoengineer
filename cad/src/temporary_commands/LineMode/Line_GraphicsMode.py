@@ -38,6 +38,7 @@ from utilities.prefs_constants import cursorTextFontSize_prefs_key
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
 
+
 # == GraphicsMode part
 
 _superclass_for_GM = Select_GraphicsMode
@@ -428,14 +429,23 @@ class Line_GraphicsMode( Select_GraphicsMode ):
                 self.endPoint2)            
         else:
             vec = self.endPoint2 - self.endPoint1
-            theta = self.glpane.get_angle_made_with_screen_right(vec)
+            thetaString = self._getCursorText_angle(vec)
             dist = vlen(vec)
-            self.text = "%5.2fA, %5.2f deg"%(dist, theta)
+            self.text = "%5.2fA, %s"%(dist, thetaString)
 
         self.glpane.renderTextNearCursor(self.text, 
                                          textColor = textColor,
                                          fontSize = env.prefs[cursorTextFontSize_prefs_key])
 
+    def _getCursorText_angle(self, vec):
+        """
+        Subclasses may override this method. 
+        @see: self._drawCursorText() for details. 
+        """
+        thetaString = ''                  
+        theta = self.glpane.get_angle_made_with_screen_right(vec) 
+        thetaString = "%5.2f deg"%(theta)
+        return thetaString
 
     def leftUp(self, event):
         """

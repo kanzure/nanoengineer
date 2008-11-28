@@ -21,26 +21,59 @@ from model.chem import Atom # for isinstance check as of 2008-04-17
 
 from geometry.VQT import cross, norm, Q
 from Numeric import dot
+import math
+from graphics.drawing.CS_draw_primitives import drawline
+from utilities.constants import black
 
-from utilities.debug import print_compact_stack
+from utilities.debug import print_compact_stack, print_compact_traceback
+
+PI = 3.141593
 
 _superclass_for_GM = Line_GraphicsMode
 
 class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 
-    pivotAtom = None
+    pivotPoint = None
 
     def Enter_GraphicsMode(self):
         #TODO: use this more widely,  than calling grapicsMode.resetVariables
         #in command.restore_GUI. Need changes in superclasses etc
         #-- Ninad 2008-04-17
         self.resetVariables() # For safety
+        
+    def Draw(self):
+        """
+        Draw method for this temporary mode. 
+        """
+        _superclass_for_GM.Draw(self)
+        
+
+        if len(self.command.mouseClickPoints) >= 2:
+            #Draw reference vector.             
+            drawline(black, 
+                     self.command.mouseClickPoints[0], 
+                     self.command.mouseClickPoints[1], 
+                     width = 4,
+                     dashEnabled = True)  
+            
 
     def resetVariables(self):
         _superclass_for_GM.resetVariables(self)
-        self.pivotAtom = None
-
-
+        self.pivotPoint = None
+        
+        
+    def _determine_pivotPoint(self, event):
+        """
+        Determine the pivot point about which to rotate the selection
+        """
+        self.pivotPoint = None
+        selobj = self.glpane.selobj
+        if isinstance(selobj, Atom):
+            self.pivotPoint = selobj.posn()
+        else:
+            farQ_junk, self.pivotPoint = self.dragstart_using_GL_DEPTH( event)
+            
+        
     def leftDown(self, event):
         """
         Event handler for LMB press event.
@@ -51,7 +84,25 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
         # begins supporting highlighting, we can also add feature to use
         # coordinates of a highlighted object (e.g. atom center) as endpoints
         # of the line
-        farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( event)
+        selobj = self.glpane.selobj
+        
+        if len(self.command.mouseClickPoints) == 0:
+            self._determine_pivotPoint(event)
+            
+        self.endPoint1 = self.pivotPoint
+            
+        if isinstance(selobj, Atom):
+            mouseClickPoint = selobj.posn()
+        else:
+            if self.pivotPoint is not None:      
+                planeAxis = self.glpane.lineOfSight
+                planePoint = self.pivotPoint               
+                mouseClickPoint = self.dragstart_using_plane_depth( 
+                        event,
+                        planeAxis = planeAxis, 
+                        planePoint = planePoint)
+            else:        
+                farQ_junk, mouseClickPoint = self.dragstart_using_GL_DEPTH( event)
 
         if self._snapOn and self.endPoint2 is not None:
             # This fixes a bug. Example: Suppose the dna line is snapped to a
@@ -61,15 +112,10 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             # self.endPoint2 in the bareMotion. Setting self._snapOn to False
             # ensures that the cursor is set to the simple Pencil cursor after
             # the click  -- Ninad 2007-12-04
-            self.endPoint1 = self.snapLineEndPoint()
+            mouseClickPoint = self.snapLineEndPoint()
             self._snapOn = False
 
-
-        if isinstance(self.glpane.selobj, Atom):
-            self.pivotAtom = self.glpane.selobj
-            #note that using selobj as self.endPoint1 is NIY.
-
-        self.command.mouseClickPoints.append(self.endPoint1)
+        self.command.mouseClickPoints.append(mouseClickPoint)
         return
 
     def leftUp(self, event):
@@ -77,20 +123,20 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
         Event handler for Left Mouse button left-up event
         @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
         """
-        if  self.command.mouseClickLimit is None:
-            if len(self.command.mouseClickPoints) == 2:
-                self.endPoint2 = None
-                self.command.rotateAboutPoint()
-                try:
-                    self.command._f_results_for_caller_and_prepare_for_new_input()
-                except AttributeError:
-                    print_compact_traceback(
-                        "bug: command %s has no attr"\
-                        "'_f_results_for_caller_and_prepare_for_new_input'.")
-                    self.command.mouseClickPoints = []
-                    self.resetVariables()
         
-                self.glpane.gl_update()
+        if len(self.command.mouseClickPoints) == 3:
+            self.endPoint2 = None
+            self.command.rotateAboutPoint()
+            try:
+                self.command._f_results_for_caller_and_prepare_for_new_input()
+            except AttributeError:
+                print_compact_traceback(
+                    "bug: command %s has no attr"\
+                    "'_f_results_for_caller_and_prepare_for_new_input'.")
+                self.command.mouseClickPoints = []
+                self.resetVariables()
+    
+            self.glpane.gl_update()
             return
 
 
@@ -105,6 +151,24 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             #Exit this GM's command (i.e. the command 'RotateAboutPoint')
             self.command.command_Done()
             return
+        
+    def _getCursorText_angle(self, vec):
+        """
+        Subclasses may override this method. 
+        @see: self._drawCursorText() for details. 
+        """
+        thetaString = ''
+        
+        if len(self.command.mouseClickPoints) < 2:
+            theta = self.glpane.get_angle_made_with_screen_right(vec) 
+            thetaString = "%5.2f deg"%(theta)
+        else:            
+            ref_vector = norm(self.command.mouseClickPoints[1] - self.pivotPoint)
+            quat = Q(vec, ref_vector)
+            theta = quat.angle*180.0/PI
+            thetaString = "%5.2f deg"%(theta)
+        
+        return thetaString
 
 
     def _getAtomHighlightColor(self, selobj):
@@ -139,9 +203,69 @@ class RotateAboutPoint_Command(Line_Command):
         #  derived from it. [bruce 071227])
     from utilities.constants import CL_REQUEST
     command_level = CL_REQUEST
-
+    
     def rotateAboutPoint(self):
         """
+        Rotates the selected entities along the specified vector, about the
+        specified pivot point (pivot point it the starting point of the
+        drawn vector.
+        """
+        
+        if len(self.mouseClickPoints) != self.mouseClickLimit:
+            print_compact_stack("Rotate about point bug: mouseclick points != mouseclicklimit")
+            return
+            
+        
+        pivotPoint = self.mouseClickPoints[0]
+        ref_vec_endPoint = self.mouseClickPoints[1]
+        rot_vec_endPoint = self.mouseClickPoints[2]
+        
+        reference_vec = norm(ref_vec_endPoint - pivotPoint)
+        
+        lineVector = norm(rot_vec_endPoint - pivotPoint)
+                           
+            
+        #lineVector = endPoint - startPoint
+
+        quat1 = Q(lineVector, reference_vec)
+                
+        #DEBUG Disabled temporarily . will not be used
+        if dot(lineVector, reference_vec) < 0:
+            theta = math.pi - quat1.angle
+        else:
+            theta = quat1.angle
+
+        #TEST_DEBUG-- Works fine
+        theta = quat1.angle
+
+        rot_axis = cross(lineVector, reference_vec)
+        
+        
+        if dot(lineVector, reference_vec) < 0:
+            rot_axis = - rot_axis
+
+        cross_prod_1 = norm(cross(reference_vec, rot_axis))
+        cross_prod_2 = norm(cross(lineVector, rot_axis))
+
+        if dot(cross_prod_1, cross_prod_2) < 0:
+            quat2 = Q(rot_axis, theta)
+        else:
+            quat2 = Q(rot_axis, - theta)
+
+        movables = self.graphicsMode.getMovablesForLeftDragging()
+        self.assy.rotateSpecifiedMovables(
+            quat2,
+            movables = movables,
+            commonCenter = pivotPoint)
+
+        self.glpane.gl_update()
+        return
+
+    
+
+    def ORIG_rotateAboutPoint(self): #THIS IS NOT USED AS OF NOV 28, 2008 SCHEDULED FOR REMOVAL
+        """
+        
         Rotates the selected entities along the specified vector, about the
         specified pivot point (pivot point it the starting point of the
         drawn vector.
@@ -153,28 +277,35 @@ class RotateAboutPoint_Command(Line_Command):
         #rotated by the angle between this vector and the lineVector
         reference_vec = self.glpane.right
         if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk():
-            mol = pivotAtom.molecule
-            reference_vec, node_junk = mol.getAxis_of_self_or_eligible_parent_node(
-                atomAtVectorOrigin = pivotAtom)
-            del node_junk
+            ##if env.prefs[foo_prefs_key]:
+            if True:
+                reference_vec = norm(self.glpane.right*pivotAtom.posn())
+            else:
+                mol = pivotAtom.molecule
+                reference_vec, node_junk = mol.getAxis_of_self_or_eligible_parent_node(
+                    atomAtVectorOrigin = pivotAtom)
+                del node_junk
         else:
             reference_vec = self.glpane.right
-
+                   
+            
         lineVector = endPoint - startPoint
 
         quat1 = Q(lineVector, reference_vec)
-
+        
+        
         #DEBUG Disabled temporarily . will not be used
-        ##if dot(lineVector, reference_vec) < 0:
-            ##theta = math.pi - quat1.angle
-        ##else:
-            ##theta = quat1.angle
+        if dot(lineVector, reference_vec) < 0:
+            theta = math.pi - quat1.angle
+        else:
+            theta = quat1.angle
 
         #TEST_DEBUG-- Works fine
         theta = quat1.angle
 
         rot_axis = cross(lineVector, reference_vec)
-
+        
+        
         if dot(lineVector, reference_vec) < 0:
             rot_axis = - rot_axis
 
@@ -195,6 +326,7 @@ class RotateAboutPoint_Command(Line_Command):
         self.glpane.gl_update()
         return
 
+    
     def _results_for_request_command_caller(self):
         """
         @return: tuple of results to return to whatever "called"

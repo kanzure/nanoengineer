@@ -24,7 +24,7 @@ TODOs:
 
 from commands.Select.Select_Command import Select_Command
 from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
-
+from utilities.debug import print_compact_traceback
 # == Command part
 
 class Line_Command(Select_Command): 
@@ -93,10 +93,10 @@ class Line_Command(Select_Command):
             # note: see comment in command_will_exit version of this code
             params = self._results_for_request_command_caller()
             self._results_callback( params)    
-            
-        self.command.mouseClickPoints = []                
-        self.graphiceMode.resetVariables()
-
+        
+        self.mouseClickPoints = []          
+        self.graphicsMode.resetVariables()
+      
 
     def _results_for_request_command_caller(self):
         """

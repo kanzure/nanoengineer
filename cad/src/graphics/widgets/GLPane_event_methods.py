@@ -1077,7 +1077,11 @@ class GLPane_event_methods(object, DebugMenuMixin):
             return farQ, point, wX, wY, depth, farZ
         return farQ, point
 
-    def dragstart_using_plane_depth(self, event, plane, more_info = False):
+    def dragstart_using_plane_depth(self, 
+                                    event, 
+                                    plane = None,
+                                    planeAxis = None,
+                                    planePoint = None ):
         """
         Returns the 3D point on a specified plane, at the coordinates of event
               
@@ -1091,8 +1095,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         and the given plane is not possible or returns a very large number.
         Need to discuss this. 
         """
-        del more_info # REVIEW: is this arg (copied from related method) needed?
-        
+                
         # TODO: refactor this so the caller extracts Plane attributes,
         # and this method only receives geometric parameters (more general).
         # [bruce 080912 comment]
@@ -1101,9 +1104,15 @@ class GLPane_event_methods(object, DebugMenuMixin):
         p1, p2     = self.mousepoints(event)
         linePoint  = p2
         lineVector = norm(p2 - p1)
-        planeAxis  = plane.getaxis()
-        planeNorm  = norm(planeAxis)
-        planePoint = plane.center
+        
+        if plane is not None:
+            planeAxis  = plane.getaxis()
+            planeNorm  = norm(planeAxis)        
+            planePoint = plane.center        
+        else:
+            assert not (planeAxis is None or planePoint is None)
+            planeNorm = norm(planeAxis)              
+            
         
         #Find out intersection of the mouseray with the plane. 
         intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)

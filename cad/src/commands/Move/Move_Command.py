@@ -44,6 +44,8 @@ class Move_Command(SelectChunks_Command):
     """
     """
     
+    _pointRequestCommand_pivotPoint = None
+    
     GraphicsMode_class = TranslateChunks_GraphicsMode
     
     #The class constant PM_class defines the class for the Property Manager of 
@@ -139,6 +141,69 @@ class Move_Command(SelectChunks_Command):
         del params
         self.propMgr.rotateAboutPointButton.setChecked(False)
         return
+    
+    def _acceptPointRequestCommand_pivotPoint(self, params):
+        self._pointRequestCommand_pivotPoint = params
+    
+    
+    def EXPERIMENTAL_rotateAboutPointTemporaryCommand(self, isChecked = False): 
+        #@ATTENTION: THIS IS NOT USED AS OF NOV 28, 2008 SCHEDULED FOR REMOVAL
+        """
+        @see: self.moveFromToTemporaryMode
+        """
+        #@TODO: clean this up. This was written just after Rattlesnake rc2
+        #for FNANO presentation -- Ninad 2008-04-17
+
+        if self.commandSequencer._f_command_stack_is_locked:
+            # This is normal when the command is exiting on its own
+            # and changes the state of its action programmatically.
+            # In this case, redundant exit causes bugs, so skip it.
+            # It might be better to avoid sending the signal when
+            # programmatically changing the action state.
+            # See similar code and comment in ops_view.py.
+            # [bruce 080905]
+            return
+
+        if isChecked:
+            # invoke the RotateAboutPoint command
+            self.propMgr.rotateStartCoordLineEdit.setEnabled(isChecked)
+            msg = "Click inside the 3D workspace to define two points " \
+                "of a line. The selection will be rotated about the first point "\
+                "in the direction specified by that line"
+
+            self.propMgr.updateMessage(msg)
+            
+            cs = self.commandSequencer
+            # following was revised by bruce 080801
+            mouseClickLimit = 1
+            planeAxis = None
+            planePoint = None
+            
+            cs.callRequestCommand( 'Point_RequestCommand',
+                 arguments = (mouseClickLimit, planeAxis, planePoint), # number of mouse click points to accept
+                 accept_results = self._acceptPointRequestCommand_pivotPoint
+             )
+            
+            ###Next step: define reference vector 
+            ##mouseClickLimit = 1
+            ##planeAxis = self.glpane.lineOfSight
+            ##planePoint = self._pointRequestCommand_pivotPoint
+            ##print "**** planePoint = ", planePoint
+            
+            ##cs.callRequestCommand( 'Point_RequestCommand',
+                 ##arguments = (mouseClickLimit, planeAxis, planePoint), # number of mouse click points to accept
+                 ##accept_results = self. _acceptRotateAboutPointResults
+             ##)
+             
+        else:
+            # exit the RotateAboutPoint command
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == "RotateAboutPoint":
+                currentCommand.command_Cancel()
+                
+            self.propMgr.rotateStartCoordLineEdit.setEnabled(False)
+            self.propMgr.updateMessage()
+            
 
 
     def rotateAboutPointTemporaryCommand(self, isChecked = False):
@@ -169,7 +234,7 @@ class Move_Command(SelectChunks_Command):
             
             # following was revised by bruce 080801
             self.commandSequencer.callRequestCommand( 'RotateAboutPoint',
-                 arguments = (2,), # number of mouse click points to accept
+                 arguments = (3,), # number of mouse click points to accept
                  accept_results = self._acceptRotateAboutPointResults
              )
         else:

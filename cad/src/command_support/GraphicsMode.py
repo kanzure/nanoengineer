@@ -579,8 +579,18 @@ class basicGraphicsMode(GraphicsMode_API):
         res = self.o.dragstart_using_GL_DEPTH(event, **kws) # note: res is a tuple whose length depends on **kws
         return res
 
-    def dragstart_using_plane_depth(self, event, plane, **kws):
-        res = self.o.dragstart_using_plane_depth(event, plane, **kws) # note: res is a tuple whose length depends on **kws
+    def dragstart_using_plane_depth(self, 
+                                    event, 
+                                    plane= None,
+                                    planeAxis = None, 
+                                    planePoint = None, 
+                                    ):
+        
+        res = self.o.dragstart_using_plane_depth(event, 
+                                                 plane= plane,
+                                                 planeAxis = planeAxis, 
+                                                 planePoint = planePoint, 
+                                                 ) # note: res is a tuple whose length depends on **kws
         return res
 
     def dragto(self, point, event, perp = None):
