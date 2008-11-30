@@ -112,6 +112,8 @@ See design comments on:
 import graphics.drawing.drawing_globals as drawing_globals
 from gl_buffers import GLBufferObject
 
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+
 import numpy
 
 from OpenGL.GL import GL_ARRAY_BUFFER_ARB
@@ -138,7 +140,8 @@ from OpenGL.GL import glVertexPointer
 # Pass an array of byte offsets into the graphics card index buffer object.
 from graphics.drawing.vbo_patch import glMultiDrawElementsVBO
 
-#from OpenGL.GL.ARB.shader_objects import glUniform1iARB
+from OpenGL.GL.ARB.shader_objects import glUniform1iARB
+from OpenGL.GL.ARB.shader_objects import glUniform4fvARB
 
 from OpenGL.GL.ARB.vertex_program import glDisableVertexAttribArrayARB
 from OpenGL.GL.ARB.vertex_program import glEnableVertexAttribArrayARB
@@ -325,9 +328,24 @@ class GLPrimitiveBuffer(object):
         If no drawIndex is given, the whole array is drawn.
         """
         shader = drawing_globals.sphereShader
-        shader.use(True)             # Turn on the sphere shader.
+        shader.use(True)                # Turn on the sphere shader.
 
         glEnableClientState(GL_VERTEX_ARRAY)
+
+        # Set up highlighting.
+        if highlighted:
+            glUniform1iARB(shader.uniform("highlight_mode"), 1)
+            if highlight_color is None: # Default highlight color.
+                highlight_color = env.prefs[hoverHighlightingColor_prefs_key]
+                pass
+            if len(highlight_color) == 3:
+                highlight_color += (opacity,)
+                pass
+            glUniform4fvARB(shader.uniform("override_color"), 1,
+                            highlight_color)
+        else: # XXX Need to implement selection and halo/patterned drawing too.
+            glUniform1iARB(shader.uniform("highlight_mode"), 0)
+            pass
 
         # XXX No transform data until that is more implemented.
         ###shader.setupTransforms(self.transforms)
@@ -341,7 +359,7 @@ class GLPrimitiveBuffer(object):
             ## XXX Not needed if only one texture is being used?
             ##glActiveTexture(GL_TEXTURE0)
             ##glUniform1iARB(shader.uniform("transforms"), 0)
-            pass        
+            pass
 
         glDisable(GL_CULL_FACE)
 
@@ -629,7 +647,8 @@ class Hunk:
             # Special case to send the whole Hunk's worth of data.
             self.VBO.updateAll(C_data)
         else:
-            # Send a portion, with a byte offset within the VBO.
+            # Send a portion of the HunkBuffer, with byte offset within the VBO.
+            # (Per-vertex attributes are all multiples (1-4) of Float32.)
             offset = self.low * self.nVertices * self.nCoords * BYTES_PER_FLOAT
             self.VBO.update(offset, C_data)
             pass

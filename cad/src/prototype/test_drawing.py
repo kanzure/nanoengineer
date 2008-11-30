@@ -76,13 +76,17 @@ def test_Draw(glpane):
 #testCase = 8; nSpheres = 50; chunkLength = 24
 #testCase = 8; nSpheres = 132; chunkLength = 24
 
+# Nice, big spheres for debugging.
+testCase = 8.1; nSpheres = 10; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
+
 # 50x50 is okay for either shader spheres, or Display Lists.
 #testCase = 8.1; nSpheres = 50; chunkLength = 24
-testCase = 8.1; nSpheres = 50; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
+#testCase = 8.1; nSpheres = 50; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
+
 #testCase = 8.1; nSpheres = 75; chunkLength = 24
 #testCase = 8.1; nSpheres = 100; chunkLength = 200
 #testCase = 8.1; nSpheres = 100; chunkLength = 50
-### Hangs initial pass-through version: 8.1/100/24
+### Initial DL pass-through version hangs at 8.1/100/24.
 ##testCase = 8.1; nSpheres = 100; chunkLength = 24
 #testCase = 8.1; nSpheres = 100; chunkLength = 8
 #testCase = 8.1; nSpheres = 100; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True

@@ -22,6 +22,7 @@ from prototype.test_drawing import AVAILABLE_TEST_CASES_ITEMS, test_Draw
 
 import foundation.env as env
 
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import levelOfDetail_prefs_key
 
 from time import time
@@ -82,6 +83,13 @@ class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
 ##        self.parentGraphicsMode.gm_start_of_paintGL(glpane)
         _superclass_GM.gm_start_of_paintGL(self, glpane)
         return
+
+    # Use default highlight color.
+    def selobj_highlight_color(self, selobj):
+        """
+        [GraphicsMode API method]
+        """
+        return env.prefs[hoverHighlightingColor_prefs_key]
 
     # Redirect Draw to test_drawing.
     def Draw(self):

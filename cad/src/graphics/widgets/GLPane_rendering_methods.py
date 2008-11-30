@@ -631,6 +631,11 @@ class GLPane_rendering_methods(GLPane_image_methods):
             pass
         pass
 
+        if (drawing_globals.use_drawing_variant == 6 or          # russ 080714
+            drawing_globals.use_batched_primitive_shaders_pref): # Russ 081128
+            drawing_globals.sphereShader.configShader(self)
+            pass
+
         for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)
                 # note: this relies on modelview matrix already being correctly
@@ -748,10 +753,6 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         try:
             self.drawing_phase = 'main'
-
-            if drawing_globals.use_drawing_variant == 6: # russ 080714
-                drawing_globals.sphereShader.configShader(self) # review: can we move this outside the stereo loop?
-                pass
 
             self.graphicsMode.Draw()
                 # draw self.part (the model), with chunk & atom selection

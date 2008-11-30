@@ -2175,12 +2175,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 #bruce 060215 adding drawLevel to havelist
                 if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
                     # our main display list is still valid -- use it
-                    self.displist.draw_dl()
-                        # note: this draws differently depending on selectedness
-                        # stored in self.displist (redundant with self.picked,
-                        # needs to be kept synchronized -- this ought to be refactored
-                        # (to use the new self.displist.draw() method, once it's tested)
-                        # so that state is not in self.displist [bruce 080604 comment])
+                    # Russ 081128: Switch from draw_dl() to draw() with selection arg.
+                    self.displist.draw(selected=self.picked)
                     for extra_displist in self.extra_displists.itervalues():
                         # [bruce 080604 new feature]
                         extra_displist.draw_but_first_recompile_if_needed(glpane, selected = self.picked)

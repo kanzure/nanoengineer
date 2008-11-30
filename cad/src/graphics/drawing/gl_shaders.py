@@ -52,7 +52,7 @@ N_CONST_XFORMS = 270  # (Gets CPU bound at 275.  Dunno why.)
 # Used in fine-tuning N_CONST_XFORMS to leave room for other GPU vars and temps.
 # If you increase the complexity of the vertex shader program a little bit, and
 # rendering slows down by 100x, maybe you ran out of room.  Try increasing this.
-VERTEX_SHADER_GPU_VAR_SLACK = 100
+VERTEX_SHADER_GPU_VAR_SLACK = 110
 
 # Turns on a debug info message.
 CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
@@ -676,6 +676,8 @@ sphereFragSrc = """
 
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform float override_opacity; // Multiplies the normal color alpha component.
+uniform int draw_for_mouseover; // Use normal color = 0, glname_color = 1.
+uniform int highlight_mode;     // 0=normal, 1=override_color, 2=pattern, 3=halo
 
 // Lighting properties for the material.
 uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
@@ -736,6 +738,9 @@ void main(void) {
     gl_FragDepth = 0.5 + (-clip[2] - sample.z) * clip[3];
   }
 
+  // Shading control, from the material and lights.
+  float ambient = material[0];
+
   // Accumulate diffuse and specular contributions from the lights.
   float diffuse = 0.0;
   diffuse += max(0.0, dot(normal, light0)) * intensity[0];
@@ -754,9 +759,16 @@ void main(void) {
   specular += pow(max(0.0, dot(normal, light3H)), shininess) * intensity[3];
   specular *= material[2]; // Specular intensity.
 
-  float ambient = material[0];
-  gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse) +
-                        vec3(ambient + specular),
-                      var_basecolor.a * override_opacity);
+  // Don't do lighting while drawing glnames, just pass the values through.
+  if (draw_for_mouseover == 1)
+    gl_FragColor = var_basecolor;
+  else if (highlight_mode == 1)
+    // Highlighting is brighter and looks "special" without shinyness.
+    gl_FragColor = vec4(var_basecolor.rgb * vec3(2.0 * (diffuse + ambient)),
+                        1.0);
+  else
+    gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse) +
+                          vec3(ambient + specular),
+                        var_basecolor.a * override_opacity);
 }
 """

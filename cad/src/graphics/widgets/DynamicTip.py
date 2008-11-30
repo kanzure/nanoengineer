@@ -58,7 +58,7 @@ from utilities.prefs_constants import dynamicToolTipVdwRadiiInAtomDistance_prefs
 
 # russ 080715: For graphics debug tooltip.
 from OpenGL.GL import GL_DEPTH_COMPONENT
-from OpenGL.GL import GL_RGB
+from OpenGL.GL import GL_RGBA
 from OpenGL.GL import GL_UNSIGNED_BYTE
 from OpenGL.GL import glReadPixels
 from OpenGL.GL import glReadPixelsf
@@ -167,16 +167,17 @@ class DynamicTip: # Mark and Ninad 060817.
         if 0: # russ 080715: Graphics debug tooltip.
             (wX, wY) = glpane.MousePos
             wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
-            gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE
-            rgb = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
+            gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
+            rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
             # Comes back sign-wrapped, in spite of specifying unsigned_byte.
             def us(b):
                 if b < 0:
                     return 256 + b
                 else:
                     return b
-            return ("xyz %d, %d, %f<br>rgb %u, %u, %u" %
-                    (wX, wY, wZ, us(rgb[0]), us(rgb[1]), us(rgb[2])))
+            return ("xyz %d, %d, %f<br>rgba %u, %u, %u, %u" %
+                    (wX, wY, wZ,
+                     us(rgba[0]), us(rgba[1]), us(rgba[2]), us(rgba[3])))
         
         #ninad060831 - First I defined the following in the _init method of this class. But the preferences were 
         #not updated immediately when changed from prefs dialog. So I moved those definitions below and now it works fine

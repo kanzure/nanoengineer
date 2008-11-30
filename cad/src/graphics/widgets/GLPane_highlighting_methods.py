@@ -10,6 +10,7 @@ bruce 080915 split this out of class GLPane_rendering_methods
 """
 
 from OpenGL.GL import GL_ALWAYS
+from OpenGL.GL import GL_BACK
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
 from OpenGL.GL import GL_DEPTH_COMPONENT
 from OpenGL.GL import GL_FALSE
@@ -17,22 +18,32 @@ from OpenGL.GL import GL_KEEP
 from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import GL_RENDER
 from OpenGL.GL import GL_REPLACE
+from OpenGL.GL import GL_RGBA
 from OpenGL.GL import GL_SELECT
 from OpenGL.GL import GL_STENCIL_TEST
 from OpenGL.GL import GL_TRUE
+from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import GL_VIEWPORT
 from OpenGL.GL import glClear
 from OpenGL.GL import glColorMask
 from OpenGL.GL import glDepthMask
 from OpenGL.GL import glDisable
+from OpenGL.GL import glDrawPixels
 from OpenGL.GL import glEnable
+from OpenGL.GL import glFinish
 from OpenGL.GL import glFlush
+from OpenGL.GL import glGetIntegerv
 from OpenGL.GL import glInitNames
 from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glRasterPos
+from OpenGL.GL import glReadBuffer
+from OpenGL.GL import glReadPixels
 from OpenGL.GL import glReadPixelsf
 from OpenGL.GL import glRenderMode
 from OpenGL.GL import glSelectBuffer
 from OpenGL.GL import glStencilFunc
 from OpenGL.GL import glStencilOp
+from OpenGL.GL import glViewport
 
 from utilities import debug_flags
 from utilities.debug import print_compact_traceback
@@ -42,6 +53,8 @@ from utilities.constants import white
 
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
+
+import graphics.drawing.drawing_globals as drawing_globals
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from model.bonds import Bond # used only for selobj ordering
@@ -84,9 +97,83 @@ class GLPane_highlighting_methods(object):
                 #  having a graphical effect. Ideally we'd count intentional redraws, and disable this picking in that case.)
             self.wX, self.wY = wX, wY
             self.glselect_wanted = 0
-            self.current_glselect = (wX, wY, 3, 3) #bruce 050615 for use by nodes which want to set up their own projection matrix
+            pwSize = 1 # Pick window size.  Russ 081128: Was 3.
+              # Bruce: Replace 3, 3 with 1, 1? 5, 5? not sure whether this will
+              # matter...  in principle should have no effect except speed.
+              # Russ: For glname rendering, 1x1 is better because it doesn't
+              # have window boundary issues.  We get the coords of a single
+              # pixel in the window for the mouse position.
+
+            #bruce 050615 for use by nodes which want to set up their own projection matrix.
+            self.current_glselect = (wX, wY, pwSize, pwSize)
             self._setup_projection( glselect = self.current_glselect ) # option makes it use gluPickMatrix
-                # replace 3, 3 with 1, 1? 5, 5? not sure whether this will matter... in principle should have no effect except speed
+
+            if drawing_globals.use_batched_primitive_shaders:
+                # Russ 081122: There seems to be no way to access the GL name
+                # stack in shaders.  Instead, for mouseover, draw shader
+                # primitives with glnames as colors in glRenderMode(GL_RENDER),
+                # then read back the pixel color (glname) and depth value.
+                glRenderMode(GL_RENDER)
+
+                # Temporarily replace the full-size viewport with a little one
+                # at the mouse location, matching the pick matrix location.
+                # Otherwise, we will draw a closeup of that area into the whole
+                # window, rather than a few pixels.  This isn't a problem in
+                # GL_SELECT rendering mode, because it doesn't modify the frame
+                # buffer, just returning hits by graphics primitives when they
+                # are inside the clipping boundaries.
+                saveVwpt = glGetIntegerv(GL_VIEWPORT)
+                glViewport(wX, wY, pwSize, pwSize)
+                
+                # First, clear the pixel RGBA to zeros so we won't confuse a
+                # color with a glname if there are no shader primitives drawn.
+                glRasterPos(self.wX, self.wY)
+                gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
+                glDrawPixels(pwSize, pwSize, gl_format, gl_type, (0, 0, 0, 0))
+
+                try:
+                    # Russ 081122 Use glnames-as-color mode in shader.config().
+                    self.drawing_phase = "glselect_glname_color"
+                    for stereo_image in self.stereo_images_to_draw:
+                        self._enable_stereo(stereo_image)
+                        self.graphicsMode.Draw()
+                        self._disable_stereo()
+                except:
+                    print_compact_traceback(
+                        "exception in graphicsMode.Draw() during glname_color;"
+                        "drawing ignored; restoring modelview matrix: ")
+                    glMatrixMode(GL_MODELVIEW)
+                    self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
+                    # now it's important to continue, at least enough to restore other gl state
+                    pass
+
+                # Restore the viewport.
+                glViewport(saveVwpt[0], saveVwpt[1], saveVwpt[2], saveVwpt[3])
+
+                # Read pixel value from the back buffer and re-assemble glname.
+                glFinish()
+                glReadBuffer(GL_BACK)
+                rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
+                # Comes back sign-wrapped, in spite of specifying UNSIGNED_BYTE.
+                def us(b):
+                    if b < 0: return 256 + b
+                    return b
+                bytes = tuple([us(b) for b in rgba])
+                glname = (bytes[0] << 24 | bytes[1] << 16 |
+                          bytes[2] << 8 | bytes[3])
+                ##print ("mouseover xy %d %d, " %  (wX, wY) +
+                ##       "rgba bytes (0x%x, 0x%x, 0x%x, 0x%x), " % bytes +
+                ##       "glname 0x%x" % glname)
+
+                ### XXX These need to be merged with the DL selection below.
+                obj = self.object_for_glselect_name(glname)
+                ##print "mouseover glname=%r, obj=%r." % (glname, obj)
+                if obj is None:
+                    print "bug: object_for_glselect_name returns None for glname %r." % glname
+                self.glselect_dict[id(obj)] = obj
+                
+                pass
+
             if self._use_frustum_culling:
                 self._compute_frustum_planes() 
                 # piotr 080331 - the frustum planes have to be setup after the 

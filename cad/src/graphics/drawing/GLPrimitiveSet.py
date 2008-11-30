@@ -107,7 +107,7 @@ class GLPrimitiveSet:
                 pass
             pass
 
-        # Draw CSDLs with Display Lists in them.
+        # Draw just the Display Lists in CSDLs with DLs in them.
         # Put TransformControl matrices onto the GL matrix stack if present.
         # Does nothing if the TransformControls all have a tranform of None.
         # (Pushing/popping could be minimized by sorting the cached CSDL's.)
@@ -131,7 +131,8 @@ class GLPrimitiveSet:
                 pass
             lastTC = tc
 
-            csdl.draw(highlighted, selected, patterning, highlight_color)
+            csdl.draw(highlighted, selected, patterning, highlight_color,
+                      draw_primitives = False) # Just draw the DL's.
             continue
 
         if pushed:

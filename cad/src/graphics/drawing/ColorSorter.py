@@ -125,8 +125,14 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # timestamp showing when this CSDL was last changed.
         self.changed = drawing_globals.eventStamp()
 
-        # Cached drawing-primitive IDs.
+        # Included drawing-primitive IDs.
         self.spheres = []
+
+        # Russ 081128: A cached primitives drawing index.  This is only used
+        # when drawing individual CSDLs for hover-highlighting.  Normally,
+        # primitives from a number of CSDLs are collected into a GLPrimitiveSet
+        # with a drawing index covering all of them.
+        self.drawIndex = None
 
         # TransformControl constructor argument is optional.
         self.transformControl = transformControl
@@ -139,7 +145,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # Russ 081122: Mark CSDLs with a glname for selection.
         self.glname = env._shared_glselect_name_dict.\
                       alloc_my_glselect_name(self)
-        self.glname = 0x12345678 ###
+        ###self.glname = 0x12345678 ### For testing.
 
         self.clear()
 
@@ -199,10 +205,11 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     # This can be factored when we get a lot of primitive shaders.  For now,
     # simply cache the drawing-primitive IDs at the top level of CSDL.
     def clearPrimitives(self):
-        # Free them in the primitive
+        # Free them in the GLPrimitiveBuffers.
         if drawing_globals.use_batched_primitive_shaders:
             drawing_globals.spherePrimitives.releasePrimitives(self.spheres)
         self.spheres = []
+        self.drawIndex = None
         return
         
     def addSphere(self, center, radius, color, transform_id, glname):
@@ -213,12 +220,28 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         """
         self.spheres += drawing_globals.spherePrimitives.addSpheres(
             [center], radius, color, self.transform_id(), glname)
+        self.drawIndex = None
         return
     
     # ==
 
+    # Russ 081128: Used by preDraw_glselect_dict() in standard_repaint_0(), and
+    # draw_highlighted_objectUnderMouse() in _do_other_drawing_inside_stereo().
+    def draw_in_abs_coords(self, glpane, color):
+        self.draw(highlighted=True, highlight_color=color)
+        return
+
+    # Russ 081128: Used by GLPane._update_nodes_containing_selobj().
+    def nodes_containing_selobj(self):
+        # XXX Only TestGraphics_GraphicsMode selects CSDL's now, so no
+        # XXX connection to the Model Tree.
+        return []
+
+    # ==
+
     def draw(self, highlighted = False, selected = False,
-             patterning = True, highlight_color = None):
+             patterning = True, highlight_color = None,
+             draw_primitives = True):
         """
         Simple all-in-one interface to CSDL drawing.
 
@@ -241,6 +264,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         @param highlight_color: Option to over-ride the highlight color set in
           the color scheme preferences.
+
+        @param draw_primitives: Whether to draw shader primitives in the CSDL.
+          Defaults to True.
         """
 
         patterned_highlighting = (patterning and
@@ -248,7 +274,23 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         halo_selection = (selected and
                           env.prefs[selectionColorStyle_prefs_key] == SS_HALO)
         halo_highlighting = (highlighted and
-                             env.prefs[hoverHighlightingColorStyle_prefs_key] == HHS_HALO)
+                             env.prefs[hoverHighlightingColorStyle_prefs_key] ==
+                             HHS_HALO)
+
+        # Russ 081128: GLPrimitiveSet.draw() calls CSDL.draw on CSDLs_with_DLs.
+        # It gathers the primitives in a set of CSDLs into a large drawIndex,
+        # and draws them in a big batch.  This draw() method is also called to
+        # draw *both* DLs and primitives in a CSDL, e.g. for hover-highlighting.
+        prims_to_do = draw_primitives and self.spheres
+        if prims_to_do:
+            prims = drawing_globals.spherePrimitives
+
+            # Cache a drawing index for just the primitives in this CSDL.
+            if self.drawIndex is None:
+                self.drawIndex = prims.makeDrawIndex(self.spheres)
+                pass
+            pass
+
         # Normal or selected drawing are done before a patterned highlight
         # overlay, and also when not highlighting at all.  You'd think that when
         # we're drawing a solid highlight appearance, there'd be no need to draw
@@ -264,23 +306,37 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
                 glCallList(self.selected_dl)
             else:
                 # Plain, old, solid drawing of the base object appearance.
-                glCallList(self.color_dl)
+                if prims_to_do:
+                    prims.draw(self.drawIndex)   # Shader primitives.
+                    pass
+                if len(self.per_color_dls) > 0:
+                    glCallList(self.color_dl)    # Display lists.
+                    pass
                 pass
 
         if highlighted:
-            if patterned_highlighting:
-                # Set up a patterned drawing mode for the following draw.
-                startPatternedDrawing(highlight = highlighted)
+
+            # XXX Need to implement selection and halo/patterned drawing too.
+            if prims_to_do:                      # Shader primitives.
+                prims.draw(self.drawIndex, highlighted, selected,
+                           patterning, highlight_color)
                 pass
+                
+            if len(self.per_color_dls) > 0:      # Display lists.
+                if patterned_highlighting:
+                    # Set up a patterned drawing mode for the following draw.
+                    startPatternedDrawing(highlight = highlighted)
+                    pass
 
-            # Draw a highlight overlay (solid, or in an overlay pattern.)
-            apply_material(highlight_color is not None and highlight_color
-                           or env.prefs[hoverHighlightingColor_prefs_key])
-            glCallList(self.nocolor_dl)
+                # Draw a highlight overlay (solid, or in an overlay pattern.)
+                apply_material(highlight_color is not None and highlight_color
+                               or env.prefs[hoverHighlightingColor_prefs_key])
+                glCallList(self.nocolor_dl)
 
-            if patterned_highlighting:
-                # Reset from a patterned drawing mode set up above.
-                endPatternedDrawing(highlight = highlighted)
+                if patterned_highlighting:
+                    # Reset from a patterned drawing mode set up above.
+                    endPatternedDrawing(highlight = highlighted)
+                    pass
                 pass
 
             pass

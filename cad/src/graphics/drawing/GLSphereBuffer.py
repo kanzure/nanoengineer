@@ -110,9 +110,9 @@ class GLSphereBuffer(GLPrimitiveBuffer):
             self.ctrRadHunks.setData(newID, ctrRad)
             self.colorHunks.setData(newID, color)
             self.transform_id_Hunks.setData(newID, transform_id)
-            # Break the glname into RGBA pixel color components.
-            rgba = (glname >> 24 & 0xff, glname >> 16 & 0xff,
-                    glname >> 8 & 0xff, glname & 0xff)
+            # Break the glname into RGBA pixel color components, 0.0 to 1.0 .
+            # (Per-vertex attributes are all multiples (1-4) of Float32.)
+            rgba = [(glname >> bits & 0xff) / 255.0 for bits in range(24,-1,-8)] 
             self.glname_color_Hunks.setData(newID, rgba)
             continue
 
