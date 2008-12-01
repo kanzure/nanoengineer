@@ -913,29 +913,7 @@ class basicCommand(anyCommand):
             # arg to the messagebox could do this...
             QMessageBox.warning(self.o, prefix, msg) # args are widget, title, content
         return
-    
-    # [bruce comment 040923; trimmed, 080806]
-    #
-    # The preceding and following methods, StartOver Cancel
-    # Done, handle the common tools on the dashboards.
-    # [note: as of before 080929, only StartOver still exists.]
-    #
-    # Each dashboard uses instances of the same tools, for a uniform
-    # look and action; the tool itself does not know which command it
-    # belongs to -- its action just calls glpane.currentCommand.method for the
-    # current glpane (ie command sequencer) and for one of the specified methods (or ...,
-    # the old name of Cancel, until we fix MWSemantics).
-    #
-    # Of these methods, Done and Cancel should never be customized
-    # directly -- rather, subclasses for specific modes should
-    # override some of the methods they call, as described in this
-    # file's header comment.
-    #
-    # StartOver should also never be customized, since the generic
-    # method here should always work.
-
-    # other dashboard tools
-    
+        
     def StartOver(self):
         # only callable from UI of Extrude & Build Crystal;
         # needs rename [bruce 080806 comment]
