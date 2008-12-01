@@ -347,7 +347,7 @@ def startup_script( main_globals):
         # p = pstats.Stats('<filename>')
         # p.strip_dirs().sort_stats('time').print_stats(100) # order by internal time (top 100 functions)
         # p.strip_dirs().sort_stats('cumulative').print_stats(100) # order by cumulative time
-        atom_debug_profile_filename = main_globals['atom_debug_profile_filename']
+        atom_debug_profile_filename = main_globals.get('atom_debug_profile_filename')
         if atom_debug_profile_filename:
             print ("\nUser's .atom-debug-rc requests profiling into file %r" %
                    (atom_debug_profile_filename,))
