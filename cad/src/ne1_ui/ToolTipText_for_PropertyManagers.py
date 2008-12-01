@@ -167,7 +167,7 @@ def ToolTip_BuildAtomsPropertyManager(propMgr):
     """
     propMgr.selectionFilterCheckBox.setToolTip("Atom Selection Filter")
 
-    propMgr.filterlistLE.setToolTip("Atom Selection Filter Field")
+    propMgr.filterlistLE.setToolTip("Atom Selection Filter List")
     
     propMgr.reshapeSelectionCheckBox.setToolTip("Enable/disable reshaping the selection while dragging selected atom")
 
