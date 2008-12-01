@@ -166,7 +166,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         self.atomsToolAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.atomsToolAction.setText("Atoms Tool")
         self.atomsToolAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Deposit_Atoms.png'))
+            "ui/actions/Command Toolbar/BuildAtoms/AtomsTool.png"))
         self.atomsToolAction.setCheckable(True)
         self.atomsToolAction.setChecked(True)
         self.atomsToolAction.setObjectName('ACTION_ATOMS_TOOL')
@@ -175,7 +175,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         self.bondsToolAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.bondsToolAction.setText("Bonds Tool")
         self.bondsToolAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Transmute_Bonds.png'))
+            "ui/actions/Command Toolbar/BuildAtoms/BondsTool.png"))
         self.bondsToolAction.setCheckable(True)
         self.bondsToolAction.setObjectName('ACTION_BOND_TOOL')
         
@@ -187,7 +187,7 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         self.transmuteAtomsAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.transmuteAtomsAction.setText("Transmute Atoms")
         self.transmuteAtomsAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Transmute_Atoms.png'))       
+            "ui/actions/Command Toolbar/BuildAtoms/TransmuteAtoms.png"))       
         self.transmuteAtomsAction.setCheckable(False)
         
         
@@ -206,32 +206,32 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
                 
         self.bond1Action = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond1Action.setText("Single")
-        self.bond1Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond1.png"))
+        self.bond1Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/SingleBond.png"))
         self.bond1Action.setObjectName('ACTION_SINGLE_BOND_TOOL')
             
         self.bond2Action = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond2Action.setText("Double")
-        self.bond2Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond2.png"))
+        self.bond2Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/DoubleBond.png"))
         self.bond2Action.setObjectName('ACTION_DOUBLE_BOND_TOOL')
         
         self.bond3Action = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond3Action.setText("Triple")
-        self.bond3Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond3.png"))
+        self.bond3Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/TripleBond.png"))
         self.bond3Action.setObjectName('ACTION_TRIPLE_BOND_TOOL')
         
         self.bondaAction = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bondaAction.setText("Aromatic")
-        self.bondaAction.setIcon(geticon("ui/actions/Toolbars/Smart/bonda.png"))
+        self.bondaAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/AromaticBond.png"))
         self.bondaAction.setObjectName('ACTION_AROMATIC_BOND_TOOL')
         
         self.bondgAction = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bondgAction.setText("Graphitic")
-        self.bondgAction.setIcon(geticon("ui/actions/Toolbars/Smart/bondg.png"))
+        self.bondgAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/GraphiticBond.png"))
         self.bondgAction.setObjectName('ACTION_GRAPHITIC_BOND_TOOL')
         
         self.cutBondsAction = NE1_QWidgetAction(parentWidget, win = self.win)  
         self.cutBondsAction.setText("Cut Bonds")
-        self.cutBondsAction.setIcon(geticon("ui/actions/Tools/Build Tools/Cut_Bonds.png"))
+        self.cutBondsAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/CutBonds.png"))
         self.cutBondsAction.setObjectName('ACTION_DELETE_BOND_TOOL')
         
         for action in [self.bond1Action, 
@@ -243,6 +243,24 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
                        ]:
             self.bondToolsActionGroup.addAction(action)
             action.setCheckable(True)
+            
+        return
+    
+    def _addWhatsThisText(self):
+        """
+        Add 'What's This' help text for all actions on toolbar. 
+        """
+        from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForAtomsCommandToolbar
+        whatsThisTextForAtomsCommandToolbar(self)
+        return
+    
+    def _addToolTipText(self):
+        """
+        Add 'Tool tip' help text for all actions on toolbar. 
+        """
+        from ne1_ui.ToolTipText_for_CommandToolbars import toolTipTextForAtomsCommandToolbar
+        toolTipTextForAtomsCommandToolbar(self)
+        return
 
     
     def connect_or_disconnect_signals(self, isConnect):

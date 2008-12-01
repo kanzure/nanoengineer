@@ -457,8 +457,7 @@ class DnaDuplex_EditCommand(EditCommand):
             self.dna = None # Fixes bug 2530. Mark 2007-09-02
             return None
         else: 
-            msg = "Specify two points in the 3D Graphics Area to define the "\
-                "endpoints of the DNA duplex"
+            msg = "Click two more endpoints to insert another DNA duplex."
             self.propMgr.updateMessage(msg)
 
 

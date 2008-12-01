@@ -633,7 +633,7 @@ def setupUi(win):
     win.toolsDepositAtomAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.toolsDepositAtomAction.setCheckable(1) # make the build button checkable
     win.toolsDepositAtomAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/Build Chunks.png"))
+        geticon("ui/actions/Tools/Build Structures/BuildAtoms.png"))
 
     win.buildCrystalAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.buildCrystalAction.setCheckable(1) # make the crystal button checkable

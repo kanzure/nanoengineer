@@ -946,20 +946,23 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # Graphene
 
-    insertGrapheneActionText = \
-        "<u><b>Build Graphene</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Tools/Build Structures/Graphene.png\"><br> "\
-        "Inserts a 2D sheet of graphene in the model "\
-        "based on the current parameters in the "\
-        "Property Manager. To preview the structure "\
-        "based on the current parameters, click the "\
-        "Preview button located at the top of the "\
-        "Property Manager :<br> "\
-        "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
-        "</p>"
+    _text = \
+        """<u><b>Build Graphene</b></u>
+        <p>
+        <img source=\"ui/actions/Tools/Build Structures/Graphene.png\"><br> 
+        Inserts a 2D sheet of graphene (centered at 0, 0, 0) based on the 
+        current parameters in the <a href=Property_Manager>property manager</a>. 
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> Since this command <i>is not interactive</i>
+        like most other modeling commands, the user must press the 
+        <b>Preview</b> button to insert the graphene structure into the model.  
+        The <b>Preview</b> button is located at the top of the 
+        <a href=Property_Manager>property manager</a> and looks like this: <br>
+        <img source=\"ui/actions/Properties Manager/Preview.png\"> 
+        </p>"""
 
-    win.insertGrapheneAction.setWhatsThis(insertGrapheneActionText )
+    win.insertGrapheneAction.setWhatsThis( _text )
 
         
     # Build Nanotube 
@@ -968,32 +971,36 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Build Nanotube</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/Nanotube.png\"> <br>"\
-        "Inserts a carbon nanotube (CNT) or boron nitride nanotube (BNNT) "\
-        "in the 3D graphics area by defining the two endpoints of the "\
-        "nanotube."\
+        "Enters the carbon nanotube modeling sub-system. Nanotube modeling "\
+        "sub-commands are presented in the flyout area of the "\
+        "<a href=Command_Toolbar>command toolbar</a>."\
         "</p>"
 
     win.buildNanotubeAction.setWhatsThis( _text )
 
     # Build DNA
 
-    buildDnaActionText = \
+    _text = \
         "<u><b>Build DNA</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/DNA.png\"><br> "\
-        "Invokes the interactive DNA modeller."\
+        "Enters the DNA modeling sub-system. DNA modeling sub-commands are "\
+        "presented in the flyout area of the "\
+        "<a href=Command_Toolbar>command toolbar</a>."\
         "</p>"
 
-    win.buildDnaAction.setWhatsThis(buildDnaActionText )
+    win.buildDnaAction.setWhatsThis( _text )
 
 
-   # Build Peptide
+   # Build Protein
    
     _text = \
         "<u><b>Build Protein</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/Protein.png\"><br> "\
-        "Invokes the interactive protein modeller and simulator."\
+        "Enters the protein/peptide modeling sub-system. Protein/peptide "\
+        "modeling sub-commands are presented in the flyout area of the "\
+        "<a href=Command_Toolbar>command toolbar</a>."\
         "</p>"
 
     win.buildProteinAction.setWhatsThis( _text )
@@ -1596,10 +1603,11 @@ def createWhatsThisTextForMainWindowWidgets(win):
     toolsDepositAtomActionText = \
         "<u><b>Build Atoms</b></u><!-- [[Feature:Build Atoms]] -->"\
         "<p>"\
-        "<img source=\"ui/actions/Tools/Build Structures/Atoms.png\"><br> "\
-        "<b>Build Atoms</b> provides an interactive molecular modeller "\
-        "that allows the user to easily build molecular structures one "\
-        "atom at a time.</p>"
+        "<img source=\"ui/actions/Tools/Build Structures/BuildAtoms.png\"><br> "\
+        "Enters the atom modeling sub-system for building/editing molecular "\
+        "structures. Atom (and bond) modeling sub-commands are presented in the "\
+        "flyout area of the <a href=Command_Toolbar>command toolbar</a>."\
+        "</p>"
 
     win.toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText )
 
@@ -1608,11 +1616,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
     toolsCookieCutActionText = \
         "<u><b>Build Crystal</b></u><!-- [[Feature:Build Crystal Mode]] -->"\
         "<p>"\
-        "<><img source=\"ui/actions/Tools/Build Structures/"\
-        "Cookie_Cutter.png\"><br"\
-        "<b>Build Crystal</b> provides tools for cutting "\
-        "out multi-layered shapes from slabs of diamond "\
-        "or lonsdaleite lattice.</p>"
+        "<img source=\"ui/actions/Tools/Build Structures/Cookie_Cutter.png\"><br>"\
+        "Enters the Crystal modeling sub-system which provides an interactive "\
+        "modeling environment for cutting out multi-layered shapes from slabs "\
+        "of diamond or lonsdaleite 3D lattice. Crystal modeling sub-commands "\
+        "are presented in the flyout area of the "\
+        "<a href=Command_Toolbar>command toolbar</a>."\
+        "</p>"
 
     win.buildCrystalAction.setWhatsThis( toolsCookieCutActionText )
 
@@ -1622,9 +1632,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Extrude</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
         "<p>"\
         "<img source=\"ui/actions/Insert/Features/Extrude.png\"><br> "\
-        "Activates <b>Extrude</b> mode, allowing the user to "\
-        "create a rod or ring using one or more chunks as a repeating "\
-        "unit.</p>"
+        "Activates <b>Extrude</b> mode, allowing the user to create rod or "\
+        "ring structures using one or more (selected) molecular fragments as "\
+        "a repeating unit.</p>"\
+        "<p>"\
+        "This mode is also useful for creating linear or circular patterns of "\
+        "the selection."\
+        "</p>"
 
     win.toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )
 
@@ -2140,7 +2154,7 @@ def whats_this_text_for_glpane():
         ctrl_or_cmd = "Ctrl"
 
     glpaneText = \
-               "<u><b>Graphics Area</b></u><br> "\
+               "<a href=Graphics_Area><b>Graphics Area</b></a><br> "\
                "<br>This is where the action is."\
                "<p><b>Mouse Button Commands :</b><br> "\
                "<br> "\

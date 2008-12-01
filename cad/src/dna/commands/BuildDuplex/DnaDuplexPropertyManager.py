@@ -147,9 +147,8 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         
     def show(self):
         _superclass.show(self)
-        self.updateMessage("Specify two points in the 3D Graphics " \
-                                   "Area to define the endpoints of the "\
-                                   "DNA duplex."   )
+        self.updateMessage("Specify the DNA parameters below, then click "\
+                           "two endpoints in the graphics area to insert a DNA duplex.")
 
     
     

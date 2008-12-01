@@ -64,7 +64,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
     title         =  "Insert Nanotube"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/InsertNanotube.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildNanotube/InsertNanotube.png"
 
     def __init__( self, command ):
         """
@@ -122,9 +122,8 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
     
     def show(self):
         _superclass.show(self)
-        self.updateMessage("Specify two points in the 3D Graphics " \
-                                   "Area to define the endpoints of the "\
-                                   "nanotube.")
+        self.updateMessage("Specify the nanotube parameters below, then click "\
+                           "two endpoints in the graphics area to insert a nanotube.")
     
     
     def _update_widgets_in_PM_before_show(self):

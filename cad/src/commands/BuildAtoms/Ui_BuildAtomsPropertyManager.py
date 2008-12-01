@@ -69,7 +69,7 @@ class Ui_BuildAtomsPropertyManager(Command_PropertyManager):
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
     # The relative path to the PNG file that appears in the header
-    iconPath = "ui/actions/Tools/Build Structures/Build Chunks.png"
+    iconPath = "ui/actions/Tools/Build Structures/BuildAtoms.png"
     
     def __init__(self, command):
         """
@@ -248,7 +248,7 @@ class Ui_BuildAtomsPropertyManager(Command_PropertyManager):
         
         self.selectionFilterCheckBox = \
             PM_CheckBox( inPmGroupBox,
-                         text  = "Enable selection filter",
+                         text  = "Enable atom selection filter",
                          widgetColumn = 0,
                          state        = Qt.Unchecked  )
         self.selectionFilterCheckBox.setDefaultValue(False)

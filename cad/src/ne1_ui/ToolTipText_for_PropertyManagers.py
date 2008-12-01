@@ -165,9 +165,9 @@ def ToolTip_BuildAtomsPropertyManager(propMgr):
     """
     "ToolTip" text for widgets in the QuteMolX Property Manager.
     """
-    propMgr.selectionFilterCheckBox.setToolTip("Selection Filter")
+    propMgr.selectionFilterCheckBox.setToolTip("Atom Selection Filter")
 
-    propMgr.filterlistLE.setToolTip("Selection Filter Field")
+    propMgr.filterlistLE.setToolTip("Atom Selection Filter Field")
     
     propMgr.reshapeSelectionCheckBox.setToolTip("Enable/disable reshaping the selection while dragging selected atom")
 

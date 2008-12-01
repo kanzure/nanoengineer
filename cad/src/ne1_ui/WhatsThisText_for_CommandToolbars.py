@@ -86,6 +86,131 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
     @note: This is a placeholder function. Currenly, all the tooltip text is 
            defined in BuildAtoms_Command.py.
     """
+    
+    commandToolbar.exitModeAction.setWhatsThis(
+        """<b>Exit Protein</b>
+        <p>
+        Exits <b>Build Protein</b>.
+        </p>""")
+    
+    commandToolbar.atomsToolAction.setWhatsThis(
+        """<b>Atoms Tool</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/AtomsTool.png\"><br>
+        Activates <i>Atoms Tool Mode</i> for depositing and/or selecting atoms. 
+        Double-click to insert a new atom into the model by itself. 
+        Single-click on <a href=Bondpoints>bondpoints</a> to insert and bond
+        a new atom to an existing atom.
+        </p>""")
+    
+    commandToolbar.transmuteAtomsAction.setWhatsThis(
+        """<b>Transmute Atoms</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/TransmuteAtoms.png\"><br>
+        Transmutes the selected atoms to the active element type. The active 
+        element type in set using the <b>Atom Chooser</b> in the 
+        <a href=Property_Manager>property manager</a>.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> Use the <b>Selection Filter</b> to limit selects to 
+        specific atom types in the <a href=Graphics_Area>raphics area</a>
+        <a href=Command_Toolbar>command toolbar</a>.
+        </p>""")
+    
+    commandToolbar.bondsToolAction.setWhatsThis(
+        """<b>Bonds Tool</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/BondsTool.png\"><br>
+        Enters <i>Bonds Tool Mode</i> for changing bonds (i.e. the bond order) 
+        or deleting bonds. Singe-clicking bonds will transmute them into the 
+        active bond type. The active bond type in set by selecting one of 
+        the bond types (i.e. single, double, triple, etc.) in the flyout area
+        of the <a href=Command_Toolbar>command toolbar</a>.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> It is possible to transmute multiple bonds at the same 
+        time. To do this, select all the atoms with bonds you want to transmute, 
+        then click on the bond type in the 
+        <a href=Command_Toolbar>command toolbar</a>.
+        </p>""")
+    
+    commandToolbar.bond1Action.setWhatsThis(
+        """<b>Single Bond</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/SingleBond.png\"><br>
+        Sets the active bond type to <b>single</b>. Singe-clicking a 
+        highlighted bond transmutes it into a single bond.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> It is possible to transmute multiple bonds into single 
+        bonds at the same time. To do this, select all the atoms with bonds 
+        you want to transmute, then click on this button. <b>Note:</b> <i>Only 
+        selected atoms with bonds between them will be transmuted.</i>
+        </p>""")
+    
+    commandToolbar.bond2Action.setWhatsThis(
+        """<b>Double Bond</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/DoubleBond.png\"><br>
+        Sets the active bond type to <b>double</b>. Singe-clicking a 
+        highlighted bond transmutes it into a double bond.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> It is possible to transmute multiple bonds into double 
+        bonds at the same time. To do this, select all the atoms with bonds 
+        you want to transmute, then click on this button. <b>Note:</b> <i>Only 
+        selected atoms with bonds between them will be transmuted.</i>
+        </p>""")
+    
+    commandToolbar.bond3Action.setWhatsThis(
+        """<b>Triple Bond</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/TripleBond.png\"><br>
+        Sets the active bond type to <b>triple</b>. Singe-clicking a 
+        highlighted bond transmutes it into a triple bond.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> It is possible to transmute multiple bonds into triple 
+        bonds at the same time. To do this, select all the atoms with bonds 
+        you want to transmute, then click on this button. <b>Note:</b> <i>Only 
+        selected atoms with bonds between them will be transmuted.</i>
+        </p>""")
+    
+    commandToolbar.bondaAction.setWhatsThis(
+        """<b>Aromatic Bond</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/AromaticBond.png\"><br>
+        Sets the active bond type to <b>aromatic</b>. Singe-clicking a 
+        highlighted bond transmutes it into an aromatic bond.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> It is possible to transmute multiple bonds into aromatic 
+        bonds at the same time. To do this, select all the atoms with bonds 
+        you want to transmute, then click on this button. <b>Note:</b> <i>Only 
+        selected atoms with bonds between them will be transmuted.</i>
+        </p>""")
+    
+    commandToolbar.bondgAction.setWhatsThis(
+        """<b>Graphitic Bond</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/GraphiticBond.png\"><br>
+        Sets the active bond type to <b>graphitic</b>. Singe-clicking a 
+        highlighted bond transmutes it into a graphitic bond.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> It is possible to transmute multiple bonds into graphitic 
+        bonds at the same time. To do this, select all the atoms with bonds 
+        you want to transmute, then click on this button. <b>Note:</b> <i>Only 
+        selected atoms with bonds between them will be transmuted.</i>
+        </p>""")
+    
+    commandToolbar.cutBondsAction.setWhatsThis(
+        """<b>Cut Bonds</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildAtoms/CutBonds.png\"><br>
+        Activates cut bonds mode. Singe-clicking a highlighted bond deletes it.
+        </p>""")
+    
     return
 
 def whatsThisTextForProteinCommandToolbar(commandToolbar):
@@ -102,24 +227,23 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
         """<b>Model Protein</b>
         <p>
         <img source=\"ui/actions/Command Toolbar/BuildProtein/ModelProtein.png\"><br> 
-        Enter protein modeling mode. Modeling options are displayed to the right
-        in the flyout toolbar.
+        Enter protein modeling mode. Protein modeling sub-commands are 
+        displayed to the right in the flyout area of the 
+        <a href=Command_Toolbar>command toolbar</a>.
         </p>""")
     
     commandToolbar.simulateProteinAction.setWhatsThis(
         """<b>Simulate Protein with Rosetta</b>
         <p>
         <img source=\"ui/actions/Command Toolbar/BuildProtein/Simulate.png\"><br> 
-        Enter protein simulation mode using Rosetta. Rosetta is a collection of
-        computational tools for the prediction and design of protein structures 
-        and protein-protein interactions. A subset of Rosetta simulation options
-        are available in NanoEngineer-1, including:
-        <lo>
-        Option 1
-        Option 2
-        </lo>
-        </p>
-        <p><a href=Rosetta_for_NanoEngineer-1> 
+        Enter protein simulation mode using Rosetta. Rosetta simulation 
+        sub-commands are displayed to the right in the flyout area of the 
+        <a href=Command_Toolbar>command toolbar</a>.</p>
+        <p>
+        Rosetta is a collection of computational tools for the prediction and 
+        design of protein structures and protein-protein interactions.</p>
+        <p>
+        <a href=Rosetta_for_NanoEngineer-1> 
         Click here for more information about Rosetta for NanoEngineer-1</a>
         </p>""")
     
@@ -325,7 +449,9 @@ def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
     commandToolbar.insertNanotubeAction.setWhatsThis(
         """<b>Insert Nanotube</b>
         <p>
-        Displays the Insert Nanotube Property Manager
+        <img source=\"ui/actions/Command Toolbar/BuildNanotube/InsertNanotube.png\"><br>
+        Insert a carbon or boron-nitride nanotube by clicking two endpoints in 
+        the graphics area.
         </p>""")
     return
 

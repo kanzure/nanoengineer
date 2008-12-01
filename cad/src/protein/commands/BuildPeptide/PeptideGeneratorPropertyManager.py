@@ -109,28 +109,16 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         self.current_amino_acid = 0
         #self.peptide_cache = []
         #self.peptide_cache.append((0, 0, 0))
-        self.updateMessageGroupBox()
         
-    
     def show(self):
         """
         Extends superclass method.
         """
         _superclass.show(self)
-        self.updateMessage("Specify two points in the 3D Graphics " \
-                                   "Area to define the endpoints of the "\
-                                   "peptide chain.")
-                
-    def updateMessageGroupBox(self):
-       
-        msg = "Click on the Amino Acid buttons to add a new residue to " \
-            "the polypeptide chain. Click <b>Done</b> to insert it into the project."
-
-        # This causes the "Message" box to be displayed as well.
-        # setAsDefault=True causes this message to be reset whenever
-        # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
-        self.updateMessage(msg)
-        
+        self.updateMessage("Choose the peptide parameters below, then click "\
+                           "two endpoints in the graphics area to insert a "\
+                           "peptide chain.")
+    
     def getParameters(self):
         """
         Return the parameters from this property manager

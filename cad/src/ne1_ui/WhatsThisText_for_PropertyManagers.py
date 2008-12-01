@@ -1179,17 +1179,36 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
     Add "What's This" text for widgets in the QuteMolX Property Manager.
     """
     propMgr.selectionFilterCheckBox.setWhatsThis(
-        """<b>Enable Selection Filter Checkbox</b>
+        """<b>Enable Atom Selection Filter</b>
         <p>
-        When checked, the selection filteris enabled and only atom
-        types listed in the Selection Filter Field ield are selectable.
+        When checked, the <i>atom selection filter</i> is enabled. 
+        Only atom types listed in the <b>Atom Selection Filter List</b> are 
+        included in selection operations (i.e. region selections in the 
+        <a href=Graphics_Area>graphics area</a>).</p>
+        <p>
+        While the <i>atom selection filter</i> is enabled, the 
+        <b>Atom Selection Filter List</b> is updated by selecting atom types 
+        in the <b>Atom Chooser</b>.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> To specify multiple atom types in the 
+        <b>Atom Selection Filter Field</b>, hold down the <b>Shift Key</b> while 
+        selecting atom types in the <b>Atom Chooser</b>.
         </p>""")
     
     propMgr.filterlistLE.setWhatsThis(
-        """<b>Selection Filter Field</b>
+        """<b>Atom Selection Filter List</b>
         <p>
-        Lists the current atom type the user may select while Selection 
-        Filter is checked.
+        When the <b>Enable atom selection filter</b> is checked, this list shows 
+        the current atom type(s) to be included in the selection during 
+        selection operations. <i>Only atom types in this list are included in 
+        selection operations.</i></p>
+        <p>
+        This list is updated by selecting atom types in the <b>Atom Chooser</b>.</p>
+        <p>
+        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <b>Hot Tip:</b> To specify multiple atom types, hold down the 
+        <b>Shift Key</b> while selecting atom types in the <b>Atom Chooser</b>.
         </p>""")
     
     propMgr.autoBondCheckBox.setWhatsThis(
@@ -1222,15 +1241,12 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
        are highlighted. This can speed up interactive response times 
        significantly.</p>
        <p>
-       The depth of the water surface can be made deeper by holding
-       down the Control + Shift keys together and pushing the mouse away
-       while holding down the middle mouse button.</p>
+       <img source=\"ui/actions/Help/HotTip.png\"><br>
+       The water surface can be made deeper/shallower by holding
+       down the <b>Control + Shift</b> keys together and pushing/pulling the 
+       mouse while holding down the middle mouse button.</p>
        <p>
-       The depth of the water surface can be made shallower by holding
-       down the Control + Shift keys together and pulling the mouse closer
-       while holding down the middle mouse button.</p>
-       <p>
-       Note: the region selection feature is immume to this filter.
+       <b>Note:</b> Region selections are immume to the Z depth filter.
        </p>""")
     
     propMgr.highlightingCheckBox.setWhatsThis(
