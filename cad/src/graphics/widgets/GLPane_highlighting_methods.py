@@ -35,7 +35,7 @@ from OpenGL.GL import glFlush
 from OpenGL.GL import glGetIntegerv
 from OpenGL.GL import glInitNames
 from OpenGL.GL import glMatrixMode
-from OpenGL.GL import glRasterPos
+from OpenGL.GL import glWindowPos2i
 from OpenGL.GL import glReadBuffer
 from OpenGL.GL import glReadPixels
 from OpenGL.GL import glReadPixelsf
@@ -127,7 +127,7 @@ class GLPane_highlighting_methods(object):
                 
                 # First, clear the pixel RGBA to zeros so we won't confuse a
                 # color with a glname if there are no shader primitives drawn.
-                glRasterPos(self.wX, self.wY)
+                glWindowPos2i(wX, wY)
                 gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
                 glDrawPixels(pwSize, pwSize, gl_format, gl_type, (0, 0, 0, 0))
 
@@ -161,17 +161,22 @@ class GLPane_highlighting_methods(object):
                 bytes = tuple([us(b) for b in rgba])
                 glname = (bytes[0] << 24 | bytes[1] << 16 |
                           bytes[2] << 8 | bytes[3])
-                ##print ("mouseover xy %d %d, " %  (wX, wY) +
-                ##       "rgba bytes (0x%x, 0x%x, 0x%x, 0x%x), " % bytes +
-                ##       "glname 0x%x" % glname)
+                if 0: ## 1 for debugging.
+                    print ("mouseover xy %d %d, " %  (wX, wY) +
+                           "rgba bytes (0x%x, 0x%x, 0x%x, 0x%x), " % bytes +
+                           "glname 0x%x" % glname)
+                    pass
 
                 ### XXX These need to be merged with the DL selection below.
-                obj = self.object_for_glselect_name(glname)
-                ##print "mouseover glname=%r, obj=%r." % (glname, obj)
-                if obj is None:
-                    print "bug: object_for_glselect_name returns None for glname %r." % glname
-                self.glselect_dict[id(obj)] = obj
-                
+                if glname:
+                    obj = self.object_for_glselect_name(glname)
+                    ##print "mouseover glname=%r, obj=%r." % (glname, obj)
+                    if obj is None:
+                        print "bug: object_for_glselect_name returns None for glname %r." % glname
+                    else:
+                        self.glselect_dict[id(obj)] = obj
+                        pass
+                    pass
                 pass
 
             if self._use_frustum_culling:

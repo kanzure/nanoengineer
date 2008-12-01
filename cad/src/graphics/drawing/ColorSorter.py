@@ -297,32 +297,42 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # the normal appearance first, because it will be obscured by the
         # highlight.  But halo selection extends beyond the object and is only
         # obscured by halo highlighting.  [russ 080610]
+        DLs_to_do = len(self.per_color_dls) > 0
         if (patterned_highlighting or not highlighted or
             (halo_selection and not halo_highlighting)) :
             if selected:
-                # Draw the selected appearance.  If the selection mode is
-                # patterned, the selected_dl does first normal drawing and then
-                # draws an overlay.
-                glCallList(self.selected_dl)
+                # Draw the selected appearance.
+                if prims_to_do:                  # Shader primitives.
+                    prims.draw(self.drawIndex, highlighted, selected,
+                               patterning, highlight_color)
+                    pass
+
+                if DLs_to_do:                    # Display lists.
+                    # If the selection mode is patterned, the selected_dl does
+                    # first normal drawing and then draws an overlay.
+                    glCallList(self.selected_dl)
+                    pass
+                pass
             else:
                 # Plain, old, solid drawing of the base object appearance.
                 if prims_to_do:
                     prims.draw(self.drawIndex)   # Shader primitives.
                     pass
-                if len(self.per_color_dls) > 0:
+
+                if DLs_to_do:
                     glCallList(self.color_dl)    # Display lists.
                     pass
                 pass
+            pass
 
         if highlighted:
 
-            # XXX Need to implement selection and halo/patterned drawing too.
             if prims_to_do:                      # Shader primitives.
                 prims.draw(self.drawIndex, highlighted, selected,
                            patterning, highlight_color)
                 pass
                 
-            if len(self.per_color_dls) > 0:      # Display lists.
+            if DLs_to_do:                        # Display lists.
                 if patterned_highlighting:
                     # Set up a patterned drawing mode for the following draw.
                     startPatternedDrawing(highlight = highlighted)

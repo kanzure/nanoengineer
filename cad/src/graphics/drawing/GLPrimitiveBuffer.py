@@ -109,10 +109,12 @@ See design comments on:
   small number of glMultiDrawElements calls, no more than the number of active
   allocation hunks of each primitive type that needs to be drawn.
 """
+import foundation.env as env
 import graphics.drawing.drawing_globals as drawing_globals
 from gl_buffers import GLBufferObject
 
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.prefs_constants import selectionColor_prefs_key
 
 import numpy
 
@@ -332,18 +334,26 @@ class GLPrimitiveBuffer(object):
 
         glEnableClientState(GL_VERTEX_ARRAY)
 
-        # Set up highlighting.
-        if highlighted:
+        # Set up for highlighting and selection drawing styles.
+        # XXX Need to implement halo/patterned drawing too.
+        if highlighted or selected:
             glUniform1iARB(shader.uniform("highlight_mode"), 1)
+
+            # Set up selection as solid color highlighting for now.
+            if selected:
+                highlight_color = env.prefs[selectionColor_prefs_key]    
+                pass
+
             if highlight_color is None: # Default highlight color.
                 highlight_color = env.prefs[hoverHighlightingColor_prefs_key]
                 pass
+
             if len(highlight_color) == 3:
                 highlight_color += (opacity,)
                 pass
             glUniform4fvARB(shader.uniform("override_color"), 1,
                             highlight_color)
-        else: # XXX Need to implement selection and halo/patterned drawing too.
+        else: 
             glUniform1iARB(shader.uniform("highlight_mode"), 0)
             pass
 
