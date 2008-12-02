@@ -21,13 +21,22 @@ setup2.py [now in outtakes], and part of Makefile) [bruce 071005]
 
 from types import InstanceType # use this form in inner loops
 
-_haveNumeric = True
+_haveNumeric = True # might be modified below
 
 try:
     from Numeric import array, PyObject
 except:
     # this gets warned about in state_utils
     _haveNumeric = False
+
+_haveNumpy = True # might be modified below
+
+try:
+    import numpy
+    numpy.ndarray # make sure this exists
+except:
+    print "fyi: python same_vals can't import numpy.ndarray, won't handle it" ###
+    _haveNumpy = False
 
 import foundation.env as env
 
@@ -229,6 +238,40 @@ def _same_Numeric_array_helper(obj1, obj2):
             raise _NotTheSame
     return
 
+
+def _same_numpy_ndarray_helper(obj1, obj2): #bruce 081202
+    """
+    Given two objects of type numpy.ndarray,
+    raise _NotTheSame if they are not equal.
+    """
+    # For documentation, see http://www.scipy.org/Tentative_NumPy_Tutorial .
+    # Note that we only need this function because:
+    # - for some developers, some PyOpenGL functions can return objects of this
+    #   type (e.g. glGetDoublev( GL_MODELVIEW_MATRIX));
+    # - numpy has the same design flaw in ==/!= that Numeric has.
+    # CAVEATS:
+    # - this implementation might be wrong if obj1.data (a python buffer)
+    #   can contain padding, or if element types can be python object pointers,
+    #   or if my guesses from the incomplete documentation I found (on ndarray
+    #   and on buffer) are wrong.
+    ### TODO:
+    # - support this in the C version of same_vals
+    # - support it in copy_val
+    # - not sure if it needs support elsewhere in state_utils.py
+    if obj1.shape != obj2.shape:
+        raise _NotTheSame
+    if obj1.dtype != obj2.dtype:
+        raise _NotTheSame
+    # compare the data
+    # note: type(obj1.data) is <type 'buffer'>;
+    # python documentation only hints that this can be compared using == or !=;
+    # doing so seems to work by tests, e.g. buffer("abc") != buffer("def") => True,
+    # and I verified that the following is capable of finding same or different
+    # and the printed obj1, obj2 when it did this look correct. [bruce 081202]
+    if obj1.data != obj2.data:
+        raise _NotTheSame
+    return
+
 _known_type_same_helpers = {}
 
 _known_type_same_helpers[type([])] = _same_list_helper
@@ -236,13 +279,19 @@ _known_type_same_helpers[type({})] = _same_dict_helper
 _known_type_same_helpers[type(())] = _same_tuple_helper
 _known_type_same_helpers[ InstanceType ] = _same_InstanceType_helper
 
-if (_haveNumeric):
+if _haveNumeric:
     # note: related code exists in state_utils.py.
     numeric_array_type = type(array(range(2))) # __name__ is 'array', but Numeric.array itself is a built-in function, not a type
     assert numeric_array_type != InstanceType
     _known_type_same_helpers[ numeric_array_type ] = _same_Numeric_array_helper
     del numeric_array_type
 
+if _haveNumpy:
+    numpy_ndarray_type = numpy.ndarray
+    assert numpy_ndarray_type != InstanceType
+    _known_type_same_helpers[ numpy_ndarray_type ] = _same_numpy_ndarray_helper
+    del numpy_ndarray_type
+    
 def _same_vals_helper(v1, v2): #060303
     """
     [private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
