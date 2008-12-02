@@ -1,8 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 projection.py - utilities loosely related to setting up the projection matrix
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 
@@ -33,13 +35,16 @@ from exprs.widget2d import Widget2D
 from exprs.ExprsConstants import PIXELS
 
 class DrawInCorner_projection(DelegatingInstanceOrExpr):
-    """DEPRECATED for general use -- use DrawInCorner instead.
+    """
+    [DEPRECATED for general use -- use DrawInCorner instead.]
+    
     This is a variant of DrawInCorner which works by changing the projection matrix,
     and which has several bugs/niys. It only works for the default corner argument,
     and any Highlightables in its main argument (delegate) only work properly for
     highlighting if they are given the option projection = True (which is not the
     default, for efficiency reasons).
-       Its usefulness is that it's the only expr (as of 070405) which changes the
+
+    Its usefulness is that it's the only expr (as of 070405) which changes the
     projection matrix for the subexprs it draws, so it's the only good test of
     Highlightable(projection = True).
     """
@@ -130,21 +135,26 @@ corner_abbrevs = {   #070208
 }
 
 class DrawInCorner(DelegatingInstanceOrExpr):
-    """DrawInCorner( thing, (-1,-1)) draws thing in the lower left corner of the screen
+    """
+    DrawInCorner( thing, (-1,-1)) draws thing in the lower left corner of the screen
     (positioning thing so that its layout box's lower left corner nests directly into that corner of the screen).
     The depth can be specified by the option want_depth (between 0.0 and 1.0), which by default is 0.01 (very near the front).
     [###UNTESTED: it may be that perspective view and/or non-default depths have never been tested.]
-       The "corner" can be any corner, or any edge, or the center of the screen;
+
+    The "corner" can be any corner, or any edge, or the center of the screen;
     it can be specified as a 2nd argument (x,y), or by the option corner = (x,y),
     where x can be -1, 0, or 1 (for left, center, or right respectively)
     and y can be -1, 0, or 1 (for bottom, center, or top).
-       For the corners, the abbreviations defined in prefs_constants (small ints called UPPER_RIGHT, UPPER_LEFT,
+
+    For the corners, the abbreviations defined in prefs_constants (small ints called UPPER_RIGHT, UPPER_LEFT,
     LOWER_LEFT, LOWER_RIGHT) are also permitted (and for convenience can also be imported from this class's source file).
-       When thing does not need to touch a screen boundary (in one or both dimensions),
+
+    When thing does not need to touch a screen boundary (in one or both dimensions),
     it is not shifted at all, meaning its local origin is aligned with the specified position in that dimension.
     For drawing in an edge or the center, consider wrapping thing in Center or the like to modify this.
     (Without this feature, DrawInCorner( thing, (0,0)) would be equivalent to DrawInCorner( Center(thing), (0,0)).)
-       ###BUG: The current implem (as of 070210) probably doesn't work properly after coordinate changes inside display lists.
+
+    ###BUG: The current implem (as of 070210) probably doesn't work properly after coordinate changes inside display lists.
     """
     ##e should we reverse the arg order? [recent suggestion as of 070302]
     delegate = Arg(Widget2D)
@@ -201,15 +211,17 @@ class DrawInCorner(DelegatingInstanceOrExpr):
                 # since it doesn't depend on knowing the setup code, except meaning of glpane height & width attrs,
                 # and knowing that origin is centered between them.
 ##            print x1,y1,z1
+            # use glScale to compensate for zoom * scale in _setup_projection,
+            # for error in PIXELS, and for want_depth != cov_depth
             x1wish = glpane.width / 2.0 * PIXELS # / 2.0 because in these coords, screen center indeed has x == y == 0
-            r = x1/x1wish
-            glScale(r,r,r) # compensate for zoom * scale in _setup_projection, for error in PIXELS, and for want_depth != cov_depth
+            r = x1 / x1wish
+            glScale(r, r, r) 
 ##            x1 /= r
 ##            y1 /= r
             z1 /= r
             # now the following might work except for z, so fix z here
             glTranslatef( 0.0, 0.0, z1)
-            del x1,y1 # not presently used
+            del x1, y1 # not presently used
             
             # I don't think we need to usage-track glpane height & width (or scale or zoomFactor etc)
             # since we'll redraw when those change, and redo this calc every time we draw.

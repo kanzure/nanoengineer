@@ -70,7 +70,9 @@ from graphics.drawables.Selobj import Selobj_API # for the "selobj interface" (s
 
 # modified from testdraw.printfunc:
 def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refile
-    "#doc"
+    """
+    #doc
+    """
     #e might be more useful if it could take argfuncs too (maybe as an option); or make a widget expr for that
     def printer(_guard = None, args = args):
         assert _guard is None # for now
@@ -148,11 +150,16 @@ debug_saved_coords = False #070317
 
 class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
     """
-    Abstract superclass [private] for Instances which can capture the current OpenGL drawing coordinates,
-    restore them later, and do OpenGL state queries within them.
-       Superclass of Highlightable [though maybe it could just own one of us in an attr, instead?? ##e];
-    and of SavedCoordsys, for holding a saved static coordsys.
-       WARNING: implem and API may change once we introduce "draw decorators" to fix Highlightable/DisplayListChunk bugs.
+    Abstract superclass [private] for Instances which can capture the current
+    OpenGL drawing coordinates, restore them later, and do OpenGL state queries
+    within them.
+
+    Superclass of Highlightable [though maybe it could just own one of us
+    in an attr, instead?? ##e]; and of SavedCoordsys, for holding a saved
+    static coordsys.
+
+    @warning: implem and API may change once we introduce "draw decorators"
+              to fix Highlightable/DisplayListChunk bugs.
     """
     projection = Option(bool, False) # whether to save projection matrix too... would be default True except inefficient
 
@@ -281,7 +288,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
 
     def safe_glLoadMatrixd(self, matrix, name): # note: doesn't use self, ought to refile in draw_utils.py or a glpane proxy ###e
         """
-        call glLoadMatrixd(matrix( if it looks like matrix has
+        call glLoadMatrixd(matrix) if it looks like matrix has
         the right type; print a warning otherwise.
         """
         # as of initial commit, 061214 359, the crash bug never recurred but neither did I see any prints from this,
@@ -376,7 +383,9 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
             #print "during drag got this info:",gl_event_info
             info = gl_event_info
         def func(center = center, radius = radius, plane = plane, depth0 = depth, _wXY =_wXY):
-            "[local helper func, to be passed to self.run_OpenGL_in_local_coords]"
+            """
+            [local helper func, to be passed to self.run_OpenGL_in_local_coords]
+            """
             # will the arg dflts fix this bug when I drag off the edge of the object?
             #   UnboundLocalError: local variable 'center' referenced before assignment
             farQ, abs_hitpoint, wX, wY, depth, farZ = info
@@ -517,8 +526,11 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
 
 class SavedCoordsys(_CoordsysHolder): #070317
     """
-    One of these can be told to save a static copy of the coordsys from any instance of a _CoordsysHolder subclass,
-    or to save one from the current GL state, and then to make use of it in some of the same ways Highlightable can do. #doc better
+    One of these can be told to save a static copy of the coordsys
+    from any instance of a _CoordsysHolder subclass,
+    or to save one from the current GL state, and then to make use of it
+    in some of the same ways Highlightable can do.
+    ###doc better
     """
     def copy_from(self, other): #070328 moved the method body to superclass & renamed it there.
             #e Its fate here (both method & class existence) is undecided.
@@ -535,9 +547,9 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
     #e rename to Button? make variant called Draggable?
     """
     Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
-    [###WRONG, those are not named options -- fix docstring, or change them to options??]
-    renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight [#k or just highlight??]
-    [and has more, so as to be Button #doc #e rename #e split out draggable of some sort]
+    normally renders as plain (and delegates most things to it),
+    but on mouseover, renders as plain plus highlight [#k or just highlight??].
+    ###doc more
     """
     # WARNING: the abstract methods in superclass DragHandler_API will be inherited (if not overridden),
     # even if they are defined in the delegate. [in theory; unconfirmed.] This is good in this case. [061127 comment]
@@ -662,7 +674,8 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         try:
             draw_this = "<not yet set>" # for debug prints
             if self.transient_state.in_drag:
-                if printdraw: print "pressed_out.draw",self
+                if printdraw:
+                    print "pressed_out.draw", self
                 draw_this = self.pressed_out #e actually this might depend on mouseover, or we might not draw anything then...
                     # but this way, what we draw when mouse is over is a superset of what we draw in general,
                     # easing eventual use of highlightables inside display lists. See other drawing done later when we're highlighted

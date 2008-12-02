@@ -1072,7 +1072,9 @@ testexpr_21c = Boxed(SimpleRow(wrap1(TopRight), wrap1(CenterRight), wrap1(Bottom
 # the following testexpr_21d & _especially _21e are examples of toplevel code we need to figure out how to simplify. ####
 
 def aligntest(af):
-    "[af should be an alignment func (class) like Center]"
+    """
+    [af should be an alignment func (class) like Center]
+    """
     try:
         def doit(n):
             return af(Translate(Rect(n),(-n/3.0,-n/3.0)))
@@ -1462,7 +1464,9 @@ testexpr_32 = IsocelesTriangle(1.5, 1, green) # works [after unstubbing of Isoce
 # == Highlightable.screenrect()
 
 class _testexpr_33(DelegatingInstanceOrExpr):#070226
-    "test Highlightable.screenrect()"
+    """
+    test Highlightable.screenrect()
+    """
     delegate = Highlightable( Rect(1.5, 1, orange), sbar_text = "press orange rect to draw two diagonals across screen")
     def draw(self):
         if self._delegate.transient_state.in_drag: # (requires mouse click!) # other tests here say glpane.in_drag
@@ -1526,7 +1530,8 @@ testexpr_36d = DraggablyBoxed(Image("courier-128.png", size = Rect(4)), resizabl
 testexpr_36e = DraggablyBoxed(Sphere(2), resizable = True, clipped = True) # works [use trackball -- shows limits/benefits of implem]
 
 class Kluge_DrawTheModel(Widget2D): #070414 #e refile along with the "app object" (AppOuterLayer)
-    """Draw the (old legacy code) model.
+    """
+    Draw the (old legacy code) model.
     Kluge in many ways:
     - *what* model?
       - answer is not well defined in a more general context
@@ -1640,7 +1645,10 @@ testexpr = testexpr_35b ### testexpr_11pd5a # testexpr_36f # testexpr_38 # teste
 # ==
 
 def get_redraw_counter(): #070108
-    "#doc [WARNING: this is not a usage/change-tracked attribute!]"
+    """
+    #doc
+    [WARNING: this is not a usage/change-tracked attribute!]
+    """
     import foundation.env as env
     return env.redraw_counter
 
@@ -1653,7 +1661,8 @@ def get_redraw_counter(): #070108
 from foundation.preferences import _NOT_PASSED ###k
 
 def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forget
-    """Return a prefs value. Fully usage-tracked.
+    """
+    Return a prefs value. Fully usage-tracked.
     [Kluge until we have better direct access from an expr to env.prefs. Suggest: use in call_Expr.]
     """
     import foundation.env as env
@@ -1662,7 +1671,9 @@ def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forg
 debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in GLPane.py
 
 class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment]
-    "helper class for use in testbed, to provide glue code between testexpr and the rest of NE1"
+    """
+    helper class for use in testbed, to provide glue code between testexpr and the rest of NE1
+    """
     redraw_counter = State(int)
     testname = State(str)#070122
     delegate = Arg(Anything) # might need to delegate lbox attrs (or might not, not sure, but no harm in doing it)
@@ -1697,7 +1708,9 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
     pass
         
 def testbed(expr):
-    "this turns the current testexpr into the actual expr to render"
+    """
+    this turns the current testexpr into the actual expr to render
+    """
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
     ## return Overlay(expr, If(1,DrawInCorner_projection,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
     ## return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)) ))
@@ -1781,7 +1794,8 @@ except:
     pass
 
 def _testexpr_and_testnames_were_changed():
-    """call this when you change those (which you must do in sync);
+    """
+    call this when you change those (which you must do in sync);
     the two callers (reload and _set_test) need to set them in different ways
     but must call this to make sure _app knows about the change and will update _app.testname
     """
@@ -1815,7 +1829,9 @@ def _set_test(test):
     return
 
 def _set_test_from_dialog( ): # see also grab_text_using_dialog in another file; TODO: rewrite this to call that (easy)
-    "#doc"
+    """
+    #doc
+    """
     # modified from debug_runpycode_from_a_dialog, which does the "run py code" debug menu command
     title = "title"
     label = "testexpr_xxx, or any 1-line expr\n(or use @@@ to fake \\n for more lines)"
@@ -1849,8 +1865,12 @@ class _test_show_and_choose(DelegatingInstanceOrExpr):
         cmenu_maker = _self
      )
     def make_selobj_cmenu_items(self, menu_spec, highlightable):
-        """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
-        Only works if this obj (self) gets passed to Highlightable's cmenu_maker option...
+        """
+        Add self-specific context menu items to <menu_spec> list
+        when self is the selobj (or its delegate(?)... ###doc better).
+
+        Only works if this obj (self) gets passed to Highlightable's
+        cmenu_maker option...
         """
         ## menu_spec.clear() # is this a kluge, or ok? hmm, list doesn't have this method.
 ##        del menu_spec[0:len(menu_spec)] # is this a kluge, or ok?
@@ -1885,7 +1905,9 @@ class _test_show_and_choose(DelegatingInstanceOrExpr):
 # ==
 
 def _clear_state(): #070318; doesn't crash, but has bugs -- see comments where it's called just below.
-    "clear state, then reload (without reload, gets exception)"
+    """
+    clear state, then reload (without reload, gets exception)
+    """
     print "clearing _state (len %d), then reloading" % len(_state)
     _state.clear()
     import foundation.env as env
@@ -1997,8 +2019,9 @@ _kluge_current_testexpr_instance = None
     # which is only a convention).
 
 def drawtest1_innards(glpane):
-    "entry point from ../testdraw.py (called once per mode.Draw call)"
-
+    """
+    entry point from ../testdraw.py (called once per mode.Draw call)
+    """
     graphicsMode = glpane.graphicsMode # assume this is always testmode's graphicsMode
     _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode)
         #061218 kluge (multiple places, some in cad/src 
@@ -2094,7 +2117,10 @@ def find_or_make_main_instance(glpane, staterefs, testexpr, testbed): #061120; g
     return res
 
 def _cmpmsgs(d1, d2):
-    """return e.g. ("same", "DIFFERENT", "same") to show how d1 and d2 compare using == at corresponding elts"""
+    """
+    return e.g. ("same", "DIFFERENT", "same") to show how d1 and d2
+    compare using == at corresponding elts
+    """
     assert len(d1) == len(d2)
     res = [_cmpmsg(d1[i], d2[i]) for i in range(len(d1))]
     return tuple(res) # tuple is required for this to work properly with print formatting
@@ -2115,13 +2141,22 @@ def make_main_instance(glpane, staterefs, testexpr, testbed):
     return inst
 
 class _find_or_make: #061217 from find_or_make_main_instance etc #e refile ### NOT YET USED
-    """Helper class for caching made things when the input data hasn't changed.
-    (Note that it is up to you to not accidentally discard and remake instances of this class itself, e.g. upon module reload.
-     Or maybe we'll let you do it, and have this class store its data elsewhere... that might be more convenient,
-     especially during development of this class.)
-    If you want a "remake button" for such a thing, let the button increment a counter which is part of the input data.
-    If you want an "always remake" button, let it control whether an always-changing counter gets included in the data or not.
-    If the data is positional, then include a constant in place of anything you sometimes leave out.
+    """
+    Helper class for caching made things when the input data hasn't changed.
+
+    (Note that it is up to you to not accidentally discard and remake instances
+     of this class itself, e.g. upon module reload... Or maybe we'll let you do
+     it, and have this class store its data elsewhere... that might be more
+     convenient, especially during development of this class. ###doc better)
+    
+    If you want a "remake button" for such a thing, let the button increment
+    a counter which is part of the input data.
+
+    If you want an "always remake" button, let it control whether an always-
+    changing counter gets included in the data or not.
+
+    If the data is positional, then include a constant in place of anything
+    you sometimes leave out.
     """
     def __init__(self, printname = None): #e makefunc? cacheplace?
         self.old_data = None
