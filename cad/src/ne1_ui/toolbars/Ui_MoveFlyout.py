@@ -87,3 +87,19 @@ class MoveFlyout(Ui_AbstractFlyout):
         params = (subControlAreaActionList, commandActionLists, allActionsList)
 
         return params
+    
+    def _addWhatsThisText(self):
+        """
+        Add 'What's This' help text for all actions on toolbar. 
+        """
+        from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForMoveCommandToolbar
+        whatsThisTextForMoveCommandToolbar(self)
+        return
+    
+    def _addToolTipText(self):
+        """
+        Add 'Tool tip' help text for all actions on toolbar. 
+        """
+        from ne1_ui.ToolTipText_for_CommandToolbars import toolTipTextForMoveCommandToolbar
+        toolTipTextForMoveCommandToolbar(self)
+        return

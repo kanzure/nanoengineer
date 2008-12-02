@@ -663,7 +663,7 @@ def setupUi(win):
     # Atom Generator (Developer Example). Mark 2007-06-08
     win.insertAtomAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.insertAtomAction.setIcon(
-        geticon("ui/actions/Toolbars/Smart/Deposit_Atoms.png"))
+        geticon("ui/actions/Command Toolbar/BuildAtoms/InsertAtom.png"))
     win.insertAtomAction.setObjectName("insertAtomAction")
 
     # Peptide Generator, piotr 080304
@@ -797,19 +797,19 @@ def setupUi(win):
     win.measurementsMenu = QtGui.QMenu()
     win.measurementsMenu.setObjectName("measurementsMenu")
     win.measurementsMenu.setIcon(
-        geticon("ui/actions/Toolbars/Smart/Dimension.png"))
+        geticon("ui/actions/Tools/Dimensions/Dimension.png"))
 
     win.simSetupAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.simSetupAction.setCheckable(True)
     win.simSetupAction.setChecked(False)
     win.simSetupAction.setEnabled(True)
     win.simSetupAction.setIcon(
-        geticon("ui/actions/Simulation/Run_Dynamics.png"))
+        geticon("ui/actions/Simulation/RunDynamics.png"))
     win.simSetupAction.setObjectName("simSetupAction")
 
     win.simMoviePlayerAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.simMoviePlayerAction.setIcon(
-        geticon("ui/actions/Simulation/Play_Movie.png"))
+        geticon("ui/actions/Simulation/PlayMovie.png"))
 
     win.rosettaSetupAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.rosettaSetupAction.setCheckable(True)
@@ -821,17 +821,17 @@ def setupUi(win):
     
     win.simPlotToolAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.simPlotToolAction.setIcon(
-        geticon("ui/actions/Simulation/Make_Graphs.png"))
+        geticon("ui/actions/Simulation/PlotGraphs.png"))
     win.simPlotToolAction.setObjectName("simPlotToolAction")
 
     win.jigsMotorAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsMotorAction.setIcon(
-        geticon("ui/actions/Simulation/Rotary_Motor.png"))
+        geticon("ui/actions/Simulation/RotaryMotor.png"))
     win.jigsMotorAction.setObjectName("jigsMotorAction")
 
     win.jigsLinearMotorAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.jigsLinearMotorAction.setIcon(
-        geticon("ui/actions/Simulation/Linear_Motor.png"))
+        geticon("ui/actions/Simulation/LinearMotor.png"))
     win.jigsLinearMotorAction.setObjectName("jigsLinearMotorAction")
 
     win.jigsStatAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
@@ -851,7 +851,7 @@ def setupUi(win):
 
     win.simulationJigsAction = QtGui.QAction(win)
     win.simulationJigsAction.setIcon(
-        geticon("ui/actions/Simulation/Simulation_Jigs.png"))
+        geticon("ui/actions/Simulation/SimulationJigs.png"))
     win.simulationJigsAction.setObjectName("simulationJigsAction")
 
     win.jigsGamessAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
@@ -916,7 +916,7 @@ def setupUi(win):
     win.toolsSelectMoleculesAction = QtGui.QAction(MainWindow)
     win.toolsSelectMoleculesAction.setCheckable(1) # make the select chunks button checkable
     win.toolsSelectMoleculesAction.setIcon(
-        geticon("ui/actions/Toolbars/Standard/Select_Chunks.png"))
+        geticon("ui/actions/Misc/SelectChunks.png"))
 
     # Define an action grop for move molecules (translate and rotate components)
     # actions ...to make them mutually exclusive. 
@@ -928,13 +928,13 @@ def setupUi(win):
                                                       win = MainWindow)
     win.toolsMoveMoleculeAction.setCheckable(1) # make the Move mode button checkable
     win.toolsMoveMoleculeAction.setIcon(
-        geticon("ui/actions/Toolbars/Standard/Move_Chunks.png"))
+        geticon("ui/actions/Command Toolbar/MoveCommands/Translate.png"))
 
     win.rotateComponentsAction = NE1_QWidgetAction(win.toolsMoveRotateActionGroup, 
                                                      win = MainWindow)
     win.rotateComponentsAction.setCheckable(1) # make the Move mode button checkable
     win.rotateComponentsAction.setIcon(
-        geticon("ui/actions/Toolbars/Standard/Rotate_Components.png"))
+        geticon("ui/actions/Command Toolbar/MoveCommands/Rotate.png"))
 
     #= "View" toolbars.
 
@@ -1767,12 +1767,12 @@ def retranslateUi(win):
     # Atom Generator example for developers.
     win.insertAtomAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", 
-        "Atom", 
+        "Insert Atom", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
     win.insertAtomAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
-        "Generate Atom (Developer Example)", 
+        "Insert Atom (Developer Example)", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
 
@@ -1919,9 +1919,9 @@ def retranslateUi(win):
         "MainWindow", "Rosetta", None, QtGui.QApplication.UnicodeUTF8))
     
     win.simPlotToolAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "Graphs...", None, QtGui.QApplication.UnicodeUTF8))
+        "MainWindow", "Plot Graphs", None, QtGui.QApplication.UnicodeUTF8))
     win.simPlotToolAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Graphs", None, QtGui.QApplication.UnicodeUTF8))    
+        "MainWindow", "Plot Graphs", None, QtGui.QApplication.UnicodeUTF8))    
     win.jigsESPImageAction.setText(QtGui.QApplication.translate(
         "MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
     win.jigsESPImageAction.setIconText(QtGui.QApplication.translate(
@@ -2052,11 +2052,11 @@ def retranslateUi(win):
         QtGui.QApplication.translate("MainWindow", "Translate",
                                      None, QtGui.QApplication.UnicodeUTF8))
     win.toolsMoveMoleculeAction.setToolTip(
-        QtGui.QApplication.translate("MainWindow", "Translate",
+        QtGui.QApplication.translate("MainWindow", "Translate Selection",
                                      None, QtGui.QApplication.UnicodeUTF8))
     win.rotateComponentsAction.setText(
         QtGui.QApplication.translate("MainWindow", "Rotate",
                                      None, QtGui.QApplication.UnicodeUTF8))
     win.rotateComponentsAction.setToolTip(
-        QtGui.QApplication.translate("MainWindow", "Rotate",
+        QtGui.QApplication.translate("MainWindow", "Rotate Selection",
                                      None, QtGui.QApplication.UnicodeUTF8))

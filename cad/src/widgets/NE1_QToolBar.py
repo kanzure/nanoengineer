@@ -81,10 +81,10 @@ class NE1_QToolBar(QToolBar):
         """
         if orientation == Qt.Horizontal:
             widget.setPixmap(
-                getpixmap("ui/actions/Toolbars/Standard/horizontal_toolbar_separator.png"))
+                getpixmap("ui/toolbars/h_separator.png"))
         else:
             widget.setPixmap(
-                getpixmap("ui/actions/Toolbars/Standard/vertical_toolbar_separator.png"))
+                getpixmap("ui/toolbars/v_separator.png"))
         
     def addSeparator(self):
         """

@@ -106,7 +106,7 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
     # the name of the PropMgr (this) object via setObjectName(). ###k used only for debugging??
     pmName = "pm" + title
     # <iconPath> - full path to PNG file that appears in the header.
-    iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png" ###e REVISE
+    iconPath = "ui/actions/Commands Toolbar/BuildAtoms/InsertAtom.png" ###e REVISE
 
     # bruce added these to make it work w/o GBC.
     # (It doesn't need restore_defaults_btn_clicked because PropMgrBaseClass defines that itself.
@@ -147,7 +147,7 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
 ##    
 ##    title = "Example Command 2"
 ##    pmName = "pm" + title
-##    iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png" #e REVISE
+##    iconPath = "ui/actions/Command Toolbar/BuildAtoms/InsertAtom.png" #e REVISE
 ##
 ##    # need these, at least to use Done:
 ##    prefix = "Thing2" # for names created by GBC [required when create_name_from_prefix is true (not sure about otherwise)]

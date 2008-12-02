@@ -66,6 +66,15 @@ def toolTipTextForCrystalCommandToolbar(commandToolbar):
     """
     "Tool Tip" text for widgets in the Build Crystal Command Toolbar.
     """
+    commandToolbar.polygonShapeAction.setToolTip( "Polygon (P)")
+    commandToolbar.circleShapeAction.setToolTip( "Circle (C)")
+    commandToolbar.squareShapeAction.setToolTip( "Square (S)")
+    commandToolbar.rectCtrShapeAction.setToolTip( "Rectangular (R)")
+    commandToolbar.rectCornersShapeAction.setToolTip( "Rectangle Corners (Shift+R)")
+    commandToolbar.triangleShapeAction.setToolTip( "Triangle (T)")
+    commandToolbar.diamondShapeAction.setToolTip( "Diamond (D)")
+    commandToolbar.hexagonShapeAction.setToolTip( "Hexagon (H)")
+    commandToolbar.lassoShapeAction.setToolTip( "Lasso (L)")
     return
 
 # Move command toolbar ####################

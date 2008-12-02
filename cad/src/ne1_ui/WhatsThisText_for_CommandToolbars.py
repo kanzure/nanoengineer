@@ -21,7 +21,8 @@ def whatsThisTextForCommandToolbarBuildButton(button):
     button.setWhatsThis(
         """<b>Build</b>
         <p>
-        The NanoEngineer-1 <i>Build commands</i> for constructing structures 
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Build.png\"><br>
+        The <b>Build Command Set</b> for modeling and editing structures 
         interactively.
         </p>""")
     return
@@ -33,9 +34,9 @@ def whatsThisTextForCommandToolbarInsertButton(button):
     button.setWhatsThis(
         """<b>Insert</b>
         <p>
-        The NanoEngineer-1 <i>Insert commands</i> for inserting reference
-        geometry, part files or other external structures into the current
-        model.
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Insert.png\"><br>
+        The <b>Insert Command Set</b> which includes commands for inserting 
+        various things into the current part.
         </p>""")
     return
 
@@ -46,8 +47,9 @@ def whatsThisTextForCommandToolbarToolsButton(button):
     button.setWhatsThis(
         """<b>Tools</b>
         <p>
-        This is a drop down Tool menu. Clicking on the Tool button will add
-        these tools to the Command Toolbar.
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Tools.png\"><br>
+        The <b>Tools Command Set</b> which includes specialized tools for 
+        model editing.
         </p>""")
     return
 
@@ -58,8 +60,9 @@ def whatsThisTextForCommandToolbarMoveButton(button):
     button.setWhatsThis(
         """<b>Move</b>
         <p>
-       This is a drop down menu of Move commands. Clicking on the Move button
-       will add these commands to the Command Toolbar.
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Move.png\"><br>
+        The <b>Move Command Set</b> which includes specialized rotation and 
+        translation commands that operate on the current selection.
         </p>""")
     return
 
@@ -70,10 +73,9 @@ def whatsThisTextForCommandToolbarSimulationButton(button):
     button.setWhatsThis(
         """<b>Simulation</b>
         <p>
-        This is a drop down menu containing Simulation modes (Run Dynamics
-        and Play Movie). The menu also contains the associated simulation jigs.
-        Clicking on the Simulation button will add these items to the Command
-        Explorer
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Simulation.png\"><br>
+        The <b>Simulation Command Set</b> which includes commands for setting up, 
+        launching and playing back movies of molecular dynamics simulations.
         </p>""")
     return
 
@@ -88,9 +90,10 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
     """
     
     commandToolbar.exitModeAction.setWhatsThis(
-        """<b>Exit Protein</b>
+        """<b>Exit Atoms</b>
         <p>
-        Exits <b>Build Protein</b>.
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
+        Exits the <b>Build Atoms</b> command set.
         </p>""")
     
     commandToolbar.atomsToolAction.setWhatsThis(
@@ -111,7 +114,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         element type in set using the <b>Atom Chooser</b> in the 
         <a href=Property_Manager>property manager</a>.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> Use the <b>Selection Filter</b> to limit selects to 
         specific atom types in the <a href=Graphics_Area>raphics area</a>
         <a href=Command_Toolbar>command toolbar</a>.
@@ -127,7 +130,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         the bond types (i.e. single, double, triple, etc.) in the flyout area
         of the <a href=Command_Toolbar>command toolbar</a>.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> It is possible to transmute multiple bonds at the same 
         time. To do this, select all the atoms with bonds you want to transmute, 
         then click on the bond type in the 
@@ -141,7 +144,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         Sets the active bond type to <b>single</b>. Singe-clicking a 
         highlighted bond transmutes it into a single bond.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> It is possible to transmute multiple bonds into single 
         bonds at the same time. To do this, select all the atoms with bonds 
         you want to transmute, then click on this button. <b>Note:</b> <i>Only 
@@ -155,7 +158,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         Sets the active bond type to <b>double</b>. Singe-clicking a 
         highlighted bond transmutes it into a double bond.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> It is possible to transmute multiple bonds into double 
         bonds at the same time. To do this, select all the atoms with bonds 
         you want to transmute, then click on this button. <b>Note:</b> <i>Only 
@@ -169,7 +172,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         Sets the active bond type to <b>triple</b>. Singe-clicking a 
         highlighted bond transmutes it into a triple bond.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> It is possible to transmute multiple bonds into triple 
         bonds at the same time. To do this, select all the atoms with bonds 
         you want to transmute, then click on this button. <b>Note:</b> <i>Only 
@@ -183,7 +186,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         Sets the active bond type to <b>aromatic</b>. Singe-clicking a 
         highlighted bond transmutes it into an aromatic bond.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> It is possible to transmute multiple bonds into aromatic 
         bonds at the same time. To do this, select all the atoms with bonds 
         you want to transmute, then click on this button. <b>Note:</b> <i>Only 
@@ -197,7 +200,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         Sets the active bond type to <b>graphitic</b>. Singe-clicking a 
         highlighted bond transmutes it into a graphitic bond.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> It is possible to transmute multiple bonds into graphitic 
         bonds at the same time. To do this, select all the atoms with bonds 
         you want to transmute, then click on this button. <b>Note:</b> <i>Only 
@@ -220,7 +223,8 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Protein</b>
         <p>
-        Exits <b>Build Protein</b>.
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
+        Exits the <b>Build Protein</b> command set.
         </p>""")
     
     commandToolbar.modelProteinAction.setWhatsThis(
@@ -324,7 +328,8 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit DNA</b>
         <p>
-        Exits <b>Build DNA</b>.
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
+        Exits the <b>Build DNA</b> command set.
         </p>""")
     
     commandToolbar.dnaDuplexAction.setWhatsThis(
@@ -345,9 +350,10 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         dropping strand arrow heads onto their strand conjugate 
         (i.e. 3' on to 5' and vice versa). </p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> Changing the <b>Global display style</b> to <b>CPK</b>  
-        results in faster interactive graphics while in this command.
+        results in faster interactive graphics while in this command, especially 
+        for large models.
         </p>""")
     
     commandToolbar.joinStrandsAction.setWhatsThis(
@@ -358,9 +364,10 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         join strands by dragging and dropping strand arrow heads onto their 
         strand conjugate (i.e. 3' on to 5' and vice versa). </p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> Changing the <b>Global display style</b> to <b>CPK</b>  
-        results in faster interactive graphics while in this command.
+        results in faster interactive graphics while in this command, especially 
+        for large models.
         </p>""")
     
     commandToolbar.convertDnaAction.setWhatsThis(
@@ -387,7 +394,7 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         <b>Edit > Undo</b> or save this model and reopen the previous 
         version.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> Changing the <b>Global display style</b> to <b>CPK</b> or 
         <b>DNA Cylinder</b> may make the model easier to visually inspect.</p>
         <p>
@@ -402,7 +409,7 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         Produces a comma-separated value (.CSV) text file containing all  
         DNA strand sequences in the model.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> This file can be used to order 
         oligos from suppliers of custom oligonucleotides such as 
         Integrated DNA Technologies and Gene Link.
@@ -443,7 +450,8 @@ def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Nanotube</b>
         <p>
-        Exits <b>Build Nanotube</b>.
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
+        Exits the <b>Build Nanotube</b> command set.
         </p>""")
     
     commandToolbar.insertNanotubeAction.setWhatsThis(
@@ -459,6 +467,88 @@ def whatsThisTextForCrystalCommandToolbar(commandToolbar):
     """
     "Tool Tip" text for widgets in the Build Crystal (crystal) Command Toolbar.
     """
+    commandToolbar.exitModeAction.setWhatsThis(
+        """<b>Exit Crystal</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
+        Exits the <b>Build Crystal</b> command set.
+        </p>""")
+    
+    commandToolbar.polygonShapeAction.setWhatsThis(
+        """<b>Polygon</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/Polygon.png\"><br>
+        Defines the selection shape as a polygon with the user specifying the 
+        vertices.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> You must <b>double-click</b> to define the final vertex and close the polygon.
+        </p>""")
+    
+    commandToolbar.circleShapeAction.setWhatsThis(
+        """<b>Circle</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/Circle.png\"><br>
+        Defines the selection shape as a circle with the user specifying the 
+        center (first click) and radius (second click).
+        </p>""")
+        
+    commandToolbar.squareShapeAction.setWhatsThis(
+        """<b>Square</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/Square.png\"><br>
+        Defines the selection shape as a square with the user specifying the 
+        center (first click) and a corner (second click).
+        </p>""")
+    
+    commandToolbar.rectCtrShapeAction.setWhatsThis(
+        """<b>Rectangle</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/RectCenter.png\"><br>
+        Defines the selection shape as a rectangle with the user defining
+        the center (first click) and corner (second click).
+        </p>""")
+    
+    commandToolbar.rectCornersShapeAction.setWhatsThis(
+        """<b>Rectangle Corners</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/RectCorners.png\"><br>
+        Defines the selection shape as a rectangle with the user specifying 
+        one corner (first click) and then the opposite corner (second click).
+        </p>""")
+    
+    commandToolbar.hexagonShapeAction.setWhatsThis(
+        """<b>Hexagon</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/Hexagon.png\"><br>
+        Defines the selection shape as a hexagon with the user specifying the 
+        center (first click) and corner (second click).
+        </p>""")
+    
+    commandToolbar.triangleShapeAction.setWhatsThis(
+        """<b>Triangle</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/Triangle.png\"><br>
+        Defines the selection shape as a triangle with the user specifying the 
+        center (first click) and corner (second click).
+        </p>""")
+    
+    commandToolbar.diamondShapeAction.setWhatsThis(
+        """<b>Diamond</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/Diamond.png\"><br>
+        Defines the selection shape as a diamond with the user specifying the 
+        center (first click) and corner (second click).
+        </p>""")
+
+    commandToolbar.lassoShapeAction.setWhatsThis(
+        """<b>Lasso</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/BuildCrystal/Lasso.png\"><br>
+        Defines the selection shape as a freeform lasso. Draw the shape by 
+        dragging the mouse while holding down the <a href=LMB>LMB</a>.
+        </p>""")
+    
     return
 
 # Move command toolbar ####################
@@ -467,6 +557,18 @@ def whatsThisTextForMoveCommandToolbar(commandToolbar):
     """
     "What's This" text for widgets in the Move Command Toolbar.
     """
+    commandToolbar.exitModeAction.setWhatsThis(
+        """<b>Exit Move</b>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
+        Exits the <b>Move</b> command set.
+        </p>""")
+    
+    # NOTE: "What's This" descriptions for Translate, Rotate and 
+    # Align to Common Axis can be found in WhatsThisText_for_MainWindow.py.
+    # (and they should remain there until Ui_MoveFlyout is refactored )
+    # - Mark 2008-12-02
+    
     return
 
 def whatsThisTextForMovieCommandToolbar(commandToolbar):

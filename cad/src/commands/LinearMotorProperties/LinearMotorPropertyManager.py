@@ -33,7 +33,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
     # The relative path to the PNG file that appears in the header
-    iconPath = "ui/actions/Simulation/Linear_Motor.png"
+    iconPath = "ui/actions/Simulation/LinearMotor.png"
 
     
     def connect_or_disconnect_signals(self, isConnect):

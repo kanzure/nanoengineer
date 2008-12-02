@@ -1190,7 +1190,7 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
         <b>Atom Selection Filter List</b> is updated by selecting atom types 
         in the <b>Atom Chooser</b>.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> To specify multiple atom types in the 
         <b>Atom Selection Filter Field</b>, hold down the <b>Shift Key</b> while 
         selecting atom types in the <b>Atom Chooser</b>.
@@ -1206,7 +1206,7 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
         <p>
         This list is updated by selecting atom types in the <b>Atom Chooser</b>.</p>
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b> To specify multiple atom types, hold down the 
         <b>Shift Key</b> while selecting atom types in the <b>Atom Chooser</b>.
         </p>""")
@@ -1241,7 +1241,7 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
        are highlighted. This can speed up interactive response times 
        significantly.</p>
        <p>
-       <img source=\"ui/actions/Help/HotTip.png\"><br>
+       <img source=\"ui/whatsthis/HotTip.png\"><br>
        The water surface can be made deeper/shallower by holding
        down the <b>Control + Shift</b> keys together and pushing/pulling the 
        mouse while holding down the middle mouse button.</p>

@@ -39,7 +39,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
     # The relative path to the PNG file that appears in the header
-    iconPath = "ui/actions/Simulation/Rotary_Motor.png"
+    iconPath = "ui/actions/Simulation/RotaryMotor.png"
     
        
     def connect_or_disconnect_signals(self, isConnect):

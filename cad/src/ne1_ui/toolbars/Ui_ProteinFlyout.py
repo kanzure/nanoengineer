@@ -96,7 +96,7 @@ class ProteinFlyout:
                                                      win = self.win)
         self.exitProteinAction.setText("Exit Protein")
         self.exitProteinAction.setIcon(
-            geticon("ui/actions/Toolbars/Smart/Exit.png"))
+            geticon("ui/actions/Command Toolbar/ControlArea/Exit.png"))
         self.exitProteinAction.setCheckable(True)
 
         self.buildPeptideAction = NE1_QWidgetAction(parentWidget,

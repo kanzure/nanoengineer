@@ -31,7 +31,6 @@ def setupUi(win, toolbarArea):
     win.buildToolsToolBar.addAction(win.modifyDehydrogenateAction)
     win.buildToolsToolBar.addAction(win.modifyPassivateAction)
     win.buildToolsToolBar.addAction(win.modifyStretchAction)
-    win.buildToolsToolBar.addAction(win.modifySeparateAction)
     win.buildToolsToolBar.addAction(win.modifyMergeAction)
     win.buildToolsToolBar.addAction(win.modifyMirrorAction)
     win.buildToolsToolBar.addAction(win.modifyInvertAction)

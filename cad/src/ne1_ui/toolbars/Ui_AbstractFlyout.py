@@ -88,7 +88,7 @@ class Ui_AbstractFlyout(object):
         self.exitModeAction = NE1_QWidgetAction(parentWidget, win = self.win)
         exitActionText = self._getExitActionText()
         self.exitModeAction.setText(exitActionText)
-        self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit.png'))
+        self.exitModeAction.setIcon(geticon('ui/actions/Command Toolbar/ControlArea/Exit.png'))
         self.exitModeAction.setCheckable(True)
         self.exitModeAction.setChecked(True)   
             

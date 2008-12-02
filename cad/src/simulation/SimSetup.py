@@ -182,7 +182,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             Molecular Dynamics simulation run. Specify the simulation parameters
             and click <b>Run Simulation</b> to launch.</p>
             <p>
-            <img source=\"ui/actions/Simulation/Play_Movie.png\"><br>
+            <img source=\"ui/actions/Simulation/PlayMovie.png\"><br>
             The <b>Play Movie</b> command can be used to play back the 
             simulation.
             </p>""")

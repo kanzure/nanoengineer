@@ -87,120 +87,62 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
         separator.setSeparator(True)
         self._subControlAreaActionList.append(separator) 
         
-        self.DefaultSelAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.DefaultSelAction.setObjectName("DEFAULT")
-        self.DefaultSelAction.setText("Default")        
-        self._subControlAreaActionList.append(self.DefaultSelAction)
-        self.DefaultSelAction.setToolTip( "Default Selection (D)")
-        self.DefaultSelAction.setWhatsThis(
-        """<b>Default </b>
-        <p>
-       Defines the crystal shape as a polygon with the user specifying the 
-       sides
-        </p>""")
+        self.polygonShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.polygonShapeAction.setObjectName("DEFAULT")
+        self.polygonShapeAction.setText("Polygon")        
+        self._subControlAreaActionList.append(self.polygonShapeAction)
+
+        self.circleShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)    
+        self.circleShapeAction.setObjectName("CIRCLE")
+        self.circleShapeAction.setText("Circle")  
+        self._subControlAreaActionList.append(self.circleShapeAction)
         
-        self.CircleSelAction = NE1_QWidgetAction(parentWidget, win = self.win)    
-        self.CircleSelAction.setObjectName("CIRCLE")
-        self.CircleSelAction.setText("Circle")  
-        self._subControlAreaActionList.append(self.CircleSelAction)
-        self.CircleSelAction.setToolTip( "Circle (C)")
-        self.CircleSelAction.setWhatsThis(
-        """<b>Circle </b>
-        <p>
-        Draws the crystal geometry as a circle
-        </p>""")
+        self.squareShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.squareShapeAction.setObjectName("SQUARE")
+        self.squareShapeAction.setText("Square")
+        self._subControlAreaActionList.append(self.squareShapeAction)
   
-        self.RectCtrSelAction = NE1_QWidgetAction(parentWidget, win = self.win)   
-        self.RectCtrSelAction.setObjectName("RECTANGLE")
-        self.RectCtrSelAction.setText("RectCenter")
-        self._subControlAreaActionList.append(self.RectCtrSelAction)
-        self.RectCtrSelAction.setToolTip( "Rectangular Center (R)")
-        self.RectCtrSelAction.setWhatsThis(
-        """<b>Rectangle - Center Select</b>
-        <p>
-        Draws the crystal geometry as a rectangle with the cursor defining
-        the center of the rectangle
-        </p>""")
-                
-        self.HexagonSelAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.HexagonSelAction.setObjectName("HEXAGON")
-        self.HexagonSelAction.setText("Hexagon")
-        self._subControlAreaActionList.append(self.HexagonSelAction)
-        self.HexagonSelAction.setToolTip( "Hexagon (H)")
-        self.HexagonSelAction.setWhatsThis(
-        """<b>Hexagon </b>
-        <p>
-        Draws the crystal geometry as a hexagon
-        </p>""")
-                
-        self.TriangleSelAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.TriangleSelAction.setObjectName("TRIANGLE")
-        self.TriangleSelAction.setText("Triangle")
-        self._subControlAreaActionList.append(self.TriangleSelAction)
-        self.TriangleSelAction.setToolTip( "Triangle (T)")
-        self.TriangleSelAction.setWhatsThis(
-        """<b>Triangle </b>
-        <p>
-        Draws the crystal geometry as a triangle
-        </p>""")
-                
-                
-        self.RectCornerSelAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.RectCornerSelAction.setObjectName("RECT_CORNER")
-        self.RectCornerSelAction.setText("RectCorners")
-        self._subControlAreaActionList.append(self.RectCornerSelAction)
-        self.RectCornerSelAction.setToolTip( "Rectangular Corner (Shift+R)")
-        self.RectCornerSelAction.setWhatsThis(
-        """<b>Rectangle - Corner Select</b>
-        <p>
-        Draws the crystal geometry as a rectangle with the cursor defining 
-        the initial corner 
-        </p>""")
+        self.rectCtrShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)   
+        self.rectCtrShapeAction.setObjectName("RECTANGLE")
+        self.rectCtrShapeAction.setText("RectCenter")
+        self._subControlAreaActionList.append(self.rectCtrShapeAction)
         
-               
-        self.LassoSelAction = NE1_QWidgetAction(parentWidget, win = self.win)     
-        self.LassoSelAction.setObjectName("LASSO")
-        self.LassoSelAction.setText("Lasso")
-        self._subControlAreaActionList.append(self.LassoSelAction)
-        self.LassoSelAction.setToolTip( "Lasso (L)")
-        self.LassoSelAction.setWhatsThis(
-        """<b>Lasso</b>
-        <p>
-        Can be used to draw irregular crystal geometries 
-        </p>""")
+        self.rectCornersShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.rectCornersShapeAction.setObjectName("RECT_CORNER")
+        self.rectCornersShapeAction.setText("RectCorners")
+        self._subControlAreaActionList.append(self.rectCornersShapeAction)
         
-        self.DiamondSelAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.DiamondSelAction.setObjectName("DIAMOND")
-        self.DiamondSelAction.setText("Diamond")
-        self._subControlAreaActionList.append(self.DiamondSelAction)
-        self.DiamondSelAction.setToolTip( "Diamond (D)")
-        self.DiamondSelAction.setWhatsThis(
-        """<b>Diamond</b>
-        <p>
-        Draws the crystal geometry as a diamond
-        </p>""")
+        self.triangleShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.triangleShapeAction.setObjectName("TRIANGLE")
+        self.triangleShapeAction.setText("Triangle")
+        self._subControlAreaActionList.append(self.triangleShapeAction)
         
-        self.SquareSelAction = NE1_QWidgetAction(parentWidget, win = self.win)
-        self.SquareSelAction.setObjectName("SQUARE")
-        self.SquareSelAction.setText("Square")
-        self._subControlAreaActionList.append(self.SquareSelAction)
-        self.SquareSelAction.setToolTip( "Square(S)")
-        self.SquareSelAction.setWhatsThis(
-        """<b>Square</b>
-        <p>
-        Draws the crystal geometry as a square
-        </p>""")
+        self.diamondShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.diamondShapeAction.setObjectName("DIAMOND")
+        self.diamondShapeAction.setText("Diamond")
+        self._subControlAreaActionList.append(self.diamondShapeAction)
+
+        self.hexagonShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.hexagonShapeAction.setObjectName("HEXAGON")
+        self.hexagonShapeAction.setText("Hexagon")
+        self._subControlAreaActionList.append(self.hexagonShapeAction)
+  
+        self.lassoShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)     
+        self.lassoShapeAction.setObjectName("LASSO")
+        self.lassoShapeAction.setText("Lasso")
+        self._subControlAreaActionList.append(self.lassoShapeAction)
         
         for action in self._subControlAreaActionList[1:]:
             if isinstance(action, NE1_QWidgetAction):               
                 action.setCheckable(True)
                 self.cookieSelectionGroup.addAction(action)
-                iconpath = "ui/actions/Toolbars/Smart/" + str(action.text()) + ".png"
+                iconpath = "ui/actions/Command Toolbar/BuildCrystal/" + str(action.text()) + ".png"
                 action.setIcon(geticon(iconpath))
         
         if not self.cookieSelectionGroup.checkedAction():
-                self.DefaultSelAction.setChecked(True)
-                
+                self.polygonShapeAction.setChecked(True)
+        
+        return
     
     def getFlyoutActionList(self):
         """
@@ -248,15 +190,15 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
         in this command; otherwise, like when exit. set it to empty.
         """
         if on:
-            self.DefaultSelAction.setShortcut('D')
-            self.CircleSelAction.setShortcut('C')
-            self.RectCtrSelAction.setShortcut('R')
-            self.HexagonSelAction.setShortcut('H')
-            self.TriangleSelAction.setShortcut('T')
-            self.RectCornerSelAction.setShortcut('SHIFT+R')
-            self.LassoSelAction.setShortcut('L')
-            self.DiamondSelAction.setShortcut('SHIFT+D')
-            self.SquareSelAction.setShortcut('S')
+            self.polygonShapeAction.setShortcut('P')
+            self.circleShapeAction.setShortcut('C')
+            self.rectCtrShapeAction.setShortcut('R')
+            self.hexagonShapeAction.setShortcut('H')
+            self.triangleShapeAction.setShortcut('T')
+            self.rectCornersShapeAction.setShortcut('SHIFT+R')
+            self.lassoShapeAction.setShortcut('L')
+            self.diamondShapeAction.setShortcut('D')
+            self.squareShapeAction.setShortcut('S')
             
         else:
             for btn in self.cookieSelectionGroup.actions():
@@ -269,3 +211,19 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
         """
         selectionShape = self.cookieSelectionGroup.checkedAction().objectName()    
         return selectionShape
+    
+    def _addWhatsThisText(self):
+        """
+        Add 'What's This' help text for all actions on toolbar. 
+        """
+        from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCrystalCommandToolbar
+        whatsThisTextForCrystalCommandToolbar(self)
+        return
+    
+    def _addToolTipText(self):
+        """
+        Add 'Tool tip' help text for all actions on toolbar. 
+        """
+        from ne1_ui.ToolTipText_for_CommandToolbars import toolTipTextForCrystalCommandToolbar
+        toolTipTextForCrystalCommandToolbar(self)
+        return

@@ -58,7 +58,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
     # The full path to PNG file(s) that appears in the header.
-    iconPath = "ui/actions/Simulation/Play_Movie.png"
+    iconPath = "ui/actions/Simulation/PlayMovie.png"
 
     def __init__(self, command):
         """

@@ -350,7 +350,7 @@ class ops_motion_Mixin:
             
         if jigCounter < 1:
             msg = redmsg("Please select a plane first.")
-            instruction = "  (If it doesn't exist, create one using <b>Insert > Reference Geometry</b> menu )"
+            instruction = " Planes can also be created using the <b>Insert > Plane</b> command."
             env.history.message(cmd + msg  + instruction)
             return 
 

@@ -417,34 +417,6 @@ def createWhatsThisTextForMainWindowWidgets(win):
      
     win.editAddSuffixAction.setWhatsThis( EditeditAddSuffixActionActionText )
     
-    # Translate
-
-    toolsMoveMoleculeActionText = \
-        "<u><b>Translate</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Properties Manager/"\
-        "Translate_Components.png\">"\
-        "<br> "\
-        "Activates <b>Move Chunks</b> mode, allowing "\
-        "you to select, move and rotate one or more "\
-        "chunks with the mouse. Displays the Translate commands of the Move "\
-        "Properties Manager."\
-        "</p>"
-
-    win.toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText )
-
-    rotateComponentsActionText = \
-        "<u><b>Rotate Chunk</b></u> "\
-        "<p>"\
-        "<img source=\"ui/actions/properties manager/Rotate_Components.png\">"\
-        "<br> " \
-        "Activates <b>Move Chunks</b> mode, allowing you to select, move and "\
-        "rotate one or more chunks with the mouse. Displays the Rotate "\
-        "commands of the Move Properties Manager." \
-        "</p>"
-
-    win.rotateComponentsAction.setWhatsThis( rotateComponentsActionText )
-    
     # Delete
 
     editDeleteText =  \
@@ -953,13 +925,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
         Inserts a 2D sheet of graphene (centered at 0, 0, 0) based on the 
         current parameters in the <a href=Property_Manager>property manager</a>. 
         <p>
-        <img source=\"ui/actions/Help/HotTip.png\"><br>
-        <b>Hot Tip:</b> Since this command <i>is not interactive</i>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> Since this command <i>is not interactive</i>
         like most other modeling commands, the user must press the 
         <b>Preview</b> button to insert the graphene structure into the model.  
         The <b>Preview</b> button is located at the top of the 
         <a href=Property_Manager>property manager</a> and looks like this: <br>
-        <img source=\"ui/actions/Properties Manager/Preview.png\"> 
+        <img source=\"ui/whatsthis/PreviewButton.png\"> 
         </p>"""
 
     win.insertGrapheneAction.setWhatsThis( _text )
@@ -1008,7 +980,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     # POV-Ray Scene
 
     insertPovraySceneActionText = \
-        "<u><b>Insert POV-Ray Scene</b></u>"\
+        "<u><b>POV-Ray Scene</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/POV-Ray_Scene.png\"><br> "\
         "Inserts a POV-Ray Scene file based on the "\
@@ -1030,25 +1002,25 @@ def createWhatsThisTextForMainWindowWidgets(win):
     
     # Comment
 
-    insertCommentActionText = \
-        "<u><b>Insert Comment</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Insert/Comment.png\"><br> "\
-        "Inserts a comment in the current part. "\
-        "</p>"
+    _text = \
+        """<u><b>Comment</b></u>
+        <p>
+        <img source=\"ui/actions/Insert/Comment.png\"><br> 
+        Inserts a comment in the current part.
+        </p>"""
 
-    win.insertCommentAction.setWhatsThis(insertCommentActionText )
+    win.insertCommentAction.setWhatsThis( _text )
     
-    #Insert Plane
-    referencePlaneActionText = \
-        "<b>Insert Reference Plane</b>"\
-        "<p>"\
-        "<img source=\"ui/actions/Insert/Reference Geometry/Plane.png\"><br> "\
-        "Inserts a reference plane into the 3D graphics area based on the. "\
-        "current visual orientation and user specified parameters"\
-        "</p>"
+    # Plane
+    
+    _text = \
+        """<u><b>Plane</b></u>
+        <p>
+        <img source=\"ui/actions/Insert/Reference Geometry/Plane.png\"><br> 
+        Inserts a plane into the <a href=Graphics_Area>graphics area</a>. 
+        </p>"""
 
-    win.referencePlaneAction.setWhatsThis(referencePlaneActionText )
+    win.referencePlaneAction.setWhatsThis( _text )
     
 
     #
@@ -1545,6 +1517,22 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "reference Grid or Plane.<br>"
 
     win.modifyMirrorAction.setWhatsThis(modifyMirrorActionText )  
+    
+    win.toolsMoveMoleculeAction.setWhatsThis(
+        """<u><b>Translate</b></u>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/MoveCommands/Translate.png\"><br>
+        Translate the selection interactively. Special translation options 
+        are provided in the <a href=Property_Manager>property manager</a>.</p>
+        """)
+
+    win.rotateComponentsAction.setWhatsThis(
+        """<u><b>Rotate</b></u>
+        <p>
+        <img source=\"ui/actions/Command Toolbar/MoveCommands/Rotate.png\"><br>
+        Rotate the selection interactively. Special rotation options 
+        are provided in the <a href=Property_Manager>property manager</a>.</p>
+        """)
 
     # Align to Common Axis
 
@@ -1557,7 +1545,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "You must select two or more chunks before using this feature."\
         "</p>"
 
-    win. modifyAlignCommonAxisAction.setWhatsThis\
+    win.modifyAlignCommonAxisAction.setWhatsThis\
        ( modifyAlignCommonAxisActionText )
 
     #Center on Common Axis 
@@ -1740,25 +1728,24 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # Run Dynamics (was NanoDynamics-1). Mark 060807.
 
-    simSetupActionText = \
-        "<u><b>Run Dynamics</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Simulation/Run_Dynamics.png\"><br> "\
-        "This is the interface to the NanoEngineer-1 molecular "\
-        "dynamics simulator. Enter the parameters of the "\
-        "simulation and click <b>Run Simulation</b>. The "\
-        "simulator creates a trajectory (movie) file by "\
-        "calculating the inter-atomic potentials and bonding "\
-        "of the entire model.</p>"
-
-    win. simSetupAction.setWhatsThis( simSetupActionText )
+    _text = \
+        """<u><b>Run Dynamics</b></u>
+        <p>
+        <img source=\"ui/actions/Simulation/RunDynamics.png\"><br> 
+        Opens the dialog for running <b>NanoDynamics-1</b>, the native
+        molecular dynamics simulator for NanoEngineer-1.
+        <b>NanoDynamics-1</b> creates a trajectory (movie) file by 
+        calculating the inter-atomic potentials and bonding 
+        of the entire model.</p>
+        """
+    win. simSetupAction.setWhatsThis( _text )
 
     # Simulation Jigs
     
     simulationJigsActionText = \
         "<u><b>Simulation Jigs</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/Simulation/Simulation_Jigs.png\"><br> "\
+        "<img source=\"ui/actions/Simulation/SimulationJigs.png\"><br> "\
         "Drop down menu for adding rotary motors, linear motors and "\
         "other jigs used to simulate structures"\
         "</p>"
@@ -1766,39 +1753,47 @@ def createWhatsThisTextForMainWindowWidgets(win):
     
     # Play Movie (was Movie Player) Mark 060807.
 
-    simMoviePlayerActionText = \
-        "<u><b>Play Movie</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Simulation/Play_Movie.png\"><br> "\
-        "Plays the most recent trajectory (movie) file "\
-        "created by the NanoEngineer-1 molecular dynamics"\
-        " simulator. To create a movie file, select "\
-        "<b>Run Dynamics</b>.</p>"
+    _text = \
+        """<u><b>Play Movie</b></u>
+        <p>
+        <img source=\"ui/actions/Simulation/PlayMovie.png\"><br> 
+        Plays the most recent trajectory (movie) file created by the 
+        NanoEngineer-1 molecular dynamics simulator. To create a movie file, 
+        select <b>Run Dynamics</b>.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> You must first have created a movie file to play it.
+        </p>"""
 
-    win. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )
+    win. simMoviePlayerAction.setWhatsThis( _text )
 
     # Make Graphs (was Plot Tool) Mark 060807.
 
-    simPlotToolActionText = \
-        "<u><b>Make Graphs</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Simulation/Make_Graphs.png\"><br> "\
-        "Make a graph of a simulator trace file using "\
-        "GNUplot.  A simulation must be run to create "\
-        "the trace file and the part must have a jig that "\
-        "writes output to the trace file. <br><br>"\
-        "The following list of jigs write data to the trace "\
-        "file:<br><b>Rotary Motors:</b> speed (GHz) and "\
-        "torque (nn-nm)<br> <b>Linear Motors:</b> "\
-        "displacement (pm)<br><b>Anchors:</b> torque "\
-        "(nn-nm)<br><b>Thermostats:</b> energy added "\
-        "(zJ)<br><b>Thermometer:</b> temperature (K)<br>"\
-        "<b>Measure Distance:</b> distance(angstroms)<br>"\
-        "<b>Measure Angle:</b> angle (degrees)<br>"\
-        "<b>Measure Dihedral:</b> dihedral(degrees)<br>"\
-        "</p>"
+    _text = \
+        """<u><b>Plot Graphs</b></u>
+        <p>
+        <img source=\"ui/actions/Simulation/PlotGraphs.png\"><br> 
+        Plot a graph from a NanoDynamics-1 simulation trace file using GNUplot.</p>
+        <p>
+        The following list of jigs write data to the trace file:</p>
+        <p>
+        <b>Rotary Motors:</b> speed (GHz) and torque (nn-nm)<br> 
+        <b>Linear Motors:</b> displacement (pm)<br>
+        <b>Anchors:</b> torque (nn-nm)<br>
+        <b>Thermostats:</b> energy added (zJ)<br>
+        <b>Thermometer:</b> temperature (K)<br>
+        <b>Measure Distance:</b> distance (angstroms)<br>
+        <b>Measure Angle:</b> angle (degrees)<br>
+        <b>Measure Dihedral:</b> dihedral (degrees)<br>
+        </p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> A NanoDynamics-1 simulation must have been run to 
+        create and plot a trace file <i><b>and</b></i> the part must have at 
+        least one of the jigs listed above which writes data to the trace file.
+        </p>"""
 
-    win. simPlotToolAction.setWhatsThis( simPlotToolActionText )
+    win. simPlotToolAction.setWhatsThis( _text )
     
     #
     # Jigs
@@ -1806,107 +1801,116 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # Anchor
 
-    jigsAnchorActionText = \
-        "<u><b>Anchor</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Simulation/Anchor.png\"><br> "\
-        "Attaches an <b>Anchor</b> to the selected atom(s), "\
-        "which constrains its motion during a minimization "\
-        "or simulation."\
-        "</p>"\
-        "<p>To create an Anchor, enter <b>Build</b> mode, "\
-        "select the atom(s) you want to anchor and then "\
-        "select this action. Anchors are drawn as a black "\
-        "wireframe box around each selected atom."\
-        "</p>"
+    _text = \
+        """<u><b>Anchor</b></u>
+        <p>
+        <img source=\"ui/actions/Simulation/Anchor.png\"><br> 
+        Attaches an <b>Anchor</b> to the selected atoms. Anchors, 
+        AKA <i>grounds</i> in other molecular dynamics programs, 
+        constrains an atom's motion during minimization 
+        or simulation runs.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
+        create anchors since this is the only command that allows the user 
+        to select individual atoms. Simply select the atom(s) you want to 
+        anchor and then select this command. Anchors are drawn as a black 
+        wireframe box around each selected atom.</p>
+        """
 
-    win.jigsAnchorAction.setWhatsThis(jigsAnchorActionText )  
+    win.jigsAnchorAction.setWhatsThis( _text )  
 
     # Rotary Motor
 
-    jigsMotorActionText = \
-        "<u><b>Rotary Motor</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Simulation/Rotary_Motor.png\"><br> "\
-        "Attaches a <b>Rotary Motor</b> to the selected "\
-        "atoms. The Rotary Motor is used by the simulator to "\
-        "apply rotary motion to a set of atoms during a "\
-        "simulation run.  You may specify the <b>torque "\
-        "(in nN*nm)</b> and <b>speed (in Ghz)</b> of the "\
-        "motor."\
-        "</p>"\
-        "<p>To create a Rotary Motor, enter <b>Build</b> mode,"\
-        " select the atoms you want to attach the motor to "\
-        "and then select this action."\
-        "</p>"
+    _text = \
+        """<u><b>Rotary Motor</b></u>
+        <p>
+        <img source=\"ui/actions/Simulation/RotaryMotor.png\"><br> 
+        Attaches a <b>Rotary Motor</b> to the selected atoms. 
+        The Rotary Motor is used by the simulator to 
+        apply rotary motion to a set of atoms during a 
+        simulation run.  You may specify the <b>torque 
+        (in nN*nm)</b> and <b>speed (in Ghz)</b> of the motor.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
+        create motors since this is the only command that allows the user 
+        to select individual atoms. Simply select the atoms you want to 
+        attach a motor to and then select this command.</p>
+        """
 
-    win.jigsMotorAction.setWhatsThis(jigsMotorActionText )  
+    win.jigsMotorAction.setWhatsThis( _text )  
 
     # Linear Motor
 
-    jigsLinearMotorActionText = \
-        "<u><b>Linear Motor</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Simulation/Linear_Motor.png\"><br> "\
-        "Attaches a <b>Linear Motor</b> to the selected "\
-        "atoms.  The Linear Motor is used by the "\
-        "simulator to apply linear motion to a set of "\
-        "atoms during a simulation run.  You may specify"\
-        " the <b>force (in nN*nm)</b> and <b>stiffness "\
-        "(in N/m)</b> of the motor. "\
-        "</p>"\
-        "<p>To create a Linear Motor, enter "\
-        "<b>Build</b> mode, select the atoms you want "\
-        "to attach the motor to and then select "\
-        "this action."\
-        "</p>"
+    _text = \
+        """<u><b>Linear Motor</b></u>
+        <p>
+        <img source=\"ui/actions/Simulation/LinearMotor.png\"><br> 
+        Attaches a <b>Linear Motor</b> to the selected 
+        atoms.  The Linear Motor is used by the 
+        simulator to apply linear motion to a set of 
+        atoms during a simulation run.  You may specify
+        the <b>force (in nN*nm)</b> and <b>stiffness 
+        (in N/m)</b> of the motor.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
+        create motors since this is the only command that allows the user 
+        to select individual atoms. Simply select the atoms you want to 
+        attach a motor to and then select this command.</p>
+        """
 
-    win.jigsLinearMotorAction.setWhatsThis(jigsLinearMotorActionText )  
+    win.jigsLinearMotorAction.setWhatsThis( _text )  
 
     # Thermostat
 
-    jigsStatActionText = \
-        "<u><b>Thermostat</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Simulation/Thermostat.png\"><br> "\
-        "Attaches a <b>Langevin Thermostat</b> to a single "\
-        "selected atom, thereby associating the thermostat to "\
-        "the entire molecule of which the selected atom is a "\
-        "member. The user specifies the temperature "\
-        "(in Kelvin)."\
-        "</p>"\
-        "<p>The Langevin Thermostat is used to set and hold "\
-        "the temperature of a molecule during a simulation run."\
-        "</p>"\
-        "<p>To create a Langevin Thermostat, enter "\
-        "<b>Build</b> mode, select a single atom and then "\
-        "select this action. The thermostat is drawn as a "\
-        "blue wireframe box around the selected atom."\
-        "</p>"
+    _text = \
+        """<u><b>Thermostat</b></u>
+        <p>
+        <img source=\"ui/actions/Simulation/Thermostat.png\"><br> 
+        Attaches a <b>Langevin Thermostat</b> to a single 
+        selected atom, thereby associating the thermostat to 
+        the entire molecule of which the selected atom is a 
+        member. The user specifies the temperature (in Kelvin).</p>
+        <p>
+        The Langevin Thermostat is used to set and hold the temperature of 
+        a molecule during a simulation run.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
+        create a Langevin Thermostat since this is the only command that allows the user 
+        to select individual atoms. Simply select a single atom you want to 
+        attach the thermostat to and then select this command.
+        The thermostat is drawn as a blue wireframe box around the 
+        selected atom.</p>
+        """
 
-    win.jigsStatAction.setWhatsThis(jigsStatActionText ) 
+    win.jigsStatAction.setWhatsThis( _text ) 
 
     # Thermometer
 
-    jigsThermoActionText = \
-        "<u><b>Thermometer</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Simulation/Measurements/"\
-        "Thermometer.png\"><br> "\
-        "Attaches a <b>Thermometer</b> to a single selected "\
-        "atom, thereby associating the themometer to the "\
-        "entire molecule of which the selected atom is a "\
-        "member. "\
-        "<p>The temperature of the molecule will be recorded "\
-        "and written to a trace file during a simulation run."\
-        "</p>"\
-        "<p>To create a Thermometer, enter <b>Build</b> mode,"\
-        " select a single atom and then select this action. "\
-        "The thermometer is drawn as a dark red wireframe "\
-        "box around the selected atom."\
-        "</p>"
+    _text = \
+        """<u><b>Thermometer</b></u>
+        <p>
+        <img source=\"ui/actions/Simulation/Measurements/Thermometer.png\"><br> "\
+        Attaches a <b>Thermometer</b> to a single selected atom,
+        thereby associating the themometer to the entire molecule 
+        of which the selected atom is a member.</p>
+        <p>
+        The temperature of the molecule will be recorded and written to a 
+        trace file during a simulation run.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
+        create a Thermometer since this is the only command that allows the user 
+        to select individual atoms. Simply select a single atom you want to 
+        attach the thermometer to and then select this command.
+        The thermometer is drawn as a dark red wireframe 
+        box around the selected atom.</p>
+        """
 
-    win.jigsThermoAction.setWhatsThis(jigsThermoActionText )
+    win.jigsThermoAction.setWhatsThis( _text )
 
     # ESP Image
 

@@ -69,12 +69,12 @@ class AtomGeneratorPropertyManager(PM_Dialog):
     """ Implements user interface to specify properties of an atom """
 
     # The title that appears in the property manager header.
-    title = "Atom Generator"
+    title = "Insert Atom"
     # The name of this property manager. This will be set to
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
     # The relative path to PNG file that appears in the header.
-    iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png"
+    iconPath = "ui/actions/Command Toolbar/BuildAtoms/InsertAtom.png"
 
     # Jeff 20070530:
     # Private static variables (prefixed with '_s') are used to assure consistency 

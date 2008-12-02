@@ -36,8 +36,8 @@ class BuildCrystal_PropertyManager(Ui_BuildCrystal_PropertyManager):
                
         _superclass.__init__(self, command)
               
-        msg = "Draw the Crystal geometry selecting the desired shape from the "\
-            "flyout toolbar at the top."
+        msg = "Choose one of the selection shapes from the command toolbar. "\
+            "When drawing a <b>Polygon</b> shape, double-click to select the final vertex."
         self.updateMessage(msg = msg) 
 
     def connect_or_disconnect_signals(self, isConnect):
