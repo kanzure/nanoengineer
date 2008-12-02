@@ -185,6 +185,15 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
       }
     }
 #endif
+    // BUG: we fail to properly handle an exception in the following call of
+    // PyObject_RichCompareBool (for example, a ValueError when it's used
+    // on objects of type numpy.ndarray). Until that's fixed in this C code
+    // (not just for ndarray, but by making it reraise any potential exception
+    // from that call), we work around that bug via a KLUGE in our Pyrex caller,
+    // samevals.pyx. 
+    // TODO: also extend this function to correctly compare numpy.ndarray,
+    // like the Python version (in utilities/Comparison.py) now does.
+    // [bruce 081202]
     if (PyObject_RichCompareBool(v1, v2, Py_EQ) == 1)
         return 0;
     return 1;
