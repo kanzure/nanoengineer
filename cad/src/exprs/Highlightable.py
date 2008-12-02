@@ -684,7 +684,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
                 # we want to always delegate things like lbox attrs to self.plain, so our look is consistent.
                 # But it might be useful to define at least one co-varying attr (self.whatwedraw?), and draw it here. ####e
             else:
-                ## print "plain.draw",self
+                ## print "plain.draw", self
                 draw_this = self.plain
             self.drawkid( draw_this) ## draw_this.draw() # split out draw_this, 070104
         except: ##k someday this try/except might be unneeded due to drawkid
@@ -709,7 +709,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         # WARNING: This implem won't work when we can be inside a display list which is drawn in its own relative coords.
         # For latest info on what to do about that, see '061206 coordinate systems' on bruce's g5.
 
-        # print "calling draw_in_abs_coords in",self # this does get called even when projection=True makes it seem to not work.
+        # print "calling draw_in_abs_coords in", self # this does get called even when projection=True makes it seem to not work.
         # but mousing around over it does cause repeated draws, unlike when it works. Both as if it drew in wrong place.
 
         # Note: I'm guessing it's better to not call kid.draw() via self.drawkid( kid), in this method -- not sure. ###k [070210]
@@ -717,10 +717,12 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         self.begin_using_saved_coords()
         try:
             if self.transient_state.in_drag:
-                if printdraw: print "pressed_in.draw",self
+                if printdraw:
+                    print "pressed_in.draw", self
                 self.pressed_in.draw() #e actually might depend on mouseover, or might not draw anything then...
             else:
-                if printdraw: print "highlighted.draw",self
+                if printdraw:
+                    print "highlighted.draw", self
                 self.highlighted.draw()
         finally:
             #061206 added try/finally as a precaution.
