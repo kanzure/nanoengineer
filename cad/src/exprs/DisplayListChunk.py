@@ -46,6 +46,38 @@ calls of draw methods. This was supposed to equal the ipath-suffix tree. Hopeful
 the decorated draw methods themselves could generate ipath-like things for this purpose -- or really,
 just pointers to the draw-method-owning parents in each one, to be stored in the objects with the draw methods.)
 
+Update, 081202:
+
+If you suspect this bug causes some unwanted behavior, you can test that by
+temporarily setting the debug_pref "disable DisplayListChunk?" and seeing if
+that fixes the unwanted behavior. (But it might also cause a large slowdown.)
+
+But if there are bugs from the other nesting order of interaction, i.e. a DisplayListChunk
+inside a Highlightable, that would fix those too. I'm not sure whether there are.
+
+For example, as of 081202 morning, disabling DisplayListChunks fixes the following bug:
+mousewheel zoom makes checkboxes inside DrawInCorner (and perhaps other
+checkboxes) either not highlight, or if they are close enough to the center
+of the screen (I guess), highlight in the wrong size and place (only where
+the highlight image overlaps the original image, which happens for the top two
+checkboxes when you zoom in by one wheel click). The bug is "reset" by
+"clear state and reload" even if the zoom is still in effect, but additional
+zoom causes the bug again. But panning or rotating the view does not cause
+the bug (for reasons I don't fully understand, except that it must be related
+to the fact that those don't alter the projection matrix but zoom does).
+
+But I don't fully understand what causes this bug, and I don't know for sure
+in which order the nesting is or whether being inside DrawInCorner is part of
+the bug's cause. I do know it's alternatively fixable by using projection = True
+in the Highlightable, so I'm going to change that to default True
+(see comments there for reasoning and related plans).
+As for the cause, it's probably related that only zoom, not pan or trackball,
+caused the bug, and only zoom modifies the projection matrix.
+But I don't have a complete explanation of either the bug or the fix.
+
+*If* this bug comes from Highlightable inside DisplayListChunk,
+maybe it could be fixed more optimally by detecting when that happens at runtime,
+and setting projection = True only then? Maybe try this someday.
 """
 
 from OpenGL.GL import GL_COMPILE
@@ -156,13 +188,16 @@ class DisplayListChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsa
         pass
 
     def displist_disabled(self): #070215 split this out, modified it to notice _exprs__warpfuncs
-        "Is the use of our displist (or of all displists) disabled at the moment?"
+        """
+        Is the use of our displist (or of all displists) disabled at the moment?
+        """
         return self._disabled or \
                debug_pref("disable DisplayListChunk?", Choice_boolean_False, prefs_key = True) or \
                getattr(self.env.glpane, '_exprs__warpfuncs', None) ###BUG: this will be too inefficient a response for nice dragging.
     
     def draw(self):
-        """Basically, we draw by emitting glCallList, whether our caller is currently
+        """
+        Basically, we draw by emitting glCallList, whether our caller is currently
         compiling another display list or executing OpenGL in immediate mode.
            But if our total drawing effects are invalid (i.e. our own list and/or some list it calls
         has invalid contents), we must do some extra things, and do them differently in those two cases.

@@ -42,7 +42,7 @@ class DrawInCorner_projection(DelegatingInstanceOrExpr):
     and which has several bugs/niys. It only works for the default corner argument,
     and any Highlightables in its main argument (delegate) only work properly for
     highlighting if they are given the option projection = True (which is not the
-    default, for efficiency reasons).
+    default, for efficiency reasons [this may change on 081202]).
 
     Its usefulness is that it's the only expr (as of 070405) which changes the
     projection matrix for the subexprs it draws, so it's the only good test of
@@ -134,12 +134,14 @@ corner_abbrevs = {   #070208
     UPPER_LEFT:  (-1, +1),
 }
 
+_DEBUG_SAVED_STUFF = False
+
 class DrawInCorner(DelegatingInstanceOrExpr):
     """
     DrawInCorner( thing, (-1,-1)) draws thing in the lower left corner of the screen
     (positioning thing so that its layout box's lower left corner nests directly into that corner of the screen).
     The depth can be specified by the option want_depth (between 0.0 and 1.0), which by default is 0.01 (very near the front).
-    [###UNTESTED: it may be that perspective view and/or non-default depths have never been tested.]
+    [###UNTESTED: it may be that non-default depths have never been tested.]
 
     The "corner" can be any corner, or any edge, or the center of the screen;
     it can be specified as a 2nd argument (x,y), or by the option corner = (x,y),
@@ -174,7 +176,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
         glLoadIdentity()
         try:
             glpane = self.env.glpane
-            aspect = glpane.aspect # revised by bruce 070919, UNTESTED
+            aspect = glpane.aspect # revised by bruce 070919
             corner = self.corner
             delegate = self.delegate
             want_depth = self.want_depth
@@ -189,6 +191,29 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             # modified from _setup_modelview:
 
             saveplace = self.transient_state # see if this fixes the bug 061211 1117a mentioned below -- it does, use it.
+                # BUG (probably not related to this code, but not known for sure):
+                # mousewheel zoom makes checkboxes inside DrawInCorner
+                # either not highlight, or if they are close enough to
+                # the center of the screen (I guess), highlight in the
+                # wrong size and place. For more info and a partial theory,
+                # see the 081202 update in DisplayListChunk.py docstring.
+                # Before I realized the connection to DisplayListChunk,
+                # I tried using saveplace = self.per_frame_state instead of
+                # self.transient_state above, but that had no effect on the bug.
+                # That was before I fixed some bugs in same_vals related to
+                # numpy.ndarray, when I was plagued with mysterious behavior
+                # from those in my debug code (since solved), but I tried it
+                # again afterwards and it still doesn't fix this bug, which
+                # makes sense if my partial theory about it is true.
+                #
+                # In principle (unrelated to this bug), I'm dubious we're
+                # storing this state in the right place, but I won't change
+                # it for now (see related older comments below).
+                #
+                # Note: I fixed the bug in another way, by changing
+                # Highlightable's projection option to default True.
+                # [bruce 081202]
+            
             if glpane.current_glselect or (0 and 'KLUGE' and hasattr(saveplace, '_saved_stuff')):
                             # kluge did make it faster; still slow, and confounded by the highlighting-delay bug;
                             # now I fixed that bug, and now it seems only normally slow for this module -- ok for now.
@@ -204,12 +229,20 @@ class DrawInCorner(DelegatingInstanceOrExpr):
                 # and safety, for that optim in general, even w/o needing this bugfix.
                 #    But the bug is easy to hit, so needs a soon fix... maybe memoize it with a key corresponding to your own
                 # assumed choice of modelview coords and want_depth? Or maybe enough to put it into the transient_state? TRY THAT. works.
+                if _DEBUG_SAVED_STUFF:
+                    print "_DEBUG_SAVED_STUFF: retrieved", x1, y1, z1
             else:
-                x1, y1, z1 = saveplace._saved_stuff = gluUnProject(glpane.width, glpane.height, want_depth) # max x and y, i.e. right top
-                # (note, min x and y would be (0,0,want_depth), since these are windows coords, 0,0 is bottom left corner (not center))
+                x1, y1, z1 = saveplace._saved_stuff = \
+                             gluUnProject(glpane.width, glpane.height, want_depth)
+                                # max x and y, i.e. right top
+                # (note, to get the min x and y we'd want to pass (0, 0, want_depth),
+                #  since these are windows coords -- (0, 0) is bottom left corner (not center))
+                #
                 # Note: Using gluUnProject is probably better than knowing and reversing _setup_projection,
                 # since it doesn't depend on knowing the setup code, except meaning of glpane height & width attrs,
-                # and knowing that origin is centered between them.
+                # and knowing that origin is centered between them and 0.
+                if _DEBUG_SAVED_STUFF:
+                    print "_DEBUG_SAVED_STUFF: saved", x1, y1, z1
 ##            print x1,y1,z1
             # use glScale to compensate for zoom * scale in _setup_projection,
             # for error in PIXELS, and for want_depth != cov_depth
@@ -222,6 +255,8 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             # now the following might work except for z, so fix z here
             glTranslatef( 0.0, 0.0, z1)
             del x1, y1 # not presently used
+            if _DEBUG_SAVED_STUFF:
+                print "_DEBUG_SAVED_STUFF:     r = %r, translated z by z1 == %r" % (r, z1)
             
             # I don't think we need to usage-track glpane height & width (or scale or zoomFactor etc)
             # since we'll redraw when those change, and redo this calc every time we draw.
@@ -263,6 +298,9 @@ class DrawInCorner(DelegatingInstanceOrExpr):
 
             offset = (x_offset, y_offset)
             glTranslatef(offset[0], offset[1], 0.0)
+
+            if _DEBUG_SAVED_STUFF:
+                print "_DEBUG_SAVED_STUFF:     offset =", offset
             
             self.drawkid( delegate) ## delegate.draw()
             

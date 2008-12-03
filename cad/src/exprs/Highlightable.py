@@ -41,6 +41,7 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GLU import gluProject, gluUnProject
 
 from utilities import debug_flags
+from utilities.Comparison import same_vals
 
 from geometry.VQT import A
 from geometry.VQT import vlen
@@ -129,6 +130,7 @@ def recycle_glselect_name(glpane, glname, newobj): #e refile (see above)
 # ==
 
 def copy_pyopengl_matrix( matrix): #bruce 070704
+    # note, 081202: not known whether this works when matrix is a numpy.ndarray.
     try:
         # this works when it's a Numeric array (as it is in some Mac PyOpenGLs)
         return + matrix  #k let's hope this is a deep copy!
@@ -146,7 +148,7 @@ def copy_pyopengl_matrix( matrix): #bruce 070704
 
 # ==
 
-debug_saved_coords = False #070317
+_DEBUG_SAVED_COORDS = False
 
 class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
     """
@@ -161,8 +163,22 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
     @warning: implem and API may change once we introduce "draw decorators"
               to fix Highlightable/DisplayListChunk bugs.
     """
-    projection = Option(bool, False) # whether to save projection matrix too... would be default True except inefficient
-
+    projection = Option(bool, True) # whether to save projection matrix too
+        # Note: this was default False until 081202 eve, when I changed it to True
+        # in order to fix the "zoom disables checkbox" bug
+        # (described in the 081202 update to DisplayListChunk module docstring),
+        # which occurs when this interacts with DisplayListChunk
+        # I am not sure if the buggy interaction involves DisplayListChunk outside or
+        # inside this expr, or both, nor exactly why this change fixes it.
+        # But it does, and (alternatively) disabling DisplayListChunk (by debug_pref) also does.
+        #
+        # There is a possible speed issue with this being default True,
+        # but I think that won't matter for a small number of Highlightables,
+        # and if I ever use lots of them I plan to reimplement it so it never
+        # needs to save coordinates (to fix other bugs that I think still exist,
+        # as well as for speed), in ways described elsewhere long ago. Alternatively,
+        # maybe I could figure out in exactly which instances this needs to be True.
+    
     def _init_instance(self):
         super(_CoordsysHolder, self)._init_instance()
         # == per_frame_state
@@ -223,18 +239,36 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
     def save_coords(self): #e make private? most calls go thru save_coords_if_safe -- not quite all do.
         # weirdly, this seems to cause bugs if done in the other order (if self.projection is False but not checked here)...
         # could it change the current matrix?? or be wrong when the wrong matrix is current???
+
         if self.projection:
             glMatrixMode(GL_PROJECTION) #k needed?
             self.per_frame_state.saved_projection_matrix = glGetDoublev( GL_PROJECTION_MATRIX ) # needed by draw_in_abs_coords
             glMatrixMode(GL_MODELVIEW)
-        if debug_saved_coords:
+
+        if _DEBUG_SAVED_COORDS:
             old = self.per_frame_state.saved_modelview_matrix
             if old is not None:
                 old = + old
+
         self.per_frame_state.saved_modelview_matrix = new = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
-        if debug_saved_coords and old != new:
-            print "debug_saved_coords: %r changes saved coords" % self
-        # these comments are about the implem of save_coords -- need review, which are obs and which should be moved? ###
+
+        ## if _DEBUG_SAVED_COORDS and (old != new):
+            # The above can get this exception, caused by != on numpy.ndarray objects:
+            ## ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+            # [seen by bruce 081201 uaing python 2.5, not sure what version of PyOpenGL].
+            # Just using .any() doesn't work since (old != new) is sometimes a boolean which doesn't have that method
+            # (untested guess: maybe that only happens when old is None?).
+            # So to fix it in general, I extended the Python same_vals to handle that type
+            # and use it here. The C same_vals is not yet extended for that,
+            # but I fixed a bug in it (more precisely, worked around that bug in its .pyx caller)
+            # to at least report the exception in that case. [bruce 081202]
+        if _DEBUG_SAVED_COORDS:
+            # print "_DEBUG_SAVED_COORDS type(old) = %r" % (type(old),) # NoneType or numpy.ndarray
+            if not same_vals(old, new):
+                print "_DEBUG_SAVED_COORDS: %r changes saved coords" % self
+        
+        # the following comments are about the implem of save_coords --
+        # need review -- which are obs and which should be moved? ###
         #
         ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
         #
@@ -248,6 +282,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         #  Meanwhile, since all per_frame state is not intended to be usage-tracked, just recorded for ordinary untracked
         # set and get, I'll just change it to have that property. And review glpane_state too.
         ###@@@ [this, and 061120 cmts/stringlits]
+
         return
 
     def save_coords_if_safe(self): #070401 [#e rename?]
@@ -267,6 +302,11 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
             #
             # For details of debug prints, see cvs rev 1.66. They show that glpane.drawing_phase is 'main' here
             # and 'glselect' when this cond is false, at least when self.projection is true and when using those testexprs.
+            #
+            # Update 081202: note (known at the above time, I think):
+            # the reason adding this cond helps is that the projection matrix
+            # is nonstandard when this cond is false, so saving it then
+            # basically saves a nonsense value.
         return
         
     def begin_using_saved_coords(self):
@@ -599,10 +639,8 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         # (Unless Qt suppresses drag events in that situation -- unknown.###TEST)
         # But my guess is, most on_drag methods will fail in that case! ####FIX, here or in testmode or in selectMode
     cmenu_maker = Option(ModelObject) # object which should make a context menu, by our calling obj.make_selobj_cmenu_items if it exists
-    # note: inherits projection Option from superclass _CoordsysHolder [###UNTESTED]
-##    projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
-##        # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
-
+    # note: inherits projection Option from superclass _CoordsysHolder
+    
     def _init_instance(self):
         super(Highlightable, self)._init_instance()
 
@@ -669,7 +707,8 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         self.save_coords_if_safe()
         if self.glname != self.glpane_state.glname:
             print "bug: in %r, self.glname %r != self.glpane_state.glname %r" % \
-                  (self, self.glname, self.glpane_state.glname) #070213 -- since similar bug was seen for _index_counter in class World
+                  (self, self.glname, self.glpane_state.glname)
+                    #070213 -- since similar bug was seen for _index_counter in class World
         PushName(self.glname)
         try:
             draw_this = "<not yet set>" # for debug prints
