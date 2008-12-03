@@ -73,8 +73,8 @@ ATOM_TYPES_BUTTON_LIST = [ \
     ( "QToolButton", 0, "sp3", "", "sp3", None, 0, 0 ),
     ( "QToolButton", 1, "sp2", "", "sp2", None, 1, 0 ),
     ( "QToolButton", 2, "sp",  "", "sp",  None, 2, 0 ),
-    ( "QToolButton", 3, "sp2(graphitic)", "ui/modeltree/N_graphitic.png", 
-      "Graphitic", None, 3, 0 ), #@ Icon lives in a poorly chosen location.
+    ( "QToolButton", 3, "sp2(graphitic)", "ui/actions/Properties Manager/N_graphitic.png", 
+      "Graphitic", None, 3, 0 ), 
     ( "QToolButton", 4, "sp3(p)",  "", "sp3(phosphate)",  None, 4, 0 ),
     ( "QToolButton", 5, "sp2(-)",  "", "sp2(-)",  None, 5, 0 ),
     ( "QToolButton", 6, "sp2(-.5)",  "", "sp2(-.5)",  None, 6, 0 ),
