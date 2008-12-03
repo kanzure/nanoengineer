@@ -168,11 +168,11 @@ class GLPane(
 
     _resize_just_occurred = False #bruce 080922
     
-    #Because of the performance reasons, whenever the global display style
-    #changes, he current cursor is replaced with an hour glass cursor. 
-    #The following flag determines whether to turn off this wait cursor 
-    #.(It is turned off after global display style operation is complete.
-    #self.setWaitCursor_globalDisplayStyle()
+    #For performance reasons, whenever the global display style
+    #changes, the current cursor is replaced with an hourglass cursor.
+    #The following flag determines whether to turn off this wait cursor.
+    #(It is turned off after global display style operation is complete.
+    # see self._setWaitCursor_globalDisplayStyle().) [by Ninad, late 2008]
     _waitCursor_for_globalDisplayStyleChange = False 
 
     def __init__(self, assy, parent = None, name = None, win = None):
@@ -310,7 +310,11 @@ class GLPane(
         self._paintGL() # defined in GLPane_rendering_methods
             # (probably paintGL itself would work fine if defined there --
             #  untested, since having it here seems just as well)
+        
         self._resize_just_occurred = False
+
+        self._resetWaitCursor_globalDisplayStyle()
+
         return
     
     # ==
@@ -606,58 +610,55 @@ class GLPane(
 
         return
     
-    def setWaitCursor_globalDisplayStyle(self):
+    def _setWaitCursor_globalDisplayStyle(self):
         """
-        Because of the performance reasons, whenever the global display style
-        changes, the current cursor is replaced with an hour glass cursor. 
-        It is done by this method. 
+        For performance reasons, whenever the global display style
+        changes, the current cursor is replaced with an hourglass cursor,
+        by calling this method.
+        
         @see: self._paintGL()
         @see: self.setGlobalDisplayStyle()
-        @see: self.setWaitCursor()
-        @see: self.resetWaitCursor_globalDisplayStyle
+        @see: self._setWaitCursor()
+        @see: self._resetWaitCursor_globalDisplayStyle
         """
         if self._waitCursor_for_globalDisplayStyleChange:
             #This avoids setting the wait cursor twice.
             return
         self._waitCursor_for_globalDisplayStyleChange = True
-        self.setWaitCursor()
+        self._setWaitCursor()
     
-    def resetWaitCursor_globalDisplayStyle(self):
+    def _resetWaitCursor_globalDisplayStyle(self):
         """
-        Reset hour glass cursor that was set while NE1 was changing the global
-        display style of the model. 
+        Reset hourglass cursor that was set while NE1 was changing the global
+        display style of the model (by _setWaitCursor_globalDisplayStyle).
         
         @see: self._paintGL()
         @see: self.setGlobalDisplayStyle()
-        @see: self.setWaitCursor()
-        @see: self.setWaitCursor_globalDisplayStyle()
-        
+        @see: self._setWaitCursor()
+        @see: self._setWaitCursor_globalDisplayStyle()
         """
-        
         if self._waitCursor_for_globalDisplayStyleChange:
-            self.resetWaitCursor()
+            self._resetWaitCursor()
             self._waitCursor_for_globalDisplayStyleChange = False
-            
+        return
     
-    def setWaitCursor(self):
+    def _setWaitCursor(self):
         """
-        Set the hour glass cursor whenever required.
+        Set the hourglass cursor whenever required.
         """        
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         
-        
-    def resetWaitCursor(self):
+    def _resetWaitCursor(self):
         """
-        Reset the hour glass cursor.
+        Reset the hourglass cursor.
+        
         @see: self._paintGL()
         @see: self.setGlobalDisplayStyle()
-        @see: self.setWaitCursor()
-        @see: self.setWaitCursor_globalDisplayStyle()
+        @see: self._setWaitCursor()
+        @see: self._setWaitCursor_globalDisplayStyle()
         """
         QApplication.restoreOverrideCursor()
         
-        
-
     def setGlobalDisplayStyle(self, disp):
         """
         Set the global display style of self (the GLPane).
@@ -681,10 +682,10 @@ class GLPane(
         @see: setDisplayStyle methods in some model classes
 
         @see: setDisplayStyle_of_selection method in another class
-        @see: self.self.setWaitCursor_globalDisplayStyle()
+        @see: self.self._setWaitCursor_globalDisplayStyle()
         """
         
-        self.setWaitCursor_globalDisplayStyle()
+        self._setWaitCursor_globalDisplayStyle()
                         
         # review docstring: what about diINVISIBLE? diPROTEIN?        
         if disp == diDEFAULT:
