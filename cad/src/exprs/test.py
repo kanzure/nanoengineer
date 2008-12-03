@@ -2053,13 +2053,12 @@ def drawtest1_innards(glpane):
                 # might be problematic if *all* drag-caused redraws are not printed, but I'm guessing the last one will be [##k].
                 # it turns out, it is in some cases and not others.
                 # if this is a problem, or if in_drag redraws matter, also consider printing ".", for them. In fact, try this now.
-            import foundation.env as env
+            ##import foundation.env as env
             ##print "drew", env.redraw_counter   ##e or print_compact_stack
-            sys.stdout.write(";")
-            sys.stdout.flush()
+            ### TODO: also let glpane.drawing_phase and .current_glselect affect the character
+            _print_redraw_character(';')
         else:
-            sys.stdout.write(".")
-            sys.stdout.flush()
+            _print_redraw_character('.')
         # Note: this shows it often draws one frame twice, not at the same moment, presumably due to GLPane highlighting alg's
         # glselect redraw. That is, it draws a frame, then on mouseover of something, draws it glselect, then immediately
         # draws the *next* frame which differs in having one object highlighted. (Whereas on mouse-leave of that something,
@@ -2072,6 +2071,18 @@ def drawtest1_innards(glpane):
         #  it also lets the drag_handler turn that off, which might be an easy optim to try sometime. ####)
         # When the time comes (eg to optim it), just use print_compact_stack here. [061116 comment]
         printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
+    return
+
+_last_redraw_counter = -1
+
+def _print_redraw_character(char):
+    global _last_redraw_counter
+    import foundation.env as env
+    if _last_redraw_counter != env.redraw_counter:
+        sys.stdout.write(' ') # group characters from the same redraw [081203]
+        _last_redraw_counter = env.redraw_counter
+    sys.stdout.write(char)
+    sys.stdout.flush()
     return
 
 # ==
