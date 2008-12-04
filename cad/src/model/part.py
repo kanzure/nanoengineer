@@ -1146,12 +1146,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # code from GLPane.drawarrow
             glDisable(GL_LIGHTING)
             glDisable(GL_DEPTH_TEST)
-                # Note: disabling GL_DEPTH_TEST works here, but the one in
-                # Guides.py doesn't work. Maybe this is because this one
-                # passes two coords (window coords) rather than three
-                # (model coords)? Qt doc seems to confirm this, sort of:
-                # http://doc.trolltech.com/4.3/qglwidget.html#renderText 
-                # [bruce 081204 comment]
+                # Note: disabling GL_DEPTH_TEST properly affects 2d renderText
+                # (as used here), but not 3d renderText. For more info see
+                # today's comments in Guides.py. [bruce 081204 comment]
             glPushMatrix() # REVIEW: needed? [bruce 081204 question]
             font = QFont(QString("Helvetica"), 24, QFont.Bold)
             glpane.qglColor(Qt.red) # this needs to be impossible to miss -- not nice-looking!

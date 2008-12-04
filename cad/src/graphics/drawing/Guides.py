@@ -597,19 +597,21 @@ class Guides(object):
         
         glDisable(GL_LIGHTING)
         glDisable(GL_DEPTH_TEST)
-            # BUG: disabling GL_DEPTH_TEST is apparently not honored by glpane.renderText --
-            # ruler text can still be obscured by previously drawn less-deep model objects.
-            # But the same thing in part.py seems to work.
+            # Note: disabling GL_DEPTH_TEST is not honored by the 3d version of
+            # glpane.renderText -- ruler text can still be obscured by
+            # previously drawn less-deep model objects.
+            # But the 2d call of renderText in part.py does honor this.
             # The Qt doc says why, if I guess how to interpret it:
             #   http://doc.trolltech.com/4.3/qglwidget.html#renderText
             # says, for the 3d version of renderText only (passing three model
             # coords as opposed to two window coords):
             #   Note that this function only works properly if GL_DEPTH_TEST
             #   is enabled, and you have a properly initialized depth buffer. 
-            # Possible fixes: #### TRY ONE OF THESE FIXES
+            # Possible fixes: 
             # - revise ruler_origin to be very close to the screen,
             #   and hope that this disable is merely ignored, not a messup;
             # - or, use the 2d version of the function.
+            # I did the latter fix (2d renderText, below) and it seems to work.
             # [bruce 081204 comment]
         
         # Suppress writing into the depth buffer so anything behind the ruler
@@ -771,8 +773,14 @@ class Guides(object):
         if not text:
             return
 
-        self.glpane.renderText(origin[0], origin[1], origin[2], \
-                          QString(text), self.rulerFont)
+        self.glpane.renderText(
+            ## origin[0], origin[1], origin[2], # model coordinates
+            origin[0], self.glpane.height - origin[1], # window coordinates
+                # using 2d window coordinates fixes the bug in which this text
+                # is obscured by model objects which should be behind it.
+                # For explanation, see comment near GL_DEPTH_TEST above.
+                # [bruce 081204 bugfix]
+            QString(text), self.rulerFont )
         return
 
     def drawCenteredText(self, text, origin):
@@ -795,6 +803,5 @@ class Guides(object):
         new_origin = origin - 0.5 * V(x1-x0, y1-y0, z1-z0)
         
         # render the text
-        self.glpane.renderText(new_origin[0], new_origin[1], new_origin[2], \
-                          QString(text), self.rulerFont)
+        self.drawText( text, new_origin)
         return    
