@@ -165,9 +165,9 @@ class GLPane_text_and_color_methods(object):
             self.renderText(x1, y1, z1,
                             QString(textString),
                             font)
-            self.qglClearColor(RGBf_to_QColor(color))
-            # question: is this related to glClearColor? [bruce 071214 question]
-            # -- yes [Ninad 2008-08-20]
+##            self.qglClearColor(RGBf_to_QColor(color))
+##            # question: is this related to glClearColor? [bruce 071214 question]
+##            # -- yes [Ninad 2008-08-20]
 
         glEnable(GL_LIGHTING)        
 
@@ -270,9 +270,9 @@ class GLPane_text_and_color_methods(object):
                             y + dy*signForDY,
                             textString,
                             font)
-            self.qglClearColor(RGBf_to_QColor(halo_color))
-                # REVIEW: why is qglClearColor needed here? Why is it done *after* renderText?
-                # [bruce 081204 questions; same Qs for the other uses of qglClearColor in this file]
+##            self.qglClearColor(RGBf_to_QColor(halo_color))
+##                # REVIEW: why is qglClearColor needed here? Why is it done *after* renderText?
+##                # [bruce 081204 questions; same Qs for the other uses of qglClearColor in this file]
 
         # Note: It is necessary to set the font color, otherwise it may change!
 
@@ -284,8 +284,8 @@ class GLPane_text_and_color_methods(object):
                         y ,
                         textString,
                         font)
-        self.qglClearColor(RGBf_to_QColor(textColor))
-            # is qglClearColor related to glClearColor? [bruce 071214 question]
+##        self.qglClearColor(RGBf_to_QColor(textColor))
+##            # is qglClearColor related to glClearColor? [bruce 071214 question]
         glEnable(GL_LIGHTING)
 
     def _getFontForTextNearCursor(self, fontSize = 10, isBold = False):
