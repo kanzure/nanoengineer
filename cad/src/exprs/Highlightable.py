@@ -291,17 +291,30 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         the results should be valid for highlighting
         """
         if not self.env.glpane.current_glselect:
+            # when that cond is false, we have a nonstandard projection matrix
+            
+            # REVIEW: does the jig-select code in Select_GraphicsMode.py
+            # also set it to indicate that? if not, does that cause any bugs
+            # due to this condition not turning off save_coords then?
+            # [bruce 081204 question]
+            
             self.save_coords()
-            # Historical note: using this cond apparently fixes the projection = True bug (even when used in DrawInCorner_projection),
-            # based on tests and debug prints of 070405. The cond itself was added long before. See testexpr_9cx / testexpr_9cy.
-            # It's not really known if that's all that fixed it; on 070118 I said:
-            #   I don't know why/how/ifreally it got fixed, but maybe it did,
-            #   since I did a few things to highlighting code since that time,
-            #   including not using that z-offset kluge in the depth test,
-            #   changing to GL_LEQUAL (with different Overlay order), maybe more.
+            
+            # Historical note: using this cond apparently fixes the
+            # projection = True bug (even when used in DrawInCorner_projection),
+            # based on tests and debug prints of 070405. The cond itself was
+            # added long before. See testexpr_9cx / testexpr_9cy.
+            # It's not really known if that's all that fixed it;
+            # on 070118 I said:
+            #  I don't know why/how/ifreally it got fixed, but maybe it did,
+            #  since I did a few things to highlighting code since that time,
+            #  including not using that z-offset kluge in the depth test,
+            #  changing to GL_LEQUAL (with different Overlay order), maybe more.
             #
-            # For details of debug prints, see cvs rev 1.66. They show that glpane.drawing_phase is 'main' here
-            # and 'glselect' when this cond is false, at least when self.projection is true and when using those testexprs.
+            # For details of debug prints, see cvs rev 1.66. They show that
+            # glpane.drawing_phase is 'main' here and 'glselect' when this cond
+            # is false, at least when self.projection is true and when using
+            # those testexprs.
             #
             # Update 081202: note (known at the above time, I think):
             # the reason adding this cond helps is that the projection matrix
@@ -310,12 +323,14 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         return
         
     def begin_using_saved_coords(self):
-        # fyi: examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
+        # fyi: examples of glLoadMatrix (and thus hopefully the glGet for that)
+        # can be found in these places on bruce's G4:
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
         projection_matrix = self.per_frame_state.saved_projection_matrix
         modelview_matrix = self.per_frame_state.saved_modelview_matrix
-            #k make sure we can access these (to get the most likely exceptions out of the way) (also shorten the remaining code)
+            #k make sure we can access these (to get the most likely exceptions
+            # out of the way) (also shorten the remaining code)
         if self.projection:
             glMatrixMode(GL_PROJECTION)
             glPushMatrix()

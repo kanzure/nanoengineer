@@ -176,6 +176,9 @@ class GLPane_image_methods(object):
         glRasterPos3f(x1, y1, z1) # z1 does matter (when in perspective view), since this is a 3d position
             # Note: using glWindowPos would be simpler and better, but it's not defined
             # by the PyOpenGL I'm using. [bruce iMac G5 070626]
+            ### UPDATE [bruce 081203]: glWindowPos2i *is* defined, at least on my newer Mac.
+            # There are lots of variants, all suffix-typed with [23][dfis]{,v}.
+            # I need to check whether it's defined on the older Macs too, then use it here. ####FIX
 
         if not glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID):
             # This was happening when we used x, y = exact 0,

@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 testdraw.py -- drawing code for testmode, which tests the exprs package.
 
@@ -6,7 +6,25 @@ testdraw.py -- drawing code for testmode, which tests the exprs package.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+
+BUGS:
+
+- 081204: testmode messes up ruler text and clipboard part text:
+  mouse motion over a highlightable alternately turns highlighting and text colors on and off;
+  with highlight on, text fg is white and bg clear (wrong but readable);
+  with highlight off (a bug in itself), text fg and bg are both the same
+  as whatever i set for text fg bfr renderText;
+  there are two redraws per mouse motion (normal for motion over a *non*-highlighted object) when rulers are on;
+  rulers *or* clipboard text also messes up some of the highlightable behavior in testmode,
+  making it alternate (as described above).
+
+  guesses as to the cause:
+  - could it be related to calling qglClearColor with the text color,
+    in the text rendering code?
+  - could renderText mess up something else related to highlighting,
+    like stencil buffer?
+  mostly it's a mystery.
 
 ### WARNING: most of the rest of this docstring is obs:
 

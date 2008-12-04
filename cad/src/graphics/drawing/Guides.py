@@ -597,6 +597,20 @@ class Guides(object):
         
         glDisable(GL_LIGHTING)
         glDisable(GL_DEPTH_TEST)
+            # BUG: disabling GL_DEPTH_TEST is apparently not honored by glpane.renderText --
+            # ruler text can still be obscured by previously drawn less-deep model objects.
+            # But the same thing in part.py seems to work.
+            # The Qt doc says why, if I guess how to interpret it:
+            #   http://doc.trolltech.com/4.3/qglwidget.html#renderText
+            # says, for the 3d version of renderText only (passing three model
+            # coords as opposed to two window coords):
+            #   Note that this function only works properly if GL_DEPTH_TEST
+            #   is enabled, and you have a properly initialized depth buffer. 
+            # Possible fixes: #### TRY ONE OF THESE FIXES
+            # - revise ruler_origin to be very close to the screen,
+            #   and hope that this disable is merely ignored, not a messup;
+            # - or, use the 2d version of the function.
+            # [bruce 081204 comment]
         
         # Suppress writing into the depth buffer so anything behind the ruler
         # can still be highlighted/selected.
@@ -628,7 +642,7 @@ class Guides(object):
         
         # Kludge alert. Finish drawing ruler edge(s) if we will not be
         # drawing the ruler tick marks and text (only happens when the user
-        # is zoomed out to an "absured scale factor".
+        # is zoomed out to an "absurd scale factor").
         if not draw_ticks_and_text:
             if env.prefs[displayVertRuler_prefs_key]:
                 self.drawLine(vr_line_pt1, vr_line_pt2)

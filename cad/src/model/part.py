@@ -1146,7 +1146,13 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # code from GLPane.drawarrow
             glDisable(GL_LIGHTING)
             glDisable(GL_DEPTH_TEST)
-            glPushMatrix()
+                # Note: disabling GL_DEPTH_TEST works here, but the one in
+                # Guides.py doesn't work. Maybe this is because this one
+                # passes two coords (window coords) rather than three
+                # (model coords)? Qt doc seems to confirm this, sort of:
+                # http://doc.trolltech.com/4.3/qglwidget.html#renderText 
+                # [bruce 081204 comment]
+            glPushMatrix() # REVIEW: needed? [bruce 081204 question]
             font = QFont(QString("Helvetica"), 24, QFont.Bold)
             glpane.qglColor(Qt.red) # this needs to be impossible to miss -- not nice-looking!
                 #e tho it might be better to pick one of several bright colors

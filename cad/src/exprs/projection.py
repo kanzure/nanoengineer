@@ -217,6 +217,11 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             if glpane.current_glselect or (0 and 'KLUGE' and hasattr(saveplace, '_saved_stuff')):
                             # kluge did make it faster; still slow, and confounded by the highlighting-delay bug;
                             # now I fixed that bug, and now it seems only normally slow for this module -- ok for now.
+                
+                # when that cond is false, we have a nonstandard projection matrix
+                # (see also the related comments in save_coords_if_safe in Highlightable.py)
+                # [bruce 081204 comment]
+
                 x1, y1, z1 = saveplace._saved_stuff # this is needed to make highlighting work!
                 ###BUG [061211 1117a; fixed now, see above, using saveplace = self.transient_state]:
                 # if we click on an object in testexpr_15d (with DrawInCorner used for other objs in the testbed)

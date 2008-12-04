@@ -115,20 +115,20 @@ class GLPane_text_and_color_methods(object):
                              fontSize = 11,
                              ):
         """
-        Renders the text at the specified position (x, y , z coordinates)
-        @param position: The x, y z coordinates of the object at which the 
+        Renders the text at the specified position (x, y, z coordinates)
+        @param position: The x, y, z coordinates of the object at which the 
         text needs to be rendered. 
         @type position: B{A}
         @param textString:  the text to be rendered at the specified position.
         @type textString : str
         @see: self.renderTextNearCursor() This method is different than that 
         method. That method uses QPoint (the current cursor position) to 
-        render the text (thus needs integers x and y) where has this method
+        render the text (thus needs integers x and y) whereas this method
         uses the actual object coordinates        
-        @see: MultiplednaSegment_GraphicsMode._drawDnaRubberbandLine()
-        @see: QGLWidget.renderText ()
+        @see: MultiplednaSegment_GraphicsMode._drawDnaRubberbandLine() [obsolete class name, what is correct one?]
+        @see: QGLWidget.renderText()
 
-        @TODO: refactor to move the common code in this method and 
+        @TODO: refactor to move the common code in this method and
         self.renderTextNearCursor().
         """
         
@@ -271,6 +271,8 @@ class GLPane_text_and_color_methods(object):
                             textString,
                             font)
             self.qglClearColor(RGBf_to_QColor(halo_color))
+                # REVIEW: why is qglClearColor needed here? Why is it done *after* renderText?
+                # [bruce 081204 questions; same Qs for the other uses of qglClearColor in this file]
 
         # Note: It is necessary to set the font color, otherwise it may change!
 
