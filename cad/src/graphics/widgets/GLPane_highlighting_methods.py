@@ -113,7 +113,6 @@ class GLPane_highlighting_methods(object):
                 # stack in shaders.  Instead, for mouseover, draw shader
                 # primitives with glnames as colors in glRenderMode(GL_RENDER),
                 # then read back the pixel color (glname) and depth value.
-                glRenderMode(GL_RENDER)
 
                 # Temporarily replace the full-size viewport with a little one
                 # at the mouse location, matching the pick matrix location.
@@ -131,6 +130,9 @@ class GLPane_highlighting_methods(object):
                 gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
                 glDrawPixels(pwSize, pwSize, gl_format, gl_type, (0, 0, 0, 0))
 
+                # Should be already in glRenderMode(GL_RENDER).
+                # Note: _setup_projection leaves the matrix mode as GL_PROJECTION.
+                glMatrixMode(GL_MODELVIEW) 
                 try:
                     # Russ 081122 Use glnames-as-color mode in shader.config().
                     self.drawing_phase = "glselect_glname_color"
@@ -142,17 +144,18 @@ class GLPane_highlighting_methods(object):
                     print_compact_traceback(
                         "exception in graphicsMode.Draw() during glname_color;"
                         "drawing ignored; restoring modelview matrix: ")
+                    self._disable_stereo()
                     glMatrixMode(GL_MODELVIEW)
                     self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                     # now it's important to continue, at least enough to restore other gl state
                     pass
+                self.drawing_phase = '?'
 
                 # Restore the viewport.
                 glViewport(saveVwpt[0], saveVwpt[1], saveVwpt[2], saveVwpt[3])
 
                 # Read pixel value from the back buffer and re-assemble glname.
-                glFinish()
-                glReadBuffer(GL_BACK)
+                glFinish() # Make sure the drawing has completed.
                 rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
                 # Comes back sign-wrapped, in spite of specifying UNSIGNED_BYTE.
                 def us(b):
@@ -192,9 +195,7 @@ class GLPane_highlighting_methods(object):
                 # glRenderMode(GL_RENDER), not just once to set the size.
                 # Ref: http://pyopengl.sourceforge.net/documentation/opengl_diffs.html
                 # [bruce 080923 comment]
-            glRenderMode(GL_SELECT)
             glInitNames()
-            glMatrixMode(GL_MODELVIEW)
 
             # REVIEW: should we also set up a clipping plane just behind the
             # hit point, as (I think) is done in ThumbView, to reduce the
@@ -202,6 +203,8 @@ class GLPane_highlighting_methods(object):
             # optimization, though I don't think it eliminates the chance
             # of having multiple candidates. [bruce 080917 comment]
             
+            glRenderMode(GL_SELECT)
+            glMatrixMode(GL_MODELVIEW)
             try:
                 self.drawing_phase = 'glselect' #bruce 070124
                 for stereo_image in self.stereo_images_to_draw:
@@ -210,6 +213,7 @@ class GLPane_highlighting_methods(object):
                     self._disable_stereo()
             except:
                 print_compact_traceback("exception in graphicsMode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+                self._disable_stereo()
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                 # now it's important to continue, at least enough to restore other gl state

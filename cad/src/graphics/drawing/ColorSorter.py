@@ -498,6 +498,7 @@ class ColorSorter:
     _immediate = 0      # Number of calls to _invoke_immediately since last
                         # _printstats
     _gl_name_stack = [0]     # internal record of GL name stack; 0 is a sentinel
+    _parent_csdl = None  # Passed from the start() method to finish().
 
     def pushName(glname):
         """
@@ -640,12 +641,12 @@ class ColorSorter:
                 worker = drawsphere_worker
                 pass
             
-            if sphereBatches and ColorSorter.parent_csdl: # Russ 080925: Added.
+            if sphereBatches and ColorSorter._parent_csdl: # Russ 080925: Added.
                 # Collect lists of primitives in the CSDL, rather than sending
                 # them down through the ColorSorter schedule methods into DLs.
-                ColorSorter.parent_csdl.addSphere(
+                ColorSorter._parent_csdl.addSphere(
                     pos, radius, lcolor,
-                    ColorSorter.parent_csdl.transform_id(),
+                    ColorSorter._parent_csdl.transform_id(),
                     # Mouseover glnames come from ColorSorter.pushName() .
                     ColorSorter._gl_name_stack[-1])
             else:
@@ -811,7 +812,7 @@ class ColorSorter:
         """
 
         #russ 080225: Moved glNewList here for displist re-org.
-        ColorSorter.parent_csdl = csdl  # Remember, used by finish().
+        ColorSorter._parent_csdl = csdl  # Remember, used by finish().
         if pickstate is not None:
             csdl.selectPick(pickstate)
             pass
@@ -870,7 +871,7 @@ class ColorSorter:
             "debug print which renderer",
             Choice_boolean_False) #bruce 060314, imperfect but tolerable
 
-        parent_csdl = ColorSorter.parent_csdl
+        parent_csdl = ColorSorter._parent_csdl
         if drawing_globals.use_c_renderer:
             quux.shapeRendererInit()
             if debug_which_renderer:
