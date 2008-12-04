@@ -264,7 +264,7 @@ class GLSphereShaderObject(object):
 
         # XXX Hook in full NE1 lighting scheme and material settings.
         # Material is [ambient, diffuse, specular, shininess].
-        glUniform4fvARB(self.uniform("material"), 1, [0.1, 0.5, 0.5, 35.0])
+        glUniform4fvARB(self.uniform("material"), 1, [0.3, 0.6, 0.5, 20.0])
         glUniform1iARB(self.uniform("perspective"), (1, 0)[glpane.ortho])
 
         # XXX Try built-in "uniform gl_DepthRangeParameters gl_DepthRange;"
@@ -764,11 +764,11 @@ void main(void) {
     gl_FragColor = var_basecolor;
   else if (highlight_mode == 1)
     // Highlighting is brighter and looks "special" without shinyness.
-    gl_FragColor = vec4(var_basecolor.rgb * vec3(2.0 * (diffuse + ambient)),
+    gl_FragColor = vec4(var_basecolor.rgb * vec3(1.5 * (diffuse + ambient)),
                         1.0);
   else
-    gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse) +
-                          vec3(ambient + specular),
+    gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient) +
+                          vec3(specular),   // White highlights.
                         var_basecolor.a * override_opacity);
 }
 """
