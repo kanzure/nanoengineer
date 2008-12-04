@@ -706,6 +706,7 @@ def draw_bond_main(self,
                 # chunk and per offset. Not worth it for now.
             text = bond_letter_from_v6(self.v6).upper()
             text_qcolor = QColor(255, 255, 255) # white
+            
             # fontname and fontsize: only some combos work, e.g. Times 10
             # (maybe) but not 12, and Helvetica 12 but not 10, and this might be
             # platform-dependent; when it fails, for Mac it just draws nothing
@@ -720,15 +721,32 @@ def draw_bond_main(self,
                 ###e should adjust fontsize based on scale, depth... (if not for
                 ###  the bugs mentioned above)
                 #e should construct font only once, keep in glpane
+
             glDisable(GL_LIGHTING)
             glpane.qglColor(text_qcolor)
             p = textpos
+            
             #k need explicit QString??
             glpane.renderText(p[0], p[1], p[2], QString(text), font)
+                ### BUG: it seems that this text is not stored in display lists.
+                # Evidence: for external bonds (not presently in display lists)
+                # this works reliably, but for internal bonds, it seems to only
+                # get rendered when the display list is remade (e.g. when one
+                # of the chunk's atoms is selected), not when it's redrawn
+                # (e.g. for redraws due to highlighting or viewpoint changes).
+                # I know that in the past (when this was first implemented),
+                # that was not the case (since rotating the chunk made the bond
+                # letters show up in the wrong direction due to glpane.out
+                # no longer being valid). It might be a new bug with Qt 4 --
+                # I'm not sure how new it is.
+                # [bruce 081204 comment]
+                
             # bug 969 traceback (not on Mac) claims "illegal OpenGL op" in this
-            # line! [as of 051110 night]
+            # line! [as of 051110 night] [which line?]
+            
             glEnable(GL_LIGHTING)
             pass
+        pass
     return # from draw_bond_main
 
 def multicyl_pvecs(howmany, a2py, a2pz):

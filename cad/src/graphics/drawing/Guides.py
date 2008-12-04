@@ -769,7 +769,11 @@ class Guides(object):
     def drawText(self, text, origin):
         """
         Draws ruler text.
-        """       
+        """
+        # WARNING: if we want to optimize by putting the ruler into an OpenGL display list,
+        # this might not work anymore, since renderText seems to not work in display lists
+        # when used for drawing bond letters in bond_drawer.py. [bruce 081204 comment]
+        
         if not text:
             return
 
