@@ -1,10 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 texture_fonts.py -- OpenGL fonts based on texture images of the characters
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import os
@@ -75,6 +75,10 @@ def ensure_courierfile_loaded(): #e rename to reflect binding too
     """
     Load font-texture if we edited the params for that in this function, or
     didn't load it yet; bind it for drawing
+
+    Anything that calls this should eventually call
+    glpane.kluge_reset_texture_mode_to_work_around_renderText_bug(),
+    but only after all drawing using the texture is done.
     """
     tex_filename = courierfile ## "xxx.png" # the charset
     "courierfile"
@@ -90,12 +94,16 @@ def ensure_courierfile_loaded(): #e rename to reflect binding too
 
 # kluge 061125 so exprs/images.py won't mess up drawfont2; might be slow
 def _bind_courier_font_texture():
-    """assuming everything else is set up as needed,
+    """
+    assuming everything else is set up as needed,
     including that exprs/images.py doesn't change most GL params,
     bind the texture containing the courierfile font
     """
     #bruce 070706 Bugfix for when drawfont2 is used outside of testmode.
     ensure_courierfile_loaded()
+        # this requires a later call of
+        # glpane.kluge_reset_texture_mode_to_work_around_renderText_bug()
+        # which is done in our sole caller, drawfont2 [bruce 081205]
     # optimized part of inlined setup_to_draw_texture_name
     glBindTexture(GL_TEXTURE_2D, vv.tex_name)
     ##e note: this will need extension once images.py can change more params,
@@ -367,6 +375,8 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None,
     # Anyway, it means we *will* have to do one of those optims mentioned, or
     # some other one like not clearing/redrawing the entire screen during most
     # text editing, or having per-line display lists.
+
+    glpane.kluge_reset_texture_mode_to_work_around_renderText_bug()
 
     return #drawfont2 #e rename, clean up
 

@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ESPImage.py - display an Electrostatic Potential Image (or any OpenGL texture)
 
@@ -8,7 +8,7 @@ the 3d model space.
 
 @author: Huaicai, Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History: 
 
@@ -421,6 +421,8 @@ class ESPImage(RectGadget):
             if 0:
                 from graphics.drawing.CS_draw_primitives import drawline
                 drawline(green, V(0.0, 0.0, 0.0), V(0.0, 0.0, 1.0), 0, 3)
+
+        glpane.kluge_reset_texture_mode_to_work_around_renderText_bug()
 
         glPopMatrix()
 

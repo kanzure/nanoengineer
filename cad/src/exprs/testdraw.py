@@ -234,9 +234,12 @@ def Draw_after_highlighting(mode, pickCheckOnly, glpane, super):
 # ==
 
 def drawtest0(glpane):
-    "run drawtest1, protected from exceptions, after setting up some of its environment"
+    """
+    run drawtest1, protected from exceptions, after setting up some of its environment
+    """
     # load the texture for the courier bitmap font; params incl tex_name are in private texture_fonts.vv object
     ensure_courierfile_loaded() # used to be done inside drawtest1
+    glpane.kluge_reset_texture_mode_to_work_around_renderText_bug() #bruce 081205; ok this soon?
 
     exprs_globals.start_time = time.time()
         # anything that gets drawn can compare this with realtime

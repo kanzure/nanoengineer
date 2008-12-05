@@ -119,7 +119,9 @@ class _texture_holder(object):
     objects of this class are meant to be saved as a memoized dict value with the filename being the dict key
     """
     #e so far, no param choices, keep only one version, no mgmt, no scaling...
+    
     __metaclass__ = ExprsMeta #e or could use ConstantComputeMethodMixin I think
+    
     def __init__(self, tex_key):
         self.filename, self.pil_kws_items = tex_key # have to put sorted items tuple in key, since dict itself is unhashable
         self.pil_kws = dict(self.pil_kws_items)
@@ -132,12 +134,14 @@ class _texture_holder(object):
         # everything else can be computed on-demand (image object, texture name, texture, etc)
         #e no provision yet for file contents changing; when there is, update policy or uniqid might need to be part of tex_key
         #e more options? maybe, but by default, get those from queries, store an optimal set of shared versions [nim]
+    
     def _C__image(self):
         """
         define self._image -- create a PIL Image object (enclosed in an neImageOps container) from the file, and return it
         """
         return texture_helpers.create_PIL_image_obj_from_image_file(self.filename, **self.pil_kws)
             # (trivial glue function into ImageUtils.py class nEImageOps -- return nEImageOps(image_file, **kws))
+    
     def _C_tex_name(self):
         """
         define self.tex_name -- allocate a texture name
@@ -153,6 +157,7 @@ class _texture_holder(object):
         tex_name = int(tex_name) # make sure it worked as expected
         assert tex_name != 0
         return tex_name
+    
     def _C_loaded_texture_data(self):
         """
         define self.loaded_texture_data = (have_mipmaps, tex_name),
@@ -172,9 +177,14 @@ class _texture_holder(object):
             # whenever self.loaded_texture_data ran this recompute method, _C_loaded_texture_data
         assert tex_name == self.tex_name
         return have_mipmaps, tex_name
+    
     def bind_texture(self, clamp = False, use_mipmaps = True, decal = False, pixmap = False):
         """
-        bind our texture, and set texture-related GL params as specified
+        bind our texture, and set texture-related GL params as specified.
+
+        Anything that calls this should eventually call
+        self.kluge_reset_texture_mode_to_work_around_renderText_bug(),
+        but only after all drawing using the texture is done.
         """
         # Notes [some of this belongs in docstring]:
         #e - we might want to pass these tex params as one chunk, or a flags word
@@ -184,11 +194,11 @@ class _texture_holder(object):
         
         have_mipmaps, tex_name = self.loaded_texture_data
         ## texture_helpers.setup_to_draw_texture_name(have_mipmaps, tex_name)
-        # let's inline that instead, including its call of initTextureEnv, and then modify it [061126]
+        # let's inline that instead, including its call of _initTextureEnv, and then modify it [061126]
 
         glBindTexture(GL_TEXTURE_2D, tex_name)
         
-        # modified from initTextureEnv(have_mipmaps) in texture_helpers.py
+        # modified from _initTextureEnv(have_mipmaps) in texture_helpers.py
         if clamp:
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
@@ -221,12 +231,18 @@ class _texture_holder(object):
             glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)            
         
         return
+    
+    def kluge_reset_texture_mode_to_work_around_renderText_bug(self, glpane): #bruce 081205
+        glpane.kluge_reset_texture_mode_to_work_around_renderText_bug()
+        return
+    
     def __repr__(self): #070308
         try:
             basename = os.path.basename(self.filename) #070312
         except:
             basename = self.filename
         return "<%s at %#x for %r, %r>" % (self.__class__.__name__, id(self), basename, self.pil_kws)
+    
     pass # end of class _texture_holder
 
 # ==
@@ -460,10 +476,21 @@ class Image(Widget2D):
 
     def bind_texture(self, **kws):
         """
-        bind our texture (and set other GL params needed to draw with it)
+        bind our texture (and set other GL params needed to draw with it).
+
+        Anything that calls this should eventually call
+        self.kluge_reset_texture_mode_to_work_around_renderText_bug(),
+        but only after all drawing using the texture is done.
         """
         self._texture_holder.bind_texture(**kws)
-    
+
+    def kluge_reset_texture_mode_to_work_around_renderText_bug(self):
+        """
+        This needs to be called after calling self.bind_texture,
+        but only after drawing using the texture is done.
+        """
+        self._texture_holder.kluge_reset_texture_mode_to_work_around_renderText_bug( self.env.glpane)
+        
     def draw(self):
         # bind texture for image filename [#e or other image object],
         # doing whatever is needed of allocating texture name, loading image object, loading texture data;
@@ -473,70 +500,73 @@ class Image(Widget2D):
         else:
             texture_options = self.texture_options # never used, but desired once bug is fixed
         self.bind_texture( **texture_options)
-        
-        # figure out texture coords (from optional args, not yet defined ###e) -- stub for now
-        nreps = float(self.nreps) # float won't be needed once we have type coercion; not analyzed whether int vs float matters in subr
-        ## tex_origin = ORIGIN2 # see also testdraw's drawtest1, still used in testmode to draw whole font texture rect
-        tex_origin = V(self.tex_origin[0], self.tex_origin[1])
-        ## tex_dx = D2X ; tex_dx *= nreps # this modifies a shared, mutable Numeric array object, namely D2X! Not what I wanted.
-        tex_dx = D2X * nreps
-        tex_dy = D2Y * nreps
-        
-        # where to draw it -- act like a 2D Rect for now, determined by self's lbox,
-        # which presently comes from self.size
-        origin = V(-self.bleft, -self.bbottom, 0)
-            # see also the code in drawfont2 which tweaks the drawing position to improve the pixel alignment
-            # (in a way which won't work right inside a display list if any translation occurred before now in that display list)
-            # in case we want to offer that option here someday [070124 comment]
-##        dx = DX * self.bright
-##        dy = DY * self.btop
-        dx = DX * (self.bleft + self.bright) # bugfix 070304: include bleft, bbottom here
-        dy = DY * (self.bbottom + self.btop)
-        
-        blend = self.blend
-        alpha_test = self.alpha_test
-        two_sided = self.two_sided
-        shape = self.shape # for now, None or a symbolic string (choices are hardcoded below)
-                
-        if blend:
-            glEnable(GL_BLEND)
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        if alpha_test:
-            glEnable(GL_ALPHA_TEST) # (red book p.462-463)
-            glAlphaFunc(GL_GREATER, 0.0) # don't draw the fully transparent parts into the depth or stencil buffers
-                ##e maybe let that 0.0 be an option? eg the value of alpha_test itself? Right now, it can be False ~== 0 (not None).
-        if two_sided:
-            glDisable(GL_CULL_FACE)
 
-        if not shape:
-            draw_textured_rect( origin, dx, dy, tex_origin, tex_dx, tex_dy)
-        else:
-            # support sub-shapes of the image rect, but with unchanged texture coords relative to the whole rect [070404 ###UNTESTED]
-            if type(shape) == type(""):
-                ##e use an external shape name->value mapping?
-                # in fact, should such a mapping be part of the dynamic graphics-instance env (self.env)??
-                if shape == 'upper-left-half':
-                    shape = ((0,0), (1,1), (0,1))
-                elif shape == 'lower-right-half':
-                    shape = ((0,0), (1,0), (1,1))
-                elif shape == 'upper-right-half': #070628
-                    shape = ((0,1), (1,0), (1,1))
-                elif shape == 'lower-left-half': #070628; untested
-                    shape = ((0,0), (1,0), (0,1))
-                else:
-                    assert 0, "in %r, don't know this shape name: %r" % (self, shape)
-            # otherwise assume it might be the right form to pass directly
-            # (list of 3 2d points in [0,1] x [0,1] relative coords -- might need to be in CCW winding order)
-            draw_textured_rect_subtriangle( origin, dx, dy, tex_origin, tex_dx, tex_dy,
-                                            shape )
-            pass
-        if blend:
-            glDisable(GL_BLEND)
-        if alpha_test:
-            glDisable(GL_ALPHA_TEST)
-        if two_sided:
-            glEnable(GL_CULL_FACE)
+        try:
+        
+            # figure out texture coords (from optional args, not yet defined ###e) -- stub for now
+            nreps = float(self.nreps) # float won't be needed once we have type coercion; not analyzed whether int vs float matters in subr
+            ## tex_origin = ORIGIN2 # see also testdraw's drawtest1, still used in testmode to draw whole font texture rect
+            tex_origin = V(self.tex_origin[0], self.tex_origin[1])
+            ## tex_dx = D2X ; tex_dx *= nreps # this modifies a shared, mutable Numeric array object, namely D2X! Not what I wanted.
+            tex_dx = D2X * nreps
+            tex_dy = D2Y * nreps
             
+            # where to draw it -- act like a 2D Rect for now, determined by self's lbox,
+            # which presently comes from self.size
+            origin = V(-self.bleft, -self.bbottom, 0)
+                # see also the code in drawfont2 which tweaks the drawing position to improve the pixel alignment
+                # (in a way which won't work right inside a display list if any translation occurred before now in that display list)
+                # in case we want to offer that option here someday [070124 comment]
+    ##        dx = DX * self.bright
+    ##        dy = DY * self.btop
+            dx = DX * (self.bleft + self.bright) # bugfix 070304: include bleft, bbottom here
+            dy = DY * (self.bbottom + self.btop)
+            
+            blend = self.blend
+            alpha_test = self.alpha_test
+            two_sided = self.two_sided
+            shape = self.shape # for now, None or a symbolic string (choices are hardcoded below)
+                    
+            if blend:
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            if alpha_test:
+                glEnable(GL_ALPHA_TEST) # (red book p.462-463)
+                glAlphaFunc(GL_GREATER, 0.0) # don't draw the fully transparent parts into the depth or stencil buffers
+                    ##e maybe let that 0.0 be an option? eg the value of alpha_test itself? Right now, it can be False ~== 0 (not None).
+            if two_sided:
+                glDisable(GL_CULL_FACE)
+
+            if not shape:
+                draw_textured_rect( origin, dx, dy, tex_origin, tex_dx, tex_dy)
+            else:
+                # support sub-shapes of the image rect, but with unchanged texture coords relative to the whole rect [070404 ###UNTESTED]
+                if type(shape) == type(""):
+                    ##e use an external shape name->value mapping?
+                    # in fact, should such a mapping be part of the dynamic graphics-instance env (self.env)??
+                    if shape == 'upper-left-half':
+                        shape = ((0,0), (1,1), (0,1))
+                    elif shape == 'lower-right-half':
+                        shape = ((0,0), (1,0), (1,1))
+                    elif shape == 'upper-right-half': #070628
+                        shape = ((0,1), (1,0), (1,1))
+                    elif shape == 'lower-left-half': #070628; untested
+                        shape = ((0,0), (1,0), (0,1))
+                    else:
+                        assert 0, "in %r, don't know this shape name: %r" % (self, shape)
+                # otherwise assume it might be the right form to pass directly
+                # (list of 3 2d points in [0,1] x [0,1] relative coords -- might need to be in CCW winding order)
+                draw_textured_rect_subtriangle( origin, dx, dy, tex_origin, tex_dx, tex_dy,
+                                                shape )
+                pass
+            if blend:
+                glDisable(GL_BLEND)
+            if alpha_test:
+                glDisable(GL_ALPHA_TEST)
+            if two_sided:
+                glEnable(GL_CULL_FACE)
+        finally:
+            self.kluge_reset_texture_mode_to_work_around_renderText_bug()
         return # from Image.draw
 
     # note the suboptimal error message from this mistake:

@@ -1,10 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 texture_helpers.py -- helper functions for using OpenGL textures
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from OpenGL.GL import glGenTextures
@@ -57,10 +57,17 @@ def load_image_into_new_texture_name(image_file, tex_name = 0):
 
 # TODO: rename, docstring
 def setup_to_draw_texture_name(have_mipmaps, tex_name):
+    """
+    #doc
+
+    Anything that calls this should eventually call
+    glpane.kluge_reset_texture_mode_to_work_around_renderText_bug(),
+    but only after all drawing using the texture is done.
+    """
     # assume it's already set up [what does that mean? bruce 071017]
     #e bind it
     glBindTexture(GL_TEXTURE_2D, tex_name)
-    initTextureEnv(have_mipmaps) # sets texture params the way we want them
+    _initTextureEnv(have_mipmaps) # sets texture params the way we want them
     ## now you can: (from ESPImage._draw_jig, which before this did pushmatrix
     ## etc)
     ## drawPlane(self.fill_color, self.width, self.width, textureReady,
@@ -132,10 +139,16 @@ def loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
     return have_mipmaps, tex_name
 
 # This gets us ready to draw (using coords in) a texture if we have it bound, I
-# think.  Called during draw method [modified from ESPImage.]
+# think. Called during draw method [modified from ESPImage.]
 #e need smooth = False/True
-def initTextureEnv(have_mipmaps):
-    "have_mipmaps is boolean #doc"
+def _initTextureEnv(have_mipmaps):
+    """
+    have_mipmaps is boolean #doc
+
+    Anything that calls this should eventually call
+    glpane.kluge_reset_texture_mode_to_work_around_renderText_bug(),
+    but only after all drawing using the texture is done.
+    """
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
         # [looks like a bug that we overwrite clamp with repeat, just below?
         # bruce 060212 comment]

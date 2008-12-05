@@ -513,10 +513,7 @@ class GLPane_text_and_color_methods(object):
             # - if stencil clear is expensive, we could do it only when needed [bruce ca. 050615]
             # - if color clear is expensive, we needn't do it when self.backgroundGradient 
 
-        # piotr 080620 - fixed "white text" bug when using Qt 4.3.x -
-        # before renderng text, the texture mode should be set to GL_MODULATE
-        # to reflect current color changes
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
+        self.kluge_reset_texture_mode_to_work_around_renderText_bug()
         
         if self.backgroundGradient:
             glMatrixMode(GL_PROJECTION)
@@ -540,7 +537,28 @@ class GLPane_text_and_color_methods(object):
             # depths into it everywhere, if that's possible). [bruce 070913 comment]
 
         return
-    
+
+    def kluge_reset_texture_mode_to_work_around_renderText_bug(self):
+        """
+        This helps work around a renderText bug in Qt 4.3.x (fixed in Qt 4.4.0).
+        It should be called after anything which might set GL_TEXTURE_ENV_MODE
+        to something other than GL_MODULATE (e.g. after drawing an ESP Image,
+        or textures used in testmode), and before drawing the main model
+        or when initializing the graphics context.
+        """
+        #bruce 081205 made this a separate method, called it from more places.
+        # for more info, see:
+        #    http://trolltech.com/developer/task-tracker/index_html?method=entry&id=183995
+        #    http://trolltech.com/developer/changes/changes-4.4.0 (issue 183995)
+        #    http://www.nanoengineer-1.net/mediawiki/index.php?title=Qt_bugs_in_renderText#glTexEnvf_turns_all_renderText_characters_into_solid_rectangles
+        # In theory this should no longer be needed once we upgrade to Qt 4.4.0.
+        #
+        # piotr 080620 - fixed "white text" bug when using Qt 4.3.x
+        # [by doing this inline in clear_and_draw_background] --
+        # before rendering text, the texture mode should be set to GL_MODULATE
+        # to reflect current color changes.
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
+
     pass
 
 # end
