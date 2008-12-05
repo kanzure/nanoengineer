@@ -226,9 +226,10 @@ class Move_Command(SelectChunks_Command):
         if isChecked:
             # invoke the RotateAboutPoint command
             self.propMgr.rotateStartCoordLineEdit.setEnabled(isChecked)
-            msg = "Click inside the 3D workspace to define two points " \
-                "of a line. The selection will be rotated about the first point "\
-                "in the direction specified by that line"
+            msg = "Define 3 points. The <b>1st point</b> is the rotation point "\
+                "(i.e. the rotation axis perpendicular to the view). "\
+                "The <b>2nd</b> point is the starting angle. "\
+                "The <b>3rd</b> point is the ending angle."
 
             self.propMgr.updateMessage(msg)
             
@@ -261,9 +262,9 @@ class Move_Command(SelectChunks_Command):
         """
         if isChecked:
             self.propMgr.startCoordLineEdit.setEnabled(isChecked)
-            msg = "Click inside the 3D workspace to define two endpoints " \
-                "of a line. The selection will be moved by the offset "\
-                "vector defined by these line endpoints."
+            msg = "Define the offset vector by clicking two points. "\
+                "The <b>1st</b> point is the 'from' point. "\
+                "The <b>2nd</b> point is the 'to' point."
 
             self.propMgr.updateMessage(msg)
             # following was revised by bruce 080801

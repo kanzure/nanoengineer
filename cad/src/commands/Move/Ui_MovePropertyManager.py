@@ -171,7 +171,7 @@ class Ui_MovePropertyManager(Command_PropertyManager):
             inPmGroupBox, 
             label        = "ui/actions/Properties Manager"\
                     "/Move_Start_Point.png",
-            text         = "Define start point from 3D workspace",
+            text         = "Define 'from' and 'to' points",
             setAsDefault = False,
             )
         self.startCoordLineEdit.setReadOnly(True)
@@ -406,7 +406,7 @@ class Ui_MovePropertyManager(Command_PropertyManager):
             inPmGroupBox, 
             label        = "ui/actions/Properties Manager"\
                     "/Move_Start_Point.png",
-            text         = "Define start point from 3D workspace",
+            text         = "Define 3 points",
             setAsDefault = False,
             )
         self.rotateStartCoordLineEdit.setReadOnly(True)

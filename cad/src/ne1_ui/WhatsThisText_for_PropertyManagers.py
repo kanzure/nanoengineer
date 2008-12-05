@@ -464,9 +464,20 @@ def whatsThis_MovePropertyManager(propMgr):
         </p>""")
     
     propMgr.moveFromToButton.setWhatsThis(
-        """<b>Move From To</b>
+        """
+        <img source=\"ui/actions/Properties Manager/Translate_Components.png\">
+        <b>Translate from/to</b>
         <p>
-        Moves selection by offset vector between two user defined points
+        Translates the current selection by an offset vector defined by
+        two points (i.e. left mouse button clicks) :</p>
+        1st point - The 'from' point.<br>
+        2nd point - the 'to' point.
+        </p>""")
+    
+    propMgr.startCoordLineEdit.setWhatsThis(
+        """<b>Define from and to points</b>
+        <p>
+        Becomes active when the user selects <b>Translate from/to</b>.
         </p>""")
 
     # By Delta XYZ widgets
@@ -596,6 +607,26 @@ def whatsThis_MovePropertyManager(propMgr):
         own individual centroids.
         </p>""")
 
+    # Rotate selection about a point
+    propMgr.rotateAboutPointButton.setWhatsThis(
+        """
+        <img source=\"ui/actions/Properties Manager/Rotate_Components.png\"> 
+        <b>Rotate selection about a point</b>
+        <p>
+        Rotates the current selection about an axis perpendicular to the 
+        current view. The user defines 3 points (i.e. left mouse button clicks):
+        <p>
+        1st point - The rotation point (i.e. the perpendicular axis).<br>
+        2nd point - The starting angle.<br>
+        3rd point - The ending angle.<br>
+        </p>""")
+    
+    propMgr.rotateStartCoordLineEdit.setWhatsThis(
+        """<b>Define 3 points</b>
+        <p>
+        Becomes active when the user selects <b>Rotate selection about a point</b>.
+        </p>""")
+    
     # By Specified Angle widgets
 
     propMgr.rotateXButton.setWhatsThis(
@@ -622,8 +653,6 @@ def whatsThis_MovePropertyManager(propMgr):
         Specifies the angle of rotation.
         </p>""")
 
-    # These next two aren't working. 
-    # I don't understand why not. Mark 2007-06-25.
     propMgr.rotateThetaPlusButton.setWhatsThis(
         """<b>Rotate</b>
         <p>

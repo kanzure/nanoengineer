@@ -1297,7 +1297,7 @@ def retranslateUi(win):
     #= View (menu and toolbar) actions.
     win.viewOrientationAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Orientation...", 
+            "MainWindow", "Orientation Manager...", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.viewOrientationAction.setShortcut(
         QtGui.QApplication.translate(

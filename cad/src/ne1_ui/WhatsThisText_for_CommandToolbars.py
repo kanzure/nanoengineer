@@ -255,10 +255,10 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
         """<b>Insert Peptide</b>
         <p>
         <img source=\"ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png\"><br> 
-        Insert a peptide chain by clicking two endpoints 
-        in the 3D graphics area. The user can also specify different
-        conformation options (i.e. Alpha helix, Beta sheet, etc.) in the 
-        property manager.
+        Insert a peptide chain by clicking two endpoints in the 
+        <a href=Graphics_Area>graphics area</a>. The user can also specify 
+        different conformation options (i.e. Alpha helix, Beta sheet, etc.) 
+        in the <a href=Property_Manager>property manager</a>.
         </p>""")
     
     commandToolbar.editRotamersAction.setWhatsThis(

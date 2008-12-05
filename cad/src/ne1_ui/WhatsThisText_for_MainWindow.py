@@ -787,54 +787,71 @@ def createWhatsThisTextForMainWindowWidgets(win):
     # Rotate View +90
 
     _text = \
-        "<u><b>Rotate View +90</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/View/Rotate_View_+90.png\"><br> "\
-        "Increment the current view by 90 degrees "\
-        "around the vertical axis."\
-        "</p>"
+        """<u><b>Rotate View +90</b></u>
+        <p>
+        <img source=\"ui/actions/View/Rotate_View_+90.png\"><br> 
+        Increment the current view by 90 degrees 
+        around the vertical axis.
+        </p>"""
 
     win.viewRotatePlus90Action.setWhatsThis( _text )
 
     # Rotate View -90
 
     _text = \
-        "<u><b>Rotate View -90</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/View/Rotate_View_-90.png\"><br> "\
-        "Decrement the current view by 90 degrees "\
-        "around the vertical axis."\
-        "</p>"
+        """<u><b>Rotate View -90</b></u>
+        <p>
+        <img source=\"ui/actions/View/Rotate_View_-90.png\"><br> 
+        Decrement the current view by 90 degrees 
+        around the vertical axis.
+        </p>"""
 
     win.viewRotateMinus90Action.setWhatsThis( _text )
-
-    # Orientation Window
+    
+    # Standard Views Menu (on View toolbar)
     
     _text = \
-        "<u><b>Orientation Window</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/View/Modify/Orientation.png\"><br> "\
-        "Opens the Orientation Menu "\
-        "</p>"
+        """<u><b>Standard Views</b></u>
+        <p>
+        <img source=\"ui/actions/View/Standard_Views.png\"><br> 
+        Menu of standard views.
+        </p>"""
+    
+    win.standardViewsAction.setWhatsThis( _text)
+
+    # View Manager (was Orientation Window)
+    
+    _text = \
+        """<u><b>Orientation View Manager</b></u> (Space)
+        <p>
+        <img source=\"ui/actions/View/Modify/Orientation.png\"><br> 
+        Opens the Orientation view manager window which provides a convenient way to 
+        quickly access standard and custom views. It is also used to manage 
+        <a href=Feature:Save_Named_View>Named Views</a>.
+        </p>"""
 
     win.viewOrientationAction.setWhatsThis( _text ) 
     
     # Set Current View to Home View
     
-    setViewHomeToCurrentActionText = \
-        "<b>Set Current View to Home View</b>"\
-        "<p>"\
-        "Sets the current view displayed in the 3D graphics area to the Home View "\
-        "</p>"
+    _text = \
+        """<b>Replace Home View with current view</b>
+        <p>
+        Replaces the Home View with the current view.</p>
+        <p>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
+        <b>Hot Tip:</b> 
+        Press the <b>Home key</b> to switch to the Home View at any time.
+        </p>"""
 
-    win.setViewHomeToCurrentAction.setWhatsThis( setViewHomeToCurrentActionText )
+    win.setViewHomeToCurrentAction.setWhatsThis( _text )
     
     # Semi-Full Screen view 
     
     viewSemiFullScreenActionText = \
         "<b>Semi-Full Screen</b>"\
         "<p>"\
-        "Sets display to Semi-Full Screen "\
+        "Sets display to semi-full screen. "\
         "</p>"
 
     win.viewSemiFullScreenAction.setWhatsThis( viewSemiFullScreenActionText )
@@ -844,7 +861,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     viewRulersActionText = \
         "<b>Display Rulers</b>"\
         "<p>"\
-        "Toggles the display of 3D graphics area rulers"\
+        "Turns on/off the rulers."\
         "</p>"
 
     win.viewRulersAction.setWhatsThis( viewRulersActionText )
@@ -1353,23 +1370,25 @@ def createWhatsThisTextForMainWindowWidgets(win):
     
     # Selection Lock
 
-    selectionLockActionText = \
-        "<u><b>Selection Lock</b></u>    "\
-        "(Ctrl + L)"\
-        "<p>"\
-        "<img source=\"ui/actions/Tools/Select/Selection_Unlocked.png\">"\
-        " (off) "\
-        "<img source=\"ui/actions/Tools/Select/Selection_Locked.png\">"\
-        " (on)<br> "\
-        "Toggles the mouse <i>Selection Lock</i> on and off. </p>"\
-        "<p>"\
-        "When enabled, selection operations using the mouse (i.e. clicks and "\
-        "drags) are disabled in the 3D graphics area. All other selection "\
-        "commands available via toolbars, menus, the model tree and keyboard "\
-        "shortcuts are not affected when the Selection Lock is turned on."\
-        "</p>"
+    _text = \
+        """<u><b>Selection Lock</b></u> (Ctrl + L)
+        <p>
+        <img source=\"ui/actions/Tools/Select/Selection_Unlocked.png\"> 
+        (off) 
+        <img source=\"ui/actions/Tools/Select/Selection_Locked.png\"> 
+        (on)<br>
+        Toggles the mouse <i>Selection Lock</i> on and off. </p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> 
+        When enabled, selection operations using the mouse (i.e. clicks and 
+        region selections) are disabled in the <a href=Graphics_Area>graphics area</a>. 
+        All other selection commands available via toolbars, menus, 
+        the model tree and keyboard shortcuts are not affected when the 
+        Selection Lock is turned on.
+        </p>"""
 
-    win.selectLockAction.setWhatsThis(selectionLockActionText)
+    win.selectLockAction.setWhatsThis( _text )
     
     #
     # Modify Toolbar
@@ -1614,56 +1633,56 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.buildCrystalAction.setWhatsThis( toolsCookieCutActionText )
 
-    # Tools > Extrude
+    # Extrude
 
-    toolsExtrudeActionText = \
-        "<u><b>Extrude</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
-        "<p>"\
-        "<img source=\"ui/actions/Insert/Features/Extrude.png\"><br> "\
-        "Activates <b>Extrude</b> mode, allowing the user to create rod or "\
-        "ring structures using one or more (selected) molecular fragments as "\
-        "a repeating unit.</p>"\
-        "<p>"\
-        "This mode is also useful for creating linear or circular patterns of "\
-        "the selection."\
-        "</p>"
+    _text = \
+        """<u><b>Extrude</b></u><!-- [[Feature:Extrude Mode]] --><br>
+        <p>
+        <img source=\"ui/actions/Insert/Features/Extrude.png\"><br> 
+        Creates rod or ring structures from one or more (selected) molecular 
+        fragments as a <i>repeating unit</i>. Extrude can also be used to 
+        create linear (rod) or circular (ring) patterns from the current 
+        selection.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> Something must be selected (i.e. the repeating unit) 
+        before entering this command.
+        </p>"""
 
-    win.toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )
+    win.toolsExtrudeAction.setWhatsThis( _text )
 
-    # Fuse Chunks Mode
+    # Fuse Chunks
 
-    toolsFuseChunksActionText = \
-        "<u><b>Fuse Chunks Mode</b></u>"\
-        "<!-- [[Feature:Fuse Chunks Mode]] -->"\
-        "<p>"\
-        "<img source=\"ui/actions/Tools/Build Tools/Fuse_Chunks.png\"><br> "\
-        "<b>Fuse Chunks</b> can be used to "\
-        "interactively join two or more chunks by "\
-        "dragging chunks around and fusing them "\
-        "together. Two fusing options are "\
-        "supported:<br><br> <b>Make Bonds</b> creates "\
-        "bonds between the existing bondpoints of two "\
-        "or more chunks.  Bondpoints are highlighted "\
-        "and lines are drawn (and undrawn) as chunks "\
-        "are dragged to indicate bonding relationships "\
-        "between bondpoints. Bondpoints with "\
-        "multiple bonding relationships are highlighted "\
-        "in magenta to indicate that they cannot "\
-        "make bonds.<br><br> <b>Fuse Atoms</b> fuses "\
-        "pairs of overlapping atoms between chunks. "\
-        "The set of overlapping atoms in the selected "\
-        "chunk(s) are highlighted in green while the "\
-        "set of atoms that will be deleted in "\
-        "non-selected chunks are highlighted in dark "\
-        "red. It is possible that deleted atoms will "\
-        "not fuse properly, leaving bondpoints on the "\
-        "selected chunk(s) atoms.  This is a bug.  To "\
-        " help minimize this problem, try to get the "\
-        "bonds of overlapping atoms oriented "\
-        "similarly.<br>"\
-        "</p>"
+    _text = \
+        """<u><b>Fuse Chunks Mode</b></u> <!-- [[Feature:Fuse Chunks Mode]] -->
+        <p>
+        <img source=\"ui/actions/Tools/Build Tools/Fuse_Chunks.png\"><br> 
+        Fuses two or more chunks. Two fusing options are supported:</[>
+        <p>
+        <b>Make Bonds</b>:<br>
+        creates bonds between <a href=Bondpoints>bondpoints</a>
+        of the selected chunk and any other chunks within bonding distance.  
+        Bondpoints are highlighted and lines are drawn (and undrawn) as chunks 
+        are moved interactively to indicate bonding relationships between bondpoints. 
+        Bondpoints with too many bonding relationships are highlighted in 
+        magenta and will not make bonds.</p>
+        <p>
+        <b>Fuse Atoms</b>:<br>
+        fuses pairs of overlapping atoms between chunks. 
+        The overlapping atoms in the selected chunk(s) are highlighted in 
+        green while the atoms that will be deleted in non-selected chunks 
+        are highlighted in dark red. </p>
+        <p>
+        <img source=\"ui/whatsthis/HotTip.png\"><br>
+        <b>Hot Tip:</b>
+        This command can be very slow for large models with lots of atoms. 
+        To improve preformance, use <b>Hide</b> to hide everything 
+        you don't need before entering this command. After you are done, 
+        select all nodes in the model tree (or click <b>Select All</b>) 
+        and click <b>Unhide</b>.
+        </p>"""
 
-    win.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )
+    win.toolsFuseChunksAction.setWhatsThis( _text )
 
     #
     # Simulator Toolbar
