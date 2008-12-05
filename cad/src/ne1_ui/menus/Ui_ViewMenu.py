@@ -48,7 +48,6 @@ def setupUi(win):
         win.displayMenu.addAction(win.dispHybridAction)
     
     # Populate the "Modify" submenu.
-    win.modifyMenu.addAction(win.viewOrientationAction)
     win.modifyMenu.addAction(win.setViewFitToWindowAction)
     win.modifyMenu.addAction(win.setViewRecenterAction)
     win.modifyMenu.addAction(win.setViewZoomtoSelectionAction)
@@ -61,6 +60,7 @@ def setupUi(win):
     win.modifyMenu.addAction(win.setViewHomeAction)
     win.modifyMenu.addAction(win.setViewHomeToCurrentAction)
     win.modifyMenu.addAction(win.saveNamedViewAction)
+    win.modifyMenu.addAction(win.viewOrientationAction)
         
     # Create and populate the "Toolbar" submenu. 
     # This is done here since the main window toolbar widgets must be 
@@ -71,6 +71,7 @@ def setupUi(win):
     win.viewMenu.addMenu(win.displayMenu)
     win.viewMenu.addMenu(win.modifyMenu)
     win.viewMenu.addSeparator()
+    win.viewMenu.addAction(win.viewOrientationAction) # Mark 2008-12-03
     win.viewMenu.addAction(win.viewSemiFullScreenAction)
     win.viewMenu.addAction(win.viewFullScreenAction)
     win.viewMenu.addAction(win.viewRulersAction)
