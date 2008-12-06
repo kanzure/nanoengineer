@@ -12,6 +12,10 @@ from PyQt4.Qt import QWidget
 from PyQt4.Qt import QMenu
 from PyQt4.Qt import QMenuBar
 
+import os
+
+from utilities.icon_utilities import image_directory 
+
 # more imports below; todo: move them to toplevel
 
 #bruce 051227-29 code for putting hyperlinks into most WhatsThis texts
@@ -235,6 +239,25 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
     If savekey and saveplace are passed, and if the text contains a 
     featurename, set saveplace[savekey] to that featurename.
     """
+    # make all img source pathnames absolute, if they are not already
+    if "<img source=\"ui" in text:
+        ui_dir = os.path.join( os.path.normpath( image_directory() ), "ui" ) ### TODO: use the named constant for "ui"
+        # replace "ui" with ui_dir in all occurrences of the above pattern in text
+        _splitter = "<img source=\""
+        parts = text.split( _splitter)
+        def fix(pathstuff):
+            """
+            if pathstuff starts "ui/", replace the "ui" with ui_dir
+            """
+            if pathstuff.startswith("ui/"):
+                return ui_dir + pathstuff[2:] # keep the '/' after "ui"
+            return pathstuff
+        for i in range(len(parts)):
+            if i:
+                parts[i] = fix(parts[i])
+        text = _splitter.join( parts)
+        pass
+        
     # look for words between <u><b> and </b></u> to replace with a web help link
     if text.startswith("<u><b>"): # require this at start, not just somewhere
                                   # like debracket would
