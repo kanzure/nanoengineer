@@ -21,8 +21,10 @@ pages as well.
 - Replace current text string name with "_text" (like "Open File" example)
 """
 
+import os
+from utilities.icon_utilities import get_image_path
 from PyQt4.Qt import QWhatsThis
-
+    
 def createWhatsThisTextForMainWindowWidgets(win):
     """
     Adds the "What's This" help text to items found in the NE1 mainwindow
@@ -34,15 +36,16 @@ def createWhatsThisTextForMainWindowWidgets(win):
     @note: Property Managers specify "What's This" text for their own widgets, 
            usually in a method called add_whats_this_text(), not in this file. 
     """
-
+    
     #
     # File Toolbar
     #
 
     # Open File
+    
     _text = \
-        "<u><b>Open File</b></u>    (Ctrl + O)"\
-        "<p><img source=\"ui/actions/File/Open.png\"><br> "\
+        "<u><b>Open File</b></u> (Ctrl + O)"\
+        "<p><img source=\"" + get_image_path("ui/actions/File/Open.png") + "\"><br> "\
         "Opens a new file."\
         "</p>"
 

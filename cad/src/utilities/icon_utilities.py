@@ -91,21 +91,20 @@ def image_directory(): #bruce 070604
            "too early to call image_directory()" #bruce 080805
     return _iconprefix
 
-def geticon(name, print_errors = True):
+def get_image_path(name, print_errors = True):
     """
-    Return the QIcon for the given image path name.
+    Return the full path given an image/icon path name.
     
     @param name: The image path name provided by the user. The path should start 
-           with 'ui/' directory inside the src directory. If name is an 
-           empty string, a null icon is returned.
+           with 'ui/' directory inside the src directory.
     @type  name: str
 
     @param print_errors: whether to report errors for missing icon files
                          when atom_debug is set. True by default.
     @type print_errors: boolean
     
-    @return: QIcon object for the given image path.
-    @rtype:  QIcon object.
+    @return: full path of the image.
+    @rtype:  str
     """
     
     root, ext = os.path.splitext(name)
@@ -123,6 +122,27 @@ def geticon(name, print_errors = True):
     if not os.path.exists(iconPath):
         if debug_flags.atom_debug and print_errors:
             print "icon path %s doesn't exist." % (iconPath,)
+    
+    return iconPath
+
+def geticon(name, print_errors = True):
+    """
+    Return the icon given an image path name.
+    
+    @param name: The image path name provided by the user. The path should start 
+           with 'ui/' directory inside the src directory. If name is an 
+           empty string, a null icon is returned.
+    @type  name: str
+
+    @param print_errors: whether to report errors for missing icon files
+                         when atom_debug is set. True by default.
+    @type print_errors: boolean
+    
+    @return: QIcon object for the given image path.
+    @rtype:  QIcon object.
+    """
+    
+    iconPath = get_image_path(name, print_errors)
     
     # Always set the icon with the 'iconPath'. Don't set it as an empty string 
     # like done in getPixmap. This is done on purpose. Right now there is an 
