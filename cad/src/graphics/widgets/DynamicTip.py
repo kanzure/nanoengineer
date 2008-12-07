@@ -57,10 +57,17 @@ from utilities.prefs_constants import dynamicToolTipAtomMass_prefs_key
 from utilities.prefs_constants import dynamicToolTipVdwRadiiInAtomDistance_prefs_key
 
 # russ 080715: For graphics debug tooltip.
+from OpenGL.GL import GL_BACK
 from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import GL_FRONT
+from OpenGL.GL import GL_READ_BUFFER
 from OpenGL.GL import GL_RGBA
+from OpenGL.GL import GL_STENCIL_INDEX
 from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import glGetInteger
+from OpenGL.GL import glReadBuffer
 from OpenGL.GL import glReadPixels
+from OpenGL.GL import glReadPixelsi
 from OpenGL.GL import glReadPixelsf
 
 
@@ -167,17 +174,23 @@ class DynamicTip: # Mark and Ninad 060817.
         if 0: # russ 080715: Graphics debug tooltip.
             (wX, wY) = glpane.MousePos
             wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
-            gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
-            rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
-            # Comes back sign-wrapped, in spite of specifying unsigned_byte.
+            stencil = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
+            savebuff = glGetInteger(GL_READ_BUFFER)
+            # Pixel data is sign-wrapped, in spite of specifying unsigned_byte.
             def us(b):
-                if b < 0:
-                    return 256 + b
-                else:
-                    return b
-            return ("xyz %d, %d, %f<br>rgba %u, %u, %u, %u" %
-                    (wX, wY, wZ,
-                     us(rgba[0]), us(rgba[1]), us(rgba[2]), us(rgba[3])))
+                if b < 0: return 256 + b
+                else: return b
+            def pixvals(buff):
+                glReadBuffer(buff)
+                gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
+                rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
+                return ("rgba %u, %u, %u, %u" %
+                        (us(rgba[0]), us(rgba[1]), us(rgba[2]), us(rgba[3])))
+            retval = ("xyz %d, %d, %f, stencil %d<br>" % (wX, wY, wZ, stencil) +
+                      "front " + pixvals(GL_FRONT) + "<br>" +
+                      "back  " + pixvals(GL_BACK))
+            glReadBuffer(savebuff)      # Put the saved value back.
+            return retval
         
         #ninad060831 - First I defined the following in the _init method of this class. But the preferences were 
         #not updated immediately when changed from prefs dialog. So I moved those definitions below and now it works fine

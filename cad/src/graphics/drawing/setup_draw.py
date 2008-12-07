@@ -463,7 +463,9 @@ def setup_drawer():
             drawing_globals.sphereShader = GLSphereShaderObject()
             print "Sphere-shader initialization is complete.\n"
         except:
-            print "Error initializing sphere shaders, NOT using them."
+            print_compact_traceback(
+                "Error initializing sphere shaders, NOT using them.\n")
+
             drawing_globals.use_sphere_shaders_pref = False
 
             # Could we support shaders with the older GL_ARB_vertex_program and

@@ -344,13 +344,48 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     
     def _setup_projection(self, glselect = False): ### WARNING: This is not actually private! TODO: rename it.
         """
-        Set up standard projection matrix contents using various attributes
-        of self (aspect, vdist, scale, zoomFactor).
+        Set up standard projection matrix contents using various attributes of
+        self (aspect, vdist, scale, zoomFactor).  Also reads the current OpenGL
+        viewport bounds in window coordinates.
         
         (Warning: leaves matrixmode as GL_PROJECTION.)
         
         @param glselect: False (default) normally, or a 4-tuple
-               (format not documented here) to prepare for GL_SELECT picking
+               (format not documented here) to prepare for GL_SELECT picking by
+               calling gluPickMatrix().
+
+        If you are really going to draw in the pick window (for GL_RENDER and
+        glReadPixels picking, rather than GL_SELECT picking), don't forget to
+        set the glViewport *after* calling _setup_projection.  Here's why:
+
+           gluPickMatrix needs to know the current *whole-window* viewport, in
+           order to set up a projection matrix to map a small portion of it to
+           the clipping boundaries for GL_SELECT.
+
+           From the gluPickMatrix doc page:
+             viewport:
+               Specifies the current viewport (as from a glGetIntegerv call).
+             Description:
+               gluPickMatrix creates a projection matrix that can be used to
+               restrict drawing to a small region of the viewport.
+
+           In the graphics pipeline, the clipper actually works in homogeneous
+           coordinates, clipping polygons to the {X,Y}==+-W boundaries.  This
+           saves the work of doing the homogeneous division: {X,Y}/W==+-1.0,
+           (and avoiding problems when W is zero for points on the eye plane in
+           Z,) but it comes down to the same thing as clipping to X,Y==+-1 in
+           orthographic.
+
+           So the projection matrix decides what 3D model-space planes map to
+           +-1 in X,Y.  (I think it maps [near,far] to [0,1] in Z, because
+           they're not clipped symmetrically.)
+
+           Then glViewport sets the hardware transform that determines where the
+           +-1 square of clipped output goes in screen pixels within the window.
+
+           Normally you don't actually draw pixels while picking in GL_SELECT
+           mode because the pipeline outputs hits after the clipping stage, so
+           gluPickMatrix only reads the viewport and sets the projection matrix.
         """
         #bruce 080912 moved this from GLPane into GLPane_minimal
         glMatrixMode(GL_PROJECTION)

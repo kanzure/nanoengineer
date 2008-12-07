@@ -122,7 +122,10 @@ class GLPane_highlighting_methods(object):
                 # buffer, just returning hits by graphics primitives when they
                 # are inside the clipping boundaries.
                 saveVwpt = glGetIntegerv(GL_VIEWPORT)
-                glViewport(wX, wY, pwSize, pwSize)
+                # (Don't set the viewport *before* _setup_projection(), it needs
+                # to read the current whole-window viewport to set up glselect.
+                # See explanation in the _setup_projection() docstring.)
+                glViewport(wX, wY, pwSize, pwSize) # Same as current_glselect.
                 
                 # First, clear the pixel RGBA to zeros so we won't confuse a
                 # color with a glname if there are no shader primitives drawn.
