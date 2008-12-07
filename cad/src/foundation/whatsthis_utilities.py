@@ -231,7 +231,7 @@ def debracket(text, left, right): #bruce 051229 ##e refile this?
     return (before, between, after)
 
 def turn_featurenames_into_links(text, savekey = None, saveplace = None): 
-    #bruce 051229; revised and renamed 060120; save args 060121
+    #bruce 051229; revised/renamed 060120; save args 060121; img tags 081205
     """
     [public]
     Given some nonempty whatsthis text, return identical or modified text 
@@ -239,10 +239,26 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
     If savekey and saveplace are passed, and if the text contains a 
     featurename, set saveplace[savekey] to that featurename.
     """
-    # make all img source pathnames absolute, if they are not already
+    # make all img source pathnames absolute, if they are not already.
+    # [bruce 081205 per mark]
+    # POSSIBLE BUGS: the current implementation will fail if the pathnames
+    # contain characters that don't encode themselves when parsed
+    # (by Qt) in this HTML-tag-attribute context -- at least true
+    # for '"' and r'\' (fortunately rare in pathnames), perhaps for
+    # other chars. This could probably be fixed by encoding them somehow.
+    # I also don't know whether unicode characters will be permitted.
+    # If not, this might be fixable by encoding them and/or by replacing
+    # this approach with one in which we supply a callback to Qt for
+    # interpreting these relative pathnames when they're needed.
+    # (Does Qt call that callback an "icon factory"??)
+    # WARNING: if these are real bugs, they'll prevent NE1 from starting
+    # when it's installed under certain pathnames.
+    # [bruce 081206 comments]
     PAT1 = "<img source=\"ui/"
     if PAT1 in text:
-        ui_dir = os.path.join( os.path.normpath( image_directory() ), "ui" ) ### TODO: use the named constant for "ui"
+        ui_dir = os.path.join( os.path.normpath( image_directory() ), "ui" )
+            ### TODO: use the named constant for "ui" here
+            # (but not elsewhere in this function)
         # replace "ui" with ui_dir in all occurrences of PAT1 in text
         PAT2 = PAT1.replace("ui/", ui_dir + '/')
         text = text.replace(PAT1, PAT2)
