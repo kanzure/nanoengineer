@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DynamicTip.py - supports dynamic, informative tooltips of highlighted objects in GLPane
 
@@ -6,7 +6,9 @@ History:
 060817 Mark created dynamicTip class
 060818 Ninad moved DynamicTip class into this file DynamicTip.py and added more
 
-$Id$
+@author: Mark, Ninad
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: This needs refactoring into the part which has the mechanics
 of displaying the tooltip at the right time (some of the code for which
@@ -73,6 +75,7 @@ from OpenGL.GL import glReadPixels
 from OpenGL.GL import glReadPixelsi
 from OpenGL.GL import glReadPixelsf
 
+_last_tipText = None # only used for debugging
 
 class DynamicTip: # Mark and Ninad 060817.
     """
@@ -106,37 +109,92 @@ class DynamicTip: # Mark and Ninad 060817.
         ## For more details about this member, see Qt documentation on QToolTip.maybeTip().
         # but this is unclear to me (since this class does not inherit from
         # QToolTip), so I removed it. [bruce 081208]
-        
-        # <motionlessCursorDuration> is the amount of time the cursor (mouse) has been motionless.
-        motionlessCursorDuration = time.time() - self.glpane.cursorMotionlessStartTime
-        
-        # Don't display the tooltip yet if <motionlessCursorDuration> hasn't exceeded the "wake up delay".
-        # The wake up delay is currently set to 1 second in prefs_constants.py. Mark 060818.
-        if motionlessCursorDuration < env.prefs[dynamicToolTipWakeUpDelay_prefs_key]:
-            self.toolTipShown = False
-            return
-        
-        selobj = self.glpane.selobj
-        
-        # If an object is not currently highlighted, don't display a tooltip.
-        if not selobj:
-            return
-        
-        # If the highlighted object is a singlet, 
-        # don't display a tooltip for it.
-        if isinstance(selobj, Atom) and (selobj.element is Singlet):
-            return
-            
-        if self.toolTipShown:
-            # The tooltip is already displayed, so return. 
-            # Do not allow tip() to be called again or it will "flash".
-            return
 
         debug = debug_pref("GLPane: graphics debug tooltip?",
                            Choice_boolean_False,
                            prefs_key = True )
 
-        tipText = self._getToolTipText(helpEvent.pos(), debug = debug)
+        glpane = self.glpane
+        selobj = glpane.selobj
+
+        if debug:
+            # russ 080715: Graphics debug tooltip.
+            # bruce 081208: revised, moved out of _getToolTipText, made debug_pref
+            # note: we don't use glpane.MousePos since it's not reliable --
+            # only some graphicsModes store it, and only in mouse press events
+            pos = helpEvent.pos()
+            wX = pos.x()
+            wY = glpane.height - pos.y() #review: off by 1??
+            savebuff = glGetInteger(GL_READ_BUFFER)
+            whichbuff = {GL_FRONT:"front", GL_BACK:"back"}.get(savebuff, "unknown")
+            redraw_counter = env.redraw_counter
+            # Pixel data is sign-wrapped, in spite of specifying unsigned_byte.
+            def us(b):
+                if b < 0:
+                    return 256 + b
+                else:
+                    return b
+            def pixvals(buff):
+                glReadBuffer(buff)
+                wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
+                stencil = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
+                gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
+                rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
+                return (
+                    "depth %f, stencil %d<br>" % (wZ, stencil) +
+                    "       rgba %u, %u, %u, %u" %
+                    (us(rgba[0]), us(rgba[1]), us(rgba[2]), us(rgba[3]))
+                 )
+            tipText = (
+                "env.redraw = %d; selobj = %s<br>" % (redraw_counter, selobj,) +
+                    # note: sometimes selobj is an instance of _UNKNOWN_SELOBJ_class... relates to testmode bug from renderText
+                    # (confirmed that renderText zaps stencil and that that alone causes no bug in other graphicsmodes)
+                    # TODO: I suspect this can be printed even during rendering... need to print glpane variables
+                    # which indicate whether we're doing rendering now, e.g. current_glselect, drawing_phase;
+                    # also modkeys (sp?), glselect_wanted
+                "mouse position (xy): %d, %d<br>" % (wX, wY,) +
+                "current read buffer: %s<br>" % whichbuff +
+                "front: " + pixvals(GL_FRONT) + "<br>" +
+                "back:  " + pixvals(GL_BACK)
+             )
+            global _last_tipText
+            if tipText != _last_tipText:
+                print
+                print tipText
+                _last_tipText = tipText
+            glReadBuffer(savebuff)      # Put the saved value back.
+            pass # use tipText below
+
+        else:
+            
+            # <motionlessCursorDuration> is the amount of time the cursor (mouse) has been motionless.
+            motionlessCursorDuration = time.time() - glpane.cursorMotionlessStartTime
+            
+            # Don't display the tooltip yet if <motionlessCursorDuration> hasn't exceeded the "wake up delay".
+            # The wake up delay is currently set to 1 second in prefs_constants.py. Mark 060818.
+            if motionlessCursorDuration < env.prefs[dynamicToolTipWakeUpDelay_prefs_key]:
+                self.toolTipShown = False
+                return
+            
+            # If an object is not currently highlighted, don't display a tooltip.
+            if not selobj:
+                return
+            
+            # If the highlighted object is a singlet, 
+            # don't display a tooltip for it.
+            if isinstance(selobj, Atom) and (selobj.element is Singlet):
+                return
+                
+            if self.toolTipShown:
+                # The tooltip is already displayed, so return. 
+                # Do not allow tip() to be called again or it will "flash".
+                return
+        
+            tipText = self._getToolTipText()
+
+            pass
+
+        # show the tipText
         
         if not tipText:            
             tipText = "" 
@@ -156,19 +214,12 @@ class DynamicTip: # Mark and Ninad 060817.
                
         self.toolTipShown = True
         
-    def _getToolTipText(self, pos, debug = False): # Mark 060818, Ninad 060818
+    def _getToolTipText(self): # Mark 060818, Ninad 060818
         """
         Return the tooltip text to display, which depends on what is selected
         and what is highlighted (found by examining self.glpane).
 
-        @param pos: position of help event, in GLPane window coordinates;
-                    used only for debugging
-        @type pos: QPoint
-
-        @param debug: whether to include debugging info in tip text
-        @type debug: boolean
-        
-        @return: The tooltip text.
+        @return: tooltip text to be shown
         @rtype:  str
         
         Features implemented:
@@ -191,36 +242,7 @@ class DynamicTip: # Mark and Ninad 060817.
            an item has a very long name it should truncate it with 3 dots,
            like "item na...")
         """
-                
         glpane = self.glpane
-
-        if debug:
-            # russ 080715: Graphics debug tooltip.
-            # bruce 081208: revised, made parameter (from debug_pref in caller)
-            # note: we don't use glpane.MousePos since it's not reliable --
-            # only some graphicsModes store it, and only in mouse press events
-            wX = pos.x()
-            wY = glpane.height - pos.y() #review: off by 1??
-            wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
-            stencil = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
-            savebuff = glGetInteger(GL_READ_BUFFER)
-            whichbuff = {GL_FRONT:"front", GL_BACK:"back"}.get(savebuff, "unknown") + " buffer"
-            # Pixel data is sign-wrapped, in spite of specifying unsigned_byte.
-            def us(b):
-                if b < 0: return 256 + b
-                else: return b
-            def pixvals(buff):
-                glReadBuffer(buff)
-                gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
-                rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
-                return ("rgba %u, %u, %u, %u" %
-                        (us(rgba[0]), us(rgba[1]), us(rgba[2]), us(rgba[3])))
-            retval = ("xyz %d, %d, %f, stencil %d " % (wX, wY, wZ, stencil,) +
-                      "(%s)<br>" % (whichbuff,) +
-                      "front " + pixvals(GL_FRONT) + "<br>" +
-                      "back  " + pixvals(GL_BACK) )
-            glReadBuffer(savebuff)      # Put the saved value back.
-            return retval
         
         #ninad060831 - First I defined the following in the _init method of this class. But the preferences were 
         #not updated immediately when changed from prefs dialog. So I moved those definitions below and now it works fine
