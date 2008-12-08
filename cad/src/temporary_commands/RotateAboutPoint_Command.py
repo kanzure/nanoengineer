@@ -24,7 +24,7 @@ from Numeric import dot
 import math
 from graphics.drawing.CS_draw_primitives import drawline
 from utilities.constants import black
-
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 from utilities.debug import print_compact_stack, print_compact_traceback
 
 PI = 3.141593
@@ -34,6 +34,7 @@ _superclass_for_GM = Line_GraphicsMode
 class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 
     pivotPoint = None
+    referece_line_color = env.prefs[DarkBackgroundContrastColor_prefs_key]
 
     def Enter_GraphicsMode(self):
         #TODO: use this more widely,  than calling grapicsMode.resetVariables
@@ -50,7 +51,7 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 
         if len(self.command.mouseClickPoints) >= 2:
             #Draw reference vector.             
-            drawline(black, 
+            drawline(self.referece_line_color,
                      self.command.mouseClickPoints[0], 
                      self.command.mouseClickPoints[1], 
                      width = 4,
@@ -152,6 +153,15 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             self.command.command_Done()
             return
         
+    def _getCursorText_length(self, vec):
+       """
+       Overrides superclass method. 
+       @see: self._drawCursorText() for details. 
+       """
+       #Based on Mark's email (as of 2008-12-08) , the rotate about point don't
+       #need length in the cursor text. So just return an empty string
+       return ''
+    
     def _getCursorText_angle(self, vec):
         """
         Subclasses may override this method. 

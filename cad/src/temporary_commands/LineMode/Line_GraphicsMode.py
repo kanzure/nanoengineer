@@ -430,12 +430,26 @@ class Line_GraphicsMode( Select_GraphicsMode ):
         else:
             vec = self.endPoint2 - self.endPoint1
             thetaString = self._getCursorText_angle(vec)
-            dist = vlen(vec)
-            self.text = "%5.2fA, %s"%(dist, thetaString)
+            distString = self._getCursorText_length(vec)
+            
+            if distString:
+                #This could be a user preference. At the moment, subclasses
+                #may return an empty string for distance. 
+                self.text = "%5.2fA, %s"%(dist, thetaString)
+            else:
+                self.text = "%s"%(thetaString)
 
         self.glpane.renderTextNearCursor(self.text, 
                                          textColor = textColor,
                                          fontSize = env.prefs[cursorTextFontSize_prefs_key])
+        
+    def _getCursorText_length(self, vec):
+        """
+        Subclasses may override this method. 
+        @see: self._drawCursorText() for details. 
+        """
+        dist = vlen(vec)
+        return "%5.2A"%(dist)
 
     def _getCursorText_angle(self, vec):
         """
