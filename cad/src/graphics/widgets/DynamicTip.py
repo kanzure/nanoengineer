@@ -32,7 +32,7 @@ determining part in the same way as GraphicsMode.
 import math
 import time
 
-from PyQt4.Qt import QToolTip, QRect
+from PyQt4.Qt import QToolTip, QRect, QPoint
 
 import foundation.env as env
 from model.chem import Atom
@@ -43,6 +43,9 @@ from geometry.VQT import vlen
 from geometry.VQT import atom_angle_radians
 
 from platform_dependent.PlatformDependent import fix_plurals
+
+from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice_boolean_False
 
 from utilities.prefs_constants import dynamicToolTipWakeUpDelay_prefs_key
 from utilities.prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
@@ -89,17 +92,20 @@ class DynamicTip: # Mark and Ninad 060817.
     def maybeTip(self, helpEvent):
         """
         Determines if this tooltip should be displayed. The tooltip will be displayed at
-        <cusorPos> if an object is highlighted and the mouse hasn't moved for 
+        helpEvent.globalPos() if an object is highlighted and the mouse hasn't moved for 
         some period of time, called the "wake up delay" period, which is a user pref
         (not yet implemented in the Preferences dialog) currently set to 1 second.
         
-        <cursorPos> is the current cursor position in the GLPane's local coordinates.
-        
         maybeTip() is called by GLPane.timerEvent() whenever the cursor is not moving to 
         determine if the tooltip should be displayed.
-        
-        For more details about this member, see Qt documentation on QToolTip.maybeTip().
+
+        @param helpEvent: a QHelpEvent constructed by the caller
+        @type helpEvent: QHelpEvent
         """
+        # docstring used to also say:
+        ## For more details about this member, see Qt documentation on QToolTip.maybeTip().
+        # but this is unclear to me (since this class does not inherit from
+        # QToolTip), so I removed it. [bruce 081208]
         
         # <motionlessCursorDuration> is the amount of time the cursor (mouse) has been motionless.
         motionlessCursorDuration = time.time() - self.glpane.cursorMotionlessStartTime
@@ -125,25 +131,45 @@ class DynamicTip: # Mark and Ninad 060817.
             # The tooltip is already displayed, so return. 
             # Do not allow tip() to be called again or it will "flash".
             return
-                   
-  
-        tipText = self.getToolTipText()
+
+        debug = debug_pref("GLPane: graphics debug tooltip?",
+                           Choice_boolean_False,
+                           prefs_key = True )
+
+        tipText = self._getToolTipText(helpEvent.pos(), debug = debug)
         
         if not tipText:            
             tipText = "" 
             # This makes sure that dynamic tip is not displayed when
             # the highlightable object is 'unknown' to the dynamic tip class.
             # (From QToolTip.showText doc: "If text is empty the tool tip is hidden.")
+
+        showpos = helpEvent.globalPos()
+
+        if debug:
+            # show it a little lower to avoid the cursor obscuring the tooltip.
+            # (might be useful even when not debugging, depending on the cursor)
+            # [bruce 081208]
+            showpos = showpos + QPoint(0, 10)
         
-        
-        QToolTip.showText(helpEvent.globalPos(), tipText)  #@@@ ninad061107 works fine but need code review
+        QToolTip.showText(showpos, tipText)  #@@@ ninad061107 works fine but need code review
                
         self.toolTipShown = True
         
-    def getToolTipText(self): # Mark 060818, Ninad 060818
+    def _getToolTipText(self, pos, debug = False): # Mark 060818, Ninad 060818
         """
         Return the tooltip text to display, which depends on what is selected
-        and what is highlighted.
+        and what is highlighted (found by examining self.glpane).
+
+        @param pos: position of help event, in GLPane window coordinates;
+                    used only for debugging
+        @type pos: QPoint
+
+        @param debug: whether to include debugging info in tip text
+        @type debug: boolean
+        
+        @return: The tooltip text.
+        @rtype:  str
         
         Features implemented:
          - If nothing is selected, return the name of the highlighted object.
@@ -164,18 +190,21 @@ class DynamicTip: # Mark and Ninad 060817.
          - We also need to truncate long item info strings. For example, if 
            an item has a very long name it should truncate it with 3 dots,
            like "item na...")
-           
-        @return: The tooltip text.
-        @rtype:  str
         """
                 
         glpane = self.glpane
 
-        if 0: # russ 080715: Graphics debug tooltip.
-            (wX, wY) = glpane.MousePos
+        if debug:
+            # russ 080715: Graphics debug tooltip.
+            # bruce 081208: revised, made parameter (from debug_pref in caller)
+            # note: we don't use glpane.MousePos since it's not reliable --
+            # only some graphicsModes store it, and only in mouse press events
+            wX = pos.x()
+            wY = glpane.height - pos.y() #review: off by 1??
             wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
             stencil = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
             savebuff = glGetInteger(GL_READ_BUFFER)
+            whichbuff = {GL_FRONT:"front", GL_BACK:"back"}.get(savebuff, "unknown") + " buffer"
             # Pixel data is sign-wrapped, in spite of specifying unsigned_byte.
             def us(b):
                 if b < 0: return 256 + b
@@ -186,9 +215,10 @@ class DynamicTip: # Mark and Ninad 060817.
                 rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
                 return ("rgba %u, %u, %u, %u" %
                         (us(rgba[0]), us(rgba[1]), us(rgba[2]), us(rgba[3])))
-            retval = ("xyz %d, %d, %f, stencil %d<br>" % (wX, wY, wZ, stencil) +
+            retval = ("xyz %d, %d, %f, stencil %d " % (wX, wY, wZ, stencil,) +
+                      "(%s)<br>" % (whichbuff,) +
                       "front " + pixvals(GL_FRONT) + "<br>" +
-                      "back  " + pixvals(GL_BACK))
+                      "back  " + pixvals(GL_BACK) )
             glReadBuffer(savebuff)      # Put the saved value back.
             return retval
         
