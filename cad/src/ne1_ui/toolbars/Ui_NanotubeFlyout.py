@@ -83,15 +83,17 @@ class NanotubeFlyout(Ui_AbstractFlyout):
         
         _superclass._createActions(self, parentWidget)
         
-        self.insertNanotubeAction = NE1_QWidgetAction(parentWidget,
-                                                        win = self.win)
+        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
+        self.subControlActionGroup.setExclusive(False)  
+        
+        self.insertNanotubeAction = \
+            NE1_QWidgetAction(self.subControlActionGroup,
+                              win = self.win)
         self.insertNanotubeAction.setText("Insert NT")
         self.insertNanotubeAction.setCheckable(True)        
         self.insertNanotubeAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/InsertNanotube.png"))
-        
-        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
-        self.subControlActionGroup.setExclusive(False)   
+         
         self.subControlActionGroup.addAction(self.insertNanotubeAction)
 
     def _addWhatsThisText(self):

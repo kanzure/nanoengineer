@@ -10,6 +10,8 @@ for widgets (typically QActions) in the Command Toolbar.
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
+from foundation.whatsthis_utilities import fix_whatsthis_text_and_links
+
 # Try to keep this list in order (by appearance in Command Toolbar). --Mark
 
 # Command Toolbar Menus (i.e. Build, Tools, Move and Simulation ######
@@ -92,7 +94,6 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Atoms</b>
         <p>
-        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
         Exits the <b>Build Atoms</b> command set.
         </p>""")
     
@@ -214,6 +215,11 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         Activates cut bonds mode. Singe-clicking a highlighted bond deletes it.
         </p>""")
     
+    # Convert all "img" tags in the button's "What's This" text 
+    # info abs paths (from their original rel paths).
+    # Partially fixes bug 2943. --mark 2008-12-07
+    fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
+    
     return
 
 def whatsThisTextForProteinCommandToolbar(commandToolbar):
@@ -223,7 +229,6 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Protein</b>
         <p>
-        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
         Exits the <b>Build Protein</b> command set.
         </p>""")
     
@@ -318,6 +323,10 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
         bonding and desolvation) while neglecting long-range electrostatics. 
         </p>""")
     
+    # Convert all "img" tags in the button's "What's This" text 
+    # info abs paths (from their original rel paths).
+    # Partially fixes bug 2943. --mark 2008-12-07
+    fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
     return
 
 
@@ -328,7 +337,6 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit DNA</b>
         <p>
-        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
         Exits the <b>Build DNA</b> command set.
         </p>""")
     
@@ -439,7 +447,12 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         crossover sites are displayed as a pair of white cylinders that can 
         be highlighted/selected. Clicking on a highlighted crossover site 
         makes a crossover.
-        </p>""") 
+        </p>""")
+    
+    # Convert all "img" tags in the button's "What's This" text 
+    # info abs paths (from their original rel paths).
+    # Partially fixes bug 2943. --mark 2008-12-07
+    fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
     
     return
 
@@ -450,7 +463,6 @@ def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Nanotube</b>
         <p>
-        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
         Exits the <b>Build Nanotube</b> command set.
         </p>""")
     
@@ -461,6 +473,12 @@ def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
         Insert a carbon or boron-nitride nanotube by clicking two endpoints in 
         the graphics area.
         </p>""")
+    
+    # Convert all "img" tags in the button's "What's This" text 
+    # info abs paths (from their original rel paths).
+    # Partially fixes bug 2943. --mark 2008-12-07
+    fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
+    
     return
 
 def whatsThisTextForCrystalCommandToolbar(commandToolbar):
@@ -470,7 +488,6 @@ def whatsThisTextForCrystalCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Crystal</b>
         <p>
-        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
         Exits the <b>Build Crystal</b> command set.
         </p>""")
     
@@ -549,6 +566,11 @@ def whatsThisTextForCrystalCommandToolbar(commandToolbar):
         dragging the mouse while holding down the <a href=LMB>LMB</a>.
         </p>""")
     
+    # Convert all "img" tags in the button's "What's This" text 
+    # info abs paths (from their original rel paths).
+    # Partially fixes bug 2943. --mark 2008-12-07
+    fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
+    
     return
 
 # Move command toolbar ####################
@@ -560,7 +582,6 @@ def whatsThisTextForMoveCommandToolbar(commandToolbar):
     commandToolbar.exitModeAction.setWhatsThis(
         """<b>Exit Move</b>
         <p>
-        <img source=\"ui/actions/Command Toolbar/ControlArea/Exit.png\"><br>
         Exits the <b>Move</b> command set.
         </p>""")
     

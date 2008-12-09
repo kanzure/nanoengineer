@@ -159,11 +159,20 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
                 
         _superclass._createActions(self, parentWidget)
         
+        # The subControlActionGroup is the parent of all flyout QActions. 
+        self.subControlActionGroup = QActionGroup(parentWidget)
+            # Shouldn't the parent be self.win? 
+            # Isn't parentWidget = BuildAtomsPropertyManager. 
+            # Ask Bruce about this. --Mark 2008-12-07.
+            
+        self.subControlActionGroup.setExclusive(True)  
+        
         #Following Actions are added in the Flyout toolbar. 
         #Defining them outside that method as those are being used
         #by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
                 
-        self.atomsToolAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.atomsToolAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.atomsToolAction.setText("Atoms Tool")
         self.atomsToolAction.setIcon(geticon(
             "ui/actions/Command Toolbar/BuildAtoms/AtomsTool.png"))
@@ -172,19 +181,20 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         self.atomsToolAction.setObjectName('ACTION_ATOMS_TOOL')
         
                 
-        self.bondsToolAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.bondsToolAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.bondsToolAction.setText("Bonds Tool")
         self.bondsToolAction.setIcon(geticon(
             "ui/actions/Command Toolbar/BuildAtoms/BondsTool.png"))
         self.bondsToolAction.setCheckable(True)
         self.bondsToolAction.setObjectName('ACTION_BOND_TOOL')
         
-        self.subControlActionGroup = QActionGroup(parentWidget)
-        self.subControlActionGroup.setExclusive(True)   
+         
         self.subControlActionGroup.addAction(self.atomsToolAction)   
         self.subControlActionGroup.addAction(self.bondsToolAction)
         
-        self.transmuteAtomsAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.transmuteAtomsAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.transmuteAtomsAction.setText("Transmute Atoms")
         self.transmuteAtomsAction.setIcon(geticon(
             "ui/actions/Command Toolbar/BuildAtoms/TransmuteAtoms.png"))       
@@ -204,32 +214,38 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         self.bondToolsActionGroup = QActionGroup(parentWidget)
         self.bondToolsActionGroup.setExclusive(True)
                 
-        self.bond1Action = NE1_QWidgetAction(parentWidget, win = self.win)  
+        self.bond1Action = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
         self.bond1Action.setText("Single")
         self.bond1Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/SingleBond.png"))
         self.bond1Action.setObjectName('ACTION_SINGLE_BOND_TOOL')
             
-        self.bond2Action = NE1_QWidgetAction(parentWidget, win = self.win)  
+        self.bond2Action = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
         self.bond2Action.setText("Double")
         self.bond2Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/DoubleBond.png"))
         self.bond2Action.setObjectName('ACTION_DOUBLE_BOND_TOOL')
         
-        self.bond3Action = NE1_QWidgetAction(parentWidget, win = self.win)  
+        self.bond3Action = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
         self.bond3Action.setText("Triple")
         self.bond3Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/TripleBond.png"))
         self.bond3Action.setObjectName('ACTION_TRIPLE_BOND_TOOL')
         
-        self.bondaAction = NE1_QWidgetAction(parentWidget, win = self.win)  
+        self.bondaAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
         self.bondaAction.setText("Aromatic")
         self.bondaAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/AromaticBond.png"))
         self.bondaAction.setObjectName('ACTION_AROMATIC_BOND_TOOL')
         
-        self.bondgAction = NE1_QWidgetAction(parentWidget, win = self.win)  
+        self.bondgAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
         self.bondgAction.setText("Graphitic")
         self.bondgAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/GraphiticBond.png"))
         self.bondgAction.setObjectName('ACTION_GRAPHITIC_BOND_TOOL')
         
-        self.cutBondsAction = NE1_QWidgetAction(parentWidget, win = self.win)  
+        self.cutBondsAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
         self.cutBondsAction.setText("Cut Bonds")
         self.cutBondsAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/CutBonds.png"))
         self.cutBondsAction.setObjectName('ACTION_DELETE_BOND_TOOL')

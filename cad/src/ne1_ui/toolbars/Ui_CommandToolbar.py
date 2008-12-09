@@ -56,6 +56,7 @@ from PyQt4.Qt import QString
 from PyQt4.Qt import QPalette
 
 from utilities.icon_utilities import geticon
+from foundation.whatsthis_utilities import fix_QAction_whatsthis
 from foundation.wiki_help import QToolBar_WikiHelp
 from commandToolbar.CommandToolbar_Constants import cmdTbarCntrlAreaBtnColor
 from commandToolbar.CommandToolbar_Constants import cmdTbarSubCntrlAreaBtnColor
@@ -168,10 +169,7 @@ class Ui_CommandToolbar( QWidget ):
         layout_cmdtoolbar.addWidget(self.cmdToolbarControlArea) 
         
         #Flyout Toolbar in the command toolbar  
-        self.flyoutToolBar = FlyoutToolBar(self) 
-        
-        
-        
+        self.flyoutToolBar = FlyoutToolBar(self)
         
         layout_cmdtoolbar.addWidget(self.flyoutToolBar)   
         
@@ -235,8 +233,13 @@ class Ui_CommandToolbar( QWidget ):
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
                 btn.setToolTip("Simulation Commands")
                 whatsThisTextForCommandToolbarSimulationButton(btn)
-                                   
-                                                    
+            
+            # Convert all "img" tags in the button's "What's This" text 
+            # into abs paths (from their original rel paths).
+            # Partially fixes bug 2943. --mark 2008-12-07
+            fix_QAction_whatsthis(btn, False)
+        return
+    
     def truncateText(self, text, length = 12, truncateSymbol = '...'):
         """
         Truncates the tooltip text with the given truncation symbol

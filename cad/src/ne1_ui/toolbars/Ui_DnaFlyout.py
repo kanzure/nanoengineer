@@ -85,61 +85,67 @@ class DnaFlyout(Ui_AbstractFlyout):
         
         _superclass._createActions(self, parentWidget)
         
-        self.dnaDuplexAction = NE1_QWidgetAction(parentWidget,
+        # The subControlActionGroup is the parent of all flyout QActions.
+        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget) 
+            # Shouldn't the parent be self.win? 
+            # IIRC, parentWidget = BuildDnaPropertyManager. 
+            # Ask Bruce about this. --Mark 2008-12-07.
+        self.subControlActionGroup.setExclusive(False)   
+        
+        self.dnaDuplexAction = NE1_QWidgetAction(self.subControlActionGroup,
                                                  win = self.win)
         self.dnaDuplexAction.setText("Insert DNA")
         self.dnaDuplexAction.setCheckable(True)        
         self.dnaDuplexAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildDna/InsertDna.png"))
         
-        self.breakStrandAction = NE1_QWidgetAction(parentWidget,
+        self.breakStrandAction = NE1_QWidgetAction(self.subControlActionGroup,
                                                    win = self.win)
         self.breakStrandAction.setText("Break Strand")
         self.breakStrandAction.setCheckable(True)        
         self.breakStrandAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildDna/BreakStrand.png"))
         
-        self.joinStrandsAction = NE1_QWidgetAction(parentWidget,
+        self.joinStrandsAction = NE1_QWidgetAction(self.subControlActionGroup,
                                                    win = self.win)
         self.joinStrandsAction.setText("Join Strands")
         self.joinStrandsAction.setCheckable(True)        
         self.joinStrandsAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildDna/JoinStrands.png"))
         
-        self.makeCrossoversAction = NE1_QWidgetAction(parentWidget,
+        self.makeCrossoversAction = NE1_QWidgetAction(self.subControlActionGroup,
                                                       win = self.win)
         self.makeCrossoversAction.setText("Crossovers")
         self.makeCrossoversAction.setCheckable(True)        
         self.makeCrossoversAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildDna/MakeCrossovers.png"))
 
-        self.dnaOrigamiAction = NE1_QWidgetAction(parentWidget,
+        self.dnaOrigamiAction = NE1_QWidgetAction(self.subControlActionGroup,
                                                   win = self.win)
         self.dnaOrigamiAction.setText("Origami")
         self.dnaOrigamiAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/DNA_Origami.png"))
         
-        self.convertDnaAction = NE1_QWidgetAction(parentWidget,
+        self.convertDnaAction = NE1_QWidgetAction(self.subControlActionGroup,
                                                       win = self.win)
         self.convertDnaAction.setText("Convert")
         self.convertDnaAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildDna/ConvertDna.png"))
         
-        self.orderDnaAction = NE1_QWidgetAction(parentWidget,
+        self.orderDnaAction = NE1_QWidgetAction(self.subControlActionGroup,
                                                 win = self.win)
         self.orderDnaAction.setText("Order DNA")
         self.orderDnaAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildDna/OrderDna.png"))
         
-        self.editDnaDisplayStyleAction = NE1_QWidgetAction(parentWidget,
+        self.editDnaDisplayStyleAction = NE1_QWidgetAction(self.subControlActionGroup,
                                                            win = self.win)
         self.editDnaDisplayStyleAction.setText("Edit Style")
         self.editDnaDisplayStyleAction.setCheckable(True)        
         self.editDnaDisplayStyleAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildDna/EditDnaDisplayStyle.png"))
         
-        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
-        self.subControlActionGroup.setExclusive(False)   
+        # Add the actions.
         self.subControlActionGroup.addAction(self.dnaDuplexAction)
         self.subControlActionGroup.addAction(self.breakStrandAction) 
         self.subControlActionGroup.addAction(self.joinStrandsAction)

@@ -132,8 +132,17 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
             self.rosetta_enabled = True
         else:
             self.rosetta_enabled = False
+        
+        # The subControlActionGroup is the parent of all flyout QActions. 
+        self.subControlActionGroup = QActionGroup(parentWidget)
+            # Shouldn't the parent be self.win? 
+            # Isn't parentWidget = BuildProteinPropertyManager?
+            # Ask Bruce about this. --Mark 2008-12-07.
             
-        self.modelProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.subControlActionGroup.setExclusive(True)  
+        
+        self.modelProteinAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.modelProteinAction.setText("Model")
         self.modelProteinAction.setIcon(geticon(
             'ui/actions/Command Toolbar/BuildProtein/ModelProtein.png'))
@@ -141,15 +150,15 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.modelProteinAction.setChecked(True)
         self.modelProteinAction.setObjectName('ACTION_MODEL_PROTEINS')
         
-        self.simulateProteinAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.simulateProteinAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.simulateProteinAction.setText("Simulate")
         self.simulateProteinAction.setIcon(geticon(
             "ui/actions/Command Toolbar/BuildProtein/Simulate.png"))
         self.simulateProteinAction.setCheckable(True)
         self.simulateProteinAction.setObjectName('ACTION_SIMULATE_PROTEINS')
     
-        self.subControlActionGroup = QActionGroup(parentWidget)
-        self.subControlActionGroup.setExclusive(True)   
+         
         self.subControlActionGroup.addAction(self.modelProteinAction)   
         self.subControlActionGroup.addAction(self.simulateProteinAction)
     
@@ -168,36 +177,41 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         
         @see: self._createActions() where this is called. 
         """
+
+        self.subControlActionGroupForModelProtein = QActionGroup(parentWidget)
+            # Shouldn't the parent be self.win? 
+            # Isn't parentWidget = BuildProteinPropertyManager?
+            # Ask Bruce about this. --Mark 2008-12-07.
+        self.subControlActionGroupForModelProtein.setExclusive(True)  
         
-        self.buildPeptideAction = NE1_QWidgetAction(parentWidget,
-                                                      win = self.win)
+        self.buildPeptideAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.buildPeptideAction.setText("Insert Peptide")
         self.buildPeptideAction.setCheckable(True)  
         self.buildPeptideAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png"))
 
-        self.editRotamersAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.editRotamersAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.editRotamersAction.setText("Rotamers")
         self.editRotamersAction.setCheckable(True)  
         self.editRotamersAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Rotamers.png"))
         
-        self.compareProteinsAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.compareProteinsAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.compareProteinsAction.setText("Compare")
         self.compareProteinsAction.setCheckable(True)  
         self.compareProteinsAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Compare.png"))
         
-        self.displayProteinStyleAction = NE1_QWidgetAction(parentWidget, 
-                                                           win = self.win)
-
+        self.displayProteinStyleAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.displayProteinStyleAction.setText("Edit Style")
         self.displayProteinStyleAction.setCheckable(True)        
         self.displayProteinStyleAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/EditProteinDisplayStyle.png"))
-                    
-        self.subControlActionGroupForModelProtein = QActionGroup(parentWidget)
-        self.subControlActionGroupForModelProtein.setExclusive(True)   
+        
         self.subControlActionGroupForModelProtein.addAction(self.buildPeptideAction)   
         self.subControlActionGroupForModelProtein.addAction(self.displayProteinStyleAction)
         self.subControlActionGroupForModelProtein.addAction(self.compareProteinsAction)
@@ -211,36 +225,41 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         
         @see: self._createActions() where this is called. 
         """
-           
-        self.rosetta_fixedbb_design_Action = NE1_QWidgetAction(parentWidget,
-                                                      win = self.win)
+        
+        self.subControlActionGroupForSimulateProtein = QActionGroup(parentWidget)
+            # Shouldn't the parent be self.win? 
+            # Isn't parentWidget = BuildProteinPropertyManager?
+            # Ask Bruce about this. --Mark 2008-12-07.
+        self.subControlActionGroupForSimulateProtein.setExclusive(True)  
+        
+        self.rosetta_fixedbb_design_Action = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.rosetta_fixedbb_design_Action.setText("Fixed BB")
         self.rosetta_fixedbb_design_Action.setCheckable(True)  
         self.rosetta_fixedbb_design_Action.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/FixedBackbone.png"))
         
-        self.rosetta_backrub_Action = NE1_QWidgetAction(parentWidget,
-                                                      win = self.win)
+        self.rosetta_backrub_Action = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.rosetta_backrub_Action.setText("Backrub")
         self.rosetta_backrub_Action.setCheckable(True)  
         self.rosetta_backrub_Action.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Backrub.png"))
 
-        self.editResiduesAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.editResiduesAction = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.editResiduesAction.setText("Residues")
         self.editResiduesAction.setCheckable(True)  
         self.editResiduesAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Residues.png"))
         
-        self.rosetta_score_Action = NE1_QWidgetAction(parentWidget,
-                                                      win = self.win)
+        self.rosetta_score_Action = \
+            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
         self.rosetta_score_Action.setText("Score")
         self.rosetta_score_Action.setCheckable(True)  
         self.rosetta_score_Action.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Score.png"))
         
-        self.subControlActionGroupForSimulateProtein = QActionGroup(parentWidget)
-        self.subControlActionGroupForSimulateProtein.setExclusive(True)   
         self.subControlActionGroupForSimulateProtein.addAction(self.rosetta_fixedbb_design_Action)   
         self.subControlActionGroupForSimulateProtein.addAction(self.rosetta_backrub_Action)
         self.subControlActionGroupForSimulateProtein.addAction(self.editResiduesAction)

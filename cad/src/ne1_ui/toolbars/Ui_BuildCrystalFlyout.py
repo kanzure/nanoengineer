@@ -71,7 +71,7 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
         _superclass.connect_or_disconnect_signals(self, 
                                                   isConnect)
         
-        change_connect(self.cookieSelectionGroup, 
+        change_connect(self.subControlActionGroup, 
                        SIGNAL("triggered(QAction *)"),
                        self.parentWidget.changeSelectionShape)
         
@@ -80,54 +80,64 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
         
         _superclass._createActions(self, parentWidget)
         
-        self.cookieSelectionGroup = QtGui.QActionGroup(parentWidget)
+        # The subControlActionGroup is the parent of all flyout QActions.
+        self.subControlActionGroup = QtGui.QActionGroup(parentWidget)
         
         self._subControlAreaActionList.append(self.exitModeAction)
         separator = QtGui.QAction(parentWidget)
         separator.setSeparator(True)
         self._subControlAreaActionList.append(separator) 
         
-        self.polygonShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.polygonShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                    win = self.win)
         self.polygonShapeAction.setObjectName("DEFAULT")
         self.polygonShapeAction.setText("Polygon")        
         self._subControlAreaActionList.append(self.polygonShapeAction)
 
-        self.circleShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)    
+        self.circleShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                   win = self.win)    
         self.circleShapeAction.setObjectName("CIRCLE")
         self.circleShapeAction.setText("Circle")  
         self._subControlAreaActionList.append(self.circleShapeAction)
         
-        self.squareShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.squareShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                   win = self.win)
         self.squareShapeAction.setObjectName("SQUARE")
         self.squareShapeAction.setText("Square")
         self._subControlAreaActionList.append(self.squareShapeAction)
   
-        self.rectCtrShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)   
+        self.rectCtrShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                    win = self.win)   
         self.rectCtrShapeAction.setObjectName("RECTANGLE")
         self.rectCtrShapeAction.setText("RectCenter")
         self._subControlAreaActionList.append(self.rectCtrShapeAction)
         
-        self.rectCornersShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.rectCornersShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                        win = self.win)
         self.rectCornersShapeAction.setObjectName("RECT_CORNER")
         self.rectCornersShapeAction.setText("RectCorners")
         self._subControlAreaActionList.append(self.rectCornersShapeAction)
         
-        self.triangleShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.triangleShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                     win = self.win)
         self.triangleShapeAction.setObjectName("TRIANGLE")
         self.triangleShapeAction.setText("Triangle")
         self._subControlAreaActionList.append(self.triangleShapeAction)
         
-        self.diamondShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.diamondShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                    win = self.win)
         self.diamondShapeAction.setObjectName("DIAMOND")
         self.diamondShapeAction.setText("Diamond")
         self._subControlAreaActionList.append(self.diamondShapeAction)
 
-        self.hexagonShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)
+        self.hexagonShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                    win = self.win)
         self.hexagonShapeAction.setObjectName("HEXAGON")
         self.hexagonShapeAction.setText("Hexagon")
         self._subControlAreaActionList.append(self.hexagonShapeAction)
   
-        self.lassoShapeAction = NE1_QWidgetAction(parentWidget, win = self.win)     
+        self.lassoShapeAction = NE1_QWidgetAction(self.subControlActionGroup, 
+                                                  win = self.win)     
         self.lassoShapeAction.setObjectName("LASSO")
         self.lassoShapeAction.setText("Lasso")
         self._subControlAreaActionList.append(self.lassoShapeAction)
@@ -135,11 +145,11 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
         for action in self._subControlAreaActionList[1:]:
             if isinstance(action, NE1_QWidgetAction):               
                 action.setCheckable(True)
-                self.cookieSelectionGroup.addAction(action)
+                self.subControlActionGroup.addAction(action)
                 iconpath = "ui/actions/Command Toolbar/BuildCrystal/" + str(action.text()) + ".png"
                 action.setIcon(geticon(iconpath))
         
-        if not self.cookieSelectionGroup.checkedAction():
+        if not self.subControlActionGroup.checkedAction():
                 self.polygonShapeAction.setChecked(True)
         
         return
@@ -201,7 +211,7 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
             self.squareShapeAction.setShortcut('S')
             
         else:
-            for btn in self.cookieSelectionGroup.actions():
+            for btn in self.subControlActionGroup.actions():
                 btn.setShortcut('')
 
     
@@ -209,7 +219,7 @@ class BuildCrystalFlyout(Ui_AbstractFlyout):
         """
         Return the current selection shape that is checked. 
         """
-        selectionShape = self.cookieSelectionGroup.checkedAction().objectName()    
+        selectionShape = self.subControlActionGroup.checkedAction().objectName()    
         return selectionShape
     
     def _addWhatsThisText(self):
