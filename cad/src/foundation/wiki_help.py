@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 wiki_help.py -- associate webpages (typically in a wiki) with program features,
 and provide access to them. Pages typically contain feature-specific help info,
@@ -6,7 +6,15 @@ FAQ, forum, etc.
 
 @author: Will, Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
+
+
+Code cleanup needed:
+
+There are two parallel systems of code which do similar things
+(e.g. prepending "Feature:" and wiki_prefix()) for different kinds
+of UI access; see duplicated code warnings below.
+
 
 Module classification: [bruce 080101]
 
@@ -31,6 +39,7 @@ accessed this way to be wiki pages.
 But we use "wiki help" in history messages, since we want people to think of
 the wiki (rather than a rarely-changing web page) as an integral part of the
 idea.
+
 
 History:
 
@@ -68,6 +77,8 @@ from utilities.Log import redmsg
 from utilities.prefs_constants import wiki_help_prefix_prefs_key
 
 def webbrowser_open(url):
+    """
+    """
     if len(webbrowser._tryorder) == 0:
         # Sometimes webbrowser.py does not find a web browser. Also, its list
         # of web browsers is somewhat antiquated. Give it some help.
@@ -180,8 +191,13 @@ def open_wiki_help_URL(url, whosdoingthis = "Wiki help"): #bruce 051229 split th
     
 def wiki_prefix():
     """
-    Return the prefix to which wiki page titles should be appended, to form their urls.
+    Return the prefix to which wiki page titles should be appended,
+    to form their urls. By default, these reference the Nanorex
+    public wiki, but the prefix can be overridden by a user preference.
     """
+    # note: public, but only used in this file;
+    # but has three callers, all of which do related things
+    # for different kinds of UI access. [bruce 081209 comment]
     prefix = env.prefs[wiki_help_prefix_prefs_key]
     return prefix
 
@@ -199,6 +215,7 @@ def wiki_help_url( featurename):
     # (The same would be true for wiki pages about specific features whose featurenames are changed.)
     prefix = wiki_prefix()
     title = "Feature:" + featurename.replace(' ', '_') # e.g. Feature:Build_Mode
+        # note: partly duplicates code in turn_featurenames_into_links in whatsthis_utilities.py
     return prefix + title # assume no URL-encoding needed in title, since featurenames so far are just letters and spaces
 
 # ==
@@ -248,15 +265,31 @@ def wiki_help_menuspec_for_featurename( featurename):
 # ==
 
 class QToolBar_WikiHelp(NE1_QToolBar):
+    """
+    A subclass of NE1_QToolBar to be used when whatsthis text
+    in the toolbar might contain "wiki help" links.
+
+    It overrides the event method to interpret a QWhatsThisClickedEvent
+    by prepending the event's href with wiki_prefix() and opening
+    that url in a webbrowser.
+    """
     # Any widget can be extended this way. Wherever we need to have wiki help
     # active (presumably in a container with buttons or some such) we should
     # feel free to extend other container widgets as needed.
     def event(self, evt):
         if isinstance(evt, QWhatsThisClickedEvent):
             url = wiki_prefix() + evt.href()
+                # note: I'm guessing that in older code, this was done
+                # by the class MyWhatsThis (still mentioned in some old
+                # comments) [bruce 081209 comment]
             webbrowser_open(str(url)) # Must be string. mark 2007-05-10
+                # REVIEW: should we call its caller open_wiki_help_URL instead?
+                # This would add a history message and some exception catching.
+                # Guess: yes, perhaps with a flag to turn off history
+                # except when there are errors. [bruce 081209 question]
             return True
-        return NE1_QToolBar.event(self, evt)
+        else:
+            return NE1_QToolBar.event(self, evt)
 
 class WikiHelpBrowser(QDialog):
     """
@@ -299,30 +332,34 @@ class WikiHelpBrowser(QDialog):
     
     pass
 
-def wiki_url_for_topic(topic, wikiprefix = None):
-    wikiprefix = wikiprefix or "http://www.nanoengineer-1.net/mediawiki/index.php?title="
+def HTML_link(url, text):
+    #e might need to do some encoding in url, don't know;
+    # certainly needs to in text, in principle
+    return "<a href=\"" + url + "\">" + text + "</a>"
+
+# == test code
+
+def __wiki_url_for_topic(topic, wikiprefix = None):
+    wikiprefix = wikiprefix or \
+                 "http://www.nanoengineer-1.net/mediawiki/index.php?title="
+                # note: this is a hardcoded version of the default value
+                # of wiki_prefix(); maybe it should be a named constant
     topic1 = topic[:1].upper() + topic[1:]
     topic1 = topic1.replace(" ", "_") # assume no additional url-encoding is needed
     url = wikiprefix + topic1
     return url
 
-def wikiPageHtmlLink(topic, text = None, wikiprefix = None):
-    url = wiki_url_for_topic(topic, wikiprefix = wikiprefix)
+def __wikiPageHtmlLink(topic, text = None, wikiprefix = None):
+    url = __wiki_url_for_topic(topic, wikiprefix = wikiprefix)
     if text is None:
         text = topic
     return HTML_link(url, text)
-
-def HTML_link(url, text): #e might need to do some encoding in url, don't know; certainly needs to in text, in principle
-    # this is being used in real code as of bruce 051215
-    return "<a href=\"" + url + "\">" + text + "</a>"
-
-# == test code
 
 def __testWikiHelpBrowser():
     import sys
     app = QApplication(sys.argv)
     w = WikiHelpBrowser("Here is a wiki page about " +
-                        wikiPageHtmlLink("QWhatsThis and web links") +
+                        __wikiPageHtmlLink("QWhatsThis and web links") +
                         " to click.")
     w.show()
     app.connect(app, SIGNAL("lastWindowClosed()"),

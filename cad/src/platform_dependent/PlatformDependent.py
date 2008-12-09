@@ -18,7 +18,6 @@ A mix of things. Some are platform dependent. Some are utilities
 (and of those, some would make sense within utilities.Log).
 Some are io.
 """
-__author__ = "bruce" # and others
 
 import sys, os, time
 from PyQt4.Qt import Qt, QDesktopWidget, QRect
@@ -54,7 +53,7 @@ def mkdirs_in_filename(filename):
 def is_macintosh():
     #e we might need to update this, since I suspect some mac pythons
     # have a different value for sys.platform
-    return sys.platform in ['darwin']
+    return sys.platform == 'darwin'
 
 def filter_key(key, debug_keys = 0): #bruce revised this 070517 to fix Mac-specific delete key bug which resurfaced in Qt4
     """

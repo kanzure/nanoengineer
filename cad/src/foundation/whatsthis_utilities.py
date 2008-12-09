@@ -16,13 +16,21 @@ import os
 
 from utilities.icon_utilities import image_directory 
 
-# more imports below; todo: move them to toplevel
+import foundation.env as env
+
+from platform_dependent.PlatformDependent import is_macintosh
+
+_IS_MACINTOSH = is_macintosh()
 
 #bruce 051227-29 code for putting hyperlinks into most WhatsThis texts
 # (now finished enough for release, though needs testing and perhaps cleanup 
 # and documentation)
 
 ENABLE_WHATSTHIS_LINKS = True # also used in an external file
+    # note: if this is False, it now disables not only whatsthis links,
+    # but the fixing of img tag pathnames in whatsthis text.
+    # Probably we should just remove the flag, inlining it as True.
+    # [bruce 081209 comment]
 
 _DEBUG_WHATSTHIS_LINKS = False # DO NOT COMMIT with True # only used in this file
 
@@ -50,8 +58,9 @@ def fix_whatsthis_text_and_links(parent):
     QWidget objects that are children of parent.
     
     2. For all systems, it replaces certain whatsthis text patterns with
-    hyperlinks, and adds MyWhatsThis objects to widgets with text modified
-    that way (or that might contain hyperlinks) or that are QPopupMenus.
+    hyperlinks, and [obsolete comment] adds MyWhatsThis objects to widgets
+    with text modified that way (or that might contain hyperlinks) or that
+    are QPopupMenus.
 
     This should be called after all widgets (and their whatsthis text) 
     in the UI have been created. It's ok, but slow (up to 0.2 seconds per call
@@ -76,21 +85,21 @@ def fix_whatsthis_text_and_links(parent):
     """
     if _DEBUG_WHATSTHIS_LINKS:
         print "running fix_whatsthis_text_and_links"
-    from platform_dependent.PlatformDependent import is_macintosh
-    mac = is_macintosh()
-    if mac or ENABLE_WHATSTHIS_LINKS:
+    if _IS_MACINTOSH or ENABLE_WHATSTHIS_LINKS:
         # fix text in 1 or 2 ways for all QAction objects
         # (which are not widgets)
         # ATTENTION:
         # objList only includes QAction widgets that appear in the Main Menu
         # bar. This is a bug since some widgets only appear in toolbars on the
-        # Main Window, but not the main menu bar. --Mark and Tom 2007-12-19 
+        # Main Window, but not the main menu bar. --Mark and Tom 2007-12-19
         objList = filter(lambda x: isinstance(x, QAction), parent.children())
         for obj in objList:
-            fix_QAction_whatsthis(obj, mac)            
+            fix_QAction_whatsthis(obj)            
             continue
         pass
     if ENABLE_WHATSTHIS_LINKS:
+        # partly obsolete comment (class MyWhatsThis no longer exists,
+        #  instead see class QToolBar_WikiHelp):
         # add MyWhatsThis objects to all widgets that might need them
         # (and also fix their text if it's not fixed already --
         #  needed in case it didn't come from a QAction; maybe that never
@@ -103,9 +112,11 @@ def fix_whatsthis_text_and_links(parent):
             # (nim ###@@@).) [bruce 060120] In fact there is no menu item 
             # class in Qt that I can find! You add items as QActions or as 
             # sets of attrs. QActions also don't show up in this list...
+        if isinstance(parent, QWidget):
+            objList.append(parent) #bruce 081209
         for obj in objList:
             # note: the following code is related to
-            # fix_QAction_whatsthis(obj, mac)
+            # fix_QAction_whatsthis(obj)
             # but differs in several ways
             text = whatsthis_text_for_widget(obj) # could be either "" or None
             if text:
@@ -114,11 +125,18 @@ def fix_whatsthis_text_and_links(parent):
                 # MyWhatsThis object; both our mods are ok if they happen 
                 # twice -- if some hyperlink contains 'ctrl', so did the text
                 # before it got command names converted to links.
-                if mac:
+                if _IS_MACINTOSH:
                     text = replace_ctrl_with_cmd(text)
                 text = turn_featurenames_into_links(text)
                 assert text # we'll just feed it to a MyWhatsThis object so we 
                     # don't have to store it here
+                # BUG: since that was written, the code has been revised;
+                # there is no longer a class MyWhatsThis, and it's unclear
+                # whether it's *ever* ok to discard this text, as we are doing.
+                # The only known bug from this is for the GLPane's whatsthis text
+                # (about that, see the kluges and comments in the def and call
+                #  of whats_this_text_for_glpane), but there might be others.
+                # [bruce 081209 comment]
             else:
                 text = None # turn "" into None
             ## ismenu = isinstance(obj, QPopupMenu)
@@ -141,19 +159,23 @@ def fix_whatsthis_text_and_links(parent):
             continue
     return # from fix_whatsthis_text_and_links
 
-def fix_QAction_whatsthis(obj, mac):
+def fix_QAction_whatsthis(obj):
     """
+    [public, though external calls are rare]
+    
     Modify the Qt whatsthis and tooltip text assigned to obj
     (which should be a QAction; not sure if that's required)
-    based on the mac flag (an argument) and on the global flag
-    ENABLE_WHATSTHIS_LINKS.
+    based on whether we're running on a Macintosh (determines
+    whether to replace Ctrl with Cmd in the texts),
+    and on the global flag ENABLE_WHATSTHIS_LINKS.
 
     Also save info into the global map_from_id_QAction_to_featurename.
+
+    @see: our main caller, fix_whatsthis_text_and_links
     """
-    # fyi: only used in this file, as of 080509
     text = str(obj.whatsThis())
     tooltip = str(obj.toolTip())
-    if mac:
+    if _IS_MACINTOSH:
         text = replace_ctrl_with_cmd(text)
         tooltip = replace_ctrl_with_cmd(tooltip)
     if ENABLE_WHATSTHIS_LINKS:
@@ -169,12 +191,9 @@ def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
     """
     [public]
     """
-    import foundation.env as env
     win = env.mainwindow()
-    from platform_dependent.PlatformDependent import is_macintosh
-    mac = is_macintosh()
-    fix_QAction_whatsthis(win.editUndoAction, mac)
-    fix_QAction_whatsthis(win.editRedoAction, mac)
+    fix_QAction_whatsthis(win.editUndoAction)
+    fix_QAction_whatsthis(win.editRedoAction)
     return
 
 def replace_ctrl_with_cmd(text):
@@ -241,6 +260,11 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
     """
     # make all img source pathnames absolute, if they are not already.
     # [bruce 081205 per mark]
+    #
+    # TODO: if this was improved to call get_image_path on the pathnames,
+    # it would catch errors in the pathnames at load time rather than
+    # only when they are first used to display images in whatsthis text.
+    #
     # POSSIBLE BUGS: the current implementation will fail if the pathnames
     # contain characters that don't encode themselves when parsed
     # (by Qt) in this HTML-tag-attribute context -- at least true
@@ -293,12 +317,16 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
                     print "web help name: %r" % (featurename,)
             if saveplace is not None:
                 saveplace[savekey] = featurename
-            link = "Feature:" + featurename.replace(' ','_')
-                # maybe we can't let ' ' remain in it, otherwise replacement 
-                # not needed since will be done later anyway
-            ## from wiki_help import wiki_prefix
-            ## text = "<a href=\"%s%s\">%s</a>" % \
-            ## (wiki_prefix(), link, name) + rest
+            link = "Feature:" + featurename.replace(' ', '_')
+                # note: partly duplicates code in def wiki_help_url in wiki_help.py
+            # note: this link will only work if it's interpreted by
+            # class QToolBar_WikiHelp, which prepends wiki_prefix().
+            # Before we used Qt 4, this was done by the following code:
+            #   ## from wiki_help import wiki_prefix
+            #   ## text = "<a href=\"%s%s\">%s</a>" % \
+            #   ## (wiki_prefix(), link, name) + rest
+            # working with class MyWhatsThis, which is still mentioned
+            # in some old comments. [bruce 081209 guess]
             text = "<a href=\"%s\">%s</a>" % (link, name) + rest
             return text
     return text

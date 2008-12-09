@@ -282,9 +282,22 @@ class Ui_PartWindow(QWidget):
         #  In this code's old location, Mark wrote [2007-06-01]: "Problem -
         #  I don't believe this text is processed by fix_whatsthis_text_and_links()
         #  in whatsthis_utilities.py." Now that this code is here, I don't know
-        #  whether that's still true.]
+        #  whether that's still true. ]
         from ne1_ui.WhatsThisText_for_MainWindow import whats_this_text_for_glpane
         self.glpane.setWhatsThis( whats_this_text_for_glpane() )
+        
+        # update [re the above comment], bruce 081209:
+        # I added the following explicit call of fix_whatsthis_text_and_links,
+        # but it doesn't work to replace Ctrl with Cmd on Mac;
+        # see today's comment in fix_whatsthis_text_and_links for likely reason.
+        # So I will leave this here, but also leave in place the kluges
+        # in whats_this_text_for_glpane to do that replacement itself.
+        # The wiki help link in this whatsthis text doesn't work,
+        # but I guess that is an independent issue, related to lack
+        # of use of class QToolBar_WikiHelp or similar code, for GLPane
+        # or this class or the main window class.
+        from foundation.whatsthis_utilities import fix_whatsthis_text_and_links
+        fix_whatsthis_text_and_links(self.glpane) # doesn't yet work
         
         self.pwProjectTabWidget.KLUGE_setGLPane(self.glpane)
             # help fix bug 2522 [bruce 070829]

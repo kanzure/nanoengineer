@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 WhatsThisText_for_PreferencesDialog.py
 
@@ -9,7 +9,7 @@ Edit WhatsThisText_for_MainWindow.py to set "What's This" and tooltip text
 for widgets in the Main Window.
 
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 import sys
@@ -20,10 +20,16 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     """
     
     _pd = preferencesDialog
+
     if sys.platform == 'darwin':        
+        # TODO: figure out how to get fix_whatsthis_text_and_links to handle
+        # this for us (like it does for most whatsthis text).
+        # For more info see comments from today in other files.
+        # [bruce 081209 comment]
         _keyString = "<b>(Cmd + C and Cmd + V)</b> respectively"
     else:
         _keyString = "<b>(Ctrl + C and Ctrl + V)</b> respectively"
+    
     #General preference 
     _text = """<b>Offset scale factor for pasting chunks</b>
     <p>When one or more chunks, that are placed as independent nodes in the 

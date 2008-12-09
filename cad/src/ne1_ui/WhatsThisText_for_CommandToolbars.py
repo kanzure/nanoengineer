@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 WhatsThisText_for_CommandToolbars.py
 
@@ -7,7 +7,7 @@ for widgets (typically QActions) in the Command Toolbar.
 
 @author: Mark
 @version:$Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from foundation.whatsthis_utilities import fix_whatsthis_text_and_links

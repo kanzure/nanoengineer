@@ -22,7 +22,6 @@ pages as well.
 """
 
 import os
-from utilities.icon_utilities import get_image_path
 from PyQt4.Qt import QWhatsThis
     
 def createWhatsThisTextForMainWindowWidgets(win):
@@ -45,7 +44,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     
     _text = \
         "<u><b>Open File</b></u> (Ctrl + O)"\
-        "<p><img source=\"" + get_image_path("ui/actions/File/Open.png") + "\"><br> "\
+        "<p><img source=\"ui/actions/File/Open.png\"><br> "\
         "Opens a new file."\
         "</p>"
 
@@ -105,7 +104,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.fileSaveAsAction.setWhatsThis( fileSaveAsText )
     
-    # Import Molcular Machine Part
+    # Import Molecular Machine Part
 
     fileInsertMmpActionText = \
         "<b> Molecular Machine Part</b>"\
@@ -2175,6 +2174,11 @@ def whats_this_text_for_glpane():
     #bruce 080912 moved this here from part of a method in class GLPane
     import sys
     if sys.platform == "darwin":
+        # TODO: figure out how to get fix_whatsthis_text_and_links to handle
+        # this for us (like it does for most whatsthis text).
+        # The href link herein also doesn't work (at least on my Mac).
+        # For more info see comments from today in other files.
+        # [bruce 081209 comment]
         ctrl_or_cmd = "Cmd"
     else:
         ctrl_or_cmd = "Ctrl"

@@ -237,7 +237,8 @@ class Ui_CommandToolbar( QWidget ):
             # Convert all "img" tags in the button's "What's This" text 
             # into abs paths (from their original rel paths).
             # Partially fixes bug 2943. --mark 2008-12-07
-            fix_QAction_whatsthis(btn, False)
+            # [bruce 081209 revised this -- removed mac = False]
+            fix_QAction_whatsthis(btn)
         return
     
     def truncateText(self, text, length = 12, truncateSymbol = '...'):
