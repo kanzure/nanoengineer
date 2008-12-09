@@ -25,6 +25,7 @@ from utilities.constants import CL_SUBCOMMAND
 from model.bonds import bond_at_singlets
 from geometry.NeighborhoodGenerator import NeighborhoodGenerator 
 from utilities.prefs_constants import joinStrandsCommand_recursive_clickToJoinDnaStrands_prefs_key
+from geometry.VQT import vlen
 # == Command part
 
 _superclass = Select_Command
