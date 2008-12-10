@@ -13,6 +13,7 @@ from OpenGL.GL import GL_ALWAYS
 from OpenGL.GL import GL_BACK
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
 from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import GL_DEPTH_FUNC
 from OpenGL.GL import GL_FALSE
 from OpenGL.GL import GL_KEEP
 from OpenGL.GL import GL_MODELVIEW
@@ -27,15 +28,17 @@ from OpenGL.GL import GL_VIEWPORT
 from OpenGL.GL import glClear
 from OpenGL.GL import glColorMask
 from OpenGL.GL import glDepthMask
+from OpenGL.GL import glDepthFunc
 from OpenGL.GL import glDisable
 from OpenGL.GL import glDrawPixels
 from OpenGL.GL import glEnable
 from OpenGL.GL import glFinish
 from OpenGL.GL import glFlush
+from OpenGL.GL import glGetInteger
 from OpenGL.GL import glGetIntegerv
 from OpenGL.GL import glInitNames
 from OpenGL.GL import glMatrixMode
-from OpenGL.GL import glWindowPos2i
+from OpenGL.GL import glWindowPos3i
 from OpenGL.GL import glReadBuffer
 from OpenGL.GL import glReadPixels
 from OpenGL.GL import glReadPixelsf
@@ -127,18 +130,24 @@ class GLPane_highlighting_methods(object):
                 # See explanation in the _setup_projection() docstring.)
                 glViewport(wX, wY, pwSize, pwSize) # Same as current_glselect.
                 
-                # First, clear the pixel RGBA to zeros so we won't confuse a
-                # color with a glname if there are no shader primitives drawn.
-                glWindowPos2i(wX, wY)
+                # First, clear the pixel RGBA to zeros and a depth of 1.0
+                # (far), so we won't confuse a color with a glname if there are
+                # no shader primitives drawn.
+                saveDepthFunc = glGetInteger(GL_DEPTH_FUNC)
+                glDepthFunc(GL_ALWAYS)
+                glWindowPos3i(wX, wY, 1) # Note the Z coord.
                 gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
                 glDrawPixels(pwSize, pwSize, gl_format, gl_type, (0, 0, 0, 0))
+                glDepthFunc(saveDepthFunc)
 
                 # Should be already in glRenderMode(GL_RENDER).
                 # Note: _setup_projection leaves the matrix mode as GL_PROJECTION.
                 glMatrixMode(GL_MODELVIEW) 
                 try:
-                    # Russ 081122 Use glnames-as-color mode in shader.config().
-                    self.drawing_phase = "glselect_glname_color"
+                    # Use glnames-as-color mode in shaders, and draw only primitives.
+                    drawing_globals.sphereShader.setPicking(True)
+                    self.set_drawing_phase("glselect_glname_color")
+
                     for stereo_image in self.stereo_images_to_draw:
                         self._enable_stereo(stereo_image)
                         self.graphicsMode.Draw()
@@ -152,7 +161,8 @@ class GLPane_highlighting_methods(object):
                     self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                     # now it's important to continue, at least enough to restore other gl state
                     pass
-                self.drawing_phase = '?'
+                drawing_globals.sphereShader.setPicking(False)
+                self.set_drawing_phase('?')
 
                 # Restore the viewport.
                 glViewport(saveVwpt[0], saveVwpt[1], saveVwpt[2], saveVwpt[3])
@@ -160,6 +170,7 @@ class GLPane_highlighting_methods(object):
                 # Read pixel value from the back buffer and re-assemble glname.
                 glFinish() # Make sure the drawing has completed.
                 rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
+                pixZ = glReadPixelsf( wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
                 # Comes back sign-wrapped, in spite of specifying UNSIGNED_BYTE.
                 def us(b):
                     if b < 0: return 256 + b
@@ -167,16 +178,20 @@ class GLPane_highlighting_methods(object):
                 bytes = tuple([us(b) for b in rgba])
                 glname = (bytes[0] << 24 | bytes[1] << 16 |
                           bytes[2] << 8 | bytes[3])
-                if 0: ## 1 for debugging.
-                    print ("mouseover xy %d %d, " %  (wX, wY) +
+                debugPicking = debug_pref("GLPane: debug mouseover picking?",
+                                          Choice_boolean_False,
+                                          prefs_key = True )
+                if debugPicking:
+                    print ("shader mouseover xy %d %d, " %  (wX, wY) +
                            "rgba bytes (0x%x, 0x%x, 0x%x, 0x%x), " % bytes +
-                           "glname 0x%x" % glname)
+                           "Z %f, glname 0x%x" % (pixZ,glname))
                     pass
 
                 ### XXX These need to be merged with the DL selection below.
                 if glname:
                     obj = self.object_for_glselect_name(glname)
-                    ##print "mouseover glname=%r, obj=%r." % (glname, obj)
+                    if debugPicking:
+                        print "shader mouseover glname=%r, obj=%r." % (glname, obj)
                     if obj is None:
                         print "bug: object_for_glselect_name returns None for glname %r." % glname
                     else:
@@ -209,13 +224,14 @@ class GLPane_highlighting_methods(object):
             glRenderMode(GL_SELECT)
             glMatrixMode(GL_MODELVIEW)
             try:
-                self.drawing_phase = 'glselect' #bruce 070124
+                self.set_drawing_phase('glselect') #bruce 070124
                 for stereo_image in self.stereo_images_to_draw:
                     self._enable_stereo(stereo_image)
                     self.graphicsMode.Draw()
                     self._disable_stereo()
             except:
-                print_compact_traceback("exception in graphicsMode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+                print_compact_traceback("exception in graphicsMode.Draw() during GL_SELECT; "
+                                        "ignored; restoring modelview matrix: ")
                 self._disable_stereo()
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
@@ -224,7 +240,7 @@ class GLPane_highlighting_methods(object):
             self._frustum_planes_available = False # piotr 080331 
                 # just to be safe and not use the frustum planes computed for 
                 # the pick matrix
-            self.drawing_phase = '?'
+            self.set_drawing_phase('?')
             self.current_glselect = False
             ###e On systems with no stencil buffer, I think we'd also need to draw selobj here in highlighted form
             # (in case that form is bigger than when it's not highlighted), or (easier & faster) just always pretend
@@ -237,7 +253,8 @@ class GLPane_highlighting_methods(object):
                     # (except for a kluge near "if self.glselect_dict", commented on below)
             glFlush()
             hit_records = list(glRenderMode(GL_RENDER))
-            ## print "%d hits" % len(hit_records)
+            if debugPicking:
+                print "DLs %d hits" % len(hit_records)
             for (near, far, names) in hit_records: # see example code, renderpass.py
                 ## print "hit record: near, far, names:", near, far, names
                     # e.g. hit record: near, far, names: 1439181696 1453030144 (1638426L,)
@@ -379,7 +396,7 @@ class GLPane_highlighting_methods(object):
         self.setDepthRange_Highlighting()
 
         try:
-            self.drawing_phase = 'selobj' #bruce 070124
+            self.set_drawing_phase('selobj') #bruce 070124
                 #bruce 070329 moved set of drawing_phase from just after selobj.draw_in_abs_coords to just before it.
                 # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
                 #  though it can't be tested yet since it has no known effect on current code, only on future code.]
@@ -394,7 +411,7 @@ class GLPane_highlighting_methods(object):
                 (self.graphicsMode, selobj)
             )
             pass
-        self.drawing_phase = '?'
+        self.set_drawing_phase('?')
 
         self.setDepthRange_Normal()
 
@@ -472,12 +489,12 @@ class GLPane_highlighting_methods(object):
                         # [bruce 080911 comment]
                         self._enable_stereo(stereo_image)
 
-                        self.drawing_phase = 'selobj/preDraw_glselect_dict' # bruce 070124
+                        self.set_drawing_phase('selobj/preDraw_glselect_dict') # bruce 070124
                         method(self, white) # draw depth info (color doesn't matter since we're not drawing pixels)
 
                         self._disable_stereo()
 
-                    self.drawing_phase = '?'
+                    self.set_drawing_phase('?')
                         #bruce 050822 changed black to white in case some draw methods have boolean-test bugs for black (unlikely)
                         ###@@@ in principle, this needs bugfixes; in practice the bugs are tolerable in the short term
                         # (see longer discussion in other comments):
@@ -492,7 +509,7 @@ class GLPane_highlighting_methods(object):
                     if newpicked is not None:
                         break
                 except:
-                    self.drawing_phase = '?'
+                    self.set_drawing_phase('?')
                     print_compact_traceback("exception in or near %r.draw_in_abs_coords ignored: " % (obj,))
         ##e should check depth here to make sure it's near enough but not too near
         # (if too near, it means objects moved, and we should cancel this pick)

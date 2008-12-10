@@ -253,12 +253,6 @@ class GLSphereShaderObject(object):
             self.use(True)
             pass
             
-        # Drawing phase controls glnames-as-color mode.
-        self.draw_for_mouseover = int(
-            glpane.drawing_phase == "glselect_glname_color")
-        glUniform1iARB(self.uniform("draw_for_mouseover"),
-                       self.draw_for_mouseover)
-
         # Default override_opacity, multiplies the normal color alpha component.
         glUniform1fARB(self.uniform("override_opacity"), 0.25) #1.0)
 
@@ -284,6 +278,29 @@ class GLSphereShaderObject(object):
         eye = A([0.0, 0.0, 1.0])
         halfway0 = norm((eye + light0) / 2.0)
         glUniform3fvARB(self.uniform("light0H"), 1, halfway0)
+
+        if not wasActive:
+            self.use(False)
+        return
+
+    def setPicking(self, tf):
+        """
+        Controls glnames-as-color drawing mode for mouseover picking.
+
+        There seems to be no way to access the GL name
+        stack in shaders.  Instead, for mouseover, draw shader
+        primitives with glnames as colors in glRenderMode(GL_RENDER),
+        then read back the pixel color (glname) and depth value.
+
+        @param tf: Boolean, draw glnames-as-color if True. 
+        """
+        # Shader needs to be active to set uniform variables.
+        wasActive = self.used
+        if not wasActive:
+            self.use(True)
+            pass
+
+        glUniform1iARB(self.uniform("draw_for_mouseover"), int(tf))
 
         if not wasActive:
             self.use(False)
@@ -763,8 +780,8 @@ void main(void) {
   if (draw_for_mouseover == 1)
     gl_FragColor = var_basecolor;
   else if (highlight_mode == 1)
-    // Highlighting is brighter and looks "special" without shinyness.
-    gl_FragColor = vec4(var_basecolor.rgb * vec3(1.5 * (diffuse + ambient)),
+    // Highlighting looks "special" without shinyness.
+    gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient),
                         1.0);
   else
     gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient) +

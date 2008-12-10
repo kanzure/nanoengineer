@@ -240,8 +240,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     # ==
 
     def draw(self, highlighted = False, selected = False,
-             patterning = True, highlight_color = None,
-             draw_primitives = True):
+             patterning = True, highlight_color = None):
         """
         Simple all-in-one interface to CSDL drawing.
 
@@ -264,9 +263,6 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         @param highlight_color: Option to over-ride the highlight color set in
           the color scheme preferences.
-
-        @param draw_primitives: Whether to draw shader primitives in the CSDL.
-          Defaults to True.
         """
 
         patterned_highlighting = (patterning and
@@ -281,7 +277,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # It gathers the primitives in a set of CSDLs into a large drawIndex,
         # and draws them in a big batch.  This draw() method is also called to
         # draw *both* DLs and primitives in a CSDL, e.g. for hover-highlighting.
-        prims_to_do = draw_primitives and self.spheres
+        # Russ 081208: Skip drawing shader primitives while in GL_SELECT.
+        prims_to_do = (drawing_globals.drawing_phase != "glselect" and
+                       self.spheres)
         if prims_to_do:
             prims = drawing_globals.spherePrimitives
 
@@ -297,7 +295,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # the normal appearance first, because it will be obscured by the
         # highlight.  But halo selection extends beyond the object and is only
         # obscured by halo highlighting.  [russ 080610]
-        DLs_to_do = len(self.per_color_dls) > 0
+        # Russ 081208: Skip DLs when drawing shader-prims with glnames-as-color.
+        DLs_to_do = (drawing_globals.drawing_phase != "glselect_glname_color"
+                     and len(self.per_color_dls) > 0)
         if (patterned_highlighting or not highlighted or
             (halo_selection and not halo_highlighting)) :
             if selected:

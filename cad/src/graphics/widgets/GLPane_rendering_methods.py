@@ -417,6 +417,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
         return
 
     drawing_phase = '?' # new feature, bruce 070124 (set to different fixed strings for different drawing phases)
+    def set_drawing_phase(self, phase): # Russ 081208: Encapsulate setting, to tell shaders as well.
+        self.drawing_phase = phase
+        drawing_globals.drawing_phase = phase
         # For now, this is only needed during draw (or draw-like) calls which might run drawing code in the exprs module.
         # (Thus it's not needed around internal drawing calls like self.drawcompass, whose drawing code can't use the exprs module.)
         # The purpose is to let some of the drawing code behave differently in these different phases.
@@ -427,13 +430,19 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # (##e We ought to set it to that at the end of paintGL as well, for safety.)
         #
         # Explanation of possible values: [###e means explan needs to be filled in]
-        # - 'glselect' -- only used if mode requested object picking -- glRenderMode(GL_SELECT) in effect; reduced projection matrix
+        # - 'glselect' -- only used if mode requested object picking
+        #              -- Only draws Display Lists since the glSelect stack is not available to shaders.
+        #              -- glRenderMode(GL_SELECT) in effect; reduced projection matrix
+        # - 'glselect_glname_color' -- only used if mode requested object picking
+        #              -- Only draws shader primitives, and reads the glnames back as pixel colors.
+        #              -- glRenderMode(GL_RENDER) in effect; reduced projection matrix
         # - 'main' -- normal drawing, main coordinate system for model (includes trackball/zoom effect)
         # - 'main/Draw_after_highlighting' -- normal drawing, but after selobj is drawn ###e which coord system?
         # - 'main/draw_text_label' -- ###e
         # - 'selobj' -- we're calling selobj.draw_in_abs_coords (not drawing the entire model), within same coordsys as 'main'
         # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ###e which coord system, incl projection??
         # [end]
+        return
 
     _cached_bg_image_comparison_data = None
         # note: for the image itself, see attrs of class GLPane_image_methods
@@ -645,7 +654,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # let parts (other than the main part) draw a text label, to warn
         # the user that the main part is not being shown [bruce 050408]
         try:
-            self.drawing_phase = 'main/draw_text_label' #bruce 070124
+            self.set_drawing_phase('main/draw_text_label') #bruce 070124
             self.part.draw_text_label(self)
         except:
             # if this happens at all, it'll happen too often to bother non-debug
@@ -654,7 +663,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
             else:
                 print "bug: exception in self.part.draw_text_label; use ATOM_DEBUG to see details"
-        self.drawing_phase = '?'
+        self.set_drawing_phase('?')
 
         # draw the compass (coordinate-orientation arrows) in chosen corner
         if env.prefs[displayCompass_prefs_key]:
@@ -699,7 +708,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         
         # draw various overlays
 
-        self.drawing_phase = 'overlay'
+        self.set_drawing_phase('overlay')
 
         # Draw ruler(s) if "View > Rulers" is checked
         # (presently in main menus, not in prefs dialog)
@@ -714,7 +723,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         except:
             print_compact_traceback( "exception in self.graphicsMode.draw_overlay(): " )
         
-        self.drawing_phase = '?'
+        self.set_drawing_phase('?')
 
         # restore standard glMatrixMode, in case drawing code outside of paintGL
         # forgets to do this [precaution]
@@ -732,7 +741,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             enable_fog()
 
         try:
-            self.drawing_phase = 'main'
+            self.set_drawing_phase('main')
 
             self.graphicsMode.Draw()
                 # draw self.part (the model), with chunk & atom selection
@@ -746,7 +755,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 # the optim of caching a fixed background image).
                 # [bruce 080919 comment]
         finally:
-            self.drawing_phase = '?'
+            self.set_drawing_phase('?')
 
         if self._fog_test_enable:
             disable_fog()
@@ -778,7 +787,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # parts of Plane or ESPImage nodes)
         # [bruce 080919 bugfix: do this inside the stereo loop]
         try:
-            self.drawing_phase = 'main/Draw_after_highlighting'
+            self.set_drawing_phase('main/Draw_after_highlighting')
             self.graphicsMode.Draw_after_highlighting()
                 # e.g. draws water surface in Build mode [###REVIEW: ok inside stereo loop?],
                 # or transparent parts of ESPImage or Plane (must be inside stereo loop).
@@ -786,7 +795,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 # (perhaps modified for current stereo image),
                 # just like self.graphicsMode.Draw() [bruce 061208/080919 comment]
         finally:
-            self.drawing_phase = '?'
+            self.set_drawing_phase('?')
         return
 
     def validate_selobj_and_hicolor(self): #bruce 070919 split this out, slightly revised behavior, and simplified code
