@@ -503,26 +503,39 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if command is None:
             return
         
-        #Start Standard context menu items rename and delete . 
+        #Start Standard context menu items rename and delete [by Ninad]
+        
+        ### TODO: refactor to not hardcode these classes,
+        # but to have a uniform way to find the innermost node
+        # visible in the MT, to be renamed.
+        ### Also REVIEW whether this is always the same as the unit
+        # of hover highlighting, and if not, whether it should be,
+        # and if so, whether the same code can be used to determine
+        # the highlighted object and the object to rename or delete.
+        # [bruce 081210 comments]
+        
         parent_node_classes = (self.assy.DnaStrandOrSegment, 
                                self.assy.NanotubeSegment)
         
-        parent_node = self
+        parent_node = None
         
         for cls in parent_node_classes:
             parent_node = self.parent_node_of_class(cls)
             if parent_node:
-                break                
+                break
+
+        node_to_rename = parent_node or self
+        name = node_to_rename.name
         
-        item = (("Rename.."), 
-                parent_node.rename_using_dialog)
+        item = (("Rename %s..." % name),
+                node_to_rename.rename_using_dialog )
         contextMenuList.append(item)
         
-        item = (("Delete"), 
-                parent_node.kill_with_contents)
+        item = (("Delete %s" % name),
+                node_to_rename.kill_with_contents )
+            ### BUG: fails to call gl_update, and perhaps (untested) fails to call assy.changed()
         contextMenuList.append(item)
-        #End Standard context menu items rename and delete .
-                
+        #End Standard context menu items rename and delete
 
         def addDnaGroupMenuItems(dnaGroup):
             if dnaGroup is None:
@@ -3217,6 +3230,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # bbox already present -- moving it is faster than recomputing it
             #e (though it might be faster to just delete it, if many moves
             #   will happen before we need it again)
+            # TODO: refactor this to use a move method in bbox.
             if self.bbox.data:
                 self.bbox.data += offset
             
