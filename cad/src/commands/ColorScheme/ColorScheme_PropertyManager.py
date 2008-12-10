@@ -42,8 +42,8 @@ from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 from utilities.icon_utilities import geticon
 from utilities.debug import print_compact_traceback
 
-bg_EVENING_SKY = 0
-bg_BLUE_SKY = 1
+bg_BLUE_SKY = 0
+bg_EVENING_SKY = 1
 bg_SEAGREEN = 2
 bg_BLACK = 3
 bg_WHITE = 4
@@ -623,13 +623,13 @@ class ColorScheme_PropertyManager(Command_PropertyManager):
         Load the background color combobox with all the color options and sets
         the current background color
         """
-        backgroundIndexes = [bg_EVENING_SKY, bg_BLUE_SKY, bg_SEAGREEN,
+        backgroundIndexes = [bg_BLUE_SKY, bg_EVENING_SKY, bg_SEAGREEN,
                              bg_BLACK, bg_WHITE, bg_GRAY, bg_CUSTOM]
 
-        backgroundNames   = ["Evening Sky (default)", "Blue Sky", "Sea Green",
+        backgroundNames   = ["Blue Sky (default)", "Evening Sky", "Sea Green",
                              "Black", "White", "Gray", "Custom..."]
 
-        backgroundIcons   = ["Background_EveningSky", "Background_BlueSky",
+        backgroundIcons   = ["Background_BlueSky", "Background_EveningSky", 
                              "Background_SeaGreen",
                              "Background_Black",   "Background_White",
                              "Background_Gray",    "Background_Custom"]
@@ -671,9 +671,9 @@ class ColorScheme_PropertyManager(Command_PropertyManager):
         """
         #print "changeBackgroundColor(): Slot method called. Idx =", idx
 
-        if idx == bg_EVENING_SKY:
+        if idx == bg_BLUE_SKY:
             self.win.glpane.setBackgroundGradient(idx + 1)
-        elif idx == bg_BLUE_SKY:
+        elif idx == bg_EVENING_SKY:
             self.win.glpane.setBackgroundGradient(idx + 1)
         elif idx == bg_SEAGREEN:
             self.win.glpane.setBackgroundGradient(idx + 1)

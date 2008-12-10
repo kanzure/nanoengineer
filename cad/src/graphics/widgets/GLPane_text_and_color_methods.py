@@ -47,7 +47,7 @@ from utilities.debug import print_compact_stack
 from utilities.constants import black, white
 from utilities.constants import getTextHaloColor
 
-from utilities.constants import bgSOLID, bgEVENING_SKY, bgBLUE_SKY, bgSEAGREEN
+from utilities.constants import bgSOLID, bgBLUE_SKY, bgEVENING_SKY, bgSEAGREEN
 from utilities.constants import bluesky, eveningsky, bg_seagreen
 from utilities.constants import ave_colors, colors_differ_sufficiently
 
@@ -83,12 +83,12 @@ def _backgroundGradient_params(backgroundGradient, bgColor = None):
         assert bgColor is not None
         _bgGradient = (bgColor, bgColor, bgColor, bgColor)
         darkQ = not colors_differ_sufficiently(bgColor, black)
-    elif backgroundGradient == bgEVENING_SKY:
-        _bgGradient = eveningsky
-        darkQ = True
     elif backgroundGradient == bgBLUE_SKY:
         _bgGradient = bluesky
         darkQ = False
+    elif backgroundGradient == bgEVENING_SKY:
+        _bgGradient = eveningsky
+        darkQ = True
     elif backgroundGradient == bgSEAGREEN:
         _bgGradient = bg_seagreen
         darkQ = False
@@ -339,8 +339,8 @@ class GLPane_text_and_color_methods(object):
         Stores the background gradient prefs value in the prefs db.
         gradient can be either:
             0 - No gradient. The background color is a solid color.
-            1 - the background gradient is set to the 'Evening Sky' gradient.
-            2 - the background gradient is set to the 'Blue Sky' gradient.
+            1 - the background gradient is set to the 'Blue Sky' gradient.
+            2 - the background gradient is set to the 'Evening Sky' gradient.
             3 - the background gradient is set to the  'Sea Green' gradient.
 
         See GLPane.standard_repaint_0() to see how this is used when redrawing the glpane.

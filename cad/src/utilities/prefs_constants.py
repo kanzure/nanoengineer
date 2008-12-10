@@ -39,7 +39,7 @@ from utilities.constants import yellow, pink, red, black, magenta, mustard
 from utilities.constants import blue, gray, white, green, orange
 from utilities.constants import lightgray, lightblue, lightgreen
 from utilities.constants import darkred, darkblue, darkgreen
-from utilities.constants import ave_colors, diBALL, bgEVENING_SKY
+from utilities.constants import ave_colors, diBALL, bgBLUE_SKY
 
 import sys, os # for getDefaultWorkingDirectory
 
@@ -647,7 +647,7 @@ prefs_table = (
      pasteOffsetScaleFactorForDnaObjects_prefs_key, 3.0),
 
     # Color (page) preferences
-    ('', 'int',   backgroundGradient_prefs_key, bgEVENING_SKY),
+    ('', 'int',   backgroundGradient_prefs_key, bgBLUE_SKY),
     ('', 'color', backgroundColor_prefs_key, white),
     ('', 'string',   hoverHighlightingColorStyle_prefs_key, HHS_HALO),
     ('', 'color', hoverHighlightingColor_prefs_key, yellow),
