@@ -67,7 +67,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
 
     title         =  "Edit Rotamers"
     pmName        =  title
-    iconPath      =  "ui/actions/Edit/EditProteinDisplayStyle.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildProtein/EditRotamers.png"
 
     
     def __init__( self, command ):

@@ -88,7 +88,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
     # the name of the PropMgr (this) object via setObjectName().
     pmName = title
     # The relative path to PNG file that appears in the header.
-    iconPath = "ui/actions/Tools/Build Structures/Peptide.png"
+    iconPath = "ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png"
 
     def __init__( self, command ):
         """

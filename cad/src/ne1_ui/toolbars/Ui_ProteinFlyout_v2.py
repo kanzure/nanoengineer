@@ -196,7 +196,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.editRotamersAction.setText("Rotamers")
         self.editRotamersAction.setCheckable(True)  
         self.editRotamersAction.setIcon(
-            geticon("ui/actions/Command Toolbar/BuildProtein/Rotamers.png"))
+            geticon("ui/actions/Command Toolbar/BuildProtein/EditRotamers.png"))
         
         self.compareProteinsAction = \
             NE1_QWidgetAction(self.subControlActionGroup, win = self.win)

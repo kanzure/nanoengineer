@@ -48,7 +48,7 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
 
     title         =  "Compare Proteins"
     pmName        =  title
-    iconPath      =  "ui/actions/Edit/EditProteinDisplayStyle.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildProtein/Compare.png"
 
     
     def __init__( self, command ):
