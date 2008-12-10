@@ -530,10 +530,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         item = (("Rename %s..." % name),
                 node_to_rename.rename_using_dialog )
         contextMenuList.append(item)
+
+        def delnode_cmd(node_to_rename = node_to_rename):
+            node_to_rename.assy.changed() #bruce 081210 bugfix, not sure if needed
+            node_to_rename.assy.win.win_update() #bruce 081210 bugfix
+            node_to_rename.kill_with_contents()
+            return
         
-        item = (("Delete %s" % name),
-                node_to_rename.kill_with_contents )
-            ### BUG: fails to call gl_update, and perhaps (untested) fails to call assy.changed()
+        item = (("Delete %s" % name), delnode_cmd )
         contextMenuList.append(item)
         #End Standard context menu items rename and delete
 
