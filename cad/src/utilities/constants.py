@@ -653,7 +653,7 @@ brown = ave_colors(0.5, black, yellow)
 
 # The background gradient types/values.
 # Gradient values are one more than the gradient constant values in Preferences.py.
-# (i.e. bgBLUE_SKY =  bgBLUE_SKY + 1)
+# (i.e. bgBLUE_SKY =  BG_BLUE_SKY + 1)
 bgSOLID = 0
 bgBLUE_SKY = 1
 bgEVENING_SKY = 2

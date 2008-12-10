@@ -164,7 +164,7 @@ pasteOffsetScaleFactorForDnaObjects_prefs_key = 'V110/Scale factor is used to of
 
 # Color prefs (for "Color" page).
 backgroundColor_prefs_key = 'A9/Background Color'
-backgroundGradient_prefs_key = 'V111/Background Gradient'
+backgroundGradient_prefs_key = 'V1.2.0.0/Background Gradient'
 hoverHighlightingColorStyle_prefs_key = 'V110/3D hover highlighting color style rev1'
 hoverHighlightingColor_prefs_key = 'V110/3D hover highlighting color'
 selectionColorStyle_prefs_key = 'V110/3D selection color style rev1'
