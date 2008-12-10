@@ -1,7 +1,7 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 
-This is a Property Manager dialog of the Peptide Generator.
+This is a Property Manager dialog for the "Insert Peptide" command.
 
 @author: Piotr, Urmi
 @version: $Id$
@@ -18,7 +18,7 @@ Piotr 2008-03-02: Re-written the Property Manager dialogs to allow it working in
 Piotr 080407: Fixed minor bugs in sequence text editor window.
 
 Urmi 20080731: Property Manager updated to support drawing proteins by
-               clicking on two point
+               clicking on two points.
 
 """
 
@@ -80,7 +80,7 @@ _superclass = EditCommand_PM
 class PeptideGeneratorPropertyManager(EditCommand_PM):
     """
     The PeptideGeneratorPropertyManager class provides a Property Manager 
-    for the "Build > Peptide" command.
+    for the "Insert > Peptide" command.
     """
     # The title that appears in the property manager header.
     title = "Insert Peptide"
@@ -92,7 +92,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
 
     def __init__( self, command ):
         """
-        Construct the "Build Graphene" Property Manager.
+        Construct the Property Manager.
         """
         _superclass.__init__( self, command )
                
