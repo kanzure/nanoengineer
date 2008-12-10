@@ -111,6 +111,10 @@ class GLPane_highlighting_methods(object):
             self.current_glselect = (wX, wY, pwSize, pwSize)
             self._setup_projection( glselect = self.current_glselect ) # option makes it use gluPickMatrix
 
+            # Russ 081209: Added.
+            debugPicking = debug_pref("GLPane: debug mouseover picking?",
+                                      Choice_boolean_False, prefs_key = True )
+
             if drawing_globals.use_batched_primitive_shaders:
                 # Russ 081122: There seems to be no way to access the GL name
                 # stack in shaders.  Instead, for mouseover, draw shader
@@ -178,9 +182,6 @@ class GLPane_highlighting_methods(object):
                 bytes = tuple([us(b) for b in rgba])
                 glname = (bytes[0] << 24 | bytes[1] << 16 |
                           bytes[2] << 8 | bytes[3])
-                debugPicking = debug_pref("GLPane: debug mouseover picking?",
-                                          Choice_boolean_False,
-                                          prefs_key = True )
                 if debugPicking:
                     print ("shader mouseover xy %d %d, " %  (wX, wY) +
                            "rgba bytes (0x%x, 0x%x, 0x%x, 0x%x), " % bytes +
