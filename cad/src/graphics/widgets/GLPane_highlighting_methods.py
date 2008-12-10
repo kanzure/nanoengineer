@@ -508,8 +508,14 @@ class GLPane_highlighting_methods(object):
         # though they should still obscure other objects.
 
         if newpicked is not None:
+            if debug_prefix and len(items) > 1: #bruce 081209
+                print "%s (%d): complete list of candidates were:" % (debug_prefix, env.redraw_counter), items
             hicolor = self.selobj_hicolor( newpicked)
             if hicolor is None:
+                if report_failures:
+                    print "debug_pref: preDraw_glselect_dict failure: " \
+                          "it worked, but %r hicolor is None, so discarding it" % \
+                          (newpicked,) #bruce 081209
                 newpicked = None
                 # [note: there are one or two other checks of the same thing,
                 #  e.g. to cover preexisting selobjs whose hicolor might have changed [bruce 060726 comment]]
@@ -569,12 +575,26 @@ class GLPane_highlighting_methods(object):
             # since we're turning into noop on first success
             # (no choice unless we re-cleared depth buffer now, which btw we could do... #e).
             if debug_prefix:
-                print "%s: target depth %r reached by %r at %r" % (debug_prefix, targetdepth, candidate, newdepth)
+                counter = env.redraw_counter
+                print "%s (%d): target depth %r reached by %r at %r" % \
+                      (debug_prefix, counter, targetdepth, candidate, newdepth)
+                if newdepth > targetdepth:
+                    print "  (too deep by %r, but fudge factor is %r)" % \
+                          (newdepth - targetdepth, fudge)
+                elif newdepth < targetdepth:
+                    print "  (in fact, object is nearer than targetdepth by %r)" % \
+                          (targetdepth - newdepth,)
+                pass
             return candidate
                 # caller should not call us again without clearing depth buffer,
-                # otherwise we'll keep returning every object even if its true depth is too high
+                # otherwise we'll keep returning every object even if its true
+                # depth is too high
         if debug_prefix:
-            print "%s: target depth %r NOT reached by %r at %r" % (debug_prefix, targetdepth, candidate, newdepth)
+            counter = env.redraw_counter
+            print "%s (%d): target depth %r NOT reached by %r at %r" % \
+                  (debug_prefix, counter, targetdepth, candidate, newdepth)
+            print "  (too deep by %r, but fudge factor is only %r)" % \
+                  (newdepth - targetdepth, fudge)
         return None
 
     pass
