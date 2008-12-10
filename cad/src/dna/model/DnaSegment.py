@@ -178,19 +178,19 @@ class DnaSegment(DnaStrandOrSegment):
         Overrides superclass method. For a Dnasegment , as of 2008-04-09,
         the default implementation is that deleting a segment will delete 
         the segment along with its logical contents (see bug 2749).
-        It is tempting to call self.kill_with_contents , BUT DON'T CALL IT HERE!
-        ...as kill_with_contents  is used elsewhere (before bug 2749 NFR was
-        suggested and it calls self.kill() at the end. So that will create 
-        infinite recursions. 
-        @TODO: code cleanup/ refactoring to resolve kill_with_content issue
         """
+        # It is tempting to call self.kill_with_contents , BUT DON'T CALL IT HERE!
+        # ...as kill_with_contents  is used elsewhere (before bug 2749 NFR was
+        # suggested and it calls self.kill() at the end. So that will create 
+        # infinite recursions. 
+        ### TODO: code cleanup/ refactoring to resolve kill_with_content issue
         
         #The following block is copied over from self.kill_with_contents()
         #It implements behavior suggested in bug 2749 (deleting a segment will 
         #delete the segment along with its logical contents )
         #See method docsting above on why we shouldn't call that method instead
-        for member in self.members:            
-            if isinstance(member, DnaAxisChunk):                
+        for member in self.members:
+            if isinstance(member, DnaAxisChunk):          
                 ladder = member.ladder
                 try:
                     #See a note in dna_model.kill_strand_chunks. Should we 
