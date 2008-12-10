@@ -3219,10 +3219,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             #   will happen before we need it again)
             if self.bbox.data:
                 self.bbox.data += offset
-            else:
-                self.bbox.data = offset
             
-
         # Now, do the move. Note that this might destructively modify the object
         # self.basecenter rather than replacing it with a new one.
         self.basecenter += offset
