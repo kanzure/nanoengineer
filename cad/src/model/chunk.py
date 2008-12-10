@@ -3217,7 +3217,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # bbox already present -- moving it is faster than recomputing it
             #e (though it might be faster to just delete it, if many moves
             #   will happen before we need it again)
-            self.bbox.data += offset
+            if self.bbox.data:
+                self.bbox.data += offset
+            else:
+                self.bbox.data = offset
             
 
         # Now, do the move. Note that this might destructively modify the object

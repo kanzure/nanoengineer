@@ -225,7 +225,7 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
 
         #self.addAminoAcid(0)
     
-    def addAminoAcid(self, index):
+    def addAminoAcid_OBSOLETE(self, index):
         """
         Adds a new amino acid to the peptide molecule.        
         """
@@ -343,7 +343,13 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         """
         self.psi = self.psiAngleField.value()
 
-    def _setAminoAcidType(self, aaTypeIndex):
+    def _setAminoAcidType(self, index):
+        """
+        Sets the current amino acid type to I{index}.
+        """
+        self.current_amino_acid = index
+        
+    def _setAminoAcidType_OBSOLETE(self, aaTypeIndex):
         """
         Adds a new amino acid to the peptide molecule.
         """
