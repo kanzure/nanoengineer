@@ -61,7 +61,14 @@ class testmode_GM(_superclass_GM):
     # class constants for GraphicsMode
 
     ## check_target_depth_fudge_factor = 0.0001 # same as GLPane, tho it caused a demo_drag bug 070115 -- try lower val sometime ###e
-    check_target_depth_fudge_factor = 0.00001 # this gives us another 10x safety factor in demo_drag [070116]
+    if 0:
+        check_target_depth_fudge_factor = 0.00001 # (in 'if 0'?)
+            # this gives us another 10x safety factor in demo_drag [070116]
+        # Unfortunately, this change helps *cause* a bug in which highlighting
+        # "flickers" (works only on alternate frames) whenever renderText is
+        # used (e.g. by View -> Rulers) in testmode. So I'm disabling it now.
+        # For more info see the related change in exprs/test.py.
+        # [bruce 081211]
 
     # unclassified (Command vs GraphicsMode) [guessing for GraphicsMode -- bruce 080825]
     

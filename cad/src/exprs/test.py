@@ -2023,11 +2023,24 @@ def drawtest1_innards(glpane):
     entry point from ../testdraw.py (called once per mode.Draw call)
     """
     graphicsMode = glpane.graphicsMode # assume this is always testmode's graphicsMode
-    _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode)
-        #061218 kluge (multiple places, some in cad/src 
-        #e.g. SelectAtoms_GraphicsMode/SelectChunks_GraphicsMode);
-        # fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
-        # then click again, could falsely click the same checkbox twice.
+
+    if 0:
+        _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode) # (in 'if 0'?)
+        # note, bruce 061218, clarified 081211: use of UNKNOWN_SELOBJ is a KLUGE
+        # (multiple places, some in cad/src, e.g. SelectAtoms_GraphicsMode /
+        #  SelectChunks_GraphicsMode); it fixes a "highlight sync bug" in which
+        # click on checkbox, then rapid motion away from it, then click again,
+        # could falsely click the same checkbox twice.
+        #
+        # update: Unfortunately, UNKNOWN_SELOBJ also helps *cause* a bug
+        # in which highlighting "flickers" (works only on alternate frames)
+        # whenever renderText is used (e.g. by View -> Rulers) in testmode.
+        # That bug is not yet understood, but it can be fixed by changing this
+        # and the assignment of check_target_depth_fudge_factor in testmode,
+        # and it may relate to a similar bug for Russ even when renderText
+        # is not used. So I am changing those things now to fix it,
+        # even though it may reactivate the older bug mentioned above.
+        # [bruce 081211]
     
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
         #e it has: place to store transient state, [nim] ref to model state
