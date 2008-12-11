@@ -2193,9 +2193,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
                     # our main display list is still valid -- use it
                     # Russ 081128: Switch from draw_dl() to draw() with selection arg.
-                    self.displist.draw(selected=self.picked)
+                    self.displist.draw(selected = self.picked)
                     for extra_displist in self.extra_displists.itervalues():
                         # [bruce 080604 new feature]
+                        # note: similar code in else clause, differs re wantlist
                         extra_displist.draw_but_first_recompile_if_needed(glpane, selected = self.picked)
                         # todo: pass wantlist? yes in theory, but not urgent.
                         continue
@@ -2265,8 +2266,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         
                     pass # end of the case where our "main display list (and all extra lists) needs to be remade"
 
+                # REVIEW: is it ok that self.glname is exposed for the following
+                # renderOverlayText drawing? Guess: yes, even though it means mouseover
+                # of the text will cause a redraw, and access to chunk context menu.
+                # If it turns out that that redraw also visually highlights the chunk,
+                # we might reconsider, but even that might be ok.
+                # [bruce 081211 comments]
                 if (self.chunkHasOverlayText and self.showOverlayText):
                     self.renderOverlayText(glpane)
+                
                 #@@ninad 070219 disabling the following--
                 #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
 
@@ -2293,7 +2301,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
             glPopMatrix()
 
-            glPopName()
+            glPopName() # pops self.glname
 
             pass # end of 'if is_chunk_visible:'
 

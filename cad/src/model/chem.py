@@ -1624,8 +1624,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         the molecule or glpane, but a molecule's color (passed as col)
         overrides the atom's element-dependent color.
 
-        Also draws picked-atom wireframe, but doesn't draw any bonds.
-        [Caller must draw bonds separately.]
+        Also draws picked-atom wireframe.
+
+        @note: this method doesn't draw any bonds -- caller must draw bonds
+        separately. (Unlike self.draw_in_abs_coords, which *does* draw self's
+        bond when self is a bondpoint.)
         
         @return: the display mode we used (whether self's or inherited),
                  or will use (if our drawing is handled by
@@ -1646,12 +1649,21 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # review: future: should we always compute _draw_atom_style here,
         # just once, so we can avoid calling it multiple times inside
         # various methods we call?
-
+        
         if special_drawing_handler and (
             self._draw_atom_style(special_drawing_handler = special_drawing_handler) ==
             'special_drawing_handler'
            ):
             # defer all drawing of self to special_drawing_handler [bruce 080605]
+            # REVIEW: it seems wrong that if self is a bondpoint, we're not
+            # deferring its open bond here, even though that uses our glname
+            # and gets drawn by self.draw_in_abs_coords. But disabling this 'if'
+            # statement doesn't fix bug 2945 or cause any obvious bugs.
+            # (Unless it causes the 5' arrowhead to sometimes not be drawn
+            #  even though its bond is drawn, as an update bug when entering
+            #  Join Strands -- I saw this once, but not sure if it's repeatable
+            #  or what the real cause is, and related update bugs seem common.)
+            # [bruce 081211 comment]
             def func(special_drawing_prefs, args = (glpane, dispdef, col, level)):
                 self.draw(*args, **dict(special_drawing_prefs = special_drawing_prefs))
             special_drawing_handler.draw_by_calling_with_prefsvalues(
@@ -2289,10 +2301,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
            This is only called for special purposes related to mouseover-highlighting,
         and should be renamed to reflect that, since its behavior can and should be specialized
         for that use. (E.g. it doesn't happen inside display lists; and it need not use glName at all.)
-           In this case (Atom) [bruce 050708 new feature], this method (unlike the main draw method) will also
-        draw self's bond, provided self is a singlet with a bond which gets drawn, , so that for an "open bond"
-        it draws the entire thing (bond plus the "open end"). Corresponding to this, the bond will borrow the glname
-        of self whenever it draws itself (with any method). (This only works because bonds have at most one singlet.)
+           In this case (Atom), this method (unlike the main draw method) will also
+        draw self's bond, provided self is a singlet with a bond which gets drawn, so that for an "open bond"
+        it draws the entire thing (bond plus bondpoint). In order for this to work,
+        the bond must (and does, in current code) borrow the glname
+        of self whenever it draws itself (with any method).
+        (This is only possible because bonds have at most one bondpoint.)
         """
         if self.__killed:
             return # I hope this is always ok...
