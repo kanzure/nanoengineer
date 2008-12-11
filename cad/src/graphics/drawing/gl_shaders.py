@@ -262,9 +262,10 @@ class GLSphereShaderObject(object):
         # Russ 081208: Consider caching the glpane pointer.  GLPane_minimal
         # inherits from QGLWidget, which includes the OpenGL graphics context.
         # Currently we share 'display list context' and related information
-        # across two OpenGL contexts, the main GLPane and the ThumbView used to
-        # select atom types.  In the future it may be more complicated and we
-        # may need to be more specific about what's in particular contexts then.
+        # across two kinds of OpenGL contexts, the main GLPane and the
+        # ThumbViews used to select atom types, show clipboard parts, and maybe
+        # more.  In the future it may be more complicated.  Then we may need to
+        # be more specific about accounting for what's in particular contexts.
 
         # XXX Hook in full NE1 lighting scheme and material settings.
         # Material is [ambient, diffuse, specular, shininess].
