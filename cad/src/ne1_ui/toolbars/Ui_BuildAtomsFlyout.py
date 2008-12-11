@@ -215,37 +215,37 @@ class BuildAtomsFlyout(Ui_AbstractFlyout):
         self.bondToolsActionGroup.setExclusive(True)
                 
         self.bond1Action = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
+            NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond1Action.setText("Single")
         self.bond1Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/SingleBond.png"))
         self.bond1Action.setObjectName('ACTION_SINGLE_BOND_TOOL')
             
         self.bond2Action = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
+            NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond2Action.setText("Double")
         self.bond2Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/DoubleBond.png"))
         self.bond2Action.setObjectName('ACTION_DOUBLE_BOND_TOOL')
         
         self.bond3Action = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
+            NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bond3Action.setText("Triple")
         self.bond3Action.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/TripleBond.png"))
         self.bond3Action.setObjectName('ACTION_TRIPLE_BOND_TOOL')
         
         self.bondaAction = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
+            NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bondaAction.setText("Aromatic")
         self.bondaAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/AromaticBond.png"))
         self.bondaAction.setObjectName('ACTION_AROMATIC_BOND_TOOL')
         
         self.bondgAction = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
+            NE1_QWidgetAction(parentWidget, win = self.win)  
         self.bondgAction.setText("Graphitic")
         self.bondgAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/GraphiticBond.png"))
         self.bondgAction.setObjectName('ACTION_GRAPHITIC_BOND_TOOL')
         
         self.cutBondsAction = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)  
+            NE1_QWidgetAction(parentWidget, win = self.win)  
         self.cutBondsAction.setText("Cut Bonds")
         self.cutBondsAction.setIcon(geticon("ui/actions/Command Toolbar/BuildAtoms/CutBonds.png"))
         self.cutBondsAction.setObjectName('ACTION_DELETE_BOND_TOOL')
