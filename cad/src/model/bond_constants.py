@@ -333,12 +333,19 @@ def _compute_bond_params(atomtype1, atomtype2, v6): #bruce 080405 revised this
     assert eltnum1 or eltnum2, "can't bond bondpoints to each other"
     if eltnum1 == 0 or eltnum2 == 0:
         # one of them is Singlet (bondpoint); getEquilibriumDistanceForBond
-        # doesn't know about those, so work around this by using half the
-        # distance for a bond from the non-Singlet atomtype to itself
-        eltnum = eltnum1 or eltnum2
-        nicelen = _safely_call_getEquilibriumDistanceForBond( eltnum, eltnum, ltr)
-        if nicelen:
-            nicelen = nicelen / 2.0
+        # doesn't know about those, so work around this somehow
+        nicelen = None
+        if atomtype1.element.pam or atomtype2.element.pam:
+            # in this case we prefer the native formula (see if this fixes bug 2944) [bruce 081210]
+            nicelen = rcovsum
+        if nicelen is None:
+            # use half the distance for a bond from the non-Singlet atomtype to itself
+            eltnum = eltnum1 or eltnum2
+            nicelen = _safely_call_getEquilibriumDistanceForBond( eltnum, eltnum, ltr)
+            if nicelen:
+                nicelen = nicelen / 2.0
+            pass
+        pass
     else:
         nicelen = _safely_call_getEquilibriumDistanceForBond( eltnum1, eltnum2, ltr)
     if nicelen is None:
