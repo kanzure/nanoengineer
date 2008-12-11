@@ -562,8 +562,9 @@ class ColorSorter:
             name = ColorSorter._gl_name_stack[-1]
             if name:
                 glPushName(name)
-            else:
-                print "bug_1: attempt to push non-glname", name
+            ## Don't check in immediate drawing, e.g. preDraw_glselect_dict.
+            ## else:
+            ##   print "bug_1: attempt to push non-glname", name
 
             #Apply appropriate opacity for the object if it is specified
             #in the 'color' param. (Also do necessary things such as 
