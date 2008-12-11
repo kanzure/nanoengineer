@@ -9,6 +9,8 @@ bruce 080913 split this out of class GLPane
 """
 
 TEST_DRAWING = False # True  ## Debug/test switch.  Never check in a True value.
+    # Also can be changed at runtime by external code.
+
 if TEST_DRAWING:
     from prototype.test_drawing import test_drawing
     pass
@@ -130,11 +132,18 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         Also (first) call self._call_whatever_waits_for_gl_context_current()
         if that would be safe.
-        """  
+        """
         if TEST_DRAWING:  # See prototype/test_drawing.py
             from prototype.test_drawing import test_drawing, USE_GRAPHICSMODE_DRAW
                 # intentionally redundant with toplevel import [bruce 080930]
-            if USE_GRAPHICSMODE_DRAW:  # Init and continue on if this is set.
+            if USE_GRAPHICSMODE_DRAW:
+                # Init and continue on, assuming that test_Draw will be called
+                # separately (in an override of graphicsMode.Draw).
+                
+                # LIKELY BUG: USE_GRAPHICSMODE_DRAW is now a constant
+                # but needs to depend on the testCase or be a separately
+                # settable variable. This might be fixable inside test_drawing.py
+                # since we reimport it each time here. [bruce 081211 comment]
                 test_drawing(self, True)
             else:
                 self.graphicsMode.gm_start_of_paintGL(self)

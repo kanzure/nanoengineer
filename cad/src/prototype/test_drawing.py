@@ -47,6 +47,7 @@ AVAILABLE_TEST_CASES_ITEMS.sort()
 # Used for tests with graphicsMode.Draw() from TestGraphics_GraphicsMode.
 USE_GRAPHICSMODE_DRAW = False # Changed to True in cases that use the following.
 def test_Draw(glpane):
+    # WARNING: this duplicates some code with test_drawing().
     if first_time:
         return    # Do nothing during the initial setup script.
 
@@ -245,7 +246,7 @@ def rainbow(t):
 
 _USE_SHADERS = True # change to false if loading them fails the first time
 
-def test_drawing(glpane, initOnly=False):
+def test_drawing(glpane, initOnly = False):
     """
     When TEST_DRAWING is enabled at the start of
     graphics/widgets/GLPane_rendering_methods.py,
@@ -254,6 +255,8 @@ def test_drawing(glpane, initOnly=False):
     this file is loaded and GLPane.paintGL() calls the
     test_drawing() function instead of the usual body of paintGL().
     """
+    # WARNING: this duplicates some code with test_Draw().
+
     # Load the sphere shaders if needed.
     global _USE_SHADERS
     if _USE_SHADERS:

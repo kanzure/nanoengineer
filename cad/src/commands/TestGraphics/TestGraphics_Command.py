@@ -91,9 +91,12 @@ class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
         """
         return env.prefs[hoverHighlightingColor_prefs_key]
 
-    # Redirect Draw to test_drawing.
     def Draw(self):
-        test_Draw(self.glpane)
+        # Redirect Draw to test_drawing when TEST_DRAWING is set.
+        if GLPane_rendering_methods.TEST_DRAWING:
+            test_Draw(self.glpane)
+        else:
+            _superclass_GM.Draw(self)
         return
 
 # maybe we'll revise superclass and do this:
@@ -192,7 +195,7 @@ class TestGraphics_Command(SelectAtoms_Command):
             # even in a test case that doesn't use shaders, eg testCase 1,
             # an error in setting up shaders makes the test fail;
             # trying again gets past this somehow. Print warning about this:
-            print "\n*** bug workaround: if shader error traceback occurs, disable and reenable to retry ***\n" ###
+            print "\n*** advice about a possible bug: if shader error traceback occurs below, disable and reenable to retry ***\n" ###
         self.glpane.gl_update()
 
     bypass_paintgl = property( _get_bypass_paintgl,
