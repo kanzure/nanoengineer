@@ -311,7 +311,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         
         change_connect(self.buildPeptideAction, 
                        SIGNAL("triggered(bool)"),
-                       self.activateBuildPeptide_EditCommand)
+                       self.activateInsertPeptide_EditCommand)
 
         change_connect(self.editRotamersAction, 
                        SIGNAL("triggered(bool)"),
@@ -401,7 +401,7 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
             action.setChecked(False)
         return
             
-    def activateBuildPeptide_EditCommand(self, isChecked):
+    def activateInsertPeptide_EditCommand(self, isChecked):
         """
         Slot for inserting a peptide action.
         """
@@ -485,7 +485,8 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
             return 
         
         for action in actionGroup.actions():
-            action.setChecked(False)   
+            action.setChecked(False)
+        return
                   
     
     def testRosettaAndUpdateCommandToolbar(self, action):
