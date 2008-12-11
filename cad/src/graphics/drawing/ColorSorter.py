@@ -562,6 +562,8 @@ class ColorSorter:
             name = ColorSorter._gl_name_stack[-1]
             if name:
                 glPushName(name)
+            else:
+                print "bug_1: attempt to push non-glname", name
 
             #Apply appropriate opacity for the object if it is specified
             #in the 'color' param. (Also do necessary things such as 
@@ -967,10 +969,12 @@ class ColorSorter:
 
                     for func, params, name in funcs:
                         objects_drawn += 1
-                        if name != 0:
+                        if name:
                             glPushName(name)
+                        else:
+                            print "bug_2: attempt to push non-glname", name
                         func(params)    # Call the draw worker function.
-                        if name != 0:
+                        if name:
                             glPopName()
                             pass
                         continue
@@ -997,8 +1001,10 @@ class ColorSorter:
 
                         for func, params, name in funcs:
                             objects_drawn += 1
-                            if name != 0:
+                            if name:
                                 glPushName(name)
+                            else:
+                                print "bug_3: attempt to push non-glname", name
                             if func == drawpolycone_multicolor_worker:
                                 # Just to be sure, check if the func
                                 # is drawpolycone_multicolor_worker
@@ -1016,7 +1022,7 @@ class ColorSorter:
                                 drawtriangle_strip_worker((pos_array, 
                                                            normal_array,
                                                            None))
-                            if name != 0:
+                            if name:
                                 glPopName()
                                 pass
                             continue
@@ -1120,10 +1126,12 @@ class ColorSorter:
 
             for func, params, name in funcs:
                 objects_drawn += 1
-                if name != 0:
+                if name:
                     glPushName(name)
+                else:
+                    print "bug_4: attempt to push non-glname", name
                 func(params)            # Call the draw worker function.
-                if name != 0:
+                if name:
                     glPopName()
                     pass
                 continue

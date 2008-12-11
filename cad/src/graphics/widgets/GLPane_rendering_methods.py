@@ -435,7 +435,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         #              -- glRenderMode(GL_SELECT) in effect; reduced projection matrix
         # - 'glselect_glname_color' -- only used if mode requested object picking
         #              -- Only draws shader primitives, and reads the glnames back as pixel colors.
-        #              -- glRenderMode(GL_RENDER) in effect; reduced projection matrix
+        #              -- glRenderMode(GL_RENDER) in effect; reduced projection matrix and viewport (one pixel.)
         # - 'main' -- normal drawing, main coordinate system for model (includes trackball/zoom effect)
         # - 'main/Draw_after_highlighting' -- normal drawing, but after selobj is drawn ###e which coord system?
         # - 'main/draw_text_label' -- ###e
