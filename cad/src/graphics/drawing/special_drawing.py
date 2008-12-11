@@ -44,13 +44,17 @@ class _USE_CURRENT_class(object):
         #  not passed)
         if debug_flags.atom_debug:
             print "fyi: getting %r from %r" % (key, self)
-            # does this ever happen? I just fixed a typo below that would have
-            # caused an exception every time it happens. Conceivably, this
-            # will cause new bugs by making subsequent calling code work
-            # differently than it has been. [bruce 081003]
-            # Yes, this happens 5 or 6 times when entering Build Atoms command.
-            # Not sure why; not sure why exception got silently discarded before;
-            # not sure if enabling this code might make anything slower. ###
+            # This happens 5 or 6 times when entering Build Atoms command;
+            # not sure why, but probably ok.
+            # Historical note: On 081003 I fixed what I thought was a typo below
+            # (mainWindow -> mainwindow), here and in another place below,
+            # and was surprised that this had no effect, and wondered why the
+            # prior presumed exception had been silently discarded. In fact,
+            # it was not a typo -- mainWindow is an alias for mainwindow in env.
+            # So there was no exception and there is no mystery.
+            # (An actual exception here causes, at least, a bug when hovering
+            #  over a 3' strand end arrowhead, in Select Chunks mode.)
+            # [bruce 081211 comment]            
         win = env.mainwindow()
         glpane = win.glpane
         graphicsMode = glpane.graphicsMode
@@ -297,11 +301,12 @@ class SpecialDrawing_UsedValueTrackerAndComparator( UsedValueTrackerAndComparato
         # But note that ThumbView has no graphicsMode attribute!
         if debug_flags.atom_debug:
             print "fyi: getting %r from %r" % (key, self)
-            # does this ever happen? I just fixed a typo below that would have
-            # caused an exception every time it happens. Conceivably, this
-            # will cause new bugs by making subsequent calling code work
-            # differently than it has been. [bruce 081003]
-            # Yes, it happens a lot in Break Strands command.
+            # This happens a lot in Break Strands command, as expected.
+            # See also the historical note about similar code above --
+            # I mistakenly thought this code had an exception, but it didn't.
+            # (An actual exception here causes Break Strands to not display
+            #  strand-ending Ss atoms at all.)
+            # [bruce 081211 comment]
         win = env.mainwindow()
         glpane = win.glpane
         graphicsMode = glpane.graphicsMode

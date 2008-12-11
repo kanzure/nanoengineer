@@ -84,8 +84,9 @@ def mainwindow(): #bruce 051209
     Return the main window object (since there is exactly one, and it
     contains some global variables).  Fails if called before main
     window is inited (and it and assy point to each other).
-    """
 
+    @note: mainWindow (note the capital 'W') is an alias to this function.
+    """
     # sanity check, and makes sure it's not too early for these things
     # to have been set up
     assert not _mainWindow is None, "setMainWindow not called yet"
