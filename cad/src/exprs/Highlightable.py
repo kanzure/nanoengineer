@@ -1120,6 +1120,8 @@ class _UNKNOWN_SELOBJ_class(Selobj_API): #061218
             print "_UNKNOWN_SELOBJ_class returns noop for attr %r" % attr
         setattr(self, attr, noop) # optim
         return noop # fake bound method
+    def __str__(self): #bruce 081211
+        return "UNKNOWN_SELOBJ"
     # we might need methods for other MouseSensor_interface methods:
     # (note, MouseSensor_interface is a proposed rename of part of Selobj_API)
     # draw_in_abs_coords

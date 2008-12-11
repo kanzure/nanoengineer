@@ -872,6 +872,18 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             if glpane.stencilbits >= 1:
                 # optimization: fast way to tell if we're still over the same object as last time
                 # (warning: for now glpane.stencilbits is 1 even when true number of bits is higher; easy to fix when needed)
+                #
+                # WARNING: a side effect of QGLWidget.renderText is to clear the stencil buffer,
+                # which defeats this optimization. This has been true since
+                # at least Qt 4.3.5 (which we use as of now), but was
+                # undocumented until Qt 4.4. [bruce 081211 comment]
+                #
+                # WARNING: tests show this reads from the back buffer,
+                # which is incorrect in principle, but should not matter
+                # as long as this never runs during paintGL.
+                # If we ever need to change this, we can temporarily change
+                # which buffer it reads from (see DynamicTip.py for example
+                # code to do that). [bruce 081211 comment]
                 stencilbit = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
                     # Note: if there's no stencil buffer in this OpenGL context, this gets an invalid operation exception from OpenGL.
                     # And by default there isn't one -- it has to be asked for when the QGLWidget is initialized.
@@ -950,7 +962,9 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             # That does make this code simpler, since graphicsMode is self.
             # [bruce 071010, same comment and change done in both duplications of this code, and in other places]
             if hasattr(self, 'UNKNOWN_SELOBJ'):
+                # TODO: document the motivation for this [bruce 081211 comment]
                 glpane.selobj = getattr(self, 'UNKNOWN_SELOBJ')
+                ## print "\n*** changed glpane.selobj from %r to %r" % (orig_selobj, glpane.selobj)
             glpane.gl_update_for_glselect()
         else:
             # it's known (to be a specific object or None)
