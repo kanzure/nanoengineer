@@ -306,7 +306,20 @@ class GLPane_highlighting_methods(object):
                     obj = self.object_for_glselect_name(names[-1]) #k should always return an obj
                     if obj is None:
                         print "bug: object_for_glselect_name returns None for name %r at end of namestack %r" % (names[-1], names)
-                    self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
+                    else:
+                        self.glselect_dict[id(obj)] = obj
+                            # now these can be rerendered specially, at the end of mode.Draw
+                        ##if 0:
+                        ##    # this debug print was useful for debugging bug 2945,
+                        ##    # and when it happens it's usually a bug,
+                        ##    # but not always:
+                        ##    # - it's predicted to happen for chunk.renderOverlayText
+                        ##    # - and whenever we're using a whole-chunk display style
+                        ##    # so we can't leave it in permanently. [bruce 081211]
+                        ##    if isinstance( obj, self.assy.Chunk ):
+                        ##        print "\n*** namestack topped with a chunk:", obj
+                    pass
+                continue # next hit_record
             #e maybe we should now sort glselect_dict by "hit priority" (for depth-tiebreaking), or at least put selobj first.
             # (or this could be done lower down, where it's used.) [I think we do this now...]
 
