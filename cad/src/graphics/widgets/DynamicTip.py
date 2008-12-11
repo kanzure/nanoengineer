@@ -46,6 +46,8 @@ from geometry.VQT import atom_angle_radians
 
 from platform_dependent.PlatformDependent import fix_plurals
 
+from utilities.Log import redmsg, quote_html
+
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
 
@@ -145,17 +147,32 @@ class DynamicTip: # Mark and Ninad 060817.
                     "       rgba %u, %u, %u, %u" %
                     (us(rgba[0]), us(rgba[1]), us(rgba[2]), us(rgba[3]))
                  )
+            def redifnot(v1, v2, text):
+                if v1 != v2:
+                    return redmsg(text)
+                else:
+                    return text
+            front_pixvals = pixvals(GL_FRONT)
+            back_pixvals = pixvals(GL_BACK)
             tipText = (
-                "env.redraw = %d; selobj = %s<br>" % (redraw_counter, selobj,) +
+                "env.redraw = %d; selobj = %s<br>" % (redraw_counter, quote_html(str(selobj)),) +
                     # note: sometimes selobj is an instance of _UNKNOWN_SELOBJ_class... relates to testmode bug from renderText
                     # (confirmed that renderText zaps stencil and that that alone causes no bug in other graphicsmodes)
                     # TODO: I suspect this can be printed even during rendering... need to print glpane variables
                     # which indicate whether we're doing rendering now, e.g. current_glselect, drawing_phase;
                     # also modkeys (sp?), glselect_wanted
                 "mouse position (xy): %d, %d<br>" % (wX, wY,) +
-                "current read buffer: %s<br>" % whichbuff +
-                "front: " + pixvals(GL_FRONT) + "<br>" +
-                "back:  " + pixvals(GL_BACK)
+                redifnot(whichbuff, "back",
+                         "current read buffer: %s<br>" % whichbuff ) +
+                redifnot(glpane.glselect_wanted, 0,
+                         "glselect_wanted: %s<br>" % (glpane.glselect_wanted,) ) + 
+                redifnot(glpane.current_glselect, False,
+                         "current_glselect: %s<br>" % (glpane.current_glselect,) ) + 
+                redifnot(glpane.drawing_phase, "?",
+                         "drawing_phase: %s<br>" % (glpane.drawing_phase,) ) + 
+                "front: " + front_pixvals + "<br>" +
+                redifnot(back_pixvals, front_pixvals,
+                         "back:  " + back_pixvals )
              )
             global _last_tipText
             if tipText != _last_tipText:
