@@ -278,7 +278,8 @@ def draw_bond(self,
         draw_bond_main(self, glpane, disp, col, detailLevel, highlighted, 
                        povfile, bool_fullBondLength,
                        special_drawing_handler = special_drawing_handler,
-                       special_drawing_prefs = special_drawing_prefs )
+                       special_drawing_prefs = special_drawing_prefs,
+                       glname = glname )
     except:
         glPopName()
         #bruce 060622 moved this before ColorSorter.popName
@@ -300,7 +301,8 @@ def draw_bond_main(self,
                    povfile = None,
                    bool_fullBondLength = False,
                    special_drawing_handler = None,
-                   special_drawing_prefs = USE_CURRENT
+                   special_drawing_prefs = USE_CURRENT,
+                   glname = None # glname arg is a kluge for fixing bug 2945
                   ):
     """
     [private helper function for this module only.]
@@ -424,11 +426,28 @@ def draw_bond_main(self,
                     special_drawing_handler.should_defer(
                       SPECIAL_DRAWING_STRAND_END)):
                     # defer all drawing of self to special_drawing_handler
-                    def func(special_drawing_prefs, args = _our_args):
-                        draw_bond_main(
-                            *args,
-                            **dict(special_drawing_prefs =
-                                   special_drawing_prefs))
+                    def func(special_drawing_prefs, args = _our_args, glname = glname):
+                        # KLUGE to fix bug 2945: make sure we do the same
+                        # pushname/popname as the caller has already done,
+                        # since draw_bond_main doesn't otherwise do it.
+                        # This is the true cause of bug 2945 and this fix is
+                        # logically correct; I only call it a kluge because
+                        # the code needs cleanup, at least in this file
+                        # (so the pushname is only done in one place),
+                        # but preferably by just making sure all open bonds
+                        # are always drawn as part of drawing their bondpoints,
+                        # which would allow a bunch of code which now has to be
+                        # kept in correspondence between bond and atom drawing
+                        # to be centralized and simplified. [bruce 081211]
+                        ColorSorter.pushName(glname) # review: also need glPushName?
+                        try:
+                            draw_bond_main(
+                                *args,
+                                **dict(special_drawing_prefs =
+                                       special_drawing_prefs))
+                        finally:
+                            ColorSorter.popName()
+                        return # from func
                     special_drawing_handler.draw_by_calling_with_prefsvalues(
                         SPECIAL_DRAWING_STRAND_END, func )
                     return
