@@ -1,6 +1,6 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-ModelAndSimulateProtein_PropertyManager.py
+BuildProtein_PropertyManager.py
 
 @author: Urmi
 @version: $Id$
@@ -20,7 +20,7 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
 
 _superclass = EditCommand_PM
-class ModelAndSimulateProtein_PropertyManager(EditCommand_PM):
+class BuildProtein_PropertyManager(EditCommand_PM):
     """
     The ModelAndSimulate_PropertyManager class provides a Property Manager 
     for the B{Build > Protein } command.
@@ -37,9 +37,9 @@ class ModelAndSimulateProtein_PropertyManager(EditCommand_PM):
     @type iconPath: str
     """
 
-    title         =  "Model/Simulate Protein"
+    title         =  "Build Protein"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/BuildProtein/ModelProtein.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildProtein/BuildProtein.png"
 
     def __init__( self, command):
         """

@@ -86,9 +86,9 @@ from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Comm
 from protein.commands.EditResidues.EditResidues_Command import EditResidues_Command
 from protein.commands.CompareProteins.CompareProteins_Command import CompareProteins_Command
 
-from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
-from protein.commands.ModelAndSimulateProtein.ModelProtein_Command import ModelProtein_Command
-from protein.commands.ModelAndSimulateProtein.SimulateProtein_Command import SimulateProtein_Command
+from protein.commands.BuildProtein.BuildProtein_Command import BuildProtein_Command
+from protein.commands.BuildProtein.ModelProtein_Command import ModelProtein_Command
+from protein.commands.BuildProtein.SimulateProtein_Command import SimulateProtein_Command
 from protein.commands.FixedBBProteinSim.FixedBBProteinSim_Command import FixedBBProteinSim_Command
 from protein.commands.BackrubProteinSim.BackrubProteinSim_Command import BackrubProteinSim_Command
 
@@ -176,7 +176,7 @@ def preloaded_command_classes():
         CompareProteins_Command,
         ModelProtein_Command,
         SimulateProtein_Command,
-        ModelAndSimulateProtein_Command,
+        BuildProtein_Command,
         FixedBBProteinSim_Command,
         BackrubProteinSim_Command,
         #Tools in Build Atoms command --

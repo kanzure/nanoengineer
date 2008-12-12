@@ -8,18 +8,32 @@ ModelAndSimulate_EditCommand.py
 
 """
 from command_support.EditCommand import EditCommand
+from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from utilities.Log  import greenmsg
 from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
-from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_PropertyManager import ModelAndSimulateProtein_PropertyManager 
+from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager 
+
+# == GraphicsMode part
+
+_superclass_for_GM = SelectChunks_GraphicsMode
+
+class BuildProteins_GraphicsMode(SelectChunks_GraphicsMode ):
+    """
+    Graphics mode for Edit Proteins command. 
+    """
+    pass
 
 _superclass = EditCommand
-class ModelAndSimulateProtein_Command(EditCommand):
+class BuildProtein_Command(EditCommand):
     """
     ModelAndSimulateProtein_EditCommand provides a convenient way to edit or create 
     or simulate a Protein object
     """
     
-    PM_class = ModelAndSimulateProtein_PropertyManager
+    # class constants
+    GraphicsMode_class = BuildProteins_GraphicsMode
+    
+    PM_class = BuildProtein_PropertyManager
     
     #Flyout Toolbar
     FlyoutToolbar_class = ProteinFlyout

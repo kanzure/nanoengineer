@@ -21,13 +21,13 @@ from utilities.debug import print_compact_stack, print_compact_traceback
 import foundation.env as env
 from utilities.prefs_constants import cursorTextColor_prefs_key
 
-from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
+from protein.commands.BuildProtein.BuildProtein_Command import BuildProtein_Command
 from protein.commands.InsertPeptide.InsertPeptide_PropertyManager import InsertPeptide_PropertyManager
 
-#_superclass = ModelAndSimulateProtein_Command
+#_superclass = BuildProtein_Command
 _superclass = EditCommand
 class InsertPeptide_EditCommand(EditCommand):
-#class InsertPeptide_EditCommand(ModelAndSimulateProtein_Command):
+#class InsertPeptide_EditCommand(BuildProtein_Command):
 
     PM_class = InsertPeptide_PropertyManager
     

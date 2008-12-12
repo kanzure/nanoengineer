@@ -25,7 +25,7 @@ class ProteinDisplayStyle_GraphicsMode(SelectChunks_GraphicsMode ):
 
 _superclass = EditCommand
 class ProteinDisplayStyle_Command(EditCommand): 
-#class ProteinDisplayStyle_Command(ModelAndSimulateProtein_Command): 
+#class ProteinDisplayStyle_Command(BuildProtein_Command): 
     """
     
     """

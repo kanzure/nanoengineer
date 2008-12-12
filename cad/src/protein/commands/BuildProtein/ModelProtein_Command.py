@@ -7,10 +7,10 @@
 
 """
 from utilities.debug import print_compact_stack, print_compact_traceback
-from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
+from protein.commands.BuildProtein.BuildProtein_Command import BuildProtein_Command
 
-_superclass = ModelAndSimulateProtein_Command
-class ModelProtein_Command(ModelAndSimulateProtein_Command):
+_superclass = BuildProtein_Command
+class ModelProtein_Command(BuildProtein_Command):
     """
     Class for modeling proteins
     """
