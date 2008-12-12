@@ -216,7 +216,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
         </p>""")
     
     # Convert all "img" tags in the button's "What's This" text 
-    # info abs paths (from their original rel paths).
+    # into abs paths (from their original rel paths).
     # Partially fixes bug 2943. --mark 2008-12-07
     fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
     
@@ -324,7 +324,7 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
         </p>""")
     
     # Convert all "img" tags in the button's "What's This" text 
-    # info abs paths (from their original rel paths).
+    # into abs paths (from their original rel paths).
     # Partially fixes bug 2943. --mark 2008-12-07
     fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
     return
@@ -450,7 +450,7 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         </p>""")
     
     # Convert all "img" tags in the button's "What's This" text 
-    # info abs paths (from their original rel paths).
+    # into abs paths (from their original rel paths).
     # Partially fixes bug 2943. --mark 2008-12-07
     fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
     
@@ -475,7 +475,7 @@ def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
         </p>""")
     
     # Convert all "img" tags in the button's "What's This" text 
-    # info abs paths (from their original rel paths).
+    # into abs paths (from their original rel paths).
     # Partially fixes bug 2943. --mark 2008-12-07
     fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
     
@@ -567,7 +567,7 @@ def whatsThisTextForCrystalCommandToolbar(commandToolbar):
         </p>""")
     
     # Convert all "img" tags in the button's "What's This" text 
-    # info abs paths (from their original rel paths).
+    # into abs paths (from their original rel paths).
     # Partially fixes bug 2943. --mark 2008-12-07
     fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
     
