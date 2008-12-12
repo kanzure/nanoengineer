@@ -34,10 +34,10 @@ class InsertPeptide_EditCommand(EditCommand):
     
     cmd              =  greenmsg("Insert Peptide: ")
     prefix           =  'Peptide'   # used for gensym
-    cmdname          = 'Build Peptide'
+    cmdname          = 'Insert Peptide'
 
-    commandName      = 'BUILD_PEPTIDE'
-    featurename      = "Build Peptide"
+    commandName      = 'INSERT_PEPTIDE'
+    featurename      = "Insert Peptide"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'

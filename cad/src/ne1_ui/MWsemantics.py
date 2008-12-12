@@ -1637,17 +1637,17 @@ class MWsemantics(QMainWindow,
     
     def insertPeptide(self, isChecked = False):  
         """
-        Invokes the peptide command (BUILD_PEPTIDE)
+        Invokes the peptide command (INSERT_PEPTIDE)
         @param isChecked: If insertPeptide button in the 
                           Protein Flyout toolbar is
                           checked, enter insertPeptideMode. 
         @type isChecked: bool
         """
         
-        self.enterOrExitTemporaryCommand('BUILD_PEPTIDE')     
+        self.enterOrExitTemporaryCommand('INSERT_PEPTIDE')     
         
         currentCommand = self.commandSequencer.currentCommand      
-        if currentCommand.commandName == "BUILD_PEPTIDE":
+        if currentCommand.commandName == "INSERT_PEPTIDE":
             currentCommand.runCommand()
         
     def enterProteinDisplayStyleCommand(self, isChecked = False):
