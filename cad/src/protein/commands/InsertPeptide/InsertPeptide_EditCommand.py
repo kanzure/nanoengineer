@@ -12,7 +12,7 @@ History:
 
 from utilities.Log  import greenmsg
 from command_support.EditCommand import EditCommand
-from protein.commands.BuildPeptide.PeptideGenerator import PeptideGenerator
+from protein.commands.InsertPeptide.PeptideGenerator import PeptideGenerator
 from utilities.constants import gensym
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from protein.temporary_commands.PeptideLineMode import PeptideLine_GM
@@ -23,12 +23,12 @@ import foundation.env as env
 from utilities.prefs_constants import cursorTextColor_prefs_key
 
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
-from protein.commands.BuildPeptide.InsertPeptide_PropertyManager import InsertPeptide_PropertyManager
+from protein.commands.InsertPeptide.InsertPeptide_PropertyManager import InsertPeptide_PropertyManager
 
 #_superclass = ModelAndSimulateProtein_Command
 _superclass = EditCommand
-class Peptide_EditCommand(EditCommand):
-#class Peptide_EditCommand(ModelAndSimulateProtein_Command):
+class InsertPeptide_EditCommand(EditCommand):
+#class InsertPeptide_EditCommand(ModelAndSimulateProtein_Command):
 
     PM_class = InsertPeptide_PropertyManager
     
@@ -60,7 +60,7 @@ class Peptide_EditCommand(EditCommand):
 
     def __init__(self, commandSequencer):
         """
-        Constructor for Peptide_EditCommand
+        Constructor for InsertPeptide_EditCommand
         """
 
         _superclass.__init__(self, commandSequencer)        

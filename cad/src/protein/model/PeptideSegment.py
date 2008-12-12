@@ -172,7 +172,7 @@ class PeptideSegment(Group):
         Sets some properties. These will be used while editing the structure. 
         (but if the structure is read from an mmp file, this won't work. As a 
         fall back, it returns some constant values) 
-        @see: Peptide_EditCommand.createStructure which calls this method. 
+        @see: InsertPeptide_EditCommand.createStructure which calls this method. 
         @see: self.getProps, PeptideSegment_EditCommand.editStructure        
         """
         (_n, _m), _type, _endings, (_endPoint1, _endPoint2) = props

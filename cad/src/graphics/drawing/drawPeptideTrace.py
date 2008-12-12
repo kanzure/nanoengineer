@@ -26,7 +26,7 @@ from geometry.VQT import norm, vlen, V, cross
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 from utilities.constants import blue, gray
 
-from protein.commands.BuildPeptide.PeptideGenerator import get_unit_length
+from protein.commands.InsertPeptide.PeptideGenerator import get_unit_length
 
 def drawPeptideTrace_new(mol):
 

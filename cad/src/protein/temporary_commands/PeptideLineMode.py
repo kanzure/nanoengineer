@@ -16,7 +16,7 @@ from graphics.drawing.drawPeptideTrace import drawPeptideTrace, drawPeptideTrace
 
 from utilities.constants import gray, black, darkred, blue, white
 
-from protein.commands.BuildPeptide.PeptideGenerator import PeptideGenerator, get_unit_length
+from protein.commands.InsertPeptide.PeptideGenerator import PeptideGenerator, get_unit_length
 
 # == GraphicsMode part
 
@@ -24,7 +24,7 @@ class PeptideLine_GM( Line_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of PeptideLineMode.
     @see: L{PeptideLineMode} for more comments. 
-    @see: Peptide_EditCommand where this is used as a GraphicsMode class.
+    @see: InsertPeptide_EditCommand where this is used as a GraphicsMode class.
                   
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 

@@ -125,7 +125,7 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
         to be used to create the  peptide.
         @return: A tuple containing the parameters
         @rtype: tuple
-        @see: L{Peptide_EditCommand._gatherParameters()} where this is used        
+        @see: L{InsertPeptide_EditCommand._gatherParameters()} where this is used        
         """
         return (self.secondary, self.phi, self.psi, self.current_amino_acid)
 

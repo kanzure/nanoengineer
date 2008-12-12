@@ -257,7 +257,7 @@ def _init_command_Atom_Generator():
 def _init_command_Peptide_Generator(): # piotr 080304 
     # This function enables an experimental peptide generator.
     from utilities.debug_prefs import debug_pref, Choice_boolean_True
-    from protein.commands.BuildPeptide.PeptideGenerator import enablePeptideGenerator
+    from protein.commands.InsertPeptide.PeptideGenerator import enablePeptideGenerator
     _peptideGeneratorIsEnabled = \
                                debug_pref("Peptide Generator: enabled?", 
                                           Choice_boolean_True, 

@@ -80,7 +80,7 @@ from dna.commands.JoinStrands.JoinStrands_By_DND_RequestCommand import JoinStran
 from dna.commands.ConvertDna.ConvertDna_Command import ConvertDna_Command
 
 # Protein commands
-from protein.commands.BuildPeptide.Peptide_EditCommand import Peptide_EditCommand
+from protein.commands.InsertPeptide.InsertPeptide_EditCommand import InsertPeptide_EditCommand
 from protein.commands.BuildProtein.BuildProtein_EditCommand import BuildProtein_EditCommand
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
 from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Command
@@ -169,7 +169,7 @@ def preloaded_command_classes():
         TestGraphics_Command,
         QuteMol_Command,
         ColorScheme_Command,
-        Peptide_EditCommand,
+        InsertPeptide_EditCommand,
         BuildProtein_EditCommand,
         ProteinDisplayStyle_Command,
         LightingScheme_Command,

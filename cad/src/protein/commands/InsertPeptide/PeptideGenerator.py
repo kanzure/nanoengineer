@@ -15,7 +15,7 @@ for notes about what's going on here.
 History:
 
 Ninad 2008-07-24: Refactoring / cleanup to port PeptideGenerator to the 
-                 EditCommand API. (see Peptide_EditCommand)
+                 EditCommand API. (see InsertPeptide_EditCommand)
 """
 
 import foundation.env as env

@@ -84,7 +84,7 @@ class PeptideGroup(Group):
         Returns True if there are no Peptide chunks as its members 
         (Returns True even when there are empty PeptideSegment objects inside)
         
-        @see: Peptide_EditCommand._finalizeStructure where this test is used. 
+        @see: InsertPeptide_EditCommand._finalizeStructure where this test is used. 
         """
         #May be for the short term, we can use self.getAtomList()? But that 
         #doesn't ensure if the DnaGroup always has atom of type either 
