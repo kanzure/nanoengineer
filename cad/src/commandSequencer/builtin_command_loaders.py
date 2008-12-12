@@ -81,7 +81,6 @@ from dna.commands.ConvertDna.ConvertDna_Command import ConvertDna_Command
 
 # Protein commands
 from protein.commands.InsertPeptide.InsertPeptide_EditCommand import InsertPeptide_EditCommand
-from protein.commands.BuildProtein.BuildProtein_EditCommand import BuildProtein_EditCommand
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
 from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Command
 from protein.commands.EditResidues.EditResidues_Command import EditResidues_Command
@@ -170,7 +169,6 @@ def preloaded_command_classes():
         QuteMol_Command,
         ColorScheme_Command,
         InsertPeptide_EditCommand,
-        BuildProtein_EditCommand,
         ProteinDisplayStyle_Command,
         LightingScheme_Command,
         EditRotamers_Command,
