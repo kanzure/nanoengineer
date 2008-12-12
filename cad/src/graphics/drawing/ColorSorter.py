@@ -240,7 +240,8 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     # ==
 
     def draw(self, highlighted = False, selected = False,
-             patterning = True, highlight_color = None):
+             patterning = True, highlight_color = None,
+             draw_primitives = True):
         """
         Simple all-in-one interface to CSDL drawing.
 
@@ -263,6 +264,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         @param highlight_color: Option to over-ride the highlight color set in
           the color scheme preferences.
+
+        @param draw_primitives: Whether to draw shader primitives in the CSDL.
+          Defaults to True.
         """
 
         patterned_highlighting = (patterning and
@@ -279,7 +283,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # draw *both* DLs and primitives in a CSDL, e.g. for hover-highlighting.
         # Russ 081208: Skip drawing shader primitives while in GL_SELECT.
         prims_to_do = (drawing_globals.drawing_phase != "glselect" and
-                       self.spheres)
+                       draw_primitives and self.spheres)
         if prims_to_do:
             prims = drawing_globals.spherePrimitives
 
