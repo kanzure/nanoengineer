@@ -155,7 +155,7 @@ def ToolTip_DnaDuplexPropertyManager(propMgr):
 
     propMgr.lineSnapCheckBox.setToolTip("Enable Line Snap")
     
-def ToolTip_PeptideGeneratorPropertyManager(propMgr):
+def ToolTip_InsertPeptide_PropertyManager(propMgr):
     """
     "ToolTip" text for the Peptide Generator Property Manager
     """

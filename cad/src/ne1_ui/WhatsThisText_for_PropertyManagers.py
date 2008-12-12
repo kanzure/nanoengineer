@@ -96,7 +96,7 @@ def whatsThis_MakeCrossoversPropertyManager(propMgr):
     return # End of whatsThis_whatsThis_MakeCrossoversPropertyManager
     
 
-def whatsThis_PeptideGeneratorPropertyManager(propMgr):
+def whatsThis_InsertPeptide_PropertyManager(propMgr):
     """
     "Whats This" text for widgets in the Peptide Generator Property Manager.
     """
@@ -120,7 +120,7 @@ def whatsThis_PeptideGeneratorPropertyManager(propMgr):
         </p>""")
     return
 
-def whatsThis_PeptideGeneratorPropertyManager(propMgr):
+def whatsThis_InsertPeptide_PropertyManager(propMgr):
     """
     "Whats This" text for widgets in the Peptide Generator Property Manager.
     """
@@ -166,7 +166,7 @@ def whatsThis_PeptideGeneratorPropertyManager(propMgr):
         Displays the current amino acid sequence 
         </p>""")
 
-    return # End of whatsThis_PeptideGeneratorPropertyManager
+    return # End of whatsThis_InsertPeptide_PropertyManager
 
 def whatsThis_NanotubeGeneratorPropertyManager(propMgr):
     """

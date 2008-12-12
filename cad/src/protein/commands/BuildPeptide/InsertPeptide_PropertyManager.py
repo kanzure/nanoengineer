@@ -77,9 +77,9 @@ AA_BUTTON_LIST = [
     ( "QToolButton", 19, "Val", "", "Valine",        "V", 4, 3   )
 ]
 _superclass = EditCommand_PM
-class PeptideGeneratorPropertyManager(EditCommand_PM):
+class InsertPeptide_PropertyManager(EditCommand_PM):
     """
-    The PeptideGeneratorPropertyManager class provides a Property Manager 
+    The InsertPeptide_PropertyManager class provides a Property Manager 
     for the "Insert > Peptide" command.
     """
     # The title that appears in the property manager header.
@@ -243,15 +243,15 @@ class PeptideGeneratorPropertyManager(EditCommand_PM):
         """
         What's This text for widgets in this Property Manager.  
         """
-        #from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_PeptideGeneratorPropertyManager
-        #whatsThis_PeptideGeneratorPropertyManager(self)
+        #from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_InsertPeptide_PropertyManager
+        #whatsThis_InsertPeptide_PropertyManager(self)
 
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        #from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_PeptideGeneratorPropertyManager
-        #ToolTip_PeptideGeneratorPropertyManager(self)
+        #from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_InsertPeptide_PropertyManager
+        #ToolTip_InsertPeptide_PropertyManager(self)
         pass
 
     def _aaChiralityChanged(self):

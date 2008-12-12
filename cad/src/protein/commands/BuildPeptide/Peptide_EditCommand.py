@@ -23,14 +23,14 @@ import foundation.env as env
 from utilities.prefs_constants import cursorTextColor_prefs_key
 
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_Command import ModelAndSimulateProtein_Command
-from protein.commands.BuildPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager
+from protein.commands.BuildPeptide.InsertPeptide_PropertyManager import InsertPeptide_PropertyManager
 
 #_superclass = ModelAndSimulateProtein_Command
 _superclass = EditCommand
 class Peptide_EditCommand(EditCommand):
 #class Peptide_EditCommand(ModelAndSimulateProtein_Command):
 
-    PM_class = PeptideGeneratorPropertyManager
+    PM_class = InsertPeptide_PropertyManager
     
     cmd              =  greenmsg("Insert Peptide: ")
     prefix           =  'Peptide'   # used for gensym
