@@ -9,7 +9,7 @@ ModelAndSimulate_EditCommand.py
 """
 from command_support.EditCommand import EditCommand
 from utilities.Log  import greenmsg
-from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
+from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
 from protein.commands.ModelAndSimulateProtein.ModelAndSimulateProtein_PropertyManager import ModelAndSimulateProtein_PropertyManager 
 
 _superclass = EditCommand
@@ -22,7 +22,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
     PM_class = ModelAndSimulateProtein_PropertyManager
     
     #Flyout Toolbar
-    FlyoutToolbar_class = ProteinFlyout_v2
+    FlyoutToolbar_class = ProteinFlyout
     
     cmd              =  greenmsg("Model and simulate protein: ")
     prefix           =  'ProteinGroup'   # used for gensym
@@ -55,7 +55,7 @@ class ModelAndSimulateProtein_Command(EditCommand):
         
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        self.w.buildProteinAction.setChecked(False)  
+        #self.w.buildProteinAction.setChecked(False)  
         return   
     
     def getCurrentActiveTool(self):

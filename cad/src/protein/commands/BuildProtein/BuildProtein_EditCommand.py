@@ -9,8 +9,7 @@ BuildProtein_EditCommand.py
 """
 from command_support.EditCommand import EditCommand
 from utilities.Log  import greenmsg
-from ne1_ui.toolbars.Ui_ProteinFlyout_v2 import ProteinFlyout_v2
-#@@@from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
+from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
 
 from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager
 
@@ -25,9 +24,7 @@ class BuildProtein_EditCommand(EditCommand):
     PM_class = BuildProtein_PropertyManager
     
     #Flyout Toolbar
-    FlyoutToolbar_class = ProteinFlyout_v2
-    #@@@FlyoutToolbar_class = ProteinFlyout
-    
+    FlyoutToolbar_class = ProteinFlyout
     
     cmd              =  greenmsg("Build Protein: ")
     prefix           =  'ProteinGroup'   # used for gensym

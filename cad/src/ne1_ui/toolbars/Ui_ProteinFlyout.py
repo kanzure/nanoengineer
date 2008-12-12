@@ -25,7 +25,7 @@ from utilities.prefs_constants import rosetta_enabled_prefs_key, rosetta_path_pr
 
 _superclass = Ui_AbstractFlyout
 
-class ProteinFlyout_v2(Ui_AbstractFlyout):    
+class ProteinFlyout(Ui_AbstractFlyout):    
  
     def _action_in_controlArea_to_show_this_flyout(self):
         """
