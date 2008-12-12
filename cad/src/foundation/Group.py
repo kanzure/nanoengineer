@@ -1098,13 +1098,12 @@ class Group(NodeWithAtomContents):
         Subclasses can override this; this version is valid for any Group whose .members
         don't need filtering or updating, or augmenting (like PartGroup does as of 050109).
 
-         [Note that it ought to be ok for subclasses to have a set of MT_kids which is
+        [Note that it ought to be ok for subclasses to have a set of MT_kids which is
         not related to their .members, provided callers (tree widgets) never assume node.dad
         corresponds to the parent relation in their own tree of display items. I don't know
         how well the existing caller (modelTree.py) follows this so far. -- bruce 050113
         Update, bruce 080306 -- maybe as of a change today, it does -- we'll see.]
 
-        @see: self.make_modeltree_context_menu()
         @see: self.openable()
         """
         # Historical note: self.members used to be stored in reversed order, but
@@ -1125,26 +1124,17 @@ class Group(NodeWithAtomContents):
 
         return True
 
-    def make_modeltree_context_menu(self):
-        """
-
-        Subclasses may override this method. The default impllementation returns
-        an empty list.
-        """
-        return ()
-
-
     def _raw_MT_kids(self, display_prefs = {}):
         """
         Returns all allowed MT kifs 'raw kids' because this isn't a final list
         This is used by self.MT_kids() to further decide which members to show
         in the MT as subnodes
-        @see: self.make_modeltree_context_menu()
         @see: self.openable()
         """
         # REVIEW: should _raw_MT_kids exist in the Group subclass API?
         # I suspect it is not needed in the API, just internally by a
         # few specific subclasses. [bruce 080331 comment]
+        # TODO: fix typos/unclarities in above docstring
         return list(self.members)
 
     def edit(self):

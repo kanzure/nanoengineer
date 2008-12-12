@@ -535,21 +535,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
 
         res.append(None) # separator
         
-        #Make some model tree context menus that are specific to group
-        #Note that this context menu will appear only when there is exactly one 
-        #group selected. This whole method needs to be refactored. 
-        #One approach is to let a method on the node define its context menu. 
-        #The common things such as hide/unhiding can still be done here. 
-        #The method on the object class can then return the menu it needs. 
-        #the only problem is order of the menu items. For now, a method
-        #on group class is defined that is called below. ('res' simply extends
-        #the list returned by this method) -- Ninad 2008-03-14
-        if len(nodeset) == 1 and nodeset[0].is_group():
-            group_specific_context_menu = nodeset[0].make_modeltree_context_menu()
-            if group_specific_context_menu:
-                res.extend(group_specific_context_menu)
-            
-        # Group command -- only ok for 2 or more subtrees of any Part,
+        # Group command -- only offered for 2 or more subtrees of any Part,
         # or for exactly one clipboard item topnode itself if it's not already a Group.
         # [rules loosened by bruce 050419-050421]
         
@@ -557,9 +543,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
             # note that these nodes are always in the same Part and can't include its topnode
             ok = True
         else:
-            # exactly one node - better be a clipboard item and not a group
+            # exactly one node - ok iff it's a clipboard item and not a group
             node = nodeset[0]
-            ok = (node.dad == self.shelf_node and not node.is_group())
+            ok = (node.dad is self.shelf_node and not node.is_group())
         if not ok:
             res.append(( 'Group', noop, 'disabled' ))
         else:
