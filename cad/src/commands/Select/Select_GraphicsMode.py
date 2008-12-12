@@ -854,15 +854,20 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
         glpane = self.o
 
-        # If animating or ZPRing (zooming/panning/rotating) with the MMB,
-        # do not hover highlight anything. For more info about <is_animating>,
-        #see GLPane.animateToView(). mark 060404.
+        # If animating or zooming/panning/rotating with the MMB,
+        # do not hover highlight anything. For more info about is_animating,
+        # see GLPane.animateToView(). [mark 060404]
         if self.o.is_animating or \
-           (self.o.button == "MMB" and not getattr(self, '_defeat_update_selobj_MMB_specialcase', False)):
+           (self.o.button == "MMB" and not
+            getattr(self, '_defeat_update_selobj_MMB_specialcase', False)):
+
             return
-                # note, returning None violates this method's API (acc'd to docstring), but this apparently never mattered until now,
-                # and it's not obvious how to fix it (probably to be correct requires imitating the conditional set_selobj below),
-                # so instead I'll just disable it in the new case that triggers it, using _defeat_update_selobj_MMB_specialcase.
+                # BUG: returning None violates this method's API (according to
+                # docstring), but this apparently never mattered until now,
+                # and it's not obvious how to fix it (probably to be correct
+                # requires imitating the conditional set_selobj below); so
+                # instead I'll just disable it in the new case that triggers it,
+                # using _defeat_update_selobj_MMB_specialcase.
                 # [bruce 070224]
 
         wX = event.pos().x()
@@ -870,31 +875,46 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         selobj = orig_selobj = glpane.selobj
         if selobj is not None:
             if glpane.stencilbits >= 1:
-                # optimization: fast way to tell if we're still over the same object as last time
-                # (warning: for now glpane.stencilbits is 1 even when true number of bits is higher; easy to fix when needed)
+                # optimization: fast way to tell if we're still over the same
+                # object as last time. (Warning: for now glpane.stencilbits is 1
+                # even when true number of bits is higher; should be easy to fix
+                # when needed.)
                 #
-                # WARNING: a side effect of QGLWidget.renderText is to clear the stencil buffer,
-                # which defeats this optimization. This has been true since
-                # at least Qt 4.3.5 (which we use as of now), but was
-                # undocumented until Qt 4.4. [bruce 081211 comment]
+                # WARNING: a side effect of QGLWidget.renderText is to clear the
+                # stencil buffer, which defeats this optimization. This has been
+                # true since at least Qt 4.3.5 (which we use as of now), but was
+                # undocumented until Qt 4.4. This causes extra redraws whenever
+                # renderText is used when drawing a frame and the mouse
+                # subsequently moves within one highlighted object,
+                # but should not cause an actual bug unless it affects the
+                # occurrence of a bug in other code. [bruce 081211 comment]
                 #
-                # WARNING: tests show this reads from the back buffer,
-                # which is incorrect in principle, but should not matter
-                # as long as this never runs during paintGL.
-                # If we ever need to change this, we can temporarily change
-                # which buffer it reads from (see DynamicTip.py for example
-                # code to do that). [bruce 081211 comment]
+                # Note: double buffering applies only to the color buffer,
+                # not the stencil or depth buffers, which have only one copy.
+                # Therefore, this code would not work properly if run during
+                # paintGL (even if GL_READ_BUFFER was set to GL_FRONT), since
+                # paintGL might be modifying the buffer it reads. The setting
+                # of GL_READ_BUFFER should have no effect on this code.
+                # [bruce 081211 comment, based on Russ report of OpenGL doc]
                 stencilbit = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
-                    # Note: if there's no stencil buffer in this OpenGL context, this gets an invalid operation exception from OpenGL.
-                    # And by default there isn't one -- it has to be asked for when the QGLWidget is initialized.
-                # stencilbit tells whether the highlighted drawing of selobj got drawn at this point on the screen
-                # (due to both the shape of selobj, and to the depth buffer contents when it was drawn)
+                    # Note: if there's no stencil buffer in this OpenGL context,
+                    # this gets an invalid operation exception from OpenGL.
+                    # And by default there isn't one -- it has to be asked for
+                    # when the QGLWidget is initialized.
+                # stencilbit tells whether the highlighted drawing of selobj
+                # got drawn at this point on the screen (due to both the shape
+                # of selobj, and to the depth buffer contents when it was drawn)
+                # but might be 0 even if it was drawn (due to the renderText
+                # effect mentioned above).
             else:
-                stencilbit = 0 # the correct value is "don't know"; 0 is conservative
-                #e might collapse this code if stencilbit not used below;
-                #e and/or might need to record whether we used this conservative value
+                stencilbit = 0
+                    # the correct value is "don't know"; 0 is conservative
+                # maybe todo: collapse this code if stencilbit not used below;
+                # and/or we might need to record whether we used this
+                # conservative value
             if stencilbit:
-                return True # same selobj, no need for gl_update to change highlighting
+                return True
+                    # same selobj, no need for gl_update to change highlighting
         # We get here for no prior selobj,
         # or for a prior selobj that the mouse has moved off of the visible/highlighted part of,
         # or for a prior selobj when we don't know whether the mouse moved off of it or not

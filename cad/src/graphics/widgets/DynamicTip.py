@@ -121,12 +121,22 @@ class DynamicTip: # Mark and Ninad 060817.
 
         if debug:
             # russ 080715: Graphics debug tooltip.
-            # bruce 081208: revised, moved out of _getToolTipText, made debug_pref
+            # bruce 081208/081211: revised, moved out of _getToolTipText,
+            # made debug_pref.
             # note: we don't use glpane.MousePos since it's not reliable --
-            # only some graphicsModes store it, and only in mouse press events
+            # only some graphicsModes store it, and only in mouse press events.
+
+            # Note: double buffering applies only to the color buffer,
+            # not the stencil or depth buffers, which have only one copy.
+            # The setting of GL_READ_BUFFER should have no effect on
+            # glReadPixelsf from those buffers.
+            # [bruce 081211 comment, based on Russ report of OpenGL doc]
+            
             pos = helpEvent.pos()
             wX = pos.x()
             wY = glpane.height - pos.y() #review: off by 1??
+            wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
+            stencil = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
             savebuff = glGetInteger(GL_READ_BUFFER)
             whichbuff = {GL_FRONT:"front", GL_BACK:"back"}.get(savebuff, "unknown")
             redraw_counter = env.redraw_counter
@@ -138,13 +148,10 @@ class DynamicTip: # Mark and Ninad 060817.
                     return b
             def pixvals(buff):
                 glReadBuffer(buff)
-                wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
-                stencil = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
                 gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
                 rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
                 return (
-                    "depth %f, stencil %d<br>" % (wZ, stencil) +
-                    "       rgba %u, %u, %u, %u" %
+                    "rgba %u, %u, %u, %u" %
                     (us(rgba[0]), us(rgba[1]), us(rgba[2]), us(rgba[3]))
                  )
             def redifnot(v1, v2, text):
@@ -154,6 +161,7 @@ class DynamicTip: # Mark and Ninad 060817.
                     return text
             front_pixvals = pixvals(GL_FRONT)
             back_pixvals = pixvals(GL_BACK)
+            glReadBuffer(savebuff)      # restore the saved value
             tipText = (
                 "env.redraw = %d; selobj = %s<br>" % (redraw_counter, quote_html(str(selobj)),) +
                     # note: sometimes selobj is an instance of _UNKNOWN_SELOBJ_class... relates to testmode bug from renderText
@@ -162,6 +170,7 @@ class DynamicTip: # Mark and Ninad 060817.
                     # which indicate whether we're doing rendering now, e.g. current_glselect, drawing_phase;
                     # also modkeys (sp?), glselect_wanted
                 "mouse position (xy): %d, %d<br>" % (wX, wY,) +
+                "depth %f, stencil %d<br>" % (wZ, stencil) +
                 redifnot(whichbuff, "back",
                          "current read buffer: %s<br>" % whichbuff ) +
                 redifnot(glpane.glselect_wanted, 0,
@@ -169,7 +178,7 @@ class DynamicTip: # Mark and Ninad 060817.
                 redifnot(glpane.current_glselect, False,
                          "current_glselect: %s<br>" % (glpane.current_glselect,) ) + 
                 redifnot(glpane.drawing_phase, "?",
-                         "drawing_phase: %s<br>" % (glpane.drawing_phase,) ) + 
+                         "drawing_phase: %s<br>" % (glpane.drawing_phase,) ) +
                 "front: " + front_pixvals + "<br>" +
                 redifnot(back_pixvals, front_pixvals,
                          "back:  " + back_pixvals )
@@ -179,7 +188,6 @@ class DynamicTip: # Mark and Ninad 060817.
                 print
                 print tipText
                 _last_tipText = tipText
-            glReadBuffer(savebuff)      # Put the saved value back.
             pass # use tipText below
 
         else:
