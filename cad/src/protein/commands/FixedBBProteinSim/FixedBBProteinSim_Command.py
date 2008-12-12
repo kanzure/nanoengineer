@@ -10,7 +10,6 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.FixedBBProteinSim.FixedBBProteinSim_PropertyManager import FixedBBProteinSim_PropertyManager
-from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -51,11 +50,7 @@ class FixedBBProteinSim_Command(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'rosetta_fixedbb_design_Action'
-        if MODEL_AND_SIMULATE_PROTEINS:
-            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
-        else:
-            parentCommandName = None
-            
+        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'
         return flyoutActionToCheck, parentCommandName
     
     def keep_empty_group(self, group):

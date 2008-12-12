@@ -16,7 +16,6 @@ from protein.commands.InsertPeptide.PeptideGenerator import PeptideGenerator
 from utilities.constants import gensym
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from protein.temporary_commands.PeptideLineMode import PeptideLine_GM
-from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 from utilities.debug import print_compact_stack, print_compact_traceback
 
 import foundation.env as env
@@ -40,10 +39,7 @@ class InsertPeptide_EditCommand(EditCommand):
     featurename      = "Insert Peptide"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
-    command_parent = 'BUILD_PROTEIN'
-    
-    if MODEL_AND_SIMULATE_PROTEINS:
-        command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
 
     create_name_from_prefix  =  True 
     
@@ -102,11 +98,7 @@ class InsertPeptide_EditCommand(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'buildPeptideAction'
-        if MODEL_AND_SIMULATE_PROTEINS:
-            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
-        else:
-            parentCommandName = None
-            
+        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'
         return flyoutActionToCheck, parentCommandName
                 
     def keep_empty_group(self, group):

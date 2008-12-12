@@ -207,11 +207,8 @@ class EditResidues_PropertyManager(Command_PropertyManager):
         #"current protein" in this mode.
         self.current_protein = ""
         
-        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
-        if MODEL_AND_SIMULATE_PROTEINS:
-            previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
-        else:    
-            previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
+        previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        
         if  previousCommand:
             #Urmi 20080728: get the protein currently selected in the combo box
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()

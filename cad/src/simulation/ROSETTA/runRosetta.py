@@ -1107,11 +1107,8 @@ class RosettaRunner:
         @type outProtein: L{Chunk}
         """
         
-        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
-        if MODEL_AND_SIMULATE_PROTEINS:
-            command = self.win.commandSequencer.find_innermost_command_named('MODEL_AND_SIMULATE_PROTEIN')
-        else:    
-            command = self.win.commandSequencer.find_innermost_command_named('BUILD_PROTEIN')
+        command = self.win.commandSequencer.find_innermost_command_named('MODEL_AND_SIMULATE_PROTEIN')
+
         if command:
             command.propMgr.structureComboBox.addItem(outProtein.name)
             command.propMgr.protein_name_list.append(outProtein.name)

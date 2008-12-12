@@ -625,13 +625,7 @@ class Protein:
                the actual model. Maybe we'll take care of that when we move to the
                new model
         """ 
-        from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
-        if MODEL_AND_SIMULATE_PROTEINS:
-            win.commandSequencer.userEnterCommand('MODEL_AND_SIMULATE_PROTEIN')
-        else:    
-            win.commandSequencer.userEnterCommand('BUILD_PROTEIN')
-            assert win.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
-            win.commandSequencer.currentCommand.runCommand()
+        win.commandSequencer.userEnterCommand('MODEL_AND_SIMULATE_PROTEIN')
         return
        
     pass # end of class Protein

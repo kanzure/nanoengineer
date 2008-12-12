@@ -471,12 +471,6 @@ ENABLE_PROTEINS = debug_pref("Enable Proteins? (next session)",
                              prefs_key = "v1.2/Enable Proteins?"
                             )
 
-MODEL_AND_SIMULATE_PROTEINS = debug_pref("Enable model and simulate protein flyout? (next session)",
-    Choice_boolean_True,
-    non_debug = True,
-    prefs_key = "v1.2/Enable model and simulate protein flyout?"
- )
-
 # ==
 
 def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13

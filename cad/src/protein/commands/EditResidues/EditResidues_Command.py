@@ -10,7 +10,6 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.EditResidues.EditResidues_PropertyManager import EditResidues_PropertyManager
-from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -37,9 +36,7 @@ class EditResidues_Command(EditCommand):
     featurename = "Edit Residues"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
-    command_parent = 'BUILD_PROTEIN'
-    if MODEL_AND_SIMULATE_PROTEINS:
-        command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
 
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
@@ -52,11 +49,7 @@ class EditResidues_Command(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'editResiduesAction'
-        if MODEL_AND_SIMULATE_PROTEINS:
-            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
-        else:
-            parentCommandName = None
-            
+        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'
         return flyoutActionToCheck, parentCommandName
      
         

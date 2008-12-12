@@ -10,7 +10,6 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from protein.commands.EditRotamers.EditRotamers_PropertyManager import EditRotamers_PropertyManager
-from utilities.GlobalPreferences import MODEL_AND_SIMULATE_PROTEINS
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
@@ -37,10 +36,7 @@ class EditRotamers_Command(EditCommand):
     featurename = "Edit Rotamers"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
-    command_parent = 'BUILD_PROTEIN'
-    
-    if MODEL_AND_SIMULATE_PROTEINS:
-        command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
             
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
@@ -53,10 +49,8 @@ class EditRotamers_Command(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'editRotamersAction'
-        if MODEL_AND_SIMULATE_PROTEINS:
-            parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
-        else:
-            parentCommandName = None
+        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
+        
         return flyoutActionToCheck, parentCommandName
     
     def keep_empty_group(self, group):
