@@ -41,9 +41,6 @@ class NanotubeGroup(Group):
 
     # Open/closed state of the Dna Group in the Model Tree --
     # default closed.
-    # OBSOLETE COMMENT: Note: this is ignored by the Model Tree code
-    # (since we inherit from Block), but whether it affects any other code
-    # (e.g. a PM display widget) is not yet decided.
     open = False
 
     autodelete_when_empty = True

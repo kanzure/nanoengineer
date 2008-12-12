@@ -79,7 +79,6 @@ from files.mmp.mmpformat_versions import parse_mmpformat, mmp_date_newer
 from dna.model.DnaGroup import DnaGroup
 from dna.model.DnaSegment import DnaSegment
 from dna.model.DnaStrand import DnaStrand
-##from dna.model.Block import Block
 from cnt.model.NanotubeGroup import NanotubeGroup
 from cnt.model.NanotubeSegment import NanotubeSegment
 
@@ -131,7 +130,10 @@ _GROUP_CLASSIFICATIONS = {
     'DnaGroup'         : DnaGroup,
     'DnaSegment'       : DnaSegment,
     'DnaStrand'        : DnaStrand,
-    'Block'            : Group, #bruce 080331 changed this from Block -> Group, since Block is deprecated
+    'Block'            : Group,
+        #bruce 080331 changed this from Block -> Group, since Block is
+        # deprecated; it should remain in this list indefinitely so reading
+        # old mmp files continues to work.
     'NanotubeGroup'    : NanotubeGroup,
     'NanotubeSegment'  : NanotubeSegment,
  }

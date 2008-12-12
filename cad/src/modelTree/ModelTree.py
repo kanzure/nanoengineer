@@ -560,11 +560,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         if len(nodeset) == 1 and nodeset[0].permits_ungrouping():
             # (this implies it's a group, or enough like one)
             node = nodeset[0]
-            if node.is_block(): #bruce 080207; NEEDS REVIEW due to recent Block changes, 080318
-                # then we probably should not be here... but in case we are:
-                text = "Ungroup %s (unsupported)" % (node.__class__.__name__.split('.')[-1],)
-                    # todo: put that into Node.classname_for_ModelTree()
-            elif not node.members: #bruce 080207
+            if not node.members: #bruce 080207
                 # [REVIEW: use MT_kids? same issue in many places in this file, as of 080306]
                 text = "Remove empty Group"
             elif node.dad == self.shelf_node and len(node.members) > 1:
@@ -576,7 +572,13 @@ class modelTree(modelTreeGui.Ne1Model_api):
             res.append(( text, self.cm_ungroup ))
             offered_ungroup = True
         else:
-            res.append(( 'Ungroup', noop, 'disabled' ))
+            # review: is this clear enough for nodes that are internally Groups
+            # but for which permits_ungrouping is false, or would some other
+            # text be better, or would leaving this item out be better?
+            # An old suggestion of "Ungroup (unsupported)" seems bad now,
+            # since it might sound like "a desired feature that's nim".
+            # [bruce 081212 comment]
+            res.append(( "Ungroup", noop, 'disabled' ))
 
         # Remove all %d empty Groups (which permit ungrouping) [bruce 080207]
         count_holder = [0]
@@ -584,7 +586,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             if not group.members and group.permits_ungrouping():
                 count_holder[0] += 1 # UnboundLocalError when this was count += 1
         for node in nodeset:
-            node.apply_to_groups(func) # note: this treats Blocks as leaves ### NEEDS REVIEW after Block changes circa 080318
+            node.apply_to_groups(func) # note: this descends into groups that don't permit ungrouping, e.g. DnaStrand
         count = count_holder[0]
         if count == 1 and len(nodeset) == 1 and not nodeset[0].members:
             # this is about the single top selected node,
@@ -1002,7 +1004,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             if not group.members and group.permits_ungrouping():
                 empties.append(group)
         for node in nodeset:
-            node.apply_to_groups(func) # note: this treats Blocks as leaves ### NEEDS REVIEW after Block changes circa 080318
+            node.apply_to_groups(func)
         for group in empties:
             group.kill()
         msg = fix_plurals("removed %d empty Group(s)" % len(empties))

@@ -145,7 +145,6 @@ class Assembly( StateMixin, Assembly_API):
     
     from foundation.Utility import Node
     
-    from dna.model.Block  import Block
     from dna.model.DnaGroup   import DnaGroup
     from dna.model.DnaSegment import DnaSegment
     from dna.model.DnaStrand  import DnaStrand

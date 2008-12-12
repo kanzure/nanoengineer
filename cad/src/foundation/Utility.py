@@ -495,20 +495,6 @@ class Node( StateMixin):
         """
         return False
 
-    def is_block(self): #bruce 080107
-        """
-        Is self a Block, i.e. a kind of Group whose kids should not be shown
-        in the Model Tree unless they are Blocks?
-
-        @warning: this method and its uses have not been reviewed since
-                  class Block was deprecated (shortly before 080331).
-
-        [This is meant to be overridden only in Block, a subclass of Group,
-         and thereby in its subclasses, such as DnaGroup.]
-        """
-        return False
-
-
     def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 050421, part of fixing bug 406
         """
         This is called when reading an mmp file, for each "info leaf" record
@@ -1325,9 +1311,13 @@ class Node( StateMixin):
 
     def apply_to_groups(self, fn): #bruce 080207 renamed apply2tree -> apply_to_groups
         """
-        Like apply2all, but only applies fn to all Group nodes (at or under self)
-        (not including Blocks).
-        [overridden in Group and Block]
+        Like apply2all, but only applies fn to all Group nodes (at or under self).
+
+        @note: this *does* apply fn to leaf-like Groups such as DnaStrand,
+               and to any groups inside them (even though they are not
+               user-visible in the model tree).
+        
+        [overridden in Group]
         """
         pass
 

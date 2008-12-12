@@ -275,11 +275,9 @@ class PeptideSegment(Group):
         [overridden from Group]
         """
         return self._show_all_kids_for_debug() # normally False
-            # note: modelTree should modify menu text for Ungroup to say "(unsupported)",
-            # but this is broken as of before 080318 since it uses a self.is_block() test.
 
     def _show_all_kids_for_debug(self):
-         #bruce 080207 in deprecated class Block 080318
+        #bruce 080207 in deprecated class Block 080318
         classname_short = self.__class__.__name__.split('.')[-1]
         debug_pref_name = "Model Tree: show content of %s?" % classname_short
             # typical examples (for text searches to find them here):

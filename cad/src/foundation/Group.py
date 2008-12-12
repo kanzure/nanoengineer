@@ -852,6 +852,11 @@ class Group(NodeWithAtomContents):
     def apply_to_groups(self, fn): #bruce 080207 renamed apply2tree -> apply_to_groups
         """
         Like apply2all, but only applies fn to all Group nodes (at or under self).
+
+        @note: this *does* apply fn to leaf-like Groups such as DnaStrand,
+               and to any groups inside them (even though they are not
+               user-visible in the model tree).
+        
         [overrides Node implem]
         """
         fn(self)
@@ -944,8 +949,8 @@ class Group(NodeWithAtomContents):
         """
         #doc; overrides Node method
         """
-        #bruce 050526, revised 080314
-        # Note: the subclasses of Group include Block (deprecated),
+        #bruce 050526, revised 080314, 081212
+        # Note: the subclasses of Group include
         # DnaGroup, DnaStrand and DnaSegment (which are effectively new kinds
         # of model objects), and PartGroup and ClipboardShelfGroup (which
         # are needed in special places/roles in the MT to give them special
