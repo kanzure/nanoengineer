@@ -187,6 +187,9 @@ zoomInAboutScreenCenter_prefs_key  = 'A10/Mouse Wheel Zoom In To Screen Center'
 zoomOutAboutScreenCenter_prefs_key = 'A10/Mouse Wheel Zoom Out To Screen Center'
 mouseWheelTimeoutInterval_prefs_key = 'V110/Mouse Wheel Event Timeout Interval'
 
+# Pan settings
+panArrowKeysDirection_prefs_key = 'V1.2.0.0/Pan Arrow Keys Direction'
+
 
 #GLpane scale preferences
 #GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece 
@@ -683,6 +686,9 @@ prefs_table = (
     ('', 'int', zoomInAboutScreenCenter_prefs_key,  0),
     ('', 'int', zoomOutAboutScreenCenter_prefs_key, 1),
     ('', 'float', mouseWheelTimeoutInterval_prefs_key, 0.5),
+    
+    # Pan settings prefs. Mark 2008-12-12
+    ('', 'int', panArrowKeysDirection_prefs_key, 1),
 
     # Ruler prefs. Mark 2008-02-12
     # Ruler constants defined in Constants_Rulers.py. 

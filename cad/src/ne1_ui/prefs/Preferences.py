@@ -116,6 +116,9 @@ from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
 from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
 from utilities.prefs_constants import mouseWheelTimeoutInterval_prefs_key
 
+# Pan settings
+from utilities.prefs_constants import panArrowKeysDirection_prefs_key
+
 # DNA prefs
 from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
 from utilities.prefs_constants import bdnaRise_prefs_key
@@ -727,12 +730,22 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             env.prefs[zoomOutAboutScreenCenter_prefs_key])
 
         self.hhTimeoutIntervalDoubleSpinBox.setValue(env.prefs[mouseWheelTimeoutInterval_prefs_key])
+        
+        # Pan settings
+        direction = env.prefs[panArrowKeysDirection_prefs_key]
+        #  1 = View direcgion (default)
+        # -1 = Camera direction
+        if direction == 1:
+            self.panArrowKeysDirectionComboBox.setCurrentIndex(0)
+        else:
+            self.panArrowKeysDirectionComboBox.setCurrentIndex(1)
 
         # Connections for "Mouse controls" page.
         self.connect(self.mouseWheelDirectionComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_direction)
         self.connect(self.mouseWheelZoomInPointComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_zoom_in_position)
         self.connect(self.mouseWheelZoomOutPointComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_zoom_out_position)
         self.connect(self.hhTimeoutIntervalDoubleSpinBox, SIGNAL("valueChanged(double)"), self.set_mouse_wheel_timeout_interval)
+        self.connect(self.panArrowKeysDirectionComboBox, SIGNAL("currentIndexChanged(int)"), self.set_pan_arrow_keys_direction)
         return
 
     def _setupPage_Rulers(self):
@@ -1934,6 +1947,23 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @type  interval: double
         """
         env.prefs[mouseWheelTimeoutInterval_prefs_key] = interval
+        return
+    
+    def set_pan_arrow_keys_direction(self, direction):
+        """
+        Slot for Pan setting "Arrow Keys Direction" combo box.
+
+        @param direction: The arrow keys direction for pan control, where:
+                        0 = View direction (default)
+                        1 = Camera direction
+        @type  direction: int
+        """
+        if direction == 0:
+            env.prefs[panArrowKeysDirection_prefs_key] =  1
+        else:
+            env.prefs[panArrowKeysDirection_prefs_key] = -1
+        return
+        
 
     # = Ruler slot methods
 

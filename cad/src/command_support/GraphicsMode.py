@@ -48,6 +48,7 @@ from utilities.prefs_constants import displayOriginAxis_prefs_key
 from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
 from utilities.prefs_constants import displayPOVAxis_prefs_key
 from utilities.prefs_constants import displayConfirmationCorner_prefs_key
+from utilities.prefs_constants import panArrowKeysDirection_prefs_key
 
 from model.chem import Atom
 from model.bonds import Bond
@@ -971,7 +972,7 @@ class basicGraphicsMode(GraphicsMode_API):
         # Pan left, right, up and down using arrow keys, requested by Paul.
         # Mark 2008-04-13
         elif key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
-            panIncrement = 0.1
+            panIncrement = 0.1 * env.prefs[panArrowKeysDirection_prefs_key]
             if self.o.modkeys == 'Control':
                 panIncrement *= 0.25
             elif self.o.modkeys == 'Shift':
