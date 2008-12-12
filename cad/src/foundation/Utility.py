@@ -2147,10 +2147,11 @@ def topmost_nodes( nodes): #bruce 050303
     """
     Given 0 or more nodes (as a python sequence), return a list
     of the given nodes that are not descendants of other given nodes.
-    [See also hindmost and topmost_selected_nodes, but those only work for
-    the set of selected nodes.]
 
-    WARNING: current implem is quadratic time in len(retval).
+    @see: related method hindmost and function topmost_selected_nodes,
+          but those only work for the set of selected nodes.
+    
+    @warning: current implementation is quadratic time in len(retval)
     """
     res = {} # from id(node) to node
     for node in nodes:

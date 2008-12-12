@@ -262,8 +262,7 @@ class Ne1Model_api(Api):
     
     def topmost_selected_nodes(self):
         """
-        Return a list of nodes whose corresponding items are currently selected.
-        [But not including any children of selected nodes. --bruce]
+        @return: a list of all selected nodes which are not inside selected Groups
         """
         nodes = [self.get_current_part_topnode()]
         from operations.ops_select import topmost_selected_nodes
@@ -287,6 +286,8 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
 
     In addition to what appears here, a node that has child nodes must maintain them in a list
     called 'self.members'. [that might be WRONG as of 080306, since we now use MT_kids]
+
+    @note: this class is only used (so far, 081212) as documentation and in test code.
     """
     # There still needs to be an API call to support renaming, where the model tree is allowed to
     # change the Node's name.
@@ -424,7 +425,7 @@ class ModelTreeGui_api(Api):
 
     def topmost_selected_nodes(self): # in ModelTreeGui_api
         """
-        return a list of all selected nodes as seen by apply2picked, i.e. without looking inside selected Groups
+        @return: a list of all selected nodes which are not inside selected Groups
         """
         # this should really be called topmost_PICKED_nodes: nodes are picked, items are selected
         raise Exception("overload me")
@@ -767,8 +768,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
     
     def topmost_selected_nodes(self): #bruce 070529 moved method body into self.ne1model
         """
-        Return a list of nodes whose corresponding items are currently selected,
-        but not including any children of selected nodes.
+        @return: a list of all selected nodes which are not inside selected Groups
         """
         return self.ne1model.topmost_selected_nodes()
 
@@ -2305,7 +2305,8 @@ class TestNode(Node_api):
     def unpick(self):
         self.picked = False
     def apply2picked(self, func):
-        if self.picked: func(self)
+        if self.picked:
+            func(self)
         for x in self.members:
             x.apply2picked(func)
 ##    def drop_on_ok(self, drag_type, nodes):

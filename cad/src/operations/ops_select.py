@@ -1115,11 +1115,19 @@ class ops_select_Mixin:
 
 # ==
 
-def topmost_selected_nodes(nodes): #bruce 050523 split this out from the same-named TreeWidget method, and optimized it
+def topmost_selected_nodes(nodes):
     """
-    Return a list of all selected nodes (without looking inside selected 
-    Groups) in or under the given list of nodes.
+    @param nodes: a list of nodes, to be examined for selected nodes or subnodes
+    @type nodes: python sequence of Nodes
+    
+    @return: a list of all selected nodes in or under the given list of nodes,
+             not including any node which is inside any selected Group
+             in or under the given list
+
+    @see: same-named method in class ModelTreeGui_api and class Ne1Model_api
     """
+    #bruce 050523 split this out from the same-named TreeWidget method,
+    # and optimized it
     res = []
     func = res.append
     for node in nodes:

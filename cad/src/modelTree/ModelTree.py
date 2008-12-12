@@ -883,7 +883,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         node = sg.hindmost() # smallest nodetree containing all picked nodes 
         if not node:
             env.history.message("nothing selected to Group") # should never happen
-            return # hindmost can return "None", with no "picked" attribute. Mark 401210.
+            return
         if node.picked:
             #bruce 050420: permit this case whenever possible (formation of 1-item group);
             # cmenu constructor should disable or leave out the menu command when desired.
