@@ -327,6 +327,8 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
     # into abs paths (from their original rel paths).
     # Partially fixes bug 2943. --mark 2008-12-07
     fix_whatsthis_text_and_links(commandToolbar.subControlActionGroup)
+    fix_whatsthis_text_and_links(commandToolbar.subControlActionGroupForModelProtein)
+    fix_whatsthis_text_and_links(commandToolbar.subControlActionGroupForSimulateProtein)
     return
 
 

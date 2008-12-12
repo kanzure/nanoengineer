@@ -185,28 +185,28 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.subControlActionGroupForModelProtein.setExclusive(True)  
         
         self.buildPeptideAction = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
+            NE1_QWidgetAction(self.subControlActionGroupForModelProtein, win = self.win)
         self.buildPeptideAction.setText("Insert Peptide")
         self.buildPeptideAction.setCheckable(True)  
         self.buildPeptideAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png"))
 
         self.editRotamersAction = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
+            NE1_QWidgetAction(self.subControlActionGroupForModelProtein, win = self.win)
         self.editRotamersAction.setText("Rotamers")
         self.editRotamersAction.setCheckable(True)  
         self.editRotamersAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/EditRotamers.png"))
         
         self.compareProteinsAction = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
+            NE1_QWidgetAction(self.subControlActionGroupForModelProtein, win = self.win)
         self.compareProteinsAction.setText("Compare")
         self.compareProteinsAction.setCheckable(True)  
         self.compareProteinsAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Compare.png"))
         
         self.displayProteinStyleAction = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
+            NE1_QWidgetAction(self.subControlActionGroupForModelProtein, win = self.win)
         self.displayProteinStyleAction.setText("Edit Style")
         self.displayProteinStyleAction.setCheckable(True)        
         self.displayProteinStyleAction.setIcon(
@@ -233,28 +233,28 @@ class ProteinFlyout_v2(Ui_AbstractFlyout):
         self.subControlActionGroupForSimulateProtein.setExclusive(True)  
         
         self.rosetta_fixedbb_design_Action = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
+            NE1_QWidgetAction(self.subControlActionGroupForSimulateProtein, win = self.win)
         self.rosetta_fixedbb_design_Action.setText("Fixed BB")
         self.rosetta_fixedbb_design_Action.setCheckable(True)  
         self.rosetta_fixedbb_design_Action.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/FixedBackbone.png"))
         
         self.rosetta_backrub_Action = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
+            NE1_QWidgetAction(self.subControlActionGroupForSimulateProtein, win = self.win)
         self.rosetta_backrub_Action.setText("Backrub")
         self.rosetta_backrub_Action.setCheckable(True)  
         self.rosetta_backrub_Action.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Backrub.png"))
 
         self.editResiduesAction = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
+            NE1_QWidgetAction(self.subControlActionGroupForSimulateProtein, win = self.win)
         self.editResiduesAction.setText("Residues")
         self.editResiduesAction.setCheckable(True)  
         self.editResiduesAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Residues.png"))
         
         self.rosetta_score_Action = \
-            NE1_QWidgetAction(self.subControlActionGroup, win = self.win)
+            NE1_QWidgetAction(self.subControlActionGroupForSimulateProtein, win = self.win)
         self.rosetta_score_Action.setText("Score")
         self.rosetta_score_Action.setCheckable(True)  
         self.rosetta_score_Action.setIcon(
