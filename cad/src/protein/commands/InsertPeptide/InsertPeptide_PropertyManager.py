@@ -155,7 +155,7 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
         self.aaTypeComboBox= \
             PM_ComboBox( inPmGroupBox,
-                         label        = "Conformation :", 
+                         label        = "Conformation:", 
                          choices      = memberChoices, 
                          index        = 1, 
                          setAsDefault = True,
@@ -167,7 +167,7 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
         self.phiAngleField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Phi angle :", 
+                              label        = "Phi angle:", 
                               value        = -57.0, 
                               setAsDefault = True,
                               minimum      = -180.0, 
@@ -184,7 +184,7 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
         self.psiAngleField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Psi angle :", 
+                              label        = "Psi angle:", 
                               value        = -47.0, 
                               setAsDefault = True,
                               minimum      = -180.0, 
@@ -215,8 +215,8 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
         self.aaTypesButtonGroup = \
             PM_ToolButtonGrid( inPmGroupBox, 
                                buttonList = AA_BUTTON_LIST,
-                               label      = "Amino acids :",
-                               checkedId  = 0,
+                               label      = "Amino acids",
+                               checkedId  = 7, # Glycine
                                setAsDefault = True )
 
         self.connect( self.aaTypesButtonGroup.buttonGroup,
@@ -243,15 +243,15 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
         """
         What's This text for widgets in this Property Manager.  
         """
-        #from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_InsertPeptide_PropertyManager
-        #whatsThis_InsertPeptide_PropertyManager(self)
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_InsertPeptide_PropertyManager
+        whatsThis_InsertPeptide_PropertyManager(self)
 
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        #from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_InsertPeptide_PropertyManager
-        #ToolTip_InsertPeptide_PropertyManager(self)
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_InsertPeptide_PropertyManager
+        ToolTip_InsertPeptide_PropertyManager(self)
         pass
 
     def _aaChiralityChanged(self):

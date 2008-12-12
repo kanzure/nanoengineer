@@ -94,77 +94,65 @@ def whatsThis_MakeCrossoversPropertyManager(propMgr):
     <br><br><b>Note</b>This operation could be time consuming so it is 
     recommended that user keeps this checkbox checked.</p>""")
     return # End of whatsThis_whatsThis_MakeCrossoversPropertyManager
-    
 
 def whatsThis_InsertPeptide_PropertyManager(propMgr):
     """
-    "Whats This" text for widgets in the Peptide Generator Property Manager.
-    """
-    
-    propMgr.aaTypeComboBox.setWhatsThis(
-        """<b>Chain Confirmation</b>
-        <p>
-        Lists the available confirmations for the polypeptide chain
-        </p>""")
-    
-    propMgr.startOverButton.setWhatsThis(
-        """<b>Start Over</b>
-        <p>
-        Deletes the current sequence from the sequence editor
-        </p>""")
-    
-    propMgr.sequenceEditor.setWhatsThis(
-        """<b>Sequence Editor</b>
-        <p>
-        Displays the current amino acid sequence 
-        </p>""")
-    return
-
-def whatsThis_InsertPeptide_PropertyManager(propMgr):
-    """
-    "Whats This" text for widgets in the Peptide Generator Property Manager.
+    "Whats This" text for widgets in the Insert Peptide Property Manager.
     """
     propMgr.aaTypeComboBox.setWhatsThis(
-        """<b>Chain Confirmation</b>
+        """<b>Confirmation</b>
         <p>
-        Lists the available confirmations for the polypeptide chain
-        </p>""")
-
-    propMgr.startOverButton.setWhatsThis(
-        """<b>Start Over</b>
-        <p>
-        Deletes the current sequence from the sequence editor
+        Sets the secondary structure confirmation that will be applied when
+        inserting a new polypeptide chain.
         </p>""")
 
     propMgr.phiAngleField.setWhatsThis(
         """<b>Phi angle</b>
         <p>
-        Sets a Phi dihedral backbone angle of the polypeptide chain  
+        Shows the <b>Phi dihedral backbone angle</b> that will be applied 
+        when inserting a new polypeptide chain. It is determined by the 
+        current <b>Conformation</b> selected above.
         </p>""")
 
     propMgr.psiAngleField.setWhatsThis(
         """<b>Psi angle</b>
         <p>
-        Sets a Psi dihedral backbone angle of the polypeptide chain  
+        Shows the <b>Psi dihedral backbone angle</b> that will be applied 
+        when inserting a new polypeptide chain. It is determined by the 
+        current <b>Conformation</b> selected above.
         </p>""")
 
-    propMgr.invertChiralityPushButton.setWhatsThis(
-        """<b>Invert chirality</b>
-        <p>
-        Inverts a chirality of the polypeptide backbone   
-        </p>""")
-
+    # The "Remember.png" icon will be blank until we call
+    # fix_whatsthis_text_and_links(propMgr)
+    # The problem is that this function only processes What's This text
+    # for QActions and not PM_ToolButtonGrid (really a QButtonGroup). 
+    # I will talk to Bruce about this later. Mark 2008-12-12.
+    
     propMgr.aaTypesButtonGroup.setWhatsThis(
         """<b>Amino acids</b>
         <p>
-        Adds an amino acid to the constructed peptide   
+        Determines which amino acid is used when inserting a new 
+        polypeptide chain. <b>Glycine</b> is the default.</p>
+        <p>
+        <img source=\"ui/whatsthis/Remember.png\"><br>
+        <b>Remember:</b> You can change the amino acid sequence later after 
+        first inserting a polypeptide chain.
         </p>""")
 
-    propMgr.sequenceEditor.setWhatsThis(
-        """<b>Sequence Editor</b>
-        <p>
-        Displays the current amino acid sequence 
-        </p>""")
+    # Deprecated widgets below here. These are marked for removal.
+    # Mark 2008-12-12
+    #propMgr.invertChiralityPushButton.setWhatsThis(
+        #"""<b>Invert chirality</b>
+        #<p>
+        #Inverts a chirality of the polypeptide backbone   
+        #</p>""")
+        
+    #propMgr.sequenceEditor.setWhatsThis(
+        #"""<b>Sequence Editor</b>
+        #<p>
+        #Displays the amino acid sequence for the currently selected 
+        #polypeptide chain.
+        #</p>""")
 
     return # End of whatsThis_InsertPeptide_PropertyManager
 
