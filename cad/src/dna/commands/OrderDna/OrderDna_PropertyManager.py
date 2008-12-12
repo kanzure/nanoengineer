@@ -333,6 +333,18 @@ class OrderDna_PropertyManager(Command_PropertyManager):
         _numberOfXBases = self.getNumberOfBases(unassignedOnly = True)
         self.numberOfXBasesLineEdit.setText(str(_numberOfXBases) + " bases")
         
+        # Make the background color red if there are any unassigned bases.
+        if _numberOfXBases:
+            self.numberOfXBasesLineEdit.setStyleSheet(\
+                "QLineEdit {"\
+                "background-color: rgb(255, 0, 0)"\
+                "}")
+        else:
+            self.numberOfXBasesLineEdit.setStyleSheet(\
+                "QLineEdit {"\
+                "background-color: rgb(255, 255, 255)"\
+                "}")
+        
         if _numberOfBases > 0:
             self.viewDnaOrderFileButton.setEnabled(True)
             msg = "Click on <b>View DNA Order File...</b> to preview a " \
