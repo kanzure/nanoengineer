@@ -829,7 +829,8 @@ class modelTree(modelTreeGui.Ne1Model_api):
     # Note: these must do their own updates (win_update, gl_update, mt_update) as needed.
     
     def cm_hide(self):
-        env.history.message("Hide: %d selected items or groups" % len(self.modelTreeGui.topmost_selected_nodes()))
+        env.history.message("Hide: %d selected items or groups" % \
+                            len(self.modelTreeGui.topmost_selected_nodes()))
         #####@@@@@ bruce 050517 comment: the following line (of unknown reason or date, but by me) causes bug 500;
         # that method was added 050125 and used in chunk.pick on same date, so adding it here must be then or later.
         # Let's see what happens if I remove it?
@@ -837,7 +838,8 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.assy.Hide() # includes win_update
         
     def cm_unhide(self):
-        env.history.message("Unhide: %d selected items or groups" % len(self.modelTreeGui.topmost_selected_nodes()))
+        env.history.message("Unhide: %d selected items or groups" % \
+                            len(self.modelTreeGui.topmost_selected_nodes()))
         ## self.assy.permit_pick_parts() #e should not be needed here [see same comment above]
         self.assy.Unhide() # includes win_update
 

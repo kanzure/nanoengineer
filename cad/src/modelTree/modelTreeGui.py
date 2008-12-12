@@ -43,6 +43,11 @@ late 2007 and/or early 2008: Mark and Bruce implemented atom content indicators,
 though some bugs remain
 
 080507: Bruce partly implemented GLPane -> MT cross-highlighting
+
+TODO:
+
+This module is too long, and includes api classes for other modules,
+so it needs to be split into several files.
 """
 
 import sys
@@ -260,7 +265,7 @@ class Ne1Model_api(Api):
             pass
         return
     
-    def topmost_selected_nodes(self):
+    def topmost_selected_nodes(self): # in class Ne1Model_api
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
@@ -427,7 +432,6 @@ class ModelTreeGui_api(Api):
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
-        # this should really be called topmost_PICKED_nodes: nodes are picked, items are selected
         raise Exception("overload me")
 
     def mt_update(self, nodetree = None): # in ModelTreeGui_api
@@ -766,10 +770,21 @@ class ModelTreeGui_common(ModelTreeGui_api):
         self.MT_debug_prints()
         return
     
-    def topmost_selected_nodes(self): #bruce 070529 moved method body into self.ne1model
+    def topmost_selected_nodes(self): # in class ModelTreeGui_common, subclass of ModelTreeGui_api
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
+        #bruce 070529 moved method body into self.ne1model
+        #REVIEW: should this be removed from ModelTreeGui_api,
+        # always accessed via self.ne1model? Pro: many accesses come
+        # from methods in self.ne1model anyway, which also defines it.
+        # Con: there are a lot of accesses from methods of self, too.
+        # Note that we could make accesses from self.ne1model not
+        # depend on this class, without preventing this class from
+        # having its own def; in that case, review whether this class's
+        # def belongs in its api class or is just a convenience of
+        # this implementation. [bruce 081212 comment]
+        
         return self.ne1model.topmost_selected_nodes()
 
     def MT_debug_prints(self):
