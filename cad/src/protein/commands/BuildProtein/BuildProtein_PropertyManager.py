@@ -9,11 +9,10 @@ BuildProtein_PropertyManager.py
 Mark 20081212: Heavily rewritten, modeled after BuildDna_PropertyManager.py.
 
 To do list:
-- Include name of the current Peptide in the title of the Sequence Editor.
+- Include name and length of the current Peptide in the title of the Sequence Editor.
 - Make sure PM and SeqEditor are updated correctly after selecting/editing 
   a peptide via the model tree.
 - Add "Edit Properties" menu item to GA context menu when highlighting Peptide.
-- Peptide list widget does not update correctly if a peptide is deleted.
 - Bug: Cannot edit a peptide loaded from an MMP file.
 - Create a new PM for "Peptide Properties".
 """
@@ -188,14 +187,8 @@ class BuildProtein_PropertyManager(EditCommand_PM):
                 self.sequenceEditor.hide()
                 
             return
-                                         
-        ##if not structure_params_unchanged or not command_stack_params_unchanged: 
-        if selection_params_unchanged:
-            #Fixes bug 2940
-            #This means either stuct params or command stack params or both were 
-            #changed. (Because we checked '[CONDITION A]' at the beginning)
-            self.updatePeptideListWidget()  
         
+        self.updatePeptideListWidget()
         return
     
     def _currentCommandStackParams(self):
