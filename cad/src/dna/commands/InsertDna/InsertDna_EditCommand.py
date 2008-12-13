@@ -85,7 +85,7 @@ class InsertDna_EditCommand(EditCommand):
     prefix           =  'DnaSegment'   # used for gensym
     cmdname          = "Duplex"
 
-    commandName       = 'DNA_DUPLEX'
+    commandName       = 'INSERT_DNA'
     featurename       = "Insert DNA"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND

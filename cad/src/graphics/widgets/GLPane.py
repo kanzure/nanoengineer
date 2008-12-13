@@ -591,7 +591,7 @@ class GLPane(
         # "command scale kind" attribute to test here in place of
         # having the list of command names. [bruce 080813 comment]
 
-        dnaCommands = ('BUILD_DNA', 'DNA_DUPLEX', 'DNA_SEGMENT', 'DNA_STRAND')
+        dnaCommands = ('BUILD_DNA', 'INSERT_DNA', 'DNA_SEGMENT', 'DNA_STRAND')
 
         startup_scale = float(env.prefs[startup_GLPane_scale_prefs_key])
 

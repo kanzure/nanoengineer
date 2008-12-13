@@ -328,7 +328,7 @@ class BuildDna_EditCommand(EditCommand):
         # REVIEW: this is called directly by our subcommand InsertDna_EditCommand.
         # I'm not sure if it's ever called by a request command
         # (but I guess not, due to its old-code check on
-        #  temporaryModeName == 'DNA_DUPLEX').
+        #  temporaryModeName == 'INSERT_DNA').
         # If not, it should be removed in favor of direct access to
         # methods or attrs of interest. See comment near its call in
         # InsertDna_EditCommand.py.
@@ -349,7 +349,7 @@ class BuildDna_EditCommand(EditCommand):
         """
         params = ()
 
-        if temporaryModeName in ('DNA_DUPLEX', None):
+        if temporaryModeName in ('INSERT_DNA', None):
             #Pass the self.struct to the DnaDuplex_EdiCommand
             #This deprecates use of self.callback_addSegments (in which
             #segments created while in DnaDuplex command are added after

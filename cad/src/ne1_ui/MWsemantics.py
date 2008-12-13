@@ -1708,10 +1708,10 @@ class MWsemantics(QMainWindow,
         @type  isChecked: boolean
         @see: B{Ui_DnaFlyout.activateInsertDna_EditCommand}
         """   
-        self.enterOrExitTemporaryCommand('DNA_DUPLEX')
+        self.enterOrExitTemporaryCommand('INSERT_DNA')
         
         currentCommand = self.commandSequencer.currentCommand
-        if currentCommand.commandName == 'DNA_DUPLEX':
+        if currentCommand.commandName == 'INSERT_DNA':
             currentCommand.runCommand()
 
     def orderDna(self, dnaGroupList = ()):
