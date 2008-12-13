@@ -1110,9 +1110,7 @@ class RosettaRunner:
         command = self.win.commandSequencer.find_innermost_command_named('MODEL_AND_SIMULATE_PROTEIN')
 
         if command:
-            command.propMgr.structureComboBox.addItem(outProtein.name)
-            command.propMgr.protein_name_list.append(outProtein.name)
-            command.propMgr.protein_chunk_list.append(outProtein)
+            command.propMgr.peptideListWidget.addItem(outProtein)
         
         return
     
