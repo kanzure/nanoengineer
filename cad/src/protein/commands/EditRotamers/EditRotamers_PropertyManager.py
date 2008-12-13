@@ -10,6 +10,22 @@ Build > Protein mode.
 @version: $Id$ 
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
+To do:
+- Set GDS to "Protein". 
+- Show sequence editor when entering the command.
+- Show sequence editor when a new peptide is selected (it might have been hidden by the user).
+- Update residue combo box when selecting different peptides in GA.
+- Remove "Sequence" button.
+- Place "Previous AA" and "Next AA" buttons side-by-side.
+- Fix bug: Changing Chi angles doesn't update rotamer position in the GA.
+- Change title of first groupbox from "Position" to "Residues".
+- Change label of "Residue:" combo box to "Residue position:".
+- Expand/collapse Rotamer groupbox if current residue's chi angle(s) 
+  can/cannot be changed.
+- Display only the Chi dials that can be changed.
+- Show residue label in GA of current residue, including AA and # (i.e. SER[14]).
+- Better messages, especially when selecting different peptides.
+- Include "Show entire model" checkbox in PM (unchecked by default).
 """
 import os, time, fnmatch, string
 import foundation.env as env
@@ -142,6 +158,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         if previousCommand:
             self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
         else:
+            print "update_residue_combobox(): NO PREVIOUS COMMAND!"
             #Urmi 20080728: if the previous command was zoom or something, just set this to the
             # first available protein chunk, since there's no way we can access
             # the current protein in Build protein mode

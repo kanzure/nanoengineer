@@ -11,6 +11,10 @@ Build > Protein mode.
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 History: Urmi copied this from DnaDisplayStyle_PropertyManager.py and modified
          it to suit the needs of protein display.
+         
+To do:
+- Switch to reduced model display style when entering command (like Edit DNA Display Style).
+- Fix bug: a single rotamer is displayed on cartoons.
 
 """
 import os, time, fnmatch

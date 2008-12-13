@@ -21,7 +21,12 @@ Urmi 20080731: Property Manager updated to support drawing proteins by
                clicking on two points.
 
 To do:
-- Drawing the peptide trace not working for beta strand.
+- The peptide trace isn't drawn correctly for very short sequences.
+- The peptide trace isn't drawn correctly for beta strand.
+- Color amino acid buttons by class:
+  - hydrophobic = pink
+  - charged = light green
+  - polar = light blue
 
 """
 

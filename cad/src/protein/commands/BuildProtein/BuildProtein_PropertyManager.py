@@ -15,6 +15,10 @@ To do list:
 - Add "Edit Properties" menu item to GA context menu when highlighting Peptide.
 - Bug: Cannot edit a peptide loaded from an MMP file.
 - Create a new PM for "Peptide Properties".
+- Rename MODEL_AND_SIMULATE_PROTEIN to BUILD_PROTEIN (if it is safe).
+- FASTA file support in sequence editor.
+- Debug_pref for debug print statements.
+- Special peptide icons for MT and PM list widget.
 """
 import foundation.env as env
 from PyQt4.Qt import SIGNAL
@@ -270,8 +274,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         Closes the Property Manager. Overrides EditCommand_PM.close()
         """
         #Clear tags, if any, due to the selection in the self.strandListWidget.
-        if self.peptideListWidget:
-            self.peptideListWidget.clear()
+        self.peptideListWidget.clear()
         self.sequenceEditor.hide()
         env.history.statusbar_msg("")
         EditCommand_PM.close(self)
@@ -310,11 +313,13 @@ class BuildProtein_PropertyManager(EditCommand_PM):
             self.sequenceEditor.show()
         return
     
-    # getPeptideChunks should probably be moved to assy or some other class.
+    # getPeptideChunks() should eventually be moved to assy or some other class.
+    # This should wait until we have a data model implemented for 
+    # peptides/proteins.
     # Ask Bruce. Mark 2008-12-12
     def getPeptideChunks(self):
         """
-        Returns a list of peptides in the current assy.
+        Returns a list of all the peptides in the current assy.
         """
         peptideList = []
         for mol in self.win.assy.molecules:
@@ -324,11 +329,10 @@ class BuildProtein_PropertyManager(EditCommand_PM):
     
     def _showPeptideSequenceEditor(self):
         """
-        Show/hide sequence editor based.
+        Show/hide sequence editor. It is only displayed if there is
+        a single peptide selected. Otherwise it is hidden.
         """
-        selectedPeptideList = self.win.assy.getSelectedProteinChunks()
-        
-        if len(selectedPeptideList) == 1:
+        if self.get_current_protein_chunk_name():
             self.sequenceEditor.show()
         else:
             self.sequenceEditor.hide()
@@ -374,7 +378,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
     
     def updatePeptideListWidget(self):   
         """
-        Update the list of items inside the peptide list widget.
+        Update the peptide list widget. It shows all peptides in the part.
         """
         peptideChunkList = self.getPeptideChunks()
         
@@ -388,9 +392,14 @@ class BuildProtein_PropertyManager(EditCommand_PM):
     
     def set_current_protein_chunk_name(self, name):
         """
-        Sets the current protein name
-        @param name: pdb id of the protein currently selected.
-        @type name: str
+        Sets the name of the currently selected peptide. Set it to an
+        empty string if there is no currently selected peptide.
+        
+        @return: the name of the currently selected peptide.
+        @rtype: string
+        
+        @note: this is used widely by other commands. It will be renamed to 
+               setCurrentPeptideName() soon.
         """
         self.current_protein = name
         return
@@ -398,8 +407,14 @@ class BuildProtein_PropertyManager(EditCommand_PM):
     
     def get_current_protein_chunk_name(self):
         """
-        gets the current protein name
-        @return: pdb id of the protein currently selected.
+        Returns the name of the currently selected peptide. Returns an
+        empty string if there is no currently selected peptide.
+        
+        @return: the name of the currently selected peptide.
+        @rtype: string
+        
+        @note: this is used widely by other commands. It will be renamed to 
+               getCurrentPeptideName() soon.
         """
         return self.current_protein
     
