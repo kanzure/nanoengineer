@@ -287,7 +287,7 @@ def make_tube(points, colors, radii, dpos, resolution=3):
         ir = 1.0/float(resolution)
         for p in range (1, n-2):
             start_spline = 0
-            end_spline = resolution
+            end_spline = int(resolution) #@@@
             if p == 1:
                 start_spline = int(resolution / 2 - 1)
             if p == n-3:
