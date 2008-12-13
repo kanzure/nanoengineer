@@ -1404,11 +1404,13 @@ class MWsemantics(QMainWindow,
         @type otherOptionsText: str
         """
         protein = ""
-        if self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN' or self.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS' or self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
+        if self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN' or \
+           self.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS' or \
+           self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
             protein = self.commandSequencer.currentCommand.propMgr.current_protein
         
         #run Rosetta for the first selected protein
-        if protein == "" and len(self.assy.selmols) >=1:
+        if protein == "" and len(self.assy.selmols) >= 1:
             for chunk in self.assy.selmols:
                 if chunk.isProteinChunk():
                     protein = chunk.name
