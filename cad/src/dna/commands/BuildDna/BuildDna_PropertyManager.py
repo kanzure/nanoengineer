@@ -227,15 +227,12 @@ class BuildDna_PropertyManager(EditCommand_PM):
                 self.searchForCrossoversButton.setEnabled(False)
                 
             return
-                                         
-        ##if not structure_params_unchanged or not command_stack_params_unchanged: 
-        if selection_params_unchanged:
-            #Fixes bug 2940
-            #Thies means either stuct params or command stack params or both were 
-            #changed. (Because we checked '[CONDITION A]' at the beginning)
-            self.updateListWidgets()  
-            return
-            
+
+        # Calling updateListWidgets() here fixes bug 2950 without undoing the
+        # fix to bug 2940. --Mark 2008-12-13.
+        self.updateListWidgets()  
+        return
+        
     
     def _currentCommandStackParams(self):
         """
