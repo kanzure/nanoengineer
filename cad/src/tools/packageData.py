@@ -323,12 +323,9 @@ packageMapping_for_files = {
     "DirectionArrow"                   : "graphics_drawable", # a kind of DragHandler (drawable with behavior)
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode
     "DnaCylinderChunks"                : "graphics_view", # a ChunkDisplayMode
-    "DnaDuplex"                        : "operation|dna/commands/BuildDuplex", # class to help construct model objects defined elsewhere
-    "DnaDuplex_EditCommand"            : "command|dna/commands/BuildDuplex",
-    "DnaDuplexPropertyManager"         : "ui/propmgr|dna/commands/BuildDuplex",
-    "DnaGenerator"                     : "command|dna/commands/BuildDuplex_old",
-    "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_old",
-    "DnaGenHelper"                     : "operation|dna/commands/BuildDuplex_old",
+    "DnaDuplex"                        : "operation|dna/commands/InsertDna", # class to help construct model objects defined elsewhere
+    "DnaDuplex_EditCommand"            : "command|dna/commands/InsertDna",
+    "DnaDuplexPropertyManager"         : "ui/propmgr|dna/commands/InsertDna",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
     "DnaSegment_EditCommand"           : "command|dna/commands/DnaSegment",
     "DnaSegment_GraphicsMode"          : "graphics_mode|dna/commands/DnaSegment",
@@ -745,8 +742,7 @@ packageGroupMapping = {
     "commandToolbar"                  : "commands",
     "dna.commands.BreakStrands"       : "commands",
     "dna.commands.BuildDna"           : "commands",
-    "dna.commands.BuildDuplex"        : "commands",
-    "dna.commands.BuildDuplex_old"    : "commands",
+    "dna.commands.InsertDna"          : "commands",
     "dna.commands.DnaSegment"         : "commands",
     "dna.commands.DnaStrand"          : "commands",
     "dna.commands.JoinStrands"        : "commands",

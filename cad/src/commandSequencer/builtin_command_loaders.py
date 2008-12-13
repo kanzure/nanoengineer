@@ -65,7 +65,7 @@ from cnt.commands.NanotubeSegment.NanotubeSegment_EditCommand import NanotubeSeg
 
 # DNA commands
 from dna.commands.BuildDna.BuildDna_EditCommand     import BuildDna_EditCommand
-from dna.commands.BuildDuplex.DnaDuplex_EditCommand import DnaDuplex_EditCommand
+from dna.commands.InsertDna.DnaDuplex_EditCommand import DnaDuplex_EditCommand
 from dna.commands.DnaSegment.DnaSegment_EditCommand import DnaSegment_EditCommand
 from dna.commands.DnaStrand.DnaStrand_EditCommand   import DnaStrand_EditCommand
 from dna.commands.MakeCrossovers.MakeCrossovers_Command import MakeCrossovers_Command

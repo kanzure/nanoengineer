@@ -43,7 +43,7 @@ from dna.generators.B_Dna_PAM3_Generator import B_Dna_PAM3_Generator
 from dna.generators.B_Dna_PAM5_Generator import B_Dna_PAM5_Generator
 
 from utilities.exception_classes import PluginBug, UserError
-from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager
+from dna.commands.InsertDna.DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
 from utilities.constants import gensym
 from utilities.constants import black
@@ -51,7 +51,7 @@ from utilities.constants import black
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength
 from dna.model.Dna_Constants import getDuplexLength
 
-from dna.commands.BuildDuplex.DnaDuplex_GraphicsMode import DnaDuplex_GraphicsMode
+from dna.commands.InsertDna.DnaDuplex_GraphicsMode import DnaDuplex_GraphicsMode
 
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key
