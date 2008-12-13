@@ -629,7 +629,8 @@ class PeptideGenerator:
                      pos1, pos2, secondary=SS_COIL, 
                      fake_chain=False, length=None):
         """
-        Build a homo-peptide aligned to a pos2-pos1 vector.
+        Build and return a chunk that is a homo-peptide aligned to 
+        a pos2-pos1 vector.
         
         @param aa_idx: amino acid type (index in AMINO_ACIDS list)
         @type aa_idx: int
@@ -656,7 +657,8 @@ class PeptideGenerator:
         not specified, pos1 and pos2 are used to figure out the length
         @type length: int
         
-        
+        @return: A homo-polypeptide chain.
+        @rtype:  L{Chunk}
         """
 
         if not length:
