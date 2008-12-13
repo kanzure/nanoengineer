@@ -296,6 +296,18 @@ class ops_select_Mixin:
         self.topnode.apply2all(addSelectedNanotubeSegment)
         return selNanotubeSegmentList
         
+    def getSelectedProteinChunks(self):
+        """
+        Returns a list of the currently selected Protein chunk(s).
+        """
+        
+        selProteinList = []
+        def addSelectedProteinChunks(obj, proteinList = selProteinList):
+            if obj.picked and obj.isProteinChunk():
+                proteinList += [obj]
+
+        self.topnode.apply2all(addSelectedProteinChunks)
+        return selProteinList
 
     def getNumberOfSelectedChunks(self):
         """
