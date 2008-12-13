@@ -325,13 +325,13 @@ class BuildDna_EditCommand(EditCommand):
 
 
     def provideParamsForTemporaryMode_in_BuildDna(self, temporaryModeName = None):
-        # REVIEW: this is called directly by our subcommand DnaDuplex_EditCommand.
+        # REVIEW: this is called directly by our subcommand InsertDna_EditCommand.
         # I'm not sure if it's ever called by a request command
         # (but I guess not, due to its old-code check on
         #  temporaryModeName == 'DNA_DUPLEX').
         # If not, it should be removed in favor of direct access to
         # methods or attrs of interest. See comment near its call in
-        # DnaDuplex_EditCommand.py.
+        # InsertDna_EditCommand.py.
         #
         # For now, I just renamed it and its call, to verify this theory.
         # Later it should be renamed better and its argument removed.
@@ -344,8 +344,8 @@ class BuildDna_EditCommand(EditCommand):
 ##        @see: B{DnaLineMode}
 ##        @see: self.acceptParamsFromTemporaryMode
 
-        @see DnaDuplex_EditCommand._createSegment(),
-        @see: DnaDuplex_EditCommand.createStructure()
+        @see InsertDna_EditCommand._createSegment(),
+        @see: InsertDna_EditCommand.createStructure()
         """
         params = ()
 
@@ -356,8 +356,8 @@ class BuildDna_EditCommand(EditCommand):
             #returning to BuildDna mode) The new implementation provides the
             #DnaGroup to the DnaDuplex command and then adds the created
             #segments directly to it.
-            #See: DnaDuplex_EditCommand._createSegment(),
-            #    DnaDuplex_EditCommand.createStructure(), and
+            #See: InsertDna_EditCommand._createSegment(),
+            #    InsertDna_EditCommand.createStructure(), and
             
             #following condition (hasValidStructure) fixes bug 2815.Earlier
             #ondition was just checking if self.struct is None.

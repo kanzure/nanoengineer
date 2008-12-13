@@ -1557,7 +1557,7 @@ class MWsemantics(QMainWindow,
 
     def activateDnaTool(self):
         """
-        Enter the DnaDuplex_EditCommand command.
+        Enter the InsertDna_EditCommand command.
         @see:B{self.insertDna}
         @see: B{ops_select_Mixin.getSelectedDnaGroups}
         @see: B{dna_model.DnaGroup.edit}
@@ -1706,7 +1706,7 @@ class MWsemantics(QMainWindow,
                           checked, enter DnaLineMode. (provided you are
                           using the new DNADuplexEditCommand command.
         @type  isChecked: boolean
-        @see: B{Ui_DnaFlyout.activateDnaDuplex_EditCommand}
+        @see: B{Ui_DnaFlyout.activateInsertDna_EditCommand}
         """   
         self.enterOrExitTemporaryCommand('DNA_DUPLEX')
         
@@ -1804,7 +1804,7 @@ class MWsemantics(QMainWindow,
         object is reused)
         @return: The sequence editor object (self._dnaSequenceEditor
         @rtype: B{DnaSequenceEditor}
-        @see: DnaDuplexPropertyManager._loadSequenceEditor
+        @see: InsertDna_PropertyManager._loadSequenceEditor
         @WARNING: QMainwindow.restoreState prints a warning message because its
         unable to find this object in the next session. (as this object is
         created only when requested) This warning message is harmless, but

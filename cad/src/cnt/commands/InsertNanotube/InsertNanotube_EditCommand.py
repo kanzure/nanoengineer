@@ -9,10 +9,10 @@ NanotubeProperties_EditCommand
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
-- Mark 2008-03-8: This file created from a copy of DnaDuplex_EditCommand.py
+- Mark 2008-03-8: This file created from a copy of InsertDna_EditCommand.py
 and edited.
 
-TODO: (list copied and kept from DnaDuplex_EditCommand.py --Mark)
+TODO: (list copied and kept from InsertDna_EditCommand.py --Mark)
 - Need to cleanup docstrings. 
 - Methods such as createStructure need some cleanup in 
   this class and in the EditCommand superclass

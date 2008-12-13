@@ -37,7 +37,7 @@ class DnaStrand(DnaStrandOrSegment):
     its controlling marker.
 
     [Note: we might decide to put the DnaStrandChunks inside the
-     DnaSegment whose axis they attach to (as is done in DnaDuplex_EditCommand
+     DnaSegment whose axis they attach to (as is done in InsertDna_EditCommand
      as of 080111), instead. This is purely an implementation issue but
      has implications for selection and copying code. bruce comment 080111]
     """

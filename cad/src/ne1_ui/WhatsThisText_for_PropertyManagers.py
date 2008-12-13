@@ -13,10 +13,10 @@ for widgets in the Main Window.
 
 """
 
-def whatsThis_DnaDuplexPropertyManager(propMgr):
+def whatsThis_InsertDna_PropertyManager(propMgr):
     """
     Whats This text for the DnaDuplex Property Manager
-    @see: B{DnaDuplexPropertyManager._addWhatsThisText}
+    @see: B{InsertDna_PropertyManager._addWhatsThisText}
     """
     
     propMgr.conformationComboBox.setWhatsThis(
@@ -67,7 +67,7 @@ def whatsThis_DnaDuplexPropertyManager(propMgr):
         When checked a duplex will be constrained to a grid
         </p>""")
     
-    return # End of whatsThis_DnaDuplexPropertyManager
+    return # End of whatsThis_InsertDna_PropertyManager
 
 def whatsThis_MakeCrossoversPropertyManager(propMgr):
     """
@@ -672,7 +672,7 @@ def whatsThis_MovePropertyManager(propMgr):
         Constrains rotation about the Z axis.
         </p>""")
     
-    return # End of whatsThis_DnaDuplexPropertyManager
+    return # End of whatsThis_MovePropertyManager
 
 def whatsThis_MoviePropertyManager(propMgr):
     """

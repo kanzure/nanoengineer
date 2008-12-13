@@ -216,7 +216,7 @@ class DnaSegment(DnaStrandOrSegment):
         @see: B{Node.DnaSegment.kill_with_contents}  which is overridden here
               method. 
         @see: EditCommand._removeStructure() which calls this Node API method
-        @see: DnaDuplex_EditCommand._removeSegments()
+        @see: InsertDna_EditCommand._removeSegments()
         @see: dna_model.DnaLadder.kill_strand_chunks() for a comment.
         
         @see: A note in self.kill() about NFR bug 2749
@@ -701,7 +701,7 @@ class DnaSegment(DnaStrandOrSegment):
         Sets some properties. These will be used while editing the structure. 
         (but if the structure is read from an mmp file, this won't work. As a 
         fall back, it returns some constant values) 
-        @see: DnaDuplex_EditCommand.createStructure which calls this method. 
+        @see: InsertDna_EditCommand.createStructure which calls this method. 
         @see: self.getProps, DnaSegment_EditCommand.editStructure        
         """        
         

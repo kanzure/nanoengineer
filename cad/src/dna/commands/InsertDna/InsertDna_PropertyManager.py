@@ -1,6 +1,6 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-DnaDuplexPropertyManager.py
+InsertDna_PropertyManager.py
 
 @author: Mark Sims
 @version: $Id$
@@ -41,7 +41,7 @@ from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_Constants     import PM_CANCEL_BUTTON
 
-from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_DnaDuplexPropertyManager
+from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_InsertDna_PropertyManager
 
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key
@@ -54,10 +54,10 @@ from utilities.prefs_constants import bdnaRise_prefs_key
 from widgets.prefs_widgets import Preferences_StateRef_double
 
 _superclass = DnaOrCnt_PropertyManager
-class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
+class InsertDna_PropertyManager( DnaOrCnt_PropertyManager ):
     """
-    The DnaDuplexPropertyManager class provides a Property Manager
-    for the B{Build > DNA > Duplex} command.
+    The InsertDna_PropertyManager class provides a Property Manager
+    for the B{Insert Dna} command.
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -408,7 +408,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         to be used to create the DNA duplex.
         @return: A tuple containing the parameters
         @rtype: tuple
-        @see: L{DnaDuplex_EditCommand._gatherParameters} where this is used
+        @see: L{InsertDna_EditCommand._gatherParameters} where this is used
         """
         numberOfBases = self.numberOfBasePairsSpinBox.value()
         dnaForm  = str(self.conformationComboBox.currentText())
@@ -444,5 +444,5 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         """
         What's This text for widgets in this Property Manager.
         """
-        whatsThis_DnaDuplexPropertyManager(self)
+        whatsThis_InsertDna_PropertyManager(self)
 

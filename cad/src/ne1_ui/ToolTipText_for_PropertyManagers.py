@@ -134,7 +134,7 @@ def ToolTip_NanotubeGeneratorPropertyManager(propMgr):
 
     propMgr.mwntSpacingField.setToolTip("Spacing Between Multiple Tubes")
 
-def ToolTip_DnaDuplexPropertyManager(propMgr):
+def ToolTip_InsertDna_PropertyManager(propMgr):
     """
     "ToolTip" text for the DnaDuplex Property Manager
     """

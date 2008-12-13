@@ -188,7 +188,7 @@ class DnaFlyout(Ui_AbstractFlyout):
         
         change_connect(self.dnaDuplexAction, 
                              SIGNAL("triggered(bool)"),
-                             self.activateDnaDuplex_EditCommand)
+                             self.activateInsertDna_EditCommand)
         
         change_connect(self.breakStrandAction, 
                              SIGNAL("triggered(bool)"),
@@ -260,7 +260,7 @@ class DnaFlyout(Ui_AbstractFlyout):
     
                 
             
-    def activateDnaDuplex_EditCommand(self, isChecked):
+    def activateInsertDna_EditCommand(self, isChecked):
         """
         Slot for B{Duplex} action.
         """

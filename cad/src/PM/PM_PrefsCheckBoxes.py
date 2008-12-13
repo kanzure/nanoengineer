@@ -52,7 +52,7 @@ class PM_PrefsCheckBoxes(PM_GroupBox):
                will be inserted. 
         @type  checkBoxColumn: int
         
-        @see: DnaDuplexPropertyManager._loadDisplayOptionsGroupBox for an 
+        @see: InsertDna_PropertyManager._loadDisplayOptionsGroupBox for an 
               example use.
         """
         PM_GroupBox.__init__(self, 

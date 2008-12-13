@@ -44,7 +44,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM):
     (e.g. groupboxes etc) to the subclasses that define various Dna and Cnt
     (Carbon nanotube) Property Managers. 
     @see: DnaSegment_PropertyManager (subclass)
-    @see: DnaDuplexPropertyManager (subclass)
+    @see: InsertDna_PropertyManager (subclass)
     """
 
     def __init__( self, command ):
@@ -177,7 +177,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM):
     def _loadReferencePlaneGroupBox(self, pmGroupBox):
         """
         Load widgets in reference plane groupbox
-        @see: DnaDuplexPropertyManager._addGroupBoxes where this groupbox 
+        @see: InsertDna_PropertyManager._addGroupBoxes where this groupbox 
         is added. 
         """
         # Placement Options radio button list to create radio button list.
@@ -212,7 +212,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM):
         Returns True if a Palne is specified by the user AND 'use specified 
         plane' radio button in the Property manager is checked. 
         
-        @see: DnaDuplex_GraphicsMode.getDrawingPlane()
+        @see: InsertDna_GraphicsMode.getDrawingPlane()
         """
         if self.referencePlaneListWidget is None:
             return False
@@ -248,9 +248,9 @@ class DnaOrCnt_PropertyManager(EditCommand_PM):
         """
         Returns True if the add segments tool (which adds the segments to the 
         list of segments) is active
-        @see: DnaDuplex_EditCommand.isSpecifyPlaneToolActive()
-        @see: DnaDuplex_GraphicsMode.isSpecifyPlaneToolActive()
-        @see: DnaDuplex_GraphicsMode.jigLeftUp()
+        @see: InsertDna_EditCommand.isSpecifyPlaneToolActive()
+        @see: InsertDna_GraphicsMode.isSpecifyPlaneToolActive()
+        @see: InsertDna_GraphicsMode.jigLeftUp()
         """
         if self.referencePlaneListWidget is None:
             return False
@@ -308,7 +308,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM):
         the dna will be created, has the Qt focus. This is used to just remove 
         items from the list widget (without actually 'deleting' the 
         corresponding Plane in the GLPane)
-        @see: DnaDuplex_GraphicsMode.keyPressEvent() where this is called
+        @see: InsertDna_GraphicsMode.keyPressEvent() where this is called
         """
         if self.referencePlaneListWidget and \
            self.referencePlaneListWidget.hasFocus():

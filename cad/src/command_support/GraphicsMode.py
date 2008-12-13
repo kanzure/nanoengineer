@@ -388,7 +388,7 @@ class basicGraphicsMode(GraphicsMode_API):
         @type tagColor:  B{A}
         
         @see: self._drawTags
-        @see: DnaDuplexPropertyManager.clearTags for an example
+        @see: InsertDna_PropertyManager.clearTags for an example
         """
         #bruce 081002 renamed from drawTags -> setDrawTags, to avoid confusion,
         # since it sets state but doesn't do any drawing

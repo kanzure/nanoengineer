@@ -25,10 +25,10 @@ Ninad 2007-12-26: Converted editControllers into Commands on commandSequencer
 
 TODO:
 - Need to cleanup docstrings. 
-- In subclasses such as DnaDuplex_EditCommand, the method createStructure do 
+- In subclasses such as InsertDna_EditCommand, the method createStructure do 
   nothing (user is not immediately creating a structure) .
   Need to clean this up a bit in this class and in the  surrounding code
-- New subclass DnaDuplex_EditCommand adds the structure as a node in the MT 
+- New subclass InsertDna_EditCommand adds the structure as a node in the MT 
   in its _createStructure method. This should also be implemented for 
   following sublasses:  Plane_EditCommand, LineEditCommand, motor
   editcommand classes.
@@ -56,7 +56,7 @@ class EditCommand(Select_Command):
        thing it does is to create and show  a property manager (PM) The PM 
        is used by the editCommand to define the UI for the model
        which this editCommand creates/edits. 
-       See DnaDuplex_EditCommand.runCommand for an example 
+       See InsertDna_EditCommand.runCommand for an example 
     2. createStructure -- Used directly by the client when it already knows 
        input parameters for the structure being generated. This facilitates 
        imeediate preview of the model being created when you execute this 
@@ -129,7 +129,7 @@ class EditCommand(Select_Command):
         thing it does is to create and show  a property manager (PM) The PM 
         is used by the editCommand to define the UI for the model
         which this editCommand creates/edits. 
-        See DnaDuplex_EditCommand.runCommand for an example
+        See InsertDna_EditCommand.runCommand for an example
         Default implementation, subclasses should override this method.
         NEED TO DOCUMENT THIS FURTHER ?
         """

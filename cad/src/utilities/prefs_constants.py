@@ -832,7 +832,7 @@ prefs_table = (
     
     #DNA cursor text preferences 
 
-    #Cursor text prefs while in DnaDuplex_EditCommand 
+    #Cursor text prefs while in InsertDna_EditCommand 
     ('', 'boolean',
      dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key, True),
 

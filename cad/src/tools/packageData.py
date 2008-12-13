@@ -323,9 +323,8 @@ packageMapping_for_files = {
     "DirectionArrow"                   : "graphics_drawable", # a kind of DragHandler (drawable with behavior)
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode
     "DnaCylinderChunks"                : "graphics_view", # a ChunkDisplayMode
-    "DnaDuplex"                        : "operation|dna/commands/InsertDna", # class to help construct model objects defined elsewhere
-    "DnaDuplex_EditCommand"            : "command|dna/commands/InsertDna",
-    "DnaDuplexPropertyManager"         : "ui/propmgr|dna/commands/InsertDna",
+    "InsertDna_EditCommand"            : "command|dna/commands/InsertDna",
+    "InsertDna_PropertyManager"        : "ui/propmgr|dna/commands/InsertDna",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
     "DnaSegment_EditCommand"           : "command|dna/commands/DnaSegment",
     "DnaSegment_GraphicsMode"          : "graphics_mode|dna/commands/DnaSegment",

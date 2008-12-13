@@ -157,7 +157,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
     def __init__(self, commandSequencer):
         """
-        Constructor for DnaDuplex_EditCommand
+        Constructor for InsertDna_EditCommand
         """
 
         glpane = commandSequencer.assy.glpane

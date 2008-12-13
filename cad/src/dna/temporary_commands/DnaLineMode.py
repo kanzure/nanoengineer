@@ -29,7 +29,7 @@ class DnaLine_GM( Line_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of DnaLineMode.
     @see: L{DnaLineMode} for more comments. 
-    @see: DnaDuplex_EditCommand where this is used as a GraphicsMode class.
+    @see: InsertDna_EditCommand where this is used as a GraphicsMode class.
           The default command part in this file is a Default class
           implementation  of self.command (see class DnaLineMode)          
     """    
@@ -173,7 +173,7 @@ class DnaLineMode(Line_Command): # not used as of 080111, see docstring
     [no longer used as of 080111, see details below]
     Encapsulates the Line_Command functionality.
     @see: L{Line_Command}
-    @see: DnaDuplex_EditCommand.getCursorText
+    @see: InsertDna_EditCommand.getCursorText
     
     NOTE: [2008-01-11]
     The default DnaLineMode (command) part is not used as of 2008-01-11
@@ -182,7 +182,7 @@ class DnaLineMode(Line_Command): # not used as of 080111, see docstring
     part. (The old implementation of generating Dna using endpoints of a 
     line used this default command class (DnaLineMode). so the method in this
     class  such as self.createStructure does nothing . 
-    @see: DnaDuplex_EditCommand where the GraphicsMode class of this command is 
+    @see: InsertDna_EditCommand where the GraphicsMode class of this command is 
           used
     """
     

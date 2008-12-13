@@ -429,7 +429,7 @@ class Group(NodeWithAtomContents):
         ##        (self, newchild)
         # But this should fail for really-killed self or newchild, as long as
         # we keep setting their assy to None -- but the 2nd one is temporarily
-        # just a debug print, since it fails in DnaDuplex_EditCommand.py when
+        # just a debug print, since it fails in InsertDna_EditCommand.py when
         # used with dna updater (need to fix that soon):
         assert self.assy is not None, "%r has no .assy in addchild" % self
         ## assert self.assy is newchild.assy, \

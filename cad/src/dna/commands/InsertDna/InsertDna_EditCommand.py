@@ -1,7 +1,7 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-DnaDuplex_EditCommand.py
-DnaDuplex_EditCommand that provides an editCommand object for 
+InsertDna_EditCommand.py
+InsertDna_EditCommand that provides an editCommand object for 
 generating DNA Duplex .  This command should be invoked only from 
 BuildDna_EditCommand
 
@@ -43,7 +43,7 @@ from dna.generators.B_Dna_PAM3_Generator import B_Dna_PAM3_Generator
 from dna.generators.B_Dna_PAM5_Generator import B_Dna_PAM5_Generator
 
 from utilities.exception_classes import PluginBug, UserError
-from dna.commands.InsertDna.DnaDuplexPropertyManager import DnaDuplexPropertyManager
+from dna.commands.InsertDna.InsertDna_PropertyManager import InsertDna_PropertyManager
 
 from utilities.constants import gensym
 from utilities.constants import black
@@ -51,7 +51,7 @@ from utilities.constants import black
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength
 from dna.model.Dna_Constants import getDuplexLength
 
-from dna.commands.InsertDna.DnaDuplex_GraphicsMode import DnaDuplex_GraphicsMode
+from dna.commands.InsertDna.InsertDna_GraphicsMode import InsertDna_GraphicsMode
 
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key
@@ -62,9 +62,9 @@ from utilities.prefs_constants import cursorTextColor_prefs_key
 
 _superclass = EditCommand
 
-class DnaDuplex_EditCommand(EditCommand):
+class InsertDna_EditCommand(EditCommand):
     """
-    DnaDuplex_EditCommand that provides an editCommand object for 
+    InsertDna_EditCommand that provides an editCommand object for 
     generating DNA Duplex . 
 
     This command should be invoked only from BuildDna_EditCommand 
@@ -75,18 +75,18 @@ class DnaDuplex_EditCommand(EditCommand):
     """
 
     #Graphics Mode set to DnaLine graphics mode
-    GraphicsMode_class = DnaDuplex_GraphicsMode
+    GraphicsMode_class = InsertDna_GraphicsMode
     
     #Property Manager
-    PM_class = DnaDuplexPropertyManager
+    PM_class = InsertDna_PropertyManager
     
     
-    cmd              =  greenmsg("Build DNA: ")
+    cmd              =  greenmsg("Insert DNA: ")
     prefix           =  'DnaSegment'   # used for gensym
     cmdname          = "Duplex"
 
     commandName       = 'DNA_DUPLEX'
-    featurename       = "Build Dna Duplex"
+    featurename       = "Insert DNA"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
@@ -118,14 +118,14 @@ class DnaDuplex_EditCommand(EditCommand):
 
     def __init__(self, commandSequencer):
         """
-        Constructor for DnaDuplex_EditCommand
+        Constructor for InsertDna_EditCommand
         """
 
         _superclass.__init__(self, commandSequencer)        
 
         #_fallbackDnaGroup stores the DnaSegments created while in 
         #this command. This temporary dnaGroup is created IF AND ONLY IF 
-        #DnaDuplex_EditCommand is unable to access the dnaGroup object of the 
+        #InsertDna_EditCommand is unable to access the dnaGroup object of the 
         #parent BuildDna_EditCommand. (so if this group gets created, it should
         #be considered as a bug. While exiting the command the list of segments 
         #of this group is given to the BuildDna_EditCommand where they get 
@@ -179,7 +179,7 @@ class DnaDuplex_EditCommand(EditCommand):
         """                 
         _superclass.command_entered(self)
         
-        if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
+        if isinstance(self.graphicsMode, InsertDna_GraphicsMode):
             self._setParamsForDnaLineGraphicsMode()
             self.mouseClickPoints = []
 
@@ -205,7 +205,7 @@ class DnaDuplex_EditCommand(EditCommand):
         """          
         _superclass.command_will_exit(self)
         
-        if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
+        if isinstance(self.graphicsMode, InsertDna_GraphicsMode):
             self.mouseClickPoints = []
 
         self.graphicsMode.resetVariables()   
@@ -240,7 +240,7 @@ class DnaDuplex_EditCommand(EditCommand):
 
         if not bool_keep: 
             #Don't delete any DnaSegements or DnaGroups at all while 
-            #in DnaDuplex_EditCommand. 
+            #in InsertDna_EditCommand. 
             #Reason: See BreakStrand_Command.keep_empty_group. In addition to 
             #this, this command can create multiple DnaSegments Although those 
             #won't be empty, it doesn't hurt in waiting for this temporary 
@@ -506,7 +506,7 @@ class DnaDuplex_EditCommand(EditCommand):
         self.win.assy.part.ensure_toplevel_group()
 
         if self._parentDnaGroup is None:
-            print_compact_stack("bug: Parent DnaGroup in DnaDuplex_EditCommand"\
+            print_compact_stack("bug: Parent DnaGroup in InsertDna_EditCommand"\
                                 "is None. This means the previous command "\
                                 "was not 'BuildDna_EditCommand' Ignoring for now")
             if self._fallbackDnaGroup is None:
@@ -692,7 +692,7 @@ class DnaDuplex_EditCommand(EditCommand):
     def updateDrawingPlane(self, plane = None):
         """
         Delegates this to self.propMgr.
-        @see: DnaDuplex_GraphicsMode.jigLeftUp
+        @see: InsertDna_GraphicsMode.jigLeftUp
         @see: DnaDuplex_graphicsMode.setDrawingPlane()        
         """
         self.graphicsMode.setDrawingPlane(plane)

@@ -1089,7 +1089,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
                       at the given event coordinates. 
                      
         @see: Line_GraphicsMode.leftDown()
-        @see: DnaDuplex_GraphicsMode.
+        @see: InsertDna_GraphicsMode.
         
         @TODO: There will be some cases where the intersection of the mouseray 
         and the given plane is not possible or returns a very large number.

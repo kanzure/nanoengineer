@@ -7,7 +7,7 @@ InsertNanotube_PropertyManager.py
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Mark 2008-03-09:
-- Created. Copied and edited DnaDuplexPropertyManager.py.
+- Created. Copied and edited InsertDna_PropertyManager.py.
 """
 
 __author__ = "Mark"

@@ -1,6 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-DnaDuplex_GraphicsMode.py
+InsertDna_GraphicsMode.py
 
 Graphics mode class for creating a dna duplex by specifying two line end 
 points. The duplex can be created on a specified plane or parallel to screen
@@ -22,7 +22,7 @@ from dna.temporary_commands.DnaLineMode import DnaLine_GM
 from graphics.drawing.drawDnaLabels import draw_dnaBaseNumberLabels
 
 _superclass = DnaLine_GM
-class DnaDuplex_GraphicsMode(DnaLine_GM):
+class InsertDna_GraphicsMode(DnaLine_GM):
     """
     Graphics mode class for creating a dna duplex by specifying two line end 
     points. The duplex can be created on a specified plane or parallel to screen
@@ -57,7 +57,7 @@ class DnaDuplex_GraphicsMode(DnaLine_GM):
         is pressed while the focus is inside the PM list widget, it deletes
         that list widget item.
         @see: ListWidgetItems_PM_Mixing.listWidgetHasFocus()
-        @see: DnaDuplexPropertyManager.listWidgetHasFocus()
+        @see: InsertDna_PropertyManager.listWidgetHasFocus()
         """
         if event.key() == Qt.Key_Delete:
             if self.command.listWidgetHasFocus():
@@ -88,8 +88,8 @@ class DnaDuplex_GraphicsMode(DnaLine_GM):
     def isSpecifyPlaneToolActive(self):
         """
         Overrides superclass method. Delegates this job to self.command. 
-        @see: DnaDuplex_EditCommand.isSpecifyPlaneToolActive()
-        @see: DnaDuplexPropertyManager.isSpecifyPlaneToolActive()
+        @see: InsertDna_EditCommand.isSpecifyPlaneToolActive()
+        @see: InsertDna_PropertyManager.isSpecifyPlaneToolActive()
         @see: self.jigLeftUp()
         """
         if self.command:
@@ -104,7 +104,7 @@ class DnaDuplex_GraphicsMode(DnaLine_GM):
         
         Returns the reference plane on which the line will be drawn.
         The default immplementation returns None.
-        @see: DnaDuplex_EditCommand.useSpecifiedDrawingPlane()
+        @see: InsertDna_EditCommand.useSpecifiedDrawingPlane()
         @see: Line_GraphicsMode.bareMotion()
         @see: Line_GraphicsMode.leftDown()
         """

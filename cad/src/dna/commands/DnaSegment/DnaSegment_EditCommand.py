@@ -217,7 +217,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     def __init__(self, commandSequencer):
         """
-        Constructor for DnaDuplex_EditCommand
+        Constructor for InsertDna_EditCommand
         """
         #used by self.command_update_internal_state()
         self._previous_model_change_indicator = None

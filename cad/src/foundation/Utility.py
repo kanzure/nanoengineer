@@ -1528,10 +1528,10 @@ class Node( StateMixin):
         @see: dna_model.DnaSegment.kill_with_contents  which overrides this 
               method. 
         @see: EditCommand._removeStructure() which calls this Node API method
-        @see: DnaDuplex_EditCommand._removeSegments()
+        @see: InsertDna_EditCommand._removeSegments()
         """
         #NOTE: This method was defined on 2008-02-22 to support dna_updater
-        #implementation in DnaDuplex_EditCommand. 
+        #implementation in InsertDna_EditCommand. 
         #This method is called in EditCommands instead of calling widely used 
         #'kill' method.(Example: we are not modifying DnaSegment.kill to delete 
         #even the non-members of DnaSegment, to avoid potential internal bugs) 

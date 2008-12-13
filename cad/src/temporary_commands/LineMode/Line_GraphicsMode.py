@@ -109,7 +109,7 @@ class Line_GraphicsMode( Select_GraphicsMode ):
 
         Returns the reference plane on which the line will be drawn.
         The default immplementation returns None.   
-        @see: DnaDuplex_GraphicsMode.getDrawingPlane()
+        @see: InsertDna_GraphicsMode.getDrawingPlane()
         """
         return self.plane
 
@@ -118,8 +118,8 @@ class Line_GraphicsMode( Select_GraphicsMode ):
         """
         Sets the plane on which the line will be drawn (in subclasses , this 
         is the plane on which the structure will be created.)
-        @see: DnaDuplex_GraphicsMode.jigLeftUp()
-        @see: DnaDuplex_EditCommand.updateDrawingPlane()
+        @see: InsertDna_GraphicsMode.jigLeftUp()
+        @see: InsertDna_EditCommand.updateDrawingPlane()
         """
         if isinstance(plane, self.win.assy.Plane):
             self.plane = plane
