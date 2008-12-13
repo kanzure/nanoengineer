@@ -141,8 +141,14 @@ class Plane_EditCommand(EditCommand):
              originLocation,  displayLabelStyle = self.propMgr.getParameters()
     
         atmList =  self.win.assy.selatoms_list()
-        self.propMgr.changePlanePlacement(
-            self.propMgr.pmPlacementOptions.checkedId())        
+        
+        #Do not change the plane placement here. ONLY do it when user explicitely
+        #selects an option from the radio button list. This avoids bug 2949
+        #but a side effect of this fix is that if user has already changed a 
+        #radio button option , then makes some changes -- then the current placement
+        #option won't have any effect. 
+        ##self.propMgr.changePlanePlacement(
+            ##self.propMgr.pmPlacementOptions.checkedId())        
         
         if self.struct:            
             ctr     =  self.struct.center 

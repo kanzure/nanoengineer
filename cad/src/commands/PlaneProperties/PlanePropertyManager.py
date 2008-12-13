@@ -842,7 +842,14 @@ class PlanePropertyManager(EditCommand_PM):
             plane.updateCosmeticProps(previewing = True)
             if plane.imagePath:
                 self.imageDisplayFileChooser.setText(plane.imagePath)
-            self.imageDisplayCheckBox.setChecked(plane.display_image) 
+            self.imageDisplayCheckBox.setChecked(plane.display_image)  
+            
+            #Make sure that the plane placement option is always set to 
+            #'Custom' when the Plane PM is shown. This makes sure that bugs like
+            #2949 won't occur. Let the user change the plane placement option
+            #explicitely
+            button = self.pmPlacementOptions.getButtonById(3)
+            button.setChecked(True)
 
     def setParameters(self, params):
         """
