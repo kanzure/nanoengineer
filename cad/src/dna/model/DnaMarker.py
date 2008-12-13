@@ -161,7 +161,7 @@ class DnaMarker( ChainAtomMarker):
     ## mmp_record_name = "DnaMarker" # @@@@ not yet read; also the mmp format might be verbose (has color)
 
     # icon_names = ("missing", "missing-hidden")
-    icon_names = ('border/dna.png', 'border/dna.png') # stubs; not normally seen for now
+    icon_names = ('modeltree/DnaMarker.png', 'modeltree/DnaMarker-hide.png') # stubs; not normally seen for now
     
     copyable_attrs = _superclass.copyable_attrs + ()
         # todo: add some more -- namely the user settings about how it moves, whether it lives, etc
