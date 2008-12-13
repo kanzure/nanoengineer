@@ -977,7 +977,7 @@ class ColorSorter:
                         if name:
                             glPushName(name)
                         else:
-                            print "bug_2: attempt to push non-glname", name
+                            pass ## print "bug_2: attempt to push non-glname", name
                         func(params)    # Call the draw worker function.
                         if name:
                             glPopName()
@@ -1009,7 +1009,7 @@ class ColorSorter:
                             if name:
                                 glPushName(name)
                             else:
-                                print "bug_3: attempt to push non-glname", name
+                                pass ## print "bug_3: attempt to push non-glname", name
                             if func == drawpolycone_multicolor_worker:
                                 # Just to be sure, check if the func
                                 # is drawpolycone_multicolor_worker
@@ -1134,7 +1134,7 @@ class ColorSorter:
                 if name:
                     glPushName(name)
                 else:
-                    print "bug_4: attempt to push non-glname", name
+                    pass ## print "bug_4: attempt to push non-glname", name
                 func(params)            # Call the draw worker function.
                 if name:
                     glPopName()
