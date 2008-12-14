@@ -3497,6 +3497,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.changed()
         return
 
+    def getDisplayStyle(self):
+        """
+        return self's display style.
+        """
+        return self.display
+    
     def show_invisible_atoms(self):
         """
         Resets the display mode for each invisible (diINVISIBLE) atom 
