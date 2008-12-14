@@ -308,6 +308,23 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedProteinChunks)
         return selProteinList
+    
+    def getSelectedProteinChunk(self):
+        """
+        Returns only the currently selected protein chunk, if any.
+        @return: the currently selected protein chunk or None if no peptide 
+                 chunks are selected. Also returns None if more than one
+                 peptide chunk is select.
+        @rtype: L{Chunk}
+        @note: use L{getSelectedProteinChunks()} to get the list of all 
+               selected proteins.
+        """
+        selectedProteinList = self.getSelectedProteinChunks()
+        if len(selectedProteinList) == 1:
+            return selectedProteinList[0]
+        else:
+            return None
+        return
 
     def getNumberOfSelectedChunks(self):
         """
