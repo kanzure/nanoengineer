@@ -1082,7 +1082,7 @@ class ProteinChunks(ChunkDisplayMode):
                         aa_atom_list = aa.get_side_chain_atom_list()
                         for atom in aa_atom_list:
                             pos1 = atom.posn()
-                            drawsphere_worker((pos1, 0.2, 1))
+                            drawsphere_worker((pos1, 0.2, 1, 1))
                             for bond in atom.bonds:
                                 if atom == bond.atom1:
                                     if bond.atom2 in aa_atom_list:
