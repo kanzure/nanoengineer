@@ -216,6 +216,23 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             cursorMate2.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
             self.aaRulerTextEdit.setTextCursor( cursorMate2 )
 
+        return
+    
+    def clear( self ):
+        """
+        Clears the sequence editor.
+        """
+        self.setSequenceAndStructure("", "")
+        return
+    
+    def setSequenceAndStructure(self, inSequence, inStructure):
+        """
+        """
+        self.setSequence(inSequence)
+        self.setSecondaryStructure(inStructure)
+        self.setRuler(len(inSequence))
+        return
+    
     def setSequence( self,
                      inSequence,
                      inStylize        =  True,
@@ -295,12 +312,12 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         return fixedPitchSequence 
      
     
-    def setSecondaryStructure(self, inSequence, inRestoreCursor  =  True):
+    def setSecondaryStructure(self, inStructure, inRestoreCursor  =  True):
         """
         Set the secondary structure of the protein
         
-        @param inSequence: The new sequence.
-        @type  inSequence: QString
+        @param inStructure: The structure string.
+        @type  inStructure: QString
         
         @param inRestoreCursor: restore cursor position
         @type  inRestoreCursor: bool
@@ -318,7 +335,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             selectionStart  =  cursor.selectionStart()
             selectionEnd    =  cursor.selectionEnd()
         
-        fixedPitchSequence = self._getFormattedSequence(inSequence)
+        fixedPitchSequence = self._getFormattedSequence(inStructure)
         self.secStrucTextEdit.setHtml(fixedPitchSequence)
         if inRestoreCursor:                      
             cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
@@ -334,7 +351,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
     
     def setRuler(self, lengthOfSeq, inRestoreCursor  =  True):
         """
-        Set the sequence ruler for upto three digits
+        Set the sequence ruler for up to three digits
         
         @param lengthOfSeq: length of the sequence.
         @type  lengthOfSeq: int
@@ -537,6 +554,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         @param index: index of amino acid under cursor in sequence text edit
         @type index: int 
         """
+        #@@@ Change current_protein from string to Chunk. Mark 2008-12-13
         for chunk in self.win.assy.molecules:
             if chunk.isProteinChunk() and chunk.name == current_protein:
                 chunk.protein.collapse_all_rotamers()

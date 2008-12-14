@@ -9,16 +9,18 @@ BuildProtein_PropertyManager.py
 Mark 20081212: Heavily rewritten, modeled after BuildDna_PropertyManager.py.
 
 To do list:
-- Include name and length of the current Peptide in the title of the Sequence Editor.
+- Include name of the current Peptide in the title of the Sequence Editor.
 - Make sure PM and SeqEditor are updated correctly after selecting/editing 
   a peptide via the model tree.
 - Add "Edit Properties" menu item to GA context menu when highlighting Peptide.
 - Bug: Cannot edit a peptide loaded from an MMP file.
 - Create a new PM for "Peptide Properties".
 - Rename MODEL_AND_SIMULATE_PROTEIN to BUILD_PROTEIN (if it is safe).
-- FASTA file support in sequence editor.
+- Read FASTA file via sequence editor (or another way).
 - Debug_pref for debug print statements.
 - Special peptide icons for MT and PM list widget.
+- Deprecate set_current_protein_chunk_name() and get_current_protein_chunk_name.
+  Use ops_select_Mixin's getSelectedProteinChunk() instead.
 """
 import foundation.env as env
 from PyQt4.Qt import SIGNAL
@@ -181,12 +183,10 @@ class BuildProtein_PropertyManager(EditCommand_PM):
             
             self.peptideListWidget.updateSelection(selectedProteins) 
             
-            if len(selectedProteins) == 1:
-                self.set_current_protein_chunk_name(selectedProteins[0].name)
-                print "current_protein=", self.get_current_protein_chunk_name()
+            # Enable/disable "Edit Sequence" button.
+            if self.getSelectedProteinChunk():
                 self.editPeptidePropertiesButton.setEnabled(True)
             else:
-                self.set_current_protein_chunk_name("")
                 self.editPeptidePropertiesButton.setEnabled(False)
                 self.sequenceEditor.hide()
                 
@@ -263,7 +263,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         
         if self.command: # and self.command.hasValidStructure():
             peptideList = []
-            peptideList = self.getPeptideChunks()
+            peptideList = self.getAllProteinChunksInPart()
             params = len(peptideList)
         
         print "_currentStructureParams(): params:", params
@@ -274,7 +274,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         Closes the Property Manager. Overrides EditCommand_PM.close()
         """
         #Clear tags, if any, due to the selection in the self.strandListWidget.
-        self.peptideListWidget.clear()
+        #self.peptideListWidget.clear()
         self.sequenceEditor.hide()
         env.history.statusbar_msg("")
         EditCommand_PM.close(self)
@@ -301,10 +301,9 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         Opens the sequence editor for the selected peptide.
         """
         
-        selectedPeptideList = self.win.assy.getSelectedProteinChunks()
+        peptideChunk = self.getSelectedProteinChunk()
         
-        if len(selectedPeptideList) == 1:     
-            peptideChunk = selectedPeptideList[0]
+        if peptideChunk:
             sequence = peptideChunk.protein.get_sequence_string()
             self.sequenceEditor.setSequence(sequence)
             secStructure = peptideChunk.protein.get_secondary_structure_string()
@@ -313,26 +312,12 @@ class BuildProtein_PropertyManager(EditCommand_PM):
             self.sequenceEditor.show()
         return
     
-    # getPeptideChunks() should eventually be moved to assy or some other class.
-    # This should wait until we have a data model implemented for 
-    # peptides/proteins.
-    # Ask Bruce. Mark 2008-12-12
-    def getPeptideChunks(self):
-        """
-        Returns a list of all the peptides in the current assy.
-        """
-        peptideList = []
-        for mol in self.win.assy.molecules:
-            if mol.isProteinChunk():
-                peptideList.append(mol)
-        return peptideList
-    
     def _showPeptideSequenceEditor(self):
         """
         Show/hide sequence editor. It is only displayed if there is
         a single peptide selected. Otherwise it is hidden.
         """
-        if self.get_current_protein_chunk_name():
+        if self.getSelectedProteinChunk():
             self.sequenceEditor.show()
         else:
             self.sequenceEditor.hide()
@@ -380,7 +365,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         """
         Update the peptide list widget. It shows all peptides in the part.
         """
-        peptideChunkList = self.getPeptideChunks()
+        peptideChunkList = self.getAllProteinChunksInPart()
         
         if peptideChunkList:
             self.peptideListWidget.insertItems(
@@ -418,10 +403,68 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         """
         return self.current_protein
     
+    def getSelectedProteinChunk(self):
+        """
+        Returns only the currently selected protein chunk, if any.
+        @return: the currently selected protein chunk or None if no peptide 
+                 chunks are selected. Also returns None if more than one
+                 peptide chunk is select.
+        @rtype: L{Chunk}
+        @note: use L{getSelectedProteinChunks()} to get the list of all 
+               selected proteins.
+        @attention: A method of the same name is in the ops_select_Mixin class.
+                    It is my intention to use that method and deprecate this one.
+                    I cannot do that until I remove all uses of 
+                    get_current_protein_chunk_name() and 
+                    set_current_protein_chunk_name() -- Mark. 2008-12-13
+        """
+        selectedPeptideList = self.win.assy.getSelectedProteinChunks()
+        if len(selectedPeptideList) == 1:
+            self.set_current_protein_chunk_name(selectedPeptideList[0].name)
+            return selectedPeptideList[0]
+        else:
+            self.set_current_protein_chunk_name("")
+            return None
+        return
+    
+    # getAllProteinChunksInPart() should eventually be moved to assy or some other class.
+    # This should wait until we have a data model implemented for 
+    # peptides/proteins.
+    # Ask Bruce. Mark 2008-12-12
+    def getAllProteinChunksInPart(self):
+        """
+        Returns a list of all the protein chunks in the current assy.
+        
+        @return: a list of all the protein chunks in the current assy.
+        @rtype: list of Chunks
+        """
+        peptideList = []
+        for mol in self.win.assy.molecules:
+            if mol.isProteinChunk():
+                peptideList.append(mol)
+        return peptideList
     
     # --------------------------------------------------------------------
     # Deprecated methods to keep until we're certain this is working.
     # --Mark 2008-12-12.
+    
+    
+    def _editPeptide_DEPRECATED(self):  
+        """
+        Opens the sequence editor for the selected peptide.
+        """
+        
+        selectedPeptideList = self.win.assy.getSelectedProteinChunks()
+        
+        if len(selectedPeptideList) == 1:     
+            peptideChunk = selectedPeptideList[0]
+            sequence = peptideChunk.protein.get_sequence_string()
+            self.sequenceEditor.setSequence(sequence)
+            secStructure = peptideChunk.protein.get_secondary_structure_string()
+            self.sequenceEditor.setSecondaryStructure(secStructure)
+            self.sequenceEditor.setRuler(len(secStructure)) 
+            self.sequenceEditor.show()
+        return
     
     def _updateProteinParameters_DEPRECATED(self, index):
         """
