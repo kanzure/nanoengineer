@@ -2678,15 +2678,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # russ 080530: Support for patterned highlighting drawing modes.
             patterned = startPatternedDrawing(highlight = True)
 
-            #russ 080225: Alternate drawing method using colorless display list.
-            ##russ 080317 Bypass assertion for DnaStrand.
-            ##assert self.__dict__.has_key('displist')
-            if self.__dict__.has_key('displist') and self.displist.nocolor_dl:
+            # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
+            if self.__dict__.has_key('displist'):
                 apply_material(color)
                 self.pushMatrix()
-                glCallList(self.displist.nocolor_dl)
-                for extra_displist in self.extra_displists.itervalues():
-                    extra_displist.draw_nocolor_dl()
+                for csdl in ([self.displist] +
+                             [ed.csdl for ed in self.extra_displists.values()]):
+                    csdl.draw(highlighted = True, highlight_color = color)
                 self.popMatrix()
                 pass
 

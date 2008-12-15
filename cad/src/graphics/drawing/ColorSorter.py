@@ -459,6 +459,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
                     glDeleteLists(dl, 1) 
                     pass
                 continue
+            continue
         self.clear()
         return
 
@@ -846,7 +847,7 @@ class ColorSorter:
                         csdl.activate() # Allocate a display list for our use.
                         pass
                     # Start a single-level list.
-                    glNewList(csdl.dl, GL_COMPILE_AND_EXECUTE)
+                    glNewList(csdl.dl, GL_COMPILE)
                 except:
                     print ("data related to following exception: csdl.dl = %r" %
                            (csdl.dl,)) #bruce 070521
@@ -1095,17 +1096,17 @@ class ColorSorter:
                     # Reset from patterning drawing mode.
                     endPatternedDrawing(select = True)
                 glEndList()
-
-                # Use either the normal-color display list or the selected one.
-                parent_csdl.selectDl()
-
-                # Draw the newly-built display list.
-                parent_csdl.draw_dl()
                 pass
 
             ColorSorter.sorted_by_color = None
             pass
         ColorSorter.sorting = False
+
+        # Draw the newly-built display list, and any shader primitives as well.
+        if parent_csdl is not None:
+            parent_csdl.draw(
+                # Use either the normal-color display list or the selected one.
+                selected = parent_csdl.selected)
         return
 
     finish = staticmethod(finish)
