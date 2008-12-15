@@ -303,6 +303,9 @@ class ops_select_Mixin:
         
         selProteinList = []
         def addSelectedProteinChunks(obj, proteinList = selProteinList):
+            # NOTE: Exception here if obj in not a subclass of Chunk since it
+            # won't have attr isProteinChunk(). Examples include Jigs, Part, etc.
+            # Ask Bruce for best solution. Mark 2008-12-14.
             if obj.picked and obj.isProteinChunk():
                 proteinList += [obj]
 
