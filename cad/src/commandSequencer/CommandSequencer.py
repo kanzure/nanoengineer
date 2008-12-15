@@ -932,7 +932,7 @@ class CommandSequencer(object):
                  or None if no such command is found.
         @rtype: an active command object, or None
 
-        @param commandName: name of command we're searching for (e.g. 'BUILD_PROTEIN')
+        @param commandName: name of command we're searching for (e.g. 'MODEL_AND_SIMULATE_PROTEIN')
         @type: string
 
         @param starting_from: if provided, start the search at this command

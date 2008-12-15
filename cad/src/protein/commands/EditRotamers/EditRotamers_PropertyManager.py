@@ -19,6 +19,7 @@ To do:
 - Add "Number of AA:" field (disabled).
 - Include name of the current peptide in the title of the Sequence Editor.
 - Sync Residue combobox and sequence editor (or remove one or the other).
+- Add wait (hourglass) cursor when changing the display style of proteins.
 """
 import os, time, fnmatch, string
 import foundation.env as env
@@ -156,10 +157,15 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         aa_list = self.current_protein.protein.get_amino_acid_id_list()
         for j in range(len(aa_list)):
             self.aminoAcidsComboBox.addItem(aa_list[j])
-            
+        
+        # This doesn't generate a signal (only 'activate' is connected to 
+        # slot _aminoAcidChanged).
         self.aminoAcidsComboBox.setCurrentIndex(
             self.current_protein.protein.get_current_amino_acid_index())
         
+        # Call the slot explicitly. This is needed to draw the rotamer
+        # on top of the reduced model of the current protein.
+        # Also see the comments in _update_UI_do_updates().
         self._aminoAcidChanged(
             self.current_protein.protein.get_current_amino_acid_index())
         
@@ -191,16 +197,17 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         if self.current_protein:
             self.current_protein.setDisplayStyle(self.previous_protein_display_style)
             self.previous_protein = None
-        EditCommand_PM.close(self)
+        _superclass.close(self)
         return
     
     def show(self):
         """
-        Extends superclass method.
+        Show the PM. Extends superclass method.
+        @note: _update_UI_do_updates() gets called immediately after this and
+               updates PM widgets with their correct values/settings.
         """
         _superclass.show(self)
         
-        #self._update_UI_do_updates() #@@@
         self.updateMessage("Edit...")
         self.sequenceEditor.show()
         env.history.statusbar_msg("")
@@ -475,6 +482,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         
     def _aminoAcidChanged(self, index):
         """
+        Slot for the "Current residue" combobox.
         """
         if not self.current_protein:
             return
@@ -548,6 +556,16 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             print "_update_UI_do_updates(): DO NOTHING."
             return
         
+        # NOTE: Changing the display styles of the protein chunks can take some
+        # time. We should put up the wait (hourglass) cursor here and restore 
+        # before returning.
+        
+        # Update all PM widgets that need to be since something has changed.
+        print "_update_UI_do_updates(): UPDATING the PMGR."
+        self.update_name_field()
+        self.update_sequence_editor()
+        self.update_residue_combobox()
+        
         
         if self.previous_protein:
             self.previous_protein.setDisplayStyle(self.previous_protein_display_style)
@@ -558,104 +576,4 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             self.previous_protein_display_style = self.current_protein.getDisplayStyle()
             self.current_protein.setDisplayStyle(diPROTEIN)
         
-        # Update all PM widgets that need to be since something has changed.
-        # NOTE: This must happen after the display style has been changed,
-        # or the rotamer doesn't show up on the protein the first time it is
-        # drawn in diPROTEIN.
-        print "_update_UI_do_updates(): UPDATING the PMGR."
-        self.update_name_field()
-        self.update_residue_combobox()        
-        self.update_sequence_editor()
-        return
-    
-    # =========================================================================
-    # Deprecated methods. Keep them below for reference until everything is 
-    # working.
-    
-    def _expandNextRotamer_DEPRECATED(self):
-        """
-        """
-        for chunk in self.win.assy.molecules:
-            #Urmi 20080728: slot method for the current protein from build protein mode
-            if chunk.isProteinChunk() and chunk.name == self.current_protein:
-                chunk.protein.traverse_forward()
-                self._display_and_recenter()
-                self._updateAminoAcidInfo(
-                    chunk.protein.get_current_amino_acid_index())
-                return
-        return
-    
-    def _expandPreviousRotamer_DEPRECATED(self):
-        """
-        """
-        for chunk in self.win.assy.molecules:
-            #Urmi 20080728: slot method for the current protein from build protein mode
-            if chunk.isProteinChunk() and chunk.name == self.current_protein:
-                chunk.protein.traverse_backward()
-                self._display_and_recenter()
-                self._updateAminoAcidInfo(
-                    chunk.protein.get_current_amino_acid_index())
-                return
-        return
-    
-    def _collapseAllRotamers_DEPRECATED(self):
-        """
-        """
-        for chunk in self.win.assy.molecules:
-            #Urmi 20080728: slot method for the current protein from build protein mode
-            if chunk.isProteinChunk() and chunk.name == self.current_protein:
-                chunk.protein.collapse_all_rotamers()
-                self.win.glpane.gl_update()
-                return
-        return
-        
-    def _expandAllRotamers_DEPRECATED(self):
-        """
-        """
-        for chunk in self.win.assy.molecules:
-            #Urmi 20080728: slot method for the current protein from build protein mode
-            if chunk.isProteinChunk() and chunk.name == self.current_protein:
-                chunk.protein.expand_all_rotamers()
-                self.win.glpane.gl_update()
-                return
-        return
-    
-    def _display_and_recenter_DEPRECATED(self):
-        """
-        """
-        for chunk in self.win.assy.molecules:
-            #Urmi 20080728: display and recenter for the current protein 
-            #from build protein mode
-            if chunk.isProteinChunk() and chunk.name == self.current_protein:
-                chunk.protein.collapse_all_rotamers()
-                current_aa = chunk.protein.get_current_amino_acid()
-                if current_aa:
-                    chunk.protein.expand_rotamer(current_aa)
-                    self._update_chi_angles(current_aa)
-                    if self.recenterViewCheckBox.isChecked():
-                        ca_atom = current_aa.get_c_alpha_atom()
-                        if ca_atom:
-                            self.win.glpane.pov = -ca_atom.posn()                            
-                    
-                    self.win.glpane.gl_update()
-        return
-    
-    def _aminoAcidChanged_DEPRECATED(self, index):
-        """
-        """
-        for chunk in self.win.assy.molecules:
-            #Urmi 20080728: slot method for the current protein from build protein mode
-            if chunk.isProteinChunk() and chunk.name == self.current_protein:
-                chunk.protein.set_current_amino_acid_index(index)
-
-                self._display_and_recenter()
-        
-        #Urmi 20080728: change the cursor position in the sequence editor 
-        # when current amino acid in the amino acid combo box is changed
-        cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
-        if index == -1:
-            index = 0
-        cursor.setPosition(index, QTextCursor.MoveAnchor)       
-        cursor.setPosition(index + 1, QTextCursor.KeepAnchor) 
-        self.sequenceEditor.sequenceTextEdit.setTextCursor( cursor )
         return

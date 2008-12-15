@@ -1404,7 +1404,7 @@ class MWsemantics(QMainWindow,
         @type otherOptionsText: str
         """
         protein = ""
-        if self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN' or \
+        if self.commandSequencer.currentCommand.commandName == 'MODEL_AND_SIMULATE_PROTEIN' or \
            self.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS' or \
            self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
             protein = self.commandSequencer.currentCommand.propMgr.current_protein

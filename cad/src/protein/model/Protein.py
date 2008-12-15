@@ -384,6 +384,12 @@ class Protein:
         """
         return self.residues_list
     
+    def count_amino_acids(self):
+        """
+        Returns the number of amino acids.
+        """
+        return len(self.residues_list)
+    
     def assign_helix(self, resId):
         """
         Assign a helical secondary structure to resId.
@@ -625,10 +631,26 @@ class Protein:
                the actual model. Maybe we'll take care of that when we move to the
                new model
         """ 
-        win.commandSequencer.userEnterCommand('MODEL_AND_SIMULATE_PROTEIN')
+        win.commandSequencer.userEnterCommand('EDIT_ROTAMERS')
         return
        
     pass # end of class Protein
+
+
+# Protein helper methods should be located here.
+# Mark 2008-12-14
+def getAllProteinChunksInPart(assy):
+    """
+    Returns a list of all the protein chunks in assy.
+    
+    @return: a list of all the protein chunks in assy.
+    @rtype: list of chunks
+    """
+    proteinChunkList = []
+    for mol in assy.molecules:
+        if mol.isProteinChunk():
+            proteinChunkList.append(mol)
+    return proteinChunkList
 
 # piotr 082008: This and possibly several Rosetta-related methods of the Protein 
 # class should be re-factored and moved to a separate file in simulations/ROSETTA.

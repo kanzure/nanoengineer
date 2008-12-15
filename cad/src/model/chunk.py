@@ -552,7 +552,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             return
         
         #Urmi 20080730: edit properties for protein for context menu in gl pane
-        if command.commandName in ('SELECTMOLS', 'BUILD_PROTEIN'):
+        if command.commandName in ('SELECTMOLS', 'MODEL_AND_SIMULATE_PROTEIN'):
             if self.isProteinChunk():
                 try:
                     protein = self.protein

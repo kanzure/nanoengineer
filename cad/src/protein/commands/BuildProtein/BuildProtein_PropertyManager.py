@@ -21,6 +21,9 @@ To do list:
 - Special peptide icons for MT and PM list widget.
 - Deprecate set_current_protein_chunk_name() and get_current_protein_chunk_name.
   Use ops_select_Mixin's getSelectedProteinChunk() instead.
+- Bug: Returning from Compare command unselects the two selected protein chunks.
+  The PM list widget shows them as selected and the compare button is enabled,
+  but they are not selected in the graphics area.
 """
 import foundation.env as env
 from PyQt4.Qt import SIGNAL
@@ -34,6 +37,7 @@ from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_Constants     import PM_CANCEL_BUTTON
 from utilities.Comparison import same_vals
+from protein.model.Protein import getAllProteinChunksInPart
 
 _superclass = EditCommand_PM
 class BuildProtein_PropertyManager(EditCommand_PM):
@@ -57,14 +61,12 @@ class BuildProtein_PropertyManager(EditCommand_PM):
     pmName        =  title
     iconPath      =  "ui/actions/Command Toolbar/BuildProtein/BuildProtein.png"
     
-    current_protein = "" # name of the single selected peptide.
+    current_protein = "" # name of the single selected peptide. To be deprecated soon. --Mark 2008-12-14
 
     def __init__( self, command):
         """
         Constructor for the Build Protein property manager.
         """
-        
-        self.sequenceEditor = command.win.createProteinSequenceEditorIfNeeded() 
         
         #Attributes for self._update_UI_do_updates() to keep track of changes
         #in these , since the last call of that method. These are used to 
@@ -112,6 +114,11 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         change_connect(self.editPeptidePropertiesButton, 
                        SIGNAL("clicked()"),
                        self._editPeptide)
+        
+        change_connect(self.compareProteinsButton, 
+                       SIGNAL("clicked()"),
+                       self._compareProteins)
+        
         return
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
@@ -133,7 +140,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         Overrides superclass method. 
         
         @see: Command_PropertyManager._update_UI_do_updates()
-        """                     
+        """
         
         newSelectionParams = self._currentSelectionParams()   
         
@@ -159,7 +166,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         #parameters remained unchanged since last call. --- [CONDITION A]
         if selection_params_unchanged and structure_params_unchanged and command_stack_params_unchanged:
             #This second condition above fixes bug 2888
-            print "_update_UI_do_updates(): RETURNING 1"
+            print "Build Protein: _update_UI_do_updates(): DO NOTHING"
             return
         
         self._previousStructureParams = current_struct_params
@@ -188,7 +195,12 @@ class BuildProtein_PropertyManager(EditCommand_PM):
                 self.editPeptidePropertiesButton.setEnabled(True)
             else:
                 self.editPeptidePropertiesButton.setEnabled(False)
-                self.sequenceEditor.hide()
+            
+                # Enable/disable "Compare Proteins" button.
+            if len(selectedProteins) == 2:
+                self.compareProteinsButton.setEnabled(True)
+            else:
+                self.compareProteinsButton.setEnabled(False)
                 
             return
         
@@ -197,11 +209,11 @@ class BuildProtein_PropertyManager(EditCommand_PM):
     
     def _currentCommandStackParams(self):
         """
-        The return value is supposed to be used by BUILD_PROTEIN command PM ONLY
+        The return value is supposed to be used by MODEL_AND_SIMULATE_PROTEIN command PM ONLY
         and NOT by any subclasses.         
         
         Returns a tuple containing current command stack change indicator and 
-        the name of the command 'BUILD_PROTEIN'. These 
+        the name of the command 'MODEL_AND_SIMULATE_PROTEIN'. These 
         parameters are then used to decide whether updating widgets
         in this property manager is needed, when self._update_UI_do_updates()
         is called. 
@@ -219,11 +231,11 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         @see: self._update_UI_do_updates()
         """
         commandStackCounter = self.command.assy.command_stack_change_indicator()
-        #Append 'BUILD_PROTEIN to the tuple to be returned. This is just to remind 
-        #us that this method is meant for BUILD_PROTEIN command PM only. (and not 
+        #Append 'MODEL_AND_SIMULATE_PROTEIN to the tuple to be returned. This is just to remind 
+        #us that this method is meant for MODEL_AND_SIMULATE_PROTEIN command PM only. (and not 
         #by any subclasses) Should we assert this? I think it will slow things 
         #down so this comment is enough -- Ninad 2008-09-30
-        return (commandStackCounter, 'BUILD_PROTEIN')
+        return (commandStackCounter, 'MODEL_AND_SIMULATE_PROTEIN')
                       
     def _currentSelectionParams(self):
         """
@@ -244,7 +256,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         if self.command is not None: # and self.command.hasValidStructure():
             selectedPeptides = self.win.assy.getSelectedProteinChunks()          
         
-        print "_currentSelectionParams(): Number of selected peptides:", len(selectedPeptides)
+        #print "_currentSelectionParams(): Number of selected peptides:", len(selectedPeptides)
         return (selectedPeptides)
     
     def _currentStructureParams(self):
@@ -263,7 +275,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         
         if self.command: # and self.command.hasValidStructure():
             peptideList = []
-            peptideList = self.getAllProteinChunksInPart()
+            peptideList = getAllProteinChunksInPart(self.win.assy)
             params = len(peptideList)
         
         print "_currentStructureParams(): params:", params
@@ -275,22 +287,23 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         """
         #Clear tags, if any, due to the selection in the self.strandListWidget.
         #self.peptideListWidget.clear()
-        self.sequenceEditor.hide()
         env.history.statusbar_msg("")
         EditCommand_PM.close(self)
         return
     
     def show(self):
         """
-        Show this PM. It also shows the Sequence Editor widget and hides 
-        the history widget.
+        Show the PM. Extends superclass method.
+        @note: _update_UI_do_updates() gets called immediately after this and
+               updates PM widgets with their correct values/settings. 
         """
         
         env.history.statusbar_msg("")
-        self._showPeptideSequenceEditor()
-        
         EditCommand_PM.show(self)
         
+        # NOTE: Think about moving this msg to _update_UI_do_updates() where
+        # custom msgs can be created based on the current selection, etc.
+        # Mark 2008-12-14
         msg = "Select <b>Insert Peptide</b> to create a peptide chain or "\
             "select another modeling tool to modify an existing protein."
         self.updateMessage(msg)
@@ -298,29 +311,23 @@ class BuildProtein_PropertyManager(EditCommand_PM):
     
     def _editPeptide(self):  
         """
-        Opens the sequence editor for the selected peptide.
+        Slot for the "Edit Properties" button. 
         """
+        
+        #if not self.command.hasValidStructure():
+        #    return
         
         peptideChunk = self.getSelectedProteinChunk()
         
         if peptideChunk:
-            sequence = peptideChunk.protein.get_sequence_string()
-            self.sequenceEditor.setSequence(sequence)
-            secStructure = peptideChunk.protein.get_secondary_structure_string()
-            self.sequenceEditor.setSecondaryStructure(secStructure)
-            self.sequenceEditor.setRuler(len(secStructure)) 
-            self.sequenceEditor.show()
+            peptideChunk.protein.edit(self.win)
         return
     
-    def _showPeptideSequenceEditor(self):
+    def _compareProteins(self):
         """
-        Show/hide sequence editor. It is only displayed if there is
-        a single peptide selected. Otherwise it is hidden.
+        Slot for the "Compare Proteins" button.
         """
-        if self.getSelectedProteinChunk():
-            self.sequenceEditor.show()
-        else:
-            self.sequenceEditor.hide()
+        self.win.commandSequencer.userEnterCommand('COMPARE_PROTEINS')
         return
     
     def _addWhatsThisText( self ):
@@ -357,15 +364,21 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         
         self.editPeptidePropertiesButton = PM_PushButton(pmGroupBox,
                                                          label = "",
-                                                         text  = "Edit Sequence" )
+                                                         text  = "Edit Properties..." )
         self.editPeptidePropertiesButton.setEnabled(False)
+        
+        self.compareProteinsButton = PM_PushButton(pmGroupBox,
+                                                         label = "",
+                                                         text  = "Compare Proteins..." )
+        self.compareProteinsButton.setEnabled(False)
+        
         return
     
     def updatePeptideListWidget(self):   
         """
         Update the peptide list widget. It shows all peptides in the part.
         """
-        peptideChunkList = self.getAllProteinChunksInPart()
+        peptideChunkList = getAllProteinChunksInPart(self.win.assy)
         
         if peptideChunkList:
             self.peptideListWidget.insertItems(
@@ -427,11 +440,9 @@ class BuildProtein_PropertyManager(EditCommand_PM):
             return None
         return
     
-    # getAllProteinChunksInPart() should eventually be moved to assy or some other class.
-    # This should wait until we have a data model implemented for 
-    # peptides/proteins.
-    # Ask Bruce. Mark 2008-12-12
-    def getAllProteinChunksInPart(self):
+    # getAllProteinChunksInPart() has been moved to Protein.py
+    # Mark 2008-12-14
+    def getAllProteinChunksInPart_MOVED(self):
         """
         Returns a list of all the protein chunks in the current assy.
         
@@ -444,141 +455,4 @@ class BuildProtein_PropertyManager(EditCommand_PM):
                 peptideList.append(mol)
         return peptideList
     
-    # --------------------------------------------------------------------
-    # Deprecated methods to keep until we're certain this is working.
-    # --Mark 2008-12-12.
-    
-    
-    def _editPeptide_DEPRECATED(self):  
-        """
-        Opens the sequence editor for the selected peptide.
-        """
-        
-        selectedPeptideList = self.win.assy.getSelectedProteinChunks()
-        
-        if len(selectedPeptideList) == 1:     
-            peptideChunk = selectedPeptideList[0]
-            sequence = peptideChunk.protein.get_sequence_string()
-            self.sequenceEditor.setSequence(sequence)
-            secStructure = peptideChunk.protein.get_secondary_structure_string()
-            self.sequenceEditor.setSecondaryStructure(secStructure)
-            self.sequenceEditor.setRuler(len(secStructure)) 
-            self.sequenceEditor.show()
-        return
-    
-    def _updateProteinParameters_DEPRECATED(self, index):
-        """
-        Update number of amino acids and sequence editor, as well as set the
-        current protein pdb id which will be used in the child commands and for
-        rosetta simulation from inside the build protein mode.
-        @param index: index of the protein combo box
-        @type index: int
-        """
-        for mol in self.protein_chunk_list:
-            if  mol.name == self.peptideListComboBox.currentText():
-                self._numberOfAA = len(mol.protein.get_sequence_string())
-                self.numberOfAASpinBox.setValue(self._numberOfAA)
-                sequence = mol.protein.get_sequence_string()
-                self.sequenceEditor.setSequence(sequence)
-                secStructure = mol.protein.get_secondary_structure_string()
-                self.sequenceEditor.setSecondaryStructure(secStructure)
-                self.sequenceEditor.setRuler(len(secStructure))
-                break
-        self.set_current_protein_chunk_name(mol.name) 
-        env.history.statusbar_msg("")
-        
-        self._editPeptideSequence() #@@@
-        
-        return
-    
-    def _updateProteinList_DEPRECATED(self):
-        """
-        Update the list of proteins so that the protein name combo box in this 
-        PM can be populated.
-        """
-        self.protein_chunk_list = []
-        self.protein_name_list = []
-        for mol in self.win.assy.molecules:
-            if mol.isProteinChunk():
-                self.protein_chunk_list.append(mol)
-                self.protein_name_list.append(mol.name)
-        return
-    
-    
-    def _showProteinParametersAndSequenceEditor_DEPRECATED(self):
-        """
-        Show/ Hide protein parameters and sequence editor based on if there's
-        any protein in NE-1 part.
-        """
-        part = self.win.assy.part  
-        proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
-        if proteinExists:
-            #check to see if current_protein is still in part, otherwise set 
-            # this to first available protein
-            try:
-                index = self.peptideListComboBox.findText(self.current_protein)
-                index1 = self.protein_name_list.index(self.current_protein)
-            except ValueError:
-                index = 0
-                index1 = 0
-                self.set_current_protein_chunk_name(self.protein_name_list[index1])
-                
-            self.peptideListComboBox.setCurrentIndex(index)
-            proteinChunk = self.protein_chunk_list[index1]            
-            self._numberOfAA = len(proteinChunk.protein.get_sequence_string())
-        else:  
-            #remove all items from the combo box
-            count = self.peptideListComboBox.count()
-            for i in range(count):
-                self.peptideListComboBox.removeItem(0)
-            self._numberOfAA = 0
-            self.set_current_protein_chunk_name("")
-        self.numberOfAASpinBox.setValue(self._numberOfAA)
-        
-        
-        #get the sequence for this protein chunk
-        if proteinExists:
-            sequence = proteinChunk.protein.get_sequence_string()
-            self.sequenceEditor.setSequence(sequence)
-            secStructure = proteinChunk.protein.get_secondary_structure_string()
-            self.sequenceEditor.setSecondaryStructure(secStructure)
-            self.sequenceEditor.setRuler(len(secStructure)) 
-            self.editPropertiesPushButton.setEnabled(True)
-        else:
-            self.editPropertiesPushButton.setEnabled(False)
-        self.sequenceEditor.hide()  
-        return
-    
-    def _updateProteinListForShow_DEPRECATED(self):
-        """
-        Update the list of proteins in the combo box in the PM.
-        """
-        #first remove from combo box all the proteins that do not exist in NE-1
-        #part anymore
-        currentProteinNameList = []
-        for mol in self.win.assy.molecules:
-            currentProteinNameList.append(mol.name)
-         
-        for name in self.protein_name_list:   
-            try:
-                index = currentProteinNameList.index(name) 
-            except ValueError:    
-                #protein does not exist any more, need to remove it
-                i = self.protein_name_list.index(name)
-                self.protein_chunk_list.pop(i)
-                self.protein_name_list.pop(i)
-                j = self.peptideListComboBox.findText(name)
-                self.peptideListComboBox.removeItem(j)
-        
-        for mol in self.win.assy.molecules:
-            #if molecules does not already exist in combo box list, need to add 
-            #them
-            if mol.isProteinChunk(): 
-                try:
-                    self.protein_name_list.index(mol.name)
-                except ValueError:    
-                    self.protein_chunk_list.append(mol)
-                    self.protein_name_list.append(mol.name)
-                    self.peptideListComboBox.addItem(mol.name)
-        return
     

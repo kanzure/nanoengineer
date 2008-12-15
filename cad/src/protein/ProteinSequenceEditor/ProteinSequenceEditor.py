@@ -508,7 +508,6 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         current_command = self.win.commandSequencer.currentCommand.commandName
         commandSet = ('EDIT_ROTAMERS', \
                       'EDIT_RESIDUES', \
-                      'BUILD_PROTEIN', \
                       'MODEL_AND_SIMULATE_PROTEIN', \
                       'MODEL_PROTEIN', \
                       'SIMULATE_PROTEIN')
