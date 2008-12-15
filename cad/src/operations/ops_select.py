@@ -285,31 +285,28 @@ class ops_select_Mixin:
     
     def getSelectedNanotubeSegments(self):
         """
-        Returns a list of the currently selected NanotubeSegment(s).
-        
+        @return: a list of the currently selected NanotubeSegments
         """        
         selNanotubeSegmentList = []
-        def addSelectedNanotubeSegment(obj, nanotubeList = selNanotubeSegmentList):
+        def addSelectedNanotubeSegment(obj):
             if obj.picked and isinstance(obj, self.win.assy.NanotubeSegment):
-                nanotubeList += [obj]
-
+                selNanotubeSegmentList += [obj]
+            return
         self.topnode.apply2all(addSelectedNanotubeSegment)
         return selNanotubeSegmentList
         
     def getSelectedProteinChunks(self):
         """
-        Returns a list of the currently selected Protein chunk(s).
+        @return: a list of the currently selected Protein chunks
         """
-        
         selProteinList = []
-        def addSelectedProteinChunks(obj, proteinList = selProteinList):
-            # NOTE: Exception here if obj in not a subclass of Chunk since it
-            # won't have attr isProteinChunk(). Examples include Jigs, Part, etc.
-            # Ask Bruce for best solution. Mark 2008-12-14.
-            if obj.picked and obj.isProteinChunk():
-                proteinList += [obj]
-
-        self.topnode.apply2all(addSelectedProteinChunks)
+        def addSelectedProteinChunk(obj):
+            if obj.picked and \
+               isinstance(obj, self.win.assy.Chunk) and \
+               obj.isProteinChunk():
+                selProteinList += [obj]
+            return
+        self.topnode.apply2all(addSelectedProteinChunk)
         return selProteinList
     
     def getSelectedProteinChunk(self):
