@@ -209,6 +209,19 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             self.maxresSpinBox.setMaximum(numResidues + 2)
         return
     
+    
+    def _addWhatsThisText( self ):
+        """
+        What's This text for widgets in this Property Manager.  
+        """
+        pass
+                
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in this Property Manager.  
+        """
+        pass
+    
     def _getNumResiduesForCurrentProtein(self):
         """
         Get number of residues for the current protein

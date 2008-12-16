@@ -228,7 +228,18 @@ class FixedBBProteinSim_PropertyManager(Command_PropertyManager):
                          spanWidth = True)
         return
     
-        
+    def _addWhatsThisText( self ):
+        """
+        What's This text for widgets in this Property Manager.  
+        """
+        pass
+                
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in this Property Manager.  
+        """
+        pass
+    
     def update_ex1(self, state):
         """
         Update the command text edit depending on the state of the update_ex1
