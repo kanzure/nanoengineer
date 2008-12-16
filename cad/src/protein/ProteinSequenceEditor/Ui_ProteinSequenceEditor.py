@@ -29,7 +29,6 @@ from PM.PM_TextEdit   import PM_TextEdit
 from PM.PM_LineEdit   import PM_LineEdit
 from PM.PM_PushButton import PM_PushButton
 from utilities.icon_utilities import geticon, getpixmap
-from model.chunk import Chunk
 
 _superclass = PM_DockWidget
 class Ui_ProteinSequenceEditor(PM_DockWidget):
@@ -58,7 +57,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.setFixedHeight(90)
         return
     
-    def update(self, proteinChunk = None, cursorPos = 0):
+    def update_sequence(self, proteinChunk = None, cursorPos = 0):
         """
         Updates the sequence editor with the sequence of I{proteinChunk}. 
         
@@ -69,14 +68,12 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         
         @param cursorPos: the current cursor position in the sequence.
         @type  cursorPos: int
-        
-        @note: overrides superclass method.
         """
         
         if not proteinChunk:
             self.current_protein = self.win.assy.getSelectedProteinChunk()
         else:
-            assert isinstance(proteinChunk, Chunk) and \
+            assert isinstance(proteinChunk, self.win.assy.Chunk) and \
                    proteinChunk.isProteinChunk()
             self.current_protein = proteinChunk
         
