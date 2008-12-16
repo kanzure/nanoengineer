@@ -288,9 +288,9 @@ class ops_select_Mixin:
         @return: a list of the currently selected NanotubeSegments
         """        
         selNanotubeSegmentList = []
-        def addSelectedNanotubeSegment(obj):
+        def addSelectedNanotubeSegment(obj, ntSegmentList = selNanotubeSegmentList):
             if obj.picked and isinstance(obj, self.win.assy.NanotubeSegment):
-                selNanotubeSegmentList += [obj]
+                ntSegmentList += [obj]
             return
         self.topnode.apply2all(addSelectedNanotubeSegment)
         return selNanotubeSegmentList
@@ -300,11 +300,11 @@ class ops_select_Mixin:
         @return: a list of the currently selected Protein chunks
         """
         selProteinList = []
-        def addSelectedProteinChunk(obj):
+        def addSelectedProteinChunk(obj, proteinList = selProteinList):
             if obj.picked and \
                isinstance(obj, self.win.assy.Chunk) and \
                obj.isProteinChunk():
-                selProteinList += [obj]
+                proteinList += [obj]
             return
         self.topnode.apply2all(addSelectedProteinChunk)
         return selProteinList
