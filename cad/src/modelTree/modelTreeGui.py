@@ -1667,7 +1667,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         ## print "what are these args?", win, name, treemodel, parent
         # win = <MWsemantics.MWsemantics object at 0x4ce8a08>
         # name = modelTreeView
-        # treemodel = <modelTree.TreeModel instance at 0x4cfb3a0>
+        # treemodel = <modelTree.TreeModel.TreeModel instance at 0x4cfb3a0>
         # parent = <PyQt4.QtGui.QWidget object at 0x4cff468>
         del name
         QScrollArea.__init__(self, parent)

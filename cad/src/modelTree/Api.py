@@ -27,7 +27,8 @@ def _inheritance_chains(klas, endpoint):
 # compliance also requires that the caller not call any methods _not_ defined by the API, but
 # that's a harder problem that we'll ignore for the moment.
 
-class Api:
+class Api(object):
+    #bruce 081216 added superclass object, untested
     def _verify_api_compliance(self):
         from types import MethodType
         myclass = self.__class__
