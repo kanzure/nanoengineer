@@ -1,10 +1,12 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-chem_patterns.py
+chem_patterns.py -- finding simple patterns of bonded atoms
 
-Commands and other code related to finding simple patterns of bonded atoms.
+see also ND-1's pattern matching facility, which is faster and more general
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 Todo later:
 - really turn O into 8 and reverse rules as needed
@@ -12,8 +14,6 @@ Todo later:
 - might want to also select bad-valence atoms, or have another command for that.
 - might need a few more kinds of patterns, like one for just 2 atoms... wait and see what's suggested.
 """
-
-__author__ = "bruce"
 
 import foundation.env as env
 import utilities.debug as debug
@@ -39,7 +39,9 @@ def compile_patterns():
     return bad_patterns_dict, root_eltnums, other_eltnums
 
 def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker" with hardcoded rules
-    """Out of the selected atoms or chunks, select the atoms which have "bad spelling"."""
+    """
+    Out of the selected atoms or chunks, select the atoms which have "bad spelling".
+    """
     from utilities.Log import orangemsg, redmsg, greenmsg
     greencmd = greenmsg("%s: " % cmdname)
     orangecmd = orangemsg("%s: " % cmdname) # used when bad atoms are found, even though no error occurred in the command itself
@@ -111,7 +113,7 @@ def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker
         env.history.message( orangemsg("Warning: ") + fix_plurals(
                              "%d bad atom(s) were/was not selected due to the selection filter." % \
                              (len(bad_atoms) - reallypicked) ))
-    win.mt.update_select_mode()
+    win.update_select_mode()
     return
 
 def initialize():

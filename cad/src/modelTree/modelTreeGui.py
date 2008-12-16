@@ -171,10 +171,25 @@ class Api:
 
 #############################################
 
-class Ne1Model_api(Api):
+class ModelTree_api(Api):
     """
     API (and some default method implementations) for a Model Tree object.
+
+    @warning: the object conforming to this API has two roles, which really
+              ought to be split among two distinct objects/classes:
+              * overall owner of Model Tree widget and its internal model,
+                serving as interface to it from the rest of NE1
+                (i.e. as the value of win.mt)
+              * tree model, to be displayed and edited by a ModelTreeGUI
+                (i.e. by self.view, with self == self.view.treemodel)
+                (this might be called class TreeModel_api if it was split out)
+              Presently, this API has methods of both kinds.
+
+    @warning: not all API methods are documented here.
     """
+    # TODO: split this into a ModelTree (owning a ModelTreeGUI)
+    # and a TreeModel (owned by the ModelTree, shown by the ModelTreeGUI)
+    # [bruce 081216 comment; also added docstring warnings about this]
     def get_topnodes(self):
         """
         Return a list of the top-level nodes, typically assy.tree and assy.shelf for an assembly.
@@ -199,7 +214,10 @@ class Ne1Model_api(Api):
            Subclasses should override this to provide an actual menu spec.
         The subclass implementation can directly examine the selection status of nodes
         below those in nodeset, if desired, and can assume every node in nodeset is picked,
-        and every node not in it or under something in it is not picked.
+        and every node not in it or under something in it is not picked
+        (or at least, will be unpicked when the operation occurs,
+         which happens for picked nodes inside unpicked leaf-like Groups
+         such as DnaStrand).
         [all subclasses should override this]
         """
         raise Exception("overload me")
@@ -259,7 +277,7 @@ class Ne1Model_api(Api):
             pass
         return
     
-    def topmost_selected_nodes(self): # in class Ne1Model_api
+    def topmost_selected_nodes(self): # in class ModelTree_api
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
@@ -274,7 +292,7 @@ class Ne1Model_api(Api):
         """
         raise Exception("overload me")
 
-    pass # end of class Ne1Model_api
+    pass # end of class ModelTree_api
 
 class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit from Node?? [bruce 080107 comment]
     """
@@ -311,7 +329,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
     # - in Qt3 there *is* a Node API call to support renaming ("try_rename" or so).
     #   Why isn't it used or listed here?
     #
-    # See also my comments in modelTree.__init__.
+    # See also my comments in class ModelTree.__init__.
         
     def __init__(self):
         """
@@ -423,6 +441,7 @@ class ModelTreeGui_api(Api):
         raise Exception("overload me")
 
     def topmost_selected_nodes(self): # in ModelTreeGui_api
+        ####### REVIEW: should this be in this api, or is it just an implem convenience func?
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
@@ -492,7 +511,7 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
     text_color = None
     if pref_show_node_color_in_MT():
         # [bruce 080507 new feature, mainly for testing]
-        # review: should the modelTree itself (ne1model) test this pref
+        # review: should the modelTree itself (treemodel) test this pref
         # and tell us the text_color for each node?
         ### is this debug_pref test too slow? if it is, so is the debug_pref lower down...
         # could fix using option_holder to know the pref values
@@ -738,10 +757,10 @@ class ModelTreeGui_common(ModelTreeGui_api):
     """
     # not private, but only used in this file so far [bruce 080306 comment]
     #bruce 070529 split this out of class ModelTreeGui
-    def __init__(self, win, ne1model):
+    def __init__(self, win, treemodel):
         self.win = win
-        self.ne1model = ne1model
-        ne1model.view = self #e should rename this attr of ne1model
+        self.treemodel = treemodel #bruce 081216 renamed this from ne1model
+        treemodel.view = self #e should rename this attr of treemodel
         self._mousepress_info_for_move = None
             # set by any mousePress that supports mouseMove not being a noop, to info about what that move should do #bruce 070509
         self._ongoing_DND_info = None # set to a tuple of a private format, during a DND drag (not used during a selection-drag #k)
@@ -763,18 +782,18 @@ class ModelTreeGui_common(ModelTreeGui_api):
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
-        #bruce 070529 moved method body into self.ne1model
+        #bruce 070529 moved method body into self.treemodel
         #REVIEW: should this be removed from ModelTreeGui_api,
-        # always accessed via self.ne1model? Pro: many accesses come
-        # from methods in self.ne1model anyway, which also defines it.
+        # always accessed via self.treemodel? Pro: many accesses come
+        # from methods in self.treemodel anyway, which also defines it.
         # Con: there are a lot of accesses from methods of self, too.
-        # Note that we could make accesses from self.ne1model not
+        # Note that we could make accesses from self.treemodel not
         # depend on this class, without preventing this class from
         # having its own def; in that case, review whether this class's
         # def belongs in its api class or is just a convenience of
-        # this implementation. [bruce 081212 comment]
+        # this implementation. [bruce 081212 comment] ########
         
-        return self.ne1model.topmost_selected_nodes()
+        return self.treemodel.topmost_selected_nodes()
 
     def MT_debug_prints(self):
         return debug_pref("MT debug: debug prints", Choice_boolean_False, prefs_key = True)
@@ -803,8 +822,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             return # message already emitted (if one is desired)
 
         # work around visual bug due to unwanted deselection of some of these nodes (during mousePressEvent)
-        for node in self.topmost_selected_nodes():
-            node.unpick()
+        self.unpick_all()
         for node in nodes:
             node.pick()
         self.mt_update()
@@ -833,7 +851,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             dragobj.setPixmap(pixmap)
 
         sbar_text = self.get_whatting_n_items_text( drag_type, nodes)
-        self.statusbar_msg( sbar_text)
+        self.statusbar_message( sbar_text)
 
         dragobj.setHotSpot(QPoint(-18, 8)) #bruce 070514 tweak hotspot
         requested_action = {'copy':Qt.CopyAction, 'move':Qt.MoveAction}[drag_type]
@@ -895,12 +913,14 @@ class ModelTreeGui_common(ModelTreeGui_api):
             #e might become more different in the future if we include the class
             # when they're all nodes of the same subclass...
 
-    def statusbar_msg(self, msg):
-        #e should store the current one for this widget, to share sbar with other widgets;
-        # or better, the method we're calling should do that for all widgets (or their parts) in a uniform way
+    def statusbar_message(self, msg):
+        # note: spelling difference.
+        # maybe todo: rename all methods of that name like this.
+        # [bruce 070531 & 081216]
+        # todo: store current msg for this widget, so we can share statusbar
+        # with other widgets; or better, the method we're calling should do that
+        # for all widgets (or their parts) in a uniform way
         env.history.statusbar_msg( msg)
-
-    statusbar_message = statusbar_msg #bruce 070531; we should rename all methods of that name like this, after A9 goes out
     
     # == Qt3 code for drag graphic, not yet ported, used only if debug_pref set [copied from Qt3/TreeWidget.py, bruce 070511]
     # == [update: I think this is now fully ported and used by default, long before 080507]
@@ -1077,13 +1097,13 @@ class ModelTreeGui_common(ModelTreeGui_api):
         Print a message, but do appropriate updates only if we succeed.
         """
         #bruce 070511 brought in several error messages from Qt3/TreeWidget.py,
-        # modified some of them, made them use statusbar_msg rather than history
+        # modified some of them, made them use statusbar_message rather than history
         # redmsg
         item, rectjunk = self.item_and_rect_at_event_pos(event)
         if item is None:
             msg = "drop into empty space ignored (drops under groups " \
                   "not supported; drop onto them instead)"
-            self.statusbar_msg( msg)
+            self.statusbar_message( msg)
             raise DoNotDrop()
         nodes, drag_type = self._ongoing_DND_info
         targetnode = item.node
@@ -1100,7 +1120,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             msg = "drop refused by %s" % quote_html(targetnode.name)
             if whynot:
                 msg += ": %s" % (whynot,) #bruce 080303
-            self.statusbar_msg( msg )
+            self.statusbar_message( msg )
             raise DoNotDrop()
         
         event.acceptProposedAction() # this should come after any DoNotDrop we might raise
@@ -1173,7 +1193,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             #e should be more specific about what happened to them...
             # ask the target node itself? have drop_on return this info?
         msg = fix_plurals(msg)
-        self.statusbar_msg( msg)
+        self.statusbar_message( msg)
         #bruce 050203: mt_update is not enough, in case selection changed
         # (which can happen as a side effect of nodes moving under new dads in the tree)
         self.win.win_update()
@@ -1289,7 +1309,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
 
         eventInRect = False # might be changed below; says whether event hits rect including icon(??) and name/label
         if item is not None:
-            self.statusbar_msg( quote_html( item.node.name)) #bruce 070511 -- no other way to see long node names!
+            self.statusbar_message( quote_html( item.node.name)) #bruce 070511 -- no other way to see long node names!
                 # (at least for now -- tooltips are off for some reason, MT can't be widened, and it has no horizontal scrollbar,
                 #  though it did a few days ago -- don't know why.)
             alreadySelected = item.node.picked #bruce 070509
@@ -1560,7 +1580,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
         ###TODO: we should consolidate the several checks for the optflag condition into one place, maybe mousePressEvent.
         optflag = (((self.mouse_press_buttons & Qt.MidButton) or
                     (self.mouse_press_modifiers & Qt.AltModifier)) and 'Option' or None)
-        cmenu_spec = self.ne1model.make_cmenuspec_for_set(nodeset, optflag)
+        cmenu_spec = self.treemodel.make_cmenuspec_for_set(nodeset, optflag)
         menu = makemenu_helper(self, cmenu_spec)
             #bruce 070514 fix bug 2374 and probably others by using makemenu_helper
         menu.exec_(event.globalPos())
@@ -1650,13 +1670,13 @@ def x_for_indent(n):
 
 class MT_View(QtGui.QWidget):
     """
-    ModelTree contents view
+    contents view for ModelTreeGUI
     """
     def __init__(self, parent, palette_widget, modeltreegui):
         QtGui.QWidget.__init__(self, parent)
         self.palette_widget = palette_widget #e rename?
         self.modeltreegui = modeltreegui
-        self.ne1model = self.modeltreegui.ne1model ###KLUGE? not sure. consider passing this directly?        
+        self.treemodel = self.modeltreegui.treemodel ###KLUGE? not sure. consider passing this directly?        
         self.get_icons()
         return
 
@@ -1744,7 +1764,7 @@ class MT_View(QtGui.QWidget):
         painter = QtGui.QPainter()
         painter.begin(self)
         try:
-            topnodes = self.ne1model.get_topnodes()
+            topnodes = self.treemodel.get_topnodes()
             x, y = x_for_indent(0), MT_CONTENT_TOP_Y
             for node in topnodes:
                 y = self.paint_subtree(node, painter, x, y)
@@ -1757,7 +1777,7 @@ class MT_View(QtGui.QWidget):
         self._setup_openclose_style()
         # todo: optim: implem this: self._setup_prefs(),
         # so _paintnode needn't repeatedly test the same debug_prefs for each node
-        self._f_nodes_to_highlight = self.ne1model.get_nodes_to_highlight()
+        self._f_nodes_to_highlight = self.treemodel.get_nodes_to_highlight()
             # a dictionary from node to an arbitrary value;
             # in future, could store highlight color, etc
         self._painted = {} # modified in paint_subtree when we call _paintnode
@@ -1914,7 +1934,7 @@ class MT_View(QtGui.QWidget):
         d = 0 # indent level
         if y < y0:
             return None, None, None
-        for child in self.ne1model.get_topnodes():
+        for child in self.treemodel.get_topnodes():
             resnode, resdepth, resy0, y0 = self.look_for_y_recursive( child, y0, d, y)
             if resnode:
                 return resnode, resdepth, resy0
@@ -2021,11 +2041,11 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
     The GUI part of the NE1 model tree widget.
     """
     #bruce 070529-30 rewrite of some of [now-removed] class ModelTreeGui_QTreeView
-    def __init__(self, win, name, ne1model, parent = None):
-        ## print "what are these args?", win, name, ne1model, parent
+    def __init__(self, win, name, treemodel, parent = None):
+        ## print "what are these args?", win, name, treemodel, parent
         # win = <MWsemantics.MWsemantics object at 0x4ce8a08>
         # name = modelTreeView
-        # ne1model = <modelTree.modelTree instance at 0x4cfb3a0>
+        # treemodel = <modelTree.ModelTree instance at 0x4cfb3a0>
         # parent = <PyQt4.QtGui.QWidget object at 0x4cff468>
         del name
         QScrollArea.__init__(self, parent)
@@ -2037,7 +2057,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         self.setContextMenuPolicy(Qt.PreventContextMenu) #bruce 070509 change; I hope it will prevent direct calls of contextMenuEvent
 
         # this has to be done after QScrollArea.__init__, since it assumes QWidget init has occurred
-        ModelTreeGui_common.__init__(self, win, ne1model) ## mouse and DND methods -- better off in view widget or here??
+        ModelTreeGui_common.__init__(self, win, treemodel) ## mouse and DND methods -- better off in view widget or here??
             # will this intercept events meant for the scrollbars themselves??? need to use the contents event methods?
         
         self.view = MT_View( self, self, self) # args are: parent, palette_widget, modeltreegui
@@ -2089,7 +2109,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         self.__count = 0
         def func(node):
             self.__count += 1 # using a local var doesn't work, due to Python scoping
-        self.ne1model.recurseOnNodes(func, visible_only = True)
+        self.treemodel.recurseOnNodes(func, visible_only = True)
         NUMBER_OF_BLANK_ITEMS_AT_BOTTOM = 1
             # not 0, to let user be certain they are at the end
             # [bruce 080306 new feature]

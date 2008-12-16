@@ -1320,6 +1320,15 @@ class MWsemantics(QMainWindow,
     def toolsSelectMolecules(self):# note: this can also be called from update_select_mode [bruce 060403 comment]
         self.commandSequencer.userEnterCommand('SELECTMOLS', always_update = True)
 
+    def update_select_mode(self):
+        """
+        change currentCommand or assy.selwhat or selection to make them consistent
+        """
+        #bruce 081216 moved this here, from a method on self.mt
+        # (where it made no sense)
+        from operations.update_select_mode import update_select_mode # todo: move this to toplevel
+        update_select_mode(self)
+        
     # get into Move Chunks (or Translate Components) command
     def toolsMoveMolecule(self):
         self.ensureInCommand('MODIFY')

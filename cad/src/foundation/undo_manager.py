@@ -501,7 +501,9 @@ class AssyUndoManager(UndoManager):
         self.do_main_menu_op('Redo')
 
     def do_main_menu_op(self, optype):
-        "optype should be Undo or Redo"
+        """
+        @note: optype should be Undo or Redo
+        """
         op_was_available = not not self._current_main_menu_ops.get(optype)
         global _disable_UndoRedo
         if _disable_UndoRedo: #060414
@@ -524,7 +526,7 @@ class AssyUndoManager(UndoManager):
                 undo_xxx = op.menu_desc() # note: menu_desc includes history sernos
                 env.history.message(u"%s" % undo_xxx) #e say Undoing rather than Undo in case more msgs?? ######@@@@@@ TEST u"%s"
                 self.archive.do_op(op)
-                self.assy.w.mt.update_select_mode() #bruce 060227 try to fix bug 1576
+                self.assy.w.update_select_mode() #bruce 060227 try to fix bug 1576
                 self.assy.w.win_update() #bruce 060227 not positive this isn't called elsewhere, or how we got away without it if not
             else:
                 if not disabled:

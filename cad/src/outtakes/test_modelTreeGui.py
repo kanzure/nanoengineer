@@ -164,7 +164,7 @@ class TestClipboardNode(TestNode):
         else:
             return self.iconEmpty
 
-class TestNe1Model(Ne1Model_api):
+class TestNe1Model(ModelTree_api):
     def __init__(self):
         self.untitledNode = TestNode("Untitled", None,
                                      QPixmap("../images/part.png"))
@@ -244,9 +244,9 @@ class TestWrapper(QGroupBox):
     def __init__(self):
         QGroupBox.__init__(self)
 
-        self.ne1model = ne1model = TestNe1Model()
+        self.treemodel = treemodel = TestNe1Model()
 
-        self.view = view = ModelTreeGui(TestMainWindow(), "Model tree", ne1model, self)
+        self.view = view = ModelTreeGui(TestMainWindow(), "Model tree", treemodel, self)
         view.mt_update()
         self.chunkNum = 2
         self.gbox = QGroupBox()
@@ -285,7 +285,7 @@ class TestWrapper(QGroupBox):
             icon = QPixmap('../images/measuredistance.png')
             icon_h = QPixmap('../images/measuredistance-hide.png')
         chunk = TestNode("%s-%d" % (what, self.chunkNum),
-                         self.ne1model.untitledNode, icon, icon_h)
+                         self.treemodel.untitledNode, icon, icon_h)
 
         self.chunkNum += 1
         self.view.mt_update()

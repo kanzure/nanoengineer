@@ -42,7 +42,7 @@ from PyQt4 import QtCore
 import foundation.env as env
 from utilities import debug_flags
 from platform_dependent.PlatformDependent import fix_plurals
-import modelTree.modelTreeGui as modelTreeGui # defines ModelTreeGui (note case difference), Ne1Model_api
+from modelTree.modelTreeGui import ModelTreeGui, ModelTree_api
 
 from model.chunk import Chunk
 from model.jigs import Jig
@@ -50,26 +50,20 @@ from utilities.Log import orangemsg
 from foundation.Group import Group
 from utilities.debug import print_compact_traceback
 
-from utilities.GlobalPreferences import permit_atom_chunk_coselection
 from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 
 from utilities.constants import gensym
-from utilities.constants import SELWHAT_ATOMS
-from utilities.constants import SELWHAT_CHUNKS
-from utilities.constants import SELWHAT_NAMES
 from utilities.constants import noop
 
-from utilities.qt4transition import qt4here
-
-_debug_preftree = False # bruce 050602 experiment; do not commit with True
+_DEBUG_PREFTREE = False # bruce 050602 experiment; do not commit with True
 
 # helpers for making context menu commands
 
-class statsclass: # todo: rename, and  move to its own utility module?
+class _statsclass: # todo: rename, and  move to its own utility module?
     """
     class for holding and totalling counts of whatever you want, in named attributes
     """
-    def __getattr__(self, attr): # in class statsclass
+    def __getattr__(self, attr): # in class _statsclass
         if not attr.startswith('_'):
             return 0 # no need to set it
         raise AttributeError, attr
@@ -103,7 +97,7 @@ def _accumulate_stats(node, stats):
     this is run once on every topselected node (note: they are all picked)
     and once on every node under those (whether or not they are picked).
     """
-    # todo (refactoring): could be a method on our own subclass of statsclass
+    # todo (refactoring): could be a method on our own subclass of _statsclass
     stats.n += 1
 
     stats.ngroups += int(isinstance(node, Group))
@@ -121,18 +115,21 @@ def _accumulate_stats(node, stats):
     stats.nopen += int(node.open)
     return
 
+# ===
 
-############################################################
+class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
+    """
+    NE1's main model tree, serving as owner of the widget (ModelTreeGUI)
+    and also as the tree model shown by that.
 
-# main widget class
-
-class modelTree(modelTreeGui.Ne1Model_api):
+    @note: this is a public class name.
+    """
     def __init__(self, parent, win, name = "modelTreeView", size = (200, 560)):
         """
         #doc
         """
         ###@@@ review all init args & instvars, here vs subclasses
-        self.modelTreeGui = modelTreeGui.ModelTreeGui(win, name, self, parent)
+        self.modelTreeGui = ModelTreeGui(win, name, self, parent)
             # WARNING: self.modelTreeGui is a PUBLIC MEMBER which is accessed by MWsemantics (at least)
             # for use in building the Qt widget layout. For public access purposes it can be considered
             # "the Qt widget containing the model tree" and it ought to have a special name (or get-method)
@@ -140,7 +137,6 @@ class modelTree(modelTreeGui.Ne1Model_api):
             #    Worse, the code before late on 070509 sometimes stored self.modelTreeGui rather than self
             # in win.mt (maybe) and assy.mt (definitely), but other times stored self!
             # And lots of files call various methods on assy.mt and/or win.mt, namely:
-            # - update_select_mode
             # - resetAssy_and_clear
             # - mt_update
             # - open_clipboard
@@ -159,127 +155,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
 
         self.mt_update()
         return
-
-    def statusbar_message(self, text): #bruce 070531 # note: not presently used; untested
-        self.modelTreeGui.statusbar_message(text)
-        return
-
-    def update_select_mode(self): #bruce 050124; should generalize and refile; should be used for more or for all events ###@@@
-        #bruce 060403 revised this but didn't update docstring; now it can change from *Chunk modes to Build, only, I think
-        """
-        This should be called at the end of event handlers which might have
-        changed the current internal selection mode (atoms vs chunks),
-        to resolve disagreements between that and the visible selection mode
-        iff it's one of the Select modes [or more generally, i assume as of 060403,
-        if the current mode wants to be ditched if selwhat has to have certain values it dislikes].
-           If the current mode is not one of Select Atoms or Select Chunks, this routine has no effect.
-        (In particular, if selwhat changed but could be changed back to what it was,
-        it does nothing to correct that [obs? see end of docstring], and indeed it doesn't know the old value of
-        selwhat unless the current mode (being a selectMode) implies that.)
-           [We should generalize this so that other modes could constrain the selection
-        mode to just one of atoms vs chunks if they wanted to. However, the details of this
-        need design, since for those modes we'd change the selection whereas for the
-        select modes we change which mode we're in and don't change the selection. ###@@@]
-           If possible, we leave the visible mode the same (even changing assy.selwhat
-        to fit, if nothing is actually selected [that part was NIM until 050519]).
-        But if forced to, by what is currently selected, then we change the visible
-        selection mode to fit what is actually selected. (We always assert that selwhat
-        permitted whatever was selected to be selected.)
-        """
-        if permit_atom_chunk_coselection(): #bruce 060721
-            return
-        from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
-        
-        #bruce 050519 revised docstring and totally rewrote code.
-        assy = self.assy
-        win = self.win
-        commandSequencer = self.win.commandSequencer #bruce 071008
-        mode = commandSequencer.currentCommand
-            #bruce 071008; note, I'm not sure it's right to ask the currentCommand
-            # for selwhat_from_mode, as opposed to the current graphicsMode!
-            # This whole thing needs total revamping (along with everything
-            # related to what can be selected at a given time), so I'm not going
-            # to worry about it for now.
-        del self
-        part = assy.part
-        # 0. Appraise the situation.
-        # 0a: assy.selwhat is what internal code thinks selection restriction is, currently.
-        selwhat = assy.selwhat
-        assert selwhat in (SELWHAT_CHUNKS, SELWHAT_ATOMS) # any more choices, or change in rules, requires rewriting this method
-        # 0b. What does current mode think it needs to be?
-        # (Someday we might distinguish modes that constrain this,
-        #  vs modes that change to fit it or to fit the actual selection.
-        #  For now we only handle modes that change to fit the actual selection.) 
-        selwhat_from_mode = None # most modes don't care
-        if isinstance( mode, SelectChunks_Command):
-            # TODO: replace this by a method call or getattr on mode
-            selwhat_from_mode = SELWHAT_CHUNKS
-        #bruce 060403 commenting out the following, in advance of proposed removal of Select Atoms mode entirely:
-##        elif isinstance( mode, SelectAtoms_Command) and mode.commandName == SelectAtoms_Command.commandName:
-##            #bruce 060210 added commandName condition to fix bug when current mode is Build (now a subclass of Select Atoms)
-##            selwhat_from_mode = SELWHAT_ATOMS
-        change_mode_to_fit = (selwhat_from_mode is not None) # used later; someday some modes won't follow this
-        # 0c. What does current selection itself think it needs to be?
-        # (If its desires are inconsistent, complain and fix them.)
-        if assy.selatoms and assy.selmols:
-            if debug_flags.atom_debug:
-                #bruce 060210 made this debug-only, since what it reports is not too bad, and it happens routinely now in Build mode
-                # if atoms are selected and you then select a chunk in MT
-                print "atom_debug: bug, fyi: there are both atoms and chunks selected. Deselecting some of them to fit current mode or internal code."
-            new_selwhat_influences = ( selwhat_from_mode, selwhat) # old mode has first say in this case, if it wants it
-            #e (We could rewrite this (equivalently) to just use the other case with selwhat_from_sel = None.)
-        else:
-            # figure out what to do, in this priority order: actual selection, old mode, internal code.
-            if assy.selatoms:
-                selwhat_from_sel = SELWHAT_ATOMS
-            elif assy.selmols:
-                selwhat_from_sel = SELWHAT_CHUNKS
-            else:
-                selwhat_from_sel = None
-            new_selwhat_influences = ( selwhat_from_sel, selwhat_from_mode, selwhat)
-            if selwhat_from_sel is not None and selwhat_from_sel != selwhat:
-                # following code will fix this with no harm, so let's not consider it a big deal,
-                # but it does indicate a bug -- so just print a debug-only message.
-                # (As of 050519 740pm, we get this from the jig cmenu command "select this jig's atoms"
-                #  when the current mode is more compatible with selecting chunks. But I think this causes
-                #  no harm, so I might as well wait until we further revise selection code to fix it.)
-                if debug_flags.atom_debug:
-                    print "atom_debug: bug, fyi: actual selection (%s) inconsistent " \
-                          "with internal variable for that (%s); will fix internal variable" % \
-                          (SELWHAT_NAMES[selwhat_from_sel], SELWHAT_NAMES[selwhat])
-        # Let the strongest (first listed) influence, of those with an opinion,
-        # decide what selmode we'll be in now, and make everything consistent with that.
-        for opinion in new_selwhat_influences:
-            if opinion is not None:
-                # We have our decision. Carry it out (on mode, selection, and assy.selwhat) and return.
-                selwhat = opinion
-                if change_mode_to_fit and selwhat_from_mode != selwhat:
-                    #bruce 050520 fix bug 644 by only doing this if needed (i.e. if selwhat_from_mode != selwhat).
-                    # Without this fix, redundantly changing the mode using these tool buttons
-                    # immediately cancels (or completes?) any node-renaming-by-dblclick
-                    # right after it gets initiated (almost too fast to see).
-                    if selwhat == SELWHAT_CHUNKS:
-                        win.toolsSelectMolecules()
-                        print "fyi: forced mode to Select Chunks" # should no longer ever happen as of 060403 
-                    elif selwhat == SELWHAT_ATOMS:
-                        win.toolsBuildAtoms() #bruce 060403 change: toolsSelectAtoms -> toolsBuildAtoms
-                        ## win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work
-                # that might have fixed the following too, but never mind, we'll just always do it -- sometimes it's needed.
-                if selwhat == SELWHAT_CHUNKS:
-                    part.unpickatoms()
-                    assy.set_selwhat(SELWHAT_CHUNKS)
-                elif selwhat == SELWHAT_ATOMS:
-                    if assy.selmols: # only if needed (due to a bug), since this also desels Groups and Jigs
-                        # (never happens if no bug, since then the actual selection has the strongest say -- as of 050519 anyway)
-                        part.unpickparts()
-                    assy.set_selwhat(SELWHAT_ATOMS) # (this by itself does not deselect anything, as of 050519)
-                return
-        assert 0, "new_selwhat_influences should not have ended in None: %r" % (new_selwhat_influences,)
-        # scratch comments:
-        # if we had been fixing selwhat in the past, it would have fixed bug 500 in spite of permit_pick_parts in cm_hide/cm_unhide.
-        # So why aren't we? let's find out with some debug code... (now part of the above, in theory)
-        return
-
+    
     def resetAssy_and_clear(self): #bruce 050201 for Alpha, part of Huaicai's bug 369 fix
         """
         This method should be called from the end of MWsemantics._make_and_init_assy
@@ -323,7 +199,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
     def setGeometry(self, w, h): #k might not be needed
         return self.modelTreeGui.setGeometry(QtCore.QRect(0,0,w,h))
 
-    # callbacks from self.modelTreeGui to help it update the display
+    # == callbacks from self.modelTreeGui to help it update the display
     
     def get_topnodes(self):
         self.assy = self.win.assy #k need to save it like this?
@@ -335,7 +211,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             # [not anymore, as of some time before 050417] inserts assy.viewdata.members into assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
         topnodes = [self.assy.tree, self.assy.shelf]
-        if _debug_preftree: #bruce 050602
+        if _DEBUG_PREFTREE: #bruce 050602
             try:
                 from foundation.Utility import Node
                 ## print "reloading prefsTree"
@@ -377,47 +253,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
     def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
     
-##    def node_to_item(self, node):
-##        return self.modelTreeGui.item_to_node_dict.get(node, None)
-##            #bruce 070503 comment: likely ###BUG, should use node_to_item_dict -- but this is not called anywhere!
-##            # (Where was it called in Qt3?)
-
-    def open_clipboard(self): #bruce 050108, probably temporary
-        ###REVIEW: do we need the effect that's disabled here?
-        if 0:
-            # self.toggle_open( self.shelf_item, openflag = True)  # what we did in Qt 3
-            # shelf_item should be the item for the self.assy.shelf node
-            shelf_item = self.modelTreeGui.item_to_node_dict[self.assy.shelf]
-                #bruce 070503 comment: likely ###BUG, should use node_to_item_dict -- that explains the KeyError...
-                # update, bruce 070531: node_to_item_dict and/or node_to_item are not part of modelTreeGui API
-                # (or at least are no longer part of it if they were) and are not present in the new implem.
-                # They could be added back, but "items" are internal to the MT so that would probably be misguided.
-            # typically that gives a KeyError
-            self.toggle_open(shelf_item, openflag = True)
-            # toggle_open is defined in TreeView.py in the Qt 3 code
-        if False:
-            qt4here(show_traceback = True)
-            def grep_dash_il(str, substr):
-                str = str.upper()
-                substr = substr.upper()
-                try:
-                    str.index(substr)
-                    return True
-                except ValueError:
-                    return False
-            print filter(lambda x: grep_dash_il(x, "mmkit"), dir(self.win))
-        return
-
-    def post_update_topitems(self): ###REVIEW: is this still needed?
-        self.tree_item, self.shelf_item = self.topitems[0:2] # ignore 3rd element (prefsTree when that's enabled)
-            # the actual items are different each time this is called
-            ###@@@ as of 050602 the only uses of these are:
-            # tree_item, in some debug code in TreeView;
-            # shelf_item, in our open_clipboard method.
-            ##e so I should replace those with something else and remove these.
-
-    ############################################################
-    # Everything else in this class is context menu stuff
+    # ===
+    
+    # methods related to context menu -- menu maker, and handlers for each op
     
     def make_cmenuspec_for_set(self, nodeset, optflag): # [see also the term Menu_spec]
         """
@@ -465,10 +303,10 @@ class modelTree(modelTreeGui.Ne1Model_api):
         #  which *might* be included in both strands and segments for this purpose (in the future;
         #  shared members are NIM now).]
         
-        allstats = statsclass()
+        allstats = _statsclass()
         
         for node in nodeset:
-            node_stats = statsclass()
+            node_stats = _statsclass()
             node.apply2all( lambda node1: _accumulate_stats( node1, node_stats) )
             allstats += node_stats # totals to allstats
 
@@ -702,7 +540,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # for very initial experiment let's provide it only for single items.
         # Do we ask them what can be customized about them? I guess so.
 ##unfinished...
-##        if _debug_preftree and len(nodeset) == 1:
+##        if _DEBUG_PREFTREE and len(nodeset) == 1:
 ##            mspec = nodeset[0].customize_menuspec()
 ##            submenu = []
             
@@ -830,7 +668,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
     
     def cm_hide(self):
         env.history.message("Hide: %d selected items or groups" % \
-                            len(self.modelTreeGui.topmost_selected_nodes()))
+                            len(self.topmost_selected_nodes()))
         #####@@@@@ bruce 050517 comment: the following line (of unknown reason or date, but by me) causes bug 500;
         # that method was added 050125 and used in chunk.pick on same date, so adding it here must be then or later.
         # Let's see what happens if I remove it?
@@ -839,13 +677,13 @@ class modelTree(modelTreeGui.Ne1Model_api):
         
     def cm_unhide(self):
         env.history.message("Unhide: %d selected items or groups" % \
-                            len(self.modelTreeGui.topmost_selected_nodes()))
+                            len(self.topmost_selected_nodes()))
         ## self.assy.permit_pick_parts() #e should not be needed here [see same comment above]
         self.assy.Unhide() # includes win_update
 
     def cm_set_node(self): #bruce 050604, for debugging
         import utilities.debug as debug
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         if len(nodeset) == 1:
             debug._node = nodeset[0]
             print "set debug._node to", debug._node
@@ -855,7 +693,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         return
     
     def cm_properties(self):
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         if len(nodeset) != 1:
             env.history.message("error: cm_properties called on no or multiple items")
                 # (internal error, not user error)
@@ -957,7 +795,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         return
     
     def cm_ungroup(self):
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
         assert node.permits_ungrouping() # ditto
@@ -1000,7 +838,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         return
 
     def cm_remove_empty_groups(self): #bruce 080207
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         empties = []
         def func(group):
             if not group.members and group.permits_ungrouping():
@@ -1034,7 +872,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         """
         Selects all the atoms preseent in the selected chunk(s)
         """
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         self.assy.part.permit_pick_atoms()
         for m in nodeset:
             for a in m.atoms.itervalues():
@@ -1047,7 +885,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         """         
         from widgets.widget_helpers import RGBf_to_QColor
         
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         chunkList = []
         #Find the chunks in the selection and store them temporarily
         for m in nodeset:
@@ -1072,7 +910,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         Context menu entry for chunks.  Turns on the showOverlayText
         flag in each chunk which has overlayText in some of its atoms.
         """
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         for m in nodeset:
             if isinstance(m, Chunk):
                 m.showOverlayText = True
@@ -1082,7 +920,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         Context menu entry for chunks.  Turns off the showOverlayText
         flag in each chunk which has overlayText in some of its atoms.
         """
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         for m in nodeset:
             if isinstance(m, Chunk):
                 m.showOverlayText = False
@@ -1092,14 +930,14 @@ class modelTree(modelTreeGui.Ne1Model_api):
         """
         Put up a dialog to let the user rename the selected node. (Only one node for now.)
         """
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
         self.modelTreeGui.rename_node_using_dialog( node) # note: this checks node.rename_enabled() first
         return
     
     def cm_disable(self): #bruce 050421
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
         jig = node # caller guarantees this is a jig; if not, this silently has no effect
@@ -1107,7 +945,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.win.win_update()
 
     def cm_enable(self): #bruce 050421
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         assert len(nodeset) == 1, "len nodeset should be 1, but nodeset is %r" % nodeset
         node = nodeset[0]
         jig = node
@@ -1115,7 +953,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.win.win_update()
 
     def cm_select_jigs_atoms(self): #bruce 050504
-        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes()
         otherpart = {} #bruce 050505 to fix bug 589
         did_these = {}
         nprior = len(self.assy.selatoms)
@@ -1150,7 +988,8 @@ class modelTree(modelTreeGui.Ne1Model_api):
             msg = orangemsg(msg) # the whole thing, I guess
         env.history.message(msg)
         self.win.win_update()
-        # note: caller (which puts up context menu) does self.update_select_mode(); we depend on that.
+        # note: caller (which puts up context menu) does
+        # self.win.update_select_mode(); we depend on that. [### still true??]
         return
 
     def cm_new_clipboard_item(self): #bruce 050505
@@ -1168,6 +1007,6 @@ class modelTree(modelTreeGui.Ne1Model_api):
             node.kill() # will this be safe even if one of these is presently displayed? ###k
         self.mt_update()
     
-    pass # end of class modelTree
+    pass # end of class ModelTree
 
 # end

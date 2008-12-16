@@ -1202,12 +1202,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             new = selatom.molecule.copy_single_chunk(None) # None means no dad yet
             #bruce 050531 removing centering:
             ## new.move(-new.center) # perhaps no longer needed [bruce 041206]
-            #bruce 041124: open clipboard, so user can see new pastable there
-            self.w.mt.open_clipboard()
             
             # now add new to the clipboard
             
-                       
             # bruce 041124 change: add new after the other members, not before.
             # [bruce 050121 adds: see cvs for history (removed today from this 
             #  code)of how this code changed as the storage order of 

@@ -31,7 +31,7 @@ from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy, SIGNAL
 from graphics.widgets.GLPane import GLPane
 from PM.PM_Constants import PM_DEFAULT_WIDTH, PM_MAXIMUM_WIDTH, PM_MINIMUM_WIDTH
 from utilities.icon_utilities import geticon
-from modelTree.ModelTree import modelTree
+from modelTree.ModelTree import ModelTree
 from utilities.qt4transition import qt4warnDestruction
 from utilities import debug_flags
 import foundation.env as env
@@ -239,7 +239,7 @@ class Ui_PartWindow(QWidget):
         modelTreeTabLayout.setSpacing(0)
 
         # Create the model tree (GUI) and add it to the tab layout.
-        self.modelTree = modelTree(self.modelTreeTab, parent)
+        self.modelTree = ModelTree(self.modelTreeTab, parent)
         self.modelTree.modelTreeGui.setObjectName("modelTreeGui")
         modelTreeTabLayout.addWidget(self.modelTree.modelTreeGui)
 

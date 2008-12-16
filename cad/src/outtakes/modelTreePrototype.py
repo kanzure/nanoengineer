@@ -125,7 +125,7 @@ seeing is how the name gets from the Q3ListViewItem back to the Node. So renamin
 me, and I'll ask Bruce about it later.
 """
 
-class Ne1Model_api:
+class ModelTree_api: #bruce 081216 renamed this from Ne1Model_api to ModelTree_api
     def get_topnodes(self):
         """Return a list of the top-level nodes, typically assy.tree and assy.shelf for an Assembly.
         """
@@ -225,8 +225,9 @@ class Node_api:
         """
         raise Exception('overload me')
 
-class ModelTree_api(QTreeView):
-    """This should be a Qt4 widget that can be put into a layout.
+class ModelTreeGUI_api(QTreeView): #bruce 081216 renamed this from ModelTree_api to ModelTreeGUI_api
+    """
+    This should be a Qt4 widget that can be put into a layout.
     """
     def pick(self, item, group_select_kids=True):
         "select the given item (actually the node or group it shows)"
@@ -446,11 +447,11 @@ class _QtTreeModel(QAbstractItemModel):
 
 ####################################################################
 
-class ModelTree(ModelTree_api):
-    def __init__(self, name, ne1model, parent=None):
+class ModelTree(ModelTreeGUI_api):
+    def __init__(self, name, treemodel, parent=None):
         QTreeView.__init__(self, parent)
-        self.ne1model = ne1model
-        ne1model.view = self
+        self.treemodel = treemodel #bruce 081216 renamed this from ne1model
+        treemodel.view = self
         self.setSelectionMode(self.ExtendedSelection) #bruce 070507 MultiSelection -> ExtendedSelection
         self.qtmodel = None
         self.drag = None
@@ -496,7 +497,7 @@ class ModelTree(ModelTree_api):
             def node_icon(self, display_prefs):
                 return None
 
-        rootNode = FakeTopNode("Model tree", self.ne1model.get_topnodes())
+        rootNode = FakeTopNode("Model tree", self.treemodel.get_topnodes())
         rootItem = self.make_new_subtree_for_node(rootNode)
         self.qtmodel = model = _QtTreeModel(rootItem)
         self.setModel(model)
@@ -640,7 +641,7 @@ class ModelTree(ModelTree_api):
             node = self.item_to_node_dict[item]
             nodeset = [ node ] # ? ? ? ?
             optflag = False  # ? ? ? ?
-            cmenu_spec = self.ne1model.make_cmenuspec_for_set(nodeset, optflag)
+            cmenu_spec = self.treemodel.make_cmenuspec_for_set(nodeset, optflag)
             for x in cmenu_spec:
                 if x is not None:
                     str, thunk = x[:2]
@@ -744,7 +745,7 @@ class TestClipboardNode(TestNode):
         else:
             return self.iconEmpty
 
-class TestNe1Model(Ne1Model_api):
+class TestNe1Model(ModelTree_api):
     def __init__(self):
         self.untitledNode = TestNode("Untitled", None,
                                      QPixmap("../images/part.png"))
@@ -809,9 +810,9 @@ class TestWrapper(QGroupBox):
     def __init__(self):
         QGroupBox.__init__(self)
 
-        self.ne1model = ne1model = TestNe1Model()
+        self.treemodel = treemodel = TestNe1Model()
 
-        self.view = view = ModelTree("Model tree", ne1model, self)
+        self.view = view = ModelTree("Model tree", treemodel, self)
         view.mt_update()
 
         def thunk(str):
@@ -856,7 +857,7 @@ class TestWrapper(QGroupBox):
             icon = QPixmap('../images/measuredistance.png')
             icon_h = QPixmap('../images/measuredistance-hide.png')
         chunk = TestNode("%s-%d" % (what, self.chunkNum),
-                         self.ne1model.untitledNode, icon, icon_h)
+                         self.treemodel.untitledNode, icon, icon_h)
 
         self.chunkNum += 1
         self.view.mt_update()
@@ -880,7 +881,7 @@ def test_api():
     # Test API compliance. If we remove all the functionality, pushing buttons shouldn't raise any
     # exceptions.
     global ModelTree, _QtTreeItem, _QtTreeModel
-    ModelTree = ModelTree_api
+    ModelTree = ModelTreeGUI_api
     del _QtTreeModel
     del _QtTreeItem
 
