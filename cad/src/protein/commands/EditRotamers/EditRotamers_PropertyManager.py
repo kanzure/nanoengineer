@@ -17,9 +17,9 @@ To do:
 - Better messages, especially when selecting different peptides.
 - Include "Show entire model" checkbox in PM (checked by default).
 - Add "Number of AA:" field (disabled).
-- Include name of the current peptide in the title of the Sequence Editor.
 - Sync Residue combobox and sequence editor (or remove one or the other).
 - Add wait (hourglass) cursor when changing the display style of proteins.
+- Allow user to rename current protein in the Name field.
 """
 import os, time, fnmatch, string
 import foundation.env as env
@@ -108,6 +108,10 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         else:
             change_connect = self.win.disconnect 
         
+        change_connect(self.currentResidueComboBox,
+                       SIGNAL("activated(int)"),
+                       self._currentResidueChanged)
+            
         change_connect(self.nextAAPushButton,
                        SIGNAL("clicked()"),
                        self._expandNextRotamer)
@@ -116,17 +120,18 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
                        SIGNAL("clicked()"),
                        self._expandPreviousRotamer)
         
-        change_connect(self.expandAllPushButton,
-                       SIGNAL("clicked()"),
-                       self._expandAllRotamers)
+        change_connect(self.showAllResiduesCheckBox,
+                       SIGNAL("toggled(bool)"),
+                       self._showAllResidues)
         
-        change_connect(self.collapseAllPushButton,
-                       SIGNAL("clicked()"),
-                       self._collapseAllRotamers)
+        #change_connect(self.expandAllPushButton,
+                       #SIGNAL("clicked()"),
+                       #self._expandAllRotamers)
         
-        change_connect(self.aminoAcidsComboBox,
-                       SIGNAL("activated(int)"),
-                       self._aminoAcidChanged)
+        #change_connect(self.collapseAllPushButton,
+                       #SIGNAL("clicked()"),
+                       #self._collapseAllRotamers)
+        
         return
     
     #==
@@ -149,43 +154,26 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         clear the combobox list.
         """
         
-        self.aminoAcidsComboBox.clear()
+        self.currentResidueComboBox.clear()
         
         if not self.current_protein:
             return
         
         aa_list = self.current_protein.protein.get_amino_acid_id_list()
         for j in range(len(aa_list)):
-            self.aminoAcidsComboBox.addItem(aa_list[j])
+            self.currentResidueComboBox.addItem(aa_list[j])
         
         # This doesn't generate a signal (only 'activate' is connected to 
-        # slot _aminoAcidChanged).
-        self.aminoAcidsComboBox.setCurrentIndex(
+        # slot _currentResidueChanged).
+        self.currentResidueComboBox.setCurrentIndex(
             self.current_protein.protein.get_current_amino_acid_index())
         
         # Call the slot explicitly. This is needed to draw the rotamer
         # on top of the reduced model of the current protein.
         # Also see the comments in _update_UI_do_updates().
-        self._aminoAcidChanged(
+        self._currentResidueChanged(
             self.current_protein.protein.get_current_amino_acid_index())
         
-        return
-    
-    def update_sequence_editor(self):
-        """
-        Update the sequence editor with the peptide sequence of the
-        currently selected protein. If there is no currently selected protein,
-        clear the combobox list.
-        
-        @note: This should become the update() method of the sequence editor.
-        """
-        if not self.current_protein:
-            self.sequenceEditor.clear()
-            return
-        
-        sequence = self.current_protein.protein.get_sequence_string()
-        structure = self.current_protein.protein.get_secondary_structure_string()
-        self.sequenceEditor.setSequenceAndStructure(sequence, structure)
         return
     
     def close(self):
@@ -207,9 +195,6 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
                updates PM widgets with their correct values/settings.
         """
         _superclass.show(self)
-        
-        self.updateMessage("Edit...")
-        self.sequenceEditor.show()
         env.history.statusbar_msg("")
         return
     
@@ -235,41 +220,61 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         self.proteinNameLineEdit = PM_LineEdit( pmGroupBox,
                                                 label = "Name:")
             
-        self.aminoAcidsComboBox = PM_ComboBox( pmGroupBox,
+        self.currentResidueComboBox = PM_ComboBox( pmGroupBox,
                                  label         =  "Current residue:",
                                  setAsDefault  =  False)
         
         self.previousAAPushButton  = \
             PM_PushButton( pmGroupBox,
                          text          =  "Previous AA",
-                         setAsDefault  =  True)
+                         setAsDefault  =  True,
+                         spanWidth     =  True)
         
         self.nextAAPushButton  = \
             PM_PushButton( pmGroupBox,
                          text          =  "Next AA",
-                         setAsDefault  =  True)
+                         setAsDefault  =  True,
+                         spanWidth     =  True)
         
         self.recenterViewCheckBox  = \
             PM_CheckBox( pmGroupBox,
-                         text          =  "Re-center view",
+                         text          =  "Center view on current residue",
                          setAsDefault  =  True,
-                         state         =  Qt.Unchecked)
+                         state         =  Qt.Unchecked,
+                         widgetColumn  =  0,
+                         spanWidth     =  True)
         
         self.lockEditedCheckBox  = \
             PM_CheckBox( pmGroupBox,
                          text          =  "Lock edited rotamers",
                          setAsDefault  =  True,
-                         state         =  Qt.Checked)
+                         state         =  Qt.Checked,
+                         widgetColumn  =  0,
+                         spanWidth     =  True)
         
-        self.expandAllPushButton  = \
-            PM_PushButton( pmGroupBox,
-                         text         =  "Expand All",
-                         setAsDefault  =  True)
+        self.showAllResiduesCheckBox  = \
+            PM_CheckBox( pmGroupBox,
+                         text          =  "Show all residues",
+                         setAsDefault  =  False,
+                         state         =  Qt.Unchecked,
+                         widgetColumn  =  0,
+                         spanWidth     =  True)
         
-        self.collapseAllPushButton  = \
-            PM_PushButton( pmGroupBox,
-                         text          =  "Collapse All",
-                         setAsDefault  =  True)
+        # The "Expand All" and "Collapse All" buttons are deprecated. They have
+        # been replaced by the "Show all residues" checkbox.
+        #self.expandAllPushButton  = \
+            #PM_PushButton( pmGroupBox,
+                         #text         =  "Expand All",
+                         #setAsDefault  =  True,
+                         #spanWidth     =  True)
+        #self.expandAllPushButton.hide()
+        
+        #self.collapseAllPushButton  = \
+            #PM_PushButton( pmGroupBox,
+                         #text          =  "Collapse All",
+                         #setAsDefault  =  True,
+                         #spanWidth     =  True)
+        #self.collapseAllPushButton.hide()
         return
         
     def _loadGroupBox2(self, pmGroupBox):
@@ -369,9 +374,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             return
         
         self.current_protein.protein.traverse_forward()
-        self._display_and_recenter()
-        self._updateAminoAcidInfo(
-            self.current_protein.protein.get_current_amino_acid_index())
+        self._updateResidueInfo()
         return
     
     def _expandPreviousRotamer(self):
@@ -384,29 +387,33 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             return
         
         self.current_protein.protein.traverse_backward()
-        self._display_and_recenter()
-        self._updateAminoAcidInfo(
-            self.current_protein.protein.get_current_amino_acid_index())
+        self._updateResidueInfo()
         return
-        
-    def _collapseAllRotamers(self):
+    
+    def _showAllResidues(self, show):
         """
-        Hides all the rotamers.
-        
-        @attention: this only works when the GDS is a reduced display style.
+        Slot for "Show all residues" checkbox.
         """
         if not self.current_protein:
             return
         
-        self.current_protein.protein.collapse_all_rotamers()
-        self.win.glpane.gl_update()
+        print "Show =",show
+        if show:
+            self._expandAllRotamers()
+        else:
+            self._collapseAllRotamers()
+        return
+    
+    def _collapseAllRotamers(self):
+        """
+        Hides all the rotamers (except the current rotamer).
+        """
+        self._display_and_recenter()
         return
     
     def _expandAllRotamers(self):
         """
         Displays all the rotamers.
-        
-        @attention: this only works when the GDS is a reduced display style.
         """
         if not self.current_protein:
             return
@@ -418,14 +425,23 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
     def _display_and_recenter(self):
         """
         Recenter the view on the current amino acid selected in the 
-        residue combobox (or the sequence editor).
+        residue combobox (or the sequence editor). All rotamers 
+        except the current rotamer are collapsed (hidden).
         """
         if not self.current_protein:
             return
         
+        # Uncheck the "Show all residues" checkbox since they are being collapsed.
+        # Disconnect signals so that showAllResiduesCheckBox won't general a signal.
+        self.connect_or_disconnect_signals(isConnect = False)
+        self.showAllResiduesCheckBox.setChecked(False)
+        self.connect_or_disconnect_signals(isConnect = True)
+        
         self.current_protein.protein.collapse_all_rotamers()
         current_aa = self.current_protein.protein.get_current_amino_acid()
         
+        # Display the current amino acid and center it in the view if the
+        # "Center view on current residue" is checked.
         if current_aa:
             self.current_protein.protein.expand_rotamer(current_aa)
             self._update_chi_angles(current_aa)
@@ -473,14 +489,18 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             self.chi4Dial.setValue(0.0)
         return
     
-    def _updateAminoAcidInfo(self, index):
+    def _updateResidueInfo(self):
         """
-        Update position of Amino Acid combo box.
+        Update the "Current residue" combobox and the cursor position of the
+        sequence editor based on the current protein's amino acid index.
         """
-        self.aminoAcidsComboBox.setCurrentIndex(index)
+        aa_index = self.current_protein.protein.get_current_amino_acid_index()
+        self.currentResidueComboBox.setCurrentIndex(aa_index)
+        self.sequenceEditor.setCursorPosition(aa_index)
+        self._display_and_recenter()
         return
         
-    def _aminoAcidChanged(self, index):
+    def _currentResidueChanged(self, index):
         """
         Slot for the "Current residue" combobox.
         """
@@ -489,15 +509,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         
         self.current_protein.protein.set_current_amino_acid_index(index)
         self._display_and_recenter()
-        
-        #Urmi 20080728: change the cursor position in the sequence editor 
-        # when current amino acid in the amino acid combo box is changed
-        cursor = self.sequenceEditor.sequenceTextEdit.textCursor()
-        if index == -1:
-            index = 0
-        cursor.setPosition(index, QTextCursor.MoveAnchor)       
-        cursor.setPosition(index + 1, QTextCursor.KeepAnchor) 
-        self.sequenceEditor.sequenceTextEdit.setTextCursor( cursor )
+        self.sequenceEditor.setCursorPosition(index)
         return
     
     def _rotateChiAngle(self, chi, angle):
@@ -552,21 +564,19 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         
         self.current_protein = self.win.assy.getSelectedProteinChunk()
         
-        if self.current_protein == self.previous_protein:
+        if self.current_protein is self.previous_protein:
             print "_update_UI_do_updates(): DO NOTHING."
             return
-        
-        # NOTE: Changing the display styles of the protein chunks can take some
-        # time. We should put up the wait (hourglass) cursor here and restore 
-        # before returning.
         
         # Update all PM widgets that need to be since something has changed.
         print "_update_UI_do_updates(): UPDATING the PMGR."
         self.update_name_field()
-        self.update_sequence_editor()
+        self.sequenceEditor.update()
         self.update_residue_combobox()
         
-        
+        # NOTE: Changing the display style of the protein chunks can take some
+        # time. We should put up the wait (hourglass) cursor and restore 
+        # before returning.
         if self.previous_protein:
             self.previous_protein.setDisplayStyle(self.previous_protein_display_style)
             
@@ -575,5 +585,11 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         if self.current_protein:
             self.previous_protein_display_style = self.current_protein.getDisplayStyle()
             self.current_protein.setDisplayStyle(diPROTEIN)
+            
+        if self.current_protein:
+            msg = "Editing structure <b>%s</b>." % self.current_protein.name
+        else:
+            msg = "Select a single structure to edit."
+        self.updateMessage(msg)
         
         return
