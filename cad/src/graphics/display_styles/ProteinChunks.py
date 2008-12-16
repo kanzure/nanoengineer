@@ -386,8 +386,8 @@ class ProteinChunks(ChunkDisplayMode):
     # Pretty sure Bruce's intention is to define icons for subclasses
     # of ChunkDisplayMode here, not in mticon_names[] and hideicon_names[] 
     # in chunks.py. Ask him to be sure. Mark 2008-02-12
-    icon_name = "modeltree/DnaCylinder.png"
-    hide_icon_name = "modeltree/DnaCylinder-hide.png"
+    icon_name = "modeltree/Protein.png"
+    hide_icon_name = "modeltree/Protein-hide.png"
 
     def _get_aa_color(self, chunk, pos, n_pos, sec, aa, c_sec, n_sec):
         """

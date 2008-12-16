@@ -1417,10 +1417,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         return
     def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]; revised again 060608
         try:
+            if self.isProteinChunk():
+                hd = get_display_mode_handler(diPROTEIN)
+                if hd:
+                    return hd.get_icon(self.hidden)
             if self.hidden:
                 return self.hideicon[self.display]
             else:
                 return self.mticon[self.display]
+                
         except IndexError:
             # probably one of those new-fangled ChunkDisplayModes [bruce 060608]
             hd = get_display_mode_handler(self.display)
@@ -3479,7 +3484,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # all calls and this looks safe. (Ditto with Atom version of this
         # method.) [bruce comment 080305 @@@@]
         """
-        set self's display style
+        Set self's display style.
         """
         if self.display == disp:
             #bruce 080305 optimization; looks safe after review of all calls;
@@ -3497,7 +3502,18 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def getDisplayStyle(self):
         """
-        return self's display style.
+        Return the display style set on self (and not the one supplied from 
+        self's environment (i.e. the glpane) when self's display style is set to 
+        to diDEFAULT).
+        
+        Use get_dispdef to obtain the display style set by self or self's 
+        environment when self's display style is set to diDEFAULT.
+        
+        @note: self's display style used to draw self can differ from  
+        self.display not only if it's diDEFAULT, but due to some special cases 
+        in get_dispdef based on the type of chunk.
+        
+        @see: L{get_dispdef()}
         """
         return self.display
     
