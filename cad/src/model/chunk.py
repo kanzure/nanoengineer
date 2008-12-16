@@ -1416,11 +1416,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             self.hideicon.append( imagename_to_pixmap( "modeltree/" + name))
         return
     def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]; revised again 060608
+        # Special case for protein icon. This only adds the icon to the MT.
+        # To add the protein icon for PM_SelectionListWidget, the attr iconPath
+        # was modified in isProteinChunk(). --Mark 2008-12-16.
+        if self.isProteinChunk():
+            hd = get_display_mode_handler(diPROTEIN)
+            if hd:
+                return hd.get_icon(self.hidden)
         try:
-            if self.isProteinChunk():
-                hd = get_display_mode_handler(diPROTEIN)
-                if hd:
-                    return hd.get_icon(self.hidden)
             if self.hidden:
                 return self.hideicon[self.display]
             else:
@@ -4597,6 +4600,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if self.protein is None:
             return False
         else:
+            # This only adds the icon to the PM_SelectionListWidget.
+            # To add the protein icon for the model tree, the node_icon() 
+            # method was modified. --Mark 2008-12-16.
+            if self.hidden:
+                self.iconPath = "ui/modeltree/Protein-hide.png"
+            else:
+                self.iconPath = "ui/modeltree/Protein.png"
             return True
         
     pass # end of class Chunk
