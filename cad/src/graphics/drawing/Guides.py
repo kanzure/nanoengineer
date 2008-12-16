@@ -218,8 +218,8 @@ def getRulerDrawingParameters(width, height, aspect,
         
     num_vert_ticks = int(num_horz_ticks * aspect) + 1
     
-    DEBUG = False
-    if DEBUG:
+    _DEBUG = False
+    if _DEBUG:
         print "hr ticks=", num_horz_ticks, "vr ticks=", num_vert_ticks
         print "tickmark_spacing=", tickmark_spacing, "viewHeight=", viewHeight
         print "units_scale=", units_scale, "unit_label_inc=", unit_label_inc

@@ -40,7 +40,7 @@ from utilities.debug import print_compact_traceback
 from utilities.prefs_constants import captionFullPath_prefs_key
 from ne1_ui.SelectNodeByNameDockWidget import SelectNodeByNameDockWidget
 
-DEBUG = False # Do not commit set to True.
+_DEBUG = False # Do not commit with True
 
 class _pwProjectTabWidget(QTabWidget):
     """
@@ -101,11 +101,11 @@ class LeftFrame(QFrame):
         delta = abs(size.width() - oldSize.width())
         if delta < 10: # 10 pixels. Value chosen based on experimentation.
             self.parent.splitterPosition = size.width()
-            if DEBUG:
+            if _DEBUG:
                 print "New Size: ", self.parent.splitterPosition
         else:
             self.parent.splitterPosition = oldSize.width()
-            if DEBUG:
+            if _DEBUG:
                 print "Old Size: ", self.parent.splitterPosition
         QWidget.resizeEvent(self, event)
         return
@@ -520,7 +520,7 @@ class Ui_PartWindow(QWidget):
         @type  setDefault: boolean
         """
         self.pwSplitter.moveSplitter(pos, 1)
-        if DEBUG:
+        if _DEBUG:
             print "New Splitter Position: %d (setDefault=%d)" \
                   % (pos, setDefault)
         if setDefault:

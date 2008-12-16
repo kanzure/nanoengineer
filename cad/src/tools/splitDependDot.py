@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: this produces several disconnected graphs in GraphViz
 format. I don't know if the entire output
 (when it contains more than one graph) is legal GraphViz input.
 """
 
-DEBUG = False
+_DEBUG = False
 
 import sys
 import os
@@ -64,7 +64,7 @@ def readDependDot_as_pairs(filename):
             assert words[1] == '->'
             assert words[2].endswith(';')
             module2 = words[2][:-1]
-            if DEBUG:
+            if _DEBUG:
                 print "got %r -> %r" % (module1, module2)
             res.append((module1,module2))
     return res

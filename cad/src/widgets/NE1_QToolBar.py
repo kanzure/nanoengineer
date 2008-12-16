@@ -14,7 +14,7 @@ from PyQt4.Qt import Qt, QToolBar, SIGNAL
 from utilities.icon_utilities import getpixmap
 from utilities.debug import print_compact_stack
 
-DEBUG = False # Do not commit with DEBUG set to True.
+_DEBUG = False # Do not commit with True
 
 class NE1_QToolBar(QToolBar):
     """
@@ -56,7 +56,7 @@ class NE1_QToolBar(QToolBar):
                orientationChanged() signal, but it doesn't work.
         """
         for separator in self._separatorList:
-            if DEBUG:
+            if _DEBUG:
                 print separator.objectName()
             self.setSeparatorWidgetPixmap(separator, self.orientation())
             
@@ -91,7 +91,7 @@ class NE1_QToolBar(QToolBar):
         Reimplements the addSeparator() method of QToolBar.
         """
         _toolbarSeparator = QtGui.QLabel(self)
-        if DEBUG:
+        if _DEBUG:
             _name = "%s-Separator%d" % (self.objectName(), self._separatorNumber)
             _toolbarSeparator.setObjectName(_name)
             self._separatorNumber += 1
