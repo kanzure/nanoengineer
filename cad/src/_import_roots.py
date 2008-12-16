@@ -52,4 +52,6 @@ import main # the NE1 main program file
 import ExecSubDir # a Python script which needs to remain in cad/src
     # [bruce 071008]
 
+import modelTree.Node_api #bruce 081216, unused but not yet an outtake
+
 # end

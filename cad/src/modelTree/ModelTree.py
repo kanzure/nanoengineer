@@ -199,6 +199,8 @@ class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
     def setGeometry(self, w, h): #k might not be needed
         return self.modelTreeGui.setGeometry(QtCore.QRect(0,0,w,h))
 
+    # note: after refactoring, methods above belong in ModelTree, below mostly in TreeModel [bruce 081216 comment]
+
     # == callbacks from self.modelTreeGui to help it update the display
     
     def get_topnodes(self):
@@ -252,7 +254,16 @@ class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
     
     def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
-    
+
+    def topmost_selected_nodes(self): # in class ModelTree [maybe: reorder vs other methods here]
+        """
+        @return: a list of all selected nodes which are not inside selected Groups
+        """
+        #bruce 081216 split this into api method and this implem method
+        nodes = [self.get_current_part_topnode()]
+        from operations.ops_select import topmost_selected_nodes # TODO: move this to toplevel
+        return topmost_selected_nodes(nodes)
+
     # ===
     
     # methods related to context menu -- menu maker, and handlers for each op

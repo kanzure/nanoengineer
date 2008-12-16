@@ -44,6 +44,9 @@ though some bugs remain
 
 080507: Bruce partly implemented GLPane -> MT cross-highlighting
 
+081216: Bruce is doing some cleanup and refactoring, including splitting some
+smaller modules out of this one.
+
 TODO:
 
 This module is too long, and includes api classes for other modules,
@@ -88,10 +91,12 @@ from utilities.GlobalPreferences import pref_show_node_color_in_MT
 
 from widgets.widget_helpers import RGBf_to_QColor
 
-DEBUG0 = False # debug api compliance
-DEBUG = False # debug selection stuff
-DEBUG2 = False # mouse press event details
-DEBUG3 = False # stack, begin, end, for event processing
+from modelTree.Api import Api
+
+_DEBUG0 = False # debug api compliance
+_DEBUG = False # debug selection stuff
+_DEBUG2 = False # mouse press event details
+_DEBUG3 = False # stack, begin, end, for event processing
 
 # These base classes are JUST the API. Functionality is implemented by extending these base classes.
 
@@ -129,47 +134,9 @@ DEBUG3 = False # stack, begin, end, for event processing
 # seeing is how the name gets from the Q3ListViewItem back to the Node. So renaming is a big mystery to
 # me, and I'll ask Bruce about it later.
 
-###################################################################
-# Yet another experiment with testing API compliance in Python
-
-def _inheritance_chains(klas, endpoint):
-    if klas is endpoint:
-        return [ (endpoint,) ]
-    lst = [ ]
-    for base in klas.__bases__:
-        for seq in _inheritance_chains(base, endpoint):
-            lst.append((klas,) + seq)
-    return lst
-
-# This little hack is a way to ensure that a class implementing an API does so completely. API
-# compliance also requires that the caller not call any methods _not_ defined by the API, but
-# that's a harder problem that we'll ignore for the moment.
-
-class Api:
-    def _verify_api_compliance(self):
-        from types import MethodType
-        myclass = self.__class__
-        mystuff = myclass.__dict__
-        ouch = False
-        for legacy in _inheritance_chains(myclass, Api):
-            assert len(legacy) >= 3
-            api = legacy[-2]
-            print api, api.__dict__
-            for method in api.__dict__:
-                if not method.startswith("__"):
-                    assert type(getattr(api, method)) is MethodType
-                    assert type(getattr(self, method)) is MethodType
-                    this_method_ok = False
-                    for ancestor in legacy[:-2]:
-                        if method in ancestor.__dict__:
-                            this_method_ok = True
-                    if not this_method_ok:
-                        print myclass, 'does not implement', method, 'from', api
-                        ouch = True
-        if ouch:
-            raise Exception('Class does not comply with its API')
-
 #############################################
+
+from modelTree.Api import Api
 
 class ModelTree_api(Api):
     """
@@ -183,7 +150,9 @@ class ModelTree_api(Api):
               * tree model, to be displayed and edited by a ModelTreeGUI
                 (i.e. by self.view, with self == self.view.treemodel)
                 (this might be called class TreeModel_api if it was split out)
-              Presently, this API has methods of both kinds.
+              Presently, this API has methods of both kinds
+              (but mostly of TreeModel_api, only one truly of ModelTree_api),
+              and its subclasses have many methods of both kinds.
 
     @warning: not all API methods are documented here.
     """
@@ -202,6 +171,12 @@ class ModelTree_api(Api):
         (The keys are those nodes, and the values are arbitrary.)
         """
         return {}
+
+    def get_current_part_topnode(self): #bruce 070509 added this to API ##e rename?
+        """
+        Return a node guaranteed to contain all selected nodes, and be fast.
+        """
+        raise Exception("overload me")
     
     def make_cmenuspec_for_set(self, nodeset, optflag):
         """
@@ -222,12 +197,6 @@ class ModelTree_api(Api):
         """
         raise Exception("overload me")
 
-    def get_current_part_topnode(self): #bruce 070509 added this to API ##e rename?
-        """
-        Return a node guaranteed to contain all selected nodes, and be fast.
-        """
-        raise Exception("overload me")
-
     # helper methods -- strictly speaking these are now part of the API, but they have default implems
     # based on more primitive methods (which need never be overridden, and maybe should never be overridden).
     # [moved them into this class from modelTreeGui, bruce 070529]
@@ -237,6 +206,7 @@ class ModelTree_api(Api):
                        visible_only = False ):
         """
         """
+        # note: used only in itself and in ModelTreeGUI.mt_update
         #bruce 070509 new features:
         # - fake_nodes_to_mark_groups [not used as of 080306],
         # - visible_only [always true as of 080306]
@@ -281,11 +251,10 @@ class ModelTree_api(Api):
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
-        nodes = [self.get_current_part_topnode()]
-        from operations.ops_select import topmost_selected_nodes
-        return topmost_selected_nodes(nodes)
+        raise Exception("overload me")
 
     def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
+        # TODO: this belongs in ModelTree_api, not TreeModel_api like the others (after refactoring)
         """
         For each node in nodes, repaint that node, if it was painted the last
         time we repainted self as a whole. (Not an error if it wasn't.)
@@ -294,136 +263,7 @@ class ModelTree_api(Api):
 
     pass # end of class ModelTree_api
 
-class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit from Node?? [bruce 080107 comment]
-    """
-    The customer must provide a node type that meets this API. This can be done by extending this
-    class, or implementing it yourself. [See also class Node in Utility.py, used as the superclass
-    for NE1 model tree nodes, which defines an API which is (we hope) a superset of this one.
-    This could in principle inherit from this class, and at least ought to define all its methods.]
-
-    In addition to what appears here, a node that has child nodes must maintain them in a list
-    called 'self.members'. [that might be WRONG as of 080306, since we now use MT_kids]
-
-    @note: this class is only used (so far, 081212) as documentation and in test code.
-    """
-    # There still needs to be an API call to support renaming, where the model tree is allowed to
-    # change the Node's name.
-
-    # Questions & comments about this API [bruce 070503, 070508]:
-    #
-    # - why doesn't it mention node.open or node.openable()?
-    #   That omission might be related to some ###BUGS (inability to collapse group nodes).
-    #   [I added them to the API but not yet fully to the code. bruce 070508]
-    #
-    # - how exactly must node.members and node.MT_kids() be related?
-    #   Right now this code may assume that they're always equal, and it may also assume that
-    #   when they're nonempty the node is openable.
-    #   What I think *should* be made true is that node.members is private, or at least read-only...
-    #   OTOH MT_kids is not yet different, and not yet used by other NE1 code [bruce 080108 updated this comment]
-    #   [this may have been fixed today in favor of only using MT_kids -- bruce 080306]
-    #
-    # - it ought to include (and the code herein make use of) node.try_rename or so.
-    #
-    # - is Node.__init__ part of the API, or just a convenience place for a docstring
-    #   about required instance variables?
-    # - in Qt3 there *is* a Node API call to support renaming ("try_rename" or so).
-    #   Why isn't it used or listed here?
-    #
-    # See also my comments in class ModelTree.__init__.
-        
-    def __init__(self):
-        """
-        self.name MUST be a string instance variable.
-        self.hidden MUST be a boolean instance variable.
-        self.open MUST be a boolean instance variable.
-        There is no API requirement about arguments for __init__.
-        """
-        raise Exception("overload me")
-
-    def pick(self):
-        """
-        select the object
-        [extended in many subclasses, notably in Group]
-        [Note: only Node methods should directly alter self.picked,
-         since in the future these methods will sometimes invalidate other state
-         which needs to depend on which Nodes are picked.]
-        """
-        raise Exception("overload me")
-
-    def ModelTree_plain_left_click(self): #bruce 080213 addition to Node API
-        """
-        Do desired extra side effects (if any) from a plain, direct left click
-        in a model tree widget (after the usual effect of self.pick, which can
-        also happen in several other ways).
-        """
-        pass
-    
-    def unpick(self):
-        """
-        unselect the object, and all its ancestor nodes.
-        [extended in many subclasses, notably in Group]
-        [Note: only Node methods should directly alter self.picked,
-         since in the future these methods will sometimes invalidate other state
-         which needs to depend on which Nodes are picked.]
-        """
-        raise Exception("overload me")
-
-    def apply2picked(self, func):
-        """
-        Apply fn to the topmost picked nodes under (or equal to) self,
-        but don't scan below picked nodes. See Group.apply2picked docstring for details.
-        """
-        raise Exception("overload me")
-
-    def is_disabled(self):
-        """
-        MUST return a boolean
-        """
-        raise Exception("overload me")
-
-    def node_icon(self, display_prefs):
-        """
-        MUST return either a QPixmap or None
-        """
-        # display_prefs is used in Group.node_icon to indicate whether a group is open or closed. It
-        # is not used anywhere else. It is a dictionary and the only relevant key for it is "open".
-        # [Addendum, bruce 070504: it also has a key 'openable'. I don't know if anything looks at
-        #  its value at that key, but "not open but openable" vs "not open and not even openable"
-        #  is a meaningful difference. The value of 'openable' is usually (so far, always)
-        #  implicit in the Node's concrete subclass, so typical methods won't need to look at it.]
-        raise Exception("overload me")
-
-##    def drop_on_ok(self, drag_type, nodes):
-##        """
-##        Say whether 'drag and drop' can drop the given set of nodes onto this node, when they are
-##        dragged in the given way, and if not, why not.
-##        @rtype: ( boolean, string )
-##        """
-##        raise Exception("overload me")
-##
-##    def drop_on(self, drag_type, nodes):
-##        """
-##        After a 'drag and drop' of type 'move' or 'copy' (according to drag_type), perform the
-##        drop of the given list of nodes onto this node. Return any new nodes this creates (toplevel
-##        nodes only, for copied groups).
-##        """
-##        raise Exception("overload me")
-
-    def MT_kids(self, item_prefs = {}): #bruce 080108 renamed kids -> MT_kids; only used in some of the places it needs to be
-        """
-        Return a list of Nodes that the model tree should show
-        as a child of this Node, if it's openable and open.
-        (It doesn't matter what this returns in other cases.)
-        """
-        raise Exception("overload me")
-
-    def openable(self): #bruce 070508
-        """
-        Return True if tree widgets should display an openclose icon
-        for this node, False otherwise.
-        """
-        raise Exception("overload me")        
-    pass
+# ===
 
 class ModelTreeGui_api(Api): 
     """
@@ -765,7 +605,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             # set by any mousePress that supports mouseMove not being a noop, to info about what that move should do #bruce 070509
         self._ongoing_DND_info = None # set to a tuple of a private format, during a DND drag (not used during a selection-drag #k)
         self.setAcceptDrops(True)
-        if DEBUG0:
+        if _DEBUG0:
             self._verify_api_compliance()
 
         # Make sure certain debug_prefs are visible from the start, in the debug_prefs menu --
@@ -1111,7 +951,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             # don't print a message -- probably common for small mouse motions
             # (thus, don't leave this for drop_on_ok to find)
             # (not verified by test that it *will* find it, though it ought to)
-            if DEBUG2:
+            if _DEBUG2:
                 print "debug warning: MT DND: targetnode in nodes, refusing drop" # new behavior, bruce 070509
             #e should generalize based on what Qt3 code does [obs cmt?]
             raise DoNotDrop()
@@ -1206,7 +1046,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
     # == mouse click and selection drag events, and DND start code
     
     def mouseMoveEvent(self, event):
-        if DEBUG3:
+        if _DEBUG3:
             print "begin mouseMoveEvent"
 
         try:
@@ -1242,7 +1082,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             # [bruce 070609 comments]
             return
         finally:
-            if DEBUG3:
+            if _DEBUG3:
                 print "end mouseMoveEvent"
         pass
 
@@ -1291,7 +1131,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             self.mouse_press_scrollpos = None
             del self.mouse_press_scrollpos
         
-        if DEBUG2:
+        if _DEBUG2:
             print "\nMT mousePressEvent: button %r, buttons %s, modifiers %s, globalPos %r, pos %r" % \
                   (button,
                    describe_buttons(buttons), # str and repr only show the class, which is PyQt4.QtCore.MouseButtons; int works
@@ -1313,20 +1153,20 @@ class ModelTreeGui_common(ModelTreeGui_api):
                 # (at least for now -- tooltips are off for some reason, MT can't be widened, and it has no horizontal scrollbar,
                 #  though it did a few days ago -- don't know why.)
             alreadySelected = item.node.picked #bruce 070509
-            if DEBUG2:
+            if _DEBUG2:
                 print "visualRect coords",rect.left(), rect.right(), rect.top(), rect.bottom()
             qfm = QFontMetrics(QLineEdit(self).font())
             rect.setWidth(qfm.width(item.node.name) + _ICONSIZE[0] + 4)
-            if DEBUG2:
+            if _DEBUG2:
                 print "visualRect coords, modified:",rect.left(), rect.right(), rect.top(), rect.bottom()
                 # looks like icon and text, a bit taller than text (guesses)
             eventInRect = rect.contains(event.pos())
-            if DEBUG2:
+            if _DEBUG2:
                 print "real item: eventInRect = %r, item = %r, alreadySelected = %r" % \
                       (eventInRect, item, alreadySelected)
         else:
             alreadySelected = False # bruce 070509
-            if DEBUG2:
+            if _DEBUG2:
                 print "no item"
             pass
 
@@ -1350,7 +1190,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
         if not eventInRect and item and item.node.openable():
             # we're on item's row, and item has an openclose decoration (or should have one anyway) -- are we on it?
             left_delta = rect.left() - event.pos().x()
-            if DEBUG2:
+            if _DEBUG2:
                 print "left_delta is %r" % left_delta
             if 0 < left_delta < 20:
                 # guess; precise value doesn't matter for correctness, only for "feel" of the UI
@@ -1360,7 +1200,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
                 node.open = not node.open
                 self.mt_update()
 ##                self.win.glpane.gl_update()
-                if DEBUG3:
+                if _DEBUG3:
                     print "returning from mousePressEvent (openclose case)"
                 return
             pass
@@ -1422,7 +1262,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
                         # but to avoid that we saved the selected nodes earlier (see comments there for caveats).
                         unselectOthers = True
 
-        if DEBUG:
+        if _DEBUG:
             print 
             print "unselectOthers", unselectOthers
             print "selectThis", selectThis
@@ -1494,48 +1334,48 @@ class ModelTreeGui_common(ModelTreeGui_api):
                 item.node.ModelTree_plain_left_click()
             pass
             
-        if DEBUG:
+        if _DEBUG:
             print "SELECTED AFTER <<<"
             print self.topmost_selected_nodes()
             print ">>>"
 
         if updateGui: # this is often overkill, needs optim
-            if DEBUG3:
+            if _DEBUG3:
                 print "doing updateGui at end of mousePressEvent"
             self.mt_update()
             self.win.glpane.gl_update()
 
-        if DEBUG3:
+        if _DEBUG3:
             print "end mousePressEvent"
         
         return # from mousePressEvent
     
     def mouseReleaseEvent(self, event):
-        if DEBUG3:
+        if _DEBUG3:
             print "begin/end mouseReleaseEvent (almost-noop method)"
         self._ongoing_DND_info = None
 
     def contentsMousePressEvent(self, event): #bruce 070508 debug code; doesn't seem to be called (in QTreeView implem anyway)
-        if DEBUG3:
+        if _DEBUG3:
             print "calling QTreeView.contentsMousePressEvent"
         res = QTreeView.contentsMousePressEvent(self, event)
-        if DEBUG3:
+        if _DEBUG3:
             print "returned from QTreeView.contentsMousePressEvent"
         return res
 
     def contentsMouseMoveEvent(self, event): #bruce 070508 debug code; doesn't seem to be called
-        if DEBUG3:
+        if _DEBUG3:
             print "calling QTreeView.contentsMouseMoveEvent"
         res = QTreeView.contentsMouseMoveEvent(self, event)
-        if DEBUG3:
+        if _DEBUG3:
             print "returned from QTreeView.contentsMouseMoveEvent"
         return res
 
     def contentsMouseReleaseEvent(self, event): #bruce 070508 debug code; doesn't seem to be called
-        if DEBUG3:
+        if _DEBUG3:
             print "calling QTreeView.contentsMouseReleaseEvent"
         res = QTreeView.contentsMouseReleaseEvent(self, event)
-        if DEBUG3:
+        if _DEBUG3:
             print "returned from QTreeView.contentsMouseReleaseEvent"
         return res
     # ==
@@ -1564,7 +1404,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
         return self._renamed_contextMenuEvent(event)
     
     def _renamed_contextMenuEvent(self, event):
-        if DEBUG3:
+        if _DEBUG3:
             print "begin _renamed_contextMenuEvent"
             # See TreeWidget.selection_click() call from TreeWidget.menuReq(), in the Qt 3 code...
             # but that's done by our caller, not us. We're no longer called directly from Qt, only from other methods here.
@@ -1584,7 +1424,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
         menu = makemenu_helper(self, cmenu_spec)
             #bruce 070514 fix bug 2374 and probably others by using makemenu_helper
         menu.exec_(event.globalPos())
-        if DEBUG3:
+        if _DEBUG3:
             print "end _renamed_contextMenuEvent"
         return
 
@@ -1601,7 +1441,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
     
     def get_scrollpos(self, msg = ""):
         """
-        Return the current scrollposition (as x,y, in scrollbar units), and if DEBUG3 also print it using msg.
+        Return the current scrollposition (as x,y, in scrollbar units), and if _DEBUG3 also print it using msg.
         """
         ## res = ( self.horizontalOffset(), self.verticalOffset() )
             # This is in pixels, and it apparently works, but it's not useful
@@ -1612,7 +1452,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
         vsb = self.verticalScrollBar()
         y = vsb and vsb.value() or 0
         res = x,y
-        if DEBUG3:
+        if _DEBUG3:
             if msg:
                 msg = " (%s)" % (msg,)
             print "get_scrollpos%s returns %r" % (msg, res,)
@@ -1620,24 +1460,24 @@ class ModelTreeGui_common(ModelTreeGui_api):
 
     def set_scrollpos(self, pos): # used only in QTreeView implem, but should be correct in QScrollArea implem too
         """
-        Set the scrollposition (as x,y, in scrollbar units), and if DEBUG3 print various warnings if anything looks funny.
+        Set the scrollposition (as x,y, in scrollbar units), and if _DEBUG3 print various warnings if anything looks funny.
         """
         x, y = pos # this is in scrollbar units, not necessarily pixels
         hsb = self.horizontalScrollBar()
         if hsb:
             hsb.setValue(x) # even if x is 0, since we don't know if the current value is 0
         else:
-            if x and DEBUG3:
+            if x and _DEBUG3:
                 print "warning: can't set scrollpos x = %r since no horizontalScrollBar" % (x,)
         vsb = self.verticalScrollBar()
         if vsb:
             vsb.setValue(y)
         else:
-            if y and DEBUG3:
+            if y and _DEBUG3:
                 print "warning: can't set scrollpos y = %r since no verticalScrollBar" % (y,)
         pos1 = self.get_scrollpos("verifying set_scrollpos")
         if pos != pos1:
-            if DEBUG3:
+            if _DEBUG3:
                 print "warning: tried to set scrollpos to %r, but it's now %r" % (pos,pos1)
         return
 

@@ -9,7 +9,7 @@ are defined in other files. Notable ones are molecule and Jig.)
 
 (Note: all non-leaf nodes in a node tree must be instances of Group.)
 
-See also: class Node_api in modelTreeGui.py (which is only the part
+See also: class Node_api (which is only the part
 of the API needed by the ModelTree).
 
 @author: Josh

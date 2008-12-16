@@ -74,7 +74,8 @@ class TestNode(Node_api):
             parent.members.append(self)
         self.members = [ ]
         self.picked = False
-        if DEBUG0: self._verify_api_compliance()
+        if _DEBUG0:
+            self._verify_api_compliance()
     def showTree(self, indent = 0):
         """
         handy diagnostic
@@ -154,7 +155,8 @@ class TestClipboardNode(TestNode):
         self.iconEmpty = QPixmap("../images/clipboard-empty.png")
         self.iconFull = QPixmap("../images/clipboard-full.png")
         self.iconGray = QPixmap("../images/clipboard-gray.png")
-        if DEBUG0: self._verify_api_compliance()
+        if _DEBUG0:
+            self._verify_api_compliance()
 
     def node_icon(self, display_prefs):
         if self.hidden:  # is the clipboard ever hidden??
@@ -169,7 +171,8 @@ class TestNe1Model(ModelTree_api):
         self.untitledNode = TestNode("Untitled", None,
                                      QPixmap("../images/part.png"))
         self.clipboardNode = TestClipboardNode("Clipboard")
-        if DEBUG0: self._verify_api_compliance()
+        if _DEBUG0:
+            self._verify_api_compliance()
 
     def get_topnodes(self):
         return [self.untitledNode, self.clipboardNode]
