@@ -322,13 +322,20 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     """
     Abstract class. Subclass must define method
     _construct_args_for_drawing_functions.
-    
-    Holds one ColorSortedDisplayList used for doing some kind of extra
-    drawing associated with a Chunk but not drawn as part of its main
-    CSDL, along with the state that determines whether this CSDL is invalid,
+
+    Has a public member, self.csdl, whose value is a
+    ColorSortedDisplayList used for doing some kind of extra
+    drawing associated with a Chunk, but not drawn as part of that chunk's main
+    CSDL.
+
+    Also holds the state that determines whether self.csdl is invalid,
     and under what conditions it will remain valid.
     
     Helps figure out when to invalidate it, redraw it, etc.
+
+    External code can call self.csdl.draw(), but only when it knows
+    that self.csdl is already valid. This probably means, only when
+    highlighting self after it's already been drawn during the same frame.
     """
     
     # class constants
@@ -341,7 +348,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     ## valid = False -- WRONG, we use self.comparator.valid for this.
 
     def __init__(self):
-        self.csdl = ColorSortedDisplayList()
+        self.csdl = ColorSortedDisplayList() # public member, see class docstring
         self.comparator = self._comparator_class()
         self.before_client_main_recompile() # get ready right away
         return
@@ -369,13 +376,6 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
     # == methods for drawing self (with or without recompiling)
 
-    def draw_nocolor_dl(self):
-        if self.csdl.nocolor_dl:
-            glCallList(self.csdl.nocolor_dl)
-        else:
-            print "unexpected: %r.draw_nocolor_dl with no nocolor_dl" % self
-        return
-    
     def draw_but_first_recompile_if_needed(
         self, glpane, selected = False, highlighted = False, wantlist = True):
         """
@@ -441,6 +441,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         """
         """
         # see also: code in Chunk.draw which uses its self.displist
+        # and/or [ed.csdl for ed in self.extra_displists]
         self.csdl.draw(selected = selected, highlighted = highlighted)
         return
 
