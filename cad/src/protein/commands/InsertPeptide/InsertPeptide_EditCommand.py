@@ -39,7 +39,7 @@ class InsertPeptide_EditCommand(EditCommand):
     featurename      = "Insert Peptide"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
-    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+    command_parent = 'BUILD_PROTEIN'
 
     create_name_from_prefix  =  True 
     
@@ -98,7 +98,7 @@ class InsertPeptide_EditCommand(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'buildPeptideAction'
-        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'
+        parentCommandName = 'BUILD_PROTEIN'
         return flyoutActionToCheck, parentCommandName
                 
     def keep_empty_group(self, group):

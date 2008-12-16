@@ -40,7 +40,7 @@ class BackrubProteinSim_Command(EditCommand):
     featurename = "Backrub Protein Sequence Design"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND    
-    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'    
+    command_parent = 'BUILD_PROTEIN'    
     
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
@@ -53,7 +53,7 @@ class BackrubProteinSim_Command(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'rosetta_backrub_Action'
-        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'      
+        parentCommandName = 'BUILD_PROTEIN'      
         return flyoutActionToCheck, parentCommandName
     
     def keep_empty_group(self, group):

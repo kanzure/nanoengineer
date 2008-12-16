@@ -29,7 +29,7 @@ class SimulateProtein_Command(BuildProtein_Command):
     from utilities.constants import CL_SUBCOMMAND
 
     command_level = CL_SUBCOMMAND
-    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+    command_parent = 'BUILD_PROTEIN'
     
     def command_entered(self):
         """

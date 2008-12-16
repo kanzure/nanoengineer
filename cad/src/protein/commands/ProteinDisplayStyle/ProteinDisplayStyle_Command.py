@@ -53,7 +53,7 @@ class ProteinDisplayStyle_Command(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'displayProteinStyleAction'
-        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'  
+        parentCommandName = 'BUILD_PROTEIN'  
         return flyoutActionToCheck, parentCommandName
     
     def keep_empty_group(self, group):

@@ -36,7 +36,7 @@ class EditRotamers_Command(EditCommand):
     featurename = "Edit Rotamers"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
-    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+    command_parent = 'BUILD_PROTEIN'
             
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
@@ -49,7 +49,7 @@ class EditRotamers_Command(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'editRotamersAction'
-        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'    
+        parentCommandName = 'BUILD_PROTEIN'    
         
         return flyoutActionToCheck, parentCommandName
     

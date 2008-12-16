@@ -1404,7 +1404,7 @@ class MWsemantics(QMainWindow,
         @type otherOptionsText: str
         """
         protein = ""
-        if self.commandSequencer.currentCommand.commandName == 'MODEL_AND_SIMULATE_PROTEIN' or \
+        if self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN' or \
            self.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS' or \
            self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
             protein = self.commandSequencer.currentCommand.propMgr.current_protein
@@ -1624,7 +1624,7 @@ class MWsemantics(QMainWindow,
         Activates the Protein toolbar.
         """
         commandSequencer = self.commandSequencer
-        commandSequencer.userEnterCommand('MODEL_AND_SIMULATE_PROTEIN')
+        commandSequencer.userEnterCommand('BUILD_PROTEIN')
         return
     
     def insertPeptide(self, isChecked = False):  

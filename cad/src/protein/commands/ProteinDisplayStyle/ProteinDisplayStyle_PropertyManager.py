@@ -15,6 +15,7 @@ History: Urmi copied this from DnaDisplayStyle_PropertyManager.py and modified
 To do:
 - Switch to reduced model display style when entering command (like Edit DNA Display Style).
 - Fix bug: a single rotamer is displayed on cartoons.
+- Change "Style" factory setting to "Trace (ball and stick)
 
 """
 import os, time, fnmatch
@@ -25,6 +26,8 @@ from utilities.prefs_constants import workingDirectory_prefs_key
 from utilities.Log import greenmsg
 from utilities.constants import yellow, orange, red, magenta 
 from utilities.constants import cyan, blue, white, black, gray
+from utilities.constants import diPROTEIN
+
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QFileDialog, QString, QMessageBox
@@ -508,7 +511,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         return
     
     
-    def show(self):
+    def show_OLD(self):
         """
         Shows the Property Manager.Extends superclass method. 
         """
@@ -519,9 +522,43 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         self.updateProteinDisplayStyleWidgets()
         
         _superclass.show(self)
+        
+    def show(self):
+        """
+        Shows the Property Manager. Extends superclass method
+        """
+        _superclass.show(self)
+        
+        #@REVIEW: Is it safe to do the follwoing before calling superclass.show()?
+        #-- Ninad 2008-10-02
 
-   
+        # Force the Global Display Style to "DNA Cylinder" so the user
+        # can see the display style setting effects on any DNA in the current
+        # model. The current global display style will be restored when leaving
+        # this command (via self.close()).
+        self.originalDisplayStyle = self.o.displayMode
+            # TODO: rename that public attr of GLPane (widely used)
+            # from displayMode to displayStyle. [bruce 080910 comment]
+        self.o.setGlobalDisplayStyle(diPROTEIN)
 
+        # Update all PM widgets, .
+        # note: It is important to update the widgets by blocking the 
+        # 'signals'. If done in the reverse order, it will generate signals 
+        #when updating the PM widgets (via updateDnaDisplayStyleWidgets()), 
+        #causing unneccessary repaints of the model view.
+        self.updateProteinDisplayStyleWidgets()#@@@ blockSignals = True)
+        return
+    
+    def close(self):
+        """
+        Closes the Property Manager. Extends superclass method.
+        """
+        _superclass.close(self)
+
+        # Restore the original global display style.
+        self.o.setGlobalDisplayStyle(self.originalDisplayStyle)
+        return
+    
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.

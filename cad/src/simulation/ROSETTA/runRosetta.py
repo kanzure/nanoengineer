@@ -1107,7 +1107,7 @@ class RosettaRunner:
         @type outProtein: L{Chunk}
         """
         
-        command = self.win.commandSequencer.find_innermost_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        command = self.win.commandSequencer.find_innermost_command_named('BUILD_PROTEIN')
 
         if command:
             command.propMgr.peptideListWidget.addItem(outProtein)

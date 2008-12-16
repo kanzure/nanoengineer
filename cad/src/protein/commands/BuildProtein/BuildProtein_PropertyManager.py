@@ -15,7 +15,6 @@ To do list:
 - Add "Edit Properties" menu item to GA context menu when highlighting Peptide.
 - Bug: Cannot edit a peptide loaded from an MMP file.
 - Create a new PM for "Peptide Properties".
-- Rename MODEL_AND_SIMULATE_PROTEIN to BUILD_PROTEIN (if it is safe).
 - Read FASTA file via sequence editor (or another way).
 - Debug_pref for debug print statements.
 - Deprecate set_current_protein_chunk_name() and get_current_protein_chunk_name.
@@ -208,11 +207,11 @@ class BuildProtein_PropertyManager(EditCommand_PM):
     
     def _currentCommandStackParams(self):
         """
-        The return value is supposed to be used by MODEL_AND_SIMULATE_PROTEIN command PM ONLY
+        The return value is supposed to be used by BUILD_PROTEIN command PM ONLY
         and NOT by any subclasses.         
         
         Returns a tuple containing current command stack change indicator and 
-        the name of the command 'MODEL_AND_SIMULATE_PROTEIN'. These 
+        the name of the command 'BUILD_PROTEIN'. These 
         parameters are then used to decide whether updating widgets
         in this property manager is needed, when self._update_UI_do_updates()
         is called. 
@@ -230,11 +229,11 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         @see: self._update_UI_do_updates()
         """
         commandStackCounter = self.command.assy.command_stack_change_indicator()
-        #Append 'MODEL_AND_SIMULATE_PROTEIN to the tuple to be returned. This is just to remind 
-        #us that this method is meant for MODEL_AND_SIMULATE_PROTEIN command PM only. (and not 
+        #Append 'BUILD_PROTEIN to the tuple to be returned. This is just to remind 
+        #us that this method is meant for BUILD_PROTEIN command PM only. (and not 
         #by any subclasses) Should we assert this? I think it will slow things 
         #down so this comment is enough -- Ninad 2008-09-30
-        return (commandStackCounter, 'MODEL_AND_SIMULATE_PROTEIN')
+        return (commandStackCounter, 'BUILD_PROTEIN')
                       
     def _currentSelectionParams(self):
         """

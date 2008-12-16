@@ -36,7 +36,7 @@ class EditResidues_Command(EditCommand):
     featurename = "Edit Residues"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
-    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+    command_parent = 'BUILD_PROTEIN'
 
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
@@ -49,7 +49,7 @@ class EditResidues_Command(EditCommand):
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'editResiduesAction'
-        parentCommandName = 'MODEL_AND_SIMULATE_PROTEIN'
+        parentCommandName = 'BUILD_PROTEIN'
         return flyoutActionToCheck, parentCommandName
      
         

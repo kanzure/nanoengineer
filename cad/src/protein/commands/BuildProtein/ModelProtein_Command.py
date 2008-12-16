@@ -29,7 +29,7 @@ class ModelProtein_Command(BuildProtein_Command):
 
     #class constants for the NEW COMMAND API -- 2008-07-30
     command_level = CL_SUBCOMMAND
-    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
+    command_parent = 'BUILD_PROTEIN'
     
     def command_entered(self):
         """

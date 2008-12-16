@@ -413,7 +413,7 @@ class FixedBBProteinSim_PropertyManager(Command_PropertyManager):
         """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         numSim = self.numSimSpinBox.value()
-        previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
         protein = previousCommand.propMgr.get_current_protein_chunk_name()
         argList = [numSim, otherOptionsText, protein]
         

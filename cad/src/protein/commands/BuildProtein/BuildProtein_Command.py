@@ -42,7 +42,7 @@ class BuildProtein_Command(EditCommand):
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Model and simulate protein"
 
-    commandName       = 'MODEL_AND_SIMULATE_PROTEIN'
+    commandName       = 'BUILD_PROTEIN'
     featurename       = "Model and simulate protein"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING

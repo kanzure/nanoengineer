@@ -226,7 +226,7 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         """
         Get number of residues for the current protein
         """
-        previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
         if  previousCommand:
             #Urmi 20080728: get the protein currently selected in the combo box
             current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
@@ -516,7 +516,7 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         """
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         numSim = self.numSimSpinBox.value()
-        previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
         protein = previousCommand.propMgr.get_current_protein_chunk_name()
         argList = [numSim, otherOptionsText, protein]
         backrubSpecificArgList = self.getBackrubSpecificArgumentList()

@@ -207,7 +207,7 @@ class EditResidues_PropertyManager(Command_PropertyManager):
         #"current protein" in this mode.
         self.current_protein = ""
         
-        previousCommand = self.command.find_parent_command_named('MODEL_AND_SIMULATE_PROTEIN')
+        previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
         
         if  previousCommand:
             #Urmi 20080728: get the protein currently selected in the combo box
