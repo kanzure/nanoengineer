@@ -778,17 +778,17 @@ class TestNe1Model(Ne1Model_api):
                         ('D', thunk('D'))]
 
     def cm_copy(self, node):
-        nodelst = self.view.selectedList()
-        if node not in nodelst:
-            nodelst.append(node)
-        self.clipboardNode.drop_on('copy', nodelst)
+        nodelist = self.view.selectedList()
+        if node not in nodelist:
+            nodelist.append(node)
+        self.clipboardNode.drop_on('copy', nodelist)
         self.view.mt_update()
 
     def cm_cut(self, node):
-        nodelst = self.view.selectedList()
-        if node not in nodelst:
-            nodelst.append(node)
-        self.clipboardNode.drop_on('move', nodelst)
+        nodelist = self.view.selectedList()
+        if node not in nodelist:
+            nodelist.append(node)
+        self.clipboardNode.drop_on('move', nodelist)
         self.view.mt_update()
 
     def cm_disable(self, node):
