@@ -17,6 +17,7 @@ from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QAction, QMenu
 from PyQt4.Qt import Qt, QColor
+from PyQt4.Qt import QTextCursor
 from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_Colors    import getPalette
 from PM.PM_Colors    import sequenceEditStrandMateBaseColor
@@ -28,6 +29,7 @@ from PM.PM_TextEdit   import PM_TextEdit
 from PM.PM_LineEdit   import PM_LineEdit
 from PM.PM_PushButton import PM_PushButton
 from utilities.icon_utilities import geticon, getpixmap
+from model.chunk import Chunk
 
 _superclass = PM_DockWidget
 class Ui_ProteinSequenceEditor(PM_DockWidget):
@@ -36,9 +38,13 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
     object. The sequence editor is usually visible while in DNA edit mode.
     It is a DockWidget that is doced at the bottom of the MainWindow
     """
-    _title         =  "Sequence Editor"
-    _groupBoxCount = 0
-    _lastGroupBox = None
+    _title          =  "Sequence Editor"
+    _groupBoxCount  =  0
+    _lastGroupBox   =  None
+    
+    current_protein =  None
+    sequence        =  "" # The current protein's AA sequence.
+    structure       =  "" # The (secondary) structure string.
 
     def __init__(self, win):
         """
@@ -50,6 +56,69 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         _superclass.__init__(self, parentWidget, title = self._title)
         self._reportsDockWidget_closed_in_show_method = False
         self.setFixedHeight(90)
+        return
+    
+    def update(self, proteinChunk = None, cursorPos = 0):
+        """
+        Updates the sequence editor with the sequence of I{proteinChunk}. 
+        
+        @param proteinChunk: the protein chunk. If proteinChunk None (default)
+                             check to see if there is a single selected 
+                             protein chunk. If there is, use it.
+        @type  proteinChunk: protein Chunk
+        
+        @param cursorPos: the current cursor position in the sequence.
+        @type  cursorPos: int
+        
+        @note: overrides superclass method.
+        """
+        
+        if not proteinChunk:
+            self.current_protein = self.win.assy.getSelectedProteinChunk()
+        else:
+            assert isinstance(proteinChunk, Chunk) and \
+                   proteinChunk.isProteinChunk()
+            self.current_protein = proteinChunk
+        
+        if not self.current_protein: # No (single) protein is currently selected.
+            self.clear()
+            return
+        
+        # We have a protein chunk. Update the editor with its sequence.
+        self.sequence = self.current_protein.protein.get_sequence_string()
+        self.structure = self.current_protein.protein.get_secondary_structure_string()
+        self.setSequenceAndStructure(self.sequence, self.structure)
+        
+        # Set cursor position.
+        self.setCursorPosition(cursorPos = cursorPos)
+        
+        # Update window title with name of current protein.
+        titleString = 'Sequence Editor for ' + self.current_protein.name
+        self.setWindowTitle(titleString)
+        
+        _superclass.update(self)
+        
+        self.show()
+        return
+    
+    def setCursorPosition(self, cursorPos = 0):
+        """
+        Set the cursor position to I{cursorPos} in the sequence editor.
+        """
+        if not self.current_protein:
+            return
+        
+        cursor = self.sequenceTextEdit.textCursor()
+        
+        if cursorPos < 0:
+            index = 0
+        if cursorPos > len(self.sequence):
+            index = len(self.sequence)
+            
+        cursor.setPosition(cursorPos, QTextCursor.MoveAnchor)       
+        cursor.setPosition(cursorPos + 1, QTextCursor.KeepAnchor) 
+        self.sequenceTextEdit.setTextCursor( cursor )
+        return
 
     def show(self):
         """
@@ -66,7 +135,8 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
             if self.win.reportsDockWidget.isVisible():
                 self.win.reportsDockWidget.close()
                 self._reportsDockWidget_closed_in_show_method = True
-        _superclass.show(self)  
+        _superclass.show(self)
+        return
         
     def closeEvent(self, event):
         """
@@ -83,6 +153,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
             if self._reportsDockWidget_closed_in_show_method:
                 self.win.viewReportsAction.setChecked(True) 
                 self._reportsDockWidget_closed_in_show_method = False
+        return
 
     def _loadWidgets(self):
         """
@@ -91,8 +162,8 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         """
         self._loadMenuWidgets()
         self._loadTextEditWidget()
-
-
+        return
+    
     def _loadMenuWidgets(self):
         """
         Load the various menu widgets (e.g. Open, save sequence options, 
@@ -172,6 +243,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                                  widgetList = widgetList,
                                  label = "",
                                  spanWidth = True )
+        return
     
     def _loadTextEditWidget(self):
         """
@@ -225,6 +297,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.secStrucTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.aaRulerTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.aaRulerTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        return
 
     def _getFindLineEditStyleSheet(self):
         """
@@ -239,10 +312,9 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         @rtype:  str
 
         """
-        styleSheet = \
-                   "QLineEdit {\
-                   background-color: rgb(255, 102, 102)\
-                   }"
+        styleSheet = "QLineEdit {"\
+                   "background-color: rgb(255, 102, 102)"\
+                   "}"
         
         return styleSheet
 
@@ -259,6 +331,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.findOptionsMenu.addAction(self.caseSensitiveFindAction)
         self.findOptionsMenu.addSeparator()
         self.findOptionsToolButton.setMenu(self.findOptionsMenu)
+        return
 
     def _addToolTipText(self):
         """
