@@ -35,6 +35,10 @@ might therefore be:
 
 Bruce later rewrote much of modelTreeGui.py, and has added lots
 of context menu commands to modelTree.py at various times.
+
+Bruce 081216 is doing some cleanup and refactoring, including splitting
+ModelTree and TreeModel into separate objects with separate classes and
+_api classes, and splitting some code into separate files.
 """
 
 from PyQt4 import QtCore
@@ -42,7 +46,7 @@ from PyQt4 import QtCore
 import foundation.env as env
 from utilities import debug_flags
 from platform_dependent.PlatformDependent import fix_plurals
-from modelTree.modelTreeGui import ModelTreeGui, ModelTree_api
+from modelTree.modelTreeGui import ModelTreeGui, ModelTree_api, TreeModel_api
 
 from model.chunk import Chunk
 from model.jigs import Jig
@@ -117,19 +121,24 @@ def _accumulate_stats(node, stats):
 
 # ===
 
-class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
+class ModelTree(ModelTree_api):
     """
     NE1's main model tree, serving as owner of the widget (ModelTreeGUI)
-    and also as the tree model shown by that.
+    and (privately) of the tree model shown by that.
 
-    @note: this is a public class name.
+    @note: ModelTree is a public class name, and self.modelTreeGui
+           is a public member.
     """
+    #bruce 081216 renamed modelTree -> ModelTree, then split it into two objects
+    # (ModelTree and TreeModel)
     def __init__(self, parent, win, name = "modelTreeView", size = (200, 560)):
         """
         #doc
         """
+        self._treemodel = TreeModel(self, win) #bruce 081216
+        
         ###@@@ review all init args & instvars, here vs subclasses
-        self.modelTreeGui = ModelTreeGui(win, name, self, parent)
+        self.modelTreeGui = ModelTreeGui(win, name, self._treemodel, parent)
             # WARNING: self.modelTreeGui is a PUBLIC MEMBER which is accessed by MWsemantics (at least)
             # for use in building the Qt widget layout. For public access purposes it can be considered
             # "the Qt widget containing the model tree" and it ought to have a special name (or get-method)
@@ -139,7 +148,6 @@ class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
             # And lots of files call various methods on assy.mt and/or win.mt, namely:
             # - resetAssy_and_clear
             # - mt_update
-            # - open_clipboard
             # and in mwsem:
             # - self.mt.setMinimumSize(0, 0)
             # - self.mt.setColumnWidth(0,225)
@@ -147,11 +155,16 @@ class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
             # and in future, they need to be documented in the api, or the external calls should
             # call them explicitly on the widget member (accessing it in a valid public way).
             # [bruce 070509 comment]
-        self.win = win
+            #update 081216: the above has probably all been taken care of, except for adding a
+            # few methods to the api class, so that should be done and this comment removed.
 
-        # debug menu and reload command - inited in superclass ###k ok?
-
-        self.assy = win.assy #k needed? btw does any superclass depend on this?? ###@@@
+##        # these attributes are probably not needed [bruce 081216 comment after refactoring]
+##        self.win = win
+##        self.assy = win.assy
+        
+        # note: there used to be self.view = self.modelTreeGui stored externally,
+        # but this was never accessed, so I removed it along with the refactoring
+        # [bruce 081216]
 
         self.mt_update()
         return
@@ -199,9 +212,25 @@ class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
     def setGeometry(self, w, h): #k might not be needed
         return self.modelTreeGui.setGeometry(QtCore.QRect(0,0,w,h))
 
-    # note: after refactoring, methods above belong in ModelTree, below mostly in TreeModel [bruce 081216 comment]
+    pass # end of class ModelTree
 
-    # == callbacks from self.modelTreeGui to help it update the display
+# ===
+
+class TreeModel(TreeModel_api):
+    """
+    """
+    #bruce 081216 split class ModelTree and class TreeModel into separate objects
+
+    def __init__(self, modeltree, win):
+        self._modeltree = modeltree # only needed for .mt_update and .modelTreeGui
+        self.win = win # used often
+        self.assy = self.win.assy # review: might not be needed, since set in get_topnodes
+        return
+
+    def mt_update(self):
+        return self._modeltree.mt_update()
+
+    # == callbacks from self._modeltree.modelTreeGui to help it update the display
     
     def get_topnodes(self):
         self.assy = self.win.assy #k need to save it like this?
@@ -255,7 +284,7 @@ class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
     def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
 
-    def topmost_selected_nodes(self): # in class ModelTree [maybe: reorder vs other methods here]
+    def topmost_selected_nodes(self): # in class TreeModel [maybe: reorder vs other methods here]
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
@@ -944,7 +973,7 @@ class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
         nodeset = self.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
-        self.modelTreeGui.rename_node_using_dialog( node) # note: this checks node.rename_enabled() first
+        self._modeltree.modelTreeGui.rename_node_using_dialog( node) # note: this checks node.rename_enabled() first
         return
     
     def cm_disable(self): #bruce 050421
@@ -1018,6 +1047,6 @@ class ModelTree(ModelTree_api): #bruce 081216 renamed modelTree -> ModelTree
             node.kill() # will this be safe even if one of these is presently displayed? ###k
         self.mt_update()
     
-    pass # end of class ModelTree
+    pass # end of class TreeModel
 
 # end

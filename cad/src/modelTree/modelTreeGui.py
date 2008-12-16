@@ -44,13 +44,9 @@ though some bugs remain
 
 080507: Bruce partly implemented GLPane -> MT cross-highlighting
 
-081216: Bruce is doing some cleanup and refactoring, including splitting some
-smaller modules out of this one.
-
-TODO:
-
-This module is too long, and includes api classes for other modules,
-so it needs to be split into several files.
+Bruce 081216 is doing some cleanup and refactoring, including splitting
+ModelTree and TreeModel into separate objects with separate classes and
+_api classes, and splitting some code into separate files.
 """
 
 import sys
@@ -140,25 +136,34 @@ from modelTree.Api import Api
 
 class ModelTree_api(Api):
     """
-    API (and some default method implementations) for a Model Tree object.
+    External API (and some default method implementations) for a Model Tree
+    object, which is the overall owner of the Model Tree widget and of its
+    internal TreeModel, serving as interface to these from the rest of NE1
+    (i.e. as the value of win.mt).
 
-    @warning: the object conforming to this API has two roles, which really
-              ought to be split among two distinct objects/classes:
-              * overall owner of Model Tree widget and its internal model,
-                serving as interface to it from the rest of NE1
-                (i.e. as the value of win.mt)
-              * tree model, to be displayed and edited by a ModelTreeGUI
-                (i.e. by self.view, with self == self.view.treemodel)
-                (this might be called class TreeModel_api if it was split out)
-              Presently, this API has methods of both kinds
-              (but mostly of TreeModel_api, only one truly of ModelTree_api),
-              and its subclasses have many methods of both kinds.
-
-    @warning: not all API methods are documented here.
+    @warning: not all API methods are documented here;
+              see class ModelTree (implementation) for others.
     """
-    # TODO: split this into a ModelTree (owning a ModelTreeGUI)
-    # and a TreeModel (owned by the ModelTree, shown by the ModelTreeGUI)
-    # [bruce 081216 comment; also added docstring warnings about this]
+    #bruce 081216 split this into ModelTree_api and TreeModel_api
+    
+    def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
+        """
+        For each node in nodes, repaint that node, if it was painted the last
+        time we repainted self as a whole. (Not an error if it wasn't.)
+        """
+        raise Exception("overload me")
+    pass
+
+# ===
+
+class TreeModel_api(Api):
+    """
+    API (and some default method implementations) for a TreeModel object,
+    suitable to be displayed and edited by a ModelTreeGUI as its treemodel
+
+    @warning: perhaps not all API methods are documented here.
+    """
+    #bruce 081216 split this into ModelTree_api and TreeModel_api
     def get_topnodes(self):
         """
         Return a list of the top-level nodes, typically assy.tree and assy.shelf for an assembly.
@@ -197,8 +202,9 @@ class ModelTree_api(Api):
         """
         raise Exception("overload me")
 
-    # helper methods -- strictly speaking these are now part of the API, but they have default implems
-    # based on more primitive methods (which need never be overridden, and maybe should never be overridden).
+    # helper methods -- strictly speaking these are now part of the API,
+    # but they have default implems based on more primitive methods
+    # (which need never be overridden, and maybe should never be overridden)
     # [moved them into this class from modelTreeGui, bruce 070529]
     
     def recurseOnNodes(self, func, topnode = None,
@@ -247,21 +253,13 @@ class ModelTree_api(Api):
             pass
         return
     
-    def topmost_selected_nodes(self): # in class ModelTree_api
+    def topmost_selected_nodes(self): # in class TreeModel_api
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
         raise Exception("overload me")
 
-    def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
-        # TODO: this belongs in ModelTree_api, not TreeModel_api like the others (after refactoring)
-        """
-        For each node in nodes, repaint that node, if it was painted the last
-        time we repainted self as a whole. (Not an error if it wasn't.)
-        """
-        raise Exception("overload me")
-
-    pass # end of class ModelTree_api
+    pass # end of class TreeModel_api
 
 # ===
 
@@ -272,8 +270,9 @@ class ModelTreeGui_api(Api):
     # not private, but only used in this file so far [bruce 080306 comment]
     def update_item_tree(self, unpickEverybody = False): # in ModelTreeGui_api
         """
-        Removes and deletes all the items in this list view and triggers an update. Previously
-        this was the 'clear' method in Q3ListView. 
+        Removes and deletes all the items in this list view
+        and triggers an update. Previously this was the 'clear' method
+        in Q3ListView. 
         """
         ###REVIEW: in the implementation below, this also creates a new tree of items given a root node.
         # I guess this means the meaning of this method in this API was changed since the above was written.
@@ -600,7 +599,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
     def __init__(self, win, treemodel):
         self.win = win
         self.treemodel = treemodel #bruce 081216 renamed this from ne1model
-        treemodel.view = self #e should rename this attr of treemodel
+##        treemodel.view = self #bruce 081216: not needed, never accessed in treemodel
         self._mousepress_info_for_move = None
             # set by any mousePress that supports mouseMove not being a noop, to info about what that move should do #bruce 070509
         self._ongoing_DND_info = None # set to a tuple of a private format, during a DND drag (not used during a selection-drag #k)
@@ -631,7 +630,8 @@ class ModelTreeGui_common(ModelTreeGui_api):
         # depend on this class, without preventing this class from
         # having its own def; in that case, review whether this class's
         # def belongs in its api class or is just a convenience of
-        # this implementation. [bruce 081212 comment] ########
+        # this implementation. [bruce 081212 comment]
+        #update 081216: some of this has been done. ###TODO: update comment.
         
         return self.treemodel.topmost_selected_nodes()
 
@@ -1885,7 +1885,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         ## print "what are these args?", win, name, treemodel, parent
         # win = <MWsemantics.MWsemantics object at 0x4ce8a08>
         # name = modelTreeView
-        # treemodel = <modelTree.ModelTree instance at 0x4cfb3a0>
+        # treemodel = <modelTree.TreeModel instance at 0x4cfb3a0>
         # parent = <PyQt4.QtGui.QWidget object at 0x4cff468>
         del name
         QScrollArea.__init__(self, parent)
@@ -2014,7 +2014,9 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         For each node in nodes, repaint that node, if it was painted the last
         time we repainted self as a whole. (Not an error if it wasn't.)
         """
-        # we can't do it this way, since we're not inside paintEvent:
+        # we can't do it this way (using a hypothetical method,
+        # not yet implemented in class MT_View), since we're not
+        # inside paintEvent:
         ## self.view.repaint_some_nodes(nodes)
         if self.view.any_of_these_nodes_are_painted(nodes):
             self._do_widget_updates() # also called by mt_update
