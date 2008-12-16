@@ -13,9 +13,10 @@ History: Urmi copied this from DnaDisplayStyle_PropertyManager.py and modified
          it to suit the needs of protein display.
          
 To do:
-- Switch to reduced model display style when entering command (like Edit DNA Display Style).
-- Fix bug: a single rotamer is displayed on cartoons.
+- Fix bug: a single rotamer is displayed (i.e. expanded) by default.
 - Change "Style" factory setting to "Trace (ball and stick)
+- Block widget signals to eliminate unneccessary repaints of the model view.
+    (i.e. self.updateProteinDisplayStyleWidgets(blockSignals = True))
 
 """
 import os, time, fnmatch
