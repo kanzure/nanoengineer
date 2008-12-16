@@ -37,7 +37,7 @@ class FixedBBProteinSim_Command(EditCommand):
     featurename = "Fixed Backbone Sequence Design"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
-    command_parent = 'SIMULATE_PROTEIN'
+    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'
       
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True

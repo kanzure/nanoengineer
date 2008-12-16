@@ -39,14 +39,8 @@ class BackrubProteinSim_Command(EditCommand):
     commandName = 'BACKRUB_PROTEIN_SEQUENCE_DESIGN'
     featurename = "Backrub Protein Sequence Design"
     from utilities.constants import CL_SUBCOMMAND
-    command_level = CL_SUBCOMMAND
-    #Urmi 20080812: not sure we should have MODEL_AND_SIMULATE_PROTEIN instead of
-    #'SIMULATE_PROTEIN' since the command stack seems to have MODEL_AND_SIMULATE_PROTEIN
-    #as the immediate parent. Don't know why. Anyways it is not necessary since
-    #I'm using self._init_gui_flyout_action( 'rosetta_backrub_Action', 'MODEL_AND_SIMULATE_PROTEIN' )
-    #explicitly and not using the command parent
-    
-    command_parent = 'SIMULATE_PROTEIN'     
+    command_level = CL_SUBCOMMAND    
+    command_parent = 'MODEL_AND_SIMULATE_PROTEIN'    
     
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
