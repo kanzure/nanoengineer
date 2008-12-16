@@ -295,9 +295,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         numberOfBases, \
                      dnaForm, \
                      dnaModel, \
-                     color_junk = params
+                     color_junk, \
+                     name_junk = params
         #see a note about color_junk in DnaSegment_EditCommand._modifyStructure()
-
 
         numberOfBasesToAddOrRemove =  self._determine_numberOfBases_to_change()
 
@@ -491,12 +491,13 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         self._previousNumberOfBases = self.struct.getNumberOfBases()
         numberOfBases = self._previousNumberOfBases        
         color = self.struct.getColor()
+        name = self.getStructureName()
 
         params_for_propMgr = ( numberOfBases,
                                None, 
                                None,                          
-                               color )
-
+                               color,
+                               name )
 
         #TODO 2008-03-25: better to get all parameters from self.struct and
         #set it in propMgr?  This will mostly work except that reverse is 
@@ -507,8 +508,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #of DnaSegment_EditCommand are not same as the original structure
         #(e.g. bases per turn and duplexrise)
         self.propMgr.setParameters(params_for_propMgr)
-        
-
+        return
 
     def _getStructureType(self):
         """

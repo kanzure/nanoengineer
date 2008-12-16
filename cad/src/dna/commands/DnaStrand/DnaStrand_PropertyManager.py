@@ -70,21 +70,11 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         self._conformation = 'B-DNA'
         self.dnaModel = 'PAM3'
         
-        
         _superclass.__init__( self, command)
 
-
-        
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
-        
-        
-        
-        msg = "Use resize handles to resize the strand. Use sequence editor"\
-                   "to assign a new sequence or the current one to a file."
-        self.updateMessage(msg)
-        
-               
+        return
     
     def _addGroupBoxes( self ):
         """
@@ -197,6 +187,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     
         
     def getParameters(self):
+        name = self.nameLineEdit.text()
         numberOfBases = self.numberOfBasesSpinBox.value()
         dnaForm  = self._conformation
         dnaModel = self.dnaModel
@@ -205,7 +196,8 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         return (numberOfBases, 
                 dnaForm,
                 dnaModel,
-                color
+                color,
+                name
                 )
     
     def setParameters(self, params):
@@ -218,11 +210,11 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         - See also the routines GraphicsMode.setParams or object.setProps
         ..better to name them all in one style?  
         """
-                
         numberOfBases, \
-                     dnaForm, \
-                     dnaModel, \
-                     color  = params 
+            dnaForm, \
+            dnaModel, \
+            color, \
+            name = params 
         
         if numberOfBases is not None:
             self.numberOfBasesSpinBox.setValue(numberOfBases)
@@ -233,6 +225,10 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
          
         if color is not None:
             self._colorChooser.setColor(color)
+            
+        if name:  # Minimal test. Should add a validator. --Mark 2008-12-16
+            self.nameLineEdit.setText(name)
+        return
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -285,6 +281,11 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
                        SIGNAL('stateChanged(int)'), 
                        self._update_state_of_cursorTextGroupBox)
         
+        change_connect(self.nameLineEdit,
+                       SIGNAL("editingFinished()"),
+                       self._nameChanged)
+        return
+        
     def _update_UI_do_updates(self):
         """
         @see: Command_PropertyManager. _update_UI_do_updates()
@@ -296,16 +297,18 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             #disable all widgets
             if self._pmGroupBox1.isEnabled():
                 self._pmGroupBox1.setEnabled(False)
-                msg1 = ("Viewing properties of %s <br>") %(self.command.struct.name) 
-                msg2 = redmsg("DnaStrand is not resizable. Reason: %s"%(why_not))                    
+                msg1 = ("Attention: ") % (self.command.struct.name) 
+                msg2 = redmsg("DnaStrand <b>%s</b> is not resizable. Reason: %s" % \
+                              (self.command.struct.name, why_not))
                 self.updateMessage(msg1 + msg2)
         else:
             if not self._pmGroupBox1.isEnabled():
                 self._pmGroupBox1.setEnabled(True)
-                msg1 = ("Viewing properties of %s <br>") %(self.command.struct.name) 
-                msg2 = "Use resize handles to resize the strand. Use sequence editor"\
-                    "to assign a new sequence or the current one to a file."
-                self.updateMessage(msg1 + msg2)
+            msg1 = ("Editing <b>%s</b>. ") % (self.command.struct.name) 
+            msg2 = "Use resize handles to resize the strand. Use sequence editor"\
+                "to assign a new sequence or the current one to a file."
+            self.updateMessage(msg1 + msg2)
+        return
         
     def show(self):
         """
@@ -323,7 +326,11 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         if self.command is not None:
             name = self.command.getStructureName()
             if name is not None:
-                self.nameLineEdit.setText(name)     
+                self.nameLineEdit.setText(name)
+                msg1 = ("Editing <b>%s</b>. ") % (name) 
+                msg2 = "Use resize handles to resize the strand. Use sequence editor"\
+                     "to assign a new sequence or the current one to a file."
+                self.updateMessage(msg1 + msg2)
            
     def close(self):
         """
@@ -410,4 +417,29 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         Abstract method.
         """
         pass
+    
+    def _nameChanged(self): # Added by Mark. 2008-12-16
+        """
+        Slot for "Name" field. Changes the name of the strand if the user types
+        in a new name.
+        
+        @warning: this lacks a validator. User can type in a name with invalid
+                  characters.
+        """
+        if not self.command.hasValidStructure():
+            return
+        
+        name = str(self.nameLineEdit.text())
+        
+        if not name: # Minimal test. Should add a validator. Ask Bruce for example validator code somewhere. --Mark 2008-12-16
+            if self.command.hasValidStructure():
+                self.nameLineEdit.setText(self.command.getStructureName())
+                
+            return
+        
+        self.command.setStructureName(name)
+        
+        self._update_UI_do_updates() # Updates the message box.
+        
+        return
     
