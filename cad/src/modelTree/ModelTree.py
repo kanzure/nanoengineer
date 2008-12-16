@@ -46,7 +46,8 @@ from PyQt4 import QtCore
 import foundation.env as env
 from utilities import debug_flags
 from platform_dependent.PlatformDependent import fix_plurals
-from modelTree.modelTreeGui import ModelTreeGui, ModelTree_api, TreeModel_api
+from modelTree.modelTreeGui import ModelTreeGui
+from modelTree.TreeModel_api import TreeModel_api
 
 from model.chunk import Chunk
 from model.jigs import Jig
@@ -121,16 +122,18 @@ def _accumulate_stats(node, stats):
 
 # ===
 
-class ModelTree(ModelTree_api):
+class ModelTree(object):
     """
-    NE1's main model tree, serving as owner of the widget (ModelTreeGUI)
-    and (privately) of the tree model shown by that.
+    NE1's main model tree, serving as public owner of the model tree widget
+    (self.modelTreeGui, class ModelTreeGui) and private owner of the tree
+    model shown by that (class TreeModel).
 
     @note: ModelTree is a public class name, and self.modelTreeGui
            is a public member.
     """
     #bruce 081216 renamed modelTree -> ModelTree, then split it into two objects
-    # (ModelTree and TreeModel)
+    # (ModelTree and TreeModel); removed _api class since incomplete and not
+    # very useful, since all our methods are API methods and they are all small.
     def __init__(self, parent, win, name = "modelTreeView", size = (200, 560)):
         """
         #doc
@@ -197,6 +200,10 @@ class ModelTree(ModelTree_api):
         return self.modelTreeGui.mt_update()
 
     def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
+        """
+        For each node in nodes, repaint that node, if it was painted the last
+        time we repainted self as a whole. (Not an error if it wasn't.)
+        """
         self.modelTreeGui.repaint_some_nodes(nodes)
         return
     

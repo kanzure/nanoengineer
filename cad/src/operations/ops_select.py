@@ -1153,7 +1153,7 @@ def topmost_selected_nodes(nodes):
              not including any node which is inside any selected Group
              in or under the given list
 
-    @see: same-named method in class ModelTreeGui_api and class ModelTree_api
+    @see: same-named method in class ModelTreeGui_api and class TreeModel_api
     """
     #bruce 050523 split this out from the same-named TreeWidget method,
     # and optimized it

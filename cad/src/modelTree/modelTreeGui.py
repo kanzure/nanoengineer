@@ -80,6 +80,7 @@ from widgets.simple_dialogs import grab_text_line_using_dialog
 from utilities.icon_utilities import imagename_to_pixmap
 
 from modelTree.Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
+from modelTree.ModelTreeGUI_api import ModelTreeGUI_api
 
 from utilities.constants import AC_INVISIBLE, AC_HAS_INDIVIDUAL_DISPLAY_STYLE
 
@@ -87,235 +88,11 @@ from utilities.GlobalPreferences import pref_show_node_color_in_MT
 
 from widgets.widget_helpers import RGBf_to_QColor
 
-from modelTree.Api import Api
 
 _DEBUG0 = False # debug api compliance
 _DEBUG = False # debug selection stuff
 _DEBUG2 = False # mouse press event details
 _DEBUG3 = False # stack, begin, end, for event processing
-
-# These base classes are JUST the API. Functionality is implemented by extending these base classes.
-
-# Context menu events can rearrange the structure in various ways. Items in the model tree can be
-# hidden or disabled or deleted. An item can be moved or copied from one place in the tree to
-# another. These things are done by the customer, OUTSIDE the model tree, and then the customer
-# gives the model tree a new structure. Aside from the context menus, the model tree does not make
-# callbacks to the customer code.
-
-# Customer code should depend ONLY on the API as presented, and treat it as a contract. Then any
-# bugs are either API bugs and implementation bugs, and the implementation bugs become relatively
-# isolated and easier to fix.
-
-# http://en.wikipedia.org/wiki/Duck_typing describes how API compliance works in Python. In Java or
-# C++, the only way to guarantee that class B complies with class A's API is for B to subclass A. In
-# Python, there is no such compile-time check, Python just raises an exception if we try to use a
-# method that isn't implemented.
-
-#####################################
-# Bruce's original intent was that this code should be useful for other trees besides the model tree.
-# To do that, you should subclass ModelTreeGui below and redefine make_new_subtree_for_node() to refer to
-# a new class that inherits _QtTreeItem. Perhaps the subclass of QItemDelegate could be a parameter of
-# ModelTreeGui. [This comment is no longer correct now that _QtTreeItem's two roles, which never belonged
-# together, are split into _our_QItemDelegate and (misnamed) _our_TreeItem. bruce 070525]
-#
-# How this was done previously was that the NE-1 model would define a method for creating the item for
-# a Node.
-#
-# =============================
-#
-# How does renaming work in Qt 3?
-#
-# TreeWidget.slot_itemRenamed() is connected to Q3ListView.itemRenamed(). It accepts an item, a column
-# number, and the new text. If everything is OK, it calls item.setText(col,newname). What I am not
-# seeing is how the name gets from the Q3ListViewItem back to the Node. So renaming is a big mystery to
-# me, and I'll ask Bruce about it later.
-
-#############################################
-
-from modelTree.Api import Api
-
-class ModelTree_api(Api):
-    """
-    External API (and some default method implementations) for a Model Tree
-    object, which is the overall owner of the Model Tree widget and of its
-    internal TreeModel, serving as interface to these from the rest of NE1
-    (i.e. as the value of win.mt).
-
-    @warning: not all API methods are documented here;
-              see class ModelTree (implementation) for others.
-    """
-    #bruce 081216 split this into ModelTree_api and TreeModel_api
-    
-    def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
-        """
-        For each node in nodes, repaint that node, if it was painted the last
-        time we repainted self as a whole. (Not an error if it wasn't.)
-        """
-        raise Exception("overload me")
-    pass
-
-# ===
-
-class TreeModel_api(Api):
-    """
-    API (and some default method implementations) for a TreeModel object,
-    suitable to be displayed and edited by a ModelTreeGUI as its treemodel
-
-    @warning: perhaps not all API methods are documented here.
-    """
-    #bruce 081216 split this into ModelTree_api and TreeModel_api
-    def get_topnodes(self):
-        """
-        Return a list of the top-level nodes, typically assy.tree and assy.shelf for an assembly.
-        """
-        raise Exception("overload me")
-
-    def get_nodes_to_highlight(self): #bruce 080507
-        """
-        Return a dictionary of nodes which should be drawn as highlighted right now.
-        (The keys are those nodes, and the values are arbitrary.)
-        """
-        return {}
-
-    def get_current_part_topnode(self): #bruce 070509 added this to API ##e rename?
-        """
-        Return a node guaranteed to contain all selected nodes, and be fast.
-        """
-        raise Exception("overload me")
-    
-    def make_cmenuspec_for_set(self, nodeset, optflag):
-        """
-        Return a Menu_spec list (of a format suitable for makemenu_helper)
-        for a context menu suitable for nodeset, a list of 0 or more selected nodes
-        (which includes only the topmost selected nodes, i.e. it includes no
-        children of selected nodes even if they are selected).
-           <optflag> can be 'Option' or None, in case menus want to include
-        additional items when it's 'Option'.
-           Subclasses should override this to provide an actual menu spec.
-        The subclass implementation can directly examine the selection status of nodes
-        below those in nodeset, if desired, and can assume every node in nodeset is picked,
-        and every node not in it or under something in it is not picked
-        (or at least, will be unpicked when the operation occurs,
-         which happens for picked nodes inside unpicked leaf-like Groups
-         such as DnaStrand).
-        [all subclasses should override this]
-        """
-        raise Exception("overload me")
-
-    # helper methods -- strictly speaking these are now part of the API,
-    # but they have default implems based on more primitive methods
-    # (which need never be overridden, and maybe should never be overridden)
-    # [moved them into this class from modelTreeGui, bruce 070529]
-    
-    def recurseOnNodes(self, func, topnode = None,
-                       fake_nodes_to_mark_groups = False,
-                       visible_only = False ):
-        """
-        """
-        # note: used only in itself and in ModelTreeGUI.mt_update
-        #bruce 070509 new features:
-        # - fake_nodes_to_mark_groups [not used as of 080306],
-        # - visible_only [always true as of 080306]
-        assert visible_only # see above comment
-        if topnode is None:
-            for topnode in self.get_topnodes():
-                self.recurseOnNodes(func, topnode,
-                                    fake_nodes_to_mark_groups = fake_nodes_to_mark_groups,
-                                    visible_only = visible_only)
-                continue
-        else:
-            func(topnode)
-            
-            #bruce 080306 use MT_kids, not .members, to fix some bugs
-            # (at least the one about lots of extra scroll height when
-            #  a large DnaGroup is in the MT). Note, MT_kids is always
-            # defined; it's a length 0 sequence on leaf nodes.
-            if visible_only:
-                if topnode.open and topnode.openable():
-                    members = topnode.MT_kids()
-                        # note: we're required to not care what MT_kids returns
-                        # unless topnode.open and topnode.openable() are true.
-                else:
-                    members = ()
-            else:
-                assert 0 # not well defined what this means, due to MT_kids vs members issue [bruce 080306]
-            
-            if members:
-                if fake_nodes_to_mark_groups:
-                    func(0)
-                for child in members:
-                    self.recurseOnNodes(func, child,
-                                        fake_nodes_to_mark_groups = fake_nodes_to_mark_groups,
-                                        visible_only = visible_only)
-                    continue
-                if fake_nodes_to_mark_groups:
-                    func(1)
-            pass
-        return
-    
-    def topmost_selected_nodes(self): # in class TreeModel_api
-        """
-        @return: a list of all selected nodes which are not inside selected Groups
-        """
-        raise Exception("overload me")
-
-    pass # end of class TreeModel_api
-
-# ===
-
-class ModelTreeGui_api(Api): 
-    """
-    This should be a Qt4 widget that can be put into a layout.
-    """
-    # not private, but only used in this file so far [bruce 080306 comment]
-    def update_item_tree(self, unpickEverybody = False): # in ModelTreeGui_api
-        """
-        Removes and deletes all the items in this list view
-        and triggers an update. Previously this was the 'clear' method
-        in Q3ListView. 
-        """
-        ###REVIEW: in the implementation below, this also creates a new tree of items given a root node.
-        # I guess this means the meaning of this method in this API was changed since the above was written.
-        # (So has the name -- it was called 'clear' until bruce 070509. Also the option was not listed in this API.)
-        raise Exception("overload me")
-
-    def topmost_selected_nodes(self): # in ModelTreeGui_api
-        ####### REVIEW: should this be in this api, or is it just an implem convenience func?
-        """
-        @return: a list of all selected nodes which are not inside selected Groups
-        """
-        raise Exception("overload me")
-
-    def mt_update(self, nodetree = None): # in ModelTreeGui_api
-        """
-        External code (or event bindings in a subclass, if they don't do enough repainting themselves)
-        should call this when it might have changed any state that should
-        affect what's shown in the tree. (Specifically: the ordering or grouping of nodes,
-        or the icons or text they should display, or their open or selected state.) (BTW external
-        code probably has no business changing node.open since it is slated to become a tree-
-        widget-specific state in the near future.)
-           If these changes are known to be confined to a single node and its children,
-        that node can be passed as a second argument as a possible optimization
-        (though as of 050113 the current implem does not take advantage of this).
-
-        @warning: as of 080306 the implementations of this don't conform to the
-                  argspec, since they don't even accept (let alone pay attention
-                  to) the nodetree optional argument.
-        """
-        raise Exception("overload me")
-
-    def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
-        """
-        For each node in nodes, repaint that node, if it was painted the last
-        time we repainted self as a whole. (Not an error if it wasn't.)
-        """
-        raise Exception("overload me")
-
-    pass
-
-####################### End of the API #############################
-
-#################### Implementation ################################
 
 _ICONSIZE = (22, 22)
 
@@ -323,6 +100,7 @@ ITEM_HEIGHT = _ICONSIZE[1] # in theory, these need not be the same,
     # but other values are untested [bruce 070529 guess]
 
 _cached_icons = {} #bruce 070529 presumed optimization
+
 
 def _paintnode(node, painter, x, y, widget, option_holder = None):
     """
@@ -589,7 +367,7 @@ _DISPLAY_PREFS_LEAF   = {}
 
 class DoNotDrop(Exception): pass
 
-class ModelTreeGui_common(ModelTreeGui_api):
+class ModelTreeGui_common(ModelTreeGUI_api):
     """
     The part of our model tree implementation which is the same
     for either type of Qt widget used to show it.
@@ -617,12 +395,12 @@ class ModelTreeGui_common(ModelTreeGui_api):
         self.MT_debug_prints()
         return
     
-    def topmost_selected_nodes(self): # in class ModelTreeGui_common, subclass of ModelTreeGui_api
+    def topmost_selected_nodes(self): # in class ModelTreeGui_common, subclass of ModelTreeGUI_api
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
         #bruce 070529 moved method body into self.treemodel
-        #REVIEW: should this be removed from ModelTreeGui_api,
+        #REVIEW: should this be removed from ModelTreeGUI_api,
         # always accessed via self.treemodel? Pro: many accesses come
         # from methods in self.treemodel anyway, which also defines it.
         # Con: there are a lot of accesses from methods of self, too.
@@ -1510,7 +1288,7 @@ def x_for_indent(n):
 
 class MT_View(QtGui.QWidget):
     """
-    contents view for ModelTreeGUI
+    contents view for ModelTreeGui
     """
     def __init__(self, parent, palette_widget, modeltreegui):
         QtGui.QWidget.__init__(self, parent)
@@ -1880,6 +1658,10 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
     """
     The GUI part of the NE1 model tree widget.
     """
+    # REVIEW: rename class and module to ModelTreeGUI?
+    # (class is now ending Gui not GUI; module is now lowercase at start)
+    # [bruce 081216 question]
+    # 
     #bruce 070529-30 rewrite of some of [now-removed] class ModelTreeGui_QTreeView
     def __init__(self, win, name, treemodel, parent = None):
         ## print "what are these args?", win, name, treemodel, parent
@@ -1994,8 +1776,18 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
     
     def update_item_tree(self, unpickEverybody = False):
         """
-        part of the public API
+        [part of the public API]
+
+        Removes and deletes all the items in this list view
+        and triggers an update.
+
+        @note: called by ModelTree.resetAssy_and_clear.
         """
+        # note: Previously this was the 'clear' method in Q3ListView.
+        ## Review: appropriateness of docstring and separate API function
+        # given what it's been simplified to since originally written.
+        # See also the _api class comment.
+        # [bruce 081216 comment]
         self.mt_update()
 
     def paint_item(self, painter, item): # probably only used for DND drag graphic (in superclass)
