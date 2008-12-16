@@ -18,7 +18,6 @@ To do list:
 - Rename MODEL_AND_SIMULATE_PROTEIN to BUILD_PROTEIN (if it is safe).
 - Read FASTA file via sequence editor (or another way).
 - Debug_pref for debug print statements.
-- Special peptide icons for MT and PM list widget.
 - Deprecate set_current_protein_chunk_name() and get_current_protein_chunk_name.
   Use ops_select_Mixin's getSelectedProteinChunk() instead.
 - Bug: Returning from Compare command unselects the two selected protein chunks.

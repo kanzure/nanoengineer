@@ -12,6 +12,9 @@ Build > Protein mode.
 
 To do:
 - Switch display styles of selected proteins to diPROTEIN (instead of the GDS).
+- "Hide differences" button is enabled even when there are no differences.
+- Previously compared proteins still show differences after comparing a new set of proteins.
+- PM comboboxes to choose the colors to be used.
 - fix bug: Leaving Compare command unselects the two selected protein chunks.
   The "Build Protein" PM list widget shows them as selected and the compare button is enabled,
   but they are not selected in the graphics area.
