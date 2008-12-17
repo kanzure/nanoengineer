@@ -57,7 +57,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.setFixedHeight(90)
         return
     
-    def update_sequence(self, proteinChunk = None, cursorPos = 0):
+    def updateSequence(self, proteinChunk = None, cursorPos = 0):
         """
         Updates the sequence editor with the sequence of I{proteinChunk}. 
         
@@ -92,8 +92,6 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         # Update window title with name of current protein.
         titleString = 'Sequence Editor for ' + self.current_protein.name
         self.setWindowTitle(titleString)
-        
-        _superclass.update(self)
         
         self.show()
         return

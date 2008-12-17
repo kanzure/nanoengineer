@@ -601,7 +601,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         print "_update_UI_do_updates(): UPDATING the PMGR."
         self.update_name_field()
         self.update_length_field()
-        self.sequenceEditor.update_sequence()
+        self.sequenceEditor.updateSequence()
         self.update_residue_combobox()
         
         # NOTE: Changing the display style of the protein chunks can take some
