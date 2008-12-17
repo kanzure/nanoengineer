@@ -35,8 +35,6 @@ from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 from utilities.constants import gensym
 from utilities.constants import noop
 
-_DEBUG_PREFTREE = False # bruce 050602 experiment; do not commit with True
-
 # ===
 
 class TreeModel(TreeModel_api):
@@ -65,20 +63,6 @@ class TreeModel(TreeModel_api):
             # [not anymore, as of some time before 050417] inserts assy.viewdata.members into assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
         topnodes = [self.assy.tree, self.assy.shelf]
-        if _DEBUG_PREFTREE: #bruce 050602
-            try:
-                from foundation.Utility import Node
-                ## print "reloading prefsTree"
-                import model.prefsTree as _X
-                reload(_X)
-                from model.prefsTree import prefsTree # constructor for an object which has a tree of nodes and controls them
-                self.pt = prefsTree(self.assy) # guess; guessing it's ok to remake it each time
-                ptnode = self.pt.topnode
-                assert ptnode is not None
-                assert isinstance(ptnode, Node)
-                topnodes.append(ptnode)
-            except:
-                print_compact_traceback("error importing prefsTree or making one: ")
         return topnodes
 
     def get_nodes_to_highlight(self): #bruce 080507
@@ -392,21 +376,7 @@ class TreeModel(TreeModel_api):
                 submenu = []
             if submenu:
                 res.extend(submenu)
-            pass
-
-        # Customize command [bruce 050602 experiment -- unfinished and commented out ###@@@]
-        # [later comment, bruce 050704: I think this was intended to suggest PrefsNodes applicable to the selected item or items,
-        #  and to make them and group them with it. Or (later) to put up a dialog whose end result might be to do that.]
-        # Provide this when all items are in the same group? no, any items could be grouped...
-        # so for initial experiments, always provide it. If it's a submenu, the selected items might affect
-        # what's in it, and some things in it might be already checkmarked if PrefsNodes are above them ... 
-        # for very initial experiment let's provide it only for single items.
-        # Do we ask them what can be customized about them? I guess so.
-##unfinished...
-##        if _DEBUG_PREFTREE and len(nodeset) == 1:
-##            mspec = nodeset[0].customize_menuspec()
-##            submenu = []
-            
+            pass            
 
         # copy, cut, delete, maybe duplicate...
         # bruce 050704 revisions:
@@ -532,10 +502,8 @@ class TreeModel(TreeModel_api):
     def cm_hide(self):
         env.history.message("Hide: %d selected items or groups" % \
                             len(self.topmost_selected_nodes()))
-        #####@@@@@ bruce 050517 comment: the following line (of unknown reason or date, but by me) causes bug 500;
-        # that method was added 050125 and used in chunk.pick on same date, so adding it here must be then or later.
-        # Let's see what happens if I remove it?
-        ## self.assy.permit_pick_parts() #e should not be needed here, but see if it fixes my bugs ###@@@ #k still needed? if so, why?
+        #bruce 050517/081216 comment: doing self.assy.permit_pick_parts() here
+        # (by me, unknown when or why) caused bug 500; removing it seems ok.
         self.assy.Hide() # includes win_update
         
     def cm_unhide(self):

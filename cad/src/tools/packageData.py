@@ -520,7 +520,6 @@ packageMapping_for_files = {
     "PovrayScenePropDialog"            : "ui/dialog|commands/PovraySceneProperties?", # for povray package, maybe
     
     "preferences"                      : "foundation", # see module docstring for explanation
-    "prefsTree"                        : "model", # see docstring for caveats
     "prefs_constants"                  : "utilities", # or constants? see module docstring for explanation
 
     "prefs_widgets"                    : "widgets", #? - might not work -- ### needs splitting, some goes in foundation

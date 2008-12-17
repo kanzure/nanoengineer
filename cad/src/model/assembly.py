@@ -103,7 +103,6 @@ from commands.PartProperties.PartProp import PartProp
 from PyQt4 import QtGui
 
 from foundation.Assembly_API import Assembly_API
-from model.prefsTree import MainPrefsGroupPart
 import foundation.undo_manager as undo_manager
 from files.mmp.files_mmp_writing import writemmpfile_assy
 
@@ -806,8 +805,6 @@ class Assembly( StateMixin, Assembly_API):
     
     # == Parts
 
-    prefs_node = None #bruce 050602; default value of instance variable; experimental
-    
     def topnode_partmaker_pairs(self): #bruce 050602
         """
         Return a list of (node, partclass) pairs,
@@ -823,14 +820,10 @@ class Assembly( StateMixin, Assembly_API):
         res = [(self.tree, MainPart)]
         for node in self.shelf.members:
             res.append(( node, ClipboardItemPart ))
-        if self.prefs_node is not None:
-            res.append(( self.prefs_node, MainPrefsGroupPart ))
         return res
 
     def topnodes_with_own_parts(self): #bruce 050602; should match topnode_partmaker_pairs
         res = [self.tree] + self.shelf.members
-        if self.prefs_node is not None:
-            res.append( self.prefs_node)
         return res
 
     def all_parts(self): #bruce 080319
@@ -891,7 +884,7 @@ class Assembly( StateMixin, Assembly_API):
         # in the future we're likely to do this separately for efficiency (only on nodes that might need it).
         partnodes = self.topnodes_with_own_parts() # do this again in case the nodes changed (though I doubt that can happen)
         for node in partnodes:
-            # do this for all parts, even though the experimental prefsnode doesn't need it (as such)
+            # do this for all parts, even though the experimental PrefNode doesn't need it (as such)
             # (as a kluge, it might use it for smth else; if so, could #e rename the method and then say this is no longer a kluge)
             node.part.break_interpart_bonds()
             # note: this is not needed when shelf has no members, unless there are bugs its assertions catch.
@@ -1203,11 +1196,13 @@ class Assembly( StateMixin, Assembly_API):
         then return True, otherwise False (not an error).
         Never has side effects.
         """
-        if sg is None: return False
-        if sg.assy is not self: return False
+        if sg is None:
+            return False
+        if sg.assy is not self:
+            return False
         if not sg.is_top_of_selection_group():
             return False
-        if not (self.root.is_ascendant(sg) or self.prefs_node is sg): #bruce 050602 kluge: added prefs_node
+        if not self.root.is_ascendant(sg):
             return False # can this ever happen??
         # I think we won't check the Part, even though it could, in theory,
         # be present but wrong (in the sense that sg.part.topnode is not sg),
