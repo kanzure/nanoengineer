@@ -75,7 +75,6 @@ class ModelTree(object):
             #    Worse, the code before late on 070509 sometimes stored self.modelTreeGui rather than self
             # in win.mt (maybe) and assy.mt (definitely), but other times stored self!
             # And lots of files call various methods on assy.mt and/or win.mt, namely:
-            # - resetAssy_and_clear
             # - mt_update
             # and in mwsem:
             # - self.mt.setMinimumSize(0, 0)
@@ -98,23 +97,6 @@ class ModelTree(object):
         self.mt_update()
         return
     
-    def resetAssy_and_clear(self):
-        """
-        This method should be called from the end of MWsemantics._make_and_init_assy.
-        """
-        # REVIEW: not sure if this method is still needed at all.
-        # An old comment about an old version of this method:
-        # #bruce 050201 for Alpha, part of Huaicai's bug 369 fix;
-        # called to prevent a crash on (at least) Windows during File->Close
-        # when the model tree is editing an item's text in-place, using a fix
-        # developed by Huaicai 050201, which is to run the (Qt3) QListView
-        # method self.clear().
-        # Sometime during or after the port to Q4, it became equivalent to just
-        # mt_update, albeit inside a couple calls of an old ModelTreeGUI_api
-        # method update_item_tree. [bruce 081216 comment]
-        self.mt_update()
-        return
-
     def mt_update(self):
         # note: bruce 070509 changed a lot of calls of self.modelTreeGui.mt_update to call self.mt_update.
         # note: bruce 070511 removed all direct sets here of mt_update_needed, since mt_update now sets it.

@@ -2117,8 +2117,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             ### TODO: move _reinit_modes out of that, do it somewhere else.
         self.assy.set_modelTree(self.mt)
         
-        ### Hack by Huaicai 2/1 to fix bug 369
-        self.mt.resetAssy_and_clear()
+        self.mt.mt_update() # not sure if needed
 
         if initial_mode_symbol:
             #bruce 080812 pulled this code in from just after both calls

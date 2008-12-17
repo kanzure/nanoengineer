@@ -187,8 +187,7 @@ def assy_become_state(self, stateplace, archive):
     # like registered undo updaters ####@@@@ [060407 comment]
     assert self.part # update_parts was done already
     self.o.set_part( self.part) # try to prevent exception in GLPane.py:1637
-    self.w.mt.resetAssy_and_clear()  # ditto, mt line 108
-    self.w.win_update() # precaution
+    self.w.win_update() # precaution; the mt_update might be needed
     if debug_change_indicators:
         print "assy_become_state end, chg ctrs =", \
               archive.assy.all_change_indicators()
