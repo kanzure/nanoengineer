@@ -2,6 +2,11 @@
 """
 DnaSegment.py 
 
+@author: Bruce, Ninad
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+
+Note:
 
 *DnaSegment has the following direct members --
        -- DnaAxisChunks, 
@@ -9,12 +14,9 @@ DnaSegment.py
 *It can also have following logical contents --
       -- DnaStrandChunks  (can be accessed using DnaAxisChunk.ladder) 
       -- DnaStrandMarkers
-      -- may be some more?
-
-@author: Bruce
-@version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+      -- maybe some more?
 """
+
 import foundation.env as env
 from dna.model.DnaStrandOrSegment import DnaStrandOrSegment
 from dna.model.DnaLadderRailChunk import DnaAxisChunk
@@ -397,16 +399,18 @@ class DnaSegment(DnaStrandOrSegment):
 
     def get_all_content_chunks(self):
         """
-        Return all the chunks contained within this DnaSegment. This includes 
-        the chunks which are members of the DnaSegment groups and also the ones
-        which are not 'members' but are 'logical contents' of this DnaSegment
-        e.g. in dna data model, the DnaSegment only has DnaAxisChunks as its 
+        Return all the chunks contained within this DnaSegment. This includes
+        the chunks which are members of the DnaSegment groups, and also the ones
+        which are not 'members' but are 'logical contents' of this DnaSegment.
+        I.e. in dna data model, the DnaSegment only has DnaAxisChunks as its 
         members. But the DnaStrand chunks to which these axis atoms are
         connected can be treated as logical contents of the DnaSegment. 
-        This method returns all such chunks (including the direct members) 
-        @see: DnaSegment_GraphicsMode.leftDrag() where this list is used to 
-              drag the whole DnaSegment including the logical contents. 
+        This method returns all such chunks (including the direct members).
         
+        @see: DnaSegment_GraphicsMode.leftDrag() where this list is used to 
+              drag the whole DnaSegment including the logical contents.
+
+        [overrides superclass method]
         """
         all_content_chunk_list = []
                             
@@ -414,7 +418,6 @@ class DnaSegment(DnaStrandOrSegment):
             if isinstance(member, DnaAxisChunk):
                 ladder = member.ladder
                 all_content_chunk_list.extend(ladder.all_chunks())
-                
         
         #Now search for any strand chunks whose strand atoms are not connected 
         #to the axis atoms, but still logically belong to the DnaSegment. 
@@ -436,7 +439,7 @@ class DnaSegment(DnaStrandOrSegment):
                         if a.molecule not in all_content_chunk_list:
                             all_content_chunk_list.append(a.molecule)
                         
-        return all_content_chunk_list 
+        return all_content_chunk_list
     
     def getAxisEndAtomAtPosition(self, position):
         """
@@ -468,8 +471,7 @@ class DnaSegment(DnaStrandOrSegment):
                 other_axisEndAtom = atm
         
         return other_axisEndAtom
-                    
-            
+    
     def getAxisEndAtoms(self):
         """
         THIS RETURNS AXIS END ATOMS ONLY FOR DNA DATA MODEL. 
@@ -506,7 +508,6 @@ class DnaSegment(DnaStrandOrSegment):
                                             
         return atm1, atm2
     
-        
     def _getAxisEndAtoms_preDataModel(self):
         """
         To be removed post dna data model
@@ -544,7 +545,6 @@ class DnaSegment(DnaStrandOrSegment):
             return None, None
         
         return endAtomList
-    
     
     def getStrandEndAtomsFor(self, strand):
         """
@@ -587,8 +587,7 @@ class DnaSegment(DnaStrandOrSegment):
                 strandEndPoints.append(None)
                 
         return strandEndPoints
-  
-
+    
     def getAxisEndPoints(self):
         """
         Derives and returns the two axis end points based on the atom positions
@@ -628,8 +627,7 @@ class DnaSegment(DnaStrandOrSegment):
             return atmPosition1, atmPosition2
         
         return None, None
-        
-
+    
     def _getAxisEndPoints_postDataModel(self): # bruce 080212
         atom1, atom2 = self.get_axis_end_baseatoms()
         if atom1 is None:
@@ -694,7 +692,6 @@ class DnaSegment(DnaStrandOrSegment):
        
         
         return norm(endPoint2 - endPoint1)
-        
     
     def setProps(self, props):
         """
@@ -708,8 +705,7 @@ class DnaSegment(DnaStrandOrSegment):
         duplexRise, basesPerTurn = props                
         self.setDuplexRise(duplexRise) 
         self.setBasesPerTurn(basesPerTurn)
-        
-                    
+    
     def getProps(self):
         """
         Returns some properties such as duplexRise. This is a temporary 
@@ -734,8 +730,7 @@ class DnaSegment(DnaStrandOrSegment):
     def setBasesPerTurn(self, basesPerTurn):
         if basesPerTurn:
             self._basesPerTurn = basesPerTurn
-            
-            
+    
     def setColor(self, color):
         """
         Public method provided for convenience. Delegates the color 
@@ -770,8 +765,7 @@ class DnaSegment(DnaStrandOrSegment):
                     break
 
         return color
-                
-     
+    
     def writemmp_other_info_opengroup(self, mapping): 
         """
         """
@@ -809,8 +803,6 @@ class DnaSegment(DnaStrandOrSegment):
             _superclass.readmmp_info_opengroup_setitem( self, key, val, interp)
         return
     
-                   
-    
     def _computeDuplexRise(self):
         """
         Compute the duplex rise
@@ -840,10 +832,6 @@ class DnaSegment(DnaStrandOrSegment):
         segmentLength = vlen(endPoint1 - endPoint2)
         return segmentLength
     
-       
-           
-    
-        
     def isAncestorOf(self, obj):
         """
         Checks whether the object <obj> is contained within the DnaSegment

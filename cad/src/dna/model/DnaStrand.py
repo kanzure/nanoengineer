@@ -2,7 +2,7 @@
 """
 DnaStrand.py - ... 
 
-@author: Bruce
+@author: Bruce, Ninad
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -237,6 +237,8 @@ class DnaStrand(DnaStrandOrSegment):
 
         @see: SelectChunks_GraphicsMode.getMovablesForLeftDragging() where this 
               is used
+
+        [overrides superclass method]
         """
         #ONLY WORKS in DNA DATA model. pre dna data model is unsupported
         all_content_chunk_list = []

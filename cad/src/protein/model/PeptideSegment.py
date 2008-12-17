@@ -2,10 +2,15 @@
 """
 PeptideSegment.py - ... 
 
-@author: Bruce, Mark
+WARNING: this class is reportedly not used and will soon be moved to outtakes.
+
+@author: Mark
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+
+Note: related to DnaStrandOrSegment, from which it was copied and modified.
 """
+
 import foundation.env as env
 
 from utilities.debug import print_compact_stack, print_compact_traceback
@@ -14,13 +19,14 @@ from model.chem import Atom
 from model.bonds import Bond
 from geometry.VQT import V, norm, vlen
 
-from foundation.Group import Group
-
 from utilities.icon_utilities import imagename_to_pixmap
 from utilities.Comparison     import same_vals
-from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
-class PeptideSegment(Group):
+from foundation.LeafLikeGroup import LeafLikeGroup
+
+_superclass = LeafLikeGroup
+
+class PeptideSegment(LeafLikeGroup):
     """
     Model object which represents a Peptide Segment inside a Peptide Group.
 
@@ -51,19 +57,6 @@ class PeptideSegment(Group):
     iconPath = "ui/modeltree/PeptideSegment.png"
     hide_iconPath = "ui/modeltree/PeptideSegment-hide.png"
     
-    def __init__(self, name, assy, dad, members = (), editCommand = None):
-            
-        Group.__init__(self, 
-                       name, 
-                       assy, 
-                       dad, 
-                       members = members, 
-                       editCommand = editCommand)
-        ###BUG: not all callers pass an editCommand. It would be better
-        # to figure out on demand which editCommand would be appropriate.
-        # [bruce 080227 comment]
-        return
-
     def writemmp_other_info_opengroup(self, mapping): #bruce 080507 refactoring
         """
         """
@@ -104,7 +97,7 @@ class PeptideSegment(Group):
             self.Peptide.setEndings(self.endings)
             # The endpoints are recomputed every time it is edited.
         else:
-            Group.readmmp_info_opengroup_setitem( self, key, val, interp)
+            _superclass.readmmp_info_opengroup_setitem( self, key, val, interp)
         return
     
     def edit(self):
@@ -118,31 +111,13 @@ class PeptideSegment(Group):
         commandSequencer.userEnterCommand('Peptide_SEGMENT')
         assert commandSequencer.currentCommand.commandName == 'Peptide_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
-    
-
-    #Following methods are likely to be revised in a fully functional dna data 
-    # model. These methods are mainly created to get working many core UI 
-    # operations for Rattlesnake.  -- Ninad 2008-02-01
-    
-    def get_all_content_chunks(self):
-        """
-        Return all the chunks contained within this PeptideSegment.
         
-        @note: there is only one chunk inside this group.
-        """
-        all_content_chunk_list = []
-        
-        for member in self.members:
-            if isinstance(member, Chunk):
-                all_content_chunk_list.append(member)
-        
-        return all_content_chunk_list 
-    
     def getAxisVector(self, atomAtVectorOrigin = None):
         """
         Returns the unit axis vector of the segment (vector between two axis 
         end points)
         """
+        # REVIEW: use common code for this method? [bruce 081217 comment]
         endPoint1, endPoint2 = self.Peptide.getEndPoints()
                 
         if endPoint1 is None or endPoint2 is None:
@@ -205,7 +180,7 @@ class PeptideSegment(Group):
         inside one.
         """
         return self.parent_node_of_class( self.assy.PeptideGroup)
-        
+    
     def isAncestorOf(self, obj):
         """
         Checks whether the object <obj> is contained within the PeptideSegment
@@ -219,9 +194,7 @@ class PeptideSegment(Group):
         @see: self.get_all_content_chunks()
         @see: PeptideSegment_GraphicsMode.leftDrag
         """
-        # TODO: this needs cleanup (it looks like it's made of two alternative
-        # implems, one after the other), and speedup. [bruce 080507 comment]
-        
+        # see my comments in the NanotubeSegment version [bruce 081217]
         c = None
         if isinstance(obj, Atom):       
             c = obj.molecule                 
@@ -238,8 +211,7 @@ class PeptideSegment(Group):
                 return True        
         
         #NOTE: Need to check if the isinstance checks are acceptable (apparently
-        #don't add any import cycle) Also this method needs to be revised 
-        #after we completely switch to dna data model. 
+        #don't add any import cycle) 
         if isinstance(obj, Atom):       
             chunk = obj.molecule                
             if chunk.dad is self:
@@ -256,35 +228,15 @@ class PeptideSegment(Group):
                 return True
         return False
     
-    def node_icon(self, display_prefs):        
-        del display_prefs # unused
+    def node_icon(self, display_prefs):  
+        # REVIEW: use common code for this method? [bruce 081217 comment]
+        del display_prefs
         
         if self.all_content_is_hidden():    
             return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath)
         
-    # =======================================================================
-    # These methods were copied from DnaStrandOrSegment and edited for 
-    # this class.
-    
-    def permits_ungrouping(self): 
-        """
-        Should the user interface permit users to dissolve this Group
-        using self.ungroup?
-        [overridden from Group]
-        """
-        return self._show_all_kids_for_debug() # normally False
-
-    def _show_all_kids_for_debug(self):
-        #bruce 080207 in deprecated class Block 080318
-        classname_short = self.__class__.__name__.split('.')[-1]
-        debug_pref_name = "Model Tree: show content of %s?" % classname_short
-            # typical examples (for text searches to find them here):
-            # Model Tree: show content of DnaStrand?
-            # Model Tree: show content of DnaSegment?
-        return debug_pref( debug_pref_name, Choice_boolean_False )
-
     def permit_as_member(self, node, pre_updaters = True, **opts):
         """
         [friend method for enforce_permitted_members_in_groups and subroutines]
@@ -295,67 +247,17 @@ class PeptideSegment(Group):
 
         @rtype: boolean
 
-        [overrides Group method]
+        [extends superclass method]
         """
-        #bruce 080319
-        # someday, reject if superclass would reject -- so far, it never does
+        # this method was copied from DnaStrandOrSegment and edited for this class
+        if not LeafLikeGroup.permit_as_member(self, node, pre_updaters, **opts):
+            # reject if superclass would reject [bruce 081217]
+            return False
         del opts
         assy = self.assy
         res = isinstance( node, assy.Chunk) #@ NEEDS SOMETHING MORE.
         return res
-    
-    def _f_wants_to_be_killed(self, pre_updaters = True, **opts): # in DnaStrandOrSegment
-        """
-        [friend method for enforce_permitted_members_in_groups and subroutines]
         
-        Does self want to be killed due to members that got ejected
-        by _f_move_nonpermitted_members (or due to completely invalid structure
-        from before then, and no value in keeping self even temporarily)?
-
-        @rtype: boolean
-
-        [overrides Group method]   
-        """
-        #bruce 080319
-        del opts, pre_updaters
-        return not self.members
-
-    def MT_DND_can_drop_inside(self): #bruce 080317, revised 080318
-        """
-        Are ModelTree Drag and Drop operations permitted to drop nodes
-        inside self?
-
-        [overrides Node/Group method]
-        """
-        return self._show_all_kids_for_debug() # normally False
-    
-    def openable(self): # overrides Node.openable()
-        """
-        whether tree widgets should permit the user to open/close their view of this node
-        """
-        # if we decide this depends on the tree widget or on somet for thing about it,
-        # we'll have to pass in some args... don't do that unless/until we need to.
-
-        #If there are no MT_kids (subnodes visible in MT under this group) then
-        #don't make this node 'openable'. This makes sure that expand/ collapse
-        #pixmap next to the node is not shown for this type of Group with 0 
-        #MT_kids
-        #Examples of such groups include empty groups, DnaStrand Groups,
-        #DnaSegments etc -- Ninad 2008-03-15
-        return len(self.MT_kids()) != 0
-    
-    def _raw_MT_kids(self, display_prefs = {}):
-        """
-        DnaStrand or DnaSegment groups (subclasses of this class) should not 
-        show any MT kids.
-        @see: Group._raw__MT_kids()
-        @see: Group.MT_kids()
-        """
-        if self._show_all_kids_for_debug(): # normally False
-            # bruce 080318
-            return self.members
-        return ()
-    
     pass # end of class PeptideSegment
                 
 # end

@@ -97,7 +97,7 @@ class Group(NodeWithAtomContents):
         for ob in members:
             self.addchild(ob)
 
-        #@Note: subclasses use this argument in self.edit()
+        #@Note: subclasses use this argument in self.edit() [review: still true?]
         # REVIEW: is defining this in the superclass Group,
         # which no longer uses it, still justified? [bruce 080801 question]
         self.editCommand = editCommand
@@ -767,7 +767,7 @@ class Group(NodeWithAtomContents):
 
         @rtype: boolean
 
-        [overridden in class DnaStrandOrSegment]
+        [overridden in some subclasses]
         """
         del opts, pre_updaters
         return True
@@ -782,7 +782,7 @@ class Group(NodeWithAtomContents):
 
         @rtype: boolean
 
-        [overridden in class DnaStrandOrSegment]
+        [overridden in some subclasses]
         """
         del opts, pre_updaters
         return False
