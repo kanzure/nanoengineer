@@ -212,6 +212,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     def setParameters(self, params):
         """
         This is usually called when you are editing an existing structure. 
+        It also gets called when selecting a new strand (within this command).
         Some property manager ui elements then display the information 
         obtained from the object being edited. 
         TODO:
@@ -238,8 +239,9 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         if name:  # Minimal test. Should add a validator. --Mark 2008-12-16
             self.nameLineEdit.setText(name)
         
-        # We could have a new strand, so update the sequence editor.
-        # Fixes bug 2951. --Mark 2008-12-16
+        # This gets called when we enter the command *or* when selecting a new
+        # strand. In either case, we must update the sequence in the sequenece
+        # editor. Fixes bug 2951. --Mark 2008-12-16
         if self.command and self.command.hasValidStructure():
             self.updateSequence(strand = self.command.struct)
         return
@@ -324,29 +326,6 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             self.updateMessage(msg1 + msg2)
         return
         
-    def show(self):
-        """
-        Show this PM 
-        As of 2007-11-20, it also shows the Sequence Editor widget and hides 
-        the history widget. This implementation may change in the near future
-        This method also retrives the name information from the 
-        command's structure for its name line edit field. 
-        @see: DnaStrand_EditCommand.getStructureName()
-        @see: self.close()
-        """
-        _superclass.show(self) 
-        self._showSequenceEditor()
-    
-        if self.command is not None:
-            name = self.command.getStructureName()
-            if name is not None:
-                self.nameLineEdit.setText(name)
-                msg1 = ("Editing <b>%s</b>. ") % (name) 
-                msg2 = "Use resize handles to resize the strand. Use sequence editor"\
-                     "to assign a new sequence or the current one to a file."
-                self.updateMessage(msg1 + msg2)
-        return
-           
     def close(self):
         """
         Close this property manager. 
@@ -363,18 +342,6 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             self.sequenceEditor.close()
                             
         _superclass.close(self)
-        return
-            
-    def _showSequenceEditor(self):
-        if self.sequenceEditor:
-            if not self.sequenceEditor.isVisible():
-                #Show the sequence editor if it isn't visible.
-                #ATTENTION: the sequence editor will (temporarily) close the
-                #Reports dockwidget (if it is visible). The Reports dockwidget
-                #is restored when the sequence Editor is closed. 
-                self.sequenceEditor.show()     
-                
-            self.updateSequence(strand = self.command.struct)
         return
     
     def updateSequence(self, strand = None):

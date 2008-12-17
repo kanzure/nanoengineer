@@ -69,6 +69,10 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         self.setFixedHeight(90)
         return
     
+    # Ask Bruce if he agrees that updateSequence() and setCursorPosition()
+    # should be moved to the subclass DnaSequenceEditor. I think so, but I 
+    # just want to double-check first. 
+    # Mark 2008-12-17.
     def updateSequence(self, strand = None, cursorPos = 0):
         """
         Updates the sequence editor with the sequence of I{strand}. 
@@ -120,7 +124,12 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         titleString = 'Sequence Editor for ' + self.current_strand.name
         self.setWindowTitle(titleString)
         
-        self.show()
+        if not self.isVisible():
+            #Show the sequence editor if it isn't visible.
+            #ATTENTION: the sequence editor will (temporarily) close the
+            #Reports dockwidget (if it is visible). The Reports dockwidget
+            #is restored when the sequence Editor is closed.  
+            self.show()
         return
     
     def setCursorPosition(self, cursorPos = 0):
