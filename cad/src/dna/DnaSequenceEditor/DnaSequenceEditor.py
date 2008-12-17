@@ -9,28 +9,26 @@ History:
 Ninad 2007-11-20: Created.
 
 NOTE: Methods such as sequenceChanged, stylizeSequence are copied from the old
-      DnaGeneratorPropertyManager where they were originally defined 
+      DnaGeneratorPropertyManager where they were originally defined.
       This old PM used to implement a 'DnaSequenceEditor text editor'.
       That file hasn't been deprecated yet -- 2007-11-20
       
-TODO:  Ninad 2007-11-28
-- File open-save strand sequence needs more work 
+TODO:  Ninad 2007-11-28 (reviewed and updated by Mark 2008-12-17)
+- File open-save strand sequence needs more work.
 - The old method 'setSequence' that inserts a sequence into the text edit 
   is slow. Apparently it replaces the whole sequence each time. This 
   needs to be cleaned up.
-- Should the find and replace widgets and methods be defined in their own class
-  and then called here? 
-- Many other things listed on rattleSnake sprint backlog, once dna object model
-  is ready
+- Should the Find and Replace widgets and methods be defined in their own class
+  and then called here?
+- Implement synchronizeLengths(). It doesn't do anything for now.
   
-Implementation Notes as of 2007-11-20:  
-The Sequence Editor is shown when you enter DnaDuplex mode. The history widget 
-is hidden at the same time)The editor is a docked at the bottom of the 
-mainwindow. It has two text edits -- 'Strand' and 'Mate'. The 'Mate' (which 
-might be renamed in future) is a readonly and it shows the complement of the 
-sequence you enter in the Strand TextEdit field. User can Open or Save the 
-strand sequence using the options in the sequrence editor. (other options such 
-as Find and replace to be added) 
+Implementation Notes as of 2007-11-20 (reviewed and updated by Mark 2008-12-17):  
+The Sequence Editor is shown when you edit a DnaStrand (if visible, the 
+'Reports' dockwidget is hidden at the same time). The editor is a docked at 
+the bottom of the mainwindow. It has two text edits -- 'Strand' and 'Mate'. 
+The 'Mate' (which might be renamed in future) is a readonly widget. It shows 
+the complement of the sequence you enter in the 'Sequence' field. The user 
+can Open or Save the strand sequence using the options in the sequence editor.
 
 """
 
@@ -382,10 +380,10 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                                        inSequence, 
                                        inRestoreCursor  =  True):
         """
-        Update the main strand sequence and its complement.  (pribvate method)
+        Update the main strand sequence and its complement.  (private method)
         
         Updating the complement sequence is done as explaned in the method 
-        docstring of  self._detemine_complementSequence()
+        docstring of self._detemine_complementSequence()
         
         Note that the callers outside the class call self.setSequence and 
         self.setComplementsequence but never call this method. 
@@ -424,6 +422,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
 
             self.sequenceTextEdit.setTextCursor( cursor )
+        return
         
     def _determine_complementSequence(self, inSequence):
         """
@@ -554,6 +553,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         self._initial_complementSequence = complementSequence
         complementSequence = self._fixedPitchSequence(complementSequence)        
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
+        return
 
     def setSequence( self,
                      inSequence,
@@ -630,8 +630,6 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         return fixedPitchSequence
         
-        
-    
     def getSequenceLength( self ):
         """
         Returns the number of characters in 
@@ -676,14 +674,14 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             #After setting position, it is important to do setTextCursor 
             #otherwise no effect will be observed. 
             self.sequenceTextEdit_mate.setTextCursor(cursor_mate)
-    
+        return
 
     def synchronizeLengths( self ):
         """
         Guarantees the values of the duplex length and strand length 
         spinboxes agree with the strand sequence (textedit).
         
-        @TODO: synchronizeLengths doesn't do anything for now
+        @note: synchronizeLengths doesn't do anything for now
         """
         ##self.updateStrandLength()
         ##self.updateDuplexLength()   

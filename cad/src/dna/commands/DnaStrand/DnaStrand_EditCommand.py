@@ -522,15 +522,15 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     def updateSequence(self):
         """
         Public method provided for convenience. If any callers outside of this 
-        command need to update the sequence in the sequence editor, they can simply 
-        do currentCommand.updateSequence() rather than 
-        currentCommand.propMgr.updateSequence()
-        @see: DnaStrand_ProprtyManager.updateSequence() which does the actual 
+        command need to update the sequence in the sequence editor, they can  
+        simply call currentCommand.updateSequence() rather than 
+        currentCommand.propMgr.updateSequence().
+        @see: Ui_DnaSequenceEditor.updateSequence() which does the actual 
         job of updating the sequence string in the sequence editor.
         """
         if self.propMgr is not None:
             self.propMgr.updateSequence()
-
+        return
 
     def hasResizableStructure(self):
         """
@@ -564,8 +564,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             isResizable = False
             why_not = "It is probably a \'closed loop\'."
             return isResizable, why_not
-
-
+        
         return True, ''
 
 

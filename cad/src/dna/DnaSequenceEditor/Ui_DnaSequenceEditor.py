@@ -16,7 +16,7 @@ TODO:
 from PyQt4.Qt import QToolButton
 from PyQt4.Qt import QPalette
 from PyQt4.Qt import QTextOption
-from PyQt4.Qt import QLabel
+from PyQt4.Qt import QLabel, QString
 from PyQt4.Qt import QAction, QMenu
 from PyQt4.Qt import Qt
 
@@ -32,17 +32,22 @@ from PM.PM_LineEdit   import PM_LineEdit
 from PM.PM_PushButton import PM_PushButton
 
 from utilities.icon_utilities import geticon, getpixmap
+from utilities.debug import print_compact_traceback
 
 _superclass = PM_DockWidget
 class Ui_DnaSequenceEditor(PM_DockWidget):
     """
     The Ui_DnaSequenceEditor class defines UI elements for the Sequence Editor
-    object. The sequence editor is usually visible while in DNA edit mode.
-    It is a DockWidget that is doced at the bottom of the MainWindow
+    object. The sequence editor is usually visible while in while editing
+    a DnaStrand.
+    
+    It is a DockWidget that is docked at the bottom of the MainWindow.
     """
     _title         =  "Sequence Editor"
     _groupBoxCount = 0
     _lastGroupBox = None
+    
+    current_strand =  None # The current strand.
 
     def __init__(self, win):
         """
@@ -62,6 +67,80 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         #self.closeEvent() for more details. 
         self._reportsDockWidget_closed_in_show_method = False
         self.setFixedHeight(90)
+        return
+    
+    def updateSequence(self, strand = None, cursorPos = 0):
+        """
+        Updates the sequence editor with the sequence of I{strand}. 
+        
+        @param strand: the strand. If strand is None (default), it is assumed
+                       that self.strand is the sequence.
+        @type  strand: DnaStrand
+        
+        @param cursorPos: the current cursor position in the sequence editor.
+                          This argument is currently ignored.
+        @type  cursorPos: int
+        
+        @note: cursorPos is not implemented yet.
+        """
+        
+        if strand:
+            assert isinstance(strand, self.win.assy.DnaStrand)
+            self.current_strand = strand
+        else: 
+            # Use self.strand. Make sure it's not None (as a precaution).
+            assert isinstance(self.current_strand, self.win.assy.DnaStrand)
+        
+        sequence, complementSequence = \
+                self.current_strand.getStrandSequenceAndItsComplement()
+        
+        if sequence:
+            sequence = QString(sequence) 
+            sequence = sequence.toUpper()
+            #Set the initial sequence (read in from the file)
+            self.setSequence(sequence)
+            
+            #Set the initial complement sequence for DnaSequence editor. 
+            #do this independently because 'complementSequenceString' may have
+            #some characters (such as * ) that denote a missing base on the 
+            #complementary strand. This information is used by the sequence
+            #editor. See DnaSequenceEditor._determine_complementSequence() 
+            #for more details. See also bug 2787
+            self.setComplementSequence(complementSequence)
+        else:
+            msg = "DnaStrand '%s' has no sequence." % self.strand.name
+            print_compact_traceback(msg)
+            self.setSequence(msg)
+            self.setComplementSequence("")
+        
+        # Set cursor position. (disabled for now) Mark 2008-12-16
+        # self.setCursorPosition(cursorPos = cursorPos)
+        
+        # Update window title with name of current protein.
+        titleString = 'Sequence Editor for ' + self.current_strand.name
+        self.setWindowTitle(titleString)
+        
+        self.show()
+        return
+    
+    def setCursorPosition(self, cursorPos = 0):
+        """
+        Set the cursor position to I{cursorPos} in the sequence editor.
+        """
+        if not self.strand:
+            return
+        
+        cursor = self.sequenceTextEdit.textCursor()
+        
+        if cursorPos < 0:
+            index = 0
+        if cursorPos > len(self.sequence):
+            index = len(self.sequence)
+            
+        cursor.setPosition(cursorPos, QTextCursor.MoveAnchor)       
+        cursor.setPosition(cursorPos + 1, QTextCursor.KeepAnchor) 
+        self.sequenceTextEdit.setTextCursor( cursor )
+        return
 
     def show(self):
         """
@@ -86,7 +165,8 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
                 self.win.reportsDockWidget.close()
                 self._reportsDockWidget_closed_in_show_method = True
 
-        _superclass.show(self)  
+        _superclass.show(self)
+        return
         
     def closeEvent(self, event):
         """
@@ -103,6 +183,7 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
             if self._reportsDockWidget_closed_in_show_method:
                 self.win.viewReportsAction.setChecked(True) 
                 self._reportsDockWidget_closed_in_show_method = False
+        return
 
     def _loadWidgets(self):
         """
@@ -111,8 +192,8 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         """
         self._loadMenuWidgets()
         self._loadTextEditWidget()
-
-
+        return
+    
     def _loadMenuWidgets(self):
         """
         Load the various menu widgets (e.g. Open, save sequence options, 
@@ -220,6 +301,7 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
                                  widgetList = widgetList,
                                  label = "",
                                  spanWidth = True )
+        return
 
     def _loadTextEditWidget(self):
         """
@@ -255,7 +337,7 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         for textEdit in (self.sequenceTextEdit, self.sequenceTextEdit_mate):
             textEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
+        return
 
     def _getFindLineEditStyleSheet(self):
         """
@@ -270,10 +352,9 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         @rtype:  str
 
         """
-        styleSheet = \
-                   "QLineEdit {\
-                   background-color: rgb(255, 102, 102)\
-                   }"
+        styleSheet = "QLineEdit {"\
+                   "background-color: rgb(255, 102, 102)"\
+                   "}"
         #Not used:
         #  background-color: rgb(217, 255, 216)\       
 
@@ -295,6 +376,7 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         self.findOptionsMenu.addSeparator()
 
         self.findOptionsToolButton.setMenu(self.findOptionsMenu)
+        return
 
     def _addToolTipText(self):
         """
@@ -302,6 +384,7 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
             """ 
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_SequenceEditor
         ToolTip_SequenceEditor(self)
+        return
 
     def _addWhatsThisText(self):
         """
@@ -310,3 +393,5 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
             """
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_SequenceEditor
         whatsThis_SequenceEditor(self)
+        return
+    

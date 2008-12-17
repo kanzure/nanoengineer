@@ -6,10 +6,21 @@ DnaStrand_PropertyManager.py
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
-TODO: as of 2008-02-14
+Special notes:
 - Sequence editor is also created in BuildDna_PropertyManager (of course 
 its a child of that PM) . See if that creates any issues. 
 - Copies some methods from BuildDna_PropertyManager. 
+
+Bugs to fix:
+
+Bug 2952: 
+- Typing in new sequence will not take if you select another strand,
+  (even if you hit Enter after typing in the new sequence).
+
+Bug 2953:
+- Getting the following error msg (see bug report for details):
+  "QTextCursor::setPosition: Position '#' out of range"
+
 """
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
@@ -22,7 +33,6 @@ from PyQt4.Qt import Qt
 
 from command_support.DnaOrCnt_PropertyManager import DnaOrCnt_PropertyManager
 
-
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_LineEdit      import PM_LineEdit
@@ -31,12 +41,10 @@ from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 
-
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key
 from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key
 from utilities.prefs_constants import dnaStrandEditCommand_showCursorTextCheckBox_prefs_key
-
 
 _superclass = DnaOrCnt_PropertyManager
 class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
@@ -78,7 +86,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     
     def _addGroupBoxes( self ):
         """
-        Add the DNA Property Manager group boxes.
+        Add group boxes to this PM.
         """        
                 
         self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
@@ -91,14 +99,15 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         #so that the sequence editor gets connected! Perhaps 
         #superclass should define _loadAdditionalWidgets. -- Ninad2008-10-03
         self._loadSequenceEditor()
+        return
     
     def _loadGroupBox1(self, pmGroupBox):
         """
-        Load widgets in group box 4.
+        Load widgets in group box 1.
         """
         
         self.nameLineEdit = PM_LineEdit( pmGroupBox,
-                         label         =  "Strand name:",
+                         label         =  "Name:",
                          text          =  "",
                          setAsDefault  =  False)
         
@@ -122,10 +131,9 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
                          )
         
         #As of 2008-03-31, the properties such as number of bases will be 
-        #editable only by using the resize handles. post FNANO we will support 
-        #the 
+        #editable only by using the resize handles.
         self.numberOfBasesSpinBox.setEnabled(False)        
-    
+        return
             
     def _loadSequenceEditor(self):
         """
@@ -137,7 +145,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         """
         self.sequenceEditor = self.win.createDnaSequenceEditorIfNeeded() 
         self.sequenceEditor.hide()
-        
+        return
         
     def _loadDisplayOptionsGroupBox(self, pmGroupBox):
         """
@@ -146,7 +154,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         """
         self._loadColorChooser(pmGroupBox)
         _superclass._loadDisplayOptionsGroupBox(self, pmGroupBox)
-        
+        return
          
     def _connect_showCursorTextCheckBox(self):
         """
@@ -157,6 +165,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         connect_checkbox_with_boolean_pref(
             self.showCursorTextCheckBox , 
             dnaStrandEditCommand_showCursorTextCheckBox_prefs_key)
+        return
 
 
     def _params_for_creating_cursorTextCheckBoxes(self):
@@ -228,6 +237,11 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             
         if name:  # Minimal test. Should add a validator. --Mark 2008-12-16
             self.nameLineEdit.setText(name)
+        
+        # We could have a new strand, so update the sequence editor.
+        # Fixes bug 2951. --Mark 2008-12-16
+        if self.command and self.command.hasValidStructure():
+            self.updateSequence(strand = self.command.struct)
         return
     
     def connect_or_disconnect_signals(self, isConnect):
@@ -331,6 +345,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
                 msg2 = "Use resize handles to resize the strand. Use sequence editor"\
                      "to assign a new sequence or the current one to a file."
                 self.updateMessage(msg1 + msg2)
+        return
            
     def close(self):
         """
@@ -348,55 +363,32 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             self.sequenceEditor.close()
                             
         _superclass.close(self)
+        return
             
     def _showSequenceEditor(self):
         if self.sequenceEditor:
             if not self.sequenceEditor.isVisible():
-                #Show the sequence editor
-                #ATTENTION: the sequence editor also closes (temporarily) the
-                #reports dockwidget (if visible) Its state is later restored when
-                #the sequuence Editor is closed. 
+                #Show the sequence editor if it isn't visible.
+                #ATTENTION: the sequence editor will (temporarily) close the
+                #Reports dockwidget (if it is visible). The Reports dockwidget
+                #is restored when the sequence Editor is closed. 
                 self.sequenceEditor.show()     
-                                              
-            self.updateSequence()
-
-        
-    def updateSequence(self):
+                
+            self.updateSequence(strand = self.command.struct)
+        return
+    
+    def updateSequence(self, strand = None):
         """
-        Update the sequence string in the sequence editor
-        @see: DnaSequenceEditor.setSequence()
-        @see DnaSequenceEditor._determine_complementSequence()
-        @see: DnaSequenceEditor.setComplementSequence()
-        @see: DnaStrand.getStrandSequenceAndItsComplement()
+        Public method provided for convenience. If any callers outside of this 
+        command need to update the sequence in the sequence editor, they can simply 
+        do DnaStrand_ProprtyManager.updateSequence() rather than 
+        DnaStrand_ProprtyManager.sequenceEditor.updateSequence()
+        @see: Ui_DnaSequenceEditor.updateSequence()
         """
-        #Read in the strand sequence of the selected strand and 
-        #show it in the text edit in the sequence editor.
-        ##strand = self.strandListWidget.getPickedItem()
+        if self.sequenceEditor:
+            self.sequenceEditor.updateSequence(strand = strand)
+        return
         
-        if not self.command.hasValidStructure():
-            return
-        
-        strand = self.command.struct
-        
-        titleString = 'Sequence Editor for ' + strand.name
-                           
-        self.sequenceEditor.setWindowTitle(titleString)
-        sequenceString, complementSequenceString = strand.getStrandSequenceAndItsComplement()
-        if sequenceString:
-            sequenceString = QString(sequenceString) 
-            sequenceString = sequenceString.toUpper()
-            #Set the initial sequence (read in from the file)
-            self.sequenceEditor.setSequence(sequenceString)
-            
-            #Set the initial complement sequence for DnaSequence editor. 
-            #do this independently because 'complementSequenceString' may have
-            #some characters (such as * ) that denote a missing base on the 
-            #complementary strand. this information is used by the sequence
-            #editor. See DnaSequenceEditor._determine_complementSequence() 
-            #for more details. See also bug 2787
-            self.sequenceEditor.setComplementSequence(complementSequenceString)
-
-            
     def change_struct_highlightPolicy(self,checkedState = False):
         """
         Change the 'highlight policy' of the structure being edited 
@@ -410,6 +402,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         if self.command and self.command.hasValidStructure():
             highlight = not checkedState
             self.command.struct.setHighlightPolicy(highlight = highlight)
+        return
 
     def _addWhatsThisText(self):
         """
