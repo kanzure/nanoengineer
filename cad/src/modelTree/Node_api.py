@@ -176,6 +176,17 @@ class Node_api(Api):
 
         When this returns false, no children should be displayed under self,
         regardless of self.open and of the return value of self.MT_kids().
+
+        @note: specific nodes are permitted to change this method's return
+               value over time, e.g. depending on user preference settings.
+               They must ensure that, at any given time, all required
+               constraints on its value vs. the use of self.MT_kids() are
+               followed. For such changes to take effect, modelTree.mt_update()
+               will generally need to be called; the modelTree code must
+               ensure that mt_update is sufficient for that purpose.
+
+        @note: even when openable returns false, self.open is permitted
+               to be true, but self is still considered to be closed then.
         """
         raise Exception("overload me")        
     pass

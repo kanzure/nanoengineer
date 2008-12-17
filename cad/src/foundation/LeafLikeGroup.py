@@ -39,7 +39,7 @@ class LeafLikeGroup(Group):
 
     def permit_addnode_inside(self): #bruce 080626
         """
-        [overrides Group method]
+        [overrides superclass method]
         """
         return False
     
@@ -47,19 +47,16 @@ class LeafLikeGroup(Group):
         """
         Should the user interface permit users to dissolve this Group
         using self.ungroup?
-        [overridden from Group]
+        
+        [overrides superclass method]
         """
         #bruce 080207 in deprecated class Block, copied to DnaStrandOrSegment 080318
         return self._show_all_kids_for_debug() # normally False
 
     def _show_all_kids_for_debug(self):
         #bruce 080207 in deprecated class Block, copied to DnaStrandOrSegment 080318
-        ### TODO: revise to use same debug_pref for all node classes [bruce 081217 comment]
-        classname_short = self.__class__.__name__.split('.')[-1]
-        debug_pref_name = "Model Tree: show content of %s?" % classname_short
-            # typical examples (for text searches to find them here):
-            # Model Tree: show content of DnaStrand?
-            # Model Tree: show content of DnaSegment?
+        #bruce 081217: revised to use same debug_pref for all node classes
+        debug_pref_name = "Model Tree: show content of leaf-like Groups?"
         return debug_pref( debug_pref_name, Choice_boolean_False )
 
     def _f_wants_to_be_killed(self, pre_updaters = True, **opts): # in LeafLikeGroup
@@ -72,7 +69,7 @@ class LeafLikeGroup(Group):
 
         @rtype: boolean
 
-        [overrides Group method]   
+        [overrides superclass method]   
         """
         #bruce 080319
         del opts, pre_updaters
@@ -83,13 +80,16 @@ class LeafLikeGroup(Group):
         Are ModelTree Drag and Drop operations permitted to drop nodes
         inside self?
 
-        [overrides Node/Group method]
+        [overrides superclass method]
         """
         return self._show_all_kids_for_debug() # normally False
     
-    def openable(self): # overrides Node.openable()
+    def openable(self):
         """
-        whether tree widgets should permit the user to open/close their view of this node
+        whether tree widgets should permit the user to open/close
+        their view of this node
+
+        [overrides superclass method]
         """
         # if we decide this depends on the tree widget or on somet for thing about it,
         # we'll have to pass in some args... don't do that unless/until we need to.
@@ -102,16 +102,16 @@ class LeafLikeGroup(Group):
         #DnaSegments etc -- Ninad 2008-03-15
         return len(self.MT_kids()) != 0
     
-    def _raw_MT_kids(self, display_prefs = {}):
+    def MT_kids(self, display_prefs = {}):
         """
-        #doc
+        [overrides superclass method]
         """
         if self._show_all_kids_for_debug(): # normally False
             # bruce 080318
             return self.members
         return ()
 
-    def get_all_content_chunks(self): # by Ninad; revised by bruce 081217
+    def get_all_content_chunks(self): # by Ninad; moved & docstring revised by bruce 081217
         """
         Return all the chunks which should be considered logical contents
         of self.
