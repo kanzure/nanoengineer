@@ -1111,27 +1111,22 @@ class Group(NodeWithAtomContents):
 
         @see: self.openable()
         """
-        # Historical note: self.members used to be stored in reversed order, but
-        # Mark fixed that some time ago. Some callers in modelTree needed reversed
-        # members list, after that, not because it was stored in reverse order as
-        # it had been, but because modeltree methods added tree items in reverse
-        # order (which I fixed yesterday).
-        # [bruce 050110 inference from addmember implems/usage]
-
         return self._raw_MT_kids()
 
-    def openable(self): # overrides Node.openable()
+    def openable(self):
         """
-        whether tree widgets should permit the user to open/close their view of this node
-        """
-        # if we decide this depends on the tree widget or on somet for thing about it,
-        # we'll have to pass in some args... don't do that unless/until we need to.
+        whether tree widgets should permit the user to open/close
+        their view of this node, and show children when it's open
 
+        [overrides Node method]
+        """
+        # if we decide this depends on the tree widget or on something about it,
+        # we'll have to pass in some args... don't do that unless/until we need to.
         return True
 
     def _raw_MT_kids(self, display_prefs = {}):
         """
-        Returns all allowed MT kifs 'raw kids' because this isn't a final list
+        Returns all allowed MT kids 'raw kids' because this isn't a final list
         This is used by self.MT_kids() to further decide which members to show
         in the MT as subnodes
         @see: self.openable()

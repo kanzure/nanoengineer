@@ -65,8 +65,7 @@ class TreeModel(TreeModel_api):
             #k is this still desirable, now that we have PartGroup
             # so it's no longer needed for safety?
         self.assy.kluge_patch_toplevel_groups( assert_this_was_not_needed = True)
-            # fixes Group subclasses of assy.shelf and assy.tree, and
-            # [not anymore, as of some time before 050417] inserts assy.viewdata.members into assy.tree
+            # fixes Group subclasses of assy.shelf and assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
         topnodes = [self.assy.tree, self.assy.shelf]
         return topnodes
@@ -132,7 +131,7 @@ class TreeModel(TreeModel_api):
             res = [('Model Tree (nothing selected)',noop,'disabled')]
             #bruce 050505 adding some commands here (cm_delete_clipboard is a just-reported NFR from Mark)
             res.append(( 'Create new empty clipboard item', self.cm_new_clipboard_item ))
-            lenshelf = len(self.assy.shelf.members) # FIX - use MT_kids?
+            lenshelf = len(self.assy.shelf.MT_kids()) #bruce 081217 use MT_kids
             if lenshelf:
                 if lenshelf > 2:
                     text = 'Delete all %d clipboard items' % lenshelf
@@ -143,6 +142,7 @@ class TreeModel(TreeModel_api):
 
         res = []
 
+        # old comment, not recently reviewed/updated as of 081217:
         # first put in a Hide item, checked or unchecked. But what if the hidden-state is mixed?
         # then there is a need for two menu commands! Or, use the command twice, fully hide then fully unhide -- not so good.
         # Hmm... let's put in Hide (with checkmark meaning "all hidden"), then iff that's not enough, Unhide.
@@ -248,7 +248,9 @@ class TreeModel(TreeModel_api):
             # (this implies it's a group, or enough like one)
             node = nodeset[0]
             if not node.members: #bruce 080207
-                # [REVIEW: use MT_kids? same issue in many places in this file, as of 080306]
+                #REVIEW: use MT_kids? [same issue in many places in this file, as of 080306]
+                #reply, bruce 081217: not yet; really we need a new Node or Group API method
+                # "offer to remove as empty Group"; meanwhile, be conservative by using .members
                 text = "Remove empty Group"
             elif node.dad == self.shelf_node and len(node.members) > 1:
                 # todo: "Ungroup into %d separate clipboard item(s)"
@@ -831,7 +833,7 @@ class TreeModel(TreeModel_api):
         Delete all clipboard items
         """
         ###e get confirmation from user?
-        for node in self.assy.shelf.members[:]:
+        for node in self.assy.shelf.MT_kids()[:]: #bruce 081217 use MT_kids
             node.kill() # will this be safe even if one of these is presently displayed? ###k
         self.mt_update()
     

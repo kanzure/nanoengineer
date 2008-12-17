@@ -1923,7 +1923,7 @@ class PartGroup(Group):
 ##        lis = filter( lambda node: node.show_in_model_tree(), lis)
 ##            # bruce 050127; for now this is the only place that honors node.show_in_model_tree()!
 ##        self._initialkids = list(lis)
-    def MT_kids(self, display_prefs = {}): #bruce 080108 revised semantics
+    def MT_kids(self, display_prefs = {}): # in PartGroup #bruce 080108 revised semantics
         """
         overrides Group.MT_kids
         """
@@ -1932,8 +1932,13 @@ class PartGroup(Group):
         # (I think this is never called when not self.open and self.openable(),
         #  so don't bother optimizing that case. [bruce 080306])
         regularkids = Group.MT_kids(self, display_prefs)
-        if 1 and self.open:
+        if 1: ## and self.open:
             #bruce 080306 test code, should clean up
+            #bruce 081217 update: the self.open condition is ok as long as
+            # the fake kids are never selectable, but that's fragile
+            # and ought to be formalized if desired, so it's better
+            # to remove that condition now that MT_kids is not supposed
+            # to depend on self.open.
             from utilities.debug_prefs import debug_pref, Choice_boolean_False
             want_fake_kid = debug_pref("Model Tree: show fake initial kid?", Choice_boolean_False)
             have_fake_kid = not not self._initialkids

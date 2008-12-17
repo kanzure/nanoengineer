@@ -18,6 +18,7 @@ class TreeModel_api(Api):
     """
     #bruce 081216 split this out of ModelTree_api, which has since been removed,
     # and then moved it into its own file
+    
     def get_topnodes(self):
         """
         Return a list of the top-level nodes, typically assy.tree and assy.shelf for an assembly.
@@ -55,22 +56,41 @@ class TreeModel_api(Api):
         [all subclasses should override this]
         """
         raise Exception("overload me")
-
-    # helper methods -- strictly speaking these are now part of the API,
-    # but they have default implems based on more primitive methods
-    # (which need never be overridden, and maybe should never be overridden)
-    # [moved them into this class from modelTreeGui, bruce 070529]
     
-    def recurseOnNodes(self, func, topnode = None,
+    def recurseOnNodes(self,
+                       func,
+                       topnode = None,
                        fake_nodes_to_mark_groups = False,
                        visible_only = False ):
         """
+        Call func on every node on or under topnode,
+        or if topnode is None, on every node in or under
+        all nodes in self.get_topnodes();
+        but only descend into openable nodes
+        (further limited to open nodes, if visible_only is true).
+
+        @param fake_nodes_to_mark_groups: bracket sequences of calls
+               of func on child node lists with calls of func(0) and func(1)
+        @type fake_nodes_to_mark_groups: boolean
+
+        @param visible_only: only descend into open nodes
+        @type visible_only: boolean
+
+        @return: None
+
+        @note: a node is open if node.open is true.
+        @note: a node is openable if node.openable() is true.
+
+        @see: node.MT_kids() for node's list of child nodes
+              (defined and meaningful whenever it's openable)
+        
         """
         # note: used only in itself and in ModelTreeGui.mt_update
         #bruce 070509 new features:
         # - fake_nodes_to_mark_groups [not used as of 080306],
-        # - visible_only [always true as of 080306]
-        assert visible_only # see above comment
+        # - visible_only [always true as of 080306] [can be False as of 081217]
+        # review, low priority: would this be more useful as a generator?
+        
         if topnode is None:
             for topnode in self.get_topnodes():
                 self.recurseOnNodes(func, topnode,
@@ -80,24 +100,20 @@ class TreeModel_api(Api):
         else:
             func(topnode)
             
-            #bruce 080306 use MT_kids, not .members, to fix some bugs
-            # (at least the one about lots of extra scroll height when
-            #  a large DnaGroup is in the MT). Note, MT_kids is always
-            # defined; it's a length 0 sequence on leaf nodes.
-            if visible_only:
-                if topnode.open and topnode.openable():
-                    members = topnode.MT_kids()
-                        # note: we're required to not care what MT_kids returns
-                        # unless topnode.open and topnode.openable() are true.
-                else:
-                    members = ()
+            if visible_only and not topnode.open:
+                children = ()
+            elif not topnode.openable():
+                children = ()
             else:
-                assert 0 # not well defined what this means, due to MT_kids vs members issue [bruce 080306]
-            
-            if members:
+                children = topnode.MT_kids()
+                    #bruce 080306 use MT_kids, not .members, to fix some bugs
+                    # note: we're required to not care what MT_kids returns
+                    # unless topnode.openable() is true, but as of 081217
+                    # we can use it regardless of node.open.
+            if children:
                 if fake_nodes_to_mark_groups:
                     func(0)
-                for child in members:
+                for child in children:
                     self.recurseOnNodes(func, child,
                                         fake_nodes_to_mark_groups = fake_nodes_to_mark_groups,
                                         visible_only = visible_only)
@@ -111,6 +127,9 @@ class TreeModel_api(Api):
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
+        ### MAYBE TODO: redefine this in terms of recurseOnNodes and get_current_part_topnode
+        # (not easy to do unless func can return something to recurseOnNodes to stop the recursion! add option for that?)
+        # [bruce 081217 comment]
         raise Exception("overload me")
 
     pass # end of class TreeModel_api

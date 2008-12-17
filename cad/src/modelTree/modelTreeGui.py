@@ -1389,17 +1389,16 @@ class MT_View(QtGui.QWidget):
         openable = node.openable()
         open = node.open and openable
         if open:
-            ## members = node.members
-            members = node.MT_kids() #bruce 080306 fix
+            children = node.MT_kids() #bruce 080306 use MT_kids
         else:
-            members = ()
+            children = ()
         # openclose line
         draw_openclose_lines = self.draw_openclose_lines
         next_line_to_pos = y + ITEM_HEIGHT # easiest to do this all the time
         if draw_openclose_lines:
             # draw them first (including the start of one going down, if needed), so they won't obscure icons.
             # In this section we draw the ones that go through (under) the center of our own openclose icon.
-            doanything = (line_to_pos is not None) or members
+            doanything = (line_to_pos is not None) or children
             if doanything:
                 # compute openclose area center:
                 lx1 = x - OPENCLOSE_AREA_WIDTH / 2
@@ -1413,10 +1412,10 @@ class MT_View(QtGui.QWidget):
                 else:
                     painter.drawLine(lx1, line_to_pos, lx1, y + ITEM_HEIGHT ) # this goes a bit lower down;
                         # the knowledge of how much lower down is also known to the caller
-                        # (i.e. this recursive function, in members loop below)
+                        # (i.e. this recursive function, in children loop below)
                 # horizontal line
                 painter.drawLine(lx1, ly1, x + _ICONSIZE[0]/2, ly1)
-            if members:
+            if children:
                 painter.drawLine(lx1 + INDENT_OFFSET, ly1,
                                  lx1 + INDENT_OFFSET, next_line_to_pos)
             if doanything:
@@ -1438,8 +1437,8 @@ class MT_View(QtGui.QWidget):
         y += ITEM_HEIGHT
         if open:
             x += INDENT_OFFSET
-            for child in members:
-                its_last_child = (child is members[-1]) # wrong if children can occur twice in members
+            for child in children:
+                its_last_child = (child is children[-1]) # wrong if children can occur twice
                 y0 = y
                 y = self.paint_subtree(child, painter, x, y, next_line_to_pos, its_last_child)
                 # following only matters if not its_last_child
@@ -1490,16 +1489,9 @@ class MT_View(QtGui.QWidget):
         y0 += ITEM_HEIGHT
         if y < y0:
             return node, d, y0 - ITEM_HEIGHT, None
-        if node.open and node.openable(): #bruce 080108 bugfix for Block: add .openable() check
+        if node.open and node.openable():
             d += 1
             for child in node.MT_kids(): #bruce 080108 change for Block: use MT_kids
-                     # (but BUG elsewhere, since this is not yet done in drawing code for MT)
-                     # [update, bruce 080306 -- so how does e.g. DnaStrand hide its kids?
-                     #  I guess it does this by returning False for node.openable(),
-                     #  which I guess we do check in enough places, e.g. display_prefs_for_node.
-                     #  This means we can effectively notice an MT_kids being empty
-                     #  but not one being partial. As of now I think that happens to cover
-                     #  the ways we're using it, but clearly this is fragile.]
                 resnode, resdepth, resy0, y0 = self.look_for_y_recursive( child, y0, d, y)
                 if resnode:
                     return resnode, resdepth, resy0, y0
@@ -1631,7 +1623,8 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         """
         [private]
 
-        Call QWidget.update on our widgets, so that Qt will redraw us soon.
+        Call QWidget.update on our widgets, so that Qt will redraw us soon
+        (which it will do by calling paintEvent in our MT_View, self.view)
         """
         self.view.update() # this works
         self.update() # this alone doesn't update the contents, but do it anyway
