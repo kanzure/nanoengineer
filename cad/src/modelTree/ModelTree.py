@@ -67,7 +67,6 @@ class ModelTree(object):
         """
         self._treemodel = TreeModel(self, win) #bruce 081216
         
-        ###@@@ review all init args & instvars, here vs subclasses
         self.modelTreeGui = ModelTreeGui(win, name, self._treemodel, parent)
             # WARNING: self.modelTreeGui is a PUBLIC MEMBER which is accessed by MWsemantics (at least)
             # for use in building the Qt widget layout. For public access purposes it can be considered
@@ -99,26 +98,21 @@ class ModelTree(object):
         self.mt_update()
         return
     
-    def resetAssy_and_clear(self): #bruce 050201 for Alpha, part of Huaicai's bug 369 fix
+    def resetAssy_and_clear(self):
         """
-        This method should be called from the end of MWsemantics._make_and_init_assy
-        to prevent a crash on (at least) Windows during File->Close when the mtree is
-        editing an item's text, using a fix developed by Huaicai 050201,
-        which is to run the QListView method self.clear().
-           Neither Huaicai nor Bruce yet understands why this fix is needed or why
-        it works, so the details of what this method does (and when it's called,
-        and what's it's named) might change. Bruce notes that without this fix,
-        MWsemantics._make_and_init_assy would change win.assy (but not tell the mt (self) to change
-        its own .assy) and call mt_update(), which in old code would immediately do
-        self.clear() but in new code doesn't do it until later, so this might relate
-        to the problem. Perhaps in the future, mt_update itself can compare self.assy
-        to self.win.assy and do this immediate clear() if they differ, so no change
-        would be needed to MWsemantics._make_and_init_assy(), but for now, we'll just do it
-        like this.
+        This method should be called from the end of MWsemantics._make_and_init_assy.
         """
-        self.modelTreeGui.update_item_tree( unpickEverybody = True )
-        # prevents Windows crash if an item's text is being edited in-place
-        # [huaicai & bruce 050201 for Alpha to fix bug 369; not sure how it works]
+        # REVIEW: not sure if this method is still needed at all.
+        # An old comment about an old version of this method:
+        # #bruce 050201 for Alpha, part of Huaicai's bug 369 fix;
+        # called to prevent a crash on (at least) Windows during File->Close
+        # when the model tree is editing an item's text in-place, using a fix
+        # developed by Huaicai 050201, which is to run the (Qt3) QListView
+        # method self.clear().
+        # Sometime during or after the port to Q4, it became equivalent to just
+        # mt_update, albeit inside a couple calls of an old ModelTreeGUI_api
+        # method update_item_tree. [bruce 081216 comment]
+        self.mt_update()
         return
 
     def mt_update(self):

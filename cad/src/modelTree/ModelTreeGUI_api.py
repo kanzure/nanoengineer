@@ -59,21 +59,6 @@ class ModelTreeGUI_api(Api):
     # note: this classname and modulename contains "GUI" not "Gui",
     # like class ModelTreeGui someday ought to, but doesn't now.
     # [bruce 081216]
-    def update_item_tree(self, unpickEverybody = False): # in ModelTreeGUI_api
-        # REVIEW: remove from API? see detailed comment below [bruce 081216 comment]
-        """
-        Removes and deletes all the items in this list view
-        and triggers an update.
-
-        @note: called by ModelTree.resetAssy_and_clear.
-        """
-        ###REVIEW: in the implementation (in another file),
-        # this also creates a new tree of items given a root node.
-        # I guess this means the meaning of this method in this API
-        # was changed since the above was written.
-        # (So has the name -- it was called 'clear' until bruce 070509.
-        #  Also the option was not listed in this API.)
-        raise Exception("overload me")
 
     def topmost_selected_nodes(self): # in ModelTreeGUI_api
         ####### REVIEW: should this be in this api,

@@ -1774,22 +1774,6 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
             # to be sure we get the scrollbars (will it be enough?)
         return
     
-    def update_item_tree(self, unpickEverybody = False):
-        """
-        [part of the public API]
-
-        Removes and deletes all the items in this list view
-        and triggers an update.
-
-        @note: called by ModelTree.resetAssy_and_clear.
-        """
-        # note: Previously this was the 'clear' method in Q3ListView.
-        ## Review: appropriateness of docstring and separate API function
-        # given what it's been simplified to since originally written.
-        # See also the _api class comment.
-        # [bruce 081216 comment]
-        self.mt_update()
-
     def paint_item(self, painter, item): # probably only used for DND drag graphic (in superclass)
         x,y = 0,0
         node = item.node
