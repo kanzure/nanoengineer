@@ -60,15 +60,6 @@ class ModelTreeGUI_api(Api):
     # like class ModelTreeGui someday ought to, but doesn't now.
     # [bruce 081216]
 
-    def topmost_selected_nodes(self): # in ModelTreeGUI_api
-        ####### REVIEW: should this be in this api,
-        # or is it just an implem convenience func?
-        # (guess the latter) [bruce 081216 comment]
-        """
-        @return: a list of all selected nodes which are not inside selected Groups
-        """
-        raise Exception("overload me")
-
     def mt_update(self, nodetree = None): # in ModelTreeGUI_api
         """
         External code (or event bindings in a subclass, if they don't do enough repainting themselves)

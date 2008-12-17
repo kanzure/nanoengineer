@@ -42,7 +42,7 @@ from foundation.Assembly_API import Assembly_API
 
 from widgets.simple_dialogs import grab_text_line_using_dialog
 
-debug_undoable_attrs = False
+_DEBUG_UNDOABLE_ATTRS = False
 
 # ==
 
@@ -312,12 +312,12 @@ class Node( StateMixin):
         once.
         """
         subclass = self.__class__
-        if debug_undoable_attrs:
+        if _DEBUG_UNDOABLE_ATTRS:
             print "debug: running __declare_undoable_attrs in", subclass
         for attr in subclass.copyable_attrs:
             name = "_s_attr_" + attr
             if hasattr(subclass, name):
-                if debug_undoable_attrs:
+                if _DEBUG_UNDOABLE_ATTRS:
                     print " debug: not overwriting manual decl of %r as %r" % \
                           (name, getattr(subclass, name))
             else:
@@ -778,8 +778,9 @@ class Node( StateMixin):
         
         if glpane.is_animating:
             return
-        # Note: see similar code in setModelData in another class.
-        ##e Question: why is renaming the toplevel node not permitted? Because we'll lose the name when opening the file?
+        # Note: see similar code in setModelData in an outtakes class.
+        # REVIEW: why is renaming the toplevel node not permitted?
+        # Because we'll lose the name when opening the file?
         oldname = self.name
         ok = self.rename_enabled()
         # Various things below can set ok to False (if it's not already)
@@ -805,8 +806,6 @@ class Node( StateMixin):
             msg = "Can't rename node [%s]: %s" % (oldname, text) # text is reason why not
             env.history.statusbar_msg(msg)
         return
-    
-        
 
     def drag_move_ok(self): # renamed/split from drag_enabled; docstring revised 050201
         """

@@ -16,24 +16,30 @@ _api classes, and splitting some code into separate files.
 """
 
 import foundation.env as env
-from utilities import debug_flags
-from platform_dependent.PlatformDependent import fix_plurals
-
-from modelTree.TreeModel_api import TreeModel_api
-
-from modelTree.mt_statistics import all_attrs_act_as_counters
-from modelTree.mt_statistics import mt_accumulate_stats
+from foundation.Group import Group
+from foundation.wiki_help import wiki_help_menuspec_for_object
 
 from model.chunk import Chunk
 from model.jigs import Jig
-from utilities.Log import orangemsg
-from foundation.Group import Group
-from utilities.debug import print_compact_traceback
+from model.jigs_planes import RectGadget
 
+from modelTree.TreeModel_api import TreeModel_api
+from modelTree.mt_statistics import all_attrs_act_as_counters
+from modelTree.mt_statistics import mt_accumulate_stats
+
+from operations.ops_select import topmost_selected_nodes
+from operations.ops_select import selection_from_part
+
+from platform_dependent.PlatformDependent import fix_plurals
+
+from utilities import debug_flags
 from utilities.GlobalPreferences import pref_show_highlighting_in_MT
-
+from utilities.Log import orangemsg
 from utilities.constants import gensym
 from utilities.constants import noop
+from utilities.debug import print_compact_traceback
+
+from widgets.widget_helpers import RGBf_to_QColor
 
 # ===
 
@@ -91,13 +97,12 @@ class TreeModel(TreeModel_api):
     def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
 
-    def topmost_selected_nodes(self): # in class TreeModel [maybe: reorder vs other methods here]
+    def topmost_selected_nodes(self): # in class TreeModel
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
         #bruce 081216 split this into api method and this implem method
         nodes = [self.get_current_part_topnode()]
-        from operations.ops_select import topmost_selected_nodes # TODO: move this to toplevel
         return topmost_selected_nodes(nodes)
 
     # ===
@@ -195,10 +200,7 @@ class TreeModel(TreeModel_api):
                 # warning: depends on details of Jig.is_disabled() implem. Ideally we should ask Jig to contribute
                 # this part of the menu-spec itself #e. [bruce 050421]
                 jig = nodeset[0]
-                
-                from model.jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
-                if not isinstance(jig, RectGadget): #raise  
-                
+                if not isinstance(jig, RectGadget): # remove this menu item for RectGadget [Huaicai 10/11/05]
                     disabled_must = jig.disabled_by_atoms() # (by its atoms being in the wrong part)
                     disabled_choice = jig.disabled_by_user_choice
                     disabled_menu_item = disabled_must # menu item is disabled iff jig disabled state can't be changed, ie is "stuck on"
@@ -395,7 +397,6 @@ class TreeModel(TreeModel_api):
 
         # figure out whether Copy would actually copy anything.
         part = nodeset[0].part # the same for all nodes in nodeset
-        from operations.ops_select import selection_from_part
         sel = selection_from_part(part, use_selatoms = False) #k should this be the first code to use selection_from_MT() instead?
         doit = False
         for node in nodeset:
@@ -463,9 +464,7 @@ class TreeModel(TreeModel_api):
                 want_select_item = True #bruce 051208
                 if allstats.njigs == 1:
                     jig = nodeset[0]
-                
-                    from model.jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
-                    if isinstance(jig, RectGadget):
+                    if isinstance(jig, RectGadget): # remove menu item for RectGadget [Huaicai 10/11/05]
                         ## return res  -- this 'return' was causing bug 1189 by skipping the rest of the menu, not just this item.
                         # Try to do something less drastic. [bruce 051208]
                         want_select_item = False
@@ -487,8 +486,8 @@ class TreeModel(TreeModel_api):
         # for single items that have a featurename, add wiki-help command [bruce 051201]
         if len(nodeset) == 1:
             node = nodeset[0]
-            from foundation.wiki_help import wiki_help_menuspec_for_object #e (will this func ever need to know which widget is asking?)
             ms = wiki_help_menuspec_for_object(node) # will be [] if this node should have no wiki help menu items
+                #review: will this func ever need to know which widget is asking?
             if ms:
                 res.append(None) # separator
                 res.extend(ms)
@@ -713,9 +712,7 @@ class TreeModel(TreeModel_api):
     def cmEditChunkColor(self): #Ninad 070321
         """
         Edit the color of the selected chunks using the Model Tree context menu
-        """         
-        from widgets.widget_helpers import RGBf_to_QColor
-        
+        """        
         nodeset = self.topmost_selected_nodes()
         chunkList = []
         #Find the chunks in the selection and store them temporarily

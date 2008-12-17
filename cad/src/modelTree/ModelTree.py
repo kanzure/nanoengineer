@@ -56,50 +56,26 @@ class ModelTree(object):
     model shown by that (class TreeModel).
 
     @note: ModelTree is a public class name, and self.modelTreeGui
-           is a public member.
+           is a public member, accessed by MWsemantics (or a subobject)
+           for use in building the Qt widget layout. For public access
+           purposes it can be considered "the Qt widget containing the model
+           tree".
     """
-    #bruce 081216 renamed modelTree -> ModelTree, then split it into two objects
-    # (ModelTree and TreeModel); removed _api class since incomplete and not
-    # very useful, since all our methods are API methods and they are all small.
     def __init__(self, parent, win, name = "modelTreeView", size = (200, 560)):
         """
         #doc
         """
-        self._treemodel = TreeModel(self, win) #bruce 081216
+        self._treemodel = TreeModel(self, win)
         
         self.modelTreeGui = ModelTreeGui(win, name, self._treemodel, parent)
-            # WARNING: self.modelTreeGui is a PUBLIC MEMBER which is accessed by MWsemantics (at least)
-            # for use in building the Qt widget layout. For public access purposes it can be considered
-            # "the Qt widget containing the model tree" and it ought to have a special name (or get-method)
-            # just for that purpose, so this attr could be made private.
-            #    Worse, the code before late on 070509 sometimes stored self.modelTreeGui rather than self
-            # in win.mt (maybe) and assy.mt (definitely), but other times stored self!
-            # And lots of files call various methods on assy.mt and/or win.mt, namely:
-            # - mt_update
-            # and in mwsem:
-            # - self.mt.setMinimumSize(0, 0)
-            # - self.mt.setColumnWidth(0,225)
-            # So for now, I made sure all those can be called on self (it was already true),
-            # and in future, they need to be documented in the api, or the external calls should
-            # call them explicitly on the widget member (accessing it in a valid public way).
-            # [bruce 070509 comment]
-            #update 081216: the above has probably all been taken care of, except for adding a
-            # few methods to the api class, so that should be done and this comment removed.
-
-##        # these attributes are probably not needed [bruce 081216 comment after refactoring]
-##        self.win = win
-##        self.assy = win.assy
-        
-        # note: there used to be self.view = self.modelTreeGui stored externally,
-        # but this was never accessed, so I removed it along with the refactoring
-        # [bruce 081216]
+            # public member; review: maybe it ought to have a special name
+            # (or get-method) just for its public purpose, so this attr could
+            # be made private for internal use
 
         self.mt_update()
         return
     
     def mt_update(self):
-        # note: bruce 070509 changed a lot of calls of self.modelTreeGui.mt_update to call self.mt_update.
-        # note: bruce 070511 removed all direct sets here of mt_update_needed, since mt_update now sets it.
         return self.modelTreeGui.mt_update()
 
     def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting

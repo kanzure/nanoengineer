@@ -46,8 +46,6 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
     #   about required instance variables?
     # - in Qt3 there *is* a Node API call to support renaming ("try_rename" or so).
     #   Why isn't it used or listed here?
-    #
-    # See also my comments in class ModelTree.__init__.
         
     def __init__(self):
         """
@@ -110,22 +108,6 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
         #  is a meaningful difference. The value of 'openable' is usually (so far, always)
         #  implicit in the Node's concrete subclass, so typical methods won't need to look at it.]
         raise Exception("overload me")
-
-##    def drop_on_ok(self, drag_type, nodes):
-##        """
-##        Say whether 'drag and drop' can drop the given set of nodes onto this node, when they are
-##        dragged in the given way, and if not, why not.
-##        @rtype: ( boolean, string )
-##        """
-##        raise Exception("overload me")
-##
-##    def drop_on(self, drag_type, nodes):
-##        """
-##        After a 'drag and drop' of type 'move' or 'copy' (according to drag_type), perform the
-##        drop of the given list of nodes onto this node. Return any new nodes this creates (toplevel
-##        nodes only, for copied groups).
-##        """
-##        raise Exception("overload me")
 
     def MT_kids(self, item_prefs = {}): #bruce 080108 renamed kids -> MT_kids; only used in some of the places it needs to be
         """

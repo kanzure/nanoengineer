@@ -55,7 +55,6 @@ import time
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QTreeView
 from PyQt4.Qt import QScrollArea
 from PyQt4.Qt import QIcon
 from PyQt4.Qt import QDrag
@@ -69,23 +68,26 @@ from PyQt4.Qt import QColor
 from PyQt4.Qt import QRect
 from PyQt4.Qt import QPalette
 
-from utilities.debug import print_compact_traceback, print_compact_stack
-from platform_dependent.PlatformDependent import fix_plurals
-from utilities.Log import quote_html
-from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
-from widgets.menu_helpers import makemenu_helper
 import foundation.env as env
 
-from widgets.simple_dialogs import grab_text_line_using_dialog
-from utilities.icon_utilities import imagename_to_pixmap
-
-from modelTree.Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
 from modelTree.ModelTreeGUI_api import ModelTreeGUI_api
+from modelTree.Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
 
-from utilities.constants import AC_INVISIBLE, AC_HAS_INDIVIDUAL_DISPLAY_STYLE
+from platform_dependent.PlatformDependent import fix_plurals
+
+from PM.PM_Colors  import getPalette
 
 from utilities.GlobalPreferences import pref_show_node_color_in_MT
+from utilities.Log import quote_html
+from utilities.constants import AC_INVISIBLE, AC_HAS_INDIVIDUAL_DISPLAY_STYLE
+from utilities.debug import print_compact_traceback, print_compact_stack
+from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
+from utilities.icon_utilities import getpixmap
+from utilities.icon_utilities import imagename_to_pixmap
+from utilities.prefs_constants import mtColor_prefs_key
 
+from widgets.menu_helpers import makemenu_helper
+from widgets.simple_dialogs import grab_text_line_using_dialog
 from widgets.widget_helpers import RGBf_to_QColor
 
 
@@ -369,25 +371,29 @@ class DoNotDrop(Exception): pass
 
 class ModelTreeGui_common(ModelTreeGUI_api):
     """
-    The part of our model tree implementation which is the same
+    The part of our ModelTreeGui implementation which is the same
     for either type of Qt widget used to show it.
     """
     # not private, but only used in this file so far [bruce 080306 comment]
     #bruce 070529 split this out of class ModelTreeGui
     def __init__(self, win, treemodel):
         self.win = win
-        self.treemodel = treemodel #bruce 081216 renamed this from ne1model
-##        treemodel.view = self #bruce 081216: not needed, never accessed in treemodel
+        self.treemodel = treemodel
         self._mousepress_info_for_move = None
-            # set by any mousePress that supports mouseMove not being a noop, to info about what that move should do #bruce 070509
-        self._ongoing_DND_info = None # set to a tuple of a private format, during a DND drag (not used during a selection-drag #k)
+            # set by any mousePress that supports mouseMove not being a noop,
+            # to info about what that move should do #bruce 070509
+        self._ongoing_DND_info = None
+            # set to a tuple of a private format, during a DND drag
+            # (not used during a selection-drag #k)
         self.setAcceptDrops(True)
         if _DEBUG0:
             self._verify_api_compliance()
 
-        # Make sure certain debug_prefs are visible from the start, in the debug_prefs menu --
-        # but only the ones that matter for the MT implem we're using in this session.
-        # WARNING (kluge): the defaults and other options are duplicated code, but are only honored in these calls
+        # Make sure certain debug_prefs are visible from the start,
+        # in the debug_prefs menu -- but only the ones that matter
+        # for the MT implem we're using in this session.
+        # WARNING (kluge): the defaults and other options are
+        # duplicated code, but are only honored in these calls
         # (since these calls happen first).
 
         # these are used in both MT implems:
@@ -395,22 +401,13 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         self.MT_debug_prints()
         return
     
-    def topmost_selected_nodes(self): # in class ModelTreeGui_common, subclass of ModelTreeGUI_api
+    def topmost_selected_nodes(self): # in class ModelTreeGui_common
         """
         @return: a list of all selected nodes which are not inside selected Groups
         """
         #bruce 070529 moved method body into self.treemodel
-        #REVIEW: should this be removed from ModelTreeGUI_api,
-        # always accessed via self.treemodel? Pro: many accesses come
-        # from methods in self.treemodel anyway, which also defines it.
-        # Con: there are a lot of accesses from methods of self, too.
-        # Note that we could make accesses from self.treemodel not
-        # depend on this class, without preventing this class from
-        # having its own def; in that case, review whether this class's
-        # def belongs in its api class or is just a convenience of
-        # this implementation. [bruce 081212 comment]
-        #update 081216: some of this has been done. ###TODO: update comment.
-        
+        #bruce 081216 removed this from ModelTreeGUI_api,
+        # since it's just a convenience method in this implem
         return self.treemodel.topmost_selected_nodes()
 
     def MT_debug_prints(self):
@@ -1133,29 +1130,6 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             print "begin/end mouseReleaseEvent (almost-noop method)"
         self._ongoing_DND_info = None
 
-    def contentsMousePressEvent(self, event): #bruce 070508 debug code; doesn't seem to be called (in QTreeView implem anyway)
-        if _DEBUG3:
-            print "calling QTreeView.contentsMousePressEvent"
-        res = QTreeView.contentsMousePressEvent(self, event)
-        if _DEBUG3:
-            print "returned from QTreeView.contentsMousePressEvent"
-        return res
-
-    def contentsMouseMoveEvent(self, event): #bruce 070508 debug code; doesn't seem to be called
-        if _DEBUG3:
-            print "calling QTreeView.contentsMouseMoveEvent"
-        res = QTreeView.contentsMouseMoveEvent(self, event)
-        if _DEBUG3:
-            print "returned from QTreeView.contentsMouseMoveEvent"
-        return res
-
-    def contentsMouseReleaseEvent(self, event): #bruce 070508 debug code; doesn't seem to be called
-        if _DEBUG3:
-            print "calling QTreeView.contentsMouseReleaseEvent"
-        res = QTreeView.contentsMouseReleaseEvent(self, event)
-        if _DEBUG3:
-            print "returned from QTreeView.contentsMouseReleaseEvent"
-        return res
     # ==
     
     def contextMenuEvent(self, event): ###bruce hack, temporary, just to make sure it's no longer called directly
@@ -1302,7 +1276,6 @@ class MT_View(QtGui.QWidget):
         self.modeltreegui.mt_update()
     
     def get_icons(self):
-        from utilities.icon_utilities import getpixmap
         # note: geticon calls QIcon, but painter has no drawIcon, and drawPixmap doesn't accept them,
         # so here we use getpixmap which calls QPixmap. We could also try QImage and painter.drawImage
         # (known to work for crate.bmp and other test images, but presumably slower).
@@ -1473,58 +1446,6 @@ class MT_View(QtGui.QWidget):
                 next_line_to_pos = y0 + ITEM_HEIGHT
         return y
 
-    def repaint_some_nodes_NOT_YET_USED(self, nodes): #bruce 080507 experimental, for cross-highlighting; maybe not used; rename?
-        """
-        For each node in nodes, repaint that node, if it was painted the last
-        time we repainted self as a whole. (If it wasn't, it might not be an
-        error, if it was due to that node being inside a closed group, or to
-        a future optim for nodes not visible due to scrolling, or if we're being
-        called on a new node before it got painted here the first time; so we
-        print no warning unless debug flags are set.)
-
-        Optimization for non-visible nodes (outside scrollarea viewport) is
-        permitted, but not implemented as of 080507.
-
-        @warning: this can only legally be called during a paintEvent on self.
-                  Otherwise it doesn't paint (but causes no harm, I think)
-                  and Qt prints errors to the console. THE INITIAL IMPLEM IN
-                  THE CALLERS IGNORES THIS ISSUE AND THEREFORE DOESN'T YET WORK.
-                  See code comments for likely fix.
-        """
-        # See docstring comment about the caller implem not yet working.
-        # The fix will probably be for the outer-class methods to queue up the
-        # nodes to repaint incrementally, and do the necessary update calls
-        # so that a paintEvent can occur, and set enough new flags to make it
-        # incremental, so its main effect will just be to call this method.
-        # The danger is that other update calls (not via our modelTreeGui's mt_update method)
-        # are coming from Qt and need to be non-incremental. (Don't know, should find out.)
-        # So an initial fix might just ignore the "incremental" issue
-        # except for deferring the mt_update effects themselves
-        # (but I'm not sure if those effects are legal inside paintEvent!).
-        
-        if not self._painted:
-            # called too early; not an error
-            return
-        # (Possible optim: it will often happen that none of the passed nodes
-        #  have stored positions. We could check for this first and not bother
-        #  to set up the painter in that case. I'm guessing this is not needed.)
-        painter = QtGui.QPainter()
-        painter.begin(self)
-        try:
-            for node in nodes:
-                where = self._painted.get(node) # (x, y) or None
-                if where:
-                    print "mt debug fyi: repainting %r" % (node,) #### remove when works
-                    x, y = where
-                    _paintnode(node, painter, x, y, self.palette_widget,
-                               option_holder = self)
-                else:
-                    print "mt debug fyi: NOT repainting %r" % (node,) #### remove when works
-                continue
-        finally:
-            painter.end()
-        return
-
     def any_of_these_nodes_are_painted(self, nodes): #bruce 080507, for cross-highlighting
         """
         @return: whether any of the given nodes were painted during the last
@@ -1584,65 +1505,10 @@ class MT_View(QtGui.QWidget):
                     return resnode, resdepth, resy0, y0
         return (None, None, None, y0)
 
-    # WARNING: the following methods duplicate some of the code in
-    # _our_QItemDelegate in the other MT implem, far above [now removed].
-    # Also, they are mostly not yet used (still true, 070612). They might be
-    # used to help make in-place node-label-edit work again.
-    
-    def createEditor(self, node):
-        """
-        Create and return a QLineEdit child widget to serve as an editor for the given node; initialize its text.
-        """
-        parent = self
-        qle = QLineEdit(parent)
-        self.setEditorData(qle, node)
-        return qle
-
-    def setEditorData(self, lineEdit, node):
-        """
-        copy the editable data from node to lineEdit
-        """
-        value = node.name
-        lineEdit.setText(value)
-        return
-
-    def setModelData(self, lineEdit, node):
-        """
-        copy the editable data from lineEdit to node (if permitted); display a statusbar message about the result
-        """
-        # Note: try_rename checks node.rename_enabled()
-        # BUG: try_rename doesn't handle unicode (though it seems to handle some non-ascii chars somehow)
-        # Note: see similar code in a method in another class in this file.
-        oldname = node.name
-        ok, text = node.try_rename( lineEdit.text() )
-        # if ok, text is the new text, perhaps modified;
-        # if not ok, text is an error message
-        if ok:
-            msg = "Renamed node [%s] to [%s]" % (oldname, text) ##e need quote_html??
-            self.statusbar_message(msg)
-            ## self.modeltreegui.mt_update() #e might be redundant with caller; if so, might be a speed hit
-        else:
-            msg = "Can't rename node [%s]: %s" % (oldname, text) # text is reason why not
-            self.statusbar_message(msg)
-        return
-
-    def statusbar_message(self, text): #bruce 070531
+    def statusbar_message(self, text): #bruce 070531; still used?
         self.modeltreegui.statusbar_message(text)
         return
-    
-    def updateEditorGeometry(self, editor, option, index):
-        rect = option.rect
-        rect.setX(rect.x() + _ICONSIZE[0])
-        qfm = QFontMetrics(editor.font())
-        width = qfm.width(editor.text()) + 10
-        width = min(width, rect.width() - _ICONSIZE[0])
-##        parent = self.parent()
-        parent = self
-        width = min(width, parent.width() - 50 - rect.x())
-        rect.setWidth(width)
-        editor.setGeometry(rect)
-        return
-        
+            
     pass # end of class MT_View
 
 # ===
@@ -1686,9 +1552,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         self.setWidget(self.view)
         
         # Model Tree background color. Mark 2007-06-04
-        from utilities.prefs_constants import mtColor_prefs_key # In case we want to make it a user pref.
         mtColor = RGBf_to_QColor(env.prefs[mtColor_prefs_key]) 
-        from PM.PM_Colors  import getPalette
         self.setPalette(getPalette(None, QPalette.Window, mtColor))
 
         #e not sure if mt_update would be safe at this point (were cooperating objects fully initialized?)
@@ -1853,13 +1717,6 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         return
     
     pass # end of class ModelTreeGui
-
-##def debug_pref_use_old_MT_code(): #bruce 070531 split out, removed non_debug = True, changed name/sense/key/default
-##    return debug_pref("MT: use old QTreeView code (next session)?", Choice_boolean_False, prefs_key = True)
-##
-##if debug_pref_use_old_MT_code():
-##    ModelTreeGui = ModelTreeGui_QTreeView
-
 
 # bugs in new class ModelTreeGui based on QScrollArea [070531 2pm PT]:
 #
