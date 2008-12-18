@@ -118,25 +118,43 @@ from OpenGL.GL import glGetTexImage
 from OpenGL.GL import glTexImage2D
 from OpenGL.GL import glTexSubImage2D
 
-from OpenGL.GL.ARB.shader_objects import glAttachObjectARB
-from OpenGL.GL.ARB.shader_objects import glCompileShaderARB
-from OpenGL.GL.ARB.shader_objects import glCreateProgramObjectARB
-from OpenGL.GL.ARB.shader_objects import glCreateShaderObjectARB
-from OpenGL.GL.ARB.shader_objects import glGetInfoLogARB
-from OpenGL.GL.ARB.shader_objects import glGetObjectParameterivARB
-from OpenGL.GL.ARB.shader_objects import glGetUniformLocationARB
-from OpenGL.GL.ARB.shader_objects import glGetUniformivARB
-from OpenGL.GL.ARB.shader_objects import glLinkProgramARB
-from OpenGL.GL.ARB.shader_objects import glShaderSourceARB
-from OpenGL.GL.ARB.shader_objects import glUniform1fARB
-from OpenGL.GL.ARB.shader_objects import glUniform1iARB
-from OpenGL.GL.ARB.shader_objects import glUniform3fvARB
-from OpenGL.GL.ARB.shader_objects import glUniform4fvARB
-from OpenGL.GL.ARB.shader_objects import glUniformMatrix4fvARB
-from OpenGL.GL.ARB.shader_objects import glUseProgramObjectARB
-from OpenGL.GL.ARB.shader_objects import glValidateProgramARB
-
-from OpenGL.GL.ARB.vertex_shader import glGetAttribLocationARB
+### Substitute the 3.0.0b3 versions, which work on Windows as well as MacOS.
+##from OpenGL.GL.ARB.shader_objects import glAttachObjectARB
+##from OpenGL.GL.ARB.shader_objects import glCompileShaderARB
+##from OpenGL.GL.ARB.shader_objects import glCreateProgramObjectARB
+##from OpenGL.GL.ARB.shader_objects import glCreateShaderObjectARB
+##from OpenGL.GL.ARB.shader_objects import glGetInfoLogARB
+##from OpenGL.GL.ARB.shader_objects import glGetObjectParameterivARB
+##from OpenGL.GL.ARB.shader_objects import glGetUniformLocationARB
+##from OpenGL.GL.ARB.shader_objects import glGetUniformivARB
+##from OpenGL.GL.ARB.shader_objects import glLinkProgramARB
+##from OpenGL.GL.ARB.shader_objects import glShaderSourceARB
+##from OpenGL.GL.ARB.shader_objects import glUniform1fARB
+##from OpenGL.GL.ARB.shader_objects import glUniform1iARB
+##from OpenGL.GL.ARB.shader_objects import glUniform3fvARB
+##from OpenGL.GL.ARB.shader_objects import glUniform4fvARB
+##from OpenGL.GL.ARB.shader_objects import glUniformMatrix4fvARB
+##from OpenGL.GL.ARB.shader_objects import glUseProgramObjectARB
+##from OpenGL.GL.ARB.shader_objects import glValidateProgramARB
+##from OpenGL.GL.ARB.vertex_shader import glGetAttribLocationARB
+from graphics.drawing.shader_objects_patch import glAttachObjectARB
+from graphics.drawing.shader_objects_patch import glCompileShaderARB
+from graphics.drawing.shader_objects_patch import glCreateProgramObjectARB
+from graphics.drawing.shader_objects_patch import glCreateShaderObjectARB
+from graphics.drawing.shader_objects_patch import glGetInfoLogARB
+from graphics.drawing.shader_objects_patch import glGetObjectParameterivARB
+from graphics.drawing.shader_objects_patch import glGetUniformLocationARB
+from graphics.drawing.shader_objects_patch import glGetUniformivARB
+from graphics.drawing.shader_objects_patch import glLinkProgramARB
+from graphics.drawing.shader_objects_patch import glShaderSourceARB
+from graphics.drawing.shader_objects_patch import glUniform1fARB
+from graphics.drawing.shader_objects_patch import glUniform1iARB
+from graphics.drawing.shader_objects_patch import glUniform3fvARB
+from graphics.drawing.shader_objects_patch import glUniform4fvARB
+from graphics.drawing.shader_objects_patch import glUniformMatrix4fvARB
+from graphics.drawing.shader_objects_patch import glUseProgramObjectARB
+from graphics.drawing.shader_objects_patch import glValidateProgramARB
+from graphics.drawing.vertex_shader_patch import glGetAttribLocationARB
 
 _warnedVars = {}
 
