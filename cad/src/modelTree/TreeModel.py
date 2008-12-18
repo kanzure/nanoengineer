@@ -13,6 +13,15 @@ For earlier history, see ModelTree.py.
 Bruce 081216 is doing some cleanup and refactoring, including splitting
 ModelTree and TreeModel into separate objects with separate classes and
 _api classes, and splitting some code into separate files.
+
+TODO:
+
+As of 081218 (just after fixing bug 2948),
+there are unexplained bugs in gl_update after MT selection click
+(it happens, but the changed selection status is not redrawn;
+might be a bug in other code) and non-undoability of MT selection
+click (could it be lack of calls to change the selection counter in assy?)
+
 """
 
 import foundation.env as env
@@ -27,7 +36,6 @@ from modelTree.TreeModel_api import TreeModel_api
 from modelTree.mt_statistics import all_attrs_act_as_counters
 from modelTree.mt_statistics import mt_accumulate_stats
 
-from operations.ops_select import topmost_selected_nodes
 from operations.ops_select import selection_from_part
 
 from platform_dependent.PlatformDependent import fix_plurals
@@ -95,23 +103,25 @@ class TreeModel(TreeModel_api):
     
     def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
-
-    def topmost_selected_nodes(self): # in class TreeModel
-        """
-        @return: a list of all selected nodes which are not inside selected Groups
-        """
-        #bruce 081216 split this into api method and this implem method
-        nodes = [self.get_current_part_topnode()]
-        return topmost_selected_nodes(nodes)
-
+    
     # ===
     
     # methods related to context menu -- menu maker, and handlers for each op
     
-    def make_cmenuspec_for_set(self, nodeset, optflag): # [see also the term Menu_spec]
+    def make_cmenuspec_for_set(self, nodeset, nodeset_whole, optflag):
         """
-        #doc... see superclass docstring
+        #doc... see superclass docstring, and the term "menu_spec"
         """
+        # Note: we use nodeset_whole (a subset of nodeset, or equal to it)
+        # for operations which might be unsafe on partly-selected "whole nodes"
+        # (i.e. unopenable nodes such as DnaStrand).
+        # (Doing this on the Group operation is part of fixing bug 2948.)
+        # These menu commands need corresponding changes in their cm methods,
+        # namely, calling deselect_partly_picked_whole_nodes at the start.
+        # All cm_duplicate methods (on individual nodes) also may need to do
+        # this if they care about the selection.
+        # [bruce 081218]
+        
         #e some advice [bruce]: put "display changes" (eg Hide) before "structural changes" (such as Group/Ungroup)...
         #e a context-menu command "duplicate" which produces
         ##a copy of them, with related names and a "sibling" position.
@@ -142,6 +152,27 @@ class TreeModel(TreeModel_api):
 
         res = []
 
+        if len(nodeset_whole) < len(nodeset):
+            # alert user to presence of partly-selected items [bruce 081218]
+            # (which are not marked as selected on nodes seeable in MT)
+            # (review: should we mark them in some other way?)
+            #
+            # (note about older text,
+            #  "deselect %d partly-selected item(s)":
+            #  the count is wrong if one partly-selected leaflike group
+            #  contains more than one selected node, and nothing explains
+            #  the situation well to the user)
+            #
+            # (about this text: it might be ambiguous whether they're too deep
+            #  because of groups being closed, or being leaflike; mitigated
+            #  by saying "shown" rather than "visible")
+            text = "Deselect %d node(s) too deep to be shown" % \
+                   (len(nodeset) - len(nodeset_whole))
+            text = fix_plurals(text)
+            res.append(( text, self.cm_deselect_partly_selected_items ))
+            res.append(None)
+            pass
+        
         # old comment, not recently reviewed/updated as of 081217:
         # first put in a Hide item, checked or unchecked. But what if the hidden-state is mixed?
         # then there is a need for two menu commands! Or, use the command twice, fully hide then fully unhide -- not so good.
@@ -220,76 +251,80 @@ class TreeModel(TreeModel_api):
             ## raise # just during devel
             pass
 
-        res.append(None) # separator
-        
-        # Group command -- only offered for 2 or more subtrees of any Part,
-        # or for exactly one clipboard item topnode itself if it's not already a Group.
-        # [rules loosened by bruce 050419-050421]
-        
-        if optflag or len(nodeset) >= 2:
-            # note that these nodes are always in the same Part and can't include its topnode
-            ok = True
-        else:
-            # exactly one node - ok iff it's a clipboard item and not a group
-            node = nodeset[0]
-            ok = (node.dad is self.shelf_node and not node.is_group())
-        if not ok:
-            res.append(( 'Group', noop, 'disabled' ))
-        else:
-            res.append(( 'Group', self.cm_group ))
+        if nodeset_whole:
 
-        # Ungroup command -- only when exactly one picked Group is what we have, of a suitable kind.
-        # (As for Group, later this can become more general, tho in this case it might be general
-        #  enough already -- it's more "self-contained" than the Group command can be.)
+            res.append(None) # separator
+                # (from here on, only add these at start of optional items
+                #  or sets of items)
 
-        offered_ungroup = False # modified below; used by other menu items farther below
-        
-        if len(nodeset) == 1 and nodeset[0].permits_ungrouping():
-            # (this implies it's a group, or enough like one)
-            node = nodeset[0]
-            if not node.members: #bruce 080207
-                #REVIEW: use MT_kids? [same issue in many places in this file, as of 080306]
-                #reply, bruce 081217: not yet; really we need a new Node or Group API method
-                # "offer to remove as empty Group"; meanwhile, be conservative by using .members
-                text = "Remove empty Group"
-            elif node.dad == self.shelf_node and len(node.members) > 1:
-                # todo: "Ungroup into %d separate clipboard item(s)"
-                text = "Ungroup into separate clipboard items" #bruce 050419 new feature (distinct text in this case)
+            # Group command -- only offered for 2 or more subtrees of any Part,
+            # or for exactly one clipboard item topnode itself if it's not already a Group.
+            # [rules loosened by bruce 050419-050421]
+
+            if optflag or len(nodeset_whole) >= 2:
+                # note that these nodes are always in the same Part and can't include its topnode
+                ok = True
             else:
-                # todo: "Ungroup %d item(s)"
-                text = "Ungroup"
-            res.append(( text, self.cm_ungroup ))
-            offered_ungroup = True
-        else:
-            # review: is this clear enough for nodes that are internally Groups
-            # but for which permits_ungrouping is false, or would some other
-            # text be better, or would leaving this item out be better?
-            # An old suggestion of "Ungroup (unsupported)" seems bad now,
-            # since it might sound like "a desired feature that's nim".
-            # [bruce 081212 comment]
-            res.append(( "Ungroup", noop, 'disabled' ))
+                # exactly one node - ok iff it's a clipboard item and not a group
+                node = nodeset_whole[0]
+                ok = (node.dad is self.shelf_node and not node.is_group())
+            if not ok:
+                res.append(( 'Group', noop, 'disabled' ))
+            else:
+                res.append(( 'Group', self.cm_group ))
 
-        # Remove all %d empty Groups (which permit ungrouping) [bruce 080207]
-        count_holder = [0]
-        def func(group, count_holder = count_holder):
-            if not group.members and group.permits_ungrouping():
-                count_holder[0] += 1 # UnboundLocalError when this was count += 1
-        for node in nodeset:
-            node.apply_to_groups(func) # note: this descends into groups that don't permit ungrouping, e.g. DnaStrand
-        count = count_holder[0]
-        if count == 1 and len(nodeset) == 1 and not nodeset[0].members:
-            # this is about the single top selected node,
-            # so it's redundant with the Ungroup command above
-            # (and if that was not offered, this should not be either)
+            # Ungroup command -- only when exactly one picked Group is what we have, of a suitable kind.
+            # (As for Group, later this can become more general, tho in this case it might be general
+            #  enough already -- it's more "self-contained" than the Group command can be.)
+
+            offered_ungroup = False # modified below; used by other menu items farther below
+            
+            if len(nodeset_whole) == 1 and nodeset_whole[0].permits_ungrouping():
+                # (this implies it's a group, or enough like one)
+                node = nodeset_whole[0]
+                if not node.members: #bruce 080207
+                    #REVIEW: use MT_kids? [same issue in many places in this file, as of 080306]
+                    #reply, bruce 081217: not yet; really we need a new Node or Group API method
+                    # "offer to remove as empty Group"; meanwhile, be conservative by using .members
+                    text = "Remove empty Group"
+                elif node.dad == self.shelf_node and len(node.members) > 1:
+                    # todo: "Ungroup into %d separate clipboard item(s)"
+                    text = "Ungroup into separate clipboard items" #bruce 050419 new feature (distinct text in this case)
+                else:
+                    # todo: "Ungroup %d item(s)"
+                    text = "Ungroup"
+                res.append(( text, self.cm_ungroup ))
+                offered_ungroup = True
+            else:
+                # review: is this clear enough for nodes that are internally Groups
+                # but for which permits_ungrouping is false, or would some other
+                # text be better, or would leaving this item out be better?
+                # An old suggestion of "Ungroup (unsupported)" seems bad now,
+                # since it might sound like "a desired feature that's nim".
+                # [bruce 081212 comment]
+                res.append(( "Ungroup", noop, 'disabled' ))
+
+            # Remove all %d empty Groups (which permit ungrouping) [bruce 080207]
+            count_holder = [0]
+            def func(group, count_holder = count_holder):
+                if not group.members and group.permits_ungrouping():
+                    count_holder[0] += 1 # UnboundLocalError when this was count += 1
+            for node in nodeset_whole:
+                node.apply_to_groups(func) # note: this descends into groups that don't permit ungrouping, e.g. DnaStrand
+            count = count_holder[0]
+            if count == 1 and len(nodeset_whole) == 1 and not nodeset_whole[0].members:
+                # this is about the single top selected node,
+                # so it's redundant with the Ungroup command above
+                # (and if that was not offered, this should not be either)
+                pass
+            elif count:
+                res.append(( 'Remove all %d empty Groups' % count, self.cm_remove_empty_groups ))
+                    # lack of fix_plurals seems best here; review when seen
+            else:
+                pass
+
             pass
-        elif count:
-            res.append(( 'Remove all %d empty Groups' % count, self.cm_remove_empty_groups ))
-                # lack of fix_plurals seems best here; review when seen
-        else:
-            pass
-
-        ## res.append(None) # separator - from now on, add these at start of optional sets, not at end
-
+        
         # Edit Properties command -- only provide this when there's exactly one thing to apply it to,
         # and it says it can handle it.
         ###e Command name should depend on what the thing is, e.g. "Part Properties", "Chunk Properties".
@@ -382,70 +417,78 @@ class TreeModel(TreeModel_api):
                 res.extend(submenu)
             pass            
 
-        # copy, cut, delete, maybe duplicate...
-        # bruce 050704 revisions:
-        # - these are probably ok for clipboard items; I'll enable them there and let them be tested there.
-        # - I'll remove Copy when the selection only contains jigs that won't copy themselves
-        #   unless some of their atoms are copied (which for now is true of all jigs).
-        #   More generally (in principle -- the implem is not general), Copy should be removed
-        #   when the selection contains nothing which makes sense to copy on its own,
-        #   only things which make sense to copy only in conjunction with other things.
-        #   I think this is equivalent to whether all the selected things would fail to get copied,
-        #   when the copy command was run.
-        # - I'll add Duplicate for single selected jigs which provide an appropriate method,
-        #   and show it dimmed for those that don't.
-        
-        res.append(None) # separator
+        if nodeset_whole:
+            # copy, cut, delete, maybe duplicate...
+            # bruce 050704 revisions:
+            # - these are probably ok for clipboard items; I'll enable them there and let them be tested there.
+            # - I'll remove Copy when the selection only contains jigs that won't copy themselves
+            #   unless some of their atoms are copied (which for now is true of all jigs).
+            #   More generally (in principle -- the implem is not general), Copy should be removed
+            #   when the selection contains nothing which makes sense to copy on its own,
+            #   only things which make sense to copy only in conjunction with other things.
+            #   I think this is equivalent to whether all the selected things would fail to get copied,
+            #   when the copy command was run.
+            # - I'll add Duplicate for single selected jigs which provide an appropriate method,
+            #   and show it dimmed for those that don't.
+            
+            res.append(None) # separator
 
-        # figure out whether Copy would actually copy anything.
-        part = nodeset[0].part # the same for all nodes in nodeset
-        sel = selection_from_part(part, use_selatoms = False) #k should this be the first code to use selection_from_MT() instead?
-        doit = False
-        for node in nodeset:
-            if node.will_copy_if_selected(sel, False):
-                #wware 060329 added realCopy arg, False here (this is not a real copy, so do not issue a warning).
-                #bruce 060329 points out about realCopy being False vs True that at this point in the code we don't
-                # yet know whether the real copy will be made, and when we do, will_copy_if_selected
-                # might like to be re-called with True, but that's presently nim. ###@@@
-                # 
-                # if this test is too slow, could inline it by knowing about Jigs here; but better to speed it up instead!
-                doit = True
-                break
-        if doit:
-            res.append(( 'Copy', self.cm_copy ))
-        # For single items, add a Duplicate command and enable it if they support the method. [bruce 050704 new feature]
-        # For now, hardly anything offers this command, so I'm changing the plan, and removing it (not disabling it)
-        # when not available. This should be reconsidered if more things offer it.
-        if len(nodeset) == 1:
-            node = nodeset[0]
-            try:
-                method = node.cm_duplicate
-                    # Warning 1: different API than self.cm_xxx methods (arg differs)
-                    # or __CM_ methods (disabled rather than missing, if not defined).
-                    # Warning 2: if a class provides it, no way for a subclass to stop
-                    # providing it. This aspect of the API is bad, should be revised.
-                assert callable(method)
-            except:
-                dupok = False
-            else:
-                dupok = True
-            if dupok:
-                res.append(( 'Duplicate', method ))
-            else:
-                pass ## res.append(( 'Duplicate', noop, 'disabled' ))
-        # Cut (unlike Copy), and Delete, should always be ok.
-        res.append(( 'Cut', self.cm_cut ))
-        res.append(( 'Delete', self.cm_delete ))
+            # figure out whether Copy would actually copy anything.
+            part = nodeset_whole[0].part # the same for all nodes in nodeset_whole
+            sel = selection_from_part(part, use_selatoms = False) #k should this be the first code to use selection_from_MT() instead?
+            doit = False
+            for node in nodeset_whole:
+                if node.will_copy_if_selected(sel, False):
+                    #wware 060329 added realCopy arg, False here (this is not a real copy, so do not issue a warning).
+                    #bruce 060329 points out about realCopy being False vs True that at this point in the code we don't
+                    # yet know whether the real copy will be made, and when we do, will_copy_if_selected
+                    # might like to be re-called with True, but that's presently nim. ###@@@
+                    # 
+                    # if this test is too slow, could inline it by knowing about Jigs here; but better to speed it up instead!
+                    doit = True
+                    break
+            if doit:
+                res.append(( 'Copy', self.cm_copy ))
+            # For single items, add a Duplicate command and enable it if they support the method. [bruce 050704 new feature]
+            # For now, hardly anything offers this command, so I'm changing the plan, and removing it (not disabling it)
+            # when not available. This should be reconsidered if more things offer it.
+            if len(nodeset_whole) == 1:
+                node = nodeset_whole[0]
+                try:
+                    method = node.cm_duplicate
+                        # Warning 1: different API than self.cm_xxx methods (arg differs)
+                        # or __CM_ methods (disabled rather than missing, if not defined).
+                        # Warning 2: if a class provides it, no way for a subclass to stop
+                        # providing it. This aspect of the API is bad, should be revised.
+                        # Warning 3: consider whether each implem of this needs to call
+                        # self.deselect_partly_picked_whole_nodes().
+                    assert callable(method)
+                except:
+                    dupok = False
+                else:
+                    dupok = True
+                if dupok:
+                    res.append(( 'Duplicate', method ))
+                else:
+                    pass ## res.append(( 'Duplicate', noop, 'disabled' ))
+            # Cut (unlike Copy), and Delete, should always be ok.
+            res.append(( 'Cut', self.cm_cut ))
+            res.append(( 'Delete', self.cm_delete ))
         
         #ninad060816 added option to select all atoms of the selected chunks. 
-        #I don't know how to handle a case when a whole grop is selected. So putting a condition allstats.nchunks == allstats.n
-        #perhaps, I should unpick the groups while picking atoms? 
+        #I don't know how to handle a case when a whole group is selected.
+        #So putting a condition allstats.nchunks == allstats.n.
+        #Perhaps, I should unpick the groups while picking atoms?
         if allstats.nchunks == allstats.n and allstats.nchunks : 
-            res.append((fix_plurals("Select all atoms of %d chunk(s)" % allstats.nchunks), self.cmSelectAllAtomsInChunk))
+            res.append((fix_plurals("Select all atoms of %d chunk(s)" %
+                                    allstats.nchunks),
+                        self.cmSelectAllAtomsInChunk))
         
-        # add basic info on what's selected at the end (later might turn into commands related to subclasses of nodes)
+        # add basic info on what's selected at the end
+        # (later might turn into commands related to subclasses of nodes)
 
-        if allstats.nchunks + allstats.njigs: # otherwise, nothing we can yet print stats on... (e.g. clipboard)
+        if allstats.nchunks + allstats.njigs:
+            # otherwise, nothing we can yet print stats on... (e.g. clipboard)
 
             res.append(None) # separator
 
@@ -499,7 +542,12 @@ class TreeModel(TreeModel_api):
     # Context menu handler functions [bruce 050112 renamed them; e.g. old name "hide" overrode a method of QWidget!]
     #
     # Note: these must do their own updates (win_update, gl_update, mt_update) as needed.
-    
+
+    def cm_deselect_partly_selected_items(self): #bruce 081218
+        # todo: call statusbar_message in modeltreegui
+        self.deselect_partly_picked_whole_nodes()
+        self.win.win_update()
+        
     def cm_hide(self):
         env.history.message("Hide: %d selected items or groups" % \
                             len(self.topmost_selected_nodes()))
@@ -551,6 +599,7 @@ class TreeModel(TreeModel_api):
         # making a 1-item group. That idea can wait. [bruce 050126]
         #bruce 050420 making this work inside clipboard items too
         # TEST if assy.part updated in time ####@@@@ -- no, change to selgroup!
+        self.deselect_partly_picked_whole_nodes()
         sg = self.assy.current_selgroup()
         node = sg.hindmost() # smallest nodetree containing all picked nodes 
         if not node:
@@ -627,6 +676,7 @@ class TreeModel(TreeModel_api):
         return
     
     def cm_ungroup(self):
+        self.deselect_partly_picked_whole_nodes()
         nodeset = self.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
@@ -670,6 +720,7 @@ class TreeModel(TreeModel_api):
         return
 
     def cm_remove_empty_groups(self): #bruce 080207
+        self.deselect_partly_picked_whole_nodes()
         nodeset = self.topmost_selected_nodes()
         empties = []
         def func(group):
@@ -689,13 +740,16 @@ class TreeModel(TreeModel_api):
     # anyway I tried to fix or mitigate their bugs [bruce 050131]:
     
     def cm_copy(self):
+        self.deselect_partly_picked_whole_nodes()
         self.assy.copy_sel(use_selatoms = False) # does win_update
     
     def cm_cut(self):
+        self.deselect_partly_picked_whole_nodes()
         self.assy.cut_sel(use_selatoms = False) # does win_update
     
     def cm_delete(self): # renamed from cm_kill which was renamed from kill
-        # note: this is now the same code as MWsemantics.killDo. [bruce 050131]
+        self.deselect_partly_picked_whole_nodes()
+        # note: after this point, this is now the same code as MWsemantics.killDo. [bruce 050131]
         self.assy.delete_sel(use_selatoms = False) #bruce 050505 don't touch atoms, to fix bug (reported yesterday in checkin mail)
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win.win_update()

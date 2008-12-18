@@ -9,9 +9,11 @@ TreeModel_api.py - API class for a TreeModel needed by ModelTreeGui
 
 from modelTree.Api import Api
 
+from operations.ops_select import topmost_selected_nodes
+
 class TreeModel_api(Api):
     """
-    API (and some default method implementations) for a TreeModel object,
+    API (and some base class implementations) for a TreeModel object,
     suitable to be displayed and edited by a ModelTreeGui as its treemodel
 
     @warning: perhaps not all API methods are documented here.
@@ -38,7 +40,7 @@ class TreeModel_api(Api):
         """
         raise Exception("overload me")
     
-    def make_cmenuspec_for_set(self, nodeset, optflag):
+    def make_cmenuspec_for_set(self, nodeset, nodeset_whole, optflag):
         """
         Return a Menu_spec list (of a format suitable for makemenu_helper)
         for a context menu suitable for nodeset, a list of 0 or more selected nodes
@@ -83,7 +85,7 @@ class TreeModel_api(Api):
 
         @see: node.MT_kids() for node's list of child nodes
               (defined and meaningful whenever it's openable)
-        
+        @see: topmost_selected_nodes
         """
         # note: used only in itself and in ModelTreeGui.mt_update
         #bruce 070509 new features:
@@ -123,14 +125,72 @@ class TreeModel_api(Api):
             pass
         return
     
-    def topmost_selected_nodes(self): # in class TreeModel_api
+    def topmost_selected_nodes(self, topnode = None, whole_nodes_only = False):
         """
-        @return: a list of all selected nodes which are not inside selected Groups
+        @return: list of all selected nodes which are not inside selected Groups
+
+        @param topnode: if provided, limit return value to nodes on or under it
+        @type topnode: a Node or None
+        
+        @param whole_nodes_only: if True (NOT the default), don't descend inside
+                               non-openable groups (which means, picked nodes
+                               inside unpicked non-openable Groups, aka "partly
+                               picked whole nodes", will not be included in our
+                               return value)
+        @type whole_nodes_only: boolean
+
+        @see: deselect_partly_picked_whole_nodes
+
+        @see: recurseOnNodes
         """
-        ### MAYBE TODO: redefine this in terms of recurseOnNodes and get_current_part_topnode
-        # (not easy to do unless func can return something to recurseOnNodes to stop the recursion! add option for that?)
-        # [bruce 081217 comment]
-        raise Exception("overload me")
+        #bruce 081218 revising this, adding options, re bug 2948
+        # REVIEW: should this be defined in the implem class instead?
+        # (either way, it needs to be in the API)
+        # TODO: factor out common code with recurseOnNodes, using a generator?
+        if topnode is None:
+            topnode = self.get_current_part_topnode()
+        
+        if not whole_nodes_only:
+            # old version, still used for many operations;
+            # REVIEW: might need better integration with new version
+            # (this one uses .members rather than MT_kids)
+            res = topmost_selected_nodes( [topnode] ) # defined in ops_select
+        else:
+            res = []
+            def func(node):
+                if node.picked:
+                    res.append(node)
+                elif node.openable():
+                    children = node.MT_kids() # even if not open
+                    for child in children:
+                        func(child)
+                return
+            func(topnode)
+        return res
+
+    def deselect_partly_picked_whole_nodes(self): #bruce 081218
+        """
+        Deselect the topmost selected nodes which are not "whole nodes"
+        (i.e. which are inside non-openable nodes).
+        """
+        keep_selected = self.topmost_selected_nodes( whole_nodes_only = True)
+        all_selected = self.topmost_selected_nodes()
+        deselect_these = dict([(n,n) for n in all_selected]) # modified below
+        for node in keep_selected:
+            del deselect_these[node]
+        for node in deselect_these:
+            node.unpick()
+        return
+        # note: the first implem caused visual glitches due to
+        # intermediate updates in both MT and GLPane:
+        ## self.unpick_all()
+        ## for node in keep_selected:
+        ##     node.pick()
+
+    def unpick_all(self): #bruce 081218 moved this here from ModelTreeGUI
+        for node in self.topmost_selected_nodes( whole_nodes_only = False):
+            node.unpick()
+        return
 
     pass # end of class TreeModel_api
 

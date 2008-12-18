@@ -95,6 +95,7 @@ _DEBUG0 = False # debug api compliance
 _DEBUG = False # debug selection stuff
 _DEBUG2 = False # mouse press event details
 _DEBUG3 = False # stack, begin, end, for event processing
+_DEBUG4 = False # print mousePress gl_updates
 
 _ICONSIZE = (22, 22)
 
@@ -401,14 +402,17 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         self.MT_debug_prints()
         return
     
-    def topmost_selected_nodes(self): # in class ModelTreeGui_common
+    def topmost_selected_nodes(self, topnode = None, whole_nodes_only = False):
         """
         @return: a list of all selected nodes which are not inside selected Groups
+
+        @see: TreeModel_api version, for more detailed documentation
         """
         #bruce 070529 moved method body into self.treemodel
         #bruce 081216 removed this from ModelTreeGUI_api,
         # since it's just a convenience method in this implem
-        return self.treemodel.topmost_selected_nodes()
+        return self.treemodel.topmost_selected_nodes(topnode = topnode,
+                                                     whole_nodes_only = whole_nodes_only )
 
     def MT_debug_prints(self):
         return debug_pref("MT debug: debug prints", Choice_boolean_False, prefs_key = True)
@@ -815,9 +819,8 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         return
     
     def unpick_all(self):
-        for node in self.topmost_selected_nodes():
-            node.unpick()
-
+        self.treemodel.unpick_all()
+    
     # == mouse click and selection drag events, and DND start code
     
     def mouseMoveEvent(self, event):
@@ -880,7 +883,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             # brought to the foreground (also for unknown reasons, but the mouseclick that does that can even be on
             #  the dock area, presumably unseen by this object). Maybe we can intercept an "app now in foreground event"
             # and change its behavior? Should I browse the Qt source code for stray scrollToTops etc?
-                                        
+        
         self._mousepress_info_for_move = None
         
         _prior_mousepress_info_for_doubleclick = self._mousepress_info_for_doubleclick
@@ -980,28 +983,29 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                 return
             pass
 
-        ###LOGIC BUG: if this press starts a DND, we don't want the same selection effects as if it doesn't.
-        # What did the Qt3 code do? ###REVIEW that....
-        # for now, save some info for mouseMoveEvent to use. (Might be clearer if saved in separate attrs? #e)
+        # ISSUE: if this press starts a DND, we don't want the same
+        # selection effects as if it doesn't. What did the Qt3 code do?
+        # ###REVIEW that....
+        # for now, save some info for mouseMoveEvent to use.
+        # (Might be clearer if saved in separate attrs? #e)
         if not contextMenu:
             self._mousepress_info_for_move = (item, eventInRect, option_modifier)
-                # value determines whether a mouse move after this press might drag nodes, drag out a selection (nim), or do nothing
+                # value determines whether a mouse move after this press might
+                # drag nodes, drag out a selection (nim), or do nothing
             if item:
-                # figure out nodes to drag by DND, since we might change them below but wish we hadn't (kluge until better fix is found)
+                # figure out nodes to drag by DND, since we might change them
+                # below but wish we hadn't (kluge until better fix is found)
                 if alreadySelected:
-                    self._dnd_nodes = self.topmost_selected_nodes()
+                    self._dnd_nodes = self.topmost_selected_nodes( whole_nodes_only = True)
+                        # note: using whole_nodes_only = True here should
+                        # fix bug 2948 for DND [bruce 081218]
                 else:
                     self._dnd_nodes = [item.node]
         
-        # Flags indicating the actions we might take [mostly, modifying the selection]
-        # Note: it looks to me like we maintain parallel selection state in a QSelectionModel and in the nodes themselves.
-        # Furthermore, there are lots of bugs in the way we maintain selection state here,
-        # since we try to duplicate the rules for Group/member interaction of selected state, but do it incorrectly.
-        # (E.g. selecting all members of a Group selects it (bug),
-        #  and clicking in empty space in that Group node's row then fails to unselect it (bug).)
-        # What we ought to do is maintain selection state only in the nodes, and update it here from whatever nodes it changes in.
-        # [bruce 070507 comment; now we're doing that, 070509]
-        unselectOthers = False # if you set this, you must also set selectThis or unselectThis, unless there's no item
+        # Flags indicating actions we might take (mostly, modifying selection)
+        unselectOthers = False
+            # if you set this, you must also set selectThis or unselectThis,
+            # unless there's no item
             # i.e. not eventInRect ###k I think [bruce 070509]; see if we do
         selectThis = False
         unselectThis = False
@@ -1010,7 +1014,6 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         # See "Feature:Model Tree" in the public wiki for model tree mouse controls
         ###REVIEW: is it right to look at event.buttons() but ignore event.button(), here?
         # Evidently not (at least for cmenu on Mac)... Revising it [bruce 070509]
-        
         if 1:
             if modifiers & Qt.ShiftModifier:
                 if modifiers & Qt.ControlModifier:
@@ -1045,7 +1048,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             print "toggleThis", toggleThis
             print "contextMenu", contextMenu
             print "SELECTED BEFORE <<<"
-            print self.topmost_selected_nodes()
+            print self.topmost_selected_nodes( whole_nodes_only = False)
             print ">>>"
         
         assert not (selectThis and toggleThis)   # confusing case to be avoided
@@ -1058,10 +1061,11 @@ class ModelTreeGui_common(ModelTreeGUI_api):
 
         ###TODO: optimize by only setting updateGui if something changes
         if unselectOthers:
-            ###REVIEW: this actually unselects all (this too), not just others -- is that ok? Even if it's inside a picked group?
-            # I think it's ok provided we reselect it due to selectThis (or specifically unselect it too).
-            for node in self.topmost_selected_nodes():#bruce 070509 optimization
-                node.unpick() # for a group, this unpicks the children too (could use unpick_all_except if necessary)
+            ###REVIEW: this actually unselects all (this node too), not just
+            # others -- is that ok? Even if it's inside a picked group?
+            # I think it's ok provided we reselect it due to selectThis
+            # (or specifically unselect it too).
+            self.unpick_all() #bruce 070509 optimization
             updateGui = True
         if selectThis and item is not None:
             item.node.pick()
@@ -1111,7 +1115,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             
         if _DEBUG:
             print "SELECTED AFTER <<<"
-            print self.topmost_selected_nodes()
+            print self.topmost_selected_nodes( whole_nodes_only = False)
             print ">>>"
 
         if updateGui: # this is often overkill, needs optim
@@ -1119,6 +1123,11 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                 print "doing updateGui at end of mousePressEvent"
             self.mt_update()
             self.win.glpane.gl_update()
+            if _DEBUG4:
+                ###### BUG: clicks in MT do gl_update as this shows,
+                # but don't always redraw with the correct picked state!
+                # Not yet reproducable except when testing fixed bug 2948.
+                print "mt did gl_update, selected nodes are", self.topmost_selected_nodes()
 
         if _DEBUG3:
             print "end mousePressEvent"
@@ -1168,11 +1177,22 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         
         event.accept() ##k #bruce 070511, see if this fixes scroll to top for these events --
             # note, event is probably a mouse press, not a cmenu event per se
-        nodeset = self.topmost_selected_nodes()
+        nodeset = self.topmost_selected_nodes( whole_nodes_only = False)
+        nodeset_whole = self.topmost_selected_nodes( whole_nodes_only = True)
+            # note: nodeset_whole (with whole_nodes_only = True) is part of
+            # fixing bug 2948, along with code to use it when certain cmenu
+            # commands are run. REVIEW: it is not used for all cmenu commands,
+            # since for some of them it might be suboptimal UI design
+            # (e.g. Hide/Unhide).
+        if 0:
+            if len(nodeset_whole) != len(nodeset):
+                print "len(nodeset_whole) = %d,  len(nodeset) = %d" % (len(nodeset_whole) , len(nodeset)) ###
+                assert len(nodeset_whole) < len(nodeset)
+            pass
         ###TODO: we should consolidate the several checks for the optflag condition into one place, maybe mousePressEvent.
         optflag = (((self.mouse_press_buttons & Qt.MidButton) or
                     (self.mouse_press_modifiers & Qt.AltModifier)) and 'Option' or None)
-        cmenu_spec = self.treemodel.make_cmenuspec_for_set(nodeset, optflag)
+        cmenu_spec = self.treemodel.make_cmenuspec_for_set(nodeset, nodeset_whole, optflag)
         menu = makemenu_helper(self, cmenu_spec)
             #bruce 070514 fix bug 2374 and probably others by using makemenu_helper
         menu.exec_(event.globalPos())
