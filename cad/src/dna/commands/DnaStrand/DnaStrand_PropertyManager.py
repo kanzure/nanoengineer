@@ -8,19 +8,14 @@ DnaStrand_PropertyManager.py
 
 Special notes:
 - Sequence editor is also created in BuildDna_PropertyManager (of course 
-its a child of that PM) . See if that creates any issues. 
-- Copies some methods from BuildDna_PropertyManager. 
+  its a child of that PM) . See if that creates any issues. 
+- Copied some methods from BuildDna_PropertyManager. 
 
-Bugs to fix:
+BUGS:
 
 Bug 2952: 
 - Typing in new sequence will not take if you select another strand,
   (even if you hit Enter after typing in the new sequence).
-
-Bug 2953:
-- Getting the following error msg (see bug report for details):
-  "QTextCursor::setPosition: Position '#' out of range"
-
 """
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
@@ -239,10 +234,11 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         if name:  # Minimal test. Should add a validator. --Mark 2008-12-16
             self.nameLineEdit.setText(name)
         
-        # This gets called when we enter the command *or* when selecting a new
+        # This gets called when we enter the command *and* when selecting a new
         # strand. In either case, we must update the sequence in the sequenece
         # editor. Fixes bug 2951. --Mark 2008-12-16
         if self.command and self.command.hasValidStructure():
+            #print "setParameters(): loading sequence in sequence editor for ", name
             self.updateSequence(strand = self.command.struct)
         return
     
@@ -321,8 +317,8 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             if not self._pmGroupBox1.isEnabled():
                 self._pmGroupBox1.setEnabled(True)
             msg1 = ("Editing <b>%s</b>. ") % (self.command.struct.name) 
-            msg2 = "Use resize handles to resize the strand. Use sequence editor"\
-                "to assign a new sequence or the current one to a file."
+            msg2 = "Use resize handles to resize the strand. "\
+                 "Use the <i>Sequence Editor</i> to edit the sequence."
             self.updateMessage(msg1 + msg2)
         return
         

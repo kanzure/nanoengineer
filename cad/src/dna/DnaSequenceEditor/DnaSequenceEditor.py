@@ -8,19 +8,20 @@ DnaSequenceEditor.py
 History:
 Ninad 2007-11-20: Created.
 
-NOTE: Methods such as sequenceChanged, stylizeSequence are copied from the old
+NOTE: Methods such as _sequenceChanged, _stylizeSequence are copied from the old
       DnaGeneratorPropertyManager where they were originally defined.
       This old PM used to implement a 'DnaSequenceEditor text editor'.
       That file hasn't been deprecated yet -- 2007-11-20
       
 TODO:  Ninad 2007-11-28 (reviewed and updated by Mark 2008-12-17)
 - File open-save strand sequence needs more work.
-- The old method 'setSequence' that inserts a sequence into the text edit 
+- The old method '_setSequence' that inserts a sequence into the text edit 
   is slow. Apparently it replaces the whole sequence each time. This 
   needs to be cleaned up.
 - Should the Find and Replace widgets and methods be defined in their own class
   and then called here?
 - Implement synchronizeLengths(). It doesn't do anything for now.
+- Create superclass that both the DNA and Protein sequence editors can use.
   
 Implementation Notes as of 2007-11-20 (reviewed and updated by Mark 2008-12-17):  
 The Sequence Editor is shown when you edit a DnaStrand (if visible, the 
@@ -72,6 +73,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
     validSymbols  =  QString(' <>~!@#%&_+`=$*()[]{}|^\'"\\.;:,/?')
     sequenceFileName = None
     
+    current_strand = None # The current strand.
     currentPosition = 0
     startPosition = 0
     endPosition = 0
@@ -84,15 +86,15 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         Ui_DnaSequenceEditor.__init__(self, win)  
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
-        #Flag used in self.sequenceChanged so that it doesn't get called 
+        #Flag used in self._sequenceChanged so that it doesn't get called 
         #recusrively in the text changed signal while changing the sequence
         #in self.textEdit while in that method. 
         self._suppress_textChanged_signal = False
         #Initial complement sequence set while reading in the strand sequence
         #of the strand being edited. 
-        #@see: self.setComplementSequence(), self._determine_complementSequence()
+        #@see: self._setComplementSequence(), self._determine_complementSequence()
         self._initial_complementSequence = ''
-        
+        return
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -140,11 +142,11 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         change_connect( self.sequenceTextEdit,
                       SIGNAL("textChanged()"),
-                      self.sequenceChanged )
+                      self._sequenceChanged )
         
         change_connect( self.sequenceTextEdit,
                       SIGNAL("cursorPositionChanged()"),
-                      self.cursorPosChanged) 
+                      self._cursorPosChanged) 
         
         change_connect( self.findLineEdit,
                       SIGNAL("textEdited(const QString&)"),
@@ -160,7 +162,8 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         change_connect( self.replacePushButton,
                       SIGNAL("clicked()"),
-                      self.replace) 
+                      self.replace)
+        return
     
     def update_state(self, bool_enable = True):
         """
@@ -180,7 +183,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                 #is not used -- Ninad 2008-01-17
                 if widget.__class__.__name__ != 'QAbstractButton':
                     widget.setEnabled(bool_enable)
-      
+        return
                     
     def _reverseSequence(self, itemIndex):
         """
@@ -204,11 +207,13 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         #@see self._determine_complementSequence()
         reverseComplementSequence = getReverseSequence(complementSequence)
         
-        self.setComplementSequence(reverseComplementSequence)
-        self.setSequence(reverseSequence)  
-             
-    def sequenceChanged( self ):
+        self._setComplementSequence(reverseComplementSequence)
+        self._setSequence(reverseSequence)  
+        return
+    
+    def _sequenceChanged( self ):
         """
+        (private)
         Slot for the Strand Sequence textedit widget.
         Assumes the sequence changed directly by user's keystroke in the 
         textedit.  Other methods...
@@ -221,30 +226,18 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         cursorPosition  =  self.getCursorPosition()
         theSequence     =  self.getPlainSequence()
-        
-        ### Disconnect while we edit the sequence.            
-        ##self.disconnect( self.sequenceTextEdit,
-                         ##SIGNAL("textChanged()"),
-                         ##self.sequenceChanged )        
    
         # How has the text changed?
         if theSequence.length() == 0:  # There is no sequence.
-            self.sequenceTextEdit_mate.clear()
-            ##self.updateStrandLength()
-            ##self.updateDuplexLength()            
+            self.sequenceTextEdit_mate.clear()          
         else:
-            # Insert the sequence; it will be "stylized" by setSequence().
+            # Insert the sequence; it will be "stylized" by _setSequence().
             self._updateSequenceAndItsComplement(theSequence)
-        
-        ### Reconnect to respond when the sequence is changed.
-        ##self.connect( self.sequenceTextEdit,
-                      ##SIGNAL("textChanged()"),
-                      ##self.sequenceChanged )
 
         self.synchronizeLengths()
         
         self._suppress_textChanged_signal = False
-        
+        return
     
     def getPlainSequence( self, inOmitSymbols = False ):
         """
@@ -380,48 +373,38 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                                        inSequence, 
                                        inRestoreCursor  =  True):
         """
-        Update the main strand sequence and its complement.  (private method)
+        Update the main strand sequence and its complement. (private method)
         
         Updating the complement sequence is done as explaned in the method 
         docstring of self._detemine_complementSequence()
         
-        Note that the callers outside the class call self.setSequence and 
-        self.setComplementsequence but never call this method. 
+        Note that the callers outside the class must call self.updateSequence(),
+        but never call this method.
         
         @see: self.setsequence() -- most portion (except for calling 
               self._determine_complementSequence() is copied over from
-              setSequence. 
+              _setSequence. 
         @see: self._updateSequenceAndItsComplement()
         @see: self._determine_complementSequence()
         """
-        #@BUG: This method was mostly copied from self.setSequence, which in turn
-        #was copied over from old DnaGenerator. (so both methods have similar 
-        #issues mentioned below)
-        #Apparently PM_TextEdit.insertHtml replaces the the whole 
-        #sequence each time. This needs to be cleaned up. - Ninad 2007-04-10
-        
-        cursor          =  self.sequenceTextEdit.textCursor()
-                
-        selectionStart  =  cursor.selectionStart()
-        selectionEnd    =  cursor.selectionEnd()
         
         #Find out complement sequence
         complementSequence = self._determine_complementSequence(inSequence)
-    
         inSequence = self._fixedPitchSequence(inSequence)
         complementSequence = self._fixedPitchSequence(complementSequence)
-           
-    
+        
+        # Get current cursor position before inserting inSequence.
+        if inRestoreCursor:
+            cursorPos = self.getCursorPosition()
+        else:
+            cursorPos = 0
+        
         # Specify that theSequence is definitely HTML format, because 
         # Qt can get confused between HTML and Plain Text.        
-        self.sequenceTextEdit.insertHtml( inSequence )
+        self.sequenceTextEdit.insertHtml( inSequence ) #@@@ Generates signal???
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
-        
-        if inRestoreCursor:                      
-            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
-            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
+        self.setCursorPosition(cursorPos = cursorPos)
 
-            self.sequenceTextEdit.setTextCursor( cursor )
         return
         
     def _determine_complementSequence(self, inSequence):
@@ -440,7 +423,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         Sequence Editor itself doesn't check each time if the strand mate is 
         missing. Rather, it relies on what the caller supplied as the initial 
-        complement sequence. (@see: self.setComplementSequence) . The caller 
+        complement sequence. (@see: self._setComplementSequence) . The caller 
         determines the sequence of the strand being edited and also its complement.
         If the complement doesn't exist, it replace the complement with a '*' 
         and passes this information to the sequence editor. Everytime sequence
@@ -458,9 +441,9 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         @see Bug 2787 for details of the implementation. 
         
-        @see: self.setComplementSequence()
+        @see: self._setComplementSequence()
         @see: self._updateSequenceAndItsComplement()
-        @see: self.setSequence()
+        @see: self._setSequence()
         @see: DnaStrand_PropertyManager.updateSequence() (the caller)
         @see: Dna_Constants.MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
         @see: DnaStrand.getStrandSequenceAndItsComplement()
@@ -529,10 +512,12 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
   
         return complementSequence
 
-    def setComplementSequence(self, complementSequence):
+    def _setComplementSequence(self, complementSequence):
         """
-        The callers must call this method immediately before or after calling 
-        self.setSequence() . 
+        Set the complement sequence field to I{complementSequence}. (private)
+        
+        This is typically called immediately before or after calling 
+        self._setSequence().
         
         @param complementSequence: the complementary sequence determined by the
                caller. This string may contain characters '*' which indicate
@@ -545,7 +530,8 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         See method docstring self._detemine_complementSequence() for more 
         information.         
         
-        @see: self.setComplementSequence()
+        @see: self.updateSequence()
+        @see: self._setSequence()
         @see: self._updateSequenceAndItsComplement()
         @see: self._determine_complementSequence()
         @see: DnaStrand_PropertyManager.updateSequence()
@@ -554,14 +540,18 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         complementSequence = self._fixedPitchSequence(complementSequence)        
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
         return
-
-    def setSequence( self,
+    
+    def _setSequence( self,
                      inSequence,
                      inStylize        =  True,
                      inRestoreCursor  =  True
                      ):
         """ 
         Replace the current strand sequence with the new sequence text.
+        (private method)
+        
+        This is typically called immediately before or after calling 
+        self._setComplementSequence().
         
         @param inSequence: The new sequence.
         @type  inSequence: QString
@@ -571,13 +561,15 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                           rich text string.
         @type  inStylize: bool
         
-        @param inRestoreCursor: Not implemented yet.
+        @param inRestoreCursor: Restores cursor to previous position.
+                                Not implemented yet.
         @type  inRestoreCursor: bool
         
         @attention: Signals/slots must be managed before calling this method.  
         The textChanged() signal will be sent to any connected widgets.
         
-        @see: self.setsequence()
+        @see: self.updateSequence()
+        @see: self._setComplementSequence()
         @see: self._updateSequenceAndItsComplement()
         @see: self._determine_complementSequence()
         
@@ -586,11 +578,9 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         #Apparently PM_TextEdit.insertHtml replaces the the whole 
         #sequence each time. This needs to be cleaned up. - Ninad 2007-11-27
         
-        cursor          =  self.sequenceTextEdit.textCursor()
-                
-        selectionStart  =  cursor.selectionStart()
-        selectionEnd    =  cursor.selectionEnd()
-      
+        #@UPDATE: Rewrote this method to help fix bugs 2953.
+        # - Mark 2008-12-17
+        
         if inStylize:
             #Temporary fix for bug 2604--
             #Temporarily disabling the code that 'stylizes the sequence' 
@@ -604,15 +594,12 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             inSequence = self._fixedPitchSequence(inSequence)           
     
         # Specify that theSequence is definitely HTML format, because 
-        # Qt can get confused between HTML and Plain Text.        
+        # Qt can get confused between HTML and Plain Text.
+        self._suppress_textChanged_signal = True
         self.sequenceTextEdit.insertHtml( inSequence )
+        self._suppress_textChanged_signal = False
         
-        if inRestoreCursor:                      
-            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
-            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
-
-            self.sequenceTextEdit.setTextCursor( cursor )
-                          
+        self.setCursorPosition(0)
         return
     
     def _fixedPitchSequence(self, sequence):
@@ -638,16 +625,104 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         theSequence  =  self.getPlainSequence( inOmitSymbols = True )
         outLength    =  theSequence.length()
         return outLength
+    
+    def updateSequence(self, strand = None, cursorPos = -1):
+        """
+        Updates and shows the sequence editor with the sequence of I{strand}. 
+        
+        This is the main (public) method to call to update the sequence editor.
+        
+        @param strand: the strand. If strand is None (default), it is assumed
+                       that self.current_strand is the sequence.
+        @type  strand: DnaStrand
+        
+        @param cursorPos: the position in the sequence in which to place the
+                          cursor. If cursorPos is negative, the cursor position
+                          is placed at the end of the sequence (default).
+        @type  cursorPos: int
+        """
+        
+        if strand:
+            assert isinstance(strand, self.win.assy.DnaStrand)
+            self.current_strand = strand
+        else: 
+            # Use self.current_strand. Make sure it's not None (as a precaution).
+            assert isinstance(self.current_strand, self.win.assy.DnaStrand)
+        
+        sequence, complementSequence = \
+                self.current_strand.getStrandSequenceAndItsComplement()
+        
+        if sequence:
+            sequence = QString(sequence) 
+            sequence = sequence.toUpper()
+            #Set the initial sequence (read in from the file)
+            self._setSequence(sequence)
+            
+            #Set the initial complement sequence for DnaSequence editor. 
+            #do this independently because 'complementSequenceString' may have
+            #some characters (such as * ) that denote a missing base on the 
+            #complementary strand. This information is used by the sequence
+            #editor. See DnaSequenceEditor._determine_complementSequence() 
+            #for more details. See also bug 2787
+            self._setComplementSequence(complementSequence)
+        else:
+            msg = "DnaStrand '%s' has no sequence." % self.current_strand.name
+            print_compact_traceback(msg)
+            self._setSequence(msg)
+            self._setComplementSequence("")
+        
+        # Set cursor position.
+        self.setCursorPosition(cursorPos = cursorPos)
+        
+        # Update window title with name of current protein.
+        titleString = 'Sequence Editor for ' + self.current_strand.name
+        self.setWindowTitle(titleString)
+        
+        if not self.isVisible():
+            #Show the sequence editor if it isn't visible.
+            #ATTENTION: the sequence editor will (temporarily) close the
+            #Reports dockwidget (if it is visible). The Reports dockwidget
+            #is restored when the sequence Editor is closed.  
+            self.show()
+        return
+    
+    def setCursorPosition(self, cursorPos = 0):
+        """
+        Set the cursor position to I{cursorPos} in the strand sequence 
+        textedit widget.
+        """
+        
+        
+        # Make sure cursorPos is in the valid range.
+        if cursorPos < 0:
+            startPos = 0
+            endPos   = 0
+        elif cursorPos >= self.getSequenceLength():
+            startPos = self.getSequenceLength()
+            endPos   = self.getSequenceLength()
+        else:
+            startPos = cursorPos
+            endPos   = cursorPos
+        
+        # Useful print statements for debugging.
+        #print "setCursorPosition(): Sequence=", self.getPlainSequence()
+        #print "setCursorPosition(): Final cursorPos=%d\nstartPos=%d, endPos=%d" % (cursorPos, startPos, endPos)
+        
+        # Finally, set the cursor position in the sequence.
+        cursor = self.sequenceTextEdit.textCursor()
+        cursor.setPosition(endPos,   QTextCursor.MoveAnchor)
+        cursor.setPosition(startPos, QTextCursor.KeepAnchor)
+        self.sequenceTextEdit.setTextCursor( cursor )
+        return
         
     def getCursorPosition( self ):
         """
-        Returns the cursor position in the 
-        strand sequence textedit widget.
+        Returns the cursor position in the strand sequence textedit widget.
         """
         cursor  =  self.sequenceTextEdit.textCursor()
         return cursor.position()
 
-    def cursorPosChanged( self ):
+    def _cursorPosChanged( self ):
         """
         Slot called when the cursor position of the strand textEdit changes. 
         When this happens, this method also changes the cursor position 
@@ -658,7 +733,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         strandSequence_mate = self.sequenceTextEdit_mate.toPlainText()
         
         #The cursorChanged signal is emitted even before the program enters 
-        #setSequence (or before the 'textChanged' signal is emitted) 
+        #_setSequence() (or before the 'textChanged' signal is emitted) 
         #So, simply return if the 'Mate' doesn't have same number of characters
         #as the 'Strand text edit' (otherwise it will print warning message 
         # while setting the cursor_mate position later in the method. 
@@ -718,7 +793,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         sequence = QString(sequence) 
         sequence = sequence.toUpper()
         self._updateSequenceAndItsComplement(sequence)
-        
+        return
     
     def _writeStrandSequenceFile(self, fileName, strandSequence):
         """
@@ -733,6 +808,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
        
         f.write(str(strandSequence))  
         f.close()
+        return
     
     def saveStrandSequence(self):
         """
@@ -778,8 +854,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             self._writeStrandSequenceFile(
                 fileName,
                 str(self.sequenceTextEdit.toPlainText()))
-    
-    
+        return
     
     
     # ==== Methods to support find and replace. 
@@ -790,12 +865,14 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         Find the next occurence of the search string in the sequence
         """
         self._findNextOrPrevious()
+        return
         
     def findPrevious(self):
         """
         Find the previous occurence of the search string in the sequence
         """
         self._findNextOrPrevious(findPrevious = True)
+        return
         
     def _findNextOrPrevious(self, findPrevious = False):
         """
@@ -834,12 +911,14 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                 
             cursor.setPosition( newCursorStartPosition, 
                                 QTextCursor.MoveAnchor)  
+            print "_findNextOrPrevious(): setting cursor pos:"
             self.sequenceTextEdit.setTextCursor(cursor)
             found = self.sequenceTextEdit.find(searchString, findFlags)
     
         #Display or hide the warning widgets (that say 'sequence not found' 
         #based on the boolean 'found' 
         self._toggleWarningWidgets(found)
+        return
         
     def _toggleWarningWidgets(self, found):
         """
@@ -860,6 +939,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             self.phraseNotFoundLabel.hide()
             self.warningSign.hide()
             self.replacePushButton.setEnabled(True)
+        return
         
     def findLineEdit_textEdited(self, searchString):
         """
@@ -871,7 +951,8 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         #findNext sets the focus inside the sequenceTextEdit. So set it back to
         #to the findLineEdit to permit entering more characters.
         if not self.findLineEdit.hasFocus():
-            self.findLineEdit.setFocus()        
+            self.findLineEdit.setFocus()
+        return
     
     def replace(self):
         """
@@ -904,7 +985,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         #Now you do 'self.findNext' -- so it starts with cursor position 1 
         #onwards, thus missing the 'A' before the character Z. That's why 
         #the following is done.     
-        cursor.setPosition((selectionEnd -1), QTextCursor.MoveAnchor)        
+        cursor.setPosition((selectionEnd - 1), QTextCursor.MoveAnchor) 
         self.sequenceTextEdit.setTextCursor(cursor)   
         
         #Set the sequence in the text edit. This could be slow. See comments
@@ -913,5 +994,5 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         #Find the next occurance of the 'seqrchString' in the sequence.
         self.findNext()
-        
+        return
     

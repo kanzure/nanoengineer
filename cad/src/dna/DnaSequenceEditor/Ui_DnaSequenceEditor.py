@@ -10,7 +10,13 @@ History:
 Ninad 2007-11-28: Created. 
 
 TODO:
+- NFR: Add "Position" field.
+- NFR: Add "Accept" and "Cancel" checkboxes to take/abort the new sequence.
+- NFR: Change bg color of sequence field to indicate that the sequence has changed.
+- NFR: Save new sequence after typing "Enter" in the sequence field.
+- NFR: Support both "Insert" and "Overtype" modes in sequence field.
 - Split out find and replace widgets to their own class (low priority)
+- Create superclass that both the DNA and Protein sequence editors can use.
 """
 
 from PyQt4.Qt import QToolButton
@@ -46,8 +52,6 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
     _title         =  "Sequence Editor"
     _groupBoxCount = 0
     _lastGroupBox = None
-    
-    current_strand =  None # The current strand.
 
     def __init__(self, win):
         """
@@ -67,88 +71,6 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         #self.closeEvent() for more details. 
         self._reportsDockWidget_closed_in_show_method = False
         self.setFixedHeight(90)
-        return
-    
-    # Ask Bruce if he agrees that updateSequence() and setCursorPosition()
-    # should be moved to the subclass DnaSequenceEditor. I think so, but I 
-    # just want to double-check first. 
-    # Mark 2008-12-17.
-    def updateSequence(self, strand = None, cursorPos = 0):
-        """
-        Updates the sequence editor with the sequence of I{strand}. 
-        
-        @param strand: the strand. If strand is None (default), it is assumed
-                       that self.strand is the sequence.
-        @type  strand: DnaStrand
-        
-        @param cursorPos: the current cursor position in the sequence editor.
-                          This argument is currently ignored.
-        @type  cursorPos: int
-        
-        @note: cursorPos is not implemented yet.
-        """
-        
-        if strand:
-            assert isinstance(strand, self.win.assy.DnaStrand)
-            self.current_strand = strand
-        else: 
-            # Use self.strand. Make sure it's not None (as a precaution).
-            assert isinstance(self.current_strand, self.win.assy.DnaStrand)
-        
-        sequence, complementSequence = \
-                self.current_strand.getStrandSequenceAndItsComplement()
-        
-        if sequence:
-            sequence = QString(sequence) 
-            sequence = sequence.toUpper()
-            #Set the initial sequence (read in from the file)
-            self.setSequence(sequence)
-            
-            #Set the initial complement sequence for DnaSequence editor. 
-            #do this independently because 'complementSequenceString' may have
-            #some characters (such as * ) that denote a missing base on the 
-            #complementary strand. This information is used by the sequence
-            #editor. See DnaSequenceEditor._determine_complementSequence() 
-            #for more details. See also bug 2787
-            self.setComplementSequence(complementSequence)
-        else:
-            msg = "DnaStrand '%s' has no sequence." % self.strand.name
-            print_compact_traceback(msg)
-            self.setSequence(msg)
-            self.setComplementSequence("")
-        
-        # Set cursor position. (disabled for now) Mark 2008-12-16
-        # self.setCursorPosition(cursorPos = cursorPos)
-        
-        # Update window title with name of current protein.
-        titleString = 'Sequence Editor for ' + self.current_strand.name
-        self.setWindowTitle(titleString)
-        
-        if not self.isVisible():
-            #Show the sequence editor if it isn't visible.
-            #ATTENTION: the sequence editor will (temporarily) close the
-            #Reports dockwidget (if it is visible). The Reports dockwidget
-            #is restored when the sequence Editor is closed.  
-            self.show()
-        return
-    
-    def setCursorPosition(self, cursorPos = 0):
-        """
-        Set the cursor position to I{cursorPos} in the sequence editor.
-        """
-        if not self.strand:
-            return
-        
-        cursor = self.sequenceTextEdit.textCursor()
-        
-        if cursorPos < 0:
-            index = 0
-        if cursorPos > len(self.sequence):
-            index = len(self.sequence)
-            
-        cursor.setPosition(cursorPos, QTextCursor.MoveAnchor)       
-        cursor.setPosition(cursorPos + 1, QTextCursor.KeepAnchor) 
-        self.sequenceTextEdit.setTextCursor( cursor )
         return
 
     def show(self):

@@ -4,7 +4,7 @@
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
 
-Histort
+History:
 Created on 2008-02-14
 
 TODO: as of 2008-02-14
@@ -419,7 +419,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     def setStructureName(self, name):
         """
         Sets the name of self.struct to param <name> (if there is a valid 
-        structure. 
+        structure). 
         The PM of this command callss this method while closing itself 
         @param name: name of the structure to be set.
         @type name: string
@@ -432,6 +432,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
         if self.hasValidStructure():
             self.struct.name = name
+        return
 
     def assignStrandSequence(self):
         """
@@ -451,8 +452,8 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         seq = self.struct.getStrandSequence()
         
         if seq != sequenceString:
-            self.struct.setStrandSequence(sequenceString) 
-
+            self.struct.setStrandSequence(sequenceString)
+        return
 
     def editStructure(self, struct = None):
         """
