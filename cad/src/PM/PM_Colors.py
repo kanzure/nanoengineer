@@ -118,7 +118,11 @@ PM_MESSAGE_TEXT_EDIT_COLOR = QColor(255, 255, 100)
 pmMessageBoxColor = pmMessageTextEditColor 
 
 pmReferencesListWidgetColor = QColor(254, 128, 129)
-sequenceEditStrandMateBaseColor = QColor(255, 221, 203)
+
+# Special Sequence Editor colors.
+sequenceEditorNormalColor = QColor(255, 255, 255) # White
+sequenceEditorChangedColor = QColor(255, 220, 200) # Pink
+sequenceEditStrandMateBaseColor = QColor(255, 255, 200) # Light yellow
 
 if COLOR_THEME == "Gray":
 

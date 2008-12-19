@@ -205,13 +205,13 @@ def ToolTip_MoviePropertyManager(propMgr):
 
     propMgr.frameNumberSlider.setToolTip("Advance Frame")
 
-def ToolTip_SequenceEditor(propMgr):
+def ToolTip_DnaSequenceEditor(propMgr):
     """
     "ToolTip" text for widgets in the DNA Sequence Editor.
     """
     propMgr.loadSequenceButton.setToolTip("Load Sequence")
 
-    propMgr.sequenceTextEdit.setToolTip("Edit Sequence")
+    propMgr.sequenceTextEdit.setToolTip("Sequence edit field")
 
     propMgr.saveSequenceButton.setToolTip("Save Sequence")
 
@@ -225,7 +225,7 @@ def ToolTip_SequenceEditor(propMgr):
 
     propMgr.replacePushButton.setToolTip("Replace")
 
-    propMgr.sequenceTextEdit_mate.setToolTip("Mate Sequence")
+    propMgr.sequenceTextEdit_mate.setToolTip("Complement sequence (read-only)")
 
 def ToolTip_MovePropertyManager(propMgr):
     """

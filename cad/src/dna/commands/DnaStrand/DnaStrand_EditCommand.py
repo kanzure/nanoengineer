@@ -438,7 +438,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         """
         Assigns the sequence typed in the sequence editor text field to 
         the selected strand chunk. The method it invokes also assigns 
-        a complimentary sequence to the mate strand.
+        complimentary bases to the mate strand(s).
         @see: Chunk.setStrandSequence
         """
         if not self.hasValidStructure(): 
