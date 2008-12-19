@@ -744,67 +744,72 @@ def whatsThis_MoviePropertyManager(propMgr):
     propMgr.frameNumberSlider.setWhatsThis(
         """<b>Advance Frame</b>
         <p>
-       Dragging the slider advances the movie
+        Dragging the slider advances the movie
         </p>""")
     return
 
-def whatsThis_SequenceEditor(propMgr):
+def whatsThis_DnaSequenceEditor(propMgr):
     """
     "What's This" text for widgets in the DNA Sequence Editor.
     """
     propMgr.loadSequenceButton.setWhatsThis(
         """<b>Load Sequence File</b>
         <p>
-       Loads an existing strand sequence from a text file
+        Loads an existing strand sequence from a text file
         </p>""")
     
     propMgr.sequenceTextEdit.setWhatsThis(
-        """<b>Edit Sequence </b>
+        """<b>Sequence field</b>
         <p>
-       Allows the user to edit a strand sequence 
+        This field is used to view and edit the sequence of the current strand. 
+        The field background color turns pink whenever the sequence has been 
+        changed by the user, but hasn't yet been applied as the new sequence 
+        to the current strand. The new sequence is applied by pressing the 
+        <b>Enter</b> key or clicking <b>Done</b>.
         </p>""")
     
     propMgr.saveSequenceButton.setWhatsThis(
         """<b>Save Sequence </b>
         <p>
-       Saves a strand sequence as a text file
+        Saves a strand sequence as a text file
         </p>""")
     
     propMgr.baseDirectionChoiceComboBox.setWhatsThis(
         """<b>Strand Directon </b>
         <p>
-       Sets sequence direction between three prime and five prime strand ends
+        Sets sequence direction between three prime and five prime strand ends.
         </p>""")
     
     propMgr.findLineEdit.setWhatsThis(
         """<b>Find Sequence </b>
         <p>
-       Searches for a specific sequence within the strand
+        Searches for a specific sequence within the strand.
         </p>""")
     
     propMgr.findPreviousToolButton.setWhatsThis(
         """<b>Find Previous </b>
         <p>
-       Searches for the previous occurrence of given sequence along the strand
+       Searches for the previous occurrence of given sequence along the strand.
         </p>""")
     
     propMgr.findNextToolButton.setWhatsThis(
         """<b>Find Next </b>
         <p>
-       Searches for the next occurrence of given sequence along the strand
+        Searches for the next occurrence of given sequence along the strand.
         </p>""")
     
     propMgr.replacePushButton.setWhatsThis(
         """<b>Replace </b>
         <p>
-       Allows user to edit the strand sequence returned by the <b>Find</b>
-       command 
+        Allows user to edit the strand sequence returned by the <b>Find</b>
+        command.
         </p>""")
     
     propMgr.sequenceTextEdit_mate.setWhatsThis(
-        """<b>Mate </b>
+        """<b>Strand complement field</b>
         <p>
-       Shows the complementary strand sequence
+       This read-only field shows the complementary bases of the 
+       current strand sequence.
         </p>""")
     return
 

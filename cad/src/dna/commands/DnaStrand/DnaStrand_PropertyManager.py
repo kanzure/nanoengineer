@@ -11,11 +11,6 @@ Special notes:
   its a child of that PM) . See if that creates any issues. 
 - Copied some methods from BuildDna_PropertyManager. 
 
-BUGS:
-
-Bug 2952: 
-- Typing in new sequence will not take if you select another strand,
-  (even if you hit Enter after typing in the new sequence).
 """
 from utilities import debug_flags
 from utilities.debug import print_compact_stack

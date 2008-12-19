@@ -12,8 +12,6 @@ Ninad 2007-11-28: Created.
 TODO:
 - NFR: Add "Position" field.
 - NFR: Add "Accept" and "Cancel" checkboxes to take/abort the new sequence.
-- NFR: Change bg color of sequence field to indicate that the sequence has changed.
-- NFR: Save new sequence after typing "Enter" in the sequence field.
 - NFR: Support both "Insert" and "Overtype" modes in sequence field.
 - Split out find and replace widgets to their own class (low priority)
 - Create superclass that both the DNA and Protein sequence editors can use.
@@ -322,7 +320,7 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
             What's This text for widgets in this Property Manager.  
 
             """
-        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_SequenceEditor
-        whatsThis_SequenceEditor(self)
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_DnaSequenceEditor
+        whatsThis_DnaSequenceEditor(self)
         return
     
