@@ -242,7 +242,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         theSequence.replace(" ", "X") # Space = X (unassigned).
         
-        if 0: # Set to True for debugging statements.
+        if False: # Set to True for debugging statements.
             if theSequence == self._previousSequence:
                 print "The sequence did not change (YOU SHOULD NEVER SEE THIS)."
             elif len(theSequence) < len(self._previousSequence):
@@ -253,16 +253,17 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                 print "Character(s) where added to the sequence."
             pass
         
-        # How has the text changed?
-        if theSequence.length() == 0:  # There is no sequence.
-            self.sequenceTextEdit_mate.clear()          
-        else:
-            # Insert the sequence; it will be "stylized" by _setSequence().
-            self._updateSequenceAndItsComplement(theSequence)
+        # Insert the sequence; it will be "stylized" by _setSequence().
+        self._updateSequenceAndItsComplement(theSequence)
         
-        # Change the sequence field bg color to pink to indicate that 
-        # the sequence has changed.
-        self._sequence_changed = True
+        # If the sequence in the text edit (field) is different from the current
+        # strand's sequence, change the sequence field bg color to pink to 
+        # indicate that the sequence is different. If they are the same,
+        # change the sequence field background (back) to white.
+        if theSequence != self.current_strand.getStrandSequence():
+            self._sequence_changed = True
+        else:
+            self._sequence_changed = False
         self._previousSequence = theSequence
         self._updateSequenceBgColor()
 
