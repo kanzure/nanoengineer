@@ -308,7 +308,10 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         return
     
     def _updateSequenceBgColor(self):
-        
+        """
+        Updates the sequence field background color 
+        (pink = changed, white = unchanged).
+        """
         if self._sequence_changed:
             bgColor = sequenceEditorChangedColor
         else:
@@ -317,7 +320,8 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         palette = getPalette(None, 
                              QPalette.Base, 
                              bgColor)
-        self.sequenceTextEdit.setPalette(palette)  
+        self.sequenceTextEdit.setPalette(palette)
+        return
         
     def getPlainSequence( self, inOmitSymbols = False ):
         """
@@ -733,8 +737,8 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         This is the main (public) method to call to update the sequence editor.
         
-        @param strand: the strand. If strand is None (default), it is assumed
-                       that self.current_strand is the sequence.
+        @param strand: the strand. If strand is None (default), update the
+                       sequence of the current strand (i.e. self.current_strand).
         @type  strand: DnaStrand
         
         @param cursorPos: the position in the sequence in which to place the
@@ -792,17 +796,15 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             self.show()
         return
     
-    def setCursorPosition(self, cursorPos = 0):
+    def setCursorPosition(self, cursorPos = -1):
         """
-        Set the cursor position to I{cursorPos} in the strand sequence 
-        textedit widget.
+        Set the cursor position to I{cursorPos} in the sequence textedit widget.
         
         @param cursorPos: the position in the sequence in which to place the
                           cursor. If cursorPos is negative, the cursor position
                           is placed at the end of the sequence (default).
         @type  cursorPos: int
         """
-        
         
         # Make sure cursorPos is in the valid range.
         if cursorPos < 0:
