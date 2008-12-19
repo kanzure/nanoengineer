@@ -22,6 +22,14 @@ TODO:  Ninad 2007-11-28 (reviewed and updated by Mark 2008-12-17)
   and then called here?
 - Implement synchronizeLengths(). It doesn't do anything for now.
 - Create superclass that both the DNA and Protein sequence editors can use.
+
+BUGS:
+
+Bug 2956: Problems related to changing strand direction to "3' to 5'" direction:
+  - Complement sequence field is offset from the sequence field when typing 
+    overhang characters.
+  - The sequence field overhang coloring is not correct.
+  
   
 Implementation Notes as of 2007-11-20 (reviewed and updated by Mark 2008-12-17):  
 The Sequence Editor is shown when you edit a DnaStrand (if visible, the 
@@ -462,7 +470,8 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         #Find out complement sequence
         complementSequence = self._determine_complementSequence(inSequence)
-        inSequence = self._fixedPitchSequence(inSequence)
+        htmlSequence = self._colorExtraSequenceCharacters(inSequence)
+        htmlSequence = self._fixedPitchSequence(htmlSequence)
         complementSequence = self._fixedPitchSequence(complementSequence)
         
         # Get current cursor position before inserting inSequence.
@@ -473,7 +482,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         
         # Specify that theSequence is definitely HTML format, because 
         # Qt can get confused between HTML and Plain Text.        
-        self.sequenceTextEdit.insertHtml( inSequence ) #@@@ Generates signal???
+        self.sequenceTextEdit.insertHtml( htmlSequence ) #@@@ Generates signal???
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
         self.setCursorPosition(cursorPos = cursorPos)
 
@@ -661,18 +670,38 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             #stylize the sequence .-- Ninad 2008-01-22
             ##inSequence  =  self.stylizeSequence( inSequence )            
             
-            #Instead only make the sequence 'Fixed pitch' (while bug 2604
-            #is still open
-            inSequence = self._fixedPitchSequence(inSequence)           
+            # Color any overhang sequence characters gray.
+            htmlSequence = self._colorExtraSequenceCharacters(inSequence)
+            
+            #Make the sequence 'Fixed pitch'.
+            htmlSequence = self._fixedPitchSequence(htmlSequence)           
     
         # Specify that theSequence is definitely HTML format, because 
         # Qt can get confused between HTML and Plain Text.
         self._suppress_textChanged_signal = True
-        self.sequenceTextEdit.insertHtml( inSequence )
+        self.sequenceTextEdit.insertHtml( htmlSequence )
         self._suppress_textChanged_signal = False
         
         self.setCursorPosition(0)
         return
+    
+    def _colorExtraSequenceCharacters(self, inSequence):
+        """
+        Returns I{inSequence} with html tags that color any extra overhang 
+        characters gray.
+        @param inSequence: The sequence.
+        @type  inSequence: QString
+        @return: inSequence with the html tags to color any overhang characters.
+        @rtype:  string
+        """
+        strandLength = self.current_strand.getNumberOfBases()
+        if len(inSequence) <= strandLength:
+            return inSequence
+        
+        sequence = inSequence[:strandLength]
+        overhang = inSequence[strandLength:]
+        
+        return sequence + "<font color=gray>" + overhang + "</font>"
     
     def _fixedPitchSequence(self, sequence):
         """
@@ -992,8 +1021,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                 newCursorStartPosition = 0
                 
             cursor.setPosition( newCursorStartPosition, 
-                                QTextCursor.MoveAnchor)  
-            print "_findNextOrPrevious(): setting cursor pos:"
+                                QTextCursor.MoveAnchor)
             self.sequenceTextEdit.setTextCursor(cursor)
             found = self.sequenceTextEdit.find(searchString, findFlags)
     

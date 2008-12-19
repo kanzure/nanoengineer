@@ -15,6 +15,14 @@ TODO:
 - NFR: Support both "Insert" and "Overtype" modes in sequence field.
 - Split out find and replace widgets to their own class (low priority)
 - Create superclass that both the DNA and Protein sequence editors can use.
+
+BUGS:
+
+Bug 2956: Problems related to changing strand direction to "3' to 5'" direction:
+  - Complement sequence field is offset from the sequence field when typing 
+    overhang characters.
+  - The sequence field overhang coloring is not correct.
+  
 """
 
 from PyQt4.Qt import QToolButton
@@ -141,7 +149,9 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         self.loadSequenceButton.setAutoRaise(True)
         self.saveSequenceButton.setAutoRaise(True)
 
-        editDirectionChoices = ["5' to 3'", "3' to 5'"]
+        # Only supporting 5' to 3' direction until bug 2956 is fixed.
+        # Mark 2008-12-19
+        editDirectionChoices = ["5' to 3'"] # , "3' to 5'"]
         self.baseDirectionChoiceComboBox = \
             PM_ComboBox( self,
                          choices = editDirectionChoices,
