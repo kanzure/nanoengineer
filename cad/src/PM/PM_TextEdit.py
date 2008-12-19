@@ -88,8 +88,8 @@ class PM_TextEdit( QTextEdit ):
         @param permit_enter_keystroke: If set to True, this PM_textEdit can have multiple
                                lines. Otherwise, it will block the 'Enter' keypress
                                within the text editor. Note that caller needs 
-                               to make sure that linewrapping option is a
-                               propriately set, (in addition to this flag)
+                               to make sure that linewrapping option is 
+                               appropriately set, (in addition to this flag)
                                so as to permit/ not permit multiple lines 
                                in the text edit.
                                
