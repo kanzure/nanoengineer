@@ -11,17 +11,20 @@ Build > Protein mode.
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 TODO:
-- Fix bug: Changing Chi angles doesn't update rotamer position in the GA.
 - Show residue label in GA of current residue, including AA and # (i.e. SER[14]).
 - Better messages, especially when selecting different peptides.
 - Include "Show entire model" checkbox in PM (checked by default).
-- Sync Residue combobox and sequence editor.
 - Add wait (hourglass) cursor when changing the display style of proteins.
 - Allow user to rename current protein in the Name field.
 - Need to implement a validator for the Name line edit field.
 - Allow user to unselect the current peptide without clearing the PM (making
   the UI consistent with Strand Properties).
 - Checking "Center view on current residue" should center view immediately.
+
+BUGS:
+- Changing Chi angles doesn't update rotamer position in the GA.
+- The "Current residue" doesn't always show the previous residue when 
+  selecting back and forth b/w peptides.
 """
 import os, time, fnmatch, string
 import foundation.env as env

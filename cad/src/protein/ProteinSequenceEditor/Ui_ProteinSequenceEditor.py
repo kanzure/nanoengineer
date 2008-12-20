@@ -11,10 +11,12 @@ Urmi copied this from Ui_DnaSequenceEditor.py and modified it to suit the
 requirements of a protein sequence editor
 
 TODO:
-- What's This descriptions.
 - NFR: Add "Position" field.
 - NFR: Load sequence for the current peptide from a FASTA file.
 - NFR: Save sequence for the current peptide to a FASTA file.
+
+BUGS:
+- Typing a character in the sequence moves the cursor, skipping the next character.
 """
 
 from PyQt4.Qt import QToolButton
