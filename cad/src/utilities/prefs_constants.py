@@ -930,7 +930,7 @@ prefs_table = (
 
     # protein style preferences
     # piotr 080625
-    ('', 'int', proteinStyle_prefs_key, 0),
+    ('', 'int', proteinStyle_prefs_key, 2), # CA Trace (ball and stick) # Mark 2008-12-20
     ('', 'boolean', proteinStyleSmooth_prefs_key, True),
     ('', 'int', proteinStyleQuality_prefs_key, 10),
     ('', 'int', proteinStyleScaling_prefs_key, 0),
