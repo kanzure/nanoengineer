@@ -89,12 +89,6 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
     _sequence_changed = False  # Set to True when the sequence has been changed by the user.
     _previousSequence = ""     # The previous sequence, just before the user changed it.
     
-    # Check to see if these 3 attrs are used by any other classes.
-    # They are not used here. Mark 2008-12-17
-    currentPosition = 0
-    startPosition = 0
-    endPosition = 0
-    
     def __init__(self, win):
         """
         Creates a dockable sequence editor
@@ -659,13 +653,6 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         @see: self._determine_complementSequence()
         
         """
-        #@BUG: This method was mostly copied from old DnaGenerator
-        #Apparently PM_TextEdit.insertHtml replaces the the whole 
-        #sequence each time. This needs to be cleaned up. - Ninad 2007-11-27
-        
-        #@UPDATE: Rewrote this method to help fix bugs 2953.
-        # - Mark 2008-12-17
-        
         if inStylize:
             #Temporary fix for bug 2604--
             #Temporarily disabling the code that 'stylizes the sequence' 
@@ -796,35 +783,35 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             self.show()
         return
     
-    def setCursorPosition(self, cursorPos = -1):
+    def setCursorPosition(self, inCursorPos = -1):
         """
-        Set the cursor position to I{cursorPos} in the sequence textedit widget.
+        Set the cursor position to I{inCursorPos} in the sequence textedit widget.
         
-        @param cursorPos: the position in the sequence in which to place the
+        @param inCursorPos: the position in the sequence in which to place the
                           cursor. If cursorPos is negative, the cursor position
                           is placed at the end of the sequence (default).
-        @type  cursorPos: int
+        @type  inCursorPos: int
         """
         
         # Make sure cursorPos is in the valid range.
-        if cursorPos < 0:
-            startPos = self.getSequenceLength()
-            endPos   = self.getSequenceLength()
-        elif cursorPos >= self.getSequenceLength():
-            startPos = self.getSequenceLength()
-            endPos   = self.getSequenceLength()
+        if inCursorPos < 0:
+            cursorPos = self.getSequenceLength()
+            anchorPos = self.getSequenceLength()
+        elif inCursorPos >= self.getSequenceLength():
+            cursorPos = self.getSequenceLength()
+            anchorPos = self.getSequenceLength()
         else:
-            startPos = cursorPos
-            endPos   = cursorPos
+            cursorPos = inCursorPos
+            anchorPos = inCursorPos
         
         # Useful print statements for debugging.
         #print "setCursorPosition(): Sequence=", self.getPlainSequence()
-        #print "setCursorPosition(): Final cursorPos=%d\nstartPos=%d, endPos=%d" % (cursorPos, startPos, endPos)
+        #print "setCursorPosition(): Final inCursorPos=%d\ncursorPos=%d, anchorPos=%d" % (inCursorPos, cursorPos, anchorPos)
         
         # Finally, set the cursor position in the sequence.
         cursor = self.sequenceTextEdit.textCursor()
-        cursor.setPosition(endPos,   QTextCursor.MoveAnchor)
-        cursor.setPosition(startPos, QTextCursor.KeepAnchor)
+        cursor.setPosition(anchorPos, QTextCursor.MoveAnchor)
+        cursor.setPosition(cursorPos, QTextCursor.KeepAnchor)
         self.sequenceTextEdit.setTextCursor( cursor )
         return
         
