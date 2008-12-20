@@ -227,6 +227,32 @@ def ToolTip_DnaSequenceEditor(propMgr):
 
     propMgr.sequenceTextEdit_mate.setToolTip("Complement sequence (read-only)")
 
+    return
+
+def ToolTip_ProteinSequenceEditor(propMgr):
+    """
+    "ToolTip" text for widgets in the Protein Sequence Editor.
+    """
+    propMgr.loadSequenceButton.setToolTip("Load amino acid sequence from FASTA file")
+
+    propMgr.sequenceTextEdit.setToolTip("Sequence field (read-only)")
+
+    propMgr.saveSequenceButton.setToolTip("Save sequence")
+
+    propMgr.findLineEdit.setToolTip("Find Sequence")
+
+    propMgr.findPreviousToolButton.setToolTip("Find Previous")
+
+    propMgr.findNextToolButton.setToolTip("Find Next")
+
+    propMgr.replacePushButton.setToolTip("Replace")
+
+    propMgr.secStrucTextEdit.setToolTip("Secondary structure (read-only)")
+    
+    propMgr.aaRulerTextEdit.setToolTip("Sequence ruler")
+
+    return
+
 def ToolTip_MovePropertyManager(propMgr):
     """
     "ToolTip" text for widgets in the Move Property Manager.

@@ -768,41 +768,41 @@ def whatsThis_DnaSequenceEditor(propMgr):
         <b>Enter</b> key or clicking <b>Done</b>.
         </p>""")
     
-    propMgr.saveSequenceButton.setWhatsThis(
-        """<b>Save Sequence </b>
-        <p>
-        Saves a strand sequence as a text file
-        </p>""")
-    
     propMgr.baseDirectionChoiceComboBox.setWhatsThis(
         """<b>Strand Directon </b>
         <p>
-        Sets sequence direction between three prime and five prime strand ends.
+        Sets the direction in which the sequence is shown in the sequence field.
+        </p>""")
+    
+    propMgr.saveSequenceButton.setWhatsThis(
+        """<b>Save Sequence </b>
+        <p>
+        Write the current sequence to a text file.
         </p>""")
     
     propMgr.findLineEdit.setWhatsThis(
-        """<b>Find Sequence </b>
+        """<b>Find field</b>
         <p>
-        Searches for a specific sequence within the strand.
+        The <i>find string</i> to search for in the sequence field.
         </p>""")
     
     propMgr.findPreviousToolButton.setWhatsThis(
-        """<b>Find Previous </b>
+        """<b>Find Previous</b>
         <p>
-       Searches for the previous occurrence of given sequence along the strand.
+        Find the previous occurrence of the <i>find string</i> in the sequence.
         </p>""")
     
     propMgr.findNextToolButton.setWhatsThis(
-        """<b>Find Next </b>
+        """<b>Find Next</b>
         <p>
-        Searches for the next occurrence of given sequence along the strand.
+        Find the next occurrence of the <i>find string</i> in the sequence.
         </p>""")
     
     propMgr.replacePushButton.setWhatsThis(
-        """<b>Replace </b>
+        """<b>Replace</b>
         <p>
-        Allows user to edit the strand sequence returned by the <b>Find</b>
-        command.
+        Replaces the current <i>find string</i> in the sequence with the 
+        <i>replace string</i>.
         </p>""")
     
     propMgr.sequenceTextEdit_mate.setWhatsThis(
@@ -810,6 +810,67 @@ def whatsThis_DnaSequenceEditor(propMgr):
         <p>
        This read-only field shows the complementary bases of the 
        current strand sequence.
+        </p>""")
+    return
+
+def whatsThis_ProteinSequenceEditor(propMgr):
+    """
+    "What's This" text for widgets in the Protein Sequence Editor.
+    """
+    propMgr.loadSequenceButton.setWhatsThis(
+        """<b>Load Sequence File</b>
+        <p>
+        Loads a peptide sequence from a text file.
+        </p>""")
+    
+    propMgr.sequenceTextEdit.setWhatsThis(
+        """<b>Sequence field</b>
+        <p>
+        This field (read-only) shows the amino acid sequence of the current protein. 
+        </p>""")
+    
+    propMgr.secStrucTextEdit.setWhatsThis(
+        """<b>Secondary structure</b>
+        <p>
+        This field (read-only) shows the corresponding secondary structure 
+        of the current protein sequence. 
+        </p>""")
+    
+    propMgr.aaRulerTextEdit.setWhatsThis(
+        """<b>Sequence ruler</b>
+        <p>
+        A basic ruler showing the position of each amino acid in the sequence.
+        </p>""")
+    
+    propMgr.saveSequenceButton.setWhatsThis(
+        """<b>Save Sequence </b>
+        <p>
+        Write the current sequence to a text file.
+        </p>""")
+    
+    propMgr.findLineEdit.setWhatsThis(
+        """<b>Find field</b>
+        <p>
+        The <i>find string</i> to search for in the sequence field.
+        </p>""")
+    
+    propMgr.findPreviousToolButton.setWhatsThis(
+        """<b>Find Previous</b>
+        <p>
+        Find the previous occurrence of the <i>find string</i> in the sequence.
+        </p>""")
+    
+    propMgr.findNextToolButton.setWhatsThis(
+        """<b>Find Next</b>
+        <p>
+        Find the next occurrence of the <i>find string</i> in the sequence.
+        </p>""")
+    
+    propMgr.replacePushButton.setWhatsThis(
+        """<b>Replace</b>
+        <p>
+        Replaces the current <i>find string</i> in the sequence with the 
+        <i>replace string</i>.
         </p>""")
     return
 

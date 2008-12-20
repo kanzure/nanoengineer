@@ -10,7 +10,7 @@ Build > Protein mode.
 @version: $Id$ 
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
-To do:
+TODO:
 - Fix bug: Changing Chi angles doesn't update rotamer position in the GA.
 - Show residue label in GA of current residue, including AA and # (i.e. SER[14]).
 - Better messages, especially when selecting different peptides.
@@ -19,6 +19,9 @@ To do:
 - Add wait (hourglass) cursor when changing the display style of proteins.
 - Allow user to rename current protein in the Name field.
 - Need to implement a validator for the Name line edit field.
+- Allow user to unselect the current peptide without clearing the PM (making
+  the UI consistent with Strand Properties).
+- Checking "Center view on current residue" should center view immediately.
 """
 import os, time, fnmatch, string
 import foundation.env as env
@@ -437,7 +440,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         """
         Hides all the rotamers (except the current rotamer).
         """
-        self._display_and_recenter()
+        self.display_and_recenter()
         return
     
     def _expandAllRotamers(self):
@@ -451,7 +454,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         self.win.glpane.gl_update()
         return
     
-    def _display_and_recenter(self):
+    def display_and_recenter(self):
         """
         Recenter the view on the current amino acid selected in the 
         residue combobox (or the sequence editor). All rotamers 
@@ -526,7 +529,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         aa_index = self.current_protein.protein.get_current_amino_acid_index()
         self.currentResidueComboBox.setCurrentIndex(aa_index)
         self.sequenceEditor.setCursorPosition(aa_index)
-        self._display_and_recenter()
+        self.display_and_recenter()
         return
         
     def _currentResidueChanged(self, index):
@@ -536,8 +539,9 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         if not self.current_protein:
             return
         
+        print"_currentResidueChanged(): index=", index
         self.current_protein.protein.set_current_amino_acid_index(index)
-        self._display_and_recenter()
+        self.display_and_recenter()
         self.sequenceEditor.setCursorPosition(index)
         return
     
@@ -601,7 +605,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         print "_update_UI_do_updates(): UPDATING the PMGR."
         self.update_name_field()
         self.update_length_field()
-        self.sequenceEditor.updateSequence()
+        self.sequenceEditor.updateSequence(proteinChunk = self.current_protein)
         self.update_residue_combobox()
         
         # NOTE: Changing the display style of the protein chunks can take some

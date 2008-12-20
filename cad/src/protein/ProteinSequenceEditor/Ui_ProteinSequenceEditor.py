@@ -9,6 +9,12 @@ Ui_ProteinSequenceEditor.py
 History:
 Urmi copied this from Ui_DnaSequenceEditor.py and modified it to suit the 
 requirements of a protein sequence editor
+
+TODO:
+- What's This descriptions.
+- NFR: Add "Position" field.
+- NFR: Load sequence for the current peptide from a FASTA file.
+- NFR: Save sequence for the current peptide to a FASTA file.
 """
 
 from PyQt4.Qt import QToolButton
@@ -40,10 +46,6 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
     _title          =  "Sequence Editor"
     _groupBoxCount  =  0
     _lastGroupBox   =  None
-    
-    current_protein =  None
-    sequence        =  "" # The current protein's AA sequence.
-    structure       =  "" # The (secondary) structure string.
 
     def __init__(self, win):
         """
@@ -55,64 +57,6 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         _superclass.__init__(self, parentWidget, title = self._title)
         self._reportsDockWidget_closed_in_show_method = False
         self.setFixedHeight(90)
-        return
-    
-    def updateSequence(self, proteinChunk = None, cursorPos = 0):
-        """
-        Updates the sequence editor with the sequence of I{proteinChunk}. 
-        
-        @param proteinChunk: the protein chunk. If proteinChunk None (default)
-                             check to see if there is a single selected 
-                             protein chunk. If there is, use it.
-        @type  proteinChunk: protein Chunk
-        
-        @param cursorPos: the current cursor position in the sequence.
-        @type  cursorPos: int
-        """
-        
-        if not proteinChunk:
-            self.current_protein = self.win.assy.getSelectedProteinChunk()
-        else:
-            assert isinstance(proteinChunk, self.win.assy.Chunk) and \
-                   proteinChunk.isProteinChunk()
-            self.current_protein = proteinChunk
-        
-        if not self.current_protein: # No (single) protein is currently selected.
-            self.clear()
-            return
-        
-        # We have a protein chunk. Update the editor with its sequence.
-        self.sequence = self.current_protein.protein.get_sequence_string()
-        self.structure = self.current_protein.protein.get_secondary_structure_string()
-        self.setSequenceAndStructure(self.sequence, self.structure)
-        
-        # Set cursor position.
-        self.setCursorPosition(cursorPos = cursorPos)
-        
-        # Update window title with name of current protein.
-        titleString = 'Sequence Editor for ' + self.current_protein.name
-        self.setWindowTitle(titleString)
-        
-        self.show()
-        return
-    
-    def setCursorPosition(self, cursorPos = 0):
-        """
-        Set the cursor position to I{cursorPos} in the sequence editor.
-        """
-        if not self.current_protein:
-            return
-        
-        cursor = self.sequenceTextEdit.textCursor()
-        
-        if cursorPos < 0:
-            index = 0
-        if cursorPos > len(self.sequence):
-            index = len(self.sequence)
-            
-        cursor.setPosition(cursorPos, QTextCursor.MoveAnchor)       
-        cursor.setPosition(cursorPos + 1, QTextCursor.KeepAnchor) 
-        self.sequenceTextEdit.setTextCursor( cursor )
         return
 
     def show(self):
@@ -175,6 +119,10 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
 
         self.loadSequenceButton.setAutoRaise(True)
         self.saveSequenceButton.setAutoRaise(True)
+        
+        # Hide load and save buttons until they are implemented. -Mark 2008-12-20.
+        self.loadSequenceButton.hide()
+        self.saveSequenceButton.hide()
 
         #Find and replace widgets --
         self.findLineEdit = \
@@ -185,7 +133,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
 
         self.replaceLineEdit = \
             PM_LineEdit( self, 
-                         label        = "",
+                         label        = "  Replace:",
                          spanWidth    = False)
         self.replaceLineEdit.setMaximumWidth(60)
 
@@ -206,9 +154,15 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
             self,
             iconPath = "ui/actions/Properties Manager/Find_Previous.png")
         self.findPreviousToolButton.setAutoRaise(True)
-
+        
         self.replacePushButton = PM_PushButton(self, text = "Replace")
-
+        
+        # Hide Replace widgets until we add support for transmuting residues.
+        # Mark 2008-12-19
+        #self.replaceLabel.hide()
+        self.replacePushButton.hide()
+        self.replaceLineEdit.hide()
+        
         self.warningSign = QLabel(self)
         self.warningSign.setPixmap(
             getpixmap('ui/actions/Properties Manager/Warning.png'))
@@ -221,17 +175,17 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         #Widgets to include in the widget row. 
         widgetList = [('PM_ToolButton', self.loadSequenceButton, 0),
                       ('PM_ToolButton', self.saveSequenceButton, 1),
-                      ('QLabel', "     Find:", 4),
-                      ('PM_LineEdit', self.findLineEdit, 5),
+                      ('QLabel', "                                     Find:", 4),
+                      ('PM_LineEdit',   self.findLineEdit, 5),
                       ('PM_ToolButton', self.findOptionsToolButton, 6),
                       ('PM_ToolButton', self.findPreviousToolButton, 7),
                       ('PM_ToolButton', self.findNextToolButton, 8), 
-                      ('QLabel', "     Replace:", 9),
-                      ('PM_TextEdit', self.replaceLineEdit, 10), 
-                      ('PM_PushButton', self.replacePushButton, 11),
-                      ('PM_Label', self.warningSign, 12),
-                      ('PM_Label', self.phraseNotFoundLabel, 13),
-                      ('QSpacerItem', 5, 5, 14) ]
+                      #('PM_Label',      self.replaceLabel, 9),
+                      ('PM_TextEdit',   self.replaceLineEdit, 9), 
+                      ('PM_PushButton', self.replacePushButton, 10),
+                      ('PM_Label', self.warningSign, 11),
+                      ('PM_Label', self.phraseNotFoundLabel, 12),
+                      ('QSpacerItem', 5, 5, 13) ]
 
         widgetRow = PM_WidgetRow(self,
                                  title     = '',
@@ -263,7 +217,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                          label = " Sequence: ", 
                          spanWidth = False,
                          permit_enter_keystroke = False) 
-        
+        #self.sequenceTextEdit.setReadOnly(True) #@@@
         
         self.sequenceTextEdit.setCursorWidth(2)
         self.sequenceTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
@@ -332,11 +286,15 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         """
         What's Tool Tip text for widgets in this Property Manager.  
         """ 
-        pass
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_ProteinSequenceEditor
+        ToolTip_ProteinSequenceEditor(self)
+        return
 
     def _addWhatsThisText(self):
         """
         What's This text for widgets in this Property Manager.  
         """
-        pass
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_ProteinSequenceEditor
+        whatsThis_ProteinSequenceEditor(self)
+        return
     

@@ -22,6 +22,12 @@ from PyQt4.Qt import QFileDialog
 from PyQt4.Qt import QMessageBox
 from PyQt4.Qt import QRegExp
 from PyQt4.Qt import QTextDocument
+from PyQt4.Qt import QPalette
+
+from PM.PM_Colors import getPalette
+from PM.PM_Colors import sequenceEditorNormalColor
+from PM.PM_Colors import sequenceEditorChangedColor
+
 from utilities.prefs_constants import workingDirectory_prefs_key
 from protein.ProteinSequenceEditor.Ui_ProteinSequenceEditor import Ui_ProteinSequenceEditor
 from utilities import debug_flags
@@ -34,6 +40,10 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
     validSymbols  =  QString(' <>~!@#%&_+`=$*()[]{}|^\'"\\.;:,/?')
     sequenceFileName = None
     
+    current_protein   = None   # The current protein chunk.
+    _sequence_changed = False  # Set to True when the sequence has been changed by the user.
+    _previousSequence = ""     # The previous sequence, just before the user changed it.
+    
     def __init__(self, win):
         """
         Creates a dockable protein sequence editor
@@ -42,6 +52,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
         self._suppress_textChanged_signal = False
+        self._suppress_cursorPosChanged_signal = False
         self.connect_or_disconnect_signals(True)
         self.win = win
         self.maxSeqLength = 0
@@ -76,19 +87,23 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         
         change_connect(self.loadSequenceButton, 
                      SIGNAL("clicked()"), 
-                     self.openStrandSequenceFile)
+                     self._open_FASTA_File)
         
         change_connect(self.saveSequenceButton, 
                      SIGNAL("clicked()"), 
-                     self.saveStrandSequence)
+                     self._savePeptideSequence)
+        
+        change_connect( self.sequenceTextEdit,
+                      SIGNAL("textChanged()"),
+                      self._sequenceChanged )
         
         change_connect( self.sequenceTextEdit,
                       SIGNAL("editingFinished()"),
-                      self.sequenceChanged )
+                      self._assignPeptideSequence )
         
         change_connect( self.sequenceTextEdit,
                       SIGNAL("cursorPositionChanged()"),
-                      self.cursorPosChanged) 
+                      self._cursorPosChanged) 
         
         change_connect( self.findLineEdit,
                       SIGNAL("textEdited(const QString&)"),
@@ -105,6 +120,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         change_connect( self.replacePushButton,
                       SIGNAL("clicked()"),
                       self.replace) 
+        return
     
     def update_state(self, bool_enable = True):
         """
@@ -118,34 +134,113 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             if hasattr(widget, 'setEnabled'):
                 if widget.__class__.__name__ != 'QAbstractButton':
                     widget.setEnabled(bool_enable)
+        return
     
-    def sequenceChanged( self ):
+    def _sequenceChanged( self ):
         """
-        Slot for the Protein Sequence textedit widget.
+        Slot for the Protein Sequence textedit widget. (private method)
         Assumes the sequence changed directly by user's keystroke in the 
         textedit.  Other methods...
         """ 
         if self._suppress_textChanged_signal:
             return
+        
         self._suppress_textChanged_signal = True
         cursorPosition  =  self.getCursorPosition()
         theSequence     =  self.getPlainSequence()
+        
+        theSequence.replace(" ", "G") # Space = G (glycine).
+        
+        if True: # Set to True for debugging statements.
+            if theSequence == self._previousSequence:
+                print "The sequence did not change (YOU SHOULD NEVER SEE THIS)."
+            elif len(theSequence) < len(self._previousSequence):
+                print "Character(s) were deleted from the sequence."
+            elif len(theSequence) == len(self._previousSequence):
+                print "A character was replaced. The sequence length is the same."
+            else:
+                print "Character(s) where added to the sequence."
+            pass
+        
+        # Insert the sequence; it will be "stylized" by _setSequence().
+        self._updateSequence(theSequence)
+        
         # How has the text changed?
-        if theSequence.length() != 0 and theSequence.length() == self.maxSeqLength:  
-            self._updateSequence(theSequence)
+        #if theSequence.length() != 0 and theSequence.length() == self.maxSeqLength:  
+            #self._updateSequence(theSequence)
+        #else:
+            ##pop up a message saying that you are not allowed to change the length
+            ##of the sequence
+            #msg = "Cannot change the length of the sequence."\
+                #"You need to have exactly" + str(self.maxSeqLength) + " amino acids."
+            #QMessageBox.warning(self.win, "Warning!", msg)
+            #self._suppress_textChanged_signal = False
+            #return
+        
+        # If the sequence in the text edit (field) is different from the current
+        # sequence, change the sequence field bg color to pink to 
+        # indicate that the sequence is different. If they are the same,
+        # change the sequence field background (back) to white.
+        if theSequence != self.current_protein.protein.get_sequence_string():
+            self._sequence_changed = True
         else:
-            #pop up a message saying that you are not allowed to change the length
-            #of the sequence
-            msg = "Cannot change the length of the sequence."\
-                "You need to have exactly" + str(self.maxSeqLength) + " amino acids."
-            QMessageBox.warning(self.win, "Warning!", msg)
-            self._suppress_textChanged_signal = False
-            return
+            self._sequence_changed = False
+        self._previousSequence = theSequence
+        self._updateSequenceBgColor()
+        
         #Urmi 20080725: Some time later we need to have a method here which 
         #would allow us to set the sequence of the protein chunk. We will also
         #update the secondary structure sequence or will it be the same as the
         #original one? 
         self._suppress_textChanged_signal = False
+        return
+    
+    def _assignPeptideSequence(self):
+        """
+        (private)
+        Slot for the "editingFinished()" signal generated by the PM_TextEdit 
+        whenever the user presses the Enter key in the sequence text edit field.
+        
+        Assigns the amino acid sequence in the sequence editor text field to 
+        the current protein. 
+        
+        @attention: this method is not implemented yet. If called, it will
+        display a messagebox warning the user that this is not implement yet.
+        """
+        if not self.current_protein: 
+            return
+        
+        sequenceString = self.getPlainSequence()
+        sequenceString = str(sequenceString)     
+        
+        #assign sequence only if it not the same as the current sequence
+        seq = self.current_protein.protein.get_sequence_string()
+        
+        if seq != sequenceString:
+            #self.current_protein.setSequence(sequenceString)
+            #self.updateSequence(cursorPos = self.getCursorPosition())
+            msg = "We are sorry. You cannot change the sequence since "\
+                "this feature is not yet supported."
+            QMessageBox.warning(self.win, "Warning!", msg)
+            self._suppress_textChanged_signal = False
+            
+        self.updateSequence(self.current_protein)
+        return
+    
+    def _updateSequenceBgColor(self):
+        """
+        Updates the sequence field background color 
+        (pink = changed, white = unchanged).
+        """
+        if self._sequence_changed:
+            bgColor = sequenceEditorChangedColor
+        else:
+            bgColor = sequenceEditorNormalColor
+            
+        palette = getPalette(None, 
+                             QPalette.Base, 
+                             bgColor)
+        self.sequenceTextEdit.setPalette(palette)
         return
     
     def getPlainSequence( self, inOmitSymbols = False ):
@@ -176,12 +271,12 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         return outSequence
 
     def _updateSequence(self, 
-                                       inSequence, 
-                                       inRestoreCursor  =  True):
+                        inSequence, 
+                        inRestoreCursor  =  True):
         """
-        Update the main strand sequence (private method)
+        Update the sequence (private method)
         
-        Note that the callers outside the class call self.setSequence 
+        Note that the callers outside the class should call self.updateSequence, 
         but never call this method. 
         
         @see: self.setsequence() 
@@ -222,24 +317,35 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         """
         Clears the sequence editor.
         """
-        self.setSequenceAndStructure("", "")
+        self.current_protein = None
+        self._setSequenceAndStructure("", "")
         return
     
-    def setSequenceAndStructure(self, inSequence, inStructure):
+    def _setSequenceAndStructure(self, inSequence, inStructure):
         """
+        Sets the main text edit fields in the following order:
+        1. secondary structure
+        2. ruler
+        3. sequence
+        @note: It is important that sequence is set last.
         """
-        self.setSequence(inSequence)
-        self.setSecondaryStructure(inStructure)
-        self.setRuler(len(inSequence))
+        self._setSecondaryStructure(inStructure)
+        self._setRuler(len(inSequence))
+        self._setSequence(inSequence)
         return
     
-    def setSequence( self,
-                     inSequence,
-                     inStylize        =  True,
-                     inRestoreCursor  =  True
-                     ):
+    def _setSequence( self,
+                      inSequence,
+                      inStylize        =  True,
+                      inRestoreCursor  =  True
+                      ):
         """ 
-        Replace the current strand sequence with the new sequence text.
+        Replace the current amino acid sequence with the new sequence text.
+        (private method)
+        
+        Callers outside this class wishing to update the amino acid sequence  
+        field should call updateSequence().
+        
         @param inSequence: The new sequence.
         @type  inSequence: QString
         
@@ -251,42 +357,19 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         @param inRestoreCursor: Not implemented yet.
         @type  inRestoreCursor: bool
         
+        @see: updateSequence()
         """
         
-        self.maxSeqLength = len(inSequence)
-        cursor          =  self.sequenceTextEdit.textCursor()     
-        cursorMate      =  self.secStrucTextEdit.textCursor()
-        cursorMate2     =  self.aaRulerTextEdit.textCursor()
-        if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
-            selectionStart  = 0
-            selectionEnd    = 0
-        elif cursor.position() == -1:
-            selectionStart  = 0
-            selectionEnd    = 0    
-        else:
-            selectionStart  =  cursor.selectionStart()
-            selectionEnd    =  cursor.selectionEnd()
-        
-        
         seq = str(inSequence)
-        inSequence1 = self._convertProteinSequenceToColoredSequence(seq)
+        htmlSequence = self._convertProteinSequenceToColoredSequence(seq)
         if inStylize:
-            inSequence1 = self._fixedPitchSequence(inSequence1)           
-    
-        #Urmi 20080714: Convert inSequence to colored text, each amino acid is 
-        # shown by its own color
-        self.sequenceTextEdit.setHtml( inSequence1)
-        
-        if inRestoreCursor:                      
-            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
-            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
-            self.sequenceTextEdit.setTextCursor( cursor )
-            cursorMate.setPosition(selectionStart, QTextCursor.MoveAnchor)  
-            cursorMate.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
-            self.secStrucTextEdit.setTextCursor( cursorMate )
-            cursorMate2.setPosition(selectionStart, QTextCursor.MoveAnchor)  
-            cursorMate2.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
-            self.aaRulerTextEdit.setTextCursor( cursorMate2 )
+            htmlSequence = self._fixedPitchSequence(htmlSequence)
+        self._suppress_textChanged_signal = True
+        self._suppress_cursorPosChanged_signal = True
+        self.sequenceTextEdit.setHtml(htmlSequence)
+        self.setCursorPosition(inCursorPos = -1) # At the end.
+        self._suppress_textChanged_signal = False
+        self._suppress_cursorPosChanged_signal = False
         return
     
     def _getFormattedSequence(self, inSequence):
@@ -312,15 +395,20 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         return fixedPitchSequence 
      
     
-    def setSecondaryStructure(self, inStructure, inRestoreCursor  =  True):
+    def _setSecondaryStructure(self, inStructure, inRestoreCursor  =  True):
         """
-        Set the secondary structure of the protein
+        Set the secondary structure of the protein. (private method)
+        
+        Callers outside this class wishing to update the secondary structure 
+        field should call updateSequence().
         
         @param inStructure: The structure string.
         @type  inStructure: QString
         
         @param inRestoreCursor: restore cursor position
         @type  inRestoreCursor: bool
+        
+        @see: updateSequence()
         """
         cursor          =  self.sequenceTextEdit.textCursor()     
         cursorMate      =  self.secStrucTextEdit.textCursor()
@@ -349,9 +437,12 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             self.aaRulerTextEdit.setTextCursor( cursorMate2 )
         return 
     
-    def setRuler(self, lengthOfSeq, inRestoreCursor  =  True):
+    def _setRuler(self, lengthOfSeq, inRestoreCursor  =  True):
         """
-        Set the sequence ruler for up to three digits
+        Set the sequence ruler for up to three digits.
+        
+        Callers outside this class wishing to update the ruler 
+        should call updateSequence().
         
         @param lengthOfSeq: length of the sequence.
         @type  lengthOfSeq: int
@@ -439,6 +530,24 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             
         return outSequence
     
+    def _colorExtraSequenceCharacters(self, inSequence):
+        """
+        Returns I{inSequence} with html tags that color any extra overhang 
+        characters gray.
+        @param inSequence: The sequence.
+        @type  inSequence: QString
+        @return: inSequence with the html tags to color any overhang characters.
+        @rtype:  string
+        """
+        aaLength = self.current_protein.protein.count_amino_acids()
+        if len(inSequence) <= aaLength:
+            return inSequence
+        
+        sequence = inSequence[:aaLength]
+        overhang = inSequence[aaLength:]
+        
+        return sequence + "<font color=gray>" + overhang + "</font>"
+    
     def _fixedPitchSequence(self, sequence):
         """
         Make the sequence 'fixed-pitched'  i.e. width of all characters 
@@ -447,141 +556,197 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         @param sequence: The new sequence.
         @type  sequence: QString
         """
-        #The <pre> tag is important to keep the fonts 'fixed pitch' i.e. 
-        #all the characters occupy the same size. This is important because 
-        #we have two text edits. (strand and Mate) the 'Mate' edit gets updated
-        #as you type in letters in the 'StrandEdit' and these two should
-        #appear to user as having equal lengths. 
         fixedPitchSequence  =  "<html><bold><font size=3 face=Courier New >"  + sequence
         fixedPitchSequence +=  "</bold></font></html>"
-        
         return fixedPitchSequence
-        
-        
     
     def getSequenceLength( self ):
         """
-        Returns the number of characters in 
-        the strand sequence textedit widget.
+        Returns the number of characters in the sequence textedit widget.
         """
         theSequence  =  self.getPlainSequence( inOmitSymbols = True )
         outLength    =  theSequence.length()
         return outLength
+    
+    def updateSequence(self, proteinChunk = None, cursorPos = -1):
+        """
+        Updates the sequence editor with the sequence of I{proteinChunk}. 
+        
+        @param proteinChunk: the protein chunk. If proteinChunk is None 
+                            (default), the sequence editor is cleared.
+        @type  proteinChunk: protein Chunk
+        
+        @param cursorPos: the position in the sequence in which to place the
+                          cursor. If cursorPos is negative, the cursor position
+                          is placed at the end of the sequence (default).
+        @type  cursorPos: int
+        """
+        
+        if proteinChunk:
+            assert isinstance(proteinChunk, self.win.assy.Chunk) and \
+                   proteinChunk.isProteinChunk()
+            self.current_protein = proteinChunk
+        else:
+            # Use self.current_protein. Make sure it's not None.
+            #assert isinstance(self.current_protein, self.win.assy.Chunk) and \
+                   #proteinChunk.isProteinChunk()
+            self.clear()
+            return
+        
+        # We have a protein chunk. Update the editor with its sequence.
+        sequence = self.current_protein.protein.get_sequence_string()
+        structure = self.current_protein.protein.get_secondary_structure_string()
+        self._setSequenceAndStructure(sequence, structure)
+        
+        # Set cursor position.
+        self.setCursorPosition(inCursorPos = cursorPos)
+        
+        # Update the bg color to white.
+        self._sequence_changed = False
+        self._previousSequence = sequence
+        self._updateSequenceBgColor()
+        
+        # Update window title with name of current protein.
+        titleString = 'Sequence Editor for ' + self.current_protein.name
+        self.setWindowTitle(titleString)
+        
+        if not self.isVisible():
+            #Show the sequence editor if it isn't visible.
+            #ATTENTION: the sequence editor will (temporarily) close the
+            #Reports dockwidget (if it is visible). The Reports dockwidget
+            #is restored when the sequence Editor is closed.
+            self.show()
+            
+        return
+    
+    def setCursorPosition(self, inCursorPos = -1):
+        """
+        Set the cursor position to I{cursorPos} in the sequence 
+        textedit widget.
+        
+        @param inCursorPos: the position in the sequence in which to place the
+                          cursor. If cursorPos is negative, the cursor position
+                          is placed at the end of the sequence (default).
+        @type  inCursorPos: int
+        """
+        
+        # Make sure cursorPos is in the valid range.
+        if inCursorPos < 0:
+            cursorPos = self.getSequenceLength() - 1
+            anchorPos = self.getSequenceLength()
+        elif inCursorPos >= self.getSequenceLength():
+            cursorPos = self.getSequenceLength() - 1
+            anchorPos = self.getSequenceLength()
+        else:
+            cursorPos = inCursorPos
+            anchorPos = inCursorPos + 1
+        
+        # Useful print statements for debugging.
+        print "setCursorPosition(): Sequence=", self.getPlainSequence()
+        print "setCursorPosition(): Final inCursorPos=%d\ncursorPos=%d, anchorPos=%d" % (inCursorPos, cursorPos, anchorPos)
+        
+        # Finally, set the cursor position in the sequence.
+        cursor = self.sequenceTextEdit.textCursor()
+        cursor.setPosition(anchorPos, QTextCursor.MoveAnchor)
+        cursor.setPosition(cursorPos, QTextCursor.KeepAnchor)
+        self.sequenceTextEdit.setTextCursor( cursor )
+        
+        cursorMate = self.secStrucTextEdit.textCursor()
+        cursorMate.setPosition(anchorPos, QTextCursor.MoveAnchor)  
+        cursorMate.setPosition(cursorPos, QTextCursor.KeepAnchor) 
+        self.secStrucTextEdit.setTextCursor( cursorMate )
+        
+        cursorMate2 = self.aaRulerTextEdit.textCursor()
+        cursorMate2.setPosition(anchorPos, QTextCursor.MoveAnchor)  
+        cursorMate2.setPosition(cursorPos, QTextCursor.KeepAnchor) 
+        self.aaRulerTextEdit.setTextCursor( cursorMate2 )
+            
+        return
         
     def getCursorPosition( self ):
         """
-        Returns the cursor position in the 
-        strand sequence textedit widget.
+        Returns the cursor position in the sequence textedit widget.
         """
         cursor  =  self.sequenceTextEdit.textCursor()
         return cursor.position()
 
-    def cursorPosChanged( self ):
+    def _cursorPosChanged( self ):
         """
-        Slot called when the cursor position of the strand textEdit changes. 
+        Slot called when the cursor position of the sequence textEdit changes. 
         When this happens, this method also changes the cursor position 
         of the 'Mate' text edit. Because of this, both the text edit widgets 
         in the Sequence Editor scroll 'in sync'.
         """  
-        strandSequence = self.sequenceTextEdit.toPlainText() 
-        cursor  =  self.sequenceTextEdit.textCursor()
-        cursor_mate =  self.secStrucTextEdit.textCursor()
-        cursor_mate2 =  self.aaRulerTextEdit.textCursor()
-        
-        if cursor.position() == len(self.sequenceTextEdit.toPlainText()):
-            curPos = 1
-        else:
-            curPos = cursor.position()
-            
-        if cursor_mate.position() != cursor.position():
-            cursor_mate.setPosition( curPos, 
-                                    QTextCursor.MoveAnchor )
-            cursor_mate2.setPosition( curPos, 
-                                    QTextCursor.MoveAnchor )
-            #After setting position, it is important to do setTextCursor 
-            #otherwise no effect will be observed. 
-            self.secStrucTextEdit.setTextCursor(cursor_mate)
-            self.aaRulerTextEdit.setTextCursor(cursor_mate2)
-        
-        #provide amino acid info as cursor position changes    
-        env.history.statusbar_msg("")
-        current_command = self.win.commandSequencer.currentCommand.commandName
-        commandSet = ('EDIT_ROTAMERS', \
-                      'EDIT_RESIDUES', \
-                      'BUILD_PROTEIN', \
-                      'MODEL_PROTEIN', \
-                      'SIMULATE_PROTEIN')
-        if current_command not in commandSet:
+        if self._suppress_cursorPosChanged_signal:
             return
         
-        position = cursor.position()
-        if position == 0:
-            # piotr 080912: fixed an exception when user clicked on position 0
-            position = 1
-        proteinExists = False
-        if current_command in commandSet:
-            current_protein = self.win.commandSequencer.currentCommand.propMgr.current_protein
-            for mol in self.win.assy.molecules:
-                if mol.isProteinChunk() and mol.name == current_protein:
-                    proteinChunk = mol
-                    self._display_and_recenter(current_protein, position - 1)
-                    proteinExists = True
-                    break
+        cursor  =  self.sequenceTextEdit.textCursor()
+        cursorPos = cursor.position()
+        print "_cursorPosChanged(): Here! cursorPos=", cursorPos
         
-        if proteinExists:
-            toolTipText = proteinChunk.protein.get_amino_acid_id(position - 1)
-            self.sequenceTextEdit.setToolTip(str(toolTipText)) 
-            env.history.statusbar_msg(toolTipText)
+        self._suppress_cursorPosChanged_signal = True
+        self.setCursorPosition(inCursorPos = cursorPos) # sets all three.
+        self._suppress_cursorPosChanged_signal = False
         
-            if self.win.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS':
-                self.win.commandSequencer.currentCommand.propMgr.aminoAcidsComboBox.setCurrentIndex(position - 1)
-            if self.win.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
-                self.win.commandSequencer.currentCommand.propMgr._sequenceTableCellChanged(position - 1, 0)    
-                self.win.commandSequencer.currentCommand.propMgr.sequenceTable.setCurrentCell(position - 1, 3) 
+        # Provide amino acid info as cursor position changes    
+        env.history.statusbar_msg("")
+        current_command = self.win.commandSequencer.currentCommand
+        commandSet = ('EDIT_ROTAMERS', 'EDIT_RESIDUES')
+        
+        if current_command.commandName not in commandSet:
+            return
+        
+        aaIndex = min(cursorPos, self.getSequenceLength() - 1)
+        
+        # Does "Edit Residues" have display_and_recenter()?
+        self.current_protein.protein.set_current_amino_acid_index(aaIndex)
+        current_command.propMgr.display_and_recenter()
+        
+        toolTipText = self.current_protein.protein.get_amino_acid_id(aaIndex)
+        self.sequenceTextEdit.setToolTip(str(toolTipText)) 
+        env.history.statusbar_msg(toolTipText)
+    
+        if current_command.commandName == 'EDIT_ROTAMERS':
+            current_command.propMgr.currentResidueComboBox.setCurrentIndex(aaIndex)
+        if current_command.commandName == 'EDIT_RESIDUES':
+            current_command.propMgr._sequenceTableCellChanged(aaIndex, 0)    
+            current_command.propMgr.sequenceTable.setCurrentCell(aaIndex, 3) 
         return
-            
-            
-    def _display_and_recenter(self, current_protein, index):
+    
+    def _display_and_recenter(self, index):
         """
         Display and recenter the view on the current amino acid under the cursor
         in the text edit
         
-        @param current_protein: currently selected protein in the protein combo 
-                                box in Build_Protein PM
-        @type current_protein: string
-        
         @param index: index of amino acid under cursor in sequence text edit
         @type index: int 
+        
+        @note: this method has no callers. It will likely be moved to 
+               EditResidues_PM soon.  -Mark 2008-12-20 
         """
-        #@@@ Change current_protein from string to Chunk. Mark 2008-12-13
-        for chunk in self.win.assy.molecules:
-            if chunk.isProteinChunk() and chunk.name == current_protein:
-                chunk.protein.collapse_all_rotamers()
-                current_aa = chunk.protein.get_amino_acid_at_index(index)
-                if current_aa:
-                    chunk.protein.expand_rotamer(current_aa)
-                    if self.win.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS':
-                        checked = self.win.commandSequencer.currentCommand.propMgr.recenterViewCheckBox.isChecked()
-                        if checked:
-                            ca_atom = current_aa.get_c_alpha_atom()
-                            if ca_atom:
-                                self.win.glpane.pov = -ca_atom.posn()  
-                    if self.win.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
-                        checked = self.win.commandSequencer.currentCommand.propMgr.recenterViewCheckBox.isChecked()
-                        if checked:
-                            ca_atom = current_aa.get_c_alpha_atom()
-                            if ca_atom:
-                                self.win.glpane.pov = -ca_atom.posn()              
-                    self.win.glpane.gl_update()
+        chunk = self.current_protein
+        chunk.protein.collapse_all_rotamers()
+        current_aa = chunk.protein.get_amino_acid_at_index(index)
+        if current_aa:
+            if self.win.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
+                checked = self.win.commandSequencer.currentCommand.propMgr.recenterViewCheckBox.isChecked()
+                if checked:
+                    ca_atom = current_aa.get_c_alpha_atom()
+                    if ca_atom:
+                        self.win.glpane.pov = -ca_atom.posn()              
+            self.win.glpane.gl_update()
+        return
     
-    def openStrandSequenceFile(self):
+    def _open_FASTA_File(self):
         """
-        Open (read) the user specified Strand sequence file and enter the 
-        sequence in the Strand sequence Text edit. Note that it ONLY reads the 
-        FIRST line of the file.
+        Open (read) the user specified FASTA sequence file and load it into
+        the sequence field.
+        
         @TODO: It only reads in the first line of the file. Also, it doesn't
                handle any special cases. (Once the special cases are clearly 
                defined, that functionality will be added. 
+               
+        @attention: This is not implemented yet.
         """
         #Urmi 20080714: should not this be only fasta file, for both load and save
         if self.parentWidget.assy.filename: 
@@ -591,9 +756,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         self.sequenceFileName = \
             str(QFileDialog.getOpenFileName( 
                 self,
-                "Load Strand Sequence",
+                "Load FASTA sequence for " + self.current_protein.name,
                 odir,
-                "Strand Sequnce file (*.txt);;All Files (*.*);;"))  
+                "FASTA file (*.txt);;All Files (*.*);;"))  
         lines = self.sequenceFileName
         try:
             lines = open(self.sequenceFileName, "rU").readlines()         
@@ -605,18 +770,21 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         sequence = QString(sequence) 
         sequence = sequence.toUpper()
         self._updateSequence(sequence)
-        
+        return
     
-    def _writeStrandSequenceFile(self, fileName, strandSequence):
+    def _write_FASTA_File(self, fileName, sequence):
         """
-        Writes out the strand sequence (in the Strand Sequence editor) into 
-        a file.
+        Writes I{sequence} in FASTA format to I{filename}.
         
-        @param fileName: file to which the strand sequence is written to
-        @type fileName: str
+        @param fileName: full path of the file.
+        @type  fileName: str
         
-        @param strandSequence: strand sequence that is written
-        @type strandSequence: str
+        @param sequence: AA sequence to be saved in FASTA format.
+        @type  sequence: str
+        
+        @attention: The sequence is not written in FASTA format yet.
+        
+        @TODO: Write sequence in FASTA format.
         """                
         try:
             f = open(fileName, "w")
@@ -624,13 +792,14 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             print "Exception occurred to open file %s to write: " % fileName
             return None
        
-        f.write(str(strandSequence))  
+        f.write(str(sequence))  
         f.close()
+        return
     
-    def saveStrandSequence(self):
+    def _savePeptideSequence(self):
         """
-        Save the strand sequence entered in the Strand text edit in the 
-        specified file. 
+        Save the current sequence (displayed in the sequence field) in FASTA 
+        format in the specified file. 
         """
         if not self.sequenceFileName:  
             sdir = env.prefs[workingDirectory_prefs_key]
@@ -639,9 +808,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
            
         fileName = QFileDialog.getSaveFileName(
                      self,              
-                     "Save Strand Sequence As ...",
+                     "Save Sequence As ...",
                      sdir,
-                    "Strand Sequence File (*.txt)"
+                    "FASTA File (*.txt)"
                      )
         
         if fileName:
@@ -656,7 +825,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
                 
                 ret = QMessageBox.warning( 
                     self, 
-                    "Save Strand Sequence...", 
+                    "Save Sequence...", 
                     "The file \"" + fileName + "\" already exists.\n"\
                     "Do you want to overwrite the existing file or cancel?",
                     "&Overwrite", "&Cancel", "",
@@ -668,9 +837,10 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
                     return 
                     
             # write the current set of element colors into a file    
-            self._writeStrandSequenceFile(
+            self._write_FASTA_File(
                 fileName,
                 str(self.sequenceTextEdit.toPlainText()))
+        return
    
     # ==== Methods to support find and replace. 
     # Should this (find and replace) be in its own class? -- Ninad 2007-11-28
@@ -680,12 +850,14 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         Find the next occurence of the search string in the sequence
         """
         self._findNextOrPrevious()
+        return
         
     def findPrevious(self):
         """
         Find the previous occurence of the search string in the sequence
         """
         self._findNextOrPrevious(findPrevious = True)
+        return
         
     def _findNextOrPrevious(self, findPrevious = False):
         """
@@ -730,6 +902,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         #Display or hide the warning widgets (that say 'sequence not found' 
         #based on the boolean 'found' 
         self._toggleWarningWidgets(found)
+        return
         
     def _toggleWarningWidgets(self, found):
         """
@@ -750,6 +923,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             self.phraseNotFoundLabel.hide()
             self.warningSign.hide()
             self.replacePushButton.setEnabled(True)
+        return
         
     def findLineEdit_textEdited(self, searchString):
         """
@@ -764,7 +938,8 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         #findNext sets the focus inside the sequenceTextEdit. So set it back to
         #to the findLineEdit to permit entering more characters.
         if not self.findLineEdit.hasFocus():
-            self.findLineEdit.setFocus()        
+            self.findLineEdit.setFocus()
+        return
     
     def replace(self):
         """
@@ -796,5 +971,6 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         
         #Find the next occurance of the 'seqrchString' in the sequence.
         self.findNext()
+        return
         
     

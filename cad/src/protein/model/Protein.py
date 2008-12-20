@@ -20,6 +20,10 @@ piotr 080707: Created a preliminary version of the Protein class.
 piotr 081908: Completed docstrings and documented better the code.
 
 piotr 082008: Better documentation of this file; code re-factoring.
+
+To do:
+
+- get_id_for_aa(): Add flag options for customizing the description(s) returned for aa_ids.
 """
 
 import foundation.env as env
