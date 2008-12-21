@@ -17,14 +17,9 @@ TODO:
 - Add wait (hourglass) cursor when changing the display style of proteins.
 - Allow user to rename current protein in the Name field.
 - Need to implement a validator for the Name line edit field.
-- Allow user to unselect the current peptide without clearing the PM (making
-  the UI consistent with Strand Properties).
-- Checking "Center view on current residue" should center view immediately.
 
 BUGS:
 - Changing Chi angles doesn't update rotamer position in the GA.
-- The "Current residue" doesn't always show the previous residue when 
-  selecting back and forth b/w peptides.
 """
 import os, time, fnmatch, string
 import foundation.env as env
@@ -128,6 +123,10 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         change_connect(self.nextButton, 
                        SIGNAL("clicked()"), 
                        self._expandNextRotamer)
+        
+        change_connect(self.recenterViewCheckBox,
+                       SIGNAL("toggled(bool)"),
+                       self._centerViewToggled)
         
         change_connect(self.showAllResiduesCheckBox,
                        SIGNAL("toggled(bool)"),
@@ -338,7 +337,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
 
         self.win.connect(self.chi1Dial,
                          SIGNAL("valueChanged(int)"),
-                         self._rotateChi1)
+                         self._rotateChi1) #@@@
         
         self.chi2Dial  =  \
             PM_Dial( pmGroupBox,
@@ -425,6 +424,14 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         self._updateResidueInfo()
         return
     
+    def _centerViewToggled(self, checked):
+        """
+        Slot for "Center view on current residue" checkbox.
+        """
+        if checked:
+            self.display_and_recenter()
+        return
+    
     def _showAllResidues(self, show):
         """
         Slot for "Show all residues" checkbox.
@@ -456,7 +463,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         self.current_protein.protein.expand_all_rotamers()
         self.win.glpane.gl_update()
         return
-    
+        
     def display_and_recenter(self):
         """
         Recenter the view on the current amino acid selected in the 
@@ -602,6 +609,14 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         
         if self.current_protein is self.previous_protein:
             print "_update_UI_do_updates(): DO NOTHING."
+            return
+        
+        # It is common that the user will unselect the current protein.
+        # If so, set current_protein to previous_protein so that it 
+        # (the previously selected protein) remains the current protein 
+        # in the PM and sequence editor.
+        if not self.current_protein:
+            self.current_protein = self.previous_protein
             return
         
         # Update all PM widgets that need to be since something has changed.
