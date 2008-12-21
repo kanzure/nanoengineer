@@ -539,8 +539,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
     
     def setCursorPosition(self, inCursorPos = -1):
         """
-        Set the cursor position to I{cursorPos} in the sequence 
-        textedit widget.
+        Set the cursor position to I{cursorPos} in the sequence textedit widget.
         
         @param inCursorPos: the position in the sequence in which to place the
                           cursor. If cursorPos is negative, the cursor position
@@ -581,6 +580,8 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         cursorMate2.setPosition(cursorPos, QTextCursor.KeepAnchor) 
         self.aaRulerTextEdit.setTextCursor( cursorMate2 )
         
+        self._updateToolTip()
+        
         self._suppress_cursorPosChanged_signal = False
             
         return
@@ -616,23 +617,30 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         if current_command.commandName not in commandSet:
             return
         
-        aaIndex = min(cursorPos, self.getSequenceLength() - 1)
-        
-        # Does "Edit Residues" have display_and_recenter()?
-        self.current_protein.protein.set_current_amino_acid_index(aaIndex)
-        current_command.propMgr.display_and_recenter()
-        
-        toolTipText = self.current_protein.protein.get_amino_acid_id(aaIndex)
-        self.sequenceTextEdit.setToolTip(str(toolTipText)) 
-        env.history.statusbar_msg(toolTipText)
+        aa_index = min(cursorPos, self.getSequenceLength() - 1)
     
         if current_command.commandName == 'EDIT_ROTAMERS':
-            current_command.propMgr.currentResidueComboBox.setCurrentIndex(aaIndex)
+            current_command.propMgr.setCurrentAminoAcid(aa_index)
         if current_command.commandName == 'EDIT_RESIDUES':
-            current_command.propMgr._sequenceTableCellChanged(aaIndex, 0)    
-            current_command.propMgr.sequenceTable.setCurrentCell(aaIndex, 3) 
+            current_command.propMgr._sequenceTableCellChanged(aa_index, 0)    
+            current_command.propMgr.sequenceTable.setCurrentCell(aa_index, 3) 
+            
+        self._updateToolTip()
+        
         return
     
+    def _updateToolTip(self):
+        """
+        Update the tooltip text (and status bar) with the current residue id.
+        """
+        aa_index = self.current_protein.protein.get_current_amino_acid_index()
+        aa_info = self.current_protein.protein.get_amino_acid_id(aa_index)
+        aa_id, residue_id = aa_info.strip().split(":")
+        toolTipText = residue_id
+        self.sequenceTextEdit.setToolTip(str(toolTipText)) 
+        env.history.statusbar_msg(toolTipText)
+        return
+        
     def _display_and_recenter(self, index):
         """
         Display and recenter the view on the current amino acid under the cursor

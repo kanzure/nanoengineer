@@ -11,20 +11,19 @@ Build > Protein mode.
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 TODO:
-- Show residue label in GA of current residue, including AA and # (i.e. SER[14]).
+- Rename "Edit Rotamers" to "Edit Proteins".
 - Better messages, especially when selecting different peptides.
-- Include "Show entire model" checkbox in PM (checked by default).
-- Add wait (hourglass) cursor when changing the display style of proteins.
-- Allow user to rename current protein in the Name field.
 - Need to implement a validator for the Name line edit field.
+
+NICETOHAVE:
 - Dim everything in the current protein except the atoms in the current aa.
+- Include "Show entire model" checkbox in PM (checked by default).
+- Show residue label in GA of current residue, including AA and # (i.e. SER[14]).
 
 REFACTORING:
 Things to discuss with Bruce include an asterisk:
-- Should current_struct be renamed to command.struct everywhere? *
-- Add current_aa attr (will eliminate redundant calls to 
-  self.current_protein.protein.get_current_amino_acid())
-- Moving some methods to EditRotamers_Command or EditCommand class. *
+- Should current_protein be renamed to command.struct everywhere? *
+- Move some methods to EditRotamers_Command or EditCommand class. *
   - add setStructureName(name) in EditRotamers_Command or in superclass EditCommand?
   - other methods that edit the current protein.
 """
@@ -92,6 +91,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
     
     current_protein  = None # The currently selected peptide.
     previous_protein = None # The last peptide selected.
+    current_aa       = None # The current amino acid.
 
     
     def __init__( self, command ):
@@ -121,7 +121,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         
         change_connect(self.currentResidueComboBox,
                        SIGNAL("activated(int)"),
-                       self._currentResidueChanged)
+                       self.setCurrentAminoAcid)
         
         change_connect(self.prevButton, 
                        SIGNAL("clicked()"), 
@@ -221,19 +221,11 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         
         aa_list = self.current_protein.protein.get_amino_acid_id_list()
         for j in range(len(aa_list)):
-            self.currentResidueComboBox.addItem(aa_list[j])
+            aa_id, residue_id = aa_list[j].strip().split(":")
+            self.currentResidueComboBox.addItem(residue_id)
+            pass
         
-        # This doesn't generate a signal (only 'activate' is connected to 
-        # slot _currentResidueChanged).
-        self.currentResidueComboBox.setCurrentIndex(
-            self.current_protein.protein.get_current_amino_acid_index())
-        
-        # Call the slot explicitly. This is needed to draw the rotamer
-        # on top of the reduced model of the current protein.
-        # Also see the comments in _update_UI_do_updates().
-        self._currentResidueChanged(
-            self.current_protein.protein.get_current_amino_acid_index())
-        
+        self.setCurrentAminoAcid()
         return
     
     def close(self):
@@ -420,7 +412,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             return
         
         self.current_protein.protein.traverse_forward()
-        self._updateResidueInfo()
+        self.setCurrentAminoAcid()
         return
     
     def _expandPreviousRotamer(self):
@@ -433,7 +425,7 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             return
         
         self.current_protein.protein.traverse_backward()
-        self._updateResidueInfo()
+        self.setCurrentAminoAcid()
         return
     
     def _centerViewToggled(self, checked):
@@ -492,15 +484,14 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         self.connect_or_disconnect_signals(isConnect = True)
         
         self.current_protein.protein.collapse_all_rotamers()
-        current_aa = self.current_protein.protein.get_current_amino_acid()
         
         # Display the current amino acid and center it in the view if the
         # "Center view on current residue" is checked.
-        if current_aa:
-            self.current_protein.protein.expand_rotamer(current_aa)
-            self._update_chi_angles(current_aa)
+        if self.current_aa:
+            self.current_protein.protein.expand_rotamer(self.current_aa)
+            self._update_chi_angles(self.current_aa)
             if self.recenterViewCheckBox.isChecked():
-                ca_atom = current_aa.get_c_alpha_atom()
+                ca_atom = self.current_aa.get_c_alpha_atom()
                 if ca_atom:
                     self.win.glpane.pov = -ca_atom.posn()                            
             
@@ -542,29 +533,28 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             self.chi4Dial.setEnabled(False)
             self.chi4Dial.setValue(0.0)
         return
-    
-    def _updateResidueInfo(self):
-        """
-        Update the "Current residue" combobox and the cursor position of the
-        sequence editor based on the current protein's amino acid index.
-        """
-        aa_index = self.current_protein.protein.get_current_amino_acid_index()
-        self.currentResidueComboBox.setCurrentIndex(aa_index)
-        self.sequenceEditor.setCursorPosition(aa_index)
-        self.display_and_recenter()
-        return
         
-    def _currentResidueChanged(self, index):
+    def setCurrentAminoAcid(self, aa_index = -1):
         """
-        Slot for the "Current residue" combobox.
+        Set the current amino acid to I{aa_index} and update the 
+        "Current residue" combobox and the sequence editor.
+        @param aa_index: the amino acid index. If negative, update the PM and 
+                         sequence editor based on the current aa_index.
+        @type  aa_index: int
+        @note: This is the slot for the "Current residue" combobox.
         """
         if not self.current_protein:
             return
         
-        print"_currentResidueChanged(): index=", index
-        self.current_protein.protein.set_current_amino_acid_index(index)
+        if aa_index < 0:
+            aa_index = self.current_protein.protein.get_current_amino_acid_index()
+            
+        print"setCurrentAminoAcid(): aa_index=", aa_index
+        self.currentResidueComboBox.setCurrentIndex(aa_index)
+        self.current_protein.protein.set_current_amino_acid_index(aa_index)
+        self.current_aa = self.current_protein.protein.get_current_amino_acid()
         self.display_and_recenter()
-        self.sequenceEditor.setCursorPosition(index)
+        self.sequenceEditor.setCursorPosition(aa_index)
         return
     
     def _rotateChiAngle(self, chi, angle):
@@ -574,11 +564,11 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         if not self.current_protein:
             return
         
-        current_aa = self.current_protein.protein.get_current_amino_acid()
+        #@@@current_aa = self.current_protein.protein.get_current_amino_acid()
         
-        if current_aa:
-            self.current_protein.protein.expand_rotamer(current_aa)
-            current_aa.set_chi_angle(chi, angle)
+        if self.current_aa:
+            self.current_protein.protein.expand_rotamer(self.current_aa)
+            self.current_aa.set_chi_angle(chi, angle)
             self.win.glpane.gl_update()
 
         return
