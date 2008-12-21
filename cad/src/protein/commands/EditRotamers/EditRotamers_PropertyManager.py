@@ -17,6 +17,16 @@ TODO:
 - Add wait (hourglass) cursor when changing the display style of proteins.
 - Allow user to rename current protein in the Name field.
 - Need to implement a validator for the Name line edit field.
+- Dim everything in the current protein except the atoms in the current aa.
+
+REFACTORING:
+Things to discuss with Bruce include an asterisk:
+- Should current_struct be renamed to command.struct everywhere? *
+- Add current_aa attr (will eliminate redundant calls to 
+  self.current_protein.protein.get_current_amino_acid())
+- Moving some methods to EditRotamers_Command or EditCommand class. *
+  - add setStructureName(name) in EditRotamers_Command or in superclass EditCommand?
+  - other methods that edit the current protein.
 """
 import os, time, fnmatch, string
 import foundation.env as env
@@ -155,13 +165,15 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
     def _nameChanged(self):
         """
         Slot for "Name" field.
+        
+        @TODO: Include a validator for the name field.
         """
         if not self.current_protein:
             return
         
         _name = str(self.nameLineEdit.text())
         
-        if not _name: # Minimal test. IMPLEMENT A VALIDATOR. #@@@
+        if not _name: # Minimal test. Need to implement a validator.
             if self.current_protein:
                 self.nameLineEdit.setText(self.current_protein.name)
             return
