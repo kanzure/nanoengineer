@@ -17,9 +17,6 @@ TODO:
 - Add wait (hourglass) cursor when changing the display style of proteins.
 - Allow user to rename current protein in the Name field.
 - Need to implement a validator for the Name line edit field.
-
-BUGS:
-- Changing Chi angles doesn't update rotamer position in the GA.
 """
 import os, time, fnmatch, string
 import foundation.env as env
@@ -132,6 +129,25 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
                        SIGNAL("toggled(bool)"),
                        self._showAllResidues)
         
+        # Rotamer control widgets.
+        
+        change_connect(self.chi1Dial,
+                       SIGNAL("valueChanged(int)"),
+                       self._rotateChi1)
+        
+                
+        change_connect(self.chi2Dial,
+                       SIGNAL("valueChanged(int)"),
+                       self._rotateChi2)
+        
+        change_connect(self.chi3Dial,
+                       SIGNAL("valueChanged(int)"),
+                       self._rotateChi3)
+        
+        # Chi4 dial is hidden.
+        change_connect(self.chi4Dial,
+                       SIGNAL("valueChanged(double)"),
+                       self._rotateChi4)
         return
     
     #==
@@ -155,7 +171,6 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         self.updateMessage(msg)
         
         return
-    
     
     def update_name_field(self):
         """
@@ -334,10 +349,6 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
                               spanWidth = False)
         
         self.chi1Dial.setEnabled(False)
-
-        self.win.connect(self.chi1Dial,
-                         SIGNAL("valueChanged(int)"),
-                         self._rotateChi1) #@@@
         
         self.chi2Dial  =  \
             PM_Dial( pmGroupBox,
@@ -351,10 +362,6 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         
         self.chi2Dial.setEnabled(False)
         
-        self.win.connect(self.chi2Dial,
-                         SIGNAL("valueChanged(int)"),
-                         self._rotateChi2)
-        
         self.chi3Dial  =  \
             PM_Dial( pmGroupBox,
                               label         =  "Chi3:",
@@ -366,10 +373,6 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
                               spanWidth = False)
         
         self.chi3Dial.setEnabled(False)
-
-        self.win.connect(self.chi3Dial,
-                         SIGNAL("valueChanged(int)"),
-                         self._rotateChi3)
         
         self.chi4Dial  =  \
             PM_Dial( pmGroupBox,
@@ -385,9 +388,6 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
         
         self.chi4Dial.hide()
         
-        self.win.connect(self.chi4Dial,
-                         SIGNAL("valueChanged(double)"),
-                         self._rotateChi4)
         return
         
     def _addWhatsThisText( self ):
@@ -563,16 +563,17 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
             return
         
         current_aa = self.current_protein.protein.get_current_amino_acid()
+        
         if current_aa:
             self.current_protein.protein.expand_rotamer(current_aa)
             current_aa.set_chi_angle(chi, angle)
             self.win.glpane.gl_update()
 
         return
-                
+    
     def _rotateChi1(self, angle):
         """
-        
+        Slot for Chi1 dial.
         """
         self._rotateChiAngle(0, angle)
         self.chi1Dial.updateValueLabel()

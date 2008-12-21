@@ -847,7 +847,8 @@ class Residue:
         
         # Get a list of atoms to rotate.
         chi_atom_list = self.get_chi_atom_list(which)
-        if len(chi_atom_list)>0:
+        
+        if len(chi_atom_list) > 0:
             # Calculate a current chi torsion angle.
             angle0 = calc_torsion_angle(chi_atom_list)
             # Calculate a difference between the current angle and 
@@ -894,7 +895,7 @@ class Residue:
                     # Set the atom position.
                     atom.setposn(q)
                     
-                    return angle
+            return angle
                 
         return None
         
