@@ -9,31 +9,31 @@ import foundation.changes as changes
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
-from protein.commands.EditRotamers.EditRotamers_PropertyManager import EditRotamers_PropertyManager
+from protein.commands.EditProtein.EditProtein_PropertyManager import EditProtein_PropertyManager
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
 
-class EditRotamers_GraphicsMode(SelectChunks_GraphicsMode ):
+class EditProtein_GraphicsMode(SelectChunks_GraphicsMode ):
     """
-    Graphics mode for Edit Rotamers command. 
+    Graphics mode for Edit Protein command. 
     """
     pass
     
 # == Command part
 
 
-class EditRotamers_Command(EditCommand): 
+class EditProtein_Command(EditCommand): 
     """
     
     """
     # class constants
-    GraphicsMode_class = EditRotamers_GraphicsMode
+    GraphicsMode_class = EditProtein_GraphicsMode
     
-    PM_class = EditRotamers_PropertyManager
+    PM_class = EditProtein_PropertyManager
            
-    commandName = 'EDIT_ROTAMERS'
-    featurename = "Edit Rotamers"
+    commandName = 'EDIT_PROTEIN'
+    featurename = "Edit Protein"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
@@ -48,7 +48,7 @@ class EditRotamers_Command(EditCommand):
         See superclass for documentation.
         @see: self.command_update_flyout()
         """
-        flyoutActionToCheck = 'editRotamersAction'
+        flyoutActionToCheck = 'editProteinAction'
         parentCommandName = 'BUILD_PROTEIN'    
         
         return flyoutActionToCheck, parentCommandName

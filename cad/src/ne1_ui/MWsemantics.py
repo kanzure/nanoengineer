@@ -1414,7 +1414,7 @@ class MWsemantics(QMainWindow,
         """
         protein = ""
         if self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN' or \
-           self.commandSequencer.currentCommand.commandName == 'EDIT_ROTAMERS' or \
+           self.commandSequencer.currentCommand.commandName == 'EDIT_PROTEIN' or \
            self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
             protein = self.commandSequencer.currentCommand.propMgr.current_protein
         
@@ -1662,15 +1662,15 @@ class MWsemantics(QMainWindow,
         self.enterOrExitTemporaryCommand('EDIT_PROTEIN_DISPLAY_STYLE')
         
     
-    def enterEditRotamersCommand(self, isChecked = False):
+    def enterEditProteinCommand(self, isChecked = False):
         """
         Enter edit rotamers command
-        @param isChecked: If enterEditRotamersCommand button in the 
+        @param isChecked: If enterEditProteinCommand button in the 
                           Protein Flyout toolbar is
-                          checked, enter enterEditRotamersMode. 
+                          checked, enter enterEditProteinMode. 
         @type isChecked: bool
         """
-        self.enterOrExitTemporaryCommand('EDIT_ROTAMERS')
+        self.enterOrExitTemporaryCommand('EDIT_PROTEIN')
             
         
     def enterEditResiduesCommand(self, isChecked = False):

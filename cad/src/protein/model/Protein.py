@@ -106,7 +106,7 @@ class Protein:
         # in the following format: "1abc"
         self.pdbId = ""
         
-        # Index of "current" amino acid (used by Edit Rotamers command).
+        # Index of "current" amino acid (used by Edit Protein command).
         self.current_aa_idx = 0
 
         # Display list for expanded rotamers, used by ProteinChunk.draw_realtime
@@ -537,7 +537,7 @@ class Protein:
     # General comment regarding the "current residue" mechanism. The purpose
     # of the "current_aa_idx" attribute is to have a mechanism for selecting
     # and focusing on an individual amino acid. Currently, this mechanism
-    # is only used by "Edit Rotamers" command and probably the "Edit Rotamers"
+    # is only used by "Edit Protein" command and probably the "Edit Protein"
     # command should keep track of the current residue. It would be
     # better if this attribute was removed from the Protein class. 
     # -- piotr 080902
@@ -635,7 +635,7 @@ class Protein:
                the actual model. Maybe we'll take care of that when we move to the
                new model
         """ 
-        win.commandSequencer.userEnterCommand('EDIT_ROTAMERS')
+        win.commandSequencer.userEnterCommand('EDIT_PROTEIN')
         return
        
     pass # end of class Protein

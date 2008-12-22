@@ -82,7 +82,7 @@ from dna.commands.ConvertDna.ConvertDna_Command import ConvertDna_Command
 # Protein commands
 from protein.commands.InsertPeptide.InsertPeptide_EditCommand import InsertPeptide_EditCommand
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
-from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Command
+from protein.commands.EditProtein.EditProtein_Command import EditProtein_Command
 from protein.commands.EditResidues.EditResidues_Command import EditResidues_Command
 from protein.commands.CompareProteins.CompareProteins_Command import CompareProteins_Command
 
@@ -171,7 +171,7 @@ def preloaded_command_classes():
         InsertPeptide_EditCommand,
         ProteinDisplayStyle_Command,
         LightingScheme_Command,
-        EditRotamers_Command,
+        EditProtein_Command,
         EditResidues_Command,
         CompareProteins_Command,
         ModelProtein_Command,

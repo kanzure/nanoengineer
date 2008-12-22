@@ -1,9 +1,9 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
-EditRotamers_PropertyManager.py
+EditProtein_PropertyManager.py
 
-The EditRotamers_PropertyManager class provides a Property Manager 
-for the B{Edit Rotamers} command on the flyout toolbar in the 
+The EditProtein_PropertyManager class provides a Property Manager 
+for the B{Edit Protein} command on the flyout toolbar in the 
 Build > Protein mode. 
 
 @author: Piotr, Mark
@@ -11,20 +11,23 @@ Build > Protein mode.
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 TODO:
-- Rename "Edit Rotamers" to "Edit Proteins".
 - Better messages, especially when selecting different peptides.
 - Need to implement a validator for the Name line edit field.
 
 NICETOHAVE:
-- Dim everything in the current protein except the atoms in the current aa.
+- Some way of showing the current rotamer when all rotamers are displayed. 
+  Ideas include:
+  - Dim all rotamers in the current protein except the atoms in the current rotamer.
+  - Highlight atoms in current rotamer for 1 second (when switching rotamers).
 - Include "Show entire model" checkbox in PM (checked by default).
 - Show residue label in GA of current residue, including AA and # (i.e. SER[14]).
+- "Show adjacent rotamers" checkbox.
 
 REFACTORING:
 Things to discuss with Bruce include an asterisk:
 - Should current_protein be renamed to command.struct everywhere? *
-- Move some methods to EditRotamers_Command or EditCommand class. *
-  - add setStructureName(name) in EditRotamers_Command or in superclass EditCommand?
+- Move some methods to EditProtein_Command or EditCommand class. *
+  - add setStructureName(name) in EditProtein_Command or in superclass EditCommand?
   - other methods that edit the current protein.
 """
 import os, time, fnmatch, string
@@ -63,10 +66,10 @@ from PyQt4.Qt import QTextCursor
 from command_support.Command_PropertyManager import Command_PropertyManager
 
 _superclass = Command_PropertyManager
-class EditRotamers_PropertyManager(Command_PropertyManager):
+class EditProtein_PropertyManager(Command_PropertyManager):
     """
     The ProteinDisplayStyle_PropertyManager class provides a Property Manager 
-    for the B{Edit Rotamers} command on the Build Protein command toolbar. 
+    for the B{Edit Protein} command on the Build Protein command toolbar. 
     
     The selected peptide/protein is displayed in the protein reduced display
     style. The user can select individual rotamers and edit their chi angles.
@@ -85,9 +88,9 @@ class EditRotamers_PropertyManager(Command_PropertyManager):
     @type iconPath: str
     """
 
-    title         =  "Edit Rotamers"
+    title         =  "Edit Protein"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/BuildProtein/EditRotamers.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildProtein/EditProtein.png"
     
     current_protein  = None # The currently selected peptide.
     previous_protein = None # The last peptide selected.

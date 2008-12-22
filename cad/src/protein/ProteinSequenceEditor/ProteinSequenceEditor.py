@@ -612,14 +612,14 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         # Provide amino acid info as cursor position changes    
         env.history.statusbar_msg("")
         current_command = self.win.commandSequencer.currentCommand
-        commandSet = ('EDIT_ROTAMERS', 'EDIT_RESIDUES')
+        commandSet = ('EDIT_PROTEIN', 'EDIT_RESIDUES')
         
         if current_command.commandName not in commandSet:
             return
         
         aa_index = min(cursorPos, self.getSequenceLength() - 1)
     
-        if current_command.commandName == 'EDIT_ROTAMERS':
+        if current_command.commandName == 'EDIT_PROTEIN':
             current_command.propMgr.setCurrentAminoAcid(aa_index)
         if current_command.commandName == 'EDIT_RESIDUES':
             current_command.propMgr._sequenceTableCellChanged(aa_index, 0)    

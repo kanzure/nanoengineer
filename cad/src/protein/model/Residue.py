@@ -438,7 +438,7 @@ class Residue:
         # protein display style.
         self.expanded = False
         
-        # Rotamer color, used by "Edit Rotamers" command.
+        # Rotamer color, used by "Edit Protein" command.
         self.color = None
         
         # These Rosetta-related attributes should be probably moved from this

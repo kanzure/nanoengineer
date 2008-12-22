@@ -86,7 +86,7 @@ class ProteinFlyout(Ui_AbstractFlyout):
         #Command list for the subcontrol area button 'Model Proteins Tool'
         modelProteinsCmdLst = []
         modelProteinsCmdLst.append(self.buildPeptideAction)
-        modelProteinsCmdLst.append(self.editRotamersAction)
+        modelProteinsCmdLst.append(self.editProteinAction)
         modelProteinsCmdLst.append(self.compareProteinsAction)
         modelProteinsCmdLst.append(self.displayProteinStyleAction)    
         commandActionLists[2].extend(modelProteinsCmdLst)
@@ -103,7 +103,7 @@ class ProteinFlyout(Ui_AbstractFlyout):
         else:
             modelProteinsCmdLst = []
             modelProteinsCmdLst.append(self.buildPeptideAction)
-            modelProteinsCmdLst.append(self.editRotamersAction)
+            modelProteinsCmdLst.append(self.editProteinAction)
             modelProteinsCmdLst.append(self.compareProteinsAction)
             modelProteinsCmdLst.append(self.displayProteinStyleAction)    
             commandActionLists[0].extend(modelProteinsCmdLst)
@@ -191,12 +191,12 @@ class ProteinFlyout(Ui_AbstractFlyout):
         self.buildPeptideAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png"))
 
-        self.editRotamersAction = \
+        self.editProteinAction = \
             NE1_QWidgetAction(self.subControlActionGroupForModelProtein, win = self.win)
-        self.editRotamersAction.setText("Rotamers")
-        self.editRotamersAction.setCheckable(True)  
-        self.editRotamersAction.setIcon(
-            geticon("ui/actions/Command Toolbar/BuildProtein/EditRotamers.png"))
+        self.editProteinAction.setText("Protein")
+        self.editProteinAction.setCheckable(True)  
+        self.editProteinAction.setIcon(
+            geticon("ui/actions/Command Toolbar/BuildProtein/EditProtein.png"))
         
         self.compareProteinsAction = \
             NE1_QWidgetAction(self.subControlActionGroupForModelProtein, win = self.win)
@@ -215,7 +215,7 @@ class ProteinFlyout(Ui_AbstractFlyout):
         self.subControlActionGroupForModelProtein.addAction(self.buildPeptideAction)   
         self.subControlActionGroupForModelProtein.addAction(self.displayProteinStyleAction)
         self.subControlActionGroupForModelProtein.addAction(self.compareProteinsAction)
-        self.subControlActionGroupForModelProtein.addAction(self.editRotamersAction)
+        self.subControlActionGroupForModelProtein.addAction(self.editProteinAction)
         return
     
     def _createSimulateProteinsActions(self, parentWidget): 
@@ -313,9 +313,9 @@ class ProteinFlyout(Ui_AbstractFlyout):
                        SIGNAL("triggered(bool)"),
                        self.activateInsertPeptide_EditCommand)
 
-        change_connect(self.editRotamersAction, 
+        change_connect(self.editProteinAction, 
                        SIGNAL("triggered(bool)"),
-                       self.activateEditRotamers_EditCommand)
+                       self.activateEditProtein_EditCommand)
         change_connect(self.editResiduesAction, 
                        SIGNAL("triggered(bool)"),
                        self.activateEditResidues_EditCommand)
@@ -412,15 +412,15 @@ class ProteinFlyout(Ui_AbstractFlyout):
             if action is not self.buildPeptideAction and action.isChecked():
                 action.setChecked(False)
 
-    def activateEditRotamers_EditCommand(self, isChecked):
+    def activateEditProtein_EditCommand(self, isChecked):
         """
-        Slot for B{EditRotamers} action.
+        Slot for B{EditProtein} action.
         """
         
-        self.win.enterEditRotamersCommand(isChecked)
+        self.win.enterEditProteinCommand(isChecked)
 
         for action in self.subControlActionGroupForModelProtein.actions():
-            if action is not self.editRotamersAction and action.isChecked():
+            if action is not self.editProteinAction and action.isChecked():
                 action.setChecked(False)
 
     def activateEditResidues_EditCommand(self, isChecked):
