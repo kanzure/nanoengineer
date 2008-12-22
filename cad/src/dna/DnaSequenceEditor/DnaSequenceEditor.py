@@ -764,7 +764,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             self._setComplementSequence("")
         
         # Set cursor position.
-        self.setCursorPosition(cursorPos = cursorPos)
+        self.setCursorPosition(inCursorPos = cursorPos)
         
         # Update the bg color to white.
         self._sequence_changed = False
