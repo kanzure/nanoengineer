@@ -1,6 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
-ModelAndSimulate_EditCommand.py
+BuildProtein_Command.py
 
 @author: Urmi
 @version: $Id$
@@ -8,20 +8,10 @@ ModelAndSimulate_EditCommand.py
 
 """
 from command_support.EditCommand import EditCommand
-from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from utilities.Log  import greenmsg
 from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
 from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager 
-
-# == GraphicsMode part
-
-_superclass_for_GM = SelectChunks_GraphicsMode
-
-class BuildProteins_GraphicsMode(SelectChunks_GraphicsMode ):
-    """
-    Graphics mode for Edit Proteins command. 
-    """
-    pass
+from protein.commands.BuildProtein.BuildProtein_GraphicsMode    import BuildProtein_GraphicsMode 
 
 _superclass = EditCommand
 class BuildProtein_Command(EditCommand):
@@ -31,19 +21,19 @@ class BuildProtein_Command(EditCommand):
     """
     
     # class constants
-    GraphicsMode_class = BuildProteins_GraphicsMode
+    GraphicsMode_class = BuildProtein_GraphicsMode
     
     PM_class = BuildProtein_PropertyManager
     
     #Flyout Toolbar
     FlyoutToolbar_class = ProteinFlyout
     
-    cmd              =  greenmsg("Model and simulate protein: ")
+    cmd              =  greenmsg("Build Protein: ")
     prefix           =  'ProteinGroup'   # used for gensym
-    cmdname          = "Model and simulate protein"
+    cmdname          = "Build Protein"
 
     commandName       = 'BUILD_PROTEIN'
-    featurename       = "Model and simulate protein"
+    featurename       = "Build Protein"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
     command_should_resume_prevMode = False
