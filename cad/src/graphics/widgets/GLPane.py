@@ -55,10 +55,14 @@ from OpenGL.GL import glGetInteger
 
 from command_support.GraphicsMode_API import GraphicsMode_API # for isinstance assertion
 
+import foundation.env as env
+
 from utilities import debug_flags
 
+from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice_boolean_False
+
 from utilities.debug import print_compact_traceback, print_compact_stack
-import foundation.env as env
 
 from utilities.prefs_constants import compassPosition_prefs_key
 from utilities.prefs_constants import defaultProjection_prefs_key
@@ -89,6 +93,7 @@ from foundation.changes import SubUsageTrackingMixin
 from graphics.widgets.GLPane_mixin_for_DisplayListChunk import GLPane_mixin_for_DisplayListChunk
 
 from PyQt4.Qt  import QApplication, QCursor, Qt
+
 # ==
 
 class GLPane(
@@ -296,7 +301,7 @@ class GLPane(
             # needed here? (Guess yes, to set needs_repaint flag)
         return
 
-    def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
+    def paintGL(self):
         """
         [PRIVATE METHOD -- call gl_update instead!]
 
@@ -307,14 +312,122 @@ class GLPane(
         THIS METHOD SHOULD NOT BE CALLED DIRECTLY
         BY OUR OWN CODE -- CALL gl_update INSTEAD.
         """
-        self._paintGL() # defined in GLPane_rendering_methods
-            # (probably paintGL itself would work fine if defined there --
-            #  untested, since having it here seems just as well)
+        # debug_prefs to help diagnose & work around a bug in swapBuffers
+        # on Mac (maybe specific to Leopard; seems to be a MacOS bug in which
+        # swapBuffers works but the display itself is not updated from that;
+        # not yet in bugzilla but will be soon) [bruce 081222]
+        debug_print_paintGL_calls = \
+            debug_pref("GLPane: print all paintGL calls?",
+                        Choice_boolean_False,
+                        non_debug = True, # temporary ###
+                        prefs_key = True )
+        manual_swapBuffers = \
+            debug_pref("GLPane: do swapBuffers manually?",
+                        # when true, disable QGLWidget.autoBufferSwap and
+                        # call swapBuffers ourselves when desired;
+                        # this is required for some of the following to work,
+                        # so it's also done when they're active even if it's False
+                        Choice_boolean_False,
+                        non_debug = True, # temporary ###
+                        prefs_key = True )
+        no_swapBuffers_when_nothing_painted = \
+            debug_pref("GLPane: no swapBuffers when paintGL returns early?",
+                        # I hoped this might fix some bugs in zoom to area
+                        # rubber rect when swapBuffers behaves differently
+                        # (e.g. after the bug in swapBuffers mentioned above),
+                        # but it doesn't.
+                        Choice_boolean_False,
+                        non_debug = True, # temporary ###
+                        prefs_key = True )
+        simulate_swapBuffers_with_CopyPixels = False
+##        simulate_swapBuffers_with_CopyPixels = \
+##            debug_pref("GLPane: simulate swapBuffers with CopyPixels?", # NIM
+##                        Choice_boolean_False,
+##                        non_debug = True, # temporary ###
+##                        prefs_key = True )
+        debug_verify_swapBuffers = False
+##        debug_verify_swapBuffers = \
+##            debug_pref("GLPane: verify swapBuffers worked?", # NIM
+##                        # verify by reading back a changed pixel, one in each corner
+##                        Choice_boolean_False,
+##                        non_debug = True, # temporary ###
+##                        prefs_key = True )
+        if debug_verify_swapBuffers:
+            manual_swapBuffers = True # required
+        if simulate_swapBuffers_with_CopyPixels:
+            pass ## manual_swapBuffers = True
+                # not strictly required, left out for now, but put it in if this becomes real ###
+
+
+        if debug_print_paintGL_calls:
+            print
+            print "calling paintGL"
         
+        painted_anything = self._paintGL()
+            # _paintGL method is defined in GLPane_rendering_methods
+            # (probably paintGL itself would work fine if defined there --
+            #  untested, since having it here seems just as good)
+
+        want_swapBuffers = True # might be modified below
+        
+        if painted_anything:
+            if debug_print_paintGL_calls:
+                print " it painted (redraw %d)" % env.redraw_counter
+            pass
+        else:
+            if debug_print_paintGL_calls:
+                print " it didn't paint ***"
+                    # note: not seen during zoom to area (nor is painted); maybe no gl_update then?
+            if no_swapBuffers_when_nothing_painted:
+                want_swapBuffers = False
+            pass
+
+        if want_swapBuffers and manual_swapBuffers:
+            # do it now (and later refrain from doing it automatically)
+            self.do_swapBuffers( debug = debug_print_paintGL_calls,
+                                 use_CopyPixels = simulate_swapBuffers_with_CopyPixels,
+                                 verify = debug_verify_swapBuffers )
+            want_swapBuffers = False # it's done, so we no longer want to do it this frame
+
+        # tell Qt whether to do swapBuffers itself when we return
+        if want_swapBuffers:
+            self.setAutoBufferSwap(True)
+            ## assert not simulate_swapBuffers_with_CopyPixels # Qt can't do this on its own swapBuffers call -- ok for now
+            assert not debug_verify_swapBuffers # Qt can't do this on its own swapBuffers call
+        else:
+            self.setAutoBufferSwap(False)
+            if debug_print_paintGL_calls:
+                print " (not doing autoBufferSwap)"
+        
+        # note: before the above code was added, we could test the default state
+        # like this:
+        ## if not self.autoBufferSwap():
+        ##     print " *** BUG: autoBufferSwap is off" #######
+        # but it never printed, so there is no bug there
+        # when the above-mentioned bug in swapBuffers occurs.
+            
         self._resize_just_occurred = False
 
         self._resetWaitCursor_globalDisplayStyle()
 
+        return
+
+    def do_swapBuffers( self,
+                        debug = False,
+                        use_CopyPixels = False,
+                        verify = False ): #bruce 081222
+        """
+        """
+        if verify:
+            # record pixels, change colors to make buffers differ, compare later
+            print "verify is nim" ###
+        if use_CopyPixels:
+            print "use_CopyPixels is nim, no swapBuffers is occurring" ### Q: does this prevent all drawing??
+        else:
+            self.swapBuffers()
+        if verify:
+            # compare, print
+            pass ###
         return
     
     # ==

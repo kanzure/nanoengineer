@@ -26,6 +26,13 @@ from OpenGL.GL import glGetInteger
 from OpenGL.GL import glMatrixMode
 from OpenGL.GL import glPopMatrix
 
+# kluge for debug bruce 081218 (temporary)
+##from OpenGL.GL import glEnable
+##from OpenGL.GL import glLogicOp
+##from OpenGL.GL import glDisable
+##from OpenGL.GL import GL_COLOR_LOGIC_OP
+##from OpenGL.GL import GL_XOR
+
 from PyQt4.QtOpenGL import QGLWidget
 
 import graphics.drawing.drawing_globals as drawing_globals
@@ -129,10 +136,14 @@ class GLPane_rendering_methods(GLPane_image_methods):
         Decide whether we need to call _paintGL_drawing,
         and if so, prepare for that (this might modify the model)
         and then call it.
-
+        
         Also (first) call self._call_whatever_waits_for_gl_context_current()
         if that would be safe.
+
+        @return: whether we modified GL buffer state (by clear or draw).
+        @rtype: boolean
         """
+        #bruce 081222 added return flag
         if TEST_DRAWING:  # See prototype/test_drawing.py
             from prototype.test_drawing import test_drawing, USE_GRAPHICSMODE_DRAW
                 # intentionally redundant with toplevel import [bruce 080930]
@@ -149,18 +160,18 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 self.graphicsMode.gm_start_of_paintGL(self)
                 test_drawing(self)
                 self.graphicsMode.gm_end_of_paintGL(self)
-                return
+                return True
         
         self._frustum_planes_available = False
 
         if not self.initialised:
-            return
+            return False
         
         if not self.model_is_valid():
             #bruce 080117 bugfix in GLPane and potential bugfix in ThumbView;
             # for explanation see my same-dated comment in files_mmp
             # near another check of assy_valid.
-            return
+            return False
         
         env.after_op() #bruce 050908; moved a bit lower, 080117
             # [disabled in changes.py, sometime before 060323;
@@ -174,7 +185,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # forms (e.g. for XOR-mode drawing). [bruce 050707 comment]
 
         if not self.redrawGL:
-            return
+            return False
         
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
 
@@ -230,7 +241,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             ##     sys.stdout.write("#") # indicate a repaint is being skipped
             ##     sys.stdout.flush()
 
-            return # skip the following repaint
+            return False # skip the following repaint
 
         # at this point, we've decided to call _paintGL_drawing.
         
@@ -268,7 +279,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         except:
             print_compact_traceback("exception in _paintGL_drawing ignored: ")
 
-        return # from paintGL
+        return True # from paintGL
 
     def _paintGL_drawing(self):
         """
@@ -279,6 +290,11 @@ class GLPane_rendering_methods(GLPane_image_methods):
         @note: caller must handle TEST_DRAWING, redrawGL, _needs_repaint.
         """
         #bruce 080919 renamed this from most_of_paintGL to _paintGL_drawing
+
+##        if 'kluge for debug bruce 081218':
+##            glEnable(GL_COLOR_LOGIC_OP)
+##            glLogicOp(GL_XOR)
+##            glDisable(GL_COLOR_LOGIC_OP)
 
         self._needs_repaint = False
             # do this now, even if we have an exception during the repaint
