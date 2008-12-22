@@ -490,6 +490,11 @@ class PM_SelectionListWidget(PM_ListWidget):
             else:
                 if key.isSelected():
                     key.setSelected(False) 
+        
+        # Contrary to this method's docstring, it is possible that items 
+        # in selectedItemList() are not selected in the glpane, so (re)pick 
+        # them as a precaution. --Mark 2008-12-22
+        self._pick_selected_listWidgetItems_in_glpane()
 
         self._suppress_itemSelectionChanged_signal = False
 
