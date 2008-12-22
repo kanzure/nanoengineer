@@ -43,16 +43,6 @@ class EditProtein_Command(EditCommand):
     
     flyoutToolbar = None
     
-    def _getFlyoutToolBarActionAndParentCommand(self):
-        """
-        See superclass for documentation.
-        @see: self.command_update_flyout()
-        """
-        flyoutActionToCheck = 'editProteinAction'
-        parentCommandName = 'BUILD_PROTEIN'    
-        
-        return flyoutActionToCheck, parentCommandName
-    
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 

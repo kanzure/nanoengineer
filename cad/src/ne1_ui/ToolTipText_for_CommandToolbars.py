@@ -45,7 +45,6 @@ def toolTipTextForProteinCommandToolbar(commandToolbar):
     commandToolbar.simulateProteinAction.setToolTip("Simulate Protein using Rosetta")
     
     commandToolbar.buildPeptideAction.setToolTip("Insert Peptide")
-    commandToolbar.editProteinAction.setToolTip("Edit Protein")
     commandToolbar.compareProteinsAction.setToolTip("Compare Proteins")
     commandToolbar.displayProteinStyleAction.setToolTip("Edit Protein Display Style")
     

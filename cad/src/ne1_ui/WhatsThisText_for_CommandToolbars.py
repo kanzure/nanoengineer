@@ -266,13 +266,6 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
         in the <a href=Property_Manager>property manager</a>.
         </p>""")
     
-    commandToolbar.editProteinAction.setWhatsThis(
-        """<b>Edit Protein</b>
-        <p>
-        <img source=\"ui/actions/Command Toolbar/BuildProtein/EditProtein.png\"><br> 
-        Edit the selected protein.
-        </p>""")
-    
     commandToolbar.compareProteinsAction.setWhatsThis(
         """<b>Compare Proteins</b>
         <p>
