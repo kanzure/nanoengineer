@@ -10,14 +10,14 @@ Build > Protein mode.
 @version: $Id$ 
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
-To do:
+TODO:
 - Switch display styles of selected proteins to diPROTEIN (instead of the GDS).
-- "Hide differences" button is enabled even when there are no differences.
+- PM color comboboxes to choose the "difference colors".
+
+BUGS:
 - Previously compared proteins still show differences after comparing a new set of proteins.
-- PM comboboxes to choose the colors to be used.
-- fix bug: Leaving Compare command unselects the two selected protein chunks.
-  The "Build Protein" PM list widget shows them as selected and the compare button is enabled,
-  but they are not selected in the graphics area.
+- "Hide differences" button should be disabled (or hidden) when there are no differences.
+
 """
 
 import foundation.env as env
