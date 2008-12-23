@@ -34,6 +34,8 @@ from protein.model.Residue import SS_HELIX, SS_STRAND, SS_COIL, AA_3_TO_1
 from Numeric import zeros, sqrt, pi, sin, cos, Float
 from geometry.VQT import Q, V, norm, vlen, cross, angleBetween
 
+from utilities.debug import print_compact_stack
+
 # Internal coordinate sets for amino acids
 # Converted from AMBER all_amino94.in file
 # Fixed a few issues: conformation of phenylalanine, connectivity of serine.
@@ -554,8 +556,35 @@ def get_unit_length(phi, psi):
     Calculate a length of single amino acid in particular 
     secondary conformation.
     """
+    # All unit length values obtained via measurements by me.
+    # Fixes bug 2959. --Mark 2008-12-23
+    if phi == -57.0 and psi == -47.0:
+        unit_length = 1.5 # Alpha helix
+    elif phi == -135.0 and psi == 135.0:
+        unit_length = 3.4 # Beta strand
+    elif phi == -55.0 and psi == -70.0:
+        unit_length = 1.05 # Pi helix
+    elif phi == -49.0 and psi == -26.0:
+        unit_length = 1.95 # 3_10 helix
+    elif phi == -75.0 and psi == 150.0:
+        unit_length = 3.14 # Polyproline-II helix
+    elif phi == -180.0 and psi == 180.0:
+        unit_length = 3.6 # Fully extended
+    else:
+        # User chose "Custom" conformation option in the Insert Peptide PM 
+        # which lets the user set any phi-psi angle values.
+        # We need a formula to estimate the proper unit_length given the
+        # conformational angles phi and psi. It would also be a good idea
+        # to check these values to confirm they are an allowed combination.
+        # For more info, do a google search for "Ramachandran plot".
+        # For now, I'm setting the unit length to 1.5. --Mark 2008-12-23
+        unit_length = 1.5
+        msg = "\nUser selected custom conformational angles: "\
+            "phi=%.2f, psi=%.2f.\nSetting unit_length=%.2f\n" % \
+            (phi, psi, unit_length)
+        print_compact_stack(msg)
         
-    return 1.35
+    return unit_length
     
 class PeptideGenerator:
     prev_coords = zeros([3,3], Float)
@@ -623,7 +652,7 @@ class PeptideGenerator:
         @param phi, psi: peptide chain angles
         @type phi, psi: float
         """
-        return vlen(pos2 - pos1) / get_unit_length(phi, psi)
+        return 1 + int(vlen(pos2 - pos1) / get_unit_length(phi, psi))
     
     def make_aligned(self, assy, name, aa_idx, phi, psi, 
                      pos1, pos2, secondary=SS_COIL, 

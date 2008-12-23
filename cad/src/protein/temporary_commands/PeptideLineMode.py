@@ -84,7 +84,7 @@ class PeptideLine_GM( Line_GraphicsMode ):
             
             mol = self.structGenerator.make_aligned(self.win.assy, "", 0, 
                                                     self.command.phi, 
-                                                    self.command.phi, 
+                                                    self.command.psi, 
                                                     self.endPoint1, 
                                                     self.endPoint2, 
                                                     fake_chain=True)
