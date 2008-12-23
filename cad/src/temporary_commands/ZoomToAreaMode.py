@@ -79,17 +79,25 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
 
         rbwcolor = self.command.rbwcolor
 
-        if not self.firstDraw: #Erase the previous rubber window
+        if not self.firstDraw: #Erase the previous rubberband window
             drawrectangle(self.pStart, self.pPrev, self.glpane.up,
                           self.glpane.right, rbwcolor)
         self.firstDraw = False
 
         self.pPrev = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
-        # draw the new rubber band
+        # draw the new rubberband window
         drawrectangle(self.pStart, self.pPrev, self.glpane.up,
                       self.glpane.right, rbwcolor)
+        
         glFlush()
         self.glpane.swapBuffers() # Update display
+        
+        # Based on a suggestion in bug 2961, I added this second call to 
+        # swapBuffers(). It definitely helps, but the rectangle disappears 
+        # once the zoom cursor stops moving. I suspect this is due to 
+        # a gl_update() elsewhere.  I'll ask Bruce about his thoughts on 
+        # this. --Mark 2008-12-22.
+        self.glpane.swapBuffers() 
         return
         
     def leftUp(self, event):
