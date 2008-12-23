@@ -61,6 +61,7 @@ from utilities import debug_flags
 
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
+from utilities.debug_prefs import Choice_boolean_True
 
 from utilities.debug import print_compact_traceback, print_compact_stack
 
@@ -312,10 +313,11 @@ class GLPane(
         THIS METHOD SHOULD NOT BE CALLED DIRECTLY
         BY OUR OWN CODE -- CALL gl_update INSTEAD.
         """
-        # debug_prefs to help diagnose & work around a bug in swapBuffers
-        # on Mac (maybe specific to Leopard; seems to be a MacOS bug in which
-        # swapBuffers works but the display itself is not updated from that;
-        # not yet in bugzilla but will be soon) [bruce 081222]
+        # debug_prefs related to bug 2961 in swapBuffers on Mac
+        # (maybe specific to Leopard; seems to be a MacOS bug in which
+        #  swapBuffers works but the display itself is not updated after
+        #  that, or perhaps is not updated from the correct physical buffer)
+        # [bruce 081222]
         debug_print_paintGL_calls = \
             debug_pref("GLPane: print all paintGL calls?",
                         Choice_boolean_False,
@@ -336,7 +338,9 @@ class GLPane(
                         # rubber rect when swapBuffers behaves differently
                         # (e.g. after the bug in swapBuffers mentioned above),
                         # but it doesn't.
-                        Choice_boolean_False,
+                        Choice_boolean_True,
+                            # using True fixes a logic bug in this case,
+                            # which fixes "related bug (B)" in bug report 2961
                         non_debug = True, # temporary ###
                         prefs_key = True )
         simulate_swapBuffers_with_CopyPixels = False
@@ -402,7 +406,7 @@ class GLPane(
         # note: before the above code was added, we could test the default state
         # like this:
         ## if not self.autoBufferSwap():
-        ##     print " *** BUG: autoBufferSwap is off" #######
+        ##     print " *** BUG: autoBufferSwap is off"
         # but it never printed, so there is no bug there
         # when the above-mentioned bug in swapBuffers occurs.
             

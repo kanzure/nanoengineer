@@ -131,10 +131,6 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
     permit_draw_bond_letters = True #bruce 071023
 
-    #@ Marked for removal. Mark 2008-08-26
-    #useMultisample = debug_pref("GLPane: full scene anti-aliasing (next session)?", 
-    #                            Choice_boolean_False, prefs_key = True)
-    
     useMultisample = env.prefs[enableAntiAliasing_prefs_key]
 
     def __init__(self, parent, shareWidget, useStencilBuffer):
@@ -158,9 +154,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
                     #  shape in BuildAtoms_Graphicsmode.bareMotion) [bruce 050610]
 
             if (self.useMultisample):
+                # use full scene anti-aliasing on hardware that supports it
+                # (note: setting this True works around bug 2961 on some systems)
                 glformat.setSampleBuffers(True)
-                # use full scene anti-aliasing on hardware that supports 
-                # this feature
                 
             QGLWidget.__init__(self, glformat, parent)
 
