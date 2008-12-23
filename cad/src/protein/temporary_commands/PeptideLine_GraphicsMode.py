@@ -1,18 +1,15 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-@author:    Urmi
+@author:    Urmi, Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
 @license:   GPL
-
-
 """
-
 
 from temporary_commands.LineMode.Line_Command import Line_Command
 from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
 
-from graphics.drawing.drawPeptideTrace import drawPeptideTrace, drawPeptideTrace_new
+from graphics.drawing.drawPeptideTrace import drawPeptideTrace, drawPeptideTrace_orig
 
 from utilities.constants import gray, black, darkred, blue, white
 
@@ -20,11 +17,11 @@ from protein.commands.InsertPeptide.PeptideGenerator import PeptideGenerator, ge
 
 # == GraphicsMode part
 
-class PeptideLine_GM( Line_GraphicsMode ):
+class PeptideLine_GraphicsMode( Line_GraphicsMode ):
     """
-    Custom GraphicsMode for use as a component of PeptideLineMode.
-    @see: L{PeptideLineMode} for more comments. 
-    @see: InsertPeptide_EditCommand where this is used as a GraphicsMode class.
+    Custom GraphicsMode used while interactively drawing a peptide chain for
+    the "Insert Peptide" command.
+    @see: InsertPeptide_EditCommand where this class is used.
                   
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
@@ -39,7 +36,7 @@ class PeptideLine_GM( Line_GraphicsMode ):
         
     def leftUp(self, event):
         """
-        Left up method
+        Left up method.
         """
         if  self.command.mouseClickLimit is None:
             if len(self.command.mouseClickPoints) == 2:
@@ -47,7 +44,8 @@ class PeptideLine_GM( Line_GraphicsMode ):
                                 
                 self.command.createStructure()
                 self.glpane.gl_update()            
-            return
+            pass
+        return
     
     def snapLineEndPoint(self):
         """
@@ -73,32 +71,34 @@ class PeptideLine_GM( Line_GraphicsMode ):
         """
         Line_GraphicsMode.Draw(self)        
         if self.endPoint2 is not None and \
-           self.endPoint1 is not None: 
-            #Urmi 20080804: In absence of a better representation, this is a 
-            #placeholder for now. May be Piotr can implement a better representation
-            #for drawing protein secondary structure
-            # Draw the ladder. 
+           self.endPoint1 is not None:
             
-            #print "command = ", self.command
-            #print "phi = ", self.command.phi
+            # Generate a special chunk that contains only alpha carbon atoms
+            # that will be used to draw the peptide backbone trace.
+            alphaCarbonProteinChunk = \
+                                    self.structGenerator.make_aligned(
+                                        self.win.assy, "", 0, 
+                                        self.command.phi, 
+                                        self.command.psi, 
+                                        self.endPoint1, 
+                                        self.endPoint2, 
+                                        fake_chain = True)
             
-            mol = self.structGenerator.make_aligned(self.win.assy, "", 0, 
-                                                    self.command.phi, 
-                                                    self.command.psi, 
-                                                    self.endPoint1, 
-                                                    self.endPoint2, 
-                                                    fake_chain=True)
+            drawPeptideTrace(alphaCarbonProteinChunk)
             
-            drawPeptideTrace_new(mol)
-            
-            """
-            drawPeptideTrace(self.endPoint1,
-                          self.endPoint2, 
-                          135,
-                          -135,
-                          self.glpane.scale,
-                          self.glpane.lineOfSight,
-                          beamThickness = 4.0 
-                          ) 
-            """
+            # The original way of drawing the peptide trace.
+            # This function is deprecated and marked for removal.
+            # --Mark 2008-12-23
+            #drawPeptideTrace_orig(self.endPoint1,
+                                  #self.endPoint2, 
+                                  #135,
+                                  #-135,
+                                  #self.glpane.scale,
+                                  #self.glpane.lineOfSight,
+                                  #beamThickness = 4.0 
+                                  #) 
+
+            pass
+        return
+    pass # end of class PeptideLine_GraphicsMode
 

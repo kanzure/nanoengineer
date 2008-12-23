@@ -28,35 +28,49 @@ from utilities.constants import blue, gray
 
 from protein.commands.InsertPeptide.PeptideGenerator import get_unit_length
 
-def drawPeptideTrace_new(mol):
-
-    if mol and \
-       mol.atoms:
-
-        last_pos = None
+def drawPeptideTrace(alphaCarbonProteinChunk):
+    """
+    Draws a protein backbone trace using atoms stored in 
+    I{alphaCarbonProteinChunk}.
     
-        atomitems = mol.atoms.items()
-        
+    @param alphaCarbonProteinChunk: a special (temporary) chunk that contains 
+                                    only the alpha carbon atoms in the peptide 
+                                    backbone
+    @param alphaCarbonProteinChunk: Chunk
+    
+    @see PeptideLine_GraphicsMode.Draw(), PeptideGenerator.make_aligned()
+    """
+
+    if alphaCarbonProteinChunk and alphaCarbonProteinChunk.atoms:
+        last_pos = None
+        atomitems = alphaCarbonProteinChunk.atoms.items()
         atomitems.sort() 
-        atlist = [atom for (key, atom) in atomitems] 
+        alphaCarbonAtomsList = [atom for (key, atom) in atomitems] 
         
-        for atom in atlist:
+        for atom in alphaCarbonAtomsList:
             drawsphere(blue, atom.posn(), 0.2, 1)
             if last_pos:
                 drawline(gray, last_pos, atom.posn(), width=2)
             last_pos = atom.posn()
+            pass
+        pass
+    return
 
-def drawPeptideTrace(endCenter1,  
-                     endCenter2,
-                     phi, 
-                     psi,
-                     glpaneScale,
-                     lineOfSightVector,
-                     beamThickness = 2.0,
-                     beam1Color = None, 
-                     beam2Color = None,
-                     stepColor = None
-                     ):
+# drawPeptideTrace_orig is the original function for drawing a peptide
+# trace. This function is deprecated and marked for removal. I'm keeping it
+# here for reference for the time being.
+# --Mark 2008-12-23
+def drawPeptideTrace_orig(endCenter1,  
+                          endCenter2,
+                          phi, 
+                          psi,
+                          glpaneScale,
+                          lineOfSightVector,
+                          beamThickness = 2.0,
+                          beam1Color = None, 
+                          beam2Color = None,
+                          stepColor  = None
+                          ):
     """
     Draws the Peptide in a schematic display.
     
@@ -88,6 +102,7 @@ def drawPeptideTrace(endCenter1,
     @see: B{DnaLineMode.Draw } (where it is used) for comments on color 
           convention
 
+    @deprecated: Use drawPeptideTrace() instead.
     """   
 
     ladderWidth = 3.0
@@ -172,3 +187,4 @@ def drawPeptideTrace(endCenter1,
                                 
     glPopMatrix()
     glEnable(GL_LIGHTING)
+    return

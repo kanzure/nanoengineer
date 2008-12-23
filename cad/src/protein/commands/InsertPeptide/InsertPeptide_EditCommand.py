@@ -15,7 +15,7 @@ from command_support.EditCommand import EditCommand
 from protein.commands.InsertPeptide.PeptideGenerator import PeptideGenerator
 from utilities.constants import gensym
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
-from protein.temporary_commands.PeptideLineMode import PeptideLine_GM
+from protein.temporary_commands.PeptideLine_GraphicsMode import PeptideLine_GraphicsMode
 from utilities.debug import print_compact_stack, print_compact_traceback
 
 import foundation.env as env
@@ -24,10 +24,8 @@ from utilities.prefs_constants import cursorTextColor_prefs_key
 from protein.commands.BuildProtein.BuildProtein_Command import BuildProtein_Command
 from protein.commands.InsertPeptide.InsertPeptide_PropertyManager import InsertPeptide_PropertyManager
 
-#_superclass = BuildProtein_Command
 _superclass = EditCommand
 class InsertPeptide_EditCommand(EditCommand):
-#class InsertPeptide_EditCommand(BuildProtein_Command):
 
     PM_class = InsertPeptide_PropertyManager
     
@@ -43,10 +41,8 @@ class InsertPeptide_EditCommand(EditCommand):
 
     create_name_from_prefix  =  True 
     
-    #GraphicsMode_class = SelectChunks_GraphicsMode
-    #Graphics Mode set to Peptide graphics mode
-    GraphicsMode_class = PeptideLine_GM
-    #required by NanotubeLine_GM
+    GraphicsMode_class = PeptideLine_GraphicsMode
+    #required by PeptideLine_GraphicsMode
     mouseClickPoints = []
     
     structGenerator = PeptideGenerator()
@@ -58,10 +54,10 @@ class InsertPeptide_EditCommand(EditCommand):
         """
         Constructor for InsertPeptide_EditCommand
         """
-
         _superclass.__init__(self, commandSequencer)        
-        #Maintain a list of peptide segments created while this command was running. 
-        self._segmentList = []
+        #Maintain a list of peptides created while this command is running. 
+        self._peptideList = []
+        return
         
     def command_entered(self):
         """
@@ -71,26 +67,27 @@ class InsertPeptide_EditCommand(EditCommand):
         _superclass.command_entered(self)
         #NOTE: Following code was copied from self.init_gui() that existed 
         #in old command API -- Ninad 2008-09-18
-        if isinstance(self.graphicsMode, PeptideLine_GM):            
+        if isinstance(self.graphicsMode, PeptideLine_GraphicsMode):            
             self._setParamsForPeptideLineGraphicsMode()
             self.mouseClickPoints = []
-        #Clear the segmentList as it may still be maintaining a list of segments
+        #Clear the peptideList as it may still be maintaining a list of peptides
         #from the previous run of the command. 
-        self._segmentList = []                    
+        self._peptideList = []                    
         ss_idx, self.phi, self.psi, aa_type = self._gatherParameters()
+        return
         
     def command_will_exit(self):
         """
         Extends superclass method. 
         @see: basecommand.command_will_exit() for documentation
         """
-        if isinstance(self.graphicsMode, PeptideLine_GM):
+        if isinstance(self.graphicsMode, PeptideLine_GraphicsMode):
                 self.mouseClickPoints = []    
         self.graphicsMode.resetVariables()   
-        self._segmentList = []
+        self._peptideList = []
         
         _superclass.command_will_exit(self)
-            
+        return
     
     def _getFlyoutToolBarActionAndParentCommand(self):
         """
@@ -115,7 +112,6 @@ class InsertPeptide_EditCommand(EditCommand):
 
         bool_keep = _superclass.keep_empty_group(self, group)
         return bool_keep
-
         
     def _gatherParameters(self):
         """
@@ -128,6 +124,7 @@ class InsertPeptide_EditCommand(EditCommand):
         Overrides EditCommand.runCommand
         """
         self.struct = None
+        return
     
     def _createStructure(self):        
         """
@@ -157,8 +154,12 @@ class InsertPeptide_EditCommand(EditCommand):
                                            -self.win.glpane.pov)
         """                                   
         from geometry.VQT import V
-        pos1 = V(self.mouseClickPoints[0][0], self.mouseClickPoints[0][1], self.mouseClickPoints[0][2])
-        pos2 = V(self.mouseClickPoints[1][0], self.mouseClickPoints[1][1], self.mouseClickPoints[1][2])
+        pos1 = V(self.mouseClickPoints[0][0], \
+                 self.mouseClickPoints[0][1], \
+                 self.mouseClickPoints[0][2])
+        pos2 = V(self.mouseClickPoints[1][0], \
+                 self.mouseClickPoints[1][1], \
+                 self.mouseClickPoints[1][2])
         struct = self.structGenerator.make_aligned(self.win.assy, 
                                                    name, 
                                                    aa_type, 
@@ -166,8 +167,8 @@ class InsertPeptide_EditCommand(EditCommand):
                                                    self.psi, 
                                                    pos1, 
                                                    pos2, 
-                                                   fake_chain=False, 
-                                                   secondary=self.secondary)
+                                                   fake_chain = False, 
+                                                   secondary = self.secondary)
         
         self.win.assy.part.topnode.addmember(struct)
         self.win.win_update()
@@ -191,36 +192,35 @@ class InsertPeptide_EditCommand(EditCommand):
         self.previousParams = params
 
         self.struct = self._createStructure()
-    
+        return
     
     def cancelStructure(self):
         """
-        Overrides Editcommand.cancelStructure ..calls _removeSegments which 
-        deletes all the segments created while this command was running
+        Overrides Editcommand.cancelStructure. Calls _removePeptides which 
+        deletes all the peptides created while this command was running.
         @see: B{EditCommand.cancelStructure}
         """
         _superclass.cancelStructure(self)
-        self._removeSegments()
+        self._removePeptides()
+        return
 
-    def _removeSegments(self):
+    def _removePeptides(self):
         """
-        Remove the segments created while in this command 
-
-        This deletes all the segments created while this command was running
+        Deletes all the peptides created while this command was running
         @see: L{self.cancelStructure}
         """
-        segmentList = self._segmentList
+        peptideList = self._peptideList
 
-        #for segment in segmentList: 
-            #can segment be None?  Lets add this condition to be on the safer 
+        #for peptide in peptideList: 
+            #can peptide be None?  Lets add this condition to be on the safer 
             #side.
-        #    if segment is not None: 
-        #        segment.kill_with_contents()
+        #    if peptide is not None: 
+        #        peptide.kill_with_contents()
         #    self._revertNumber()
 
-
-        self._segmentList = []	
-        self.win.win_update()    
+        self._peptideList = []	
+        self.win.win_update()
+        return
     
     def createStructure(self):
         """
@@ -240,8 +240,8 @@ class InsertPeptide_EditCommand(EditCommand):
 
         self.preview_or_finalize_structure(previewing = True)
 
-        #Now append this ntSegment  to self._segmentList 
-        self._segmentList.append(self.struct)
+        #Now append this peptide to self._peptideList 
+        self._peptideList.append(self.struct)
 
         #clear the mouseClickPoints list
         self.mouseClickPoints = [] 
@@ -290,7 +290,7 @@ class InsertPeptide_EditCommand(EditCommand):
     def getCursorText(self, endPoint1, endPoint2):
         """
         This is used as a callback method in PeptideLineLine mode 
-        @see: PeptideLineMode.setParams, PeptideLineMode_GM.Draw
+        @see: PeptideLine_GraphicsMode.setParams, PeptideLine_GraphicsMode.Draw
         """
         
         text = ''

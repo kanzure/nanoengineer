@@ -615,7 +615,9 @@ class PeptideGenerator:
         # structure which is aligned along the Z axis.
         bLine = pt2 - pt1
         bLength = vlen(bLine)
-        b = bLine/bLength
+        if bLength == 0:
+            return
+        b = bLine / bLength
         # <b> is the unit vector parallel to the line (i.e. pt1, pt2).
         axis = cross(a, b)
         # <axis> is the axis of rotation.
@@ -639,7 +641,8 @@ class PeptideGenerator:
         
         # Bruce suggested I add this. It works here, but not if its 
         # before move() and rot() above. Mark 2008-04-11
-        chunk.full_inval_and_update()         
+        chunk.full_inval_and_update()
+        return
         
     def get_number_of_res(self, pos1, pos2, phi, psi):
         """
@@ -654,9 +657,15 @@ class PeptideGenerator:
         """
         return 1 + int(vlen(pos2 - pos1) / get_unit_length(phi, psi))
     
-    def make_aligned(self, assy, name, aa_idx, phi, psi, 
-                     pos1, pos2, secondary=SS_COIL, 
-                     fake_chain=False, length=None):
+    def make_aligned(self, 
+                     assy, 
+                     name, 
+                     aa_idx, 
+                     phi, psi, 
+                     pos1, pos2, 
+                     secondary = SS_COIL, 
+                     fake_chain = False, 
+                     length = None):
         """
         Build and return a chunk that is a homo-peptide aligned to 
         a pos2-pos1 vector.
@@ -679,7 +688,7 @@ class PeptideGenerator:
         
         @param fake_chain: if True, create only C-alpha atoms. used for drawing
         peptide trace image during interactive peptide placement (used by
-        PeptideLineMode.py)
+        PeptideLine_GraphicsMode.py)
         @type fake_chain: boolean
         
         @param length: optional peptide length (number of amino acids), if 
