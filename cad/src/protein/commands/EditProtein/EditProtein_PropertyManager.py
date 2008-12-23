@@ -13,6 +13,7 @@ Build > Protein mode.
 TODO:
 - Better messages, especially when selecting different peptides.
 - Need to implement a validator for the Name line edit field.
+- Collapse all rotamers when leaving command.
 
 NICETOHAVE:
 - Some way of showing the current rotamer when all rotamers are displayed. 
@@ -88,7 +89,7 @@ class EditProtein_PropertyManager(Command_PropertyManager):
     @type iconPath: str
     """
 
-    title         =  "Edit Protein"
+    title         =  "Protein Properties"
     pmName        =  title
     iconPath      =  "ui/actions/Command Toolbar/BuildProtein/EditProtein.png"
     
