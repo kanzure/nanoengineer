@@ -107,7 +107,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         else:
             change_connect = self.win.disconnect
         
-        self.peptideListWidget.connect_or_disconnect_signals(isConnect)
+        self.proteinListWidget.connect_or_disconnect_signals(isConnect)
         
         change_connect(self.editPeptidePropertiesButton, 
                        SIGNAL("clicked()"),
@@ -179,17 +179,17 @@ class BuildProtein_PropertyManager(EditCommand_PM):
             #either selection or command stack or both parameters were changed.    
             
             if not command_stack_params_unchanged:
-                #update the peptide list widget *before* updating the selection if 
+                #update the protein list widget *before* updating the selection if 
                 #the command stack changed. This ensures that the selection box
                 #appears around the list widget items that are selected.
-                self.updatePeptideListWidget()
+                self.updateProteinListWidget()
                 
             selectedProteins = newSelectionParams    
             
-            self.peptideListWidget.updateSelection(selectedProteins) 
+            self.proteinListWidget.updateSelection(selectedProteins) 
             
             # Enable/disable "Edit Sequence" button.
-            if self.getSelectedProteinChunk():
+            if len(selectedProteins) == 1:
                 self.editPeptidePropertiesButton.setEnabled(True)
             else:
                 self.editPeptidePropertiesButton.setEnabled(False)
@@ -202,7 +202,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
                 
             return
         
-        self.updatePeptideListWidget()
+        self.updateProteinListWidget()
         return
     
     def _currentCommandStackParams(self):
@@ -250,12 +250,12 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         updated when something changes in the glpane.        
         """
          
-        selectedPeptides = []
+        selectedProteins = []
         if self.command is not None: # and self.command.hasValidStructure():
-            selectedPeptides = self.win.assy.getSelectedProteinChunks()          
+            selectedProteins = self.win.assy.getSelectedProteinChunks()          
         
-        #print "_currentSelectionParams(): Number of selected peptides:", len(selectedPeptides)
-        return (selectedPeptides)
+        #print "_currentSelectionParams(): Number of selected proteins:", len(selectedProteins)
+        return (selectedProteins)
     
     def _currentStructureParams(self):
         """
@@ -272,9 +272,9 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         params = None
         
         if self.command: # and self.command.hasValidStructure():
-            peptideList = []
-            peptideList = getAllProteinChunksInPart(self.win.assy)
-            params = len(peptideList)
+            proteinList = []
+            proteinList = getAllProteinChunksInPart(self.win.assy)
+            params = len(proteinList)
         
         print "_currentStructureParams(): params:", params
         return params
@@ -284,7 +284,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         Closes the Property Manager. Overrides EditCommand_PM.close()
         """
         #Clear tags, if any, due to the selection in the self.strandListWidget.
-        #self.peptideListWidget.clear()
+        #self.proteinListWidget.clear()
         env.history.statusbar_msg("")
         EditCommand_PM.close(self)
         return
@@ -315,10 +315,10 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         #if not self.command.hasValidStructure():
         #    return
         
-        peptideChunk = self.getSelectedProteinChunk()
+        proteinChunk = self.getSelectedProteinChunk()
         
-        if peptideChunk:
-            peptideChunk.protein.edit(self.win)
+        if proteinChunk:
+            proteinChunk.protein.edit(self.win)
         return
     
     def _compareProteins(self):
@@ -353,12 +353,12 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         Load widgets in groupbox1.
         """
         
-        self.peptideListWidget = PM_SelectionListWidget(pmGroupBox,
+        self.proteinListWidget = PM_SelectionListWidget(pmGroupBox,
                                                        self.win,
                                                        label = "",
                                                        heightByRows = 6 )
-        self.peptideListWidget.setObjectName('Peptide_list_widget')
-        self.peptideListWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
+        self.proteinListWidget.setObjectName('Peptide_list_widget')
+        self.proteinListWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
         
         self.editPeptidePropertiesButton = PM_PushButton(pmGroupBox,
                                                          label = "",
@@ -372,18 +372,18 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         
         return
     
-    def updatePeptideListWidget(self):   
+    def updateProteinListWidget(self):   
         """
         Update the peptide list widget. It shows all peptides in the part.
         """
-        peptideChunkList = getAllProteinChunksInPart(self.win.assy)
+        proteinChunkList = getAllProteinChunksInPart(self.win.assy)
         
-        if peptideChunkList:
-            self.peptideListWidget.insertItems(
+        if proteinChunkList:
+            self.proteinListWidget.insertItems(
                 row = 0,
-                items = peptideChunkList)
+                items = proteinChunkList)
         else:           
-            self.peptideListWidget.clear()
+            self.proteinListWidget.clear()
         return
     
     def set_current_protein_chunk_name(self, name):
@@ -437,20 +437,5 @@ class BuildProtein_PropertyManager(EditCommand_PM):
             self.set_current_protein_chunk_name("")
             return None
         return
-    
-    # getAllProteinChunksInPart() has been moved to Protein.py
-    # Mark 2008-12-14
-    def getAllProteinChunksInPart_MOVED(self):
-        """
-        Returns a list of all the protein chunks in the current assy.
-        
-        @return: a list of all the protein chunks in the current assy.
-        @rtype: list of Chunks
-        """
-        peptideList = []
-        for mol in self.win.assy.molecules:
-            if mol.isProteinChunk():
-                peptideList.append(mol)
-        return peptideList
     
     

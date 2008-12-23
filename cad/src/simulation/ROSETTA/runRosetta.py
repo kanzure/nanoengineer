@@ -1110,7 +1110,7 @@ class RosettaRunner:
         command = self.win.commandSequencer.find_innermost_command_named('BUILD_PROTEIN')
 
         if command:
-            command.propMgr.peptideListWidget.addItem(outProtein)
+            command.propMgr.proteinListWidget.addItem(outProtein)
         
         return
     
