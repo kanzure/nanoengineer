@@ -80,6 +80,11 @@ class GraphicsMode_API(object):
         return
 
     def Draw(self):
+        # Review: it might be cleaner to revise _drawTags,
+        # _drawSpecialIndicators, and _drawLabels, to be public methods
+        # of GraphicsMode_API. (Presently they are not part of it at all.)
+        # For more info see the GraphicsMode.Draw docstring.
+        # [bruce 081223 comment]
         return
 
     def Draw_after_highlighting(self):

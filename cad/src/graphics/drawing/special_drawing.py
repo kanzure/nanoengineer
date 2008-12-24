@@ -90,7 +90,7 @@ ALL_SPECIAL_DRAWING_KINDS = [SPECIAL_DRAWING_STRAND_END]
 # usage tracking functions
 #
 # when the dust settles, the general class here
-# should be moved into foundation (related to changes.py)
+# should be moved into foundation (it's related to changes.py),
 # and the specific one into a module for the strand-end-specific
 # part of this, unless it turns out to be more general than that
 # (applying potentially to all prefs values).
@@ -126,7 +126,8 @@ class UsedValueTrackerAndComparator(object):
     
     But if that's true, the client calls self.before_recompute(),
     then does the computation and records the result
-    (independently of this object except for calls to self.get_value),
+    (independently of this object except for calls to self.get_value
+     which the client does during its recomputation),
     then calls self.after_recompute().
     """
 
@@ -139,8 +140,9 @@ class UsedValueTrackerAndComparator(object):
         # since not valid, no need to _reset
         return
 
-    # == Methods to use during a recomputation (or side effect, such as drawing)
-    #    by the client.
+    # == Methods to use during a recomputation by the client
+    #    (or during a side effect treated as recomputation, such as drawing,
+    #     where "whatever gets drawn" has the role of the computation output)
     
     def before_recompute(self): #e rename?
         """
@@ -157,13 +159,13 @@ class UsedValueTrackerAndComparator(object):
             # still have the same values
         self._keys_used = {} # maps key -> val, but unordered
         self.valid = False
-        # review: del self.valid?
         self._recomputing = True
         return
 
     def get_value(self, key, context):
         """
         ... call this while redoing the client computation...
+        ... it passes context along to self._compute_current_value ...
         It will record the value it returns, both to optimize repeated calls,
         and so it can be compared to the new current value
         by self.do_we_need_to_recompute()
@@ -173,7 +175,18 @@ class UsedValueTrackerAndComparator(object):
         # when drawing extra displist contents
         if not self._keys_used.has_key(key):
             val = self._compute_current_value(key, context)
-            # inline our implementation of _track_use
+            # review [081223]: should we track usage by that in changes.py manner,
+            # into self.invalidate? NO! instead, either we or certain clients
+            # ought to discard tracked usage from this! they can do that
+            # since all worries about changes are taken care of by
+            # our recording the value and comparing it.
+            # (assuming, if side effects matter, they are uniquely
+            #  labeled by the recorded value, e.g. it's a change_indicator
+            #  or change_counter).
+            # Guess: in current client code special_drawing) this is not done,
+            # and it causes some unnecessary invals here, at least in principle.
+
+            # inline our implementation of self._track_use
             self._keys_used[key] = val
             self._ordered_key_val_pairs += [(key, val)]
         else:
@@ -209,7 +222,7 @@ class UsedValueTrackerAndComparator(object):
         self.valid = True
         return
 
-    # ==
+    # == methods to use between computations by the client
 
     def invalidate(self):
         """
@@ -222,34 +235,46 @@ class UsedValueTrackerAndComparator(object):
             del self._ordered_key_val_pairs
         return
     
-    # == methods to use when deciding whether to do a recomputation
+    # == methods to use when client is deciding whether to do a
+    #    recomputation or reuse a cached value
     
     def do_we_need_to_recompute(self, context):
         """
-        Do we need to recompute, now that we're in the current state
-        of the given context (for purposes of current values at keys,
-        as computed by self._compute_current_value)?
+        Assume the client is in a context in which it *could*
+        safely/correctly recompute, in terms of _compute_current_value
+        being safe to call and returning the correct value
+        for whatever keys a recomputation would pass to it
+        (when passed the given context parameter).
+
+        @return: whether the client needs to do its recomputation (True)
+                 or can reuse the result it got last time
+                 (and presumably cached) (False)
 
         See class docstring for more info.
         """
         assert not self._recomputing
         if not self.valid:
-            # following code would be wrong in this case
+            # the code below would be wrong in this case
             return True
         for key, val in self.ordered_key_val_pairs():
-            # Note: doesn't call self._track_use, which would be a noop.
+            # Note: doesn't call self._track_use, which would be a noop. ###todo: clarify
             newval = self._compute_current_value(key, context)
             if not same_vals(val, newval):
                 #e Could optim the test for specific keys; probably not worth it
                 #  though.
-                #e Could optim self.before_recompute (for some callers) to leave
-                #  the values cached that were already found to be the same (by
-                #  prior iterations of this loop)
+                ###TODO: OPTIM: Could optim self.before_recompute
+                #    (for some callers -- REVIEW, which ones exactly?)
+                #    to leave the values cached that were already found to be
+                #    the same (by prior iterations of this loop).
+                #    We'd do this by deleting the different values here
+                #    (and the not yet compared ones);
+                #    this would make the following note partly incorrect.
                 # Note: We don't call self.invalidate() here, in case client
                 # does nothing, current state changes, and it turns out we're
-                # valid again. Clients doubting this matters and wanting to
-                # optimize repeated calls of this (if they're not going to
-                # recompute right away) can call it themselves. Most clients
+                # valid again. Clients doubting this matters, and which are not
+                # going to recompute right away, and which want to optimize
+                # repeated calls of this (by avoiding redoing the same_vals
+                # tests) can call self.invalidate themselves. Most clients
                 # needn't bother since they'll recompute right away.
                 return True
         return False
@@ -271,6 +296,9 @@ class SpecialDrawing_UsedValueTrackerAndComparator( UsedValueTrackerAndComparato
     """
     ... if necessary, reset and re-track the values used this time... knows how
     to compute them...
+
+    @note: this computes the same results as USE_CURRENT, but unlike it,
+           does tracking with UsedValueTrackerAndComparator.
     """
     def __init__(self):
         UsedValueTrackerAndComparator.__init__(self)
@@ -279,10 +307,13 @@ class SpecialDrawing_UsedValueTrackerAndComparator( UsedValueTrackerAndComparato
     def _compute_current_value(self, key, context):
         """
         Compute current value for key in context
-        when needed by self.get_value
-        (since it has no cached value for this key).
+        when needed by self.get_value implemented in superclass
+        (which happens when superclass code has no cached value
+         for this key in self).
 
-        @note: called by superclass get_value method.
+        In this subclass, that value for key is computed
+        by treating context as a GraphicsMode
+        and calling its get_prefs_value method.
         """
 ##        print "compute current value:", key, context
         # require key to be in a hardcoded list??
@@ -291,14 +322,19 @@ class SpecialDrawing_UsedValueTrackerAndComparator( UsedValueTrackerAndComparato
 
     def __getitem__(self, key):
         # KLUGE 1: provide this interface in this class
-        # rather than in a wrapper class. (No harm, AFAIK.)
+        # rather than in a wrapper class. (No harm, AFAIK, but only
+        # because prefs key strings don't overlap any of our
+        # public or private method or attribute names.)
         # KLUGE 2: get current global graphicsMode
         # instead of getting it from how we're called.
         # (See also USE_CURRENT, which also does this,
         #  but in its case it's not a kluge.)
         ### TODO to fix this kluge: make a "prefs value object" which
         # wraps this object but stores glpane, to use instead of this object.
-        # But note that ThumbView has no graphicsMode attribute!
+        # But note that this would not work with glpane == a ThumbView
+        # since ThumbView has no graphicsMode attribute! So we'd have to
+        # wrap the "env-providing glpane" instead, i.e. the main one
+        # for any ThumbView in current code.
         if debug_flags.atom_debug:
             print "fyi: getting %r from %r" % (key, self)
             # This happens a lot in Break Strands command, as expected.
