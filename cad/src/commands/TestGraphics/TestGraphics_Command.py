@@ -8,8 +8,9 @@ TestGraphics_Command.py -- command to "Test Graphics Performance"
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
-from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command
+from command_support.Command import Command
+from command_support.GraphicsMode import GraphicsMode
+
 from commands.TestGraphics.TestGraphics_PropertyManager import TestGraphics_PropertyManager
 
 from utilities.debug import register_debug_menu_command
@@ -48,14 +49,14 @@ last_time = time()
 
 # == GraphicsMode part
 
-_superclass_GM = SelectAtoms_GraphicsMode
+## _superclass_GM = GraphicsMode # not used as of 081223
 
-class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
+class TestGraphics_GraphicsMode(GraphicsMode):
+    # review: could superclass be 'object', if not for isinstance assertions?
+    # could try GraphicsMode_API ... ###
     """
     Graphics mode for TestGraphics command. 
     """
-##    ### todo (elsewhere):
-##    parentGraphicsMode = self.command.parentCommand.graphicsMode
     
     def gm_start_of_paintGL(self, glpane):
         """
@@ -79,32 +80,29 @@ class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
                 ##ValueError: negative number cannot be raised to a fractional power
             glpane.quat = glpane.quat + test_globals.SPINQUAT
 
-##        # finally, delegate to parentCommand version
-##        self.parentGraphicsMode.gm_start_of_paintGL(glpane)
-        _superclass_GM.gm_start_of_paintGL(self, glpane)
+        # finally, delegate to parentCommand version
+        self.parentGraphicsMode.gm_start_of_paintGL(glpane)
         return
 
-    # Use default highlight color.
-    def selobj_highlight_color(self, selobj):
-        """
-        [GraphicsMode API method]
-        """
-        return env.prefs[hoverHighlightingColor_prefs_key]
+##    # Use default highlight color.
+##    def selobj_highlight_color(self, selobj):
+##        """
+##        [GraphicsMode API method]
+##        """
+##        return env.prefs[hoverHighlightingColor_prefs_key]
 
     def Draw(self):
         # Redirect Draw to test_drawing when TEST_DRAWING is set.
         if GLPane_rendering_methods.TEST_DRAWING:
             test_Draw(self.glpane)
         else:
-            _superclass_GM.Draw(self)
+            # delegate to parentCommand version
+            self.parentGraphicsMode.Draw()
+                # see also: parentCommand_Draw, TemporaryCommand_Overdrawing,
+                # Overdrawing_GraphicsMode_preMixin
+                # (related, but they do nothing besides this that we need here)
         return
 
-# maybe we'll revise superclass and do this:
-##    def Draw(self):
-##        self.parentGraphicsMode.Draw()
-##            # see also: parentCommand_Draw, TemporaryCommand_Overdrawing
-##            # (related, but they do nothing besides this that we need here)
-##        return
     
     def gm_end_of_paintGL(self, glpane):
         """
@@ -112,9 +110,8 @@ class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
         after all drawing and the glFlush,
         if gm_start_of_paintGL was called near the start of it.
         """
-##        # first, delegate to parentCommand version
-##        self.parentGraphicsMode.gm_end_of_paintGL(glpane)
-        _superclass_GM.gm_end_of_paintGL(self, glpane)
+        # first, delegate to parentCommand version
+        self.parentGraphicsMode.gm_end_of_paintGL(glpane)
         
         # then, do our special code
 
@@ -139,7 +136,7 @@ class TestGraphics_GraphicsMode(SelectAtoms_GraphicsMode ):
 
 # == Command part
 
-class TestGraphics_Command(SelectAtoms_Command): 
+class TestGraphics_Command(Command): 
     """
 
     """

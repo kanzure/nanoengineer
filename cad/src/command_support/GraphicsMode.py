@@ -185,6 +185,12 @@ class basicGraphicsMode(GraphicsMode_API):
         # might have been wrapped with an API-enforcement (or any other) proxy.
         return self.glpane.graphicsMode is self
 
+    def __get_parentGraphicsMode(self): #bruce 081223
+        # review: does it need to check whether the following exists?
+        return self.command.parentCommand.graphicsMode
+
+    parentGraphicsMode = property(__get_parentGraphicsMode)
+    
     def _setup_menus_in_init(self):
         if not self.command.call_makeMenus_for_each_event:
             self._setup_menus( )
@@ -316,9 +322,26 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         Generic Draw method, with drawing code common to all modes.
         Specific modes should call this somewhere within their own Draw method,
-        unless they have a good reason not to. Note: it doesn't draw the model,
-        since not all modes want to always draw it.
+        unless they have a good reason not to.
+
+        @note: it doesn't draw the model,
+               since not all modes want to always draw it.
+
+        @note: this default implementation calls private methods such as
+               _drawTags, _drawSpecialIndicators, and _drawLabels,
+               but these are not part of the GraphicsMode API
+               and need never be called directly. They can still
+               be overridden in any subclasses of GraphicsMode
+               (the base class of all actual GraphicsModes)
+               and this will work as expected, provided either the
+               superclass or parentGraphicsMode Draw method is being
+               called, as it usually should be.
         """
+        # Review: it might be cleaner to revise _drawTags,
+        # _drawSpecialIndicators, and _drawLabels, to be public methods
+        # of GraphicsMode_API. Presently they are not part of it at all;
+        # they are only part of the subclass-extending API of this base
+        # class GraphicsMode. [bruce 081223 comment]
 
         # Draw the Origin axes.
         # WARNING: this code is duplicated, or almost duplicated,
