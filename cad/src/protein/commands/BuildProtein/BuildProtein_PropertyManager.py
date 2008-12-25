@@ -9,12 +9,8 @@ BuildProtein_PropertyManager.py
 Mark 20081212: Heavily rewritten, modeled after BuildDna_PropertyManager.py.
 
 To do list:
-- Include name of the current Peptide in the title of the Sequence Editor.
-- Make sure PM and SeqEditor are updated correctly after selecting/editing 
-  a peptide via the model tree.
 - Add "Edit Properties" menu item to GA context menu when highlighting Peptide.
 - Bug: Cannot edit a peptide loaded from an MMP file.
-- Create a new PM for "Peptide Properties".
 - Read FASTA file via sequence editor (or another way).
 - Debug_pref for debug print statements.
 - Deprecate set_current_protein_chunk_name() and get_current_protein_chunk_name.

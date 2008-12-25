@@ -13,13 +13,13 @@ from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND = True
 
 _superclass = SelectChunks_GraphicsMode
-
 class BuildProtein_GraphicsMode(SelectChunks_GraphicsMode):
     """
-    Graphics mode for Edit Proteins command. 
+    Graphics mode for Build Protein command. 
     """
+    
     def Enter_GraphicsMode(self):
-        print "*** in BuildProtein_GM.Enter_GraphicsMode"
+        print "*** in BuildProtein_GraphicsMode.Enter_GraphicsMode"
         _superclass.Enter_GraphicsMode(self)
         return
     

@@ -841,7 +841,7 @@ class PeptideGenerator:
         #this code was re-factored by EricM and internal-to-cartesian
         # conversion method was moved to geometry.InternalCoordinatesToCartesian
 
-        if mol == None:
+        if mol is None:
             return
 
         if not init_pos: # assign three previous atom positions

@@ -128,7 +128,7 @@ class InsertPeptide_EditCommand(EditCommand):
     
     def _createStructure(self):        
         """
-        Build a Peptide sheet from the parameters in the Property Manager.
+        Build a peptide from the parameters in the Property Manager.
         """
         
         # self.name needed for done message
