@@ -1,6 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-NanotubeSegment_EditCommand.py
+EditNanotube_EditCommand.py
 
 @author: Ninad, Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -44,21 +44,21 @@ from graphics.drawables.RotationHandle  import RotationHandle
 
 from cnt.model.NanotubeSegment               import NanotubeSegment
 
-from cnt.commands.NanotubeSegment.NanotubeSegment_ResizeHandle import NanotubeSegment_ResizeHandle
-from cnt.commands.NanotubeSegment.NanotubeSegment_GraphicsMode import NanotubeSegment_GraphicsMode
+from cnt.commands.EditNanotube.EditNanotube_ResizeHandle import EditNanotube_ResizeHandle
+from cnt.commands.EditNanotube.EditNanotube_GraphicsMode import EditNanotube_GraphicsMode
 
-from utilities.prefs_constants import nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key
-from utilities.prefs_constants import nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key
+from utilities.prefs_constants import editNanotubeEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import editNanotubeEditCommand_showCursorTextCheckBox_prefs_key
 from utilities.prefs_constants import cursorTextColor_prefs_key
 
-from cnt.commands.NanotubeSegment.NanotubeSegment_PropertyManager import NanotubeSegment_PropertyManager
+from cnt.commands.EditNanotube.EditNanotube_PropertyManager import EditNanotube_PropertyManager
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
 ORIGIN = V(0,0,0)
 
 #Flag that appends rotation handles to the self.handles (thus enabling their 
-#display and computation while in NanotubeSegment_EditCommand
+#display and computation while in EditNanotube_EditCommand
 DEBUG_ROTATION_HANDLES = False
 
 def pref_nt_segment_resize_by_recreating_nanotube():
@@ -68,16 +68,16 @@ def pref_nt_segment_resize_by_recreating_nanotube():
                      prefs_key = True )
     return res
 
-class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
+class EditNanotube_EditCommand(State_preMixin, EditCommand):
     """
     Command to edit a NanotubeSegment (nanotube).
     """
     # class constants
-    GraphicsMode_class = NanotubeSegment_GraphicsMode
-    PM_class = NanotubeSegment_PropertyManager
+    GraphicsMode_class = EditNanotube_GraphicsMode
+    PM_class = EditNanotube_PropertyManager
     
-    commandName      = 'NANOTUBE_SEGMENT'
-    featurename      = "Edit Nanotube Segment"
+    commandName      = 'EDIT_NANOTUBE'
+    featurename      = "Edit Nanotube"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_NANOTUBE'
@@ -99,7 +99,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     rotationHandleBasePoint2 = State( Point, ORIGIN)
 
     #See self._update_resizeHandle_radius where this gets changed. 
-    #also see NanotubeSegment_ResizeHandle to see how its implemented. 
+    #also see EditNanotube_ResizeHandle to see how its implemented. 
     handleSphereRadius1 = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
     handleSphereRadius2 = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
 
@@ -111,7 +111,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     rotation_distance2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
 
     leftHandle = Instance(         
-        NanotubeSegment_ResizeHandle(    
+        EditNanotube_ResizeHandle(    
             command = _self,
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'),
             origin = handlePoint1,
@@ -122,7 +122,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         ))
 
     rightHandle = Instance( 
-        NanotubeSegment_ResizeHandle(
+        EditNanotube_ResizeHandle(
             command = _self,
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth2'),
             origin = handlePoint2,
@@ -224,7 +224,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """        
         Updates the list of handles (self.handles) 
         @see: self.editStructure
-        @see: NanotubeSegment_GraphicsMode._drawHandles()
+        @see: EditNanotube_GraphicsMode._drawHandles()
         """   
         # note: if handlePoint1 and/or handlePoint2 can change more often than this 
         # runs, we'll need to rerun the two assignments above whenever they 
@@ -244,7 +244,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         their 'stopper' lengths. 
         @see: self._update_resizeHandle_radius()
         @see: self._update_resizeHandle_stopper_length()
-        @see: NanotubeSegment_GraphicsMode._drawHandles()
+        @see: EditNanotube_GraphicsMode._drawHandles()
         """
         self.handlePoint1 = None # Needed!
         self.handlePoint2 = None
@@ -468,7 +468,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         Returns the name string of self.struct if there is a valid structure. 
         Otherwise returns None. This information is used by the name edit field 
         of this command's PM when we call self.propMgr.show()
-        @see: NanotubeSegment_PropertyManager.show()
+        @see: EditNanotube_PropertyManager.show()
         @see: self.setStructureName
         """
         if self.hasValidStructure():
@@ -482,7 +482,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         The PM of this command callss this method while closing itself 
         @param name: name of the structure to be set.
         @type name: string
-        @see: NanotubeSegment_PropertyManager.close()
+        @see: EditNanotube_PropertyManager.close()
         @see: self.getStructureName()
 
         """
@@ -492,7 +492,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
                 #exits the command by clicking on empty space. 
                 #This should really be done in self._finalizeStructure but that 
                 #method doesn't get called when you click on empty space to exit 
-                #the command. See NanotubeSegment_GraphicsMode.leftUp for a detailed 
+                #the command. See EditNanotube_GraphicsMode.leftUp for a detailed 
                 #comment. 
 
         if self.hasValidStructure():
@@ -510,7 +510,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         text = ''
         textColor = env.prefs[cursorTextColor_prefs_key]
         
-        if not env.prefs[nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
+        if not env.prefs[editNanotubeEditCommand_showCursorTextCheckBox_prefs_key]:
             return text, textColor
 
         currentPosition = self.grabbedHandle.currentPosition
@@ -535,7 +535,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         text
         """
         nanotubeLengthString = ''
-        if env.prefs[nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key]:
+        if env.prefs[editNanotubeEditCommand_cursorTextCheckBox_length_prefs_key]:
             lengthUnitString = 'A'
             #change the unit of length to nanometers if the length is > 10A
             #fixes part of bug 2856
@@ -557,7 +557,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         the private method self._modifyStructure. self._modifyStructure is 
         called only by self.preview_or_finalize_structure
 
-        @see: B{NanotubeSegment_ResizeHandle.on_release} (the caller)
+        @see: B{EditNanotube_ResizeHandle.on_release} (the caller)
         @see: B{SelectChunks_GraphicsMode.leftUp} (which calls the 
               the relevent method in DragHandler API. )
         @see: B{exprs.DraggableHandle_AlongLine}, B{exprs.DragBehavior}
@@ -595,7 +595,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         the private method self._modifyStructure. self._modifyStructure is 
         called only by self.preview_or_finalize_structure
 
-        @see: B{NanotubeSegment_ResizeHandle.on_release} (the caller)
+        @see: B{EditNanotube_ResizeHandle.on_release} (the caller)
         @see: B{SelectChunks_GraphicsMode.leftUp} (which calls the 
               the relevent method in DragHandler API. )
         @see: B{exprs.DraggableHandle_AlongLine}, B{exprs.DragBehavior}

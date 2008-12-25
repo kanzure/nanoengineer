@@ -125,11 +125,11 @@ class NanotubeSegment(LeafLikeGroup):
     def edit(self):
         """
         Edit this NanotubeSegment. 
-        @see: NanotubeSegment_EditCommand
+        @see: EditNanotube_EditCommand
         """
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterCommand('NANOTUBE_SEGMENT')
-        assert commandSequencer.currentCommand.commandName == 'NANOTUBE_SEGMENT'
+        commandSequencer.userEnterCommand('EDIT_NANOTUBE')
+        assert commandSequencer.currentCommand.commandName == 'EDIT_NANOTUBE'
         commandSequencer.currentCommand.editStructure(self)
         return
 
@@ -169,7 +169,7 @@ class NanotubeSegment(LeafLikeGroup):
         (but if the structure is read from an mmp file, this won't work. As a 
         fall back, it returns some constant values) 
         @see: InsertNanotube_EditCommand.createStructure which calls this method. 
-        @see: self.getProps, NanotubeSegment_EditCommand.editStructure        
+        @see: self.getProps, EditNanotube_EditCommand.editStructure        
         """
         (_n, _m), _type, _endings, (_endPoint1, _endPoint2) = props
         
@@ -184,8 +184,8 @@ class NanotubeSegment(LeafLikeGroup):
         """
         Returns nanotube parameters necessary for editing.
         
-        @see: NanotubeSegment_EditCommand.editStructure where it is used. 
-        @see: NanotubeSegment_PropertyManager.getParameters
+        @see: EditNanotube_EditCommand.editStructure where it is used. 
+        @see: EditNanotube_PropertyManager.getParameters
         @see: NanotubeSegmentEditCommand._createStructure        
         """
         # Recompute the endpoints in case this nanotube was read from
@@ -206,7 +206,7 @@ class NanotubeSegment(LeafLikeGroup):
         whether self is an ancestor. (returns True even for logical contents)
         
         @see: self.get_all_content_chunks() (inherited from LeafLikeGroup)
-        @see: NanotubeSegment_GraphicsMode.leftDrag
+        @see: EditNanotube_GraphicsMode.leftDrag
         """
         # TODO: this needs cleanup (it looks like it's made of two alternative
         # implems, one after the other), generalization (to use some centrally

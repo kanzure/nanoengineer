@@ -1,6 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-NanotubeSegment_ResizeHandle.py
+EditNanotube_ResizeHandle.py
 
 @author:    Ninad, Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -36,7 +36,7 @@ from exprs.DraggableHandle import DraggableHandle_AlongLine
 from exprs.ExprsConstants import StateRef
 
 
-class NanotubeSegment_ResizeHandle(DraggableHandle_AlongLine):
+class EditNanotube_ResizeHandle(DraggableHandle_AlongLine):
     """
     Provides a resize handle for editing the length of an existing NanotubeSegment. 
     """
@@ -47,7 +47,7 @@ class NanotubeSegment_ResizeHandle(DraggableHandle_AlongLine):
     handleColor = State( Color, olive)
     
     #The state ref that determines the radius (of the sphere) of this handle. 
-    #See NanotubeSegment_EditCommand._determine_resize_handle_radius() for more 
+    #See EditNanotube_EditCommand._determine_resize_handle_radius() for more 
     #details
     sphereRadius = Option(StateRef, 1.2)
     
@@ -57,7 +57,7 @@ class NanotubeSegment_ResizeHandle(DraggableHandle_AlongLine):
                        doc = "Statusbar text on mouseover")
     
     #Command object specified as an 'Option' during instantiation of the class
-    #see NanotubeSegment_EditCommand class definition. 
+    #see EditNanotube_EditCommand class definition. 
     command =  Option(Action, 
                       doc = 'The Command which instantiates this handle')
     
@@ -65,14 +65,14 @@ class NanotubeSegment_ResizeHandle(DraggableHandle_AlongLine):
     #under the mouse. (its differert than the 'orifinal position) 
     #This variable is used in self.command.graphicsMode to draw a rubberband 
     #line  and also to specify the endPoint2 of the structure while modifying 
-    #it. See NanotubeSegment_EditCommand.modifyStructure for details. 
+    #it. See EditNanotube_EditCommand.modifyStructure for details. 
     currentPosition = _self.origin + _self.direction*_self.height_ref.value
         
     
     #Fixed end of the structure (self.command.struct) ..meaning that end won't 
     #move while user grabbs and draggs this handle (attached to a the other 
     #'moving endPoint) . This variable is used to specify endPoint1 of the 
-    #structure while modifyin it.  See NanotubeSegment_EditCommand.modifyStructure 
+    #structure while modifyin it.  See EditNanotube_EditCommand.modifyStructure 
     #and self.on_release for details.
     fixedEndOfStructure = Option(Point, V(0, 0, 0))
     
@@ -114,8 +114,8 @@ class NanotubeSegment_ResizeHandle(DraggableHandle_AlongLine):
         """
         Actions when handle is pressed (grabbed, during leftDown event)
         @see: B{SelectChunks.GraphicsMode.leftDown}
-        @see: B{NanotubeSegment_EditCommand.grabbedHandle}
-        @see: B{NanotubeSegment_GraphicsMode.Draw} (which uses some attributes of 
+        @see: B{EditNanotube_EditCommand.grabbedHandle}
+        @see: B{EditNanotube_GraphicsMode.Draw} (which uses some attributes of 
              the current grabbed handle of the command. 
         @see: B{DragHandle_API}
         """
@@ -136,7 +136,7 @@ class NanotubeSegment_ResizeHandle(DraggableHandle_AlongLine):
     def on_release(self):
         """
         This method gets called during leftUp (when the handle is released)
-        @see: B{NanotubeSegment_EditCommand.modifyStructure}
+        @see: B{EditNanotube_EditCommand.modifyStructure}
         @see: self.on_press
         @see: B{SelectChunks.GraphicsMode.leftUp}
         @see: B{DragHandle_API}

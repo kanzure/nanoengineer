@@ -1,8 +1,8 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
-NanotubeSegment_GraphicsMode.py
+EditNanotube_GraphicsMode.py
 
-Graphics mode for NanotubeSegment_EditCommand.
+Graphics mode for EditNanotube_EditCommand.
 
 While in this command, user can
 (a) Highlight and then left drag the resize handles located at the
@@ -46,9 +46,9 @@ from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import DEBUG_CLICK_ON
 
 _superclass = BuildNanotube_GraphicsMode
 
-class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
+class EditNanotube_GraphicsMode(BuildNanotube_GraphicsMode):
     """
-    Graphics mode for NanotubeSegment_EditCommand.
+    Graphics mode for EditNanotube_EditCommand.
     """
     _sphereColor = darkred
     _sphereOpacity = 0.5
@@ -307,7 +307,7 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
         #I don't know why it does that... I think it always assums that the
         #drag handler is officially a node in the MT? In our case,
         #the drag handler is a 'Highlightable' object (actually
-        #an instance of 'NanotubeSegment_ResizeHandle' (has superclass from
+        #an instance of 'EditNanotube_ResizeHandle' (has superclass from
         #exprs module ..which implements API for a highlightable object
         #So it doesn't get registered in the selectMovables list. Thats why
         #we are not calling _superclass.leftDrag. The above mentioned

@@ -61,7 +61,7 @@ from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
 # Carbon nanotube commands 
 from cnt.commands.BuildNanotube.BuildNanotube_EditCommand import BuildNanotube_EditCommand
 from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
-from cnt.commands.NanotubeSegment.NanotubeSegment_EditCommand import NanotubeSegment_EditCommand
+from cnt.commands.EditNanotube.EditNanotube_EditCommand import EditNanotube_EditCommand
 
 # DNA commands
 from dna.commands.BuildDna.BuildDna_EditCommand     import BuildDna_EditCommand
@@ -158,7 +158,7 @@ def preloaded_command_classes():
         DnaDisplayStyle_Command,
         BuildNanotube_EditCommand,
         InsertNanotube_EditCommand,
-        NanotubeSegment_EditCommand, 
+        EditNanotube_EditCommand, 
         Graphene_EditCommand,
         RotateChunks_Command,
         TranslateChunks_Command, 

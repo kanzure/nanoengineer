@@ -167,7 +167,7 @@ class InsertNanotube_EditCommand(EditCommand):
         Finalize the structure. This is a step just before calling Done method.
         to exit out of this command. Subclasses may overide this method
         @see: EditCommand_PM.ok_btn_clicked
-        @see: NanotubeSegment_EditCommand where this method is overridden. 
+        @see: EditNanotube_EditCommand where this method is overridden. 
         """
         #The following can happen in this case: User creates first nanotube, 
         #Now clicks inside 3D workspace to define the first point of the 

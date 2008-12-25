@@ -569,7 +569,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                              )
                     contextMenuList.append(item)
                     
-        if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'NANOTUBE_SEGMENT'):
+        if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'EDIT_NANOTUBE'):
             if self.isNanotubeChunk():
                 try:
                     segment = self.parent_node_of_class(self.assy.NanotubeSegment)

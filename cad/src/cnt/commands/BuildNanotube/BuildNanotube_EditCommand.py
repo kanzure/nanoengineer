@@ -97,7 +97,7 @@ class BuildNanotube_EditCommand(EditCommand):
         """
         Create context menu for this command. (Build Nanotube mode)
         @see: chunk.make_glpane_context_menu_items
-        @see: NanotubeSegment_EditCommand.makeMenus
+        @see: EditNanotube_EditCommand.makeMenus
         """
         if not hasattr(self, 'graphicsMode'):
             return

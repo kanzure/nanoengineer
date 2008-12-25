@@ -1,13 +1,13 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-NanotubeSegment_PropertyManager.py
+EditNanotube_PropertyManager.py
 
 @author: Ninad, Mark
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: as of 2008-01-18
-See NanotubeSegment_EditCommand for details. 
+See EditNanotube_EditCommand for details. 
 """
 from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
@@ -25,17 +25,17 @@ from PM.PM_LineEdit import PM_LineEdit
 from geometry.VQT import V, vlen
 
 from utilities.debug import print_compact_stack
-from utilities.prefs_constants import nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key
-from utilities.prefs_constants import nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key
+from utilities.prefs_constants import editNanotubeEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import editNanotubeEditCommand_showCursorTextCheckBox_prefs_key
 from widgets.prefs_widgets    import connect_checkbox_with_boolean_pref
 
 
 _superclass = DnaOrCnt_PropertyManager
 
-class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
+class EditNanotube_PropertyManager( DnaOrCnt_PropertyManager ):
     """
     The NanotubeSegmenta_PropertyManager class provides a Property Manager 
-    for the NanotubeSegment_EditCommand. 
+    for the EditNanotube_EditCommand. 
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -104,7 +104,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         Show this property manager. Overrides EditCommand_PM.show()
         This method also retrives the name information from the 
         command's structure for its name line edit field. 
-        @see: NanotubeSegment_EditCommand.getStructureName()
+        @see: EditNanotube_EditCommand.getStructureName()
         @see: self.close()
         """
         _superclass.show(self)
@@ -119,7 +119,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         Also sets the name of the self.command's structure to the one 
         displayed in the line edit field.
         @see self.show()
-        @see: NanotubeSegment_EditCommand.setStructureName
+        @see: EditNanotube_EditCommand.setStructureName
         """
         if self.command is not None:
             name = str(self.nameLineEdit.text())
@@ -134,7 +134,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         """
         connect_checkbox_with_boolean_pref(
             self.showCursorTextCheckBox , 
-            nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key)
+            editNanotubeEditCommand_showCursorTextCheckBox_prefs_key)
 
 
     def _params_for_creating_cursorTextCheckBoxes(self):
@@ -156,7 +156,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
                [  #Format: (" checkbox text", prefs_key)
                   
                   ("Nanotube length",
-                   nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key)
+                   editNanotubeEditCommand_cursorTextCheckBox_length_prefs_key)
                  ]
 
         return params
@@ -171,7 +171,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         @param params: The parameters of the nanotube segment.
                        These parameters are retreived via 
                        L{NanotubeSegment.getProps()}, called from 
-                       L{NanotubeSegment_EditCommand.editStructure()}.
+                       L{EditNanotube_EditCommand.editStructure()}.
                        
                        Parameters:
                        - n, m (chirality)
@@ -233,7 +233,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         This is called only when user is editing an existing structure. 
         Its different than self.update_widgets_in_pm_before_show. (that method 
         is called just before showing the property manager) 
-        @see: NanotubeSegment_EditCommand.editStructure()
+        @see: EditNanotube_EditCommand.editStructure()
         
         """
         if self.command is not None and self.command.hasValidStructure():
@@ -250,7 +250,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
             # 'first show' we will need to manually set the value of any
             # widgets that need updated. But later, when a different 
             # NanotubeSegment is clicked, (while still in 
-            # NanotubeSegment_EditCommand, the propMgr will already be connected 
+            # EditNanotube_EditCommand, the propMgr will already be connected 
             # so any calls in that case is redundant.
             self.updateNameField()
             self.updateLength()

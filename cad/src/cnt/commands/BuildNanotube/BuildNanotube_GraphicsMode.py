@@ -13,7 +13,7 @@ Needs Refactoring. It was originally duplicated from BuildDna_GraphicsMode
 (for an experimental implementation of new Nanotube command)
 There needs to be a common superclass for Build'Structure' mode and
 all the edit structure modes (commands) such as DnaSegment,
-DnaStrand_GraphicsMode, NanotubeSegment_GraphicsMode etc
+DnaStrand_GraphicsMode, EditNanotube_GraphicsMode etc
 """
 
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode

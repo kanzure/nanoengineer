@@ -383,7 +383,7 @@ class DebugMenuMixin:
                                  'DNA_STRAND',
                                  'CRYSTAL', 
                                  'BUILD_NANOTUBE', 
-                                 'NANOTUBE_SEGMENT',
+                                 'EDIT_NANOTUBE',
                                  'EXTRUDE', 
                                  'MODIFY',
                                  'MOVIE'

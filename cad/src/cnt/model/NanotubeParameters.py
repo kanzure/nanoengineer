@@ -330,7 +330,7 @@ class NanotubeParameters:
         @return: The parameters of the nanotube segment.
                 These parameters are retreived via 
                 L{NanotubeSegment.getProps()}, called from 
-                L{NanotubeSegment_EditCommand.editStructure()}.
+                L{EditNanotube_EditCommand.editStructure()}.
                 
                 Parameters:
                 - n, m (chirality)

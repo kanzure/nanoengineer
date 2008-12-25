@@ -404,8 +404,8 @@ insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor t
 insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show nanotube length info in cursor text while in InsertNanotube_Editcommand'
 insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key = 'A110/Show angle info in cursor text while in InsertNanotube_Editcommand'
 
-nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while resizing the nanotube in NanotubeSegment_EditCommand'
-nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show nanotube length info in cursor text while in NanotubeSegment_EditCommand'
+editNanotubeEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while resizing the nanotube in EditNanotube_EditCommand'
+editNanotubeEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show nanotube length info in cursor text while in EditNanotube_EditCommand'
 
 
 # stereo view preferences [added by piotr 080516]
@@ -893,12 +893,12 @@ prefs_table = (
     ('', 'boolean',
      insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key, True),
 
-    #NanotubeSegment_EditCommand cursor texts
+    #EditNanotube_EditCommand cursor texts
     ('', 'boolean',
-     nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key, True),
+     editNanotubeEditCommand_cursorTextCheckBox_length_prefs_key, True),
 
     ('', 'boolean',
-     nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key, True),
+     editNanotubeEditCommand_showCursorTextCheckBox_prefs_key, True),
 
     # DNA minor groove error indicator prefs.
     ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
