@@ -263,7 +263,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
 
     def numberOfBasesChanged( self, numberOfBases ):
         """
-        Slot for the B{Number of Bases" spinbox.
+        Slot for the B{Number of Bases} spinbox.
         """
         duplexRise = self.duplexRiseDoubleSpinBox.value()
         # Update the Duplex Length lineEdit widget.
@@ -329,6 +329,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                               maximum       =  20.0,
                               decimals      =  2,
                               singleStep    =  0.1 )
+        self.basesPerTurnDoubleSpinBox.setDisabled(True)  
 
         self.duplexRiseDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
@@ -339,7 +340,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                               maximum       =  4.0,
                               decimals      =  3,
                               singleStep    =  0.01 )
-
+        self.duplexRiseDoubleSpinBox.setDisabled(True)  
 
         # Duplex Length
         self.duplexLengthLineEdit  =  \
