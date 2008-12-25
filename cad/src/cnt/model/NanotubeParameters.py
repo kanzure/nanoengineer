@@ -752,12 +752,16 @@ class NanotubeParameters:
         Create and return a copy of nanotube.
         """
         nanotube = NanotubeParameters()
+        nanotube.setChirality(self.n, self.m)
+        nanotube.setType(self.type)
+        nanotube.setEndings(self.endings)
+        nanotube.setEndPoints(self.endPoint1, self.endPoint2)
         return nanotube
     
     # override abstract method of DataMixin
     def __eq__(self, other):
         """
-        Compare.
+        Compare self with other.
         """
         if self.n != other.n:
             return False
@@ -768,6 +772,10 @@ class NanotubeParameters:
         elif self.type != other.type:
             return False
         elif self.endings != other.endings:
+            return False
+        elif self.endPoint1 != other.endPoint1:
+            return False
+        elif self.endPoint2 != other.endPoint2:
             return False
         else:
             return True

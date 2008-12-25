@@ -328,27 +328,15 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
     def _createStructure(self):
         """
-        Creates and returns the structure (in this case a L{NanotubeSegment} 
-        object. 
-        @return : Nanotube segment that include the nanotube chunk.
+        Returns the current NanotubeSegment being edited with a new nanotube 
+        chunk.
+        @return : Nanotube segment that include the new nanotube chunk.
         @rtype: L{NanotubeSegment}        
         """
-        # Create the model tree group node. 
-        # Make sure that the 'topnode'  of this part is a Group (under which the
-        # DNa group will be placed), if the topnode is not a group, make it a
-        # a 'Group' (applicable to Clipboard parts).See part.py
-        # --Part.ensure_toplevel_group method. This is an important line
-        # and it fixes bug 2585
-        self.win.assy.part.ensure_toplevel_group()
-        ntSegment = NanotubeSegment(self.name, 
-                                    self.win.assy,
-                                    self.win.assy.part.topnode,
-                                    editCommand = self  )
+        
         try:
-            # Make the NanotubeSegment.
-
+            # Create a new nanotube chunk using new params.
             n, m, type, endings, endPoint1, endPoint2 = self._gatherParameters()
-
             from cnt.model.NanotubeParameters import NanotubeParameters
             self.nanotube = NanotubeParameters()
             nanotube  =  self.nanotube
@@ -357,56 +345,49 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             nanotube.setEndings(endings)
             nanotube.setEndPoints(endPoint1, endPoint2)
             position = V(0.0, 0.0, 0.0)
-            ntChunk = nanotube.build(self.name, self.win.assy, position)
-
-            nanotube.computeEndPointsFromChunk(ntChunk)
-
-            ntSegment.addchild(ntChunk)
-
-            #set some properties such as nanotubeRise
-            #This information will be stored on the NanotubeSegment object so that
-            #it can be retrieved while editing this object. 
-            #Should these props be assigned to the NanotubeSegment in 
-            #Nanotube.build() itself? This needs to be answered while modifying
-            #build() method to fit in the dna data model. --Ninad 2008-03-05
-
-            #WARNING 2008-03-05: Since self._modifyStructure calls 
-            #self._createStructure() 
-            #If in the near future, we actually permit modifying a
-            #structure (such as dna) without actually recreating the whole 
-            #structure, then the following properties must be set in 
-            #self._modifyStructure as well. Needs more thought.
+            ntChunk = nanotube.build(self.struct.name, self.win.assy, position)
+            nanotube.computeEndPointsFromChunk(ntChunk) # Needed.
+            self.struct.addchild(ntChunk)
+            
+            #WARNING 2008-03-05:
+            #When we actually permit modifying a nanotube without recreating it,
+            #then the following properties must be set in self._modifyStructure 
+            #as well. Needs more thought.
             props =(nanotube.getChirality(),
                     nanotube.getType(),
                     nanotube.getEndings(),
                     nanotube.getEndPoints())
 
-            ntSegment.setProps(props)
+            self.struct.setProps(props)
 
-            return ntSegment
+            return self.struct
 
         except (PluginBug, UserError):
-            # Why do we need UserError here? Mark 2007-08-28
-            ntSegment.kill()
-            raise PluginBug("Internal error while trying to create a NanotubeSegment.")
-        return
+            self.struct.kill()
+            raise PluginBug("Internal error while trying to recreate a NanotubeSegment.")
+        return None
 
     def _modifyStructure(self, params):
         """
         Modify the structure based on the parameters specified. 
         Overrides EditCommand._modifystructure. This method removes the old 
-        structure and creates a new one using self._createStructure.
+        nanotube and replaces it with a new one using self._createStructure.
         """    
         if not pref_nt_segment_resize_by_recreating_nanotube():
             self._modifyStructure_NEW_SEGMENT_RESIZE(params)
             return
 
+        # To modify the structure, we need to:
+        # 1. Delete the current nanotube chunk inside the NanotubeSegment group.
+        # 2. Create a new new nanotube chunk using nanotube.build()
+        # 3. Add the newly generated nanotube to this NanotubeSegment.
+        # 4. Update all the nanotube parameters.
+        # Note: Steps 2-4 are done in self._createStructure()
         assert self.struct
-        self.name = self.struct.name # Preserve name before removing struct.
-        self._removeStructure()
+        self.struct.members[0].kill() # Delete the current nanotube chunk.
         self.previousParams = params
         self.struct = self._createStructure()
-        return  
+        return
 
     def _modifyStructure_NEW_SEGMENT_RESIZE(self, params): #@ NOT FIXED
         """
