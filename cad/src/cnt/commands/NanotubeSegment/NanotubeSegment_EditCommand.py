@@ -349,8 +349,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
             n, m, type, endings, endPoint1, endPoint2 = self._gatherParameters()
 
-            from cnt.model.Nanotube import Nanotube
-            self.nanotube = Nanotube()
+            from cnt.model.NanotubeParameters import NanotubeParameters
+            self.nanotube = NanotubeParameters()
             nanotube  =  self.nanotube
             nanotube.setChirality(n, m)
             nanotube.setType(type)
@@ -670,7 +670,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
                 ##self._modifyStructure(params)
                 ############################################
 
-                self.nanotube = Nanotube() #@ Creates 5x5 CNT. Miisng PM params.
+                self.nanotube = NanotubeParameters() #@ Creates 5x5 CNT. Missing PM params.
 
                 length_diff =  self._determine_how_to_change_length()  
                 ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end() #@

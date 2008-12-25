@@ -12,10 +12,6 @@ Mark 2008-03-09:
 
 __author__ = "Mark"
 
-
-
-from cnt.model.Nanotube import Nanotube
-
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QAction
@@ -29,7 +25,6 @@ from PM.PM_ToolButton    import PM_ToolButton
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
 
-from command_support.DnaOrCnt_PropertyManager import DnaOrCnt_PropertyManager
 from geometry.VQT import V
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
@@ -43,6 +38,9 @@ from utilities.prefs_constants import insertNanotubeEditCommand_showCursorTextCh
 
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
+from cnt.model.NanotubeParameters import NanotubeParameters
+
+from command_support.DnaOrCnt_PropertyManager import DnaOrCnt_PropertyManager
 _superclass = DnaOrCnt_PropertyManager
 
 class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
@@ -73,7 +71,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         self.endPoint1 = None
         self.endPoint2 = None
 
-        self.nanotube = Nanotube() # A 5x5 CNT.
+        self.nanotube = NanotubeParameters() # A 5x5 CNT.
 
         _superclass.__init__( self, command)
 

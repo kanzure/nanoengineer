@@ -112,8 +112,8 @@ class NanotubeSegment(LeafLikeGroup):
             self.type = type.lstrip()
             self.endings = endings.lstrip()
             # Create the nanotube.
-            from cnt.model.Nanotube import Nanotube
-            self.nanotube = Nanotube() # Returns a 5x5 CNT.
+            from cnt.model.NanotubeParameters import NanotubeParameters
+            self.nanotube = NanotubeParameters() # Returns a 5x5 CNT.
             self.nanotube.setChirality(self.n, self.m)
             self.nanotube.setType(self.type)
             self.nanotube.setEndings(self.endings)
@@ -173,8 +173,8 @@ class NanotubeSegment(LeafLikeGroup):
         """
         (_n, _m), _type, _endings, (_endPoint1, _endPoint2) = props
         
-        from cnt.model.Nanotube import Nanotube
-        self.nanotube = Nanotube()
+        from cnt.model.NanotubeParameters import NanotubeParameters
+        self.nanotube = NanotubeParameters()
         self.nanotube.setChirality(_n, _m)
         self.nanotube.setType(_type)
         self.nanotube.setEndings(_endings)

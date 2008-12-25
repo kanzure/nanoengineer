@@ -1,6 +1,6 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Nanotube.py -- Nanotube generator helper classes, based on empirical data.
+NanotubeParameters.py -- Generates Nanotube from parameters.
 
 @author: Mark Sims
 @version: $Id$
@@ -43,10 +43,10 @@ sqrt3 = 3 ** 0.5
 ##if not basepath_ok:
 ##    env.history.message(orangemsg("The cad/plugins/Nanotube directory is missing."))
 
-class Nanotube:
+class NanotubeParameters:
     """
-    Nanotube class. Supports both Carbon Nanotubes (CNTs) or Boron Nitride
-    Nanotubes (BNNT).
+    Generates a nanotube from parameters. Supports both Carbon Nanotubes (CNTs) 
+    or Boron Nitride Nanotubes (BNNT).
     """
     n = 5
     m = 5
@@ -72,6 +72,7 @@ class Nanotube:
         self.setBondLength()
         self._computeRise() # Assigns default rise value.
         self._update()
+        return
         
     def _update(self):
         """
@@ -479,7 +480,8 @@ class Nanotube:
 
         def add(element, x, y, z, atomtype='sp2'):
             atm = Atom(element, V(x, y, z), mol)
-            atm.set_atomtype_but_dont_revise_singlets(atomtype)
+            if element == "C":
+                atm.set_atomtype_but_dont_revise_singlets(atomtype)
             return atm
 
         evenAtomDict = { }
@@ -741,7 +743,36 @@ class Nanotube:
         
         # Bruce suggested I add this. It works here, but not if its 
         # before move() and rot() above. Mark 2008-04-11
-        cntChunk.full_inval_and_update() 
+        cntChunk.full_inval_and_update()
+        return
+    
+    # override abstract method of DataMixin
+    def _copyOfObject(self, copyfunc):
+        """
+        Create and return a copy of nanotube.
+        """
+        nanotube = NanotubeParameters()
+        return nanotube
+    
+    # override abstract method of DataMixin
+    def __eq__(self, other):
+        """
+        Compare.
+        """
+        if self.n != other.n:
+            return False
+        elif self.m != other.m:
+            return False
+        elif self.n != other.n:
+            return False
+        elif self.type != other.type:
+            return False
+        elif self.endings != other.endings:
+            return False
+        else:
+            return True
+        pass
+        
         
     pass
     
