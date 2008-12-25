@@ -49,7 +49,7 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
 
     title         =  "Nanotube Properties"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildNanotube/EditNanotube.png"
 
     def __init__( self,  command ):
         """
@@ -87,10 +87,15 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-            
+        
+        change_connect(self.nameLineEdit,
+                       SIGNAL("editingFinished()"),
+                       self._nameChanged)
+        
         change_connect(self.showCursorTextCheckBox, 
                        SIGNAL('stateChanged(int)'), 
                        self._update_state_of_cursorTextGroupBox)
+        return
         
     def show(self):
         """
@@ -101,10 +106,10 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         @see: self.close()
         """
         _superclass.show(self)
-        if self.command is not None:
-            name = self.command.getStructureName()
-            if name is not None:
-                self.nameLineEdit.setText(name)
+        #if self.command is not None:
+            #name = self.command.getStructureName()
+            #if name is not None:
+                #self.nameLineEdit.setText(name)
     
     def close(self):
         """
@@ -245,13 +250,31 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
             # NanotubeSegment is clicked, (while still in 
             # NanotubeSegment_EditCommand, the propMgr will already be connected 
             # so any calls in that case is redundant.
+            self.updateNameField()
             self.updateLength()
             self.updateNanotubeDiameter()
             self.updateChirality()
+        return
+    
+    def _update_UI_do_updates(self):
+        """
+        Overrides superclass method. 
+        
+        @see: Command_PropertyManager._update_UI_do_updates()
+        """
+        self._update_widgets_in_PM_before_show()
+        
+        if self.command.struct:
+            msg = "Editing structure <b>%s</b>." % \
+                self.command.getStructureName()
+        else:
+            msg = "Select a single structure to edit."
+        self.updateMessage(msg)
+        return
         
     def _addGroupBoxes( self ):
         """
-        Add the DNA Property Manager group boxes.
+        Add the Property Manager group boxes.
         """        
                 
         self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
@@ -316,6 +339,33 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
         Add Tooltip text
         """
         pass
+    
+    def _nameChanged(self):
+        """
+        Slot for "Name" field.
+        
+        @TODO: Include a validator for the name field.
+        """
+        
+        _name = str(self.nameLineEdit.text())
+        
+        if not _name: # Minimal test. Need to implement a validator.
+            self.updateNameField()
+            return
+        
+        self.command.setStructureName(_name)
+        msg = "Editing structure <b>%s</b>." % _name
+        self.updateMessage(msg)
+        
+        return
+    
+    def updateNameField(self):
+        """
+        Update the name field showing the name of the currently selected protein.
+        clear the combobox list.
+        """
+        self.nameLineEdit.setText(self.command.getStructureName())
+        return
     
     def updateLength( self ):
         """

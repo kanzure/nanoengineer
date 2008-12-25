@@ -1525,28 +1525,14 @@ class MWsemantics(QMainWindow,
         self.commandSequencer.currentCommand.runCommand()
 
     # Build > CNT related slots and methods. ######################
-
+    
     def activateNanotubeTool(self):
         """
-        Enter Build Nanotube.
-        @see:B{self.insertNanotube}
-        @see: B{ops_select_Mixin.getSelectedNanotubeGroups}
-        @see: B{cnt_model.NanotubeGroup.edit}
+        Activates the Nanotube toolbar.
         """
-        selectedNanotubeGroupList = self.assy.getSelectedNanotubeGroups()
-
-        #If exactly one NanotubeGroup is selected then when user invokes Build > Nanotube
-        #command, edit the selected NanotubeGroup instead of creating a new one
-        #For all other cases, invoking Build > Nanotube will create a new NanotubeGroup
-        if len(selectedNanotubeGroupList) == 1:
-            selNanotubeGroup = selectedNanotubeGroupList[0]
-            selNanotubeGroup.edit()
-        else:
-            commandSequencer = self.commandSequencer
-            commandSequencer.userEnterCommand('BUILD_NANOTUBE')
-
-            assert self.commandSequencer.currentCommand.commandName == 'BUILD_NANOTUBE'
-            self.commandSequencer.currentCommand.runCommand()
+        commandSequencer = self.commandSequencer
+        commandSequencer.userEnterCommand('BUILD_NANOTUBE')
+        return
 
     def insertNanotube(self, isChecked = False):
         """
@@ -1562,10 +1548,8 @@ class MWsemantics(QMainWindow,
         currentCommand = self.commandSequencer.currentCommand
         if currentCommand.commandName == "INSERT_NANOTUBE":
             currentCommand.runCommand()
-            
-
-        
-
+        return
+    
     def activateDnaTool(self):
         """
         Enter the InsertDna_EditCommand command.

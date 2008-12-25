@@ -6,24 +6,11 @@ NanotubeSegment_EditCommand provides a way to edit an existing NanotubeSegment.
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
 
-To edit a segment, first enter BuildNanotube_EditCommand (accessed using Build > Cnt) 
-then, select an axis chunk of an existing NanotubeSegment  within the NanotubeGroup you
-are editing. When you select the axis chunk, it enters NanotubeSegment_Editcommand
-and shows the property manager with its widgets showing the properties of 
-selected segment. 
-
 While in this command, user can 
 (a) Highlight and then left drag the resize handles located at the 
-    two 'axis endpoints' of thje segment to change its length.  
-(b) Highlight and then left drag any axis atom (except the two end axis atoms)
-    to translate the  whole segment along the axis
-(c) Highlight and then left drag any strand atom to rotate the segment around 
-    its axis. 
-
-    Note that implementation b and c may change slightly if we implement special
-    handles to do these oprations. 
-    See also: NanotubeSegment_GraphicsMode .. the default graphics mode for this 
-    command
+    two 'endpoints' of the nanotube to change its length.  
+(b) Highlight and then left drag any nanotube atom to translate the 
+    nanotube along its axis.
 
 History:
 Mark 2008-03-10: Created from copy of DnaSegment_EditCommand.py
@@ -83,43 +70,24 @@ def pref_nt_segment_resize_by_recreating_nanotube():
 
 class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     """
-    Command to edit a NanotubeSegment object. 
-    To edit a segment, first enter BuildNanotube_EditCommand (accessed using 
-    Build > Nanotube) then, select an existing NanotubeSegment within the 
-    NanotubeGroup you are editing. When you select the NanotubeSegment, it 
-    enters NanotubeSegment_Editcommand and shows the property manager with its
-    widgets showing the properties of selected segment.
+    Command to edit a NanotubeSegment (nanotube).
     """
-    
-    #Graphics Mode 
+    # class constants
     GraphicsMode_class = NanotubeSegment_GraphicsMode
-    
-    #Property Manager
     PM_class = NanotubeSegment_PropertyManager
     
-    
-    cmd              =  'Nanotube Segment'
-    prefix           =  'NanotubeSegment' # used for gensym
-    cmdname          = "NANOTUBE_SEGMENT"
-
     commandName      = 'NANOTUBE_SEGMENT'
     featurename      = "Edit Nanotube Segment"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_NANOTUBE'
-
+    
     command_should_resume_prevMode = True
     command_has_its_own_PM = True
-  
-    create_name_from_prefix  =  True 
-
-    call_makeMenus_for_each_event = True 
-
-    #This is set to BuildDna_EditCommand.flyoutToolbar (as of 2008-01-14, 
-    #it only uses 
+    
     flyoutToolbar = None
 
-    _parentNanotubeGroup = None    
+    call_makeMenus_for_each_event = True 
 
     handlePoint1 = State( Point, ORIGIN)
     handlePoint2 = State( Point, ORIGIN)
@@ -137,7 +105,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
-
 
     #@TODO: modify the 'State params for rotation_distance 
     rotation_distance1 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
@@ -206,25 +173,16 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         #Initialize DEBUG preference
         pref_nt_segment_resize_by_recreating_nanotube()
         return
-        
-
+    
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        
-        if self.hasValidStructure():         
-            #When the structure (segment) is finalized (after the  modifications)
-            #it will be added to the original NanotubeGroup to which it belonged 
-            #before we began editing (modifying) it. 
-            self._parentNanotubeGroup = self.struct.getNanotubeGroup() 
-            #Set the endpoints
-            #@ DOES THIS DO ANYTHING? I don't think so. --Mark 2008-04-01
-            #@endPoint1, endPoint2 = self.struct.nanotube.getEndPoints()
-            #@params_for_propMgr = (endPoint1, endPoint2)
+        if self.hasValidStructure():
 
             #TODO 2008-03-25: better to get all parameters from self.struct and
             #set it in propMgr?  This will mostly work except that reverse is 
             #not true. i.e. we can not specify same set of params for 
             #self.struct.setProps ...because endPoint1 and endPoint2 are derived.
-            #by the structure when needed. Commenting out following line of code
+            #by the structure when needed.
             self.propMgr.setParameters(self.struct.getProps())
 
             #Store the previous parameters. Important to set it after you 
@@ -407,19 +365,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         @return : Nanotube segment that include the nanotube chunk.
         @rtype: L{NanotubeSegment}        
         """
-        # self.name needed for done message
-        if self.create_name_from_prefix:
-            # create a new name
-            name = self.name = gensym(self.prefix, self.win.assy) # (in _build_struct)
-            self._gensym_data_for_reusing_name = (self.prefix, name)
-        else:
-            # use externally created name
-            self._gensym_data_for_reusing_name = None
-                # (can't reuse name in this case -- not sure what prefix it was
-                #  made with)
-            name = self.name
-
-
         # Create the model tree group node. 
         # Make sure that the 'topnode'  of this part is a Group (under which the
         # DNa group will be placed), if the topnode is not a group, make it a
@@ -482,68 +427,30 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         Modify the structure based on the parameters specified. 
         Overrides EditCommand._modifystructure. This method removes the old 
-        structure and creates a new one using self._createStructure. This 
-        was needed for the structures like this (Dna, Nanotube etc) . .
-        See more comments in the method.
+        structure and creates a new one using self._createStructure.
         """    
         if not pref_nt_segment_resize_by_recreating_nanotube():
             self._modifyStructure_NEW_SEGMENT_RESIZE(params)
             return
 
         assert self.struct
-        # parameters have changed, update existing structure
-        self._revertNumber()
-
-        # self.name needed for done message
-        if self.create_name_from_prefix:
-            # create a new name
-            name = self.name = gensym(self.prefix, self.win.assy) # (in _build_struct)
-            self._gensym_data_for_reusing_name = (self.prefix, name)
-        else:
-            # use externally created name
-            self._gensym_data_for_reusing_name = None
-                # (can't reuse name in this case -- not sure what prefix it was
-                #  made with)
-            name = self.name
-
-        #@NOTE: Unlike editcommands such as Plane_EditCommand, this 
-        #editCommand actually removes the structure and creates a new one 
-        #when its modified. -- Ninad 2007-10-24
-
+        self.name = self.struct.name # Preserve name before removing struct.
         self._removeStructure()
-
         self.previousParams = params
-
         self.struct = self._createStructure()
-        # Now append the new structure in self._segmentList (this list of 
-        # segments will be provided to the previous command 
-        # (BuildDna_EditCommand)
-        # TODO: Should self._createStructure does the job of appending the 
-        # structure to the list of segments? This fixes bug 2599 
-        # (see also BuildDna_PropertyManager.Ok 
-
-        if self._parentNanotubeGroup is not None:
-            #Should this be an assertion? (assert self._parentNanotubeGroup is not 
-            #None. For now lets just print a warning if parentNanotubeGroup is None 
-            self._parentNanotubeGroup.addSegment(self.struct)
         return  
-
 
     def _modifyStructure_NEW_SEGMENT_RESIZE(self, params): #@ NOT FIXED
         """
-        Modify the structure based on the parameters specified. 
-        Overrides EditCommand._modifystructure. This method removes the old 
-        structure and creates a new one using self._createStructure. This 
-        was needed for the structures like this (Dna, Nanotube etc) . .
-        See more comments in the method.
-
+        This resizes without recreating whole nanotube 
+        Overrides EditCommand._modifystructure.
         @attention: is not implemented.
         """        
 
         #@TODO: - rename this method from _modifyStructure_NEW_SEGMENT_RESIZE
         #to self._modifyStructure, after more testing
         #This method is used for debug prefence: 
-        #'Nanotube Segment: resize without recreating whole duplex'
+        #'Nanotube Segment: resize without recreating whole nanotube'
         #see also self.modifyStructure_NEW_SEGMENT_RESIZE
 
         assert self.struct      
@@ -611,7 +518,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         Returns the name string of self.struct if there is a valid structure. 
         Otherwise returns None. This information is used by the name edit field 
-        of  this command's PM when we call self.propMgr.show()
+        of this command's PM when we call self.propMgr.show()
         @see: NanotubeSegment_PropertyManager.show()
         @see: self.setStructureName
         """

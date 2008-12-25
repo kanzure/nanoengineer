@@ -7,38 +7,22 @@ BuildNanotube_PropertyManager.py
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
-Ninad 2008-01-11: Created
-
-
-TODO: as of 2008-01-11
-- Needs more documentation and the file is subjected to heavy revision. 
-This is an initial implementation of default Cnt edit mode.
-- Methods such as callback_addSegments might be renamed.
-- DEPRECATE THE self.sequenceEditor. (that code has been commented out) 
-   see a comment in self,__init__
-BUGS:
-- Has bugs such as -- Flyout toolbar doesn't get updated when you return to 
-  BuildNanotube_EditCommand from a a temporary command. 
-- Just entering and leaving BuildNanotube_EditCommand creates an empty NanotubeGroup
+2008-01-11 Ninad: Created
 """
-from utilities import debug_flags
-from utilities.debug import print_compact_stack
-
+import foundation.env as env
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
-
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from command_support.EditCommand_PM import EditCommand_PM
-
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_Constants     import PM_CANCEL_BUTTON
-from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
-from cnt.model.NanotubeSegment import NanotubeSegment
+from cnt.model.NanotubeSegment import getAllNanotubeSegmentsInPart
 
+_superclass = EditCommand_PM
 class BuildNanotube_PropertyManager(EditCommand_PM):
     """
     The BuildNanotube_PropertyManager class provides a Property Manager 
@@ -58,29 +42,29 @@ class BuildNanotube_PropertyManager(EditCommand_PM):
 
     title         =  "Build Nanotube"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildNanotube/BuildNanotube.png"
 
     def __init__( self, command ):
         """
         Constructor for the Build Nanotube property manager.
         """
         
-        #For self._update_UI_* check
+        #Attributes for self._update_UI_do_updates() to keep track of changes
+        #in these , since the last call of that method. These are used to 
+        #determine whether certain UI updates are needed. 
         self._previousSelectionParams = None        
         self._previousStructureParams = None
-        
-        self._previous_model_change_indicator = None
-                
+        self._previousCommandStackParams = None
+
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
-        
-        self.sequenceEditor = None              
         
         EditCommand_PM.__init__( self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
+        return
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -90,24 +74,18 @@ class BuildNanotube_PropertyManager(EditCommand_PM):
                           method. 
         @type  isConnect: boolean
         """
-        #TODO: This is a temporary fix for a bug. When you invoke a temporary mode 
-        # entering such a temporary mode keeps the signals of 
-        #PM from the previous mode connected (
-        #but while exiting that temporary mode and reentering the 
-        #previous mode, it atucally reconnects the signal! This gives rise to 
-        #lots  of bugs. This needs more general fix in Temporary mode API. 
+        #TODO: This is a temporary fix for a bug. When you invoke a temporary
+        #mode, entering such a temporary mode keeps the signals of PM from the 
+        #previous mode connected (but while exiting that temporary mode and 
+        #reentering the previous mode, it actually reconnects the signal! 
+        #This gives rise to lots of bugs. This needs a more general fix in 
+        #the Temporary mode API. 
         # -- Ninad 2008-01-09 (similar comment exists in MovePropertyManager.py
-                
+        
         if isConnect and self.isAlreadyConnected:
-            if debug_flags.atom_debug:
-                print_compact_stack("warning: attempt to connect widgets"\
-                                    "in this PM that are already connected." )
             return 
         
         if not isConnect and self.isAlreadyDisconnected:
-            if debug_flags.atom_debug:
-                print_compact_stack("warning: attempt to disconnect widgets"\
-                                    "in this PM that are already disconnected.")
             return
         
         self.isAlreadyConnected = isConnect
@@ -118,11 +96,12 @@ class BuildNanotube_PropertyManager(EditCommand_PM):
         else:
             change_connect = self.win.disconnect 
         
-        self.segmentListWidget.connect_or_disconnect_signals(isConnect)
+        self.nanotubeListWidget.connect_or_disconnect_signals(isConnect)
         
-        change_connect(self.editSegmentPropertiesButton,
+        change_connect(self.editNanotubePropertiesButton,
                       SIGNAL("clicked()"),
-                      self._editNanotubeSegment)
+                      self._editNanotube)
+        return
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
         """
@@ -130,207 +109,185 @@ class BuildNanotube_PropertyManager(EditCommand_PM):
         opened or closed, depending on the bool_enable. 
         
         """
-        #TODO: This is bad. It would have been much better to enable/disable 
-        #gui actions using a API method in command/commandSequencer which gets 
-        #called when you enter another command exiting or suspending the 
-        #previous one. . At present. it doesn't exist (first needs cleanup in 
-        #command/command sequencer (Done and other methods._)-- Ninad 2008-01-09
-        if hasattr(self.command, 'flyoutToolbar') and \
-           self.command.flyoutToolbar:            
-            self.command.flyoutToolbar.exitModeAction.setEnabled(not bool_enable)
-            
-    #New command API method -- implemented on 2008-08-27
+        
+        #For new command API, we will always show the exit button to check 
+        #if Exit button really exits the subcommand and the parent command 
+        #(earlier there were bugs) . Regaring 'whether this should be the 
+        #default behavior', its a UI design issue and we will worry about it 
+        #later -- Ninad 2008-08-27 (based on an email exchanged with Bruce)
+        pass
+    
     def _update_UI_do_updates(self):
         """
         Overrides superclass method. 
         
-        @see: Command_PropertyManager._update_UI_do_updates() for documentation        
-        @see: self._currentStructureParams()
-        """  
-        currentSelectionParams = self._currentSelectionParams() 
+        @see: Command_PropertyManager._update_UI_do_updates()
+        """
         
-        currentStructParams = self._currentStructureParams()
+        newSelectionParams = self._currentSelectionParams()
+        current_struct_params = self._currentStructureParams()
         
-        selection_params_unchanged = same_vals(currentSelectionParams,
+        selection_params_unchanged = same_vals(newSelectionParams,
                                                self._previousSelectionParams)
         
-        structure_params_unchanged = same_vals(currentStructParams,
-                                               self._previousStructureParams)
+        #introducing self._previousStructureParams and 
+        #adding structure_params_unchanged check to the 'if' condition below 
+        #fixes bug 2910. 
+        structure_params_unchanged = same_vals(self._previousStructureParams, 
+                                                current_struct_params)
         
+        current_command_stack_params = self._currentCommandStackParams()
         
-        if selection_params_unchanged and structure_params_unchanged:
-            #This second condition above fixes bug 2888
+        #Check if command stack params changed since last call of this 
+        #PM update method. This is used to fix bugs like 2940
+        command_stack_params_unchanged = same_vals(
+            self._previousCommandStackParams, current_command_stack_params)
+              
+        #No need to proceed if any of the selection/ structure and commandstack 
+        #parameters remained unchanged since last call. --- [CONDITION A]
+        if selection_params_unchanged and \
+           structure_params_unchanged and \
+           command_stack_params_unchanged:
             return
         
-        if not selection_params_unchanged and structure_params_unchanged:        
-            self._previousSelectionParams = currentSelectionParams            
-            selectedSegments = currentSelectionParams
+        self._previousStructureParams = current_struct_params
+        self._previousSelectionParams =  newSelectionParams         
+        self._previousCommandStackParams  = current_command_stack_params
+        
+        if structure_params_unchanged: 
+            #NOTE: We checked if either of the selection struct or command stack
+            #parameters or both changed. (this was referred as '[CONDITION A]' 
+            #above). So, this condition (structure_params_unchanged)also means 
+            #either selection or command stack or both parameters were changed.    
             
-            self.segmentListWidget.updateSelection(selectedSegments)
-                    
-            if len(selectedSegments) == 1:
-                self.editSegmentPropertiesButton.setEnabled(True)
+            if not command_stack_params_unchanged:
+                #update the nanotube list widget *before* updating the selection if 
+                #the command stack changed. This ensures that the selection box
+                #appears around the list widget items that are selected.
+                self.updateNanotubeListWidget()
+                
+            selectedNanotubeSegments = newSelectionParams    
+            
+            self.nanotubeListWidget.updateSelection(selectedNanotubeSegments) 
+            
+            # Enable/disable "Edit Sequence" button.
+            if len(selectedNanotubeSegments) == 1:
+                self.editNanotubePropertiesButton.setEnabled(True)
             else:
-                self.editSegmentPropertiesButton.setEnabled(False)
-                        
-        #See self._currentStructureParams()
-        if not structure_params_unchanged:
-            self._previousStructureParams = currentStructParams
-            #Update the list widget 
-            self.updateListWidgets() 
-            
-                      
+                self.editNanotubePropertiesButton.setEnabled(False)
+            return
+        
+        self.updateNanotubeListWidget()
+        return
+    
+    def _currentCommandStackParams(self):
+        """
+        The return value is supposed to be used by BUILD_NANOTUBE command PM ONLY
+        and NOT by any subclasses.         
+        
+        Returns a tuple containing current command stack change indicator and 
+        the name of the command 'BUILD_NANOTUBE'. These 
+        parameters are then used to decide whether updating widgets
+        in this property manager is needed, when self._update_UI_do_updates()
+        is called. 
+        
+        @NOTE: 
+        - Command_PropertyManager.update_UI() already does a check to see if 
+          any of the global change indicators in assembly (command_stack_change, 
+          model_change, selection_change) changed since last call and then only
+          calls self._update_UI_do_updates(). 
+        - But this method is just used to keep track of the 
+          local command stack change counter in order to update the list 
+          widgets.      
+        - This is used to fix bug 2940
+        
+        @see: self._update_UI_do_updates()
+        """
+        commandStackCounter = self.command.assy.command_stack_change_indicator()
+        #Append 'BUILD_NANOTUBE to the tuple to be returned. This is just to remind 
+        #us that this method is meant for BUILD_NANOTUBE command PM only. (and not 
+        #by any subclasses) Should we assert this? I think it will slow things 
+        #down so this comment is enough -- Ninad 2008-09-30
+        return (commandStackCounter, 'BUILD_NANOTUBE')
+        
     def _currentSelectionParams(self):
         """
         Returns a tuple containing current selection parameters. These 
         parameters are then used to decide whether updating widgets
-        in this property manager is needed when L{self._update_UI_do_updates()}
+        in this property manager is needed when L{self.model_changed}
         method is called.
         
-        @return: A tuple that contains following selection parameters
-                   - Total number of selected atoms (int)
-                   - Selected Atom if a single atom is selected, else None
-                   - Position vector of the single selected atom or None
+        @return: A tuple that contains total number of selected nanotubes.
         @rtype:  tuple
         
-        @NOTE: The method may be renamed in future. 
+        @NOTE: This method may be renamed in future. 
         It's possible that there are other groupboxes in the PM that need to be 
         updated when something changes in the glpane.        
         """
-         
-        selectedSegments = []
-        selectedSegments = self.win.assy.getSelectedNanotubeSegments()
-        ##if self.command is not None and self.command.hasValidStructure():
-            ##selectedSegments = self.command.struct.getSelectedSegments()             
-                    
-        return (selectedSegments)
+        selectedNanotubeSegments = []
+        if self.command is not None: # and self.command.hasValidStructure():
+            selectedNanotubeSegments = self.win.assy.getSelectedNanotubeSegments()          
+        return (selectedNanotubeSegments)
     
     def _currentStructureParams(self):
         """
-        Return current structure parameters of interest to self._update_UI_*. 
-        Right now it only returns the number of nanotube segments in the part
-        (or None). 
-        
-        @ATTENTION: Is this a sufficient check? For optimization, it doesn't
-        compare each and every nanotube in that list with a previously stored 
-        set of nanotubes. In case of bugs, this method should return the list 
-        itself instead of 'len(list)
-        
-        @see: self._update_UI_do_updates()
-        """        
+        Return current structure parameters of interest to self.model_changed. 
+        Right now it only returns the number of nanotubes within the structure
+        (or None). This is a good enough check (and no need to compare 
+        each and every nanotube within the structure with a previously stored 
+        set of strands).
+        """
         params = None
-        part = self.command.assy.part
-        nanotubes = part.get_topmost_subnodes_of_class(self.command.assy.NanotubeSegment)
-        params = len(nanotubes)
-        return params 
-    
+        
+        if self.command: # and self.command.hasValidStructure():
+            nanotubeSegmentList = []
+            nanotubeSegmentList = getAllNanotubeSegmentsInPart(self.win.assy)
+            params = len(nanotubeSegmentList)
+        
+        return params
     
     def close(self):
         """
         Closes the Property Manager. Overrides EditCommand_PM.close()
         """
-        #Clear tags, if any, due to the selection in the self.strandListWidget.        
-        if self.segmentListWidget:
-            self.segmentListWidget.clear()
-                   
+        #Clear tags, if any, due to the selection in the self.strandListWidget.
+        #self.nanotubeListWidget.clear()
+        env.history.statusbar_msg("")
         EditCommand_PM.close(self)
+        return
     
     def show(self):
         """
-        Show this PM 
-        As of 2007-11-20, it also shows the Sequence Editor widget and hides 
-        the history widget. This implementation may change in the near future
+        Show the PM. Extends superclass method.
+        @note: _update_UI_do_updates() gets called immediately after this and
+               updates PM widgets with their correct values/settings. 
         """
-        EditCommand_PM.show(self)             
-        self.updateMessage("Use appropriate command in the command "\
-                           "toolbar to create or modify a CNT Object"\
-                           "<br>" )
         
+        env.history.statusbar_msg("")
+        EditCommand_PM.show(self)
+        
+        # NOTE: Think about moving this msg to _update_UI_do_updates() where
+        # custom msgs can be created based on the current selection, etc.
+        # Mark 2008-12-14
+        msg = "Select <b>Insert Nanotube</b> to create a nanotube or "\
+            "select an existing nantube to modify it."
+        self.updateMessage(msg)
+        return
     
-    def _editNanotubeSegment(self):
+    def _editNanotube(self):
         """
-        Edit the Nanotube segment. If multiple segments are selected, it 
-        edits the first segment in the MT order which is selected
-        """
-        selectedSegments = self.win.assy.getSelectedNanotubeSegments()
-        if len(selectedSegments) == 1:
-            selectedSegments[0].edit()
-        #Earlier implementation which used the segments in the 
-        #'current Nanotube Group'. Deprecated as of 2008-05-05
-        ##if self.command is not None and self.command.hasValidStructure(): 
-            ##selectedSegments = self.command.struct.getSelectedSegments()
-            ##if len(selectedSegments) == 1:
-                ##selectedSegments[0].edit()
-            
-    def updateListWidgets(self):
-        """
-        Update the Cnt segment list widget in this property manager
-        @see: self.updateSegmentListWidgets
-        """
-        self.updateSegmentListWidget()
-        
-    def updateSegmentListWidget(self):
-        """
-        Update the list of segments shown in the segments list widget
-        @see: self.updateListWidgets, self.updateStrandListWidget
+        Slot for the "Edit Properties" button. 
         """
         
-        segmentList = []
-         
-        def func(node):
-            if isinstance(node, NanotubeSegment):
-                segmentList.append(node)    
-                    
-        self.win.assy.part.topnode.apply2all(func)
-        self.segmentListWidget.insertItems(
-            row = 0,
-            items = segmentList)
-
-            
-    def _addGroupBoxes( self ):
-        """
-        Add the CNT Property Manager group boxes.
-        """        
-        #Unused 'References List Box' to be revided. (just commented out for the
-        #time being. 
-        ##self._pmGroupBox1 = PM_GroupBox( self, title = "Reference Plane" )
-        ##self._loadGroupBox1( self._pmGroupBox1 )
-                
-        self._pmGroupBox2 = PM_GroupBox( self, title = "CNT Segments" )
-        self._loadGroupBox2( self._pmGroupBox2 )
+        #if not self.command.hasValidStructure():
+        #    return
         
+        nanotubeSegment = self.win.assy.getSelectedNanotubeSegment()
         
-    def _loadGroupBox1(self, pmGroupBox):
-        """
-        load widgets in groupbox1
-        """
-        self.referencePlaneListWidget = PM_SelectionListWidget(
-            pmGroupBox,
-            self.win,
-            label = "",
-            color = pmReferencesListWidgetColor,
-            heightByRows = 2)
-        
-    def _loadGroupBox2(self, pmGroupBox):
-        """
-        load widgets in groupbox3
-        """
-        
-        self.segmentListWidget = PM_SelectionListWidget(pmGroupBox,
-                                                       self.win,
-                                                       label = "",
-                                                       heightByRows = 12)
-        self.segmentListWidget.setObjectName('Segment_list_widget')
-        self.segmentListWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
-        
+        if nanotubeSegment:
+            nanotubeSegment.edit()
+        return
     
-        self.editSegmentPropertiesButton = PM_PushButton( 
-            pmGroupBox,
-            label = "",
-            text  = "Edit Properties..." )
-        self.editSegmentPropertiesButton.setEnabled(False)
-    
- 
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the CNT Property Manager.  
@@ -342,3 +299,43 @@ class BuildNanotube_PropertyManager(EditCommand_PM):
         Tool Tip text for widgets in the CNT Property Manager.  
         """
         pass
+    
+    def _addGroupBoxes( self ):
+        """
+        Add the Nanotube Property Manager group boxes.
+        """        
+        self._pmGroupBox1 = PM_GroupBox( self, title = "Nanotubes" )
+        self._loadGroupBox1( self._pmGroupBox1 )
+        return
+    
+    def _loadGroupBox1(self, pmGroupBox):
+        """
+        load widgets in groupbox1
+        """
+        
+        self.nanotubeListWidget = PM_SelectionListWidget(pmGroupBox,
+                                                         self.win,
+                                                         label = "",
+                                                         heightByRows = 12)
+        self.nanotubeListWidget.setObjectName('nanotubeListWidget')
+        self.nanotubeListWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
+        
+        self.editNanotubePropertiesButton = PM_PushButton(pmGroupBox,
+                                                          label = "",
+                                                          text  = "Edit Properties..." )
+        self.editNanotubePropertiesButton.setEnabled(False)
+        return
+    
+    def updateNanotubeListWidget(self):   
+        """
+        Update the nanotube list widget. It shows all nanotubes in the part.
+        """
+        nanotubeSegmentList = getAllNanotubeSegmentsInPart(self.win.assy)
+        
+        if nanotubeSegmentList:
+            self.nanotubeListWidget.insertItems(
+                row = 0,
+                items = nanotubeSegmentList)
+        else:           
+            self.nanotubeListWidget.clear()
+        return

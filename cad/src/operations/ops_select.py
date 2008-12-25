@@ -294,6 +294,23 @@ class ops_select_Mixin:
             return
         self.topnode.apply2all(addSelectedNanotubeSegment)
         return selNanotubeSegmentList
+    
+    def getSelectedNanotubeSegment(self):
+        """
+        Returns only the currently selected nanotubeSegment, if any.
+        @return: the currently selected nanotubeSegment or None if no 
+                 nanotubeSegments are selected. Also returns None if more 
+                 than one nanotubeSegment is select.
+        @rtype: L{Chunk}
+        @note: use L{getSelectedNanotubeSegments()} to get the list of all 
+               selected nanotubeSegments.
+        """
+        selectedNanotubeSegmentList = self.getSelectedNanotubeSegments()
+        if len(selectedNanotubeSegmentList) == 1:
+            return selectedNanotubeSegmentList[0]
+        else:
+            return None
+        return
         
     def getSelectedProteinChunks(self):
         """

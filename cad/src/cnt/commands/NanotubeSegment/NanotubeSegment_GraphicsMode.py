@@ -1,16 +1,12 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Graphics mode intended to be used while in NanotubeSegment_EditCommand.
+
 While in this command, user can
 (a) Highlight and then left drag the resize handles located at the
-    two 'axis endpoints' of thje segment to change its length.
-(b) Highlight and then left drag any axis atom (except the two end axis atoms)
-    to translate the  whole segment along the axis
-(c) Highlight and then left drag any strand atom to rotate the segment around
-    its axis.
-
-    Note that implementation b and c may change slightly if we implement special
-    handles to do these oprations.
+    two 'endpoints' of the nanotube to change its length.
+(b) Highlight and then left drag any nanotube atom to translate the nanotube
+    segment along the axis
 
 @author: Ninad, Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -99,6 +95,7 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
         _superclass.Enter_GraphicsMode(self)
         #Precaution
         self.clear_leftA_variables()
+        return
 
     def bareMotion(self, event):
         """
@@ -133,38 +130,7 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
                     self.o.setCursor(self.win.translateAlongCentralAxisCursor)
                 elif isinstance(self.o.selobj, Bond):
                     self.o.setCursor(self.win.TranslateSelectionCursor)
-
-    #===========================================================================
-    #START-- UNUSED METHODS DUE TO CHANGE IN IMPLEMENTATION
-    #The following methods are not used as of 2008-03-04 due to a change in
-    #implementation" Earlier, if you click on a strand or segment (while
-    #in BuildNanotube_EditCommand or its subcommands) it used to enter the edit mode
-    #of the object being editable. I am planning to make it a user preference
-    #-- Ninad 2008-03-04
-    def chunkLeftDown(self, aChunk, event):
-        if 0:
-            if self.command and self.command.hasValidStructure():
-                nanotubeGroup = aChunk.getNanotubeGroup()
-
-                if nanotubeGroup is not None:
-                    if nanotubeGroup is self.command.struct.getNanotubeGroup():
-                        if aChunk.isStrandChunk():
-                            aChunk.pick()
-                            pass
-    #END -- UNUSED METHODS DUE TO CHANGE IN IMPLEMENTATION
-    #===========================================================================
-
-    def chunkLeftUp(self, aChunk, event):
-        """
-        """
-        _superclass.chunkLeftUp(self, aChunk, event)
-
-        if not self.current_obj_clicked:
-            return
-
-        if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:
-            if aChunk.picked:
-                aChunk.edit()
+        return
 
     def leftDown(self, event):
         """
@@ -217,6 +183,7 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
         #Subclasses should override one of the following method if they need
         #to do additional things to prepare for dragging.
         self._leftDown_preparation_for_dragging(obj, event)
+        return
 
     def clear_leftA_variables(self):
         self._movablesForLeftDrag = []
@@ -225,6 +192,7 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
         _translateAlongAxis = False
         _rotateAboutAxis = False
         _freeDragWholeStructure = False
+        return
 
     def _leftDown_preparation_for_dragging(self, objectUnderMouse, event):
         """
@@ -241,8 +209,8 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
         self.dragdist = 0.0
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
         self.leftADown(objectUnderMouse, event)
-
-
+        return
+    
     def leftADown(self, objectUnderMouse, event):
         """
         Method called during mouse left down . It sets some parameters
@@ -311,6 +279,7 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
 
         self.o.SaveMouse(event)
         self.dragdist = 0.0
+        return
 
     def leftUp(self, event):
         """
@@ -327,29 +296,10 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
         if self.command and self.command.handles:
             if not self._handleDrawingRequested:
                 self._handleDrawingRequested = True
-
-        #IMPLEMENTATION CHANGE 2008-03-05.
-        #Due to an implementation change, user is not allowed to
-        #exit this command by simply clicking onto empty space. So following
-        #is commented out. (Keeping it for now just in case we change our mind
-        #soon. If you see this code being commented out even after 1 or 2 months
-        #from the original comment date, please just delete it.
-        #--Ninad 2008-03-05
-        ##if self.cursor_over_when_LMB_pressed == 'Empty Space':
-            ###Exit this command by directly calling command.Done.
-            ###This skips call of command.preview_or_finalize_structure
-            ###Not calling 'preview_or_finialize_structure before calling
-            ###command.command_Done(), has an advantage. As of 2008-02-20, we
-            ###remove the structure (segment) and recreate it upon done.
-            ###This also removes, for instance, any cross overs you created
-            ###earlier. although same thing happens when you hit 'Done button',
-            ###it is likely to happen by accident while you are in segment edit
-            ###mode and just click on empty space, Therefore, we simply call
-            ###Command.command_Done(). See a related bug mentioned in
-            ###NanotubeSegment_EditCommand.setStructureName
-            ##self.command.command_Done()
-
-
+                pass
+            pass
+        return
+    
     def leftDrag(self, event):
         """
         Method called during Left drag event.
@@ -379,9 +329,10 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
             self.dragHandlerDrag(self.drag_handler, event)
             return
 
-        #If the cursor was not over something that belownged to structure
-        #being edited (example - atom or bond of a NanotubeSegment) don't
-        #do left drag.(left drag will work only for the NanotubeSegment being edited)
+        #If the cursor was not over something that belonged to structure
+        #being edited (example - atom or bond of a differnt NanotubeSegment)
+        #don't do left drag.(left drag will work only for the NanotubeSegment
+        #eing edited)
         if self.cursor_over_when_LMB_pressed != 'Structure Being Edited':
             return
 
@@ -463,7 +414,6 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
         self.o.gl_update()
         return
 
-
     def drawHighlightedChunk(self, glpane, selobj, hicolor, hicolor2):
         """
         [overrides SelectChunks_basicGraphicsMode method]
@@ -474,10 +424,10 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
     def Draw(self):
         """
         """
-
         _superclass.Draw(self)
         if self._handleDrawingRequested:
             self._drawHandles()
+        return
 
     def _drawHandles(self):
         """
@@ -529,3 +479,5 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
             #handle drawing code and computation to update the handle positions
             #TODO: see bug 2729 for planned optimization
             self.command.updateHandlePositions()
+        return
+    pass

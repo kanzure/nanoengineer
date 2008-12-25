@@ -20,6 +20,19 @@ from geometry.VQT import V, norm, vlen
 from utilities.icon_utilities import imagename_to_pixmap
 from utilities.Comparison     import same_vals
 
+def getAllNanotubeSegmentsInPart(assy):
+    """
+    @return: a list of all NanotubeSegments in the part.
+    """        
+    selNanotubeSegmentList = []
+    def addSelectedNanotubeSegment(obj, ntSegmentList = selNanotubeSegmentList):
+        if isinstance(obj, NanotubeSegment):
+            ntSegmentList += [obj]
+        return
+    assy.part.topnode.apply2all(addSelectedNanotubeSegment)
+    return selNanotubeSegmentList
+
+
 from foundation.LeafLikeGroup import LeafLikeGroup
 
 _superclass = LeafLikeGroup
@@ -272,7 +285,6 @@ class NanotubeSegment(LeafLikeGroup):
         assy = self.assy
         res = isinstance( node, assy.Chunk) #@ NEEDS SOMETHING MORE.
         return res
-    
     pass # end of class NanotubeSegment
                 
 # end
