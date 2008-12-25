@@ -194,13 +194,6 @@ class NanotubeSegment(LeafLikeGroup):
         self.nanotube.computeEndPointsFromChunk(self.members[0])
         
         return self.nanotube.getParameters()
-        
-    def getNanotubeGroup(self):
-        """
-        Return the NanotubeGroup we are contained in, or None if we're not
-        inside one.
-        """
-        return self.parent_node_of_class( self.assy.NanotubeGroup)
     
     def isAncestorOf(self, obj):
         """

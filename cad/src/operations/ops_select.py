@@ -33,8 +33,6 @@ from utilities.icon_utilities import geticon
 
 from dna.model.DnaGroup import DnaGroup
 from dna.model.DnaStrand import DnaStrand
-from cnt.model.NanotubeGroup import NanotubeGroup
-
 
 from foundation.Group import Group
 from dna.model.DnaLadderRailChunk import DnaAxisChunk
@@ -268,20 +266,6 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedDnaSegment)
         return selDnaSegmentList
-    
-    def getSelectedNanotubeGroups(self):
-        """
-        Returns a list of the currently selected NanotubeGroup(s).
-        
-        """
-        
-        selNanotubeGroupList = []
-        def addSelectedNanotubeGroup(obj, cntList = selNanotubeGroupList):
-            if obj.picked and isinstance(obj, NanotubeGroup):
-                cntList += [obj]
-
-        self.topnode.apply2all(addSelectedNanotubeGroup)
-        return selNanotubeGroupList
     
     def getSelectedNanotubeSegments(self):
         """

@@ -1,5 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
+BuildNanotube_GraphicsMode.py
 
 @author: Ninad, Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.

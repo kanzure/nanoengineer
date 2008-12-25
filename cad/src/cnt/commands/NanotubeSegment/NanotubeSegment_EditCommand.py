@@ -1,6 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-NanotubeSegment_EditCommand provides a way to edit an existing NanotubeSegment. 
+NanotubeSegment_EditCommand.py
 
 @author: Ninad, Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -193,38 +193,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             self._updateHandleList()
             self.updateHandlePositions()
         return
-
-    def keep_empty_group(self, group):
-        """
-        Returns True if the empty group should not be automatically deleted. 
-        otherwise returns False. The default implementation always returns 
-        False. Subclasses should override this method if it needs to keep the
-        empty group for some reasons. Note that this method will only get called
-        when a group has a class constant autdelete_when_empty set to True. 
-        (and as of 2008-03-06, it is proposed that dna_updater calls this method
-        when needed. 
-        @see: Command.keep_empty_group() which is overridden here. 
-        @see: BreakStrands_Command.keep_empty_group
-        @see: Group.autodelete_when_empty.. a class constant used by the 
-              dna_updater (the dna updater then decides whether to call this 
-              method to see which empty groups need to be deleted)
-        """
-
-        bool_keep = EditCommand.keep_empty_group(self, group)
-
-        if not bool_keep:     
-            if self.hasValidStructure():                
-                if group is self.struct:
-                    bool_keep = True
-                elif group is self.struct.parent_node_of_class(self.assy.NanotubeGroup):
-                    bool_keep = True
-            #If this command doesn't have a valid structure, as a fall back, 
-            #lets instruct it to keep ALL the NanotubeGroup objects even when empty
-            #Reason? ..see explanation in BreakStrands_Command.keep_empty_group
-            elif isinstance(group, self.assy.NanotubeGroup):
-                bool_keep = True
-
-        return bool_keep
 
     def hasValidStructure(self):
         """
@@ -777,19 +745,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         if highlightedChunk is None:
             return
-
-        if self.hasValidStructure():        
-
-            nanotubeGroup = self.struct.parent_node_of_class(self.assy.NanotubeGroup)
-            if nanotubeGroup is None:
-                return
-            #following should be self.struct.getNanotubeGroup or self.struct.getNanotubeGroup
-            #need to formalize method name and then make change.
-            if not nanotubeGroup is highlightedChunk.parent_node_of_class(self.assy.NanotubeGroup):
-                item = ("Edit unavailable: Member of a different NanotubeGroup",
-                        noop, 'disabled')
-                self.Menu_spec.append(item)
-                return
 
         highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
                                                         command = self)

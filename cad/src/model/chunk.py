@@ -1131,11 +1131,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         return True  
 
-    def getNanotubeGroup(self): # ninad 080205
+    def getNanotubeSegment(self): # ninad 080205
         """
-        Return the NanotubeGroup of this chunk if it has one. 
+        Return the NanotubeSegment of this chunk if it has one. 
         """
-        return self.parent_node_of_class(self.assy.NanotubeGroup)
+        return self.parent_node_of_class(self.assy.NanotubeSegment)
 
     #END of Nanotube chunk specific code ========================
 

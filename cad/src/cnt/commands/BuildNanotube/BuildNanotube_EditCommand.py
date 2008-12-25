@@ -8,10 +8,6 @@ BuildNanotube_EditCommand.py
 
 History:
 Ninad 2008-01-11: Created
-
-TODO: as of 2008-01-11
-- Needs more documentation and the file is subjected to heavy revision. 
-This is an initial implementation of default Cnt edit mode.
 """
 
 from command_support.EditCommand import EditCommand

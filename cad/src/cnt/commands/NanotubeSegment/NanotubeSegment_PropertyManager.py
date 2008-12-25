@@ -1,5 +1,7 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+NanotubeSegment_PropertyManager.py
+
 @author: Ninad, Mark
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.

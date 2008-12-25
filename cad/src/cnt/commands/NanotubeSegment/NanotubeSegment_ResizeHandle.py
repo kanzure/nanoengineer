@@ -1,5 +1,7 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+NanotubeSegment_ResizeHandle.py
+
 @author:    Ninad, Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$

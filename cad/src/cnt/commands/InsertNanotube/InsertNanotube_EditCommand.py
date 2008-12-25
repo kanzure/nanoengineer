@@ -11,18 +11,6 @@ NanotubeProperties_EditCommand
 History:
 - Mark 2008-03-8: This file created from a copy of InsertDna_EditCommand.py
 and edited.
-
-TODO: (list copied and kept from InsertDna_EditCommand.py --Mark)
-- Need to cleanup docstrings. 
-- Methods such as createStructure need some cleanup in 
-  this class and in the EditCommand superclass
-- Method editStructure is not implemented. It will be implemented after 
-  the DNA object model gets implemented. 
-- Editing existing structures is not done correctly (broken) after converting 
-  this editController into a command. This is a temporary effect. Once the dna 
-  data model is fully implemented, the dna group will supply the endPoints 
-  necessary to correctly edit the dna structure ad this problem will
-  be fixed -- Ninad 2007-12-20
 """
 import foundation.env as env
 
@@ -137,35 +125,8 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         Overrides EditCommand.runCommand
         """
-        self.struct = None   
-
-    def keep_empty_group(self, group):
-        """
-        Returns True if the empty group should not be automatically deleted. 
-        otherwise returns False. The default implementation always returns 
-        False. Subclasses should override this method if it needs to keep the
-        empty group for some reasons. Note that this method will only get called
-        when a group has a class constant autdelete_when_empty set to True. 
-        (and as of 2008-03-06, it is proposed that cnt_updater calls this method
-        when needed. 
-        @see: Command.keep_empty_group() which is overridden here. 
-        """
-
-        bool_keep = _superclass.keep_empty_group(self, group)
-
-        if not bool_keep: 
-            #Don't delete any CntSegements or NanotubeGroups at all while 
-            #in InsertNanotube_EditCommand. 
-            #Reason: See BreakStrand_Command.keep_empty_group. In addition to 
-            #this, this command can create multiple NanotubeSegments Although those 
-            #won't be empty, it doesn't hurt in waiting for this temporary 
-            #command to exit before deleting any empty groups.             
-            if isinstance(group, self.assy.NanotubeSegment) or \
-               isinstance(group, self.assy.NanotubeGroup):
-                bool_keep = True
-
-        return bool_keep
-        
+        self.struct = None
+        return
 
     def createStructure(self):
         """
@@ -190,8 +151,7 @@ class InsertNanotube_EditCommand(EditCommand):
         #clear the mouseClickPoints list
         self.mouseClickPoints = [] 
         self.graphicsMode.resetVariables()
-
-
+        return
     
     def _getStructureType(self):
         """
@@ -202,7 +162,6 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         return self.win.assy.NanotubeSegment
 
-    
     def _finalizeStructure(self):
         """
         Finalize the structure. This is a step just before calling Done method.
@@ -227,7 +186,7 @@ class InsertNanotube_EditCommand(EditCommand):
             return
         else:
             _superclass._finalizeStructure(self)
-
+        return
 
     def _gatherParameters(self):
         """
@@ -271,6 +230,7 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         _superclass.cancelStructure(self)
         self._removeSegments()
+        return
 
     def _removeSegments(self):
         """
@@ -279,7 +239,7 @@ class InsertNanotube_EditCommand(EditCommand):
         This deletes all the segments created while this command was running
         @see: L{self.cancelStructure}
         """
-        segmentList = self._segmentList
+        segmentList = self._segmentList  #@@@ rename segmentList to nanotubeSegmentList
 
         for segment in segmentList: 
             #can segment be None?  Lets add this condition to be on the safer 

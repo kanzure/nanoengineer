@@ -580,7 +580,6 @@ class basicGraphicsMode(GraphicsMode_API):
 
         class_list = (self.win.assy.DnaStrandOrSegment,
                       self.win.assy.DnaGroup,
-                      self.win.assy.NanotubeGroup,
                       self.win.assy.NanotubeSegment
                   )
 

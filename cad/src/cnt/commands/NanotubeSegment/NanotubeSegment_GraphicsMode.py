@@ -1,6 +1,8 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
-Graphics mode intended to be used while in NanotubeSegment_EditCommand.
+NanotubeSegment_GraphicsMode.py
+
+Graphics mode for NanotubeSegment_EditCommand.
 
 While in this command, user can
 (a) Highlight and then left drag the resize handles located at the
@@ -15,20 +17,6 @@ While in this command, user can
 History:
 Created 2008-03-10 from copy of DnaSegment_GraphicsMode.py
 Recreated 2008-04-02 from copy of DnaSegment_GraphicsMode.py
-
-TODO: as of 2008-02-01: (original list from DnaSegment_GraphicsMode.py)
-- This graphics mode uses some duplicated code from Move_GraphicsMode
-(for rotating or translating about own axis .. its a small portion and simpler
-to understand) and also from DnaLine_GM (mainly the drawing code).
-Ideally, it should switch to these graphics modes while remaining in the same
-command (using command.switchGraphicsModeTo method) But it poses problems.
-Issues related to use of DnaLine_GM are mentioned in DnaSegment_EditCommand.
-In future, we may need to incorporate more functionality from these graphics
-modes so this should be refactored then.
-
-- Need to review methods in self.leftDrag and self.leftDown ..there might be
- some bugs...not sure.
-
 """
 from Numeric import dot
 from PyQt4.Qt import QMouseEvent

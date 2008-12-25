@@ -152,7 +152,6 @@ class Assembly( StateMixin, Assembly_API):
     from dna.model.DnaLadderRailChunk import DnaStrandChunk
     from dna.model.DnaStrandOrSegment import DnaStrandOrSegment
     
-    from cnt.model.NanotubeGroup   import NanotubeGroup # --mark 2008-03-09
     from cnt.model.NanotubeSegment import NanotubeSegment # --mark 2008-03-09
     
     #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
