@@ -13,8 +13,6 @@ To do list:
 - Bug: Cannot edit a peptide loaded from an MMP file.
 - Read FASTA file via sequence editor (or another way).
 - Debug_pref for debug print statements.
-- Deprecate set_current_protein_chunk_name() and get_current_protein_chunk_name.
-  Use ops_select_Mixin's getSelectedProteinChunk() instead.
 - Bug: Returning from Compare command unselects the two selected protein chunks.
   The PM list widget shows them as selected and the compare button is enabled,
   but they are not selected in the graphics area.
@@ -160,7 +158,8 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         #parameters remained unchanged since last call. --- [CONDITION A]
         if selection_params_unchanged and structure_params_unchanged and command_stack_params_unchanged:
             #This second condition above fixes bug 2888
-            print "Build Protein: _update_UI_do_updates(): DO NOTHING"
+            if 0:
+                print "Build Protein: _update_UI_do_updates() - DO NOTHING"
             return
         
         self._previousStructureParams = current_struct_params
@@ -249,8 +248,6 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         selectedProteins = []
         if self.command is not None: # and self.command.hasValidStructure():
             selectedProteins = self.win.assy.getSelectedProteinChunks()          
-        
-        #print "_currentSelectionParams(): Number of selected proteins:", len(selectedProteins)
         return (selectedProteins)
     
     def _currentStructureParams(self):
@@ -271,8 +268,6 @@ class BuildProtein_PropertyManager(EditCommand_PM):
             proteinList = []
             proteinList = getAllProteinChunksInPart(self.win.assy)
             params = len(proteinList)
-        
-        print "_currentStructureParams(): params:", params
         return params
     
     def close(self):
@@ -311,7 +306,7 @@ class BuildProtein_PropertyManager(EditCommand_PM):
         #if not self.command.hasValidStructure():
         #    return
         
-        proteinChunk = self.getSelectedProteinChunk()
+        proteinChunk = self.win.assy.getSelectedProteinChunk()
         
         if proteinChunk:
             proteinChunk.protein.edit(self.win)
@@ -380,58 +375,6 @@ class BuildProtein_PropertyManager(EditCommand_PM):
                 items = proteinChunkList)
         else:           
             self.proteinListWidget.clear()
-        return
-    
-    def set_current_protein_chunk_name(self, name):
-        """
-        Sets the name of the currently selected peptide. Set it to an
-        empty string if there is no currently selected peptide.
-        
-        @return: the name of the currently selected peptide.
-        @rtype: string
-        
-        @note: this is used widely by other commands. It will be renamed to 
-               setCurrentPeptideName() soon.
-        """
-        self.current_protein = name
-        return
-        
-    
-    def get_current_protein_chunk_name(self):
-        """
-        Returns the name of the currently selected peptide. Returns an
-        empty string if there is no currently selected peptide.
-        
-        @return: the name of the currently selected peptide.
-        @rtype: string
-        
-        @note: this is used widely by other commands. It will be renamed to 
-               getCurrentPeptideName() soon.
-        """
-        return self.current_protein
-    
-    def getSelectedProteinChunk(self):
-        """
-        Returns only the currently selected protein chunk, if any.
-        @return: the currently selected protein chunk or None if no peptide 
-                 chunks are selected. Also returns None if more than one
-                 peptide chunk is select.
-        @rtype: L{Chunk}
-        @note: use L{getSelectedProteinChunks()} to get the list of all 
-               selected proteins.
-        @attention: A method of the same name is in the ops_select_Mixin class.
-                    It is my intention to use that method and deprecate this one.
-                    I cannot do that until I remove all uses of 
-                    get_current_protein_chunk_name() and 
-                    set_current_protein_chunk_name() -- Mark. 2008-12-13
-        """
-        selectedPeptideList = self.win.assy.getSelectedProteinChunks()
-        if len(selectedPeptideList) == 1:
-            self.set_current_protein_chunk_name(selectedPeptideList[0].name)
-            return selectedPeptideList[0]
-        else:
-            self.set_current_protein_chunk_name("")
-            return None
         return
     
     

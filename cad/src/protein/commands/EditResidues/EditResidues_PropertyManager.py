@@ -12,6 +12,9 @@ Build > Protein mode.
 @version: $Id$ 
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
+To do:
+- Auto-adjust width of PM to accomodate all widgets when entering cmd or 
+  after selecting a new structure.
 """
 import os, sys, time, fnmatch, string, re
 import foundation.env as env
@@ -76,7 +79,7 @@ class EditResidues_PropertyManager(Command_PropertyManager):
 
     title         =  "Edit Residues"
     pmName        =  title
-    iconPath      =  "ui/actions/Edit/EditProteinDisplayStyle.png"
+    iconPath      =  "ui/actions/Command Toolbar/BuildProtein/Residues.png"
 
     rosetta_all_set =    "PGAVILMFWYCSTNQDEHKR"
     rosetta_polar_set =  "___________STNQDEHKR"
@@ -96,12 +99,8 @@ class EditResidues_PropertyManager(Command_PropertyManager):
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
-        msg = "Edit residues."
-        
         self.editingItem = False
-        
-        self.updateMessage(msg)
-      
+        return
 
     def connect_or_disconnect_signals(self, isConnect = True):
         
@@ -168,7 +167,7 @@ class EditResidues_PropertyManager(Command_PropertyManager):
         change_connect(self.showSequencePushButton, 
                        SIGNAL("clicked()"),
                        self._showSeqEditor)
-        
+        return
         
     def _showSeqEditor(self):
         """
@@ -177,8 +176,6 @@ class EditResidues_PropertyManager(Command_PropertyManager):
         if self.showSequencePushButton.isEnabled():
             self.sequenceEditor.show()
         return
-        
-        
     
     def show(self):
         """
@@ -188,51 +185,29 @@ class EditResidues_PropertyManager(Command_PropertyManager):
         #Urmi 20080728: Set the current protein and this will be used for accessing
         #various properties of this protein
         self.set_current_protein()
-        if self.current_protein != "":    
+        if self.current_protein:
+            msg = "Editing structure <b>%s</b>." % self.current_protein.name
             self.showSequencePushButton.setEnabled(True)
         else:
+            msg = "Select a single structure to edit."
             self.showSequencePushButton.setEnabled(False)
         self.sequenceEditor.hide()    
         
         _superclass.show(self)
             
         self._fillSequenceTable()
+        self.updateMessage(msg)
         
+        return
+    
     def set_current_protein(self):
         """
         Set the current protein for which all the properties are displayed to the
         one chosen in the build protein combo box
         """
-        #Urmi 20080728: created this method to update accessing properties of
-        #"current protein" in this mode.
-        self.current_protein = ""
-        
-        previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
-        
-        if  previousCommand:
-            #Urmi 20080728: get the protein currently selected in the combo box
-            self.current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
-        else:
-            # If the previous command was zoom or something, just set this to the
-            # first available protein chunk, since there's no way we can access
-            # the current protein in Build protein mode. [Urmi]
-            #
-            # Note [bruce 080801]:
-            # I think this 2nd case will never run, either now (not 100% sure
-            # of this), or after command stack refactoring (pretty sure).
-            for mol in self.win.assy.molecules:
-                if mol.isProteinChunk():
-                    #Urmi 20080728: set the current protein to first available
-                    #protein in NE-1 part
-                    self.current_protein = mol.name
-                    sequence = mol.protein.get_sequence_string()
-                    self.sequenceEditor.setSequence(sequence)
-                    secStructure = mol.protein.get_secondary_structure_string()
-                    self.sequenceEditor.setSecondaryStructure(secStructure)
-                    self.sequenceEditor.setRuler(len(secStructure))
-                    break
+        self.current_protein = self.win.assy.getSelectedProteinChunk()
         return
-        
+    
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.
@@ -440,68 +415,67 @@ class EditResidues_PropertyManager(Command_PropertyManager):
         Fills in the sequence table.
         """        
         
+        if not self.current_protein:
+            return
+        else:
+            currentProteinChunk = self.current_protein
+        
         self.editingItem = True
         
-        for chunk in self.win.assy.molecules:
-            #Urmi 20080728: slot connection for current protein in build protein mode
-            if chunk.isProteinChunk() and chunk.name == self.current_protein:
-                aa_list = chunk.protein.get_amino_acids()
-                aa_list_len = len(aa_list)
-                self.sequenceTable.setRowCount(aa_list_len)
-                for index in range(aa_list_len):          
-                    # Selection checkbox column
-                    item_widget = QTableWidgetItem("")
-                    item_widget.setFont(self.labelfont)
-                    item_widget.setCheckState(Qt.Checked)
-                    item_widget.setTextAlignment(Qt.AlignLeft)
-                    item_widget.setSizeHint(QSize(20,12))
-                    item_widget.setFlags(
-                        Qt.ItemIsSelectable | 
-                        Qt.ItemIsEnabled | 
-                        Qt.ItemIsUserCheckable)
-                    self.sequenceTable.setItem(index, 0, item_widget)
-                
-                    # Amino acid index column
-                    item_widget = QTableWidgetItem(str(index+1))
-                    item_widget.setFont(self.labelfont)
-                    item_widget.setFlags(
-                        Qt.ItemIsSelectable | 
-                        Qt.ItemIsEnabled)            
-                    item_widget.setTextAlignment(Qt.AlignCenter)
-                    self.sequenceTable.setItem(index, 1, item_widget)
-                    
-                    # Mutation descriptor name column
-                    aa = self._get_aa_for_index(index)
-                    item_widget = QTableWidgetItem(self._get_descriptor_name(aa))
-                    item_widget.setFont(self.labelfont)
-                    item_widget.setFlags(
-                        Qt.ItemIsSelectable | 
-                        Qt.ItemIsEnabled)
-                    item_widget.setTextAlignment(Qt.AlignCenter)
-                    self.sequenceTable.setItem(index, 2, item_widget)
-                    
-                    # Backrub checkbox column
-                    item_widget = QTableWidgetItem("")
-                    item_widget.setFont(self.labelfont)
-                    if aa.get_backrub_mode():
-                        item_widget.setCheckState(Qt.Checked)
-                    else:
-                        item_widget.setCheckState(Qt.Unchecked)
-                    item_widget.setTextAlignment(Qt.AlignLeft)
-                    item_widget.setSizeHint(QSize(20,12))
-                    item_widget.setFlags(
-                        Qt.ItemIsSelectable | 
-                        Qt.ItemIsEnabled | 
-                        Qt.ItemIsUserCheckable)
-                    self.sequenceTable.setItem(index, 3, item_widget)
-
-                    # Mutation descriptor column
-                    aa_string = self._get_mutation_descriptor(aa)
-                    item_widget = QTableWidgetItem(aa_string)
-                    item_widget.setFont(self.descriptorfont)
-                    self.sequenceTable.setItem(index, 4, item_widget)
+        aa_list = currentProteinChunk.protein.get_amino_acids()
+        aa_list_len = len(aa_list)
+        self.sequenceTable.setRowCount(aa_list_len)
+        for index in range(aa_list_len):          
+            # Selection checkbox column
+            item_widget = QTableWidgetItem("")
+            item_widget.setFont(self.labelfont)
+            item_widget.setCheckState(Qt.Checked)
+            item_widget.setTextAlignment(Qt.AlignLeft)
+            item_widget.setSizeHint(QSize(20,12))
+            item_widget.setFlags(Qt.ItemIsSelectable | 
+                                 Qt.ItemIsEnabled | 
+                                 Qt.ItemIsUserCheckable)
+            self.sequenceTable.setItem(index, 0, item_widget)
         
-                    self.sequenceTable.setRowHeight(index, 16)
+            # Amino acid index column
+            item_widget = QTableWidgetItem(str(index+1))
+            item_widget.setFont(self.labelfont)
+            item_widget.setFlags(
+                Qt.ItemIsSelectable | 
+                Qt.ItemIsEnabled)            
+            item_widget.setTextAlignment(Qt.AlignCenter)
+            self.sequenceTable.setItem(index, 1, item_widget)
+            
+            # Mutation descriptor name column
+            aa = self._get_aa_for_index(index)
+            item_widget = QTableWidgetItem(self._get_descriptor_name(aa))
+            item_widget.setFont(self.labelfont)
+            item_widget.setFlags(Qt.ItemIsSelectable | 
+                                 Qt.ItemIsEnabled)
+            item_widget.setTextAlignment(Qt.AlignCenter)
+            self.sequenceTable.setItem(index, 2, item_widget)
+            
+            # Backrub checkbox column
+            item_widget = QTableWidgetItem("")
+            item_widget.setFont(self.labelfont)
+            if aa.get_backrub_mode():
+                item_widget.setCheckState(Qt.Checked)
+            else:
+                item_widget.setCheckState(Qt.Unchecked)
+            item_widget.setTextAlignment(Qt.AlignLeft)
+            item_widget.setSizeHint(QSize(20,12))
+            item_widget.setFlags(Qt.ItemIsSelectable | 
+                                 Qt.ItemIsEnabled | 
+                                 Qt.ItemIsUserCheckable)
+            self.sequenceTable.setItem(index, 3, item_widget)
+
+            # Mutation descriptor column
+            aa_string = self._get_mutation_descriptor(aa)
+            item_widget = QTableWidgetItem(aa_string)
+            item_widget.setFont(self.descriptorfont)
+            self.sequenceTable.setItem(index, 4, item_widget)
+
+            self.sequenceTable.setRowHeight(index, 16)
                     
         self.editingItem = False
         
@@ -510,6 +484,7 @@ class EditResidues_PropertyManager(Command_PropertyManager):
         self.sequenceTable.setColumnWidth(0, 35)
         self.sequenceTable.setColumnWidth(2, 80)
         self.sequenceTable.setColumnWidth(3, 35)
+        return
         
     def _fillDescriptorsTable(self):
         """
@@ -584,22 +559,23 @@ class EditResidues_PropertyManager(Command_PropertyManager):
                     return self.set_names[i]
         return "Custom"
     
-    def _get_aa_for_index(self, index, expand=False):
+    def _get_aa_for_index(self, index, expand = False):
         """
         Get amino acid by index.
+        @return: amino acid (Residue)
         """
-        # Center on a selected amino acid.
-        for chunk in self.win.assy.molecules:
-            #Urmi 20080728: slot connection for current protein in build protein mode
-            if chunk.isProteinChunk() and chunk.name == self.current_protein:
-                chunk.protein.set_current_amino_acid_index(index)
-                current_aa = chunk.protein.get_current_amino_acid()
-                if expand:
-                    chunk.protein.collapse_all_rotamers()
-                    chunk.protein.expand_rotamer(current_aa)
-                return current_aa 
-
-        return None
+        
+        if not self.current_protein:
+            return None
+        else:
+            currentProteinChunk = self.current_protein
+        
+        currentProteinChunk.protein.set_current_amino_acid_index(index)
+        current_aa = currentProteinChunk.protein.get_current_amino_acid()
+        if expand:
+            currentProteinChunk.protein.collapse_all_rotamers()
+            currentProteinChunk.protein.expand_rotamer(current_aa)
+        return current_aa
     
     def _sequenceTableCellChanged(self, crow, ccol):
         """
@@ -870,4 +846,40 @@ class EditResidues_PropertyManager(Command_PropertyManager):
             self.descriptor_list.append(dstr[2*i+1])
             self.rosetta_set_names.append("PIKAA")
             #self._addNewDescriptorTableRow(dstr[2*i], dstr[2*i+1])
+        return
+    
+    def _update_UI_do_updates_TEMP(self):
+        """
+        Overrides superclass method. 
+        
+        @see: Command_PropertyManager._update_UI_do_updates()
+        """
+        
+        self.current_protein = self.win.assy.getSelectedProteinChunk()
+        
+        if self.current_protein is self.previous_protein:
+            print "_update_UI_do_updates(): DO NOTHING."
+            return
+        
+        # NOTE: Changing the display styles of the protein chunks can take some
+        # time. We should put up the wait (hourglass) cursor here and restore 
+        # before returning.
+        
+        # Update all PM widgets that need to be since something has changed.
+        print "_update_UI_do_updates(): UPDATING the PMGR."
+        self.update_name_field()
+        self.sequenceEditor.update()
+        self.update_residue_combobox()
+        
+        
+        if self.previous_protein:
+            self.previous_protein.setDisplayStyle(self.previous_protein_display_style)
+            
+        self.previous_protein = self.current_protein
+        
+        if self.current_protein:
+            self.previous_protein_display_style = self.current_protein.getDisplayStyle()
+            self.current_protein.setDisplayStyle(diPROTEIN)
+        
+        return
 

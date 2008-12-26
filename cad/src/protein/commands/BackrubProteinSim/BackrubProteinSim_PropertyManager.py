@@ -50,7 +50,7 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
 
     title         =  "Backrub Motion"
     pmName        =  title
-    iconPath      = "ui/actions/Simulation/Rosetta.png"
+    iconPath      = "ui/actions/Command Toolbar/BuildProtein/Backrub.png"
 
     
     def __init__( self, command ):
@@ -93,10 +93,8 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         change_connect(self.okButton, SIGNAL("clicked()"), self.runRosettaBackrubSim)
         return
     
-        
     #Protein Display methods         
 
-    
     def show(self):
         """
         Shows the Property Manager. Exends superclass method. 
@@ -122,11 +120,11 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         Add the Property Manager group boxes.
         """
         self._pmGroupBox2 = PM_GroupBox( self,
-                                         title = "Backrub specific parameters")
+                                         title = "Backrub Specific Parameters")
         self._loadGroupBox2( self._pmGroupBox2 )
         
         self._pmGroupBox1 = PM_GroupBox( self,
-                                         title = "Rosetta sequence design parameters")
+                                         title = "Rosetta Sequence Design Parameters")
         self._loadGroupBox1( self._pmGroupBox1 )
         
         return
@@ -156,10 +154,10 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         self.onlybbSpinBox = PM_DoubleSpinBox( pmGroupBox,
                                          labelColumn  = 0,
                                          label = "Only backbone rotation:",
-                                         minimum = 0.01,
-                                         maximum = 1.0,
-                                         value        = 0.75, 
-                                        decimals     = 2, 
+                                         minimum  = 0.01,
+                                         maximum  = 1.0,
+                                         value    = 0.75, 
+                                         decimals = 2, 
                                          singleStep = 0.01,
                                          setAsDefault  =  False,
                                          spanWidth = False)
@@ -167,10 +165,10 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         self.onlyrotSpinBox = PM_DoubleSpinBox( pmGroupBox,
                                          labelColumn  = 0,
                                          label = "Only rotamer rotation:",
-                                         minimum = 0.01,
-                                         maximum = 1.0,
-                                        decimals     = 2, 
-                                        value        = 0.25, 
+                                         minimum  = 0.01,
+                                         maximum  = 1.0,
+                                         decimals = 2, 
+                                         value    = 0.25, 
                                          singleStep = 0.01,
                                          setAsDefault  =  False,
                                          spanWidth = False)
@@ -178,10 +176,10 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         self.mctempSpinBox = PM_DoubleSpinBox( pmGroupBox,
                                          labelColumn  = 0,
                                          label = "MC simulation temperature:",
-                                         minimum = 0.1,
-                                         value        = 0.6, 
-                                         maximum = 1.0,
-                                        decimals     = 2, 
+                                         minimum  = 0.1,
+                                         value    = 0.6, 
+                                         maximum  = 1.0,
+                                         decimals = 2, 
                                          singleStep = 0.1,
                                          setAsDefault  =  False,
                                          spanWidth = False)
@@ -226,18 +224,10 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         """
         Get number of residues for the current protein
         """
-        previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
-        if  previousCommand:
-            #Urmi 20080728: get the protein currently selected in the combo box
-            current_protein = previousCommand.propMgr.get_current_protein_chunk_name()
-            for mol in self.win.assy.molecules:
-                if mol.isProteinChunk() and current_protein == mol.name:
-                    return len(mol.protein.get_sequence_string()) 
-                
-        else:
-            return 0
+        _current_protein = self.win.assy.getSelectedProteinChunk()
+        if _current_protein:
+            return len(_current_protein.protein.get_sequence_string())
         return 0
-    
     
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -514,11 +504,14 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         """
         Get all the parameters from the PM and run a rosetta simulation
         """
+        proteinChunk = self.win.assy.getSelectedProteinChunk()
+        if not proteinChunk:
+            msg = "You must select a single protein to run a Rosetta <i>Backrub</i> simulation."
+            self.updateMessage(msg)
+            return
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         numSim = self.numSimSpinBox.value()
-        previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
-        protein = previousCommand.propMgr.get_current_protein_chunk_name()
-        argList = [numSim, otherOptionsText, protein]
+        argList = [numSim, otherOptionsText, proteinChunk.name]
         backrubSpecificArgList = self.getBackrubSpecificArgumentList()
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
         if argList[0] > 0:

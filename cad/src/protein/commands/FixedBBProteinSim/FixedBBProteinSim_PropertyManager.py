@@ -50,7 +50,7 @@ class FixedBBProteinSim_PropertyManager(Command_PropertyManager):
 
     title         =  "Fixed Backbone Design"
     pmName        =  title
-    iconPath      = "ui/actions/Simulation/Rosetta.png"
+    iconPath      = "ui/actions/Command Toolbar/BuildProtein/FixedBackbone.png"
 
     
     def __init__( self, command ):
@@ -411,11 +411,14 @@ class FixedBBProteinSim_PropertyManager(Command_PropertyManager):
         """
         Get all the parameters from the PM and run a rosetta simulation.
         """
+        proteinChunk = self.win.assy.getSelectedProteinChunk()
+        if not proteinChunk:
+            msg = "You must select a single protein to run a Rosetta <i>Fixed Backbone</i> simulation."
+            self.updateMessage(msg)
+            return
         otherOptionsText = str(self.otherCommandLineOptions.toPlainText())
         numSim = self.numSimSpinBox.value()
-        previousCommand = self.command.find_parent_command_named('BUILD_PROTEIN')
-        protein = previousCommand.propMgr.get_current_protein_chunk_name()
-        argList = [numSim, otherOptionsText, protein]
+        argList = [numSim, otherOptionsText, proteinChunk.name]
         
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
         if argList[0] > 0:

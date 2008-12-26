@@ -342,10 +342,15 @@ class ProteinFlyout(Ui_AbstractFlyout):
         """
         Score the current protein sequence
         """
+        proteinChunk = self.win.assy.getSelectedProteinChunk()
+        if not proteinChunk:
+            msg = "You must select a single protein to run a Rosetta <i>Score</i> calculation."
+            self.updateMessage(msg)
+            return
+        
         otherOptionsText = ""
         numSim = 1
-        protein = self.command.propMgr.get_current_protein_chunk_name()
-        argList = [numSim, otherOptionsText, protein]
+        argList = [numSim, otherOptionsText, proteinChunk.name]
         
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
         if argList[0] > 0:
