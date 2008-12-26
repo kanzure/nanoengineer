@@ -25,19 +25,18 @@ class EditProtein_GraphicsMode(SelectChunks_GraphicsMode ):
 
 class EditProtein_Command(EditCommand): 
     """
-    
+    Command class for "Edit Protein".
     """
     # class constants
     GraphicsMode_class = EditProtein_GraphicsMode
-    
     PM_class = EditProtein_PropertyManager
-           
+    
     commandName = 'EDIT_PROTEIN'
     featurename = "Edit Protein"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_PROTEIN'
-            
+    
     command_should_resume_prevMode = True 
     command_has_its_own_PM = True
     

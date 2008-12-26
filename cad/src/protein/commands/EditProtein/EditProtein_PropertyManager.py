@@ -552,8 +552,9 @@ class EditProtein_PropertyManager(Command_PropertyManager):
         
         if aa_index < 0:
             aa_index = self.current_protein.protein.get_current_amino_acid_index()
-            
-        print"setCurrentAminoAcid(): aa_index=", aa_index
+        
+        if 0: # Debugging statement
+            print"setCurrentAminoAcid(): aa_index=", aa_index
         self.currentResidueComboBox.setCurrentIndex(aa_index)
         self.current_protein.protein.set_current_amino_acid_index(aa_index)
         self.current_aa = self.current_protein.protein.get_current_amino_acid()
@@ -567,8 +568,6 @@ class EditProtein_PropertyManager(Command_PropertyManager):
         """
         if not self.current_protein:
             return
-        
-        #@@@current_aa = self.current_protein.protein.get_current_amino_acid()
         
         if self.current_aa:
             self.current_protein.protein.expand_rotamer(self.current_aa)
@@ -587,6 +586,7 @@ class EditProtein_PropertyManager(Command_PropertyManager):
     
     def _rotateChi2(self, angle):
         """
+        Slot for Chi2 dial.
         """
         self._rotateChiAngle(1, angle)
         self.chi2Dial.updateValueLabel()
@@ -594,6 +594,7 @@ class EditProtein_PropertyManager(Command_PropertyManager):
         
     def _rotateChi3(self, angle):
         """
+        Slot for Chi3 dial.
         """
         self._rotateChiAngle(2, angle)
         self.chi3Dial.updateValueLabel()
@@ -601,6 +602,8 @@ class EditProtein_PropertyManager(Command_PropertyManager):
         
     def _rotateChi4(self, angle):
         """
+        Slot for Chi4 dial. 
+        @note: this dial is currently hidden and unused.
         """
         self._rotateChiAngle(3, angle)
         return
@@ -615,7 +618,8 @@ class EditProtein_PropertyManager(Command_PropertyManager):
         self.current_protein = self.win.assy.getSelectedProteinChunk()
         
         if self.current_protein is self.previous_protein:
-            print "_update_UI_do_updates(): DO NOTHING."
+            if 0:
+                print "Edit Protein: _update_UI_do_updates() - DO NOTHING."
             return
         
         # It is common that the user will unselect the current protein.
@@ -627,7 +631,8 @@ class EditProtein_PropertyManager(Command_PropertyManager):
             return
         
         # Update all PM widgets that need to be since something has changed.
-        print "_update_UI_do_updates(): UPDATING the PMGR."
+        if 0:
+            print "Edit Protein: _update_UI_do_updates() - UPDATING THE PMGR."
         self.update_name_field()
         self.update_length_field()
         self.sequenceEditor.updateSequence(proteinChunk = self.current_protein)

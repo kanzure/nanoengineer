@@ -559,8 +559,10 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             anchorPos = inCursorPos + 1
         
         # Useful print statements for debugging.
-        print "setCursorPosition(): Sequence=", self.getPlainSequence()
-        print "setCursorPosition(): Final inCursorPos=%d\ncursorPos=%d, anchorPos=%d" % (inCursorPos, cursorPos, anchorPos)
+        if 0:
+            print "setCursorPosition(): Sequence=", self.getPlainSequence()
+            print "Final inCursorPos=%d\ncursorPos=%d, anchorPos=%d" % \
+                  (inCursorPos, cursorPos, anchorPos)
 
         self._suppress_cursorPosChanged_signal = True
         
@@ -605,7 +607,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         
         cursor  =  self.sequenceTextEdit.textCursor()
         cursorPos = cursor.position()
-        print "_cursorPosChanged(): Here! cursorPos=", cursorPos
+        
+        if 0:
+            print "_cursorPosChanged(): cursorPos=", cursorPos
         
         self.setCursorPosition(inCursorPos = cursorPos) # sets all three.
         

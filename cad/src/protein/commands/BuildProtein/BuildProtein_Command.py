@@ -53,7 +53,7 @@ class BuildProtein_Command(EditCommand):
         self.w.buildProteinAction.setChecked(True)
         return
             
-    def command_exit_misc_actions(self):
+    def command_exit_misc_actions(self): #@@@
         """
         Overrides superclass method. 
         
@@ -64,7 +64,6 @@ class BuildProtein_Command(EditCommand):
     
     def getCurrentActiveTool(self):
         return self._currentActiveTool
-    
       
     def setCurrentCommandMode(self, commandName):
         """
@@ -92,7 +91,7 @@ class BuildProtein_Command(EditCommand):
         #working
         return
     
-    def keep_empty_group(self, group):
+    def keep_empty_group(self, group): #@@@
         """
         Returns True if the empty group should not be automatically deleted.
         otherwise returns False. The default implementation always returns
