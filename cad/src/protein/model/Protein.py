@@ -629,7 +629,7 @@ class Protein:
         
     def edit(self, win):
         """
-        Edit the protein chunk
+        Edit the protein chunk.
         
         @note: Probably this method should not reside here, since this file is for
                the actual model. Maybe we'll take care of that when we move to the
@@ -637,6 +637,77 @@ class Protein:
         """ 
         win.commandSequencer.userEnterCommand('EDIT_PROTEIN')
         return
+    
+    def _getCopyOfResidues(self):
+        """
+        Returns a (deep copy) of the residues dict.
+        @note: NIY
+        """
+        for aa in self.residues.values():
+            print aa
+        return
+    
+    # override abstract method of DataMixin
+    def _copyOfObject(self, copyfunc):
+        """
+        Create and return a copy of protein.
+        """
+        
+        protein = Protein()
+        protein.set_chain_id(self.get_chain_id())
+        protein.set_pdb_id(self.get_pdb_id())
+        protein.set_current_amino_acid_index(self.get_current_amino_acid_index())
+        
+        #@@@ BUG: residues_list, ca_atom_list, and residues aren't copied
+        # completely since they contain compound objects (i.e. Residues with
+        # lists, dicts, etc).
+        # See add_pdb_atom() code to see how residues are created for 
+        # these lists/dicts.  Need help from Bruce. --Mark 2008-12-25
+        if 1:
+            protein.residues_list = list(self.residues_list)
+            protein.ca_atom_list = list(self.ca_atom_list)
+            protein.residues = dict(self.residues) 
+        else:
+            # Using copy.deepcopy also fails. Found a reference here:
+            # http://mail.python.org/pipermail/python-dev/2008-June/080772.html
+            # which states that it's possible that "residues_list" contains an 
+            # object that cannot be copied (i.e. array.array).
+            # Evidently the problem was corrected with python 2.4.4.
+            # I am running Python 2.4. Is it worth upgrading to 2.4.4?
+            # --Mark 2008-12-25
+
+            import copy
+            protein.residues_list = copy.deepcopy(self.residues_list)
+            protein.ca_atom_list = copy.deepcopy(self.ca_atom_list)
+            protein.residues = copy.deepcopy(self.residues)
+        
+        protein.residues_dl = None # DL gets rebuilt in ProteinChunks.drawchunk_realtime
+        
+        print "Protein._copyOfObject(): HERE!"
+        return protein
+    
+    # override abstract method of DataMixin.
+    # Ask Bruce to review. --Mark 2008-12-25
+    def __eq__(self, other):
+        """
+        Compare self with other.
+        """
+        print "Protein.__eq__(): HERE!"
+        if self.chain_id != other.chain_id:
+            return False
+        elif self.pdb_id != other.pdb_id:
+            return False
+        elif self.current_aa_idx != other.current_aa_idx:
+            return False
+        elif self.residues is not other.residues: # Is this right?
+            return False
+        elif self.residues_list is not other.residues_list: # Is this right?
+            return False
+        elif self.ca_atom_list is not other.ca_atom_list: # Is this right?
+            return False
+        else:
+            return True
+        pass
        
     pass # end of class Protein
 

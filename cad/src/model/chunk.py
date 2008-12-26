@@ -271,7 +271,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     save_as_pam = "" # PAM model to use for saving self (not normally set; not set means use save-op params)
 
     copyable_attrs = _superclass.copyable_attrs + ('display', 'color',
-                                                   'display_as_pam', 'save_as_pam')
+                                                   'display_as_pam', 'save_as_pam', 
+                                                   'protein')
         # this extends the tuple from Node
         # (could add _colorfunc, but better to handle it separately in case this
         #  gets used for mmp writing someday. as of 051003 _colorfunc would
