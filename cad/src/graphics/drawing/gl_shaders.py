@@ -92,6 +92,15 @@ import utilities.EndUser as EndUser
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.gl_buffers import GLBufferObject
 
+import foundation.env as env
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
+from utilities.prefs_constants import HHS_SOLID, HHS_HALO
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.prefs_constants import selectionColorStyle_prefs_key
+from utilities.prefs_constants import SS_SOLID, SS_HALO
+from utilities.prefs_constants import haloWidth_prefs_key
+
 import numpy
 
 from OpenGL.GL import GL_FLOAT
@@ -158,6 +167,12 @@ from graphics.drawing.vertex_shader_patch import glGetAttribLocationARB
 
 _warnedVars = {}
 
+# Drawing_style constants.
+DS_NORMAL = 0
+DS_OVERRIDE_COLOR = 1
+DS_PATTERN = 2
+DS_HALO = 3
+
 class GLSphereShaderObject(object):
     """
     An analytic sphere shader.
@@ -167,7 +182,6 @@ class GLSphereShaderObject(object):
     send rays through the scene for reflection/refraction, nor toward the lights
     to compute shadows.)
     """
-
     def __init__(self):
         # Cached info for blocks of transforms.
         self.n_transforms = None        # Size of the block.
@@ -298,6 +312,9 @@ class GLSphereShaderObject(object):
         glUniform4fvARB(self.uniform("clip"), 1,
                         [near, far, 0.5*(far + near), 1.0/(far - near)])
 
+        # Pixel width of window for halo drawing calculations.
+        glUniform1fARB(self.uniform("window_width"), glpane.width)
+
         # Single light for now.
         # XXX Get NE1 lighting environment state.
         glUniform4fvARB(self.uniform("intensity"), 1, [1.0, 0.0, 0.0, 0.0])
@@ -310,6 +327,61 @@ class GLSphereShaderObject(object):
 
         if not wasActive:
             self.use(False)
+        return
+
+    def setupDraw(self, highlighted = False, selected = False,
+             patterning = True, highlight_color = None, opacity = 1.0):
+        """
+        Set up for hover-highlighting and selection drawing styles.
+        There is similar code in CSDL.draw(), which has similar arguments.
+
+        XXX Does Solid and halo now, need to implement patterned drawing too.
+        """
+        # Shader needs to be active to set uniform variables.
+        wasActive = self.used
+        if not wasActive:
+            self.use(True)
+            pass
+
+        patterned_highlighting = (False and # XXX
+                                  patterning and
+                                  isPatternedDrawing(highlight = highlighted))
+        halo_selection = (selected and
+                          env.prefs[selectionColorStyle_prefs_key] == SS_HALO)
+        halo_highlighting = (highlighted and
+                             env.prefs[hoverHighlightingColorStyle_prefs_key] ==
+                             HHS_HALO)
+
+        # Halo drawing style is used for hover-highlighing and halo-selection.
+        drawing_style = DS_NORMAL       # Solid drawing by default.
+        if halo_highlighting or halo_selection:
+            drawing_style = DS_HALO
+            halo_width = env.prefs[haloWidth_prefs_key]
+            glUniform1fARB(self.uniform("halo_width"), halo_width)
+        elif highlighted or selected:
+            drawing_style = DS_NORMAL   # Non-halo highlighting or selection.
+        glUniform1iARB(self.uniform("drawing_style"), drawing_style)
+
+        # Color for selection or highlighted drawing.
+        override_color = None
+        if highlighted:
+            if highlight_color is None: # Default highlight color.
+                override_color = env.prefs[hoverHighlightingColor_prefs_key]
+            else:                       # Highlight color passed as an argument.
+                override_color = highlight_color
+        elif selected:
+            override_color = env.prefs[selectionColor_prefs_key]
+            pass
+        if override_color:
+            if len(override_color) == 3:
+                override_color += (opacity,)
+                pass
+            glUniform4fvARB(self.uniform("override_color"), 1, override_color)
+            pass
+
+        if not wasActive:
+            self.use(False)
+            pass
         return
 
     def setPicking(self, tf):
@@ -333,6 +405,7 @@ class GLSphereShaderObject(object):
 
         if not wasActive:
             self.use(False)
+            pass
         return
 
     def uniform(self, name):
@@ -539,15 +612,15 @@ sphereVertSrc = """
 // where the sphere is to be rendered.  Clipping and lighting settings are also
 // provided to the fragment (pixel) shader.
 // 
-// The eye position, and ray vectors pointing from the eye to the transformed
-// vertex and the center of the sphere, are output from the vertex shader to the
-// fragment shader.  This is handled differently for orthographic and
-// perspective projections, but it's all in pre-projection gl_ModelViewMatrix
-// space.
+// The view point, transformed sphere center point and radius, and a ray vector
+// pointing from the view point to the transformed vertex, are output from the
+// vertex shader to the fragment shader.  This is handled differently for
+// orthographic and perspective projections, but it's all in pre-projection
+// gl_ModelViewMatrix (eye) space, with +-1 coordinates in XY, 0 to 1 in Z.
 // 
 // In between the vertex shader and the fragment shader, the transformed vertex
-// vector coords get interpolated, so it winds up being a transformed ray from
-// the eye point to the pixel on the bounding volume surface.
+// ray vector coords get interpolated, so it winds up being a transformed ray
+// from the view point through the pixel on the bounding volume surface.
 // 
 // In the fragment shader, the sphere radius comparison is done using these
 // points and vectors.  That is, if the ray from the eye through the pixel
@@ -556,11 +629,12 @@ sphereVertSrc = """
 // from the center.
 
 // Uniform variables, which are constant inputs for the whole shader execution.
-uniform int draw_for_mouseover; // Use normal color = 0, glname_color = 1.
-uniform int highlight_mode;     // 0=normal, 1=override_color, 2=pattern, 3=halo
-uniform vec4 override_color;
-
-uniform int perspective;        // perspective=1 orthographic=0
+uniform int draw_for_mouseover; // 0:use normal color, 1:glname_color.
+uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
+uniform vec4 override_color;    // Color for selection or highlighted drawing.
+uniform int perspective;        // 0:orthographic, 1:perspective.
+uniform float halo_width;       // Halo width in pixel units.
+uniform float window_width;     // Pixel width of window (for halo width.)
 
 uniform int n_transforms;
 #ifdef N_CONST_XFORMS
@@ -580,19 +654,20 @@ attribute vec4 color;           // Sphere color and opacity (RGBA).
 attribute float transform_id;   // Ignored if zero.  (Attribs can't be ints.)
 attribute vec4 glname_color;    // Mouseover id (glname) as RGBA for drawing.
 
-// Varying outputs, through the pipeline to the fragment (pixel) shader.
-varying vec3 var_vert; // Vertex direction vec; pixel sample vec in frag shader.
-varying vec3 var_center;        // Transformed sphere center point.
-varying vec3 var_eye;           // Eye point (different for perspective.)
-varying float var_radius_squared;  // Transformed sphere radius, squared.
-varying vec4 var_basecolor;     // Vertex color, interpolated to pixels.
+// Varying outputs, interpolated in the pipeline to the fragment (pixel) shader.
+varying vec3 var_ray_vec; // Vertex dir vec (pixel sample vec in frag shader.)
+varying vec3 var_center_pt;     // Transformed sphere center point.
+varying vec3 var_view_pt;       // Transformed view point.
+varying float var_radius_sq;    // Transformed sphere radius, squared.
+varying float var_halo_rad_sq;  // Halo rad sq at transformed center_pt Z depth.
+varying vec4 var_basecolor;     // Vertex color.
 
-void main(void) {
+void main(void) { // Vertex shader procedure.
 
   // Fragment (pixel) color will be interpolated from the vertex colors.
   if (draw_for_mouseover == 1)
     var_basecolor = glname_color;
-  else if (highlight_mode == 1)
+  else if (drawing_style == 1)       // Solid highlighting or selection.
     var_basecolor = override_color;
   else
     var_basecolor = color;
@@ -673,38 +748,48 @@ void main(void) {
   if (data > 1.0) var_basecolor = vec4(0.0, 0.0, (data - 1.0) * 8.0, 1.0);
     
   /// When debugging, don't use the xform'ed vertex, which could be all zeros.
-  // Transform the vertex through the modeling and viewing matrix to 'eye' space.
-  vec4 eye_vert = gl_ModelViewMatrix * gl_Vertex; /// vertex;
-  gl_ClipVertex = eye_vert;     // For user clipping planes.
+  // Transform vertex through modeling and viewing matrices to 'eye' space.
+  vec4 eye_vert_pt = gl_ModelViewMatrix * gl_Vertex; /// vertex;
+  gl_ClipVertex = eye_vert_pt;     // For user clipping planes.
 #else
 
-  // Transform the vertex through the modeling and viewing matrix to 'eye' space.
-  vec4 eye_vert = gl_ModelViewMatrix * vertex;
-  gl_ClipVertex = eye_vert;     // For user clipping planes.
+  // Transform vertex through modeling and viewing matrices to 'eye' space.
+  vec4 eye_vert_pt = gl_ModelViewMatrix * vertex;
+  gl_ClipVertex = eye_vert_pt;     // For user clipping planes.
 #endif
 
-  // Center point in eye space.
+  // Center point in eye (+-1 coordinate, pre-projection) space.
   vec4 eye_center = gl_ModelViewMatrix * center;
-  var_center = vec3(eye_center) / eye_center.w;
+  var_center_pt = eye_center.xyz / eye_center.w;
 
   // Scaled radius in eye space.  (Assume uniform scale on all axes.)
-  vec4 eye_radius = gl_ModelViewMatrix * vec4(radius, 0, 0, 0);
-  var_radius_squared = length(eye_radius);
-  var_radius_squared *= var_radius_squared; // So we don't need to do square roots.
+  vec4 eye_radius4 = gl_ModelViewMatrix * vec4(radius, 0.0, 0.0, 0.0);
+  float eye_radius = length(eye_radius4);
+  var_radius_sq = eye_radius * eye_radius; // Square roots are slow.
 
   // (Perspective is a uniform, so all shader processors take the same branch.)
   if (perspective == 1) {
     // With perspective, look from the origin, toward the vertex (pixel) points.
-    var_eye = vec3(0,0,0);
-    var_vert = normalize(vec3(eye_vert) / eye_vert.w);
+    var_view_pt = vec3(0.0, 0.0, 0.0);
+    var_ray_vec = normalize(eye_vert_pt.xyz / eye_vert_pt.w);
   } else {
-    // Without perspective, look from 2D pixel position, in the -Z direction.
-    var_eye = vec3((eye_vert.xy / eye_vert.w), 0.0);  
-    var_vert = vec3(0.0, 0.0, -1.0);
+    // Without perspective, look from the 2D pixel position, in the -Z dir.
+    var_view_pt = vec3((eye_vert_pt.xy / eye_vert_pt.w), 0.0);  
+    var_ray_vec = vec3(0.0, 0.0, -1.0);
   }
 
   // Transform to screen coords.
   gl_Position = gl_ModelViewProjectionMatrix * vertex;
+
+  // The halo disk width is specified in viewport pixels.  In post-projection
+  // screen coords, it's a fraction of the window half-width of 1.0 .
+  float post_proj_halo_width = halo_width / (window_width / 2.0);
+
+  // Take the eye-space radius to post-projection units at the center pt depth.
+  vec4 post_proj_eye_radius4 = gl_ProjectionMatrix * (eye_center + eye_radius4);
+  float post_proj_radius = length(eye_radius4);
+  float halo_radius = post_proj_radius + post_proj_halo_width;
+  var_halo_rad_sq = halo_radius * halo_radius; // Square roots are slow.
 }
 """
 sphereFragSrc = """
@@ -721,9 +806,10 @@ sphereFragSrc = """
 #version 110
 
 // Uniform variables, which are constant inputs for the whole shader execution.
+uniform int draw_for_mouseover; // 0: use normal color, 1: glname_color.
+uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
+uniform vec4 override_color;    // Color for selection or highlighted drawing.
 uniform float override_opacity; // Multiplies the normal color alpha component.
-uniform int draw_for_mouseover; // Use normal color = 0, glname_color = 1.
-uniform int highlight_mode;     // 0=normal, 1=override_color, 2=pattern, 3=halo
 
 // Lighting properties for the material.
 uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
@@ -746,22 +832,25 @@ uniform vec3 light2H;
 uniform vec3 light3H;
 
 // Inputs, interpolated by raster conversion from the vertex shader outputs.
-varying vec3 var_vert; // Pixel sample vec; vertex direction vec in vert shader.
-varying vec3 var_center;        // Transformed sphere center point.
-varying vec3 var_eye;           // Eye point (different for perspective.)
-varying float var_radius_squared;  // Transformed sphere radius, squared.
-varying vec4 var_basecolor;     // Vertex color, interpolated to pixels.
+varying vec3 var_ray_vec; // Pixel sample vec (vertex dir vec in vert shader.)
+varying vec3 var_center_pt;     // Transformed sphere center point.
+varying vec3 var_view_pt;       // Transformed view point.
+varying float var_radius_sq;    // Transformed sphere radius, squared.
+varying float var_halo_rad_sq;  // Halo rad sq at transformed center_pt Z depth.
+varying vec4 var_basecolor;     // Vertex color.
 
-void main(void) {
+void main(void) {  // Fragment (pixel) shader procedure.
+  // The first part is all in *eye space* (+-1 pre-projection 0.coordinates.)
+
   // Vertex direction vectors were interpolated into pixel sample vectors.
-  vec3 pixel_vec = normalize(var_vert);  // Interpolation denormalizes vectors.
-  vec3 center_vec = var_center - var_eye;
+  vec3 pixel_vec = normalize(var_ray_vec); // Interpolation denormalizes vecs.
+  vec3 center_vec = var_center_pt - var_view_pt;
    
   // Length of the projection of the center_vec onto the pixel_vec.
   float proj_len = dot(pixel_vec, center_vec);
   float center_vec_len_squared = dot(center_vec, center_vec);
   // Compare intersection distance (squared) to radius and center_vec length.
-  float disc = proj_len*proj_len + var_radius_squared - center_vec_len_squared;
+  float disc = proj_len*proj_len + var_radius_sq - center_vec_len_squared;
   if (disc <= 0.0)
     discard;   // Pixel sample missed the sphere.
 
@@ -771,8 +860,8 @@ void main(void) {
     discard;   // Intersection is behind the view point.
 
   // Intersection point and normal of the pixel sample vector with the sphere.
-  vec3 sample = var_eye + tnear * pixel_vec;
-  vec3 normal = normalize(sample - var_center);
+  vec3 sample = var_view_pt + tnear * pixel_vec;
+  vec3 normal = normalize(sample - var_center_pt);
 
   // Distance to the sphere sample is the fragment depth, transformed into
   // normalized device coordinates.  (Inverse of clip depth to avoid divide.)
@@ -808,7 +897,7 @@ void main(void) {
   // Don't do lighting while drawing glnames, just pass the values through.
   if (draw_for_mouseover == 1)
     gl_FragColor = var_basecolor;
-  else if (highlight_mode == 1)
+  else if (drawing_style == 1)
     // Highlighting looks "special" without shinyness.
     gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient),
                         1.0);

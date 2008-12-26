@@ -113,9 +113,6 @@ import foundation.env as env
 import graphics.drawing.drawing_globals as drawing_globals
 from gl_buffers import GLBufferObject
 
-from utilities.prefs_constants import hoverHighlightingColor_prefs_key
-from utilities.prefs_constants import selectionColor_prefs_key
-
 import numpy
 
 from OpenGL.GL import GL_ARRAY_BUFFER_ARB
@@ -142,8 +139,7 @@ from OpenGL.GL import glVertexPointer
 # Pass an array of byte offsets into the graphics card index buffer object.
 from graphics.drawing.vbo_patch import glMultiDrawElementsVBO
 
-from OpenGL.GL.ARB.shader_objects import glUniform1iARB
-from OpenGL.GL.ARB.shader_objects import glUniform4fvARB
+##from OpenGL.GL.ARB.shader_objects import glUniform1iARB
 
 from OpenGL.GL.ARB.vertex_program import glDisableVertexAttribArrayARB
 from OpenGL.GL.ARB.vertex_program import glEnableVertexAttribArrayARB
@@ -334,28 +330,8 @@ class GLPrimitiveBuffer(object):
 
         glEnableClientState(GL_VERTEX_ARRAY)
 
-        # Set up for highlighting and selection drawing styles.
-        # XXX Need to implement halo/patterned drawing too.
-        if highlighted or selected:
-            glUniform1iARB(shader.uniform("highlight_mode"), 1)
-
-            # Set up selection as solid color highlighting for now.
-            if selected:
-                highlight_color = env.prefs[selectionColor_prefs_key]    
-                pass
-
-            if highlight_color is None: # Default highlight color.
-                highlight_color = env.prefs[hoverHighlightingColor_prefs_key]
-                pass
-
-            if len(highlight_color) == 3:
-                highlight_color += (opacity,)
-                pass
-            glUniform4fvARB(shader.uniform("override_color"), 1,
-                            highlight_color)
-        else: 
-            glUniform1iARB(shader.uniform("highlight_mode"), 0)
-            pass
+        shader.setupDraw(highlighted, selected, patterning,
+                         highlight_color, opacity)
 
         # XXX No transform data until that is more implemented.
         ###shader.setupTransforms(self.transforms)
