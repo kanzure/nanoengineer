@@ -2086,6 +2086,12 @@ class MWsemantics(QMainWindow,
         @see: U{B{windowTitle}<http://doc.trolltech.com/4/qwidget.html#windowTitle-prop>},
               U{B{windowModified}<http://doc.trolltech.com/4/qwidget.html#windowModified-prop>}
         """
+        # WARNING: there is mostly-duplicated code in this method and in
+        # class Ui_PartWindow.updateWindowTitle. I guess they are both 
+        # always called, but only one of them matters depending on whether
+        # experimental (and unfinished) MDI support is enabled.
+        # Ideally a single helper function, or single method in a new
+        # common superclass, would be used. [bruce 081227 comment]
         caption_prefix = env.prefs[captionPrefix_prefs_key]
         caption_suffix = env.prefs[captionSuffix_prefs_key]
         caption_fullpath = env.prefs[captionFullPath_prefs_key]
@@ -2097,29 +2103,36 @@ class MWsemantics(QMainWindow,
             prefix = ''
             suffix = ''
 
-        # this is not needed here since it's already done in the prefs values themselves when we set them:
+        # this is not needed here since it's already done in the prefs values
+        # themselves when we set them:
         # if prefix and not prefix.endswith(" "):
         #     prefix = prefix + " "
         # if suffix and not suffix.startswith(" "):
         #     suffix = " " + suffix
 
-        try:
+        partname = "Untitled" # fallback value if no file yet
+        if self.assy.filename: #bruce 081227 cleanup: try -> if, etc
             junk, basename = os.path.split(self.assy.filename)
-            assert basename # it's normal for this to fail, when there is no file yet
+            if basename:
+                if caption_fullpath:
+                    partname = os.path.normpath(self.assy.filename)
+                        #fixed bug 453-1 ninad060721
+                else:
+                    partname = basename
 
-            if caption_fullpath:
-                partname = os.path.normpath(self.assy.filename)#fixed bug 453-1 ninad060721
-            else:
-                partname = basename
-
-        except:
-            partname = 'Untitled'
-
-        ##e [bruce 050811 comment:] perhaps we should move prefix to the beginning, rather than just before "[";
-        # and in any case the other stuff here, self.name() + " - " + "[" + "]", should also be user-changeable, IMHO.
-        #print "****self.accessibleName *****=" , self.accessibleName()
-        self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " + prefix + "[" + partname.encode("utf_8") + "]" + suffix))
-
+        # WARNING: the following code differs in the two versions
+        # of this routine.
+        ##e [bruce 050811 comment:] 
+        # perhaps we should move prefix to the beginning, 
+        # rather than just before "[";
+        # and in any case the other stuff here, 
+        # self.name() + " - " + "[" + "]", should also be
+        # user-changeable, IMHO.
+        #print "****self.accessibleName *****=", self.accessibleName()
+        self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " + prefix +
+                                        "[" + partname.encode("utf_8") + "]" +
+                                        suffix ))
+        # review: also call self.setWindowModified(changed)?
         return
 
     def createProgressDialog(self):

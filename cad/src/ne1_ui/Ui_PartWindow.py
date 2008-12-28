@@ -361,30 +361,31 @@ class Ui_PartWindow(QWidget):
         @see: U{B{windowTitle}<http://doc.trolltech.com/4/qwidget.html#windowTitle-prop>},
               U{B{windowModified}<http://doc.trolltech.com/4/qwidget.html#windowModified-prop>}
         """
+        # WARNING: there is mostly-duplicated code in this method and in
+        # MWsemantics.update_mainwindow_caption. See the comment in that
+        # method for more info and todos. [bruce 081227 comment]
         caption_fullpath = env.prefs[captionFullPath_prefs_key]
 
-        try:
+        partname = "Untitled" # fallback value if no file yet
+        if self.assy.filename: #bruce 081227 cleanup: try -> if, etc
             # self.assy.filename is always an empty string, even after a
             # file has been opened with a complete name. Need to ask Bruce
             # about this problem, resulting in a bug (i.e. the window title
             # is always "Untitled". Mark 2008-01-02.
             junk, basename = os.path.split(self.assy.filename)
-            assert basename
-                # it's normal for this to fail, when there is no file yet
+            if basename:
+                if caption_fullpath:
+                    partname = os.path.normpath(self.assy.filename)
+                        #fixed bug 453-1 ninad060721
+                else:
+                    partname = basename
 
-            if caption_fullpath:
-                partname = os.path.normpath(self.assy.filename)
-                    #fixed bug 453-1 ninad060721
-            else:
-                partname = basename
-
-        except:
-            partname = 'Untitled'
-
-        # If you're wondering about the "[*]" placeholder below, see:
+        # WARNING: the following code differs in the two versions
+        # of this routine.
+        # The "[*]" placeholder below is modified or removed by Qt; see:
         # http://doc.trolltech.com/4/qwidget.html#windowModified-prop
         self.setWindowTitle(self.trUtf8(partname + '[*]'))
-        self.setWindowModified(changed)
+        self.setWindowModified(changed) # replaces '[*]' by '' or '*'
         return
 
     def collapseLeftArea(self, hideLeftArea = True):
