@@ -314,8 +314,9 @@ class NanotubeParameters:
         @attention: trimEndPoint2 argument is ignored (NIY).
         """
         # See drawNanotubeLadder() for math needed to implement trimEndPoint2.
-        self.endPoint1 = endPoint1
-        self.endPoint2 = endPoint2
+        self.endPoint1 = + endPoint1
+        self.endPoint2 = + endPoint2
+        return
         
     def getEndPoints(self):
         """
@@ -763,6 +764,8 @@ class NanotubeParameters:
         """
         Compare self with other.
         """
+        if not isinstance(other, self.__class__):
+            return False
         if self.n != other.n:
             return False
         elif self.m != other.m:
@@ -773,6 +776,7 @@ class NanotubeParameters:
             return False
         elif self.endings != other.endings:
             return False
+        # Note: Numeric arrays can be safely compared using !=, but not ==.
         elif self.endPoint1 != other.endPoint1:
             return False
         elif self.endPoint2 != other.endPoint2:
