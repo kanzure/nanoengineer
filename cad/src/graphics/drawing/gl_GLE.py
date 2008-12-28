@@ -32,3 +32,14 @@ if not bool(gleGetNumSides):
     print "fyi: Patching gleGetNumSides to call gleGetNumSlices instead."
     from graphics.drawing.gleNumSides_patch import gleGetNumSides
     from graphics.drawing.gleNumSides_patch import gleSetNumSides
+
+    # russ 081227: The no-ops may still be needed, e.g. on Fedora 10 Linux.
+    try:
+        gleGetNumSides()
+    except:
+        print "fyi: Neither gleGetNumSides nor gleGetNumSlices is supported."
+        print "fyi: No-ops will be used for gleGetNumSides and gleSetNumSides."
+        gleGetNumSides = int
+        gleSetNumSides = int
+        pass
+    pass
