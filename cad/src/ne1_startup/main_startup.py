@@ -16,7 +16,11 @@ and split out of main.py into this file (main_startup.py)
 by bruce 070704.
 """
 
-import sys, time, os, NE1_Build_Constants
+import sys
+import time
+import os
+
+import NE1_Build_Constants
 
 # Note -- Logic in startup_before_most_imports depends on its load location.
 # If you move it, fix the endUser code in before_most_imports().
@@ -119,10 +123,10 @@ def startup_script( main_globals):
     # "Do things that should be done before most imports occur."
     
     startup_before_most_imports.before_most_imports( main_globals )
-
-
+    
+    
     from PyQt4.Qt import QApplication, QSplashScreen
-
+    
     
     # "Do things that should be done before creating the application object."
     
@@ -400,6 +404,20 @@ def startup_script( main_globals):
     # Do other post-startup, pre-event-loop, non-profiled things, if any
     # (such as run optional startup commands for debugging).
     startup_misc.just_before_event_loop()
+    
+    if os.environ.has_key('WINGDB_ACTIVE'):
+        # Hack to burn some Python bytecode periodically so Wing's
+        # debugger can remain responsive while free-running
+        # [from http://wingware.com/doc/howtos/pyqt; added by bruce 081227]
+        print "running under Wing IDE debugger; setting up timer"
+        from PyQt4 import QtCore
+        timer = QtCore.QTimer()
+        def donothing(*args):
+            x = 0
+            for i in range(0, 100):
+                x += i
+        timer.connect(timer, QtCore.SIGNAL("timeout()"), donothing)
+        timer.start(200)
             
     # Finally, run the main Qt event loop --
     # perhaps with profiling, depending on local variables set above.
