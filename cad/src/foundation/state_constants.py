@@ -100,7 +100,7 @@ class _UNSET_class:
         self.name = name
     def __repr__(self):
         return self.name
-    def _copyOfObject(self, copyfunc): # copied from IdentityCopyMixin
+    def _copyOfObject(self): # copied from IdentityCopyMixin
         return self
     def _isIdentityCopyMixin(self): # copied from IdentityCopyMixin
         pass

@@ -652,8 +652,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
         return new
 
     # override abstract method of DataMixin
-    def _copyOfObject(self, copyfunc): #bruce 051003, for use by state_utils.copy_val
-        # ignores copyfunc
+    def _copyOfObject(self): #bruce 051003, for use by state_utils.copy_val
         return self.deepcopy(alter_name = False) ###k I'm not sure alter_name = False can ever be legal,
             # or (if it can be) whether it's good here. I think Mark or I should review this,
             # and we should not change the code to rely on copy_val alone on this object

@@ -648,7 +648,7 @@ class Protein:
         return
     
     # override abstract method of DataMixin
-    def _copyOfObject(self, copyfunc):
+    def _copyOfObject(self):
         """
         Create and return a copy of protein.
         """

@@ -377,7 +377,7 @@ class _S_ImmutableData_Mixin(_S_Data_Mixin):
     copied as themselves. (Most of them deepcopy the data passed into them, to protect
     themselves from callers who might pass shared data.)
     """
-    def _s_deepcopy(self, copyfunc): ##k API
+    def _s_deepcopy(self, copyfunc): ##k API [not presently called as of 081229, AFAIK]
         #e maybe someday we'll inherit this from (say) _S_ImmutableData_Mixin
         return self
     def _s_copy_for_shallow_mod(self): #e likely to be renamed, maybe ...private_mod

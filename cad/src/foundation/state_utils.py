@@ -41,19 +41,25 @@ DEBUG_PYREX_ATOMS = debug_pyrex_atoms()
 '''
 Where is _copyOfObject (etc) documented? (In code and on wiki?)
 
-That should say:
+On wiki: 
+
+http://www.nanoengineer-1.net/mediawiki/index.php?title=How_to_add_attributes_to_a_model_object_in_NE1
+
+That documentation should say:
 
 - When defining _copyOfObject, consider:
-
-  - is it correct for any copyfunc argument? (esp in its assumption
-    about what that returns, original or copy or transformed copy)
   
   - is its own return value __eq__ to the original? It should be,
     so you have to define __eq__ AND __ne__ accordingly.
+    [later: I think the default def of __ne__ from __eq__ means
+     you needn't define your own __ne__.]
   
-  - should you define _s_scan_children to, to scan the same things copied?
+  - should you define _s_scan_children too, to scan the same things
+    that are copied?
     (Only if they are instance objects, and are "children".
      See S_CHILDREN doc for what that means.)
+    [later: I think this only matters if they can contain undoable state
+     or point to other objects which can.]
 
 I did the above for VQT and jigs_planes, but still no __eq__ or children
 for jig_Gamess -- I'll let that be a known bug I fix later,
@@ -708,13 +714,14 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
     ##if copier is not None:
     ##    return copier(obj, copy_val) # e.g. for QColor
     try:
-        # note: not compatible with copy.deepcopy's __deepcopy__ method
+        # note: not compatible with copy.deepcopy's __deepcopy__ method.
         # see DataMixin and IdentityCopyMixin below.
         copy_method = obj._copyOfObject 
     except AttributeError:
         print "****************** needs _copyOfObject: %s" % repr(obj)
         return obj
-    res = copy_method( copy_val)
+    res = copy_method() 
+        #bruce 081229 no longer pass copy_val (removed never-used copyfunc arg)
     if _debug_copyOfObject and (obj != res or (not (obj == res))): #bruce 060311 adding _debug_copyOfObject as optim (suggested by Will)
         # Bug in copy_method, which will cause false positives in change-detection in Undo (since we'll return res anyway).
         # (It's still better to return res than obj, since returning obj could cause Undo to completely miss changes.)
@@ -1879,7 +1886,7 @@ class obj_classifier:
 # ==
 
 class IdentityCopyMixin: # by EricM
-    def _copyOfObject(self, copyfunc):
+    def _copyOfObject(self):
         """
         Implements the copying of an object for copy_val.  For objects
         which care about their identity (which inherit from
@@ -1937,47 +1944,48 @@ class DataMixin:
     """
     Convenience mixin for classes that act as 'data' when present in
     values of declared state-holding attributes. Provides method stubs
-    to remind you when you haven't declared a necessary method.  Makes
+    to remind you when you haven't defined a necessary method. Makes
     sure state system treats this object as data (and doesn't warn
-    about it).  All such data-like classes which may be handled by
+    about it). All such data-like classes which may be handled by
     copy_val must inherit DataMixin.
     """
-    def _copyOfObject(self, copyfunc):
+    def _copyOfObject(self):
         """
-        Implements the copying of an object for copy_val.  For data
+        This method must be defined in subclasses to implement
+        the copying of an object for copy_val. For data
         objects (which inherit from DataMixin, or define
-        _s_isPureData), this should return a fresh object which will
-        compare __eq__ to the original, but which will have a
-        different id().  Implementation of this method must be
+        _s_isPureData), this should return a newly allocated object
+        which will be __eq__ to the original, but which will have a
+        different id(). Implementation of this method must be
         compatible with the implementation of __eq__ for this class.
 
-        This method is declared private solely for performance
-        reasons.  In particular, InvalMixin.__getattr__() has a fast
-        return for attributes which start with an underscore.  Many
+        This method has a name which appears private, solely for performance
+        reasons. In particular, InvalMixin.__getattr__() has a fast
+        return for attributes which start with an underscore. Many
         objects (like atoms) inherit from InvalMixin, and looking up
         non-existent attributes on them takes significantly longer if
-        the attribute name does not start with underscore.  In
+        the attribute name does not start with underscore. In
         general, such objects should inherit from IdentityCopyMixin as
         well, and thus have _copyOfObject defined in order to avoid
         exception processing overhead in copy_InstanceType(), so it
-        doesn't really matter.  Should something slip through the
+        doesn't really matter. Should something slip through the
         cracks, at least we're only imposing one slowdown on the copy,
         and not two.
-
-        It appears that copyfunc is never used, but could be needed
-        for a complex structure.
         """
         print "_copyOfObject needs to be overridden in", self
         print "  (implem must be compatible with __eq__)"
         return self
-    def _s_isPureData(self): # note: presence of this method makes sure this object is treated as data.
+    def _s_isPureData(self): 
+        # note: presence of this method makes sure this object is treated as data.
         pass
     def __eq__(self, other):
         print "__eq__ needs to be overridden in", self
-        print "  (implem must be compatible with _copyOfObject; don't forget to avoid '==' when comparing Numeric arrays)"
+        print "  (implem must be compatible with _copyOfObject; " \
+              "don't forget to avoid '==' when comparing Numeric arrays)"
         return self is other
     def __ne__(self, other):
-        return not (self == other) # this uses the __eq__ above, or one which the main class defined
+        return not (self == other) 
+            # this uses the __eq__ above, or one which the specific class defined
     pass
 
 # ===

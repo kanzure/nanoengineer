@@ -785,8 +785,7 @@ class image_mod_record(DataMixin): #bruce 060210; maybe should be refiled in Ima
         return not not (self.mirrorQ or self.rot) # only correct since we always canonicalize rot by % 360
 
     # override abstract method of DataMixin
-    def _copyOfObject(self, copyfunc): # (in class image_mod_record [bruce circa 060210])
-        # ignores copyfunc
+    def _copyOfObject(self): # (in class image_mod_record [bruce circa 060210])
         return self.__class__(self.mirrorQ, self.rot)
 
     # override abstract method of DataMixin
