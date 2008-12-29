@@ -156,10 +156,7 @@ from dna.model.Dna_Constants import getComplementSequence
 from operations.bond_chains import grow_directional_bond_chain
 
 import graphics.drawing.drawing_globals as drawing_globals
-
 from graphics.drawing.gl_lighting import apply_material
-from graphics.drawing.gl_lighting import startPatternedDrawing
-from graphics.drawing.gl_lighting import endPatternedDrawing
 
 from graphics.drawables.Selobj import Selobj_API
 
@@ -2684,9 +2681,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         if drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls:
 
-            # russ 080530: Support for patterned highlighting drawing modes.
-            patterned = startPatternedDrawing(highlight = True)
-
             # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
             if self.__dict__.has_key('displist'):
                 apply_material(color)
@@ -2720,11 +2714,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if hd:
                 hd._f_drawchunk_realtime(glpane, self, highlighted = True)
                 pass
-
-            # russ 080530: Support for patterned highlighting drawing modes.
-            if patterned:
-                endPatternedDrawing(highlight = True)
-            
         else:
             if self.get_dispdef() == diDNACYLINDER or \
                self.get_dispdef() == diPROTEIN:

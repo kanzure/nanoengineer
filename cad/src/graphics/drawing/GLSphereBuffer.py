@@ -22,6 +22,9 @@ import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer, HunkBuffer
 
 from geometry.VQT import V
+from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
+
 import numpy
 
 from OpenGL.GL import GL_QUADS
@@ -35,10 +38,18 @@ class GLSphereBuffer(GLPrimitiveBuffer):
     """
     def __init__(self):
         # Tell GLPrimitiveBuffer the drawing pattern for sphere VBOs/IBOs.
-        super(GLSphereBuffer, self).__init__(
-            GL_QUADS,
-            drawing_globals.shaderCubeVerts,
-            drawing_globals.shaderCubeIndices)
+        if debug_pref("GLPane: use billboard primitives? (next session)",
+                      Choice_boolean_True, prefs_key = True ):
+            print "fyi: using the billboard shader-sphere drawing pattern."
+            super(GLSphereBuffer, self).__init__(
+                GL_QUADS,
+                drawing_globals.shaderBillboardVerts,
+                drawing_globals.shaderBillboardIndices)
+        else:
+            super(GLSphereBuffer, self).__init__(
+                GL_QUADS,
+                drawing_globals.shaderCubeVerts,
+                drawing_globals.shaderCubeIndices)
 
         # Per-vertex attribute hunk VBOs that are specific to the sphere shader.
         # Combine centers and radii into a 4-element vec4 attribute VBO.  (Each

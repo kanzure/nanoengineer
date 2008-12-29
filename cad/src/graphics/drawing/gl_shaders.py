@@ -313,7 +313,7 @@ class GLSphereShaderObject(object):
                         [near, far, 0.5*(far + near), 1.0/(far - near)])
 
         # Pixel width of window for halo drawing calculations.
-        glUniform1fARB(self.uniform("window_width"), glpane.width)
+        self.window_width = glpane.width
 
         # Single light for now.
         # XXX Get NE1 lighting environment state.
@@ -356,8 +356,20 @@ class GLSphereShaderObject(object):
         drawing_style = DS_NORMAL       # Solid drawing by default.
         if halo_highlighting or halo_selection:
             drawing_style = DS_HALO
-            halo_width = env.prefs[haloWidth_prefs_key]
-            glUniform1fARB(self.uniform("halo_width"), halo_width)
+
+            # Halo drawing was first implemented with wide-line drawing, which
+            # extends to both sides of the polygon edge.  The halo is actually
+            # half the wide-line width that is specified by the setting.
+            # XXX The setting should be changed to give the halo width instead.
+            halo_width = env.prefs[haloWidth_prefs_key] / 2.0
+
+            # The halo width is specified in viewport pixels, as is the window
+            # width the viewport transform maps onto.  In post-projection and
+            # clipping normalized device coords (+-1), it's a fraction of the
+            # window half-width of 1.0 .
+            ndc_halo_width = halo_width / (self.window_width / 2.0)
+            glUniform1fARB(self.uniform("ndc_halo_width"), ndc_halo_width)
+
         elif highlighted or selected:
             drawing_style = DS_NORMAL   # Non-halo highlighting or selection.
         glUniform1iARB(self.uniform("drawing_style"), drawing_style)
@@ -598,25 +610,33 @@ class GLSphereShaderObject(object):
 # prepended to the following.  The #version statement must preceed it.
 sphereVertSrc = """
 // Vertex shader program for sphere primitives.
-//
+// 
 // This raster-converts analytic spheres, defined by a center point and radius.
-// (Some people call that a ray-tracer, but unlike a real ray-tracer it can't
-// send rays through the scene for reflection/refraction, nor toward the lights
-// to compute shadows.)
+// The rendered spheres are smooth, with no polygon facets.  Exact shading,
+// depth, and normals are calculated in parallel in the GPU at each pixel.
+// 
+// It sends an eye-space ray from the view point to the sphere at each pixel.
+// Some people call that a ray-tracer, but unlike a real ray-tracer it cannot
+// send more rays through the scene to intersect other geometry for
+// reflection/refraction calculations, nor toward the lights for shadows.
 // 
 // How it works:
 // 
-// A bounding volume of OpenGL faces is drawn around the sphere.  A center point
-// and radius are also provided as vertex attributes.  It doesn't matter what
-// the shape of the bounding volume is, as long as it covers at least the pixels
-// where the sphere is to be rendered.  Clipping and lighting settings are also
-// provided to the fragment (pixel) shader.
+// A bounding volume of faces may be drawn around the sphere in OpenGL, or
+// alternately a 'billboard' face may be drawn in front of the the sphere.  A
+// center point and radius are also provided as vertex attributes.  The face(s)
+// must cover at least the pixels where the sphere is to be rendered.  Clipping
+// and lighting settings are also provided to the fragment (pixel) shader.
 // 
 // The view point, transformed sphere center point and radius, and a ray vector
 // pointing from the view point to the transformed vertex, are output from the
 // vertex shader to the fragment shader.  This is handled differently for
-// orthographic and perspective projections, but it's all in pre-projection
-// gl_ModelViewMatrix (eye) space, with +-1 coordinates in XY, 0 to 1 in Z.
+// orthographic and perspective projections, but it is all in pre-projection
+// gl_ModelViewMatrix 'eye space', with the origin at the eye (camera) location
+//  and XY coordinates parallel to the screen (window) XY.
+// 
+// A 'halo' radius is also passed to the fragment shader, for highlighting
+// selected spheres with a flat disk when the halo drawing-style is selected.
 // 
 // In between the vertex shader and the fragment shader, the transformed vertex
 // ray vector coords get interpolated, so it winds up being a transformed ray
@@ -626,15 +646,19 @@ sphereVertSrc = """
 // points and vectors.  That is, if the ray from the eye through the pixel
 // center passes within the sphere radius of the sphere center point, a depth
 // and normal on the sphere surface are calculated as a function of the distance
-// from the center.
+// from the center.  If the ray is outside the sphere radius, it may still be
+// within the halo disk radius surrounding the sphere.
 
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform int draw_for_mouseover; // 0:use normal color, 1:glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
+#define DS_NORMAL 0
+#define DS_OVERRIDE_COLOR 1
+#define DS_PATTERN 2
+#define DS_HALO 3
 uniform vec4 override_color;    // Color for selection or highlighted drawing.
 uniform int perspective;        // 0:orthographic, 1:perspective.
-uniform float halo_width;       // Halo width in pixel units.
-uniform float window_width;     // Pixel width of window (for halo width.)
+uniform float ndc_halo_width;   // Halo width in normalized device coords.
 
 uniform int n_transforms;
 #ifdef N_CONST_XFORMS
@@ -651,7 +675,7 @@ uniform int n_transforms;
 attribute vec4 center_rad;      // Sphere center point and radius.
 // The following may be set to constants, when no arrays are provided.
 attribute vec4 color;           // Sphere color and opacity (RGBA).
-attribute float transform_id;   // Ignored if zero.  (Attribs can't be ints.)
+attribute float transform_id;   // Ignored if zero.  (Attribs cannot be ints.)
 attribute vec4 glname_color;    // Mouseover id (glname) as RGBA for drawing.
 
 // Varying outputs, interpolated in the pipeline to the fragment (pixel) shader.
@@ -667,7 +691,8 @@ void main(void) { // Vertex shader procedure.
   // Fragment (pixel) color will be interpolated from the vertex colors.
   if (draw_for_mouseover == 1)
     var_basecolor = glname_color;
-  else if (drawing_style == 1)       // Solid highlighting or selection.
+  else if (drawing_style == DS_OVERRIDE_COLOR)
+    // Solid highlighting or selection.
     var_basecolor = override_color;
   else
     var_basecolor = color;
@@ -676,10 +701,8 @@ void main(void) { // Vertex shader procedure.
   vec4 center = vec4(center_rad.xyz, 1.0);
   float radius = center_rad.w;         // per-vertex sphere radius.
 
-  // The vertices are in unit coordinates, relative to the center point.
-  // Scale by the radius and add to the center point.
-  vec4 vertex = vec4(center.xyz + radius * gl_Vertex.xyz, 1.0);
-
+//[ ----------------------------------------------------------------
+// Per-primitive transforms.
   mat4 xform;
   if (n_transforms > 0 && int(transform_id) > -1) {
     // Apply a transform, indexed by a transform slot ID vertex attribute.
@@ -687,7 +710,6 @@ void main(void) { // Vertex shader procedure.
 #ifdef N_CONST_XFORMS
     // Get transforms from a fixed-sized block of uniform (constant) memory.
     // The GL_EXT_bindable_uniform extension allows sharing this through a VBO.
-    vertex = transforms[int(transform_id)] * vertex;
     center = transforms[int(transform_id)] * center;
 #else  // texture_xforms.
 # if 0 // 1   /// Never check in a 1 value.
@@ -703,15 +725,16 @@ void main(void) { // Vertex shader procedure.
                  texture2D(transforms, vec2(2.0/3.0, mat)), 
                  texture2D(transforms, vec2(3.0/3.0, mat)));
 # endif
-    vertex = xform * vertex;
     center = xform * center;
 #endif // texture_xforms.
-
   }
+//] ----------------------------------------------------------------
 
+//[ ================================================================
+// Debugging output.
 #if 0 // 1   /// Never check in a 1 value.
   // Debugging display: set the colors of a 16x16 sphere array.
-  // test_drawing.py sets the transform_id's.  Assume here that
+  // test_drawing.py sets the transform_ids.  Assume here that
   // nSpheres = transformChunkLength = 16, so each column is one transform.
 
   // The center_rad coord attrib gives the subscripts of the sphere in the array.
@@ -732,7 +755,7 @@ void main(void) { // Vertex shader procedure.
   float data;
   if (true) // false  // Display matrix data.
     // This produces all zeros from a texture-map matrix.
-    // The test identity matrix has 1's in rows 0, 5, 10, and 15, as it should.
+    // The test identity matrix has 1s in rows 0, 5, 10, and 15, as it should.
     data = xform[row/4][row - (row/4)*4];  // % is unimplimented.
   else  // Display transform IDs.
     data = transform_id / float(n_transforms);
@@ -746,52 +769,56 @@ void main(void) { // Vertex shader procedure.
     var_basecolor = vec4(data, data, data, 1.0); // Fractions in gray.
   // Matrix labels (1 + xform/100) in blue.
   if (data > 1.0) var_basecolor = vec4(0.0, 0.0, (data - 1.0) * 8.0, 1.0);
-    
-  /// When debugging, don't use the xform'ed vertex, which could be all zeros.
-  // Transform vertex through modeling and viewing matrices to 'eye' space.
-  vec4 eye_vert_pt = gl_ModelViewMatrix * gl_Vertex; /// vertex;
-  gl_ClipVertex = eye_vert_pt;     // For user clipping planes.
-#else
-
-  // Transform vertex through modeling and viewing matrices to 'eye' space.
-  vec4 eye_vert_pt = gl_ModelViewMatrix * vertex;
-  gl_ClipVertex = eye_vert_pt;     // For user clipping planes.
 #endif
+//] ================================================================
 
-  // Center point in eye (+-1 coordinate, pre-projection) space.
-  vec4 eye_center = gl_ModelViewMatrix * center;
-  var_center_pt = eye_center.xyz / eye_center.w;
+  // Center point in eye space coordinates.
+  vec4 eye_center4 = gl_ModelViewMatrix * center;
+  var_center_pt = eye_center4.xyz / eye_center4.w;
 
   // Scaled radius in eye space.  (Assume uniform scale on all axes.)
   vec4 eye_radius4 = gl_ModelViewMatrix * vec4(radius, 0.0, 0.0, 0.0);
-  float eye_radius = length(eye_radius4);
+  float eye_radius = length(vec3(eye_radius4));
   var_radius_sq = eye_radius * eye_radius; // Square roots are slow.
 
-  // (Perspective is a uniform, so all shader processors take the same branch.)
+  // The drawing vertices are in unit coordinates, relative to the center point.
+  // Scale by the radius and add to the center point in eye space.
+  vec3 eye_vert_pt = var_center_pt + eye_radius * gl_Vertex.xyz;
+
   if (perspective == 1) {
     // With perspective, look from the origin, toward the vertex (pixel) points.
+    // In eye space, the origin is at the eye point, by definition.
     var_view_pt = vec3(0.0, 0.0, 0.0);
-    var_ray_vec = normalize(eye_vert_pt.xyz / eye_vert_pt.w);
+    var_ray_vec = normalize(eye_vert_pt);
   } else {
     // Without perspective, look from the 2D pixel position, in the -Z dir.
-    var_view_pt = vec3((eye_vert_pt.xy / eye_vert_pt.w), 0.0);  
+    var_view_pt = vec3(eye_vert_pt.xy, 0.0);  
     var_ray_vec = vec3(0.0, 0.0, -1.0);
   }
 
-  // Transform to screen coords.
-  gl_Position = gl_ModelViewProjectionMatrix * vertex;
-
-  // The halo disk width is specified in viewport pixels.  In post-projection
-  // screen coords, it's a fraction of the window half-width of 1.0 .
-  float post_proj_halo_width = halo_width / (window_width / 2.0);
-
   // Take the eye-space radius to post-projection units at the center pt depth.
-  vec4 post_proj_eye_radius4 = gl_ProjectionMatrix * (eye_center + eye_radius4);
-  float post_proj_radius = length(eye_radius4);
-  float halo_radius = post_proj_radius + post_proj_halo_width;
-  var_halo_rad_sq = halo_radius * halo_radius; // Square roots are slow.
+  // (The pojection matrix doesn't change the view alignment, just the scale.)
+  vec4 post_proj_radius4 =
+    gl_ProjectionMatrix * vec4(eye_radius, 0.0, var_center_pt.z, 1.0);
+  float post_proj_radius = post_proj_radius4.x / post_proj_radius4.w;
+
+  // Ratio to increase the eye space radius for the halo.
+  float radius_ratio = (post_proj_radius + ndc_halo_width) / post_proj_radius;
+  
+  // Eye space halo radius for use in the pixel shader.
+  float eye_halo_radius = radius_ratio * eye_radius;
+  var_halo_rad_sq = eye_halo_radius * eye_halo_radius; // Square roots are slow.
+
+  // For halo drawing, scale up drawing primitive vertices to cover the halo.
+  if (drawing_style == DS_HALO)
+    eye_vert_pt = var_center_pt + eye_halo_radius * gl_Vertex.xyz;
+
+  // Transform the drawing vertex through the projection matrix, making clip
+  // coordinates for the next stage of the pipeline.
+  gl_Position = gl_ProjectionMatrix * vec4(eye_vert_pt, 1.0);
 }
 """
+
 sphereFragSrc = """
 // Fragment (pixel) shader program for sphere primitives.
 // 
@@ -808,6 +835,10 @@ sphereFragSrc = """
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform int draw_for_mouseover; // 0: use normal color, 1: glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
+#define DS_NORMAL 0
+#define DS_OVERRIDE_COLOR 1
+#define DS_PATTERN 2
+#define DS_HALO 3
 uniform vec4 override_color;    // Color for selection or highlighted drawing.
 uniform float override_opacity; // Multiplies the normal color alpha component.
 
@@ -840,38 +871,85 @@ varying float var_halo_rad_sq;  // Halo rad sq at transformed center_pt Z depth.
 varying vec4 var_basecolor;     // Vertex color.
 
 void main(void) {  // Fragment (pixel) shader procedure.
-  // The first part is all in *eye space* (+-1 pre-projection 0.coordinates.)
+  // This is all in *eye space* (pre-projection camera coordinates.)
 
-  // Vertex direction vectors were interpolated into pixel sample vectors.
-  vec3 pixel_vec = normalize(var_ray_vec); // Interpolation denormalizes vecs.
+  // Vertex ray direction vectors were interpolated into pixel ray vectors.
+  // These go from the view point, through a sample point on the drawn polygon,
+  // *toward* the sphere (but may miss it and be discarded.)
+  vec3 sample_vec = normalize(var_ray_vec); // Interpolation denormalizes vecs.
+
+  // Project the center point onto the sample ray to find the point where
+  // the sample vector passes closest to the center of the sphere.
+  // . We have the coordinates of the transformed view point and sphere center.
+  // . Vector from the view point to the sphere center.
   vec3 center_vec = var_center_pt - var_view_pt;
-   
-  // Length of the projection of the center_vec onto the pixel_vec.
-  float proj_len = dot(pixel_vec, center_vec);
-  float center_vec_len_squared = dot(center_vec, center_vec);
-  // Compare intersection distance (squared) to radius and center_vec length.
-  float disc = proj_len*proj_len + var_radius_sq - center_vec_len_squared;
-  if (disc <= 0.0)
-    discard;   // Pixel sample missed the sphere.
 
-  // Depth of nearest intersection of pixel sample vector with the sphere.
-  float tnear = proj_len - sqrt(disc);
-  if (tnear < 0.0)
-    discard;   // Intersection is behind the view point.
+  // . The distance from the view point to the sphere center plane, which is
+  //   perpendicular to the sample_vec and contains the sphere center point.
+  //   (The length of the projection of the center_vec onto the sample_vec.)
+  //   (Note: The sample_vec is normalized, and the center_vec is not.)
+  float center_plane_dist = dot(center_vec, sample_vec);
 
-  // Intersection point and normal of the pixel sample vector with the sphere.
-  vec3 sample = var_view_pt + tnear * pixel_vec;
-  vec3 normal = normalize(sample - var_center_pt);
+  // . The intersection point of the sample_vec and the sphere center plane is
+  //   the point closest to the sphere center point in the sample_vec *and* to
+  //   the view point in the sphere center plane.
+  vec3 closest_pt = var_view_pt + center_plane_dist * sample_vec;
 
-  // Distance to the sphere sample is the fragment depth, transformed into
-  // normalized device coordinates.  (Inverse of clip depth to avoid divide.)
-  if (perspective == 1) {
-    // perspective: 0.5 + (mid + (far * near / sample.z)) / depth
-    gl_FragDepth = 0.5 + (clip[2] + (clip[1] * clip[0] / sample.z)) * clip[3];
+  // How far does the ray pass from the center point in the center plane?
+  // (Compare squares to avoid sqrt, which is slow, as long as we can.)
+  vec3 closest_vec = closest_pt - var_center_pt;
+  float plane_closest_dist_sq = dot(closest_vec, closest_vec);
+
+  // Compare the ray intersection distance to the sphere and halo disk radii.
+  float intersection_height = 0.0; // Height above the sphere center plane.
+  if (plane_closest_dist_sq > var_radius_sq) {
+
+    // Outside the sphere radius.  Nothing to do if not drawing a halo.
+    if (drawing_style != DS_HALO ||
+        plane_closest_dist_sq > var_halo_rad_sq) {
+      discard;  // **Exit**
+    }
+    // Hit a halo disk, on the sphere center plane.
+    else {
+      gl_FragColor = override_color; // No shading or lighting on halos.
+      // Not done yet, still have to compute a depth for the halo pixel.
+    }
+
   } else {
-    // ortho: 0.5 + (-middle - sample.z) / depth
-    gl_FragDepth = 0.5 + (-clip[2] - sample.z) * clip[3];
+    // The ray hit the sphere.  Use the Pythagorian Theorem to find the
+    // intersection point between the ray and the sphere, closest to us.
+    // 
+    // The closest_pt and the center_pt on the sphere center plane, and the
+    // intersection point between the ray and the sphere, make a right triangle.
+    // The length of the hypotenuse is the distance between the center point and
+    // the intersection point, and is equal to the radius of the sphere.
+    intersection_height = sqrt(var_radius_sq - plane_closest_dist_sq);
+      
+    // Nothing more to do if the intersection point is *behind* the view point
+    // so we are *inside the sphere.*
+    if (intersection_height > center_plane_dist)
+      discard; // **Exit**
   }
+
+  // Intersection point of the ray with the sphere, and the sphere normal there.
+  vec3 intersection_pt = closest_pt - intersection_height * sample_vec;
+  vec3 normal = normalize(intersection_pt - var_center_pt);
+
+  // Distance from the view point to the sphere intersection, transformed into
+  // normalized device coordinates, sets the fragment depth.  (Note: The
+  // clipping box depth is passed as its inverse, to save a divide.)
+  float sample_z = intersection_pt.z;
+  if (perspective == 1) {
+    // Perspective: 0.5 + (mid + (far * near / sample_z)) / depth
+    gl_FragDepth = 0.5 + (clip[2] + (clip[1] * clip[0] / sample_z)) * clip[3];
+  } else {
+    // Ortho: 0.5 + (-middle - sample_z) / depth
+    gl_FragDepth = 0.5 + (-clip[2] - sample_z) * clip[3];
+  }
+
+  // No shading or lighting on halos.
+  if (plane_closest_dist_sq > var_radius_sq)
+    return;   // **Exit** we are done with a halo pixel.
 
   // Shading control, from the material and lights.
   float ambient = material[0];
@@ -894,11 +972,11 @@ void main(void) {  // Fragment (pixel) shader procedure.
   specular += pow(max(0.0, dot(normal, light3H)), shininess) * intensity[3];
   specular *= material[2]; // Specular intensity.
 
-  // Don't do lighting while drawing glnames, just pass the values through.
+  // Do not do lighting while drawing glnames, just pass the values through.
   if (draw_for_mouseover == 1)
     gl_FragColor = var_basecolor;
-  else if (drawing_style == 1)
-    // Highlighting looks "special" without shinyness.
+  else if (drawing_style == DS_OVERRIDE_COLOR)
+    // Highlighting looks 'special' without shinyness.
     gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient),
                         1.0);
   else

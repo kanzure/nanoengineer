@@ -333,6 +333,16 @@ def setup_drawer():
     glEnd()
     glEndList()                
 
+    # Use with the shader where drawing patterns are applied in eye (camera)
+    # coordinates.  The billboard stays between the eye and the primitive.
+    drawing_globals.shaderBillboardVerts = verts = [
+        (-1.0, -1.0,  1.0),
+        ( 1.0, -1.0,  1.0),
+        (-1.0,  1.0,  1.0),
+        ( 1.0,  1.0,  1.0)]
+    drawing_globals.shaderBillboardIndices = indices = [
+        [0, 1, 3, 2]] # +Z face.
+
     drawing_globals.rotSignList = rotSignList = glGenLists(1)
     glNewList(rotSignList, GL_COMPILE)
     glBegin(GL_LINE_STRIP)

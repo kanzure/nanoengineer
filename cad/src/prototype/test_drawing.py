@@ -103,6 +103,8 @@ testCase = 8.1; nSpheres = 10; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.1; nSpheres = 500; chunkLength = 8
 #testCase = 8.1; nSpheres = 600; chunkLength = 8
 
+#testCase = 8.1; nSpheres = 100; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
+#testCase = 8.1; nSpheres = 132; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.1; nSpheres = 200; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.1; nSpheres = 300; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.1; nSpheres = 400; chunkLength = 8; USE_GRAPHICSMODE_DRAW = True
@@ -849,10 +851,21 @@ def test_drawing(glpane, initOnly = False):
     # .  40,000 (200x200) spheres 68.7-74.4 FPS,  5,000 chunks of length 8.
     # .  90,000 (300x300) spheres 39.4-42.0 FPS, 11,250 chunks of length 8.
     # . 160,000 (400x400) spheres 24.4-25.2 FPS, 20,000 chunks of length 8.
-    # Retest with glMultiDrawElements in use, HUNK_SIZE = 5000
+    # Retest with glMultiDrawElements drawing indexes in use, HUNK_SIZE = 5000
     # .  40,000 (200x200) spheres 52.8-54.4 FPS,  5,000 chunks of length 8.
     # .  90,000 (300x300) spheres 22.8-23.3 FPS, 11,250 chunks of length 8.
     # . 160,000 (400x400) spheres 13.5-15.2 FPS, 20,000 chunks of length 8.
+    #
+    # Retest with reworked halo/sphere shader, HUNK_SIZE = 5000     [setup time]
+    # .  17,424 (132x132) spheres 52.8-53.7 FPS,  2,178 chunks of length 8. [60]
+    # .  40,000 (200x200) spheres 29.3-30.4 FPS,  5,000 chunks of length 8.[156]
+    # .  90,000 (300x300) spheres 18.2-19.2 FPS, 11,250 chunks of length 8.[381]
+    # . 160,000 (400x400) spheres 10.2-11.6 FPS, 20,000 chunks of length 8.[747]
+    # Billboard drawing patterns instead of cubes, HUNK_SIZE = 5000 [setup time]
+    # .  17,424 (132x132) spheres 49.7-55.7 FPS,  2,178 chunks of length 8. [35]
+    # .  40,000 (200x200) spheres 39.6-40.8 FPS,  5,000 chunks of length 8. [88]
+    # .  90,000 (300x300) spheres 18.9-19.5 FPS, 11,250 chunks of length 8.[225]
+    # . 160,000 (400x400) spheres 11.2-11.7 FPS, 20,000 chunks of length 8.[476]
     #
     elif int(testCase) == 8:
         doTransforms = False
@@ -872,6 +885,8 @@ def test_drawing(glpane, initOnly = False):
             if USE_GRAPHICSMODE_DRAW:
                 print ("Use graphicsMode.Draw for DrawingSet in paintGL.")
                 pass
+
+            t1 = time.time()
 
             if doTransforms:
                 # Provide several TransformControls to test separate action.
@@ -943,6 +958,7 @@ def test_drawing(glpane, initOnly = False):
             if len(centers):
                 test_spheres += [chunkFn(centers, radii, colors)]
                 pass
+            print "Setup time", time.time() - t1, "seconds."
             print "%d chunk buffers" % len(test_spheres)
             pass
         elif not initOnly: # Run.
