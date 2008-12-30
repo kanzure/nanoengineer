@@ -11,14 +11,12 @@ History:
 """
 import foundation.env as env
 from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import QString
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from command_support.EditCommand_PM import EditCommand_PM
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
-from PM.PM_Constants     import PM_CANCEL_BUTTON
 from utilities.Comparison import same_vals
 from cnt.model.NanotubeSegment import getAllNanotubeSegmentsInPart
 
@@ -164,20 +162,16 @@ class BuildNanotube_PropertyManager(EditCommand_PM):
                 #update the nanotube list widget *before* updating the selection if 
                 #the command stack changed. This ensures that the selection box
                 #appears around the list widget items that are selected.
-                self.updateNanotubeListWidget()
+                self.updateNanotubesListWidget()
                 
             selectedNanotubeSegments = newSelectionParams    
             
             self.nanotubeListWidget.updateSelection(selectedNanotubeSegments) 
             
-            # Enable/disable "Edit Sequence" button.
-            if len(selectedNanotubeSegments) == 1:
-                self.editNanotubePropertiesButton.setEnabled(True)
-            else:
-                self.editNanotubePropertiesButton.setEnabled(False)
+            self.updateNanotubePropertiesButton()
             return
         
-        self.updateNanotubeListWidget()
+        self.updateNanotubesListWidget()
         return
     
     def _currentCommandStackParams(self):
@@ -326,9 +320,12 @@ class BuildNanotube_PropertyManager(EditCommand_PM):
         self.editNanotubePropertiesButton.setEnabled(False)
         return
     
-    def updateNanotubeListWidget(self):   
+    def updateNanotubesListWidget(self):   
         """
-        Update the nanotube list widget. It shows all nanotubes in the part.
+        Updates the nanotubes (selection) groupbox. This includes both the 
+        nanotube selection list widget (showing all nanotubes in the part) 
+        and the B{Edit Properties} button just below it (enabled if only 
+        one of the nanotubes is selected).
         """
         nanotubeSegmentList = getAllNanotubeSegmentsInPart(self.win.assy)
         
@@ -338,4 +335,15 @@ class BuildNanotube_PropertyManager(EditCommand_PM):
                 items = nanotubeSegmentList)
         else:           
             self.nanotubeListWidget.clear()
+        
+        self.updateNanotubePropertiesButton()
+        return
+    
+    def updateNanotubePropertiesButton(self):
+        """
+        Enables the B{Edit Properties} button if a single nanotube is currently 
+        selected. Otherwise, the button is disabled.
+        """
+        self.editNanotubePropertiesButton.setEnabled(
+            bool(self.win.assy.getSelectedNanotubeSegment()))
         return

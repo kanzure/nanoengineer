@@ -227,7 +227,7 @@ class EditNanotube_PropertyManager( DnaOrCnt_PropertyManager ):
                 self.type,
                 self.endings,
                 self.endPoint1, self.endPoint2)
-    
+        
     def _update_widgets_in_PM_before_show(self):
         """
         This is called only when user is editing an existing structure. 
@@ -236,7 +236,7 @@ class EditNanotube_PropertyManager( DnaOrCnt_PropertyManager ):
         @see: EditNanotube_EditCommand.editStructure()
         
         """
-        if self.command is not None and self.command.hasValidStructure():
+        if self.command and self.command.hasValidStructure():
             
             self.nanotube = self.command.struct.nanotube
             
@@ -244,18 +244,20 @@ class EditNanotube_PropertyManager( DnaOrCnt_PropertyManager ):
             self.type = self.nanotube.getType()
             self.endings = self.nanotube.getEndings()
             self.endPoint1, self.endPoint2 = self.nanotube.getEndPoints()
-            
-            # Note that _update_widgets_in_PM_before_show() is called in 
-            # self.show, before you connect the signals. So, for the 
-            # 'first show' we will need to manually set the value of any
-            # widgets that need updated. But later, when a different 
-            # NanotubeSegment is clicked, (while still in 
-            # EditNanotube_EditCommand, the propMgr will already be connected 
-            # so any calls in that case is redundant.
-            self.updateNameField()
-            self.updateLength()
-            self.updateNanotubeDiameter()
-            self.updateChirality()
+            pass
+        
+        # Note that _update_widgets_in_PM_before_show() is called in 
+        # self.show, before you connect the signals. So, for the 
+        # 'first show' we will need to manually set the value of any
+        # widgets that need updated. But later, when a different 
+        # NanotubeSegment is clicked, (while still in 
+        # EditNanotube_EditCommand, the propMgr will already be connected 
+        # so any calls in that case is redundant.
+        self.updateNameField()
+        self.updateLength()
+        self.updateNanotubeDiameter()
+        self.updateChirality()
+
         return
     
     def _update_UI_do_updates(self):
@@ -270,7 +272,7 @@ class EditNanotube_PropertyManager( DnaOrCnt_PropertyManager ):
             msg = "Editing structure <b>%s</b>." % \
                 self.command.getStructureName()
         else:
-            msg = "Select a single structure to edit."
+            msg = "Select a nanotube to edit."
         self.updateMessage(msg)
         return
         
@@ -366,31 +368,50 @@ class EditNanotube_PropertyManager( DnaOrCnt_PropertyManager ):
         Update the name field showing the name of the currently selected protein.
         clear the combobox list.
         """
-        self.nameLineEdit.setText(self.command.getStructureName())
+        
+        if self.command.hasValidStructure():
+            self.nameLineEdit.setEnabled(True)
+            self.nameLineEdit.setText(self.command.getStructureName())
+        else:
+            self.nameLineEdit.setDisabled(True)
+            self.nameLineEdit.setText("")
         return
     
     def updateLength( self ):
         """
         Update the nanotube Length lineEdit widget.
         """
-        nanotubeLength = vlen(self.endPoint1 - self.endPoint2)
-        text = "%-7.4f Angstroms" % (nanotubeLength)
-        self.ntLengthLineEdit.setText(text)
+        if self.command.hasValidStructure():
+            _nanotubeLength = vlen(self.endPoint1 - self.endPoint2)
+            _lengthText = "%-7.4f Angstroms" % (_nanotubeLength)
+        else:
+            _lengthText = ""
+        self.ntLengthLineEdit.setText(_lengthText)
         return
     
     def updateNanotubeDiameter(self):
         """
         Update the nanotube Diameter lineEdit widget.
         """
-        diameterText = "%-7.4f Angstroms" %  (self.nanotube.getDiameter())
-        self.ntDiameterLineEdit.setText(diameterText)
+        if self.command.hasValidStructure():
+            _diameterText = "%-7.4f Angstroms" %  (self.nanotube.getDiameter())
+        else:
+            _diameterText = ""
+        self.ntDiameterLineEdit.setText(_diameterText)
+        return
     
     def updateChirality( self ):
         """
         Update the nanotube chirality spinboxes (read-only).
         """
-        n, m = self.nanotube.getChirality()
+        if self.command.hasValidStructure():
+            n, m = self.nanotube.getChirality()
+        else:
+            n = 0
+            m = 0
         self.chiralityNSpinBox.setValue(n)
         self.chiralityMSpinBox.setValue(m)
         return
+    
+    pass # End of EditNanotube_PropertyManager class
         

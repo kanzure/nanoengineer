@@ -70,7 +70,7 @@ class BuildNanotube_EditCommand(EditCommand):
         """
         self.struct = None     
         self.existingStructForEditing = False
-        self.propMgr.updateNanotubeListWidget()
+        self.propMgr.updateNanotubesListWidget()
         return
 
     def keep_empty_group(self, group):
