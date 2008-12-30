@@ -37,7 +37,6 @@ from platform_dependent.PlatformDependent import hhmmss_str #bruce 060106 moved 
 import foundation.env as env
 from utilities.icon_utilities import geticon
 from utilities.icon_utilities import getpixmap
-from utilities.Log import redmsg #bruce 060208 fix bug in traceback printing re bug 1263 (doesn't fix 1263 itself)
 from utilities.qt4transition import qt4todo
 from utilities.debug import print_compact_traceback
 from widgets.GlobalDisplayStylesComboBox import GlobalDisplayStylesComboBox
@@ -45,11 +44,11 @@ from widgets.GlobalDisplayStylesComboBox import GlobalDisplayStylesComboBox
 class StatusBar(QStatusBar):
     def __init__(self, win):
         QStatusBar.__init__(self, win)
-        self.statusMsgLabel = QLabel()
+        self._progressLabel = QLabel()
     
-        self.statusMsgLabel.setMinimumWidth(200)
-        self.statusMsgLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.addPermanentWidget(self.statusMsgLabel)
+        self._progressLabel.setMinimumWidth(200)
+        self._progressLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.addPermanentWidget(self._progressLabel)
     
         self.progressBar = QProgressBar(win)
         self.progressBar.setMaximumWidth(250)
@@ -81,7 +80,32 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.selectionLockButton)
 
         self.abortableCommands = {}
+        
+        #bruce 081230 debug code:
+        ## self.connect(self, SIGNAL('messageChanged ( const QString &)'),
+        ##              self.slotMessageChanged )
 
+##     def slotMessageChanged(self, message): # bruce 081230 debug code
+##         print "messageChanged: %r" % str(message)
+    
+    def showMessage(self, text): #bruce 081230
+        """
+        [extends superclass method]
+        """
+        ## QStatusBar.showMessage(self, " ")
+        QStatusBar.showMessage(self, text)
+        ## print "message was set to %r" % str(self.currentMessage())
+        return
+    
+    def _f_progress_msg(self, text): #bruce 081229 refactoring
+        """
+        Friend method for use only by present implementation
+        of env.history.progress_msg. Display text in our
+        private label widget dedicated to progress messages.
+        """
+        self._progressLabel.setText(msg_text)
+        return
+    
     def makeCommandNameUnique(self, commandName):
         index = 1
         trial = commandName
@@ -181,6 +205,8 @@ class StatusBar(QStatusBar):
                     displayedElapsedTime = elapsedTime
                     env.history.progress_msg("Elapsed Time: " +
                                              hhmmss_str(displayedElapsedTime))
+                        # note: it's intentional that this doesn't directly call
+                        # self._f_progress_msg. [bruce 081229 comment]
 
             if abortHandler.getPressCount() > 0:
                 env.history.statusbar_msg("Aborted.")

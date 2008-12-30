@@ -589,12 +589,12 @@ class HistoryWidget:
         @type  msg_text: string
         
         @param repaint: Forces a repaint of the status bar with the new message.
-                        This doesn't work (see Bruce's comments in code).
+                        This doesn't work (see comments in code).
         @param repaint: boolean
         """
         win = env.mainwindow()
         sbar = win.statusBar()
-
+        
         if msg_text:
             sbar.showMessage(msg_text)
         else:
@@ -608,9 +608,16 @@ class HistoryWidget:
         return
     
     def progress_msg(self, msg_text): # Bug 1343, wware 060310
+        """
+        Display and/or record a progress message in an appropriate place.
+        
+        @note: for now, the place is always a dedicated label in the statusbar,
+               and these messages are never recorded. In the future this might
+               be revised based on user prefs.
+        """
         win = env.mainwindow()
         statusBar = win.statusBar()
-        statusBar.statusMsgLabel.setText(msg_text)
+        statusBar._f_progress_msg(msg_text) #bruce 081229 refactoring
     
     def widget_msg(self, msg, options):
         #e improved timestamp?

@@ -964,27 +964,39 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
         if new_selobj_unknown:
             # Only the next paintGL call can figure out the selobj (in general),
-            # so set glpane.glselect_wanted to the command to do that and the necessary info for doing it.
+            # so set glpane.glselect_wanted to the command to do that and the 
+            # necessary info for doing it.
             # Note: it might have been set before and not yet used;
             # if so, it's good to discard that old info, as we do.
             glpane.glselect_wanted = (wX, wY, wZ) # mouse pos, depth
-                ###e and soon, instructions about whether to highlight selobj based on its type (as predicate on selobj)
+                ###e and soon, instructions about whether to highlight selobj
+                # based on its type (as predicate on selobj)
                 ###e should also include current count of number of times
                 # glupdate was ever called because model looks different,
-                # and inval these instrs if that happens again before they are used
-                # (since in that case wZ is no longer correct)
-            # don't change glpane.selobj (since it might not even need to change) (ok??#k) -- the next paintGL will do that --
-            # UNLESS the current mode wants us to change it [new feature, bruce 061218, perhaps a temporary kluge, but helps
-            #  avoid a logic bug in this code, experienced often in testmode due to its slow redraw]
+                # and inval these instrs if that happens again before they
+                # are used (since in that case wZ is no longer correct)
+                
+                # [addendum, bruce 081230: this is nonmodular -- we should call
+                #  a glpane method to set that, and make it private.]
+                
+            # don't change glpane.selobj (since it might not even need to 
+            # change) (ok??#k) -- the next paintGL will do that --
+            # UNLESS the current mode wants us to change it 
+            # [new feature, bruce 061218, perhaps a temporary kluge, but helps
+            #  avoid a logic bug in this code, experienced often in testmode 
+            #  due to its slow redraw]
             #
-            # Note: I'm mostly guessing that this should be found in (and unique to) graphicsMode
-            # rather than currentCommand, in spite of being set only in testmode by current code.
+            # Note: I'm mostly guessing that this should be found in 
+            # (and unique to) graphicsMode rather than currentCommand, 
+            # in spite of being set only in testmode by current code.
             # That does make this code simpler, since graphicsMode is self.
-            # [bruce 071010, same comment and change done in both duplications of this code, and in other places]
+            # [bruce 071010, same comment and change done in both duplications
+            #  of this code, and in other places]
             if hasattr(self, 'UNKNOWN_SELOBJ'):
-                # TODO: document the motivation for this [bruce 081211 comment]
+                # for motivation, see comment above, dated 061218
                 glpane.selobj = getattr(self, 'UNKNOWN_SELOBJ')
                 ## print "\n*** changed glpane.selobj from %r to %r" % (orig_selobj, glpane.selobj)
+            
             glpane.gl_update_for_glselect()
         else:
             # it's known (to be a specific object or None)
