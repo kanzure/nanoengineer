@@ -948,40 +948,45 @@ void main(void) {  // Fragment (pixel) shader procedure.
   }
 
   // No shading or lighting on halos.
-  if (plane_closest_dist_sq > var_radius_sq)
-    return;   // **Exit** we are done with a halo pixel.
+  //// The nVidia 7600GS does not allow return in a conditional.
+  ////   if (plane_closest_dist_sq > var_radius_sq)
+  ////     return;   // **Exit** we are done with a halo pixel.
+  //// Instead of an early return for halo pixels, invert the condition
+  //// and skip the last part of the fragment shader.
+  if (plane_closest_dist_sq <= var_radius_sq) {
 
-  // Shading control, from the material and lights.
-  float ambient = material[0];
+    // Shading control, from the material and lights.
+    float ambient = material[0];
 
-  // Accumulate diffuse and specular contributions from the lights.
-  float diffuse = 0.0;
-  diffuse += max(0.0, dot(normal, light0)) * intensity[0];
-  diffuse += max(0.0, dot(normal, light1)) * intensity[1];
-  diffuse += max(0.0, dot(normal, light2)) * intensity[2];
-  diffuse += max(0.0, dot(normal, light3)) * intensity[3];
-  diffuse *= material[1]; // Diffuse intensity.
+    // Accumulate diffuse and specular contributions from the lights.
+    float diffuse = 0.0;
+    diffuse += max(0.0, dot(normal, light0)) * intensity[0];
+    diffuse += max(0.0, dot(normal, light1)) * intensity[1];
+    diffuse += max(0.0, dot(normal, light2)) * intensity[2];
+    diffuse += max(0.0, dot(normal, light3)) * intensity[3];
+    diffuse *= material[1]; // Diffuse intensity.
 
-  // Blinn highlight location, halfway between the eye and light vecs.
-  // Phong highlight intensity: Cos^n shinyness profile.  (Unphysical.)
-  float specular = 0.0;
-  float shininess = material[3];
-  specular += pow(max(0.0, dot(normal, light0H)), shininess) * intensity[0];
-  specular += pow(max(0.0, dot(normal, light1H)), shininess) * intensity[1];
-  specular += pow(max(0.0, dot(normal, light2H)), shininess) * intensity[2];
-  specular += pow(max(0.0, dot(normal, light3H)), shininess) * intensity[3];
-  specular *= material[2]; // Specular intensity.
+    // Blinn highlight location, halfway between the eye and light vecs.
+    // Phong highlight intensity: Cos^n shinyness profile.  (Unphysical.)
+    float specular = 0.0;
+    float shininess = material[3];
+    specular += pow(max(0.0, dot(normal, light0H)), shininess) * intensity[0];
+    specular += pow(max(0.0, dot(normal, light1H)), shininess) * intensity[1];
+    specular += pow(max(0.0, dot(normal, light2H)), shininess) * intensity[2];
+    specular += pow(max(0.0, dot(normal, light3H)), shininess) * intensity[3];
+    specular *= material[2]; // Specular intensity.
 
-  // Do not do lighting while drawing glnames, just pass the values through.
-  if (draw_for_mouseover == 1)
-    gl_FragColor = var_basecolor;
-  else if (drawing_style == DS_OVERRIDE_COLOR)
-    // Highlighting looks 'special' without shinyness.
-    gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient),
-                        1.0);
-  else
-    gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient) +
-                          vec3(specular),   // White highlights.
-                        var_basecolor.a * override_opacity);
+    // Do not do lighting while drawing glnames, just pass the values through.
+    if (draw_for_mouseover == 1)
+      gl_FragColor = var_basecolor;
+    else if (drawing_style == DS_OVERRIDE_COLOR)
+      // Highlighting looks 'special' without shinyness.
+      gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient),
+                          1.0);
+    else
+      gl_FragColor = vec4(var_basecolor.rgb * vec3(diffuse + ambient) +
+                            vec3(specular),   // White highlights.
+                          var_basecolor.a * override_opacity);
+  }
 }
 """
