@@ -302,6 +302,10 @@ class GLPane(
             # needed here? (Guess yes, to set needs_repaint flag)
         return
 
+    _defer_statusbar_msg = False
+    _deferred_msg = None
+    _selobj_statusbar_msg = " "
+    
     def paintGL(self):
         """
         [PRIVATE METHOD -- call gl_update instead!]
@@ -367,6 +371,14 @@ class GLPane(
             print
             print "calling paintGL"
         
+        #bruce 081230 part of a partial workaround for bug 2964
+        # (statusbar not updated by hover highlighted object, on Mac OS 10.5.5-6)
+        self._defer_statusbar_msg = True
+        self._deferred_msg = None
+        glselect_was_wanted = self.glselect_wanted 
+            # note: self.glselect_wanted is defined and used in a mixin class
+            # in another file; review: can this be more modular?
+        
         painted_anything = self._paintGL()
             # _paintGL method is defined in GLPane_rendering_methods
             # (probably paintGL itself would work fine if defined there --
@@ -409,6 +421,23 @@ class GLPane(
         ##     print " *** BUG: autoBufferSwap is off"
         # but it never printed, so there is no bug there
         # when the above-mentioned bug in swapBuffers occurs.
+        
+        #bruce 081230 part of a partial workaround for bug 2964
+        self._defer_statusbar_msg = False
+        if self._deferred_msg is not None:
+            # do this now rather than inside set_selobj (re bug 2964)
+            env.history.statusbar_msg( self._deferred_msg)
+        elif glselect_was_wanted:
+            # This happens when the same selobj got found again;
+            # this is common when rulers are on, and rare but happens otherwise
+            # (especially when moving mouse slowly from one selobj to another);
+            # when it happens, I think we need to use this other way to get the
+            # desired message out. Review: could we simplify by making
+            # this the *only* way, or would that change the interaction
+            # between this code and unrelated sources of statusbar_msg calls
+            # whose messages we should avoid overriding unless selobj changes?
+            env.history.statusbar_msg( self._selobj_statusbar_msg )
+            pass
             
         self._resize_just_occurred = False
 
@@ -1005,7 +1034,12 @@ class GLPane(
             else:
                 msg = " "
 
-            env.history.statusbar_msg(msg)
+            self._selobj_statusbar_msg = msg #bruce 081230 re bug 2964
+            
+            if self._defer_statusbar_msg:
+                self._deferred_msg = msg #bruce 081230 re bug 2964
+            else:
+                env.history.statusbar_msg(msg)
 
             if pref_show_highlighting_in_MT():
                 # help the model tree highlight the nodes containing selobj

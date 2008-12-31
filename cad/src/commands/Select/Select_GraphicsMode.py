@@ -997,6 +997,8 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                 glpane.selobj = getattr(self, 'UNKNOWN_SELOBJ')
                 ## print "\n*** changed glpane.selobj from %r to %r" % (orig_selobj, glpane.selobj)
             
+            env.history.statusbar_msg(" ") #bruce 081230 partly work around bug 2964
+            
             glpane.gl_update_for_glselect()
         else:
             # it's known (to be a specific object or None)
