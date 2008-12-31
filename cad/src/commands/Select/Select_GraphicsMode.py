@@ -997,7 +997,14 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                 glpane.selobj = getattr(self, 'UNKNOWN_SELOBJ')
                 ## print "\n*** changed glpane.selobj from %r to %r" % (orig_selobj, glpane.selobj)
             
-            env.history.statusbar_msg(" ") #bruce 081230 partly work around bug 2964
+            #bruce 081230 part of fix for bug 2964 -- repaint the status bar
+            # now, to work around a Qt or Mac OS bug (of unknown cause) which
+            # otherwise might prevent it from being repainted later when
+            # we store a message about a new selobj (in set_selobj or at the
+            # end of paintGL). We need both lines to make sure this actually
+            # repaints it now, even if the prior message was " " or "".
+            env.history.statusbar_msg("") 
+            env.history.statusbar_msg(" ") 
             
             glpane.gl_update_for_glselect()
         else:

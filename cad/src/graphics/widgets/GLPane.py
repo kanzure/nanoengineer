@@ -371,7 +371,7 @@ class GLPane(
             print
             print "calling paintGL"
         
-        #bruce 081230 part of a partial workaround for bug 2964
+        #bruce 081230 part of a fix for bug 2964
         # (statusbar not updated by hover highlighted object, on Mac OS 10.5.5-6)
         self._defer_statusbar_msg = True
         self._deferred_msg = None
@@ -422,7 +422,7 @@ class GLPane(
         # but it never printed, so there is no bug there
         # when the above-mentioned bug in swapBuffers occurs.
         
-        #bruce 081230 part of a partial workaround for bug 2964
+        #bruce 081230 part of a fix for bug 2964
         self._defer_statusbar_msg = False
         if self._deferred_msg is not None:
             # do this now rather than inside set_selobj (re bug 2964)
