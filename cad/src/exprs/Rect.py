@@ -1,8 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Rect.py -- provide Rect, RectFrame, and other simple 2d shapes
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 These are prototypes with imperfect arg syntaxes.
 

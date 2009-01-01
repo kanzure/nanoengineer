@@ -57,7 +57,10 @@ changes._debug_standard_inval_twice_stack = False
 
 # == local imports with reload
 
-from exprs.Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, SpacerFor, PartialDisk
+from exprs.Rect import Rect, RectFrame, IsocelesTriangle, Spacer, SpacerFor
+from exprs.Rect import Sphere, PartialDisk
+
+from exprs.ColorCube import ColorCube
 
 from exprs.Column import SimpleColumn, SimpleRow # no longer includes still-nim Column itself [070129]
 
@@ -1575,13 +1578,15 @@ testexpr_37 = our_testexpr
 
 testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parameters
 
+testexpr_39 = ColorCube()
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 #e see also the _recent_tests system... should we use the most recent test instead? or have a setting for this var which means that?
 
 enable_testbed = True
 
-testexpr = testexpr_35b ### testexpr_11pd5a # testexpr_36f # testexpr_38 # testexpr_30i # testexpr_37
+testexpr = testexpr_39 ## testexpr_35b ### testexpr_11pd5a # testexpr_36f # testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui
