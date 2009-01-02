@@ -11,12 +11,35 @@ todo: refile some or all of this out of this specific command?
 
 class GraphicsTestCase(object):
     """
+    abstract class for a test case for Test Graphics Performance command
     """
-    def __init__(self):
+    
+    # == setup-like methods
+    
+    def __init__(self, *params):
         """
-        abstract class for a test case for Test Graphics Performance command
+        @param params: optional, arbitrary parameters to be used by the test case.
         """
+        self._params = params
+        # REVIEW: if we insist on passing these to __init__,
+        # do we still need activate/deactivate methods? Guess: yes,
+        # but we simplify their semantics by not worrying about
+        # whether to call them when params changed
+        # (since we always use a new instance then).
         return
+    
+    def current_params(self):
+        """
+        Return the test case parameters, 
+        as a tuple of the args passed to self.__init__.
+        """
+        # review: use copy_val?
+        return self._params
+    
+    def __str__(self):
+        shortname = self.__class__.__name__.split('.')[-1]
+        return "%s%r" % (shortname, self._params)
+
     def activate(self):
         """
         Make sure this instance is ready to be used immediately.
@@ -34,12 +57,22 @@ class GraphicsTestCase(object):
         in a way depended on by self.draw.)
         """
         return
+    
+    # == deallocation-like methods
+    
+    def destroy(self):
+        """
+        """
+        self.deactivate()
+        return
+    
     def deactivate(self):
         """
         Optimize for not planning to reuse this instance for awhile.
         """
         self.clear_caches()
         return
+    
     def clear_caches(self):
         """
         Deallocate whatever caches this instance owns
@@ -47,7 +80,9 @@ class GraphicsTestCase(object):
         without preventing further uses of this instance.
         """
         return
+    
     # == drawing methods
+    
     def draw_complete(self):
         """
         Do all drawing for self for one frame.
@@ -59,6 +94,7 @@ class GraphicsTestCase(object):
         self.draw()
         self._draw_drawingsets()
         return
+    
     def draw(self): # review: rename? this name is 
         """
         Run whatever immediate-mode OpenGL code is required,
@@ -71,6 +107,7 @@ class GraphicsTestCase(object):
         # it may be clear when seen from the point of view of graphics leaf nodes
         # rather than for rendering loop test cases as this class API is meant for.
         return
+    
     def _draw_drawingsets(self):
         """
         subclass API method, for a complete test container
@@ -78,6 +115,7 @@ class GraphicsTestCase(object):
         """
         assert 0, "implement in subclass"
         return
+    
     pass
 
 # end

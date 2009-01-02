@@ -24,8 +24,8 @@ _NUM_DRAWINGSETS = 5
 
 _PROBABILITY_OF_MOVE = 0.2
 
-_NUM_CSDLS_X = 10
-_NUM_CSDLS_Y = 10
+## _NUM_CSDLS_X = 10 # this is now a local variable from a test parameter
+## _NUM_CSDLS_Y = 10
 _NUM_SPHERES_PER_CSDL = 5
 
 # ==
@@ -71,6 +71,8 @@ class CSDL_holder(object):
 
 class test_selection_redraw(GraphicsTestCase):
     """
+    test case for frequent moving of CSDLs between DrawingSets:
+    
     Exercise graphics similar to selection/deselection, rapid change of highlighting, etc,
     by moving CSDLs rapidly between several DrawingSets drawn in different styles.
     
@@ -88,7 +90,10 @@ class test_selection_redraw(GraphicsTestCase):
     # I get about 20 msec per frame 
     # (or 44 msec if 'Use batched primitive shaders?' is turned off).
     # But this is only 500 spheres, far less than realistic.
-    def __init__(self):
+    def __init__(self, *params):
+        GraphicsTestCase.__init__(self, *params) 
+            ### review: split into __init__ and setup methods? or use activate for the following?
+        _NUM_CSDLS_X = _NUM_CSDLS_Y = self._params[0]
         # set up a lot of CSDLs, in wrappers that know which DrawingSet they're in (initially None)
         self._csdls = [ CSDL_holder((i % _NUM_CSDLS_X) - (_NUM_CSDLS_X - 1) / 2.0, 
                                     ((i / _NUM_CSDLS_X) % _NUM_CSDLS_Y) - (_NUM_CSDLS_Y - 1) / 2.0,

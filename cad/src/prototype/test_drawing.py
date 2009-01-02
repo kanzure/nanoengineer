@@ -224,7 +224,7 @@ def delete_caches():
     test_spheres = None
     test_DrawingSet = None
     if test_Object:
-        test_Object.deactivate()
+        test_Object.destroy()
     test_Object = None
 
     C_array = None
@@ -1004,12 +1004,19 @@ def test_drawing(glpane, initOnly = False):
         # before making more of these, modularize it somehow
         from commands.TestGraphics.test_selection_redraw import test_selection_redraw
         test_class = test_selection_redraw
-        if test_Object is None or not isinstance(test_Object, test_class):
+        params = ( nSpheres, ) 
+            # note: test size is not directly comparable to other tests with same value of nSpheres
+        if test_Object is None \
+           or not isinstance(test_Object, test_class) \
+           or test_Object.current_params() != params: # review: same_vals?
             # Setup.
-            test_Object = test_class()
+            if test_Object:
+                test_Object.destroy()
+            test_Object = test_class(*params)
             test_Object.activate()
+            print test_Object
             pass
-        # review: if or elif?
+        # review: safe to change elif to if? not sure, GL state is only initialized below
         elif not initOnly: # Run.
             test_Object.draw_complete()
             pass
