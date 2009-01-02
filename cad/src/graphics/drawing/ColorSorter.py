@@ -67,14 +67,18 @@ from OpenGL.GL import GL_SRC_ALPHA
 from OpenGL.GL import GL_TRUE
 
 import foundation.env as env
-from utilities.prefs_constants import selectionColor_prefs_key
+
 from graphics.drawing.gl_lighting import isPatternedDrawing
 from graphics.drawing.gl_lighting import startPatternedDrawing
 from graphics.drawing.gl_lighting import endPatternedDrawing
+
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
 from utilities.prefs_constants import HHS_HALO
 from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import SS_HALO
+
 from utilities.debug import print_compact_traceback
 
 import graphics.drawing.drawing_globals as drawing_globals
@@ -865,13 +869,14 @@ class ColorSorter:
 
     start = staticmethod(start)
 
-    def finish():
+    def finish(draw_now = True):
         """
-        Finish sorting -- objects recorded since"start" will be sorted and
-        invoked now.  If there's no CSDL, we're in all-in-one-display-list mode,
+        Finish sorting -- objects recorded since "start" will be sorted and
+        invoked now. If there's no CSDL, we're in all-in-one-display-list mode,
         which is still a big speedup over plain immediate-mode drawing.
         """
         if not ColorSorter.sorting:
+            assert draw_now, "finish(draw_now = False) makes no sense unless ColorSorter.sorting"
             return                      # Plain immediate-mode, nothing to do.
 
         from utilities.debug_prefs import debug_pref, Choice_boolean_False
@@ -1102,11 +1107,12 @@ class ColorSorter:
             pass
         ColorSorter.sorting = False
 
-        # Draw the newly-built display list, and any shader primitives as well.
-        if parent_csdl is not None:
-            parent_csdl.draw(
-                # Use either the normal-color display list or the selected one.
-                selected = parent_csdl.selected)
+        if draw_now:
+            # Draw the newly-built display list, and any shader primitives as well.
+            if parent_csdl is not None:
+                parent_csdl.draw(
+                    # Use either the normal-color display list or the selected one.
+                    selected = parent_csdl.selected)
         return
 
     finish = staticmethod(finish)
