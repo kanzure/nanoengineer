@@ -1578,7 +1578,8 @@ testexpr_37 = our_testexpr
 
 testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parameters
 
-testexpr_39 = ColorCube()
+testexpr_39 = ColorCube() # takes about 10-12 msec to draw [bruce 090102]
+testexpr_39a = DisplayListChunk(ColorCube()) # takes (very roughly) 0.5 msec to draw [bruce 090102]
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
@@ -1586,7 +1587,7 @@ testexpr_39 = ColorCube()
 
 enable_testbed = True
 
-testexpr = testexpr_39 ## testexpr_35b ### testexpr_11pd5a # testexpr_36f # testexpr_38 # testexpr_30i # testexpr_37
+testexpr = testexpr_39a ## testexpr_35b ### testexpr_11pd5a # testexpr_36f # testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui
@@ -1955,7 +1956,15 @@ debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -
         ##Highlightable(DisplayListChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )), 
         ## DisplayListChunk (Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
         # 070124 just don't use a displist, since it'd be remade on every draw anyway (except for glselect and main in same-counted one)
-        Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ),
+        ## Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ),
+        # 090102 split into pieces to optimize, since old form is very slow -- about 100 msec extra per frame!!! (143 msec vs 36.5 msec for entire frame)
+        # (perhaps it got slower on my current Mac, though most things got faster there?)
+        # Just removing outer CenterY sped it up to about 117 msec for entire frame, i.e. removed 26 msec from this!
+        # Then splitting it into two TextRects in a Row, one in a DisplayListChunk, changed it to total 107, i.e. removed 10 more msec.
+        # (So either the CenterY was the slowness not the TextRect, or, the extra SimpleRow computations use up most of the savings.)
+        # But it still costs (107 - 36.5 == 70.5) msec per frame to turn this on!!  
+        Highlightable( SimpleRow(DisplayListChunk(TextRect("current redraw ")), 
+                           TextRect( format_Expr("%r", _app.redraw_counter)) ) ),
             # should be properly usage/change tracked
             # note: used to have continuous redraw bug, never yet fully understood...
             # after checking the checkbox above, the bug showed up only after the selobj changes away from that checkbox.
