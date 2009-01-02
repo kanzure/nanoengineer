@@ -40,6 +40,7 @@ AVAILABLE_TEST_CASES_DICT = {
     8: "",
     8.1: "",
     8.2: "",
+    100: "test_selection_redraw",
  }
 AVAILABLE_TEST_CASES_ITEMS = AVAILABLE_TEST_CASES_DICT.items()
 AVAILABLE_TEST_CASES_ITEMS.sort()
@@ -62,6 +63,11 @@ def test_Draw(glpane):
         shader = drawing_globals.sphereShader
         shader.configShader(glpane)
         test_DrawingSet.draw()
+    elif int(testCase) >= 100:
+        #bruce 090102
+        shader = drawing_globals.sphereShader
+        shader.configShader(glpane)
+        test_Object.draw_complete()
         pass
     return
 
@@ -192,6 +198,8 @@ from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 import time
 from math import sin, pi, fmod, floor
 
+test_Object = None
+
 def delete_caches():
     """
     External code which modifies certain parameters (e.g. testCase, nSpheres)
@@ -201,7 +209,7 @@ def delete_caches():
     # should it contain _USE_SHADERS?
     # Ideally we'd refactor this whole file so each testCase was its own class,
     # with instances containing the cached objects and draw methods.
-    global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres, test_DrawingSet
+    global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres, test_DrawingSet, test_Object
     global C_array, start_pos, first_time
 
     test_csdl = None
@@ -211,6 +219,9 @@ def delete_caches():
     test_vbo = None
     test_spheres = None
     test_DrawingSet = None
+    if test_Object:
+        test_Object.deactivate()
+    test_Object = None
 
     C_array = None
 
@@ -297,7 +308,7 @@ def test_drawing(glpane, initOnly = False):
         pass
 
     global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres
-    global test_DrawingSet
+    global test_DrawingSet, test_Object
 
     # See below for test case descriptions and timings on a MacBook Pro.
     # The Qt event toploop in NE1 tops out at about 60 frames-per-second.
@@ -983,6 +994,20 @@ def test_drawing(glpane, initOnly = False):
                 test_DrawingSet.draw()
                 pass
 
+            pass
+        pass
+    elif testCase == 100: #bruce 090102
+        # before making more of these, modularize it somehow
+        from commands.TestGraphics.test_selection_redraw import test_selection_redraw
+        test_class = test_selection_redraw
+        if test_Object is None or not isinstance(test_Object, test_class):
+            # Setup.
+            test_Object = test_class()
+            test_Object.activate()
+            pass
+        # review: if or elif?
+        elif not initOnly: # Run.
+            test_Object.draw_complete()
             pass
         pass
 
