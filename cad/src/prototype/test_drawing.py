@@ -1,10 +1,14 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-test_drawing.py -- Replaces GLPane.paintGL() to try various OpenGL rendering
-models, determine whether the performance bottleneck is in OpenGL, Qt, or
-somewhere else, and find a better alternative.
+test_drawing.py -- replaces or augments GLPane.paintGL() to try various 
+OpenGL rendering models, determine whether the performance bottleneck is 
+in OpenGL, Qt, or somewhere else, and find a better alternative.
 
-It simply renders an array of n^2 unit spheres, n by n.
+@author: Russ
+@version: $Id$
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
+
+Initial version simply renders an array of n^2 unit spheres, n by n.
 
 To turn it on, enable TEST_DRAWING at the start of
 graphics/widgets/GLPane_rendering_methods.py.

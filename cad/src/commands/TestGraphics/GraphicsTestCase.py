@@ -1,6 +1,6 @@
 # Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-GraphicsTestCase.py
+GraphicsTestCase.py - abstract class for a test case for Test Graphics Performance
 
 @author: Bruce
 @version: $Id$
@@ -14,6 +14,7 @@ class GraphicsTestCase(object):
     """
     def __init__(self):
         """
+        abstract class for a test case for Test Graphics Performance command
         """
         return
     def activate(self):

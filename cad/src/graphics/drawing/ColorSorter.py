@@ -1,29 +1,24 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-ColorSorter.py - A class to group primitive drawing by colors.
+ColorSorter.py - A set of primitives to be drawn as a unit,
+under runtime-determined drawing styles
 
-This was originally done as a GL optimization to minimize calls on
-apply_material.
-
-Later, it was extended to handle multiple display lists per Chunk object as an
-optimization to avoid rebuilding a single display list when the appearance of
-the object changes for hover-highlighting and selection.
-
+@author: Grantham, Russ
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
-Originated by Josh as drawer.py .
+This was originally written by Brad Grantham (as part of drawer.py)
+as a GL optimization to minimize calls on apply_material, 
+by sorting primitives into display lists based on color.
 
-Various developers extended it since then.
+Later, it was repurposed by Russ to support runtime-determined drawing styles
+and to permit some primitives to be drawn using GLSL shaders.
 
-Brad G. added ColorSorter features.
-
-At some point Bruce partly cleaned up the use of display lists.
-
-071030 bruce split some functions and globals into draw_grid_lines.py
-and removed some obsolete functions.
+For early details see drawer.py history. More recent details are here
+(though some of them cover the time before drawer.py was split
+and might be redundant with drawer.py history):
 
 080210 russ Split the single display-list into two second-level lists (with and
 without color) and a set of per-color sublists so selection and hover-highlight
@@ -42,6 +37,8 @@ objects (e.g. rainbow colored DNA structures).
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
 ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
+
+08xxxx russ added shader support
 """
 
 from OpenGL.GL import GL_BLEND
