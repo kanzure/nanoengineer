@@ -47,8 +47,8 @@ def facenormal(face):
     return face[0] * face[1]
 
 def faceverts(face):
-    perp2, perp1 = face[2], face[3]
-    for signs in [(-1, -1), (-1, 1), (1, 1), (1, -1)]:
+    perp1, perp2 = face[2], face[3]
+    for signs in [(-1, -1), (1, -1), (1, 1), (-1, 1)]:
         yield signs[0] * perp1 + signs[1] * perp2 + facenormal(face)
     return
 
