@@ -439,7 +439,7 @@ def setup_drawer():
     initial_choice = choices[
         drawing_globals.use_batched_primitive_shaders_default]
     drawing_globals.use_batched_primitive_shaders_pref = debug_pref(
-        "Use batched primitive shaders?", initial_choice,
+        "Use batched primitive shaders? (next session)", initial_choice,
         prefs_key = drawing_globals.use_batched_primitive_shaders_prefs_key)
 
     #russ 080403: Added drawing variant selection
