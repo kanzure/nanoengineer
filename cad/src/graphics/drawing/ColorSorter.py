@@ -290,6 +290,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
             # Cache a drawing index for just the primitives in this CSDL.
             if self.drawIndex is None:
+                ## print "makeDrawIndex for %d spheres in %r" % (len(self.spheres), self)
                 self.drawIndex = prims.makeDrawIndex(self.spheres)
                 pass
             pass
@@ -554,7 +555,7 @@ class ColorSorter:
     _add_to_sorter = staticmethod(_add_to_sorter)
 
 
-    def schedule(color, func, params):
+    def schedule(color, func, params): # staticmethod
         if ColorSorter.sorting and drawing_globals.allow_color_sorting:
 
             ColorSorter._add_to_sorter(color, func, params)
@@ -631,7 +632,8 @@ class ColorSorter:
                       "unexpected different sphere LOD levels within same frame"
             ColorSorter.sphereLevel = detailLevel
             pass
-        else: # Older sorted material rendering
+        else: 
+            # Non-C-coded material rendering (might be sorted and/or use shaders)
             vboLevel = drawing_globals.use_drawing_variant
             sphereBatches = drawing_globals.use_batched_primitive_shaders
             if vboLevel == 6 and not sphereBatches:
@@ -653,6 +655,7 @@ class ColorSorter:
             if sphereBatches and ColorSorter._parent_csdl: # Russ 080925: Added.
                 # Collect lists of primitives in the CSDL, rather than sending
                 # them down through the ColorSorter schedule methods into DLs.
+                assert ColorSorter.sorting # since _parent_csdl is present
                 ColorSorter._parent_csdl.addSphere(
                     pos, radius, lcolor,
                     ColorSorter._parent_csdl.transform_id(),
@@ -808,7 +811,7 @@ class ColorSorter:
 
     schedule_triangle_strip = staticmethod(schedule_triangle_strip)
 
-    def start(csdl, pickstate = None):
+    def start(csdl, pickstate = None): # staticmethod
         """
         Start sorting - objects provided to "schedule" and primitives such as
         "schedule_sphere" and "schedule_cylinder" will be stored for a sort at
@@ -821,12 +824,13 @@ class ColorSorter:
         """
 
         #russ 080225: Moved glNewList here for displist re-org.
-        ColorSorter._parent_csdl = csdl  # Remember, used by finish().
+        assert ColorSorter._parent_csdl is None #bruce 090105
+        ColorSorter._parent_csdl = csdl  # used by finish()
         if pickstate is not None:
             csdl.selectPick(pickstate)
             pass
 
-        if csdl != None:
+        if csdl is not None:
             # Russ 080915: This supports lazily updating drawing caches.
             csdl.changed = drawing_globals.eventStamp()
 
@@ -866,7 +870,7 @@ class ColorSorter:
 
     start = staticmethod(start)
 
-    def finish(draw_now = True):
+    def finish(draw_now = True): # staticmethod
         """
         Finish sorting -- objects recorded since "start" will be sorted and
         invoked now. If there's no CSDL, we're in all-in-one-display-list mode,
@@ -882,6 +886,10 @@ class ColorSorter:
             Choice_boolean_False) #bruce 060314, imperfect but tolerable
 
         parent_csdl = ColorSorter._parent_csdl
+        ColorSorter._parent_csdl = None
+            # this must be done sometime before we return;
+            # it can be done here, since nothing in this method after this
+            # should use it directly or add primitives to it [bruce 090105]
         if drawing_globals.use_c_renderer:
             quux.shapeRendererInit()
             if debug_which_renderer:
@@ -1154,3 +1162,5 @@ class ColorSorter:
     draw_sorted = staticmethod(draw_sorted)
 
     pass # End of class ColorSorter.
+
+# end
