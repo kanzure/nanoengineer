@@ -91,7 +91,10 @@ class GLPane_highlighting_methods(object):
         drawing for shader primitives, used to guess which object
         might be under the mouse, for one drawing frame,
         if desired for this frame. Report results by storing candidate
-        mouseover objects in self.glselect_dict.
+        mouseover objects in self.glselect_dict. 
+        
+        The depth buffer is initially clear, and must be clear
+        when we're done as well.
 
         @note: does not do related individual object depth/stencil 
                buffer drawing -- caller must do that on some or all
@@ -158,7 +161,7 @@ class GLPane_highlighting_methods(object):
                 glWindowPos3i(wX, wY, 1) # Note the Z coord.
                 gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
                 glDrawPixels(pwSize, pwSize, gl_format, gl_type, (0, 0, 0, 0))
-                glDepthFunc(saveDepthFunc)
+                glDepthFunc(saveDepthFunc) # needed, though we'll change it again
                 
                 # We must be in glRenderMode(GL_RENDER) (as usual) when this is called.
                 # Note: _setup_projection leaves the matrix mode as GL_PROJECTION.
@@ -179,6 +182,12 @@ class GLPane_highlighting_methods(object):
                         self._enable_stereo(stereo_image)
                         try:
                             self.graphicsMode.Draw()
+                                # note: we can't disable depth writing here, 
+                                # since we need it to make sure the correct 
+                                # shader object comes out on top, or is
+                                # obscured by a DL object. Instead, we'll
+                                # clear the depth buffer again (at this pixel)
+                                # below. [bruce 090105]
                         finally:
                             self._disable_stereo()
                 except:
@@ -202,6 +211,22 @@ class GLPane_highlighting_methods(object):
                     # REVIEW: is this glFinish needed? [bruce 090105 comment]
                 rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
                 pixZ = glReadPixelsf( wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
+                
+                # Clear our depth pixel to 1.0 (far), so we won't mess up the
+                # subsequent call of preDraw_glselect_dict.
+                # (The following is not the most direct way, but it ought to work.
+                #  Note that we also clear the color pixel, since (being a glname)
+                #  it has no purpose remaining in the color buffer -- either it's 
+                #  changed later, or, if not, that's a bug, but we'd rather have
+                #  it black than a random color.) [bruce 090105 bugfix]
+                glDepthFunc(GL_ALWAYS)
+                glWindowPos3i(wX, wY, 1) # Note the Z coord.
+                glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
+                gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
+                glDrawPixels(pwSize, pwSize, gl_format, gl_type, (0, 0, 0, 0))
+                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+                glDepthFunc(saveDepthFunc)
+
                 # Comes back sign-wrapped, in spite of specifying UNSIGNED_BYTE.
                 def us(b):
                     if b < 0: 
@@ -216,7 +241,7 @@ class GLPane_highlighting_methods(object):
                            "Z %f, glname 0x%x" % (pixZ, glname))
                     pass
                 
-                ### XXX These need to be merged with the DL selection below.
+                ### XXX This ought to be better-merged with the DL selection below.
                 if glname:
                     obj = self.object_for_glselect_name(glname)
                     if debugPicking:
@@ -503,6 +528,16 @@ class GLPane_highlighting_methods(object):
         return # from draw_highlighted_objectUnderMouse
     
     def preDraw_glselect_dict(self): #bruce 050609
+        """
+        Assume the depth buffer is clear.
+        Draw each object in self.glselect_dict (in a certain order)
+        (drawing them into depth buffer only) and measure its depth, 
+        until you find one near (undeep) enough (at the target pixel)
+        to account for the target depth (self.targetdepth). Return
+        that one, but first clear the depth buffer again.
+        
+        @note: some details are not documented here; see the code.
+        """
         # We need to draw glselect_dict objects separately, 
         # so their drawing code runs now rather than in the past
         # (when some display list was being compiled), 
@@ -527,6 +562,11 @@ class GLPane_highlighting_methods(object):
         objects = self.glselect_dict.values()
         items = [] # (order, obj) pairs, for sorting objects
         for obj in objects:
+            ### MAYBE TODO: add a special order for the object found previously
+            # by the glname-to-color code for shader primitives. 
+            # But only do this after we're sure we draw all other objects
+            # then too. And its order should be worse than selobj, I think.
+            # [bruce 090105 comment]
             if obj is self.selobj:
                 order = 0
             elif isinstance(obj, Bond):
@@ -599,6 +639,10 @@ class GLPane_highlighting_methods(object):
         ##e should check depth here to make sure it's near enough but not too near
         # (if too near, it means objects moved, and we should cancel this pick)
         glClear(GL_DEPTH_BUFFER_BIT) # prevent those predraws from messing up the subsequent main draws
+            # REVIEW: is this slow? If so, it could be optimized by drawing them
+            # into only one pixel and clearing only that pixel (see related code
+            # in the glname-color code in do_glselect_if_wanted).
+            # [bruce 090105 comment]
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
         self.glselect_dict.clear() #k needed? even if not, seems safer this way.
             # do this now to avoid confusing the main draw methods,
@@ -660,10 +704,19 @@ class GLPane_highlighting_methods(object):
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         newdepth = wZ[0][0]
         targetdepth = self.targetdepth
-        ### possible change: here we could effectively move selobj forwards (to give it an advantage over other objects)...
+        ### possible change: here we could effectively move selobj forwards 
+        # (to give it an advantage over other objects)...
         # but we'd need to worry about scales of coord systems in doing that...
-        # due to that issue it is probably easier to fix this solely when drawing it, instead.
-        if newdepth <= targetdepth + fudge: # use fudge factor in case of roundoff errors (hardcoded as 0.0001 before 070115)
+        # due to that issue it is probably easier to fix this solely when 
+        # drawing it, instead.
+        if newdepth <= targetdepth + fudge: 
+            # test passes -- return candidate below
+            
+            # note: condition uses fudge factor in case of roundoff errors
+            # (hardcoded as 0.0001 before 070115) or slight differences in
+            # highlighted vs plain form of object (e.g. due to inconsistent
+            # orientation of polygonal approximation to a cylinder)
+            #
             # [bruce 050702: 0.000001 was not enough! 0.00003 or more was needed, to properly highlight some bonds
             #  which became too hard to highlight after today's initial fix of bug 715-1.]
             # [update, bruce 070921: fyi: one reason this factor is needed is the shorten_tubes flag used to
@@ -690,7 +743,7 @@ class GLPane_highlighting_methods(object):
             return candidate
                 # caller should not call us again without clearing depth buffer,
                 # otherwise we'll keep returning every object even if its true
-                # depth is too high
+                # depth is too deep
         if debug_prefix:
             counter = env.redraw_counter
             print "%s (%d): target depth %r NOT reached by %r at %r" % \
