@@ -450,6 +450,11 @@ class GLPane_highlighting_methods(object):
             glStencilFunc(GL_EQUAL, 1, 1) # only draw where stencil is set
             glDepthMask(GL_FALSE)
             glDisable(GL_DEPTH_TEST)
+                # Note: according to some web forum (not confirmed in red book or by test),
+                # glDisable(GL_DEPTH_TEST) also disables depth writing,
+                # so the above glDepthMask(GL_FALSE) is redundant.
+                # This differs from my recollection, so should be checked if it matters.
+                # [bruce 090105]
             self.draw_solid_color_everywhere(orange)
                 # note: we already drew highlighting selobj above, so that won't obscure this
             glEnable(GL_DEPTH_TEST)
