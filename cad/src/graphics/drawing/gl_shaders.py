@@ -289,7 +289,7 @@ class GLSphereShaderObject(object):
             pass
 
         # Default override_opacity, multiplies the normal color alpha component.
-        glUniform1fARB(self.uniform("override_opacity"), 0.25) #1.0)
+        glUniform1fARB(self.uniform("override_opacity"), 1.0)
 
         # Russ 081208: Consider caching the glpane pointer.  GLPane_minimal
         # inherits from QGLWidget, which includes the OpenGL graphics context.
@@ -797,7 +797,7 @@ void main(void) { // Vertex shader procedure.
   }
 
   // Take the eye-space radius to post-projection units at the center pt depth.
-  // (The pojection matrix doesn't change the view alignment, just the scale.)
+  // (The projection matrix doesn't change the view alignment, just the scale.)
   vec4 post_proj_radius4 =
     gl_ProjectionMatrix * vec4(eye_radius, 0.0, var_center_pt.z, 1.0);
   float post_proj_radius = post_proj_radius4.x / post_proj_radius4.w;
