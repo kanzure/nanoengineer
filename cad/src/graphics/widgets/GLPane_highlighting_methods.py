@@ -14,6 +14,8 @@ from OpenGL.GL import GL_BACK
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
 from OpenGL.GL import GL_DEPTH_COMPONENT
 from OpenGL.GL import GL_DEPTH_FUNC
+from OpenGL.GL import GL_DEPTH_TEST
+from OpenGL.GL import GL_EQUAL
 from OpenGL.GL import GL_FALSE
 from OpenGL.GL import GL_KEEP
 from OpenGL.GL import GL_MODELVIEW
@@ -52,7 +54,7 @@ from utilities import debug_flags
 from utilities.debug import print_compact_traceback
 import foundation.env as env
 
-from utilities.constants import white
+from utilities.constants import white, orange
 
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
@@ -429,15 +431,31 @@ class GLPane_highlighting_methods(object):
 
         self.setDepthRange_Normal()
 
-        # restore other gl state (but don't do unneeded OpenGL ops
-        # in case that speeds up OpenGL drawing)
-        if not highlight_into_depth:
-            glDepthMask(GL_TRUE)
-        if not highlight_into_color:
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)                
+        # restore other gl state
+        # (but don't do unneeded OpenGL ops
+        #  in case that speeds up OpenGL drawing)
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
             # no need to undo glStencilFunc state, I think -- whoever cares will set it up again
             # when they reenable stenciling.
+        if not highlight_into_color:
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        if not highlight_into_depth:
+            glDepthMask(GL_TRUE)
+        
+        if debug_pref("GLPane: draw stencil buffer?", 
+                      Choice_boolean_False,
+                      prefs_key = True
+                      ):
+            # draw stencil buffer in orange [bruce 090105]
+            glStencilFunc(GL_EQUAL, 1, 1) # only draw where stencil is set
+            glDepthMask(GL_FALSE)
+            glDisable(GL_DEPTH_TEST)
+            self.draw_solid_color_everywhere(orange)
+                # note: we already drew highlighting selobj above, so that won't obscure this
+            glEnable(GL_DEPTH_TEST)
+            glDepthMask(GL_TRUE)
+            pass
+        
         glDisable(GL_STENCIL_TEST)
 
         return # from draw_highlighted_objectUnderMouse

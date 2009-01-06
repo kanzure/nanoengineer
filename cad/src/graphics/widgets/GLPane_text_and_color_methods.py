@@ -29,6 +29,9 @@ from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import GL_PROJECTION
 from OpenGL.GL import glLoadIdentity
 
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glPopMatrix
+
 from OpenGL.GLU import gluUnProject, gluProject
 
 
@@ -537,7 +540,26 @@ class GLPane_text_and_color_methods(object):
             # depths into it everywhere, if that's possible). [bruce 070913 comment]
 
         return
-
+    
+    def draw_solid_color_everywhere(self, color): #bruce 090105, for debugging
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        glLoadIdentity()
+        
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glLoadIdentity()
+        
+        try:
+            drawFullWindow([color, color, color, color])
+        finally:
+            glPopMatrix()
+            glMatrixMode(GL_PROJECTION)
+            glPopMatrix()
+            glMatrixMode(GL_MODELVIEW)
+        
+        return
+    
     def kluge_reset_texture_mode_to_work_around_renderText_bug(self):
         """
         This helps work around a renderText bug in Qt 4.3.x (fixed in Qt 4.4.0).
