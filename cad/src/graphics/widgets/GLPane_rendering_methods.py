@@ -546,9 +546,10 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         # Compute frustum planes required for frustum culling - piotr 080331
         # Moved it right after _setup_projection is called (piotr 080331)
-        # Note that this method is also called by "do_glselect_if_wanted".
-        # The second call will re-compute the frustum planes according to 
-        # the current projection matrix.
+        # Note that this method is also called by "do_glselect_if_wanted",
+        # but computes different planes. The second call (here) will 
+        # re-compute the frustum planes according to the current projection 
+        # matrix.
         if self._use_frustum_culling:
             self._compute_frustum_planes()
 
@@ -556,6 +557,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # which objects draw any pixels at the mouse position,
         # but not which one is in front. (The near/far info from
         # GL_SELECT has too wide a range to tell us that.)
+        # (In the shader primitive case we might know a specific object,
+        #  but not always, as long as some objects are not drawn
+        #  using shaders.)
         # So we have to get them to tell us their depth at that point
         # (as it was last actually drawn)
             ###@@@ should do that for bugfix; also selobj first
@@ -589,6 +593,15 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # to set it back to None when needed (which has to be implemented
         # in the bareMotion methods of instances stored in self.graphicsMode --
         # would self.bareMotion (which doesn't exist now) be better? (REVIEW)
+        # [later: see also UNKNOWN_SELOBJ, I think]
+        
+        ### REVIEW: I suspect the above comment, and not resetting selobj here,
+        # is wrong, at least when selobj has no depth at all at the current 
+        # location; and that this error causes a "selobj stickiness" bug
+        # when moving the mouse directly from selobj onto non-glname objects
+        # (or buggy-glname objects, presently perhaps including shader spheres 
+        # in Build Atoms when the debug_pref 'Use batched primitive shaders?' 
+        # is set). [bruce 090105 comment]
 
         # draw according to self.graphicsMode
 
