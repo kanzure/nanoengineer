@@ -5,9 +5,27 @@ test_selection_redraw.py - test case for frequent moving of CSDLs between Drawin
 @author: Bruce
 @version: $Id$
 @copyright: 2009 Nanorex, Inc.  See LICENSE file for details. 
+
+Results, as of 090106:
+
+* pure display time can be seen by making _INVERSE_FREQUENCY_OF_REVISION a very large value.
+  for example, about 10 fps for 50k spheres. Not great, but tolerable. No easy way to optimize.
+
+* the time to move CSDLS into other DrawingSets and recompute their caches is long --
+  about 550 msec per frame, for 10k CSDLs. This needs to be optimized.
+  I don't yet know what consumes the time, but since all caches are remade using Python
+  it's not too surprising (and profiling should show the problem).
+
+* the initial setup time (in which we make and fill 10k CSDLs) is *very* long
+  (maybe half a minute). (The fps-printing code fails to measure this.)
+  This too needs optimizing, since it will limit any NE1 operation which modifies 
+  lots of chunks locally, e.g. loading a file or minimizing. Probably we need to
+  translate some of that code into C or Pyrex.
 """
 
 import random
+
+import foundation.env as env
 
 # most not needed:
 from graphics.drawing.DrawingSet import DrawingSet
@@ -27,6 +45,9 @@ _PROBABILITY_OF_MOVE = 0.2
 ## _NUM_CSDLS_X = 10 # this is now a local variable from a test parameter
 ## _NUM_CSDLS_Y = 10
 _NUM_SPHERES_PER_CSDL = 5
+
+_INVERSE_FREQUENCY_OF_REVISION = 1 # must be an integer; only revise model every nth time;
+    # WARNING: many reported timings predate this (as if it was 1); not settable in UI
 
 # ==
 
@@ -112,6 +133,8 @@ class test_selection_redraw(GraphicsTestCase):
     def draw(self):
         # move some of the CSDLs from one to another DrawingSet
         # (for now, just put each one into a pseudorandomly chosen DrawingSet, out of all of them)
+        if (env.redraw_counter % _INVERSE_FREQUENCY_OF_REVISION) != 0:
+            return
         num_sets = len(self.drawingsets)
         csdls_to_move = self._csdls
         for csdl in csdls_to_move:
