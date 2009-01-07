@@ -1135,24 +1135,26 @@ class Group(NodeWithAtomContents):
         cntl.exec_()
         self.assy.mt.mt_update()
 
-    def getProps(self):
+    def getProps(self): # probably by Ninad
         """
-        Get specific properties of the Group (if it is editable) Overridden in 
-        subclasses. Default implementation returns an empty tuple
-        @see: DnaSegment.getProps() for an example. 
+        Get specific properties of this Group (if it is editable).
+        Overridden in subclasses.
+        Default implementation returns an empty tuple.
+        @see: DnaSegment.getProps() for an example.
         """
         return ()
 
-    def setProps(self, props):
+    def setProps(self, props): # probably by Ninad
         """
-        Set certain properties (set vals for some attrs of this group) 
-        Overridden in subclasses, default implementation doesn nothing. 
+        Set certain properties (set vals for some attrs of this group).
+        Overridden in subclasses.
+        Default implementation does nothing.
         @see: self.getProps()
-        @see: DnaSegment.setProps() for an example
+        @see: DnaSegment.setProps() for an example.
         """
-        pass
+        return
 
-    def dumptree(self, depth = 0):
+    def dumptree(self, depth = 0): # just for debugging
         print depth * "...", self.name
         for x in self.members:
             if x.dad is not self:

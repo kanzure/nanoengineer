@@ -337,7 +337,7 @@ class TreeModel(TreeModel_api):
             else:
                 res.append(( "debug._nodeset =", self.cm_set_node ))
         
-        if len(nodeset) == 1 and nodeset[0].edit_props_enabled():
+        if len(nodeset) == 1 and nodeset[0].editProperties_enabled():
             res.append(( 'Edit Properties...', self.cm_properties ))
         else:
             res.append(( 'Edit Properties...', noop, 'disabled' )) # nim for multiple items
@@ -580,10 +580,11 @@ class TreeModel(TreeModel_api):
         else:
             node = nodeset[0]
             #UM 20080730: if its a protein chunk, enter build protein mode
+            # (REVIEW: shouldn't this special case be done inside Chunk.edit instead? [bruce 090106 comment])
             if hasattr(node, 'isProteinChunk') and node.isProteinChunk():
                 res = node.protein.edit(self.win)
             else:
-                res = node.edit() #e rename method!
+                res = node.edit()
             if res:
                 env.history.message(res) # added by bruce 050121 for error messages
             else:

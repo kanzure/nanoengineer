@@ -30,7 +30,7 @@ class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
 
     def chunkLeftUp(self, aChunk, event):
         """
-        Upon chunkLeftUp, it enters the nanotube edit command
+        Upon chunkLeftUp, it enters the nanotube edit command.
         This is an alternative implementation. As of 2008-03-03,
         we have decided to change this implementation. Keeping the
         related methods alive if, in future, we want to switch to this

@@ -798,20 +798,26 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             strandAtomMate = atom.get_strand_atom_mate()
             complementBaseName= getComplementSequence(str(baseName))
             if strandAtomMate is not None:
-                strandAtomMate.setDnaBaseName(str(complementBaseName))  
-    def edit(self):
-        #Following must be revised (moved to appropriate class)
-        #post dna_model implementation .
+                strandAtomMate.setDnaBaseName(str(complementBaseName))
+        return
+    
+    def edit(self): # probably by Ninad
+        # This method could be revised (moved to appropriate class or subclass)
+        # post dna_model implementation.
+        ### REVIEW: model tree has a special case for isProteinChunk;
+        # should we pull that in here too? Guess yes.
+        # (Note, there are several other uses of isProteinChunk
+        #  that might also be worth refactoring.) [bruce 090106 comment]
         if self.isStrandChunk():
             commandSequencer = self.assy.w.commandSequencer
             commandSequencer.userEnterCommand('DNA_STRAND')                
             assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
             commandSequencer.currentCommand.editStructure(self)
         else:
-            cntl = ChunkProp(self) # Renamed MoleculeProp to ChunkProp.  Mark 050929
+            cntl = ChunkProp(self)
             cntl.exec_()
             self.assy.mt.mt_update()
-            ###e bruce 041109 comment: don't we want to repaint the glpane, too?
+            ### REVIEW [bruce 041109]: don't we want to repaint the glpane, too?
 
     def getProps(self):
         """
@@ -834,12 +840,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         Also resets self.iconPath (based on self.hidden) if it returns True.
 
-        This is a temporary method that can be removed once dna_model is fully
-        functional.
+        This method is overridden in dna-specific subclasses of Chunk.
+        It is likely that this implementation on Chunk itself could now
+        be redefined to just return False, but this has not been analyzed closely.
+        
         @see: BuildDna_PropertyManager.updateStrandListWidget where this is used
               to filter out strand chunks to put those into the strandList 
               widget.        
         """
+        # This is a temporary method that can be removed once dna_model is fully
+        # functional. [That is true now; REVIEW whether it can really be removed,
+        # or more precisely, redefined to return False on this class. bruce 090106 addendum]
         found_strand_atom = False
         for atom in self.atoms.itervalues():
             if atom.element.role == 'strand':
@@ -1017,8 +1028,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         #TODO: could zap first and/or last element if they are bondpoints 
         #[bruce 080205 comment]        
-        return atomList   
-
+        return atomList
 
     #END of Dna-Strand chunk specific  code ==================================
 
@@ -1028,10 +1038,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     def isAxisChunk(self):
         """
         Returns True if *all atoms* in this chunk are PAM 'axis' atoms
-        or or bondpoints, and at least one is an
-        'axis' atom.
-        This is a temporary method that can be removed once dna_model is fully
-        functional.
+        or bondpoints, and at least one is an 'axis' atom.
+
+        Overridden in some subclasses.
+
+        @see: isStrandChunk
         """
         found_axis_atom = False
         for atom in self.atoms.itervalues():
@@ -1050,7 +1061,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
 
     #START of Dna-Strand-or-Axis chunk specific code ========================
-
 
     def getDnaGroup(self): # ninad 080205
         """
@@ -1088,16 +1098,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         
         return dnaSegment
 
-
     #END of Dna-Strand-or-Axis chunk specific code ========================
+
 
     #START of Nanotube chunk specific code ========================
 
-    def isNanotubeChunk(self):
+    def isNanotubeChunk(self): # probably by Mark
         """
         Returns True if *all atoms* in this chunk are either:
         - carbon (sp2) and either all hydrogen or nitrogen atoms or bondpoints
-        - boron and either all all hydrogen or nitrogen atoms or bondpoints
+        - boron and either all hydrogen or nitrogen atoms or bondpoints
 
         @warning: This is a very loose test. It will return True if self is a
         graphene sheet, benzene ring, etc. Use at your own risk.

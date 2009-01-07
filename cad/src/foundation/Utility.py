@@ -213,14 +213,15 @@ class Node( StateMixin):
         (e.g. "DnaStrand" rather than "dna.model.DnaStrand.DnaStrand")
         """
         # could be more general, e.g. a helper function
-        # todo: use this in a lot of places that inline this
+        # todo: use this in a lot more places that inline this
+        # (but in __repr__ a helper function would be safer than a method)
         return self.__class__.__name__.split('.')[-1]
 
-    def __repr__(self): #bruce 060220
+    def __repr__(self): #bruce 060220, revised 080118, refactored 090107
         """
         [subclasses can override this, and often do]
         """
-        classname = self.__class__.__name__.split('.')[-1] #bruce 080118 split after '.'
+        classname = self.short_classname()
         try:
             name_msg = ", name = %r" % (self.name,)
         except:
@@ -1713,7 +1714,11 @@ class Node( StateMixin):
         else:
             return 0
 
-    def edit(self): #e should be renamed to edit_props (in several files)
+    def edit(self): # REVIEW [bruce 090106]: should this method be renamed editProperties?
+                    # (Would that name apply even when it enters a command?
+                    #  BTW should the same API method even be used in those two cases?)
+                    # To rename it, search for 'def edit', '.edit' (whole word), "edit method".
+                    # But note that not all of those methods are on subclasses of Node.
         """
         [should be overridden in most subclasses]
 
@@ -1722,24 +1727,30 @@ class Node( StateMixin):
         (put up the dialog, wait for user to dismiss it, change the properties
         as requested, and do all needed invals or updates),
         and then return None (regardless of Cancel, Apply, Revert, etc).
+           Or if it or its properties can be edited by a Command,
+        enter that command and return None.
            If this kind of Node *doesn't* support editing of properties,
         return a suitable text string for use in an error message.
+        (In that case, editProperties_enabled should also be overridden,
+         and if it is, probably this method will never get called.)
         """
         #bruce 050121 inferred docstring from all 7 implems and 1 call.
         # Also added feature of refusing and returning error message, used in 2 implems so far.
         #bruce 050425 revised this error message.
-        return "Edit Properties is not available for %s." % self.__class__.__name__
+        #bruce 090106 revised error message again, and added "Command"
+        # part of docstring, guessing this from the implem in NanotubeSegment.
+        return "Edit Properties is not available for %s." % self.short_classname()
 
-    def edit_props_enabled(self): #bruce 050121 added this feature
+    def editProperties_enabled(self): #bruce 050121 added this feature #bruce 090106 renamed
         """
         Subclasses should override this and make it return False
-        if their edit method would refuse to put up an editing dialog.
+        if their edit method would refuse to edit their properties.
         """
         # i don't know if they all do that yet...
         #e should we check here to see if they override Node.edit?? nah.
         return True # wrong for an abstract Node, but there is no such thing!
 
-    def dumptree(self, depth = 0):
+    def dumptree(self, depth = 0): # just for debugging
         print depth * "...", self.name
 
     def node_must_follow_what_nodes(self): #bruce 050422 made Node and Jig implems of this from function of same name

@@ -891,11 +891,14 @@ class Jig(NodeWith3DContents, Selobj_API):
             self.set_cntl()
             assert self.cntl is not None
         if self is self.assy.o.selobj:
-            self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
-            # If the Properties dialog was selected from the GLPane's context menu, set selobj = None
-            # so that we can see the jig's real color, not the highlighted color.  This is very important
-            # when changing the jig's color from the properties dialog since it will remain highlighted
-            # if we don't do this. mark 060312.
+            self.assy.o.selobj = None
+            # If the Properties dialog was selected from the GLPane's context
+            # menu, selobj will typically be self and the jig will appear
+            # highlighted. That is inconvenient if we want to change its color
+            # from the Properties dialog, since we can't see the color we're
+            # changing, either before or after we change it. So reset selobj
+            # to None here to avoid this problem.
+            # [mark 060312 revision; comment rewritten by bruce 090106]
         self.cntl.setup()
         self.cntl.exec_()
         

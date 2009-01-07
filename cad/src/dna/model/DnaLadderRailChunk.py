@@ -987,17 +987,13 @@ class DnaAxisChunk(DnaLadderRailChunk):
     """
     def isAxisChunk(self):
         """
-        This should always return True. It directly returns True ... bypassing
-        the things done in Chunk class ... thereby making this a little faster.
-        @see: Chunk.isAxisChunk() , overridden here.  
+        [overrides Chunk method]
         """
         return True
     
     def isStrandChunk(self):
         """
-        This should always return False. It directly returns False ... bypassing
-        the things done in Chunk class ... thereby making this a little faster.
-        @see: Chunk.isStrandChunk() , overridden here.  
+        [overrides Chunk method]
         """
         return False
 
@@ -1077,19 +1073,13 @@ class DnaStrandChunk(DnaLadderRailChunk):
 
     def isAxisChunk(self):
         """
-        This should always return False. It directly returns False ... bypassing
-        the things done in Chunk class ... thereby making this a little faster. 
-        
-        @see: Chunk.isAxisChunk() overridden here.          
-        @see: DnaAxisChunk.isAxisChunk()
+        [overrides Chunk method]
         """
         return False
     
     def isStrandChunk(self):
         """
-        This should always return True. It directly returns True ... bypassing
-        the things done in Chunk class ... thereby making this a little faster. 
-        @see: Chunk.isStrandChunk() , overridden here.         
+        [overrides Chunk method]
         """
         return True
     

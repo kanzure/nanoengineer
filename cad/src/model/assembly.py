@@ -2022,7 +2022,7 @@ class ClipboardShelfGroup(Group):
         return res
     def edit(self):
         return "The Clipboard does not yet provide a property-editing dialog."
-    def edit_props_enabled(self):
+    def editProperties_enabled(self):
         return False
     def description_for_history(self):
         """
