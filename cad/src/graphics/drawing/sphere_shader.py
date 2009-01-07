@@ -42,6 +42,9 @@ Russ 090106: Chopped the GLSL source string blocks out of gl_shaders.py .
 # gl_ModelViewMatrix 'eye space', with the origin at the eye (camera) location
 # and XY coordinates parallel to the screen (window) XY.
 # 
+# When perspective is on, a rotation is done as well, to keep a billboard
+# drawing pattern oriented directly toward the viewpoint.
+# 
 # A 'halo' radius is also passed to the fragment shader, for highlighting
 # selected spheres with a flat disk when the halo drawing-style is selected.
 # 
@@ -204,14 +207,24 @@ void main(void) { // Vertex shader procedure.
 
   // The drawing vertices are in unit coordinates, relative to the center point.
   // Scale by the radius and add to the center point in eye space.
-  vec3 eye_vert_pt = var_center_pt + eye_radius * gl_Vertex.xyz;
-
+  vec3 eye_vert_pt;
   if (perspective == 1) {
+    // When perspective is on, a rotation is done as well, to keep a billboard
+    // drawing pattern oriented directly toward the viewpoint.
+    vec3 new_z = - normalize(var_center_pt);
+    vec3 new_x = normalize(cross(vec3(0.0, 1.0, 0.0), new_z));
+    vec3 new_y = cross( new_z, new_x);
+    mat3 rotate = mat3(new_x, new_y, new_z);
+    eye_vert_pt = var_center_pt + eye_radius * (rotate * gl_Vertex.xyz);
+
     // With perspective, look from the origin, toward the vertex (pixel) points.
     // In eye space, the origin is at the eye point, by definition.
     var_view_pt = vec3(0.0, 0.0, 0.0);
     var_ray_vec = normalize(eye_vert_pt);
+
   } else {
+    eye_vert_pt = var_center_pt + eye_radius * gl_Vertex.xyz;
+
     // Without perspective, look from the 2D pixel position, in the -Z dir.
     var_view_pt = vec3(eye_vert_pt.xy, 0.0);  
     var_ray_vec = vec3(0.0, 0.0, -1.0);
