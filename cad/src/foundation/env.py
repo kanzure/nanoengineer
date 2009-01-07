@@ -1,10 +1,10 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 env.py - for global variables and functions treated as "part of the environment".
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 This module is for various global or "dynamic" variables,
 which can be considered to be part of the environment of the code
@@ -21,12 +21,14 @@ Also, certain basic routines for using/allocating some of these global variables
 
 Usage:
 
-'import foundation.env as env'
+'import foundation.env as env' is preferred to 'from foundation import env'
+since the former makes it clear that env is a module. The latter is never used,
+but is here in this docstring so that a search for 'import env' will find it.
 
    ... use env.xxx as needed ...
    # Don't say "from env import xxx" since env.xxx might be reassigned dynamically.
    # Variables that never change (and are importable when the program is starting up)
-   # can be put into constants.py
+   # can be put into constants.py.
 
 
 Purpose and future plans:
