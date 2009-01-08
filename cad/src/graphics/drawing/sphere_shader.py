@@ -205,6 +205,23 @@ void main(void) { // Vertex shader procedure.
   float eye_radius = length(vec3(eye_radius4));
   var_radius_sq = eye_radius * eye_radius; // Square roots are slow.
 
+  // For halo drawing, scale up drawing primitive vertices to cover the halo.
+  float drawing_radius = eye_radius;    // The non-halo radius.
+  if (drawing_style == DS_HALO) {
+    // Take eye-space radius to post-projection units at the center pt depth.
+    // The projection matrix does not change the view alignment, just the scale.
+    vec4 post_proj_radius4 =
+      gl_ProjectionMatrix * vec4(eye_radius, 0.0, var_center_pt.z, 1.0);
+    float post_proj_radius = post_proj_radius4.x / post_proj_radius4.w;
+
+    // Ratio to increase the eye space radius for the halo.
+    float radius_ratio = (post_proj_radius + ndc_halo_width) / post_proj_radius;
+
+    // Eye space halo radius for use in the pixel shader.
+    drawing_radius = radius_ratio * eye_radius;
+    var_halo_rad_sq = drawing_radius * drawing_radius; // Square roots are slow.
+  }
+
   // The drawing vertices are in unit coordinates, relative to the center point.
   // Scale by the radius and add to the center point in eye space.
   vec3 eye_vert_pt;
@@ -215,7 +232,7 @@ void main(void) { // Vertex shader procedure.
     vec3 new_x = normalize(cross(vec3(0.0, 1.0, 0.0), new_z));
     vec3 new_y = cross( new_z, new_x);
     mat3 rotate = mat3(new_x, new_y, new_z);
-    eye_vert_pt = var_center_pt + eye_radius * (rotate * gl_Vertex.xyz);
+    eye_vert_pt = var_center_pt + drawing_radius * (rotate * gl_Vertex.xyz);
 
     // With perspective, look from the origin, toward the vertex (pixel) points.
     // In eye space, the origin is at the eye point, by definition.
@@ -223,29 +240,12 @@ void main(void) { // Vertex shader procedure.
     var_ray_vec = normalize(eye_vert_pt);
 
   } else {
-    eye_vert_pt = var_center_pt + eye_radius * gl_Vertex.xyz;
+    eye_vert_pt = var_center_pt + drawing_radius * gl_Vertex.xyz;
 
     // Without perspective, look from the 2D pixel position, in the -Z dir.
     var_view_pt = vec3(eye_vert_pt.xy, 0.0);  
     var_ray_vec = vec3(0.0, 0.0, -1.0);
   }
-
-  // Take the eye-space radius to post-projection units at the center pt depth.
-  // (The projection matrix doesn't change the view alignment, just the scale.)
-  vec4 post_proj_radius4 =
-    gl_ProjectionMatrix * vec4(eye_radius, 0.0, var_center_pt.z, 1.0);
-  float post_proj_radius = post_proj_radius4.x / post_proj_radius4.w;
-
-  // Ratio to increase the eye space radius for the halo.
-  float radius_ratio = (post_proj_radius + ndc_halo_width) / post_proj_radius;
-  
-  // Eye space halo radius for use in the pixel shader.
-  float eye_halo_radius = radius_ratio * eye_radius;
-  var_halo_rad_sq = eye_halo_radius * eye_halo_radius; // Square roots are slow.
-
-  // For halo drawing, scale up drawing primitive vertices to cover the halo.
-  if (drawing_style == DS_HALO)
-    eye_vert_pt = var_center_pt + eye_halo_radius * gl_Vertex.xyz;
 
   // Transform the drawing vertex through the projection matrix, making clip
   // coordinates for the next stage of the pipeline.
