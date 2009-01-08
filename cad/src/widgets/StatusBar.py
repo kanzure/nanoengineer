@@ -103,7 +103,7 @@ class StatusBar(QStatusBar):
         of env.history.progress_msg. Display text in our
         private label widget dedicated to progress messages.
         """
-        self._progressLabel.setText(msg_text)
+        self._progressLabel.setText(text)
         return
     
     def makeCommandNameUnique(self, commandName):
