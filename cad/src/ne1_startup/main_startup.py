@@ -409,6 +409,9 @@ def startup_script( main_globals):
         # Hack to burn some Python bytecode periodically so Wing's
         # debugger can remain responsive while free-running
         # [from http://wingware.com/doc/howtos/pyqt; added by bruce 081227]
+        # Addendum [bruce 090107]: this timer doesn't noticeably slow down NE1,
+        # but with or without it, NE1 is about 4x slower in Wing than running 
+        # alone, at least when running test_selection_redraw.py.
         print "running under Wing IDE debugger; setting up timer"
         from PyQt4 import QtCore
         timer = QtCore.QTimer()

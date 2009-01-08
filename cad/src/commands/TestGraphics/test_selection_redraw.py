@@ -8,6 +8,9 @@ test_selection_redraw.py - test case for frequent moving of CSDLs between Drawin
 
 Results, as of 090106:
 
+WARNING; these are measured while running Wing IDE; at least one of these results
+(550 msec) is about 4x faster (140 msec) when NE1 is running directly as a developer.
+
 * pure display time can be seen by making _INVERSE_FREQUENCY_OF_REVISION a very large value.
   for example, about 10 fps for 50k spheres. Not great, but tolerable. No easy way to optimize.
 
