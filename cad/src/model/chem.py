@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 chem.py -- class Atom, and related code. An instance of Atom represents one
 atom, pseudoatom, or bondpoint in 3d space, with a list of bonds and
@@ -6,7 +6,7 @@ jigs, and an optional display mode.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -3451,10 +3451,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if DEBUG_1779:
             print "DEBUG_1779: Atom.unbond on %r is making X" % self
         x = Atom('X', b.ubp(self), self.molecule) # invals mol as needed
-        #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
-        bond_copied_atoms( self, x, b, self)
-        ## self.molecule.bond(self, x) # invals mol as needed
-        return x # new feature, bruce 041222
+        bond_copied_atoms( self, x, b, self) # copies bond type from old bond
+        return x
 
     def get_neighbor_bond(self, neighbor):
         """

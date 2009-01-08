@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GrapheneGenerator.py
 
 @author: Will
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -13,15 +13,15 @@ Mark 2007-07-24: Now uses new PM module.
 Mark 2007-08-06: Renamed GrapheneGeneratorDialog to GrapheneGeneratorPropertyManager.
 
 Ninad 2008-07-23: Cleanup to port Graphene generator to the EditCommand API. 
-Now this class simply acts a generator object called from the editcommand 
-while creatigng the structure.
+Now this class simply acts as a generator object called from the editcommand 
+while creating the structure.
 """
 
 from math import atan2, pi
 
 from model.chem import Atom
 
-import model.bonds as bonds # for bond_atoms
+from model.bonds import bond_atoms
 import model.bond_constants as bond_constants
 
 from model.chunk import Chunk
@@ -89,9 +89,9 @@ class GrapheneGenerator:
                     atm = add("C", x + x1 * bond_length, y + y1 * bond_length)
                     lst.append(atm)
                 bond_dict[(i, j)] = lst
-                bonds.bond_atoms(lst[0], lst[1], bond_constants.V_GRAPHITE)
-                bonds.bond_atoms(lst[1], lst[2], bond_constants.V_GRAPHITE)
-                bonds.bond_atoms(lst[2], lst[3], bond_constants.V_GRAPHITE)
+                bond_atoms(lst[0], lst[1], bond_constants.V_GRAPHITE)
+                bond_atoms(lst[1], lst[2], bond_constants.V_GRAPHITE)
+                bond_atoms(lst[2], lst[3], bond_constants.V_GRAPHITE)
                 i += 1
                 x += 3 * bond_length
             j += 1
@@ -102,14 +102,14 @@ class GrapheneGenerator:
             for j in range(jmax - 1):
                 lst1 = bond_dict[(i, j)]
                 lst2 = bond_dict[(i, j+1)]
-                bonds.bond_atoms(lst1[0], lst2[1], bond_constants.V_GRAPHITE)
-                bonds.bond_atoms(lst1[3], lst2[2], bond_constants.V_GRAPHITE)
+                bond_atoms(lst1[0], lst2[1], bond_constants.V_GRAPHITE)
+                bond_atoms(lst1[3], lst2[2], bond_constants.V_GRAPHITE)
                 
         for i in range(imax - 1):
             for j in range(jmax):
                 lst1 = bond_dict[(i, j)]
                 lst2 = bond_dict[(i+1, j)]
-                bonds.bond_atoms(lst1[3], lst2[0], bond_constants.V_GRAPHITE)
+                bond_atoms(lst1[3], lst2[0], bond_constants.V_GRAPHITE)
 
         # trim to dimensions
         atoms = mol.atoms

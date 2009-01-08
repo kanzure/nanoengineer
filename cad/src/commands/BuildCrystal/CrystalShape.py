@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 CrystalShape.py -- handle freehand curves for crystal-cutting (?)
 
 @author: Huaicai, maybe others
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -47,6 +47,8 @@ from geometry.BoundingBox import BBox
 from graphics.behaviors.shape import simple_shape_2d
 from graphics.behaviors.shape import get_selCurve_color
 from graphics.behaviors.shape import shape
+
+from model.bonds import bond_atoms
 
 # ==
 
@@ -930,7 +932,7 @@ class CrystalShape(shape):
                             xp = (allCarbons[bKey] + allCarbons[bond[0]])/2.0
                             bondAtom = Atom("X", xp, mol)     
                         
-                        mol.bond(keyAtom, bondAtom)
+                        bond_atoms(keyAtom, bondAtom)
         
             if len(mol.atoms) > 0:
                 #bruce 050222 comment: much of this is not needed, since mol.pick() does it.

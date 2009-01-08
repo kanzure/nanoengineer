@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 chunk.py -- provides class Chunk [formerly known as class molecule],
 for a bunch of atoms (not necessarily bonded together) which can be moved
@@ -6,7 +6,7 @@ and selected as a unit.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -104,7 +104,7 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolea
 
 from utilities.icon_utilities import imagename_to_pixmap
 
-import model.bonds as bonds # TODO: import specific functions, since no longer an import cycle
+from model.bonds import bond_copied_atoms
 
 from model.ExternalBondSet import ExternalBondSet
 
@@ -1409,6 +1409,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     mticon = []
     hideicon = []
+    
     def init_icons(self):
         # see also the same-named, related method in class Jig.
         """
@@ -1423,6 +1424,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         for name in self.hideicon_names:
             self.hideicon.append( imagename_to_pixmap( "modeltree/" + name))
         return
+    
     def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]; revised again 060608
         # Special case for protein icon. This only adds the icon to the MT.
         # To add the protein icon for PM_SelectionListWidget, the attr iconPath
@@ -1445,18 +1447,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # hmm, some sort of bug
             return imagename_to_pixmap("modeltree/junk.png")
         pass
-    def bond(self, at1, at2):
-        """
-        Cause atom at1 to be bonded to atom at2.
-        Error if at1 is at2 (causes printed warning and does nothing).
-        (This should really be a separate function, not a method on Chunk,
-        since the specific Chunk asked to do this need not be either atom's
-        Chunk, and is not used in the method at all.)
-        """
-        bonds.bond_atoms(at1, at2) #bruce 041109 split out separate function to do it
-        ## old code assumed both atoms were in this Chunk; often not true!
-        ## self.havelist = 0
-        return
 
     # lowest-level structure-changing methods
 
@@ -4217,7 +4207,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Given some copied atoms (in a private format in pairlis and ndix),
         ensure their bonds and jigs will be taken care of.
         """
-        from model.bonds import bond_copied_atoms # might be a recursive import if done at toplevel
         origid_to_copy = mapping.origid_to_copy
         extern_atoms_bonds = mapping.extern_atoms_bonds
             #e could be integrated with mapping.do_at_end,
@@ -4368,7 +4357,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # and in depositMode.
         # [where do they call addmol? why did extrude's copies break on 041116?]
 
-        from model.bonds import bond_copied_atoms # might be a recursive import if done at toplevel
         pairlis = []
         ndix = {}
         newname = mol_copy_name(self.name, self.assy)
@@ -4410,7 +4398,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         # note both keys are for original atoms (it would also work if both were from
                         # copied atoms, but not if they were mixed)
                         bond_copied_atoms(na, ndix[a2key], b, a)
-                    ## pre-050715 code: numol.bond(na,ndix[b.other(a).key])
                 else:
                     # external bond - after loop done, make a singlet in the copy
                     extern_atoms_bonds.append( (a,b) ) # ok if several times for one 'a'
@@ -4432,7 +4419,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 x = chem.Atom('X', b.ubp(a) + offset, numol)
                 na = ndix[a.key]
                 #bruce 050715 bugfix: also copy the bond-type (two places in this routine)
-                ## numol.bond(na, x)
                 bond_copied_atoms( na, x, b, a)
         if copied_hotspot is not None:
             numol.set_hotspot( ndix[copied_hotspot.key])

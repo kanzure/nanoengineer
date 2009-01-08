@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 bonds.py -- class Bond, for any supported type of chemical bond between two atoms
 (one of which might be a "singlet" to represent an "open bond" in the UI),
@@ -6,7 +6,7 @@ and related code
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -137,16 +137,20 @@ _bond_atoms_oldversion_noops_seen = {} #bruce 051216
 def bond_atoms_oldversion(a1, a2): #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
     """
     Make a new bond between atoms a1 and a2 (and add it to their lists of bonds),
-    if they are not already bonded; if they are already bonded do nothing. Return None.
+    if they are not already bonded; if they are already bonded do nothing.
+
+    Return None.
+
     (The new bond object, if one is made, can't be found except by scanning the bonds
     of one of the atoms.)
-       If a1 == a2, this is an error; print a warning and do nothing.
-       This increases the number of bonds on each atom (when it makes a new bond) --
+
+    If a1 == a2, this is an error; print a warning and do nothing.
+
+    This increases the number of bonds on each atom (when it makes a new bond) --
     it never removes any singlets. Therefore it is mostly for low-level use.
-    It could be called directly, but is usually called via the method molecule.bond,
-    purely for historical reasons.
     """
-    # bruce 041109 split this out of molecule.bond. Since it's the only caller of
+    # bruce 041109 split this out of [later removed] molecule.bond method.
+    # Since it's the only caller of
     # Bond.__init__, what it does to the atoms could (and probably should) be put
     # inside the constructor. However, it should not simply be replaced with calls
     # to the constructor, in case we someday want it to return the bond which it
@@ -259,9 +263,9 @@ def bond_copied_atoms(at1, at2, oldbond, origat1): #bruce 050524; revised 070424
     (whether to use this function like that is not yet decided).
     As of 050727 this is also used in Atom.unbond to copy bond types
     onto open bonds which replace broken real bonds.
-       If oldbond might be "directional" (and thus might have state
+       In case oldbond might be "directional" (and thus might have state
     which is directional, i.e. which looks different depending on which
-    of its atoms you're looking at), the caller must pass origat1,
+    of its atoms you're looking at), the caller must also pass origat1,
     an atom of oldbond corresponding to at1 in the new bond.
     """
     newbond = bond_atoms_faster(at1, at2, oldbond.v6)
@@ -503,12 +507,7 @@ _Bond_global_dicts = [_changed_Bonds]
 
 # ==
 
-#bruce 041109:
-# Capitalized name of class Bond, so we can find all uses of it in the code;
-# as of now there is only one use, in bond_atoms (used by molecule.bond).
-# I also rewrote lots of the code in class Bond.
-
-class Bond(BondBase, StateMixin, Selobj_API):
+class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     """
     @warning: this docstring is partly obsolete.
     
@@ -2431,10 +2430,10 @@ class _bonder_at_singlets:
 ##                     c=atom("H", a.xyz + lCHb * norm(V(1, -1, 1)), self)
 ##                     d=atom("H", a.xyz + lCHb * norm(V(1, 1, -1)), self)
 ##                     e=atom("H", a.xyz + lCHb * norm(V(-1, 1, 1)), self)
-##                     self.bond(a, b)
-##                     self.bond(a, c)
-##                     self.bond(a, d)
-##                     self.bond(a, e)
+##                     bond_atoms(a, b)
+##                     bond_atoms(a, c)
+##                     bond_atoms(a, d)
+##                     bond_atoms(a, e)
 
 ##                 # pick an arbitrary tripod, and rotate it to
 ##                 # center away from the one bond
@@ -2447,9 +2446,9 @@ class _bonder_at_singlets:
 ##                     b=atom("H", a.xyz + q1.rot(bpos), self)
 ##                     c=atom("H", a.xyz + q1.rot(cpos), self)
 ##                     d=atom("H", a.xyz + q1.rot(dpos), self)
-##                     self.bond(a, b)
-##                     self.bond(a, c)
-##                     self.bond(a, d)
+##                     bond_atoms(a, b)
+##                     bond_atoms(a, c)
+##                     bond_atoms(a, d)
 
 ##                 # for two bonds, the new ones can be constructed
 ##                 # as linear combinations of their sum and cross product
@@ -2462,8 +2461,8 @@ class _bonder_at_singlets:
 ##                     cpos = lCHb*(v1 - sqrt(2)*v2)/sqrt(3)
 ##                     b=atom("H", a.xyz + bpos, self)
 ##                     c=atom("H", a.xyz + cpos, self)
-##                     self.bond(a, b)
-##                     self.bond(a, c)
+##                     bond_atoms(a, b)
+##                     bond_atoms(a, c)
 
 ##                 # given 3, the last one is opposite their average
 ##                 elif valence == 3:
@@ -2472,6 +2471,6 @@ class _bonder_at_singlets:
 ##                     d=a.bonds[2].other(a).xyz - a.xyz
 ##                     v = - norm(b + c + d)
 ##                     b=atom("H", a.xyz + lCHb * v, self)
-##                     self.bond(a, b)
+##                     bond_atoms(a, b)
 
 # end of bonds.py
