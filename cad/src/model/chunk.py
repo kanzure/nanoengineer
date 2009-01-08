@@ -1928,20 +1928,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     externs.append(bond)
         return externs
 
-    def freeze(self):
-        """
-        set self up for minimization or simulation
-        """
-        return #bruce 060308 removing this
-                # (it wasn't working beyond the first frame anyway; it will be superceded by Pyrex optims;
-                #  only call is in movie.py)
-
-    def unfreeze(self):
-        """
-        to be done at the end of minimization or simulation
-        """
-        return #bruce 060308 removing this (see comments in freeze)
-
     def get_dispdef(self, glpane = None):
         """
         reveal what dispdef we will use to draw this Chunk
