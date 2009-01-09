@@ -226,32 +226,56 @@ Russ 090106: Design description file created.
 # 
 # . First, we find a point on the barrel line that contains the intersection, in
 #   the cross-section plane of the cylinder.  This crossing-plane is
-#   perpendicular to the axis line and contains the two passing points, as well
-#   as the passing-line perpendicular to the axis of the cylinder.
+#   perpendicular to the axis line and contains the two closest passing points,
+#   as well as the passing-line perpendicular to the axis of the cylinder.
 # 
-#   - Project the viewpoint and the ray-line direction vector into the
-#     cross-plane.  It's important to project *toward the convergence-point*,
-#     scaling by the taper of the cylinder along the axis.
+#   If the radii are the same at both ends of the cylinder, the barrel-lines are
+#   parallel.  The projection of the ray-line, along a ray-plane *parallel to
+#   the cylinder axis* into the crossing-plane, is perpendicular to the
+#   passing-line at the ray passing-point, both of which we already have.
 # 
-#     Note: If we project parallel to the axis without scaling, we're working in
-#     a plane parallel to the cylinder axis, which intersects a tapered cylinder
-#     or cone in a hyperbola.  Intersecting a ray with a hyperbola is hard.
-#     Instead, we arrange to work in a plane that includes the convergence
-#     point, so the intersection of the plane with the cylinder is two straight
-#     lines.  Lines are easy.
+#   If the cylinder radii differ, instead project the viewpoint and the ray-line
+#   direction vector into the cross-plane *toward the convergence-point*,
+#   scaling by the taper of the cylinder along the axis.  [This is the one place
+#   where tapered cylinders and cones are handled differently.]
 # 
-#   - The ray-line and the convergence-point determine a ray-plane, which
-#     intersects the cross-plane along the projected ray-line.  If the ray-line
-#     goes through (i.e. within a very small distance of) the convergence-point,
-#     we discard the pixel since the plane is unstable, and there's nothing to
-#     see there anyway.
+#   - Note: If we project parallel to the axis without tapering toward the
+#     convergence-point, we're working in a plane parallel to the cylinder axis,
+#     which intersects a tapered cylinder or cone in a hyperbola.  Intersecting
+#     a ray with a hyperbola is hard.  Instead, we arrange to work in a plane
+#     that includes the convergence point, so the intersection of the plane with
+#     the cylinder is two straight lines.  Lines are easy.
 # 
-#   - The ray-line projected into the cross-plane intersects the circular cross
-#     section of the cylinder at two points, going through the ray passing-point
-#     and cutting off a chord of the line and an arc of the circle.  Two barrel
-#     lines go through the intersection points, along the surface of the
-#     cylinder and also in the ray-plane.  Each of them contains one of the
-#     intersection points between the ray and the cylinder.
+#   - The ray-line and the convergence-point determine a ray-plane, with the
+#     projected ray-line at the intersection of the ray-plane with the
+#     cross-plane.  If the ray-line goes through (i.e. within one pixel of) the
+#     convergence-point, we instead discard the pixel.  Right at the tip of a
+#     cone, the normal sample is very unstable, so we can't do valid shading
+#     there anyway.
+# 
+#   - We calculate a *different 2D ray-line passing-point*, and hence
+#     passing-line, for tapered cylinders and cones.  It's the closest point, on
+#     the *projected* ray-line in the cross-plane, to the cylinder axis
+#     passing-point (which doesn't move.)
+# 
+#     Note: The original passing-point is still *also* on the projected
+#     ray-line, but not midway between the projected barrel-line intersections
+#     anymore.  In projecting the ray-line into the crossing-plane within the
+#     ray-plane, the passing-line twists around the cylinder axis.  You can see
+#     this from the asymmetry of the tapering barrel-lines in 3D.  The
+#     ray-line/barrel-line intersection further from the convergence-point has
+#     to travel further to the crossing-plane than the nearer one.  (Of course,
+#     we don't *know* those points yet, we're in the process of computing one of
+#     them...)
+# 
+#   [Now we're back to common procedure for tapered and untapered cylinders.]
+# 
+#   - In the cross-plane, the projected ray-line intersects the circular cross
+#     section of the cylinder at two points, going through the ray
+#     passing-point, and cutting off a chord of the line and an arc of the
+#     circle.  Two barrel lines go through the intersection points, along the
+#     surface of the cylinder and also in the ray-plane.  Each of them contains
+#     one of the intersection points between the ray and the cylinder.
 # 
 #     . The chord of the projected ray-line is perpendicularly bisected by the
 #       passing-line, making a right triangle in the cross-plane.
@@ -269,12 +293,12 @@ Russ 090106: Design description file created.
 #       cross-plane and the ray-plane.
 # 
 #     . The barrel line we want passes through the cross-plane at that point as
-#       well as the convergence-point.  (But the intersection point of the
-#       barrel line with the ray-line is not in general contained in the
-#       cross-section plane, depending on the location of the viewpoint.)
+#       well as the convergence-point (which is at infinity in the direction of
+#       the axis for an untapered cylinder.)
 #   
 # . Intersect the 3D ray-line with the barrel line in the ray-plane, giving the
-#   3D ray-cylinder intersection point.
+#   3D ray-cylinder intersection point.  Note: this is not in general contained
+#   in the 2D crossing-plane, depending on the location of the viewpoint.
 # 
 #   - The intersection point may be easily calculated by interpolating two
 #     points on the ray line (e.g. the viewpoint and the ray passing-point.)
