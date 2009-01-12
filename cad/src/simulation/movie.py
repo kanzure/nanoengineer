@@ -19,7 +19,7 @@ from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from utilities.Log import redmsg, orangemsg, greenmsg
 from geometry.VQT import A
 from foundation.state_utils import IdentityCopyMixin
-from model.chem import move_atoms_and_normalize_bondpoints
+from operations.move_atoms_and_normalize_bondpoints import move_atoms_and_normalize_bondpoints
 from utilities import debug_flags
 from platform_dependent.PlatformDependent import fix_plurals
 from utilities.debug import print_compact_stack, print_compact_traceback

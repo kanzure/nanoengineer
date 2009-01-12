@@ -37,7 +37,7 @@ from utilities import debug_flags
 from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 
 from model.assembly import Assembly
-from model.chem import move_atoms_and_normalize_bondpoints
+from operations.move_atoms_and_normalize_bondpoints import move_atoms_and_normalize_bondpoints
 
 from simulation.runSim import readGromacsCoordinates
 

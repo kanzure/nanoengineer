@@ -16,7 +16,7 @@ from analysis.GAMESS.files_gms import get_energy_from_gms_outfile, get_atompos_f
 from utilities.Log import redmsg, greenmsg
 import foundation.env as env
 from utilities.Log import redmsg
-from model.chem import move_atoms_and_normalize_bondpoints
+from operations.move_atoms_and_normalize_bondpoints import move_atoms_and_normalize_bondpoints
 import foundation.state_utils as state_utils
 from utilities.debug import print_compact_traceback
 
