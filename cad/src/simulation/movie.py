@@ -19,7 +19,7 @@ from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from utilities.Log import redmsg, orangemsg, greenmsg
 from geometry.VQT import A
 from foundation.state_utils import IdentityCopyMixin
-from model.chem import move_alist_and_snuggle
+from model.chem import move_atoms_and_normalize_bondpoints
 from utilities import debug_flags
 from platform_dependent.PlatformDependent import fix_plurals
 from utilities.debug import print_compact_stack, print_compact_traceback
@@ -1109,7 +1109,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
             print msg
             raise ValueError, msg
                 #bruce 060108 reviewed/revised all 2 calls, added this exception to preexisting noop/errorprint (untested)
-        move_alist_and_snuggle(self.alist, newPositions) #bruce 051221 fixed bug 1239 in this function, then split it out
+        move_atoms_and_normalize_bondpoints(self.alist, newPositions) #bruce 051221 fixed bug 1239 in this function, then split it out
         self.glpane.gl_update()
         return
 
@@ -1166,7 +1166,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         res = map( lambda a: a.sim_posn(), self.alist )
         return A(res)
 
-    def set_posns(self, newposns): #bruce 060111 comment: should probably be renamed set_sim_posns since it corrects singlet posns
+    def set_posns(self, newposns): 
         """
         Set our atoms' positions (even killed ones) to those in the given 
         array (but correct singlet positions); do all required invals but
@@ -1175,10 +1175,15 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         @note: someday we might have a version which only does this for the 
         atoms now in a given Part.
         """
-        #e later we'll optimize this by owning atoms and speeding up or eliminating invals
-        #bruce 060109 replaced prior code with this recently split out routine, so that singlet correction is done on every frame;
-        # could be optimized, e.g. by precomputing singlet list and optimizing setposn_batch on lists of atoms
-        move_alist_and_snuggle(self.alist, newposns)
+        #e later we'll optimize this by owning atoms and speeding up or 
+        # eliminating invals
+        #bruce 060109 replaced prior code with this recently split out routine,
+        # so that singlet correction is done on every frame; could be optimized,
+        # e.g. by precomputing singlet list and optimizing setposn on lists of
+        # atoms
+        #bruce 060111 comment: should probably be renamed set_sim_posns
+        # since it corrects singlet posns
+        move_atoms_and_normalize_bondpoints(self.alist, newposns)
 
     set_posns_no_inval = set_posns #e for now... later this can be faster, and require own/release around it
 

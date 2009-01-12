@@ -1184,13 +1184,6 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # ==
 
-    # for debugging
-    def prin(self):
-        for a in self.selatoms.itervalues():
-            a.prin()
-
-    # ==
-
     def break_interpart_bonds(self): ###@@@ move elsewhere in method order? review, implem for jigs
         """
         Break all bonds between nodes in this part and nodes in other parts;

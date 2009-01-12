@@ -63,12 +63,16 @@ def mt_accumulate_stats(node, stats): #bruce 081216 renamed from accumulate_stat
     stats.ngroups += int(isinstance(node, Group))
     if (isinstance(node, Chunk)):
         stats.nchunks += 1
+        # note: chunkHasOverlayText is only a hint, so it's possible
+        # this has false positives, even though it becomes accurate
+        # every time node is drawn. (If it's visible in MT but hidden
+        # in glpane, I think nothing will update it.) [bruce 090112 comment]
         if (node.chunkHasOverlayText and not node.showOverlayText):
             stats.canShowOverlayText += 1
         if (node.chunkHasOverlayText and node.showOverlayText):
             stats.canHideOverlayText += 1
     stats.njigs += int(isinstance(node, Jig))
-    #e later, classify(node1, Node) into a list of classes, and get counts for all...
+    # maybe todo: also show counts of all other subclasses of Node?
 
     stats.npicked += int(node.picked)
     stats.nhidden += int(node.hidden)

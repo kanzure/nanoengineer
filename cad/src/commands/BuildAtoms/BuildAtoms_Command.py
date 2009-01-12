@@ -228,6 +228,10 @@ class BuildAtoms_Command(SelectAtoms_Command):
             self.Menu_spec.append(item)
             chunk = selatom.molecule
             if (chunk.chunkHasOverlayText):
+                # note: this is only a hint, but since it's updated whenever 
+                # chunk is drawn, I suspect it will always be up to date at
+                # this point. (If not, that's ok -- these commands will just
+                # be noops.) [bruce 090112 comment]
                 if (chunk.showOverlayText):
                     item = ('Hide overlay text on %r' % name, self.toggleShowOverlayText)
                 else:

@@ -37,7 +37,7 @@ from utilities import debug_flags
 from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 
 from model.assembly import Assembly
-from model.chem import move_alist_and_snuggle
+from model.chem import move_atoms_and_normalize_bondpoints
 
 from simulation.runSim import readGromacsCoordinates
 
@@ -1202,7 +1202,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     #bruce 080606 added condition ok == SUCCESS (likely bugfix) 
                     newPositions = readGromacsCoordinates(gromacsCoordinateFile, listOfAtoms)
                     if (type(newPositions) == type([])):
-                        move_alist_and_snuggle(listOfAtoms, newPositions)
+                        move_atoms_and_normalize_bondpoints(listOfAtoms, newPositions)
                     else:
                         env.history.message(redmsg(newPositions))
             

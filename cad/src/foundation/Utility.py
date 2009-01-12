@@ -1424,38 +1424,61 @@ class Node( StateMixin):
         """
         return None
 
-    def copy_copyable_attrs_to(self, target, own_mutable_state = True): #bruce 050526; behavior and docstring revised 051003
+    def copy_copyable_attrs_to(self, target, own_mutable_state = True): 
         """
-        Copy all copyable attrs (as defined by a typically-subclass-specific constant tuple, self.copyable_attrs)
-        from self to target (presumably a Node of the same subclass, but this is not checked,
-        and violating it might not be an error, in principle; in particular, as of 051003 target is explicitly permitted
+        Copy all copyable attrs (as defined by a typically-subclass-specific
+        constant tuple which lists their names, self.copyable_attrs) 
+        from self to target (presumably a Node of the same subclass as self, 
+        but this is not checked, and violating it might not be an error, 
+        in principle; in particular, as of 051003 target is explicitly permitted
         to be a methodless attribute-holder).
-           Target and self need not be in the same assy (i.e. need not have the same .assy attribute),
-        and when this situation occurs, it must not be disturbed (e.g. setting target.assy = self.assy would be a bug).
-        Doesn't do any invals or updates in target.
-           This is not intended to be a full copy of self, since copyable_attrs (in current client code)
-        should not contain object-valued attrs like Group.members, Node.dad, or Chunk.atoms, but only
-        "parameter-like" attributes. It's meant to be used as a helper function for making full or partial copies
-        of self, and related purposes. The exact set of attributes to include can be chosen somewhat
-        arbitrarily by each subclass, but any which are left out will have to be handled separately by the copy methods;
-        in practice, new attributes in subclasses should almost always be declared in copyable_attrs.
-           As of 051003, this method (implem and spec) has been extended to "deep copy" any mutable objects
-        found in attribute values (of the standard kinds defined by state_utils.copy_val), so that no
-        mutable state is shared between copies and originals. This can be turned off by passing own_mutable_state = False,
-        which is a useful optimization if serial copies are made and intermediate copies won't be kept.
-           This is intended as a private helper method for subclass-specific copy methods,
-        which may need to do further work to make these attribute-copies fully correct --
-        for example, modifying the values of id- or (perhaps) name-like attributes,
-        or doing appropriate invals or updates in target.
+        
+        Target and self need not be in the same assy (i.e. need not have the 
+        same .assy attribute), and when this situation occurs, it must not be 
+        disturbed (e.g. setting target.assy = self.assy would be a bug).
+        
+        This method doesn't do any invals or updates in target.
+        
+        This is not intended to be a full copy of self, since copyable_attrs 
+        (in current client code) should not contain object-valued attrs like 
+        Group.members, Node.dad, or Chunk.atoms, but only "parameter-like" 
+        attributes. It's meant to be used as a helper function for making full
+        or partial copies of self, and related purposes. The exact set of 
+        attributes to include can be chosen somewhat arbitrarily by each
+        subclass, but any which are left out will have to be handled separately
+        by the copy methods; in practice, new attributes in subclasses should
+        almost always be declared in copyable_attrs.
+        
+        As of 051003, this method (implem and spec) has been extended to 
+        "deep copy" any mutable objects found in attribute values (of the
+        standard kinds defined by state_utils.copy_val), so that no mutable
+        state is shared between copies and originals. This can be turned off
+        by passing own_mutable_state = False, which is a useful optimization
+        if serial copies are made and intermediate copies won't be kept.
+        
+        This is intended as a private helper method for subclass-specific copy
+        methods, which may need to do further work to make these attribute-
+        copies fully correct -- for example, modifying the values of id- or
+        (perhaps) name-like attributes, or doing appropriate invals or updates
+        in target.
+        
+        [subclasses probably never need to extend this method]
         """
+        #bruce 050526; behavior and docstring revised 051003
+        # REVIEW/TODO: rename this to be private, if indeed it is
         for attr in self.copyable_attrs:
-            assert attr != 'assy' #e could optim by doing this once per class or once per instance
+            assert attr != 'assy' # todo: optim by doing this once per class
             val = getattr(self, attr)
             if own_mutable_state:
                 val = copy_val(val)
-            setattr(target, attr, val) # turns some default class attrs into unneeded instance attrs (nevermind for now)
+            setattr(target, attr, val) 
+                # note: waste of RAM: this turns some default class attrs
+                # into unneeded instance attrs (nevermind for now;
+                # but note that some classes copy some attrs outside of this
+                # method for this reason)
         if isinstance(target, Node):
-            # don't do this for non-Nodes, to permit target being just a methodless attribute-holder [new feature, bruce 051003]
+            # having this condition permits target being just a
+            # methodless attribute-holder [new feature, bruce 051003]
             self.copy_prior_part_to( target)
         return
 

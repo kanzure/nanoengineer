@@ -589,7 +589,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     # Text to be drawn floating over the atom.  Note, you must also
     # set chunk.chunkHasOverlayText for this to be used.  Do this by
-    # just calling setOverlayText().
+    # just calling setOverlayText() to set both.
     overlayText = None
 
     # piotr 080822: The pdb_info dictionary stores information
@@ -635,8 +635,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         self._changed_structure()
         self.changed()
         posn = self.posn()
-        self.setposn_batch( posn - V(1,1,1) ) # i hope it doesn't optimize for posn being unchanged! just in case, set wrong then right
-        self.setposn_batch( posn )
+        self.setposn( posn - V(1,1,1) ) # i hope it doesn't optimize for posn being unchanged! just in case, set wrong then right
+        self.setposn( posn )
         # .picked might change... always recompute selatoms in external code ####@@@@
         self.molecule.changeapp(1)
         # anything needed for InvalMixin stuff?? #e ####@@@@
@@ -1056,7 +1056,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         undo_archive._undo_debug_message( '_undo_debug_obj = %r' % self )
         return
 
-    def setOverlayText(self, text):
+    def setOverlayText(self, text): # by EricM
         self.overlayText = text
         self.molecule.chunkHasOverlayText = True
     
@@ -1290,6 +1290,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #  It's also been called (for awhile) from reading xyz files from Minimize.]
         # bruce 041130 added unary '+' (see Atom.posn comment for the reason).
         #bruce 060308 rewrite
+        #bruce 090112 removed setposn_batch alias, since no distinction for ages
         self._setposn_no_chunk_or_bond_invals(pos)
         mol = self.molecule
         if mol is not None:
@@ -1301,9 +1302,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         for b in self.bonds:
             b.setup_invalidate()
         return # from setposn
-
-    setposn_batch = setposn #bruce 060308 rewrite of setposn
-
+    
     def _setposn_no_chunk_or_bond_invals(self, pos): #bruce 060308 (private for Chunk and Atom)
         self._posn = + pos
         _changed_posn_Atoms[self.key] = self #bruce 060322
@@ -1369,14 +1368,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     def __str__(self):
         return self.element.symbol_for_printing + str(self.key)
-
-    def prin(self):
-        """
-        for debugging
-        """
-        lis = map((lambda b: b.other(self).element.symbol), self.bonds)
-        print self.element.name, lis
-
+    
     _f_valid_neighbor_geom = False # privately, also used as valid_data tuple
         # this is reset to False by some Atom methods, and when any bond of self
         # is invalidated, which covers (I think) motion or element change of a
@@ -3481,7 +3473,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                   (self, numol, self.molecule, self.molecule.assy, numol.assy)
             print_compact_stack(msg + ": ") #bruce 080411
 
-        # We only have to set this in the chunk, not clear it, as it
+        # We only have to set this in numol, not clear it in self, as it
         # is cleared by the display routine when needed.
         if (self.overlayText):
             numol.chunkHasOverlayText = True
@@ -4759,10 +4751,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 register_instancelike_class( Atom) # ericm & bruce 080225
 
 register_class_changedicts( Atom, _Atom_global_dicts )
-    # error if one class has two same-named changedicts (so be careful re module reload)
-
-# removing definition of atom = Atom, since I have just fixed all uses, I hope: [bruce 071113]
-## atom = Atom # old name of that class -- must remain here until all code has been revised to use new name [bruce 050610]
+    # error if one class has two same-named changedicts 
+    # (so be careful re module reload)
 
 # ==
 
@@ -4794,18 +4784,21 @@ def oneUnbonded(elem, assy, pos, atomtype = None, Chunk_class = None):
     @return: one newly created Atom object, already placed into a new
              chunk which has been added to the model using addnode
     """
-    #bruce 080520 added Chunk_class option
-    #bruce 050510 added atomtype option
-    # bruce 041215 moved this from chunk.py to chem.py, and split part of it
+    #bruce 041215 moved this from chunk.py to chem.py, and split part of it
     # into the new atom method make_bondpoints_when_no_bonds, to help fix bug 131.
+    #bruce 050510 added atomtype option
+    #bruce 080520 added Chunk_class option
+    #todo: refile into operations, maybe as an assy or part method
     if Chunk_class is None:
         Chunk_class = assy.Chunk
     chunk = Chunk_class(assy, 'bug') # name is reset below!
     atom = Atom(elem.symbol, pos, chunk)
     # bruce 041124 revised name of new chunk, was gensym('Chunk.');
     # no need for gensym since atom key makes the name unique, e.g. C1.
-    atom.set_atomtype_but_dont_revise_singlets(atomtype) # ok to pass None, type name, or type object; this verifies no change in elem
-        # note, atomtype might well already be the value we're setting; if it is, this should do nothing
+    atom.set_atomtype_but_dont_revise_singlets(atomtype) 
+        # ok to pass None, type name, or type object; this verifies no change in elem
+        # note, atomtype might well already be the value we're setting; 
+        # if it is, this should do nothing
     ## chunk.name = "Chunk-%s" % str(atom)
     chunk.name = gensym("Chunk", assy) #bruce 080407 per Mark NFR desire
     atom.make_bondpoints_when_no_bonds() # notices atomtype
@@ -4814,34 +4807,44 @@ def oneUnbonded(elem, assy, pos, atomtype = None, Chunk_class = None):
 
 # ==
 
-def move_alist_and_snuggle(alist, newPositions):
+def move_atoms_and_normalize_bondpoints(alist, newPositions): 
     """
     Move the atoms in alist to the new positions in the given array or sequence
     (which must have the same length);
     then for any singlets in alist, correct their positions using Atom.snuggle.
 
-    @warning: it would be wrong to call this on several alists in a row if they might overlap
-    or were connected by bonded atoms, for the same reason that the snuggle has to be done in a separate loop
-    (see snuggle docstring for details, re bug 1239).
+    @warning: it would be wrong to call this on several alists in a row if they 
+              might overlap or were connected by bonded atoms, for the same 
+              reason that the snuggle has to be done in a separate loop
+              (see snuggle docstring for details, re bug 1239).
 
-    @warning: I'm not sure if it does all required invals; it doesn't do gl_update.
+    @warning: I'm not sure this does all required invals; doesn't do gl_update.
     """
-    #bruce 051221 split this out of class Movie so its bug1239 fix can be used in jig_Gamess.
+    #bruce 051221 split this out of class Movie so its bug1239 fix can be used
+    # in jig_Gamess. [later: Those callers have duplicated code which should be
+    # cleaned up.]
+    #bruce 090112 renamed from move_alist_and_snuggle
+    #todo: refile into a new file in operations package
     assert len(alist) == len(newPositions)
     singlets = []
     for a, newPos in zip(alist, newPositions):
-        #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
-        # (and therefore have the wrong distance from their base atom).
-        # Rather than needing to know whether or not they were H during the sim,
-        # we can just regularize the singlet-baseatom distance for all singlets.
-        # For now I'll just use setposn to set the direction and snuggle to fix the distance.
-        #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
-        # is wildly wrong, and it should also complain. I won't do this for now.
-        a.setposn_batch(A(newPos)) #bruce 050513 try to optimize this
+        #bruce 050406 this needs a special case for singlets, in case they are H
+        # in the xyz file (and therefore have the wrong distance from their base
+        # atom). Rather than needing to know whether or not they were H during 
+        # the sim, we can just regularize the singlet-baseatom distance for all
+        # singlets. For now I'll just use setposn to set the direction and snuggle
+        # to fix the distance.
+        # REVIEW: should it also regularize the distance for H itself? Maybe only 
+        # if sim value is wildly wrong, and it should also complain. I won't do 
+        # this for now.
+        a.setposn(A(newPos))
         if a.is_singlet(): # same code as in movend()
-            singlets.append(a) #bruce 051221 to fix bug 1239: do all snuggles after all moves; see snuggle docstring warning
+            #bruce 051221 to fix bug 1239: do all snuggles after all moves; 
+            # see snuggle docstring warning
+            singlets.append(a)
+        continue
     for a in singlets:
-        a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
+        a.snuggle() # includes a.setposn
     return
 
 # end

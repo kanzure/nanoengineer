@@ -311,10 +311,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     _f_lost_externs = False
     _f_gained_externs = False
 
-    # Set this to True if any of the atoms in this chunk has their
+    # Set this to True if any of the atoms in this chunk have their
     # overlayText set to anything other than None.  This keeps us from
     # having to test that for every single atom in every single chunk
-    # each time the screen is rerendered.
+    # each time the screen is rerendered. It is not reset to False
+    # except when no atoms happen to have overlayText when self is rendered --
+    # in other words, it's only a hint -- false positives are permitted.
     chunkHasOverlayText = False
 
     # Set to True if the user wishes to see the overlay text on this
@@ -2301,7 +2303,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         return # from Chunk.draw()
 
-    def renderOverlayText(self, glpane):
+    def renderOverlayText(self, glpane): # by EricM
         gotone = False
         for atom in self.atoms.itervalues():
             text = atom.overlayText
@@ -4131,6 +4133,25 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         assert 0, "should never be called, since a chunk does not *refer* to selatoms, or appear in atom.jigs"
         return True # but if it ever is called, answer should be true
 
+    def _copy_optional_attrs_to(self, numol):
+        #bruce 090112 split this out of two methods.
+        # Note: we don't put these in copyable_attrs, since
+        # copy_copyable_attrs_to wasted RAM when they have their 
+        # default values (and perhaps for other reasons??).
+        # Review: add a method like this to Node API, to be called
+        # inside default def of copy_copyable_attrs_to??
+        if self.chunkHasOverlayText:
+            numol.chunkHasOverlayText = True
+        if self.showOverlayText:
+            numol.showOverlayText = True
+        if self._colorfunc is not None: #bruce 060411 added condition
+            numol._colorfunc = self._colorfunc 
+        if self._dispfunc is not None:
+            numol._dispfunc = self._dispfunc
+        # future: also copy user-specified axis, center, etc, if we have those
+        # (but see existing copy code for self.user_specified_center)
+        return
+        
     def copy_empty_shell_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
         """
         [private method to help the public copy methods, all of which
@@ -4152,17 +4173,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         numol = self.__class__(mapping.assy, self.name)
             #bruce 080316 Chunk -> self.__class__ (part of fixing this for Extrude of DnaGroup)
         self.copy_copyable_attrs_to(numol) # copies .name (redundantly), .hidden, .display, .color...
-        if (self.chunkHasOverlayText):
-            numol.chunkHasOverlayText = True
-        if (self.showOverlayText):
-            numol.showOverlayText = True
+        self._copy_optional_attrs_to(numol)
         mapping.record_copy(self, numol)
-        # also copy user-specified axis, center, etc, if we ever have those
-        ## numol.setDisplayStyle(self.display)
-        if self._colorfunc is not None: #bruce 060411 added condition; note, this code snippet occurs in two methods
-            numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
-        if self._dispfunc is not None:
-            numol._dispfunc = self._dispfunc
         return numol
 
     def copy_full_in_mapping(self, mapping): # Chunk method [bruce 050526] #bruce 060308 major rewrite
@@ -4376,10 +4388,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.copy_copyable_attrs_to(numol)
             # copies .name (redundantly), .hidden, .display, .color...
             # and sets .prior_part, which is what should fix bug 660
-        if (self.chunkHasOverlayText):
-            numol.chunkHasOverlayText = True
-        if (self.showOverlayText):
-            numol.showOverlayText = True
+        self._copy_optional_attrs_to(numol)
         numol.name = newname
         #end 050531 kluges
         nuatoms = {}
@@ -4429,20 +4438,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 bond_copied_atoms( na, x, b, a)
         if copied_hotspot is not None:
             numol.set_hotspot( ndix[copied_hotspot.key])
-        #e also copy (but translate by offset) user-specified axis, center, etc,
-        #  if we ever have those
+        # future: also copy (but translate by offset) user-specified 
+        # axis, center, etc, if we ever have those
         if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
             numol.user_specified_center = self.user_specified_center + offset
-        numol.setDisplayStyle(self.display)
+        numol.setDisplayStyle(self.display) 
+            # REVIEW: why is this not redundant? (or is it?) [bruce 090112 question]
         numol.dad = dad
         if dad and debug_flags.atom_debug: #bruce 050215
             print "atom_debug: mol.copy got an explicit dad (this is deprecated):", dad
-        if self._colorfunc is not None: #bruce 060411 added condition; note, this code snippet occurs in two methods
-            numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
-        if self._dispfunc is not None:
-            numol._dispfunc = self._dispfunc
-        return numol # assy
-
+        return numol
+    
     # ==
 
     def Passivate(self, p = False):

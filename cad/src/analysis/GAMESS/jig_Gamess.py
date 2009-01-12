@@ -16,7 +16,7 @@ from analysis.GAMESS.files_gms import get_energy_from_gms_outfile, get_atompos_f
 from utilities.Log import redmsg, greenmsg
 import foundation.env as env
 from utilities.Log import redmsg
-from model.chem import move_alist_and_snuggle
+from model.chem import move_atoms_and_normalize_bondpoints
 import foundation.state_utils as state_utils
 from utilities.debug import print_compact_traceback
 
@@ -341,7 +341,7 @@ class Gamess(Jig):
             print "move_atoms: The number of atoms from GAMESS file (%d) is not matching with that of the current model (%d)" % \
                   (len(newPositions), len(atomList))
             return
-        move_alist_and_snuggle(atomList, newPositions)
+        move_atoms_and_normalize_bondpoints(atomList, newPositions)
             #bruce 051221 fix a bug analogous to bug 1239 by letting this new function (containing a loop)
             # replace a copy (which was right here) of the older buggy version of that loop
         self.assy.o.gl_update()
