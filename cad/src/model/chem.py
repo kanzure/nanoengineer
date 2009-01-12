@@ -100,7 +100,6 @@ from utilities.constants import atKey
     # read from an mmp file), so we now require this in the future even if the
     # key type is changed. [Note: this comment appears in two files.]
 
-from utilities.constants import gensym
 from utilities.constants import intRound
 
 from utilities.constants import diDEFAULT
@@ -4767,43 +4766,6 @@ register_class_changedicts( Atom, _Atom_global_dicts )
 ##    _s_undo_class_alias = Atom
 ##    pass
 ##register_instancelike_class( Atom2)
-
-# ==
-
-def oneUnbonded(elem, assy, pos, atomtype = None, Chunk_class = None):
-    """
-    Create one unbonded atom, of element elem
-    and (if supplied) the given atomtype
-    (otherwise the default atomtype for elem),
-    at position pos, in its own new chunk,
-    with enough bondpoints to have no valence error.
-
-    @param Chunk_class: constructor for the returned atom's new chunk
-                        (assy.Chunk by default)
-
-    @return: one newly created Atom object, already placed into a new
-             chunk which has been added to the model using addnode
-    """
-    #bruce 041215 moved this from chunk.py to chem.py, and split part of it
-    # into the new atom method make_bondpoints_when_no_bonds, to help fix bug 131.
-    #bruce 050510 added atomtype option
-    #bruce 080520 added Chunk_class option
-    #todo: refile into operations, maybe as an assy or part method
-    if Chunk_class is None:
-        Chunk_class = assy.Chunk
-    chunk = Chunk_class(assy, 'bug') # name is reset below!
-    atom = Atom(elem.symbol, pos, chunk)
-    # bruce 041124 revised name of new chunk, was gensym('Chunk.');
-    # no need for gensym since atom key makes the name unique, e.g. C1.
-    atom.set_atomtype_but_dont_revise_singlets(atomtype) 
-        # ok to pass None, type name, or type object; this verifies no change in elem
-        # note, atomtype might well already be the value we're setting; 
-        # if it is, this should do nothing
-    ## chunk.name = "Chunk-%s" % str(atom)
-    chunk.name = gensym("Chunk", assy) #bruce 080407 per Mark NFR desire
-    atom.make_bondpoints_when_no_bonds() # notices atomtype
-    assy.addnode(chunk)
-    return atom
 
 # ==
 

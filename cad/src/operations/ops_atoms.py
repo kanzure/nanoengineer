@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_atoms.py -- operations on the atoms and/or bonds inside a Part.
 These operations generally create or destroy atoms, bondpoints, or real bonds.
 Operations specific to single modes (Build, Crystal, Extrude) are not included here.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -16,9 +16,13 @@ from existing modules, from class Part and class basicMode.
 from utilities.Log import greenmsg, redmsg
 
 from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
+from utilities.constants import gensym
 
 from platform_dependent.PlatformDependent import fix_plurals
+
 from model.elements import Singlet
+from model.chem import Atom
+
 import foundation.env as env
 
 class ops_atoms_Mixin:
@@ -26,7 +30,47 @@ class ops_atoms_Mixin:
     Mixin class for providing these methods to class Part
     """
     
-    def modifyTransmute(self, elem, force = False, atomType=None): 
+    def make_Atom_and_bondpoints(self, 
+                                 elem, 
+                                 pos, 
+                                 atomtype = None, 
+                                 Chunk_class = None ):
+        """
+        Create one unbonded atom, of element elem
+        and (if supplied) the given atomtype
+        (otherwise the default atomtype for elem),
+        at position pos, in its own new chunk,
+        with enough bondpoints to have no valence error.
+    
+        @param Chunk_class: constructor for the returned atom's new chunk
+                            (self.assy.Chunk by default)
+                            
+        @return: one newly created Atom object, already placed into a new
+                 chunk which has been added to the model using addnode
+        """
+        #bruce 041215 moved this from chunk.py to chem.py, and split part of it
+        # into the new atom method make_bondpoints_when_no_bonds, to help fix bug 131.
+        #bruce 050510 added atomtype option
+        #bruce 080520 added Chunk_class option
+        #bruce 090112 renamed oneUnbonded function and turned it into this method
+        assy = self.assy
+        if Chunk_class is None:
+            Chunk_class = assy.Chunk
+        chunk = Chunk_class(assy, 'bug') # name is reset below!
+        atom = Atom(elem.symbol, pos, chunk)
+        # bruce 041124 revised name of new chunk, was gensym('Chunk.');
+        # no need for gensym since atom key makes the name unique, e.g. C1.
+        atom.set_atomtype_but_dont_revise_singlets(atomtype) 
+            # ok to pass None, type name, or type object; this verifies no change in elem
+            # note, atomtype might well already be the value we're setting; 
+            # if it is, this should do nothing
+        ## chunk.name = "Chunk-%s" % str(atom)
+        chunk.name = gensym("Chunk", assy) #bruce 080407 per Mark NFR desire
+        atom.make_bondpoints_when_no_bonds() # notices atomtype
+        assy.addnode(chunk) # REVIEW: same as self.addnode?
+        return atom
+        
+    def modifyTransmute(self, elem, force = False, atomType = None): 
         """
         This method was originally a method of class mode and selectMode.
         Transmute selected atoms into <elem> and with an optional <atomType>. 
@@ -60,7 +104,6 @@ class ops_atoms_Mixin:
             self.o.gl_update()
         
         return
-    
     
     def modifyDeleteBonds(self):
         """

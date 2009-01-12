@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 BuildAtoms_GraphicsMode.py 
 
@@ -13,7 +13,7 @@ For example:
 
                         
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: [as of 2008-01-04]
 - Items mentioned in Select_GraphicsMode.py 
@@ -63,7 +63,6 @@ from platform_dependent.PlatformDependent import fix_plurals
 
 from model.chunk import Chunk
 from model.chem import Atom
-from model.chem import oneUnbonded
 from model.elements import Singlet
 from geometry.VQT import Q, A, norm, twistor
 
@@ -1061,10 +1060,10 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 
         else: # Deposit atom at the cursor position and prep it for dragging
             cursorPos = atom_or_pos
-            a = self.o.selatom = oneUnbonded(atype.element, 
-                                             self.o.assy, 
-                                             cursorPos, 
-                                             atomtype = atype)
+            a = self.o.assy.make_Atom_and_bondpoints(atype.element, 
+                                                     cursorPos, 
+                                                     atomtype = atype )
+            self.o.selatom = a
             self.objectSetup(a)
             self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
             if self.pickit(): 
@@ -1074,7 +1073,6 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             chunk = self.o.selatom.molecule #bruce 041207
         
         return chunk, status
-    
         
     def ensure_visible(self, stuff, status):
         """

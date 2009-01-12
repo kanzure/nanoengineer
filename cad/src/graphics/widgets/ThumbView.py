@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 ThumbView.py - a simpler OpenGL widget, similar to GLPane
 (which unfortunately has a lot of duplicated but partly modified
@@ -6,7 +6,7 @@ code copied from GLPane)
 
 @author: Huaicai
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 from Numeric import dot
@@ -734,7 +734,7 @@ class ElementView(ThumbView):
     
     def constructModel(self, elm, pos, dispMode):
         """
-        This is to try to repeat what 'oneUnbonded()' function does,
+        This is to try to repeat what 'make_Atom_and_bondpoints()' method does,
         but hope to remove some stuff not needed here.
         The main purpose is to build the geometry model for element display.
         
@@ -872,7 +872,7 @@ class MMKitView(ThumbView):
             
     def constructModel(self, elm, pos, dispMode):
         """
-        This is to try to repeat what 'oneUnbonded()' function does,
+        This is to try to repeat what 'make_Atom_and_bondpoints()' method does,
         but hope to remove some stuff not needed here.
         The main purpose is to build the geometry model for element display. 
 

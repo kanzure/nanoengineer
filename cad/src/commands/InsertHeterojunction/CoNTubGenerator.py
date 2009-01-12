@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 CoNTubGenerator.py
 
@@ -6,7 +6,7 @@ Generator functions which use cad/plugins/CoNTub.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Also intended as a prototype of code which could constitute the nE-1 side
 of a "generator plugin API". Accordingly, the CoNTub-specific code should
@@ -619,7 +619,7 @@ class PluginlikeGenerator:
         n = max(params[0],1)
         for x in range(n):
           for y in range(2):
-            ## build methane, from oneUnbonded
+            ## build methane, much like make_Atom_and_bondpoints method does it
             pos = V(x,y,0)
             atm = Atom('C', pos, mol)
             atm.make_bondpoints_when_no_bonds() # notices atomtype

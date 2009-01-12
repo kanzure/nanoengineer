@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 virtual_site_indicators.py - graphical indicators related to virtual sites
 (as used in the current GROMACS implementation of the PAM5 force field);
@@ -7,7 +7,7 @@ not as part of their implementation for minimize.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from model.jigs import Jig
@@ -405,9 +405,8 @@ def make_virtual_site( assy, parent_atoms, site_params, MT_name = None):
     """
     @return: ( object to assign to site_atom_id, list of nodes to add to MT )
     """
-    from model.chem import oneUnbonded
     from model.elements import Vs0
-    site_atom = oneUnbonded(Vs0, assy, V(0,0,0), Chunk_class = VirtualSiteChunk)
+    site_atom = assy.make_Atom_and_bondpoints(Vs0, V(0,0,0), Chunk_class = VirtualSiteChunk)
     jig = VirtualSiteJig(assy, parent_atoms + [site_atom])
     jig.setProps(site_params) # so it knows how to compute site_position
     jig._update_site_atom_position()
@@ -432,7 +431,7 @@ def add_virtual_site(assy, parent_atoms, site_params, MT_name = None):
     site_atom, nodes = make_virtual_site( assy, parent_atoms, site_params, MT_name = MT_name)
     for node in nodes:
         assy.addnode(node) # todo: add them in a better place?
-            # review: redundant with oneUnbonded?
+            # review: redundant with make_Atom_and_bondpoints?
     return site_atom
 
 # ==
