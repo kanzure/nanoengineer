@@ -89,6 +89,7 @@ doc:
 
 cleanpyc:
 	find . -name \*.pyc -delete
+	find . -name \*.pyo -delete
 
 pyclean: cleanpyc
 	rm -f $(PYFILES0) *~
