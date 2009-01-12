@@ -2451,14 +2451,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # note: error message from rejecting disp, if any,
             # should be done somewhere else, not here
             # (since doing it per atom would be too verbose).
-        # Review: could we make the following conditional on
-        # self.display != disp? Possible reasons we couldn't:
-        # if any callers first set self.disp, then called this method to bless
-        # that. I reviewed all the calls and I think this change would be safe,
-        # so I am trying it below -- if it causes some chunks to not changeapp,
-        # out of those touched by a large selection of atoms, it might be a
-        # useful optimization. [bruce 080305 optimization]
         if self.display == disp:
+            # bruce 080305 optimization (also done in class Chunk).
+            # This would be unsafe if any callers first set self.disp directly,
+            # then called this method to bless that. I reviewed all calls and
+            # think this change is safe. It might be important if it causes
+            # some chunks to not changeapp, out of those touched by a large
+            # selection of atoms.
             return
         self.revise_atom_content(
             ATOM_CONTENT_FOR_DISPLAY_STYLE[self.display],
@@ -2473,7 +2472,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Atom.setDisplayStyle changes appearance of this atom's bonds,
         # so: do we need to invalidate the bonds? No, they don't store display
         # info, and the geometry related to bond.setup_invalidate has not changed.
-        # What about the mols on both ends of the bonds? The changeapp() handles
+        # What about the chunks on both ends of the bonds? The changeapp() handles
         # that for internal bonds, and external bonds are redrawn every time so
         # no invals are needed if their appearance changes.
         

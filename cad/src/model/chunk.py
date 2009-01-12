@@ -2072,7 +2072,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                                                     self.bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5)
 
         if indicate_overlapping_atoms and is_chunk_visible:
-            self._indicate_overlapping_atoms()
+            self.draw_overlap_indicators_if_needed()
 
         if self.hidden:
             # catch the case where indicate_overlapping_atoms skipped this test earlier
@@ -2500,10 +2500,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 ##            pass
 ##        return
 
-    def _indicate_overlapping_atoms(self): #bruce 080411
+    def draw_overlap_indicators_if_needed(self): #bruce 080411, renamed 090108
         """
-        Draw indicators around all atoms that overlap (or are too close to)
-        other atoms (in self or in other chunks).
+        If self overlaps any atoms (in self's chunk or in other chunks)
+        already scanned (by calling this method on them) during this drawing 
+        frame (paintGL call),
+        draw overlap indicators around self and/or those atoms as needed,
+        so that each atom needing an overlap indicator gets one drawn at
+        least once, assuming this method is called on all atoms drawn
+        during this drawing frame.
         """
         model_draw_frame = self.part # kluge, explained elsewhere in this file
         if not model_draw_frame:
@@ -3411,12 +3416,20 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def set_basecenter_and_quat(self, basecenter, quat):
         """
-        Deprecated public method: change this Chunk's basecenter and quat to the specified values,
-        as a way of moving the Chunk's atoms.
-        It's deprecated since basecenter and quat are replaced by in-principle-arbitrary values
-        every time certain recomputations are done, but this method is only useful if the caller
-        knows what they are, and computes the new ones it wants relative to what they are.
-        So it's much better to use mol.pivot instead (or some combo of move, rot, and pivot).
+        Deprecated public method: 
+        
+        Change self's basecenter and quat to the specified values,
+        as a way of moving self's atoms.
+        
+        It's deprecated since basecenter and quat are replaced by 
+        in-principle-arbitrary values every time certain recomputations are done
+        after self's geometry might have changed, but this method is only useful
+        if the caller knows what they are, and computes the new ones it wants
+        relative to what they are, which in practice means the caller must
+        be able to prevent modifications to self during an entire period
+        when it wants to be able to call this method repeatedly on self.
+        So it's much better to use self.pivot instead (or some combo of move, 
+        rot, and pivot methods).
         """
         # [written by bruce for extrude; moved into class Chunk by bruce 041104]
         # modified from mol.move and mol.rot as of 041015 night
@@ -3459,9 +3472,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         return
 
     def setDisplayStyle(self, disp): #bruce 080910 renamed from setDisplay
-        # TODO: optimize when self.display == disp, since I just reviewed
-        # all calls and this looks safe. (Ditto with Atom version of this
-        # method.) [bruce comment 080305 @@@@]
         """
         Set self's display style.
         """
@@ -3469,7 +3479,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             #bruce 080305 optimization; looks safe after review of all calls;
             # important (due to avoiding inlined changeapp and display list
             # remake) if user selects several chunks and changes them all
-            # at once, and some are already set to disp.
+            # at once, and some are already set to disp. Also done in class Atom.
             return
 
         self.display = disp
@@ -3481,47 +3491,58 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def getDisplayStyle(self):
         """
-        Return the display style set on self (and not the one supplied from 
-        self's environment (i.e. the glpane) when self's display style is set to 
-        to diDEFAULT).
+        Return the display style setting on self. 
         
-        Use get_dispdef to obtain the display style set by self or self's 
-        environment when self's display style is set to diDEFAULT.
+        Note that this might be diDEFAULT -- that setting makes self get drawn
+        as if it had a display style inherited from self's graphical environment
+        (for now, its glpane), but an inherited style is never returned
+        from this method (unless it also happens to be explicitly set on self).
         
-        @note: self's display style used to draw self can differ from  
-        self.display not only if it's diDEFAULT, but due to some special cases 
-        in get_dispdef based on the type of chunk.
+        (Use get_dispdef to obtain the display style that will be used to draw
+        self, which might be set on self or inherited from self's environment.)
+        
+        @note: the display style used to draw self can differ from  
+        self.display not only if that's diDEFAULT, but due to some special cases 
+        in get_dispdef based on what kind of chunk self is.
         
         @see: L{get_dispdef()}
         """
         return self.display
     
-    def show_invisible_atoms(self):
+    def show_invisible_atoms(self): # by Mark ### TODO: RENAME
         """
-        Resets the display mode for each invisible (diINVISIBLE) atom 
-        to diDEFAULT display mode, making them visible again.
-        It returns the number of invisible atoms found.
+        Reset the display style of each invisible (diINVISIBLE) atom 
+        in self to diDEFAULT, thus making it visible again.
+        
+        @return: number of invisible atoms in self (which are all made visible)
         """
         n = 0
         for a in self.atoms.itervalues():
-            if a.display == diINVISIBLE: 
+            if a.display == diINVISIBLE:
                 a.setDisplayStyle(diDEFAULT)
                 n += 1
         return n
 
     def set_atoms_display(self, display):
         """
-        Changes the display setting to 'display' for all atoms in this chunk.
-        It returns the number of atoms which had their display mode changed.
+        Change the display style setting for all atoms in self to the one
+        specified by 'display'.
+        
+        @param display: display style setting to apply to all atoms in self
+                        (can be diDEFAULT or diINVISIBLE or various other values)
+                        
+        @return: number of atoms in self whose display style setting changed
         """
         n = 0
         for a in self.atoms.itervalues():
             if a.display != display:
                 a.setDisplayStyle(display)
+                    # REVIEW: does this always succeed? 
+                    # If not, should we increment n then? [bruce 090108 questions]
                 n += 1
         return n
 
-    glpane = None #bruce 050804
+    glpane = None #bruce 050804 ### TODO: RENAME (last glpane we displayed on??)
 
     def changeapp(self, atoms):
         """
