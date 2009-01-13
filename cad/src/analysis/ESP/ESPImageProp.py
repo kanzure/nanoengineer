@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-ESPImagePropDialog
+ESPImageProp.py
 
 $Id$
 """
@@ -83,7 +83,9 @@ class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
         
         
     def change_fill_color(self):
-        '''Slot method to change fill color.'''
+        """
+        Slot method to change fill color.
+        """
         color = QColorDialog.getColor(self.fill_QColor, self)
 
         if color.isValid():            
@@ -95,7 +97,9 @@ class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
             self.glpane.gl_update()
             
     def change_border_color(self):
-        '''Slot method change border color.'''
+        """
+        Slot method change border color.
+        """
         color = QColorDialog.getColor(self.border_QColor, self)
 
         if color.isValid():
@@ -106,7 +110,9 @@ class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
             self.glpane.gl_update()
     
     def change_jig_size(self, gl_update=True):
-        '''Slot method to change the jig's length, radius and/or spoke radius.'''
+        """
+        Slot method to change the jig's length, radius and/or spoke radius.
+        """
         self.jig.width = float(str(self.width_linedit.text()))
         self.jig.image_offset = float(str(self.image_offset_linedit.text()))
         self.jig.edge_offset = float(str(self.edge_offset_linedit.text()))
@@ -114,19 +120,25 @@ class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
             self.glpane.gl_update()
             
     def change_opacity(self, val):
-        '''Slot for opacity slider '''
+        """
+        Slot for opacity slider 
+        """
         self.jig.opacity = val/100.0
         opacity = '%1.2f ' % self.jig.opacity
         self.opacity_linedit.setText(opacity)
         self.glpane.gl_update()
         
     def show_esp_bbox(self, val):
-        "Slot for Show ESP Image Volume checkbox"
+        """
+        Slot for Show ESP Image Volume checkbox
+        """
         self.jig.show_esp_bbox = val
         self.glpane.gl_update()
     
     def highlight_atoms_in_bbox(self, val):
-        "Slot for Highlight Atoms Inside Volume checkbox"
+        """
+        Slot for Highlight Atoms Inside Volume checkbox
+        """
         self.jig.highlightChecked = val
         self.glpane.gl_update()
     
@@ -137,7 +149,10 @@ class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
             self.select_atoms_btn.setText("Select Atoms Inside Volume")
             
     def select_atoms_inside_esp_bbox(self):
-        "Slot for Select Atoms Inside Volume button, which selects all the atoms inside the bbox"
+        """
+        Slot for Select Atoms Inside Volume button, 
+        which selects all the atoms inside the bbox
+        """
         self.selected = not self.selected
         self._updateSelectButtonText()
         self.jig.pickSelected(self.selected)
@@ -164,27 +179,33 @@ class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
         self.jig.yaxis_orient = val
     
     def rotate_90(self):
-        '''CCW rotate 90 degrees. '''
+        """
+        CCW rotate 90 degrees. 
+        """
         self.jig.rotate_esp_image(90)
         
-        
     def rotate_neg_90(self):
-        '''CW rotate 90 degrees. '''
+        """
+        CW rotate 90 degrees. 
+        """
         self.jig.rotate_esp_image(-90)
         
-        
     def flip_esp_image(self):
-        '''Flip esp image. '''
+        """
+        Flip esp image. 
+        """
         self.jig.flip_esp_image()
-      
         
     def mirror_esp_image(self):
-        '''Mirror esp image. '''
+        """
+        Mirror esp image. 
+        """
         self.jig.mirror_esp_image()
-    
         
     def accept(self):
-        '''Slot for the 'OK' button '''
+        """
+        Slot for the 'OK' button 
+        """
         self.jig.cancelled = False   
         self.jig.try_rename(self.name_linedit.text())
         self.change_jig_size(gl_update=False)
@@ -198,10 +219,11 @@ class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
         self.jig.assy.changed()
         
         QDialog.accept(self)
-        
-
+    
     def reject(self):
-        '''Slot for the 'Cancel' button '''
+        """
+        Slot for the 'Cancel' button 
+        """
         self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.
         # Before exit the dialog, turn off the highlighting and selection
         self.jig.highlightChecked = False

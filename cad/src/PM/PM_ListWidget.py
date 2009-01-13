@@ -153,7 +153,6 @@ class PM_ListWidget( QListWidget ):
         in the widget. <row> is ignored. This is considered a bug.
         -- Mark 2007-06-04
         """
-        
         if row <> 0:
             msg = "PM_ListWidget.insertItems(): <row> must be zero."\
                 "See docstring for details:"
@@ -189,12 +188,10 @@ class PM_ListWidget( QListWidget ):
         if self.setAsDefault:
             self.insertItems(0, self.defaultItems)
             self.setCurrentRow(self.defaultRow)
-            '''
-            self.clear()
-            for choice in self.defaultChoices:
-                self.addItem(choice)
-            self.setCurrentRow(self.defaultRow)
-            '''
+            ## self.clear()
+            ## for choice in self.defaultChoices:
+            ##     self.addItem(choice)
+            ## self.setCurrentRow(self.defaultRow)
         
     def hide(self):
         """

@@ -1,8 +1,6 @@
 # Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-CoNTubGenerator.py
-
-Generator functions which use cad/plugins/CoNTub.
+CoNTubGenerator.py - Generator functions which use cad/plugins/CoNTub.
 
 @author: Bruce
 @version: $Id$
@@ -15,10 +13,10 @@ knowing nothing about CoNTub's specific functionality or parameters.
 """
 
 # how to test this: execute this in a debugger:
-'''
+"""
 import commands.InsertHeterojunction.CoNTubGenerator as CoNTubGenerator
 reload(CoNTubGenerator)
-'''
+"""
 # Each time you do that, Insert menu gets a new command "Heterojunction". The first one is always the latest one.
 
 import os, sys, time
@@ -159,12 +157,14 @@ class PluginlikeGenerator:
         # needed to install the plugin in the UI.
         
         path = self.find_plugin_dir()
-        if self.errorcode: return
+        if self.errorcode: 
+            return
         self.plugin_dir = path # for error messages, and used by runtime methods
         
         # make sure the stuff we need is in the plugin dir (and try to use it to set up the dialogs, commands, etc)
         self.setup_from_plugin_dir() # this prints error msgs if it needs to
-        if self.errorcode: return
+        if self.errorcode: 
+            return
 
         # don't create a working directory until the plugin is first used
         # (since we don't want to create one at all, if it's not used in the session,
@@ -434,7 +434,8 @@ class PluginlikeGenerator:
         self.outfile_pats = map( parse_arg_pattern, self.outputfiles_pattern.split())
         self.cmdline_pats = map( parse_arg_pattern, self.executable_args_pattern.split())
         
-        if debug_install: print "got these parsed argpats: %r\nand outfiles: %r" % (self.cmdline_pats, self.outfile_pats)
+        if debug_install: 
+            print "got these parsed argpats: %r\nand outfiles: %r" % (self.cmdline_pats, self.outfile_pats)
         
         self.paramnames_dict = {} # for now, maps pn -> $pn
         self.outfile_paramname_extension_pairs = []

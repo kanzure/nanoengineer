@@ -1,9 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+"""
 elementSelector.py
 
 $Id$
-'''
+"""
 
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import SIGNAL
@@ -36,11 +36,16 @@ class elementSelector(QDialog, Ui_ElementSelectorDialog):
         if chemistry is wrong.""")
 
     def setElementInfo(self,value):
-        '''Called as a slot from button push of the element Button Group'''
+        """
+        Called as a slot from button push of the element Button Group
+        """
         self.w.setElement(value)
 
     def update_dialog(self, elemNum):
-        """Update non user interactive controls display for current selected element: element label info and element graphics info """
+        """
+        Update non user interactive controls display for current 
+        selected element: element label info and element graphics info
+        """
         self.color = self.elemTable.getElemColor(elemNum)
         elm = self.elemTable.getElement(elemNum)
         

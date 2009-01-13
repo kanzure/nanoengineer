@@ -1,17 +1,16 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 inval.py -- simple invalidation/update system for attributes within an object
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
 """
 
 from utilities.debug import print_compact_traceback
-##from debug import print_compact_stack
 
 debug_counter = 0 # uncomment the related code (far below) to find out what's calling our __getattr__ [bruce 050513]
 
@@ -407,14 +406,14 @@ if __name__ == '__main__':
     print "and here are c,b,a again (should be unchanged): %r,%r,%r" % (tobj.c,tobj.b,tobj.a)
 
 # this looks correct, need to put outputs into asserts, above:
-'''
+"""
 about to tobj.changed_attrs(['a','c'])
 this should inval d,e but not c or b (even tho a affects c); see what is now invalid:
 ['e', 'd']
 now confirm that unlike the rule, c != a + b; they are c,b,a = 23,4,17
 and fyi here are d and e: 123 and 1023
 and here are c,b,a again (should be unchanged): 23,4,17
-'''
+"""
 
 # end
 

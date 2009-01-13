@@ -306,11 +306,11 @@ class test_animation_mode_PM(ExampleCommand1_PM):
     pass # test_animation_mode_PM
 
 
-'''
+"""
 File "/Nanorex/Working/cad/src/platform.py", line 92, in ascii
   return filter_key( self._qt_event.ascii() ) #k (does filter_key matter here?)
 AttributeError: ascii
-'''
+"""
 #unfixed bug in arrow key bindings -- due to event.ascii ### BUG: not available in Qt4 [070811]
 
 keynames = {}
@@ -578,12 +578,12 @@ def find_or_make_textpane(win):
     win.__textpane = te
     return te
 
-'''
+"""
 set mtree_in_a_vsplitter in MWsemantics (edit it before startup) (debug_pref?)
 from __main__ import foo as win
 import test_animation_mode
 print test_animation_mode.find_or_make_textpane(win)
-'''
+"""
 
 # ==
 

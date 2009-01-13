@@ -1,12 +1,12 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
-Ninad 2008-01-25: Split modifyMode into Commmand and GraphicsMode classes
-                  and also refactored the GraphicsMode to create indiviudal
-                  classes for rotating and translating selected entities.
+Ninad 2008-01-25: Split modifyMode into Command and GraphicsMode classes
+                  and also refactored the GraphicsMode to create individual
+                  classes for rotating and translating selected entities
                   (called RotateChunks_GraphicsMode and
                   TranslateChunks_GraphicsMode)
 """
@@ -103,11 +103,12 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         self.update_cursor()
 
     def update_cursor_for_no_MB(self):
-        '''Update the cursor for 'Move Chunks' mode.
+        """
+        Update the cursor for 'Move Chunks' mode.
         Overridden in subclasses.
         @see: RotateChunks_GraphicsMode.update_cursor_for_no_MB
         @see: TranslateChunks_GraphicsMode.update_cursor_for_no_MB
-        '''
+        """
         _superclass.update_cursor_for_no_MB(self)
 
     def leftDown(self, event):
@@ -420,9 +421,10 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         return # from leftADown
 
     def leftADrag(self, event):
-        """Move selected chunk(s) along its axis (mouse goes up or down)
-           and rotate around its axis (left-right) while left dragging
-           the selection with keyboard key 'A' pressed
+        """
+        Move selected chunk(s) along its axis (mouse goes up or down)
+        and rotate around its axis (left-right) while left dragging
+        the selection with keyboard key 'A' pressed
         """
 
         ##See comments of leftDrag()--Huaicai 3/23/05
@@ -510,7 +512,4 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         (pre Alpha9 - experimental)
         """
         return
-
-
-
 

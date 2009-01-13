@@ -3,16 +3,15 @@ printFunc.py: print method that can be called after populating DOM in order to
 see the XML objects in human readable format.
 
 Based on the original files from the pyXML 0.8.4 dom/ext module. 
+
 @author: Urmi
-@version:
+@version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 
-
-
 from xml.dom import XMLNS_NAMESPACE, XML_NAMESPACE, XHTML_NAMESPACE
-import string, re,sys
+import string, re, sys
 from xml.dom import Node
 from Visitor import Visitor, WalkerInterface
 
@@ -44,7 +43,9 @@ def PrettyPrint(root, stream=sys.stdout, encoding='UTF-8', indent=' ',
     return
 
 def SeekNss(node, nss=None):
-    '''traverses the tree to seek an approximate set of defined namespaces'''
+    """
+    traverses the tree to seek an approximate set of defined namespaces
+    """
     nss = nss or {}
     for child in node.childNodes:
         if child.nodeType == Node.ELEMENT_NODE:
@@ -91,7 +92,9 @@ def TranslateCdata(characters, encoding='UTF-8', prev_chars='', markupSafe=0,
 
 
 def TranslateCdataAttr(characters):
-    '''Handles normalization and some intelligence about quoting'''
+    """
+    Handles normalization and some intelligence about quoting
+    """
     if not characters:
         return '', "'"
     if "'" in characters:
@@ -163,9 +166,9 @@ class PrintVisitor(Visitor):
             self._write('\n' + self._indent*self._depth)
         return
 
-
     def visitDocumentType(self, doctype):
-        if not doctype.systemId and not doctype.publicId: return
+        if not doctype.systemId and not doctype.publicId: 
+            return
         self._tryIndent()
         self._write('<!DOCTYPE %s' % doctype.name)
         if doctype.systemId and '"' in doctype.systemId:
@@ -201,7 +204,6 @@ class PrintVisitor(Visitor):
         for curr in node:
             curr is not exclude and self.visit(curr)
         return
-
 
     def visitDocument(self, node):
         not self._html and self.visitProlog()
@@ -253,8 +255,6 @@ class PrintVisitor(Visitor):
             parent_nss.update(nss)
             nss = parent_nss
         return nss
-
-
 
     def visitElement(self, node):
         self._namespaces.append(self._namespaces[-1].copy())
@@ -312,7 +312,9 @@ class PrintWalker(WalkerInterface):
         return
 
     def step(self):
-        """There is really no step to printing.  It prints the whole thing"""
+        """
+        There is really no step to printing.  It prints the whole thing
+        """
         self.visitor.visit(self.start_node)
         return
 

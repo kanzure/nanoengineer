@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GridPlaneProp.py
 
@@ -61,7 +61,9 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
 
         
     def _set_xyspacing_enabled(self, grid_type):
-        '''If <grid_type> == 1, which is SiC type, disable x, y spacing comboBox, otherwise, enable it. '''
+        """
+        If <grid_type> == 1, which is SiC type, disable x, y spacing comboBox, otherwise, enable it. 
+        """
         from utilities.prefs_constants import SiC_GRID, SQUARE_GRID
         
         if grid_type == SiC_GRID:
@@ -73,20 +75,26 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
         
 
     def change_grid_type(self, grid_type):
-        '''Slot method to change grid type'''
+        """
+        Slot method to change grid type
+        """
         self.grid_plane.grid_type = grid_type
         self._set_xyspacing_enabled(grid_type)
         self.glpane.gl_update()
     
         
     def change_line_type(self, line_type):
-        '''Slot method to change grid line type'''
+        """
+        Slot method to change grid line type
+        """
         self.grid_plane.line_type = line_type
         self.glpane.gl_update()
 
         
     def change_grid_color(self):
-        '''Slot method to change grid color.'''
+        """
+        Slot method to change grid color.
+        """
         color = QColorDialog.getColor(self.grid_color, self)
 
         if color.isValid():            
@@ -98,7 +106,9 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
 
             
     def change_border_color(self):
-        '''Slot method change border color.'''
+        """
+        Slot method change border color.
+        """
         color = QColorDialog.getColor(self.border_color, self)
 
         if color.isValid():
@@ -108,33 +118,38 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
             self.grid_plane.color = self.grid_plane.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
 
-
     def change_width(self, newWidth):
-        "Slot for Width spinbox"
+        """
+        Slot for Width spinbox
+        """
         self.grid_plane.width = float(newWidth)
         self.glpane.gl_update()
-
         
     def change_height(self, newHeight):
-        "Slot for Height spinbox"
+        """
+        Slot for Height spinbox
+        """
         self.grid_plane.height = float(newHeight)
         self.glpane.gl_update()
-
         
     def change_x_spacing(self, newXValue):
-        "Slot for X Spacing spinbox"
+        """
+        Slot for X Spacing spinbox
+        """
         self.grid_plane.x_spacing = float(newXValue)
         self.glpane.gl_update()
-
         
     def change_y_spacing(self, newYValue):
-        "Slot for Y Spacing spinbox"
+        """
+        Slot for Y Spacing spinbox
+        """
         self.grid_plane.y_spacing = float(newYValue)
         self.glpane.gl_update()
-
         
     def accept(self):
-        '''Slot for the 'OK' button '''
+        """
+        Slot for the 'OK' button 
+        """
         self.grid_plane.cancelled = False
         self.grid_plane.try_rename(self.name_linedit.text())
         self.grid_plane.width = float(self.width_spinbox.value())
@@ -146,10 +161,11 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
         self.grid_plane.assy.changed()
         
         QDialog.accept(self)
-
         
     def reject(self):
-        '''Slot for the 'Cancel' button '''
+        """
+        Slot for the 'Cancel' button 
+        """
         self.grid_plane.attr_update(self.jig_attrs) # Restore attributes of the jig.
         self.glpane.gl_update()
         QDialog.reject(self)

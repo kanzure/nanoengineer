@@ -1,14 +1,13 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 ChunkProp.py
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History: Original code from MoleculeProps.py and cleaned up by Mark.
-
 """
-
-__author__ = "Mark"
 
 from PyQt4 import QtGui
 from PyQt4.Qt import QDialog, SIGNAL, QColorDialog
@@ -52,8 +51,9 @@ class ChunkProp(QDialog, Ui_ChunkPropDialog):
         self.atomsTextBrowser.setPlainText(self.get_chunk_props_info())
         
     def get_chunk_props_info(self):
-        "Return chunk properties information."
-        
+        """
+        Return chunk properties information.
+        """
         self.atomsTextBrowser.setReadOnly(True)
         chunkInfoText = ""
         natoms = len(self.chunk.atoms) # number of atoms in the chunk
@@ -61,8 +61,10 @@ class ChunkProp(QDialog, Ui_ChunkPropDialog):
         # Determining the number of element types in this Chunk.
         ele2Num = {}
         for a in self.chunk.atoms.itervalues():
-             if not ele2Num.has_key(a.element.symbol): ele2Num[a.element.symbol] = 1 # New element found
-             else: ele2Num[a.element.symbol] += 1 # Increment element
+            if not ele2Num.has_key(a.element.symbol): 
+                ele2Num[a.element.symbol] = 1 # New element found
+            else: 
+                ele2Num[a.element.symbol] += 1 # Increment element
         
         # String construction for each element to be displayed.
         nsinglets = 0        
@@ -83,7 +85,9 @@ class ChunkProp(QDialog, Ui_ChunkPropDialog):
         return header + chunkInfoText
             
     def change_chunk_color(self):
-        '''Slot method to change the chunk's color.'''
+        """
+        Slot method to change the chunk's color.
+        """
         color = QColorDialog.getColor(self.chunk_QColor, self)
         
         if color.isValid():
@@ -107,8 +111,11 @@ class ChunkProp(QDialog, Ui_ChunkPropDialog):
             self.glpane.gl_update()
 
     def reset_chunk_color(self):
-        '''Slot method to reset the chunk's color.'''
-        if not self.chunk.color: return
+        """
+        Slot method to reset the chunk's color.
+        """
+        if not self.chunk.color: 
+            return
         self.chunk_QColor = self.palette().color(QtGui.QPalette.Window)
         plt = QtGui.QPalette()      
         plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,self.chunk_QColor)
@@ -123,23 +130,27 @@ class ChunkProp(QDialog, Ui_ChunkPropDialog):
         self.glpane.gl_update()
     
     def make_atoms_visible(self):
-        '''Makes any atoms in this chunk visible.
-        '''
+        """
+        Makes any atoms in this chunk visible.
+        """
         self.chunk.show_invisible_atoms()
         if self.chunk.hidden: # A hidden chunk has no glpane attr.
                 return
         self.glpane.gl_update()
         
     def accept(self):
-        '''Slot for the 'OK' button '''
+        """
+        Slot for the 'OK' button 
+        """
         self.chunk.try_rename(self.nameLineEdit.text())
         self.chunk.assy.w.win_update() # Update model tree
         self.chunk.assy.changed()        
         QDialog.accept(self)
         
     def reject(self):
-        '''Slot for the 'Cancel' button '''
-        
+        """
+        Slot for the 'Cancel' button 
+        """
         self.chunk.color = self.original_color
         self.chunk.setcolor(self.chunk.color)
 

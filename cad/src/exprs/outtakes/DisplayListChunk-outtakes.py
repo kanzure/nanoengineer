@@ -6,7 +6,8 @@ this file should not remain in cvs once devel is done
 
 
 class LvalForDisplistEffects(Lval): #stub -- see NewInval.py and paper notes
-    """Lval variant, for when the value in question is the total drawing effect of calling an OpenGL display list
+    """
+    Lval variant, for when the value in question is the total drawing effect of calling an OpenGL display list
     (which depends not only on the OpenGL commands in that display list, but on those in all display lists it calls,
     directly or indirectly).
        [The basic issues are the same as if the effect was of running an external subroutine, in a set of external subrs
@@ -36,7 +37,8 @@ class DisplayListChunk(DelegatingWidget):
         # problem is, there's >1 way to do that... so for now, assume no.
         pass
     def draw(self):
-        """compile a call to our display list
+        """
+        compile a call to our display list
         in a way which depends on whether we're compiling some other display list right now, in self.env.glpane --
         how to do that is handled by our displist owner / displist effects lval
         """
@@ -54,7 +56,8 @@ class DisplistInvalidatable:
 from lvals.py:
 
 class LvalForDrawingCode(Lval): #stub -- do we need this, or just pass an appropriate lambda to Lval? ##e
-"""[deal with get_value returning side effects? or using .draw instead -- just internally?]
+"""
+[deal with get_value returning side effects? or using .draw instead -- just internally?]
 """
 pass
 
@@ -98,7 +101,7 @@ But when compiling another list, we're not *allowed* to do it that way, since we
 
 # ... maybe just write down the pseudocode for calling a display list in imm mode, which remakes some, which calls some in compiled mode?
 
-'''
+"""
 Reviewing situation of lvals for displists, 061023:
 
 - What's interesting about draw methods in general, vs ordinary "compute methods":
@@ -138,7 +141,7 @@ the former is also special in the concern about which displists were called, and
 one is "run a displist" and the inner one is "emit its contents when compiling it". Maybe this means two special lval classes,
 each having one inval flag, rather than one, handling two flags? ####@@@@
 
-'''
+"""
 
 
 

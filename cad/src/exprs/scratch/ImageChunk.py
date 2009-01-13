@@ -11,7 +11,8 @@ from basic import _self
 # ==
 
 class ImageChunk(InstanceOrExpr, DelegatingMixin):
-    """ImageChunk(widget2d) draws widget2d normally, but also captures an image to use 
+    """
+    ImageChunk(widget2d) draws widget2d normally, but also captures an image to use 
     for faster redrawing. In some cases, it can significantly speed up drawing of certain
     constant pictures or text, at least for now while our text drawing is inefficient 
     and we don't yet have the display-list equivalent of ImageChunk.
@@ -71,7 +72,9 @@ class ImageChunk(InstanceOrExpr, DelegatingMixin):
 
 # end of code
 
-''' #e:
+""" 
+todo:
+
 default options: in-ram image, no files, thus not 
 
 but assume the same instance can be multiply drawn
@@ -99,6 +102,6 @@ use that file in new sessions, or not
 
 intercept a special modkey or debug command on the widget
 to put up a prefs/inspector pane for that widget
-'''
+"""
 
 # end

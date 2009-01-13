@@ -1270,14 +1270,14 @@ def register_undo_updater( func, updates = (), after_update_of = () ):
         this_bfr_that(name, task)
     return
 
-''' example:
+""" example:
 register_undo_updater( _undo_update_Atom_jigs, 
                        updates = ('Atom.jigs', 'Bond.pi_bond_obj'),
                        after_update_of = ('Assembly', Node, 'Atom.bonds') # Node also covers its subclasses Chunk and Jig.
                            # We don't care if Atom is updated except for .bonds, nor whether Bond is updated at all,
                            # which is good because *we* are presumably a required part of updating both of those classes!
                     )
-'''
+"""
 
 # ==
 

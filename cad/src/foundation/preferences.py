@@ -1,10 +1,10 @@
-﻿# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+﻿# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 preferences.py -- Preferences system.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification: [bruce 071215]
 
@@ -760,7 +760,7 @@ init_prefs_table( prefs_table)
 
 # ==
 
-'''
+""" 
 use prefs_context() like this:
 
 prefs = prefs_context() # once per module which uses it (must then use it in the same module)
@@ -779,7 +779,7 @@ for example, module/subname, type:name. These will be documented
 once they are formalized.
 
 [these rules might be revised!]
-'''
+"""
 
 # == test code (very incomplete) [revised 050804 since it was out of date]
 

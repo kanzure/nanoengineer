@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 Selobj.py -- provides class Selobj_API, [### WHICH WILL BE RENAMED, ALONG WITH THIS FILE]
 which documents the interface from the GLPane to drawable objects which need
@@ -9,7 +9,7 @@ mouse).
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Current status [bruce 080116]:
 
@@ -125,7 +125,6 @@ class Selobj_API:
     ###doc
     WARNING: API details (method names, arglists) are subject to change.
     """
-
     ### see list of methods below -- but don't add any method stubs here
     # for now, or some code will break (as explained in module docstring).
 
@@ -183,7 +182,7 @@ class Selobj_API:
 
 
 # new, 070919 - here are the distinct interfaces...
-'''
+"""
 gl select hit detector - for an object with a glname, which draws inside it - must draw in
 a special way
 
@@ -232,7 +231,7 @@ for region sel, and for multiple highlighted objects for single obj under mouse)
 
 region selection interface - a node which contains region-selectable things and control
 points for them
-'''
+"""
 
 
 ### REVIEW: should check_target_depth_fudge_factor

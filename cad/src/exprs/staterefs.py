@@ -28,7 +28,9 @@ from utilities import debug_flags
 
 class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
     # [moved here from controls.py, 061203; will probably become obs once State works]
-    "return something which instantiates to something with .value which is settable state..."
+    """
+    return something which instantiates to something with .value which is settable state...
+    """
     #e older name: StateRefFromIpath; is this almost the same as the proposed State() thing? it may differ in how to alter ipath
     # or some other arg saying where to store the ref, or in not letting you change how to store it (value encoding),
     # and worst, in whether it's an lval or not -- I think State is an lval (no need for .value) and this is a stateref.
@@ -48,7 +50,8 @@ class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
     pass
 
 class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
-    """return something which instantiates to something with .value which is settable state,
+    """
+    return something which instantiates to something with .value which is settable state,
     shared with env.prefs[key],
     properly usage-tracked in a compatible way with the rest of NE1
     """
@@ -104,7 +107,8 @@ class InstanceOrExpr_Stub: pass ### kluge, permit early import of this file [061
 ##e probably need to move LocalState into another file
 
 class LocalState(InstanceOrExpr_Stub): #e stub, just reserve the name and let searches find where to add code for it
-    """Permit body exprs to reference specific external state using local names
+    """
+    Permit body exprs to reference specific external state using local names
     (and perhaps using specified proxy-wrappers,
      so the state is seen using locally desired types & in local coordinate systems).
        Usage:
@@ -120,7 +124,7 @@ class LocalState(InstanceOrExpr_Stub): #e stub, just reserve the name and let se
     _init_instance = stub # asfail if used
     pass
 
-'''
+"""
     # e.g. code, scratch area [bruce 070817 made this a string, since as 'if 0' it was causing
     # a traceback in pychecker, according to Eric M mail to cad list.]
     
@@ -130,7 +134,7 @@ class LocalState(InstanceOrExpr_Stub): #e stub, just reserve the name and let se
     def body(self, x):
         x.value
         x.value = 1
-'''
+"""
 
 #e  see also ToggleShow.py
 

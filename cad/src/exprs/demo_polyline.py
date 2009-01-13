@@ -41,7 +41,9 @@ from exprs.attr_decl_macros import State, Option, Arg
 from exprs.ExprsConstants import StubType, ORIGIN
 
 class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inherit from Command or MouseCommand or so...
-    "#doc"
+    """
+    #doc
+    """
     #e rename evidence -- this is not the command, it's the edit mode for the command, right?
     # in fact, maybe it's only the redraw code for that -- an even more specialized fragment of it.
 
@@ -58,13 +60,16 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
     # incremental look -- but classes that want xor-mode-specific drawing can define these anyway...
 
     def draw(self):
-        """[subclass can override this if desired]"""
+        """
+        [subclass can override this if desired]
+        """
         self.draw_background()
         self.draw_incrementally_over_fixed_background()
         return
 
     def draw_background(self):
-        """[subclass is encouraged to define this]
+        """
+        [subclass is encouraged to define this]
         #doc
         WARNING: subclass implem should avoid having its drawing effects change
         (in fact, should avoid using any usage tracked variable which changes)
@@ -75,14 +80,16 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
         pass
 
     def draw_incrementally_over_fixed_background(self):
-        """[subclass should define this, unless it needs no drawing beyond
+        """
+        [subclass should define this, unless it needs no drawing beyond
         what's done in draw_background, or unless it overrides draw method itself]
         #doc
         """
         pass
     
     def draw_incrementally_for_xor_mode(self):
-        """Draw our current graphics-area appearance (or undraw it -- we neither know nor care which)
+        """
+        Draw our current graphics-area appearance (or undraw it -- we neither know nor care which)
         for use in xor-mode incremental drawing.
            Subclass implems can assume that the caller has set up the dynamic drawing env
         so that drawing primitives we call can find out that we're doing xor-mode incremental drawing
@@ -94,7 +101,8 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
         self.draw_incrementally_over_fixed_background()
 
     def do_baremotion_effects(self):
-        """[subclass should define this, if baremotion can have any effects]
+        """
+        [subclass should define this, if baremotion can have any effects]
         Do whatever state changes are needed as a result of baremotion while we're active.
            WARNING: if any state changes that affect draw_incrementally_for_xor_mode are done
         outside of this method, xor-mode undrawing might not match drawing,
@@ -125,7 +133,11 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
         return
 
     def on_time_passing(self):
-        "#doc [only needed if time-dependent animation needs doing; that might include delayed tooltip popups, fadeouts...]"
+        """
+        #doc 
+        [only needed if time-dependent animation needs doing; 
+        that might include delayed tooltip popups, fadeouts...]
+        """
         assert 0 # nim # similar to on_baremotion -- maybe even identical if we decide that's simpler --
         # it probably is, since time passes during mouse motion too!
         pass
@@ -137,7 +149,8 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
 # ==
 
 class ClickClickCommand( CommandWithItsOwnEditMode): #e rename!
-    """Abstract class for a command in which repeated clicks build up one visible object, until terminated in some manner
+    """
+    Abstract class for a command in which repeated clicks build up one visible object, until terminated in some manner
     (e.g. by clicking in a final or illegal place, or using the escape key, or somehow invoking some other command).
     """
     # do subclasses provide just the clicking behavior, and interactive display, or also a PM or its data?
@@ -160,8 +173,9 @@ class ClickClickCommand( CommandWithItsOwnEditMode): #e rename!
 
 
 class SketchEntity( ModelObject):#e stub
-    "abstract class for model objects which are Sketch Entities."
-    
+    """
+    abstract class for model objects which are Sketch Entities.
+    """
     #e what is special about a Sketch Entity, vs any old model object?
     # [the answers are what we want to encode in this class...]
     
@@ -205,8 +219,8 @@ class Polyline(SketchEntity): #e rename -- 2D or general? [see also class polyli
     # more comments on relativity at end of file
 
     # modified from: class polyline(InstanceOrExpr) in demo_drag.py, and some code therein that uses it (eg the add_point call)
-
-    """A graphical model object with an extendable (or resettable from outside I guess) list of points.
+    """
+    A graphical model object with an extendable (or resettable from outside I guess) list of points.
     (Q: Does it also consider that some of them are draggable control points and some are not??
     Guess: not this class -- some other one might. This one considers all points to be equivalent independent state.)
        Also might have some Options, see the code -- or those might belong in wrapper objects for various display/edit modes.
@@ -255,7 +269,8 @@ class Polyline(SketchEntity): #e rename -- 2D or general? [see also class polyli
 ##            return self.end1.center # this can vary!
         return ORIGIN
     def add_point(self, pos, replace = False):
-        """add a point at the given 3d position pos; if replace is True, it replaces the existing last point.
+        """
+        add a point at the given 3d position pos; if replace is True, it replaces the existing last point.
         If pos is None, then no point is added, and the last one is removed if replace is true.
         """
         if replace:
@@ -265,7 +280,8 @@ class Polyline(SketchEntity): #e rename -- 2D or general? [see also class polyli
             self.points = self.points + [pos] ### INEFFICIENT if lots of points, but need to use '+' for now to make sure it's change-tracked
         return
     def make_selobj_cmenu_items(self, menu_spec, highlightable):
-        """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
+        """
+        Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
         Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).
         [For more examples, see this method as implemented in chem.py, jigs*.py in cad/src.]
         """
@@ -317,7 +333,9 @@ class Polyline_draw_helpers( Drawable):
             self.draw_points()
         return
     def draw_lines(self):
-        "draw our line segments, using our current style attrs [which are partly nim]"
+        """
+        draw our line segments, using our current style attrs [which are partly nim]
+        """
         # find variables which determine our GL state
         color = self.fix_color(self.linecolor)
         dashEnabled = self.dashed
@@ -347,13 +365,18 @@ class Polyline_draw_helpers( Drawable):
         glEnable(GL_LIGHTING)
         return
     def draw_points(self):
-        "[nim] draw our points, using our current style attrs"
+        """
+        [nim] draw our points, using our current style attrs
+        """
         for pos in self.points:
             pass ###e draw a dot - how ? same size even if 3d & perspective?? prob ok as approx, even if not the true intent...
             # in that case we'll eventually be using a texture (or pixmap) with alpha so it looks nice!
         return
     def draw_alignment_lines(self):
-        "helper method for some interactive drawing wrappers: draw yellow and blue dotted alignment lines for the last segment"
+        """
+        helper method for some interactive drawing wrappers: 
+        draw yellow and blue dotted alignment lines for the last segment
+        """
         assert 0 # nim
     def draw_tooltip(self):
         #e does this even belong here? prob not -- let edit wrapper ask for info and do it from the info
@@ -365,7 +388,10 @@ class _draggable_polyline_point(DelegatingInstanceOrExpr): # experimental 070308
 
 
 def draggable_polyline_point(polyline):
-    "return a func of a point" ##E oops! the point needs to know its index in the polyline! (and the polyline itself.)
+    """
+    return a func of a point
+    """
+    ##E oops! the point needs to know its index in the polyline! (and the polyline itself.)
     # it seems we don't want a pos like polyline.points has now, but a Point object for the polyline to give us!
     # e.g. polyline.point_objects, where each knows parent, has state, setting its state changes the parent state...
     return lambda point: 'bla'
@@ -415,12 +441,16 @@ class cmd_MakePolyline(ClickClickCommand): ##e review naming convention (and int
     
     # appearance in graphics area
     def draw_background(self):
-        "[implements abstract class method]"
+        """
+        [implements abstract class method]
+        """
         #e this could include fixed parts of the line, if they are numerous; that probably doesn't matter for now
         pass
 
     def draw_incrementally_over_fixed_background(self):
-        """[implements abstract class method]"""
+        """
+        [implements abstract class method]
+        """
         #e don't draw if end posn is illegal! (as noticed from a formula on some self-state which we assume is set properly)
         # but do draw the selobj-highlighting for anything that needs it during this op!!!
         self.polyline.draw()
@@ -448,12 +478,13 @@ auto_register( globals()) ###e this function needs a more explicit name -- and p
 
 # ==
 
-'''say above: intercept in testmode - baremotion, update_selobj i guess
+""" 
+say above: intercept in testmode - baremotion, update_selobj i guess
 and some other selobj controls
 prob no need to intercept them in selectMode itself
 but i am not sure...
 i could have said the same about all my other mods to it...
-'''
+"""
 
 #e also move new incr methods in controls.py to class HL 
 
@@ -464,7 +495,8 @@ i could have said the same about all my other mods to it...
 # is region sel itself able to be a cmd of this form -- even though the std editmode might get into it as its emptySpaceLeftDown?
 # btw, an advantage of xor mode in that case - it's ok if you didn't have a premade screen image around.
 
-'''really do review class polyline soon, and old demo_polygon too, esp for its Command supers, and command_scratch file too.
+"""
+really do review class polyline soon, and old demo_polygon too, esp for its Command supers, and command_scratch file too.
 
 an eg issue that came up in class polyline:
 we need to know what the sketch entity coords are rel to. If it's both draggable, and in/on a ref plane or surface,
@@ -478,6 +510,6 @@ but how is that controlled -- a toolset in the PM? yet another level of flyout t
 code structure discussion: class polyline is one thing, and an editable view of it another,
 and they are different! The editable view is made by mapping the polyline elements into drawables with bindings,
 which differ depending on editmode and tool... tho for just making it (not fancier editing) this might not be needed.
-'''
+"""
 
 # end

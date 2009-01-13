@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GroupProp.py
 
@@ -19,9 +19,9 @@ class Statistics:
         group.getstatistics(self)
 
     def display(self, statsView):
-        '''Display the statistics in the listview widget 'statsView'
-        '''
-
+        """
+        Display the statistics in the listview widget 'statsView'
+        """
         # Subtract singlets from total number of atoms
         self.num_atoms = self.natoms - self.nsinglets
 

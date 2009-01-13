@@ -1,14 +1,15 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+"""
 files_nh.py
 
-$Id$
+@author; Mark
+@version: $Id$
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
 Created by Mark.
-'''
-__author__ = "Mark"
+"""
 
 from analysis.ESP.NanoHiveUtils import get_nh_simspec_filename
 from analysis.ESP.NanoHiveUtils import get_nh_workflow_filename
@@ -16,10 +17,10 @@ from analysis.ESP.NanoHiveUtils import get_nh_mmp_filename
 from analysis.ESP.NanoHiveUtils import get_nh_home
 
 def write_nh_simspec_file(sim_name, sim_parms, sims_to_run, results_to_save, output_dir):
-    '''Writes the Nano-Hive Sim specification file, which is an XML file that describes the
+    """
+    Writes the Nano-Hive Sim specification file, which is an XML file that describes the
     simulation environment, plugin selection and plugin parameters.
-    '''
-    
+    """
     # The Nano-Hive Sim Spec file has 4 different sections that must be written in the following order:
     # 1. Header Section
     # 2. Physical Interaction Plugin(s) Section
@@ -69,10 +70,10 @@ def write_nh_simspec_file(sim_name, sim_parms, sims_to_run, results_to_save, out
     f.close()
             
 def write_nh_workflow_file(sim_name):
-    '''Writes the Nano-Hive Workflow file, which is a TCL script used by Nano-Hive to
+    """
+    Writes the Nano-Hive Workflow file, which is a TCL script used by Nano-Hive to
     run the simulation.  It describes the workflow of the simulation.
-    '''
-    
+    """
     workflow_fname = get_nh_workflow_filename(sim_name)
     
     f = open(workflow_fname,'w')
@@ -88,9 +89,10 @@ def write_nh_workflow_file(sim_name):
 
     
 def write_nh_header(f, desc, iter, spf, temp, workflow_fname, mmp_fname):
-    '''Writes the Nano-Hive Sim specification file, which is an XML file that describes the
+    """
+    Writes the Nano-Hive Sim specification file, which is an XML file that describes the
     simulation environment, plugin selection and plugin parameters.
-    '''
+    """
     nh_home = get_nh_home()
     
     #print "files_nh.write_nh_header(): Nano-Hive Home:", nh_home

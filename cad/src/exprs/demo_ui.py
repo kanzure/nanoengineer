@@ -2,7 +2,7 @@
 """
 demo_ui.py - try out a more CAD-like UI organization
 
-@author: bruce
+@author: Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
@@ -176,7 +176,8 @@ class main_ui_layout(DelegatingInstanceOrExpr):
 
 testexpr_34a = main_ui_layout()
 
-'''somehow encode the contents:
+"""
+somehow encode the contents:
 Features: ?
 
 Build:
@@ -190,5 +191,5 @@ Sketch:
 (Dimension)
 (On surface)
 Line
-'''
+"""
 # end

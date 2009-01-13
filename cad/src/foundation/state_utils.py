@@ -38,7 +38,7 @@ from utilities.GlobalPreferences import debug_pyrex_atoms
 DEBUG_PYREX_ATOMS = debug_pyrex_atoms()
 
 ### TODO:
-'''
+"""
 Where is _copyOfObject (etc) documented? (In code and on wiki?)
 
 On wiki: 
@@ -89,7 +89,7 @@ Not sure, maybe later (a lot of things use it). [it's still there, 071113]
 
 Do any inappropriate objects get a key (like data or foreign objs)
 in current code?? #####@@@@@
-'''
+"""
 
 ##debug_dont_trust_Numeric_copy = False # 060302 -- will this fix last night's
 ##  singlet-pulling bug? [no, that was weird '==' semantics]

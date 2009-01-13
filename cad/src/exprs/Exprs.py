@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 Exprs.py -- class Expr, and related subclasses and utilities, other than those involving Instances
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 
@@ -40,14 +40,16 @@ if not EVAL_REFORM:
 # == utilities #e refile
 
 def map_dictvals(func, dict1):
-    """This does to a dict's values what map does to lists --
+    """
+    This does to a dict's values what map does to lists --
     i.e. it makes a new dict whose values v are replaced by func(v).
     [If you wish func also depended on k, see map_dictitems.]
     """
     return dict([(k,func(v)) for k,v in dict1.iteritems()])
 
 def map_dictitems(func, dict1):
-    """This does to a dict's items what map does to lists --
+    """
+    This does to a dict's items what map does to lists --
     i.e. it makes a new dict whose items are f(item) from the old dict's items.
     Func should take 1 argument, a pair (k,v), and return a new pair (k2, v2).
     Often k2 is k, but this is not required.
@@ -63,7 +65,8 @@ _next_e_serno = 1 # incremented after being used in each new Expr instance (whet
 _debug_e_serno = -1 ## normally -1 # set to the serno of an expr you want to watch #k untested since revised
 
 def expr_serno(expr):
-    """Return the unique serial number of any Expr (except that Expr python subclasses all return 0).
+    """
+    Return the unique serial number of any Expr (except that Expr python subclasses all return 0).
     Non-Exprs all return -1.
     """
     try:
@@ -78,28 +81,38 @@ def expr_serno(expr):
 # == predicates
 
 def is_Expr(expr):
-    "is expr an Expr -- meaning, a subclass or instance of class Expr? (Can be true even if it's also considered an Instance.)"
+    """
+    is expr an Expr -- meaning, a subclass or instance of class Expr? 
+    (Can be true even if it's also considered an Instance.)
+    """
     return hasattr(expr, '_e_serno')
 
 def is_expr_Instance(expr): ##e or just is_Instance?? or is_Expr_Instance?
-    "#doc"
+    """
+    #doc
+    """
     return is_Expr(expr) and expr_is_Instance(expr)
 
 def is_expr_Instance_or_None(expr): #070326, common enough to have its own predicate
     return expr is None or is_expr_Instance(expr)
 
 def is_pure_expr(expr): ##e why not is_pure_Expr? is lowercase expr a generic term of some sort? [070207 terminology Q]
-    "is expr an Expr (py class or py instance), but not an Instance?" 
+    """
+    is expr an Expr (py class or py instance), but not an Instance?
+    """
     return is_Expr(expr) and not expr_is_Instance(expr)
 
 def expr_is_Instance(expr):
-    "is an Expr an Instance?"
+    """
+    is an Expr an Instance?
+    """
     res = expr._e_is_instance
     assert res is False or res is True ###e hmm, might fail for classes, need to fix
     return res
 
 def is_Expr_pyinstance(expr): ##e make sure we check this before calling _e_eval / _e_compute_method / _e_make_in on an expr
-    """Is expr an Expr, and also a python instance (not an Expr subclass)?
+    """
+    Is expr an Expr, and also a python instance (not an Expr subclass)?
     (This is necessary to be sure you can safely call Expr methods on it.) 
     (Note: If so, it might or might not be an Instance.)
     [Use this instead of isinstance(Expr) in case Expr module was reloaded.]
@@ -107,13 +120,15 @@ def is_Expr_pyinstance(expr): ##e make sure we check this before calling _e_eval
     return is_Expr(expr) and is_Expr(expr.__class__)
 
 def is_Expr_pyclass(expr):
-    """Is expr an Expr and a python class (i.e. is it a subclass of Expr)?
+    """
+    Is expr an Expr and a python class (i.e. is it a subclass of Expr)?
     [This is easier to use than issubclass, since that has an exception on non-classes.]
     """
     return is_Expr(expr) and not is_Expr(expr.__class__)
 
 def is_constant_expr(expr): # written for use in def If, not reviewed for more general use
-    """#doc;
+    """
+    #doc;
     WARNING: not reviewed for use after some code gets reloaded during debugging
     [but, it seems like it should be ok, since constant_Expr is defined in this module, and this module is not auto-reloaded.]
     """
@@ -122,7 +137,8 @@ def is_constant_expr(expr): # written for use in def If, not reviewed for more g
         #e might prefer to return the simpified const value, or a non-constant indicator (eg an equiv constant_Expr or None)
 
 def expr_constant_value(expr): # written for use in def If, not reviewed for more general use
-    """#doc;
+    """
+    #doc;
     WARNING: not fully reviewed for use after some code gets reloaded during debugging [see is_constant_expr doc for details].
     """
     if is_constant_expr(expr):
@@ -132,7 +148,8 @@ def expr_constant_value(expr): # written for use in def If, not reviewed for mor
     pass
 
 def is_constant_for_instantiation(expr): #070131, moved here 070321 from instance_helpers.py
-    """Is expr (which might be an arbitrary python object) a constant for instantiation?
+    """
+    Is expr (which might be an arbitrary python object) a constant for instantiation?
     (If true, it's also a constant for eval, but not necessarily vice versa.)
     """
     #e refile? should be compatible with _e_make_in methods in kinds of exprs it's true for
@@ -148,7 +165,8 @@ def is_constant_for_instantiation(expr): #070131, moved here 070321 from instanc
 # ==
 
 class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), InstanceOrExpr
-    """abstract class for symbolic expressions that python parser can build for us,
+    """
+    abstract class for symbolic expressions that python parser can build for us,
     from Symbols and operations including x.a and x(a);
     also used as superclass for WidgetExpr helper classes,
     though those don't yet usually require the operation-building facility,
@@ -186,7 +204,8 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     def __init__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __init__" % self.__class__.__name__
     def __eq__(self, other):#070122
-        """Default implem for many but not all subclasses of Expr.
+        """
+        Default implem for many but not all subclasses of Expr.
         Note: we don't require _e_sernos to be equal!
         """
         # this and/or its overridings assume: same_vals works on Exprs [not tested or reviewed ###DOIT],
@@ -218,7 +237,8 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     def __ne__(self, other):
         return not self.__eq__(other)
     def _e_init_e_serno(self): # renamed from _init_e_serno_, 061205
-        """[private -- all subclasses must call this; the error of not doing so is not directly detected --
+        """
+        [private -- all subclasses must call this; the error of not doing so is not directly detected --
          but if they call canon_expr on their args, they should call this AFTER that, so self._e_serno
          will be higher than that of self's args! This may not be required for ExprsMeta sorting to work,
          but we want it to be true anyway, and I'm not 100% sure it's not required. (Tentative proof that it's not required:
@@ -239,7 +259,9 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             print_compact_stack("just made expr %d, %r, at: " % (_debug_e_serno, self))
         return
     def _e_dir_added(self): # 061205
-        "For a symbolic expr only, return the names in dir(self) which were stored by external assignments."
+        """
+        For a symbolic expr only, return the names in dir(self) which were stored by external assignments.
+        """
         assert self._e_is_symbolic
         assert not self._e_is_instance #k probably implied by _e_is_symbolic
         return filter( lambda name: not (name.startswith('_e_') or name.startswith('__')) , dir(self) )
@@ -248,20 +270,20 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     # note: for __getattr__, see also the subclasses; for __getitem__ see below
 
     def __get__(self, obj, cls):
-        """The presence of this method makes every Expr a Python descriptor. This is so an expr which is a formula in _self
+        """
+        The presence of this method makes every Expr a Python descriptor. This is so an expr which is a formula in _self
         can be assigned to cls._C_attr for some attr (assuming cls inherits from InvalidatableAttrsMixin),
         and will be used as a "compute method" to evaluate obj.attr. The default implementation creates some sort of Lval object
         with its own inval flag and subscriptions, but sharing the _self-formula, which recomputes by evaluating the formula
         with _self representing obj.
         """
-        ''' more on the implem:
-        It stores this Lval object in obj.__dict__[attr], finding attr by scanning cls.__dict__
-        the first time. (If it finds itself at more than one attr, this needs to work! Is that possible? Yes -- replace each
-        ref to the formula by a copy which knows attr... but maybe that has to be done when class is created?
-        Easiest way is first-use-of-class-detection in the default implem. (Metaclass is harder, for a mixin being who needs it.)
-         Ah, easier way: just store descriptors on the real attrs that know what to do... as we're in the middle of doing
-        in the code that runs when we didn't, namely _C_rule or _CV_rule. ###)
-        '''
+        # more on the implem:
+        # It stores this Lval object in obj.__dict__[attr], finding attr by scanning cls.__dict__
+        # the first time. (If it finds itself at more than one attr, this needs to work! Is that possible? Yes -- replace each
+        # ref to the formula by a copy which knows attr... but maybe that has to be done when class is created?
+        # Easiest way is first-use-of-class-detection in the default implem. (Metaclass is harder, for a mixin being who needs it.)
+        #  Ah, easier way: just store descriptors on the real attrs that know what to do... as we're in the middle of doing
+        # in the code that runs when we didn't, namely _C_rule or _CV_rule. ###)
         if obj is None:
             return self
         #e following error message text needs clarification -- when it comes out of the blue it's hard to understand
@@ -269,9 +291,11 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         print "this formula needed wrapping by ExprsMeta to become a compute rule...:", self ####@@@@
         return
     def _e_compute_method(self, instance, index, _lvalue_flag = False):
-        """Return a compute method version of this formula, which will use instance as the value of _self,
+        """
+        Return a compute method version of this formula, which will use instance as the value of _self,
         at the given index relative to instance. [index is a required arg as of 070120.]
-           Example index [#k guess 061110]: the attrname where self was found in instance (as an attrvalue),
+        
+        Example index [#k guess 061110]: the attrname where self was found in instance (as an attrvalue),
         or if self was found inside some attrval (but not equal to the whole),
         a tuple containing the attrname and something encoding where self occurred in the attrval.
         Update 070120: that "found inside some attrval" part is now handled by lexenv_ipath_Expr,
@@ -303,12 +327,18 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             return lambda self=self, env=env, ipath=ipath: self._e_eval_lval( env, ipath )
         pass
     def __repr__(self): # class Expr
-        "[often overridden by subclasses; __str__ can depend on __repr__ but not vice versa(?) (as python itself does by default(??))]"
+        """
+        [often overridden by subclasses; 
+         __str__ can depend on __repr__ but not vice versa(?) 
+         (as python itself does by default(??))]
+        """
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect_old) on 061016
         ## return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
         return "<%s#%d%s>" % (self.__class__.__name__, self._e_serno, self._e_repr_info())
     def _e_repr_info(self):#061114
-        "[private helper for __repr__]"
+        """
+        [private helper for __repr__]
+        """
         if self._e_has_args:
             if self._e_is_instance:
                 return '(i)'
@@ -359,13 +389,13 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     #e unless we have a special expr wrapper to give it the power to support all those too, but only if used right away. [061113]
 
     def __getitem__( self, index): #k not reviewed for slices, unlikely they'll work fully
-        """ operator a[b]"""
+        """ operator a[b] """
         #e will Instances extend this to return their kids??
         return getitem_Expr(self, index)
     
     # == not sure where these end up
     def __float__( self):
-        """operator float(a)"""
+        """ operator float(a) """
         print_compact_stack( "kluge: float(expr) -> 17.0: " )####@@@@ need float_Expr
         return 17.0
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
@@ -393,7 +423,8 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             #k (wouldn't it also be wrong for expr w/ other data, even if no args/kws??)
         return self.__class__(*modargs, **modkws)
     def _e_free_in(self, sym): #e name is confusing, sounds like "free of" which is the opposite -- rename to "contains_free"??
-        """Return True if self contains sym (Symbol or its name) as a free variable, in some arg or option value.
+        """
+        Return True if self contains sym (Symbol or its name) as a free variable, in some arg or option value.
         [some subclasses override this]
         """
         try:
@@ -409,14 +440,17 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         printnim("_e_free_in is nim for option vals")###@@@ btw 061114 do we still use _e_free_in at all? see if this gets printed.
         return False
     def _e_eval_to_expr(self, env, ipath, expr):#070117, revised 070118 to save ipath
-        "#doc"
+        """
+        #doc
+        """
         assert EVAL_REFORM # otherwise exprs don't eval to self except some Symbols, and I guess those don't call this tho i forget...#k
         return lexenv_ipath_Expr(env, ipath, expr) # the full ipath might not be needed but might be ok... ###k
     # note: _e_eval is nim in this class -- it must be implemented in subclasses that need it.
     # If you want to add a default errmsg def here, first review whether its presence would affect the expr-building code!
     # [070117 comment]
     def _e_burrow_for_find_or_make(self, env, ipath): #070119 #e might rename find_or_make to instantiate or so
-        """General case: Return (subexpr, new_env, new_ipath), where subexpr is the outermost subexpr of self
+        """
+        General case: Return (subexpr, new_env, new_ipath), where subexpr is the outermost subexpr of self
         which has no outermost local ipath or env mods, and those mods are stripped from self to get subexpr,
         and added to env, ipath to make new_env, new_ipath. Instantiating (self, env, ipath) and
         (subexpr, new_env, new_ipath) should get the same result semantically, and the implem enforces this
@@ -481,8 +515,10 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
     pass
 
 class OpExpr(SymbolicExpr):
+    """
+    Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants
+    """
     _e_debug = False #e move to a superclass? [bruce 070816 new feature]
-    "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
     def __init__(self, *args, **kws): # arglist would just be "self, *args, doc = None" except that it's invalid syntax
         self._e_args = tuple(map(canon_expr, args)) # tuple is required, so _e_args works directly for a format string of same length
         self._e_init_e_serno() # call this AFTER canon_expr (for sake of _e_serno order)
@@ -502,12 +538,13 @@ class OpExpr(SymbolicExpr):
     def __repr__(self): # class OpExpr
         return "<%s#%d%s: %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_args,)
     def _e_argval(self, i, env,ipath): # see also a copy of this in IfExpr
-        """Under the same assumptions as _e_eval (see its docstring),
+        """
+        Under the same assumptions as _e_eval (see its docstring),
         compute and return the current value of an implicit kid-instance made from self._e_args[i], at relative index i,
         doing usage-tracking into caller (i.e. doing no memoization or caching of our own).
         """
         def __debug_frame_repr__(locals):
-            "return a string for inclusion in some calls of print_compact_stack"
+            """return a string for inclusion in some calls of print_compact_stack"""
             # note: this will always run before res is available
             return "_e_argval(i = %r, ipath = %r), self = %r" % (i,ipath,self)
          ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
@@ -519,10 +556,13 @@ class OpExpr(SymbolicExpr):
             raise
         return res
     def _e_kwval(self, k, env,ipath):
-        "Like _e_argval, but return the current value of our implicit-kid-instance of self._e_kws[k], rel index k."
+        """
+        Like _e_argval, but return the current value of our implicit-kid-instance of self._e_kws[k], rel index k.
+        """
         return self._e_kws[k]._e_eval(env, (k,ipath))
     def _e_eval(self, env, ipath):
-        """Considering ourself implicitly instantiated by the replacements (especially _self_) in env,
+        """
+        Considering ourself implicitly instantiated by the replacements (especially _self_) in env,
         or more precisely, instantiated as a formula residing in env's _self, after replacement by env's other replacements,
         with that implicit instance using the index-path given as ipath
         (and perhaps finding explicit sub-instances using that ipath, if we ever need those),
@@ -548,7 +588,8 @@ class OpExpr(SymbolicExpr):
         res = apply(func, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
         return res
     def _e_eval_lval(self, env,ipath):
-        """#doc
+        """
+        #doc
         """
         assert env #061110
         assert not self._e_kws #e remove when done with devel -- just checks that certain subclasses overrode us -- or, generalize this
@@ -579,8 +620,9 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         else:
             return "%s%r" % (self._e_callee, self._e_call_args) # works the same i hope
     def _e_eval(self, env, ipath):
-        """[the only reason the super method is not good enough is that we have _e_kws too, I think;
-            maybe also the distinction of that to self._e_call_kws, but I doubt that distinction is needed -- 061105]
+        """
+        [the only reason the super method is not good enough is that we have _e_kws too, I think;
+         maybe also the distinction of that to self._e_call_kws, but I doubt that distinction is needed -- 061105]
         """
         assert env #061110
         # 061102: we do this (_e_eval in general)
@@ -651,7 +693,7 @@ class getitem_Expr(OpExpr): #061110
         assert len(self._e_args) == 2 #e kind of useless and slow??
         # note, _e_args[1] is often constant_Expr(<an int as list-index> or <an attrname as dict key>), but could be anything
     def __str__(self):
-         return "%s[%s]" % self._e_args #e need parens?
+        return "%s[%s]" % self._e_args #e need parens?
     _e_eval_function = staticmethod( lambda x,y:x[y] )
     #e _e_eval_lval_function too, variant of LvalueFromObjAndAttr?
     pass
@@ -747,7 +789,9 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
         mades = [self._e_make_argval(argval, env, i, ipath) for (i,argval) in zip(range(len(self._e_args)), self._e_args)]
         return tuple(mades)
     def _e_make_argval(self, argval, env, i, ipath):
-        "[private helper]"
+        """
+        [private helper]
+        """
         if is_constant_for_instantiation(argval):
             # print "fyi: tuple_Expr is_constant_for_instantiation true for %r" % (argval,)
             # this happens when an Instance is passed as an ArgList element, e.g. <PM_from_groups#40798(i)> in a SimpleColumn;
@@ -766,7 +810,8 @@ from Numeric import dot
 from geometry.VQT import V, norm, vlen
 
 class V_expr(OpExpr):
-    """Make an expr for a Numeric array of floats. Called like VQT.py's V macro.
+    """
+    Make an expr for a Numeric array of floats. Called like VQT.py's V macro.
     """
     # Note: the name contains 'expr', not 'Expr', since it's more public than the
     # typical class named op_Expr (official reason) and since it looks better in
@@ -817,14 +862,21 @@ def mod_Expr(arg1, arg2):
     return call_Expr( _eval_mod_Expr, arg1, arg2)
 
 def _eval_mod_Expr(a1, a2):#070121
-    "private helper"
-    assert not (type(a1) == type('')), "mod_Expr arg1 %r is a string, would do string formatting instead of mod by %r" % (a1,a2)
+    """
+    private helper
+    """
+    assert not (type(a1) == type('')), \
+           "mod_Expr arg1 %r is a string, would do string formatting instead of mod by %r" % (a1, a2)
     return a1 % a2
 
 # ==
 
 class and_Expr(OpExpr): #061128
-    "Evaluate only enough args (out of 2 or more) to return the last one if they're all true, otherwise the first false one."
+    """
+    Evaluate only enough args (out of 2 or more) 
+    to return the last one if they're all true, 
+    otherwise the first false one.
+    """
     def _e_init(self):
         assert len(self._e_args) >= 2
         assert not self._e_kws #k needed?
@@ -842,7 +894,11 @@ class and_Expr(OpExpr): #061128
     pass
 
 class or_Expr(OpExpr): #061128 untested
-    "Evaluate only enough args (out of 2 or more) to return the last one if they're all false, otherwise the first true one."
+    """
+    Evaluate only enough args (out of 2 or more) 
+    to return the last one if they're all false, 
+    otherwise the first true one.
+    """
     def _e_init(self):
         assert len(self._e_args) >= 2
         assert not self._e_kws #k needed?
@@ -863,7 +919,8 @@ class or_Expr(OpExpr): #061128 untested
 # ==
 
 def assert_0_func(msg): #e refile #e rename
-    """Raise an AssertionError with msg, but be a function, so we're usable in lambdas.
+    """
+    Raise an AssertionError with msg, but be a function, so we're usable in lambdas.
     Typical usage: cond and result or assert_0_func("error-description" % args).
     """
     assert 0, msg
@@ -871,7 +928,8 @@ def assert_0_func(msg): #e refile #e rename
 class format_Expr(OpExpr): #061113, seems to work
     #k (tho no test yet proved it defers eval til when it needs to -- hmm, same for *all* OpExprs, until we implem statemods?
     #   no -- once something can access redraw_counter, that should provide a good enough test, for any OpExpr we make depend on that.)
-    """Make an expr for producing the results of <format_string> % <*args>.
+    """
+    Make an expr for producing the results of <format_string> % <*args>.
     (See also mod_Expr [nim ##e], for exprs based on numeric uses of the % operator. Maybe they can be expressed using % directly?)
     Note, unlike __mod__ (sp??), this is varargs, not two args.
     It would be nice to be able to say the latter directly,
@@ -896,9 +954,13 @@ class format_Expr(OpExpr): #061113, seems to work
 # ==
 
 class internal_Expr(Expr):
-    "Abstract class for various kinds of low-level exprs for internal use that have no visible subexprs."
+    """
+    Abstract class for various kinds of low-level exprs 
+    for internal use that have no visible subexprs.
+    """
     def __init__(self, *args, **kws):
-        """store args & kws but don't canon_expr them -- assume they are not necessarily exprs
+        """
+        store args & kws but don't canon_expr them -- assume they are not necessarily exprs
         (and even if they are, that they should be treated inertly)
         """
         self.args = args # not sure if the non-_e_ name is ok... if not, try _e_data_args or so? ###k
@@ -909,7 +971,9 @@ class internal_Expr(Expr):
     def _internal_Expr_init(self):
         assert 0, "subclass must implem"
     def __eq__(self, other):
-        "[overrides Expr version; WARNING: must be overridden by any internal_Expr subclasses that use self.kws]"
+        """
+        [overrides Expr version; WARNING: must be overridden by any internal_Expr subclasses that use self.kws]
+        """
         if not Expr.__eq__(self, other):
             return False
         a1 = self.args
@@ -959,7 +1023,8 @@ class constant_Expr(internal_Expr):
 
 class hold_Expr(constant_Expr):
     #e might be renamed to something like no_eval, or we might even revise call_Expr to not always eval its args... not sure
-    """Like constant_Expr, but (1) value has to be an expr, (2) replacements occur in value.
+    """
+    Like constant_Expr, but (1) value has to be an expr, (2) replacements occur in value.
     Used internally to prevent eval of args to call_Expr.
     """
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
@@ -971,7 +1036,9 @@ class hold_Expr(constant_Expr):
     pass
 
 class eval_to_lval_Expr(internal_Expr):#070119, needed only when EVAL_REFORM
-    "wrap a subexpr with me in order to cause _e_eval of me to only call _e_eval_lval on the subexpr"
+    """
+    wrap a subexpr with me in order to cause _e_eval of me to only call _e_eval_lval on the subexpr
+    """
     def _internal_Expr_init(self):
         ## (self._e_the_expr,) = self.args
         self._e_args = self.args # so replace sees the args
@@ -992,7 +1059,11 @@ class eval_to_lval_Expr(internal_Expr):#070119, needed only when EVAL_REFORM
 class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in ToggleShow.py;
     # maybe just a kluge, since mixing properties with exprs is probably a temp workaround, tho in theory it might make sense...
     # if it can be rationalized then it's good to leave it in, maybe even encourage it. See also class State.
-    "#doc; canon_expr will turn a python property into this (or maybe any misc data descriptor??)"
+    """
+    #doc; 
+    canon_expr will turn a python property into this 
+    (or maybe any misc data descriptor??)
+    """
     def _internal_Expr_init(self):
         (self._e_property,) = self.args
     def __repr__(self):
@@ -1009,7 +1080,8 @@ class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in Toggle
     pass
 
 class lexenv_Expr(internal_Expr): ##k guess, 061110 late
-    """lexenv_Expr(env, expr) evals expr inside env, regardless of the passed env, but without altering the passed ipath.
+    """
+    lexenv_Expr(env, expr) evals expr inside env, regardless of the passed env, but without altering the passed ipath.
     THIS BEHAVIOR IS INCORRECT AND WILL BE CHANGED SOON [070109 comment].
     It is opaque to replacement -- even by ExprsMeta, so it should never appear inside a class-attr value [##e should enforce that].
        WARNING [070106]: lexenv_Expr will have a major bug once we implement anything that can override dynamic env vars,
@@ -1023,7 +1095,10 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         return "<%s#%d%s: %r, %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(),
                                       self._e_env0, self._e_expr0,)
     def _e_call_with_modified_env(self, env, ipath, whatever = 'bug'): # revised 070119
-        "[private helper method] Call self._e_expr0.<whatever> with lexenv self._e_env0 and [nim] dynenv taken from the given env"
+        """
+        [private helper method] 
+        Call self._e_expr0.<whatever> with lexenv self._e_env0 and [nim] dynenv taken from the given env
+        """
         # about the lval code: #061204 semi-guess; works for now. _e_eval and _e_eval_lval methods merged on 070109.
         # Generalized to whatever arg for _e_make_in and revised accordingly (for sake of EVAL_REFORM), 070117.
         #e (should the val/lval distinction be an arg in the _e_eval API?
@@ -1034,7 +1109,8 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
             #e if exception, print a msg that includes whatever?
         return res
     def _e_burrow_for_find_or_make(self, env, ipath): #070119
-        """###redoc, since redundant with Expr implem docstring:
+        """
+        ###redoc, since redundant with Expr implem docstring:
         Return (expr, env, ipath) in an inner form, where expr has no outermost local ipath or env.
         [overrides trivial Expr version]
            Details: General case (Expr): Return (self, env, ipath) if self can be directly instantiated in env at ipath
@@ -1047,7 +1123,9 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         new_expr, new_env, new_ipath = self._e_burrow_for_find_or_make_1step( env, ipath)
         return new_expr._e_burrow_for_find_or_make( new_env, new_ipath)
     def _e_burrow_for_find_or_make_1step(self, env, ipath):
-        "[private helper method for _e_burrow_for_find_or_make]"
+        """
+        [private helper method for _e_burrow_for_find_or_make]
+        """
         new_expr = self._e_expr0
         lexenv = self._e_env0
         # now we want to combine the dynamic part of env with the lexical part of lexenv, to make a modified newenv.
@@ -1073,7 +1151,9 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     pass # end of class lexenv_Expr
 
 class lexenv_ipath_Expr(lexenv_Expr): #070118
-    "#doc"
+    """
+    #doc
+    """
     #k Q: will this need to be Symbolic, so getattr_Expr can be formed from it?
     # A: I think not, since expr.attr should become a getattr_Expr only if expr "stands for an Instance",
     # like a Symbol or Arg() or Instance() does... this needs to be better understood, formalized, documented
@@ -1098,7 +1178,9 @@ class lexenv_ipath_Expr(lexenv_Expr): #070118
     pass # lexenv_ipath_Expr
 
 class local_ipath_Expr(lexenv_Expr): #070122 experimental
-    "experimental -- just add some local ipath components to the ipath -- no change in env"
+    """
+    experimental -- just add some local ipath components to the ipath -- no change in env
+    """
     #e probably, these 3 classes should be reorg'd into abstract/mixin1/mixin2/3reals,
     # so the shared code for doing more stuff (to env or to ipath) comes from mixins
     def _internal_Expr_init(self):
@@ -1107,8 +1189,10 @@ class local_ipath_Expr(lexenv_Expr): #070122 experimental
         return "<%s#%d%s: %r, %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(),
                                       self._e_local_ipath, self._e_expr0,)
     def _e_burrow_for_find_or_make_1step(self, env, ipath):
-        """[overrides lexenv_Expr implem]"""
-        "[private helper method for _e_burrow_for_find_or_make]"
+        """
+        [overrides lexenv_Expr implem]
+        [private helper method for _e_burrow_for_find_or_make]
+        """
         new_expr = self._e_expr0        
         new_env = env # differs from superclass
         new_ipath = self._e_locally_modify_ipath(ipath)
@@ -1124,7 +1208,8 @@ class local_ipath_Expr(lexenv_Expr): #070122 experimental
     pass # local_ipath_Expr
 
 class eval_Expr(OpExpr):
-    """An "eval operator", more or less. For internal use only [if not, indices need to be generalized].
+    """
+    An "eval operator", more or less. For internal use only [if not, indices need to be generalized].
     Used when you need to put an expr0 inside some other expr1 where it will be evalled later,
     but you have, instead of expr0, expr00 which will eval to expr0. In such cases, you can put eval_Expr(expr00)
     in the place where you were supposed to put expr0, and when the time comes to eval that, expr00 will be evalled twice,
@@ -1178,7 +1263,8 @@ class eval_Expr(OpExpr):
     ##e (maybe we could make a new V def try to use old def, make __float__ asfail so that would fail, then use V_expr if any expr arg)
 
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
-    """Make subexpr an Expr, if it's not already.
+    """
+    Make subexpr an Expr, if it's not already.
        Simple Python data (e.g. ints, floats, or None, and perhaps most Python class instances)
     will be wrapped with constant_Expr.
        Python lists or tuples (or dicts?##e) can contain exprs, and will become their own kind of exprs,
@@ -1272,7 +1358,8 @@ class Symbol(SymbolicExpr):
     def __ne__(self, other):
         return not (self == other)
     def _e_eval(self, env, ipath):
-        """As with super _e_eval, our job is:
+        """
+        As with super _e_eval, our job is:
         Imagine that env's replacements should be done in self,
         and that the resulting modified self should be instantiated within the object which is env's replacement for _self.
         Then evaluate the result at the current time.
@@ -1336,7 +1423,8 @@ class Symbol(SymbolicExpr):
         # and (at least for now) they instantiate to themselves, like other constants do
         return self
     def _e_free_in(self, sym): ###k might be obs [070131 comment]
-        """General case: Return True if Expr self contains sym (Symbol or its name) as a free variable, in some arg or option value.
+        """
+        General case: Return True if Expr self contains sym (Symbol or its name) as a free variable, in some arg or option value.
         For this class Symbol, that means: Return True if sym is self or self's name.
         [overrides super version]
         """

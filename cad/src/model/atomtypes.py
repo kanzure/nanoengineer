@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 atomtypes.py -- AtomType object, knows about one bonding pattern for one element.
 
 @author: Josh, Bruce
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -435,7 +435,7 @@ class AtomType(IdentityCopyMixin):
 
 # end
 
-'''
+"""
 ... the maximal sets of end-elements for A6 will be:
 
 aromatic, graphite: C, N, B (B depends on how Damian answers some Qs)
@@ -447,4 +447,4 @@ alternating with bonda, where the bond orders are 1.5, 2.5, 1.5, etc)
 double: C, N, O, S
 
 triple: C, N
-'''
+"""

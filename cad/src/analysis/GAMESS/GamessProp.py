@@ -1,11 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GamessProp.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
-
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import os
@@ -232,12 +231,12 @@ gbasis='AM1 NGAUSS=0 NDFUNC=0 NPFUNC=0 NFFUNC=0 DIFFSP=.F. DIFFS=.F.', \
 
 
 class GamessProp(QDialog, Ui_GamessPropDialog):
-    '''The Gamess Jig Properties dialog used for:
+    """
+    The Gamess Jig Properties dialog used for:
     - running a GAMESS energy calculation on a structure (group of atoms).
     - running a GAMESS optimization on a structure.
     - setting and saving the GAMESS parameters used for an energy calculation or optimization.
-    '''
-
+    """
     def __init__(self):
         QDialog.__init__(self)
         self.setModal(True)
@@ -308,7 +307,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self.cancel_btn.setWhatsThis("""Cancels changes and closes dialog.""")
 
     def showDialog(self, job):
-        '''Display the GAMESS Jig Properties dialog'''
+        """
+        Display the GAMESS Jig Properties dialog
+        """
         self.gamessJig =  job.gamessJig
         self.job = job
         self.pset = self.gamessJig.pset
@@ -321,9 +322,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
 
     ######Private or helper methods###############################
     def _setup(self):
-        ''' Setup widgets to initial (default or defined) values. Return True on error.
-        '''
-
+        """ 
+        Setup widgets to initial (default or defined) values. Return True on error.
+        """
         #To fix bug 684
         #if gamess.is_disabled():
         #    self.run_job_btn.setEnabled(False)
@@ -393,7 +394,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         return 0
 
     def _reloadServerList(self):
-        """ Load the server combo box"""
+        """ 
+        Load the server combo box
+        """
         self.server_combox.clear()
         for s in self.servers:
             self.server_combox.insertItem(100, s.hostname + "-" + s.engine)
@@ -404,7 +407,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self.server_combox.setCurrentIndex(indx)
 
     def _load_dfttyp_combox(self):
-        '''Load list of DFT function in a combobox widget'''
+        """
+        Load list of DFT function in a combobox widget
+        """
         self.dfttyp_combox.clear() # Clear all combo box items
         if self.server.engine == 'GAMESS':
             for f in gms_dfttyp_items:
@@ -421,7 +426,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
                 # 100 makes sure item is appended to list. [mark 2007-05-04]
 
     def _update_gbasis_list(self, val):
-        '''Add/remove AM1 and PM3 to/from the gbasis list. '''
+        """
+        Add/remove AM1 and PM3 to/from the gbasis list. 
+        """
         citem = self.gbasis_combox.currentIndex()
         if val == DFT or val == MP2:
             if self.gbasis_combox.count() == 18:
@@ -435,8 +442,10 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
                 self.gbasis_combox.setCurrentIndex(citem+2)
 
     def _save_ui_settings(self):
-        '''Save the UI settings in the Gamess jig pset.  There is one setting for each pset.
-        '''
+        """
+        Save the UI settings in the Gamess jig pset.  
+        There is one setting for each pset.
+        """
         self.pset.ui.comment = str(self.comment_linedit.text()) # Description
         self.pset.ui.runtyp = self.runtyp_combox.currentIndex() # RUNTYP = Energy or Optimize
 
@@ -484,13 +493,17 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
     ###### Unused methods ###############
 
     def openServerManager(self):
-        """Pop up ServerManagerDialog to edit the properties of the servers."""
+        """
+        Pop up ServerManagerDialog to edit the properties of the servers.
+        """
         self.sManager.showDialog(self.server)
         self.servers = self.sManager.getServers()
         self._reloadServerList()
 
     def serverChanged(self, si):
-        """User has changed server, so update the DFT comboBox. Currently not used."""
+        """
+        User has changed server, so update the DFT comboBox. Currently not used.
+        """
         self.server = self.servers[si]
         self._load_dfttyp_combox()
 
@@ -499,8 +512,8 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
     ##########Slot methods for some GUI controls################
 
     def calculate_changed(self, val):
-        '''
-        '''
+        """
+        """
         if val == 0: # Energy
             self.rmsd_lbl.setEnabled(0)
             self.rmsd_combox.setEnabled(0)
@@ -525,8 +538,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
 #            self.soscf_checkbox.setEnabled(1)
 
     def set_multiplicity(self, val):
-        '''Enable/disable widgets when user changes Multiplicity.
-        '''
+        """
+        Enable/disable widgets when user changes Multiplicity.
+        """
         if val != 0:
             qt4todo("if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':")
             #if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':
@@ -554,8 +568,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             self.rhf_radiobtn.setEnabled(1)
 
     def set_ecmethod(self, val):
-        '''Enable/disable widgets when user changes Electron Correlation Method.
-        '''
+        """
+        Enable/disable widgets when user changes Electron Correlation Method.
+        """
         #print "set_ecmethod = ", val
         if val == DFT:
             self.dfttyp_label.setEnabled(1)
@@ -585,9 +600,10 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self._update_gbasis_list(val)
 
     def open_tmp_inputfile(self):
-        '''Writes a temporary GAMESS inputfile of the current Gamess jig and opens the
+        """
+        Writes a temporary GAMESS inputfile of the current Gamess jig and opens the
         file in an editor.
-        '''
+        """
         # Make tmp_inputfile filename (i.e. ~/Nanorex/temp/jigname_parms_info.inp)
         from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
         tmpdir = find_or_make_Nanorex_subdir('temp')
@@ -602,8 +618,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         open_file_in_editor(tmp_inputfile)
 
     def run_job(self):
-        """Slot method for the 'Save and Run' button """
-
+        """
+        Slot method for the 'Save and Run' button 
+        """
         self.accept()
 
         # Run GAMESS job.  Return value r:
@@ -642,7 +659,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
                     env.history.message( "Atoms adjusted.")
 
     def change_jig_color(self):
-        '''Slot method to change the jig's color.'''
+        """
+        Slot method to change the jig's color.
+        """
         color = QColorDialog.getColor(self.jig_QColor, self)
 
         if color.isValid():
@@ -654,7 +673,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             self.glpane.gl_update()
 
     def accept(self):
-        """The slot method for the 'Save' button."""
+        """
+        The slot method for the 'Save' button.
+        """
         QDialog.accept(self)
         self.gamessJig.try_rename(self.name_linedit.text())
         self._save_ui_settings()
@@ -664,7 +685,9 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             self.open_tmp_inputfile()
 
     def reject(self):
-        """The slot method for the 'Cancel' button."""
+        """
+        The slot method for the 'Cancel' button.
+        """
         QDialog.reject(self)
         self.gamessJig.attr_update(self.jig_attrs) # Restore attributes of the jig.
         # self.gamessJig.color = self.gamessJig.normcolor = self.original_normcolor

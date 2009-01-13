@@ -1,12 +1,12 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 NewInval.py [to be cannibalized -- as of 061231, obs or mostly obs]
 
 $Id$
 
 061231 moved the displist comments and code from here to DisplayListChunk.py;
 what remains here is obs or mostly obs
-'''
+"""
 
 # ==
 

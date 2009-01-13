@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 DisplayListChunk.py
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -115,7 +115,8 @@ from exprs.py_utils import printfyi
 # Could we use displist names as keys, for that purpose?
 
 class DisplayListChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageTrackingMixin ):
-    """#doc
+    """
+    #doc
     [Note: the implicit value for SelfUsageTrackingMixin is the total drawing effect of calling our displist in immediate mode.
      This has an inval flag and invalidator, but we also have another pair of those for our display list's OpenGL contents,
      making this more complicated a use of that mixin than class Lval or its other uses.]
@@ -135,7 +136,9 @@ class DisplayListChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsa
     debug_prints = ArgOrOption(str, None) # flag to do debug prints, and (unless a boolean) name for doing them
 
     def _C__debug_print_name(self): # compute self._debug_print_name
-        "return False (meaning don't do debug prints), or a name string to prefix them with"
+        """
+        return False (meaning don't do debug prints), or a name string to prefix them with
+        """
         # use this to say when we emit a calllist (and if so, immediate or into what other displist), and/or recompile our list
         #e and use in repr
         if self.debug_prints:
@@ -159,7 +162,9 @@ class DisplayListChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsa
         # When we start using more than one GL Context which share display lists, we'll have to revise this somehow.
         #
         ### NOTE: usage tracking should turn up nothing -- we use nothing
-        "allocate a new display list name (a 32-bit int) in our GL context"
+        """
+        allocate a new display list name (a 32-bit int) in our GL context
+        """
         if self.displist_disabled(): # revised this cond (true more often), 070215
             printfyi("bug: why does .displist get requested in a disabled DisplayListChunk??") # (i never saw this)
             return 0
@@ -228,7 +233,8 @@ class DisplayListChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsa
         (due to bugs in client code), even though they are OpenGL errors if present when executed. (BTW, it's possible
         for cycles to exist transiently in display list contents without an error, if this only happens when
         some but not all display lists have been updated after a change. This needs no noticing or handling in the code.)
-        """ # docstring revised 070102.
+        """ 
+        # docstring revised 070102.
         
         _debug_print_name = self._debug_print_name
         
@@ -313,7 +319,8 @@ class DisplayListChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsa
     # I'll just rename the calls track_use but comment them as really track_use_of_drawing_effects
 
     def _your_drawing_effects_are_valid(self): ##e should inline as optim
-        "[private]"
+        """
+        """
         assert self.contents_valid
             # this failed 070104 with the exception shown in long string below, when I used clear "button" (070103 kluge) on one node...
             # theory: the world.nodelist change (by clear button run inside draw method, which is illegal -- that's the kluge)
@@ -324,7 +331,7 @@ class DisplayListChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsa
         return
 
 # the exception mentioned above: 
-    '''
+    """
 atom_debug: fyi: <OneTimeSubsList(<LvalForState(<World#16291(i)>|transient.nodelist|('world', (0, (0, 'NullIpath')))) at 0x101a7b98>) at 0x10583850>'s 
 event already occurred, fulfilling new subs 
 <bound method usage_tracker_obj.standard_inval of <usage_tracker_obj(<DisplayListChunk(<no name>) at 0x111b7670>) at 0x112086e8>> immediately: 
@@ -339,22 +346,23 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
 
 [testdraw.py:350] [testdraw.py:384] [testdraw.py:530] [test.py:1231] [Overlay.py:57] [Overlay.py:57]
 [Overlay.py:57] [DisplayListChunk.py:286] [DisplayListChunk.py:127] [DisplayListChunk.py:314]
-'''
+"""
     def __you_called_dlist(self, dlist):
-        "[private]"
         self.__new_sublists_dict[ dlist._key ] = dlist
             # note: this will intentionally fail if called at wrong time, since self.__new_sublists_dict won't be a dict then
         return
     
     def _recompile_if_needed_and_return_sublists_dict(self):
-        """[private helper method for glpane.ensure_dlist_ready_to_call()]
+        """
+        [private helper method for glpane.ensure_dlist_ready_to_call()]
         Ensure updatedness of our displist's contents (i.e. the OpenGL instructions last emitted for it)
         and of our record of its direct sublists (a dict of owners of other displists it directly calls).
         Return the dict of direct sublists.
            As an optim [mostly nim], it's ok to return a subset of that, which includes all direct sublists
         whose drawing effects might be invalid. (In particular, if our own drawing effects are valid,
         except perhaps for our own displist's contents, it's ok to return {}. [That's the part of this optim we do.])
-        """ # doc revised 070102
+        """ 
+        # doc revised 070102
         if not self.contents_valid:
             # we need to recompile our own displist.
             if self._debug_print_name:
@@ -408,7 +416,11 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
         return self._direct_sublists_dict
 
     def invalidate_contents(self):
-        "[private] called when something changes which might affect the sequence of OpenGL commands that should be compiled into self.displist" 
+        """
+        [private] 
+        called when something changes which might affect 
+        the sequence of OpenGL commands that should be compiled into self.displist
+        """
         if self.contents_valid:
             self.contents_valid = False
             self.invalidate_drawing_effects()
@@ -429,7 +441,10 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
         return
 
     def recompile_our_displist(self):
-        "[private] call glNewList/draw/glEndList in the appropriate way, but do no usage tracking or valid-setting"
+        """
+        [private] call glNewList/draw/glEndList in the appropriate way, 
+        but do no usage tracking or valid-setting
+        """
         glpane = self.glpane
         displist = self.displist
         glpane.glNewList(displist, GL_COMPILE, owner = self)
@@ -448,7 +463,9 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
         return
     
     def do_glCallList(self):
-        "emit a call of our display list, whether or not we're called in immediate mode"
+        """
+        emit a call of our display list, whether or not we're called in immediate mode
+        """
         self.glpane.glCallList( self.displist)
         return
     
