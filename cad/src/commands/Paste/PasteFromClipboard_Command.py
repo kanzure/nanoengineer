@@ -348,22 +348,14 @@ class PasteFromClipboard_Command(BuildAtoms_Command):
 
         if isinstance(pastable, Chunk):
             numol = pastable.copy_single_chunk(None)
-            #bruce 080314 use new name copy_single_chunk
-            # bruce 041116 added (implicitly, by default) cauterize = 1
-            # to mol.copy() above; change this to cauterize = 0 here if 
-            # unwanted, and for other uses of mol.copy in this file.
-            # For this use, there's an issue that new singlets make it harder to
-            # find a default hotspot! Hmm... I think copy should set one then.
-            # So now it does [041123].
-            hs = numol.hotspot or numol.singlets[0] #e should use 
-            #find_hotspot_for_pasting again
-            bond_at_singlets(hs,sing) # this will move hs.molecule (numol) to 
-            #match
-            # bruce 050217 comment: hs is now an invalid hotspot for numol, 
-            # and that used to cause bug 312, but this is now fixed in getattr 
-            # every time the
-            # hotspot is retrieved (since it can become invalid in many other
-            # ways too),so there's no need to explicitly forget it here.
+            hs = numol.hotspot or numol.singlets[0] 
+                # todo: should use find_hotspot_for_pasting again
+            bond_at_singlets(hs,sing) # this will move hs.molecule (numol) to match
+            # bruce 050217 comment: hs is now an invalid hotspot for numol,
+            # and that used to cause bug 312, but this is now fixed in getattr
+            # every time the hotspot is retrieved (since it can become invalid
+            # in many other ways too),so there's no need to explicitly forget
+            # it here.
             if self.graphicsMode.pickit():
                 numol.pickatoms()
                 #bruce 060412 worries whether pickatoms is illegal or 

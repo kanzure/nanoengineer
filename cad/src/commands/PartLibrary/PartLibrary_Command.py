@@ -274,7 +274,7 @@ class PartLibrary_Command(PasteFromClipboard_Command):
                 stuff.append(newnode)
 
 ##            #bruce 060627 new code: fix bug 2028 (non-hotspot case only) 
-##            about interchunk bonds being broken
+##            # about interchunk bonds being broken
 ##            nodes = newPart.molecules
 ##            newnodes = copied_nodes_for_DND(nodes)
 ##            if newnodes is None:
@@ -289,17 +289,6 @@ class PartLibrary_Command(PasteFromClipboard_Command):
 ##                self.o.assy.addmol(newMol)
 ##                stuff.append(newMol)
 
-##            # pre-060627 old code, breaks interchunk bonds since it copies 
-##            #chunks one at a time (bug 2028)
-##            for m in nodes:
-##                newMol = m.copy(None) # later: renamed Chunk method to copy_single_chunk -- not sure if this was only called on chunks
-##                newMol.set_assy(self.o.assy) #bruce 051227 revised this
-##                
-##                newMol.move(moveOffset)
-##                
-##                self.o.assy.addmol(newMol)
-##                stuff.append(newMol)
-##            pass
         self.o.assy.update_parts() #bruce 051227 see if this fixes the 
                                     #atom_debug exception in checkparts
 

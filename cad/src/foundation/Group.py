@@ -1020,20 +1020,20 @@ class Group(NodeWithAtomContents):
         """
         #bruce 050214: called Node.kill instead of inlining it; enhanced Node.kill;
         # and fixed bug 381 by killing all members first.
-        self._prekill() # this has to be done before killing the members, even though _superclass.kill might do it too [bruce 060327]
+        self._f_prekill() # this has to be done before killing the members, even though _superclass.kill might do it too [bruce 060327]
         for m in self.members[:]:
             m.kill()
         _superclass.kill(self)
 
-    def _set_will_kill(self, val): #bruce 060327 in Group
+    def _f_set_will_kill(self, val): #bruce 060327 in Group
         """
-        [private helper method for _prekill; see its docstring for details;
+        [private helper method for _f_prekill; see its docstring for details;
         subclasses with owned objects should extend this]
         [extends Node method]
         """
-        _superclass._set_will_kill( self, val)
+        _superclass._f_set_will_kill( self, val)
         for m in self.members:
-            m._set_will_kill( val)
+            m._f_set_will_kill( val)
         return
 
     def reset_subtree_part_assy(self): #bruce 051227

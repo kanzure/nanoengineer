@@ -481,7 +481,7 @@ class extrudeMode(basicMode):
         ####@@@ see paper notes - restore at end, also modify singlet-pairing alg
 
         # The following is necessary to work around a bug in this code, which is
-        # its assumption (wrong, in general) that mol.copy().quat == mol.quat.
+        # its assumption (wrong, in general) that mol.copy_single_chunk().quat == mol.quat.
         # A better fix would be to stop using set_basecenter_and_quat, replacing
         # that with an equivalent use of mol.pivot and/or move and/or rot.
         self.basemol.full_inval_and_update()
@@ -2166,8 +2166,8 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         # update 070411: self.center is computed and cached in full_inval_and_update;
         # before that, it's illegal to ask for it
         raise AttributeError, "%r has no %r" % (self, attr)
-    def copy(self, dad):
-        self.copy_single_chunk(dad)
+##    def copy(self, dad):
+##        self.copy_single_chunk(dad)
     def copy_single_chunk(self, dad):
         """
         copy our mols and store them in a new fake_copied_mol (which might make a Group from them, fyi)

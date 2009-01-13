@@ -833,7 +833,8 @@ def copy_Numeric_array(obj):
 ##        if debug_print_every_array_passed_to_Numeric_copy and env.debug():
 ##            print "copy_Numeric_array on %#x produced %#x (not using Numeric.copy); input data %s" % (id(obj), id(res), obj) 
 ##        return res
-    return obj.copy() # use Numeric's copy method for Character and number arrays ###@@@ verify ok from doc of this method...
+    return obj.copy() # use Numeric's copy method for Character and number arrays 
+        ###@@@ verify ok from doc of this method...
 
 def scan_Numeric_array(obj, func):
     if obj.typecode() == PyObject: # note: this doesn't imply each element is an InstanceType instance, just an arbitrary Python value

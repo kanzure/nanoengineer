@@ -834,11 +834,11 @@ class Dna_Generator:
         #Before killing them, set a flag on each atom so that
         #Atom.kill knows not to create new bondpoints on its neighbors if they
         #will also be killed right now (it notices this by noticing that
-        #a._will_kill has the same value on both atoms). Fixes a memory leak
+        #a._f_will_kill has the same value on both atoms). Fixes a memory leak
         #(at least in some code where it's done). See bug 2880 for details.
         val = Atom_prekill_prep()
         for a in atomsScheduledForDeletionDict.itervalues():
-            a._will_kill = val # inlined a._prekill(val), for speed
+            a._f_will_kill = val # inlined a._f_prekill(val), for speed
 
         for atm in atomsScheduledForDeletionDict.values():
             if atm: # this test is probably not needed [bruce 080807 comment]

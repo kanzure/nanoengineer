@@ -57,13 +57,14 @@ _DRAW_BONDS = True # Debug/test switch. Similar constant in CS_workers.py.
 
 import math # only used for pi, everything else is from Numeric [as of before 071113]
 import re
-import Numeric
+import Numeric # for sqrt
 from Numeric import array
 from Numeric import add
 from Numeric import dot
 from Numeric import PyObject
 from Numeric import argsort
 from Numeric import compress
+from Numeric import nonzero
 from Numeric import take
 from Numeric import argmax
 
@@ -3311,7 +3312,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             disp = self.display
         if self.hidden or disp == diINVISIBLE:
             return
-        col = self.color
+        # review: use self.color somehow?
         for a in self.atoms.values(): 
             a.writemdl(alist, f, disp, self.color)
 
@@ -3503,7 +3504,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         atlist = self.atlist
         assert len(atlist) == len(atpos)
         for i in xrange(len(atlist)):
-            atlist[i]._setposn_no_chunk_or_bond_invals( atpos[i] )
+            atlist[i]._f_setposn_no_chunk_or_bond_invals( atpos[i] )
         return
 
     def base_to_abs(self, anything): # bruce 041115
@@ -3768,12 +3769,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     def getstatistics(self, stats):
         """
         Adds the current chunk, including number of atoms 
-        and singlets to part stats.
+        and singlets, to part stats.
         """
         stats.nchunks += 1
         stats.natoms += self.natoms()
         for a in self.atoms.itervalues():
-            if a.element.symbol == "X": stats.nsinglets +=1
+            if a.element.symbol == "X": 
+                stats.nsinglets += 1
 
     def pickatoms(self): # mark 060211. 
         """
@@ -3956,7 +3958,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if self is _nullMol:
             return
         # all the following must be ok for an already-killed Chunk!
-        self._prekill() #bruce 060327, needed here even though _superclass.kill might do it too
+        self._f_prekill() #bruce 060327, needed here even though _superclass.kill might do it too
         ## self.unpick()
             #bruce 050214 comment [superseded, see below]: keep doing unpick
             # here, even though _superclass.kill now does it too.
@@ -4000,13 +4002,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             self.deallocate_displist_later() #bruce 071103
         return # from Chunk.kill
 
-    def _set_will_kill(self, val): #bruce 060327 in Chunk
+    def _f_set_will_kill(self, val): #bruce 060327 in Chunk
         """
         [extends private superclass method; see its docstring for details]
         """
-        _superclass._set_will_kill( self, val)
+        _superclass._f_set_will_kill( self, val)
         for a in self.atoms.itervalues():
-            a._will_kill = val # inlined a._prekill(val), for speed
+            a._f_will_kill = val # inlined a._f_prekill(val), for speed
             ##e want to do it on their bonds too??
         return
 
@@ -4057,7 +4059,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         ## r_xy = sqrt(r_xy_2) # not needed
 
         # Select atoms which are hit by the line of sight (as array of indices).
-        # See comments in findAtomUnderMouse_Numeric_stuff for more details.
+        # See comments in _findAtomUnderMouse_Numeric_stuff for more details.
         # (Optimize for the slowest case: lots of atoms, most fail lineofsight
         # test, but a lot still pass it since we have a thick Chunk; do
         # "slab" test separately on smaller remaining set of atoms.)
@@ -4090,21 +4092,23 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 kws['alt_radii'] = [(seli, unpatched_seli_radius2)]
         try:
             # note: kws here might include alt_radii as produced above
-            res = self.findAtomUnderMouse_Numeric_stuff( v, r_xy_2, radii_2, **kws)
+            res = self._findAtomUnderMouse_Numeric_stuff( v, r_xy_2, radii_2, **kws)
         except:
-            print_compact_traceback("bug in findAtomUnderMouse_Numeric_stuff: ")
+            print_compact_traceback("bug in _findAtomUnderMouse_Numeric_stuff: ")
             res = []
         if unpatched_seli_radius2 is not None:
             radii_2[seli] = unpatched_seli_radius2
         return res # from findAtomUnderMouse
 
-    def findAtomUnderMouse_Numeric_stuff(self, v, r_xy_2, radii_2,
-                                         far_cutoff = None, near_cutoff = None, alt_radii = [] ):
+    def _findAtomUnderMouse_Numeric_stuff(self, v, r_xy_2, radii_2,
+                                          far_cutoff = None, 
+                                          near_cutoff = None, 
+                                          alt_radii = ()
+                                         ):
         """
         private helper routine for findAtomUnderMouse
         """
         ## removed support for backs_ok, since atom backs are not drawn
-        from Numeric import take, nonzero, compress # and more...
         p1 = (r_xy_2 <= radii_2) # indices of candidate atoms
         if not p1: # i.e. if p1 is an array of all false/0 values [bruce 050516 guess/comment]
             # no atoms hit by line of sight (common when several mols shown)
@@ -4182,7 +4186,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         atom = self.atlist[ closest_z_ind ]
 
-        return [(closest_z, atom)] # from findAtomUnderMouse_Numeric_stuff
+        return [(closest_z, atom)] # from _findAtomUnderMouse_Numeric_stuff
 
     # self.sel_radii_squared is not a real attribute, since invalling it
     # would be too slow. Instead we have these methods:
@@ -4343,7 +4347,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # might need to make it explicit in the copy [bruce 041123, revised 050524]
             copy_of_hotspot = ndix[self.singlets[0].key]
             mapping.do_at_end( lambda ch = copy_of_hotspot, numol = numol:
-                               numol._preserve_implicit_hotspot(ch) )
+                               numol._f_preserve_implicit_hotspot(ch) )
         return numol # from copy_full_in_mapping
 
     def _copy_atoms_handle_bonds_jigs(self, pairlis, ndix, mapping):
@@ -4352,6 +4356,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Given some copied atoms (in a private format in pairlis and ndix),
         ensure their bonds and jigs will be taken care of.
         """
+        del self # doesn't use self
         origid_to_copy = mapping.origid_to_copy
         extern_atoms_bonds = mapping.extern_atoms_bonds
             # maybe: could be integrated with mapping.do_at_end,
@@ -4373,8 +4378,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     #bruce 050524 changes: don't do it twice for the same bond;
                     # and use bond_copied_atoms to copy bond state (e.g. 
                     # bond-order policy and estimate) from old bond.
-                    # [note, this code is being copied into the old .copy()
-                    #  method too, by bruce 050715]
+                    # [note: also done in copy_single_chunk]
                     if a.key < a2key:
                         # arbitrary condition which is true for exactly one
                         # ordering of the atoms; note both keys are for
@@ -4446,25 +4450,23 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #  the addition as intended, spatially!)
         return numol
 
-    def _preserve_implicit_hotspot( self, hotspot): 
+    def _f_preserve_implicit_hotspot( self, hotspot): 
         #bruce 050524 #e could also take base-atom arg to use as last resort
         if len(self.singlets) > 1 and self.hotspot is None:
-            #Huaicai 10/13/05: fix bug 1061 by changing 'numol' to 'self'
-            ## numol.set_hotspot( hotspot, silently_fix_if_invalid = True) 
             self.set_hotspot( hotspot, silently_fix_if_invalid = True) 
                 # this checks everything before setting it; if invalid, silent noop
 
     # == 
 
-    def copy(self, dad = None, offset = V(0,0,0), cauterize = 1): #bruce 080314
-        """
-        Public method. DEPRECATED, see code comments for details.
-        Deprecated alias for copy_single_chunk (also deprecated but still in use).
-        """
-        cs = compact_stack("\n*** print once: called deprecated Chunk.copy from: ")
-        if not env.seen_before(cs):
-            print cs
-        return self.copy_single_chunk( dad, offset, cauterize)
+##    def copy(self, dad = None, offset = V(0,0,0), cauterize = 1): #bruce 080314
+##        """
+##        Public method. DEPRECATED, see code comments for details.
+##        Deprecated alias for copy_single_chunk (also deprecated but still in use).
+##        """
+##        cs = compact_stack("\n*** print once: called deprecated Chunk.copy from: ")
+##        if not env.seen_before(cs):
+##            print cs
+##        return self.copy_single_chunk( dad, offset, cauterize)
 
     def copy_single_chunk(self, dad = None, offset = V(0,0,0), cauterize = 1):
         """

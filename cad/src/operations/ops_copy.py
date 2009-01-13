@@ -183,11 +183,11 @@ class ops_copy_Mixin:
             env.end_op(mc)
         return
 
-    def copy(self): # we should remove this obsolete alias shortly after the release. [bruce 080414 comment]
-        print "bug (worked around): assy.copy called, should use its new name copy_sel" #bruce 050927
-        if debug_flags.atom_debug:
-            print_compact_stack( "atom_debug: assy.copy called, should use its new name copy_sel: ")
-        return self.copy_sel()
+##    def copy(self): # we should remove this obsolete alias shortly after the release. [bruce 080414 comment]
+##        print "bug (worked around): assy.copy called, should use its new name copy_sel" #bruce 050927
+##        if debug_flags.atom_debug:
+##            print_compact_stack( "atom_debug: assy.copy called, should use its new name copy_sel: ")
+##        return self.copy_sel()
     
     # copy any selected parts (molecules) [making a new clipboard item... #doc #k]
     #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
@@ -794,10 +794,7 @@ class ops_copy_Mixin:
         
         return initial_offset_for_chunks, initial_offset_for_other_pastables
             
-          
     
-    
-        
     def _pasteJig(self, jigToPaste, mousePosition = None):
         """
         Paste the given Jig in the 3D workspace. 
@@ -818,11 +815,13 @@ class ops_copy_Mixin:
         
         pastable = jigToPaste
         pos = mousePosition     
-        newJig = None
         errorMsg = None
         moveOffset = V(0, 0, 0)
         
-        newJig = pastable.copy(None)
+        ## newJig = pastable.copy(None) # BUG: never works (see comment below); 
+        # inlining it so I can remove that method from Node: [bruce 090113]
+        pastable.redmsg("This cannot yet be copied")
+        newJig = None # will cause bugs below
             # Note: there is no def copy on Jig or any subclass of Jig,
             # so this would run Node.copy, which prints a redmsg to history
             # and returns None. What we need is new paste code which uses
@@ -830,6 +829,7 @@ class ops_copy_Mixin:
             # Or perhaps a new implem of Node.copy which uses the existing
             # general copy code properly (if pastables are always single nodes).
             # [bruce 080314 comment]
+        
         jigCenter  = newJig.center
         
         if pos:
@@ -875,7 +875,7 @@ class ops_copy_Mixin:
                 # prekill_prep, prekill all the atoms, kill the same atoms.
                 val = Atom_prekill_prep()
                 for a in self.selatoms.itervalues():
-                    a._will_kill = val # inlined a._prekill(val), for speed
+                    a._f_will_kill = val # inlined a._f_prekill(val), for speed
             for a in self.selatoms.values(): # the above can be itervalues, but this can't be!
                 a.kill()
             self.selatoms = {} # should be redundant

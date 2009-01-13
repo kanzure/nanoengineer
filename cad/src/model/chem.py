@@ -433,7 +433,7 @@ def Atom_prekill_prep(): #bruce 060328
     """
     Prepare to kill some set of atoms (known to the caller) more efficiently
     than otherwise. Return a value which the caller should pass to the
-    _prekill method on all (and ONLY) those atoms, before killing them.
+    _f_prekill method on all (and ONLY) those atoms, before killing them.
 
     [#e Note: If we can ever kill atoms and chunks in the same operation,
     we'll need to revise some APIs so they can all use the same value of
@@ -658,7 +658,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     if not _using_pyrex_atoms:
         key = 0   # BAD FOR PYREX ATOMS - class variable vs. instance variable
 
-    _will_kill = 0 #bruce 060327
+    _f_will_kill = 0 #bruce 060327
 
     _f_dna_updater_should_reposition_baggage = False #bruce 080404
     
@@ -1441,7 +1441,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # bruce 041130 added unary '+' (see Atom.posn comment for the reason).
         #bruce 060308 rewrite
         #bruce 090112 removed setposn_batch alias, since no distinction for ages
-        self._setposn_no_chunk_or_bond_invals(pos)
+        self._f_setposn_no_chunk_or_bond_invals(pos)
         mol = self.molecule
         if mol is not None:
             mol.changed_atom_posn()
@@ -1454,7 +1454,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             b.setup_invalidate()
         return # from setposn
     
-    def _setposn_no_chunk_or_bond_invals(self, pos): #bruce 060308 (private for Chunk and Atom)
+    def _f_setposn_no_chunk_or_bond_invals(self, pos): #bruce 060308 (private for Chunk and Atom)
         self._posn = + pos
         _changed_posn_Atoms[self.key] = self #bruce 060322
         if self.jigs: #bruce 050718 added this, for bonds code
@@ -3669,10 +3669,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if 1:
             #bruce 060327 optim of Chunk.kill: 
             # if we're being killed right now, don't make a new bondpoint
-            if self._will_kill == Utility._will_kill_count:
+            if self._f_will_kill == Utility._will_kill_count:
                 if DEBUG_1779:
-                    print "DEBUG_1779: self._will_kill %r == Utility._will_kill_count %r" % \
-                      ( self._will_kill , Utility._will_kill_count )
+                    print "DEBUG_1779: self._f_will_kill %r == Utility._will_kill_count %r" % \
+                      ( self._f_will_kill , Utility._will_kill_count )
                 return None
         if self.__killed:
             #bruce 080208 new debug print (should never happen)
@@ -3925,8 +3925,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return True
         pass # end of Atom.killed_with_debug_checks()
 
-    def _prekill(self, val): #bruce 060328; usually inlined (but was tested when first written)
-        self._will_kill = val
+    def _f_prekill(self, val): #bruce 060328; usually inlined (but was tested when first written)
+        self._f_will_kill = val
         return
         
     def kill(self):
