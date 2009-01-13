@@ -111,12 +111,11 @@ class HandleSet:
 ##        assert 0
     def findHandles_exact(self, p1, p2, cutoff = 0.0, backs_ok = 1, offset = V(0,0,0)):
         """
-        return a list of (dist, handle) pairs, in arbitrary order,
-        which includes, for each handle (spherical surface) hit by the ray from p1 thru p2,
-        its front-surface intersection with the ray,
-        unless that has dist < cutoff and backs_ok,
-        in which case include its back-surface intersection
-        (unless *that* has dist < cutoff).
+        @return: a list of (dist, handle) pairs, in arbitrary order, which
+        includes, for each handle (spherical surface) hit by the ray from p1
+        thru p2, its front-surface intersection with the ray, unless that has
+        dist < cutoff and backs_ok, in which case include its back-surface
+        intersection (unless *that* has dist < cutoff).
         """
         #e For now, just be simple, don't worry about speed.
         # Someday we can preprocess self.handlpos using Numeric functions,
@@ -125,8 +124,10 @@ class HandleSet:
         hh = self.handles
         res = []
         v = norm(p2-p1)
-        ## is this modifying the vector in-place, causing a bug?? offset += self.origin # treat our handles' pos as relative to this
-        ## I don't know, but one of the three instances of += was doing this!!! probably i was resetting the atom or mol pos....
+        # is this modifying the vector in-place, causing a bug?? 
+        ## offset += self.origin # treat our handles' pos as relative to this
+        # I don't know, but one of the three instances of += was doing this!!!
+        # probably i was resetting the atom or mol pos....
         offset = offset + self.origin # treat our handles' pos as relative to this
         radius_multiplier = self.radius_multiplier
         for (pos,radius,info) in hh:
@@ -146,12 +147,14 @@ class HandleSet:
         return res
     def frontDistHandle(self, p1, p2, cutoff = 0.0, backs_ok = 1, offset = V(0,0,0), copy_id = None):
         """
-        return None, or the frontmost (dist, handle) pair, as computed by findHandles_exact;
-        but turn the handle into a pyobj for convenience of caller.
+        @return: None, or the frontmost (dist, handle) pair, as computed by
+        findHandles_exact; but turn the handle into a pyobj for convenience of
+        caller.
         """
-        #####k i don't know if retval needs self.radius_multiplier...
-        #e will we need to let caller know whether it was the front or back surface we hit?
-        # or even the exact position on the sphere? if so, add more data to the returned pair.
+        # check: i don't know if retval needs self.radius_multiplier...
+        # review: will we need to let caller know whether it was the front or
+        # back surface we hit? or even the exact position on the sphere? if
+        # so, add more data to the returned pair.
         dhdh = self.findHandles_exact(p1, p2, cutoff, backs_ok, offset = offset)
         if not dhdh: return None
         dhdh.sort()

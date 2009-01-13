@@ -4,7 +4,7 @@ chunk.py -- provides class Chunk [formerly known as class molecule],
 for a bunch of atoms (not necessarily bonded together) which can be moved
 and selected as a unit.
 
-@author: Josh
+@author: Josh, Bruce, others
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
@@ -16,30 +16,39 @@ lots of changes, by various developers
 
 split out of chem.py by bruce circa 041118
 
-bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
-for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
+bruce 050513 optimized some things, including using 'is' and 'is not' rather than
+'==', '!=' for atoms, molecules, elements, parts, assys in many places (not
+all commented individually)
 
-bruce 060308 rewriting Atom and Chunk so that atom positions are always stored in the atom
-(eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
-Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
+bruce 060308 rewriting Atom and Chunk so that atom positions are always stored
+in the atom (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn,
+eliminating incremental update of atpos/basepos). Motivation is to make it
+simpler to rewrite high-frequency methods in Pyrex.
 
-bruce 060313 splitting _recompute_atlist out of _recompute_atpos, and planning to remove atom.index from
-undoable state. Rules for atom.index (old, reviewed now and reconfirmed): owned by atom.molecule; value doesn't matter
-unless atom.molecule and its .atlist exist (but is set to -1 otherwise when this is convenient, to help catch bugs);
-must be correct whenever atom.molecule.atlist exists (and is reset when it's made); correct means it's an index for
-that atom into .atlist, .atpos, .basepos, whichever of those exist at the time (atlist always does).
-This means a chunk's addatom, delatom, and _undo_update need to invalidate its .atlist,
-and means there's no need to store atom.index as undoable state (making diffs more compact),
-or to update a chunk's .atpos (or even .atlist) when making an undo checkpoint.
+bruce 060313 splitting _recompute_atlist out of _recompute_atpos, and planning
+to remove atom.index from undoable state. Rules for atom.index (old, reviewed
+now and reconfirmed): owned by atom.molecule; value doesn't matter unless
+atom.molecule and its .atlist exist (but is set to -1 otherwise when this is
+convenient, to help catch bugs); must be correct whenever atom.molecule.atlist
+exists (and is reset when it's made); correct means it's an index for that
+atom into .atlist, .atpos, .basepos, whichever of those exist at the time
+(atlist always does). This means a chunk's addatom, delatom, and _undo_update
+need to invalidate its .atlist, and means there's no need to store atom.index
+as undoable state (making diffs more compact), or to update a chunk's .atpos
+(or even .atlist) when making an undo checkpoint.
 
-(It would be nice for Undo to not store copies of changed .atoms dicts of chunks too, but that's harder. ###e)
+(It would be nice for Undo to not store copies of changed .atoms dicts of
+chunks too, but that's harder. ###e)
 
-[update, bruce 060411: I did remove atom.index from undoable state, as well as chunk.atoms, and I made atoms always store
-their own absposns. I forgot to summarize the new rules here -- maybe I did somewhere else. Looking at the code now,
-atoms still try to get baseposns from their chunk, which still computes that before drawing them; moving a chunk
-probably invalidates atpos and basepos (guess, but _recompute_atpos inval decl code would seem wrong otherwise)
-and drawing it then recomputes them -- or maybe not, since it's only when remaking display list that it should need to.
-Sometime I should review this and see if there is some obvious optimization needed.]
+[update, bruce 060411: I did remove atom.index from undoable state, as well as
+chunk.atoms, and I made atoms always store their own absposns. I forgot to
+summarize the new rules here -- maybe I did somewhere else. Looking at the
+code now, atoms still try to get baseposns from their chunk, which still
+computes that before drawing them; moving a chunk probably invalidates atpos
+and basepos (guess, but _recompute_atpos inval decl code would seem wrong
+otherwise) and drawing it then recomputes them -- or maybe not, since it's
+only when remaking display list that it should need to. Sometime I should
+review this and see if there is some obvious optimization needed.]
 
 bruce 080305 changed superclass from Node to NodeWithAtomContents
 """
@@ -196,30 +205,40 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     """
     #bruce 071114 renamed this from class molecule -> class Chunk
 
-    # class constants to serve as default values of attributes, and _s_attr decls for some of them
+    # class constants to serve as default values of attributes, and _s_attr
+    # decls for some of them
 
     _hotspot = None
 
-    _s_attr_hotspot = S_REF #bruce 060404 revised this in several ways; bug 1633 (incl. all subbugs) will need retesting.
-        # Note that this declares hotspot, not _hotspot, so that undo state never contains dead atoms.
-        # This is only ok because we provide _undo_setattr_hotspot as well.
+    _s_attr_hotspot = S_REF 
+        #bruce 060404 revised this in several ways; 
+        # bug 1633 (incl. all subbugs) will need retesting.
+        # Note that this declares hotspot, not _hotspot, so that undo state
+        # never contains dead atoms. This is only ok because we provide
+        # _undo_setattr_hotspot as well.
         #
-        # Note that we don't put this (or Jig.atoms) into the 'atoms' _s_attrlayer, since we still need to scan them as data.
+        # Note that we don't put this (or Jig.atoms) into the 'atoms'
+        # _s_attrlayer, since we still need to scan them as data.
         #
-        # Here are some old comments from when this declared _hotspot, still relevant:
-        #e we need to warn somehow if you hit a StateMixin object in S_REF but didn't store state for it
-        # (as could happen when we declared _hotspot as data, not child, and it could be a dead atom);
-        #e ideally we'd add debug code to detect the original error (declaring hotspot),
-        # due to presence of a _get_hotspot method; maybe we'd have an optional method (implemented by InvalMixin)
-        # to say whether an attr is legal for an undoable state decl. But (060404) there needs to be an exception,
-        # e.g. when _undo_setattr_hotspot exists, like now.
+        # Here are some old comments from when this declared _hotspot, still
+        # relevant: todo: warn somehow if you hit a StateMixin object in S_REF
+        # but didn't store state for it (as could happen when we declared
+        # _hotspot as data, not child, and it could be a dead atom); ideally
+        # we'd add debug code to detect the original error (declaring
+        # hotspot), due to presence of a _get_hotspot method; maybe we'd have
+        # an optional method (implemented by InvalMixin) to say whether an
+        # attr is legal for an undoable state decl. But (060404) there needs
+        # to be an exception, e.g. when _undo_setattr_hotspot exists, like
+        # now.
 
     _colorfunc = None
     _dispfunc = None
 
-    is_movable = True #mark 060120 [no need for _s_attr decl, since constant for this class -- bruce guess 060308]
+    is_movable = True #mark 060120 
+        # [no need for _s_attr decl, since constant for this class -- bruce guess 060308]
 
-    # Undoable/copyable attrs: (no need for _s_attr decls since copyable_attrs provides them)
+    # Undoable/copyable attrs: 
+    # (no need for _s_attr decls since copyable_attrs provides them)
 
     # self.display overrides global display (GLPane.display)
     # but is overriden by atom value if not default
@@ -256,11 +275,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     #   parameters determine which model to convert to, and whether to ever
     #   convert.
     #
-    # [bruce 080321 for PAM3+5] ### TODO: use for conversion, and prevent ladder merge when different
+    # [bruce 080321 for PAM3+5] ### TODO: use for conversion, and prevent
+    # ladder merge when different
 
-    display_as_pam = "" # PAM model to use for displaying and editing PAM atoms in self (not set means use user pref)
+    display_as_pam = "" 
+        # PAM model to use for displaying and editing PAM atoms in self (not
+        # set means use user pref)
 
-    save_as_pam = "" # PAM model to use for saving self (not normally set; not set means use save-op params)
+    save_as_pam = "" 
+        # PAM model to use for saving self (not normally set; not set means
+        # use save-op params)
 
     copyable_attrs = _superclass.copyable_attrs + ('display', 'color',
                                                    'display_as_pam', 'save_as_pam', 
@@ -286,7 +310,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # attribute.
     iconPath = "ui/modeltree/Chunk.png"
 
-    # no need to _s_attr_ decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
+    # no need to _s_attr_ decl basecenter and quat -- they're officially
+    # arbitrary, and get replaced when things get recomputed
     # [that's the theory, anyway... bruce 060223]
 
     # flags to tell us that our ExternalBondSets need updating
@@ -334,14 +359,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         state). See also _f_invalidate_atom_lists_and_maybe_deallocate_displist,
         which is called (later) whether we are now alive or dead.
         """
-        assert self.assy is not None #bruce 080227 guess (from docstring) [can fail, 080325, tom bug when updater turned on after separate @@@]
+        assert self.assy is not None #bruce 080227 guess (from docstring) 
+            # [can fail, 080325, tom bug when updater turned on after separate @@@]
         # One thing we know is required: if self.atoms changes, invalidate self.atlist.
-        # This permits us to not store atom.index as undoable state, and to not update self.atpos before undo checkpoints.
-        # [bruce 060313]
-        self.invalidate_everything() # this is probably overkill, but its call of self.invalidate_atom_lists() is certainly needed
+        # This permits us to not store atom.index as undoable state, and to not update
+        # self.atpos before undo checkpoints. [bruce 060313]
+        self.invalidate_everything() # this is probably overkill, but its call 
+            # of self.invalidate_atom_lists() is certainly needed
 
         self._colorfunc = None
-        del self._colorfunc #bruce 060308 precaution; might fix (or cause?) some "Undo in Extrude" bugs
+        del self._colorfunc #bruce 060308 precaution; might fix (or
+            # cause?) some "Undo in Extrude" bugs
 
         self._dispfunc = None
         del self._dispfunc
@@ -355,20 +383,22 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             #  the destroy-like elements before the superclass implem.)
         return
 
-    def _undo_setattr_hotspot(self, hotspot, archive): #bruce 060404; 060410 use store_if_invalid to fix new bug 1829
+    def _undo_setattr_hotspot(self, hotspot, archive): 
         """
+        [undo API method]
+        
         Undo is mashing changed state into lots of objects' attrs at once;
-        this lets us handle that specially, just for self.hotspot, but in unknown order (for now)
-        relative either to our attrs or other objects.
+        this lets us handle that specially, just for self.hotspot, but in 
+        unknown order (for now) relative either to our attrs or other objects.
         """
+        #bruce 060404; 060410 use store_if_invalid to fix new bug 1829
         self.set_hotspot( hotspot, store_if_invalid = True)
 
     def _enable_deallocate_displist(self):
-        # to avoid duplicating this code; TODO: inline this method when it soon returns a constant True
+        del self
         res = debug_pref("GLPane: deallocate OpenGL display lists of killed chunks?",
-                         Choice_boolean_True,
-                         prefs_key = True,
-                         non_debug = True )
+                         Choice_boolean_True, # False is only useful for debugging
+                         prefs_key = True )
         return res
 
     # ==
@@ -387,8 +417,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if not self.mticon:
             self.init_icons()
         self.init_InvalMixin()
-        ## dad = None #bruce 050216 removed dad from __init__ args, since no calls pass it
-            # and callers need to do more to worry about the location anyway (see comments above) 
+        ## dad = None
+            #bruce 050216 removed dad from __init__ args, since no calls 
+            # pass it and callers need to do more to worry about the 
+            # location anyway (see comments above) 
         _superclass.__init__(self, assy, name or gensym("Chunk", assy))
 
         # atoms in a dictionary, indexed by atom.key
@@ -433,8 +465,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # which is a reported bug which we hope to fix soon.
 
         self.memo_dict = {}
-            # for use by anything that wants to store its own memo data on us, using a key it's sure is unique [bruce 060608]
-            # (when we eventually have a real destroy method, it should zap this; maybe this will belong on class Node #e)
+            # for use by anything that wants to store its own memo data on us,
+            # using a key it's sure is unique [bruce 060608] 
+            # (when we eventually have a real destroy method, it should zap
+            # this; maybe this will belong on class Node #e)
 
         # self.displist is allocated on demand by _get_displist [bruce 070523]
 
@@ -794,7 +828,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             #Also assign the baseNames for the PAM atoms on the complementary 
             #('mate') strand.
             strandAtomMate = atom.get_strand_atom_mate()
-            complementBaseName= getComplementSequence(str(baseName))
+            complementBaseName = getComplementSequence(str(baseName))
             if strandAtomMate is not None:
                 strandAtomMate.setDnaBaseName(str(complementBaseName))
         return
@@ -1203,7 +1237,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             for extra_displist in self.extra_displists.values():
                 extra_displist.deallocate_displists()
             self.extra_displists = {}
-            if debug_pref("GLPane: print deleted display lists", Choice_boolean_False): #bruce 071205 made debug pref
+            if debug_pref("GLPane: print deleted display lists", Choice_boolean_False):
+                #bruce 071205 made debug pref
                 print "fyi: deleted OpenGL display list %r belonging to %r" % (top, self)
                 # keep this print around until this feature is tested on all platforms
             self.displist = None
@@ -1343,11 +1378,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # make sure no other code forgot to call us and set it directly
         assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
         if self._hotspot is not hotspot:
-            self.changed() #bruce 060324 fix bug 1532, and an unreported bug where this didn't mark file as modified
+            self.changed() 
+                #bruce 060324 fix bug 1532, and an unreported bug where this
+                #didn't mark file as modified
         self._hotspot = hotspot
-        if not store_if_invalid: # (when that's true, it's important not to recompute self.hotspot, even in an assertion)
-            # now recompute self.hotspot from the new self._hotspot (to check whether it's valid)
-            self.hotspot # this has side effects we depend on!
+        if not store_if_invalid: 
+            # (when that's true, it's important not to recompute self.hotspot,
+            #  even in an assertion)
+            # now recompute self.hotspot from the new self._hotspot (to check
+            # whether it's valid)
+            self.hotspot # note: this has side effects we depend on!
             assert self.hotspot is hotspot or silently_fix_if_invalid, \
                    "getattr bug, or specified hotspot %s is invalid" % \
                    safe_repr(hotspot)
@@ -1423,11 +1463,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             self.hideicon.append( imagename_to_pixmap( "modeltree/" + name))
         return
     
-    def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]; revised again 060608
-        # Special case for protein icon. This only adds the icon to the MT.
-        # To add the protein icon for PM_SelectionListWidget, the attr iconPath
-        # was modified in isProteinChunk(). --Mark 2008-12-16.
+    def node_icon(self, display_prefs): 
         if self.isProteinChunk():
+            # Special case for protein icon (for MT only). 
+            # (For PM_SelectionListWidget, the attr iconPath was modified in
+            #  isProteinChunk() in separate code.) --Mark 2008-12-16.
             hd = get_display_mode_handler(diPROTEIN)
             if hd:
                 return hd.get_icon(self.hidden)
@@ -1436,13 +1476,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 return self.hideicon[self.display]
             else:
                 return self.mticon[self.display]
-                
         except IndexError:
-            # probably one of those new-fangled ChunkDisplayModes [bruce 060608]
+            # KLUGE: detect self.display being a ChunkDisplayMode [bruce 060608]
             hd = get_display_mode_handler(self.display)
             if hd:
                 return hd.get_icon(self.hidden)
-            # hmm, some sort of bug
+            # else, some sort of bug
             return imagename_to_pixmap("modeltree/junk.png")
         pass
 
@@ -1452,19 +1491,23 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Private method;
         should be the only way new atoms can be added to a Chunk
-        (except for optimized callers like Chunk.merge, and others with comments saying they inline it).
-           Add an existing atom (with no current Chunk, and with a valid literal
+        (except for optimized callers like Chunk.merge, and others with comments
+         saying they inline it).
+        
+        Add an existing atom (with no current Chunk, and with a valid literal
         .xyz field) to the Chunk self, doing necessary invals in self, but not yet
         giving the new atom an index in our curpos, basepos, etc (which will not
         yet include the new atom at all).
-           Details of invalidations: Curpos must be left alone (so as not
+        
+        Details of invalidations: Curpos must be left alone (so as not
         to forget the positions of other atoms); the other atom-position arrays
         (atpos, basepos) and atom lists (atlist) are defined to be complete, so
         they're invalidated, and so are whatever other attrs depend on them.
         In the future we might change this function to incrementally grow those
         arrays. This will be transparent to callers since they are now recomputed
         as needed by __getattr__.
-           (It's not worth tracking changes to the set of singlets in the mol,
+        
+        (It's not worth tracking changes to the set of singlets in the mol,
         so instead we recompute self.singlets and self.singlpos as needed.)
         """
         ## atom.invalidate_bonds() # might not be needed
@@ -1490,7 +1533,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Private method;
         should be the only way atoms can be removed from a Chunk
         (except for optimized callers like Chunk.merge).
-           Remove atom from the Chunk self, preparing atom for being destroyed
+        
+        Remove atom from the Chunk self, preparing atom for being destroyed
         or for later addition to some other mol, doing necessary invals in self,
         and (for safety and possibly to break cycles of python refs) removing all
         connections from atom back to self.
@@ -1559,8 +1603,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             need = 1
         try:
             del self.atlist
-                # this is what makes it ok for atom indices to be invalid, as they are when self.atoms changes,
-                # until self.atlist is next recomputed [bruce 060313 comment]
+                # this is what makes it ok for atom indices to be invalid, as
+                # they are when self.atoms changes, until self.atlist is next
+                # recomputed [bruce 060313 comment]
         except:
             pass
         else:
@@ -1568,7 +1613,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if need:
             # this causes trouble, not yet sure why:
             ## self.changed_attrs(['externs', 'atlist'])
-            ## AssertionError: validate_attr finds no attr 'externs' was saved, in <Chunk 'Ring Gear' (5167 atoms) at 0xd967440>
+            ## AssertionError: validate_attr finds no attr 'externs' was saved, 
+            ## in <Chunk 'Ring Gear' (5167 atoms) at 0xd967440>
             # so do this instead:
             self.externs = self.atlist = -1
             self.invalidate_attrs(['externs', 'atlist'])
@@ -1606,7 +1652,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.invalidate_all_bonds()
         self.invalidate_atom_lists() # _undo_update depends on us calling this
         attrs  = self.invalidatable_attrs()
-        # now this is done in that method: attrs.sort() # be deterministic even if it hides bugs for some orders
+        # now this is done in that method: 
+        ## attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             self.invalidate_attr(attr)
         # (these might be sufficient: ['externs', 'atlist', 'atpos'])
@@ -1616,7 +1663,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def update_everything(self):
         attrs  = self.invalidatable_attrs()
-        # now this is done in that method: attrs.sort() # be deterministic even if it hides bugs for some orders
+        # now this is done in that method: 
+        ## attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             junk = getattr(self, attr)
         # don't actually remake display list, but next redraw will do that;
@@ -1631,11 +1679,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         One of self's atoms changed position; 
         invalidate whatever we might own that depends on that.
         """
-        # initial implem might be too conservative; should optimize, perhaps recode in a new Pyrex ChunkBase.
-        # Some code is copied from now-obsolete setatomposn; some of its comments might apply here as well.
+        # initial implem might be too conservative; should optimize, perhaps
+        # recode in a new Pyrex ChunkBase. Some code is copied from
+        # now-obsolete setatomposn; some of its comments might apply here as
+        # well.
         self.changed()
         self.havelist = 0
-        self.invalidate_attr('atpos') #e should optim this ##k verify this also invals basepos, or add that to the arg of this call
+        self.invalidate_attr('atpos') #e should optim this 
+            ##k verify this also invals basepos, or add that to the arg of this call
         return
 
     # for __getattr__, validate_attr, invalidate_attr, etc, see InvalMixin
@@ -1698,7 +1749,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def _get_polyhedron(self): # self.polyhedron
         return self.poly_evals_evecs_axis[0]
-#bruce 060119 commenting these out since they are not used, though if we want them it's fine to add them back.
+#bruce 060119 commenting these out since they are not used,
+# though if we want them it's fine to add them back.
 #bruce 060608 renamed them with plural 's'.
 ##    def _get_evals(self): # self.evals
 ##        return self.poly_evals_evecs_axis[1]
@@ -1724,7 +1776,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.havelist = 0
         self.haveradii = 0
         self.invalidate_attrs(['atlist', 'externs']) # invalidates everything, I think
-        assert not self.valid_attrs(), "full_inval_and_update forgot to invalidate something: %r" % self.valid_attrs()
+        assert not self.valid_attrs(), \
+               "full_inval_and_update forgot to invalidate something: %r" % self.valid_attrs()
         # full update (but invals bonds):
         self.atpos # this invals all internal bonds (since it revises basecenter); we depend on that
         # self.atpos also recomputes some other things, but not the following -- do them all:
@@ -1733,7 +1786,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.externs
         self.axis
         self.get_sel_radii_squared()
-        assert not self.invalid_attrs(), "full_inval_and_update forgot to update something: %r" % self.invalid_attrs()
+        assert not self.invalid_attrs(), \
+               "full_inval_and_update forgot to update something: %r" % self.invalid_attrs()
         return
 
     # Primitive modifier methods will (more or less by convention)
@@ -1758,7 +1812,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Also set atom.index on each atom in the list, to its index in the list.
         """
         atomitems = self.atoms.items()
-        atomitems.sort() # in order of atom keys; probably doesn't yet matter but makes order deterministic
+        atomitems.sort() 
+            # in order of atom keys; probably doesn't yet matter, but makes order deterministic
         atlist = [atom for (key, atom) in atomitems]
         self.atlist = array(atlist, PyObject) #review: untested whether making it an array is good or bad
         for atom, i in zip(atlist, range(len(atlist))):
@@ -1770,18 +1825,24 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #  anyway we don't optim for that.)
     _inputs_for_basepos = ['atpos'] # also invalidated directly, but not often
 
-    def _recompute_atpos(self): #bruce 060308 major rewrite;  #bruce 060313 splitting _recompute_atlist out of _recompute_atpos
+    def _recompute_atpos(self): 
         """
         recompute self.atpos and self.basepos and more;
         also change self's local coordinate system (used for basepos)
         [#doc more]
         """
-        #    Something must have been invalid to call us, so basepos must be invalid. So we needn't call changed_attr on it.
+        #bruce 060308 major rewrite
+        #bruce 060313 splitting _recompute_atlist out of _recompute_atpos
+        
+        # Something must have been invalid to call us, so basepos must be
+        # invalid. So we needn't call changed_attr on it.
         assert not self.__dict__.has_key('basepos')
         if self.assy is None:
             if debug_flags.atom_debug:
-                # [bruce comment 050702: this happens if you delete the chunk while dragging it by selatom in build mode]
-                print_compact_stack("atom_debug: fyi, recompute atpos called on killed mol %r: " % self)
+                # [bruce comment 050702: this happens if you delete the chunk
+                # while dragging it by selatom in build mode]
+                msg = "atom_debug: fyi, recompute atpos called on killed mol %r" % self
+                print_compact_stack(msg + ": ")
         # Optional debug code:
         # This might be called if basepos doesn't exist but atpos does.
         # I don't think that can happen, but if it can, I need to know.
@@ -1793,7 +1854,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 ##                print "fyi: _recompute_atpos sees %r already existing" % attr
 
         atlist = self.atlist # might call _recompute_atlist
-        atpos = map( lambda atom: atom.posn(), atlist ) # atpos, basepos, and atlist must be in same order
+        atpos = map( lambda atom: atom.posn(), atlist ) 
+            # atpos, basepos, and atlist must be in same order
         atpos = A(atpos)
         # we must invalidate or fix self.atpos when any of our atoms' positions is changed!
         self.atpos = atpos
@@ -1802,30 +1864,36 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         self._recompute_average_position() # sets self.average_position from self.atpos
         self.basecenter = + self.average_position # not an invalidatable attribute
-            # unary '+' prevents mods to basecenter from affecting average_position;
-            # it might not be needed (that depends on Numeric.array += semantics).
-        # Note: basecenter is arbitrary, but should be somewhere near the atoms...
-        # except see set_basecenter_and_quat, used in extrudeMode -- it may be that it's not really arbitrary
-        # due to kluges in how that's used [still active as of 070411].
+            # unary '+' prevents mods to basecenter from affecting
+            # average_position; it might not be needed (that depends on
+            # Numeric.array += semantics).
+        # Note: basecenter is arbitrary, but should be somewhere near the
+        # atoms... except see set_basecenter_and_quat, used in extrudeMode --
+        # it may be that it's not really arbitrary due to kluges in how that's
+        # used [still active as of 070411].
         if debug_messup_basecenter:
             # ... so this flag lets us try some other value to test that!!
             blorp = messupKey.next()
             self.basecenter += V(blorp, blorp, blorp)
         self.quat = Q(1,0,0,0)
-            # arbitrary value, except we assume it has this specific value to simplify/optimize the next line
+            # arbitrary value, except we assume it has this specific value to
+            # simplify/optimize the next line
         if self.atoms:
             self.basepos = atpos - self.basecenter
-                # set now (rather than when next needed) so it's still safe to assume self.quat == Q(1,0,0,0)
+                # set now (rather than when next needed) so it's still safe to
+                # assume self.quat == Q(1,0,0,0)
         else:
             self.basepos = []
             # this has wrong type, so requires special code in mol.move etc
-            ###k Could we fix that by just assigning atpos to it (no elements, so should be correct)?? [bruce 060119 question]
+            ###k Could we fix that by just assigning atpos to it (no elements, 
+            # so should be correct)?? [bruce 060119 question]
 
         assert len(self.basepos) == len(atlist)
 
         # note: basepos must be a separate (unshared) array object
         # (except when mol is frozen [which is no longer supported as of 060308]);
-        # as of 060308 atpos (when defined) is a separate array object, since curpos no longer exists.
+        # as of 060308 atpos (when defined) is a separate array object, 
+        # since curpos no longer exists.
         self._changed_basecenter_or_quat_while_atoms_fixed()
             # (that includes self.changed_attr('basepos'), though an assert above
             # says that that would not be needed in this case.)
@@ -2028,7 +2096,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # piotr 080331 moved this assignment before visibility 
         # and frustum culling tests 
         self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
-            # (and now also needed by BorrowerChunk during draw_dispdef's call of _dispfunc [bruce 060411])
+            # (and now also needed by BorrowerChunk during draw_dispdef's call
+            #  of _dispfunc [bruce 060411])
             #
             ##e bruce 041109: couldn't we figure out self.glpane on the fly from self.dad?
             # (in getattr or in a special method)
@@ -2073,7 +2142,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # to be sure that all objects are within the sphere.
         # piotr 080403: moved the correction here from GLPane.py
         is_chunk_visible = glpane.is_sphere_visible(self.bbox.center(), 
-                                                    self.bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5)
+                                                    self.bbox.scale() + 
+                                                     (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS)
+                                                     + 0.5 )
 
         if indicate_overlapping_atoms and is_chunk_visible:
             self.draw_overlap_indicators_if_needed()
@@ -2096,17 +2167,20 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # (presumably our arg, glpane, but we don't assume this right here)
         # how to find out when our display list next becomes invalid,
         # so it can know it needs to redraw us.
-        # (This is probably not actually needed at the moment,
-        #  due to a special system used by self.changeapp() in place of self.track_change(),
-        #  but it should be harmless.)
+        # (This is probably not actually needed at the moment, 
+        # due to a special system used by self.changeapp() in place of
+        # self.track_change(), but it should be harmless.)
         self.track_use()
 
         drawLevel = self.assy.drawLevel # this might recompute it
-            # (if that happens and grabs the pref value, I think this won't subscribe our display list to it,
-            #  since we're outside the begin/end for that, and that's good, since we include this in havelist
-            #  instead, which avoids some unneeded redrawing, e.g. if pref changed and changed back while
-            #  displaying a different Part. [bruce 060215])
-            # update, bruce 080930: that point is probably moot, since drawLevel is part of havelist.
+            # (if that happens and grabs the pref value, I think this won't
+            #  subscribe our display list to it, since we're outside the
+            #  begin/end for that, and that's good, since we include this in
+            #  havelist instead, which avoids some unneeded redrawing, e.g. if
+            #  pref changed and changed back while displaying a different Part.
+            #  [bruce 060215])
+            # update, bruce 080930: that point is probably moot, since
+            #  drawLevel is part of havelist.
 
         disp = self.get_dispdef(glpane) 
             # piotr 080401: Moved it here, because disp is required by 
@@ -2186,8 +2260,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
                 matprefs = drawing_globals.glprefs.materialprefs_summary() #bruce 051126
                 #bruce 060215 adding drawLevel to havelist
-                if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
-                    # our main display list is still valid -- use it
+                if self.havelist == (disp, eltprefs, matprefs, drawLevel): 
+                    # (note: value must agree with set of havelist, below)
+                    # Our main display list is still valid -- use it.
                     # Russ 081128: Switch from draw_dl() to draw() with selection arg.
                     self.displist.draw(selected = self.picked)
                     for extra_displist in self.extra_displists.itervalues():
@@ -2203,11 +2278,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         #bruce 060608: record info to help per-chunk display modes
                         # figure out whether they need to invalidate their memo data.
                         if not self.havelist:
-                            # only count when it was set to 0 externally, not just when it doesn't match and we reset it below.
-                            # (Note: current code will also increment this every frame, when wantlist is false.
-                            #  I'm not sure what to do about that. Could we set it here to False rather than 0, so we can tell?? ##e)
+                            # Only count when it was set to 0 externally, not
+                            # just when it doesn't match and we reset it
+                            # below. (Note: current code will also increment
+                            # this every frame, when wantlist is false. I'm
+                            # not sure what to do about that. Could we set it
+                            # here to False rather than 0, so we can tell??
+                            # ##e)
                             self._havelist_inval_counter += 1
-                        ##e in future we might also record eltprefs, matprefs, drawLevel (since they're stored in .havelist)
+                        ##e in future we might also record eltprefs, matprefs,
+                        ##drawLevel (since they're stored in .havelist)
                     self.havelist = 0 #bruce 051209: this is now needed
                     try:
                         wantlist = not env.mainwindow().movie_is_playing #bruce 051209
@@ -2260,7 +2340,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                                                                           selected = self.picked,
                                                                           wantlist = wantlist)
                         
-                    pass # end of the case where our "main display list (and all extra lists) needs to be remade"
+                    pass # end of the case where "main display list (and extra lists) needs to be remade"
 
                 # REVIEW: is it ok that self.glname is exposed for the following
                 # renderOverlayText drawing? Guess: yes, even though it means mouseover
@@ -2272,14 +2352,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     self.renderOverlayText(glpane)
                 
                 #@@ninad 070219 disabling the following--
-                #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
+                ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
 
                 # piotr 080320
                 if hd:
                     hd._f_drawchunk_realtime(glpane, self)
 
-                if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
-                    self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
+                if self.hotspot is not None: 
+                    # note: accessing self.hotspot can have side effects in getattr
+                    self.overdraw_hotspot(glpane, disp) 
+                        # note: this only does anything for pastables
+                        # (toplevel clipboard items) as of 050316
 
                 # russ 080409 Array to string formatting is slow, avoid it
                 # when not needed.  Use !=, not ==, to compare Numeric arrays.
@@ -2347,9 +2430,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         # Could we skip this if display mode "disp" never draws bonds?
         # No -- individual atoms might override that display mode.
-        # Someday we might decide to record whether that's true when recomputing externs,
-        # and to invalidate it as needed -- since it's rare for atoms to override display modes.
-        # Or we might even keep a list of all our atoms which override our display mode. ###e
+        # Someday we might decide to record whether that's true when
+        # recomputing externs, and to invalidate it as needed -- since it's
+        # rare for atoms to override display modes. Or we might even keep a
+        # list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
         if draw_external_bonds and self.externs:
             self._draw_external_bonds(glpane, disp, drawLevel, is_chunk_visible)
@@ -2471,7 +2555,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 repeated_bonds_dict[id(bond)] = bond
                 if frustum_culling_for_external_bonds:
                     # bond frustum culling test piotr 080401
-                    ### REVIEW: efficient under all settings of debug_prefs?? [bruce 080702 question]
+                    ### REVIEW: efficient under all settings of debug_prefs??
+                    # [bruce 080702 question]
                     c1, c2, radius = bond.bounding_lozenge()
                     if not glpane.is_lozenge_visible(c1, c2, radius):
                         continue # skip the bond drawing if culled
@@ -2487,7 +2572,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         
         return # from _draw_external_bonds
 
-##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
+##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd):
 ##        "[private submethod of self.draw]"
 ##        if self.picked:
 ##            if not delegate_selection_wireframe:
@@ -2596,13 +2681,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if delegate_draw_chunk:
             hd._f_drawchunk(self.glpane, self)
         else:
-            self.standard_draw_chunk(glpane, disp0)
+            self._standard_draw_chunk(glpane, disp0)
 
         # draw the individual atoms and internal bonds (if desired)
         if delegate_draw_atoms:
             pass # nothing for this is implemented, or yet needed [as of bruce 060608]
         else:
-            self.standard_draw_atoms(glpane, disp0)
+            self._standard_draw_atoms(glpane, disp0)
         return
 
     def highlight_color_for_modkeys(self, modkeys):
@@ -2757,22 +2842,28 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         return
 
-    def standard_draw_chunk(self, glpane, disp0, highlighted = False):
+    def _standard_draw_chunk(self, glpane, disp0, highlighted = False):
         """
-        [private submethod of self.draw:]
+        [private submethod of self.draw]
         
         Draw the standard representation of this chunk as a whole
         (except for chunk selection wireframe),
-        as if self's display mode was disp0;
-        this occurs inside our local coordinate system and display-list-making,
-        and it doesn't occur if chunk drawing is delegated to our display mode.
+        as if self's display mode was disp0 (not a whole-chunk display mode).
+        
+        This is run inside our local coordinate system and display-list-making.
+        
+        It is not run if chunk drawing is delegated to a whole-chunk display mode.
 
-        @note: as of 080605 nothing is ever drawn for a chunk as a whole,
-               so this method does nothing (in this class or any subclass).
-               That might change, e.g. if we made chunks able to show their
-               axes, name, bbox, etc.
+        @note: as of 080605 or before, this is always a noop, but is kept around
+               since it might be used someday (see code comments)
         """
-        #bruce 060608 split this out of _draw_for_main_display_list
+        # note: we're keeping this for future expansion even though it's
+        # always a noop at the moment (even in subclasses). 
+        # It's not used for whole-chunk display styles, but it might be used
+        # someday, e.g. to let chunks show their axes, name, bbox, etc,
+        # or possibly to help implement a low-level-of-detail form.
+        # [bruce 090113 comment]
+        del glpane, disp0, highlighted
         return
 
     def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
@@ -2780,8 +2871,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Return the color tuple to use for drawing self, or None if
         per-atom colors should be used.
         """
-        if self.picked and not (drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls):
-            #bruce disable this case when using drawing_globals.use_color_sorted_dls
+        if self.picked and not \
+           (drawing_globals.allow_color_sorting and 
+            drawing_globals.use_color_sorted_dls ) :
+            #bruce disabled this case when using drawing_globals.use_color_sorted_dls
             # since they provide a better way (fixes "stuck green" bug.)
 
             #ninad070405 Following draws the chunk as a colored selection 
@@ -2803,7 +2896,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         return color
 
-    def standard_draw_atoms(self, glpane, disp0): #bruce 060608 split this out of _draw_for_main_display_list
+    def _standard_draw_atoms(self, glpane, disp0): 
         """
         [private submethod of self.draw:]
         
@@ -2812,12 +2905,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         this occurs inside our local coordinate system and display-list-making;
         it doesn't occur if atom drawing is delegated to our display mode.
         """
+        #bruce 060608 split this out of _draw_for_main_display_list
         drawLevel = self.assy.drawLevel
         drawn = {}
         ## self.externs = [] # bruce 050513 removing this
-        # bruce 041014 hack for extrude -- use _colorfunc if present [part 1; optimized 050513]
-        _colorfunc = self._colorfunc # might be None [as of 050524 we supply a default so it's always there]
-        _dispfunc = self._dispfunc #bruce 060411 hack for BorrowerChunk, might be more generally useful someday
+        # bruce 041014 hack for extrude -- use _colorfunc if present
+        # [part 1; optimized 050513]
+        _colorfunc = self._colorfunc # might be None 
+            # [as of 050524 we supply a default so it's always there]
+        _dispfunc = self._dispfunc 
+            #bruce 060411 hack for BorrowerChunk, might be more generally useful someday
 
         atomcolor = self.drawing_color() # None or a color
             # bruce 080210 bugfix (predicted) [part 1 of 2]:
@@ -2827,24 +2924,27 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         bondcolor = atomcolor # never changed below
 
-        for atom in self.atoms.itervalues(): #bruce 050513 using itervalues here (probably safe, speed is needed)
+        for atom in self.atoms.itervalues(): 
+            #bruce 050513 using itervalues here (probably safe, speed is needed)
             try:
                 color = atomcolor # might be modified before use
                 disp = disp0 # might be modified before use
-                # bruce 041014 hack for extrude -- use _colorfunc if present [part 2; optimized 050513]
+                # bruce 041014 hack for extrude -- use _colorfunc if present 
+                # [part 2; optimized 050513]
                 if _colorfunc is not None:
                     try:
                         color = _colorfunc(atom) # None or a color
                     except:
-                        print_compact_traceback("bug in _colorfunc for %r and %r: " % (self, atom)) #bruce 060411 added errmsg
+                        print_compact_traceback("bug in _colorfunc for %r and %r: " % (self, atom)) 
                         _colorfunc = None # report the error only once per displist-redraw
                         color = None
                     else:
                         if color is None:
                             color = atomcolor
                                 # bruce 080210 bugfix (predicted) [part 2 of 2]
-                        #bruce 060411 hack for BorrowerChunk; done here and in this way in order to not make
-                        # ordinary drawing inefficient, and to avoid duplicating this entire method:
+                        #bruce 060411 hack for BorrowerChunk; done here and
+                        # in this way in order to not make ordinary drawing
+                        # inefficient, and to avoid duplicating this entire method:
                         if _dispfunc is not None:
                             try:
                                 disp = _dispfunc(atom)
@@ -2875,8 +2975,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 #    To make this safe, we'd need to not recompute externs here,
                 # but that should be ok since they're computed separately anyway now.
                 # So I'm removing that now, and doing this optim.
-                ###e (I might need to specialcase it for singlets so their bond-valence number is still drawn...)
-                # [bruce 050513]
+                ###e (I might need to specialcase it for singlets so their 
+                # bond-valence number is still drawn...) [bruce 050513]
                 #bruce 080212: this optim got a lot less effective since a few CPK bonds
                 # are now also drawn (though most are not).
 
@@ -2898,18 +2998,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 # exception in drawing one atom. Ignore it and try to draw the
                 # other atoms. #e In future, draw a bug-symbol in its place.
                 print_compact_traceback("exception in drawing one atom or bond ignored: ")
-                # (this might mean some externs are missing; never mind that for now.) [bruce 050513 -- not anymore]
                 try:
                     print "current atom was:", atom
                 except:
                     print "current atom was... exception when printing it, discarded"
                 try:
-                    atom_source = atom._source # optional atom-specific debug info
+                    atom_source = atom._f_source # optional atom-specific debug info
                 except AttributeError:
                     pass
                 else:
                     print "Source of current atom:", atom_source
-        return # from standard_draw_atoms (submethod of _draw_for_main_display_list)
+        return # from _standard_draw_atoms (submethod of _draw_for_main_display_list)
 
     def overdraw_hotspot(self, glpane, disp): #bruce 050131
         """
@@ -2987,9 +3086,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # the hotspot to be set for this chunk (which is being read from an mmp file)
             (hs_num,) = val.split()
             hs = interp.atom(hs_num)
-            self.set_hotspot(hs) # this assertfails if hotspot is invalid [#k does caller handle that? ####@@@@]
+            self.set_hotspot(hs) 
+                # this assertfails if hotspot is invalid [review: does caller handle that?]
         elif key == ['color']: #bruce 050505
-            # val should be 3 decimal ints from 0-255; colors of None are not saved since they're the default
+            # val should be 3 decimal ints from 0-255;
+            # colors of None are not saved since they're the default
             r,g,b = map(int, val.split())
             color = r/255.0, g/255.0, b/255.0
             self.setcolor(color, repaint_in_MT = False)
@@ -2997,7 +3098,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # val should be one of the strings "", MODEL_PAM3, MODEL_PAM5;
             # if not recognized, use ""
             if val not in ("", MODEL_PAM3, MODEL_PAM5):
-                print "fyi: info chunk display_as_pam with unrecognized value %r" % (val,) # deferred_summary_message?
+                # maybe todo: use deferred_summary_message?
+                print "fyi: info chunk display_as_pam with unrecognized value %r" % (val,) 
                 val = ""
             #bruce 080523: silently ignore this, until the bug 2842 dust fully
             # settles. This is #1 of 2 changes (in the same commit) which
@@ -3013,7 +3115,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # val should be one of the strings "", MODEL_PAM3, MODEL_PAM5;
             # if not recognized, use ""
             if val not in ("", MODEL_PAM3, MODEL_PAM5):
-                print "fyi: info chunk save_as_pam with unrecognized value %r" % (val,) # deferred_summary_message?
+                # maybe todo: use deferred_summary_message?
+                print "fyi: info chunk save_as_pam with unrecognized value %r" % (val,)
                 val = ""
             self.save_as_pam = val
         else:
@@ -3381,17 +3484,20 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.changed_attr('atpos', skip = ('bbox', 'basepos'))
 
         # we've moved one end of each external bond, so invalidate them...
-        # [bruce 050516 comment (95% sure it's right): note that we don't, and need not, inval internal bonds]
+        # [bruce 050516 comment (95% sure it's right): 
+        #  note that we don't, and need not, inval internal bonds]
         for bond in self.externs:
             bond.setup_invalidate()
         return
 
     def _set_atom_posns_from_atpos(self, atpos): #bruce 060308; revised 060313
         """
-        Set our atom's positions en masse from the given array, doing no chunk or bond invals
-        (caller must do whichever invals are needed, which depends on how the positions changed).
-        The array must be in the same order as self.atpos (its typical value, but we won't depend
-        on that and won't access or modify self.atpos) and self.atlist (which must already exist).
+        Set our atom's positions en masse from the given array, doing no chunk
+        or bond invals (caller must do whichever invals are needed, which
+        depends on how the positions changed). The array must be in the same
+        order as self.atpos (its typical value, but we won't depend on that
+        and won't access or modify self.atpos) and self.atlist (which must
+        already exist).
         """
         assert self.__dict__.has_key('atlist')
         atlist = self.atlist
@@ -3402,19 +3508,19 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def base_to_abs(self, anything): # bruce 041115
         """
-        map anything (which is accepted by quat.rot() and Numeric.array's '+' method)
-        from Chunk-relative coords to absolute coords;
-        guaranteed to never recompute basepos/atpos or modify the mol-relative
-        coordinate system it uses. Inverse of abs_to_base.
+        map anything (which is accepted by quat.rot() and Numeric.array's '+'
+        method) from Chunk-relative coords to absolute coords; guaranteed to
+        never recompute basepos/atpos or modify the mol-relative coordinate
+        system it uses. Inverse of abs_to_base.
         """
         return self.basecenter + self.quat.rot( anything)
 
     def abs_to_base(self, anything): # bruce 041201
         """
-        map anything (which is accepted by quat.unrot() and Numeric.array's '-' method)
-        from absolute coords to mol-relative coords;
-        guaranteed to never recompute basepos/atpos or modify the mol-relative
-        coordinate system it uses. Inverse of base_to_abs.
+        map anything (which is accepted by quat.unrot() and Numeric.array's
+        '-' method) from absolute coords to mol-relative coords; guaranteed to
+        never recompute basepos/atpos or modify the mol-relative coordinate
+        system it uses. Inverse of base_to_abs.
         """
         return self.quat.unrot( anything - self.basecenter)
 
@@ -3425,23 +3531,24 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Change self's basecenter and quat to the specified values,
         as a way of moving self's atoms.
         
-        It's deprecated since basecenter and quat are replaced by 
-        in-principle-arbitrary values every time certain recomputations are done
-        after self's geometry might have changed, but this method is only useful
-        if the caller knows what they are, and computes the new ones it wants
-        relative to what they are, which in practice means the caller must
-        be able to prevent modifications to self during an entire period
-        when it wants to be able to call this method repeatedly on self.
-        So it's much better to use self.pivot instead (or some combo of move, 
+        It's deprecated since basecenter and quat are replaced by
+        in-principle-arbitrary values every time certain recomputations are
+        done after self's geometry might have changed, but this method is only
+        useful if the caller knows what they are, and computes the new ones it
+        wants relative to what they are, which in practice means the caller
+        must be able to prevent modifications to self during an entire period
+        when it wants to be able to call this method repeatedly on self. So
+        it's much better to use self.pivot instead (or some combo of move,
         rot, and pivot methods).
         """
         # [written by bruce for extrude; moved into class Chunk by bruce 041104]
         # modified from mol.move and mol.rot as of 041015 night
-        self.basepos # bruce 050315 bugfix: recompute this if it's currently invalid!
+        self.basepos # recompute basepos if it's currently invalid
         # make sure mol owns its new basecenter and quat,
         # since it might destructively modify them later!
         self.basecenter = V(0,0,0) + basecenter
-        self.quat = Q(1,0,0,0) + quat #e +quat might be correct and faster... don't know; doesn't matter much
+        self.quat = Q(1,0,0,0) + quat 
+            # review: +quat might be correct and faster... don't know; doesn't matter much
         self.bbox = None
         del self.bbox #e could optimize if quat is not changing
         self._changed_basecenter_or_quat_to_move_atoms()
@@ -3576,8 +3683,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # REVIEW: do some inlines of changeapp need to do this too?
         # If they did, would that catch the redraws that currently
         # only Qt knows we need to do? [bruce 080305 question]
-        glpane = self.glpane # the last glpane that drew this chunk, or None if it was never drawn
-            # (if more than one can ever draw it at once, this code needs to be revised to scan them all ##k)
+        glpane = self.glpane 
+            # the last glpane that drew this chunk, or None if it was never
+            # drawn (if more than one can ever draw it at once, this code
+            # needs to be revised to scan them all ##k)
         if glpane is not None:
             try:
                 flag = glpane.wants_gl_update
@@ -3601,7 +3710,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Return the tooltip string for this chunk
         """
-        #As of 2008-11-09, this is only implemented for a DnaStrand.
+        # As of 2008-11-09, this is only implemented for a DnaStrand.
         strand =  self.getDnaStrand()
         toolTipInfoString = ''
         if strand:
@@ -3613,19 +3722,22 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             toolTipInfoString = segment.getDefaultToolTipInfo()
                     
         return toolTipInfoString
-                    
-
-    def getinfo(self):
-        # Return information about the selected chunk for the msgbar [mark 2004-10-14]
-
-        if self is self.assy.ppm: return
+        
+    def getinfo(self): # mark 2004-10-14
+        """
+        Return information about the selected chunk for the msgbar
+        """
+        if self is self.assy.ppm: 
+            return
 
         ele2Num = {}
 
         # Determine the number of element types in this Chunk.
         for a in self.atoms.values():
-            if not ele2Num.has_key(a.element.symbol): ele2Num[a.element.symbol] = 1 # New element found
-            else: ele2Num[a.element.symbol] += 1 # Increment element
+            if not ele2Num.has_key(a.element.symbol):
+                ele2Num[a.element.symbol] = 1 # New element found
+            else: 
+                ele2Num[a.element.symbol] += 1 # Increment element
 
         # String construction for each element to be displayed.
         natoms = self.natoms() # number of atoms in the chunk
@@ -3636,19 +3748,19 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if item[0] == "X":  # It is a Singlet
                 nsinglets = int(item[1])
                 continue
-            else: eleStr = "[" + item[0] + ": " + str(item[1]) + "] "
+            else: 
+                eleStr = "[" + item[0] + ": " + str(item[1]) + "] "
             einfo += eleStr
 
-        if nsinglets: # Add singlet info to end of info string
-            #bruce 041227 changed term "Singlets" to "Open bonds"
+        if nsinglets:
             eleStr = "[Open bonds: " + str(nsinglets) + "]"
             einfo += eleStr
 
-        natoms -= nsinglets   # The number of real atoms in this chunk
+        natoms -= nsinglets # compute number of real atoms in this chunk
 
         minfo =  "Chunk Name: [" + str (self.name) + "]     Total Atoms: " + str(natoms) + " " + einfo
 
-        # ppm is self for next mol picked.
+        # set ppm to self for next mol picked.
         self.assy.ppm = self
 
         return minfo
@@ -3663,11 +3775,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         for a in self.atoms.itervalues():
             if a.element.symbol == "X": stats.nsinglets +=1
 
-    def pickatoms(self): # mark 060211. Could use a complementary unpickatoms() method. [not referring to the one in ops_select --bruce]
+    def pickatoms(self): # mark 060211. 
         """
-        Pick the atoms of self not already picked. Return the number of newly picked atoms.
+        Pick the atoms of self not already picked (selected).
+        Return the number of newly picked atoms.
         [overrides Node method]
         """
+        # todo: Could use a complementary unpickatoms() method. [mark 060211]
+        # [fyi, that doesn't refer to the one in ops_select --bruce]
         self.assy.permit_pick_atoms()
         npicked = 0
         for a in self.atoms.itervalues():
@@ -3675,7 +3790,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 if not a.picked:
                     a.pick()
                     if a.picked: 
-                        # Just in case it didn't get picked due to a selection filter.
+                        # in case not picked due to selection filter
                         npicked += 1
         return npicked
 
@@ -3693,10 +3808,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
                 # (might not be needed for other kinds of leaf nodes... not sure. [bruce 050131])
             _superclass.pick(self)
-            #bruce 050308 comment: _superclass.pick (Node.pick) has ensured that we're in the current selection group,
-            # so it's correct to append to selmols, *unless* we recompute it now and get a version
-            # which already contains self. So, we'll maintain it iff it already exists.
-            # Let the Part figure out how best to do this.
+            #bruce 050308 comment: _superclass.pick (Node.pick) has ensured
+            # that we're in the current selection group, so it's correct to
+            # append to selmols, *unless* we recompute it now and get a version
+            # which already contains self. So, we'll maintain it iff it already
+            # exists. Let the Part figure out how best to do this.
             # [bruce 060130 cleaned this up, should be equivalent]
             if self.part:
                 self.part.selmols_append(self)
@@ -4077,10 +4193,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # Note: this must also be invalidated when one atom's display mode changes,
         # and it is, by atom.setDisplayStyle calling changeapp(1) on its chunk.
         disp = self.get_dispdef() ##e should caller pass this instead?
-        eltprefs = PeriodicTable.rvdw_change_counter # (color changes don't matter for this, unlike for havelist)
-        radiusprefs = Atom.selradius_prefs_values() #bruce 060317 -- include this in the tuple below, to fix bug 1639
+        eltprefs = PeriodicTable.rvdw_change_counter 
+            # (color changes don't matter for this, unlike for havelist)
+        radiusprefs = Atom.selradius_prefs_values() 
+            #bruce 060317 -- include this in the tuple below, to fix bug 1639
         if self.haveradii != (disp, eltprefs, radiusprefs): # value must agree with set, below
-            # don't have them, or have them for wrong display mode, or for wrong element-radius prefs            
+            # don't have them, or have them for wrong display mode, or for
+            # wrong element-radius prefs
             try:
                 res = self.compute_sel_radii_squared()
             except:
@@ -4097,26 +4216,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         else:
             return A( lis )
         pass
-
-    # Old methods for finding certain atoms or singlets
-    # [bruce 060313 removed even the commented-out forms, last present in rev. 1.109]
-    #
-    # [bruce 041207 comment: these [removed old methods] ought to be unified, and perhaps bugfixed.
-    #  To help with this, I'm adding comments, listing their callers,
-    #  and removing the ones with no callers.
-    #  See also some relevant code used in extrudeMode.py,
-    #  actually findHandles_exact in handles.py,
-    #  which will be useful for postprocessing lists of atoms
-    #  found by code like the following.
-    # ]
-    ## ....
-
+    
     def nearSinglets(self, point, radius): # todo: rename
         """
         return the bondpoints in the given sphere (point, radius),
         sorted by increasing distance from point
         """
         # note: only used in AtomTypeDepositionTool (Build Atoms mode)
+        # (note: findHandles_exact in handles.py may be related code)
         if not self.singlets:
             return []
         singlpos = self.singlpos # do this in advance, to help with debugging
@@ -4141,7 +4248,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         return True
 
     def will_partly_copy_due_to_selatoms(self, sel):
-        assert 0, "should never be called, since a chunk does not *refer* to selatoms, or appear in atom.jigs"
+        assert 0, "should never be called, since a chunk does not " \
+                  "*refer* to selatoms, or appear in atom.jigs"
         return True # but if it ever is called, answer should be true
 
     def _copy_optional_attrs_to(self, numol):
@@ -4163,7 +4271,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # (but see existing copy code for self.user_specified_center)
         return
         
-    def copy_empty_shell_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
+    def _copy_empty_shell_in_mapping(self, mapping): 
         """
         [private method to help the public copy methods, all of which
          start with this except the deprecated mol.copy]
@@ -4181,20 +4289,23 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Never refuses. Returns copy (a new chunk with no atoms).
         Ok to assume self has never yet been copied.
         """
+        #bruce 070430 revised to honor mapping.assy
         numol = self.__class__(mapping.assy, self.name)
             #bruce 080316 Chunk -> self.__class__ (part of fixing this for Extrude of DnaGroup)
-        self.copy_copyable_attrs_to(numol) # copies .name (redundantly), .hidden, .display, .color...
+        self.copy_copyable_attrs_to(numol) 
+            # copies .name (redundantly), .hidden, .display, .color...
         self._copy_optional_attrs_to(numol)
         mapping.record_copy(self, numol)
         return numol
 
-    def copy_full_in_mapping(self, mapping): # Chunk method [bruce 050526] #bruce 060308 major rewrite
+    def copy_full_in_mapping(self, mapping): # in class Chunk 
         """
         #doc;
         overrides Node method;
         only some atom copies get recorded in mapping (if we think it might need them)
         """
-        numol = self.copy_empty_shell_in_mapping( mapping)
+        # bruce 050526; 060308 major rewrite
+        numol = self._copy_empty_shell_in_mapping( mapping)
         # now copy the atoms, all at once (including all their existing 
         # singlets, even though those might get revised)
         # note: the following code is very similar to 
@@ -4213,14 +4324,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             ndix[a.key] = na
         numol.invalidate_atom_lists()
         numol.atoms = nuatoms
-##        if 0:
-##            # I'm not sure how to make this correct, since it doesn't copy everything recomputed
-##            # when we recompute atlist/atpos/basepos; beside's it's often wasted work since caller plans to
-##            # move all the atoms after the copy, or so... so nevermind.
-##            numol.atlist = copy_val(self.atlist)
-##            numol.atpos = copy_val(self.atpos) # use copy_val in case length is 0 and type is unusual
-##            numol.basepos = copy_val(self.basepos)
-
+        # note: we don't bother copying atlist, atpos, basepos,
+        # since it's hard to do correctly (e.g. not copying everything
+        # which depends on them would cause inval bugs), and it's wasted work
+        # for callers which plan to move all the atoms after 
+        # the copy
         self._copy_atoms_handle_bonds_jigs( pairlis, ndix, mapping)
         # note: no way to handle hotspot yet, since how to do that might depend on whether
         # extern bonds are broken... so let's copy an explicit one, and tell the mapping
@@ -4234,7 +4342,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # we have an implicit but unambiguous hotspot:
             # might need to make it explicit in the copy [bruce 041123, revised 050524]
             copy_of_hotspot = ndix[self.singlets[0].key]
-            mapping.do_at_end( lambda ch = copy_of_hotspot, numol = numol: numol._preserve_implicit_hotspot(ch) )
+            mapping.do_at_end( lambda ch = copy_of_hotspot, numol = numol:
+                               numol._preserve_implicit_hotspot(ch) )
         return numol # from copy_full_in_mapping
 
     def _copy_atoms_handle_bonds_jigs(self, pairlis, ndix, mapping):
@@ -4245,11 +4354,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         origid_to_copy = mapping.origid_to_copy
         extern_atoms_bonds = mapping.extern_atoms_bonds
-            #e could be integrated with mapping.do_at_end,
+            # maybe: could be integrated with mapping.do_at_end,
             # but it's probably better not to, so as to specialize it for speed;
             # even so, could clean this up to bond externs as soon as 2nd atom seen
             # (which might be more efficient, though that doesn't matter much
-            #  since externs should not be too frequent); could do all this in a Bond method #e
+            #  since externs should not be too frequent); 
+            # could do all this in a Bond method
         for (a, na) in pairlis:
             if a.jigs: 
                 # a->na mapping might be needed if those jigs are copied,
@@ -4266,8 +4376,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     # [note, this code is being copied into the old .copy()
                     #  method too, by bruce 050715]
                     if a.key < a2key:
-                        # arbitrary condition which is true for exactly one ordering of the atoms;
-                        # note both keys are for original atoms (it would also work if both were from
+                        # arbitrary condition which is true for exactly one
+                        # ordering of the atoms; note both keys are for
+                        # original atoms (it would also work if both were from
                         # copied atoms, but not if they were mixed)
                         bond_copied_atoms(na, ndix[a2key], b, a)
                 else:
@@ -4279,7 +4390,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     extern_atoms_bonds.append( (a,b) ) 
                         # it's ok if this list has several entries for one 'a'
                     origid_to_copy[id(a)] = na
-                        # a->na mapping will be needed outside this method, to copy or break this bond
+                        # a->na mapping will be needed outside this method,
+                        # to copy or break this bond
                 pass
             pass
         return # from _copy_atoms_handle_bonds_jigs
@@ -4291,7 +4403,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         [#e hotspot? fix later if needed, hopefully by replacing that concept
          with a jig (see comment below for ideas).]
         """
-        numol = self.copy_empty_shell_in_mapping( mapping)
+        numol = self._copy_empty_shell_in_mapping( mapping)
         all = list(atoms)
         for a in atoms:
             all.extend(a.singNeighbors())
@@ -4314,7 +4426,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # implicit) or its base atom, put them in mapping,
         # and register some other func (than the one copy_in_mapping does) 
         # to fix it up at the end.
-        # Could do this uniformly in copy_empty_shell_in_mapping, 
+        # Could do this uniformly in _copy_empty_shell_in_mapping, 
         # and here just be sure to tell mapping.record_copy.
         #
         # (##e But really we ought to simplify all this code by just 
@@ -4430,7 +4542,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         numol.name = newname
         #end 050531 kluges
         nuatoms = {}
-        for a in self.atlist: # 060308 changed similarly to copy_full_in_mapping (shares some code with it)
+        for a in self.atlist: 
+            # 060308 changed similarly to copy_full_in_mapping (shares some code with it)
             na = a.copy()
             na.molecule = numol # no need for _changed_parent_Atoms[na.key] = na #bruce 060322
             nuatoms[na.key] = na
@@ -4461,8 +4574,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 else:
                     # external bond - after loop done, make a singlet in the copy
                     extern_atoms_bonds.append( (a,b) ) # ok if several times for one 'a'
-        if extern_atoms_bonds:
-            pass ## print "fyi: mol.copy didn't copy %d extern bonds..." % len(extern_atoms_bonds)
+        ## if extern_atoms_bonds:
+        ##     print "fyi: mol.copy didn't copy %d extern bonds..." % len(extern_atoms_bonds)
         copied_hotspot = self.hotspot # might be None
         if cauterize:
             # do something about non-copied bonds (might be useful for extrude)
@@ -4648,12 +4761,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             return True
         
     pass # end of class Chunk
-
-##Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename the class this way
-##
-##del molecule #bruce 071113 along with revising all uses to refer to Chunk (except the classname itself)
-##
-### Note: we can't rename the class until all string literals 'molecule' are reviewed. [has been done now]
 
 # ==
 

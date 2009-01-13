@@ -185,7 +185,8 @@ from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
 
 DEBUG_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
 
-BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius [renamed from CPKvdW by bruce 060607]
+BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius
+    # [renamed from CPKvdW by bruce 060607]
 
 # ==
 
@@ -228,14 +229,23 @@ def _undo_update_Atom_jigs(archive, assy):
     """
     del archive
     if 1:
-        # bruce 060414 fix bug 1779 (more efficient than doing something in Atom._undo_update, for every atom)
-        # KLUGE: assume this always runs (true as of 060414), not only if there are jigs or under some other "when needed" conds.
-        # Note: it would be best to increment this counter at the start and end of every user op, but there's not yet any central place
-        # for code to run at times like that (except some undo-related code which runs at other times too).
+        # bruce 060414 fix bug 1779 (more efficient than doing something in
+        # Atom._undo_update, for every atom)
+        
+        # KLUGE: assume this always runs (true as of 060414), not only if
+        # there are jigs or under some other "when needed" conds.
+
+        # Note: it would be best to increment this counter at the start and
+        # end of every user op, but there's not yet any central place for code
+        # to run at times like that (except some undo-related code which runs
+        # at other times too).
         #
-        # A more principled and safer fix would be either for kill functions participating in "prekill" to take
-        # an argument, unique per prekill/kill event, or to ensure the global counter (acting as if it was that argument)
-        # was unique by again incrementing it after the kill call returns within the same code that had initiated the prekill.
+        # A more principled and safer fix would be either for kill functions
+        # participating in "prekill" to take an argument, unique per
+        # prekill/kill event, or to ensure the global counter (acting as if it
+        # was that argument) was unique by again incrementing it after the
+        # kill call returns within the same code that had initiated the
+        # prekill.
         Utility._will_kill_count += 1
     mols = assy.allNodes(assy.Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
     jigs = assy.allNodes(Jig)
@@ -249,25 +259,38 @@ def _undo_update_Atom_jigs(archive, assy):
     for m in mols:
         for a in m.atoms.itervalues():
             if a.jigs:
-                _changed_structure_Atoms[a.key] = a #bruce 060322; try to only do this to atoms that need it
-                #k tracking this change is probably not needed by Undo but might be needed by future non-Undo subscribers
-                # to that dict; Undo itself needs to remember to clear its subscribed cache of it after this ###@@@DOIT
-                a.jigs = [] #e or del it if we make that optim in Jig (and review whether this needs to occur outside 'if a.jigs')
+                _changed_structure_Atoms[a.key] = a 
+                    #bruce 060322; try to only do this to atoms that need it
+                
+                #k tracking this change is probably not needed by Undo but
+                #might be needed by future non-Undo subscribers to that dict;
+                #Undo itself needs to remember to clear its subscribed cache
+                #of it after this ###@@@DOIT
+                a.jigs = [] 
+                    #e or del it if we make that optim in Jig (and review
+                    #whether this needs to occur outside 'if a.jigs')
             for b in a.bonds:
-                #k maybe the S_CACHE decl will make this unnecessary? Not sure... maybe not, and it's safe.
+                #k maybe the S_CACHE decl will make this unnecessary?
+                # Not sure... maybe not, and it's safe.
                 b.pi_bond_obj = None
-                # I hope refdecr is enough to avoid a memory leak; if not, give that obj a special destroy for us to call here.
-                # That obj won't remove itself from a.jigs on refdecr (no __del__); but it would in current implem of .destroy.
+                # I hope refdecr is enough to avoid a memory leak; if not,
+                # give that obj a special destroy for us to call here. That
+                # obj won't remove itself from a.jigs on refdecr (no __del__);
+                # but it would in current implem of .destroy.
                 del b.pi_bond_obj # save RAM
     for j in jigs:
         for a in j.atoms:
             a.jigs.append(j)
-            _changed_structure_Atoms[a.key] = a #bruce 060322; see comment about same statement above
+            _changed_structure_Atoms[a.key] = a 
+                #bruce 060322; see comment about same statement above
     for j in jigs:
         for a in j.atoms[:]:
             j.moved_atom(a)
-                # strictly speaking, this is beyond our scope, but Atom._undo_update can't do it since a.jigs isn't set.
-                # Also, whatever this does should really just be done by Jig._undo_update. So make that true, then remove this. ###@@@
+                # strictly speaking, this is beyond our scope, but
+                # Atom._undo_update can't do it since a.jigs isn't set. Also,
+                # whatever this does should really just be done by
+                # Jig._undo_update. So make that true, then remove this.
+                # ###@@@
             if j.killed(): #bruce 080120 added this (precaution)
                 break
             j.changed_structure(a) #bruce 080120, might be needed by DnaMarker
@@ -284,11 +307,17 @@ def _undo_update_Atom_jigs(archive, assy):
 # [bruce 071003 comment]
 register_undo_updater( _undo_update_Atom_jigs,
                        updates = ('Atom.jigs', 'Bond.pi_bond_obj'),
-                       after_update_of = ('Assembly', 'Node', 'Atom.bonds') # Node also covers its subclasses Chunk and Jig.
-                           # We don't care if Atom is updated except for .bonds, nor whether Bond is updated at all,
-                           # which is good because *we* are presumably a required part of updating both of those classes!
-                       # FYI, we use 'Assembly' (string) rather than Assembly (class) to avoid a recursive import problem,
-                       # and also to avoid an inappropriate import dependency (low-level -> high-level).
+                       after_update_of = ('Assembly', 'Node', 'Atom.bonds')
+                           # Node also covers its subclasses Chunk and Jig.
+                           # We don't care if Atom is updated except for .bonds, 
+                           # nor whether Bond is updated at all,
+                           # which is good because *we* are presumably a
+                           # required part of updating both of those classes!
+                       
+                       # FYI, we use 'Assembly' (string) rather than Assembly (class) 
+                       # to avoid a recursive import problem,
+                       # and also to avoid an inappropriate import dependency 
+                       # (low-level -> high-level).
                     )
 
 # ==
@@ -296,57 +325,69 @@ register_undo_updater( _undo_update_Atom_jigs,
 # changedicts for class Atom, used by Undo and by dna updater
 # [definitions moved from this file to global_model_changedicts.py, bruce 080510]
 
-# These global dicts all map atom.key -> atom, for atoms which change in various ways (different for each dict).
-# The dicts themselves (as opposed to their contents) never change (so other modules can permanently import them),
-# but they are periodically processed and cleared.
-# For efficiency, they're global and not weak-valued,
-# so it's important to delete items from them when destroying atoms
-# (which is itself nim, or calls to it are; destroying assy needs to do that ### TODO).
+# These global dicts all map atom.key -> atom, for atoms which change in
+# various ways (different for each dict). The dicts themselves (as opposed to
+# their contents) never change (so other modules can permanently import them),
+# but they are periodically processed and cleared. For efficiency, they're
+# global and not weak-valued, so it's important to delete items from them when
+# destroying atoms (which is itself nim, or calls to it are; destroying assy
+# needs to do that ### TODO).
 
-# obsolete comment:
-# ###@@@ Note: These are not yet looked at, but the code to add atoms into them is supposedly completed circa bruce 060322.
-# update 071106: some of them are looked at (and have been since Undo worked), but maybe not all of them.
+# obsolete comment: ###@@@ Note: These are not yet looked at, but the code to
+# add atoms into them is supposedly completed circa bruce 060322. update
+# 071106: some of them are looked at (and have been since Undo worked), but
+# maybe not all of them.
 
 
 from model.global_model_changedicts import _changed_parent_Atoms
-    # record atoms w/ changed assy or molecule or liveness/killedness
-    # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
-    # related attributes: __killed, molecule ###@@@ declare these??
-    # not yet sure if that should be per-attr or not, re subclasses...
-    # WARNING: name is private, but it's directly accessed in many places in
-    # chunk.py [bruce 071106 comment]
+    # record atoms w/ changed assy or molecule or liveness/killedness (an
+    # atom's assy is atom.molecule.assy; no need to track changes here to the
+    # mol's .part or .dad) related attributes: __killed, molecule ###@@@
+    # declare these?? not yet sure if that should be per-attr or not, re
+    # subclasses... WARNING: name is private, but it's directly accessed in
+    # many places in chunk.py [bruce 071106 comment]
     
 register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed', ATOM_CHUNK_ATTRIBUTE_NAME) )
-    #k or must we say _Atom__killed??
-    # (It depends on whether that routine knows how to mangle it itself.)
-    # (As of long before 071018 that arg of register_changedict (related_attrs)
-    #  is not yet used.)
+    #k or must we say _Atom__killed?? (It depends on whether that routine
+    #knows how to mangle it itself.) (As of long before 071018 that arg of
+    #register_changedict (related_attrs) is not yet used.)
 
 
 from model.global_model_changedicts import _changed_structure_Atoms
     # tracks changes to element, atomtype, bond set, bond direction (not bond order #k)
-    # WARNING: there is also a related but different global dict
-    # earlier than this one in the same file (global_model_changedicts.py),
-    # whose spelling differs only in 'A' vs 'a' in Atoms, and in having no initial underscore,
-    # namely, changed_structure_atoms.
+    
+    # WARNING: there is also a related but different global dict earlier than
+    # this one in the same file (global_model_changedicts.py), whose spelling
+    # differs only in 'A' vs 'a' in Atoms, and in having no initial
+    # underscore, namely, changed_structure_atoms.
     #
-    # This confusion should be cleaned up sometime, by letting that one just be a subscriber to this one,
-    # and if efficiency demands it, first splitting this one into the part equivalent to that one, and the rest.
+    # This confusion should be cleaned up sometime, by letting that one just
+    # be a subscriber to this one, and if efficiency demands it, first
+    # splitting this one into the part equivalent to that one, and the rest.
     #
-    # Ways this one has more atoms added to it than that one does:
-    # jigs, info, kill, bond direction. (See also the comment where the other one is defined.)
-    # See also: _changed_parent_Atoms, which also covers kill (probably in a better way).
+    # Ways this one has more atoms added to it than that one does: jigs, info,
+    # kill, bond direction. (See also the comment where the other one is
+    # defined.)
+    
+    # See also: _changed_parent_Atoms, which also covers kill (probably in a
+    # better way).
     #
-    # related attributes: bonds, element, atomtype, info, jigs # (not only '.jigs =', but '.jigs.remove' or '.jigs.append')
-    # (we include info since it's used for repeat-unit correspondences in extrude; this is questionable)
-    # (we include jigs since they're most like a form of structure, and in future might have physical effects,
-    #  and since the jigs for pi bonds are structural)
+    # related attributes: bonds, element, atomtype, info, jigs # (not only
+    # '.jigs =', but '.jigs.remove' or '.jigs.append')
+    
+    # (we include info since it's used for repeat-unit correspondences in
+    # extrude; this is questionable)
+
+    # (we include jigs since they're most like a form of structure, and in
+    # future might have physical effects, and since the jigs for pi bonds are
+    # structural)
 
 register_changedict( _changed_structure_Atoms, '_changed_structure_Atoms', ('bonds', 'element', 'atomtype', 'info', 'jigs') )
 
 
 from model.global_model_changedicts import _changed_posn_Atoms
-    # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
+    # tracks changes to atom._posn (not clear what it'll do when we can treat
+    # baseposn as defining state). 
     # related attributes: _posn
 
 register_changedict( _changed_posn_Atoms, '_changed_posn_Atoms', ('_posn',) )
@@ -368,39 +409,45 @@ from model.global_model_changedicts import _changed_otherwise_Atoms
 register_changedict( _changed_otherwise_Atoms, '_changed_otherwise_Atoms', ('display', '_dnaBaseName') )
 
 
-# Notes (design scratch):
-# for which Atom attrs is the attr value mutable in practice? bonds, jigs, maybe _posn (probably not).
-# the rest could be handled by a setter in a new-style class, or by AtomBase
-# and i wonder if it's simpler to just have one dict for all attrs... certainly it's simpler, so is it ok?
-# The reason we have multiple dicts is so undo diff scanning is faster when (e.g.) lots of atoms change in _posn
-# and nothing else (as after Minimize or movie playing or (for now) chunk moving).
+# Notes (design scratch): for which Atom attrs is the attr value mutable in
+# practice? bonds, jigs, maybe _posn (probably not). the rest could be handled
+# by a setter in a new-style class, or by AtomBase and i wonder if it's
+# simpler to just have one dict for all attrs... certainly it's simpler, so is
+# it ok? The reason we have multiple dicts is so undo diff scanning is faster
+# when (e.g.) lots of atoms change in _posn and nothing else (as after
+# Minimize or movie playing or (for now) chunk moving).
 
 _Atom_global_dicts = [_changed_parent_Atoms, _changed_structure_Atoms, _changed_posn_Atoms,
                       _changed_picked_Atoms, _changed_otherwise_Atoms]
-    # See also some code below class Atom, which registers these changedicts as being used with that class.
-    # That code has to occur after the class is defined, but we permit the above per-changedict registrations
-    # to come first so that they can help document the dicts near the top of the file.
-    # The dicts themselves needn't come first, since they're only looked up as module globals (or from external modules),
-    # but it's easier to read the code if they do.
+    # See also some code below class Atom, which registers these changedicts
+    # as being used with that class. That code has to occur after the class is
+    # defined, but we permit the above per-changedict registrations to come
+    # first so that they can help document the dicts near the top of the file.
+    # The dicts themselves needn't come first, since they're only looked up as
+    # module globals (or from external modules), but it's easier to read the
+    # code if they do.
 
 # ==
 
 def Atom_prekill_prep(): #bruce 060328
     """
-    Prepare to kill some set of atoms (known to the caller) more efficiently than otherwise.
-    Return a value which the caller should pass to the _prekill method on all (and ONLY) those atoms,
-    before killing them.
+    Prepare to kill some set of atoms (known to the caller) more efficiently
+    than otherwise. Return a value which the caller should pass to the
+    _prekill method on all (and ONLY) those atoms, before killing them.
 
-    [#e Note: If we can ever kill atoms and chunks in the same operation, we'll need to revise some APIs
-    so they can all use the same value of _will_kill_count, if we want to make that most efficient.]
+    [#e Note: If we can ever kill atoms and chunks in the same operation,
+    we'll need to revise some APIs so they can all use the same value of
+    _will_kill_count, if we want to make that most efficient.]
     """
     ###e this should be merged with similar code in class Node
     Utility._will_kill_count += 1
     return Utility._will_kill_count
     
 class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
-    #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
-    # (so we have to assign atom = Atom, after this class definition, until all code has been revised)
+    #bruce 050610 renamed this from class atom, but most code still uses
+    # "atom" for now (so we have to assign atom = Atom, after this class
+    # definition, until all code has been revised)
+    
     # update, bruce 071113: I am removing that assignment below. See comment there.
     #bruce 080327 moved a lot of PAM-specific methods to mixin PAM_Atom_methods.
     """
@@ -430,14 +477,19 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     ghost = False #bruce 080529
     _modified_valence = False #bruce 050502
     info = None #bruce 050524 optim (can remove try/except if all atoms have this)
-    ## atomtype -- set when first demanded, or can be explicitly set using set_atomtype or set_atomtype_but_dont_revise_singlets
-    index = -1 #bruce 060311 add this as a precaution re bug 1661, and since it seems necessary in principle,
-        # given that we store it as undoable state, but (I guess, re that bug) don't always set it very soon
-        # after making an atom; -1 is also the correct value for an atom in a chunk but not yet indexed therein;
-        # in theory the value doesn't matter at all for a chunkless atom, but a removed atom (see Chunk.delatom) will have -1 here,
-        # so imitating that seems most correct.
+    ## atomtype -- set when first demanded, or can be explicitly set using
+    ## set_atomtype or set_atomtype_but_dont_revise_singlets
+    index = -1 
+        #bruce 060311 add this as a precaution re bug 1661, and since it seems
+        #necessary in principle, given that we store it as undoable state, but
+        #(I guess, re that bug) don't always set it very soon after making an
+        #atom; -1 is also the correct value for an atom in a chunk but not yet
+        #indexed therein; in theory the value doesn't matter at all for a
+        #chunkless atom, but a removed atom (see Chunk.delatom) will have -1
+        #here, so imitating that seems most correct.
         
-    # _s_attr decls for state attributes -- children, parents, refs, bulky data, optional data [bruce 060223]
+    # _s_attr decls for state attributes -- children, parents, refs, bulky
+    # data, optional data [bruce 060223]
 
     _s_undo_specialcase = UNDO_SPECIALCASE_ATOM
         # This tells Undo what specialcase code to use for this class
@@ -469,54 +521,76 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     _s_attr_bonds = S_CHILDREN
 
     _s_attr_molecule = S_PARENT # note: most direct sets of self.molecule are in chunk.py
-        # note: self.molecule is initially None. Later it's self's chunk.
-        # If self is then killed, it's _nullMol. Some buglike behavior might effectively
-        # kill or never-make-fully-alive self's chunk, without removing self from it
-        # (especially in nonstandardly-handled assys like the ones for the partlib).
-        # Finally, undoing to before self was created will cause its .molecule to become None again.
-        # In that state there is no direct way to figure out self's assy,
-        # but it might have one, since it might be in its undo_archive and be able
-        # to come back to life that way, by Redo. Or the redo stack might get cleared,
-        # but self might still be listed in some dicts in that undo_archive (not sure),
-        # and maybe in various global dicts (changedicts, glname dict, dna updater error dict, etc).
-        # This makes it hard to destroy self and all its storage, when self's assy is destroyed.
-        # To fix this, we might keep a dict in assy of all atoms ever in it,
-        # and/or keep a permanent _f_assy field in self. Not yet decided. Making _nullMol per-assy
-        # would not help unless we can always use it rather than None, but that's hard because
-        # atoms initially don't know assy, and Undo probably assumes the initial state of .molecule
-        # is None. So a lot of code would need analysis to fix that, whereas a new one-purpose
-        # system to know self's assy would be simpler. But it takes RAM and might not really be needed.
-        # The main potential need is to handle atoms found in changedicts with .molecule of None or _nullMol,
-        # to ask their assy if it's destroyed (updater should ignore atom) or not (updater should handle
-        # atom if it handles killed atoms). But do updaters ever need to handle killed atoms?
-        # [bruce 080219 comment]
+    
+        # note: self.molecule is initially None. Later it's self's chunk. If
+        # self is then killed, it's _nullMol. Some buglike behavior might
+        # effectively kill or never-make-fully-alive self's chunk, without
+        # removing self from it (especially in nonstandardly-handled assys
+        # like the ones for the partlib). Finally, undoing to before self was
+        # created will cause its .molecule to become None again. In that state
+        # there is no direct way to figure out self's assy, but it might have
+        # one, since it might be in its undo_archive and be able to come back
+        # to life that way, by Redo. Or the redo stack might get cleared, but
+        # self might still be listed in some dicts in that undo_archive (not
+        # sure), and maybe in various global dicts (changedicts, glname dict,
+        # dna updater error dict, etc). This makes it hard to destroy self and
+        # all its storage, when self's assy is destroyed. To fix this, we
+        # might keep a dict in assy of all atoms ever in it, and/or keep a
+        # permanent _f_assy field in self. Not yet decided. Making _nullMol
+        # per-assy would not help unless we can always use it rather than
+        # None, but that's hard because atoms initially don't know assy, and
+        # Undo probably assumes the initial state of .molecule is None. So a
+        # lot of code would need analysis to fix that, whereas a new
+        # one-purpose system to know self's assy would be simpler. But it
+        # takes RAM and might not really be needed. The main potential need is
+        # to handle atoms found in changedicts with .molecule of None or
+        # _nullMol, to ask their assy if it's destroyed (updater should ignore
+        # atom) or not (updater should handle atom if it handles killed
+        # atoms). But do updaters ever need to handle killed atoms? [bruce
+        # 080219 comment]
 
     assert ATOM_CHUNK_ATTRIBUTE_NAME == 'molecule'
         # must match this _s_attr_molecule decl attr name,
         # and all the atom.molecule refs in all files [bruce 071114]
     
-    _s_attr_jigs = S_CACHE # first i said S_REFS, but this is more efficient, and helps handle pi_bond_sp_chain.py's Jigs.
+    _s_attr_jigs = S_CACHE 
+        # first i said S_REFS, but this is more efficient, and helps handle
+        # pi_bond_sp_chain.py's Jigs.
+        
         # [not sure if following comment written 060223 is obs as of 060224:]
-        # This means that restored state will unset the .jigs attr, for *all* atoms (???), and we'll have to recompute them somehow.
-        # The alg is easy (scan all jigs), but exactly how to organize it needs to be thought about.
-        # Is it worth thinking of Atom.jigs in general (not just re Undo) as a recomputable attribute?
-        # We could revise the incremental updaters to not worry if it's missing,
-        # and put in a __getattr__ which redid the entire model's atoms when it ran on any atom.
-        # (Just scan all jigs, and assume all atoms' .jigs are either missing or correct, and ignore correct ones.)
-        # But that approach would be wrong for pi_bond_sp_chain.py's Jigs since they would not be scanned (efficiently).
-        # So for them, they have to insist that if they exist, the atoms know about them. (Using a sister attr to .jigs?)
-        # (Or do we teach atoms how to look for them on nearby bonds? That's conceivable.)
-        # ... or if these fields are derived specifically from the atomsets of Jigs, then do we know which atoms to touch
-        # based on the manner in which Undo altered certain Jigs (i.e. does our update routine start by knowing the set of
-        # old and new values of all changed atomsets in Jigs)?? Certainly we could teach the diff-applyer to make that info
-        # available (using suitable attr decls so it knew it needed to)... but I don't yet see how this can work for pi_bond Jigs
-        # and for incremental Undo.
 
-    #e we might want to add type decls for the bulky data (including the objrefs above), so it can be stored in compact arrays:
+        # This means that restored state will unset the .jigs attr, for *all*
+        # atoms (???), and we'll have to recompute them somehow. The alg is
+        # easy (scan all jigs), but exactly how to organize it needs to be
+        # thought about. Is it worth thinking of Atom.jigs in general (not
+        # just re Undo) as a recomputable attribute? We could revise the
+        # incremental updaters to not worry if it's missing, and put in a
+        # __getattr__ which redid the entire model's atoms when it ran on any
+        # atom. (Just scan all jigs, and assume all atoms' .jigs are either
+        # missing or correct, and ignore correct ones.) But that approach
+        # would be wrong for pi_bond_sp_chain.py's Jigs since they would not
+        # be scanned (efficiently). So for them, they have to insist that if
+        # they exist, the atoms know about them. (Using a sister attr to
+        # .jigs?) (Or do we teach atoms how to look for them on nearby bonds?
+        # That's conceivable.) ... or if these fields are derived specifically
+        # from the atomsets of Jigs, then do we know which atoms to touch
+        # based on the manner in which Undo altered certain Jigs (i.e. does
+        # our update routine start by knowing the set of old and new values of
+        # all changed atomsets in Jigs)?? Certainly we could teach the
+        # diff-applyer to make that info available (using suitable attr decls
+        # so it knew it needed to)... but I don't yet see how this can work
+        # for pi_bond Jigs and for incremental Undo.
 
-#bruce 060322 zapping _s_attr_key = S_DATA decl -- should be unnecessary since .key never changes. ####@@@@ TEST
-# NOTE: for using this for binary mmp files, it might be necessary -- review that when we have them. ###@@@
-##    _s_attr_key = S_DATA # this is not yet related to Undo's concept of objkey (I think #k) [bruce 060223]
+    #e we might want to add type decls for the bulky data (including the
+    #objrefs above), so it can be stored in compact arrays:
+
+    #bruce 060322 zapping _s_attr_key = S_DATA decl -- should be unnecessary
+    #since .key never changes. ####@@@@ TEST
+    
+    # NOTE: for using this for binary mmp files, it might be necessary --
+    # review that when we have them. ###@@@
+
+    ## _s_attr_key = S_DATA # this is not yet related to Undo's concept of objkey (I think #k) [bruce 060223]
 
     # storing .index as Undo state is no longer needed [bruce 060313]
         # note: a long comment removed on 070518 explained that when we had it,
@@ -525,25 +599,33 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     _s_attr__posn = S_DATA #bruce 060308 rewrite
     _s_attr_element = S_DATA
 
-    # we'll want an "optional" decl on the following, so they're reset to class attr (or unset) when they equal it:
+    # we'll want an "optional" decl on the following, so they're reset to
+    # class attr (or unset) when they equal it:
     _s_attr_picked = S_DATA
-    _s_categorize_picked = 'selection' ##k this is noticed and stored, but I don't think it yet has any effect (??) [bruce 060313]
+    _s_categorize_picked = 'selection' 
+        ##k this is noticed and stored, but I don't think it yet has any
+        ##effect (??) [bruce 060313]
     _s_attr_display = S_DATA
     _s_attr__dnaBaseName = S_DATA #bruce 080319
     # decided to leave out _s_attr_ghost, for now [bruce 080530]:
-    ## _s_attr_ghost = S_DATA #bruce 080529; might not be needed (since no ops change this except on newly made atoms, so far)
+    ## _s_attr_ghost = S_DATA #bruce 080529; might not be needed 
+    ##     # (since no ops change this except on newly made atoms, so far)
     _s_attr_info = S_DATA
-    _s_attr__Atom__killed = S_DATA # Declaring (name-mangled) __killed seems needed just like for any other attribute...
-        # (and without it, reviving a dead atom triggered an assertfail, unsurprisingly)
+    _s_attr__Atom__killed = S_DATA 
+        # Declaring (name-mangled) __killed seems needed just like for any
+        # other attribute... (and without it, reviving a dead atom triggered
+        # an assertfail, unsurprisingly)
     
     #e declare these later when i revise code to unset/redflt them most of the time: ###@@@
     ## _picked_time = _picked_time_2 = -1
     
     # note: atoms don't yet have individual colors, labels, names...
     
-    ###e need atomtype - hard part is when it's unset, might have to revise how we handle that, e.g. derive it from _hyb;
-    # actually, for pure scan, why is 'unset' hard to handle? i bet it's not. It just has no default value.
-    # It's down here under the 'optional' data since we should derive it from _hyb which is usually 'default for element'.
+    ###e need atomtype - hard part is when it's unset, might have to revise
+    #how we handle that, e.g. derive it from _hyb; actually, for pure scan,
+    #why is 'unset' hard to handle? i bet it's not. It just has no default
+    #value. It's down here under the 'optional' data since we should derive it
+    #from _hyb which is usually 'default for element'.
     
     _s_attr_atomtype = S_DATA
 
@@ -613,28 +695,38 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # If it's a bug, do this in a later pass over atoms, I guess.
             # [bruce 080404]
         if self.molecule is None:
-            # new behavior as of 060409, needed to interact well with differential mash_attrs...
-            # i'm not yet fully comfortable with this (maybe we really need _nullMol in here??) ###@@@
+            # new behavior as of 060409, needed to interact well with
+            # differential mash_attrs... i'm not yet fully comfortable with
+            # this (maybe we really need _nullMol in here??) ###@@@
             print "bug (ignored): _undo_update on dead atom", self
             return
-        #bruce 060224 conservative guess -- invalidate everything we can find any other code in this file invalidating 
+        #bruce 060224 conservative guess -- invalidate everything we can find
+        #any other code in this file invalidating
         for b in self.bonds:
             b.setup_invalidate()
             b.invalidate_bonded_mols()
         self.molecule.invalidate_attr('singlets')
-        self.molecule.invalidate_attr('externs') #bruce 070602: fix Undo bug after Make Crossover (crossovers.py) --
-            # the bug was that bonds being (supposedly) deleted during this undo state-mashing would remain in mol.externs
-            # and continue to get drawn. I don't know why it didn't happen if bonds were also created on the same atoms
-            # (or perhaps on any atoms in the same chunk), but presumably that happened to invalidate externs in some other way.
-            # As for why the bug went uncaught until now, maybe no other operation creates external bonds without also
-            # deleting bonds on the same atoms (which evidently prevents the bug, as mentioned). For details of what was
-            # tried and how it affected what happened, see crossovers.py cvs history circa now.
+        self.molecule.invalidate_attr('externs') 
+            #bruce 070602: fix Undo bug after Make Crossover (crossovers.py)
+            # -- the bug was that bonds being (supposedly) deleted during this
+            # undo state-mashing would remain in mol.externs and continue to
+            # get drawn. I don't know why it didn't happen if bonds were also
+            # created on the same atoms (or perhaps on any atoms in the same
+            # chunk), but presumably that happened to invalidate externs in
+            # some other way.
+            # As for why the bug went uncaught until now, maybe no other
+            # operation creates external bonds without also deleting bonds on
+            # the same atoms (which evidently prevents the bug, as mentioned).
+            # For details of what was tried and how it affected what happened,
+            # see crossovers.py cvs history circa now.
         self.molecule._f_lost_externs = True
         self.molecule._f_gained_externs = True
         self._changed_structure()
         self.changed()
         posn = self.posn()
-        self.setposn( posn - V(1,1,1) ) # i hope it doesn't optimize for posn being unchanged! just in case, set wrong then right
+        self.setposn( posn - V(1,1,1) ) 
+            # i hope it doesn't optimize for posn being unchanged! just in
+            # case, set wrong then right
         self.setposn( posn )
         # .picked might change... always recompute selatoms in external code ####@@@@
         self.molecule.changeapp(1)
@@ -647,18 +739,22 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     def __init__(self, sym, where, mol = None): #bruce 060612 let mol be left out
         """
-        Create an Atom of element sym
-        (e.g. 'C' -- sym can be an element, atomtype, or element-symbol, or another atom to copy these from)
-        at location 'where' (e.g. V(36, 24, 36))
-        belonging to molecule mol (can be None or missing).
+        Create an Atom of element sym (e.g. 'C' -- sym can be an element,
+        atomtype, or element-symbol, or another atom to copy these from) at
+        location 'where' (e.g. V(36, 24, 36)) belonging to molecule mol (can
+        be None or missing).
+        
         Atom initially has no real or open bonds, and default hybridization type.
         """
-        # note: it's not necessary to track changes to self's attrs (in e.g. _changed_parent_Atoms) during __init__. [bruce 060322]
+        # note: it's not necessary to track changes to self's attrs (in e.g.
+        # _changed_parent_Atoms) during __init__. [bruce 060322]
         AtomBase.__init__(self)
         self.key = atKey.next()
             # unique key for hashing and/or use as a dict key;
             # also used in str(self)
-        _changed_parent_Atoms[self.key] = self # since this dict tracks all new atoms (i.e. liveness of atoms) (among other things)
+        _changed_parent_Atoms[self.key] = self
+            # since this dict tracks all new atoms (i.e. liveness of atoms)
+            # (among other things)
 
         # done later, since our assy is not yet known: [bruce 080220]
         ## self._glname = assy.alloc_my_glselect_name( self)
@@ -671,14 +767,17 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         # figure out atomtype to assume; atype = None means default atomtype for element will be set.
         
-        # [bruce 050707 revised this; previously the default behavior was to set no atomtype now
-        #  (picking one when first asked for), not to set the default atomtype now. This worked ok
-        #  when the atomtype guessed later was also the default one, but not once that was changed
-        #  to guess it based on the number of bonds (when first asked for), since some old code
-        #  would ask for it before creating all the bonds on a new atom. Now, the "guessing atomtype
-        #  from bonds" behavior is still needed in some cases, and is best asked for by leaving it unset,
-        #  but that is done by a special method or init arg ###doc, since it should no longer be what this init
-        #  method normally does. BTW the docstring erroneously claimed we were already setting default atomtype.]
+        # [bruce 050707 revised this; previously the default behavior was to
+        # set no atomtype now (picking one when first asked for), not to set
+        # the default atomtype now. This worked ok when the atomtype guessed
+        # later was also the default one, but not once that was changed to
+        # guess it based on the number of bonds (when first asked for), since
+        # some old code would ask for it before creating all the bonds on a
+        # new atom. Now, the "guessing atomtype from bonds" behavior is still
+        # needed in some cases, and is best asked for by leaving it unset, but
+        # that is done by a special method or init arg ###doc, since it should
+        # no longer be what this init method normally does. BTW the docstring
+        # erroneously claimed we were already setting default atomtype.]
 
         #bruce 080327 revised this to not use try/except routinely
         # (possible optimization, and for clarity)
@@ -699,7 +798,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # to allow, but is nim. [bruce 080514 comment]
             assert 0, "can't initialize Atom.element from %r" % (sym,)
         
-        #e could assert self.element is now an Elem, but don't bother -- if not, we'll find out soon enough
+        #e could assert self.element is now an Elem, but don't bother -- 
+        # if not, we'll find out soon enough
         
         if atype is not None:
             assert atype.element is self.element # trivial in one of these cases, should improve #e
@@ -740,7 +840,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             pass
         # (optional debugging code to show which code creates bad atoms:)
         ## if debug_flags.atom_debug:
-        ##     self._source = compact_stack()
+        ##     self._f_source = compact_stack()
         self.set_atomtype_but_dont_revise_singlets( atype)
 
         return # from Atom.__init__
@@ -782,7 +882,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         
         # leave old assy, if any
         if self._f_assy is not None:
-            print "%r._f_set_assy: leaving old assy %r, for new one %r. Implem of this case is untested." % \
+            print "%r._f_set_assy: leaving old assy %r, for new one %r. " \
+                  "Implem of this case is untested." % \
                   (self, self._f_assy, assy)
             self._f_assy.dealloc_my_glselect_name( self, self._glname)
 
@@ -823,13 +924,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     def _undo_aliveQ(self, archive): #bruce 060406
         """
-        Would this (Atom) object be picked up as a child object in a (hypothetical) complete scan of children
-        (including change-tracked objects) by the given undo_archive (or, optional to consider, by some other one)?
-        The caller promises it will only call this when it's just done ... ###doc
+        Would this (Atom) object be picked up as a child object in a
+        (hypothetical) complete scan of children (including change-tracked
+        objects) by the given undo_archive (or, optional to consider, by some
+        other one)? The caller promises it will only call this when it's just
+        done ... ###doc
         """
-        # This implem is only correct because atoms can only appear in the archive's current state
-        # if they are owned by chunks which appear there.
-        # (That's only true because we fix or don't save invalid _hotspots, since those can be killed bondpoints.)
+        # This implem is only correct because atoms can only appear in the
+        # archive's current state if they are owned by chunks which appear
+        # there. (That's only true because we fix or don't save invalid
+        # _hotspots, since those can be killed bondpoints.)
         mol = self.molecule
         return archive.childobj_liveQ(mol) and mol.atoms.has_key(self.key)
 
@@ -885,8 +989,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 _changed_structure_Atoms[self.key] = self
         return
 
-    # For each entry in this dictionary, add a context menu command on atoms of the key element type
-    # allowing transmutation to each of the element types in the value list.
+    # For each entry in this dictionary, add a context menu command on atoms
+    # of the key element type allowing transmutation to each of the element
+    # types in the value list.
+    
     # (bruce 070412 addition: if the selected atoms are all one element, and
     #  one of those is the context menu target, make this command apply to all
     #  those selected atoms.
@@ -976,8 +1082,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if (transmute_entries.has_key(fromSymbol)):
             #bruce 070412 (enhancing EricM's recent new feature):
             # If unpicked, do it for just this atom;
-            # If picked, do it for all picked atoms, but only if they are all the same element.
-            # (But if they're not, still offer to do it for just this atom, clearly saying so if possible.)
+            # If picked, do it for all picked atoms, 
+            # but only if they are all the same element.
+            # (But if they're not, still offer to do it for
+            # just this atom, clearly saying so if possible.)
             if self.picked:
                 selatoms = self.molecule.assy.selatoms # there ought to be more direct access to this
                 doall = True
@@ -1013,9 +1121,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                             #e could also say the number of atoms
                         command = ( lambda arg1 = None, arg2 = None,
                                     atom = self, newElement = newElement: atom.Transmute_selection(newElement) )
-                            # Kluge: locate that command method on atom, used for access to selatoms,
-                            # even though it's not defined to operate on atom (tho it does in this case).
-                            # One motivation is to ease the upcoming emergency merge by not modifying more files/code
+                            # Kluge: locate that command method on atom, used
+                            # for access to selatoms, even though it's not
+                            # defined to operate on atom (tho it does in this
+                            # case). One motivation is to ease the upcoming
+                            # emergency merge by not modifying more files/code
                             # than necessary.
                     else:
                         cmdname = "Transmute this atom to %s" % toSymbol
@@ -1069,18 +1179,28 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def destroy(self): #bruce 060322 (not yet called) ###@@@
         """
         [see comments in Node.destroy or perhaps StateMixin.destroy]
-        Note: it should be legal to call this multiple times, in any order w/ other objs' destroy methods.
-        SEMANTICS ARE UNCLEAR -- whether it should destroy bonds in self.bonds (esp in light of rebond method).
-        See comments in assy_clear by bruce 060322 (the "misguided" ones, written as if that was assy.destroy, which it's not).
+        
+        @note: it should be (but may not now be) legal to call this multiple
+        times, in any order w/ other objs' destroy methods.
+        
+        @warning: SEMANTICS ARE UNCLEAR -- whether it should destroy bonds in
+        self.bonds (esp in light of rebond method).
+        
+        @see: comments in assy_clear by bruce 060322 (the "misguided" ones,
+        written as if that was assy.destroy, which it's not).
         """
-        # If this proves inefficient, we can dispense with most of it, since glselect dict can be made weak-valued
-        # (and will probably need to be anyway, for mmkit library part atoms),
-        # and change-tracking dicts (_Atom_global_dicts) are frequently cleared, and subscribers will ignore objects
-        # from destroyed assys. So it's only important here if we destroy atoms before their assy is destroyed
-        # (e.g. when freeing from redo or old undo diffs), and it's probably not enough for that anyway (not thought through).
-        # Ideally we'd remove cycles, not worry about transient refs in change-trackers, make change-trackers robust
-        # to being told about destroyed atoms, and that would be enough. Not yet sure whether that's practical.
-        # [bruce 060327 comment]
+        # If this proves inefficient, we can dispense with most of it, since
+        # glselect dict can be made weak-valued (and will probably need to be
+        # anyway, for mmkit library part atoms), and change-tracking dicts
+        # (_Atom_global_dicts) are frequently cleared, and subscribers will
+        # ignore objects from destroyed assys. So it's only important here if
+        # we destroy atoms before their assy is destroyed (e.g. when freeing
+        # from redo or old undo diffs), and it's probably not enough for that
+        # anyway (not thought through).
+        # Ideally we'd remove cycles, not worry about transient refs in
+        # change-trackers, make change-trackers robust to being told about
+        # destroyed atoms, and that would be enough. Not yet sure whether
+        # that's practical. [bruce 060327 comment]
         if self._glname: #bruce 080917 revised this entire statement (never tested, before or after)
             assy = self._f_assy ###k
             if assy:
@@ -1089,14 +1209,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             del self._glname
         key = self.key
         for dict1 in _Atom_global_dicts:
-            #e even this might be done by StateMixin if we declare these dicts to it for the class
-            # (but we'd have to tell it what key we use in them, e.g. provide a method or attr for that
-            #  (like .key? no, needs _s_ prefix to avoid accidental definition))
+            #e even this might be done by StateMixin if we declare these dicts
+            #to it for the class (but we'd have to tell it what key we use in
+            #them, e.g. provide a method or attr for that (like .key? no,
+            #needs _s_ prefix to avoid accidental definition))
             dict1.pop(key, None) # remove self, if it's there
-            ###e we need to also tell the subscribers to those dicts that we're being destroyed, I think
+            ###e we need to also tell the subscribers to those dicts that
+            ###we're being destroyed, I think
+            
         # is the following in a superclass (StateMixin) method?? ###k
         self.__dict__.clear() ###k is this safe???
-        ## self.bonds = self.jigs = self.molecule = self.atomtype = self.element = self.info = None # etc...
+        ## self.bonds = self.jigs = self.molecule = \
+        ## self.atomtype = self.element = self.info = None # etc...
         return
     
     def unset_atomtype(self): #bruce 050707
@@ -1132,10 +1256,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         @warning: This is only correct for a new atom if it has
                   already been given all its bonds (real or open).
         """
-        #bruce 050702 revised this; 050707 using it much less often (only on special request ###doc what)
-        ###@@@ Bug: This does not yet [050707] guess correctly for all bond patterns; e.g. it probably never picks N/sp2(graphitic).
-        # That means there is presently no way to save and reload that atomtype in an mmp file, and only a "direct way"
-        # (specifying it as an atomtype, not relying on inferring from bonds) would work unless this bug is fixed here.
+        #bruce 050702 revised this; 050707 using it much less often 
+        # (only on special request ###doc what)
+        
+        ###@@@ Bug: This does not yet [050707] guess correctly for all bond
+        #patterns; e.g. it probably never picks N/sp2(graphitic). That means
+        #there is presently no way to save and reload that atomtype in an mmp
+        #file, and only a "direct way" (specifying it as an atomtype, not
+        #relying on inferring from bonds) would work unless this bug is fixed
+        #here.
+        
         ###@@@ (need to report this bug)
         if self.__killed:
             # bruce 071018 new bug check and new mitigation (return default atomtype)
@@ -1147,43 +1277,57 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # (I think the following cond (using self.element rather than elt)
             # is correct even when elt is passed -- bruce 050707)
             if self.element.atomtypes[0].numbonds != 0: # not a bug for noble gases!
-                if 1: ## or env.once_per_event("reguess_atomtype warning"): #bruce 060720, only warn once per user event
-                    print_compact_stack(
-                        ## "atom_debug: warning (once per event): reguess_atomtype(%s) sees %s with no bonds -- probably a bug: " % \
-                        "warning: reguess_atomtype(%s) sees non-killed %s with no bonds -- probably a bug: " % \
-                        (elt, self) )
+                print_compact_stack(
+                    "warning: reguess_atomtype(%s) sees non-killed %s with no bonds -- probably a bug: " % \
+                    (elt, self) )
         return self.best_atomtype_for_numbonds(elt = elt)
 
-    def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype; perhaps use more widely
+    def set_atomtype_but_dont_revise_singlets(self, atomtype): 
+        ####@@@@ should merge with set_atomtype; perhaps use more widely
         """
         #doc;
         atomtype is None means use default atomtype
         """
-        atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
+        atomtype = self.element.find_atomtype( atomtype) 
+            # handles all forms of the request; exception if none matches
         assert atomtype.element is self.element # [redundant with find_atomtype]
         self.atomtype = atomtype
-        self._changed_structure() #bruce 050627; note: as of 050707 this is always called during Atom.__init__
+        self._changed_structure() 
+            #bruce 050627; note: as of 050707 this is always called during Atom.__init__
         ###e need any more invals or updates for this method?? ###@@@
         return
         
     def set_atomtype(self, atomtype, always_remake_bondpoints = False):
         """
         [public method; not super-fast]
-        Set this atom's atomtype as requested, and do all necessary invalidations or updates,
-        including remaking our singlets as appropriate, and [###@@@ NIM] invalidating or updating bond valences.
-           It's ok to pass None (warning: this sets default atomtype even if current one is different!),
-        atomtype's name (specific to self.element) or fullname, or atomtype object. ###@@@ also match to fullname_for_msg()??? ###e
+        
+        Set this atom's atomtype as requested, and do all necessary
+        invalidations or updates, including remaking our singlets as
+        appropriate, and [###@@@ NIM] invalidating or updating bond valences.
+        
+        It's ok to pass None (warning: this sets default atomtype even if
+        current one is different!), atomtype's name (specific to self.element)
+        or fullname, or atomtype object. ###@@@ also match to
+        fullname_for_msg()??? ###e
+        
         The atomtype's element must match the current value of self.element --
         we never change self.element (for that, see mvElement).
-           Special case: if new atomtype would be same as existing one (and that is already set), do nothing
-        (rather than killing and remaking singlets, or even correcting their positions),
-        unless always_remake_bondpoints is true. [not sure if this will be used in atomtype-setting menu-cmds ###@@@]
+        
+        Special case: if new atomtype would be same as existing one (and that
+        is already set), do nothing (rather than killing and remaking
+        singlets, or even correcting their positions), unless
+        always_remake_bondpoints is true. [not sure if this will be used in
+        atomtype-setting menu-cmds ###@@@]
         """
-        # Note: mvElement sets self.atomtype directly; if it called this method, we'd have infrecur!
-        atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
-        assert atomtype.element is self.element # [redundant with find_atomtype] #e or transmute if not??
+        # Note: mvElement sets self.atomtype directly; if it called this
+        # method, we'd have infrecur!
+        atomtype = self.element.find_atomtype( atomtype)
+            # handles all forms of the request; exception if none matches
+        assert atomtype.element is self.element 
+            # [redundant with find_atomtype] #e or transmute if not??
         if always_remake_bondpoints or (self.atomtype_iff_set() is not atomtype):
-            self.direct_Transmute( atomtype.element, atomtype ) ###@@@ not all its needed invals/updates are implemented yet
+            self.direct_Transmute( atomtype.element, atomtype ) 
+                ###@@@ not all its needed invals/updates are implemented yet
             # note: self.atomtype = atomtype is done in direct_Transmute when it calls mvElement
         return
     
@@ -1233,19 +1377,22 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # note: print_compact_traceback is not informative -- the call stack might be, tho it's long.
             print_compact_stack("bug: atom position overflow for %r; setting position to 0,0,0: " % self)
             ##e history message too? only if we can prevent lots of them from coming out at once.
-            res = V(0,0,0) ##e is there any better choice of position for this purpose? e.g. a small random one, so it's unique?
+            res = V(0,0,0) ##e is there any better choice of position for this purpose? 
+                # e.g. a small random one, so it's unique?
             self.setposn(res) # I hope this is safe here... we need the invals it does.
         return res
     
     def sim_posn(self): #bruce 060111
         """
-        Return our posn, as the simulator should see it -- same as posn except for Singlets,
-        which should pretend to be H and correct their distance from base atom accordingly.
-        Should work even for killed atoms (e.g. singlets with no bonds).
+        Return our posn, as the simulator should see it -- same as posn except
+        for Singlets, which should pretend to be H and correct their distance
+        from base atom accordingly. Should work even for killed atoms (e.g.
+        singlets with no bonds).
 
-        Note that if this is used on a corrected singlet position derived from a simulated H position
-        (as in the 060111 approximate fix of bug 1297), it's only approximate, since the actual H position
-        might not have been exactly its equilibrium position.
+        Note that if this is used on a corrected singlet position derived from
+        a simulated H position (as in the 060111 approximate fix of bug 1297),
+        it's only approximate, since the actual H position might not have been
+        exactly its equilibrium position.
         """
         if self.element is Singlet and len(self.bonds) == 1:
             oa = self.bonds[0].other(self) # like self.singlet_neighbor() but fewer asserts
@@ -1271,12 +1418,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #new code from 050513:
         mol = self.molecule
         basepos = mol.__dict__.get('basepos') #bruce 050513
-        if basepos is not None: ##[bruce 060308 zapped:]## and self.xyz == 'no': #bruce 050516 bugfix: fix sense of comparison to 'no'
+        if basepos is not None: 
+            ##[bruce 060308 zapped:]## and self.xyz == 'no': 
+            #bruce 050516 bugfix: fix sense of comparison to 'no'
             return basepos[self.index]
-                # note: since mol.basepos exists, mol.atlist does, so self.index is a valid index into both of them
-                # [bruce 060313 comment]
+                # note: since mol.basepos exists, mol.atlist does, so
+                # self.index is a valid index into both of them [bruce 060313
+                # comment]
         # fallback to slower code from 041201:
-        return mol.quat.unrot(self.posn() - mol.basecenter) # this inlines mol.abs_to_base( self.posn() ) [bruce 060411 comment]
+        return mol.quat.unrot(self.posn() - mol.basecenter) 
+            # this inlines mol.abs_to_base( self.posn() ) [bruce 060411 comment]
 
     def setposn(self, pos):
         """
@@ -1296,8 +1447,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             mol.changed_atom_posn()
         
         # also invalidate the bonds or jigs which depend on our position.
-        #e (should this be a separate method -- does anything else need it?)
-        # note: the comment mentions jigs, but this code doesn't alert them to the move. Bug?? [bruce 070518 question]
+        # (review: should this be a separate method -- does anything else need
+        # it?) note: the comment mentions jigs, but this code doesn't alert
+        # them to the move. Bug?? [bruce 070518 question]
         for b in self.bonds:
             b.setup_invalidate()
         return # from setposn
@@ -1308,10 +1460,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if self.jigs: #bruce 050718 added this, for bonds code
             for jig in self.jigs[:]:
                 jig.moved_atom(self)
-                #e note: this does nothing for most kinds of jigs,
-                # so in theory we might optim by splitting self.jigs into two lists;
-                # however, there are other change methods for atoms in jigs (maybe changed_structure?),
-                # so it's not clear how many different lists are needed, so it's unlikely the complexity is justified.
+                #e note: this does nothing for most kinds of jigs, so in
+                #theory we might optim by splitting self.jigs into two lists;
+                #however, there are other change methods for atoms in jigs
+                #(maybe changed_structure?), so it's not clear how many
+                #different lists are needed, so it's unlikely the complexity
+                #is justified.
         return # from setposn_no_chunk_or_bond_invals
     
     def adjBaggage(self, atom, nupos):
@@ -1476,7 +1630,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     if debug_pref("report bond_geometry_error_string set or clear?",
                                   Choice_boolean_False,
                                   prefs_key = True ):
-                        print "fyi: check_bond_geometry(%r) set or cleared error string %r" % (self, error_string)
+                        print "fyi: check_bond_geometry(%r) set or cleared error string %r" % \
+                              (self, error_string)
                 self.bond_geometry_error_string = error_string
             pass
         if self.bond_geometry_error_string:
@@ -1484,7 +1639,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # into the chunk display list or not (for explanation, see comment
             # in _f_invalidate_neighbor_geom)
             draw_externally = not not self.has_external_bonds()
-            self._f_draw_bond_geometry_error_indicator_externally = draw_externally # this attr might never be used
+            self._f_draw_bond_geometry_error_indicator_externally = draw_externally 
+                # this attr might never be used
             if external == -1 or external == draw_externally:
                 return self.bond_geometry_error_string
         return ""
@@ -1606,7 +1762,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             pass
         return glname
 
-    def draw(self, glpane, dispdef, col, level, special_drawing_handler = None, special_drawing_prefs = USE_CURRENT):
+    def draw(self, glpane, dispdef, col, level, 
+             special_drawing_handler = None, 
+             special_drawing_prefs = USE_CURRENT):
         """
         Draw this atom (self), using an appearance which depends on
         whether it is picked (selected)
@@ -1671,7 +1829,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         pos = self.baseposn()
         
         if disp == diTUBES:
-            pickedrad = drawrad * 1.8 # this code snippet is now shared between draw and draw_in_abs_coords [bruce 060315]
+            pickedrad = drawrad * 1.8 
+                # this code snippet is now shared between draw and draw_in_abs_coords [bruce 060315]
         else:
             pickedrad = drawrad * 1.1
         
@@ -1759,13 +1918,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         and making it easier for L{draw_atom_sphere} to fallback to its default 
         style when those conditions fail.
         """
-        # WARNING: various routines make use of this return value in different ways,
-        # but these ways are not independent (e.g. one might draw a cone and one might estimate its size),
-        # so changes in any of the uses need to be reviewed for possibly needing changes in the others. [bruce 070409]
+        # WARNING: various routines make use of this return value in different
+        # ways, but these ways are not independent (e.g. one might draw a cone
+        # and one might estimate its size), so changes in any of the uses need
+        # to be reviewed for possibly needing changes in the others. [bruce
+        # 070409]
         if self.element is Singlet and len(self.bonds) == 1:
             # self is a bondpoint
             if debug_pref("draw bondpoints as stubs", Choice_boolean_False, prefs_key = True):
-                # current implem has cosmetic bugs (details commented there), so don't say non_debug = True
+                # current implem has cosmetic bugs (details commented there),
+                # so don't say non_debug = True
                 return 'bondpoint-stub' #k this might need to correspond with related code in Bond.draw
         if self.element.bonds_can_be_directional: #bruce 070415, correct end-arrowheads
             # note: as of mark 071014, this can happen for self being a Singlet
@@ -1820,10 +1982,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return 'arrowhead-out'
             else:
                 return 'do not draw'
-            #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
-            #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
-            #  since it usually looks like a cone when it's correctly used? Current code won't do that.
-            #e Maybe add option to draw the dir == 0 case too, to point out you ought to propogate the direction
+            #e REVIEW: does Bond.draw need to be updated due to this, if "draw
+            #bondpoints as stubs" is True?
+            
+            #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint)
+            #as a cone, in case it's in MMKit, since it usually looks like a
+            #cone when it's correctly used? Current code won't do that.
+            
+            #e Maybe add option to draw the dir == 0 case too, to point out
+            #you ought to propogate the direction
             pass
         return ""
 
@@ -1868,21 +2035,24 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # but sometimes the bond cyls project out beyond the bp cyls
             # after repositioning bondpoints, or for N(sp2(graphitic)),
             # and it looks bad for double bonds,
-            # and sometimes the highlighting cylfaces mix with the non-highlighted ones,
-            # as if same depth value. ###@@@
+            # and sometimes the highlighting cylfaces mix with the
+            # non-highlighted ones, as if same depth value. ###@@@
             other = self.singlet_neighbor()
             if abs_coords:
                 otherpos = other.posn()
             else:
                 otherpos = other.baseposn()
-                    # note: this is only correct since self and other are guaranteed to belong to the same chunk --
-                    # if they didn't, their baseposns (pos and otherpos) would be in different coordinate systems.
+                    # note: this is only correct since self and other are
+                    # guaranteed to belong to the same chunk -- if they
+                    # didn't, their baseposns (pos and otherpos) would be in
+                    # different coordinate systems.
             rad = other.highlighting_radius(dispdef) # ok to pass None
             out = norm(pos - otherpos)
             buried = max(0, rad - vlen(pos - otherpos))
             inpos = pos - 0.015 * out
             outpos = pos + (buried + 0.015) * out # be sure we're visible outside a big other atom
-            drawcylinder(color, inpos, outpos, drawrad, 1) #e see related code in Bond.draw; drawrad is slightly more than the bond rad
+            drawcylinder(color, inpos, outpos, drawrad, 1)
+                #e see related code in Bond.draw; drawrad is slightly more than the bond rad
         elif style.startswith('arrowhead-'):
             #arrowColor will be changed later
             arrowColor = color                    
@@ -1893,9 +2063,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 bond = self.strand_end_bond()
                 other = bond.other(self)
                 otherdir = 1 
-                #Following implements custom arrowhead colors for the 3' and 5' end
-                #(can be changed using Preferences > Dna page) Feature implemented 
-                #for Rattlesnake v1.0.1
+                # Following implements custom arrowhead colors for the 3' and 5' end
+                # (can be changed using Preferences > Dna page). Feature implemented 
+                # for Rattlesnake v1.0.1.
                 bool_custom_arrowhead_color = special_drawing_prefs[
                     useCustomColorForFivePrimeArrowheads_prefs_key]                
                 if bool_custom_arrowhead_color and not abs_coords:
@@ -1906,9 +2076,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 bond = self.strand_end_bond()
                 other = bond.other(self)
                 otherdir = -1
-                #Following implements custom arrowhead colors for the 3' and 5' end
-                #(can be changed using Preferences > Dna page) Feature implemented 
-                #for Rattlesnake v1.0.1
+                # Following implements custom arrowhead colors for the 3' and 5' end
+                # (can be changed using Preferences > Dna page). Feature implemented 
+                # for Rattlesnake v1.0.1.
                 bool_custom_arrowhead_color = special_drawing_prefs[
                     useCustomColorForThreePrimeArrowheads_prefs_key]                
                 if bool_custom_arrowhead_color and not abs_coords:
@@ -1922,8 +2092,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 otherpos = other.baseposn() # this would be wrong if it's in a different chunk!
             else:
                 otherpos = self.molecule.abs_to_base(other.posn())
-                    ###BUG: this becomes wrong if the chunks move relative to each other! But we don't get updated then. ###FIX
-                ## color = gray # to indicate the direction is suspicious and might become invalid (for now)
+                    ###BUG: this becomes wrong if the chunks move relative to
+                    ###each other! But we don't get updated then. ###FIX
+                
+                ## color = gray # to indicate the direction is suspicious and
+                ##     # might become invalid (for now)
             out = norm(otherpos - pos) * otherdir
             
             # Set the axis and arrow radius.
@@ -1943,12 +2116,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 axis = out * drawrad
                 arrowRadius = drawrad * 2
                     
-            # the following cone dimensions enclose the original sphere (and therefore the bond-cylinder end too)
-            # (when axis and arrowRadius have their default values above -- not sure if this remains true after [mark 071014]):
-            # cone base at pos - axis, radius = 2 * drawrad, cone midplane (radius = drawrad) at pos + axis,
-            # thus cone tip at pos + 3 * axis.
-            # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
-            # If you make the cone bigger you might need to change that code too.
+            # the following cone dimensions enclose the original sphere (and
+            # therefore the bond-cylinder end too) (when axis and arrowRadius
+            # have their default values above -- not sure if this remains true
+            # after [mark 071014]): cone base at pos - axis, radius = 2 *
+            # drawrad, cone midplane (radius = drawrad) at pos + axis, thus
+            # cone tip at pos + 3 * axis.
+            
+            # WARNING: this cone would obscure the wirespheres, except for
+            # special cases in self.draw_wirespheres(). If you make the cone
+            # bigger you might need to change that code too.
             
             drawpolycone(arrowColor,
                          [[pos[0] - 2 * axis[0], 
@@ -2000,9 +2177,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def draw_wirespheres(self, glpane, disp, pos, pickedrad, special_drawing_prefs = USE_CURRENT):
         #bruce 060315 split this out of self.draw so I can add it to draw_in_abs_coords
         if self._draw_atom_style(special_drawing_prefs = special_drawing_prefs).startswith('arrowhead-'):
-            # compensate for the cone (drawn by draw_atom_sphere in this case) being bigger than the sphere [bruce 070409]
+            # compensate for the cone (drawn by draw_atom_sphere 
+            # in this case) being bigger than the sphere [bruce 070409]
             pickedrad *= debug_pref("Pe pickedrad ratio", Choice([1.8, 1.9, 1.7, 1.0])) ####
-        if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
+        if self.picked: 
+            # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
             #bruce 041217 experiment: show valence errors for picked atoms by
             # using a different color for the wireframe.
             # (Since Transmute operates on picked atoms, and leaves them picked,
@@ -2014,7 +2193,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             else:
                 # russ 080530: Changed to pref from PickedColor constant (blue).
                 color = env.prefs[selectionColor_prefs_key]
-            drawwiresphere(color, pos, pickedrad) ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
+            drawwiresphere(color, pos, pickedrad) 
+                ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
         #bruce 050806: check valence more generally, and not only for picked atoms.
         self.draw_error_wireframe_if_needed(glpane, disp, pos, pickedrad,
                                           external = False,
@@ -2035,9 +2215,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return
         # The calling code in draw_wirespheres only checks for number of bonds.
         # Now that we have higher-order bonds, we also need to check valence more generally.
-        # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
+        # The check for glpane class is a kluge to prevent this from showing in thumbviews:
+        # should remove ASAP.
         #####@@@@@ need to do this in atom.getinfo().
-        #e We might need to be able to turn this [what?] off by a preference setting; or, only do it in Build mode.
+        #e We might need to be able to turn this [what?] off by a preference setting;
+        # or, only do it in Build mode.
         # Don't check prefs until we know we need them, to avoid needless
         # gl_update when user changes prefs value.
         if not glpane.should_draw_valence_errors():
@@ -2113,14 +2295,17 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         @see: _dna_updater__error (not covered by this; maybe it should be)
         """
         if self.element is Singlet:
-            # should be correct, but this case won't be used as of 041217 [probably no longer needed even if used -- 050511]
+            # should be correct, but this case won't be used as of 041217
+            # [probably no longer needed even if used -- 050511]
             numbonds = 1
         else:
             numbonds = self.atomtype.numbonds
-        return numbonds != len(self.bonds) ##REVIEW: this doesn't check bond valence at all... should it??
+        return numbonds != len(self.bonds)
+            ##REVIEW: this doesn't check bond valence at all... should it??
 
     def bad_valence(self, external = -1):
-        #bruce 050806; should review uses (or inlinings) of self.bad() to see if they need this too ##REVIEW
+        #bruce 050806; should review uses (or inlinings) of self.bad()
+        # to see if they need this too ##REVIEW
         #bruce 080406 added external option
         """
         is this atom's valence clearly wrong, considering
@@ -2128,8 +2313,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         @param external: see docstring of self.check_bond_geometry().
         """
-        # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
-        #e we might optimize this by memoizing it (in a public attribute), and letting changes to any bond invalidate it.
+        #WARNING: keep the code of self.bad_valence() and
+        #self.bad_valence_explanation() in sync! e we might optimize this by
+        #memoizing it (in a public attribute), and letting changes to any bond
+        #invalidate it.
         # REVIEW: see comments in bad_valence_explanation
         # NOTE: to include check_bond_geometry, we might need an "external" arg to pass it
         bonds = self.bonds
@@ -2225,9 +2412,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     def deficient_valence(self): #bruce 051215
         """
-        If this atom clearly wants more valence (based on existing bond types),
-        return the minimum amount it needs (as an int or float valence number, NOT as a v6).
-        Otherwise return 0.
+        If this atom clearly wants more valence (based on existing bond
+        types), return the minimum amount it needs (as an int or float valence
+        number, NOT as a v6). Otherwise return 0.
         """
         minv_junk, maxv = self.min_max_actual_valence()
         want_valence = self.atomtype.valence
@@ -2283,32 +2470,41 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
         return
     
-    def draw_in_abs_coords(self, glpane, color, useSmallAtomRadius = False): #bruce 050610
-        ###@@@ needs to be told whether or not to "draw as selatom"; now it does [i.e. it's misnamed]
+    def draw_in_abs_coords(self, glpane, color, useSmallAtomRadius = False): 
         """
-        Draw this atom in absolute (world) coordinates,
-        using the specified color (ignoring the color it would naturally be drawn with).
-        See code comments about radius and display mode (current behavior might not be correct or optimal).
-           This is only called for special purposes related to mouseover-highlighting,
-        and should be renamed to reflect that, since its behavior can and should be specialized
-        for that use. (E.g. it doesn't happen inside display lists; and it need not use glName at all.)
-           In this case (Atom), this method (unlike the main draw method) will also
-        draw self's bond, provided self is a singlet with a bond which gets drawn, so that for an "open bond"
-        it draws the entire thing (bond plus bondpoint). In order for this to work,
-        the bond must (and does, in current code) borrow the glname
-        of self whenever it draws itself (with any method).
-        (This is only possible because bonds have at most one bondpoint.)
+        Draw this atom in absolute (world) coordinates, using the specified
+        color (ignoring the color it would naturally be drawn with). See code
+        comments about radius and display mode (current behavior might not be
+        correct or optimal).
+        
+        This is only called for special purposes related to
+        mouseover-highlighting, and should be renamed to reflect that, since
+        its behavior can and should be specialized for that use. (E.g. it
+        doesn't happen inside display lists; and it need not use glName at
+        all.)
+        
+        In this case (Atom), this method (unlike the main draw method) will
+        also draw self's bond, provided self is a singlet with a bond which
+        gets drawn, so that for an "open bond" it draws the entire thing (bond
+        plus bondpoint). In order for this to work, the bond must (and does,
+        in current code) borrow the glname of self whenever it draws itself
+        (with any method). (This is only possible because bonds have at most
+        one bondpoint.)
         """
+        #bruce 050610
+        # todo: needs to be told whether or not to "draw as selatom";
+        # for now it always does [i.e. it's misnamed]
         if self.__killed:
             return # I hope this is always ok...
         level = self.molecule.assy.drawLevel # this doesn't work if atom has been killed!
         pos = self.posn()
-        ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
+        ###@@@ remaining code might or might not be correct 
+        # (issues: larger radius, display-mode independence)
 
         if useSmallAtomRadius:
             drawrad = self.radius_for_chunk_highlighting()
-            # review: does this need to be bigger when self.bond_geometry_error_string
-            # to make tooltip work on self?
+            # review: does this need to be bigger when
+            # self.bond_geometry_error_string to make tooltip work on self?
         else:
             drawrad = self.highlighting_radius() # slightly larger than normal drawing radius
             if self.bond_geometry_error_string:
@@ -2316,39 +2512,52 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         ## drawsphere(color, pos, drawrad, level)
         self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
             # always draw, regardless of display mode
-            #bruce 050825 comment: it's probably incorrect to do this even for invisible atoms.
-            # This probably caused the "highlighting part" of bug 870, but bug 870 has been fixed
-            # by other changes today, but this still might cause other bugs of highlighting
-            # otherwise-invisible atoms. Needs review. ###@@@
-            # (Indirectly related: drawwiresphere acts like drawsphere for hit-test purposes.)
-        if len(self.bonds) == 1 and self.element is Singlet: #bruce 050708 new feature - bond is part of self for highlighting
+            
+            #bruce 050825 comment: it's probably incorrect to do this even for
+            #invisible atoms. This probably caused the "highlighting part" of
+            #bug 870, but bug 870 has been fixed by other changes today, but
+            #this still might cause other bugs of highlighting
+            #otherwise-invisible atoms. Needs review. ###@@@
+            
+            # (Indirectly related: drawwiresphere acts like drawsphere for
+            # hit-test purposes.)
+        if len(self.bonds) == 1 and self.element is Singlet: 
+            #bruce 050708 new feature - bond is part of self for highlighting
             dispdef = self.molecule.get_dispdef()
-                #bruce 050719 question: is it correct to ignore .display of self and its base atom? ###@@@
+                #bruce 050719 question: is it correct to ignore .display of self
+                # and its base atom? ###@@@
                 #bruce 060630 guess answer: yes, since howdraw covers it.
             disp, drawradjunk = self.howdraw(dispdef) # (this arg is required)
             if disp in (diBALL, diTUBES):
                 self.bonds[0].draw_in_abs_coords(glpane, color)
-        #bruce 060315 try to fix disappearing hover highlight when mouse goes over one of our wirespheres.
-        # We have to do it in the same coordinate system as the original wirespheres were drawn.
-        # (This will only work well if there is also a depth offset, or (maybe) an increased line thickness.
-        #  I think there's a depth offset in the calling code, and it does seem to work. Note that it needs
-        #  testing for rotated chunks, since until you next modify them, the wirespheres are also drawn rotated.)
+        #bruce 060315 try to fix disappearing hover highlight when mouse goes
+        #over one of our wirespheres. We have to do it in the same coordinate
+        #system as the original wirespheres were drawn. (This will only work
+        #well if there is also a depth offset, or (maybe) an increased line
+        #thickness. I think there's a depth offset in the calling code, and it
+        #does seem to work. Note that it needs testing for rotated chunks,
+        #since until you next modify them, the wirespheres are also drawn
+        #rotated.)
         self.molecule.pushMatrix()
         try:
             # note: the following inlines self.drawing_radius(picked_Radius = True),
             # but makes further use of intermediate values which that method
             # computes but does not return, so merging them would require a
             # variant method that returned more values. [bruce 080411 comment]
-            dispdef = self.molecule.get_dispdef() #e could optimize, since sometimes computed above -- but doesn't matter.
+            dispdef = self.molecule.get_dispdef() 
+                #e could optimize, since sometimes computed above -- but doesn't matter.
             disp, drawrad = self.howdraw(dispdef)
             if disp == diTUBES:
-                pickedrad = drawrad * 1.8 # this code snippet is now shared between several places [bruce 060315/080411]
+                pickedrad = drawrad * 1.8 
+                    # this code snippet is now shared between several places
+                    # [bruce 060315/080411]
             else:
                 pickedrad = drawrad * 1.1
             pos = self.baseposn()
             self.draw_wirespheres(glpane, disp, pos, pickedrad)
         except:
-            print_compact_traceback("exception in draw_wirespheres part of draw_in_abs_coords ignored: ")
+            print_compact_traceback("exception in draw_wirespheres " \
+                                    "part of draw_in_abs_coords ignored: ")
             pass
         self.molecule.popMatrix()
         return
@@ -2483,7 +2692,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             self.molecule.add_some_atom_content(new & ~old)
         return
 
-    def howdraw(self, dispdef): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
+    def howdraw(self, dispdef): 
+        # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
         """
         Tell how to draw the atom depending on its display mode (possibly
         inherited from dispdef, usually the molecule's effective dispdef).
@@ -2522,9 +2732,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if disp == diTUBES: 
             rad = TubeRadius * 1.1
         else:
-            #bruce 060307 moved all this into else clause; this might prevent some needless (and rare)
-            # gl_updates when all is shown in Tubes but prefs for other dispmodes are changed.
-            rad = self.element.rvdw # correct value for diTrueCPK (formerly, default); modified to produce values for other dispmodes
+            #bruce 060307 moved all this into else clause; this might prevent
+            #some needless (and rare) gl_updates when all is shown in Tubes
+            #but prefs for other dispmodes are changed.
+            rad = self.element.rvdw 
+                # correct value for diTrueCPK (formerly, default); 
+                # modified to produce values for other dispmodes
             if disp == diTrueCPK:
                 rad = rad * env.prefs[cpkScaleFactor_prefs_key] 
             if disp != diTrueCPK:
@@ -2533,7 +2746,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 rad = rad * env.prefs[diBALL_AtomRadius_prefs_key] 
         return (disp, rad)
 
-    def selradius_prefs_values(): # staticmethod in Atom #bruce 060317 for bug 1639 (and perhaps an analogue for other prefs)
+    def selradius_prefs_values(): # staticmethod in Atom 
+        #bruce 060317 for bug 1639 (and perhaps an analogue for other prefs)
         """
         Return a tuple of all prefs values that are ever used in computing
         any atom's selection radius (by selradius_squared).
@@ -2542,7 +2756,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     selradius_prefs_values = staticmethod( selradius_prefs_values)
 
-    def selradius_squared(self): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
+    def selradius_squared(self): 
+        # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
         """
         Return square of desired "selection radius",
         or -1.0 if atom should not be selectable (e.g. invisible).
@@ -2667,8 +2882,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # (for writing only, not stored in our attrs)
             # [bruce 050404 to help fix bug 254]
             eltnum = Hydrogen.eltnum
-            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen ) # see also self.sim_posn()
-            disp = "openbond" # kluge, meant as a comment in the file #bruce 051115 changed this from "singlet" to "openbond"
+            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen ) 
+                # see also self.sim_posn()
+            disp = "openbond" # kluge, meant as a comment in the file
+                #bruce 051115 changed this from "singlet" to "openbond"
             #bruce 051209 for history message in runSim (re bug 254):
             stats = mapping.options.get('dict_for_stats')
             if stats is not None: # might be {}
@@ -3003,9 +3220,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if self.molecule.assy.ppa2:
             try:
                 ainfo += (". Distance between %s-%s is %.3f Angstroms." % \
-                    (self, self.molecule.assy.ppa2, vlen(self.posn()-self.molecule.assy.ppa2.posn()))) # fix bug 366-2 ninad060721
+                    (self, 
+                     self.molecule.assy.ppa2, 
+                     vlen(self.posn() - self.molecule.assy.ppa2.posn()))) 
+                        # fix bug 366-2 ninad060721
             except:
-                print_compact_traceback("bug, fyi: ignoring exception in atom distance computation: ") #bruce 050218
+                print_compact_traceback("bug, fyi: ignoring exception " \
+                                        "in atom distance computation: ") #bruce 050218
                 pass
             
             # Include the angle between self, ppa2 and ppa3 in the info string.
@@ -3183,7 +3404,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if not r:
             disp, r = self.howdraw(disp)
         # bruce 041214:
-        # this is surely bad in only remaining use (depositMode.getCoords):
+        # following is surely bad in only remaining use (depositMode.getCoords):
         ## if self.picked and not iPic: return None 
         dist, wid = orthodist(p1, v1, self.posn())
         if wid > r: return None
@@ -3200,12 +3421,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return
 
         if self.filtered():
-            return # mark 060303. [note: bruce 060321 has always thought it was nonmodular to check this here]
-            #bruce 060331 comment: we can't move this inside the conditional to optimize it, since we want it to affect
-            # whether we set picked_time, but we want to set that even for already-picked atoms.
-            # (Which are reasons of dubious value if this missed optim is important (don't know if it is), but are real ones.)
+            return # mark 060303.
+                # [note: bruce 060321 has always thought it was nonmodular to
+                #  check this here]
+        
+            #bruce 060331 comment: we can't move this inside the conditional
+            #to optimize it, since we want it to affect whether we set
+            #picked_time, but we want to set that even for already-picked
+            #atoms. (Which are reasons of dubious value if this missed optim
+            #is important (don't know if it is), but are real ones.)
             
-        self._picked_time = self.molecule.assy._select_cmd_counter #bruce 051031, for ordering selected atoms; two related attrs
+        self._picked_time = self.molecule.assy._select_cmd_counter 
+            #bruce 051031, for ordering selected atoms; two related attrs
         if not self.picked:
             self.picked = True
             _changed_picked_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
@@ -3231,23 +3458,29 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     _picked_time = _picked_time_2 = -1
+    
     def pick_order(self): #bruce 051031
         """
-        Return something which can be sorted to determine the order in which atoms were selected; include tiebreakers.
-        Legal to call even if self has never been selected or is not currently selected,
-        though results will not be very useful then.
+        Return something which can be sorted to determine the order in which
+        atoms were selected; include tiebreakers. Legal to call even if self
+        has never been selected or is not currently selected, though results
+        will not be very useful then.
         """
         return (self._picked_time, self._picked_time_2, self.key)
     
-    def unpick(self, filtered = True): #bruce 060331 adding filtered = False option, as part of fixing bug 1796
+    def unpick(self, filtered = True): 
         """
         Make this atom (self) unselected, if the selection filter
         permits this or if filtered = False.
         """
-        # note: this is inlined (perhaps with filtered = False, not sure) into assembly.unpickatoms (in ops_select.py)
+        #bruce 060331 adding filtered = False option, as part of fixing bug 1796
+        
+        # note: this is inlined (perhaps with filtered = False, not sure) 
+        # into assembly.unpickatoms (in ops_select.py)
         # bruce 041214: singlets should never be picked, so Singlet test is not needed,
         # and besides if a singlet ever *does* get picked (due to a bug) you should let
         # the user unpick it!
+        
         ## if self.element is Singlet: return 
         
         if self.picked:        
@@ -3326,19 +3559,25 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     def break_unmade_bond(self, origbond, origatom): #bruce 050524
         """
-        Add singlets (or do equivalent invals) as if origbond was copied from origatom
-        onto self (a copy of origatom), then broken; uses origatom
-        so it can find the other atom and know bond direction in space
-        (it assumes self might be translated but not rotated, wrt origatom).
-        For now this works like mol.copy used to, but later it might "inval singlets" instead.
+        Add singlets (or do equivalent invals) as if origbond was copied from
+        origatom onto self (a copy of origatom), then broken; uses origatom so
+        it can find the other atom and know bond direction in space (it
+        assumes self might be translated but not rotated, wrt origatom). 
+        
+        For now this works like mol.copy used to, but later it might "inval
+        singlets" instead.
         """
-        # compare to code in Bond.unbond() (maybe merge it? ####@@@@ need to inval things to redo singlets sometimes?)
+        # compare to code in Bond.unbond() (maybe merge it? ####@@@@ need to
+        # inval things to redo singlets sometimes?)
         a = origatom
         b = origbond
         numol = self.molecule
-        x = Atom('X', b.ubp(a), numol) ###k verify Atom.__init__ makes copy of posn, not stores original (tho orig ok if never mods it)
+        x = Atom('X', b.ubp(a), numol) 
+            ###k verify Atom.__init__ makes copy of posn, not stores original
+            ###(tho orig ok if never mods it)
         na = self ## na = ndix[a.key]
-        bond_copied_atoms(na, x, origbond, origatom) # same properties as origbond... sensible in all cases?? ##k
+        bond_copied_atoms(na, x, origbond, origatom)
+            # same properties as origbond... sensible in all cases?? ##k
         return
         
     def unbond(self, b, make_bondpoint = True):
@@ -3397,14 +3636,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 self.kill() # bruce 041115 added this and revised all callers
             else:
                 # don't kill it, in this case [bruce 041115; I don't know if this ever happens]
-                from dna.updater.dna_updater_globals import get_dnaladder_inval_policy, DNALADDER_INVAL_IS_NOOP_BUT_OK
-                    # can't be a toplevel import for now
+                from dna.updater.dna_updater_globals import get_dnaladder_inval_policy
+                from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_NOOP_BUT_OK
+                    # can't be a toplevel import for now [review: still true? might be...]
                 if get_dnaladder_inval_policy() == DNALADDER_INVAL_IS_NOOP_BUT_OK:
                     pass # this now happens routinely during PAM conversion [bruce 080413]
                 else:
                     # I don't recall ever seeing this otherwise, but it's good
                     # to keep checking for it [bruce 080413]
-                    print "fyi: bug: unbond on a singlet %r finds unexpected bonds left over in it, %r" % (self, self.bonds)
+                    print "fyi: bug: unbond on a singlet %r finds unexpected " \
+                          " bonds left over in it, %r" % (self, self.bonds)
             return None
         if not make_bondpoint:
             #bruce 070601 new feature
@@ -3426,7 +3667,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 self.molecule.changeapp(0)
             return None
         if 1:
-            #bruce 060327 optim of Chunk.kill: if we're being killed right now, don't make a new bondpoint
+            #bruce 060327 optim of Chunk.kill: 
+            # if we're being killed right now, don't make a new bondpoint
             if self._will_kill == Utility._will_kill_count:
                 if DEBUG_1779:
                     print "DEBUG_1779: self._will_kill %r == Utility._will_kill_count %r" % \
@@ -3497,7 +3739,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         return filter(lambda atom: atom.element is not Singlet, self.neighbors())
     
-    def singNeighbors(self): #e when we have only one branch again, rename this singletNeighbors or bondpointNeighbors
+    def singNeighbors(self): 
+        # todo: rename to singletNeighbors or bondpointNeighbors
         """
         return a list of the singlets bonded to this atom
         """
@@ -3505,9 +3748,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     def baggage_and_other_neighbors(self): #bruce 051209
         """
-        Return a list of the baggage bonded to this atom (monovalent neighbors which should be dragged along with it),
-        and a list of the others (independent neighbors). Special case: in H2 (for example) there is no baggage
-        (so that there is some way to stretch the H-H bond); but singlets are always baggage, even in HX.
+        Return a list of the baggage bonded to this atom (monovalent neighbors
+        which should be dragged along with it), and a list of the others
+        (independent neighbors). Special case: in H2 (for example) there is no
+        baggage (so that there is some way to stretch the H-H bond); but
+        singlets are always baggage, even in HX.
         """
         nn = self.neighbors()
         if len(nn) == 1:
@@ -3571,21 +3816,25 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         if atomtype is None:
             atomtype = elt.atomtypes[0]
-            # Note: we do this even if self.element is elt and self.atomtype is not elt.atomtypes[0] !
-            # That is, passing no atomtype is *always* equivalent to passing elt's default atomtype,
-            # even if this results in changing this atom's atomtype but not its element.
+            # Note: we do this even if self.element is elt and self.atomtype
+            # is not elt.atomtypes[0] ! That is, passing no atomtype is
+            # *always* equivalent to passing elt's default atomtype, even if
+            # this results in changing this atom's atomtype but not its
+            # element.
         assert atomtype.element is elt
         if debug_flags.atom_debug:
             if elt is Singlet: #bruce 041118
                 # this is unsupported; if we support it it would require
-                # moving this atom to its neighbor atom's chunk, too
-                # [btw we *do* permit self.element is Singlet before we change it]
+                # moving this atom to its neighbor atom's chunk, too [btw we
+                # *do* permit self.element is Singlet before we change it]
                 print "atom_debug: fyi, bug?: mvElement changing %r to a singlet" % self
         if self.atomtype_iff_set() is atomtype:
             assert self.element is elt # i.e. assert that self.element and self.atomtype were consistent
             if debug_flags.atom_debug: #bruce 050509
-                print_compact_stack( "atom_debug: fyi, bug?: mvElement changing %r to its existing element and atomtype" % self )
-            return #bruce 050509, not 100% sure it's correct, but if not, caller probably has a bug (eg relies on our invals)
+                msg = "atom_debug: fyi, bug?: mvElement changing %r to its existing element and atomtype" % self
+                print_compact_stack( msg + ": " )
+            return #bruce 050509, not 100% sure it's correct, but if not, 
+                # caller probably has a bug (eg relies on our invals)
         # now we're committed to doing the change
         if (self.element is Singlet) != (elt is Singlet):
             # set of singlets is changing
@@ -3633,7 +3882,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if (not not better_alive_answer) != (not self.__killed):
                 #bruce 060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
                 #bruce 071018 fixed typo of () after debug_flags.atom_debug -- could that be why it never printed it?!?
-                print "debug: better_alive_answer is %r but (not self.__killed) is %r" % (better_alive_answer , not self.__killed)
+                print "debug: better_alive_answer is %r but (not self.__killed) is %r" % \
+                      (better_alive_answer , not self.__killed)
         return res
     
     def killed_with_debug_checks(self): # renamed by bruce 050702; was called killed(); by bruce 041029
@@ -3742,7 +3992,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # does this ever still happen? TODO: if so, document when & why.
                 print_compact_traceback("fyi: Atom.kill: ignoring error in remove_atom %r from jig %r: " % (self, j) )
         self.jigs = [] # mitigate repeated kills
-        _changed_structure_Atoms[self.key] = self #k not sure if needed; if it is, also covers .bonds below #bruce 060322
+        _changed_structure_Atoms[self.key] = self 
+            #k not sure if needed; if it is, also covers .bonds below #bruce 060322
         
         # remove bonds
         selfmol = self.molecule
@@ -3851,7 +4102,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         its_atype = neighbor.atomtype
             # presently we ignore the bond-valence between us and that neighbor atom,
             # even if this can vary for different bonds to it (for the atomtype it has)
-        newlen = my_atype.rcovalent + its_atype.rcovalent #k Singlet.atomtypes[0].rcovalent better be 0, check this
+        newlen = my_atype.rcovalent + its_atype.rcovalent 
+            #k Singlet.atomtypes[0].rcovalent better be 0, check this
         return it + newlen * it_to_me_direction
     
     def Dehydrogenate(self):
@@ -4000,13 +4252,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         
         return moveme
 
-    def Passivate(self): ###@@@ not yet modified for atomtypes since it's not obvious what it should do! [bruce 050511]
+    def Passivate(self): 
         """
         [Public method, does all needed invalidations:]
         Change the element type of this atom to match the number of
         bonds with other real atoms, and delete singlets.
         """
-        # bruce 041215 modified docstring, added comments, capitalized name
+        # bruce 041215 modified docstring, added comments, capitalized name.
+        # REVIEW: not yet modified for atomtypes since it's not obvious what it
+        # should do! [bruce 050511]
         el = self.element
         PTsenil = PeriodicTable.getPTsenil()
         line = len(PTsenil)
@@ -4029,7 +4283,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # singlets anyway -- which is fine
 
     def is_singlet(self):
-        return self.element is Singlet # [bruce 050502 comment: it's possible self is killed and len(self.bonds) is 0]
+        return self.element is Singlet 
+            # [bruce 050502 comment: it's possible self is killed and
+            # len(self.bonds) is 0]
     
     def singlet_neighbor(self):
         """
@@ -4045,33 +4301,40 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         assert atom.element is not Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self, atom)
         return atom
 
-    # higher-valence bonds methods [bruce 050502] [bruce 050627 comment: a lot of this might be obsolete. ###@@@]
+    # higher-valence bonds methods [bruce 050502] 
+    # [bruce 050627 comment: a lot of this might be obsolete. ###@@@]
     
     def singlet_v6(self):
         assert self.element is Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
         assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
         return self.bonds[0].v6
 
-    singlet_valence = singlet_v6 ###@@@ need to decide which name to keep! probably this one, singlet_valence. [050502 430pm]
-
     def singlet_reduce_valence_noupdate(self, vdelta):
             # this might or might not kill it;
             # it might even reduce valence to 0 but not kill it,
             # letting base atom worry about that
-            # (and letting it take advantage of the singlet's position, when it updates things)
-        assert self.element is Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
-        assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
-        self.bonds[0].reduce_valence_noupdate(vdelta, permit_illegal_valence = True) # permits in-between, 0, or negative(?) valence
+            # (and letting it take advantage of the singlet's
+            #  position, when it updates things)
+        assert self.element is Singlet, \
+               "%r should be a singlet but is %s" % \
+               (self, self.element.name)
+        assert len(self.bonds) == 1, \
+               "%r should have exactly 1 bond but has %d" % \
+               (self, len(self.bonds))
+        self.bonds[0].reduce_valence_noupdate(vdelta, permit_illegal_valence = True)
+            # permits in-between, 0, or negative(?) valence
         return
 
     def update_valence(self, dont_revise_valid_bondpoints = False):
         """
-        warning: following docstring used to be a comment, hasn't been verified recently:
-        repositions/alters existing bondpoints, updates bonding pattern, valence errors, etc;
-        might reorder bonds, kill bondpoints; but doesn't move the atom and doesn't alter
-        existing real bonds or other atoms; it might let atom record how it wants to move,
-        when it has a chance and wants to clean up structure, if this can ever be ambiguous
-        later, when the current state (including positions of old bondpoints) is gone.
+        warning: following docstring used to be a comment, hasn't been
+        verified recently: repositions/alters existing bondpoints, updates
+        bonding pattern, valence errors, etc; might reorder bonds, kill
+        bondpoints; but doesn't move the atom and doesn't alter existing real
+        bonds or other atoms; it might let atom record how it wants to move,
+        when it has a chance and wants to clean up structure, if this can ever
+        be ambiguous later, when the current state (including positions of old
+        bondpoints) is gone.
 
         Update 071019: if dont_revise_valid_bondpoints is passed, then only
         bondpoints with invalid valence (e.g. zero valence) are altered.
@@ -4084,13 +4347,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         from model.bond_constants import V_ZERO_VALENCE, BOND_VALENCES
         _debug = False ## debug_flags.atom_debug is sometimes useful here
         if self._modified_valence:
-            self._modified_valence = False # do this first, so exceptions in the following only happen once
+            self._modified_valence = False 
+                # do this first, so exceptions in the following only happen once
             if _debug:
                 print "atom_debug: update_valence starting to updating it for", self
-            # the only easy part is to kill bondpoints with illegal valences, and warn if those were not 0.
+            # the only easy part is to kill bondpoints with illegal valences,
+            # and warn if those were not 0.
             zerokilled = badkilled = 0
-            for sing in self.singNeighbors(): ###@@@ check out the other calls of this for code that might help us here...
-                sv = sing.singlet_valence()
+            for sing in self.singNeighbors(): 
+                ###@@@ check out the other calls of this for code that might help us here...
+                sv = sing.singlet_v6()
                 if sv == V_ZERO_VALENCE:
                     sing.kill()
                     zerokilled += 1
@@ -4099,11 +4365,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     sing.kill()
                     badkilled += 1
             if _debug:
-                print "atom_debug: update_valence %r killed %d zero-valence and %d bad-valence bondpoints" % \
+                print "atom_debug: update_valence %r killed %d " \
+                      "zero-valence and %d bad-valence bondpoints" % \
                       (self, zerokilled, badkilled)
-            ###e now fix things up... not sure exactly under what conds, or using what code (but see existing code mentioned above)
-            #bruce 050702 working on bug 121, here is a guess: change atomtype to best match new total number of bonds
-            # (which we might have changed by killing some bondpoints). But only do this if we did actually kill bondpoints.
+            ###e now fix things up... not sure exactly under what conds, or
+            ###using what code (but see existing code mentioned above)
+            #bruce 050702 working on bug 121, here is a guess: change atomtype
+            #to best match new total number of bonds (which we might have
+            #changed by killing some bondpoints). But only do this if we did
+            #actually kill bondpoints.
             if zerokilled or badkilled:
                 self.adjust_atomtype_to_numbonds( dont_revise_bondpoints = dont_revise_valid_bondpoints )
                     ### WARNING: if dont_revise_bondpoints is not set,
@@ -4112,9 +4382,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     # remaking and the moving can be bad for some callers;
                     # thus the new option. It may need to be used more widely.
                     # [bruce 071019]
-            #bruce 050728 temporary fix for bug 823 (in which C(sp2) is left with 2 order1 bondpoints that should be one bondpoint);
-            # but in the long run we need a more principled way to decide whether to remake bondpoints or change atomtype
-            # when they don't agree:
+            #bruce 050728 temporary fix for bug 823 (in which C(sp2) is left
+            #with 2 order1 bondpoints that should be one bondpoint); but in
+            #the long run we need a more principled way to decide whether to
+            #remake bondpoints or change atomtype when they don't agree:
             if len(self.bonds) != self.atomtype.numbonds and not dont_revise_valid_bondpoints:
                 if _debug:
                     print "atom_debug: update_valence %r calling remake_bondpoints"
@@ -4127,17 +4398,20 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         [Public method, does all needed invals, might emit history messages #k]
 
-        If this atom's number of bonds (including open bonds) is better matched
-        by some other atomtype of its element than by its current atomtype, or if
-        its atomtype is not yet set, then change to the best atomtype and (if atomtype
-        was already set) emit a history message about this change.
+        If this atom's number of bonds (including open bonds) is better
+        matched by some other atomtype of its element than by its current
+        atomtype, or if its atomtype is not yet set, then change to the best
+        atomtype and (if atomtype was already set) emit a history message
+        about this change.
 
-        The comparison is of current atomtype to self.best_atomtype_for_numbonds().
+        The comparison is of current atomtype to
+        self.best_atomtype_for_numbonds().
 
         The change is done by set_atomtype if number of bonds is correct and
-        dont_revise_bondpoints is not passed (since set_atomtype also
-        remakes bondpoints in better positions), or by set_atomtype_but_dont_revise_singlets
-        otherwise (no attempt is made to correct the number of open bonds in that case).
+        dont_revise_bondpoints is not passed (since set_atomtype also remakes
+        bondpoints in better positions), or by
+        set_atomtype_but_dont_revise_singlets otherwise (no attempt is made to
+        correct the number of open bonds in that case).
 
         [See also self.can_reduce_numbonds().]
         """
@@ -4148,11 +4422,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if best_atype is atype_now:
             return # never happens if atype_now is None
         if atype_now is not None:
-            env.history.message("changing %s atomtype from %s to %s" % (self, atype_now.name, best_atype.name))
-            # this will often happen twice, plus a third message from Build that it increased bond order,
-            # so i'm likely to decide not to print it
+            env.history.message("changing %s atomtype from %s to %s" % \
+                                (self, atype_now.name, best_atype.name))
+            # this will often happen twice, plus a third message from Build
+            # that it increased bond order, so i'm likely to decide not to
+            # print it
         if (not dont_revise_bondpoints) and best_atype.numbonds == len(self.bonds):
-            # right number of open bonds for new atype -- let's move them to better positions when we set it
+            # right number of open bonds for new atype -- 
+            # let's move them to better positions when we set it
             self.set_atomtype( best_atype)
         else:
             # wrong number of open bonds -- leave them alone (in number and position);
@@ -4160,41 +4437,53 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             self.set_atomtype_but_dont_revise_singlets( best_atype)
         return
 
-    def best_atomtype_for_numbonds(self, atype_now = None, elt = None): #bruce 050702; elt arg added 050707
-        # see also best_atype in bond_utils.py, which does something different but related [bruce 060523]
+    def best_atomtype_for_numbonds(self, atype_now = None, elt = None): 
         """
         [Public method]
 
         Compute and return the best choice of atomtype for this atom's element
-        (or for the passed element <elt>, if any)
-        and number of bonds (including open bonds),
-        breaking ties by favoring <atype_now> (if provided),
-        otherwise favoring atomtypes which come earlier
-        in the list of this element's (or elt's) possible atomtypes.
+        (or for the passed element <elt>, if any) and number of bonds
+        (including open bonds), breaking ties by favoring <atype_now> (if
+        provided), otherwise favoring atomtypes which come earlier in the list
+        of this element's (or elt's) possible atomtypes.
 
-        For comparing atomtypes which err in different directions (which I doubt can ever matter in
-        practice, since the range of numbonds of an element's atomtypes will be contiguous),
-        we'll say it's better for an atom to have too few bonds than too many.
-        In fact, we'll say any number of bonds too few (on the atom, compared to the atomtype)
-        is better than even one bond too many.
+        For comparing atomtypes which err in different directions (which I
+        doubt can ever matter in practice, since the range of numbonds of an
+        element's atomtypes will be contiguous), we'll say it's better for an
+        atom to have too few bonds than too many. In fact, we'll say any
+        number of bonds too few (on the atom, compared to the atomtype) is
+        better than even one bond too many.
 
-        This means: the "best" atomtype is the one with the right number of bonds, or the fewest extra bonds,
-        or (if all of them have fewer bonds than this atom) with the least-too-few bonds.
+        This means: the "best" atomtype is the one with the right number of
+        bonds, or the fewest extra bonds, or (if all of them have fewer bonds
+        than this atom) with the least-too-few bonds.
 
-        (This method is used in Build mode, and might later be used when reading mmp files or pdb files, or in other ways.
-        As of 050707 it's also used in Transmute.)
-        [###k Should we also take into account positions of bonds, or their estimated orders, or neighbor elements??]
+        (This method is used in Build mode, and might later be used when
+        reading mmp files or pdb files, or in other ways. As of 050707 it's
+        also used in Transmute.)
+        
+        [###k Should we also take into account positions of bonds, or their
+        estimated orders, or neighbor elements??]
         """
+        #bruce 050702; elt arg added 050707
+        # see also best_atype in bond_utils.py, which does something different
+        # but related [bruce 060523]
         if elt is None:
             elt = self.element
         atomtypes = elt.atomtypes
         if len(atomtypes) == 1:
             return atomtypes[0] # optimization
-        nbonds = len(self.bonds) # the best atomtype has numbonds == nbonds. Next best, nbonds+1, +2, etc. Next best, -1,-2, etc.
+        nbonds = len(self.bonds) 
+            # the best atomtype has numbonds == nbonds. Next best, nbonds+1,
+            # +2, etc. Next best, -1,-2, etc.
         items = [] 
         for i, atype in zip(range(len(atomtypes)), atomtypes):
-            if atype is atype_now: # (if atype_now is None or is not for elt, this is a legal comparison and is always False)
-                i = -1 # best to stay the same (as atype_now), or to be earlier in the list of atomtypes, other things being equal
+            if atype is atype_now: 
+                # (if atype_now is None or is not for elt, this is a legal
+                # comparison and is always False)
+                i = -1 
+                    # best to stay the same (as atype_now), or to be earlier
+                    # in the list of atomtypes, other things being equal
             numbonds = atype.numbonds
             if numbonds < nbonds:
                 order = (1, nbonds - numbonds, i) # higher is worse
@@ -4230,18 +4519,24 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
          OR, maybe it's really a public method and should be renamed with no _
          like the method on Jig.]
 
-        This must be called by all low-level methods which change this atom's or bondpoint's element, atomtype,
-        or set of bonds. It doesn't need to be called for changes to neighbor atoms, or for position changes,
-        or for changes to chunk membership of this atom, or when this atom is killed (but it will be called indirectly
-        when this atom is killed, when the bonds are broken, unless this atom has no bonds). Calling it when not needed
-        is ok, but might slow down later update functions by making them inspect this atom for important changes.
-        (For example, calling it on a PAM atom invalidates that atom's entire DnaLadder.)
+        This must be called by all low-level methods which change this atom's
+        or bondpoint's element, atomtype, or set of bonds. It doesn't need to
+        be called for changes to neighbor atoms, or for position changes, or
+        for changes to chunk membership of this atom, or when this atom is
+        killed (but it will be called indirectly when this atom is killed,
+        when the bonds are broken, unless this atom has no bonds). Calling it
+        when not needed is ok, but might slow down later update functions by
+        making them inspect this atom for important changes. (For example,
+        calling it on a PAM atom invalidates that atom's entire DnaLadder.)
 
-        All user events which can call this (indirectly) should also call env.do_post_event_updates() when they're done.
+        All user events which can call this (indirectly) should also call
+        env.do_post_event_updates() when they're done.
         """
-        ####@@@@ I suspect it is better to also call this for all killed atoms or bondpoints, but didn't do this yet. [bruce 050725]
+        ####@@@@ I suspect it is better to also call this for all 
+        # killed atoms or bondpoints, but didn't do this yet. [bruce 050725]
         ## before 051011 this used id(self) for key
-        #e could probably optim by importing this dict at toplevel, or perhaps even assigning a lambda in place of this method
+        #e could probably optim by importing this dict at toplevel, 
+        # or perhaps even assigning a lambda in place of this method
         global_model_changedicts.changed_structure_atoms[ self.key ] = self
         _changed_structure_Atoms[ self.key ] = self #bruce 060322
             # (see comment at _changed_structure_Atoms about how these two dicts are related)
@@ -4261,17 +4556,19 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     # debugging methods (not yet fully tested; use at your own risk)
     
-    def invalidate_everything(self): # for an atom, remove it and then readd it to its chunk
+    def invalidate_everything(self): # in class Atom
         """
-        debugging method
+        debugging method -- remove self from its chunk, then add it back
         """
         if len(self.molecule.atoms) <= 1:
-            print "warning: invalidate_everything on the lone atom %r in chunk %r does nothing" % (self, self.molecule)
+            print "warning: invalidate_everything on the lone " \
+                  "atom %r in chunk %r does nothing" % (self, self.molecule)
             print " since otherwise it might kill that chunk as a side effect!"
         else:
-            #bruce 080318 bugfix: don't do this if only one atom; revise print above to say so
-            # note: delatom invals self.bonds
-            self.molecule.delatom(self) # note: this kills the chunk if it becomes empty!
+            # note: delatom invals self.bonds,
+            # and kills the chunk if it becomes empty!
+            # (which won't happen here due to the condition above)
+            self.molecule.delatom(self)
             self.molecule.addatom(self)
         return
 
@@ -4354,8 +4651,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if atomtype is None:
             if self.element is elt and \
                len(self.bonds) == self.atomtype.numbonds:
-                ## this code might be used if we don't always return due to bond valence: ###@@@
-                ## atomtype = self.atomtype # use current atomtype if we're correct for it now, even if it's not default atomtype
+                # this code might be used if we don't always return due to bond valence: ###@@@
+                ## atomtype = self.atomtype 
+                ##     # use current atomtype if we're correct for it now,
+                ##     # even if it's not default atomtype
                 # return since elt and desired atomtype are same as now and
                 # we're correct
                 return 
@@ -4400,12 +4699,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         self.direct_Transmute( elt, atomtype)
         return
 
-    def Transmute_selection(self, elt): #bruce 070412; could use review for appropriate level, error handling, etc
+    def Transmute_selection(self, elt): 
         """
         [this may be a private method for use when making our cmenu;
         if not, it needs more options and a better docstring.]
         Transmute as many as possible of the selected atoms to elt.
         """
+        #bruce 070412; could use review for appropriate level, error handling, etc
         selatoms = self.molecule.assy.selatoms
         atoms = selatoms.values() # not itervalues, too dangerous
         for atom in atoms:
@@ -4437,20 +4737,26 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             elif b is bond:
                 nbonds += 1
         min_other_valence = len(bonds) # probably the only way this bonds list is used
-        permitted = {} # maps each permitted v6 to the list of atomtypes which permit it (in same order as self.element.atomtypes)
+        permitted = {} # maps each permitted v6 to the list of atomtypes which permit it
+            # (in same order as self.element.atomtypes)
         is_singlet = self.is_singlet() #k not sure if the cond that uses this is needed
         for atype in self.element.atomtypes:
             if nbonds > atype.numbonds:
                 continue # atype doesn't permit enough bonds
-            # if we changed self to that atomtype, how high could bond's valence be? (expressed as its permitted valences)
+            # if we changed self to that atomtype, how high could bond's valence be? 
+            # (expressed as its permitted valences)
             # Do we take into account min_other_valence, or not? Yes, I think.
             ##k review once this is tried. Maybe debug print whether this matters. #e
-            # There are two limits: atype.permitted_v6_list, and atype.valence minus min_other_valence.
-            # But the min_other_valence is the max of two things: other real bonds, or required numbonds (for this atype)
-            # minus 1 (really, that times the minimum bond order for this atomtype, if that's not 1, but minimum bond order
-            # not being 1 is nim in all current code).
-            # (BTW, re fixed bug 1944, I don't know why double is in N(sp2)g's permitted_v6_list, and that's wrong
-            # and remains unfixed, though our_min_other_valence makes it not matter in this code.)
+            
+            # There are two limits: atype.permitted_v6_list, and atype.valence
+            # minus min_other_valence. But the min_other_valence is the max of
+            # two things: other real bonds, or required numbonds (for this
+            # atype) minus 1 (really, that times the minimum bond order for
+            # this atomtype, if that's not 1, but minimum bond order not being
+            # 1 is nim in all current code). (BTW, re fixed bug 1944, I don't
+            # know why double is in N(sp2)g's permitted_v6_list, and that's
+            # wrong and remains unfixed, though our_min_other_valence makes it
+            # not matter in this code.)
             for v6 in atype.permitted_v6_list:
                 our_min_other_valence = max(min_other_valence, atype.numbonds - 1) #bruce 060524 fix bug 1944
                 if is_singlet or v6 <= (atype.valence - our_min_other_valence) * V_SINGLE:
@@ -4491,7 +4797,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #bruce 060629 for bondpoint problem
         try:
             import operations.reposition_baggage as reposition_baggage # don't make this a toplevel import
-            reload_once_per_event(reposition_baggage) # this can be removed when devel is done, but doesn't need to be
+            reload_once_per_event(reposition_baggage)
+                # this can be removed when devel is done, but doesn't need to be
             reposition_baggage.reposition_baggage_0(self, baggage, planned_atom_nupos)
         except:
             # this is always needed, since some of the code for special alignment cases
@@ -4519,7 +4826,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         for atom in bn:
             if not atom.is_singlet():
                 pass ###e record element and position
-                atom.mvElement(Singlet) ####k ??? #####@@@@@ kluge to kill it w/o replacing w/ singlet; better to just tell kill that
+                atom.mvElement(Singlet) ####k ??? #####@@@@@ kluge to kill it w/o 
+                    # replacing w/ singlet; better to just tell kill that
             atom.kill() # (since atom is a singlet, this kill doesn't replace it with a singlet)
         self.make_enough_bondpoints() ###e might pass old posns to ask this to imitate them if it can
         pass ###e now transmute the elts back to what they were, if you can, based on nearness
@@ -4535,7 +4843,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         good positions relative to existing bonds (if any) (which are not
         changed, whether they are real or open bonds).
         """
-        #bruce 050510 extending this to use atomtypes; all subrs still need to set singlet valence ####@@@@
+        #bruce 050510 extending this to use atomtypes; 
+        # all subrs still need to set singlet valence ####@@@@
         if len(self.bonds) >= self.atomtype.numbonds:
             return # don't want any more bonds
         # number of existing bonds tells how to position new open bonds
@@ -4607,30 +4916,47 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                         a2 = a1.bonds[0].other(a1)
                     a2pos = a2.posn()
                 else:
-                    #bruce 050728 new feature: for new pi bonds to sp atoms, use pi_info to decide where to pretend a2 lies.
-                    # If we give up, it's safe to just say a2pos = a1.posn() -- twistor() apparently tolerates that ambiguity.
+                    #bruce 050728 new feature: for new pi bonds to sp atoms, 
+                    # use pi_info to decide where to pretend a2 lies.
+                    # If we give up, it's safe to just say a2pos = a1.posn() -- 
+                    # twistor() apparently tolerates that ambiguity.
                     try:
-                        # catch exceptions in case for some reason it's too early to compute this...
-                        # note that, if we're running in Build mode (which just deposited self and bonded it to a1),
-                        # then that new bond and that change to a1 hasn't yet been seen by the bond updating code,
-                        # so an old pi_info object might be on the other bonds to a1, and none would be on the new bond a1-self.
-                        # But we don't know if this bond is new, so if it has a pi_bond_obj we don't know if that's ok or not.
-                        # So to fix a bug this exposed, I'm making bond.rebond warn the pi_bond_obj on its bond, immediately
-                        # (not waiting for bond updating code to do it).
-                        # [050729: this is no longer needed, now that we destroy old pi_bond_obj (see below), but is still done.]
-                        b = self.bonds[0] # if there was not just one bond on self, we'd say find_bond(self,a1)
-                        #bruce 050729: it turns out there can be incorrect (out of date) pi_info here,
-                        # from when some prior singlets on self were still there -- need to get rid of this and recompute it.
-                        # This fixes a bug I found, and am reporting, in my mail (not yet sent) saying bug 841 is Not A Bug.
+                        # catch exceptions in case for some reason it's too
+                        # early to compute this... note that, if we're running
+                        # in Build mode (which just deposited self and bonded
+                        # it to a1), then that new bond and that change to a1
+                        # hasn't yet been seen by the bond updating code, so
+                        # an old pi_info object might be on the other bonds to
+                        # a1, and none would be on the new bond a1-self. But
+                        # we don't know if this bond is new, so if it has a
+                        # pi_bond_obj we don't know if that's ok or not. So to
+                        # fix a bug this exposed, I'm making bond.rebond warn
+                        # the pi_bond_obj on its bond, immediately (not
+                        # waiting for bond updating code to do it).
+                        # [050729: this is no longer needed, now that we
+                        # destroy old pi_bond_obj (see below), but is still
+                        # done.]
+                        b = self.bonds[0] 
+                            # if there was not just one bond on self, we'd say find_bond(self,a1)
+                        #bruce 050729: it turns out there can be incorrect
+                        # (out of date) pi_info here, from when some prior
+                        # singlets on self were still there -- need to get rid
+                        # of this and recompute it. This fixes a bug I found,
+                        # and am reporting, in my mail (not yet sent) saying
+                        # bug 841 is Not A Bug.
                         if b.pi_bond_obj is not None:
                             b.pi_bond_obj.destroy()
-                        pi_info = b.get_pi_info(abs_coords = True) # without the option, vectors would be in bond's coordsys
+                        pi_info = b.get_pi_info(abs_coords = True) 
+                            # without the option, vectors would be in bond's coordsys
                         ((a1py, a1pz), (a2py, a2pz), ord_pi_y, ord_pi_z) = pi_info
                         del ord_pi_y, ord_pi_z
-                        # note that we don't know whether we're atom1 or atom2 in that info, but it shouldn't matter
-                        # since self is not affecting it so it should not be twisted along b.
-                        # So we'll pretend a1py, a1pz are about a1, though they might not be.
-                        # We'll use a1pz as the relative place to imagine a1's neighbor, if a1 had been sp2 rather than sp.
+                        # note that we don't know whether we're atom1 or atom2
+                        # in that info, but it shouldn't matter since self is
+                        # not affecting it so it should not be twisted along
+                        # b. So we'll pretend a1py, a1pz are about a1, though
+                        # they might not be. We'll use a1pz as the relative
+                        # place to imagine a1's neighbor, if a1 had been sp2
+                        # rather than sp.
                         a2pos = a1.posn() + a1pz
                     except:
                         print_compact_traceback("exception ignored: ")
@@ -4660,12 +4986,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if 1: # see comment below [bruce 050614]
                 spinsign = debug_pref("spinsign", Choice([1,-1]))
             for q in atype.quats:
-                # the following old code has the wrong sign on spin, thus causing bug 661: [fixed by bruce 050614]
+                # the following old code has the wrong sign on spin,
+                # thus causing bug 661: [fixed by bruce 050614]
                 ##  q = rq + q - rq - spin
                 # this would be the correct code:
                 ##  q = rq + q - rq + spin
-                # but as an example of how to use debug_pref, I'll put in code that can do it either way,
-                # with the default pref value giving the correct behavior (moved just above, outside of this loop).
+                # but as an example of how to use debug_pref, I'll put in
+                # code that can do it either way, with the default pref value 
+                # giving the correct behavior (moved just above, outside of this loop).
                 q = rq + q - rq + spin * spinsign
                 xpos = pos + q.rot(r)
                 x = Atom('X', xpos, chunk)
@@ -4732,11 +5060,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             except:
                 # [bruce 041215:]
                 # fix unreported unverified bug (self at center of its neighbors):
-                # [bruce 050716 comment: one time this can happen is when we change atomtype of some C in graphite to sp3]
+                # [bruce 050716 comment: one time this can happen is when we 
+                #  change atomtype of some C in graphite to sp3]
                 if debug_flags.atom_debug:
-                    print "atom_debug: fyi: self at center of its neighbors (more or less) while making singlet", self, self.bonds
+                    print "atom_debug: fyi: self at center of its neighbors " \
+                          "(more or less) while making singlet", self, self.bonds
                 dir = norm(cross(s1pos - pos, s2pos - pos))
-                    # that assumes s1 and s2 are not opposite each other; #e it would be safer to pick best of all 3 pairs
+                    # that assumes s1 and s2 are not opposite each other; 
+                    #e it would be safer to pick best of all 3 pairs
             opos = pos + atype.rcovalent * dir
             chunk = self.molecule
             x = Atom('X', opos, chunk)

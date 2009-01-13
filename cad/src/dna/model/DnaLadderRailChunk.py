@@ -80,7 +80,7 @@ class DnaLadderRailChunk(Chunk):
     def __init__(self, assy, name = None, chain = None, reuse_old_chunk_if_possible = False):
         """
         @note: init method signature is compatible with _superclass.__init__,
-               since it needs to work in _superclass.copy_empty_shell_in_mapping
+               since it needs to work in _superclass._copy_empty_shell_in_mapping
                passing just assy and name, expecting us to have no atoms.
         """
         # TODO: check if this arg signature is ok re undo, copy, etc;
