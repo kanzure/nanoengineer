@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 extrudeMode.py - Extrude mode, including its internal "rod" and "ring" modes.
 Unfinished [as of 050518], especially ring mode.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -89,9 +89,12 @@ from ne1_ui.toolbars.Ui_ExtrudeFlyout import ExtrudeFlyout
 
 # ==
 
-_MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
+_MAX_NCOPIES = 360 # max number of extrude-unit copies. 
+    # Motivation is to avoid "hangs from slowness".
+    # Should this be larger? 
 
-_KEEP_PICKED = False # whether to keep the units all picked, or all unpicked, during the mode
+_KEEP_PICKED = False # whether to keep the repeated-unit copies all picked
+    # (selected), or all unpicked, during the mode
 
 # ==
 
@@ -232,14 +235,16 @@ class extrudeMode(basicMode):
             try:
                 hset = self.nice_offsets_handleset
             except AttributeError:
-                print "must be too early to patch self.nice_offsets_handleset -- could be a problem, it will miss this event" ###@@@
+                print "must be too early to patch self.nice_offsets_handleset -- " \
+                      "could be a problem, it will miss this event" ###@@@
             else:
                 hset.radius_multiplier = self.bond_tolerance
 
             # number of resulting bonds not yet known, will be set later
             self.propMgr.set_bond_tolerance_and_number_display(self.bond_tolerance)
             self.recompute_bonds() # re-updates set_bond_tolerance_and_number_display when done
-            self.repaint_if_needed() ##e merge with self.update_offset_bonds_display, call that instead?? no need for now.
+            self.repaint_if_needed() 
+                ##e merge with self.update_offset_bonds_display, call that instead?? no need for now.
         return
 
     def toggle_value_changed(self, valjunk):
@@ -345,7 +350,8 @@ class extrudeMode(basicMode):
         #Bruce's old comment from before this was refactored 080922:
         # i think this [self.updateCommandToolbar and self.connect_or_disconnect_signals]
         # is safer *after* the first update_from_controls, not before it...
-        # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
+        # but i won't risk changing it right now (since tonight's bugfixes 
+        # might go into josh's demo). [041017 night]
         
         self.update_from_controls()
         return
@@ -378,7 +384,8 @@ class extrudeMode(basicMode):
         else:
             if self.commandSequencer.exit_is_cancel:
                 cancelling = True
-                self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
+                self.propMgr.extrudeSpinBox_n.setValue(1) 
+                    #e should probably do this in our subroutine instead of here
             else:
                 cancelling = False
             
@@ -389,18 +396,21 @@ class extrudeMode(basicMode):
 
             #Following code is copied from old method self._stateDoneOrCancel 
             #(that method existed before 2008-09-25)
-            ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
+            ## self.update_from_controls() #k 041017 night - will this help or hurt? 
+            # since hard to know, not adding it now.
             # restore normal appearance [bruce 070407 revised this in case each mol is not a Chunk]
             for mol in self.molcopies:
                 # mol might be Chunk, fake_merged_mol, or fake_copied_mol [bruce 070407]
                 for chunk in true_Chunks_in(mol):
                     try:
-                        del chunk._colorfunc # let class attr [added 050524] be visible again; exception if it already was
+                        del chunk._colorfunc 
+                            # let class attr [added 050524] be visible again; exception if it already was
                         #e also unpatch info from the atoms? not needed but might as well [nah]
                     except:
                         pass
                     else:
-                        #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
+                        #bruce 060308 revision: do this outside the try/except, 
+                        # in case bugs would be hidden otherwise
                         chunk.changeapp(0)
                 continue
             
@@ -427,7 +437,8 @@ class extrudeMode(basicMode):
         #it makes command_entered easier to read - Ninad 2008-09-25
         
         ###
-        # find out what's selected, which if ok will be the repeating unit we will extrude... explore its atoms, bonds, externs...
+        # find out what's selected, which if ok will be the repeating unit we will extrude...
+        # explore its atoms, bonds, externs...
         # what's selected should be its own molecule if it isn't already...
         # for now let's hope it is exactly one (was checked in command_ok_to_enter, but not anymore).
 
@@ -439,7 +450,8 @@ class extrudeMode(basicMode):
             return 1 # refused!
         assert isinstance(mol, fake_merged_mol) #bruce 070412
         self.basemol = mol
-        #bruce 070407 set self.separate_basemols; all uses of it must be read, to fully understand fake_merged_mol semantics
+        #bruce 070407 set self.separate_basemols; all uses of it must be read, 
+        # to fully understand fake_merged_mol semantics
         self.separate_basemols = true_Chunks_in(mol) # since mol might be a Chunk or a fake_merged_mol
 
         #bruce 080626 new feature: figure out where we want to add whatever new
@@ -576,7 +588,8 @@ class extrudeMode(basicMode):
             return
         if not self.isCurrentCommand():
             #e we should be even more sure to disconnect the connections causing this to be called
-            ##print "fyi: not isCurrentCommand" # this happens when you leave and reenter mode... need to break qt connections
+            ##print "fyi: not isCurrentCommand" 
+            ##    # this happens when you leave and reenter mode... need to break qt connections
             return
         self.propMgr.update_length_control_from_xyz()
 
@@ -648,9 +661,12 @@ class extrudeMode(basicMode):
             self.status_msg("bug: unimplemented product type %r" % ptype)
             return self.want_center_and_quat(ii, "straight rod")
         if ii == 0:
-            ###e we should warn if retvals are not same as basemol values; need a routine to "compare center and quat",
-            # like our near test for floats; Numeric can help for center, but we need it for quat too
-            if debug_flags.atom_debug: #bruce 050518 added this condition, at same time as bugfixing the checkers to not be noops
+            ###e we should warn if retvals are not same as basemol values; 
+            # need a routine to "compare center and quat",
+            # like our near test for floats; 
+            # Numeric can help for center, but we need it for quat too
+            if debug_flags.atom_debug: 
+                #bruce 050518 added this condition, at same time as bugfixing the checkers to not be noops
                 check_posns_near( centerii, basemol.center )
                 check_quats_near( quatii, basemol.quat )
             pass
@@ -687,7 +703,8 @@ class extrudeMode(basicMode):
         axis = norm(axis) # direction only
         # note: negating this direction makes the circle head up rather than down,
         # but doesn't change whether bonds are correct.
-        towards_center = cross(offset,axis) # these are perp, axis is unit, so only cn is needed to make this correct length
+        towards_center = cross(offset,axis) 
+            # these are perp, axis is unit, so only cn is needed to make this correct length
         neg_radius_vec = towards_center * cn / (2 * math.pi)
         c_center = basemol.center + neg_radius_vec # circle center
         self.circle_center = c_center # be able to draw the axis
@@ -1481,7 +1498,8 @@ class extrudeMode(basicMode):
         ## was: self.o.assy.movesel(move)
         self.repaint_if_needed()
 
-    def repaint_if_needed(self): # see also the end of update_offset_bonds_display -- we're inlined ######fix
+    def repaint_if_needed(self): 
+        # see also the end of update_offset_bonds_display -- we're inlined ######fix
         if self.needs_repaint:
             self.needs_repaint = 0
             self.o.gl_update()
@@ -1494,10 +1512,13 @@ class extrudeMode(basicMode):
         assert type(copy_id) == type(1) and copy_id >= 0
         if copy_id:
             # move repunit #copy_id by motion
-            # compute desired motion for the offset which would give this motion to the repunit
-            # bug note -- the code that supplies motion to us is wrong, for planes far from central plane -- fix later.
+            # compute desired motion for the offset which would give 
+            # this motion to the repunit
+            # bug note -- the code that supplies motion to us is wrong, 
+            # for planes far from central plane -- fix later.
             motion = motion * (1.0 / copy_id)
-            # store it, but not in self.offset, that's reserved for comparison with the last value from the controls
+            # store it, but not in self.offset, that's reserved for 
+            # comparison with the last value from the controls
             self.dragged_offset = self.dragged_offset + motion
             #obs comment?? i forget what it meant: #e recompute_for_new_offset
             self.force_offset_and_update( self.dragged_offset)
@@ -1513,9 +1534,11 @@ class extrudeMode(basicMode):
         self.propMgr.call_while_suppressing_valuechanged(
             lambda: self.propMgr.set_extrude_controls_xyz( (x, y, z) ) )
 
-        #e worry about too-low resolution of those spinbox numbers? at least not in self.dragged_offset...
+        #e worry about too-low resolution of those spinbox numbers? 
+        # at least not in self.dragged_offset...
         #e status bar msg? no, caller can do it if they want to.
-        self.update_from_controls() # this does a repaint at the end (at least if the offset in the controls changed)
+        self.update_from_controls() # this does a repaint at the end
+            # (at least if the offset in the controls changed)
 
     def click_nice_offset_handle(self, handle):
         (pos,radius,info) = handle
@@ -1595,8 +1618,10 @@ class extrudeMode(basicMode):
             print_compact_traceback("exception in draw_model, ignored: ")
         return
 
-    transparent = 1 #bruce 050222 - mark wants this "always on" for now... but I ought to clean up the code sometime soon ###@@@
-        #bruce 050218 experiment -- set to 1 for "transparent bond-offset spheres" (works but doesn't always look good)
+    transparent = 1 #bruce 050222 - mark wants this "always on" for now... 
+        # but I ought to clean up the code sometime soon ###@@@
+        #bruce 050218 experiment -- set to 1 for "transparent bond-offset 
+        # spheres" (works but doesn't always look good)
 
     def Draw(self):
         if debug_pref("Extrude: draw ring axis and spokes",
@@ -1620,36 +1645,47 @@ class extrudeMode(basicMode):
                         drawline(color, center, center + spoke_vec, width = 2)
                     pass
                 except:
-                    print_compact_traceback("exception using debug_pref(%r) ignored: " % "Extrude: draw ring axis")
+                    msg = "exception using debug_pref(%r) ignored" % \
+                        "Extrude: draw ring axis"
+                    print_compact_traceback(msg + ": ")
                     pass
                 pass
         ## self.draw_model() # -- see below
         if self.show_bond_offsets:
             hsets = self.show_bond_offsets_handlesets
             if self.transparent and len(hsets) == 2: #kluge, and messy experimental code [050218];
-                    # looks good w/ crystal, bad w/ dehydrogenated hoop moiety... probably better to compute colors, forget transparency.
-                    # or it might help just to sort them by depth... and/or let hits of several work (hit sees transparency); not sure
+                    # looks good w/ crystal, bad w/ dehydrogenated hoop moiety... 
+                    # probably better to compute colors, forget transparency.
+                    # or it might help just to sort them by depth... and/or 
+                    # let hits of several work (hit sees transparency); not sure
                 hset1 = self.nice_offsets_handle # opaque
                 hset2 = self.nice_offsets_handleset # transparent
                 assert hset1 in hsets
                 assert hset2 in hsets
 
-                # draw back faces of hset2 into depth buffer (so far this also draws a color - which one? or does it? yes, white.)
+                # draw back faces of hset2 into depth buffer
+                # (so far this also draws a color - which one? or does it? yes, white.)
                 ## glCullFace(GL_FRONT)
                 glFrontFace(GL_CW)
                 ## glDisable(GL_LIGHTING)
                 glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
                 try:
-                    hset2.draw(self.o, color = list(self.o.backgroundColor))##green) # alpha factor inside draw method will be 0.25 but won't matter
+                    hset2.draw(self.o, color = list(self.o.backgroundColor))##green) 
+                        # alpha factor inside draw method will be 0.25 but won't matter
                         ###e wrong when the special_color gets mixed in
-                    # bugs 1139pm: the back faces are not altering depth buffer, when invis, but are when color = green... why?
+                    # bugs 1139pm: the back faces are not altering depth buffer,
+                    # when invis, but are when color = green... why?
                     # is it list vs tuple? does tuple fail for a vector?
-                    # they are all turning white or blue in synch, which is wrong (and they are blue when *outside*, also wrong)
-                    # generally it's not working as expected... let alone looking nice
-                    # If i stop disabling lighting above, then it works better... confirms i'm now showing only insides of spheres
+                    # they are all turning white or blue in synch, which is 
+                    # wrong (and they are blue when *outside*, also wrong)
+                    # generally it's not working as expected... let alone 
+                    # looking nice
+                    # If i stop disabling lighting above, then it works 
+                    # better... confirms i'm now showing only insides of spheres
                     # (with color = A(green), ) does A matter btw? seems not to.
                     # ah, maybe the materialfv call in drawsphere assumes lighting...
-                    # [this never ended up being diagnosed, but it never came back after i stopped disabling lighting]
+                    # [this never ended up being diagnosed, but it never came back 
+                    #  after i stopped disabling lighting]
                 except:
                     print_compact_traceback("exc in hset2.draw() backs: ")
                 ## glCullFace(GL_BACK)
@@ -1685,7 +1721,8 @@ class extrudeMode(basicMode):
                     print_compact_traceback("exc in hset2.draw() fronts depth: ")
                 glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
 
-                # draw model (and hset1) here, so it's obscured by those invisible front and (less importantly) back faces
+                # draw model (and hset1) here, so it's obscured by those
+                # invisible front and (less importantly) back faces
                 self.draw_model()
                 try:
                     hset1.draw(self.o) # opaque
@@ -1754,7 +1791,6 @@ class extrudeMode(basicMode):
         global extrudeMode
         print "extrude_reload: here goes.... (not fully working as of 080805)"
 
-##        print "WARNING: extrude_reload has not yet been ported to revision of mode_classes, may be broken" #bruce 080209
         # status as of 080805: mostly works, but:
         # - warns about duplicate featurename;
         # - extrude refuses entry since nothing is selected (should select repunit to fix);
@@ -1829,12 +1865,14 @@ def assy_merge_mols(assy, mollist):
     ## for now, don't sort, use selection order instead.
     res = mollist[0]
     if 1: ## debug_pref("Extrude: leave base-chunks separate", Choice_boolean_False, non_debug = True, prefs_key = True):
-        #bruce 070410 making this always happen now (but Enter should call get_whendone_merge_each_unit to exercise debug pref);
+        #bruce 070410 making this always happen now (but Enter should call 
+        # get_whendone_merge_each_unit to exercise debug pref);
         # when we're done we will do the merge differently
         # according to "merge selection" checkbox or debug_pref, in finalize_product,
         # not here when we enter the mode!
         #
-        # could optim by not doing this when only one member, but that might hide bugs and doesn't matter otherwise, so nevermind.
+        # could optim by not doing this when only one member, 
+        # but that might hide bugs and doesn't matter otherwise, so nevermind.
         res = fake_merged_mol(res)
     for mol in mollist[1:]: # ok if no mols in this loop
         res.merge(mol) #041116 new feature
@@ -1899,7 +1937,8 @@ def assy_extrude_unit(assy, really_make_mol = 1):
             def new_old(new, old):
                 # new = fragment of selected atoms, old = rest of their mol
                 assert new.atoms
-                res.append(new) #e someday we might use old too, eg for undo or for heuristics to help deal with neighbor-atoms...
+                res.append(new) #e someday we might use old too, eg for undo or
+                    # for heuristics to help deal with neighbor-atoms...
             assy.modifySeparate(new_old_callback = new_old) # make the selected atoms into their own mols
                 # note: that generates a status msg (as of 041222).
             assert res, "what happened to all those selected atoms???"
@@ -1910,7 +1949,8 @@ def assy_extrude_unit(assy, really_make_mol = 1):
         # nothing selected, but exactly one molecule in all -- just use it
         if really_make_mol:
             resmol = assy.molecules[0]
-            resmol = fake_merged_mol(resmol)#bruce 070412 bugfix, might be redundant with another one or might fix other uncaught bugs
+            resmol = fake_merged_mol(resmol) #bruce 070412 bugfix, might be redundant
+                # with another one or might fix other uncaught bugs
         return True, resmol
     else:
         ## print 'assy.molecules is',`assy.molecules` #debug
@@ -1919,10 +1959,13 @@ def assy_extrude_unit(assy, really_make_mol = 1):
 
 # ==
 
-#e between two molecules, find overlapping atoms/bonds ("bad") or singlets ("good") -- as a function of all possible offsets
-# (in future, some cases of overlapping atoms might be ok, since those atoms could be merged into one)
+#e between two molecules, find overlapping atoms/bonds ("bad") or singlets ("good") -- 
+# as a function of all possible offsets
+# (in future, some cases of overlapping atoms might be ok, 
+#  since those atoms could be merged into one)
 
-# (for now, we notice only bondable singlets, nothing about overlapping atoms or bonds)
+# (for now, we notice only bondable singlets, nothing about 
+#  overlapping atoms or bonds)
 
 cosine_of_permitted_noncollinearity = 0.5 #e we might want to adjust this parameter
 
@@ -1967,7 +2010,8 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
     closeness = - dot(dir1, dir2) # ideal is 1.0, terrible is -1.0
     if closeness < cosine_of_permitted_noncollinearity:
         if _EXTRUDE_LOOP_DEBUG and closeness >= 0.0:
-            print "rejected nonneg closeness of %r since less than %r" % (closeness, cosine_of_permitted_noncollinearity)
+            print "rejected nonneg closeness of %r since less than %r" % \
+                  (closeness, cosine_of_permitted_noncollinearity)
         return res_bad
     # ok, we'll merge. Just figure out the offset. At the end, compare to offset2.
     # For now, we'll just bend the half-bonds by the same angle to make them
@@ -2114,12 +2158,13 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         if attr.startswith('__'):
             raise AttributeError, attr
         if attr == 'externs':
-            return self._get_externs() # don't cache, since return value is not constant -- will this be too slow?? ###e
+            return self._get_externs() # don't cache, since not constant (too slow?? ###)
         if attr == 'singlets':
-            return self._get_singlets() # don't cache, since return value is not constant
+            return self._get_singlets() # don't cache, since not constant
         if attr == 'quat':
             return getattr(self._mols[0], attr)
-        # update 070411: self.center is computed and cached in full_inval_and_update; before that it's illegal to ask for
+        # update 070411: self.center is computed and cached in full_inval_and_update;
+        # before that, it's illegal to ask for it
         raise AttributeError, "%r has no %r" % (self, attr)
     def copy(self, dad):
         self.copy_single_chunk(dad)
@@ -2165,7 +2210,8 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
                     # The method we override on class Chunk probably doesn't.
                     # [bruce 080626]
             else:
-                print "warning: extrude ignoring failed copy" # can this ever happen? if so, we'll print way too much here...
+                # can this ever happen? if so, we'll print way too much here...
+                print "warning: extrude ignoring failed copy" 
         ###k will we also need assy.update_parts()??
         copies = newnodes
         return fake_copied_mol(copies, self)
@@ -2174,7 +2220,8 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         for mol in self._mols:
             mol.full_inval_and_update()
             assert mol.quat == Q(1,0,0,0) # KLUGE, but much here depends on this [bruce 070411]
-            assert not (mol.center != mol.basecenter) # ditto (this "not !=" is how you have to compare Numeric arrays) [bruce 070411]
+            assert not (mol.center != mol.basecenter) # ditto [bruce 070411]
+                # note: this "not !=" is how you have to compare Numeric arrays [bruce 070411]
                 # note: this will fail if Chunk has user_specified_center (nim at the moment),
                 # and Chunk.set_basecenter_and_quat may not be correct then anyway (not sure).
         # compute self.center as weighted average of component centers

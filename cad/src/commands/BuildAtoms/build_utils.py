@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 build_utils.py -- some utilities for Build mode.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -41,7 +41,7 @@ class AtomTypeDepositionTool(DepositionTool):
     def __init__(self, atomtype):
         self.atomtype = atomtype
         return
-    
+
     ###################################################################
     #  Oh, ye acolytes of klugedom, feast your eyes on the following  #
     ###################################################################
@@ -57,7 +57,7 @@ class AtomTypeDepositionTool(DepositionTool):
     #   To help fix bug 131 I'm [bruce circa 041215] splitting each of the old code's methods
     # bond1 - bond4 into a new method to position and make the new atom (for any number of bonds)
     # and methods moved to class atom to add more singlets as needed.
-    
+
     # bruce 041123 new features:
     # return the new atom and a description of it, or None and the reason we made nothing.
 
@@ -71,7 +71,7 @@ class AtomTypeDepositionTool(DepositionTool):
 
         @return: a 2-tuple consisting of either the new atom and a description
                  of it, or None and the reason we made nothing.
-        
+
         ###@@@ should worry about bond direction! at least as a filter!
            If autobond_msg is true, mention the autobonding done or not done (depending on autobond option),
         in the returned message, if any atoms were near enough for autobonding to be done.
@@ -109,47 +109,48 @@ class AtomTypeDepositionTool(DepositionTool):
             searchmols.insert(0, singlet.molecule)
             # max number of real bonds we can make (now this can be more than 4)
             maxpl = atype.numbonds
-            
+
             for mol in searchmols:
-              for s in mol.nearSinglets(spot, cr * 1.9):
-                  #bruce 041216 changed 1.5 to 1.9 above (it's a heuristic);
-                  # see email discussion (ninad, bruce, josh)
-                #bruce 041203 quick fix for bug 232:
-                # don't include two singlets on the same real atom!
-                # (It doesn't matter which one we pick, in terms of which atom we'll
-                #  bond to, but it might affect the computation in the bonding
-                #  method of where to put the new atom, so ideally we'd do something
-                #  more principled than just using the findSpot output from the first
-                #  singlet in the list for a given real atom -- e.g. maybe we should
-                #  average the spots computed for all singlets of the same real atom.
-                #  But this is good enough for now.)
-                #bruce 050510 adds: worse, the singlets are in an arb position... really we should just ask if
-                # it makes sense to bond to each nearby *atom*, for the ones too near to comfortably *not* be bonded to. ###@@@
-                ###@@@ bruce 050221: bug 372: sometimes s is not a singlet. how can this be??
-                # guess: mol.singlets is not always invalidated when it should be. But even that theory
-                # doesn't seem to fully explain the bug report... so let's find out a bit more, at least:
-                try:
-                    real = s.singlet_neighbor() 
-                except:
-                    print_compact_traceback("bug 372 caught red-handed: ")
-                    print "bug 372-related data: mol = %r, mol.singlets = %r" % (mol, mol.singlets)
-                    continue
-                if real not in rl and atype.can_bond_to(real, s, auto = True):
-                    # checking can_bond_to is bruce 080502 new feature
-                    pl += [(s, self.findSpot(s))]
-                    rl += [real]
-              # after we're done with each mol (but not in the middle of any mol),
-              # stop if we have as many open bonds as we can use
-              if len(pl) >= maxpl:
-                break
+                for s in mol.nearSinglets(spot, cr * 1.9):
+                        #bruce 041216 changed 1.5 to 1.9 above (it's a heuristic);
+                        # see email discussion (ninad, bruce, josh)
+                    #bruce 041203 quick fix for bug 232:
+                    # don't include two singlets on the same real atom!
+                    # (It doesn't matter which one we pick, in terms of which atom we'll
+                    #  bond to, but it might affect the computation in the bonding
+                    #  method of where to put the new atom, so ideally we'd do something
+                    #  more principled than just using the findSpot output from the first
+                    #  singlet in the list for a given real atom -- e.g. maybe we should
+                    #  average the spots computed for all singlets of the same real atom.
+                    #  But this is good enough for now.)
+                    #bruce 050510 adds: worse, the singlets are in an arb position... 
+                    # really we should just ask if it makes sense to bond to each nearby *atom*, 
+                    # for the ones too near to comfortably *not* be bonded to. ###@@@
+                    ###@@@ bruce 050221: bug 372: sometimes s is not a singlet. how can this be??
+                    # guess: mol.singlets is not always invalidated when it should be. But even that theory
+                    # doesn't seem to fully explain the bug report... so let's find out a bit more, at least:
+                    try:
+                        real = s.singlet_neighbor() 
+                    except:
+                        print_compact_traceback("bug 372 caught red-handed: ")
+                        print "bug 372-related data: mol = %r, mol.singlets = %r" % (mol, mol.singlets)
+                        continue
+                    if real not in rl and atype.can_bond_to(real, s, auto = True):
+                        # checking can_bond_to is bruce 080502 new feature
+                        pl += [(s, self.findSpot(s))]
+                        rl += [real]
+                # after we're done with each mol (but not in the middle of any mol),
+                # stop if we have as many open bonds as we can use
+                if len(pl) >= maxpl:
+                    break
             del mol, s, real
-        
+
         n = min(atype.numbonds, len(pl)) # number of real bonds to make (if this was computed above); always >= 1
         pl = pl[0:n] # discard the extra pairs (old code did this too, implicitly)
         if autobond_msg and not autobond:
             pl = pl[0:1] # don't actually make the bonds we only wanted to tell the user we *might* have made
         # now pl tells which bonds to actually make, and (if autobond_msg) n tells how many we might have made.
-        
+
         # bruce 041215 change: for n > 4, old code gave up now;
         # new code makes all n bonds for any n, tho it won't add singlets
         # for n > 4. (Both old and new code don't know how to add enough
@@ -179,7 +180,7 @@ class AtomTypeDepositionTool(DepositionTool):
         cr = self.atomtype.rcovalent
         pos = singlet.posn() + cr*norm(singlet.posn()-a1.posn())
         return pos
-        
+
     def _new_bonded_n( self, lis):
         """
         [private method]
@@ -218,8 +219,4 @@ class AtomTypeDepositionTool(DepositionTool):
 
     pass # end of class AtomTypeDepositionTool
 
-## see also:
-##    # return the singlets in the given sphere (point, radius),
-##    # sorted by increasing distance from point
-##    # bruce 041207 comment: this is only used in depositMode.attach.
-##    def nearSinglets(self, point, radius):
+# end

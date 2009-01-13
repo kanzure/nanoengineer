@@ -184,6 +184,7 @@ class Motor(Jig):
         return self.center
 
     def getaxis(self):
+        # todo: merge somehow with getaxis methods on other Nodes
         return self.axis
 
     def axen(self):

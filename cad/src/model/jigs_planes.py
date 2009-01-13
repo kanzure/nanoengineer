@@ -70,7 +70,8 @@ class RectGadget(Jig):
             self.__init_quat_center(list)        
 
     def _um_initargs(self):
-        #bruce 051013 [as of 060209 this is probably well-defined and correct (for most Jig subclasses), but not presently used]
+        #bruce 051013 [as of 060209 this is probably well-defined and correct 
+        # (for most Jig subclasses), but not presently used]
         """
         Return args and kws suitable for __init__.
         [Overrides Jig._um_initargs; see its docstring.]
@@ -84,7 +85,6 @@ class RectGadget(Jig):
         if self.atoms:
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
         self.atoms = list(atomlist)
-        
         
     def __init_quat_center(self, list):
         
@@ -121,6 +121,7 @@ class RectGadget(Jig):
                 #bruce 060209 revised text
         
     def getaxis(self):
+        # todo: merge somehow with getaxis methods on other Nodes
         return self.planeNorm # axis is normal to plane of RectGadget.  Mark 060120
         
     def move(self, offset):
@@ -131,7 +132,6 @@ class RectGadget(Jig):
         # or should it do more invalidations / change notifications / updates?
         # [bruce 070501 question]
         self.center += offset
-
     
     def rot(self, q):
         self.quat += q

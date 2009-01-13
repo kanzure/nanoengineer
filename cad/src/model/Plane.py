@@ -538,6 +538,7 @@ class Plane(ReferenceGeometry):
         """
         Get the plane axis, which is its normal.
         """
+        # todo: merge somehow with getaxis methods on other Nodes
         return self.planeNorm
 
     def move(self, offset):

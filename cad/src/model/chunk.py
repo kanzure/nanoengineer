@@ -63,8 +63,6 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glCallList
-from OpenGL.GL import glDisable
-from OpenGL.GL import glEnable
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
 
@@ -112,7 +110,6 @@ from model.elements import Singlet
 from geometry.BoundingBox import BBox
 from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.ColorSorter import ColorSortedDisplayList
-from graphics.drawing.TransformControl import TransformControl
 
 ##from drawer import drawlinelist
 
@@ -135,8 +132,6 @@ from utilities.constants import diPROTEIN
 
 from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
 from utilities.constants import BBOX_MIN_RADIUS
-
-from utilities.constants import white
 
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from utilities.constants import noop
@@ -234,13 +229,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # this overrides atom colors if set
     color = None
 
-    # user_specified_center -- as of 050526 it's sometimes used, but it's always None.
+    # user_specified_center -- as of 050526 it's sometimes used
+    # [but only in commented-out code as of 090113], but it's always None.
     #
     # note: if we implement self.user_specified_center as user-settable,
     # it also needs to be moved/rotated with the mol, like a datum point
     # rigidly attached to the mol (or like an atom)
 
-    user_specified_center = None # never changed for now, so not in copyable_attrs
+    ## user_specified_center = None # never changed for now, so not in copyable_attrs
 
     # PAM3+5 attributes (these only affect PAM atoms in self, if any):
     #
@@ -317,13 +313,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # except when no atoms happen to have overlayText when self is rendered --
     # in other words, it's only a hint -- false positives are permitted.
     chunkHasOverlayText = False
-
-    # Set to True if the user wishes to see the overlay text on this
-    # chunk.
-    showOverlayText = False
-
-    protein = None
     
+    showOverlayText = False 
+        # whether the user wishes to see the overlay text on this chunk
+
+    protein = None # this is set to an object of class Protein in some chunks
+    
+    glpane = None #bruce 050804 ### TODO: RENAME (last glpane we displayed on??)
+
     # ==
 
     # note: def __init__ occurs below a few undo-related methods. TODO: move them below it.
@@ -1631,7 +1628,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def changed_atom_posn(self): #bruce 060308
         """
-        Some atom we own changed position; invalidate whatever we might own that depends on that.
+        One of self's atoms changed position; 
+        invalidate whatever we might own that depends on that.
         """
         # initial implem might be too conservative; should optimize, perhaps recode in a new Pyrex ChunkBase.
         # Some code is copied from now-obsolete setatomposn; some of its comments might apply here as well.
@@ -1671,6 +1669,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     #  order, which for all we know might be different each time it's constructed.]
     _inputs_for_singlets = ['atlist']
     def _recompute_singlets(self):
+        """
+        Recompute self.singlets, a list of self's bondpoints.
+        """
         # (Filter always returns a python list, even if atlist is a Numeric.array
         # [bruce 041207, by separate experiment]. Some callers test the boolean
         # value we compute for self.singlets. Since the elements are pyobjs,
@@ -1679,12 +1680,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     _inputs_for_singlpos = ['singlets', 'atpos']
     def _recompute_singlpos(self):
+        """
+        Recompute self.singlpos, a Numeric array of self's bondpoint positions
+        (in absolute coordinates).
+        """
         self.atpos
         # we must access self.atpos, since we depend on it in our inval rules
         # (if that's too slow, then anyone invalling atpos must inval this too #e)
         if len(self.singlets):
-            # (This was apparently None for no singlets -- always a bug,
-            #  and caused bug 237 in Extrude entry. [bruce 041206])
             return A( map( lambda atom: atom.posn(), self.singlets ) )
         else:
             return []
@@ -1693,15 +1696,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # These 4 attrs are stored in one tuple, so they can be invalidated
     # quickly as a group.
 
-    def _get_polyhedron(self):
+    def _get_polyhedron(self): # self.polyhedron
         return self.poly_evals_evecs_axis[0]
 #bruce 060119 commenting these out since they are not used, though if we want them it's fine to add them back.
 #bruce 060608 renamed them with plural 's'.
-##    def _get_evals(self):
+##    def _get_evals(self): # self.evals
 ##        return self.poly_evals_evecs_axis[1]
-##    def _get_evecs(self):
+##    def _get_evecs(self): # self.evecs
 ##        return self.poly_evals_evecs_axis[2]
-    def _get_axis(self):
+    def _get_axis(self): # self.axis
         return self.poly_evals_evecs_axis[3]
 
     _inputs_for_poly_evals_evecs_axis = ['basepos']
@@ -1748,15 +1751,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     _inputs_for_atlist = [] # only invalidated directly, by addatom/delatom
 
-    def _recompute_atlist(self): #bruce 060313 splitting _recompute_atlist out of _recompute_atpos
+    def _recompute_atlist(self): #bruce 060313 split out of _recompute_atpos
         """
-        [recompute the list of this chunk's atoms, in order of atom.key
-        (and store atom.index to match, if it still exists)]
+        Recompute self.atlist, a list or Numeric array of this chunk's atoms
+        (including bondpoints), ordered by atom.key.
+        Also set atom.index on each atom in the list, to its index in the list.
         """
         atomitems = self.atoms.items()
-        atomitems.sort() # make them be in order of atom keys; probably doesn't yet matter but makes order deterministic
-        atlist = [atom for (key, atom) in atomitems] #k syntax
-        self.atlist = array(atlist, PyObject) #k it's untested whether making it an array is good or bad
+        atomitems.sort() # in order of atom keys; probably doesn't yet matter but makes order deterministic
+        atlist = [atom for (key, atom) in atomitems]
+        self.atlist = array(atlist, PyObject) #review: untested whether making it an array is good or bad
         for atom, i in zip(atlist, range(len(atlist))):
             atom.index = i 
         return        
@@ -1822,7 +1826,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # note: basepos must be a separate (unshared) array object
         # (except when mol is frozen [which is no longer supported as of 060308]);
         # as of 060308 atpos (when defined) is a separate array object, since curpos no longer exists.
-        self.changed_basecenter_or_quat_while_atoms_fixed()
+        self._changed_basecenter_or_quat_while_atoms_fixed()
             # (that includes self.changed_attr('basepos'), though an assert above
             # says that that would not be needed in this case.)
 
@@ -1835,10 +1839,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # (but not average_position, that has its own recompute method):
     _recompute_basepos   = _recompute_atpos
 
-    def changed_basecenter_or_quat_while_atoms_fixed(self):
+    def _changed_basecenter_or_quat_while_atoms_fixed(self):
         """
-        Private method:
-        Call this if you changed_basecenter_or_quat_while_atoms_fixed, after
+        [private method]
+        Call this if you _changed_basecenter_or_quat_while_atoms_fixed, after
         recomputing basepos to be correct in the new coords (or perhaps after
         invalidating basepos -- that use is unanalyzed and untried). This method
         invals other things which depend on the local coordinate system -- the
@@ -1888,7 +1892,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     _inputs_for_bbox = ['atpos']
     def _recompute_bbox(self):
         """
-        Make a new bounding box from the atom positions (including singlets).
+        Recompute self.bbox, an axis-aligned bounding box (in absolute 
+        coordinates) made from all of self's atom positions (including
+        bondpoints), plus a fudge factor to account for atom radii.
         """
         self.bbox = BBox(self.atpos)
 
@@ -1898,11 +1904,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # _get_center seems better than _recompute_center since this attr
         # is only needed by the UI and this method is fast
         """
-        Return the center to use for rotations and stretches and perhaps some
-        other purposes (user-settable, or the average atom position by default)
+        Compute self.center on demand, which is the center to use for rotations
+        and stretches and perhaps some other purposes. Presently, this is
+        always the average position of all atoms in self (including bondpoints).
         """
-        if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
-            return self.user_specified_center
+        ## if self.user_specified_center is not None:
+        ##     return self.user_specified_center
         return self.average_position
 
     # What used to be called self.center, used mainly to relate basepos and curpos,
@@ -1916,73 +1923,68 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # To invalidate it, we just do this directly as a special case, self.havelist = 0,
     # in the low-level modifiers that need to.
 
-    # Externs.
+    # Externs
     _inputs_for_externs = [] # only invalidated by hand
-    def _recompute_externs(self): #bruce 050513 optimized this
-        # following code simplified from self.draw()
+    def _recompute_externs(self):
+        """
+        Recompute self.externs, the list of external bonds of self.
+        """
         externs = []
         for atom in self.atoms.itervalues():
             for bond in atom.bonds:
-                ## if bond.other(atom).molecule != self # slower than needed:
-                if bond.atom1.molecule is not self or bond.atom2.molecule is not self:
-                    # external bond
+                if bond.atom1.molecule is not self or \
+                   bond.atom2.molecule is not self:
                     externs.append(bond)
         return externs
 
     def get_dispdef(self, glpane = None):
         """
-        reveal what dispdef we will use to draw this Chunk
+        @return: the display style we will use to draw self
         """
-        # copied out of Chunk.draw by bruce 041109 for use in extrudeMode.py
         if self.display != diDEFAULT:
             disp = self.display
         else:
             if glpane is None:
-                # this possibility added by bruce 041207
                 glpane = self.assy.o
             disp = glpane.displayMode
 
-        # piotr 080409: fixed bug 2785
-        # If the chunk is not DNA and global display mode == diDNACYLINDER
-        # use default_display_mode instead.
-        # (Warning: default_display_mode is no longer the same as the default
-        #  global display style. Is it still correct here? Needs analysis
-        #  and cleanup. [bruce 080606 comment])
-        if disp == diDNACYLINDER:
-            if not self.isDnaChunk(): # non-DNA chunk
-                if self.isProteinChunk(): 
-                    # piotr 080709 -- If the chunk is a protein, use 
-                    # diPROTEIN style.
-                    disp = diPROTEIN
-                else:
-                    # Otherwise, use last non-reduced global display mode.
-                    disp = glpane.lastNonReducedDisplayMode
+        if disp == diDNACYLINDER and not self.isDnaChunk():
+            # piotr 080409 fix bug 2785, revised by piotr 080709
+            if self.isProteinChunk(): 
+                disp = diPROTEIN
+            else:
+                disp = glpane.lastNonReducedDisplayMode
 
-        # piotr 080709: If the chunk is not a protein chunk and global
-        # display mode == diPROTEIN, use default_display_mode instead.
-        if disp == diPROTEIN:
-            if not self.isProteinChunk():
-                # If this is a DNA chunk, use diDNACYLINDER display mode.
-                if self.isDnaChunk():
-                    disp = diDNACYLINDER
-                else:
-                    # Otherwise, use last non-reduced global display mode.
-                    disp = glpane.lastNonReducedDisplayMode
+        if disp == diPROTEIN and not self.isProteinChunk():
+            # piotr 080709
+            if self.isDnaChunk():
+                disp = diDNACYLINDER
+            else:
+                disp = glpane.lastNonReducedDisplayMode
                     
         return disp
 
-    def pushMatrix(self): #bruce 050609 duplicated this from some of self.draw()
+    def pushMatrix(self):
         """
-        Do glPushMatrix(), and then transform from world coords to this chunk's private coords.
-        See also self.popMatrix().
+        Do glPushMatrix(), 
+        then transform from (presumed) world coordinates
+        to self's private coordinates.
+        @see: self.applyMatrix()
+        @see: self.popMatrix()
         """
         glPushMatrix()
         self.applyMatrix()
         return
 
-    # Russ 080922: Pulled out of self.pushMatrix to fit with exception logic in self.draw().
     def applyMatrix(self):
-        # Russ 080922: If there is a transform in the CSDL, use it.
+        """
+        Without doing glPushMatrix(), 
+        transform from (presumed) world coordinates 
+        to self's private coordinates.
+        @see: self.pushMatrix()
+        """
+        # Russ 080922: If there is a transform in our main CSDL, use it instead.
+        ### REVIEW [bruce 090113]: that is probably not correct in general.
         tc = self.displist.transformControl
         if tc is not None:
             tc.applyTransform()
@@ -2006,7 +2008,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         (while making our display list) next changes.
         """
         self.changeapp(0) # that now tells self.glpane to update, if necessary
-        ###@@@ glpane needs to track changes anyway due to external bonds.... [not sure of status of this comment; as of bruce 060404]
+        ###@@@ glpane needs to track changes anyway due to external bonds....
+        # [not sure of status of this comment; as of bruce 060404]
 
     _havelist_inval_counter = 0
 
@@ -3220,7 +3223,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # The method is public but its implem is pretty private!
 
         # First make sure self.basepos is up to date! Otherwise
-        # self.changed_basecenter_or_quat_to_move_atoms() might not be able to reconstruct it.
+        # self._changed_basecenter_or_quat_to_move_atoms() might not be able to reconstruct it.
         # I don't think this should affect self.bbox, but in case I'm wrong,
         # do this before looking at bbox.
         self.basepos
@@ -3245,7 +3248,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         # Do all necessary invalidations and/or recomputations (except for bbox),
         # treating basepos as definitive and recomputing curpos from it.
-        self.changed_basecenter_or_quat_to_move_atoms()
+        self._changed_basecenter_or_quat_to_move_atoms()
 
     def pivot(self, point, q):
         """
@@ -3254,7 +3257,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self's relative structure not having changed. See also self.rot().
         """
         # First make sure self.basepos is up to date! Otherwise
-        # self.changed_basecenter_or_quat_to_move_atoms() might not be able to reconstruct it.
+        # self._changed_basecenter_or_quat_to_move_atoms() might not be able to reconstruct it.
         self.basepos
 
         # Do the motion (might destructively modify basecenter and quat objects)
@@ -3267,7 +3270,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         # Do all necessary invalidations and/or recomputations (except bbox),
         # treating basepos as definitive and recomputing curpos from it.
-        self.changed_basecenter_or_quat_to_move_atoms()
+        self._changed_basecenter_or_quat_to_move_atoms()
 
     def rot(self, q):
         """
@@ -3317,25 +3320,25 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         # do the necessary recomputes from new definitive basepos,
         # and invals (incl. bbox, internal bonds)
-        self.changed_basepos_basecenter_or_quat_to_move_atoms()
+        self._changed_basepos_basecenter_or_quat_to_move_atoms()
 
-    def changed_basepos_basecenter_or_quat_to_move_atoms(self):
+    def _changed_basepos_basecenter_or_quat_to_move_atoms(self):
         """
-        (private method) like changed_basecenter_or_quat_to_move_atoms but we also might have changed basepos
+        like _changed_basecenter_or_quat_to_move_atoms,
+        but we also might have changed basepos
         """
         # Do the needed invals, and recomputation of curpos from basepos
         # (I'm not sure if the order would need review if we revise inval rules):
         self.havelist = 0
-            # (not needed for mov or rot, so not done by changed_basecenter_or_quat_to_move_atoms)
+            # (not needed for mov or rot, so not done by _changed_basecenter_or_quat_to_move_atoms)
         self.changed_attr('basepos') # invalidate whatever depends on basepos ...
         self.invalidate_internal_bonds() # ... including the internal bonds, handled separately
         self.invalidate_attr('bbox') # since not handled by following routine
-        self.changed_basecenter_or_quat_to_move_atoms()
+        self._changed_basecenter_or_quat_to_move_atoms()
             # (misnamed -- in this case we changed basepos too)
 
-    def changed_basecenter_or_quat_to_move_atoms(self): #bruce 041104-041112
+    def _changed_basecenter_or_quat_to_move_atoms(self): #bruce 041104-041112
         """
-        Private method:
         Call this whenever you have just changed self.basecenter and/or self.quat
         (and/or self.basepos if you call changed_attr on it yourself), and
         you want to move the Chunk self (in 3d model space)
@@ -3349,10 +3352,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         before or after calling us). Our invalidations assume that only basecenter
         and/or quat were changed; some callers (which modify basepos) must do
         additional invalidations.
-           See also changed_basecenter_or_quat_while_atoms_fixed, quite different.
+        @see: _changed_basecenter_or_quat_while_atoms_fixed (quite different)
         """
         assert self.__dict__.has_key('basepos'), \
-               "internal error in changed_basecenter_or_quat_to_move_atoms for %r" % (self,)
+               "internal error in _changed_basecenter_or_quat_to_move_atoms for %r" % (self,)
 
         if not len(self.basepos): #bruce 041119 bugfix -- use len()
             # we need this 0 atoms case (though it probably never occurs)
@@ -3370,7 +3373,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         # imitate the recomputes done by _recompute_atpos
         self.atpos = self.basecenter + self.quat.rot(self.basepos) # inlines base_to_abs
-        self.set_atom_posns_from_atpos( self.atpos) #bruce 060308
+        self._set_atom_posns_from_atpos( self.atpos) #bruce 060308
         # no change in atlist; no change needed in our atoms' .index attributes
         # no change here in basepos or bbox (if caller changed them, it should
         # call changed_attr itself, or it should invalidate bbox itself);
@@ -3383,7 +3386,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             bond.setup_invalidate()
         return
 
-    def set_atom_posns_from_atpos(self, atpos): #bruce 060308; revised 060313
+    def _set_atom_posns_from_atpos(self, atpos): #bruce 060308; revised 060313
         """
         Set our atom's positions en masse from the given array, doing no chunk or bond invals
         (caller must do whichever invals are needed, which depends on how the positions changed).
@@ -3441,15 +3444,22 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.quat = Q(1,0,0,0) + quat #e +quat might be correct and faster... don't know; doesn't matter much
         self.bbox = None
         del self.bbox #e could optimize if quat is not changing
-        self.changed_basecenter_or_quat_to_move_atoms()
+        self._changed_basecenter_or_quat_to_move_atoms()
 
     def getaxis(self):
+        """
+        Return self's axis, in absolute coordinates.
+        
+        @note: several Nodes have this method, but it's not (yet) formally
+               a Node API method.
+        @see: self.axis (in self-relative coordinates)
+        """
         return self.quat.rot(self.axis)
 
     def setcolor(self, color, repaint_in_MT = True):
         """
-        change self's color to the specified color. A color of None
-        means self's atoms are drawn with their element colors.
+        Change self's color to the specified color. A color of None
+        means self's atoms will be drawn with their element colors.
 
         @param color: None, or a standard color 3-tuple.
 
@@ -3464,7 +3474,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             r,g,b = color
             color = r,g,b
         self.color = color
-            # warning: some callers (ChunkProp.py) first trash self.color, then call us to bless it. [bruce 050505 comment]
+            # warning: some callers (ChunkProp.py) first replace self.color, 
+            # then call us to bless the new value. Therefore the following is
+            # needed even if self.color didn't change here. [bruce 050505 comment]
         self.havelist = 0
         self.changed()
         if repaint_in_MT and pref_show_node_color_in_MT():
@@ -3542,8 +3554,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     # If not, should we increment n then? [bruce 090108 questions]
                 n += 1
         return n
-
-    glpane = None #bruce 050804 ### TODO: RENAME (last glpane we displayed on??)
 
     def changeapp(self, atoms):
         """
@@ -4101,13 +4111,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # ]
     ## ....
 
-    # return the singlets in the given sphere (point, radius),
-    # sorted by increasing distance from point
-    # bruce 041207 comment: this is only used in depositMode.attach.
-    def nearSinglets(self, point, radius):
+    def nearSinglets(self, point, radius): # todo: rename
+        """
+        return the bondpoints in the given sphere (point, radius),
+        sorted by increasing distance from point
+        """
+        # note: only used in AtomTypeDepositionTool (Build Atoms mode)
         if not self.singlets:
             return []
-        singlpos = self.singlpos #bruce 051129 ensure this is computed in its own line, for sake of traceback linenos
+        singlpos = self.singlpos # do this in advance, to help with debugging
         v = singlpos - point
         try:
             #bruce 051129 add try/except and printout to help debug bug 829
@@ -4183,12 +4195,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         only some atom copies get recorded in mapping (if we think it might need them)
         """
         numol = self.copy_empty_shell_in_mapping( mapping)
-        # now copy the atoms, all at once (including all their existing singlets, even though those might get revised)
-        # note: the following code is very similar to copy_in_mapping_with_specified_atoms, but not identical.
+        # now copy the atoms, all at once (including all their existing 
+        # singlets, even though those might get revised)
+        # note: the following code is very similar to 
+        # copy_in_mapping_with_specified_atoms, but not identical.
         pairlis = []
         ndix = {} # maps old-atom key to corresponding new atom
         nuatoms = {}
-        for a in self.atlist: # this is now in order of atom.key; it might get recomputed right now (along with atpos & basepos if so)
+        for a in self.atlist: 
+            # note: self.atlist is now in order of atom.key;
+            # it might get recomputed right now (along with atpos & basepos if so)
             na = a.copy()
             # inlined addatom, optimized (maybe put this in a new variant of obs copy_for_mol_copy?)
             na.molecule = numol # no need for _changed_parent_Atoms[na.key] = na #bruce 060322
@@ -4209,10 +4225,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # note: no way to handle hotspot yet, since how to do that might depend on whether
         # extern bonds are broken... so let's copy an explicit one, and tell the mapping
         # if we have an implicit one... or, register a cleanup function with the mapping.
-        copied_hotspot = self.hotspot # might be None (this uses __getattr__ to ensure the stored one is valid)
+        copied_hotspot = self.hotspot 
+            # might be None (this uses __getattr__ to ensure the stored one is valid)
         if copied_hotspot is not None:
             numol.set_hotspot( ndix[copied_hotspot.key])
-        elif len(self.singlets) == 1: #e someday it might also work if there are two singlets on the same base atom!
+        elif len(self.singlets) == 1: 
+            #e someday it might also work if there are two singlets on the same base atom!
             # we have an implicit but unambiguous hotspot:
             # might need to make it explicit in the copy [bruce 041123, revised 050524]
             copy_of_hotspot = ndix[self.singlets[0].key]
@@ -4233,25 +4251,33 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # (which might be more efficient, though that doesn't matter much
             #  since externs should not be too frequent); could do all this in a Bond method #e
         for (a, na) in pairlis:
-            if a.jigs: # a->na mapping might be needed if those jigs are copied, or confer properties on atom a
+            if a.jigs: 
+                # a->na mapping might be needed if those jigs are copied,
+                # or confer properties on atom a
                 origid_to_copy[id(a)] = na # inlines mapping.record_copy for speed
             for b in a.bonds:
                 a2key = b.other(a).key
                 if a2key in ndix:
-                    # internal bond - make the analogous one [this should include all bonds to singlets]
+                    # internal bond - make the analogous one 
+                    # [this should include all bonds to singlets]
                     #bruce 050524 changes: don't do it twice for the same bond;
-                    # and use bond_copied_atoms to copy bond state (e.g. bond-order policy and estimate) from old bond.
-                    # [note, this code is being copied into the old .copy() method too, by bruce 050715]
+                    # and use bond_copied_atoms to copy bond state (e.g. 
+                    # bond-order policy and estimate) from old bond.
+                    # [note, this code is being copied into the old .copy()
+                    #  method too, by bruce 050715]
                     if a.key < a2key:
                         # arbitrary condition which is true for exactly one ordering of the atoms;
                         # note both keys are for original atoms (it would also work if both were from
                         # copied atoms, but not if they were mixed)
                         bond_copied_atoms(na, ndix[a2key], b, a)
                 else:
-                    # external bond [or at least outside of atoms in pairlis/ndix] - caller will handle it when all chunks
-                    # and individual atoms have been copied (copy it if it appears here twice, or break it if once)
+                    # external bond [or at least outside of atoms in
+                    # pairlis/ndix] -- caller will handle it when all chunks
+                    # and individual atoms have been copied (copy it if it 
+                    # appears here twice, or break it if once)
                     # [note: similar code will be in atom.copy_in_mapping] 
-                    extern_atoms_bonds.append( (a,b) ) # it's ok if this list has several entries for one 'a'
+                    extern_atoms_bonds.append( (a,b) ) 
+                        # it's ok if this list has several entries for one 'a'
                     origid_to_copy[id(a)] = na
                         # a->na mapping will be needed outside this method, to copy or break this bond
                 pass
@@ -4284,24 +4310,37 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             pairlis.append((a, na))
             ndix[key] = na
         self._copy_atoms_handle_bonds_jigs( pairlis, ndix, mapping)
-        ##e do anything about hotspot? easiest: if we copy it (explicit or implicit) or its base atom, put them in mapping,
-        # and register some other func (than the one copy_in_mapping does) to fix it up at the end.
-        # Could do this uniformly in copy_empty_shell_in_mapping, and here just be sure to tell mapping.record_copy.
+        ##e do anything about hotspot? easiest: if we copy it (explicit or 
+        # implicit) or its base atom, put them in mapping,
+        # and register some other func (than the one copy_in_mapping does) 
+        # to fix it up at the end.
+        # Could do this uniformly in copy_empty_shell_in_mapping, 
+        # and here just be sure to tell mapping.record_copy.
         #
-        # (##e But really we ought to simplify all this code by just replacing the hotspot concept
-        #  with a "bonding-point jig" or perhaps a bond property. That might be less work! And more useful!
-        #  And then one chunk could have several hotspots with different pastable names and paster-jigs!
-        #  And the paster-jig could refer to real atoms to be merged with what you paste it on, not only singlets!
-        #  Or to terminating groups (like H) to pop off if you use that pasting point (but not if you use some other one).
-        #  Maybe even to terminating groups connected to base at more than one place, so you could make multiple bonds at once!
-        #  Or instead of a terminating group, it could include a pattern of what it should suggest adding itself to!
-        #  Even for one bond, this could help it orient the addition as intended, spatially!)
+        # (##e But really we ought to simplify all this code by just 
+        #  replacing the hotspot concept with a "bonding-point jig" 
+        #  or perhaps a bond property. That might be less work! And more useful!
+        #  And then one chunk could have several hotspots with different
+        #  pastable names and paster-jigs!
+        #  And the paster-jig could refer to real atoms to be merged
+        #  with what you paste it on, not only singlets!
+        #  Or to terminating groups (like H) to pop off if you use 
+        #  that pasting point (but not if you use some other one).
+        #  Maybe even to terminating groups connected to base at more
+        #  than one place, so you could make multiple bonds at once!
+        #  Or instead of a terminating group, it could include a pattern
+        #  of what it should suggest adding itself to!
+        #  Even for one bond, this could help it orient 
+        #  the addition as intended, spatially!)
         return numol
 
-    def _preserve_implicit_hotspot( self, hotspot): #bruce 050524 #e could also take base-atom arg to use as last resort
+    def _preserve_implicit_hotspot( self, hotspot): 
+        #bruce 050524 #e could also take base-atom arg to use as last resort
         if len(self.singlets) > 1 and self.hotspot is None:
-            #numol.set_hotspot( hotspot, silently_fix_if_invalid = True) #Huaicai 10/13/05: fix bug 1061 by changing 'numol' to 'self'
-            self.set_hotspot( hotspot, silently_fix_if_invalid = True) # this checks everything before setting it; if invalid, silent noop
+            #Huaicai 10/13/05: fix bug 1061 by changing 'numol' to 'self'
+            ## numol.set_hotspot( hotspot, silently_fix_if_invalid = True) 
+            self.set_hotspot( hotspot, silently_fix_if_invalid = True) 
+                # this checks everything before setting it; if invalid, silent noop
 
     # == 
 
@@ -4404,14 +4443,20 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             for b in a.bonds:
                 a2key = b.other(a).key
                 if a2key in ndix:
-                    # internal bond - make the analogous one [this should include all preexisting bonds to singlets]
-                    #bruce 050715 bugfix (copied from 050524 changes to another routine; also done below for extern_atoms_bonds):
-                    # don't do it twice for the same bond (needed by new faster bonding methods),
-                    # and use bond_copied_atoms to copy bond state (e.g. bond-order policy and estimate) from old bond.
+                    # internal bond - make the analogous one
+                    # (this should include all preexisting bonds to singlets)
+                    #bruce 050715 bugfix (copied from 050524 changes to another 
+                    # routine; also done below for extern_atoms_bonds):
+                    # don't do it twice for the same bond 
+                    # (needed by new faster bonding methods),
+                    # and use bond_copied_atoms to copy bond state 
+                    # (e.g. bond-order policy and estimate) from old bond.
                     if a.key < a2key:
-                        # arbitrary condition which is true for exactly one ordering of the atoms;
-                        # note both keys are for original atoms (it would also work if both were from
-                        # copied atoms, but not if they were mixed)
+                        # arbitrary condition which is true for exactly
+                        # one ordering of the atoms;
+                        # note both keys are for original atoms 
+                        # (it would also work if both were from
+                        #  copied atoms, but not if they were mixed)
                         bond_copied_atoms(na, ndix[a2key], b, a)
                 else:
                     # external bond - after loop done, make a singlet in the copy
@@ -4439,8 +4484,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             numol.set_hotspot( ndix[copied_hotspot.key])
         # future: also copy (but translate by offset) user-specified 
         # axis, center, etc, if we ever have those
-        if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
-            numol.user_specified_center = self.user_specified_center + offset
+        ## if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
+        ##     numol.user_specified_center = self.user_specified_center + offset
         numol.setDisplayStyle(self.display) 
             # REVIEW: why is this not redundant? (or is it?) [bruce 090112 question]
         numol.dad = dad
@@ -4494,7 +4539,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # ==
     
     def __str__(self):
-        # bruce 041124 revised this; again, 060411 (can I just zap it so __repr__ is used?? Try this after A7. ##e)
+        # bruce 041124 revised this; again, 060411 
+        # (can I just zap it so __repr__ is used?? Try this after A7. ##e)
         return "<%s %r>" % (self.__class__.__name__, self.name)
 
     def __repr__(self): #bruce 041117, revised 051011
@@ -4515,7 +4561,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if self.assy is not None:
             return "<%s %s (%d atoms) at %#x>" % (classname, name, len(self.atoms), id(self))
         else:
-            return "<%s %s, KILLED (no assy), at %#x of %d atoms>" % (classname, name, id(self), len(self.atoms)) # note other order
+            return "<%s %s, KILLED (no assy), at %#x of %d atoms>" % \
+                   (classname, name, id(self), len(self.atoms)) # note other order
         pass
 
     def merge(self, mol):
@@ -4699,14 +4746,21 @@ def shakedown_poly_evals_evecs_axis(basepos):
         # as we may want to do in viewParallelTo and viewNormalTo
         # (see also the comments about those in compute_heuristic_axis).
 
-    axis = compute_heuristic_axis( basepos, 'chunk',
-                                   evals_evecs = (evals, evecs), aspect_threshhold = 0.95,
-                                   near1 = V(1,0,0), near2 = V(0,1,0), dflt = V(1,0,0) # prefer axes parallel to screen in default view
-                                   )
+    axis = compute_heuristic_axis( 
+        basepos, 
+        'chunk',
+        evals_evecs = (evals, evecs),
+        aspect_threshhold = 0.95,
+        near1 = V(1,0,0), 
+        near2 = V(0,1,0), 
+        dflt = V(1,0,0) # prefer axes parallel to screen in default view
+     )
 
     assert axis is not None
-    axis = A(axis) ##k if this is in fact needed, we should probably do it inside compute_heuristic_axis for sake of other callers
-    assert type(axis) is type(V(0.1, 0.1, 0.1)) # this probably doesn't check element types (that's probably ok)
+    axis = A(axis) ##k if this is in fact needed, we should probably 
+        # do it inside compute_heuristic_axis for sake of other callers
+    assert type(axis) is type(V(0.1, 0.1, 0.1)) 
+        # this probably doesn't check element types (that's probably ok)
 
     return polyhedron, evals, evecs, axis # from shakedown_poly_evals_evecs_axis
 
