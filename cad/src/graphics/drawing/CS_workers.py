@@ -37,7 +37,7 @@ ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 """
 
-drawbonds = True # False  ## Debug/test switch.  Never check in a False value.
+_DRAW_BONDS = True # Debug/test switch. Similar constant in chunk.py.
 
 # the imports from math vs. Numeric are as discovered in existing code
 # as of 2007/06/25.  It's not clear why acos is coming from math...
@@ -246,7 +246,7 @@ def drawcylinder_worker(params):
     smaller one (e.g. when highlighting a bond), unless the axes are kept
     parallel as opposed to antiparallel.
     """
-    if not drawbonds:
+    if not _DRAW_BONDS:
         return
 
     (pos1, pos2, radius, capped) = params
@@ -278,7 +278,7 @@ def drawpolycone_worker(params):
     function and its parameters can be passed to another function for
     deferment.  Right now this is only ColorSorter.schedule (see below)
     """
-    if not drawbonds:
+    if not _DRAW_BONDS:
         return
     (pos_array, rad_array) = params
     glePolyCone(pos_array, None, rad_array)

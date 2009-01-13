@@ -44,7 +44,7 @@ Sometime I should review this and see if there is some obvious optimization need
 bruce 080305 changed superclass from Node to NodeWithAtomContents
 """
 
-drawbonds = True # False  ## Debug/test switch.  Never check in a False value.
+_DRAW_BONDS = True # Debug/test switch. Similar constant in CS_workers.py.
 
 import math # only used for pi, everything else is from Numeric [as of before 071113]
 import re
@@ -68,8 +68,7 @@ from OpenGL.GL import glEnable
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
 
-# (chem is used here only for class Atom, as of 080510)
-import model.chem as chem
+from model.chem import Atom # for making bondpoints, and a prefs function
 
 from model.global_model_changedicts import _changed_parent_Atoms
 
@@ -2358,7 +2357,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Draw self's external bonds (if debug_prefs and frustum culling permit).
         """
-        if not drawbonds:
+        if not _DRAW_BONDS:
             return
         #bruce 080215 split this out, added one debug_pref
         
@@ -4069,7 +4068,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # and it is, by atom.setDisplayStyle calling changeapp(1) on its chunk.
         disp = self.get_dispdef() ##e should caller pass this instead?
         eltprefs = PeriodicTable.rvdw_change_counter # (color changes don't matter for this, unlike for havelist)
-        radiusprefs = chem.Atom.selradius_prefs_values() #bruce 060317 -- include this in the tuple below, to fix bug 1639
+        radiusprefs = Atom.selradius_prefs_values() #bruce 060317 -- include this in the tuple below, to fix bug 1639
         if self.haveradii != (disp, eltprefs, radiusprefs): # value must agree with set, below
             # don't have them, or have them for wrong display mode, or for wrong element-radius prefs            
             try:
@@ -4432,7 +4431,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     copied_hotspot = self.singlets[0]
             for a, b in extern_atoms_bonds:
                 # compare to code in Bond.unbond():
-                x = chem.Atom('X', b.ubp(a) + offset, numol)
+                x = Atom('X', b.ubp(a) + offset, numol)
                 na = ndix[a.key]
                 #bruce 050715 bugfix: also copy the bond-type (two places in this routine)
                 bond_copied_atoms( na, x, b, a)
@@ -4458,9 +4457,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         This transmutes real atoms to match their number of real bonds,
         and (whether or not that succeeds) removes all their open bonds.
         """
-        # bruce 041215 added docstring, inferred from code; capitalized name
+        # todo: move this into the operations code for its caller
         for a in self.atoms.values():
-            if p or a.picked: a.Passivate()
+            if p or a.picked: 
+                a.Passivate()
 
     def Hydrogenate(self):
         """
@@ -4468,28 +4468,31 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Add hydrogen to all unfilled bond sites on carbon
         atoms assuming they are in a diamond lattice.
         For hilariously incorrect results, use on graphite.
-        This ought to be an atom method. Huaicai1/19/05: return the number of atoms hydrogenated
+        @warning: can create overlapping H atoms on diamond.
         """
-        # bruce 041215 suspects docstring is wrong in implying this
-        # only affects Carbon ###k
+        # review: probably docstring is wrong in implying this
+        # only affects Carbon
+        # todo: move this into the operations code for its caller
         count = 0
         for a in self.atoms.values():
             count += a.Hydrogenate()
-        return count    
-
+        return count
+    
     def Dehydrogenate(self):
         """
         [Public method, does all needed invalidations:]
         Remove hydrogen atoms from this chunk.
-        Return the number of atoms removed [bruce 041018 new feature].
+        @return: number of atoms removed.
         """
+        # todo: move this into the operations code for its caller
         count = 0
         for a in self.atoms.values():
-            count += a.Dehydrogenate()
+            count += a.Dehydrogenate() 
+                # review: bug if done to H-H?
         return count
-
-
-
+    
+    # ==
+    
     def __str__(self):
         # bruce 041124 revised this; again, 060411 (can I just zap it so __repr__ is used?? Try this after A7. ##e)
         return "<%s %r>" % (self.__class__.__name__, self.name)
@@ -4514,13 +4517,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         else:
             return "<%s %s, KILLED (no assy), at %#x of %d atoms>" % (classname, name, id(self), len(self.atoms)) # note other order
         pass
-
-    def dump(self):
-        print self, len(self.atoms), 'atoms,', len(self.singlets), 'singlets'
-        for a in self.atlist:
-            print a
-            for b in a.bonds:
-                print b
 
     def merge(self, mol):
         """
@@ -4551,10 +4547,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         mol.invalidate_atom_lists()
         mol.kill()
         return # from merge
-
-    def get_singlets(self): #bruce 041109 moved here from extrudeMode.py
-        "return a sequence of the singlets of Chunk self"
-        return self.singlets # might be recomputed by _recompute_singlets
 
     def overlapping_chunk(self, chunk, tol = 0.0):
         """
