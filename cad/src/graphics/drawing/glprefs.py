@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 glprefs.py - Attributes from drawing-related prefs stored in the prefs db cache.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -141,10 +141,6 @@ class GLPrefs:
         # really necessary, but it seems to me that for testing
         # purposes it is important to rebuild display lists if the
         # color sorting pref is changed.
-        res += (env.prefs.get(drawing_globals.allow_color_sorting_prefs_key,
-                              drawing_globals.allow_color_sorting_default),)
-        res += (env.prefs.get(drawing_globals.use_color_sorted_dls_prefs_key,
-                              drawing_globals.use_color_sorted_dls_default),)
         res += (env.prefs.get(drawing_globals.use_drawing_variant_prefs_key,
                               drawing_globals.use_drawing_variant_default),)
         res += (env.prefs.get(drawing_globals.use_sphere_shaders_prefs_key,

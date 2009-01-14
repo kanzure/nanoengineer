@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 setup_draw.py - The function to allocate and compile our standard display lists
 into the current GL context, and initialize the globals that hold their opengl
 names.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -408,23 +408,11 @@ def setup_drawer():
     glEndList()
 
     # Debug Preferences
-    from utilities.debug_prefs import debug_pref, Choice_boolean_True
+    from utilities.debug_prefs import debug_pref
     from utilities.debug_prefs import Choice_boolean_False
+    from utilities.debug_prefs import Choice_boolean_True
     choices = [Choice_boolean_False, Choice_boolean_True]
 
-    # 20060314 grantham
-    initial_choice = choices[drawing_globals.allow_color_sorting_default]
-    drawing_globals.allow_color_sorting_pref = debug_pref(
-        "Use Color Sorting?", initial_choice,
-        prefs_key = drawing_globals.allow_color_sorting_prefs_key)
-        #bruce 060323 removed non_debug = True for A7 release, changed default
-        #value to False (far above), and changed its prefs_key so developers
-        #start with the new default value.
-    #russ 080225: Added.
-    initial_choice = choices[drawing_globals.use_color_sorted_dls_default]
-    drawing_globals.use_color_sorted_dls_pref = debug_pref(
-        "Use Color-sorted Display Lists?", initial_choice,
-        prefs_key = drawing_globals.use_color_sorted_dls_prefs_key)
     #russ 080819: Added.
     initial_choice = choices[drawing_globals.use_sphere_shaders_default]
     drawing_globals.use_sphere_shaders_pref = debug_pref(
@@ -452,16 +440,6 @@ def setup_drawer():
                defaultValue = drawing_globals.use_drawing_variant_default),
         prefs_key = drawing_globals.use_drawing_variant_prefs_key)
 
-    # temporarily always print this, while default setting might be in flux,
-    # and to avoid confusion if the two necessary prefs are set differently
-    # [bruce 080305]
-    if (drawing_globals.allow_color_sorting_pref and
-        drawing_globals.use_color_sorted_dls_pref):
-        print "\nnote: this session WILL use color sorted display lists"
-    else:
-        print "\nnote: this session will NOT use color sorted display lists"
-        pass
-
     def initSphereShader():
         try:
             from graphics.drawing.gl_shaders import GLSphereShaderObject
@@ -480,8 +458,7 @@ def setup_drawer():
             return False
         return True
 
-    if (drawing_globals.allow_color_sorting_pref and
-        drawing_globals.use_sphere_shaders_pref):
+    if drawing_globals.use_sphere_shaders_pref:
         if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
             print "note: this session WILL use", \
                   "sphere-shaders"
@@ -498,8 +475,7 @@ def setup_drawer():
               "sphere-shaders\n"
         pass
 
-    if (drawing_globals.allow_color_sorting_pref and
-        drawing_globals.use_batched_primitive_shaders_pref):
+    if drawing_globals.use_batched_primitive_shaders_pref:
         print "note: this session WILL use", \
               "batched primitive shaders\n"
         
@@ -517,6 +493,8 @@ def setup_drawer():
             print_compact_traceback(
                 "Error setting up sphere primitive buffers, NOT using them.\n")
             drawing_globals.use_sphere_shaders_pref = False
+            ### REVIEW [bruce 090114]: do we also want to modify 
+            # drawing_globals.use_batched_primitive_shaders_pref?
             pass
         
         pass

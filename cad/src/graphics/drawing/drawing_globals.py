@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 drawing_globals.py - A module containing global state within the
 graphics.drawing suite.
@@ -20,17 +20,11 @@ Import it this way to show that it is a module:
 Access variables as drawing_globals.varname .
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 # ColorSorter control
-#bruce 060323 changed this to False for A7 release. russ 080314: default on.
-allow_color_sorting = allow_color_sorting_default = True
-#bruce 060323 changed this to disconnect it from old pref setting
-allow_color_sorting_prefs_key = "allow_color_sorting_rev2"
-#russ 080225: Added, 080314: default on.
-use_color_sorted_dls = use_color_sorted_dls_default = True
-use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
+
 #russ 080403: Added drawing variant selection.
 use_drawing_variant = use_drawing_variant_default = 1 # DrawArrays from CPU RAM.
 use_drawing_variant_prefs_key = "use_drawing_variant"
@@ -43,6 +37,9 @@ use_batched_primitive_shaders_prefs_key = "use_batched_primitive_shaders"
 
 # Experimental native C renderer (quux module in
 # cad/src/experimental/pyrex-opengl)
+# [note: as of 090114, this hasn't been maintained for a long time,
+#  but it might still mostly work, so we'll keep it around for now
+#  as potentially useful example code]
 use_c_renderer = use_c_renderer_default = False
 #bruce 060323 changed this to disconnect it from old pref setting
 use_c_renderer_prefs_key = "use_c_renderer_rev2"
@@ -95,16 +92,8 @@ def updatePrefsVars():
     """
     Helper for GLPrefs.update() .
     """
-    global allow_color_sorting, use_color_sorted_dls
     global use_sphere_shaders, use_batched_primitive_shaders, use_drawing_variant
     global use_c_renderer
-    allow_color_sorting = env.prefs.get(
-        allow_color_sorting_prefs_key,
-        allow_color_sorting_default)
-
-    use_color_sorted_dls = env.prefs.get(
-        use_color_sorted_dls_prefs_key,
-        use_color_sorted_dls_default)
 
     use_sphere_shaders = env.prefs.get(
         use_sphere_shaders_prefs_key,

@@ -1207,7 +1207,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # full_inval_and_update to ignore 'displist' as a special case. WARNING: for this method
         # it's appropriate to set self.displist as well as returning it, but for most uses of
         # _get_xxx methods, setting it would be wrong.
-        self.displist = ColorSortedDisplayList()      # russ 080225: Moved state into a class.
+        self.displist = ColorSortedDisplayList() # russ 080225: Moved state into a class.
         return self.displist
 
     # new feature [bruce 071103]:
@@ -1233,7 +1233,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # Note: we can't use hasattr for that test, since it would
             # allocate self.displist (by calling _get_displist) if we
             # don't have one yet.
-            #russ 080225: Moved deallocation into ColorSortedDisplayList class for ColorSorter.
+            #russ 080225: Moved deallocation into ColorSortedDisplayList class
+            # for ColorSorter.
             top = self.displist.dl
             self.displist.deallocate_displists()
             for extra_displist in self.extra_displists.values():
@@ -2724,134 +2725,67 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     def draw_highlighted(self, glpane, color):
         """
         Draws this chunk as highlighted with the specified color. 
+        
         In future 'draw_in_abs_coords' defined on some node classes
         could be merged into this method (for highlighting various objects).
 
-        @param: GLPane object
-        @param color: The highlight color
+        @param glpane: the GLPane
+        @param color: highlight color
+        
         @see: dna_model.DnaGroup.draw_highlighted
         @see: SelectChunks_GraphicsMode.drawHighlightedChunk()
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
-
         """
-
         #This was originally a sub-method in 
         #SelectChunks_GraphicsMode.drawHighlightedChunks. Moved here 
-        #(Chunk.draw_highlighted on 2008-02-26
+        #(Chunk.draw_highlighted) on 2008-02-26
 
         # Early frustum clipping test. piotr 080331
         # Could it cause any trouble by not drawing the external bonds?
+        # REVIEW [bruce 090114]: is there any good reason to use this test
+        # for highlighted-object drawing (i.e. cases when some chunks out
+        # of whatever gets highlighted are not at all visible)?
         if not glpane.is_sphere_visible(self.bbox.center(), self.bbox.scale()):
             return
 
-        # Note: bool_fullBondLength represent whether full bond length is to be
-        # drawn. It is used only in select Chunks mode while highlighting the 
-        # whole chunk and when the atom display is Tubes display -- ninad 070214
-        # UPDATE: Looks like this flag is always True in this method. 
-        # may be an effect of an earlier refactoring (note that original comment 
-        # as above was written over an year ago). -- Ninad 2008-02-26
-        bool_fullBondLength = True
-
-        draw_bonds_only_once = debug_pref(
-            "GLPane: drawHighlightedChunk draw bonds only once?",
-            Choice_boolean_True )
-            # turn off to test effect of this optimization;
-            # when testing is done, hardcode this as True
-            # [bruce 080217]
-
-            # [note, bruce 080314: this optimization got much less effective
-            #  after this code was turned into a Chunk method, since it no
-            #  longer prevents external bonds from being drawn twice,
-            #  which is probably common when highlighting DNA. To fix,
-            #  a dictionary of already drawn bonds should be passed in
-            #  or found somewhere. See references in this module to
-            #  self.part.repeated_bonds_dict for related code (but to use
-            #  that dict directly, different caller setup would be required
-            #  than is done now).]
-
-        drawn_bonds = {}
-
-        if drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls:
-
-            # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
-            if self.__dict__.has_key('displist'):
-                apply_material(color)
-                self.pushMatrix()
-                for csdl in ([self.displist] +
-                             [ed.csdl for ed in self.extra_displists.values()]):
-                    csdl.draw(highlighted = True, highlight_color = color)
-                self.popMatrix()
-                pass
-
-            # piotr 080521: Get display mode for drawing external bonds and/or
-            # the "realtime" objects.
-            disp = self.get_dispdef(glpane)
-
-            #russ 080302: Draw external bonds.
-            if self.externs:
-                # From Chunk.draw().
-                drawLevel = self.assy.drawLevel
-                # From Chunk._draw_external_bonds
-                ColorSorter.start(None)
-                for bond in self.externs:
-                    bond.draw(glpane, disp, color, drawLevel)
-                    continue
-                ColorSorter.finish()
-                pass
+        # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
+        if self.__dict__.has_key('displist'): ### REVIEW: can this ever fail?
+            apply_material(color) ### REVIEW: still needed?
+            self.pushMatrix()
+            for csdl in ([self.displist] +
+                         [ed.csdl for ed in self.extra_displists.values()]):
+                csdl.draw(highlighted = True, highlight_color = color)
+            self.popMatrix()
             pass
 
-            # piotr 080521
-            # Highlight "realtime" objects (e.g. 2D DNA cylinder style).
-            hd = get_display_mode_handler(disp)
-            if hd:
-                hd._f_drawchunk_realtime(glpane, self, highlighted = True)
-                pass
-        else:
-            if self.get_dispdef() == diDNACYLINDER or \
-               self.get_dispdef() == diPROTEIN:
-                #If the chunk is drawn with the DNA cylinder display style, 
-                #then do not use the following highlighting code (which 
-                #highlights individual bonds and atoms) . When color sorter
-                #is enabled by default, the following code (else condition)
-                #can be removed. The DnaCylinder display , use the 
-                #display list and such chunks will be highlighted only when
-                #the color sorter and use displist debug pref are enabled. 
-                # --Ninad 2008-03-13
-                # piotr 080709: Added a condition check for reduced protein
-                # display style.
-                return
+        # piotr 080521: Get display mode for drawing external bonds and/or
+        # the "realtime" objects.
+        disp = self.get_dispdef(glpane)
 
-            for atom in self.atoms.itervalues():
-                # draw atom and its (not yet drawn) bonds
-                atom.draw_in_abs_coords(glpane, 
-                                        color, 
-                                        useSmallAtomRadius = True)
-                for bond in atom.bonds:
-                    if draw_bonds_only_once:
-                        if drawn_bonds.has_key(id(bond)):
-                            continue # to next bond
-                        drawn_bonds[id(bond)] = bond
-                        pass
-                    bond.draw_in_abs_coords(glpane,
-                                            color, 
-                                            bool_fullBondLength)
-                    continue
+        #russ 080302: Draw external bonds.
+        if self.externs:
+            # From Chunk.draw():
+            drawLevel = self.assy.drawLevel
+            # From Chunk._draw_external_bonds:
+            # todo [bruce 090114 comment]: optimize this to not draw them twice
+            # (as was done in older code). (Note that there will soon be
+            # objects containing display lists for them, and our job will
+            # be to not draw *those objects* twice, in any one frame.)
+            ColorSorter.start(None)
+            for bond in self.externs:
+                bond.draw(glpane, disp, color, drawLevel)
                 continue
+            ColorSorter.finish()
             pass
+        pass
 
-        if 0: ## Debugging print.
-            print ("Highlighting %s, dl's %r" %
-                   (self.name,
-                    # Best to list in order of allocation by glGenLists.
-                    ([dl for color, dl in self.displist.per_color_dls],
-                     self.displist.color_dl,
-                     self.displist.nocolor_dl,
-                     self.displist.selected_dl)))
-            if self.extra_displists:
-                print " note: %s also has extra_displists %r; printing their dls is nim" % \
-                      (self.name, self.extra_displists.values())
+        # piotr 080521
+        # Highlight "realtime" objects (e.g. 2D DNA cylinder style).
+        hd = get_display_mode_handler(disp)
+        if hd:
+            hd._f_drawchunk_realtime(glpane, self, highlighted = True)
             pass
-
+        
         return
 
     def _standard_draw_chunk(self, glpane, disp0, highlighted = False):
@@ -2883,23 +2817,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Return the color tuple to use for drawing self, or None if
         per-atom colors should be used.
         """
-        if self.picked and not \
-           (drawing_globals.allow_color_sorting and 
-            drawing_globals.use_color_sorted_dls ) :
-            #bruce disabled this case when using drawing_globals.use_color_sorted_dls
-            # since they provide a better way (fixes "stuck green" bug.)
-
-            #ninad070405 Following draws the chunk as a colored selection 
-            #(if selected)
-            #bruce 080210 possible appearance change:
-            # this now also affects Atom.drawing_color
-            # (but it's unclear whether that ever affects color
-            #  of external bonds -- apparently not, in my tests)
-            color = env.prefs[selectionColor_prefs_key]
-        else:
-            color = self.color # None or a color
+        color = self.color # None or a color
         color = self.modify_color_for_error(color)
-            # no change in color if no error
+            # (no change in color if no error)
         return color
 
     def modify_color_for_error(self, color):
@@ -3814,46 +3734,29 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         [extends Node method]
         """
         if not self.picked:
-            if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
-                print_compact_stack( "debug fyi: chunk.pick picks %r: " % self)
-
             if self.assy is not None:
-                self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
-                # (might not be needed for other kinds of leaf nodes... not sure. [bruce 050131])
+                self.assy.permit_pick_parts()
+                #bruce 050125 added this... hope it's ok! ###k ###@@@
+                # (might not be needed for other kinds of leaf nodes... 
+                #  not sure. [bruce 050131])
             _superclass.pick(self)
             #bruce 050308 comment: _superclass.pick (Node.pick) has ensured
-            # that we're in the current selection group, so it's correct to
-            # append to selmols, *unless* we recompute it now and get a version
-            # which already contains self. So, we'll maintain it iff it already
-            # exists. Let the Part figure out how best to do this.
+            #that we're in the current selection group, so it's correct to
+            #append to selmols, *unless* we recompute it now and get a version
+            #which already contains self. So, we'll maintain it iff it already
+            #exists. Let the Part figure out how best to do this. 
             # [bruce 060130 cleaned this up, should be equivalent]
             if self.part:
                 self.part.selmols_append(self)
-
-            ##Earlier comment from Bruce (when chunk was selected as a 'wireframe' 
-            ##instead of a colored selection -- ninad 070406)
-            # bruce 041207 thinks self.havelist = 0 is no longer needed here,
-            # since self.draw uses self.picked outside of its display list,
-            # so I'm removing that! This might speed up some things.
-
-            #@@@ ninad 070406: enabled reset of 'havelist' to permit chunk picking 
-            #as a colored selection. (the selected chunk is shown in 'green color')
-            #earlier I was using the same code as used for highlighting a chunk 
-            #but it was slow. Enabling the 'havelist reset' speeds up the selection 
-            #based on my tests. (Selecting chunks in Pump.mmp is about 
-            #1.5 seconds faster using display list than drawing using the code that 
-            #is used to highlight the chunk.)
-            #Note: There needs to be a user preference that will allow user to 
-            # select the chunk as a wireframe --  ninad
-
-            if (drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls):
-                # russ 080303: Back again to display lists, this time color-sorted.
-                self.displist.selectPick(True)
-                    # shouldn't be needed for self.extra_displists, due to how they're drawn
-            else:
-                self.havelist = 0
+                
+            # russ 080303: Back again to display lists, this time color-sorted.
+            self.displist.selectPick(True)
+                # Note: selectPick shouldn't be needed for self.extra_displists,
+                # due to how they're drawn.
+                ### REVIEW [bruce 090114]: is selectPick still needed for
+                #self.displist? If not, is the CSDL picked state still needed
+                #for anything? (A goal is to remove it entirely.)
             pass
-
         return
 
     def unpick(self):
@@ -3864,33 +3767,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         if self.picked:
             _superclass.unpick(self)
-            # bruce 050308 comment: following probably needs no change for assy/part.
-            # But we'll let the Part do it, so it needn't remake selmols if not made.
-            # But in case the code for assy.part is not yet committed, check that first:
-            # [bruce 060130 cleaned this up, should be equivalent]            
             if self.part:
                 self.part.selmols_remove(self)
-
-            ##Earlier comment from Bruce (when chunk was selected as a 'wireframe' 
-            ##instead of a colored selection -- ninad 070406)
-            # bruce 041207 thinks self.havelist = 0 is no longer needed here
-            # (see comment in self.pick).
-
-            #@@@ ninad 070406: enabled 'havelist reset' to permit chunk unpicking 
-            #which was selected as a colored selection
-            #(the selected chunk is shown in 'green color').
-            # See also comments in 'def pick'... this sped up deselection
-            # of the same example mentioned there by about 1.5-2 seconds.
-
-            if (drawing_globals.allow_color_sorting and
-                drawing_globals.use_color_sorted_dls):
-                # russ 080303: Back again to display lists, this time color-sorted.
-                self.displist.selectPick(False)
-                    # shouldn't be needed for self.extra_displists, due to how they're drawn
-            else:
-                self.havelist = 0
+            # russ 080303: Back again to display lists, this time color-sorted.
+            self.displist.selectPick(False)
+            ### REVIEW need for selectPick (see comments in def pick)            
             pass
-
         return
 
     def getAxis_of_self_or_eligible_parent_node(self, atomAtVectorOrigin = None):

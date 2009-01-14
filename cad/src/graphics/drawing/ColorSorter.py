@@ -100,7 +100,7 @@ from graphics.drawing.TransformControl import TransformControl
 _csdl_id_counter = 0
 _warned_del = False
 
-class ColorSortedDisplayList:         #Russ 080225: Added.
+class ColorSortedDisplayList:    #Russ 080225: Added.
     """
     The ColorSorter's parent uses one of these to store color-sorted display
     list state.  It's passed in to ColorSorter.start() .
@@ -548,7 +548,7 @@ class ColorSorter:
 
 
     def schedule(color, func, params): # staticmethod
-        if ColorSorter.sorting and drawing_globals.allow_color_sorting:
+        if ColorSorter.sorting:
 
             ColorSorter._add_to_sorter(color, func, params)
 
@@ -830,8 +830,10 @@ class ColorSorter:
             # Clear the primitive data to start collecting a new set.
             csdl.clearPrimitives()
 
-            if not (drawing_globals.allow_color_sorting and
-                    drawing_globals.use_color_sorted_dls):
+            if 0: 
+                #bruce 090114 removed support for 
+                # (not (drawing_globals.allow_color_sorting and
+                #       drawing_globals.use_color_sorted_dls)):
                 # This is the beginning of the single display list created when
                 # color sorting is turned off. It is ended in
                 # ColorSorter.finish . In between, the calls to
@@ -908,26 +910,24 @@ class ColorSorter:
 
         else:
             if debug_which_renderer:
-                print ("using Python renderer: use_color_sorted_dls %s enabled"
-                       % (drawing_globals.use_color_sorted_dls and 'IS'
-                          or 'is NOT'))
+                print "using Python renderer"
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
 
-            if (not (drawing_globals.allow_color_sorting and
-                     drawing_globals.use_color_sorted_dls)
-                or parent_csdl is None):
-                
+            if parent_csdl is None:
                 # Either all in one display list, or immediate-mode drawing.
-                # (REVIEW: are both possibilities still present, now that
-                #  use_color_sorted_vbos is removed?)
+                ### REVIEW [bruce 090114]: are both possibilities still present, 
+                # now that several old options have been removed?
                 objects_drawn += ColorSorter.draw_sorted(
                     ColorSorter.sorted_by_color)
 
-                #russ 080225: Moved glEndList here for displist re-org.
                 if parent_csdl is not None:
+                    # (Note [bruce 090114]: this can't happen now, but I think
+                    # it could happen when color sorter was off, before I removed
+                    # support for that. ### REVIEW: any future use for this code?)
                     # Terminate a single display list, created when color
                     # sorting is turned off. Started in ColorSorter.start .
+                    #russ 080225: Moved glEndList here for displist re-org.
                     glEndList()
                     pass
                 pass
