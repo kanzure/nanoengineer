@@ -361,9 +361,6 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     # ==
     # CSDL state maintenance.
 
-    #russ 080320 Experiment with VBO drawing from cached ColorSorter lists.
-    cache_ColorSorter = False ## True
-
     def clear(self):
         """
         Empty state.
@@ -399,7 +396,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         assert self.dl != 0    # This failed on Linux, keep checking. (bug 2042)
         return
 
-    def draw_dl(self):                  #russ 080320 Added.
+    def draw_dl(self):  #russ 080320 Added.
         """
         Draw the displist (cached display procedure.)
         """
@@ -834,7 +831,7 @@ class ColorSorter:
             csdl.clearPrimitives()
 
             if not (drawing_globals.allow_color_sorting and
-                    drawing_globals.use_color_sorted_dls): #russ 080320
+                    drawing_globals.use_color_sorted_dls):
                 # This is the beginning of the single display list created when
                 # color sorting is turned off. It is ended in
                 # ColorSorter.finish . In between, the calls to
@@ -857,7 +854,7 @@ class ColorSorter:
         assert not ColorSorter.sorting, \
                "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True
-        if drawing_globals.use_c_renderer and ColorSorter.sorting:
+        if drawing_globals.use_c_renderer:
             ColorSorter._cur_shapelist = ShapeList_inplace()
             ColorSorter.sphereLevel = -1
         else:
