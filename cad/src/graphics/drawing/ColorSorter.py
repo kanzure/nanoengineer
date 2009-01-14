@@ -151,6 +151,10 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         self.clear()
 
         # Whether to draw in the selection over-ride color.
+        # NOTE [bruce 090114]: a near-term goal is to remove
+        # self.selected and self.dl, so that self only knows
+        # how to draw either way, but always finds out as-needed
+        # (from client state) which way to actually draw.
         self.selected = False
 
         return
@@ -396,15 +400,6 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         assert self.dl != 0    # This failed on Linux, keep checking. (bug 2042)
         return
 
-    def draw_dl(self):  #russ 080320 Added.
-        """
-        Draw the displist (cached display procedure.)
-        """
-        # Call a normal OpenGL display list.
-        # (bruce 090114: removed support for use_color_sorted_vbos)
-        glCallList(self.dl)
-        return
-
     def selectPick(self, boolVal):
         """
         Remember whether we're selected or not.
@@ -435,8 +430,8 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         Free any allocated display lists.
         """
         # With CSDL active, self.dl duplicates either selected_dl or color_dl.
-        if (self.dl is not self.color_dl and
-            self.dl is not self.selected_dl):
+        if (self.dl != self.color_dl and
+            self.dl != self.selected_dl):
             glDeleteLists(self.dl, 1)
         for dl in [self.color_dl, self.nocolor_dl, self.selected_dl]:
             if dl != 0:

@@ -1195,19 +1195,23 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         initialize and return self.displist
         [must only be called when an appropriate GL context is current]
         """
-        #bruce 070523 change: do this on demand, not in __init__, to see if it fixes bug 2402
-        # in which this displist can be 0 on Linux (when entering Extrude).
-        # Theory: you should allocate it only when you know you're in a good GL context
-        # and are ready to draw, which is most safely done when you are first drawing,
-        # so allocating it on demand is the easiest way to do that. Theory about bug 2042:
-        # maybe some Qt drawing was changing the GL context in an unpredictable way;
-        # we were not even making glpane (or a thumbview) current before allocating this, until now.
-        #
-        # Note: we use _get_displist rather than _recompute_displist so we don't need to teach
-        # full_inval_and_update to ignore 'displist' as a special case. WARNING: for this method
-        # it's appropriate to set self.displist as well as returning it, but for most uses of
-        # _get_xxx methods, setting it would be wrong.
-        self.displist = ColorSortedDisplayList() # russ 080225: Moved state into a class.
+        #bruce 070523 change: do this on demand, not in __init__, to see if it
+        #fixes bug 2402 in which this displist can be 0 on Linux (when
+        #entering Extrude).
+        
+        # Theory: you should allocate it only when you know you're in a good
+        # GL context and are ready to draw, which is most safely done when you
+        # are first drawing, so allocating it on demand is the easiest way to
+        # do that. Theory about bug 2042: maybe some Qt drawing was changing
+        # the GL context in an unpredictable way; we were not even making
+        # glpane (or a thumbview) current before allocating this, until now.
+        
+        # Note: we use _get_displist rather than _recompute_displist so we
+        # don't need to teach full_inval_and_update to ignore 'displist' as a
+        # special case. WARNING: for this method it's appropriate to set
+        # self.displist as well as returning it, but for most uses of _get_xxx
+        # methods, setting it would be wrong.
+        self.displist = ColorSortedDisplayList()
         return self.displist
 
     # new feature [bruce 071103]:
@@ -1235,15 +1239,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # don't have one yet.
             #russ 080225: Moved deallocation into ColorSortedDisplayList class
             # for ColorSorter.
-            top = self.displist.dl
             self.displist.deallocate_displists()
             for extra_displist in self.extra_displists.values():
                 extra_displist.deallocate_displists()
             self.extra_displists = {}
-            if debug_pref("GLPane: print deleted display lists", Choice_boolean_False):
-                #bruce 071205 made debug pref
-                print "fyi: deleted OpenGL display list %r belonging to %r" % (top, self)
-                # keep this print around until this feature is tested on all platforms
             self.displist = None
             del self.displist
                 # this del is necessary, so _get_displist will be called if another
@@ -2275,8 +2274,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 #bruce 060215 adding drawLevel to havelist
                 if self.havelist == (disp, eltprefs, matprefs, drawLevel): 
                     # (note: value must agree with set of havelist, below)
-                    # Our main display list is still valid -- use it.
-                    # Russ 081128: Switch from draw_dl() to draw() with selection arg.
+                    # self.displist is still valid -- use it.
+                    # Russ 081128: Switch from draw_dl() [now removed] to draw() with selection arg.
                     self.displist.draw(selected = self.picked)
                     for extra_displist in self.extra_displists.itervalues():
                         # [bruce 080604 new feature]
@@ -2749,7 +2748,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             return
 
         # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
-        if self.__dict__.has_key('displist'): ### REVIEW: can this ever fail?
+        if self.__dict__.has_key('displist'):
+            # (note: attr is missing if displist was not yet allocated)
             apply_material(color) ### REVIEW: still needed?
             self.pushMatrix()
             for csdl in ([self.displist] +

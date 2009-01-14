@@ -286,7 +286,8 @@ class CrystalShape(shape):
     
     def _anotherDraw(self, layerColor):
         """
-        The original way of selecting cookies, but do it layer by layer, so we can control how to display each layer.
+        The original way of selecting cookies, but do it layer by layer, 
+        so we can control how to display each layer.
         """
         if self.havelist:
             glCallList(self.displist.dl)
