@@ -2470,7 +2470,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
         return
     
-    def draw_in_abs_coords(self, glpane, color, useSmallAtomRadius = False): 
+    def draw_in_abs_coords(self, glpane, color): 
         """
         Draw this atom in absolute (world) coordinates, using the specified
         color (ignoring the color it would naturally be drawn with). See code
@@ -2500,15 +2500,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         pos = self.posn()
         ###@@@ remaining code might or might not be correct 
         # (issues: larger radius, display-mode independence)
-
-        if useSmallAtomRadius:
-            drawrad = self.radius_for_chunk_highlighting()
-            # review: does this need to be bigger when
-            # self.bond_geometry_error_string to make tooltip work on self?
-        else:
-            drawrad = self.highlighting_radius() # slightly larger than normal drawing radius
-            if self.bond_geometry_error_string:
-                drawrad *= self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER * 1.02
+        drawrad = self.highlighting_radius() # slightly larger than normal drawing radius
+        if self.bond_geometry_error_string:
+            drawrad *= self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER * 1.02
         ## drawsphere(color, pos, drawrad, level)
         self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
             # always draw, regardless of display mode
@@ -2596,16 +2590,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         return drawrad
     
     def highlighting_radius(self, dispdef = None):
-        #bruce 041207; ninad & bruce 080807 renamed it from selatom_radius
-        # maybe: integrate with draw_as_selatom
         """
         @return: the radius to use for highlighting this atom (self),
                  in the given display style (by default, in the style
                  it would currently be drawn in). This is larger than
                  self's drawing_radius.
-
-        @see: radius_for_chunk_highlighting
+        
+        @note: this is not used for atoms that are part of highlighted chunks.
         """
+        # maybe todo: integrate this with draw_as_selatom
         if dispdef is None:
             dispdef = self.molecule.get_dispdef()
         disp, drawrad = self.howdraw(dispdef)
@@ -2621,28 +2614,6 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 drawrad *= 1.02
         return drawrad
 
-    def radius_for_chunk_highlighting(self, dispdef = None):
-        #ninad070213 for chunk highlighting
-        #bruce 080807 renamed it from selatom_small_radius
-        """
-        @see: highlighting_radius
-        """
-        if dispdef is None:
-            dispdef = self.molecule.get_dispdef()
-        disp, drawrad = self.howdraw(dispdef)
-        if self.element is Singlet:
-            drawrad *= 1.02
-                # increased radius might not be needed, if we would modify the
-                # OpenGL depth threshhold criterion used by GL_DEPTH_TEST
-                # to overwrite when depths are equal [bruce 041206]
-        # review: the following code has no effect; what was its intent?
-        # [bruce 080214 comment]
-        else:
-            if disp == diTUBES:
-                drawrad *= 1.0
-               
-        return drawrad
-        
     def setDisplayStyle(self, disp): #bruce 080910 renamed from setDisplay
         """
         set self's display style
