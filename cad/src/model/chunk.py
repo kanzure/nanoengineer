@@ -100,7 +100,6 @@ from utilities.prefs_constants import bondpointHotspotColor_prefs_key
 import foundation.env as env
 from foundation.undo_archive import set_undo_nullMol
 from utilities.Comparison import same_vals
-##from foundation.state_utils import copy_val
 from graphics.display_styles.displaymodes import get_display_mode_handler
 
 from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
@@ -148,7 +147,7 @@ from utilities.constants import noop
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
-from utilities.GlobalPreferences import use_frustum_culling #piotr 080402
+from utilities.GlobalPreferences import use_frustum_culling
 from utilities.GlobalPreferences import pref_show_node_color_in_MT
 
 from model.elements import PeriodicTable
@@ -168,10 +167,11 @@ from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
 from graphics.drawing.special_drawing import SpecialDrawing_ExtraChunkDisplayList
 from graphics.drawing.special_drawing import Chunk_SpecialDrawingHandler
 
-_inval_all_bonds_counter = 1 #bruce 050516
+# ==
 
+_inval_all_bonds_counter = 1 # private global counter [bruce 050516]
 
-# == debug code is near end of file
+# == some debug code is near end of file
 
 
 # == Molecule (i.e. Chunk)
@@ -405,11 +405,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # ==
 
     def __init__(self, assy, name = None):
-        self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
+        self._invalidate_all_bonds() 
+            # bruce 050516 -- needed in __init__ to make sure
             # the counter it sets is always set, and always unique
-        # note [bruce 041116]:
+        # Note [bruce 041116]:
         # new chunks are NOT automatically added to assy.
-        # this has to be done separately (if desired) by assy.addmol
+        # This has to be done separately (if desired) by assy.addmol
         # (or the equivalent).
         # addendum [bruce 050206 -- describing the situation, not endorsing it!]:
         # (and for clipboard chunks it should not be done at all!
@@ -1650,7 +1651,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Invalidate all invalidatable attrs of self.
         (Used in _undo_update and in some debugging methods.)
         """
-        self.invalidate_all_bonds()
+        self._invalidate_all_bonds()
         self.invalidate_atom_lists() # _undo_update depends on us calling this
         attrs  = self.invalidatable_attrs()
         # now this is done in that method: 
@@ -1911,27 +1912,34 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     def _changed_basecenter_or_quat_while_atoms_fixed(self):
         """
         [private method]
-        Call this if you _changed_basecenter_or_quat_while_atoms_fixed, after
-        recomputing basepos to be correct in the new coords (or perhaps after
-        invalidating basepos -- that use is unanalyzed and untried). This method
-        invals other things which depend on the local coordinate system -- the
-        internal bonds and havelist; and it calls changed_attr('basepos').
+        If you change self.basecenter or self.quat while intending
+        self's atoms to remain fixed in absolute space (rather than 
+        moving along with those changes), first recompute self.basepos
+        to be correct in the new local coordinates (or perhaps just
+        invalidate self.basepos -- that use is unanalyzed and untried),
+        then call this method to do necessary invals.
+                
+        This method invals other things (besides self.basepos) which depend 
+        on self's local coordinate system -- i.e. self's internal bonds 
+        and self.havelist; and it calls changed_attr('basepos').
         """ 
-        self.invalidate_internal_bonds()
+        self._invalidate_internal_bonds()
         self.changed_attr('basepos')
         self.havelist = 0
 
-    def invalidate_internal_bonds(self):
-        self.invalidate_all_bonds() # easiest to just do this
+    def _invalidate_internal_bonds(self):
+        self._invalidate_all_bonds() # easiest to just do this
 
-    def invalidate_all_bonds(self): #bruce 050516 optimized this
+    def _invalidate_all_bonds(self): #bruce 050516 optimized this
         global _inval_all_bonds_counter
         _inval_all_bonds_counter += 1
-            # it's good that values of this global are not used on more than one chunk,
-            # since that way there's no need to worry about whether the bond
-            # inval/update code, which should be the only code to look at this counter,
-            # needs to worry that its data looks right but is for the wrong chunks.
-        self.bond_inval_count = _inval_all_bonds_counter
+            # note: it's convenient that individual values of this global
+            # counter are not used on more than one chunk, since that way
+            # there's no need to worry about whether the bond inval/update
+            # code, which should be the only code to look at this counter,
+            # needs to worry that its data looks right but is for the wrong
+            # chunks.
+        self._f_bond_inval_count = _inval_all_bonds_counter
         return
 
     _inputs_for_average_position = ['atpos']
@@ -2073,6 +2081,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def inval_display_list(self): #bruce 050804
         """
+        [public, though external uses are suspicious re modularity,
+         and traditionally have been coded as changeapp calls instead]
+        
         This is meant to be called when something whose usage we tracked
         (while making our display list) next changes.
         """
@@ -3390,40 +3401,40 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     def stretch(self, factor, point = None):
         """
         Public method: expand self by the given factor
-        (keeping point fixed, by default its center).
-        Do all necessary invalidations, optimized as convenient
-        given the nature of this operation.
+        (keeping point fixed -- by default, point is self.center).
+        
+        Do all necessary invalidations, optimized for this operation.
         """
-        self.basepos # make sure it's up to date
-            # (this might recompute basepos using __getattr__; probably not
-            #  needed since the += below would do it too, but let's be safe --
-            #  no harm since it won't be done twice)
-        if point is None: #bruce 050516 bugfix (was "if not point")
-            point = self.center # not basecenter!
-        factor = float(factor)
+        self.basepos # recompute if necessary
 
-        #bruce 041119 bugfix in following test of array having elements --
-        # use len(), since A([[0.0,0.0,0.0]]) is false!
+        # note: use len(), since A([[0.0,0.0,0.0]]) is false!
         if not len(self.basepos):
-            # we need this 0 atoms case (though it probably never occurs)
-            # since the remaining code won't work for it,
-            # since self.basepos has the wrong type then (in fact it's []);
-            # note that no changes or invals are needed
+            # precaution (probably never occurs):
+            # special case for no atoms, since 
+            # remaining code won't work for it,
+            # since self.basepos has the wrong type then (it's []).
+            # Note that no changes or invals are needed in this case.
             return
 
-        # without moving mol in space, change self.basecenter to point
-        # and change self.basepos to match:
+        factor = float(factor)
+
+        if point is None:
+            point = self.center # not basecenter!
+
+        # without moving self in space, change self.basecenter to point
+        # and change self.basepos to match (so the stretch around point
+        # can be done in a simple way, lower down)
         self.basepos += (self.basecenter - point)
         self.basecenter = point
             # i.e. self.basecenter = self.basecenter - self.basecenter + point,
             # or self.basecenter -= (self.basecenter - point)
 
-        # stretch the mol around the new self.basecenter
+        # stretch self around the new self.basecenter
         self.basepos *= factor
-        # (the above += and *= might destructively modify basepos -- I'm not sure)
+        # (warning: the above += and *= might destructively modify basepos -- I'm not sure)
 
-        # do the necessary recomputes from new definitive basepos,
-        # and invals (incl. bbox, internal bonds)
+        # do necessary recomputes from the new definitive basepos,
+        # and invals (including bbox, internal bonds)
         self._changed_basepos_basecenter_or_quat_to_move_atoms()
 
     def _changed_basepos_basecenter_or_quat_to_move_atoms(self):
@@ -3436,7 +3447,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.havelist = 0
             # (not needed for mov or rot, so not done by _changed_basecenter_or_quat_to_move_atoms)
         self.changed_attr('basepos') # invalidate whatever depends on basepos ...
-        self.invalidate_internal_bonds() # ... including the internal bonds, handled separately
+        self._invalidate_internal_bonds() # ... including the internal bonds, handled separately
         self.invalidate_attr('bbox') # since not handled by following routine
         self._changed_basecenter_or_quat_to_move_atoms()
             # (misnamed -- in this case we changed basepos too)

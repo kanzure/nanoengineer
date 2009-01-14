@@ -1607,7 +1607,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 ##        #  when this is invalled, if it would happen when we recompute!
 ##        #  In fact, it might be illegal to do it here (since we might be drawing
 ##        #  that very same chunk).
-        current_data = (self.molecule.bond_inval_count,) # must never equal False
+        current_data = (self.molecule._f_bond_inval_count,) # must never equal False
         if self._f_valid_neighbor_geom != current_data:
             # need to recompute/update
             self._f_valid_neighbor_geom = current_data

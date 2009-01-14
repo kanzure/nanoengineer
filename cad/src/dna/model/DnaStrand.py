@@ -776,13 +776,14 @@ class DnaStrand(DnaStrandOrSegment):
 
     def setStrandSequence(self, sequenceString, complement = True):
         """
-        Set the strand sequence i.e.assign the baseNames for the PAM atoms in 
+        Set self's strand sequence, i.e., assign the baseNames for the PAM atoms in 
         this strand AND the complementary baseNames to the PAM atoms of the 
-        complementary strand ('mate strand')
-        @param sequenceString: The sequence to be assigned to this strand chunk
+        complementary strand ('mate strand').
+        
+        @param sequenceString: sequence to be assigned to this strand chunk
         @type sequenceString: str
         """      
-        #TO BE REVISED SEE A TODO COMMENT AT THE TOP
+        #TO BE REVISED; SEE A TODO COMMENT AT THE TOP
         
         sequenceString = str(sequenceString)
         #Remove whitespaces and tabs from the sequence string
@@ -817,20 +818,20 @@ class DnaStrand(DnaStrandOrSegment):
                     strandAtomMate.setDnaBaseName(str(complementBaseName)) 
 
         # piotr 080319:
-        # Redraw the chunks in DNA display style
-        # to reflect the sequence changes.
+        # Invalidate display lists for chunks in DNA display style
+        # so they'll be remade to reflect sequence changes
         from utilities.constants import diDNACYLINDER
         for c in self.members: 
             if isinstance(c, DnaStrandChunk):
                 if c.get_dispdef() == diDNACYLINDER:
-                    c.inval_display_list() # redraw the chunk
+                    c.inval_display_list() 
                     # do the same for all complementary chunks
                     prev_cc = None
                     for atom in c.atoms.itervalues():
                         atm_mate = atom.get_strand_atom_mate()
                         if atm_mate:
                             cc = atm_mate.molecule
-                            if cc!=prev_cc and isinstance(cc, DnaStrandChunk):
+                            if cc != prev_cc and isinstance(cc, DnaStrandChunk):
                                 prev_cc = cc
                                 if cc.get_dispdef() == diDNACYLINDER:
                                     cc.inval_display_list()

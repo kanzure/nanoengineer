@@ -1436,17 +1436,21 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         """
         Semi-private method for bonds -- used by code in Bond, atom and chunk classes.
         Invalidates cached geometric values related to drawing the bond.
-           This must be called whenever the position or element of either bonded
+        
+        This must be called whenever the position or element of either bonded
         atom is changed, or when either atom's molecule changes if this affects
         whether it's an external bond (since the coordinate system used for drawing
-        is different in each case), UNLESS either bonded chunk's invalidate_all_bonds()
+        is different in each case), UNLESS either bonded chunk's _invalidate_all_bonds()
         methods is called (which increment a counter checked by our __getattr__).
-         (FYI: It need not be called for other changes that might affect bond
+        
+        (FYI: It need not be called for other changes that might affect bond
         appearance, like disp or color of bonded molecules, though for internal
         bonds, the molecule's .havelist should be reset when those things change.)
-         (It's not yet clear whether this needs to be called when bond-valence is changed.
+        
+        (It's not yet clear whether this needs to be called when bond-valence is changed.
         If it does, that will be done from one place, the _changed_v6() method. [bruce 050502])
-          Note that before the "inval/update" revisions [bruce 041104],
+        
+        Note that before the "inval/update" revisions [bruce 041104],
         self.setup() (the old name for this method, from point of view of callers)
         did the recomputation now done on demand by __setup_update; now this method
         only does the invalidation which makes sure that recomputation will happen
@@ -1565,12 +1569,14 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # assume we need to recompute if invalid... if any of the attrs used
         # by recomputing geom are missing, we'll get infinite recursion; these
         # are just atom1, atom2, and the ones used herein.
-        current_data = (self.atom1.molecule.bond_inval_count, self.atom2.molecule.bond_inval_count)
+        current_data = (self.atom1.molecule._f_bond_inval_count, 
+                        self.atom2.molecule._f_bond_inval_count)
         if self._valid_data != current_data:
             # need to recompute
-            # (note: to inval this bond alone, set self._valid_data = None; this is required if you
-            #  change anything used by _recompute_geom, unless you change bond_inval_count for one of
-            #  the bonded chunks.)
+            # (note: to inval this bond alone, set self._valid_data = None;
+            #  this is required if you change anything used by _recompute_geom,
+            #  unless you change _f_bond_inval_count for one of the bonded
+            #  chunks.)
             self._valid_data = current_data # do this first, even if exception in _recompute_geom()
             self._saved_geom = geom = self._recompute_geom()
         else:
