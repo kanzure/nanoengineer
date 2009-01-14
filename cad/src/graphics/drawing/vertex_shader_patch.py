@@ -1,4 +1,16 @@
 """
+### This is a copy of file OpenGL/GL/ARB/vertex_shader.py from
+### /Library/Python/2.5/site-packages/PyOpenGL-3.0.0b3-py2.5.egg .
+### It replaces the broken version in PyOpenGL-3.0.0a6-py2.5.egg .
+###
+### The only difference between the two is in the glGetActiveAttribARB function,
+### where the max_index and length parameters retrieved from OpenGL by
+### glGetObjectParameterivARB are converted to integers.
+### 
+### The only change to the b3 version to make it work in a6 is that the
+### glGetObjectParameterivARB function is imported from the b3
+### shader_objects_patch.py file in this same directory.
+
 OpenGL extension ARB.vertex_shader
 
 $Id$
@@ -6,8 +18,6 @@ $Id$
 This module customises the behaviour of the 
 OpenGL.raw.GL.ARB.vertex_shader to provide a more 
 Python-friendly API
-
-### /Library/Python/2.5/site-packages/PyOpenGL-3.0.0b3-py2.5.egg/OpenGL/GL/ARB/vertex_shader.py
 """
 from OpenGL import platform, constants, constant, arrays
 from OpenGL import extensions, wrapper

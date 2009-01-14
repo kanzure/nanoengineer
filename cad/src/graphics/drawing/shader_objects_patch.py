@@ -1,4 +1,16 @@
 """
+### This is a copy of file OpenGL/GL/ARB/shader_objects.py from
+### /Library/Python/2.5/site-packages/PyOpenGL-3.0.0b3-py2.5.egg .
+### It replaces the broken version in PyOpenGL-3.0.0a6-py2.5.egg .
+###
+### The difference between the two is mainly that the wrapper function
+### definitions aren't in "if" statements checking for null (undefined) wrapper
+### functions. These don't work on Windows because its dll wrappers are
+### different, so none of the wrappers get defined on Windows in the a6 version.
+### 
+### The only change to the b3 version to make it work in a6 is that two calls to
+### "if OpenGL.ERROR_CHECKING:" are commented out with ### below.
+
 OpenGL extension ARB.shader_objects
 
 $version: $Id$
@@ -6,8 +18,6 @@ $version: $Id$
 This module customises the behaviour of the 
 OpenGL.raw.GL.ARB.shader_objects to provide a more 
 Python-friendly API
-
-### /Library/Python/2.5/site-packages/PyOpenGL-3.0.0b3-py2.5.egg/OpenGL/GL/ARB/shader_objects.py
 """
 from OpenGL import platform, constants, constant, arrays
 from OpenGL import extensions, wrapper
