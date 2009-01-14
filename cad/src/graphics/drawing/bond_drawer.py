@@ -205,7 +205,6 @@ def draw_bond(self,
               col,
               detailLevel,
               highlighted = False,
-              bool_fullBondLength = False,
               special_drawing_handler = None,
               special_drawing_prefs = USE_CURRENT
              ):
@@ -276,7 +275,7 @@ def draw_bond(self,
     try: #bruce 050610 to ensure calling glPopName    
         povfile = None
         draw_bond_main(self, glpane, disp, col, detailLevel, highlighted, 
-                       povfile, bool_fullBondLength,
+                       povfile,
                        special_drawing_handler = special_drawing_handler,
                        special_drawing_prefs = special_drawing_prefs,
                        glname = glname )
@@ -299,7 +298,6 @@ def draw_bond_main(self,
                    detailLevel,
                    highlighted,
                    povfile = None,
-                   bool_fullBondLength = False,
                    special_drawing_handler = None,
                    special_drawing_prefs = USE_CURRENT,
                    glname = None # glname arg is a kluge for fixing bug 2945
@@ -308,8 +306,7 @@ def draw_bond_main(self,
     [private helper function for this module only.]
     self is a bond. For other doc, see the calls.
     """
-    _our_args = (self, glpane, disp, col, detailLevel, highlighted, povfile,
-                 bool_fullBondLength)
+    _our_args = (self, glpane, disp, col, detailLevel, highlighted, povfile)
         # This must be kept in agreement with all args of this function except
         # special_*.  We include self in the tuple, since this function is not a
         # method. [bruce 080605]
@@ -676,7 +673,7 @@ def draw_bond_main(self,
                     draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
                                   bondcolor, highlighted, detailLevel,
                                   cylrad, shorten_tubes, geom, v6_for_bands,
-                                  povfile, dir_info, bool_fullBondLength)
+                                  povfile, dir_info )
 
     if draw_sigma_cyl or howmany == 1:
         # draw one central cyl, regardless of bond type
@@ -685,7 +682,7 @@ def draw_bond_main(self,
         draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
                       bondcolor, highlighted, detailLevel,
                       cylrad, shorten_tubes, geom, v6_for_bands,
-                      povfile, dir_info, bool_fullBondLength)
+                      povfile, dir_info )
 
     if self.v6 != V_SINGLE:
         if draw_vanes:
@@ -782,21 +779,14 @@ def multicyl_pvecs(howmany, a2py, a2pz):
 def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
                   bondcolor, highlighted, detailLevel,
                   sigmabond_cyl_radius, shorten_tubes, geom, v6,
-                  povfile, dir_info, bool_fullBondLength = False):
+                  povfile, dir_info ):
     """
     Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls
     for double or triple bonds.
 
     [private function for a single caller, which is the only reason such a long
     arglist is tolerable]
-    """
-    # Note: bool_fullBondLength represent whether full bond length to be drawn
-    # it is used only in select Chunks mode while highlighting the whole chunk
-    # and when the atom display is Tubes display -- ninad 070214
-    # REVIEW: I think bool_fullBondLength option is not needed, since
-    # bool_fullBondLength = True can be implemented (here or preferably in
-    # callers) just by passing shorten_tubes = False. [bruce 070920 comment]
-    
+    """    
     a1pos, c1, center, c2, a2pos, toolong = geom
     
     #following turns off the bond stretch indicators based on the user
@@ -952,11 +942,9 @@ def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
             # is not good to use here.
             vec = norm(a2pos - a1pos)
             if atom1.element is not Singlet:
-                    if not bool_fullBondLength:
-                            a1pos = a1pos + vec * rad
+                a1pos = a1pos + vec * rad
             if atom2.element is not Singlet:
-                    if not bool_fullBondLength:
-                            a2pos = a2pos - vec * rad
+                a2pos = a2pos - vec * rad
             # note: this does not affect bandpos1, bandpos2 (which is good)
         ###e bruce 050513 future optim idea: when color1 == color2, draw just
         # one longer cylinder, then overdraw toolong indicator if needed.

@@ -1939,7 +1939,6 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     
     def draw(self, glpane, dispdef, col, detailLevel,
              highlighted = False,
-             bool_fullBondLength = False,
              special_drawing_handler = None,
              special_drawing_prefs = USE_CURRENT
             ):
@@ -1962,13 +1961,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         and the caller has to draw those kinds of bonds in the proper coordinate
         system (absolute or chunk-relative for external or internal bonds
         respectively).
-
-        @param bool_fullBondLength: whether full bond length to be drawn
         """
-        # note: bool_fullBondLength is used only in select Chunks mode while
-        # highlighting the whole chunk and when the atom display is Tubes
-        # -- ninad 070214
-        
         #bruce 041104 revised docstring, added comments about possible bugs.
         # Note that this code depends on finding the attrs toolong, center,
         # a1pos, a2pos, c1, c2, as created by self.__setup_update().
@@ -1979,7 +1972,6 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event
         from graphics.drawing.bond_drawer import draw_bond
         draw_bond( self, glpane, dispdef, col, detailLevel, highlighted,
-                   bool_fullBondLength,
                    special_drawing_handler = special_drawing_handler,
                    special_drawing_prefs = special_drawing_prefs
                   )
@@ -2003,19 +1995,18 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     def permits_v6(self, v6): #bruce 050806 #e should merge this somehow with self.legal_for_atomtypes()
         return self.atom1.atomtype.permits_v6(v6) and self.atom2.atomtype.permits_v6(v6)
 
-    def draw_in_abs_coords(self, glpane, color, bool_fullBondLength = False): #bruce 050609
+    def draw_in_abs_coords(self, glpane, color): #bruce 050609
         """
-        Draw this bond in absolute (world) coordinates (even if it's an internal bond),
-        using the specified color (ignoring the color it would naturally be drawn with).
-           This is only called for special purposes related to mouseover-highlighting,
-        and should be renamed to reflect that, since its behavior can and should be specialized
-        for that use. (E.g. it doesn't happen inside display lists; and it need not use glName at all.)
-        """
-        #Note: bool_fullBondLength represents whether full bond length is to
-        #be drawn. It is used only in select Chunks mode while highlighting
-        #the whole chunk and when the atom display is Tubes display
-        # [ninad 070214]
+        Draw this bond in absolute (world) coordinates (even if it's an
+        internal bond), using the specified color (ignoring the color it would
+        naturally be drawn with).
         
+        This is only called for special purposes related to
+        mouseover-highlighting, and should be renamed to reflect that, since
+        its behavior can and should be specialized for that use. (E.g. it
+        doesn't happen inside display lists; and it need not use glName at
+        all.)
+        """
         highlighted = True # ninad 070214 - passing 'highlighted' to
             # bond.draw instead of highlighted = bool
         
@@ -2030,8 +2021,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             # coords; we need mol's help to use those
             mol.pushMatrix()
             self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel, 
-                      highlighted, bool_fullBondLength )
-                # sorry for all the kluges (e.g. 2 of those args) that beg for
+                      highlighted )
+                # sorry for all the kluges (e.g. 1 or 2 of those args) that beg for
                 # refactoring! The info passing in draw methods is not
                 # designed for drawing leaf nodes by themselves in a clean
                 # way! (#e should clean up somehow)
@@ -2049,9 +2040,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         else:
             # external bond -- draw it at max dispdef of those from its mols
             disp = max( mol.get_dispdef(glpane), mol2.get_dispdef(glpane) )
-            self.draw(glpane, disp, color, mol.assy.drawLevel,
-                      highlighted, bool_fullBondLength )
-                #bruce 080406 bugfix: pass highlighted, bool_fullBondLength (lost recently??)
+            self.draw(glpane, disp, color, mol.assy.drawLevel, highlighted)
+                #bruce 080406 bugfix: pass highlighted (lost recently??)
         return
 
     def nodes_containing_selobj(self): #bruce 080507
