@@ -425,11 +425,6 @@ def setup_drawer():
     drawing_globals.use_color_sorted_dls_pref = debug_pref(
         "Use Color-sorted Display Lists?", initial_choice,
         prefs_key = drawing_globals.use_color_sorted_dls_prefs_key)
-    #russ 080225: Added.  Russ 081002: XXX Deprecated, will be cleaned out.
-    initial_choice = choices[drawing_globals.use_color_sorted_vbos_default]
-    drawing_globals.use_color_sorted_vbos_pref = debug_pref(
-        "Use Color-sorted Vertex Buffer Objects?", initial_choice,
-        prefs_key = drawing_globals.use_color_sorted_vbos_prefs_key)
     #russ 080819: Added.
     initial_choice = choices[drawing_globals.use_sphere_shaders_default]
     drawing_globals.use_sphere_shaders_pref = debug_pref(

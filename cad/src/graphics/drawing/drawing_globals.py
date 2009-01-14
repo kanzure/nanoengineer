@@ -31,9 +31,6 @@ allow_color_sorting_prefs_key = "allow_color_sorting_rev2"
 #russ 080225: Added, 080314: default on.
 use_color_sorted_dls = use_color_sorted_dls_default = True
 use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
-#russ 080320: Added.
-use_color_sorted_vbos = use_color_sorted_vbos_default = False
-use_color_sorted_vbos_prefs_key = "use_color_sorted_vbos"
 #russ 080403: Added drawing variant selection.
 use_drawing_variant = use_drawing_variant_default = 1 # DrawArrays from CPU RAM.
 use_drawing_variant_prefs_key = "use_drawing_variant"
@@ -98,7 +95,7 @@ def updatePrefsVars():
     """
     Helper for GLPrefs.update() .
     """
-    global allow_color_sorting, use_color_sorted_dls, use_color_sorted_vbos
+    global allow_color_sorting, use_color_sorted_dls
     global use_sphere_shaders, use_batched_primitive_shaders, use_drawing_variant
     global use_c_renderer
     allow_color_sorting = env.prefs.get(
@@ -108,10 +105,6 @@ def updatePrefsVars():
     use_color_sorted_dls = env.prefs.get(
         use_color_sorted_dls_prefs_key,
         use_color_sorted_dls_default)
-
-    use_color_sorted_vbos = env.prefs.get(
-        use_color_sorted_vbos_prefs_key,
-        use_color_sorted_vbos_default)
 
     use_sphere_shaders = env.prefs.get(
         use_sphere_shaders_prefs_key,

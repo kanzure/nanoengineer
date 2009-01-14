@@ -145,8 +145,6 @@ class GLPrefs:
                               drawing_globals.allow_color_sorting_default),)
         res += (env.prefs.get(drawing_globals.use_color_sorted_dls_prefs_key,
                               drawing_globals.use_color_sorted_dls_default),)
-        res += (env.prefs.get(drawing_globals.use_color_sorted_vbos_prefs_key,
-                              drawing_globals.use_color_sorted_vbos_default),)
         res += (env.prefs.get(drawing_globals.use_drawing_variant_prefs_key,
                               drawing_globals.use_drawing_variant_default),)
         res += (env.prefs.get(drawing_globals.use_sphere_shaders_prefs_key,

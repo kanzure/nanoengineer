@@ -403,14 +403,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         """
         Draw the displist (cached display procedure.)
         """
-        #russ 080320: Experiment with VBO drawing from cached ColorSorter lists.
-        if (ColorSortedDisplayList.cache_ColorSorter and
-            drawing_globals.allow_color_sorting and
-            drawing_globals.use_color_sorted_vbos):
-            ColorSorter.draw_sorted(self.sorted_by_color)
-        else:
-            # Call a normal OpenGL display list.
-            glCallList(self.dl)
+        # Call a normal OpenGL display list.
+        # (bruce 090114: removed support for use_color_sorted_vbos)
+        glCallList(self.dl)
         return
 
     def selectPick(self, boolVal):
@@ -822,8 +817,9 @@ class ColorSorter:
 
         pickstate (optional) indicates whether the parent is currently selected.
         """
-
         #russ 080225: Moved glNewList here for displist re-org.
+        # (bruce 090114: removed support for use_color_sorted_vbos)
+        
         assert ColorSorter._parent_csdl is None #bruce 090105
         ColorSorter._parent_csdl = csdl  # used by finish()
         if pickstate is not None:
@@ -838,11 +834,10 @@ class ColorSorter:
             csdl.clearPrimitives()
 
             if not (drawing_globals.allow_color_sorting and
-                    (drawing_globals.use_color_sorted_dls
-                     or drawing_globals.use_color_sorted_vbos)): #russ 080320
+                    drawing_globals.use_color_sorted_dls): #russ 080320
                 # This is the beginning of the single display list created when
-                # color sorting is turned off.  It is ended in
-                # ColorSorter.finish .  In between, the calls to
+                # color sorting is turned off. It is ended in
+                # ColorSorter.finish . In between, the calls to
                 # draw{sphere,cylinder,polycone} methods pass through
                 # ColorSorter.schedule_* but are immediately sent to *_worker
                 # where they do OpenGL drawing that is captured into the display
@@ -919,39 +914,24 @@ class ColorSorter:
                 print ("using Python renderer: use_color_sorted_dls %s enabled"
                        % (drawing_globals.use_color_sorted_dls and 'IS'
                           or 'is NOT'))
-                print ("using Python renderer: use_color_sorted_vbos %s enabled"
-                       % (drawing_globals.use_color_sorted_vbos and 'IS'
-                          or 'is NOT'))
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
 
             if (not (drawing_globals.allow_color_sorting and
                      drawing_globals.use_color_sorted_dls)
-                or (ColorSortedDisplayList.cache_ColorSorter and
-                    drawing_globals.allow_color_sorting and
-                    drawing_globals.use_color_sorted_vbos)
-                #russ 080225 Added, 080320 VBO experiment.
                 or parent_csdl is None):
-
+                
                 # Either all in one display list, or immediate-mode drawing.
+                # (REVIEW: are both possibilities still present, now that
+                #  use_color_sorted_vbos is removed?)
                 objects_drawn += ColorSorter.draw_sorted(
                     ColorSorter.sorted_by_color)
 
                 #russ 080225: Moved glEndList here for displist re-org.
                 if parent_csdl is not None:
-                    #russ 080320: Experiment with VBO drawing from cached
-                    #ColorSorter lists.
-                    if (ColorSortedDisplayList.cache_ColorSorter and
-                        drawing_globals.allow_color_sorting and
-                        drawing_globals.use_color_sorted_vbos):
-                        # Remember the ColorSorter lists for use as a
-                        # pseudo-display-list.
-                        parent_csdl.sorted_by_color = \
-                                   ColorSorter.sorted_by_color
-                    else:
-                        # Terminate a single display list, created when color
-                        # sorting is turned off.  Started in ColorSorter.start .
-                        glEndList()
+                    # Terminate a single display list, created when color
+                    # sorting is turned off. Started in ColorSorter.start .
+                    glEndList()
                     pass
                 pass
 
