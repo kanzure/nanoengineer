@@ -18,6 +18,25 @@ model code, all to help the graphics_mode (and command?) for Build Crystal
 is not clear -- for now say "command" since nothing less does all the above.
 But it'll end up in a package for Build Crystal, so this might be ok.
 [bruce 071215]
+
+Note about cleaning up how this uses ColorSortedDisplayList [bruce 090114]:
+
+* it allocates one, and sometimes draws it in the usual ColorSorter.start/finish
+manner, other times uses glCallList on its .dl directly, and other times 
+directly compiles its own OpenGL code into its .dl member. 
+
+* part of this could be converted into CSDL.draw() calls,
+but the direct compiling of our own OpenGL code into a display list
+kept in the CSDL is not a formally supported use of the CSDL, 
+and it won't necessarily keep working with CSDL.draw() (once we're using
+batched shader primitives for any primitives we draw here). Either we should
+add that kind of feature to the CSDL API (let any CSDL contain one or more
+optional "extra display lists for arbitrary outside use, to be drawn whenever
+that CSDL is drawn"), or fix this in some other way.
+
+* Until then, this code may stop drawing properly when batched shader primitives
+are fully implemented, and its use of .dl may become the only reason we need to 
+keep that member around in CSDL.
 """
 
 from Numeric import dot, floor

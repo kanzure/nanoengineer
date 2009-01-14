@@ -39,6 +39,22 @@ ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 
 08xxxx russ added shader support
+
+REVIEW:
+
+bruce 090114: 
+
+* there are a lot of calls of glGenLists(1) that would be VRAM memory leaks
+if they didn't deallocate any prior display list being stored in the same attribute
+as the new one. I *think* they are not leaks, since self.reset is called
+before them, and it calls self.deallocate_displists, but it would be good 
+to confirm this by independent review, and perhaps to assert that all 
+re-allocated DL id attributes are zero (and zero them in deallocate_displists),
+to make this very clear.
+
+* see my comments dated 090114 about cleaning up .dl, .selected, .selectPick,
+and activate (and related comments in CrystalShape.py and chunk.py).
+
 """
 
 from OpenGL.GL import GL_BLEND
@@ -151,11 +167,20 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         self.clear()
 
         # Whether to draw in the selection over-ride color.
-        # NOTE [bruce 090114]: a near-term goal is to remove
+        self.selected = False
+
+        ### TODO [bruce 090114 comment]: a near-term goal is to remove
         # self.selected and self.dl, so that self only knows
         # how to draw either way, but always finds out as-needed
         # (from client state) which way to actually draw.
-        self.selected = False
+        # Reviewing the current code, I think the only remaining
+        # essential use of self.dl is in CrystalShape.py
+        # (see new comment in its docstring for how to clean that up),
+        # and the only remaining essential use of self.selected 
+        # (aside from maintaining self.dl, no longer needed if it's removed)
+        # is in ColorSorter.finish (which should be replaced by
+        # passing finish the same drawing-style arguments that
+        # CSDL.draw accepts).
 
         return
 
@@ -173,6 +198,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     def __del__(self):         # Called by Python when an object is being freed.
         self.destroy()
         return
+    
     def destroy(self):         # Called by us to break cyclic reference loops.
         # Free any OpenGL resources.
         ## REVIEW: Need to wait for our OpenGL context to become current when
@@ -230,10 +256,16 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     
     # ==
 
+    ### REVIEW: the methods draw_in_abs_coords and nodes_containing_selobj
+    # don't make sense in this class in the long run, since it is not meant
+    # to be directly used as a "selobj" or as a Node. I presume they are
+    # only needed by temporary testing and debugging code, and they should be
+    # removed when no longer needed. [bruce 090114 comment]
+    
     # Russ 081128: Used by preDraw_glselect_dict() in standard_repaint_0(), and
     # draw_highlighted_objectUnderMouse() in _do_other_drawing_inside_stereo().
     def draw_in_abs_coords(self, glpane, color):
-        self.draw(highlighted=True, highlight_color=color)
+        self.draw(highlighted = True, highlight_color = color)
         return
 
     # Russ 081128: Used by GLPane._update_nodes_containing_selobj().
@@ -244,9 +276,12 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     # ==
 
-    def draw(self, highlighted = False, selected = False,
-             patterning = True, highlight_color = None,
-             draw_primitives = True):
+    def draw(self, 
+             highlighted = False, 
+             selected = False,
+             patterning = True, 
+             highlight_color = None,
+             draw_primitives = True ):
         """
         Simple all-in-one interface to CSDL drawing.
 
@@ -388,6 +423,10 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         Make a top-level display list id ready, but don't fill it in.
         """
+        ### REVIEW: after today's cleanup, I think this can no longer be called.
+        # (Though it may be a logic bug that CrystalShape.py never calls it.)
+        # [bruce 090114 comment]
+        
         # Display list id for the current appearance.
         if not self.selected:
             self.color_dl = glGenLists(1)
@@ -929,7 +968,8 @@ class ColorSorter:
 
             else: #russ 080225
 
-                parent_csdl.reset()
+                parent_csdl.reset() 
+                    # (note: this deallocates any existing display lists)
                 selColor = env.prefs[selectionColor_prefs_key]
                 vboLevel = drawing_globals.use_drawing_variant
 

@@ -3754,8 +3754,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 # Note: selectPick shouldn't be needed for self.extra_displists,
                 # due to how they're drawn.
                 ### REVIEW [bruce 090114]: is selectPick still needed for
-                #self.displist? If not, is the CSDL picked state still needed
-                #for anything? (A goal is to remove it entirely.)
+                # self.displist? If not, is the CSDL picked state still needed
+                # for anything? (A goal is to remove it entirely.) For status on
+                # this, see my 090114 comments in ColorSorter.py (summary: it is
+                # almost but not quite possible to remove it now).
             pass
         return
 
