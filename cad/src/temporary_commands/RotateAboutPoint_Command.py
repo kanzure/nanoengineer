@@ -1,9 +1,9 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: Ninad
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -151,16 +151,16 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             self.command.rotateAboutPoint()
             #Exit this GM's command (i.e. the command 'RotateAboutPoint')
             self.command.command_Done()
-            return
+        return
         
     def _getCursorText_length(self, vec):
-       """
-       Overrides superclass method. 
-       @see: self._drawCursorText() for details. 
-       """
-       #Based on Mark's email (as of 2008-12-08) , the rotate about point don't
-       #need length in the cursor text. So just return an empty string
-       return ''
+        """
+        Overrides superclass method. 
+        @see: self._drawCursorText() for details. 
+        """
+        #Based on Mark's email (as of 2008-12-08) , the rotate about point don't
+        #need length in the cursor text. So just return an empty string
+        return ''
     
     def _getCursorText_angle(self, vec):
         """
@@ -275,7 +275,6 @@ class RotateAboutPoint_Command(Line_Command):
 
     def ORIG_rotateAboutPoint(self): #THIS IS NOT USED AS OF NOV 28, 2008 SCHEDULED FOR REMOVAL
         """
-        
         Rotates the selected entities along the specified vector, about the
         specified pivot point (pivot point it the starting point of the
         drawn vector.
@@ -353,6 +352,6 @@ class RotateAboutPoint_Command(Line_Command):
         return ()
     
     
-        pass # end of class RotateAboutPoint_Command
+    pass # end of class RotateAboutPoint_Command
 
 # end
