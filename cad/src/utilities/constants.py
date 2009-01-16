@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc. See LICENSE file for details.
 """
 constants.py -- constants and trivial functions used in multiple modules.
 
@@ -11,7 +11,7 @@ cleaned up.)
 gensym out of it for that reason.)
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from PyQt4.Qt import Qt
@@ -86,7 +86,8 @@ debugModifiers = cntlModifier | shiftModifier | altModifier
 #  and their names always need to be suitable for using up in every module.)
 
 
-def noop(*args,**kws): pass
+def noop(*args, **kws): 
+    pass
 
 def intRound(num): #bruce 080521
     """
@@ -178,7 +179,7 @@ def gensym(prefix, assy = None):
     prefix = _fix_gensym_prefix(prefix)
     names_to_avoid = {} # maps name -> anything, for 0 or more names we don't want to generate
     # fill names_to_avoid with node names from assy, if provided
-    import debug_flags # might be an import cycle, but probably ok for now
+    import utilities.debug_flags as debug_flags # import cycle, but ok for now (temporarily)
         ### TODO: move this function elsewhere; it violates this module's
         # import policy [bruce 080711 comment]
     if assy is not None:
@@ -314,7 +315,7 @@ def get_dispName_for_writemmp(display): #bruce 080324, revised 080328
         # Might need to be a relative import to work, so use one.
         # Surely needs to be a runtime import, and only run in this function.
         # [bruce 080328]
-        from GlobalPreferences import debug_pref_write_new_display_names
+        from utilities.GlobalPreferences import debug_pref_write_new_display_names
         if debug_pref_write_new_display_names():
             return _new_dispNames[display]
     return dispNames[display]
@@ -345,7 +346,7 @@ def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 
     else:
         return _return(res)
 
-    from GlobalPreferences import debug_pref_read_new_display_names
+    from utilities.GlobalPreferences import debug_pref_read_new_display_names
         # see comment for similar import -- temporary [bruce 080328]
 
     if debug_pref_read_new_display_names():
