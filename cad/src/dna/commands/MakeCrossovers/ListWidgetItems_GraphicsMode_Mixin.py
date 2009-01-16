@@ -1,9 +1,9 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 @author: Ninad
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -31,8 +31,8 @@ class ListWidgetItems_GraphicsMode_Mixin:
 
     def chunkLeftUp(self, a_chunk, event):
         """
-        Overrides superclass method. If add or remove segmets tool is active, 
-        upon leftUp , when this method gets called, it modifies the list 
+        Overrides superclass method. If add or remove segments tool is active, 
+        upon leftUp, when this method gets called, it modifies the list 
         of segments by self.command.
         @see: self.update_cursor_for_no_MB()
         @see: self.end_selection_from_GLPane()

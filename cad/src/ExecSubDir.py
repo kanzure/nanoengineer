@@ -27,12 +27,11 @@ and it will get it right.
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 
-
 import sys
 
 if (__name__ == '__main__'):
     if (len(sys.argv) < 2):
-        print >>sys.stderr, "usage: %s fileToRun.py" % sys.argv[0]
+        print >> sys.stderr, "usage: %s fileToRun.py" % sys.argv[0]
         sys.exit(1)
 
     execfile(sys.argv[1])

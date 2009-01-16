@@ -1,8 +1,8 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author: Ninad
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Created on 2008-02-14
@@ -967,7 +967,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
     def makeMenus(self): 
         """
-        Create context menu for this command. (Build Dna mode)
+        Create context menu for this command.
         """
         if not hasattr(self, 'graphicsMode'):
             return
@@ -994,6 +994,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             return
 
         if self.hasValidStructure():
+            ### REVIEW: these early returns look wrong, since they skip running
+            # the subsequent call of highlightedChunk.make_glpane_cmenu_items
+            # for no obvious reason. [bruce 090114 comment, in two commands]
             if (self.struct is highlightedChunk) or \
                (self.struct is highlightedChunk.parent_node_of_class(
                    self.assy.DnaStrand)):
@@ -1012,6 +1015,5 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                 self.Menu_spec.append(item)
                 return
 
-        highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                        command = self)
+        highlightedChunk.make_glpane_cmenu_items(self.Menu_spec, self)
 

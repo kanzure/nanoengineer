@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 BuildDna_EditCommand.py
 
 @author: Ninad
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Ninad 2008-01-11: Created
@@ -375,7 +375,7 @@ class BuildDna_EditCommand(EditCommand):
     def makeMenus(self):
         """
         Create context menu for this command. (Build Dna mode)
-        @see: chunk.make_glpane_context_menu_items
+        @see: chunk.make_glpane_cmenu_items
         @see: DnaSegment_EditCommand.makeMenus
         """
         if not hasattr(self, 'graphicsMode'):
@@ -401,7 +401,6 @@ class BuildDna_EditCommand(EditCommand):
                 highlightedChunk = chunk1
 
         if highlightedChunk is not None:
-            highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                            command = self)
+            highlightedChunk.make_glpane_cmenu_items(self.Menu_spec, self)
             return
         

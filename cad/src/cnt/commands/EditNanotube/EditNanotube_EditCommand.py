@@ -1,10 +1,10 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 EditNanotube_EditCommand.py
 
 @author: Ninad, Mark
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 While in this command, user can 
 (a) Highlight and then left drag the resize handles located at the 
@@ -701,7 +701,7 @@ class EditNanotube_EditCommand(State_preMixin, EditCommand):
 
     def makeMenus(self): 
         """
-        Create context menu for this command. (Build Dna mode)
+        Create context menu for this command.
         """
         if not hasattr(self, 'graphicsMode'):
             return
@@ -727,6 +727,5 @@ class EditNanotube_EditCommand(State_preMixin, EditCommand):
         if highlightedChunk is None:
             return
 
-        highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                        command = self)
+        highlightedChunk.make_glpane_cmenu_items(self.Menu_spec, self)
         return

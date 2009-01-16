@@ -104,17 +104,17 @@ class SelectChunks_Command(Select_Command):
         
         self.__previous_command_stack_change_indicator = indicator
         self.assy.selectChunksWithSelAtoms_noupdate()
-        
+        return
    
     call_makeMenus_for_each_event = True
-    #bruce 050914 enable dynamic context menus
-    # [fixes an unreported bug analogous to 971]
+    
     def makeMenus(self): # mark 060303.
         """
         Make the GLPane context menu for Select Chunks.
         """
 
         self.Menu_spec = []
+        
         selobj = self.glpane.selobj
         highlightedChunk = None
         if isinstance(selobj, Chunk):
@@ -133,8 +133,7 @@ class SelectChunks_Command(Select_Command):
         ]
         
         if highlightedChunk is not None:
-            highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                     command = self)
+            highlightedChunk.make_glpane_cmenu_items(self.Menu_spec, self)
             return
 
         _numberOfSelectedChunks = self.o.assy.getNumberOfSelectedChunks()
@@ -145,8 +144,7 @@ class SelectChunks_Command(Select_Command):
         
         elif _numberOfSelectedChunks == 1:
             selectedChunk = self.o.assy.selmols[0]
-            selectedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                 command = self)            
+            selectedChunk.make_glpane_cmenu_items(self.Menu_spec, self)            
         elif _numberOfSelectedChunks > 1:            
             self._makeEditContextMenus()
             self.Menu_spec.extend([None]) # inserts separator
@@ -167,7 +165,6 @@ class SelectChunks_Command(Select_Command):
         """
         Insert the 'standard' menu items for the GLPane context menu.
         """
-        
         self.Menu_spec.extend(
             [('Edit Color Scheme...', self.w.colorSchemeCommand)])
         
@@ -196,7 +193,7 @@ class SelectChunks_Command(Select_Command):
             mol.invalidate_everything()
         for atm in self.o.assy.selatoms.values():
             atm.invalidate_everything()
-
+        return
     
     def update_selection(self): #bruce 041115 (debugging method)
         """

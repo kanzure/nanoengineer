@@ -56,7 +56,6 @@ bruce 080305 changed superclass from Node to NodeWithAtomContents
 _DRAW_BONDS = True # Debug/test switch. Similar constant in CS_workers.py.
 
 import math # only used for pi, everything else is from Numeric [as of before 071113]
-import re
 import Numeric # for sqrt
 from Numeric import array
 from Numeric import add
@@ -72,7 +71,6 @@ from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
-from OpenGL.GL import glCallList
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
 
@@ -87,7 +85,7 @@ from foundation.NodeWithAtomContents import NodeWithAtomContents
 from utilities.Log import graymsg
 
 from utilities.debug import print_compact_stack
-from utilities.debug import compact_stack
+## from utilities.debug import compact_stack
 from utilities.debug import print_compact_traceback
 from utilities.debug import safe_repr
 
@@ -128,8 +126,6 @@ from utilities.prefs_constants import selectionColor_prefs_key
 
 from utilities.constants import gensym, genKey
 
-from utilities.constants import default_display_mode
-
 from utilities.constants import diDEFAULT
 from utilities.constants import diINVISIBLE
 from utilities.constants import diBALL
@@ -145,18 +141,12 @@ from utilities.constants import BBOX_MIN_RADIUS
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from utilities.constants import noop
 
-from utilities.constants import MODEL_PAM3, MODEL_PAM5
-
 from utilities.GlobalPreferences import use_frustum_culling
 from utilities.GlobalPreferences import pref_show_node_color_in_MT
 
 from model.elements import PeriodicTable
 
 from commands.ChunkProperties.ChunkProp import ChunkProp
-
-from dna.model.Dna_Constants import getComplementSequence
-
-from operations.bond_chains import grow_directional_bond_chain
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.gl_lighting import apply_material
@@ -166,6 +156,8 @@ from graphics.drawables.Selobj import Selobj_API
 from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
 from graphics.drawing.special_drawing import SpecialDrawing_ExtraChunkDisplayList
 from graphics.drawing.special_drawing import Chunk_SpecialDrawingHandler
+
+from model.Chunk_Dna_methods import Chunk_Dna_methods
 
 # ==
 
@@ -198,9 +190,11 @@ _inval_all_bonds_counter = 1 # private global counter [bruce 050516]
 
 _superclass = NodeWithAtomContents #bruce 080305 revised this
 
-class Chunk(NodeWithAtomContents, InvalMixin,
+class Chunk(Chunk_Dna_methods, 
+            NodeWithAtomContents, 
+            InvalMixin,
             SelfUsageTrackingMixin, SubUsageTrackingMixin,
-            Selobj_API):
+            Selobj_API ):
     """
     A set of atoms treated as a unit.
     """
@@ -258,39 +252,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     ## user_specified_center = None # never changed for now, so not in copyable_attrs
 
-    # PAM3+5 attributes (these only affect PAM atoms in self, if any):
-    #
-    # self.display_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion on input
-    #   to the specified PAM model for display and editing of self, or can be
-    #   "" to use global preference settings. (There is no value which always
-    #   causes no conversion, but there may be preference settings which disable
-    #   ever doing conversion. But in practice, a PAM chunk will be all PAM3 or
-    #   all PAM5, so this can be set to the model the chunk uses to prevent
-    #   conversion for that chunk.)
-    #
-    #  The value MODEL_PAM3 implies preservation of PAM5 data when present
-    #  (aka "pam3+5" or "pam3plus5"). The allowed values are "", MODEL_PAM3, MODEL_PAM5.
-    #
-    # self.save_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion on save
-    #   to the specified PAM model. When not set, global settings or save
-    #   parameters determine which model to convert to, and whether to ever
-    #   convert.
-    #
-    # [bruce 080321 for PAM3+5] ### TODO: use for conversion, and prevent
-    # ladder merge when different
-
-    display_as_pam = "" 
-        # PAM model to use for displaying and editing PAM atoms in self (not
-        # set means use user pref)
-
-    save_as_pam = "" 
-        # PAM model to use for saving self (not normally set; not set means
-        # use save-op params)
-
-    copyable_attrs = _superclass.copyable_attrs + ('display', 'color',
-                                                   'display_as_pam', 'save_as_pam', 
-                                                   'protein')
-        # this extends the tuple from Node
+    copyable_attrs = _superclass.copyable_attrs + \
+                   ('display', 'color', 'protein') + \
+                   Chunk_Dna_methods._dna_copyable_attrs
+        # this extends the copyable_attrs tuple from Node
         # (could add _colorfunc, but better to handle it separately in case this
         #  gets used for mmp writing someday. as of 051003 _colorfunc would
         #  anyway not be permitted since state_utils.copy_val doesn't know
@@ -502,52 +467,36 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         return False
 
-    def invalidate_ladder(self): #bruce 071203
+    def make_glpane_cmenu_items(self, contextMenuList, command): # by Ninad
         """
-        Subclasses which have a .ladder attribute
-        should call its ladder_invalidate_if_not_disabled method.
+        Make glpane context menu items for this chunk (and append them to
+        contextMenuList), some of which may be specific to the given command
+        (presumably the current command) based on its having a commandName
+        for which we have special-case code.
         """
-        return
-
-    def invalidate_ladder_and_assert_permitted(self): #bruce 080413
-        """
-        Subclasses which have a .ladder attribute
-        should call its ladder_invalidate_and_assert_permitted method.
-        """
-        return
-
-    def in_a_valid_ladder(self): #bruce 071203
-        """
-        Is this chunk a rail of a valid DnaLadder?
-        [subclasses that might be should override]
-        """
-        return False
-
-    def make_glpane_context_menu_items(self, contextMenuList, command = None):
-        """
-        """
-        # TODO: See make_selobj_cmenu_items in other classes. This method is very
+        # Note: See make_selobj_cmenu_items in other classes. This method is very
         # similar to that method. But it's not named the same because the chunk
         # may not be a glpane.selobj (as it may get highlighted in SelectChunks
         # mode even when, for example, the cursor is over one of its atoms 
-        # (i.e. selobj = an Atom). So ideally, that old method should be renamed
-        # to this one. [Ninad]
-        if command is None:
-            return
+        # (i.e. selobj = an Atom). So ideally, that method and this one should be
+        # unified somehow. This method exists only in class Chunk and is called
+        # only by certain commands. [comment originally by Ninad, revised by Bruce]
+
+        assert command is not None
         
         #Start Standard context menu items rename and delete [by Ninad]
-        
-        ### TODO: refactor to not hardcode these classes,
-        # but to have a uniform way to find the innermost node
-        # visible in the MT, to be renamed.
-        ### Also REVIEW whether this is always the same as the unit
-        # of hover highlighting, and if not, whether it should be,
-        # and if so, whether the same code can be used to determine
-        # the highlighted object and the object to rename or delete.
-        # [bruce 081210 comments]
-        
+
         parent_node_classes = (self.assy.DnaStrandOrSegment, 
                                self.assy.NanotubeSegment)
+            ### TODO: refactor to not hardcode these classes,
+            # but to have a uniform way to find the innermost node
+            # visible in the MT, which is the node to be renamed.
+        
+            ### Also REVIEW whether what this finds (node_to_rename) is always
+            # the same as the unit of hover highlighting, and if not, whether
+            # it should be, and if so, whether the same code can be used to
+            # determine the highlighted object and the object to rename or
+            # delete. [bruce 081210 comments]
         
         parent_node = None
         
@@ -557,6 +506,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 break
 
         node_to_rename = parent_node or self
+        del parent_node
+        
         name = node_to_rename.name
         
         item = (("Rename %s..." % name),
@@ -569,28 +520,22 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             node_to_rename.kill_with_contents()
             return
         
+        del node_to_rename
+        
         item = (("Delete %s" % name), delnode_cmd )
         contextMenuList.append(item)
         #End Standard context menu items rename and delete
 
-        def addDnaGroupMenuItems(dnaGroup):
-            if dnaGroup is None:
-                return
-            item = (("DnaGroup: [%s]" % dnaGroup.name), noop, 'disabled')
-            contextMenuList.append(item)	    
-            item = (("Edit DnaGroup Properties..."), 
-                    dnaGroup.edit) 
-            contextMenuList.append(item)
-            return
-        
-        #Urmi 20080730: edit properties for protein for context menu in gl pane
+        # Protein-related items
+        #Urmi 20080730: edit properties for protein for context menu in glpane
         if command.commandName in ('SELECTMOLS', 'BUILD_PROTEIN'):
             if self.isProteinChunk():
                 try:
                     protein = self.protein
                 except:
                     print_compact_traceback("exception in protein class")
-                    return
+                    return 
+                    ### REVIEW: is this early return appropriate? [bruce 090115 comment]
                 if protein is not None:
                     item = (("%s" % (self.name)),
                             noop, 'disabled')
@@ -600,7 +545,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                              protein.edit(_arg))
                              )
                     contextMenuList.append(item)
-                    
+                    pass
+                pass
+            pass
+        
+        # Nanotube-related items
         if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'EDIT_NANOTUBE'):
             if self.isNanotubeChunk():
                 try:
@@ -617,6 +566,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     # [bruce 080723 comment and debug print]
                     print_compact_traceback("exception in %r.parent_node_of_class: " % self)
                     return
+                    ### REVIEW: is this early return appropriate? [bruce 090115 comment]
                 if segment is not None:
                     # Self is a member of a Nanotube group, so add this 
                     # info to a disabled menu item in the context menu.
@@ -627,82 +577,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     item = (("Edit Nanotube Properties..."), 
                             segment.edit)
                     contextMenuList.append(item)
-
+                    pass
+                pass
+            pass
+        
+        # Dna-related items
         if command.commandName in ('SELECTMOLS', 'BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND'):
-            if self.isStrandChunk():
-                strandGroup = self.parent_node_of_class(self.assy.DnaStrand)
-
-                if strandGroup is None:
-                    strand = self
-                else:
-                    #dna_updater case which uses DnaStrand object for 
-                    #internal DnaStrandChunks
-                    strand = strandGroup                
-
-                dnaGroup = strand.parent_node_of_class(self.assy.DnaGroup)
-
-                if dnaGroup is None:
-                    #This is probably a bug. A strand should always be contained
-                    #within a Dnagroup. Lets assume that this is possible. 
-                    item = (("%s" % strand.name), noop, 'disabled')
-                else:
-                    item = (("%s of [%s]" % (strand.name, dnaGroup.name)),
-                            noop,
-                            'disabled')	
-                contextMenuList.append(None) # adds a separator in the contextmenu
-                contextMenuList.append(item)	    
-                item = (("Edit DnaStrand Properties..."), 
-                        strand.edit) 			  
-                contextMenuList.append(item)
-                contextMenuList.append(None) # separator
-                
-                addDnaGroupMenuItems(dnaGroup)
-                
-                # add menu commands from our DnaLadder [bruce 080407]
-                if self.ladder:
-                    menu_spec = self.ladder.dnaladder_menu_spec(self)
-                        # note: this is empty when self (the arg) is a Chunk.
-                        # [bruce 080723 refactoring a recent Mark change]
-                    if menu_spec:
-                        # append separator?? ## contextMenuList.append(None)
-                        contextMenuList.extend(menu_spec)
-
-            elif self.isAxisChunk():
-                segment = self.parent_node_of_class(self.assy.DnaSegment)
-                dnaGroup = segment.parent_node_of_class(self.assy.DnaGroup)
-                if segment is not None:
-                    contextMenuList.append(None) # separator
-                    if dnaGroup is not None:
-                        item = (("%s of [%s]" % (segment.name, dnaGroup.name)),
-                                noop,
-                                'disabled')
-                    else:
-                        item = (("%s " % segment.name),
-                                noop,
-                                'disabled')
-
-                    contextMenuList.append(item)
-                    item = (("Edit DnaSegment Properties..."), 
-                            segment.edit)
-                    contextMenuList.append(item)
-                    contextMenuList.append(None) # separator
-                    # add menu commands from our DnaLadder [bruce 080407]
-                    if segment.picked:       
-                        selectedDnaSegments = self.assy.getSelectedDnaSegments()
-                        if len(selectedDnaSegments) > 0:
-                            item = (("Resize Selected DnaSegments "\
-                                     "(%d)..."%len(selectedDnaSegments)), 
-                                    self.assy.win.resizeSelectedDnaSegments)
-                            contextMenuList.append(item)
-                            contextMenuList.append(None)
-                    if self.ladder:
-                        menu_spec = self.ladder.dnaladder_menu_spec(self)
-                        if menu_spec:
-                            contextMenuList.extend(menu_spec)
-                            
-                    addDnaGroupMenuItems(dnaGroup)
-
-        return # from make_glpane_context_menu_items
+            self._make_glpane_cmenu_items_Dna(contextMenuList)
+        
+        return # from make_glpane_cmenu_items
 
     def nodes_containing_selobj(self): #bruce 080508 bugfix
         """
@@ -766,374 +649,32 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     def _f_remove_ExternalBondSet(self, ebset):
         otherchunk = ebset.other_chunk(self)
         del self._bonded_chunks[otherchunk]
-    
-    # START of Dna-Strand-or-Axis chunk specific code ==========================
-
-    # Note: all these methods will be removed from class Chunk once the
-    # dna data model is always active. [bruce 080205 comment]
-
-    # Assign a strand sequence (or get that information from a chunk) 
-    # MEANT ONLY FOR THE DNA CHUNK. THESE METHODS NEED TO BE MOVED TO AN 
-    # APPROPRIATE FILE IN The dna_model PACKAGE -- Ninad 2008-01-11
-    # [And revised to use DnaMarkers for sequence alignment as Ninad suggests below.
-    #  The sequence methods will end up as methods of DnaStrand with
-    #  possible helper methods on objects it owns, like DnaStrandChunk
-    #  (whose bases are in a known order) or DnaMarker or internal objects
-    #  they refer to. -- Bruce 080117/080205 comment]
-
-    def getStrandSequence(self):
-        """
-        Returns the strand sequence for this chunk (strandChunk)
-        @return: strand Sequence string
-        @rtype: str
-        """
-        sequenceString = ""
-        for atom in self.get_strand_atoms_in_bond_direction():
-            baseName = str(atom.getDnaBaseName())        
-            if baseName:
-                sequenceString = sequenceString + baseName
-
-        return sequenceString
-
-
-    def setStrandSequence(self, sequenceString):
-        """
-        Set the strand sequence i.e.assign the baseNames for the PAM atoms in 
-        this strand AND the complementary baseNames to the PAM atoms of the 
-        complementary strand ('mate strand')
-        @param sequenceString: The sequence to be assigned to this strand chunk
-        @type sequenceString: str
-        """      
-        sequenceString = str(sequenceString)
-        #Remove whitespaces and tabs from the sequence string
-        sequenceString = re.sub(r'\s', '', sequenceString)
-
-        #May be we set this beginning with an atom marked by the 
-        #Dna Atom Marker in dna data model? -- Ninad 2008-01-11
-        # [yes, see my longer reply comment above -- Bruce 080117]
-        atomList = []           
-        for atom in self.get_strand_atoms_in_bond_direction():
-            if not atom.is_singlet():
-                atomList.append(atom)
-
-        for atom in atomList:   
-            atomIndex = atomList.index(atom)
-            if atomIndex > (len(sequenceString) - 1):
-                #In this case, set an unassigned base ('X') for the remaining 
-                #atoms
-                baseName = 'X'
-            else:
-                baseName = sequenceString[atomIndex]
-
-            atom.setDnaBaseName(baseName)
-
-            #Also assign the baseNames for the PAM atoms on the complementary 
-            #('mate') strand.
-            strandAtomMate = atom.get_strand_atom_mate()
-            complementBaseName = getComplementSequence(str(baseName))
-            if strandAtomMate is not None:
-                strandAtomMate.setDnaBaseName(str(complementBaseName))
-        return
-    
-    def edit(self): # probably by Ninad
-        # This method could be revised (moved to appropriate class or subclass)
-        # post dna_model implementation.
+        
+    def edit(self):
         ### REVIEW: model tree has a special case for isProteinChunk;
         # should we pull that in here too? Guess yes.
         # (Note, there are several other uses of isProteinChunk
         #  that might also be worth refactoring.) [bruce 090106 comment]
         if self.isStrandChunk():
-            commandSequencer = self.assy.w.commandSequencer
-            commandSequencer.userEnterCommand('DNA_STRAND')                
-            assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
-            commandSequencer.currentCommand.editStructure(self)
+            self._editProperties_DnaStrandChunk()
         else:
             cntl = ChunkProp(self)
             cntl.exec_()
             self.assy.mt.mt_update()
             ### REVIEW [bruce 041109]: don't we want to repaint the glpane, too?
 
-    def getProps(self):
+    def getProps(self): # probably by Ninad
         """
-        To be revised post dna data model. Used in EditConmmand class and its 
+        To be revised post dna data model. Used in EditCommand class and its 
         subclasses.
         """
         return ()
 
-    def setProps(self, params):
+    def setProps(self, params): # probably by Ninad
         """
-        To be revised post dna data model
+        To be revised post dna data model.
         """
         del params
-
-    def isStrandChunk(self): # Ninad circa 080117, revised by Bruce 080117
-        """
-        Returns True if *all atoms* in this chunk are PAM 'strand' atoms
-        or 'unpaired-base' atoms (or bondpoints), and at least one is a
-        'strand' atom.
-
-        Also resets self.iconPath (based on self.hidden) if it returns True.
-
-        This method is overridden in dna-specific subclasses of Chunk.
-        It is likely that this implementation on Chunk itself could now
-        be redefined to just return False, but this has not been analyzed closely.
-        
-        @see: BuildDna_PropertyManager.updateStrandListWidget where this is used
-              to filter out strand chunks to put those into the strandList 
-              widget.        
-        """
-        # This is a temporary method that can be removed once dna_model is fully
-        # functional. [That is true now; REVIEW whether it can really be removed,
-        # or more precisely, redefined to return False on this class. bruce 090106 addendum]
-        found_strand_atom = False
-        for atom in self.atoms.itervalues():
-            if atom.element.role == 'strand':
-                found_strand_atom = True
-                # side effect: use strand icon [mark 080203]
-                if self.hidden:
-                    self.iconPath = "ui/modeltree/Strand-hide.png"
-                else:
-                    self.iconPath = "ui/modeltree/Strand.png"
-            elif atom.is_singlet() or atom.element.role == 'unpaired-base':
-                pass
-            else:
-                # other kinds of atoms are not allowed
-                return False
-            continue
-
-        return found_strand_atom
-
-    def get_strand_atoms_in_bond_direction(self): # ninad 080205; bruce 080205 revised docstring
-        """
-        Return a list of atoms in a fixed direction -- from 5' to 3'
-
-        @note: this is a stub and we can modify it so that
-        it can accept other direction i.e. 3' to 5' , as an argument.
-
-        BUG: ? : This also includes the bondpoints (X)  .. I think this is 
-        from the atomlist returned by bond_chains.grow_directional_bond_chain.
-        The caller -- self.getStrandSequence uses atom.getDnaBaseName to
-        retrieve the DnaBase name info out of atom. So this bug introduces 
-        no harm (as dnaBaseNames are not assigned for bondpoints).
-
-        [I think at most one atom at each end can be a bondpoint,
-         so we could revise this code to remove them before returning.
-         bruce 080205]
-
-        @warning: for a ring, this uses an arbitrary start atom in self
-                  (so it is not yet useful in that case). ### VERIFY
-
-        @warning: this only works for PAM3 chunks (not PAM5).
-
-        @note: this would return all atoms from an entire strand (chain or ring)
-               even if it spanned multiple chunks.
-        """
-        startAtom = None
-        atomList = []
-
-        #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
-        # and not a bondpoint)
-        for atom in self.atoms.itervalues():
-            if atom.element.symbol == 'Ss3':
-                startAtom = atom
-                break        
-
-        if startAtom is None:
-            print_compact_stack("bug: no PAM3 Sugar atom (Ss3) found: " )
-            return []
-
-        #Build one list in each direction, detecting a ring too 
-
-        #ringQ decides whether the first returned list forms a ring. 
-        #This needs a better name in bond_chains.grow_directional_bond_chain
-        ringQ = False        
-        atomList_direction_1 = []
-        atomList_direction_2 = []     
-
-        b = None  
-        bond_direction = 0
-        for bnd in startAtom.directional_bonds():
-            if not bnd.is_open_bond(): # (this assumes strand length > 1)
-                #Determine the bond_direction from the 'startAtom'
-                direction = bnd.bond_direction_from(startAtom)
-                if direction in (1, -1):                    
-                    b = bnd
-                    bond_direction = direction
-                    break
-
-        if b is None or bond_direction == 0:
-            return []         
-
-        #Find out the list of new atoms and bonds in the direction 
-        #from bond b towards 'startAtom' . This can either be 3' to 5' direction 
-        #(i.e. bond_direction = -1 OR the reverse direction 
-        # Later, we will check  the bond direction and do appropriate things. 
-        #(things that will decide which list (atomList_direction_1 or 
-        #atomList_direction_2) should  be prepended in atomList so that it has 
-        #atoms ordered from 5' to 3' end. 
-
-        # 'atomList_direction_1' does NOT include 'startAtom'.
-        # See a detailed explanation below on how atomList_direction_a will be 
-        # used, based on bond_direction
-        ringQ, listb, atomList_direction_1 = grow_directional_bond_chain(b, startAtom)
-
-        del listb # don't need list of bonds
-
-        if ringQ:
-            # The 'ringQ' returns True So its it's a 'ring'.
-            #First add 'startAtom' (as its not included in atomList_direction_1)
-            atomList.append(startAtom)
-            #extend atomList with remaining atoms
-            atomList.extend(atomList_direction_1)            
-        else:       
-            #Its not a ring. Now we need to make sure to include atoms in the 
-            #direction_2 (if any) from the 'startAtom' . i.e. we need to grow 
-            #the directional bond chain in the opposite direction. 
-
-            other_atom = b.other(startAtom)
-            if not other_atom.is_singlet():  
-                ringQ, listb, atomList_direction_2 = grow_directional_bond_chain(b, other_atom)
-                assert not ringQ #bruce 080205
-                del listb
-                #See a detailed explanation below on how 
-                #atomList_direction_2 will be used based on 'bond_direction'
-                atomList_direction_2.insert(0, other_atom)
-
-            atomList = [] # not needed but just to be on a safer side.
-
-            if bond_direction == 1:
-                # 'bond_direction' is the direction *away from* startAtom and 
-                # along the bond 'b' declared above. . 
-
-                # This can be represented by the following sketch --
-                # (3'end) <--1 <-- 2 <-- 3 <-- 4 <-- (5' end)
-
-                # Let startAtom be '2' and bond 'b' be directional bond between 
-                # 1 and 2. In this case, the direction of bond *away* from 
-                # '2' and along 2  = bond direction of bond 'b' and thus 
-                # atoms traversed along bond_direction = 1 lead us to 3' end. 
-
-                # Now, 'atomList_direction_1'  is computed by 'growing' (expanding)
-                # a bond chain  in the direction that goes from bond b 
-                # *towards* startAtom. That is, in this case it is the opposite 
-                # direction of one specified by 'bond_direction'.  The last atom
-                # in atomList_direction_1 is the (5' end) atom.
-                # Note that atomList_direction_1 doesn't include 'startAtom'
-                # Therefore, to get atomList ordered from 5'to 3' end we must
-                #reverse atomList_direction_1 , then append startAtom to the 
-                #atomList (as its not included in atomList_direction_1) and then 
-                #extend atoms from atomList_direction_2. 
-
-                #What is atomList_direction_2 ?  It is the list of atoms 
-                #obtained by growing bond chain from bond b, in the direction of 
-                #atom 1 (atom 1 is the 'other atom' of the bond) . In this case 
-                #these are the atoms in the direction same as 'bond_direction'
-                #starting from atom 1. Thus the atoms in the list are already 
-                #arranged from 5' to 3' end. (also note that after computing 
-                #the atomList_direction_2, we also prepend 'atom 1' as the 
-                #first atom in that list. See the code above that does that.                 
-                atomList_direction_1.reverse()                
-                atomList.extend(atomList_direction_1)
-                atomList.append(startAtom)
-                atomList.extend(atomList_direction_2)                
-
-            else:     
-                #See a detailed explanation above. 
-                #Here, bond_direction == -1. 
-
-                # This can be represented by the following sketch --
-                # (5'end) --> 1 --> 2 --> 3 --> 4 --> (3' end)
-
-                #bond b is the bond betweern atoms 1 and 2. 
-                #startAtom remains the same ..i.e. atom 2. 
-
-                #As you can notice from the sketch, the bond_direction is 
-                #direction *away* from 2, along bond b and it leads us to 
-                # 5' end. 
-
-                #based on how atomList_direction_2 (explained earlier), it now 
-                #includes atoms begining at 1 and ending at 5' end. So 
-                #we must reverse atomList_direction_2 now to arrange them 
-                #from 5' to 3' end. 
-                atomList_direction_2.reverse()
-                atomList.extend(atomList_direction_2)
-                atomList.append(startAtom)
-                atomList.extend(atomList_direction_1)
-
-        #TODO: could zap first and/or last element if they are bondpoints 
-        #[bruce 080205 comment]        
-        return atomList
-
-    #END of Dna-Strand chunk specific  code ==================================
-
-
-    #START of Dna-Axis chunk specific code ==================================
-
-    def isAxisChunk(self):
-        """
-        Returns True if *all atoms* in this chunk are PAM 'axis' atoms
-        or bondpoints, and at least one is an 'axis' atom.
-
-        Overridden in some subclasses.
-
-        @see: isStrandChunk
-        """
-        found_axis_atom = False
-        for atom in self.atoms.itervalues():
-            if atom.element.role == 'axis':
-                found_axis_atom = True
-            elif atom.is_singlet():
-                pass
-            else:
-                # other kinds of atoms are not allowed
-                return False
-            continue
-
-        return found_axis_atom  
-
-    #END of Dna-Axis chunk specific code ====================================
-
-
-    #START of Dna-Strand-or-Axis chunk specific code ========================
-
-    def getDnaGroup(self): # ninad 080205
-        """
-        Return the DnaGroup of this chunk if it has one. 
-        """
-        return self.parent_node_of_class(self.assy.DnaGroup)
-    
-    def getDnaStrand(self):
-        """
-        Returns the DnaStrand(group) node to which this chunk belongs to. 
-        
-        Returns None if there isn't a parent DnaStrand group.
-        
-        @see: Atom.getDnaStrand()
-        """
-        if self.isNullChunk():
-            return None
-        
-        dnaStrand = self.parent_node_of_class(self.assy.DnaStrand)
-        
-        return dnaStrand
-    
-    def getDnaSegment(self):
-        """
-        Returns the DnaStrand(group) node to which this chunk belongs to. 
-        
-        Returns None if there isn't a parent DnaStrand group.
-        
-        @see: Atom.getDnaStrand()
-        """
-        if self.isNullChunk():
-            return None
-        
-        dnaSegment = self.parent_node_of_class(self.assy.DnaSegment)
-        
-        return dnaSegment
-
-    #END of Dna-Strand-or-Axis chunk specific code ========================
-
 
     #START of Nanotube chunk specific code ========================
 
@@ -2018,6 +1559,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         @return: the display style we will use to draw self
         """
+        # TODO: refactor so each type of chunk has its own drawing code
+        # [bruce 090115 comment]
         if self.display != diDEFAULT:
             disp = self.display
         else:
@@ -2464,10 +2007,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # (possible optim: decide once per redraw, cache in glpane)
         
         # piotr 080320: if this debug_pref is set, the external bonds 
-        # are hidden whenever the mouse is dragged. this speeds up interactive 
+        # are hidden whenever the mouse is dragged. This speeds up interactive 
         # manipulation of DNA segments by a factor of 3-4x in tubes
         # or ball-and-sticks display styles.
-        # this extends the previous condition to suppress the external
+        # This extends the previous condition to suppress the external
         # bonds during animation.
         suppress_external_bonds = (
            (getattr(glpane, 'in_drag', False) # glpane.in_drag undefined in ThumbView
@@ -2707,17 +2250,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         This is used to return a highlight color for the chunk highlighting. 
         See a comment in this method below
         """
-        #NOTE: before 2008-03-13, the chunk highlighting was achieved by 
-        #using the atoms and bonds within the chunk. The Atom and Bond classes
-        #have their own glselect name, so the code was able to recognize them 
-        #as highlightable objects and then depending upon the graphics mode 
-        #the user was in, it used to highlight the whole chunk by accessing the
-        #chunk using, for instance, atom.molecule. although this is still 
-        #implemented, for certain display styles such as DnaCylinderChunks, the 
-        #atoms and bonds are never drawn. So there is no way to access the 
-        #chunk! To fix this, we need to make chunk a highlightable object. 
-        #This is done by making sure that the chunk gets a glselect name and 
-        #by defining this API method - Ninad 2008-03-13
+        #NOTE: before 2008-03-13, the chunk highlighting was achieved by using
+        #the atoms and bonds within the chunk. The Atom and Bond classes have
+        #their own glselect name, so the code was able to recognize them as
+        #highlightable objects and then depending upon the graphics mode the
+        #user was in, it used to highlight the whole chunk by accessing the
+        #chunk using, for instance, atom.molecule. although this is still
+        #implemented, for certain display styles such as DnaCylinderChunks,
+        #the atoms and bonds are never drawn. So there is no way to access the
+        #chunk! To fix this, we need to make chunk a highlightable object.
+        #This is done by making sure that the chunk gets a glselect name
+        #(glname) and by defining this API method - Ninad 2008-03-13
 
         return env.prefs[hoverHighlightingColor_prefs_key]
 
@@ -2725,7 +2268,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Draws this chunk as highlighted with the specified color. 
         
-        In future 'draw_in_abs_coords' defined on some node classes
+        In future, 'draw_in_abs_coords' defined on some node classes
         could be merged into this method (for highlighting various objects).
 
         @param glpane: the GLPane
@@ -3013,7 +2556,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         containing unrecognized info records or keys, but not too verbosely
         (at most once per file per type of info).)
         """
-        if key == ['hotspot']:
+        didit = self._readmmp_info_chunk_setitem_Dna( key, val, interp)
+        if didit:
+            pass # e.g. for display_as_pam, save_as_pam
+        elif key == ['hotspot']:
             # val should be a string containing an atom number referring to
             # the hotspot to be set for this chunk (which is being read from an mmp file)
             (hs_num,) = val.split()
@@ -3026,31 +2572,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             r,g,b = map(int, val.split())
             color = r/255.0, g/255.0, b/255.0
             self.setcolor(color, repaint_in_MT = False)
-        elif key == ['display_as_pam']:
-            # val should be one of the strings "", MODEL_PAM3, MODEL_PAM5;
-            # if not recognized, use ""
-            if val not in ("", MODEL_PAM3, MODEL_PAM5):
-                # maybe todo: use deferred_summary_message?
-                print "fyi: info chunk display_as_pam with unrecognized value %r" % (val,) 
-                val = ""
-            #bruce 080523: silently ignore this, until the bug 2842 dust fully
-            # settles. This is #1 of 2 changes (in the same commit) which
-            # eliminates all ways of setting this attribute, thus fixing
-            # bug 2842 well enough for v1.1. (The same change is not needed
-            # for save_as_pam below, since it never gets set, or ever did,
-            # except when using non-default values of debug_prefs. This means
-            # someone setting those prefs could save a file which causes a bug
-            # only seen by whoever loads it, but I'll live with that for now.)
-            ## self.display_as_pam = val
-            pass
-        elif key == ['save_as_pam']:
-            # val should be one of the strings "", MODEL_PAM3, MODEL_PAM5;
-            # if not recognized, use ""
-            if val not in ("", MODEL_PAM3, MODEL_PAM5):
-                # maybe todo: use deferred_summary_message?
-                print "fyi: info chunk save_as_pam with unrecognized value %r" % (val,)
-                val = ""
-            self.save_as_pam = val
         else:
             if debug_flags.atom_debug:
                 print "atom_debug: fyi: info chunk with unrecognized key %r" % (key,)
@@ -3137,19 +2658,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         (since their value, during mmp read, might be needed when reading the
         atoms or their bonds).
 
-        [subclasses should override this as needed]
+        [subclasses should extend this as needed]
         """
-        if self.display_as_pam:
-            # not normally set on most chunks, even when PAM3+5 is in use.
-            # future optim (unimportant since not normally set):
-            # we needn't write this is self contains no PAM atoms.
-            # and if we failed to write it when dna updater was off, that would be ok.
-            # so we could assume we don't need it for ordinary chunks
-            # (even though that means dna updater errors on atoms would discard it).
-            mapping.write("info chunk display_as_pam = %s\n" % self.display_as_pam)
-        if self.save_as_pam:
-            # not normally set, even when PAM3+5 is in use
-            mapping.write("info chunk save_as_pam = %s\n" % self.save_as_pam)
+        self._writemmp_info_chunk_before_atoms_Dna( mapping)
         return
 
     def write_bonds_compactly_for_these_atoms(self, mapping): #bruce 080328
@@ -3642,18 +3153,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Return the tooltip string for this chunk
         """
-        # As of 2008-11-09, this is only implemented for a DnaStrand.
-        strand =  self.getDnaStrand()
-        toolTipInfoString = ''
-        if strand:
-            toolTipInfoString = strand.getDefaultToolTipInfo()   
-            return toolTipInfoString
-        
-        segment = self.getDnaSegment()
-        if segment:
-            toolTipInfoString = segment.getDefaultToolTipInfo()
-                    
-        return toolTipInfoString
+        info = self._getToolTipInfo_Dna()
+        if info:
+            return info # in future, we might combine it with other info
+        return ""
         
     def getinfo(self): # mark 2004-10-14
         """
@@ -3677,7 +3180,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         einfo = ""
 
         for item in ele2Num.iteritems():
-            if item[0] == "X":  # It is a Singlet
+            if item[0] == "X":  # Singlet
                 nsinglets = int(item[1])
                 continue
             else: 
@@ -3780,32 +3283,29 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     def getAxis_of_self_or_eligible_parent_node(self, atomAtVectorOrigin = None):
         """
         Return the axis of a parent node such as a DnaSegment or a Nanotube 
-        segment or a dna segment of a DnaStrand. If one doesn't exist, 
-        return the self's axis.
+        Segment or the dna segment of a DnaStrand. If one doesn't exist, 
+        return self's axis. Also return the node from which the returned
+        axis was found.
+        
         @param atomAtVectorOrigin: If the atom at vector origin is specified, 
             the method will try to return the axis vector with the vector
-            start point at the this atom's center. 
+            start point at this atom's center. [REVIEW: What does this mean??]
         @type atomAtVectorOrigin: B{Atom}
-        @see:
+        
+        @return: (axis, node used to get that axis)
         """
-        #@TODO: refactor this. MEthod written just before FNANO08 for a critical
+        #@TODO: refactor this. Method written just before FNANO08 for a critical
         #NFR. (this code is not a part of Rattlesnake rc2)
         #- Ninad 2008-04-17
-        dnaSegment = self.parent_node_of_class(self.assy.DnaSegment)
-        if dnaSegment and self.isAxisChunk():
-            axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
-            if axisVector is not None:
-                return axisVector, dnaSegment
-
-        dnaStrand = self.parent_node_of_class(self.assy.DnaStrand)
-        if dnaStrand and self.isStrandChunk():
-            arbitraryAtom = self.atlist[0]
-            dnaSegment = dnaStrand.get_DnaSegment_with_content_atom(
-                arbitraryAtom)
-            if dnaSegment:
-                axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
-                if axisVector is not None:
-                    return axisVector, dnaSegment
+        
+        #bruce 090115 partly refactored it, but more would be better.
+        # REVIEW: I don't understand any meaning in what the docstring says about
+        # atomAtVectorOrigin. What does it actually do? [bruce 090115 comment]
+        
+        axis, node = self._getAxis_of_self_or_eligible_parent_node_Dna(
+            atomAtVectorOrigin = atomAtVectorOrigin )
+        if axis is not None:
+            return axis, node
 
         nanotube = self.parent_node_of_class(self.assy.NanotubeSegment)
         if nanotube:
@@ -3813,8 +3313,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if axisVector is not None:
                 return axisVector, nanotube
 
-        #If no eligible parent node with an axis is found, return self's 
-        #axis.
+        #If no eligible parent node with an axis is found, return self's axis.
         return self.getaxis(), self
 
 
@@ -4634,13 +4133,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         else:
             return True
 
-    def isDnaChunk(self):
-        """
-        Returns True is the chunk is a DNA object (either strand or axis).
-        """
-        return self.isAxisChunk() or \
-               self.isStrandChunk()
-    
     def isProteinChunk(self):
         """
         Returns True if the chunk is a protein object.

@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 MWsemantics.py provides the main window class, MWsemantics.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History: too much to mention, except for breakups of the file.
 
@@ -883,8 +883,8 @@ class MWsemantics(QMainWindow,
         """
         Invokes the MultipleDnaSegmentResize_EditCommand to resize the
         selected segments.
-        @see: chunk.make_glpane_context_menu_items (a context menu that calls
-        this method)
+        @see: chunk.make_glpane_cmenu_items (which makes a context menu 
+              which has an item which can call this method)
         """
         #TODO: need more ui options to invoke this command.
         selectedSegments = self.assy.getSelectedDnaSegments()
@@ -897,7 +897,7 @@ class MWsemantics(QMainWindow,
 
     def editAddSuffix(self):
         """
-        Adds a suffix to the name(s) the selected objects.
+        Adds a suffix to the name(s) of the selected objects.
         """
         # Don't allow renaming while animating (b/w views).
         if self.glpane.is_animating:
@@ -971,6 +971,12 @@ class MWsemantics(QMainWindow,
         # IIRC, the numbering is not guaranteed to be in any specific order,
         # but testing has shown that leaf nodes are numbered in the order
         # they appear in the model tree. --Mark 2008-11-12
+        
+        # REVIEW: I would guess that getSelectedRenameables is guaranteed
+        # to return nodes in model tree order. If analysis of its code
+        # confirms that, then its docstring should be made to say that.
+        # [bruce 090115 comment]
+
         if new_name[-1] == "#":
             _renumber = True
             new_name = new_name[:-1]
