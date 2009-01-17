@@ -59,8 +59,9 @@ load-plugins=
 # W0107 = Unnecessary pass statement [bruce 071106]
 # W0603 = Using the global statement [bruce 071106]
 # W0142 = Used * or ** magic [bruce 071106]
+# W0201 = Attribute defined outside __init__ [bruce 090116]
 
-disable-msg=C0103, W0107, W0603, W0142
+disable-msg=C0103, W0107, W0603, W0142, W0201
 
 # explanations of some enabled but potentially confusing messages:
 # E1111 = Assigning to function call which doesn't return -- this warns about var = func(...)
