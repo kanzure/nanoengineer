@@ -16,6 +16,8 @@ gensym out of it for that reason.)
 
 from PyQt4.Qt import Qt
 
+import os
+
 # ==
 
 #Urmi 20080617: grid origin related constants: UM 20080616
@@ -26,13 +28,15 @@ PLANE_ORIGIN_UPPER_RIGHT = 3
 LABELS_ALONG_ORIGIN = 0
 LABELS_ALONG_PLANE_EDGES = 1
 
-MULTIPANE_GUI = True # enable some code which was intended to permit the main window
-    # to contain multiple PartWindows. Unfortunately we're far from that being possible,
-    # but we're also (I strongly suspect, but am not sure) now dependent on this
-    # value being True, having not maintained the False case for a long time.
-    # If this is confirmed, we should remove the code for the False case and remove
-    # this flag, and then decide whether the singleton partWindow should continue
-    # to exist. [bruce 071008, replacing a debug_pref with this flag]
+MULTIPANE_GUI = True 
+    # enable some code which was intended to permit the main window to contain
+    # multiple PartWindows. Unfortunately we're far from that being possible,
+    # but we're also (I strongly suspect, but am not sure) now dependent on
+    # this value being True, having not maintained the False case for a long
+    # time. If this is confirmed, we should remove the code for the False case
+    # and remove this flag, and then decide whether the singleton partWindow
+    # should continue to exist. [bruce 071008, replacing a debug_pref with
+    # this flag]
 
 DIAMOND_BOND_LENGTH = 1.544
     #bruce 051102 added this based on email from Damian Allis:
@@ -47,7 +51,7 @@ RECENTFILES_QSETTINGS_KEY = '/Nanorex/NE1/recentFiles'
 
 shiftModifier = 33554432
 cntlModifier = 67108864
-    # note: in Qt/Mac, this flag indicates the command key rather than the control key.
+    # note: in Qt/Mac, this flag indicates the command key, not the control key.
 altModifier = 134217728
     # note: in Qt/Mac, this flag indicates the Alt/Option modifier key.
 
@@ -134,7 +138,7 @@ atKey = genKey(start = 1)
 
 # ==
 
-_gensym_counters = {} #bruce 070603; has last-used value for each fixed prefix (default 0)
+_gensym_counters = {} # holds last-used value for each fixed prefix (default 0)
 
 def _fix_gensym_prefix(prefix): #bruce 070604
     """
@@ -142,19 +146,25 @@ def _fix_gensym_prefix(prefix): #bruce 070604
     """
     assert type(prefix) in (type(""), type(u""))
     if prefix and prefix[-1].isdigit():
-        # This special behavior guarantees that every name gensym returns is unique.
-        # As of bruce 070603, I think it never happens, based on the existing calls of gensym.
-        # Note: someday we might change the added char to ' ' if prefix contains ' ',
-        # and/or also do this if prefix ends with a letter (so most gensym callers
-        # can rely on this rule rather than adding '-' themselves).
-        # NOTE: this special rule is still needed, even if we never want default
-        # new node names to contain '-' or ' '. It's ok since they also won't
-        # include digits in the prefix, so this rule won't happen. [bruce 080407 comment]
+        # This special behavior guarantees that every name gensym returns is
+        # unique. As of bruce 070603, I think it never happens, based on the
+        # existing calls of gensym.
+
+        # Note: someday we might change the added char to ' ' if prefix
+        # contains ' ', and/or also do this if prefix ends with a letter (so
+        # most gensym callers can rely on this rule rather than adding '-'
+        # themselves).
+        
+        # NOTE: this special rule is still needed, even if we never want
+        # default new node names to contain '-' or ' '. It's ok since they
+        # also won't include digits in the prefix, so this rule won't happen.
+        # [bruce 080407 comment]
         prefix = prefix + '-' 
     return prefix
 
 def gensym(prefix, assy = None):
-    #bruce 070603 rewrite, improved functionality (replaces three separate similar definitions)
+    #bruce 070603 rewrite, improved functionality (replaces three separate
+    # similar definitions)
     #bruce 080407: new option to pass assy, used for names_to_avoid
     """
     Return prefix with a number appended, where the number is 1 more
@@ -176,30 +186,16 @@ def gensym(prefix, assy = None):
     @param assy: if provided and not None, don't duplicate any node name
                  presently used in assy.
     """
+    # REVIEW: maybe: move this code into a new method in class Assembly
     prefix = _fix_gensym_prefix(prefix)
-    names_to_avoid = {} # maps name -> anything, for 0 or more names we don't want to generate
+    names_to_avoid = {} 
+        # maps name -> anything, for 0 or more names we don't want to generate
     # fill names_to_avoid with node names from assy, if provided
-    import utilities.debug_flags as debug_flags # import cycle, but ok for now (temporarily)
-        ### TODO: move this function elsewhere; it violates this module's
-        # import policy [bruce 080711 comment]
     if assy is not None:
-        try:
-            # the try/except is not needed unless this new code has bugs
-            def avoid_my_name(node):
-                names_to_avoid[node.name] = None
-            assy.root.apply2all( avoid_my_name )
-                # could optim and not delve inside nodes that hide contents
-        except:
-            # can't import print_compact_traceback in this file
-            # (todo: move gensym into its own file in utilities, so we can;
-            #  or, move this code into a new method in class Assembly (better))
-            if debug_flags.atom_debug:
-                print "bug: exception in gensym(%r, %r) filling names_to_avoid, reraising since atom_debug set:" % (prefix, assy)
-                raise # make debugging possible
-            else:
-                print "bug: ignoring exception (discarded) in gensym(%r, %r) filling names_to_avoid" % (prefix, assy)
-            pass
-        pass
+        def avoid_my_name(node):
+            names_to_avoid[node.name] = None
+        assy.root.apply2all( avoid_my_name )
+            # could optim and not delve inside nodes that hide contents
     new_value = _gensym_counters.get(prefix, 0) + 1
     name = prefix + str(new_value)
     while name in names_to_avoid:
@@ -219,23 +215,26 @@ def permit_gensym_to_reuse_name(prefix, name): #bruce 070604
     if name == last_used_name:
         # this is the only case in which we can safely do anything.
         corrected_last_used_value = last_used_value - 1
-        assert corrected_last_used_value >= 0 # can't happen if called on names actually returned from gensym
+        assert corrected_last_used_value >= 0 
+            # can't happen if called on names actually returned from gensym
         _gensym_counters[prefix] = corrected_last_used_value
     return
 
 # ==
 
-def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from selectMode.py to constants.py 070601
+def average_value(seq, default = 0.0): 
     """
     Return the numerical average value of seq (a Python sequence or equivalent),
     or (by default) 0.0 if seq is empty.
 
     Note: Numeric contains a function named average, which is why we don't use that name.
     """
+    #bruce 070412; renamed and moved from selectMode.py to constants.py 070601
     #e should typetest seq if we can do so efficiently
+    # WARNING: this uses <built-in function sum>, not Numeric.sum.
     if not seq:
         return default
-    return sum(seq) / len(seq) # WARNING: this uses <built-in function sum>, not Numeric.sum.
+    return sum(seq) / len(seq) 
 
 # ==
 
@@ -264,23 +263,34 @@ def common_prefix( seq1, *moreseqs ):
 
 # Display styles (aka display modes)
 
-# Note: this entire section ought to be split into its own file.
+# TODO: this entire section ought to be split into its own file,
+# or perhaps more than one (constants, globals, helper functions).
+# (Two helper functions have since been moved to mmp_dispnames.py --
+#  perhaps more defs or code should join them there, not sure. [bruce 090116])
+#
 # BUT, the loop below, initializing ATOM_CONTENT_FOR_DISPLAY_STYLE,
 # needs to run before dispNames, or (preferably) on a copy of it
 # from before it's modified, by external init code. [bruce 080324 comment]
+# [that has a grammar error, not quite sure what was intended -- bruce 090116]
+
+# The global variables are: remap_atom_dispdefs, dispNames, new_dispNames, 
+# dispLabel.
 
 remap_atom_dispdefs = {} #bruce 080324 moved this here from displaymodes.py
 
-# These are arranged in order of increasing thickness of the bond representation.
-# They are indices of dispNames and dispLabel.
-# Josh 11/2
+# These are arranged in order of increasing thickness of the bond
+# representation. They are indices of dispNames and dispLabel. [Josh 11/2]
 diDEFAULT = 0 # the fact that diDEFAULT == 0 is public. [bruce 080206]
 diINVISIBLE = 1
-diTrueCPK = 2 # CPK [renamed from old name diVDW, bruce 060607; corresponding UI change was by mark 060307]
-    # (This is not yet called diCPK, to avoid confusion, since that name was used for diBALL until today.
-    #  After some time goes by, we can rename this to just diCPK.)
+diTrueCPK = 2 # CPK 
+    # [renamed from old name diVDW, bruce 060607; corresponding UI change was
+    # by mark 060307] (This is not yet called diCPK, to avoid confusion, since
+    # that name was used for diBALL until today. After some time goes by, we
+    # can rename this to just diCPK.)
 diLINES = 3
-diBALL = 4 # "Ball and Stick" [renamed from old incorrect name diCPK, bruce 060607; corresponding UI change was by mark 060307]
+diBALL = 4 # "Ball and Stick" 
+    # [renamed from old incorrect name diCPK, bruce 060607; corresponding UI
+    #  change was by mark 060307]
 diTUBES = 5
 # WARNING (kluge):
 # the order of the following constants has to match how the lists dispNames and
@@ -292,78 +302,26 @@ diCYLINDER = 7
 diSURFACE = 8
 diPROTEIN = 9
 
-# note: some of the following lists are extended later at runtime. [as of bruce 060607]
+# note: some of the following lists are extended later at runtime
+# [as of bruce 060607]
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
-    # these dispNames can't be easily revised, since they are used in mmp files; cpk and vdw are misleading as of 060307.
+    # these dispNames can't be easily revised, since they are used in mmp files;
+    # cpk and vdw are misleading as of 060307.
     # NOTE: as of bruce 080324, dispNames is now private.
     # Soon it will be renamed and generalized to permit aliases for the names.
     # Then it will become legal to read (but not yet to write) the new forms
     # of the names which are proposed in bug 2662.
 
-_new_dispNames = ["def", "Invisible", "CPK", "Lines", "BallAndStick", "Tubes"]
+new_dispNames = ["def", "Invisible", "CPK", "Lines", "BallAndStick", "Tubes"]
     #bruce 080324 re bug 2662; permit for reading, but don't write them yet
 
-def get_dispName_for_writemmp(display): #bruce 080324, revised 080328
-    """
-    Turn a display-style code integer (e.g. diDEFAULT; as stored in Atom.display
-    or Chunk.display) into a display-style code string as used in the current
-    writing format for mmp files.
-    """
-    if 1:
-        # temporary import cycle. Should be ok, and will be removed soon.
-        # But do move it since it violates this module's import policy. (TODO)
-        # Might need to be a relative import to work, so use one.
-        # Surely needs to be a runtime import, and only run in this function.
-        # [bruce 080328]
-        from utilities.GlobalPreferences import debug_pref_write_new_display_names
-        if debug_pref_write_new_display_names():
-            return _new_dispNames[display]
-    return dispNames[display]
+# Note: some defs were moved from here to mmp_dispnames.py [bruce 090116]
 
-def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 080324
-    """
-    Turn a display-style code string (a short string constant used in mmp files
-    for encoding atom and chunk display styles) into the corresponding
-    display-style code integer (its index in dispNames, as extended at runtime).
-
-    If dispname is not a valid display-style code string, return defaultValue,
-    which is diDEFAULT by default.
-
-    If atom is true (the default), only consider "atom display styles" to be
-    valid; otherwise, also permit "chunk display styles".
-    """
-    def _return(res):
-        if res > diTUBES and atom and remap_atom_dispdefs.has_key(res):
-            # note: the initial res > diTUBES is an optimization kluge
-            return defaultValue
-        return res
-
-    try:
-        res = dispNames.index(dispname)
-    except ValueError:
-        # not found, in first array (the one with old names, and that gets extended)
-        pass
-    else:
-        return _return(res)
-
-    from utilities.GlobalPreferences import debug_pref_read_new_display_names
-        # see comment for similar import -- temporary [bruce 080328]
-
-    if debug_pref_read_new_display_names():
-        try:
-            res = _new_dispNames.index(dispname)
-        except ValueError:
-            # not found, in 2nd array (new names, which are aliases for old ones)
-            pass
-        else:
-            return _return(res)
-
-    return defaultValue # from interpret_dispName
 
 # <properDisplayNames> used by write_qutemol_pdb_file() in qutemol.py only.
-# Set qxDNACYLINDER to "def" until "dnacylinder" is supported in QuteMolX.
-qxDNACYLINDER = "def" 
-properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub", qxDNACYLINDER]
+# Set _qxDNACYLINDER to "def" until "dnacylinder" is supported in QuteMolX.
+_qxDNACYLINDER = "def" 
+properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub", _qxDNACYLINDER]
 
 #dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
 dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
@@ -382,19 +340,20 @@ def _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms):
         assert 0, "reload during debug for display modes " \
                "is not yet implemented; or, non-unique " \
                "mmp_code %r (in dispNames)" % (disp_name,)
-    if disp_name in _new_dispNames: #bruce 080415
+    if disp_name in new_dispNames: #bruce 080415
         # same comment applies as above
         assert 0, "reload during debug for display modes " \
                "is not yet implemented; or, non-unique " \
-               "mmp_code %r (in _new_dispNames)" % (disp_name,)
+               "mmp_code %r (in new_dispNames)" % (disp_name,)
     assert len(dispNames) == len(dispLabel)
-    assert len(dispNames) == len(_new_dispNames) #bruce 080415
+    assert len(dispNames) == len(new_dispNames) #bruce 080415
     dispNames.append(disp_name)
-    _new_dispNames.append(disp_name) #bruce 080415 fix bug 2809 in saving nodes with "chunk display styles" set (not in .rc1)
+    new_dispNames.append(disp_name) #bruce 080415 fix bug 2809 in 
+        # saving nodes with "chunk display styles" set (not in .rc1)
     dispLabel.append(disp_label)
     ind = dispNames.index(disp_name) # internal value used by setDisplayStyle
-        # note: this always works, since we appended the same disp_name to *both*
-        # dispNames and _new_dispNames [bruce 080415 comment]
+        # note: this always works, since we appended the same disp_name to
+        # *both* dispNames and new_dispNames [bruce 080415 comment]
     if not allowed_for_atoms:
         remap_atom_dispdefs[ind] = diDEFAULT # kluge?
     return ind
@@ -424,13 +383,15 @@ diDNACYLINDER_SigmaBondRadius = 1.3
 #  in spite of the term "atom content" we might also add some for nodes,
 #  e.g. all the same ones mentioned for atoms.)
 
-ATOM_CONTENT_FOR_DISPLAY_STYLE = [] # modified by the loop below to be same length as dispNames
+ATOM_CONTENT_FOR_DISPLAY_STYLE = [] 
+    # modified by the loop below to be same length as dispNames
 AC_HAS_INDIVIDUAL_DISPLAY_STYLE = 1
-AC_INVISIBLE = 1 << diINVISIBLE # note: fewer bits than ATOM_CONTENT_FOR_DISPLAY_STYLE[diINVISIBLE]
+AC_INVISIBLE = 1 << diINVISIBLE 
+    # note: fewer bits than ATOM_CONTENT_FOR_DISPLAY_STYLE[diINVISIBLE]
 for _disp in range(len(dispNames)):
     # WARNING:
-    # - must run before dispNames is modified by external code
-    # - assumes no styles defined in displaymodes.py can apply to atoms
+    # - this must run before dispNames is modified by external code
+    # - it assumes no styles defined in displaymodes.py can apply to atoms
     if not _disp:
         assert _disp == diDEFAULT
         _content_for_disp = 0
@@ -440,7 +401,8 @@ for _disp in range(len(dispNames)):
     else:
         _content_for_disp = \
                           (AC_HAS_INDIVIDUAL_DISPLAY_STYLE + (1 << _disp))
-        # this uses bits 1 through len(dispNames) - 1, plus bit 0 for "any of those"
+        # this uses bits 1 through len(dispNames) - 1, 
+        # plus bit 0 for "any of those"
     ATOM_CONTENT_FOR_DISPLAY_STYLE.append(_content_for_disp)
 
 # ==
@@ -514,10 +476,9 @@ def filesplit(pathname):
     """
     #bruce 050413 _fileparse variant: no '/' at end of dirname
     #bruce 071030 moved this from movieMode to constants
-    import os
-    dir, file = os.path.split(pathname)
-    base, ext = os.path.splitext(file)
-    return dir, base, ext
+    dir1, file1 = os.path.split(pathname)
+    base, ext = os.path.splitext(file1)
+    return dir1, base, ext
 
 # ==
 
@@ -540,14 +501,15 @@ def remove_prefix(str1, prefix):
         return str1[len(prefix):]
     else:
         return str1
+    pass
 
 # ==
 
 # ave_colors() logically belongs in some "color utilities file",
-# but is here so it is defined early enough for use in computing default values
-# of user preferences in prefs_constants.py.
+# but is here so it is defined early enough for use in computing
+# default values of user preferences in prefs_constants.py.
 
-def ave_colors(weight, color1, color2): #bruce 050805 moved this here from handles.py, and revised it
+def ave_colors(weight, color1, color2): 
     """
     Return a weighted average of two colors,
     where weight gives the amount of color1 to include.
@@ -566,9 +528,11 @@ def ave_colors(weight, color1, color2): #bruce 050805 moved this here from handl
     Input colors can be any 3-sequences (including Numeric arrays);
     output color is always a tuple.
     """
+    #bruce 050805 moved this here from handles.py, and revised it
     #e (perhaps we could optimize this using some Numeric method)
     weight = float(weight)
-    return tuple([weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)])
+    return tuple([weight * c1 + (1 - weight) * c2 
+                  for c1, c2 in zip(color1, color2)])
 
 def colors_differ_sufficiently(color1, color2, minimum_difference = 0.51 ):
     """
@@ -653,23 +617,36 @@ lighterblue = ave_colors( 0.5, white, blue)
 brown = ave_colors(0.5, black, yellow) 
 
 # The background gradient types/values.
-# Gradient values are one more than the gradient constant values in Preferences.py.
-# (i.e. bgBLUE_SKY =  BG_BLUE_SKY + 1)
+# Gradient values are one more than the gradient constant values in 
+# Preferences.py (i.e. bgBLUE_SKY =  BG_BLUE_SKY + 1).
 bgSOLID = 0
 bgBLUE_SKY = 1
 bgEVENING_SKY = 2
 bgSEAGREEN = 3
-bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
-eveningsky = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.3), (0.0, 0.0, 0.3) # GLPane "Evening Sky" gradient
-bg_seagreen = (0.905, 0.905, 0.921), (0.905, 0.905, 0.921), (0.6, 0.8, 0.8), (0.6, 0.8, 0.8) # GLPane "Sea Green" gradient
 
-bg_seagreen_UNUSED_FOR_DEBUG = (0.894, 0.949, 0.894), (0.862, 0.929, 0.862), (0.686, 0.843, 0.843), (0.905, 0.905, 0.921), \
-(0.862, 0.929, 0.862), (0.839, 0.921, 0.839), (0.67, 0.835, 0.835), (0.686, 0.843, 0.843), \
-(0.686, 0.843, 0.843), (0.67, 0.835, 0.835), (0.6, 0.8, 0.8), (0.6, 0.8, 0.8), \
-(0.905, 0.905, 0.921), (0.686, 0.843, 0.843), (0.6, 0.8, 0.8), (0.701, 0.85, 0.85) # GLPane "Evening Sky" gradient
+# GLPane "Blue Sky" gradient
+bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0)
+
+# GLPane "Evening Sky" gradient
+eveningsky = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.3), (0.0, 0.0, 0.3)
+
+# GLPane "Sea Green" gradient
+bg_seagreen = ((0.905, 0.905, 0.921), 
+               (0.905, 0.905, 0.921), 
+               (0.6, 0.8, 0.8), 
+               (0.6, 0.8, 0.8) )
+
+bg_seagreen_UNUSED_FOR_DEBUG = (0.894, 0.949, 0.894), (0.862, 0.929, 0.862), \
+(0.686, 0.843, 0.843), (0.905, 0.905, 0.921), \
+(0.862, 0.929, 0.862), (0.839, 0.921, 0.839), \
+(0.67, 0.835, 0.835), (0.686, 0.843, 0.843), \
+(0.686, 0.843, 0.843), (0.67, 0.835, 0.835), \
+(0.6, 0.8, 0.8), (0.6, 0.8, 0.8), \
+(0.905, 0.905, 0.921), (0.686, 0.843, 0.843), \
+(0.6, 0.8, 0.8), (0.701, 0.85, 0.85)
 
 ## PickedColor = (0.0, 0.0, 1.0) # no longer used as of 080603
-ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)
+ErrorPickedColor = (1.0, 0.0, 0.0) # for atoms with wrong valence, etc
 
 elemKeyTab =  [('H', Qt.Key_H, 1),
                ('B', Qt.Key_B, 5),
@@ -691,25 +668,23 @@ elemKeyTab =  [('H', Qt.Key_H, 1),
 # not yet uniformly used (i.e. most code still uses hardcoded 0 or 2,
 #  and does boolean tests on selwhat to see if chunks can be selected);
 # not sure if these would be better off as assembly class constants:
-# values for assy.selwhat: what to select: 0=atoms, 2 = molecules
+# values for assy.selwhat: what to select: 0=atoms, 2 = molecules.
+# SELWHAT_NAMES is for use in human-readable messages.
 SELWHAT_ATOMS = 0
 SELWHAT_CHUNKS = 2
-SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"} # for use in messages
+SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"}
 
 # mark 060206 adding named constants for selection shapes.
 SELSHAPE_LASSO = 'LASSO'
 SELSHAPE_RECT = 'RECTANGLE'
 
-# mark 060206 adding named constants for selection logic.  
-#& To do: Change these from ints to strings. mark 060211.
+# mark 060206 adding named constants for selection logic.
 SUBTRACT_FROM_SELECTION = 'Subtract Inside'
-OUTSIDE_SUBTRACT_FROM_SELECTION = 'Subtract Outside' # used in BuildCrystal_Command only.
+OUTSIDE_SUBTRACT_FROM_SELECTION = 'Subtract Outside' 
+    # OUTSIDE_SUBTRACT_FROM_SELECTION is used only in CrystalShape.py
 ADD_TO_SELECTION = 'Add'
 START_NEW_SELECTION = 'New'
 DELETE_SELECTION = 'Delete'
-
-#bruce 060220 add some possible values for _s_attr_xxx attribute declarations (needed by Undo)
-# (defining these in constants.py might be temporary)
 
 # ==
 
@@ -737,9 +712,10 @@ CL_UNUSED = 'CL_UNUSED' # for command classes thought to be presently unused
 
 # ==
 
-# The far clipping plane normalized z value, actually it's a little closer than the actual far clipping 
-# plane to the eye. This is used to draw the blue sky backround polygon, and also used to check if user
-# click on empty space on the screen.
+# The far clipping plane normalized z value, actually it's a little closer
+# than the actual far clipping plane to the eye. This is used to draw the blue
+# sky backround polygon, and also used to check if user click on empty space
+# on the screen.
 GL_FAR_Z = 0.999
 
 # ==
@@ -763,11 +739,10 @@ except:
     print "can't determine CAD_SRC_PATH"
     CAD_SRC_PATH = None 
 else:
-    import os
     CAD_SRC_PATH = os.path.dirname(__file__)
     assert os.path.basename(CAD_SRC_PATH) == "utilities"
     CAD_SRC_PATH = os.path.dirname(CAD_SRC_PATH)
-    #print "CAD_SRC_PATH = %r" % CAD_SRC_PATH ### REMOVE WHEN WORKS, BEFORE COMMIT
+    #print "CAD_SRC_PATH = %r" % CAD_SRC_PATH
     # [review: in a built Mac release, CAD_SRC_PATH might be
     # .../Contents/Resources/Python/site-packages.zip, or a related pathname
     # containing one more directory component; but an env var RESOURCEPATH

@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 files_mmp.py -- reading MMP files
 
@@ -6,7 +6,7 @@ See also: files_mmp_writing.py, files_mmp_registration.py
 
 @author: Josh, others
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -57,7 +57,6 @@ from utilities.debug import print_compact_traceback
 from utilities.debug import print_compact_stack
 
 from utilities.constants import gensym
-from utilities.constants import interpret_dispName
 from utilities.constants import SUCCESS, ABORTED, READ_ERROR
 
 from model.bond_constants import find_bond
@@ -72,6 +71,7 @@ from model.Plane import Plane
 
 from files.mmp.files_mmp_registration import find_registered_parser_class
 from files.mmp.mmpformat_versions import parse_mmpformat, mmp_date_newer
+from files.mmp.mmp_dispnames import interpret_dispName
 
 # the following imports and the assignment they're used in
 # should be replaced by some registration scheme
@@ -1350,7 +1350,7 @@ class _readmmp_state:
         """
         # once we see how this is used, we'll revise it to be more like a "state machine"
         # knowing the expected behavior for the various types of files.
-        bad_to_worse = ['no_shelf','one_part','missing_group_or_chunk'] # order is not yet used
+        bad_to_worse = ['no_shelf', 'one_part', 'missing_group_or_chunk'] # order is not yet used
         badness = bad_to_worse.index(type)
         if badness not in self.sim_input_badnesses_so_far:
             self.sim_input_badnesses_so_far[badness] = type
@@ -1445,9 +1445,9 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
         warns of unrecognized values only if ATOM_DEBUG is set
         """
         val = val.lower()
-        if val in ['0','no','false']:
+        if val in ['0', 'no', 'false']:
             return False
-        if val in ['1','yes','true']:
+        if val in ['1', 'yes', 'true']:
             return True
         if debug_flags.atom_debug:
             print "atom_debug: fyi: some info record wants a boolean val but got this instead (not an error): " + repr(val)

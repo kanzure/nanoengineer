@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 files_mmp_writing.py -- overall control of writing MMP files;
 provides class writemmp_mapping and functions writemmpfile_assy
@@ -6,7 +6,7 @@ and writemmpfile_part.
 
 @author: Josh, Bruce
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -29,12 +29,13 @@ from files.mmp.mmpformat_versions import MMP_FORMAT_VERSION_TO_WRITE
 from files.mmp.mmpformat_versions import MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES # temporary definition
 from files.mmp.mmpformat_versions import MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES # temporary definition
 
+from files.mmp.mmp_dispnames import get_dispName_for_writemmp
+
 from utilities import debug_flags
 
 from utilities.debug import print_compact_traceback
 
 from utilities.constants import intRound
-from utilities.constants import get_dispName_for_writemmp
 from utilities.constants import PAM_MODELS
 
 # ==
@@ -311,7 +312,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             # this should be ok even if "too high" (as when writing a single part),
             # but probably only due to how we're called ... not sure.
         if force_disabled_for_sim:
-            if self.options.get('leave_out_sim_disabled_nodes',False):
+            if self.options.get('leave_out_sim_disabled_nodes', False):
                 return # best to never write it in this case!
             # assume we're writing the whole assy, so in this case, write it no sooner than just inside the shelf group.
             after_these = list(after_these) + [self.assy.shelf] # for a group, being after it means being after its "begin record"

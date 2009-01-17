@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 SurfaceChunks.py -- define a new whole-chunk display mode,
 which uses Oleksandr's new code to display a chunk as a surface in the chunk's color.
 
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 See also CylinderChunks.py for comparison.
 
@@ -476,7 +476,9 @@ class SurfaceChunks(ChunkDisplayMode):
     example chunk display mode, which draws the chunk as a surface,
     aligned to the chunk's axes, of the chunk's color
     """
-    mmp_code = 'srf' # this must be a unique 3-letter code, distinct from the values in constants.dispNames or in other display modes
+    # mmp_code must be a unique 3-letter code, distinct from the values in 
+    # constants.dispNames or in other display modes
+    mmp_code = 'srf' 
     disp_label = 'SurfaceChunks' # label for statusbar fields, menu text, etc
     icon_name = "modeltree/displaySurface.png"
     hide_icon_name = "modeltree/displaySurface-hide.png"
