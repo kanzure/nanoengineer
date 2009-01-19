@@ -186,7 +186,7 @@ uniform int n_transforms;
 // Attribute variables, which are bound to VBO arrays for each vertex coming in.
 // Attributes can not be bool or int.
 // Each non-matrix attribute has space for up to 4 floating-point values.
-attribute mat2x4 endpt_rad;     // Cylinder endpoints and radii.
+attribute mat2x4 endpt_rad;     // Cylinder endpoints and radii, twice.
 // The following may be set to constants, when no arrays are provided.
 attribute vec4 color;           // Cylinder color and opacity (RGBA).
 attribute float transform_id;   // Ignored if zero.  (Attribs cannot be ints.)

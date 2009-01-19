@@ -162,9 +162,11 @@ class GLPrimitiveBuffer(object):
     """
     Manage VBO space for drawing primitives in large batches.
     """
-    def __init__(self, drawingMode, vertexBlock, indexBlock):
+    def __init__(self, shader, drawingMode, vertexBlock, indexBlock):
         """
         Fill in the vertex VBO and IBO drawing pattern for this primitive type.
+
+        shader - The GLShaderObject to use.
 
         drawingMode - What kind of primitives to render, e.g. GL_QUADS.
 
@@ -172,6 +174,9 @@ class GLPrimitiveBuffer(object):
         making up the drawing pattern for this primitive.
         See description in the file docstring.
         """
+        # Remember the shader.
+        self.shader = shader
+
         # Shared data for drawing calls to follow.
         self.drawingMode = drawingMode
 
@@ -190,9 +195,10 @@ class GLPrimitiveBuffer(object):
 
         # Common per-vertex attribute hunk VBOs for all primitive types.
         # (The hunkVertVBO and hunkIndexIBO are shared by all hunks.)
-        self.colorHunks = HunkBuffer("color", self.nVertices, 4)
-        self.glname_color_Hunks = HunkBuffer("glname_color", self.nVertices, 4)
-        self.transform_id_Hunks = HunkBuffer("transform_id", self.nVertices, 1)
+        nVerts = self.nVertices
+        self.colorHunks = HunkBuffer(shader, "color", nVerts, 4)
+        self.glname_color_Hunks = HunkBuffer(shader, "glname_color", nVerts, 4)
+        self.transform_id_Hunks = HunkBuffer(shader, "transform_id", nVerts, 1)
         # Subclasses may add their own attributes to the hunkBuffers list.
         self.hunkBuffers = [self.colorHunks, self.glname_color_Hunks,
                             self.transform_id_Hunks]
@@ -325,17 +331,16 @@ class GLPrimitiveBuffer(object):
 
         If no drawIndex is given, the whole array is drawn.
         """
-        shader = drawing_globals.sphereShader
-        shader.use(True)                # Turn on the sphere shader.
+        self.shader.use(True)                # Turn on the sphere shader.
 
         glEnableClientState(GL_VERTEX_ARRAY)
 
-        shader.setupDraw(highlighted, selected, patterning,
-                         highlight_color, opacity)
+        self.shader.setupDraw(highlighted, selected, patterning,
+                              highlight_color, opacity)
 
         # XXX No transform data until that is more implemented.
-        ###shader.setupTransforms(self.transforms)
-        if shader.get_texture_xforms():
+        ###self.shader.setupTransforms(self.transforms)
+        if self.shader.get_texture_xforms():
             # Activate a texture unit for transforms.
             ## XXX Not necessary for custom shader programs.
             ##glEnable(GL_TEXTURE_2D)
@@ -344,7 +349,7 @@ class GLPrimitiveBuffer(object):
             # Set the sampler to the handle for the active texture image (0).
             ## XXX Not needed if only one texture is being used?
             ##glActiveTexture(GL_TEXTURE0)
-            ##glUniform1iARB(shader.uniform("transforms"), 0)
+            ##glUniform1iARB(self.shader.uniform("transforms"), 0)
             pass
 
         glDisable(GL_CULL_FACE)
@@ -383,7 +388,7 @@ class GLPrimitiveBuffer(object):
                 pass
             continue
 
-        shader.use(False)            # Turn off the sphere shader.
+        self.shader.use(False)            # Turn off the sphere shader.
         glEnable(GL_CULL_FACE)
 
         self.hunkIndexIBO.unbind()   # Deactivate the ibo.
@@ -432,7 +437,7 @@ class HunkBuffer:
     Helper class to manage updates to Vertex Buffer Objects for groups of
     fixed-size HUNKS of per-vertex attributes in graphics card RAM.
     """
-    def __init__(self, attribName, nVertices, nCoords):
+    def __init__(self, shader, attribName, nVertices, nCoords):
         """
         Allocate a Buffer Object for the hunk, but don't fill it in yet.
 
@@ -451,7 +456,6 @@ class HunkBuffer:
 
         # Look up the location of the named generic vertex attribute in the
         # previously linked shader program object.
-        shader = drawing_globals.sphereShader
         self.attribLocation = shader.attribute(attribName)
 
         # Cache the Python data that will be sent to the graphics card RAM.

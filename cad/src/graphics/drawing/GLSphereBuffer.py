@@ -34,27 +34,29 @@ class GLSphereBuffer(GLPrimitiveBuffer):
     Encapsulate VBO/IBO handles for a batch of spheres.
     See doc for common code in the base class, GLPrimitiveBuffer.
 
-    Draws a bounding-box of quads to a custom sphere shader for each sphere.
+    Draws a bounding-box of quads (or a single billboard quad) to a custom
+    sphere shader for each sphere primitive, along with control attribute data.
     """
     def __init__(self):
         # Tell GLPrimitiveBuffer the drawing pattern for sphere VBOs/IBOs.
+        shader = drawing_globals.sphereShader
         if debug_pref("GLPane: use billboard primitives? (next session)",
                       Choice_boolean_True, prefs_key = True ):
             print "fyi: using the billboard shader-sphere drawing pattern."
             super(GLSphereBuffer, self).__init__(
-                GL_QUADS,
+                shader, GL_QUADS,
                 drawing_globals.shaderBillboardVerts,
                 drawing_globals.shaderBillboardIndices)
         else:
             super(GLSphereBuffer, self).__init__(
-                GL_QUADS,
+                shader, GL_QUADS,
                 drawing_globals.shaderCubeVerts,
                 drawing_globals.shaderCubeIndices)
 
         # Per-vertex attribute hunk VBOs that are specific to the sphere shader.
         # Combine centers and radii into a 4-element vec4 attribute VBO.  (Each
         # attribute slot takes 4 floats, no matter how many of them are used.)
-        self.ctrRadHunks = HunkBuffer("center_rad", self.nVertices, 4)
+        self.ctrRadHunks = HunkBuffer(shader, "center_rad", self.nVertices, 4)
         self.hunkBuffers += [self.ctrRadHunks]
 
         return
