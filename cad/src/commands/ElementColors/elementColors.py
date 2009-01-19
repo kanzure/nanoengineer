@@ -350,7 +350,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         Slot for Preview button.  Applies color changes for the current element in the GLPane,
         allowing the user to preview the color changes in the model before saving.
         """
-        self.w.glpane.gl_update()
+        self._updateModelDisplay()
         
     def restore_current_color(self): # mark 060129.
         """
@@ -358,7 +358,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         original (previous) color before any color change was made.
         """
         self.update_sliders_and_spinboxes(RGBf_to_QColor(self.original_color))
-        self.w.glpane.gl_update()
+        self._updateModelDisplay()
         
     def ok(self):
         ## if self.isElementModified and not self.isFileSaved:
@@ -370,6 +370,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
             
         #Save the color preference
         self.elemTable.close()
+        self._updateModelDisplay() #bruce 090119 bugfix
          
         self.accept()
         
@@ -377,7 +378,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
     def reject(self):
         """
         If elements modified or external file loaded, restore
-        current pref to originial since our dialog is reused
+        current pref to original since our dialog is reused
         """
         if self.isElementModified or self.fileName:  
             self.elemTable.resetElemTable(self.oldTable)
@@ -390,9 +391,9 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         """
         Update model display
         """
-        for mol in self.w.assy.molecules: 
-            mol.changeapp(1)
-        
+        #bruce 090119 removed changeapp calls, not needed for a long time
+        # (due to PeriodicTable.color_change_counter);
+        # then replaced other calls of gl_update with calls of this method
         self.w.glpane.gl_update()
 
 
