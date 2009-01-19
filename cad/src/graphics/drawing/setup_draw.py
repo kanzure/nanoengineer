@@ -416,18 +416,18 @@ def setup_drawer():
     #russ 080819: Added.
     initial_choice = choices[drawing_globals.use_sphere_shaders_default]
     drawing_globals.use_sphere_shaders_pref = debug_pref(
-        "Use Color-sorted sphere-shaders? (next session)", initial_choice,
+        "GLPane: use color-sorted sphere-shaders? (next session)", initial_choice,
         prefs_key = drawing_globals.use_sphere_shaders_prefs_key)
     #russ 90116: Added.
     initial_choice = choices[drawing_globals.use_cylinder_shaders_default]
     drawing_globals.use_cylinder_shaders_pref = debug_pref(
-        "Use Color-sorted cylinder-shaders? (next session)", initial_choice,
+        "GLPane: use color-sorted cylinder-shaders? (next session)", initial_choice,
         prefs_key = drawing_globals.use_cylinder_shaders_prefs_key)
     # Russ 081002: Added.
     initial_choice = choices[
         drawing_globals.use_batched_primitive_shaders_default]
     drawing_globals.use_batched_primitive_shaders_pref = debug_pref(
-        "Use batched primitive shaders? (next session)", initial_choice,
+        "GLPane: use batched primitive shaders? (next session)", initial_choice,
         prefs_key = drawing_globals.use_batched_primitive_shaders_prefs_key)
 
     #russ 080403: Added drawing variant selection
