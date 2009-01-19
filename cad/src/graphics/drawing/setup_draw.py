@@ -416,8 +416,13 @@ def setup_drawer():
     #russ 080819: Added.
     initial_choice = choices[drawing_globals.use_sphere_shaders_default]
     drawing_globals.use_sphere_shaders_pref = debug_pref(
-        "Use Color-sorted sphere-shaders?", initial_choice,
+        "Use Color-sorted sphere-shaders? (next session)", initial_choice,
         prefs_key = drawing_globals.use_sphere_shaders_prefs_key)
+    #russ 90116: Added.
+    initial_choice = choices[drawing_globals.use_cylinder_shaders_default]
+    drawing_globals.use_cylinder_shaders_pref = debug_pref(
+        "Use Color-sorted cylinder-shaders? (next session)", initial_choice,
+        prefs_key = drawing_globals.use_cylinder_shaders_prefs_key)
     # Russ 081002: Added.
     initial_choice = choices[
         drawing_globals.use_batched_primitive_shaders_default]
@@ -458,22 +463,43 @@ def setup_drawer():
             return False
         return True
 
-    if drawing_globals.use_sphere_shaders_pref:
-        if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
-            print "note: this session WILL use", \
-                  "sphere-shaders"
-            initSphereShader()
+    def initCylinderShader():
+        try:
+            from graphics.drawing.gl_shaders import GLCylinderShaderObject
+            drawing_globals.cylinderShader = GLCylinderShaderObject()
+            print "Cylinder-shader initialization is complete.\n"
+        except:
+            print_compact_traceback(
+                "Error initializing cylinder shaders, NOT using them.\n")
+
+            drawing_globals.use_cylinder_shaders_pref = False
+
+            # Could we support shaders with the older GL_ARB_vertex_program and
+            # GL_ARB_fragment_program with some work?  Get assembly-like vertex
+            # and fragment programs from the GLSL source using an option of the
+            # nVidia Cg compiler.  Needs some loading API changes too...
+            return False
+        return True
+
+    def checkInitShader(pref, name, initFn):
+        if pref:
+            if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
+                print "note: this session WILL use %s-shaders" % name
+                initFn()
+                pass
+            else:
+                print "note: this session WOULD use %s-shaders,\n" % name, \
+                    "but GL_EXTENSION GL_ARB_shader_objects is not supported.\n"
+                pass
             pass
         else:
-            print "note: this session WOULD use", \
-              "sphere-shaders,\n", \
-              "but GL_EXTENSION GL_ARB_shader_objects is not supported.\n"
+            print "note: this session will NOT use %s-shaders\n" % name
             pass
-        pass
-    else:
-        print "note: this session will NOT use", \
-              "sphere-shaders\n"
-        pass
+        return
+    checkInitShader(drawing_globals.use_sphere_shaders_pref, 
+                    "sphere", initSphereShader);
+    checkInitShader(drawing_globals.use_cylinder_shaders_pref,
+                    "cylinder", initCylinderShader);
 
     if drawing_globals.use_batched_primitive_shaders_pref:
         print "note: this session WILL use", \
@@ -497,6 +523,26 @@ def setup_drawer():
             # drawing_globals.use_batched_primitive_shaders_pref?
             pass
         
+        if drawing_globals.use_cylinder_shaders_pref: # Still optional.
+            try:
+                # GLCylinderBuffer requires GLCylinderShaderObject.
+                if not drawing_globals.use_cylinder_shaders_pref:
+                    if not initCylinderShader():
+                        raise ValueError, "cylinder shader setup failed."
+                    pass
+
+                from graphics.drawing.GLCylinderBuffer import GLCylinderBuffer
+                drawing_globals.cylinderPrimitives = GLCylinderBuffer()
+                print "Cylinder primitive buffer initialization is complete.\n"
+            except:
+                print_compact_traceback(
+                    "Error setting up cylinder primitive buffers, NOT using them.\n")
+                drawing_globals.use_cylinder_shaders_pref = False
+                ### REVIEW [bruce 090114]: do we also want to modify 
+                # drawing_globals.use_batched_primitive_shaders_pref?
+                pass
+            pass
+
         pass
     else:
         print "note: this session will NOT use", \

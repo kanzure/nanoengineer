@@ -1,10 +1,10 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 sphere_shader.py - Sphere shader GLSL source code.
 
 @author: Russ Fish
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -67,7 +67,7 @@ Russ 090106: Chopped the GLSL source string blocks out of gl_shaders.py .
 
 # ================================================================
 # Note: if texture_xforms is off, a #define N_CONST_XFORMS array dimension is
-# prepended to the following.  The #version statement must preceed it.
+# prepended to the following.  The #version statement must precede it.
 sphereVertSrc = """
 // Vertex shader program for sphere primitives.
 // 
@@ -123,7 +123,7 @@ void main(void) { // Vertex shader procedure.
   
   // The center point and radius are combined in one attribute: center_rad.
   vec4 center = vec4(center_rad.xyz, 1.0);
-  float radius = center_rad.w;         // per-vertex sphere radius.
+  float radius = center_rad.w;         // Per-vertex sphere radius.
 
 //[ ----------------------------------------------------------------
 // Per-primitive transforms.
@@ -226,17 +226,17 @@ void main(void) { // Vertex shader procedure.
   // Scale by the radius and add to the center point in eye space.
   vec3 eye_vert_pt;
   if (perspective == 1) {
-    // When perspective is on, a rotation is done as well, to keep a billboard
-    // drawing pattern oriented directly toward the viewpoint.
+    // When perspective is on, a small rotation is done as well, to keep a
+    // billboard drawing pattern oriented directly toward the viewpoint.
     vec3 new_z = - normalize(var_center_pt);
     vec3 new_x = normalize(cross(vec3(0.0, 1.0, 0.0), new_z));
-    vec3 new_y = cross( new_z, new_x);
+    vec3 new_y = cross(new_z, new_x);
     mat3 rotate = mat3(new_x, new_y, new_z);
     eye_vert_pt = var_center_pt + drawing_radius * (rotate * gl_Vertex.xyz);
 
     // With perspective, look from the origin, toward the vertex (pixel) points.
     // In eye space, the origin is at the eye point, by definition.
-    var_view_pt = vec3(0.0, 0.0, 0.0);
+    var_view_pt = vec3(0.0);
     var_ray_vec = normalize(eye_vert_pt);
 
   } else {
@@ -309,9 +309,8 @@ void main(void) {  // Fragment (pixel) shader procedure.
   vec3 sample_vec = normalize(var_ray_vec); // Interpolation denormalizes vecs.
 
   // Project the center point onto the sample ray to find the point where
-  // the sample vector passes closest to the center of the sphere.
-  // . We have the coordinates of the transformed view point and sphere center.
-  // . Vector from the view point to the sphere center.
+  // the sample ray line passes closest to the center of the sphere.
+  // . Vector between the transformed view point and the sphere center.
   vec3 center_vec = var_center_pt - var_view_pt;
 
   // . The distance from the view point to the sphere center plane, which is

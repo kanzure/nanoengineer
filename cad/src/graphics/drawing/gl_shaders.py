@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 gl_shaders.py - OpenGL shader objects.
 
@@ -42,6 +42,10 @@ Russ 081002: Added some Transform state to GLSphereShaderObject, and code to
   worth of VBO memory, and added opacity to the color, changing it from a vec3
   to a vec4.  Drawing pattern vertices are now relative to the center_pt and
   scaled by the radius attributes, handled by the shader.
+
+Russ 090116: Factored GLShaderObject out of GLSphereShaderObject, and added
+  GLCylinderShaderObject.  The only difference between them at this level is the
+  GLSL source passed in during initialization.
 """
 
 # Whether to use texture memory for transforms, or a uniform array of mat4s.
@@ -92,6 +96,7 @@ import utilities.EndUser as EndUser
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.gl_buffers import GLBufferObject
 from graphics.drawing.sphere_shader import sphereVertSrc, sphereFragSrc
+from graphics.drawing.cylinder_shader import cylinderVertSrc, cylinderFragSrc
 
 import foundation.env as env
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
@@ -174,16 +179,11 @@ DS_OVERRIDE_COLOR = 1
 DS_PATTERN = 2
 DS_HALO = 3
 
-class GLSphereShaderObject(object):
+class GLShaderObject(object):
     """
-    An analytic sphere shader.
-
-    This raster-converts analytic spheres, defined by a center point and radius.
-    (Some people call that a ray-tracer, but unlike a real ray-tracer it can't
-    send rays through the scene for reflection/refraction, nor toward the lights
-    to compute shadows.)
+    Base class for managing OpenGL shaders.
     """
-    def __init__(self):
+    def __init__(self, shaderName, shaderVertSrc, shaderFragSrc):
         # Cached info for blocks of transforms.
         self.n_transforms = None        # Size of the block.
         self.transform_memory = None    # Texture memory handle.
@@ -217,8 +217,8 @@ class GLSphereShaderObject(object):
             pass
         
         # Version statement has to come first in GLSL source.
-        prefix = """// requires GLSL version 1.10
-                    #version 110
+        prefix = """// requires GLSL version 1.20
+                    #version 120
                     """
         # Insert preprocessor constants.
         if not texture_xforms:
@@ -226,19 +226,20 @@ class GLSphereShaderObject(object):
             pass
         # Pass the source strings to the shader compiler.
         self.error = False
-        self.sphereVerts = self.createShader(GL_VERTEX_SHADER,
-                                             prefix + sphereVertSrc)
-        self.sphereFrags = self.createShader(GL_FRAGMENT_SHADER, sphereFragSrc)
+        self.vertShader = self.createShader(shaderName, GL_VERTEX_SHADER,
+                                            prefix + shaderVertSrc)
+        self.fragShader = self.createShader(shaderName, GL_FRAGMENT_SHADER,
+                                            shaderFragSrc)
         if self.error:          # May be set by createShader.
             return              # Can't do anything good after an error.
         # Link the compiled shaders into a shader program.
         self.progObj = glCreateProgramObjectARB()
-        glAttachObjectARB(self.progObj, self.sphereVerts)
-        glAttachObjectARB(self.progObj, self.sphereFrags)
+        glAttachObjectARB(self.progObj, self.vertShader)
+        glAttachObjectARB(self.progObj, self.fragShader)
         try:
             glLinkProgramARB(self.progObj) # Checks status, raises error if bad.
         except:
-            print "Shader program link error"
+            print shaderName, "shader program link error"
             print glGetInfoLogARB(self.progObj)
             self.error = True
             return              # Can't do anything good after an error.
@@ -256,7 +257,7 @@ class GLSphereShaderObject(object):
 
         return
 
-    def createShader(self, shaderType, shaderSrc):
+    def createShader(self, shaderName, shaderType, shaderSrc):
         """
         Create, load, and compile a shader.
         """
@@ -265,8 +266,9 @@ class GLSphereShaderObject(object):
         try:
             glCompileShaderARB(shader)    # Checks status, raises error if bad.
         except:
-            types = {GL_VERTEX_SHADER:"Vertex", GL_FRAGMENT_SHADER:"Fragment"}
-            print "\n%s shader program compilation error" % types[shaderType]
+            types = {GL_VERTEX_SHADER:"vertex", GL_FRAGMENT_SHADER:"fragment"}
+            print ("\n%s %s shader program compilation error" % 
+                   (shaderName, types[shaderType]))
             print glGetInfoLogARB(shader)
             self.error = True
             pass
@@ -525,7 +527,7 @@ class GLSphereShaderObject(object):
         glUniform1iARB(self.uniform("n_transforms"), self.n_transforms)
 
         # The shader bypasses transform logic if n_transforms is 0.
-        # (Then sphere center points are in global modeling coordinates.)
+        # (Then location coordinates are in global modeling coordinates.)
         if nTransforms > 0:
             if not texture_xforms:
                 # Load into constant memory.  The GL_EXT_bindable_uniform
@@ -600,4 +602,41 @@ class GLSphereShaderObject(object):
         self.use(False)                # Deactivate again.
         return
 
+    pass # End of class GLShaderObject.
+
+class GLSphereShaderObject(GLShaderObject):
+    """
+    An analytic sphere shader.
+
+    This raster-converts analytic spheres, defined by a center point and radius.
+    (Some people call that a ray-tracer, but unlike a real ray-tracer it can't
+    send rays through the scene for reflection/refraction, nor toward the lights
+    to compute shadows.)
+    """
+    def __init__(self):
+        super(GLSphereShaderObject, self).__init__(
+            "Sphere", sphereVertSrc, sphereFragSrc)
+        return
     pass # End of class GLSphereShaderObject.
+
+class GLCylinderShaderObject(GLShaderObject):
+    """
+    An analytic cylinder shader.
+
+    This shader raster-converts analytic tapered cylinders, defined by two
+    end-points determining an axis line-segment, and two radii at the
+    end-points.  A constant-radius cylinder is tapered by perspective anyway, so
+    the same shader does cones as well as cylinders.
+    
+    The rendered cylinders are smooth, with no polygon facets.  Exact shading, Z
+    depth, and normals are calculated in parallel in the GPU for each pixel.
+
+    (Some people call that a ray-tracer, but unlike a real ray-tracer it can't
+    send rays through the scene for reflection/refraction, nor toward the lights
+    to compute shadows.)
+    """
+    def __init__(self):
+        super(GLCylinderShaderObject, self).__init__(
+            "Cylinder", cylinderVertSrc, cylinderFragSrc)
+        return
+    pass # End of class GLCylinderShaderObject.
