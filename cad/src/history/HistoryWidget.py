@@ -125,6 +125,7 @@ class History_QTextEdit(hte_super, m_super):
         #e watch out for being outside the scrollview.
         return res
     def contentsMousePressEvent(self, event):#050304
+        # note, bruce 090119: pylint claims this method no longer exists in QTextEdit
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
             return
         return hte_super.contentsMousePressEvent(self, event)

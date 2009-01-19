@@ -2053,8 +2053,6 @@ class Node( StateMixin):
         """
         return False # correct for nodes that can't contain atoms
 
-    pass # end of class Node
-
     def get_atom_content(self, flags = -1): #bruce 080306
         """
         Return your current (up to date) atom content
@@ -2087,6 +2085,8 @@ class Node( StateMixin):
     # an old todo comment:
     #in addition, each Node should have the following methods:
     # draw, cut, copy, paste
+
+    pass # end of class Node
 
 # ==
 

@@ -10,6 +10,18 @@ History:
 
 Bruce 090115 split this out of class Chunk. (Not long or old enough
 for svn copy to be worthwhile, so see chunk.py for older svn history.)
+
+TODO: Refactoring:
+
+Some of the methods in this class are never used except on
+Dna-related subclasses of Chunk, and should be moved into those
+subclasses. Unfortunately it's not trivial to figure out for which ones
+that's guaranteed to be the case.
+
+There are some large hunks of duplicated code in this file
+(pylint can detect them).
+
+See also the REVIEW comments below, as always.
 """
 
 import re
@@ -27,12 +39,7 @@ from operations.bond_chains import grow_directional_bond_chain
 class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint?
     """
     Dna-related methods to be mixed in to class Chunk.
-    """
-    # Note: some of the methods in this class are never used except on
-    # Dna-related subclasses of Chunk, and should be moved into those
-    # subclasses. Unfortunately it's not trivial to figure out for which ones
-    # that's guaranteed to be the case.
-    
+    """  
     
     # PAM3+5 attributes (these only affect PAM atoms in self, if any):
     #
