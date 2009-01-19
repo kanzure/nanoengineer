@@ -1,9 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 elementColors.py - dialog for changing element color table; related functions
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from PyQt4.Qt import QDialog
@@ -21,7 +21,6 @@ from graphics.widgets.ThumbView import ElementView
 from utilities.qt4transition import qt4todo
 
 from utilities.Log import redmsg # Mark 050311
-from geometry.VQT import V
 from widgets.widget_helpers import RGBf_to_QColor
 import foundation.env as env
 
@@ -30,18 +29,20 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
     
     def __init__(self, win):
         qt4todo('what to do with all those options?')
-        # ElementColorsDialog.__init__(self, win, None, 0, Qt.WStyle_Customize | Qt.WStyle_NormalBorder | Qt.WStyle_Title | Qt.WStyle_SysMenu)
+        ## ElementColorsDialog.__init__(self, win, None, 0,
+        ##   Qt.WStyle_Customize | Qt.WStyle_NormalBorder | 
+        ##   Qt.WStyle_Title | Qt.WStyle_SysMenu)
         QDialog.__init__(self, win)
         self.setupUi(self)
-        self.connect(self.okButton,SIGNAL("clicked()"),self.ok)
-        self.connect(self.loadColorsPB,SIGNAL("clicked()"),self.read_element_rgb_table)
-        self.connect(self.saveColorsPB,SIGNAL("clicked()"),self.write_element_rgb_table)
-        self.connect(self.cancelButton,SIGNAL("clicked()"),self.reject)
-        self.connect(self.defaultButton,SIGNAL("clicked()"),self.loadDefaultProp)
-        self.connect(self.alterButton,SIGNAL("clicked()"),self.loadAlterProp)
-        self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
-        self.connect(self.previewPB,SIGNAL("clicked()"),self.preview_color_change)
-        self.connect(self.restorePB,SIGNAL("clicked()"),self.restore_current_color)
+        self.connect(self.okButton, SIGNAL("clicked()"), self.ok)
+        self.connect(self.loadColorsPB, SIGNAL("clicked()"), self.read_element_rgb_table)
+        self.connect(self.saveColorsPB, SIGNAL("clicked()"), self.write_element_rgb_table)
+        self.connect(self.cancelButton, SIGNAL("clicked()"), self.reject)
+        self.connect(self.defaultButton, SIGNAL("clicked()"), self.loadDefaultProp)
+        self.connect(self.alterButton, SIGNAL("clicked()"), self.loadAlterProp)
+        self.connect(self.elementButtonGroup, SIGNAL("clicked(int)"), self.setElementInfo)
+        self.connect(self.previewPB, SIGNAL("clicked()"), self.preview_color_change)
+        self.connect(self.restorePB, SIGNAL("clicked()"), self.restore_current_color)
         self.w = win
         self.fileName = None
         self.isElementModified = False
@@ -57,7 +58,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         flayout = QVBoxLayout(self.elementFrame)
         flayout.setMargin(1)
         flayout.setSpacing(1)
-        flayout.addWidget(self.elemGLPane,1)
+        flayout.addWidget(self.elemGLPane, 1)
         
         def elementId(symbol):
             return PeriodicTable.getElement(symbol).eltnum
@@ -83,32 +84,36 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.elementButtonGroup.setId(self.toolButton1, elementId("H"))
         self.elementButtonGroup.setId(self.toolButton0, elementId("X"))
 
-        self.connect(self.toolButton6,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton8,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton10,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton9,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton13,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton17,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton5,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton10_2,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton15,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton16,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton14,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton33,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton34,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton35,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton36,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton32,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton7,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton2,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton1,SIGNAL("clicked()"),self.updateElemColorDisplay)
-        self.connect(self.toolButton0,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton6, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton8, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton10, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton9, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton13, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton17, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton5, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton10_2, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton15, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton16, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton14, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton33, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton34, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton35, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton36, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton32, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton7, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton2, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton1, SIGNAL("clicked()"), self.updateElemColorDisplay)
+        self.connect(self.toolButton0, SIGNAL("clicked()"), self.updateElemColorDisplay)
         
         self.connectChangingControls()
-        self.saveColorsPB.setWhatsThis("""Save the current color settings for elements in a text file.""")
-        self.defaultButton.setWhatsThis("""Restore current element colors to the default colors.""")
-        self.loadColorsPB.setWhatsThis("""Load element colors from an external text file.""")
-        self.alterButton.setWhatsThis("""Set element colors to the alternate color set.""")
+        self.saveColorsPB.setWhatsThis(
+            """Save the current color settings for elements in a text file.""")
+        self.defaultButton.setWhatsThis(
+            """Restore current element colors to the default colors.""")
+        self.loadColorsPB.setWhatsThis(
+            """Load element colors from an external text file.""")
+        self.alterButton.setWhatsThis(
+            """Set element colors to the alternate color set.""")
         
     def closeEvent(self, e):
         """
@@ -118,12 +123,12 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.ok()
         
     def connectChangingControls(self):
-        self.connect(self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
-        self.connect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
-        self.connect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
-        self.connect(self.blueSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderBlue)
-        self.connect(self.greenSlider,SIGNAL("valueChanged(int)"),self.changeSpinGreen)
-        self.connect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
+        self.connect(self.redSlider, SIGNAL("valueChanged(int)"), self.changeSpinRed)
+        self.connect(self.redSpinBox, SIGNAL("valueChanged(int)"), self.changeSliderRed)
+        self.connect(self.blueSlider, SIGNAL("valueChanged(int)"), self.changeSpinBlue)
+        self.connect(self.blueSpinBox, SIGNAL("valueChanged(int)"), self.changeSliderBlue)
+        self.connect(self.greenSlider, SIGNAL("valueChanged(int)"), self.changeSpinGreen)
+        self.connect(self.greenSpinBox, SIGNAL("valueChanged(int)"), self.changeSliderGreen)
     
     def loadDefaultProp(self):
         """
@@ -157,7 +162,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
             elm = self.elemTable.getElement(elemNum)
             self.elemGLPane.refreshDisplay(elm, self.displayMode)
  
-    def setElementInfo(self,value):
+    def setElementInfo(self, value):
         """
         Called as a slot from an element button push.
         """
@@ -226,11 +231,15 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
             colorTable = readElementColors(self.fileName)
             
             if not colorTable:
-                env.history.message(redmsg("Error in element colors file: [" + self.fileName + "]. Colors not loaded."))
+                msg = "Error in element colors file: [" + self.fileName + "]. Colors not loaded."
+                env.history.message(redmsg(msg))
             else:
-                env.history.message("Element colors loaded from file: [" + self.fileName + "].")
+                msg = "Element colors loaded from file: [" + self.fileName + "]."
+                env.history.message(msg)
                 for row in colorTable:
-                     row[1] /= 255.0; row[2] /= 255.0; row[3] /= 255.0
+                    row[1] /= 255.0
+                    row[2] /= 255.0
+                    row[3] /= 255.0
                 self.elemTable.setElemColors(colorTable)
                 self._updateModelDisplay()     
                 
@@ -246,10 +255,10 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         currently only r,g,b color of each element will be saved.
         """
         if not self.fileName:
-           from utilities.prefs_constants import workingDirectory_prefs_key   
-           sdir = env.prefs[workingDirectory_prefs_key]
+            from utilities.prefs_constants import workingDirectory_prefs_key   
+            sdir = env.prefs[workingDirectory_prefs_key]
         else:
-           sdir = self.fileName
+            sdir = self.fileName
            
         fn = QFileDialog.getSaveFileName(
                      self,              
@@ -265,16 +274,16 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
             
             import os    
             if os.path.exists(fn): # ...and if the "Save As" file exists...
-                    # ... confirm overwrite of the existing file.
-                    ret = QMessageBox.warning( self, "Save Element Colors...",
-                        "The file \"" + fn + "\" already exists.\n"
-                          "Do you want to overwrite the existing file or cancel?",
-                        "&Overwrite", "&Cancel", "",
-                        0,      # Enter == button 0
-                        1 )     # Escape == button 1
+                # ... confirm overwrite of the existing file.
+                ret = QMessageBox.warning( self, "Save Element Colors...",
+                    "The file \"" + fn + "\" already exists.\n"
+                      "Do you want to overwrite the existing file or cancel?",
+                    "&Overwrite", "&Cancel", "",
+                    0,      # Enter == button 0
+                    1 )     # Escape == button 1
 
-                    if ret == 1: # The user cancelled
-                        return 
+                if ret == 1: # The user cancelled
+                    return 
                     
             # write the current set of element colors into a file    
             saveElementColors(fn, self.elemTable.getAllElements())
@@ -352,16 +361,17 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.w.glpane.gl_update()
         
     def ok(self):
-        #if self.isElementModified and not self.isFileSaved:
-            #ret = QMessageBox.question(self, "Warnings",
-            # "Do you want to save the element colors into a file?", QMessageBox.Yes, QMessageBox.No)
-            #if ret == QMessageBox.Yes:
-            #    self.write_element_rgb_table()
+        ## if self.isElementModified and not self.isFileSaved:
+            ## ret = QMessageBox.question(self, "Warnings",
+            ##  "Do you want to save the element colors into a file?", 
+            ##  QMessageBox.Yes, QMessageBox.No )
+            ## if ret == QMessageBox.Yes:
+            ##     self.write_element_rgb_table()
             
-         ##Save the color preference
-         self.elemTable.close()
+        #Save the color preference
+        self.elemTable.close()
          
-         self.accept()
+        self.accept()
         
         
     def reject(self):
@@ -399,7 +409,8 @@ def readElementColors(fileName):
     Read element colors (ele #, r, g, b) from a text file.
     Each element is on a new line. A line starting '#' is a comment line.
     <Parameter> fileName: a string for the input file name
-    <Return>:  A list of quardral tuples--(ele #, r, g, b) if succeed, otherwise 'None'
+    <Return>:  A list of quardral tuples--(ele #, r, g, b) if succeed, 
+    otherwise 'None'
     """
     try:
         lines = open(fileName, "rU").readlines()         
@@ -416,14 +427,19 @@ def readElementColors(fileName):
                 # Check Element Number validity
                 if row[0] >= 0 and row[0] <= 54:
                     # Check RGB index values
-                    if row[1] < 0 or row[1] > 255 or row[2] < 0 or row[2] > 255 or row[3] < 0 or row[3] > 255:
+                    if row[1] < 0 or row[1] > 255 \
+                    or row[2] < 0 or row[2] > 255 \
+                    or row[3] < 0 or row[3] > 255:
                         raise ValueError, "An RGB index value not in a valid range (0-255)."
                     elemColorTable += [row]
                 else:
                     raise ValueError, "Element number value not in a valid range."
             except:
-               print "Error in element color file %s.  Invalid value in line: %sElement color file not loaded." % (fileName, line)
-               return None
+                # todo: env.history.redmsg
+                print "Error in element color file [%s]." % (fileName,)
+                print "Invalid value in line: %s" % (line,)
+                print "Element color file not loaded."
+                return None
     
     return elemColorTable           
 
@@ -451,7 +467,11 @@ def saveElementColors(fileName, elemTable):
         r = int(col[0] * 255 + 0.5)
         g = int(col[1] * 255 + 0.5)
         b = int(col[2] * 255 + 0.5)
-        f.write(str(eleNum) + "  " + str(r) + "  " + str(g) + "  " + str(b) + "\n")
+        f.write(str(eleNum) 
+                + "  " + str(r) 
+                +  "  " + str(g) 
+                + "  " + str(b) 
+                + "\n" )
     
     f.close()
 
@@ -463,14 +483,14 @@ import sys
 if __name__ == '__main__':
 
     QApplication.setColorSpec(QApplication.CustomColor)
-    app=QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
     if not QGLFormat.hasOpenGL():
-        raise 'No Qt OpenGL support.'
+        raise Exception("No Qt OpenGL support.")
 
     w = elementColors(None)
     app.setMainWidget(w)
-    w.resize(400,350)
+    w.resize(400, 350)
     w.show()
     w.setCaption('box')
     app.exec_()        
