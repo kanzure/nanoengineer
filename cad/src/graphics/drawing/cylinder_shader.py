@@ -186,7 +186,7 @@ uniform int n_transforms;
 // Attribute variables, which are bound to VBO arrays for each vertex coming in.
 // Attributes can not be bool or int.
 // Each non-matrix attribute has space for up to 4 floating-point values.
-attribute mat2x4 endpt_rad;     // Cylinder endpoints and radii, twice.
+attribute vec4 endpt_rad_0, endpt_rad_1; // Cylinder endpoints and radii, twice.
 // The following may be set to constants, when no arrays are provided.
 attribute vec4 color;           // Cylinder color and opacity (RGBA).
 attribute float transform_id;   // Ignored if zero.  (Attribs cannot be ints.)
@@ -226,10 +226,10 @@ void main(void) {
   vec4 endpts[2];
   float radii[2];
   int i;
-  for (i = 0; i <= 1; i++) {
-    endpts[i] = vec4(endpt_rad[i].xyz, 1.0);
-    radii[i] = endpt_rad[i].w;      // Per-vertex cylinder radii.
-  }
+  endpts[0] = vec4(endpt_rad_0.xyz, 1.0);
+  endpts[1] = vec4(endpt_rad_1.xyz, 1.0);
+  radii[0] = endpt_rad_0.w;      // Per-vertex cylinder radii.
+  radii[1] = endpt_rad_1.w;
 
 //[ ----------------------------------------------------------------
 // Per-primitive transforms.

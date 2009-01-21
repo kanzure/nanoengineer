@@ -44,16 +44,20 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
         shader = drawing_globals.cylinderShader
         super(GLCylinderBuffer, self).__init__(
             shader, GL_QUADS,
-            drawing_globals.shaderBillboardVerts,
-            drawing_globals.shaderBillboardIndices)
+            drawing_globals.cylinderBillboardVerts,
+            drawing_globals.cylinderBillboardIndices)
 
         # Per-vertex attribute hunk VBOs that are specific to the cylinder
-        # shader.  Combine endpoints and radii into a twice-4-element mat2x4
-        # attribute VBO.  (Each attribute slot takes 4 floats, no matter how
-        # many of them are used.)
+        # shader.  Combine endpoints and radii into two vec4's.  It would be
+        # nicer to use a twice-4-element mat2x4 attribute VBO, but it would have
+        # to be sent as two attribute slots anyway, because OpenGL only allows
+        # "size" to be 1 to 4 in glVertexAttribPointer.
         nVerts = self.nVertices
-        self.endptRadHunks = HunkBuffer(shader, "endpt_rad", nVerts, 8)
-        self.hunkBuffers += [self.endptRadHunks]
+        self.endptRad0Hunks = HunkBuffer(shader, "endpt_rad_0",
+                                         self.nVertices, 4)
+        self.endptRad1Hunks = HunkBuffer(shader, "endpt_rad_1",
+                                         self.nVertices, 4)
+        self.hunkBuffers += [self.endptRad0Hunks, self.endptRad1Hunks] 
 
         return
 
@@ -129,9 +133,10 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
             zip(newIDs, endpts, radii, colors, transform_ids, glnames):
 
             # Combine each center and radius into one vertex attribute.
-            endptRad = (V(endpt2[0][0], endpt2[0][1], endpt2[0][2], radius2[0]),
-                        V(endpt2[1][0], endpt2[1][1], endpt2[1][2], radius2[1]))
-            self.endptRadHunks.setData(newID, endptRad)
+            endptRad0 = [V(endpt2[0][0], endpt2[0][1], endpt2[0][2], radius2[0])]
+            endptRad1 = [V(endpt2[1][0], endpt2[1][1], endpt2[1][2], radius2[1])]
+            self.endptRad0Hunks.setData(newID, endptRad0)
+            self.endptRad1Hunks.setData(newID, endptRad1)
             self.colorHunks.setData(newID, color)
             self.transform_id_Hunks.setData(newID, transform_id)
             # Break the glname into RGBA pixel color components, 0.0 to 1.0 .

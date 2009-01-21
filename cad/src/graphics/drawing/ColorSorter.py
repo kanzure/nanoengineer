@@ -38,7 +38,9 @@ into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
 ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 
-08xxxx russ added shader support
+081003 russ Added sphere shader-primitive support to CSDLs.
+
+081126 russ Added CSDL shader hover-highlight support, including glname drawing.
 
 REVIEW:
 
@@ -55,6 +57,7 @@ to make this very clear.
 * see my comments dated 090114 about cleaning up .dl, .selected, .selectPick,
 and activate (and related comments in CrystalShape.py and chunk.py).
 
+russ 090119 Added cylinder shader-primitive support.
 """
 
 from OpenGL.GL import GL_BLEND
@@ -144,6 +147,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         # Included drawing-primitive IDs.
         self.spheres = []
+        self.cylinders = []
 
         # Russ 081128: A cached primitives drawing index.  This is only used
         # when drawing individual CSDLs for hover-highlighting.  Normally,
@@ -239,7 +243,14 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # Free them in the GLPrimitiveBuffers.
         if drawing_globals.use_batched_primitive_shaders:
             drawing_globals.spherePrimitives.releasePrimitives(self.spheres)
+
+            if drawing_globals.use_cylinder_shaders:
+                drawing_globals.cylinderPrimitives.releasePrimitives(
+                    self.cylinders)
+                pass
+            pass
         self.spheres = []
+        self.cylinders = []
         self.drawIndex = None
         return
         
@@ -251,6 +262,20 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         self.spheres += drawing_globals.spherePrimitives.addSpheres(
             [center], radius, color, self.transform_id(), glname)
+        self.drawIndex = None
+        return
+
+    # Russ 090119: Added.
+    def addCylinder(self, endpts, radii, color, transform_id, glname):
+        """
+        Allocate a cylinder primitive and add its ID to the cylinder list.
+        . endpts is a tuple of two VQT points.
+        . radii may be a single number, or a tuple of two radii for taper.
+        . color is a list of components: [R, G, B] or [R, G, B, A].
+        . transform_id may be None.
+        """
+        self.cylinders += drawing_globals.cylinderPrimitives.addCylinders(
+            [endpts], radii, color, self.transform_id(), glname)
         self.drawIndex = None
         return
     
@@ -737,7 +762,21 @@ class ColorSorter:
             else:
                 lcolor = color		    
 
-            ColorSorter.schedule(lcolor,
+            # Russ 090119: Added.
+            cylinderBatches = (drawing_globals.use_batched_primitive_shaders and
+                               drawing_globals.use_cylinder_shaders)
+            if cylinderBatches and ColorSorter._parent_csdl:
+                # Collect lists of primitives in the CSDL, rather than sending
+                # them down through the ColorSorter schedule methods into DLs.
+                assert ColorSorter.sorting # since _parent_csdl is present
+                ColorSorter._parent_csdl.addCylinder(
+                    # For a tapered cylinder or cone, pass a tuple of two radii.
+                    (pos1, pos2), radius, lcolor,
+                    ColorSorter._parent_csdl.transform_id(),
+                    # Mouseover glnames come from ColorSorter.pushName() .
+                    ColorSorter._gl_name_stack[-1])
+            else:
+                ColorSorter.schedule(lcolor,
                                  drawcylinder_worker,
                                  (pos1, pos2, radius, capped))
 

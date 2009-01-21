@@ -63,16 +63,18 @@ class GLPrimitiveSet:
         
         # Collect lists of primitives to draw in batches, and those CSDLs with
         # display lists to draw as well.  (A given CSDL may have both.)
-        self.primitives = []            # Generalize to a dict of lists?
+        self.spheres = []            # Generalize to a dict of lists?
+        self.cylinders = []
         self.CSDLs_with_DLs = []
         for csdl in self.CSDLs:
-            self.primitives += csdl.spheres
+            self.spheres += csdl.spheres
+            self.cylinders += csdl.cylinders
             if len(csdl.per_color_dls) > 0:
                 self.CSDLs_with_DLs += [csdl]
                 pass
             continue
 
-        self.drawIndex = None           # Generated on demand.
+        self.drawIndices = {}           # Generated on demand.
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this GLPrimitiveSet was created.
@@ -87,24 +89,27 @@ class GLPrimitiveSet:
         """
         # Draw primitives from CSDLs through shaders, if that's turned on.
         if drawing_globals.use_batched_primitive_shaders_pref:
-            spheres = drawing_globals.spherePrimitives
-            if len(self.primitives) > 0:
+            for primitives, shader in (
+                (self.spheres, drawing_globals.spherePrimitives),
+                (self.cylinders, drawing_globals.cylinderPrimitives)):
 
-                if True: # False  ## True for indexed drawing, False unindexed.
-                    # Generate and cache index lists for selective drawing of
-                    # primitives through glMultiDrawElements().
-                    if self.drawIndex is None:
-                        self.drawIndex = spheres.makeDrawIndex(self.primitives)
+                if len(primitives) > 0:
+                    if True: # False ## True: indexed drawing, False: unindexed.
+                        # Generate and cache index lists for selective drawing
+                        # of primitives through glMultiDrawElements().
+                        if shader not in self.drawIndices:
+                            self.drawIndices[shader] = shader.makeDrawIndex(primitives)
+                            pass
+                        # With a drawIndex, draw calls glMultiDrawElements().
+                        shader.draw(self.drawIndices[shader], highlighted, selected,
+                                  patterning, highlight_color, opacity)
+                    else:
+                        # (For initial testing.)  Here GLPrimitiveBuffer draws the
+                        # entire set of sphere primitives using glDrawElements().
+                        shader.draw()
                         pass
-                    # With a drawIndex, draw calls glMultiDrawElements().
-                    spheres.draw(self.drawIndex, highlighted, selected,
-                              patterning, highlight_color, opacity)
-                else:
-                    # (For initial testing.)  Here GLPrimitiveBuffer draws the
-                    # entire set of sphere primitives using glDrawElements().
-                    spheres.draw()
                     pass
-                pass
+                continue
             pass
 
         # Draw just the Display Lists in CSDLs with DLs in them.

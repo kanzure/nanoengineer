@@ -42,8 +42,9 @@ AVAILABLE_TEST_CASES_DICT = {
     6: "",
     7: "",
     8: "",
-    8.1: "",
-    8.2: "",
+    8.1: "Sphere primitives chunked in a DrawingSet",
+    8.2: "Sphere primitives chunked with transforms",
+    8.3: "Cylinder primitives chunked in a DrawingSet",
     100: "test_selection_redraw",
  }
 AVAILABLE_TEST_CASES_ITEMS = AVAILABLE_TEST_CASES_DICT.items()
@@ -65,6 +66,8 @@ def test_Draw(glpane):
         test_spheres.draw() 
     elif int(testCase) == 8:
         shader = drawing_globals.sphereShader
+        if testCase == 8.3:
+            shader = drawing_globals.cylinderShader
         shader.configShader(glpane)
         test_DrawingSet.draw()
     elif int(testCase) >= 100:
@@ -126,6 +129,11 @@ testCase = 8.1; nSpheres = 10; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.2; nSpheres = 100; chunkLength = 200
 #testCase = 8.2; nSpheres = 100; chunkLength = 50
 
+#testCase = 8.3; nSpheres =  10; chunkLength = 8
+#testCase = 8.3; nSpheres =  50; chunkLength = 8
+#testCase = 8.3; nSpheres = 100; chunkLength = 8
+#testCase = 8.3; nSpheres = 100; chunkLength = 8
+
 # Longish chunks for test case 3.4 (with transforms)
 #nSpheres = 132; transformChunkLength = 1000
 #
@@ -153,7 +161,7 @@ from graphics.drawing.DrawingSet import DrawingSet
 from graphics.drawing.TransformControl import TransformControl
 from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.ColorSorter import ColorSortedDisplayList
-from graphics.drawing.CS_draw_primitives import drawsphere
+from graphics.drawing.CS_draw_primitives import drawsphere, drawcylinder
 from graphics.drawing.CS_workers import drawsphere_worker_loop
 from graphics.drawing.gl_buffers import GLBufferObject
 from graphics.drawing.gl_Scale import glScale
@@ -884,17 +892,22 @@ def test_drawing(glpane, initOnly = False):
     #
     elif int(testCase) == 8:
         doTransforms = False
+        doCylinders = False
         if test_spheres is None:
             # Setup.
-            print ("Test case 8, %d^2 spheres\n  %s, length %d." %
+            print ("Test case 8, %d^2 primitives\n  %s, length %d." %
                    (nSpheres, "Short VBO/IBO chunk buffers", chunkLength))
             if testCase == 8.1:
-                print ("Sub-test 8.1, chunks are in CSDL's in a DrawingSet.")
+                print ("Sub-test 8.1, sphere chunks are in CSDL's in a DrawingSet.")
                 test_DrawingSet = DrawingSet()
             elif testCase == 8.2:
-                print ("Sub-test 8.2, rotate with TransformControls.")
+                print ("Sub-test 8.2, spheres, rotate with TransformControls.")
                 test_DrawingSet = DrawingSet()
                 doTransforms = True
+            elif testCase == 8.3:
+                print ("Sub-test 8.3, cylinder chunks are in CSDL's in a DrawingSet.")
+                test_DrawingSet = DrawingSet()
+                doCylinders = True
                 pass
 
             if USE_GRAPHICSMODE_DRAW:
@@ -910,7 +923,7 @@ def test_drawing(glpane, initOnly = False):
                 TCs = [TransformControl() for i in range(numTCs)]
                 pass
 
-            def sphereCSDL(centers, radii, colors):
+            def primCSDL(centers, radii, colors):
                 if not doTransforms:
                     csdl = ColorSortedDisplayList() # Transformless.
                 else:
@@ -929,18 +942,24 @@ def test_drawing(glpane, initOnly = False):
                 ColorSorter.pushName(csdl.glname)
                 ColorSorter.start(csdl)
                 for (color, center, radius) in zip(colors, centers, radii):
-                    # Through the ColorSorter to the sphere primitive buffer...
-                    drawsphere(color, center, radius, DRAWSPHERE_DETAIL_LEVEL)
+                    if not doCylinders:
+                        # Through the ColorSorter to the sphere primitive buffer...
+                        drawsphere(color, center, radius, DRAWSPHERE_DETAIL_LEVEL)
+                    else:
+                        # Through the ColorSorter to the cylinder primitive buffer...
+                        drawcylinder(color, center, center + V(1.0, 1.0, -1.0),
+                                     (radius/2.0, (.875-radius)/2.0))
                     continue
                 ColorSorter.finish()
                 ColorSorter.popName()
 
                 test_DrawingSet.addCSDL(csdl)
                 return csdl
+
             if testCase == 8:
                 chunkFn = GLSphereBuffer
             else:
-                chunkFn = sphereCSDL
+                chunkFn = primCSDL
                 pass
 
             test_spheres = []
@@ -984,17 +1003,18 @@ def test_drawing(glpane, initOnly = False):
                     chunk.draw()
                     continue
                 pass
-            elif testCase == 8.1:
-                test_DrawingSet.draw()
-            elif testCase == 8.2:
-                # Animate TCs, rotating them slowly.
-                slow = 10.0 # Seconds.
-                angle = 2*pi * fmod(time.time(), slow) / slow
-                # Leave the first one as identity, and rotate the others in
-                # opposite directions around the X axis.
-                TCs[1].identTranslateRotate(V(0, 0, 0), Q(V(1, 0, 0), angle * 2))
-                TCs[2].identTranslateRotate(V(0, 0, 0), Q(V(1, 0, 0), -angle))
-
+            else:
+                if testCase == 8.2:
+                    # Animate TCs, rotating them slowly.
+                    slow = 10.0 # Seconds.
+                    angle = 2*pi * fmod(time.time(), slow) / slow
+                    # Leave the first one as identity, and rotate the others in
+                    # opposite directions around the X axis.
+                    TCs[1].identTranslateRotate(V(0, 0, 0),
+                                                Q(V(1, 0, 0), angle * 2))
+                    TCs[2].identTranslateRotate(V(0, 0, 0),
+                                                Q(V(1, 0, 0), -angle))
+                    pass
                 test_DrawingSet.draw()
                 pass
 

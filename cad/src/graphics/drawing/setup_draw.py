@@ -333,7 +333,7 @@ def setup_drawer():
     glEnd()
     glEndList()                
 
-    # Use with the shader where drawing patterns are applied in eye (camera)
+    # Use with shaders where drawing patterns are applied in eye (camera)
     # coordinates.  The billboard stays between the eye and the primitive.
     drawing_globals.shaderBillboardVerts = verts = [
         (-1.0, -1.0,  1.0),
@@ -341,6 +341,15 @@ def setup_drawer():
         (-1.0,  1.0,  1.0),
         ( 1.0,  1.0,  1.0)]
     drawing_globals.shaderBillboardIndices = indices = [
+        [0, 1, 3, 2]] # +Z face.
+
+    # Special billboard drawing pattern for the cylinder shader.
+    drawing_globals.cylinderBillboardVerts = verts = [
+        (0.0, -1.0,  1.0),
+        (1.0, -1.0,  1.0),
+        (0.0,  1.0,  1.0),
+        (1.0,  1.0,  1.0)]
+    drawing_globals.cylinderBillboardIndices = indices = [
         [0, 1, 3, 2]] # +Z face.
 
     drawing_globals.rotSignList = rotSignList = glGenLists(1)

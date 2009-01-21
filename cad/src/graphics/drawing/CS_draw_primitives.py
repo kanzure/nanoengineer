@@ -39,6 +39,9 @@ objects (e.g. rainbow colored DNA structures).
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
 ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
+
+081003 russ Added sphere shader-primitive support.
+090119 russ Added cylinder shader-primitive support.
 """
 
 from OpenGL.GL import GL_BACK

@@ -442,6 +442,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         return
 
     drawing_phase = '?' # new feature, bruce 070124 (set to different fixed strings for different drawing phases)
+    drawing_globals.drawing_phase = drawing_phase
     def set_drawing_phase(self, phase): # Russ 081208: Encapsulate setting, to tell shaders as well.
         self.drawing_phase = phase
         drawing_globals.drawing_phase = phase
