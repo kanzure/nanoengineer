@@ -1,6 +1,7 @@
 # Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-env.py - for global variables and functions treated as "part of the environment".
+env.py - for global variables and functions treated as "part of the
+environment".
 
 @author: Bruce
 @version: $Id$
@@ -14,21 +15,25 @@ as arguments (since many routines would need to pass these through
 without using them), and which some code might want to change dynamically
 to provide a modified environment for some of the code it calls.
 
-(Many of these variables will need to be thread-specific if we ever have threads.)
+(Many of these variables will need to be thread-specific if we ever have
+threads.)
 
-Also, certain basic routines for using/allocating some of these global variables.
+Also, certain basic routines for using/allocating some of these global
+variables.
 
 
 Usage:
 
 'import foundation.env as env' is preferred to 'from foundation import env'
-since the former makes it clear that env is a module. The latter is never used,
-but is here in this docstring so that a search for 'import env' will find it.
+since the former makes it clear that env is a module. The latter is never
+used, but is here in this docstring so that a search for 'import env' will
+find it.
 
    ... use env.xxx as needed ...
-   # Don't say "from env import xxx" since env.xxx might be reassigned dynamically.
-   # Variables that never change (and are importable when the program is starting up)
-   # can be put into constants.py.
+   
+   # Don't say "from env import xxx" since env.xxx might be reassigned
+   # dynamically. Variables that never change (and are importable when the
+   # program is starting up) can be put into constants.py.
 
 
 Purpose and future plans:
@@ -38,27 +43,31 @@ Soon we should move some more variables here from platform, assy, and/or win.
 We might also put some "dynamic variables" here, like the current Part --
 this is not yet decided.
 
-Generators used to allocate things also might belong here, whether or not
-we have global dicts of allocated things. (E.g. the one for atom keys.)
+Generators used to allocate things also might belong here, whether or not we
+have global dicts of allocated things. (E.g. the one for atom keys.)
 
-One test of whether something might belong here is whether there will always be at most one
-of them per process (or per active thread), even when we support multiple open files,
-multiple main windows, multiple glpanes and model trees, etc.
+One test of whether something might belong here is whether there will always
+be at most one of them per process (or per active thread), even when we
+support multiple open files, multiple main windows, multiple glpanes and model
+trees, etc.
 
 
 History:
 
-bruce 050610 made this module (since we've needed it for awhile), under the name "globals.py"
-(since "global" is a Python keyword).
+bruce 050610 made this module (since we've needed it for awhile), under the
+name "globals.py" (since "global" is a Python keyword).
 
-bruce 050627 renamed this module to "env.py", since "globals" is a Python builtin function.
+bruce 050627 renamed this module to "env.py", since "globals" is a Python
+builtin function.
 
-bruce 050803 new features to help with graphics updates when preferences are changed
+bruce 050803 new features to help with graphics updates when preferences are
+changed
 
-bruce 050913 converted most or all remaining uses of win.history to env.history,
-and officially deprecated win.history.
+bruce 050913 converted most or all remaining uses of win.history to
+env.history, and officially deprecated win.history.
 
-bruce 080220 split glselect_name_dict.py out of env.py so we can make it per-assy.
+bruce 080220 split glselect_name_dict.py out of env.py so we can make it
+per-assy.
 """
 
 _mainWindow = None
@@ -96,29 +105,39 @@ def mainwindow(): #bruce 051209
 
     return _mainWindow
 
-mainWindow = mainwindow # alias which should become the new name of that function [bruce 080605]
+mainWindow = mainwindow # alias which should become the new name of
+    # that function [bruce 080605]
 
 def debug(): #bruce 060222
     """
-    Should debug checks be run, and debug messages be printed, and debug options offered in menus?
-    [This just returns the current value of debug_flags.atom_debug, which is this code's conventional flag
-     for "general debugging messages and checks". Someday we might move that flag itself into env,
-     but that's harder since we'd have to edit lots of code that looks for it in platform,
-     or synchronize changes to two flags.]
+    Should debug checks be run, and debug messages be printed, and debug
+    options offered in menus?
+    
+    @note: This just returns the current value of debug_flags.atom_debug,
+    which is this code's conventional flag for "general debugging messages and
+    checks". Someday we might move that flag itself into env, but that's
+    harder since we'd have to edit lots of code that looks for it in platform,
+    or synchronize changes to two flags.
     """
-    from utilities import debug_flags # don't do this at toplevel in this module, in case we don't want it imported so early
+    from utilities import debug_flags # don't do this at toplevel in this 
+        # module, in case we don't want it imported so early
+        # (review: can we move it to toplevel now?)
     return debug_flags.atom_debug
 
 # ==
 
 try:
-    _things_seen_before # don't reset this on reload (not important yet, since env.py doesn't support reload) 
+    _things_seen_before 
+    # don't reset this on reload 
+    # (not important yet, since env.py doesn't support reload) 
 except:
     _things_seen_before = {}
 
 def seen_before(thing): #bruce 060317
     """
-    Return True if and only if thing has never been seen before (as an argument passed to this function).
+    Return True if and only if thing has never been seen before (as an
+    argument passed to this function).
+    
     Useful for helping callers do things only once per session.
     """
     res = _things_seen_before.get(thing, False)
@@ -132,13 +151,15 @@ try:
 except:
     _once_per_event_memo = {}
 
-def once_per_event(*args, **kws): #bruce 060720 ###@@@ should use this in debug's reload function
+def once_per_event(*args, **kws): 
     """
     Return True only once per user event (actually, per glpane redraw),
     for the given exact combination of args and keyword args.
     All arg values must be hashable as dict keys.
     """
-    assert args or kws, "some args or kws are required, otherwise the result would be meaninglessly global"
+    #bruce 060720 ###@@@ should use this in debug's reload function
+    assert args or kws, "some args or kws are required, " \
+                        "otherwise the result would be meaninglessly global"
     if kws:
         items = kws.items()
         items.sort()
@@ -148,7 +169,8 @@ def once_per_event(*args, **kws): #bruce 060720 ###@@@ should use this in debug'
         # (it should be ok that this can, in theory, overlap the kws case,
         #  since callers ought to be each passing distinct strings anyway)
         key1 = args
-    # this version (untested) would work, but might accumulate so much memo data as to be a memory leak
+    # this version (untested) would work, but might accumulate so much 
+    # memo data as to be a memory leak:
     ## key2 = ("once_per_event", redraw_counter, key1)
     ## return not seen_before( key2)
     # so use this version instead:
@@ -162,15 +184,18 @@ def once_per_event(*args, **kws): #bruce 060720 ###@@@ should use this in debug'
 
 # ==
 
-# This module defines stub functions which are replaced with different implementations
-# by the changes module when it's imported.
+# This module defines stub functions which are replaced with different
+# implementations by the changes module when it's imported.
+
 # So this module should not import the changes module, directly or indirectly.
-# But in case it does, by accident or if in future it needs to,
-# we'll define those stub functions as early as possible.
-# (One motivation for this (not yet made use of as of 050908)
-#  is to enable stripped-down code to call these functions
-#  even if the functionality of the changes module is never needed.
-#  The immediate motivation is to allow them to be called arbitrarily early during init.)
+
+# But in case it does, by accident or if in future it needs to, we'll define
+# those stub functions as early as possible.
+
+# (One motivation for this (not yet made use of as of 050908) is to enable
+# stripped-down code to call these functions even if the functionality of the
+# changes module is never needed. The immediate motivation is to allow them to
+# be called arbitrarily early during init.)
 
 def track(thing): #bruce 050804
     """
@@ -179,7 +204,8 @@ def track(thing): #bruce 050804
     """
     from utilities import debug_flags
     if debug_flags.atom_debug:
-        print "atom_debug: fyi (from env module): something asked to be tracked, but nothing is tracking: ", thing
+        print "atom_debug: fyi (from env module): " \
+              "something asked to be tracked, but nothing is tracking: ", thing
         # if this happens and is not an error, then we'll zap the message.
     return
 
@@ -221,52 +247,63 @@ def call_qApp_processEvents(*args): #bruce 050908
         res = qApp.processEvents(*args)
         # Qt doc says: Processes pending events, for 3 seconds or until there
         # are no more events to process, whichever is shorter.
-        # (Or it can take one arg, int maxtime (in milliseconds), to change the timing.)
+        # (Or it can take one arg, int maxtime (in milliseconds), 
+        #  to change the timing.)
     finally:
         end_recursive_event_processing(mc)
     return res
     
 # ==
 
-class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemantics.py
+class pre_init_fake_history_widget:
+    ### TODO: refactor this to be a sibling class of HistoryWidget, sharing an
+    #API class; also make this cache the messages for later display.
     too_early = 1
-        # defined so insiders can detect that it's too early (using hasattr on history)
-        # and not call us at all (though it'd be better for them to check something else,
-        # like win.initialised, and make sure messages sent to this object get saved up
-        # and printed into the widget once it exists) [bruce 050913 revised comment]
+        # too_early is defined so insiders can detect that it's too early
+        # (using hasattr on history) and not call us at all (though it'd be
+        # better for them to check something else, like win.initialised, and
+        # make sure messages sent to this object get saved up and printed into
+        # the widget once it exists) [bruce 050913 revised comment]
     def message(self, msg, **options):
         """
-        This exists to handle messages sent to win.history [deprecated] or env.history during
-        win.__init__, before the history widget has been created!
-        Someday it might save them up and print them when that becomes possible.
+        This exists to handle messages sent to win.history [deprecated] or
+        env.history during win.__init__, before the history widget has been
+        created! Someday it might save them up and print them when that
+        becomes possible.
         """
 ##        from utilities import debug_flags
 ##        if debug_flags.atom_debug:
         # bruce 071018 print this always, and clarify the text:
-        print "fyi: this history message was produced too early to show up in the History Widget:"
+        print "fyi: this history message was produced too early " \
+              "to show up in the History Widget:"
         print msg
-        # REVIEW: should we use print_compact_stack instead, if atom_debug is set?
+        # REVIEW: use print_compact_stack instead, if atom_debug is set?
         return
     redmsg = orangemsg = greenmsg = message #bruce 080220
     def deferred_summary_message(self, format, count = 1): #bruce 090119
         assert 0
+    def statusbar_msg(self, msg_text, repaint = False): #bruce 090119
+        assert 0
     pass
 
-history = pre_init_fake_history_widget() # this will be changed by MWsemantics.__init__ [bruce 050727]
+history = pre_init_fake_history_widget() # changed by MWsemantics.__init__
 
-last_history_serno = 0 #bruce 060301 (maintained by HistoryWidget, to be looked at by Undo checkpoints)
+last_history_serno = 0 # maintained by HistoryWidget, used by Undo checkpoints
 
-redraw_counter = 0 #bruce 050825
+redraw_counter = 0
 
 # ==
 
 _change_checkpoint_counter = 0 #bruce 060123 for Undo and other uses
-    # almost any change-counter record can work (in part) by incrementing this if necessary to make it odd,
-    # then saving its value on changed things, if all observing-code for it increments it if necessary to make it even;
-    # this way it's easy to compare any change (odd saved value)
-    # with anything that serves as a state-checkpoint (even saved value),
-    # but we can still optimize saving this on all parents/containers of an object in low-level change-tracking code,
-    # by stopping the ascent from changed child to changed parent as soon as it would store the same value of this on the parent.
+    # discussion: almost any change-counter record can work (in part) by
+    # incrementing this if necessary to make it odd, then saving its value on
+    # changed things, if all observing-code for it increments it if necessary
+    # to make it even; this way it's easy to compare any change (odd saved
+    # value) with anything that serves as a state-checkpoint (even saved
+    # value), but we can still optimize saving this on all parents/containers
+    # of an object in low-level change-tracking code, by stopping the ascent
+    # from changed child to changed parent as soon as it would store the same
+    # value of this on the parent.
 
 def change_counter_checkpoint():
     """
@@ -352,7 +389,8 @@ def register_post_event_model_updater(function):
         # Rationale: since order matters, permitting transparent multiple inits
         # would be inviting bugs. If we ever need to support reload for
         # developers, we should let each added function handle that internally,
-        # or provide a way of clearing the list or replacing a function in-place.
+        # or provide a way of clearing the list or replacing a function 
+        # in-place.
         #  (Note: it's possible in theory that one update function would need
         # to be called in two places within the list. If that ever happens,
         # remove this assert, or work around it by using a wrapper function.)
@@ -381,30 +419,38 @@ def register_post_event_ui_updater(function):
 def do_post_event_updates( warn_if_needed = False ):
     """
     [public function]
-       This should be called at the end of every user event which changes
-    model or selection state. WARNING: In present code (070925), it is very likely
-    not called that often, but this is mitigated by the precautionary calls mentioned
-    below.
-       This can also be called at the beginning of user events, such as redraws or saves,
-    which want to protect themselves from event-processors which should have called this
-    at the end, but forgot to. Those callers should pass warn_if_needed = True, to permit
-    a debug-only warning to be emitted if the call was necessary (but there is no guarantee
-    that such a warning is always emitted). (The updaters registered to be called by this
-    function should be designed to be fast when called more times than necessary.)
+    
+    This should be called at the end of every user event which changes model
+    or selection state.
+    
+    WARNING: In present code (070925), it is very likely not called that
+    often, but this is mitigated by the precautionary calls mentioned below.
+    
+    This can also be called at the beginning of user events, such as redraws
+    or saves, which want to protect themselves from event-processors which
+    should have called this at the end, but forgot to.
+    
+    Those callers should pass warn_if_needed = True, to permit a debug-only
+    warning to be emitted if the call was necessary (but there is no guarantee
+    that such a warning is always emitted).
+    
+    (The updaters registered to be called by this function should be designed
+    to be fast when called more times than necessary.)
 
     @see: _master_model_updater
     """
-    # Note: exceptions in one of these updaters can prevent redrawing
-    # for the rest of the session, so better protection is needed,
-    # but it doesn't fully work if added right here (at least for an AttributeError
-    # in the dna sequence editor in Edit Dna Strand Properties).
-    # It would be good to add it at a higher level at some point.
+    # Note: exceptions in one of these updaters can prevent redrawing for the
+    # rest of the session, so better protection is needed, but it doesn't
+    # fully work if added right here (at least for an AttributeError in the
+    # dna sequence editor in Edit Dna Strand Properties). It would be good to
+    # add it at a higher level at some point.
     #
-    # Details: catching exceptions here and not propogating them upwards
-    # may make some bugs worse by turning them into infinite recursions
-    # (for reasons not yet analyzed). Or it may be that those bugs were
-    # *already* infinite recursions, since at least one such case is known
-    # (though it's not testable in current code, since Ninad fixed it thismorning).
+    # Details: catching exceptions here and not propogating them upwards may
+    # make some bugs worse by turning them into infinite recursions (for
+    # reasons not yet analyzed). Or it may be that those bugs were *already*
+    # infinite recursions, since at least one such case is known (though it's
+    # not testable in current code, since Ninad fixed it thismorning).
+    
     # To reproduce that bug, this might work (untested):
     # - remove def setComplementSequence from DnaSequenceEditor
     #   (what was tested was having a ProteinSequenceEditor erroneously residing
@@ -445,7 +491,9 @@ def node_departing_assy(node, assy): #bruce 060315 for Undo
         um = assy.undo_manager
     except AttributeError:
         # for assy is None or a certain string constant
-        assert assy is None or type(assy) == type("") and "assembly" in assy # could be more specific
+        assert assy is None or \
+               type(assy) == type("") and "assembly" in assy 
+            # todo: assert could be more specific (or, refactor)
         return
     if um is not None:
         um.node_departing_assy(node, assy)

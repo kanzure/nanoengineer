@@ -1,8 +1,8 @@
 # Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-bonds.py -- class Bond, for any supported type of chemical bond between two atoms
-(one of which might be a "singlet" to represent an "open bond" in the UI),
-and related code
+bonds.py -- class Bond, for any supported type of chemical bond between 
+two atoms (one of which might be a "singlet" to represent an "open bond"
+in the UI), and related code
 
 @author: Josh
 @version: $Id$
@@ -18,28 +18,46 @@ History:
 
 - support for higher-valence bonds added by bruce 050502 - ??? [ongoing]
 
-- bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
-  for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
+- bruce optimized some things, including using 'is' and 'is not' rather 
+  than '==', '!=' for atoms, molecules, elements, parts, assys in many places
+  (not all commented individually); 050513
 
 - bruce split bond_constants.py into a separate module; 050707
 
 - 050727 bruce moved bond drawing code into a separate module, bond_drawer.py
-  (also removed some imports not needed here, even though chem.py still does "from bonds import *"
-   and some other modules import * from chem, so there is no guarantee these were not needed indirectly)
+  (also removed some imports not needed here, even though chem.py still does 
+   "from bonds import *" and some other modules import * from chem, so there 
+   is no guarantee these were not needed indirectly)
 """
 
 debug_1951 = False # DO NOT COMMIT with True
 
 from geometry.VQT import Q, vlen, norm
 
-from utilities.debug import print_compact_stack, compact_stack, print_compact_traceback
-from utilities.debug import reload_once_per_event
-
 from utilities import debug_flags
 
 from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
+
+from utilities.debug import print_compact_stack
+from utilities.debug import compact_stack
+from utilities.debug import print_compact_traceback
+from utilities.debug import reload_once_per_event
+
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
+
+from utilities.GlobalPreferences import usePyrexAtomsAndBonds
+
 from utilities.Log import quote_html
-from model.elements import Singlet
+
+import foundation.env as env
+
+from foundation.changedicts import register_changedict, register_class_changedicts
+
+from foundation.state_utils import StateMixin
+from foundation.state_utils import register_instancelike_class
+
+from foundation.state_constants import S_CACHE, S_DATA, S_PARENT
+from foundation.state_constants import UNDO_SPECIALCASE_BOND
 
 from model.bond_constants import V_SINGLE
 from model.bond_constants import BOND_VALENCES
@@ -51,21 +69,11 @@ from model.bond_constants import bond_type_names
 from model.bond_constants import atoms_are_bonded
 from model.bond_constants import find_bond
 
-from operations.bond_chains import grow_directional_bond_chain
+from model.elements import Singlet
 
 import model.global_model_changedicts as global_model_changedicts
-import foundation.env as env
 
-from utilities.GlobalPreferences import usePyrexAtomsAndBonds
-
-from foundation.state_utils import StateMixin
-from foundation.state_utils import register_instancelike_class
-
-from foundation.changedicts import register_changedict, register_class_changedicts
-from utilities.debug_prefs import debug_pref, Choice_boolean_False
-from utilities.Log import redmsg, quote_html
-
-from foundation.state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCASE_BOND
+from operations.bond_chains import grow_directional_bond_chain
 
 from graphics.drawing.bond_drawer import writepov_bond
 
@@ -103,8 +111,9 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
                       "rare bug due to that nonuniqueness.)" #bruce 080229
             bdkey = 'stub' # NIM
             self.key = bdkey.next() # FIX: Undefined variable 'bdkey'.
-                # This bdkey should be distinct from the atKey used by class Atom, i think
-                # (and thus needs a different name, and no import atKey).
+                # This bdkey should be distinct from the atKey used by 
+                # class Atom, i think (and thus needs a different name, 
+                # and no import atKey).
                 # But first I need to see how it's used...
                 # maybe the (experimental) C code assumes all atom & bond keys
                 # are distinct in a single namespace.
@@ -149,7 +158,8 @@ def bond_atoms_oldversion(a1, a2):
     This increases the number of bonds on each atom (when it makes a new bond) --
     it never removes any singlets. Therefore it is mostly for low-level use.
     """
-    #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
+    #bruce 050502 renamed this from bond_atoms; 
+    # it's called from the newer version of bond_atoms
     #bruce 041109 split this out of [later removed] molecule.bond method.
     # Since it's the only caller of
     # Bond.__init__, what it does to the atoms could (and probably should) be put
@@ -164,14 +174,17 @@ def bond_atoms_oldversion(a1, a2):
         print_compact_stack("stack when same-atom bond attempted: ")
         return
 
-    #bruce 051216 rewriting this to be faster and avoid console warning
-    # when bond already exists (re bug 1226), but still verify bond is on both atoms or neither
+    #bruce 051216 rewriting this to be faster and avoid console warning when
+    #bond already exists (re bug 1226), but still verify bond is on both atoms
+    #or neither
     b1 = find_bond(a1, a2) # a Bond or None
     b2 = find_bond(a2, a1)
     if b1 is not b2:
-        print "bug warning: bond between %r and %r inconsistent in their .bonds lists; %r (id %#x) vs %r (id %#x)" \
+        print "bug warning: bond between %r and %r inconsistent in " \
+              " their .bonds lists; %r (id %#x) vs %r (id %#x)" \
               % (a1, a2, b1, id(b1), b2, id(b2))
-        print_compact_stack("will remove one or both existing bonds, then make the requested new one: ")
+        msg = "will remove one or both existing bonds, then make requested new one"
+        print_compact_stack(msg + ": ")
         if b1:
             a1.bonds.remove(b1)
             # probably no need for a1._changed_structure() since we'll do it
@@ -205,7 +218,8 @@ def bond_atoms_oldversion(a1, a2):
                 _bond_atoms_oldversion_noops_seen[blame] = None
             pass
         return
-    b = Bond(a1, a2) # (this does all necessary invals, including a1 and a2._changed_structure())
+    b = Bond(a1, a2) 
+        # (this does all necessary invals, including a1 and a2._changed_structure())
     a1.bonds.append(b)
     a2.bonds.append(b)
     return
@@ -220,7 +234,8 @@ def bond_atoms_oldversion(a1, a2):
 ##    # change this... but for now I'll just print a message about it.
 ##    #bruce 041109: when this happens I'll now also remove the obsolete bond.
 ##    if (b in at1.bonds) != (b in at2.bonds):
-##        print "fyi: debug: for new bond %r, (b in at1.bonds) != (b in at2.bonds); removing old bond" % b
+##        print "fyi: debug: for new bond %r, (b in at1.bonds) != " \
+##              "(b in at2.bonds); removing old bond" % b
 ##        try:
 ##            at1.bonds.remove(b)
 ##        except:
@@ -242,11 +257,14 @@ def bond_atoms_oldversion(a1, a2):
 ##        # [addendum, bruce 051018: I added a message for when a new bond is equal to
 ##        #  an existing one, but entering Extrude does not print that, so either it's
 ##        #  been changed or mol.copy has or I misunderstand the above code (which
-##        #  I predict would hit that message). Just to check, I'll print a debug message here (below);
-##        #  that message is not happening either, so maybe this deprecated feature is no longer used at all. #k ####@@@@
-##        #  (Should also try reading a pdb file with the same bond listed twice... ###k) [like bug 1226!]
+##        #  I predict would hit that message). Just to check, I'll print a debug 
+##        #  message here (below); that message is not happening either, so maybe 
+##        #  this deprecated feature is no longer used at all. #k ####@@@@
+##        #  (Should also try reading a pdb file with the same bond
+##        #   listed twice... ###k) [like bug 1226!]
 ##        if debug_flags.atom_debug:
-##            print "atom_debug: fyi (possible bug): bond_atoms_oldversion is a noop since an equal bond exists:", b
+##            print "atom_debug: fyi (possible bug): bond_atoms_oldversion " \
+##                  "is a noop since an equal bond exists:", b
 ##        pass
 ##    return
 
@@ -288,7 +306,9 @@ def bond_copied_atoms(at1, at2, oldbond, origat1): #bruce 050524; revised 070424
     else:
         # this case is deprecated, and thought never to happen, as of bruce 070424
         ## if oldbond._direction and debug_flags.atom_debug:
-        print_compact_stack( "debug: bond_copied_atoms%r needs origat1: " % ((at1, at2, oldbond, origat1),) )
+        msg = "debug: bond_copied_atoms%r needs origat1" % \
+              ((at1, at2, oldbond, origat1),)
+        print_compact_stack( msg + ": ")
     return newbond
 
 # == helper functions related to bonding (I might move these lower in the file #e)
@@ -302,7 +322,8 @@ def bonds_mmprecord( valence, atomcodes ):
     (given as atomcodes, a list of the strings used to encode them
      in the mmp file being written).
     """
-    ind = BOND_VALENCES.index(valence) # exception if not a supported bond order code (aka valence)
+    ind = BOND_VALENCES.index(valence) 
+        # exception if not a supported bond order code (aka valence)
     recname = BOND_MMPRECORDS[ind]
     return recname + " " + " ".join(atomcodes)
 
@@ -348,17 +369,19 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     and might eventually be made impossible after all old calling code is converted
     for higher-order bonds. [However, as of 051216 it's still called in lots of places.]
     """
-    # DOCSTRING BUG (unconfirmed, docstring is unclear): if s1 and s2 are not provided
-    # but vnew is provided, the docstring is unclear about whether this will find
-    # bondpoints to remove in order to keep the valence correct. In at least one piece of new code
-    # it seems that it's not doing that, resulting in valence errors. Maybe it was never
-    # intended to do that. To fix that new code I'll find the right bondpoints to pass.
+    # DOCSTRING BUG (unconfirmed, docstring is unclear): if s1 and s2 are not
+    # provided but vnew is provided, the docstring is unclear about whether
+    # this will find bondpoints to remove in order to keep the valence
+    # correct. In at least one piece of new code it seems that it's not doing
+    # that, resulting in valence errors. Maybe it was never intended to do
+    # that. To fix that new code I'll find the right bondpoints to pass.
     # [bruce 080529, issue needs REVIEW]
     if vnew is None:
         assert s1 is s2 is None
         assert no_corrections == False
         bond_atoms_oldversion( a1, a2) 
-            # warning [obs??#k]: mol.copy might rely on this being noop when bond already exists!
+            # warning [obs??#k]: mol.copy might rely on this being noop when
+            # bond already exists!
         return
 
     make_corrections = not no_corrections
@@ -375,7 +398,8 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     if make_corrections:
         # make sure atomtypes are set, so bondpoints other than the ones passed
         # won't be needlessly replaced or moved by Atom.update_valence below
-        # [bruce 071019 revision to make this easier to use in DNA Generator] ### UNTESTED for that purpose
+        # [bruce 071019 revision to make this easier to use in DNA Generator]
+        # ### UNTESTED for that purpose
         a1.atomtype  # has side effect in __getattr__
         a2.atomtype
         assert s1 is None or not s1._Atom__killed
@@ -497,7 +521,9 @@ def bond_direction(atom1, atom2): #bruce 070601
 
 # ==
 
-_changed_Bonds = {} # tracks all changes to Bonds: existence/liveness (maybe not needed), which atoms, bond order
+_changed_Bonds = {} 
+    # tracks all changes to Bonds: existence/liveness (maybe not needed), 
+    # which atoms, bond order
 
     # (for now, maps id(bond) -> bond, since a bond's atoms and .key can change)
     #
@@ -519,7 +545,8 @@ _changed_Bonds = {} # tracks all changes to Bonds: existence/liveness (maybe not
     # todo: see comments about similar dicts in chem.py for how this will end up
     ##being used
 
-register_changedict( _changed_Bonds, '_changed_Bonds', ()) ###k related attrs arg?? #bruce 060329
+register_changedict( _changed_Bonds, '_changed_Bonds', ()) 
+    ###k related attrs arg?? #bruce 060329
 
 _Bond_global_dicts = [_changed_Bonds]
 
@@ -571,7 +598,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # TODO: See comment near use of UNDO_SPECIALCASE_ATOM in class Atom.
         # [bruce 071114]
 
-    _s_attr_pi_bond_obj = S_CACHE # see comments in pi_bond_sp_chain.py. [bruce 060224]
+    _s_attr_pi_bond_obj = S_CACHE # see comments in pi_bond_sp_chain.py.
 
     _s_attr_v6 = S_DATA
     _s_attr__direction = S_DATA #bruce 070414
@@ -606,25 +633,36 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # docstring. [bruce 070414]
 
     _s_attr_key = S_DATA 
-        #bruce 060405, not sure why this wasn't needed before (or if it will help now)
-        # (update 060407: I don't if it did help, but it still seems needed in principle.
-        #  It's change-tracked by self._changed_atoms.)
+        #bruce 060405, not sure why this wasn't needed before (or if it will
+        # help now) 
+        # (update 060407: I don't if it did help, but it still seems
+        #  needed in principle. It's change-tracked by self._changed_atoms.)
 
     # this default value is needed for repeated destroy [bruce 060322]
     glname = 0 
     
     def _undo_update(self): #bruce 060223 guess
+
         self._changed_atoms()
+
         # note: we don't set chunk flags _f_lost_externs or _f_gained_externs;
         # see comment where they are defined about why Bond._undo_update
         # needs to do that instead. [bruce 080702 comment]
+
         self._changed_v6()
         self._changed_bond_direction() #bruce 070415
-        ## self.invalidate_bonded_mols() # probably not needed, leave out at first
-        # not setup_invalidate, that needs calling by our Atom's _undo_update methods ##k
+
+        # probably not needed, leave out at first:
+        ## self.invalidate_bonded_mols() 
+        
+        # don't call setup_invalidate, that needs calling by our Atom's
+        # _undo_update methods ##k
+
         StateMixin._undo_update(self)
         
-    def __init__(self, at1, at2, v6 = V_SINGLE): # no longer also called from self.rebond()
+        return
+        
+    def __init__(self, at1, at2, v6 = V_SINGLE):
         """
         create a bond from atom at1 to atom at2.
         the key created will be the same whichever order the atoms are
@@ -637,8 +675,10 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         added to those atoms (as I think it always will be in the current code).
         """
         BondBase.__init__(self)
-        self.atom1 = at1 ###k are these public attributes? For now I'll assume yes. [bruce 050502]
+        self.atom1 = at1 
         self.atom2 = at2
+            # review: are atom1, atom2 public attributes? 
+            # For now I'll assume yes. [bruce 050502]
         self.v6 = v6 # bond-valence times 6, as exact int; a public attribute
         assert v6 in BOND_VALENCES
         self._changed_atoms()
@@ -646,32 +686,29 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         if at1.molecule is not at2.molecule:
             at1.molecule._f_gained_externs = True
             at2.molecule._f_gained_externs = True
-        self.glname = at1.molecule.assy.alloc_my_glselect_name( self) #bruce 050610, revised 080917
+        self.glname = at1.molecule.assy.alloc_my_glselect_name( self) 
+            #bruce revised 080917
 
-    def _undo_aliveQ(self, archive): #bruce 060405, rewritten 060406; see also new_Bond_oursQ in undo_archive.py
+    def _undo_aliveQ(self, archive): #bruce 060405, rewritten 060406 
         """
         @see: docstring of L{Atom._undo_aliveQ}.
+        @see: new_Bond_oursQ in undo_archive.py
         """
-        # there are two ways to reach a bond (one per atom), so return True if either one would reach it,
-        # but also report an error if one would and one would not.
+        # There are two ways to reach a bond (one per atom), so return True if
+        # either one would reach it, but also report an error if one would and
+        # one would not.
+        # note: I don't recall if a1 and a2 can ever be None, so be safe.
         a1 = self.atom1
         a2 = self.atom2
-        atm = a1; res1 = atm is not None and archive.trackedobj_liveQ(atm) and self in atm.bonds
-        atm = a2; res2 = atm is not None and archive.trackedobj_liveQ(atm) and self in atm.bonds
+        res1 = a1 is not None and archive.trackedobj_liveQ(a1) and self in a1.bonds
+        res2 = a2 is not None and archive.trackedobj_liveQ(a2) and self in a2.bonds
         if res1 != res2:
-            print "bug: Bond._undo_aliveQ gets different answer on each atom; relevant data:", res1, res2, self
+            print "bug: Bond._undo_aliveQ gets different answer on " \
+                  "each atom; relevant data:", res1, res2, self
             return True 
                 # not sure if this or False would be safer; using True so 
                 # we're covered if any live atom refers to us
         return res1
-##        # I don't recall if a1 and a2 can ever be None, so be safe.
-##        # Warning: the following inlines Atom._undo_aliveQ for a1 and a2. [but does so wrongly as of 060406]
-##        # The requirement of being in a1.bonds and a2.bonds seems necessary (and might make the __killed checks redundant),
-##        # but could be removed by changing atom.unbond (and other methods??)
-##        # to change us appropriately (maybe this is already done, I didn't check).
-##        return a1 is not None and a2 is not None \
-##               and not a1._Atom__killed and not a2._Atom__killed \
-##               and self in a1.bonds and self in a2.bonds
 
     def bond_direction_from(self, atom): #bruce 070414
         """
@@ -686,10 +723,11 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         elif atom is self.atom2:
             return - self._direction
         else:
-            assert 0, "%r.bond_direction_from(%r), but that bond doesn't have that atom" % (self, atom)
+            assert 0, "%r.bond_direction_from(%r), but that bond " \
+                      "doesn't have that atom" % (self, atom)
         return
 
-    def bond_direction_vector(self): #bruce 070417
+    def bond_direction_vector(self):
         """
         Return self's bond direction vector (in abs coords).
         """
@@ -701,7 +739,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         """
         return self.other(atom).posn() - atom.posn()
     
-    def set_bond_direction_from(self, atom, direction, propogate = False): #bruce 070415
+    def set_bond_direction_from(self, atom, direction, propogate = False):
         """
         Assume self is a directional bond (not checked);
         set its direction (from atom to the other atom) to the given direction.
@@ -719,14 +757,16 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         elif atom is self.atom2:
             self._direction = - direction
         else:
-            assert 0, "%r.set_bond_direction_from(%r, %r), but that bond doesn't have that atom" % \
+            assert 0, "%r.set_bond_direction_from(%r, %r), but that bond " \
+                      "doesn't have that atom" % \
                       (self, atom, direction)
         if debug_flags.atom_debug:
             assert self.bond_direction_from(atom) == direction
             assert self.bond_direction_from(self.other(atom)) == - direction
         if old != self._direction:
             if 0 and debug_flags.atom_debug:
-                print "fyi: changed direction of %r from %r to %r" % (self, old, self._direction)
+                print "fyi: changed direction of %r from %r to %r" % \
+                      (self, old, self._direction)
             self._changed_bond_direction()
         if propogate:
             # propogate self's direction both ways, as far as possible,
@@ -770,7 +810,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # changetracking, we have to store self in a dictionary. (This is more
         #  efficient than calling atom._changed_structure on each of our atoms,
         #  since that would make Undo scan more attributes.)
-        _changed_Bonds[id(self)] = self # tells Undo that something in this bond has changed
+        _changed_Bonds[id(self)] = self
+            # tells Undo that something in this bond has changed
         
         # Someday, doing that should also cover all modification notices to
         # model object containers that contain us, such as the file we're
@@ -823,21 +864,26 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         (We assume this property is independent of bond order,
         so that changing self's bond order needn't update it.)
         
-        Note: before 071015, open bonds never counted as directional, since that can lead to them getting directions
-        which become illegal when something is deposited on them (like Ax), and can lead to an atom with
-        three directional bonds but no errors (which confuses or needlessly complicates related algorithms).
+        Note: before 071015, open bonds never counted as directional, since
+        that can lead to them getting directions which become illegal when
+        something is deposited on them (like Ax), and can lead to an atom with
+        three directional bonds but no errors (which confuses or needlessly
+        complicates related algorithms).
 
-        Update, bruce 071015: there is experimental code [by mark 071014] enabled by debug_pref,
-        which means open bonds are sometimes directional. That code is likely to become the usual
-        case soon. To make that code safe, either this method
-        or its callers have to require that at most two bonds per atom are directional, for most
-        purposes. For now, I'll assume the caller does this, so that one bond's is_directional
-        value can't change except when its own elements change. Effectively this means there are
-        lower and higher level concepts of a bond being directional, which can differ. For now,
-        each caller implements the high-level case, but most or all of those are channelled
-        through one caller, Atom.directional_bond_chain_status().
+        Update, bruce 071015: there is experimental code [by mark 071014]
+        enabled by debug_pref, which means open bonds are sometimes
+        directional. That code is likely to become the usual case soon. To
+        make that code safe, either this method or its callers have to require
+        that at most two bonds per atom are directional, for most purposes.
+        For now, I'll assume the caller does this, so that one bond's
+        is_directional value can't change except when its own elements change.
+        Effectively this means there are lower and higher level concepts of a
+        bond being directional, which can differ. For now, each caller
+        implements the high-level case, but most or all of those are
+        channelled through one caller, Atom.directional_bond_chain_status().
         """
-        # maybe: this might be replaced with an auto-updated attribute, self.directional
+        # maybe: this might be replaced with an auto-updated attribute,
+        # self.directional
         if self.atom1.element.bonds_can_be_directional and \
            self.atom2.element.bonds_can_be_directional:
             return True
@@ -882,10 +928,10 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         
         atom1 = self.atom1
         atom2 = self.atom2
-        for atm in (atom1, atom2):
-            if atm.is_singlet():
+        for atom in (atom1, atom2):
+            if atom.is_singlet():
                 continue
-            segment = atm.getDnaSegment()
+            segment = atom.getDnaSegment()
             if segment:
                 return segment
         
@@ -991,10 +1037,11 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         add_labelled_error_strings = False
         atom1_error = self.atom1._dna_updater__error
         atom2_error = self.atom2._dna_updater__error
-            # REVIEW: compare and show atom.dna_updater_error_string() instead? (several places)
-            # More likely, that's not right when this is a rung bond (both atoms in same basepair)
-            # and one has a propogated error and one has a direct error, so we'll need fancier code
-            # which notices propogated errors.
+            # REVIEW: compare and show atom.dna_updater_error_string()
+            # instead? (several places) More likely, that's not right when
+            # this is a rung bond (both atoms in same basepair) and one has a
+            # propogated error and one has a direct error, so we'll need
+            # fancier code which notices propogated errors.
         if (atom1_error and atom2_error):
             if (atom1_error == atom2_error):
                 res = "[%s]" % (atom2_error,)
@@ -1007,7 +1054,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         if add_labelled_error_strings:
             for atom in (self.atom1, self.atom2):
                 if atom._dna_updater__error:
-                    res += "\n" + "[ %s: %s]" % (str(atom), atom._dna_updater__error)
+                    res += "\n" + "[ %s: %s]" % \
+                           (str(atom), atom._dna_updater__error)
         return res
 
     #- end of DNA bond helper functions ----------------------------
@@ -1030,7 +1078,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             strand = self.getDnaStrand()
             segment = self.getDnaSegment()
             if strand:
-                bondInfoStr += "<br>" + strand.getToolTipInfoForBond(self)            
+                bondInfoStr += "<br>" + strand.getToolTipInfoForBond(self)
             elif segment:
                 bondInfoStr += "<br>" + segment.getDefaultToolTipInfo()
                 
@@ -1042,11 +1090,12 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         if isBondLength:
             bondLength = self.getBondLength(atomDistPrecision)
             bondInfoStr += "<br>" + bondLength
-                #ninad060823  don't use "<br>" ..it is weird. doesn't break into a new line.
-                #perhaps because I am not using html stuff in getBondLength etc functions??
+                #ninad060823 don't use "<br>" ..it is weird. doesn't break
+                # into a new line. perhaps because I am not using html stuff in
+                # getBondLength etc functions??
         return bondInfoStr
             
-    def getBondChunkInfo(self, quat = Q(1,0,0,0)): #Ninad 060830
+    def getBondChunkInfo(self): #Ninad 060830
         """
         Returns chunk information of the atoms forming a bond. 
         Returns none if Bond chunk user pref is unchecked.
@@ -1064,7 +1113,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
                       str(a2) + " in [" + str(chunk2) + "]"
         return bondChunkInfo
             
-    def getBondLength(self, atomDistPrecision):#Ninad 060830
+    def getBondLength(self, atomDistPrecision):#Ninad 060830 ### TODO: RENAME
         """
         Returns a string describing the distance between the centers of atoms,
         bonded by the highlighted bond.
@@ -1075,12 +1124,12 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         @return the string that gives bond length information. 
         @note: this does *not* return the covalent bondlength.
         """
-        
         a1 = self.atom1
         a2 = self.atom2
 
         nuclearDist = str(round(vlen(a1.posn() - a2.posn()), atomDistPrecision))
-        bondLength = "Distance " + str(a1) + "-" + str(a2) + ": " + nuclearDist + " A"
+        bondLength = "Distance " + str(a1) + "-" + str(a2) + ": " + \
+                     nuclearDist + " A"
         return bondLength
 
     # ==
@@ -1089,16 +1138,23 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         """
         @see: comments in L{Atom.destroy} docstring.
         """
-        if self.glname: #bruce 080917 revised this entire statement (never tested, before or after)
+        if self.glname: 
+            #bruce 080917 revised this entire 'if' statement
+            # (never tested, before or after, since routine not yet used)
             if self.at1 and self.at1.molecule and self.at1.molecule.assy:
-                self.at1.molecule.assy.dealloc_my_glselect_name( self, self.glname )
+                self.at1.molecule.assy.dealloc_my_glselect_name( self, 
+                                                                 self.glname )
             else:
-                print "bug: can't find assy for dealloc_my_glselect_name in %r.destroy()" % self
+                msg = "bug: can't find assy for dealloc_my_glselect_name in " \
+                      "%r.destroy()" % self
+                print msg
             del self.glname
         try:
             self.bust() #bruce 080702 precaution
         except:
-            pass # necessary for repeated destroy, given current implem -- should fix
+            # FIX: ignoring this exception is necessary for repeated destroy,
+            # given current implem -- should fix (TODO)
+            pass
         if self._direction:
             self._changed_bond_direction() #bruce 070415
         key = id(self)
@@ -1130,14 +1186,21 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     def reduce_valence_noupdate(self, vdelta, permit_illegal_valence = False):
         # option permits in-between, 0, or negative(?) valence
         """
-        Decrease this bond's valence by at most vdelta (which must be nonnegative),
-        but always to a supported value in BOND_VALENCES (unless permit_illegal_valence is true);
-        return the actual amount of decrease (maybe 0; in the same scale as BOND_VALENCES).
-           When permit_illegal_valence is true, any valence can be reached, even one which
-        is lower than any permitted valence, zero, or negative (###k not sure that's good, or ever tried).
-           [The starting valence (self.v6) need not be a legal one(??); but by default
-        the final valence must be legal; not sure what should happen if no delta in [0, vdelta] makes
-        it legal! For now, raise an AssertionError(?) exception then. #####@@@@@]
+        Decrease this bond's valence by at most vdelta (which must be
+        nonnegative), but always to a supported value in BOND_VALENCES (unless
+        permit_illegal_valence is true).
+        
+        @return: the actual amount of decrease (maybe 0; in the same scale as
+        BOND_VALENCES).
+        
+        When permit_illegal_valence is true, any valence can be reached, even
+        one which is lower than any permitted valence, zero, or negative (###k
+        not sure that's good, or ever tried).
+        
+        [The starting valence (self.v6) need not be a legal one(??); but by
+        default the final valence must be legal; not sure what should happen
+        if no delta in [0, vdelta] makes it legal! For now, raise an
+        AssertionError(?) exception then. #####@@@@@]
         """
         # we want the lowest permitted valence which is at least v_have -
         # vdelta, i.e. in the range v_want to v_have. This code is very
@@ -1151,7 +1214,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             did_break = else_reached = 0
             for v_to_try in BOND_VALENCES: # this list is in lowest-to-highest order
                 if v_want <= v_to_try <= v_have: 
-                    # warning: order of comparison will differ in the sister method for "increase"
+                    # warning: order of comparison will differ in the sister
+                    # method for "increase"
                     v_want = v_to_try # good thing we'll break now, since this
                         # assignment alters the meaning of the loop-test
                     did_break = 1
@@ -1159,32 +1223,46 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             else:
                 else_reached = 1
                 if debug_flags.atom_debug:
-                    print "atom_debug: else clause reached"
-                    # i don't know python's rules about this; it might relate to #iters == 0
+                    print "debug: else clause reached"
+                    # i don't know python's rules about this; 
+                    # it might relate to #iters == 0
             if debug_flags.atom_debug:
                 if not (did_break != else_reached):
-                    # this is what I hope it means (whether we fell out the end or not) but fear it doesn't
-                    print "atom_debug: i hoped for did_break != else_reached but it's not true"
+                    # this is what I hope it means (whether we fell out the
+                    # end or not) but fear it doesn't
+                    print "debug: hoped for did_break != else_reached, but not true"
             if not did_break:
-                # no valence is legal! Not yet sure what to do in this case. (Or whether it ever happens.)
-                assert 0, "no valence reduction of %r from 0 to vdelta %r is legal!" % (v_have, vdelta)
+                # no valence is legal! Not yet sure what to do in this case.
+                # (Or whether it ever happens.)
+                assert 0, "no valence reduction of %r from 0 to " \
+                          " vdelta %r is legal!" % (v_have, vdelta)
             assert v_want in BOND_VALENCES # sanity check
         # now set valence to v_want
         if v_want != v_have:
             self.v6 = v_want
             self._changed_v6()
-        return v_have - v_want # return actual decrease (warning: order of subtraction will differ in sister method)
+        return v_have - v_want # return actual decrease 
+            # (WARNING: order of subtraction will differ in sister method)
 
-    def increase_valence_noupdate(self, vdelta, permit_illegal_valence = False): #k is that option needed?
+    def increase_valence_noupdate(self, 
+                                  vdelta, 
+                                  permit_illegal_valence = False  
+                                      #k is that option needed?
+                                 ): 
         """
-        Increase this bond's valence by at most vdelta (which must be nonnegative),
-        but always to a supported value in BOND_VALENCES (unless permit_illegal_valence is true);
-        return the actual amount of increase (maybe 0; in the same scale as BOND_VALENCES).
-           When permit_illegal_valence is true, any valence can be reached, even one which
-        is higher than any permitted valence (###k not sure that's good, or ever tried).
-           [The starting valence (self.v6) need not be a legal one(??); but by default
-        the final valence must be legal; not sure what should happen if no delta in [0, vdelta] makes
-        it legal! For now, raise an AssertionError(?) exception then. #####@@@@@]
+        Increase this bond's valence by at most vdelta (which must be
+        nonnegative), but always to a supported value in BOND_VALENCES (unless
+        permit_illegal_valence is true); return the actual amount of increase
+        (maybe 0; in the same scale as BOND_VALENCES).
+        
+        When permit_illegal_valence is true, any valence can be reached, even
+        one which is higher than any permitted valence (###k not sure that's
+        good, or ever tried).
+        
+        [The starting valence (self.v6) need not be a legal one(??); but by
+        default the final valence must be legal; not sure what should happen
+        if no delta in [0, vdelta] makes it legal! For now, raise an
+        AssertionError(?) exception then. #####@@@@@]
         """
         # we want the highest permitted valence which is at most v_have +
         # vdelta, i.e. in the range v_have to v_want. This code is very
@@ -1198,7 +1276,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             did_break = else_reached = 0
             for v_to_try in BOND_VALENCES_HIGHEST_FIRST: 
                 # note: this list is in highest-to-lowest order, unlike BOND_VALENCES
-                if v_have <= v_to_try <= v_want: # warning: order of comparison differs in sister method
+                if v_have <= v_to_try <= v_want: 
+                    # WARNING: order of comparison differs in sister method
                     v_want = v_to_try # good thing we'll break now, since this
                         # assignment alters the meaning of the loop-test
                     did_break = 1
@@ -1206,7 +1285,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             else:
                 else_reached = 1
                 if debug_flags.atom_debug:
-                    print "atom_debug: else clause reached in increase_valence_noupdate"
+                    print "atom_debug: else reached in increase_valence_noupdate"
             if debug_flags.atom_debug:
                 if not (did_break != else_reached):
                     print "atom_debug: i hoped for did_break != else_reached " \
@@ -1214,16 +1293,19 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             if not did_break:
                 # no valence is legal! Not yet sure what to do in this case.
                 # (Or whether it ever happens.)
-                assert 0, "no valence increase of %r from 0 to vdelta %r is legal!" % (v_have, vdelta)
+                assert 0, "no valence increase of %r from 0 to vdelta %r " \
+                          "is legal!" % (v_have, vdelta)
             assert v_want in BOND_VALENCES # sanity check
         # now set valence to v_want
         if v_want != v_have:
             self.v6 = v_want
             if debug_1951:
-                print "debug_1951: increase_valence_noupdate changes %r.v6 from %r to %r, returns %r" % \
+                print "debug_1951: increase_valence_noupdate changes " \
+                      "%r.v6 from %r to %r, returns %r" % \
                       (self, v_have, v_want, v_want - v_have)
             self._changed_v6()
-        return v_want - v_have # return actual increase (warning: order of subtraction differs in sister method)
+        return v_want - v_have # return actual increase 
+            # (WARNING: order of subtraction differs in sister method)
 
     def _changed_v6(self): #bruce 080702 renamed changed_valence -> _changed_v6
         """
@@ -1235,7 +1317,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         ###e update geometric things, using setup_invalidate?? ###@@@
         self.setup_invalidate() # not sure this is needed, but let's do it to 
             # make sure it's safe if/when it's needed [bruce 050502]
-            # as of 060324, it's needed, since sim.getEquilibriumDistanceForBond depends on it
+            # as of 060324, it's needed, since sim.getEquilibriumDistanceForBond
+            # depends on it
         # tell the atoms we're doing this
         self.atom1._modified_valence = self.atom2._modified_valence = True 
             # (this uses a private attr of class atom; might be revised)
@@ -1268,12 +1351,15 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         """
         mol1 = self.atom1.molecule
         if mol1 is self.atom2.molecule:
-            # we're in that chunk's display list, so it needs to know
-            # we'll look different when redrawn
+            # internal bond: we're in our chunk's display list,
+            # so it needs to know we'll look different when redrawn
             mol1.changeapp(0)
         # otherwise we're not in any chunk's display list
         # (since we're an external bond).
         # todo: gl_update in some cases?
+        # todo: something new when we're using ExternalBondSet?
+        # note that now, _changed_bond_and_atom_appearances is an alias
+        # for this method -- that will need revision then.
         return
 
     def _changed_atom_appearances(self): #bruce 080210 split this out
@@ -1315,7 +1401,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
                   be needed, as would invalidate_bonded_mols() both before and
                   after the change.
         """
-        _changed_Bonds[id(self)] = self #bruce 060322 (covers changes to atoms, and __init__)
+        _changed_Bonds[id(self)] = self # covers changes to atoms, and __init__
         at1 = self.atom1
         at2 = self.atom2
         at1._changed_structure() #bruce 050725
@@ -1328,23 +1414,35 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # WARNING: as of 080402, __eq__ assumes this is the formula.
         self.bond_key = at1.key + at2.key
 
-        #bruce 050317: debug warning for interpart bonds, or bonding killed atoms/chunks,
-        # or bonding to chunks not yet added to any Part (but not warning about internal
-        # bonds, since mol.copy makes those before a copied chunk is added to any Part).
-        #   This covers new bonds (no matter how made) and the .rebond method.
-        #   Maybe this should be an actual error, or maybe it should set a flag so that
-        # involved chunks are checked for interpart bonds when the user event is done
-        # (in case caller plans to move the chunks into the same part, but hasn't yet).
-        # It might turn out this happens a lot (and is not a bug), if callers make a
-        # new chunk, bond to it, and only then add it into the tree of Nodes.
+        #bruce 050317: debug warning for interpart bonds, or bonding killed
+        # atoms/chunks, or bonding to chunks not yet added to any Part (but not
+        # warning about internal bonds, since mol.copy makes those before a
+        # copied chunk is added to any Part).
+        #
+        # This covers new bonds (no matter how made) and the .rebond method.
+        #
+        # Maybe this should be an actual error, or maybe it should set a flag
+        # so that involved chunks are checked for interpart bonds when the
+        # user event is done (in case caller plans to move the chunks into the
+        # same part, but hasn't yet). It might turn out this happens a lot
+        # (and is not a bug), if callers make a new chunk, bond to it, and
+        # only then add it into the tree of Nodes.
         if debug_flags.atom_debug and at1.molecule is not at2.molecule:
+            msg = ""
             if (at1.molecule.assy is None) or (at2.molecule.assy is None):
-                print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r: " % (at1, at2))
+                msg = "bug?: bonding to a killed chunk(?); " \
+                      "atoms are: %r, %r" % (at1, at2)
             elif (at1.molecule.part is None) or (at2.molecule.part is None):
-                if 0: #bruce 050321 this happens a lot when reading an mmp file, so disable it for now
-                    print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r: " % (at1, at2))
+                if 0: 
+                    # this happens a lot when reading an mmp file,
+                    # so disable it for now [bruce 050321]
+                    msg = "bug or fyi: one or both Parts None when " \
+                          "bonding atoms: %r, %r" % (at1, at2)
             elif at1.molecule.part is not at2.molecule.part:
-                print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r: " % (at1, at2))
+                msg = "likely bug: bonding atoms whose parts differ: " \
+                      "%r, %r" % (at1, at2)
+            if msg:
+                print_compact_stack("atom_debug: " + msg + ": ")
 
         if self._direction and not self.is_directional(): #bruce 070415
             self.clear_bond_direction()
@@ -1392,9 +1490,13 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # - what we do here is only sufficient because we know
         #   _changed_structure() is always called above on both atoms.
         #
-        if at2.element.pam and at1.element is Singlet and at2.element.role in ('strand', 'axis'):
+        if at2.element.pam and \
+           at1.element is Singlet and \
+           at2.element.role in ('strand', 'axis'):
             at2._f_dna_updater_should_reposition_baggage = True
-        if at1.element.pam and at2.element is Singlet and at1.element.role in ('strand', 'axis'):
+        if at1.element.pam and \
+           at2.element is Singlet and \
+           at1.element.role in ('strand', 'axis'):
             at1._f_dna_updater_should_reposition_baggage = True        
 
         return
@@ -1447,8 +1549,9 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         appearance, like disp or color of bonded molecules, though for internal
         bonds, the molecule's .havelist should be reset when those things change.)
         
-        (It's not yet clear whether this needs to be called when bond-valence is changed.
-        If it does, that will be done from one place, the _changed_v6() method. [bruce 050502])
+        (It's not yet clear whether this needs to be called when bond-valence
+        is changed. If it does, that will be done from one place, the
+        _changed_v6() method. [bruce 050502])
         
         Note that before the "inval/update" revisions [bruce 041104],
         self.setup() (the old name for this method, from point of view of callers)
@@ -1492,7 +1595,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             return Q(1,0,0,0)
         return atom1.molecule.quat
         
-    def _recompute_geom(self, abs_coords = False): #bruce 050516 made this from __setup_update
+    def _recompute_geom(self, abs_coords = False): 
         """
         [private method meant for our __getattr__ method, and for writepov,
          but also called as "friend method" from draw_bond_main in another file]
@@ -1505,6 +1608,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         otherwise, use them only for external bonds, and for internal bonds
         (i.e. between atoms in the same mol) use mol-relative coords.
         """
+        #bruce 050516 made this from __setup_update
         atom1 = self.atom1
         atom2 = self.atom2
         if abs_coords or (atom1.molecule is not atom2.molecule):
@@ -1520,7 +1624,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             # [and sometime after that, before 050719, I did.]
             a1pos = atom1.baseposn() 
             a2pos = atom2.baseposn()
-                #e could optim, since their calcs of whether basepos is present are the same
+                # note: could optim, since their calcs of whether basepos is
+                # present are the same
         return self.geom_from_posns(a1pos, a2pos)
 
     def geom_from_posns(self, a1pos, a2pos): #bruce 050727 split this out
@@ -1532,15 +1637,19 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         (return value will be in same coordinate system as arg positions).
         """
         vec = a2pos - a1pos
-        leng = 0.98 * vlen(vec) # 0.98 makes it a bit less common that we set toolong below [bruce 050516 comment]
+        leng = 0.98 * vlen(vec) # 0.98 makes it a bit less common that
+            # we set toolong below [bruce 050516 comment]
         vec = norm(vec)
             #e possible optim, don't know if it matters:
             # norm could be inlined, since we already have vlen;
             # but what would really be faster (I suspect) is to compute these
-            # bond params for all internal bonds in an entire chunk at once, using Numeric. ###@@@
-            # [bruce 050516]
-        # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
-        #  etc, so for nonsense bonds like He-He the entire bond is drawn as if "too long".)
+            # bond params for all internal bonds in an entire chunk at once,
+            # using Numeric. ###@@@ [bruce 050516]
+            
+        # (note: as of 041217 rcovalent is always a number; it's 0.0 for
+        # Helium, etc, so for nonsense bonds like He-He the entire bond is
+        # drawn as if "too long".)
+        
 ##        rcov1 = self.atom1.atomtype.rcovalent
 ##        rcov2 = self.atom2.atomtype.rcovalent
         rcov1, rcov2 = bond_params(self.atom1.atomtype, self.atom2.atomtype, self.v6)
@@ -1551,7 +1660,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         center = (c1 + c2) / 2.0 # before 041112 this was None when toolong
         return a1pos, c1, center, c2, a2pos, toolong
     
-    def __getattr__(self, attr): # Bond.__getattr__ #bruce 041104; totally revised 050516
+    def __getattr__(self, attr): # Bond.__getattr__ 
         """
         Return attributes related to bond geometry, recomputing them if they
         are not stored or if the stored ones are no longer valid.
@@ -1559,6 +1668,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         For all other attr names, raise an AttributeError 
         (quickly, for __xxx__ names).
         """
+        #bruce 041104; totally revised 050516
         try:
             return BondBase.__getattr__(self, attr)
         except AttributeError:
@@ -1577,10 +1687,13 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             #  this is required if you change anything used by _recompute_geom,
             #  unless you change _f_bond_inval_count for one of the bonded
             #  chunks.)
-            self._valid_data = current_data # do this first, even if exception in _recompute_geom()
+            self._valid_data = current_data 
+                # do this first, even if exception in _recompute_geom()
             self._saved_geom = geom = self._recompute_geom()
         else:
-            geom = self._saved_geom # when valid, should always have been computed, thus be of proper length
+            geom = self._saved_geom 
+                # when valid, should always have been computed, thus be of
+                # proper length
         if attr == 'geom':
             # note: callers desiring speed should use this case, to get
             # several attrs but only check validity once
@@ -1597,8 +1710,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             return geom[4]
         elif attr == 'toolong':
             return geom[5]
-        elif attr == 'axis': 
-            # a2pos - a1pos (not normalized); in relative coords [bruce 050719 new feature]
+        elif attr == 'axis': # [bruce 050719 new feature]
+            # a2pos - a1pos (not normalized); in relative coords 
             return geom[4] - geom[0]
         else:
             raise AttributeError, attr
@@ -1623,10 +1736,10 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         if debug_flags.atom_debug:
             import model.pi_bond_sp_chain as pi_bond_sp_chain
             reload_once_per_event(pi_bond_sp_chain) 
-            #bruce 050825 use reload_once_per_event to remove intolerable slowdown
         from model.pi_bond_sp_chain import bond_get_pi_info
         return bond_get_pi_info(self, **kws) 
-            # no need to pass an index -- that method can find one on self if it stored one
+            # no need to pass an index -- that method can find one on self if 
+            # it stored one
     
     def potential_pi_bond(self): #bruce 050718
         """
@@ -1637,13 +1750,13 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     
     # ==
     
-    def other(self, atm):
+    def other(self, atom):
         """
         Given one atom the bond is connected to, return the other one
         """
-        if self.atom1 is atm:
+        if self.atom1 is atom:
             return self.atom2
-        assert self.atom2 is atm #bruce 041029
+        assert self.atom2 is atom #bruce 041029
         return self.atom1
 
     def other_chunk(self, mol): #bruce 041123; revised and first used, 080702
@@ -1723,8 +1836,10 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # note: the following unbond calls might:
         # - copy self's bond direction onto newly created open bonds [review: really?]
         # - kill singlets left with no bonds
-        x1 = atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
+        x1 = atom1.unbond(self, make_bondpoint = make_bondpoints)
         x2 = atom2.unbond(self, make_bondpoint = make_bondpoints)
+            # note: Atom.unbond does all needed invals
+
         # REVIEW: change our atoms and key to None, for safety?
         # check all callers and decide -- in case some callers
         # reuse the bond or for some reason still need its atoms.
@@ -1765,7 +1880,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             """
             if old.molecule is not new.molecule:
                 # guess: this condition is rarely satisfied; optim for it failing.
-                # REVIEW: is .molecule ever None or not yet correct at this point? BUG IF SO.
+                # REVIEW: is .molecule ever None or not yet correct at 
+                # this point? BUG IF SO.
                 if old.molecule is not other.molecule:
                     old.molecule._f_lost_externs = True
                     other.molecule._f_lost_externs = True
@@ -1799,8 +1915,9 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             #  not to zap a singlet already bonded to new.
         # Invalidate molecules (of both our atoms) as needed, due to our existence
         self.invalidate_bonded_mols()
-        #bruce 050728: this is needed so depositmode (in atom.make_enough_bondpoints)
-        # can depend on bond.get_pi_info() being up to date:
+        #bruce 050728: this is needed so depositmode (in
+        # atom.make_enough_bondpoints) can depend on bond.get_pi_info() being
+        # up to date:
         if self.pi_bond_obj is not None:
             self.pi_bond_obj.destroy()
                 ###e someday this might be more incremental if that obj
@@ -1969,7 +2086,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # The attr toolong is new as of 041112.
         if debug_flags.atom_debug:
             import graphics.drawing.bond_drawer as bond_drawer
-            reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event
+            reload_once_per_event( bond_drawer)
         from graphics.drawing.bond_drawer import draw_bond
         draw_bond( self, glpane, dispdef, col, detailLevel, highlighted,
                    special_drawing_handler = special_drawing_handler,
@@ -1990,10 +2107,13 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
 
     def legal_for_atomtypes(self): #bruce 050716
         v6 = self.v6
-        return self.atom1.atomtype.permits_v6(v6) and self.atom2.atomtype.permits_v6(v6)
+        return self.atom1.atomtype.permits_v6(v6) and \
+               self.atom2.atomtype.permits_v6(v6)
     
-    def permits_v6(self, v6): #bruce 050806 #e should merge this somehow with self.legal_for_atomtypes()
-        return self.atom1.atomtype.permits_v6(v6) and self.atom2.atomtype.permits_v6(v6)
+    def permits_v6(self, v6): #bruce 050806 
+        # todo: should merge this somehow with self.legal_for_atomtypes()
+        return self.atom1.atomtype.permits_v6(v6) and \
+               self.atom2.atomtype.permits_v6(v6)
 
     def draw_in_abs_coords(self, glpane, color): #bruce 050609
         """
@@ -2079,13 +2199,12 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
                 # [later: see also ExternalBondSet._correct_bond, which
                 #  checks this itself, and its comments. [bruce 080702 comment]]
         except:
-            # (if this can happen, it's probably from one of the atoms being None,
-            #  though self.bust() doesn't presently set them to None)
+            # (if this can happen, it's probably from one of the atoms being
+            #  None, though self.bust() doesn't presently set them to None)
             return True
         pass
     
     def writepov(self, file, dispdef, col): 
-        #bruce 050727 moving implem to separate file; 050730 fixed bug in this method's name
         """
         Write this bond to a povray file (always using absolute coords, 
         even for internal bonds).
@@ -2110,7 +2229,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         except:
             if env.debug():
                 # don't print self here!
-                print_compact_traceback("bug: exception in self.atom1.molecule.assy.o.quat: ") 
+                msg = "bug: exception in self.atom1.molecule.assy.o.quat"
+                print_compact_traceback(msg + ": ") 
             pass
         return bonded_atoms_summary(self, quat = quat) 
             #bruce 070415 added quat arg and above code to guess it ###UNTESTED
@@ -2120,7 +2240,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
 
     # ==
 
-    def bond_menu_section(self, quat = Q(1,0,0,0)): #bruce 050705 (#e add options??)
+    def bond_menu_section(self, quat = Q(1,0,0,0)):
         """
         Return a menu_spec subsection for displaying info about a highlighted
         bond, changing its bond_type, offering commands about it, etc.
@@ -2147,7 +2267,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
 register_instancelike_class( Bond) # ericm & bruce 080225
 
 register_class_changedicts( Bond, _Bond_global_dicts )
-    # error if one class has two same-named changedicts (so be careful re module reload)
+    # error if one class has two same-named changedicts
+    # (so be careful re module reload)
 
 # ==
 
@@ -2202,12 +2323,17 @@ def bond_at_singlets(s1, s2, **opts):
     (the default), then we also print a nasty warning with the details
     of the error, saying it's a bug. 
     """
-    ### REVIEW what we are allowed to do and will do, and what docstring should say: 
-    # - Can we remove those singlets we're passed? [either here, or in subsequent bond_updater.py actions]
+    ### REVIEW what we are allowed to do and will do, and what docstring 
+    # should say: 
+    # - Can we remove those singlets we're passed? [either here, or in 
+    #   subsequent bond_updater.py actions]
     # - Can we alter (e.g. replace) any other singlets on their atoms?
-    #   I think we used to not do this in most cases, and extrude & fusechunks depended on that. ###
-    #   Now, with debug pref to not use OLD code below, it looks like we or an immediate subsequent update
-    #   removes and remakes (in different posns) bondpoints other than the ones passed. Still working on it.
+    #   I think we used to not do this in most cases, and extrude & 
+    #   fusechunks depended on that. ###
+    #   Now, with debug pref to not use OLD code below, it looks like
+    #   we or an immediate subsequent update removes and remakes 
+    #   (in different posns) bondpoints other than the ones passed. 
+    #   Still working on it.
     # [bruce 071018 comment]
     obj = _bonder_at_singlets(s1, s2, **opts)
     return obj.retval
@@ -2218,10 +2344,14 @@ class _bonder_at_singlets:
     """
     #bruce 041109 rewrote this, added move arg, renamed it from makeBonded
     #bruce 041119 added args and retvals to help fix bugs #203 and #121
-    #bruce 050429 plans to permit increasing the valence of an existing bond, #####@@@@@doit
+    #bruce 050429 plans to permit increasing the valence of an existing bond,
+    # #####@@@@@doit
     # and also checking for matched valences of s1 and s2. #####@@@@@doit
     # also changed it from function to class
-    def __init__(self, s1, s2, move = True, print_error_details = True, increase_bond_order = False):
+    def __init__(self, s1, s2, 
+                 move = True, 
+                 print_error_details = True, 
+                 increase_bond_order = False ):
         self.s1 = s1
         self.s2 = s2
         self.move = move
@@ -2251,9 +2381,10 @@ class _bonder_at_singlets:
         a1 = self.a1 = s1.singlet_neighbor()
         a2 = self.a2 = s2.singlet_neighbor()
         if s1 is s2: #bruce 041119
-            return do_error("can't bond a singlet to itself",
-              "asked to bond atom %r to itself,\n"
-              " from the same singlet %r (passed twice)" % (a1, s1)) # untested formatting
+            return do_error( "can't bond a singlet to itself",
+                "asked to bond atom %r to itself,\n"
+                " from the same singlet %r (passed twice)" % (a1, s1) ) 
+                # untested formatting
         if a1 is a2: #bruce 041119, part of fix for bug #203
             ###@@@ should we permit this as a way of changing the bonding
             ###pattern by summing the valences of these bonds? YES! [doit]
@@ -2265,7 +2396,7 @@ class _bonder_at_singlets:
             # context menu lets you do it more directly. ... even so, let's
             # try it:
             if self.increase_bond_order and a1.can_reduce_numbonds():
-                return self.merge_open_bonds() #bruce 050702 new feature
+                return self._merge_open_bonds() #bruce 050702 new feature
             else:
                 return do_error("can't bond an atom (%r) to itself" % a1,
                   "asked to bond atom %r to itself,\n"
@@ -2290,14 +2421,14 @@ class _bonder_at_singlets:
                 return do_error("%s increase bond order between already-" \
                                 "bonded atoms %r and %r" % (why, a1, a2), None )
         #####@@@@@ worry about s1 and s2 valences being different
-            # [much later, 050702: that might be obs, but worrying about 
-            #  their *permitted* valences might not be...]
-            # (not sure exactly what we'll do then!
-            #  do bonds want to keep track of a range of permissible valences??
-            #  it's a real concept (I think) and it's probably expensive to recompute.
-            #  BTW, if there is more than one way to resolve the error, they might want to
-            #  permit the linkage but not pick the way to resolve it, but wait for you
-            #  to drag the v-error indicator (or whatever).)
+            # [much later, 050702: that might be obs, but worrying about their
+            # *permitted* valences might not be...] (not sure exactly what
+            # we'll do then! do bonds want to keep track of a range of
+            # permissible valences?? it's a real concept (I think) and it's
+            # probably expensive to recompute. BTW, if there is more than one
+            # way to resolve the error, they might want to permit the linkage
+            # but not pick the way to resolve it, but wait for you to drag the
+            # v-error indicator (or whatever).)
         #####@@@@@ worry about s1 and s2 valences being not V_SINGLE
         
         # ok, now we'll really do it.
@@ -2306,7 +2437,8 @@ class _bonder_at_singlets:
         s1, a1 = self.s1, self.a1
         s2, a2 = self.s2, self.a2
         status = "bonded atoms %r and %r" % (a1, a2) 
-            #e maybe subr should make this?? #e subr might prefix it with bond-type made ###@@@
+            #e maybe subr should make this?? 
+            #e subr might prefix it with bond-type made ###@@@
         # we only consider "move m1" in the case of no preexisting bond,
         # so we only need it in this submethod (in fact, if it was in
         # the other one, it would never run, due to the condition about
@@ -2349,9 +2481,10 @@ class _bonder_at_singlets:
         """
         #doc... (if it succeeds, uses self.status to report what it did)
         """
-        #e [bruce 041109 asks: does it matter that the following code forgets which
-        #   singlets were involved, before bonding?]
-        #####@@@@@ this needs to worry about valence of s1 and s2 bonds, and thus of new bond
+        #e [bruce 041109 asks: does it matter that the following code
+        #   forgets which singlets were involved, before bonding?]
+        #####@@@@@ this needs to worry about valence of s1 and s2 bonds, 
+        # and thus of new bond
         s1 = self.s1
         s2 = self.s2
         a1 = self.a1
@@ -2359,11 +2492,10 @@ class _bonder_at_singlets:
 
         #bruce 071018, stop using old code here, finally; 
         # might fix open bond direction; clean up if so ###TODO
+        #bruce 071019 change default to False since new code works now
         USE_OLD_CODE = debug_pref("Bonds: use OLD code for actually_bond?",
                                   Choice_boolean_False 
-                                    # bruce 071019 change default to False since new code works now
                                   )
-
         v1 = s1.singlet_v6()
         v2 = s2.singlet_v6()
         
@@ -2371,8 +2503,10 @@ class _bonder_at_singlets:
             new_code_needed = (v1 != V_SINGLE or v2 != V_SINGLE)
             if not new_code_needed:
                 # old code can be used for now
-                if debug_flags.atom_debug and env.once_per_event("using OLD code for actually_bond"):
-                    print "atom_debug: fyi (once per event): using OLD code for actually_bond"
+                if debug_flags.atom_debug \
+                   and env.once_per_event("using OLD code for actually_bond"):
+                    print "atom_debug: fyi (once per event): " \
+                          "using OLD code for actually_bond"
                 s1.kill()
                 s2.kill()
                 bond_atoms(a1, a2)
@@ -2398,14 +2532,16 @@ class _bonder_at_singlets:
         vused = bond.v6 # this will be the created bond
         prefix = bond_type_names[vused] + '-'
         status = prefix + self.status # use prefix even for single bond, for now #k
-        # add something to status message if not all valence from s1 or s2 was used
-        # (can this happen for both singlets at once? maybe 'a' vs 'g' can do that -- not sure.)
+        # now, add something to status message if not all valence from s1 or
+        # s2 was used
+        # (can this happen for both singlets at once? 
+        #  maybe 'a' vs 'g' can do that -- not sure.)
         if v1 > vused or v2 > vused:
             status += "; some bond-valence unused on "
             if v1 > vused:
                 status += "%r" % a1
             if v1 > vused and v2 > vused:
-                status += " and " #e could rewrite this like this: " and ".join(atomreprs)
+                status += " and " #e could rewrite: " and ".join(atomreprs)
             if v2 > vused:
                 status += "%r" % a2
         return (0, status)
@@ -2430,7 +2566,7 @@ class _bonder_at_singlets:
         if len(a2.bonds) == 2:
             v2 += a2.deficient_v6()
         vdelta = min(v1, v2) 
-            # but depending on the existing bond, we might use less than this, or none
+            # but depending on existing bond, we might use less than this, or none
         bond = find_bond(a1, a2)
 ##        old_bond_v6 = bond.v6 #bruce 051215 debug code
         vdelta_used = bond.increase_valence_noupdate(vdelta)
@@ -2454,19 +2590,22 @@ class _bonder_at_singlets:
             return self.do_error("can't increase order of bond between " \
                                  "atoms %r and %r" % (a1, a2), None) 
             #e say existing order? say why not?
-        vdelta = vdelta_used #bruce 051215 fix unreported hypothetical bug (see comment above)
+        vdelta = vdelta_used # fix unreported hypothetical bug (see comment above)
         s1.singlet_reduce_valence_noupdate(vdelta)
             # this might or might not kill it;
             # it might even reduce valence to 0 but not kill it,
             # letting base atom worry about that
-            # (and letting it take advantage of the singlet's position, when it updates things)
+            # (and letting it take advantage of the singlet's position,
+            #  when it updates things)
         s2.singlet_reduce_valence_noupdate(vdelta)
         a1.update_valence()
-            # repositions/alters existing singlets, updates bonding pattern, valence errors, etc;
-            # might reorder bonds, kill singlets; but doesn't move the atom and doesn't alter
-            # existing real bonds or other atoms; it might let atom record how it wants to move,
-            # when it has a chance and wants to clean up structure, if this can ever be ambiguous
-            # later when the current state (including positions of old singlets) is gone.
+            # note: update_valence repositions/alters existing singlets,
+            # updates bonding pattern, valence errors, etc; might reorder
+            # bonds, kill singlets; but doesn't move the atom and doesn't
+            # alter existing real bonds or other atoms; it might let atom
+            # record how it wants to move, when it has a chance and wants to
+            # clean up structure, if this can ever be ambiguous later when the
+            # current state (including positions of old singlets) is gone.
         a2.update_valence()
         return (0, "increased bond order between atoms %r and %r" % (a1, a2)) 
             #e say existing and new order?
@@ -2480,22 +2619,26 @@ class _bonder_at_singlets:
             # and somehow emit it later after that stuff has been resolved).
             # Not an ideal situation....
     
-    def merge_open_bonds(self): 
+    def _merge_open_bonds(self): 
         """
         Merge the bond-valence of s1 into that of s2
         """
-        #bruce 050702 new feature; implem is a guess and might be partly obs when written
+        #bruce 050702 new feature;
+        # implem is a guess and might be partly obs when written
         s1, a1 = self.s1, self.a1
         s2, a2 = self.s2, self.a2
-        v1, v2 = s1.singlet_v6(), s2.singlet_v6()
+        assert a2 is a1 #bruce 090119 implied by old code
+        v1 = s1.singlet_v6()
+        ## v2 = s2.singlet_v6()
         vdelta = v1
-        bond1 = s1.bonds[0]
+        ## bond1 = s1.bonds[0]
         bond2 = s2.bonds[0]
         #e should following permit illegal values? be a singlet method?
         vdelta_used = bond2.increase_valence_noupdate(vdelta)
             # increases to legal value, returns actual amount of increase (maybe 0)
         if not vdelta_used:
-            return self.do_error("can't merge these two bondpoints on atom %r" % (a1,), None)
+            return self.do_error(
+                    "can't merge these two bondpoints on atom %r" % (a1,), None )
                 #e say existing orders? say why not?
         s1.singlet_reduce_valence_noupdate(vdelta)
         a1.update_valence() 
