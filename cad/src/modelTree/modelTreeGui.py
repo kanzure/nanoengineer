@@ -794,7 +794,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             #   but the selection is confined to one clipboard item.
             # With a little work we could improve this (in the cases not affected by that bug).
             # [comment revised, bruce 060203]
-##            if not targetnode.in_clipboard():
+##            if not targetnode.in_clipboard(): # [method removed, 090119]
 ##                for node1 in copiednodes:
 ##                    node1.pick()
             #bruce 060203 revising this to use similar scheme to move case (but not when copies get split up):

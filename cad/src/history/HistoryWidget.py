@@ -577,9 +577,12 @@ class HistoryWidget:
     def statusbar_msg(self, msg_text, repaint = False):
         """
         Show the message I{msg_text} (which must be plain text and short) in 
-        the main window's status bar. This only works for plain text messages,
-        not html. If the message is too long, it might make the window become
-        too wide, perhaps off the screen! Thus use this with care.
+        the main window's status bar. (This method is the main public way of
+        doing that.)
+        
+        This only works for plain text messages, not html. If the message is
+        too long, it might make the window become too wide, perhaps off the
+        screen! Thus use this with care.
         
         Also, the message might be erased right away by events beyond our 
         control. Thus this is best used only indirectly by self.message with

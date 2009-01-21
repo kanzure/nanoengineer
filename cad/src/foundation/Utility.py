@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 Utility.py -- class Node (superclass for all model-tree objects),
 Group [now defined in Group.py, no longer imported here],
@@ -12,9 +12,9 @@ are defined in other files. Notable ones are molecule and Jig.)
 See also: class Node_api (which is only the part
 of the API needed by the ModelTree).
 
-@author: Josh
+@author: Josh, Bruce
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -100,6 +100,9 @@ class Node( StateMixin):
 
     featurename = "" # wiki help featurename for Node subclass [bruce 051201]
 
+    const_pixmap = None 
+        #bruce 090119 API revision (presence of default value of const_pixmap,
+        # use of boolean test on it)
     
     # default values of instance variables
 
@@ -286,8 +289,11 @@ class Node( StateMixin):
         """
         [overrides UndoStateMixin method]
 
-        Return True iff it looks like we should be considered to exist in self.assy's model of undoable state.
-        Returning False does not imply anything's wrong, or that we should be or should have been killed/destroyed/deleted/etc --
+        Return True iff it looks like we should be considered to exist 
+        in self.assy's model of undoable state.
+
+        Returning False does not imply anything's wrong, or that we should
+        be or should have been killed/destroyed/deleted/etc --
         just that changes in us should be invisible to Undo.
         """
         return self.assy is not None and \
@@ -438,7 +444,7 @@ class Node( StateMixin):
         self.disabled_by_user_choice = val
         self.changed()
 
-    def changed(self): #bruce 050505; not yet uniformly used (most code calls part.changed or assy.changed directly)
+    def changed(self): 
         """
         Call this whenever something in the node changes
         which would affect what gets written to an mmp file
@@ -450,6 +456,8 @@ class Node( StateMixin):
            But if you're not sure, calling it when not needed is better
         than not calling it when needed.
         """
+        #bruce 050505; not yet uniformly used (most code calls part.changed or
+        #assy.changed directly)
         if self.part is not None:
             self.part.changed()
                 #e someday we'll do self.changed which will do dad.changed....
@@ -496,7 +504,7 @@ class Node( StateMixin):
         """
         return False
 
-    def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 050421, part of fixing bug 406
+    def readmmp_info_leaf_setitem( self, key, val, interp ):
         """
         This is called when reading an mmp file, for each "info leaf" record
         which occurs right after this node is read and no other node has been
@@ -522,7 +530,8 @@ class Node( StateMixin):
         # leaf node that the old code was able to read. [bruce 071109 comment]
         if self.is_group():
             if debug_flags.atom_debug:
-                print "atom_debug: mmp file error, ignored: a group got info leaf %r = ..." % (key,)
+                print "atom_debug: mmp file error, ignored: " \
+                      "a group got info leaf %r = ..." % (key,)
             return
         if key == ['hidden']:
             # val should be "True" or "False" (unrecognized vals are treated as False)
@@ -545,17 +554,21 @@ class Node( StateMixin):
                 print msg
         return
 
-    def is_disabled(self): #bruce 050421 experiment related to bug 451-9 #e what Jig method does belongs here... [050505 comment]
+    def is_disabled(self): 
         """
         Should this node look disabled when shown in model tree
         (but remain fully functional for selection)?
         """
+        #bruce 050421 experiment related to bug 451-9 
+        #e what Jig method does belongs here... [050505 comment]
         return False 
 
-    def redmsg(self, msg): #bruce 050203; revised 050901 to work even after assy set to None in Node.kill
+    def redmsg(self, msg): 
+        #bruce 050203
+        # revised 050901 to work even after assy set to None in Node.kill
         env.history.message( redmsg( msg ))
 
-    def is_top_of_selection_group(self): #bruce 050131 for Alpha [#e rename is_selection_group?] [#e rename concept "selectable set"?]
+    def is_top_of_selection_group(self): 
         """
         Whether this node is the top of a "selection group".
         (Note: this can be true of leaf nodes as well as group nodes,
@@ -566,6 +579,8 @@ class Node( StateMixin):
         [As of 050131, should be True of the PartGroup and any "clipboard item";
          this implem is not complete, so it's overridden by PartGroup.]
         """
+        #bruce 050131 for Alpha [#e rename is_selection_group?]
+        # [#e rename concept "selectable set"?]
         ###@@@ [General discussion of implem of selection groups, 050201:
         # in hindsight the implem should just store the selgroup
         # in each node, and maintain this when dad changes, like for .assy.
@@ -610,22 +625,27 @@ class Node( StateMixin):
             assert ours.picked
             return # no need to change (important optimization for recursive picking in groups)
         if ours is None:
-            # this might happen for non-bugs since changed_dad calls it for picked nodes,
-            # but it makes sense to skeptically review any way that can happen,
-            # so the debug print is good even if it's not always a bug [bruce comment 050310]
+            # this might happen for non-bugs since changed_dad calls it for
+            # picked nodes, but it makes sense to skeptically review any way
+            # that can happen, so the debug print is good even if it's not
+            # always a bug [bruce comment 050310]
             if self.no_selgroup_is_ok:
                 return #bruce 050602
             if debug_flags.atom_debug:
-                print "atom_debug: bug(?): change_current_selgroup_to_include_self on node with no selgroup; ignored"
+                print "atom_debug: bug(?): change_current_selgroup_to_include_self " \
+                      "on node with no selgroup; ignored"
             return
-        # ours is this node's selgroup, and might or might not already be the current one in self.assy
-        prior = self.assy.current_selgroup_iff_valid() # might be None but otherwise is always valid; no side effects [revised 050310]
+        # ours is this node's selgroup, and might or might not already be the
+        # current one in self.assy
+        prior = self.assy.current_selgroup_iff_valid()
+            # might be None but otherwise is always valid; no side effects [revised 050310]
         if ours is not prior:
             self.assy.set_current_selgroup( ours)
                 # this unpicks everything not in 'ours' and warns if it unpicked anything
         return
 
-    def find_selection_group(self): #bruce 050131 for Alpha #####@@@@@ needs update/review for being called on deleted nodes; pass assy?
+    def find_selection_group(self): #bruce 050131 for Alpha 
+        #####@@@@@ needs update/review for being called on deleted nodes; pass assy?
         """
         Return the selection group to which this node belongs, or None if none
         (as of 050131 that should happen only for Clipboard or Root).
@@ -634,45 +654,54 @@ class Node( StateMixin):
         while node is not None:
             if node.is_top_of_selection_group():
                 break
-            node = node.dad # might be None; always is eventually, so loop always terminates by then
+            node = node.dad # might be None
+                # always is None eventually, so loop always terminates by then
         return node # might be None
 
     def find_selection_group_or_picked_dad(self): #bruce 050131 for Alpha
         """
-        Return (True, selgroup) where selgroup (maybe None) would be returned by find_selection_group,
-        or (False, picked_dad) if you hit a "picked dad of self" (implying that self's selection group,
-        whatever it is, is the current one, assuming no bugs in our new invariants).
-        Prefer the picked_dad retval since it's faster.
+        Return (True, selgroup) where selgroup (maybe None) would be returned
+        by find_selection_group, or (False, picked_dad) if you hit a "picked
+        dad of self" (implying that self's selection group, whatever it is, is
+        the current one, assuming no bugs in our new invariants). Prefer the
+        picked_dad retval since it's faster.
         """
         node = self
         while node is not None:
             if node.is_top_of_selection_group():
                 break
-            node = node.dad # might be None; always is eventually, so loop always terminates by then
+            node = node.dad # might be None
+                # always is None eventually, so loop always terminates by then
             if node is not None:
                 # don't try this test for node is self, since it's not a "dad of self"
                 if node.picked:
                     return False, node                
         return True, node # might be None
 
-    def show_in_model_tree(self): #bruce 050127 ###e needs renaming, sounds like "scroll to make visible" [050310]
-        #bruce 050417 warning: I think I never ended up honoring this. Not sure. #bruce 050527: It's not honored now, anyway.
+    def show_in_model_tree(self): #bruce 050127 
         """
         Should this node be shown in the model tree widget?
         True for most nodes. Can be overridden by subclasses.
         [Added so that Datum Plane nodes won't be shown. Initially,
          it might not work much more generally than that.]
         """
+        ###e needs renaming, sounds like "scroll to make visible" [050310]
+        #bruce 050417 warning: I think I never ended up honoring this. Not sure. 
+        #bruce 050527: It's not honored now, anyway. ### REVIEW: keep or discard?
         return True
 
     def haspicked(self): #bruce 050126
         """
-        Whether node's subtree has any picked members.
-        Faster than counting them with nodespicked or "maxing" them with hindmost,
-        at least when anything is picked; just as slow when nothing is (still requires
-        a full scan). [#e should we memoize hindmost data??]
-        [overridden in Group, but this docstring applies to both methods together;
-         should not be overridden elsewhere.]
+        @return: whether node's subtree has any picked members.
+        @rtype: boolean
+        
+        This is faster than counting them with nodespicked or "maxing" them
+        with hindmost, at least when anything is picked; just as slow when
+        nothing is (still requires a full scan). [#e should we memoize
+        hindmost data??]
+        
+        [overridden in Group, but this docstring applies to both methods
+         together; should not be overridden elsewhere.]
         """
         return self.picked
 
@@ -683,38 +712,44 @@ class Node( StateMixin):
         """
         return False
 
-    def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 renamed from kids to MT_kids; revised semantics
+    def MT_kids(self, display_prefs = {}): 
         """
         For doc, see Group.MT_kids()
 
         [some subclasses should override this, especially Group]
         """
-        return [] # review: must this be []? Some calling code might add it to another list...
+        #bruce 050109; 080108 renamed from kids to MT_kids; revised semantics
+        # review: must this be [] rather than ()? 
+        # Some calling code might add it to another list...
+        return [] 
 
     def openable(self):
         """
-        Say whether tree widgets should permit the user to open/close their view
-        of this node (typically by displaying some sort of toggle icon for that state).
-        (Note, if this is True then this does not specify whether the node view is
-        initially open... #doc what does.)
+        Say whether tree widgets should permit the user to open/close their
+        view of this node (typically by displaying some sort of toggle icon
+        for that state). (Note, if this is True then this does not specify
+        whether the node view is initially open... #doc what does.)
 
-        [Some subclasses should override this; if they add nonmember MT_kids but don't
-        override this, those MT_kids will probably never be shown, but that might
-        be undefined and depend on the model tree widget -- it's better to follow
-        the rule of never having MT_kids unless you are openable.]
+        [Some subclasses should override this; if they add nonmember MT_kids
+        but don't override this, those MT_kids will probably never be shown,
+        but that might be undefined and depend on the model tree widget --
+        it's better to follow the rule of never having MT_kids unless you are
+        openable.]
         """
-        # + If we decide this depends on the tree widget or on something about it,
-        # we'll have to pass in some args... don't do that unless/until we need to.
-        # + One reason we don't measure len(self.MT_kids()) to decide on the default
-        # value for this, is that some nodes might not want to compute self.MT_kids()
-        # until/unless it's needed, in case doing so is expensive. For example,
-        # Qt's dirview example (also in PyQt examples3) computes MT_kids only when
-        # a node (representing a filesystem directory) is actually opened.
+        # + If we decide this depends on the tree widget or on something about
+        # it, we'll have to pass in some args... don't do that unless/until we
+        # need to.
+        # + One reason we don't measure len(self.MT_kids()) to decide on the
+        # default value for this, is that some nodes might not want to compute
+        # self.MT_kids() until/unless it's needed, in case doing so is
+        # expensive. For example, Qt's dirview example (also in PyQt
+        # examples3) computes MT_kids only when a node (representing a
+        # filesystem directory) is actually opened.
         return False
 
-    ###e API and method/attr names related to "rename" needs review, since the text
-    # shown by some nodes in a tree widget (in the future) might not be "their name".
-    # [bruce 050128]
+    # REVIEW: API and method/attr names related to "rename" needs review,
+    # since the text shown by some nodes in a tree widget (in the future)
+    # might not be "their name". [bruce 050128]
 
     def rename_enabled(self):
         """
@@ -734,9 +769,12 @@ class Node( StateMixin):
           do needed invals, and return (True, stored name);
         - or, reject it, and return (False, reason it's not ok).
           (The reason should be a string suitable for error messages.)
-        """
-        #e some of TreeWidget.slot_itemRenamed should be moved into a new caller of this in Node,
-        # so other Qt widgets can also safely try to rename Nodes. [bruce 050527 comment]
+        """        
+        # todo: some of TreeWidget.slot_itemRenamed should be moved into a new
+        # caller of this in Node, so other Qt widgets can also safely try to
+        # rename Nodes. [bruce 050527 comment]
+        # names containing ')' work now, so we permit them here [bruce 050618]
+        
         if not self.rename_enabled():
             return (False, "renaming this node is not permitted")
         #mark 051005 --  now name can be a python string or a QString
@@ -748,17 +786,14 @@ class Node( StateMixin):
         if not name:
             return (False, "blank name is not permitted")
 
-        #bruce 050618 -- names containing ')' work now, so I can remove the ban on them in renaming.
-##        if ')' in name and not permit_rparen_names:
-##            #bruce 050508 bug-mitigation (these names can't yet be properly reloaded from mmp files)
-##            return (False, "names containing ')' are not yet supported")
-
         # accept the new name.
-##        self._um_will_change_attr('name') #bruce 051005; this might need to be called from a property-setter method for completeness
+##        self._um_will_change_attr('name') #bruce 051005; this might need 
+##            # to be called from a property-setter method for completeness
         self.name = name
         if self.assy:
             self.assy.changed()
-        ###e should inval any observers (i.e. model tree) -- not yet needed, I think [bruce 050119]
+        ###e should inval any observers (i.e. model tree) -- 
+        # not yet needed, I think [bruce 050119]
         return (True, name)
     
     def rename_using_dialog(self):
@@ -810,25 +845,31 @@ class Node( StateMixin):
 
     def drag_move_ok(self): # renamed/split from drag_enabled; docstring revised 050201
         """
-        Say whether a drag_move which includes this node can be started (for "drag and drop").
-        It's ok if only some drop-targets (nodes or inter-node gaps) can accept this node;
-        we'll ask the targets if they'll take a specific drag_moved list of nodes (which includes this node).
-           A tree widget asked to drag_move some selected nodes might filter them by drag_move_ok
-        to get the ones to actually move, or it might refuse the whole operation unless all are ok to move --
-        that's a UI decision, not a node semantics decision.
+        Say whether a drag_move which includes this node can be started (for
+        "drag and drop").
+        
+        It's ok if only some drop-targets (nodes or inter-node gaps) can
+        accept this node; we'll ask the targets if they'll take a specific
+        drag_moved list of nodes (which includes this node).
+        
+        A tree widget asked to drag_move some selected nodes might filter them
+        by drag_move_ok to get the ones to actually move, or it might refuse
+        the whole operation unless all are ok to move -- that's a UI decision,
+        not a node semantics decision.
 
         [some subclasses should override this]
         """
         return True
 
     def drag_copy_ok(self): # renamed/split from drag_enabled; docstring revised 050201
-        #bruce 050527 comment: this API needs revision, since the decision for jigs depends on what other nodes are included.
+        #bruce 050527 comment: this API needs revision, since the decision for 
+        # jigs depends on what other nodes are included.
         # And we should revise it more, so we can construct a Copier object, let it "prep",
         # and use it for not only filtering out some nodes (like this does)
         # but getting the summary msg for the drag graphic, etc. #####@@@@@
         """
-        Say whether a drag_copy which includes this node can be started (for "drag and drop").
-        Same comments as for drag_move_ok apply.
+        Say whether a drag_copy which includes this node can be started (for
+        "drag and drop"). Same comments as for drag_move_ok apply.
 
         [some subclasses should override this]
         """
@@ -860,24 +901,29 @@ class Node( StateMixin):
         [overridden in Group and again in some of its subclasses]
         """
         return False
-
+    
     def node_icon(self, display_prefs):
         """
         #doc this - should return a cached icon
 
-        [all Node subclasses should override this]
+        [all Node subclasses should either override this
+         or define a class or instance value for const_pixmap attribute]
         """
-        try:
-            return self.const_pixmap # let simple nodes just set this in __init__ and be done with it [bruce 060523]
-        except:
-            msg = "bug - Node subclass %s forgot to override node_icon method or set self.const_pixmap" % self.__class__.__name__
+        if self.const_pixmap:
+            return self.const_pixmap 
+                # let simple nodes just set this in __init__ (or as a 
+                # class constant) and be done with it [bruce 060523/090119]
+        else:
+            msg = "bug: Node subclass %s forgot to override node_icon method " \
+                  "or set self.const_pixmap" % self.__class__.__name__
             fake_filename = msg
             return imagename_to_pixmap( fake_filename)
                 # should print msg, at most once per class
                 # (some people might consider this a kluge)
         pass
 
-    # most methods before this are by bruce [050108 or later] and should be reviewed when my rewrite is done ###@@@
+    # most methods before this are by bruce [050108 or later] 
+    # and should be reviewed when my rewrite is done ###@@@
 
     def addsibling(self, node, before = False):
         """
@@ -947,30 +993,35 @@ class Node( StateMixin):
 
     def genvisibleleaves(self, include_parents = False): #bruce 060220
         """
-        Assuming self is visible in the MT (ignoring scrolling), return a generator which yields
-        the set of self and/or its children which have no visible children (i.e. which are leaf nodes,
-        or empty Group nodes (good??), or closed Group nodes).
+        Assuming self is visible in the MT (ignoring scrolling), return a
+        generator which yields the set of self and/or its children which have
+        no visible children (i.e. which are leaf nodes, or empty Group nodes
+        (good??), or closed Group nodes).
 
-        By default, skip anything which has children we'll yield, but if include_parents is True,
-        include them anyway.
+        By default, skip anything which has children we'll yield, but if
+        include_parents is True, include them anyway.
 
-        [Note that this uses .open which might be considered model-tree-specific
-        state -- if we ever let two MTs show the model hierarchy at once, this will need an argument
-        which is the openness-dict, or need to become an MT method.]
+        [Note that this uses .open which might be considered
+        model-tree-specific state -- if we ever let two MTs show the model
+        hierarchy at once, this will need an argument which is the
+        openness-dict, or need to become an MT method.]
         """
         # Note: this is not presently used, but should be used, since it helped
         # implement the MT arrow key bindings, which are desirable but were left
         # out in the port to Qt4, even though their implem has nothing to do
         # with Qt except for receiving the arrow key events.
         # [bruce 071206 comment]
-        if self.is_group() and self.open and self.openable(): #bruce 080108 added .openable cond (guess)
+        if self.is_group() and self.open and self.openable(): 
+            #bruce 080108 added .openable cond (guess)
             visible_kids = self.MT_kids() #bruce 080108 .members -> .MT_kids()
             if visible_kids:
                 if include_parents:
                     yield self
-                    #e Do we want another option, for yielding parents before vs. after their kids?
-                    # I don't yet know of a use for it ('before' is what we want for MT arrow keys,
-                    # whether moving up or down, since for 'up' we reverse this entire sequence). 
+                    #e Do we want another option, for yielding parents before
+                    # vs. after their kids? I don't yet know of a use for it
+                    # ('before' is what we want for MT arrow keys, whether
+                    # moving up or down, since for 'up' we reverse this entire
+                    # sequence).
                 for m in visible_kids:
                     for s in m.genvisibleleaves(include_parents = include_parents):
                         yield s
@@ -988,16 +1039,19 @@ class Node( StateMixin):
          since in the future these methods will sometimes invalidate other state
          which needs to depend on which Nodes are picked.]
         """
-        ###@@@ I don't know whether that new rule is yet followed by external code [bruce 050124].
-        #bruce 050131 for Alpha: I tried to make sure it is; at least it's now followed in "pick" methods.
+        ###@@@ I don't know whether that new rule is yet followed by
+        # external code [bruce 050124].
+        #bruce 050131 for Alpha: I tried to make sure it is; at least
+        # it's now followed in "pick" methods.
         if not self.picked:
             if self.part is None:
                 #bruce 080314 check for this
                 print "likely to cause bugs: .part is None in .pick for %r" % self
             self.picked = True
-            # bruce 050125: should we also call self.assy.permit_picked_parts() here? ###@@@ [not just in chunk.pick]
-            #bruce 050131 for Alpha: I'm guessing we don't need to, for jigs or groups,
-            # since they don't get into assy.molecules or selmols.
+            # bruce 050125: should we also call self.assy.permit_picked_parts() 
+            # here? ###@@@ [not just in chunk.pick]
+            #bruce 050131 for Alpha: I'm guessing we don't need to, for jigs 
+            # or groups, since they don't get into assy.molecules or selmols.
             # Whether doing it anyway would be good or bad, I don't know,
             # so no change for now.
             self.changed_selection() #bruce 060227
@@ -1042,7 +1096,8 @@ class Node( StateMixin):
          since in the future these methods will sometimes invalidate other state
          which needs to depend on which Nodes are picked.]
         """
-        ###@@@ I don't know whether that new rule is yet followed by external code [bruce 050124].
+        ###@@@ I don't know whether that new rule is yet followed by external
+        # code [bruce 050124].
         if self.picked:
             self.picked = False
             self.changed_selection() #bruce 060227
@@ -1066,13 +1121,14 @@ class Node( StateMixin):
 
     def unpick_all_except(self, node):
         """
-        unpick all of self and its subtree except whatever is inside node and its subtree;
-        return value says whether anything was actually unpicked
+        unpick all of self and its subtree except whatever is inside node and
+        its subtree; return value says whether anything was actually unpicked
         """
         # this implem should work for Groups too, since self.unpick does.
         if self is node:
             return False
-        res = self.picked # since no retval from unpick_top; this is a correct one if our invariants are always true
+        res = self.picked # since no retval from unpick_top; this is a 
+            # correct one if our invariants are always true
         self.unpick_top()
         res2 = self.unpick_all_members_except( node)
         # btw, during recursive use of this method,
@@ -1083,24 +1139,11 @@ class Node( StateMixin):
 
     def unpick_all_members_except(self, node):
         """
-        [#doc; overridden in Group] return value says whether anything was actually unpicked
+        [#doc; overridden in Group] 
+        
+        return value says whether anything was actually unpicked
         """
         return False
-
-    def pick_top(self): #bruce 050124
-        #e ###@@@ needs fixing or zapping, because:
-        # as of 050131, this is: illegal (since it violates an invariant),
-        # incorrectly implemented (since it doesn't do leaf-specific pick funcs,
-        # though this could probably be easily fixed just as I'll fix unpick_top),
-        # and never called (since sole caller's group_select_kids is always True).
-        """
-        select the object -- but (unlike Group.pick) don't change selection state
-        of its members. Note that this violates the principle "selected groupnode
-        implies all selected members". This means it should be used either never
-        or rarely (as of 050126 I don't know which).
-        [unlike pick, this is generally NOT extended in subclasses]
-        """
-        Node.pick(self)
 
     def unpick_top(self): #bruce 050124 #bruce 050131 making it correct for chunk and jig
         """
@@ -1183,21 +1226,10 @@ class Node( StateMixin):
                 m.call_on_topmost_unpicked_nodes_of_certain_classes(func, classes)
         return
 
-    _old_dad = None ###k not yet used? #####@@@@@ review got to here, except: to chgdad added only cmts plus docstring plus new name
-
-    def in_clipboard(self): #bruce 050205 temporary ###@@@ [should use a more general concept of assy.space]
-        """
-        For a leaf node: Are we definitely inside some clipboard item?
-        For a Group node: Would new members added to us be, or be inside, a clipboard item?
-        (I.e., in both cases, are we the Clipboard or in its tree?)
-        [This only works as long as self.assy.shelf is the Clipboard and works like it does now, 050205.
-         It's only useful as long as the rest of the code has special cases for clipboard vs main part --
-         hopefully not for much longer. In other words, this method is "deprecated at birth".]
-        """
-        try:
-            return self.assy.shelf.is_ascendant(self)
-        except:
-            return False # assume not, if e.g. we have no assy, it has no shelf, etc
+    _old_dad = None ###k not yet used? 
+    
+    #####@@@@@ review got to here, except: to chgdad added only cmts plus
+    #####docstring plus new name
 
     def changed_dad(self):
         """
@@ -1208,20 +1240,35 @@ class Node( StateMixin):
         records info to permit updating other things later.
         """
         node = self
+        
         ## from changes import changed #bruce 050303, removed 050909
         ## not needed as of 050309:
-        ## changed.dads.record(node) # make sure node's Part will be updated later if needed [bruce 050303]
-        assert node.dad is not None #k not sure if good to need this, but seems to fit existing calls... that might change [050205 comment]
-            #e if no dad: assy, space, selgroup is None.... or maybe keep prior ones around until new real dad, not sure
+        ## changed.dads.record(node) 
+        ##     # make sure node's Part will be updated later if needed 
+        ##     # [bruce 050303]
+
+        assert node.dad is not None 
+            #k not sure if good to need this, but seems to fit existing calls...
+            # that might change [050205 comment]
+            
+            #e if no dad: assy, space, selgroup is None.... or maybe keep
+            # prior ones around until new real dad, not sure
+
         assert node.assy is node.dad.assy or node.assy is None, \
                "node.assy is not node.dad.assy or None: " \
                "node %r, .assy %r, .dad %r, .dad.assy %r" % \
                (node, node.assy, node.dad, node.dad.assy )
             # bruce 050308/080218, since following assy code & part code
             # has no provision yet for coexisting assemblies
-        node.assy = node.dad.assy # this might change soon, or might not... but if it's valid at all, it needs to be propogated down!
-            # we leave it like this for now only in case it's ever being used to init the assy field from None.
-        #bruce 050308: continually let assigned node.dad.part get inherited by unassigned node.part (recursively)
+        
+        node.assy = node.dad.assy 
+            # this might change soon, or might not... but if it's valid at
+            # all, it needs to be propogated down! we leave it like this for
+            # now only in case it's ever being used to init the assy field
+            # from None.
+        
+        #bruce 050308: continually let assigned node.dad.part get inherited 
+        # by unassigned node.part (recursively)
         if node.dad.part is not None:
             if node.part is None:
                 # Note, this is the usual way that newly made nodes
@@ -1246,12 +1293,18 @@ class Node( StateMixin):
             node.change_current_selgroup_to_include_self()
                 # note: this has no effect if node doesn't have a selgroup
         if node.dad.picked:
-            node.pick() #bruce 050126 - maintain the new invariant! (two methods need this)
-            # warning: this might make some callers need to update glpane who didn't need to before.
-            # possible bugs from this are not yet analyzed.
-            # Note 050206: the clipboard can't be selected, and if it could be, our invariants would be inconsistent
-            # if it had more than one item! (Since all items would be selected but only one selgroup should be.)
-            # So, this line never picks a clipboard item as a whole.
+            node.pick() 
+            #bruce 050126 - maintain the new invariant! (two methods need this)
+            
+            # Warning: this might make some callers need to update glpane who
+            # didn't need to before. possible bugs from this are not yet
+            # analyzed.
+            
+            # Note 050206: the clipboard can't be selected, and if it could
+            # be, our invariants would be inconsistent if it had more than one
+            # item! (Since all items would be selected but only one selgroup
+            # should be.) So, this line never picks a clipboard item as a
+            # whole.
         return
 
     def inherit_part(self, part): #bruce 050308
@@ -1285,14 +1338,16 @@ class Node( StateMixin):
         self.hidden = True
         self.unpick()
 
-    def Hide(self): # called from a node's (Jig) "Hide" context menu item (in the GLPane, not MT). mark 060312.
+    def Hide(self): 
         """
         Hide self, and update the MT and GLPane accordingly.
         """
+        # note: this is called from a node's (Jig) "Hide" context menu item
+        # (in the GLPane, not MT). mark 060312.
         self.hide()
         if self is self.assy.o.selobj:
             # Without this, self will remain highlighted until the mouse moves.
-            self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
+            self.assy.o.selobj = None
         self.assy.w.win_update()
 
     def unhide(self):
@@ -1309,7 +1364,7 @@ class Node( StateMixin):
         fn(self)
         return
 
-    def apply_to_groups(self, fn): #bruce 080207 renamed apply2tree -> apply_to_groups
+    def apply_to_groups(self, fn):
         """
         Like apply2all, but only applies fn to all Group nodes (at or under self).
 
@@ -1355,69 +1410,96 @@ class Node( StateMixin):
         #bruce 050121 inferred docstring from 2 implems and 1 call
         return
 
-    # == copy methods -- by default, Nodes can't be copied, but all copyable Node subclasses
-    # == should override these methods.
+    # == copy methods -- by default, Nodes can't be copied, so all
+    # == copyable Node subclasses should override these methods.
 
-    def will_copy_if_selected(self, sel, realCopy): #bruce 050525; wware 060329 added realCopy arg
+    def will_copy_if_selected(self, sel, realCopy): 
         """
-        Will this node copy itself when asked (via copy_in_mapping or postcopy_in_mapping [#doc which one!])
-        because it's selected in sel, which is being copied as a whole?
-        [Node types which implement an appropriate copy method should override this method.]
-        If the realCopy boolean is set (indicating this is a real copy operation and not
-        just a test), and if this node will not copy, it may want to print a warning.
+        Will this node copy itself when asked (via copy_in_mapping or
+        postcopy_in_mapping [#doc which one!]) because it's selected in sel,
+        which is being copied as a whole?
+        
+        [Node types which implement an appropriate copy method should override
+        this method.]
+        
+        If the realCopy boolean is set (indicating this is a real copy
+        operation and not just a test), and if this node will not copy, it may
+        want to print a warning.
         """
+        #bruce 050525; wware 060329 added realCopy arg
         if realCopy:
-            #bruce 060329 added this default message, since it's correct if the whole realCopy scheme is,
-            # though I'm dubious about the whole scheme.
+            #bruce 060329 added this default message, since it's correct if
+            #the whole realCopy scheme is, though I'm dubious about the whole
+            #scheme.
             msg = "Node [%s] won't be copied." % (self.name)
             env.history.message(orangemsg(msg))
         return False # conservative answer
 
-    def will_partly_copy_due_to_selatoms(self, sel): #bruce 050525; docstring revised 050704
+    def will_partly_copy_due_to_selatoms(self, sel):
         """
-        For nodes which say True to .confers_properties_on(atom) for one or more atoms
-        which are part of a selection being copied, but when this node is not selected,
-        will it nonetheless copy all or part of itself, when its copy_partial_in_mapping
-        method is called, so that the copied atoms still have the property it confers?
-        [Node types which implement an appropriate copy method should override this method too.]
+        For nodes which say True to .confers_properties_on(atom) for one or
+        more atoms which are part of a selection being copied, but when this
+        node is not selected, will it nonetheless copy all or part of itself,
+        when its copy_partial_in_mapping method is called, so that the copied
+        atoms still have the property it confers?
+        
+        [Node types which implement an appropriate copy method should override
+        this method too.]
         """
         return False # conservative answer
 
-    def confers_properties_on(self, atom): #bruce 050524; docstring revised 050704, 070608
+    def confers_properties_on(self, atom):
         """
         Does this Jig (or any node of a type that might appear in atom.jigs)
-        confer a property on atom, so that it should be partly copied, if possible
-        (by self.copy_partial_in_mapping) when atom is?
+        confer a property on atom, so that it should be partly copied, if
+        possible (by self.copy_partial_in_mapping) when atom is?
 
-        Note: only Anchor overrides this (as of 070608), and the only new kinds
-        of Nodes that might need to override it would be Jigs designed to alter the
-        rendering or simulation properties of all their atoms, as a substitute for
-        directly storing those properties on the atoms. If in doubt, don't override it.
+        Note: only Anchor overrides this (as of 070608), and the only new
+        kinds of Nodes that might need to override it would be Jigs designed
+        to alter the rendering or simulation properties of all their atoms, as
+        a substitute for directly storing those properties on the atoms. If in
+        doubt, don't override it.
         """
         return False # default value for most jigs and (for now) all other Nodes
 
-    def copy_full_in_mapping(self, mapping): # Node method [bruce 050526]
+    def copy_full_in_mapping(self, mapping): # Node method
         """
-        If self can be fully copied, this method (as overridden in self's subclass) should do so,
-        recording in mapping how self and all its components (eg chunk atoms, group members) get copied,
-        and returning the copy of self, which must be created in mapping.assy (which may differ from self.assy).
-           If self will refuse to be fully copied, this method should return None.
-        ###k does it need to record that in mapping, too?? not for now.
-           It can assume self and all its components have not been copied yet (except for shared components like bonds #k #doc).
-        It can leave out some mapping records for components, if it knows nothing will need to know them
-        (e.g. atoms only need them regarding some bonds and jigs).
-           For references to things which might not have been copied yet, or might never be copied (e.g. atom refs in jigs),
-        this method can make an incomplete copy and record a method in mapping to fix it up at the end. But it must decide
-        now whether self will agree or refuse to be copied (using mapping.sel if necessary to know what is being copied in all).
-           [All copyable subclasses should override this method.]
+        If self can be fully copied, this method (as overridden in self's
+        subclass) should do so, recording in mapping how self and all its
+        components (eg chunk atoms, group members) get copied, and returning
+        the copy of self, which must be created in mapping.assy (which may
+        differ from self.assy).
+        
+        If self will refuse to be fully copied, this method should return
+        None. [###k does it need to record that in mapping, too?? not for
+        now.]
+        
+        It can assume self and all its components have not been copied yet
+        (except for shared components like bonds #k #doc). It can leave out
+        some mapping records for components, if it knows nothing will need to
+        know them (e.g. atoms only need them regarding some bonds and jigs).
+        
+        For references to things which might not have been copied yet, or
+        might never be copied (e.g. atom refs in jigs), this method can make
+        an incomplete copy and record a method in mapping to fix it up at the
+        end. But it must decide now whether self will agree or refuse to be
+        copied (using mapping.sel if necessary to know what is being copied in
+        all).
+        
+        [All copyable subclasses should override this method.]
         """
         return None # conservative version
 
-    copy_partial_in_mapping = copy_full_in_mapping # equivalent for all jigs which need it, as of 050526 [method name added 050704]
-        # Note (bruce 060523): this might be wrong for jigs that overrode copy_full_in_mapping,
-        # but since copy_partial_in_mapping is not presently called, I won't bother to clean it up for now.
+    copy_partial_in_mapping = copy_full_in_mapping 
+        # equivalent for all jigs which need it, as of 050526
+        # [method name added 050704]
+        #
+        # Note (bruce 060523): this might be wrong for jigs that overrode
+        # copy_full_in_mapping, but since copy_partial_in_mapping is not
+        # presently called, I won't bother to clean it up for now.
 
-    def copy_in_mapping_with_specified_atoms(self, mapping, atoms): #bruce circa 050525; docstring revised 050704
+    def copy_in_mapping_with_specified_atoms(self, mapping, atoms): 
+        #bruce circa 050525; docstring revised 050704
         """
         #doc; must honor mapping.assy; certain subclasses should override
         [e.g. chunk]; for use in copying selected atoms
@@ -1503,8 +1585,9 @@ class Node( StateMixin):
 
     def copy_prior_part_to(self, target): #bruce 050527
         """
-        If target (presumed to be a Node) has no part or prior_part, set its prior_part from self,
-        for sake of initial views of new Parts containing target, if any such new Parts are yet to be made.
+        If target (presumed to be a Node) has no part or prior_part, set its
+        prior_part from self, for sake of initial views of new Parts
+        containing target, if any such new Parts are yet to be made.
         """
         if target.part is None and target.prior_part is None:
             if self.part is not None:
@@ -1514,28 +1597,37 @@ class Node( StateMixin):
         return
 
     def own_mutable_copyable_attrs(self):
-        #bruce 051003 revision: now that copy_copyable_attrs_to deepcopies mutable parameter values,
-        # this method will only need overriding for mutable state of types that method can't handle
-        # or which for some other reason is not declared in self.copyable_attrs.
-        ##e note: docstring and perhaps method name should be changed; most calls should remain,
-        # but all overridings of this method (and/or related decls of mutable_attrs) should be reviewed for removal.
-        # [as of 060523, the only override is in jig_Gamess.py, and it could probably be removed but that requires analysis.]
         """
         [WARNING: this docstring is out of date as of 051003]
 
-        If any copyable_attrs of self are mutable and might be shared with another copy of self
-        (by self.copy_copyable_attrs_to(target) -- where this method might then be called on self or target or both),
-        replace them with copies so that they are no longer shared and can safely be independently changed.
+        If any copyable_attrs of self are mutable and might be shared with
+        another copy of self (by self.copy_copyable_attrs_to(target) -- where
+        this method might then be called on self or target or both), replace
+        them with copies so that they are no longer shared and can safely be
+        independently changed.
+        
         [some subclasses must extend this]
         """
+        #bruce 051003 revision: now that copy_copyable_attrs_to deepcopies
+        #mutable parameter values, this method will only need overriding for
+        #mutable state of types that method can't handle or which for some
+        #other reason is not declared in self.copyable_attrs.
+        
+        ##e note: docstring and perhaps method name should be changed; most
+        #calls should remain, but all overridings of this method (and/or
+        #related decls of mutable_attrs) should be reviewed for removal. [as
+        #of 060523, the only override is in jig_Gamess.py, and it could
+        #probably be removed but that requires analysis.]
         pass
 
-##    def copy(self, dad): # just for backwards compatibility until old code is changed [050527]
+##    def copy(self, dad):
+##        # just for backwards compatibility until old code is changed [050527]
 ##        # This method should be removed soon; AFAIK the only caller
 ##        # is _pasteJig, which never works [bruce 090113 comment]
 ##        self.redmsg("This cannot yet be copied")
 ##        if debug_flags.atom_debug:
-##            print_compact_stack("atom_debug: who's still calling this deprecated method? this is:\n ")
+##            print_compact_stack("atom_debug: who's still calling this " \
+##                "deprecated method? this is:\n ")
 ##        return None # bruce 050131 changed this from "return 0"
 
     # ==
@@ -1564,13 +1656,19 @@ class Node( StateMixin):
 
     def kill(self): # see also self.destroy()
         """
-        Remove self from its parents and (maybe) destroy enough of its content that it takes little room (but be Undoable).
-        [subclasses should extend this, but should call this Node method at the end of their own kill methods]
+        Remove self from its parents and (maybe) destroy enough of its content
+        that it takes little room (but be Undoable).
+        
+        [subclasses should extend this, but should call this Node method at
+         the end of their own kill methods]
         """
         ###@@@ bruce 050214 changes and comments:
-        #e needs docstring;
-        #  as of now, intended to be called at end (not start middle or never) of all subclass kill methods
-        #  ok to call twice on a node (i.e. to call on an already-killed node); subclass methods should preserve this property
+        #
+        #e needs docstring; as of now, intended to be called at end (not start
+        # middle or never) of all subclass kill methods; ok to call twice on a
+        # node (i.e. to call on an already-killed node); subclass methods
+        # should preserve this property
+        #
         # also modified the Group.kill method, which extends this method
 ##        self._f_prekill() #bruce 060327 ##k not positive this is needed in Node
 ##            # (rather than just Group and Chunk being enough)
@@ -1623,7 +1721,9 @@ class Node( StateMixin):
         """
         self._f_will_kill = val
 
-    glname = 0 # required class constant in case of repeated calls of self.destroy() #bruce 060322
+    glname = 0 
+        # required class constant in case of repeated calls of self.destroy()
+        # [bruce 060322]
 
     def destroy(self):
         """
@@ -1632,28 +1732,35 @@ class Node( StateMixin):
         [#doc, see code comments]
         """
         self.kill() #bruce 060117 guess at implem
-        #bruce 060117 draft, experimental, not yet widely used; obs comment: not sure if it should differ from kill [but see below]
-        #bruce 060322 comments:
-        # Bugs: arbitrary-order calls (vs other obj destroy methods) are probably not yet safe
-        # (for planned future calls of this method, to plug memory leaks).
-        # Note: a potential difference of destroy from kill -- after kill, a Node might be revived by Undo;
-        # after destroy, it won't be. Things like its entry in various global dicts for change-tracking, glname, undo objkey, etc,
-        # should either be weak or should be explicitly removed by destroy. This is nim, but is important for plugging memory leaks.
-        # These comments apply to the destroy methods of all model objects and their child or helper objects, not only to Nodes.
+        #bruce 060117 draft, experimental, not yet widely used; 
+        # obs comment: not sure if it should differ from kill [but see below]
+        
+        #bruce 060322 comments:        
+        # Bugs: arbitrary-order calls (vs other obj destroy methods) are
+        # probably not yet safe (for planned future calls of this method, to
+        # plug memory leaks).
+        # Note: a potential difference of destroy from kill -- after kill, a
+        # Node might be revived by Undo; after destroy, it won't be. Things
+        # like its entry in various global dicts for change-tracking, glname,
+        # undo objkey, etc, should either be weak or should be explicitly
+        # removed by destroy. This is nim, but is important for plugging
+        # memory leaks. These comments apply to the destroy methods of all
+        # model objects and their child or helper objects, not only to Nodes.
         # ###@@@ #e
-        #
-        # We want this dealloc_my_glselect_name, but first we have to review all calls to Node.destroy
-        # to verify it's not called when it shouldn't be (e.g. when that node might still be revived by Undo). ###@@@
-        # BTW, as of 060322 the appropriate init, alloc, and draw code for glname is only done (or needed) in Jig.
-
-        ## self.assy.dealloc_my_glselect_name( self, self.glname ) -- only ok for some subclasses; some have ._glname instead
-
+        # We want this dealloc_my_glselect_name, but first we have to review
+        # all calls to Node.destroy to verify it's not called when it
+        # shouldn't be (e.g. when that node might still be revived by Undo).
+        # ###@@@ BTW, as of 060322 the appropriate init, alloc, and draw code
+        # for glname is only done (or needed) in Jig.
+        ## self.assy.dealloc_my_glselect_name( self, self.glname ) 
+        ##     # only ok for some subclasses; some have ._glname instead
         ##e more is needed too... see Atom and Bond methods
         # do we want this:
         ## self.__dict__.clear() ###k is this safe???
         return
 
-    def remove_from_parents(self): #bruce 051227 split this out of Node.kill for use in new Node.set_assy
+    def remove_from_parents(self):
+        #bruce 051227 split this out of Node.kill for use in new Node.set_assy
         """
         Remove self from its parents of various kinds
         (part, dad, assy, selection) without otherwise altering it.
@@ -1662,13 +1769,15 @@ class Node( StateMixin):
         # added condition on self.dad existing, before delmember
         # added unpick (*after* dad.delmember)
         # added self.assy = None
-##        self._um_deinit() #bruce 051005 #k this is not good enough unless this is always called when a node is lost from the MT!
+##        self._um_deinit() #bruce 051005 #k this is not good enough unless 
+##            # this is always called when a node is lost from the MT!
         if self.dad:
             self.dad.delmember(self)
                 # this does assy.changed (if assy), dad = None, and unpick,
                 # but the unpick might be removed someday, so we do it below too
                 # [bruce 050214]
-        self.unpick() # must come after delmember (else would unpick dad) and before forgetting self.assy
+        self.unpick() # must come after delmember (else would unpick dad) and
+            # before forgetting self.assy
         self.reset_subtree_part_assy()
 
     def reset_subtree_part_assy(self): #bruce 051227 split this out
@@ -1680,7 +1789,9 @@ class Node( StateMixin):
         [Subclasses (especially Group) must extend this as needed.]
         """
         assert not self.picked
-        if self.part: #bruce 050303; bruce 051227 moved from start of routine (before delmember) to here (after unpick), not sure ok
+        if self.part: 
+            #bruce 050303; bruce 051227 moved from start of routine (before
+            # delmember) to here (after unpick), not sure ok
             self.part.remove(self)
         env.node_departing_assy(self, self.assy) #bruce 060315 for Undo
         self.assy = None #bruce 050214 added this ###k review more
@@ -1689,15 +1800,20 @@ class Node( StateMixin):
             # - helps avoid cycles when destroying Nodes
             # - logical part of set_assy (but could wait til new assy is stored)
             # reasons not to:
-            # - Undo-tracked changes might like to use it to find the right AssyUndoArchive to tell about the change
-            #   (can we fix that by telling it right now? Not sure... in theory, more than one assy could claim it if we Undo in some!)
+            # - Undo-tracked changes might like to use it to find the right
+            #   AssyUndoArchive to tell about the change
+            #   (can we fix that by telling it right now? Not sure... in theory,
+            #   more than one assy could claim it if we Undo in some!)
             # - we might avoid needing to scan it and store it as undoable state
-            # - some bugs are caused by code that tries to find win, glpane, etc from assy
+            # - some bugs are caused by code that tries to find win, glpane, etc
+            #   from assy
             # tentative conclusion:
             # - don't stop doing this for A7
-            # - but tell Undo about the change, as part of letting it know which atoms are changing
-            #   (namely, all those still in this Node, if it's a chunk -- perhaps this will usually be no atoms?);
-            #   other changes on atoms can safely only tell the assy they refer to (via atom.molecule.assy) (or no assy if that's None).
+            # - but tell Undo about the change, as part of letting it know which
+            #   atoms are changing (namely, all those still in this Node, if 
+            #   it's a chunk -- perhaps this will usually be no atoms?);
+            #   other changes on atoms can safely only tell the assy they refer
+            #   to (via atom.molecule.assy) (or no assy if that's None).
 
     def is_ascendant(self, node): # implem corrected by bruce 050121; was "return None"
         """
@@ -1794,7 +1910,8 @@ class Node( StateMixin):
     def dumptree(self, depth = 0): # just for debugging
         print depth * "...", self.name
 
-    def node_must_follow_what_nodes(self): #bruce 050422 made Node and Jig implems of this from function of same name
+    def node_must_follow_what_nodes(self): 
+        #bruce 050422 made Node and Jig implems of this from function of same name
         """
         [should be overridden by Jig]
 
@@ -1842,11 +1959,14 @@ class Node( StateMixin):
         assert not self.is_group()
         if self.hidden:
             mapping.write("info leaf hidden = True\n")
-        if self.disabled_by_user_choice: # [bruce 050505 revised this so all Nodes have the attribute, tho so far only Jigs use it]
+        if self.disabled_by_user_choice: 
+            # [bruce 050505 revised this so all Nodes have the attribute, 
+            #  tho so far only Jigs use it]
             mapping.write("info leaf disabled = True\n") #bruce 050422
         return
 
-    def writemdl(self, alist, f, dispdef): #bruce 050430 added Node default method to fix bug reported by Ninad for A5
+    def writemdl(self, alist, f, dispdef): 
+        #bruce 050430 added Node default method to fix bug reported by Ninad for A5
         pass
 
     def writepov(self, file, dispdef): #bruce 050208 added Node default method
@@ -1897,7 +2017,8 @@ class Node( StateMixin):
         anythingDrawn = False
         return anythingDrawn
 
-    def draw_in_abs_coords(self, glpane, color): #bruce 050729 to fix some bugs caused by Huaicai's jig-selection code
+    def draw_in_abs_coords(self, glpane, color): 
+        #bruce 050729 to fix some bugs caused by Huaicai's jig-selection code
         """
         Default implementation of draw_in_abs_coords. Some implem is needed
         by any nodes or other drawable objects which get registered with
@@ -1947,7 +2068,8 @@ class Node( StateMixin):
     def getstatistics(self, stats):
         pass
 
-    def break_interpart_bonds(self): #bruce 050308 for assy/part split, and to fix bug 371 and related bugs for Jigs
+    def break_interpart_bonds(self): 
+        #bruce 050308 for assy/part split, and to fix bug 371 and related bugs for Jigs
         """
         Break all illegal bonds (atom-atom or atom-Jig or (in future) anything similar)
         between this node and other nodes in a different Part.
@@ -2125,23 +2247,27 @@ class NodeWith3DContents(Node): #bruce 080305
 # ==
 
 class SimpleCopyMixin(Node):
-    # This will probably just become the default implems for these methods in Node, rather than its own class...
-    # but first, test it in Comment and View. When it's stable, also see if the copy methods in Jig and even Chunk
-    # can make use of these methods somehow (perhaps with these modified to call new optional subclass methods).
-    # [bruce 060523]
+    # This will probably just become the default implems for these methods in
+    # Node, rather than its own class... but first, test it in Comment and
+    # View. When it's stable, also see if the copy methods in Jig and even
+    # Chunk can make use of these methods somehow (perhaps with these modified
+    # to call new optional subclass methods). [bruce 060523]
+    
     # Note: there's no reason to put this in its own file different than Node,
     # because it needs no imports of its own, and anything that imports it
     # also has to import Node. [bruce 071026 comment]
     # status [bruce 080313 comment]: used only by Comment, NamedView, PovrayScene.
     # See also def copy_..._mapping methods in other classes.
     """
-    Node subclasses that want to be copyable via their _s_attr or copyable_attrs decls,
-    and that don't need any optimizations for atoms or bonds or for avoiding full copy_val of all attrs,
-    and that don't need any special cases like worrying about refs to other copied things needing to be
-    transformed through the mapping (i.e. for which all copyable attrs are pure data, not node or atom refs),
-    can mix in this class, BEFORE Node, provided they contain a correct definition of _um_initargs
-    for use in creating the copy-stub, and don't interfere with the attrs of self stored by this class,
-    self._orig and self._mapping.
+    Node subclasses that want to be copyable via their _s_attr or
+    copyable_attrs decls, and that don't need any optimizations for atoms or
+    bonds or for avoiding full copy_val of all attrs, and that don't need any
+    special cases like worrying about refs to other copied things needing to
+    be transformed through the mapping (i.e. for which all copyable attrs are
+    pure data, not node or atom refs), can mix in this class, BEFORE Node,
+    provided they contain a correct definition of _um_initargs for use in
+    creating the copy-stub, and don't interfere with the attrs of self stored
+    by this class, self._orig and self._mapping.
     """
     def will_copy_if_selected(self, sel, realCopy): # in class SimpleCopyMixin
         """
@@ -2154,7 +2280,8 @@ class SimpleCopyMixin(Node):
         clas = self.__class__
         method = self._um_initargs # fyi: for Node, the returned args are assy, name
         args, kws = method()
-        # replace self.assy with mapping.assy in args [new requirement of this method API, bruce 070430]
+        # replace self.assy with mapping.assy in args 
+        # [new requirement of this method API, bruce 070430]
         newargs = list(args)
         for i in range(len(args)):
             if args[i] is self.assy:
@@ -2170,7 +2297,8 @@ class SimpleCopyMixin(Node):
         new._mapping = mapping
         new.name = "[being copied]" # should never be seen
         mapping.do_at_end( new._copy_fixup_at_end)
-        #k any need to call mapping.record_copy?? probably not for now, but maybe later if these nodes can be ref'd by others
+        #k any need to call mapping.record_copy?? probably not for now,
+        # but maybe later if these nodes can be ref'd by others
         # (or maybe the general copy code that calls this will take care of that then).
         return new
 
@@ -2184,7 +2312,7 @@ class SimpleCopyMixin(Node):
         """
         orig = self._orig
         del self._orig
-        mapping = self._mapping
+        mapping = self._mapping # REVIEW: is keeping this reference until we return necessary?
         del self._mapping
         copy = self
         orig.copy_copyable_attrs_to(copy) # this uses copy_val on all attrs
@@ -2207,7 +2335,8 @@ def topmost_nodes( nodes): #bruce 050303
     res = {} # from id(node) to node
     for node in nodes:
         assert node is not None # incorrect otherwise -- None won't have .is_ascendant method
-        dad = node # not node.dad, that way we remove dups as well (might never be needed, but good)
+        dad = node 
+            # not node.dad, that way we remove dups as well (might never be needed, but good)
         while dad is not None:
             if id(dad) in res:
                 break
