@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaStrand.py - ... 
 
 @author: Bruce, Ninad
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 - See comments in self.getStrandSequence(), self.get_strand_atoms_in_bond_direction()
@@ -29,7 +29,7 @@ from utilities.Log import quote_html
 
 class DnaStrand(DnaStrandOrSegment):
     """
-    Model object which represents a Dna Strand inside a Dna Group.
+    Model object which represents a Dna Strand as a kind of Dna Group.
 
     Internally, this is just a specialized Group containing various
     subobjects, described in the superclass docstring. These include
@@ -632,7 +632,8 @@ class DnaStrand(DnaStrandOrSegment):
         @see: Chunk.draw_highlighted()
         @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()      
-        """            
+        """
+        # probably by Ninad
         highlighting_wanted = self.getHighlightPolicy()
 
         if highlighting_wanted:
@@ -652,15 +653,19 @@ class DnaStrand(DnaStrandOrSegment):
 
         @return: strand Sequence string
         @rtype: str
-
-        @TODO: REFACTOR this. See how to split out common part of 
-        this method and self.getStrandSequence() Basically we could have simply
-        replaced self.getStrandSequence with this method , but keeping
-        self.getStrandSequence has an advantage that we don't compute the 
-        complement sequence (not sure if that would improve performance but,
-        in theory, that will improve it.) One possibility is to pass an argument 
-        compute_complement_sequence = True' to this method. 
+        
+        @see: getStrandSequence
         """
+        # probably by Ninad or Mark
+
+        #@TODO: REFACTOR this. See how to split out common part of 
+        #this method and self.getStrandSequence() Basically we could have simply
+        #replaced self.getStrandSequence with this method , but keeping
+        #self.getStrandSequence has an advantage that we don't compute the 
+        #complement sequence (not sure if that would improve performance but,
+        #in theory, that will improve it.) One possibility is to pass an argument 
+        #compute_complement_sequence = True' to this method. 
+
         # TODO: Is there a way to make use of DnaStrandMarkers to get the strand
         #       atoms in bond direction for this DnaStrandGroup??
         #       [A: they are not needed for that, but they could be used
@@ -682,10 +687,9 @@ class DnaStrand(DnaStrandOrSegment):
         #       atom list. Will definitely be revised and refactored within the
         #       coming days (need to discuss with Bruce) -- Ninad 2008-03-01
 
-        
-        
+        # see a todo comment about rawAtomList above
 
-        #see a to do comment about rawAtom list above
+        ### REVIEW (performance): this looks quadratic time in number of bases.
 
         sequenceString = ''  
         complementSequenceString = ''
@@ -702,7 +706,9 @@ class DnaStrand(DnaStrandOrSegment):
                 #What if baseName is not assigned due to some error?? Example
                 #while reading in an mmp file. 
                 #As a fallback, we should assign unassigned base letter 'X'
-                #to all the base atoms that don't have a baseletter defined
+                #to all the base atoms that don't have a baseletter defined.
+                # [later, bruce 090121: REVIEW: maybe this is no longer needed
+                #  due to changes in getDnaBaseName? unless bondpoint does this?]
                 #also, make sure that the atom is not a bondpoint. 
                 if atm.element.symbol != 'X':                    
                     baseName = 'X'
@@ -713,8 +719,8 @@ class DnaStrand(DnaStrandOrSegment):
                 complementBaseName = getComplementSequence(baseName)
 
             else:
-                #This means the complementary strand base atom is not present.
-                #(its a single stranded dna) .So just indicate the complementary
+                #This means the complementary strand base atom is not present
+                #(its a single stranded dna). So just indicate the complementary
                 #sequence as '*' which means its missing.
                 if atm.element.symbol != 'X':
                     complementBaseName = MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL                
@@ -731,31 +737,13 @@ class DnaStrand(DnaStrandOrSegment):
 
         @return: strand Sequence string
         @rtype: str
-        """
-        # TODO: Is there a way to make use of DnaStrandMarkers to get the strand
-        #       atoms in bond direction for this DnaStrandGroup??
-        #       [A: they are not needed for that, but they could be used
-        #        to define an unambiguous sequence origin for a ring.]
-        #       
-        #       OR: does self.members alway return DnaStrandChunks in the 
-        #       direction of bond direction? [A. no.]
-        #       
-        #       While the above questions remain unanswered, the following 
-        #       makes use of a method self.get_strand_atoms_in_bond_direction 
-        #       This method is mostly copied here from chunk class with some 
-        #       modifications ... i.e. it accepts an atomList and uses a random 
-        #       start atom within that list to find out the connected atoms 
-        #       in the bond direction. Actually, sending the list 
-        #       with *all atoms* of the strand isn't really necessary. All we are 
-        #       interested in is a start Ss atom and bond direction which can 
-        #       ideally be obtained by using even a single DnaStrandChunk within 
-        #       this DnaStrand Group. For a short time, we will pass the whole 
-        #       atom list. Will definitely be revised and refactored within the
-        #       coming days (need to discuss with Bruce) -- Ninad 2008-03-01
-
         
-        #see a to do comment about rawAtom list above
+        @see: getStrandSequenceAndItsComplement
+        """
+        # probably by Ninad or Mark
 
+        # see comments in getStrandSequenceAndItsComplement (merge it with this)
+                
         sequenceString = ''  
         atomList = self.get_strand_atoms_in_bond_direction()
         for atm in atomList:
@@ -763,11 +751,6 @@ class DnaStrand(DnaStrandOrSegment):
             if baseName:
                 sequenceString = sequenceString + baseName
             else:
-                #What if baseName is not assigned due to some error?? Example
-                #while reading in an mmp file. 
-                #As a fallback, we should assign unassigned base letter 'X'
-                #to all the base atoms that don't have a baseletter defined
-                #also, make sure that the atom is not a bondpoint. 
                 if atm.element.symbol != 'X':                    
                     baseName = 'X'
                     sequenceString = sequenceString + baseName
@@ -782,14 +765,16 @@ class DnaStrand(DnaStrandOrSegment):
         
         @param sequenceString: sequence to be assigned to this strand chunk
         @type sequenceString: str
-        """      
+        """
+        # probably by Ninad or Mark
+        
         #TO BE REVISED; SEE A TODO COMMENT AT THE TOP
         
         sequenceString = str(sequenceString)
         #Remove whitespaces and tabs from the sequence string
         sequenceString = re.sub(r'\s', '', sequenceString)
 
-        #May be we set this beginning with an atom marked by the 
+        #Maybe we set this beginning with an atom marked by the 
         #Dna Atom Marker in dna data model? -- Ninad 2008-01-11
         # [yes, see my longer reply comment above -- Bruce 080117]
         atomList = []     
@@ -835,6 +820,7 @@ class DnaStrand(DnaStrandOrSegment):
                                 prev_cc = cc
                                 if cc.get_dispdef() == diDNACYLINDER:
                                     cc.inval_display_list()
+        return
 
     def get_strand_atoms_in_bond_direction(self, 
                                            inputAtomList = (), 
@@ -869,12 +855,17 @@ class DnaStrand(DnaStrandOrSegment):
                   [piotr 080411 modified it to work with PAM5, but only 
                    sugar atoms and bondpoints will be returned]
 
-        @note: 
         @note: this would return all atoms from an entire strand (chain or ring)
                even if it spanned multiple chunks.
-        @TODO:  THIS method is copied over from chunk class. with a minor modification
-        To be revised. See self.getStrandSequence() for a comment. 
-        """         
+        """
+        # original version in Chunk by ninad 080205 (bruce revised docstring);
+        # subsequently removed. This version was copied from that one,
+        # with a minor modification. To be revised. 
+        # See self.getStrandSequence() for a comment.
+        
+        ### TODO: merge _get_pam5_strand_atoms_in_bond_direction into this
+        # method, since they have lots of duplicated code.
+        
         rawAtomList = []
         if inputAtomList:
             rawAtomList = inputAtomList
@@ -1023,8 +1014,7 @@ class DnaStrand(DnaStrandOrSegment):
                 atomList.extend(atomList_direction_1)
 
         #TODO: could zap first and/or last element if they are bondpoints 
-        #[bruce 080205 comment]  
-       
+        #[bruce 080205 comment]
         
         if filterBondPoints:            
             atomList = filter(lambda atm: not atm.is_singlet(), atomList)
@@ -1060,10 +1050,8 @@ class DnaStrand(DnaStrandOrSegment):
 
         @note: this would return all atoms from an entire strand (chain or ring)
                even if it spanned multiple chunks.
-
-        @TODO:  THIS method is copied over from chunk class. with a minor modification
-        To be revised. See self.getStrandSequence() for a comment. 
         """ 
+        ### TODO: merge this with its caller, since they have lots of duplicated code.
         startAtom = None
         atomList = []
         

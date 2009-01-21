@@ -2164,9 +2164,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     # determine strand and end atom indices
                     # within the entire strand.
     
-                    # this doesn't work well with PAM5 models
-                    ### all_atoms = chunk.get_strand_atoms_in_bond_direction()
-                                            
                     all_atoms = strand.get_strand_atoms_in_bond_direction()
                         
                     start_atom = strand_atoms[current_strand][0]

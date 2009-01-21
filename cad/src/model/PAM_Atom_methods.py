@@ -856,11 +856,11 @@ class PAM_Atom_methods:
         #  the element type and return 'X' instead of "" for appropriate
         #  elements.)
 
-        #UPDATE: The following is now revised per above coment. i.e. if it 
+        #UPDATE: The following is now revised per above comment. i.e. if it 
         #can't find a baseName for a valid element symbol (see list below)
-        #it makes the dnaBaseName as 'X' (unassigned base) . This is useful 
-        #while reading in the strand sequence. See chunk.getStrandSequence()
-        #or DnaStrand.getStrandSequence() for an example. --Ninad 2008-03-12
+        #it makes the dnaBaseName as 'X' (unassigned base). This is useful 
+        #while reading in the strand sequence. 
+        # See DnaStrand.getStrandSequence() for an example. --Ninad 2008-03-12
 
         valid_element_symbols = VALID_ELEMENTS_FOR_DNABASENAME
         allowed_on_this_element = (self.element.symbol in valid_element_symbols)

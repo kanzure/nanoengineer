@@ -198,70 +198,8 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
     
     # START of Dna-Strand-or-Axis chunk specific code ==========================
 
-    # Note: all these methods will be removed from class Chunk once the
-    # dna data model is always active. [bruce 080205 comment]
-
-    # Assign a strand sequence (or get that information from a chunk).
-    # MEANT ONLY FOR THE DNA CHUNK. THESE METHODS NEED TO BE MOVED TO AN 
-    # APPROPRIATE FILE IN The dna_model PACKAGE -- Ninad 2008-01-11
-    # [And revised to use DnaMarkers for sequence alignment as Ninad suggests below.
-    #  The sequence methods will end up as methods of DnaStrand with
-    #  possible helper methods on objects it owns, like DnaStrandChunk
-    #  (whose bases are in a known order) or DnaMarker or internal objects
-    #  they refer to. -- Bruce 080117/080205 comment]
-
-    def getStrandSequence(self): # probably by Ninad or Mark
-        """
-        Returns the strand sequence for this chunk (strandChunk)
-        @return: strand Sequence string
-        @rtype: str
-        """
-        sequenceString = ""
-        for atom in self.get_strand_atoms_in_bond_direction():
-            baseName = str(atom.getDnaBaseName())        
-            if baseName:
-                sequenceString = sequenceString + baseName
-
-        return sequenceString
-
-    def setStrandSequence(self, sequenceString): # probably by Ninad or Mark
-        """
-        Set the strand sequence i.e.assign the baseNames for the PAM atoms in 
-        this strand AND the complementary baseNames to the PAM atoms of the 
-        complementary strand ('mate strand')
-        @param sequenceString: The sequence to be assigned to this strand chunk
-        @type sequenceString: str
-        """      
-        sequenceString = str(sequenceString)
-        #Remove whitespaces and tabs from the sequence string
-        sequenceString = re.sub(r'\s', '', sequenceString)
-
-        #May be we set this beginning with an atom marked by the 
-        #Dna Atom Marker in dna data model? -- Ninad 2008-01-11
-        # [yes, see my longer reply comment above -- Bruce 080117]
-        atomList = []           
-        for atom in self.get_strand_atoms_in_bond_direction():
-            if not atom.is_singlet():
-                atomList.append(atom)
-
-        for atom in atomList:   
-            atomIndex = atomList.index(atom)
-            if atomIndex > (len(sequenceString) - 1):
-                #In this case, set an unassigned base ('X') for the remaining 
-                #atoms
-                baseName = 'X'
-            else:
-                baseName = sequenceString[atomIndex]
-
-            atom.setDnaBaseName(baseName)
-
-            #Also assign the baseNames for the PAM atoms on the complementary 
-            #('mate') strand.
-            strandAtomMate = atom.get_strand_atom_mate()
-            complementBaseName = getComplementSequence(str(baseName))
-            if strandAtomMate is not None:
-                strandAtomMate.setDnaBaseName(str(complementBaseName))
-        return
+    # Note: some of these methods will be removed from class Chunk once the
+    # dna data model is always active. [bruce 080205 comment] [some removed, 090121]
 
     def _editProperties_DnaStrandChunk(self):
         """
@@ -275,7 +213,6 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
         commandSequencer.currentCommand.editStructure(self)
         return
     
-
     def isStrandChunk(self): # Ninad circa 080117, revised by Bruce 080117
         """
         Returns True if *all atoms* in this chunk are PAM 'strand' atoms
@@ -292,9 +229,12 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
               to filter out strand chunks to put those into the strandList 
               widget.        
         """
-        # This is a temporary method that can be removed once dna_model is fully
-        # functional. [That is true now; REVIEW whether it can really be removed,
-        # or more precisely, redefined to return False on this class. bruce 090106 addendum]
+        # This is a temporary method that can be removed once dna_model is
+        # fully functional.
+        
+        # bruce 090121 comment: REVIEW whether this can be redefined to return
+        # False on this class, since it's implemented in our DnaStrandChunk
+        # subclass.
         found_strand_atom = False
         for atom in self.atoms.itervalues():
             if atom.element.role == 'strand':
@@ -313,167 +253,6 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
 
         return found_strand_atom
 
-    def get_strand_atoms_in_bond_direction(self): # ninad 080205; bruce 080205 revised docstring
-        """
-        Return a list of atoms in a fixed direction -- from 5' to 3'
-
-        @note: this is a stub and we can modify it so that
-        it can accept other direction i.e. 3' to 5' , as an argument.
-
-        BUG: ? : This also includes the bondpoints (X)  .. I think this is 
-        from the atomlist returned by bond_chains.grow_directional_bond_chain.
-        The caller -- self.getStrandSequence uses atom.getDnaBaseName to
-        retrieve the DnaBase name info out of atom. So this bug introduces 
-        no harm (as dnaBaseNames are not assigned for bondpoints).
-
-        [I think at most one atom at each end can be a bondpoint,
-         so we could revise this code to remove them before returning.
-         bruce 080205]
-
-        @warning: for a ring, this uses an arbitrary start atom in self
-                  (so it is not yet useful in that case). ### VERIFY
-
-        @warning: this only works for PAM3 chunks (not PAM5).
-
-        @note: this would return all atoms from an entire strand (chain or ring)
-               even if it spanned multiple chunks.
-        """
-        startAtom = None
-        atomList = []
-
-        #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
-        # and not a bondpoint)
-        for atom in self.atoms.itervalues():
-            if atom.element.symbol == 'Ss3':
-                startAtom = atom
-                break        
-
-        if startAtom is None:
-            print_compact_stack("bug: no PAM3 Sugar atom (Ss3) found: " )
-            return []
-
-        #Build one list in each direction, detecting a ring too 
-
-        #ringQ decides whether the first returned list forms a ring. 
-        #This needs a better name in bond_chains.grow_directional_bond_chain
-        ringQ = False        
-        atomList_direction_1 = []
-        atomList_direction_2 = []     
-
-        b = None  
-        bond_direction = 0
-        for bnd in startAtom.directional_bonds():
-            if not bnd.is_open_bond(): # (this assumes strand length > 1)
-                #Determine the bond_direction from the 'startAtom'
-                direction = bnd.bond_direction_from(startAtom)
-                if direction in (1, -1):                    
-                    b = bnd
-                    bond_direction = direction
-                    break
-
-        if b is None or bond_direction == 0:
-            return []         
-
-        #Find out the list of new atoms and bonds in the direction 
-        #from bond b towards 'startAtom' . This can either be 3' to 5' direction 
-        #(i.e. bond_direction = -1 OR the reverse direction 
-        # Later, we will check  the bond direction and do appropriate things. 
-        #(things that will decide which list (atomList_direction_1 or 
-        #atomList_direction_2) should  be prepended in atomList so that it has 
-        #atoms ordered from 5' to 3' end. 
-
-        # 'atomList_direction_1' does NOT include 'startAtom'.
-        # See a detailed explanation below on how atomList_direction_a will be 
-        # used, based on bond_direction
-        ringQ, listb, atomList_direction_1 = grow_directional_bond_chain(b, startAtom)
-
-        del listb # don't need list of bonds
-
-        if ringQ:
-            # The 'ringQ' returns True So its it's a 'ring'.
-            #First add 'startAtom' (as its not included in atomList_direction_1)
-            atomList.append(startAtom)
-            #extend atomList with remaining atoms
-            atomList.extend(atomList_direction_1)            
-        else:       
-            #Its not a ring. Now we need to make sure to include atoms in the 
-            #direction_2 (if any) from the 'startAtom' . i.e. we need to grow 
-            #the directional bond chain in the opposite direction. 
-
-            other_atom = b.other(startAtom)
-            if not other_atom.is_singlet():  
-                ringQ, listb, atomList_direction_2 = grow_directional_bond_chain(b, other_atom)
-                assert not ringQ #bruce 080205
-                del listb
-                #See a detailed explanation below on how 
-                #atomList_direction_2 will be used based on 'bond_direction'
-                atomList_direction_2.insert(0, other_atom)
-
-            atomList = [] # not needed but just to be on a safer side.
-
-            if bond_direction == 1:
-                # 'bond_direction' is the direction *away from* startAtom and 
-                # along the bond 'b' declared above. . 
-
-                # This can be represented by the following sketch --
-                # (3'end) <--1 <-- 2 <-- 3 <-- 4 <-- (5' end)
-
-                # Let startAtom be '2' and bond 'b' be directional bond between 
-                # 1 and 2. In this case, the direction of bond *away* from 
-                # '2' and along 2  = bond direction of bond 'b' and thus 
-                # atoms traversed along bond_direction = 1 lead us to 3' end. 
-
-                # Now, 'atomList_direction_1'  is computed by 'growing' (expanding)
-                # a bond chain  in the direction that goes from bond b 
-                # *towards* startAtom. That is, in this case it is the opposite 
-                # direction of one specified by 'bond_direction'.  The last atom
-                # in atomList_direction_1 is the (5' end) atom.
-                # Note that atomList_direction_1 doesn't include 'startAtom'
-                # Therefore, to get atomList ordered from 5'to 3' end we must
-                #reverse atomList_direction_1 , then append startAtom to the 
-                #atomList (as its not included in atomList_direction_1) and then 
-                #extend atoms from atomList_direction_2. 
-
-                #What is atomList_direction_2 ?  It is the list of atoms 
-                #obtained by growing bond chain from bond b, in the direction of 
-                #atom 1 (atom 1 is the 'other atom' of the bond) . In this case 
-                #these are the atoms in the direction same as 'bond_direction'
-                #starting from atom 1. Thus the atoms in the list are already 
-                #arranged from 5' to 3' end. (also note that after computing 
-                #the atomList_direction_2, we also prepend 'atom 1' as the 
-                #first atom in that list. See the code above that does that.                 
-                atomList_direction_1.reverse()                
-                atomList.extend(atomList_direction_1)
-                atomList.append(startAtom)
-                atomList.extend(atomList_direction_2)                
-
-            else:     
-                #See a detailed explanation above. 
-                #Here, bond_direction == -1. 
-
-                # This can be represented by the following sketch --
-                # (5'end) --> 1 --> 2 --> 3 --> 4 --> (3' end)
-
-                #bond b is the bond betweern atoms 1 and 2. 
-                #startAtom remains the same ..i.e. atom 2. 
-
-                #As you can notice from the sketch, the bond_direction is 
-                #direction *away* from 2, along bond b and it leads us to 
-                # 5' end. 
-
-                #based on how atomList_direction_2 (explained earlier), it now 
-                #includes atoms begining at 1 and ending at 5' end. So 
-                #we must reverse atomList_direction_2 now to arrange them 
-                #from 5' to 3' end. 
-                atomList_direction_2.reverse()
-                atomList.extend(atomList_direction_2)
-                atomList.append(startAtom)
-                atomList.extend(atomList_direction_1)
-
-        #TODO: could zap first and/or last element if they are bondpoints 
-        #[bruce 080205 comment]        
-        return atomList
-
     #END of Dna-Strand chunk specific  code ==================================
 
 
@@ -488,6 +267,9 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
 
         @see: isStrandChunk
         """
+        # bruce 090121 comment: REVIEW whether this can be redefined to return
+        # False on this class, since it's implemented in our DnaAxisChunk
+        # subclass.
         found_axis_atom = False
         for atom in self.atoms.itervalues():
             if atom.element.role == 'axis':
