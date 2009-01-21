@@ -16,7 +16,7 @@ of the API needed by the ModelTree).
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
-History:
+History: 
 
 Originally by Josh; gradually has been greatly extended by Bruce,
 but the basic structure of Nodes and Groups has not been changed.
