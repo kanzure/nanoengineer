@@ -283,7 +283,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         Assigns the sequence in the sequence editor text field to 
         the current strand. The method it invokes also assigns 
         complimentary bases to the mate strand(s).
-        @see: Chunk.setStrandSequence
+        @see: DnaStrand.setStrandSequence
         @note: the method was copied from DnaStrand_EditCommand.assignStrandSequence()
         """
         if not self.current_strand: 
@@ -482,7 +482,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         # Qt can get confused between HTML and Plain Text.        
         self.sequenceTextEdit.insertHtml( htmlSequence ) #@@@ Generates signal???
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
-        self.setCursorPosition(cursorPos = cursorPos)
+        self.setCursorPosition(cursorPos)
 
         return
         
@@ -764,7 +764,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             self._setComplementSequence("")
         
         # Set cursor position.
-        self.setCursorPosition(inCursorPos = cursorPos)
+        self.setCursorPosition(cursorPos)
         
         # Update the bg color to white.
         self._sequence_changed = False
