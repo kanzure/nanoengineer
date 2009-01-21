@@ -66,7 +66,7 @@ class BuildDna_GraphicsMode(
     cursor_over_when_LMB_pressed = ''
 
     def Enter_GraphicsMode(self):
-        print "*** in BuildDna_GM.Enter_GraphicsMode"
+        ## print "*** in BuildDna_GM.Enter_GraphicsMode"
         _superclass.Enter_GraphicsMode(self)
         #Precaution
         self.clear_leftA_variables()
