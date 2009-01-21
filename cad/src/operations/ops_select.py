@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_select.py -- operations and internal methods for changing what's selected
 and maintaining other selection-related state. (Not well-organized.)
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -1036,12 +1036,15 @@ class ops_select_Mixin:
                 # but it looks troublesome enough that we ought to make it safer, so I will:
             selatoms = self.selatoms
             self.selatoms = {}
+            mols = {}
             for a in selatoms.itervalues():
-                # this inlines and optims atom.unpick
+                # this inlines and optims Atom.unpick
                 a.picked = False
                 _changed_picked_Atoms[a.key] = a #bruce 060321 for Undo (or future general uses)
-                a.molecule.changeapp(1)
-                a.molecule.changed_selection() #bruce 060227; could be optimized #e
+                m = a.molecule
+                mols[m] = m
+            for m in mols: #bruce 090119 optimized, revised call
+                m.changed_selected_atoms()
             self.selatoms = {}
         return
 

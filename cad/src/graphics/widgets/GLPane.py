@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLPane.py -- NE1's main model view. A subclass of Qt's OpenGL widget, QGLWidget.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 NOTE: If you add code to class GLPane, please carefully consider
 whether it belongs in one of its mixin superclasses (GLPane_*.py)
@@ -839,6 +839,8 @@ class GLPane(
         #e someday: if self.displayMode == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.displayMode = disp
+            # note: chunks check this when needed before drawing, so this code
+            # doesn't need to tell them to invalidate their display lists.
 
         # piotr 080714: Remember last non-reduced display style.
         if disp != diDNACYLINDER and \
@@ -854,11 +856,6 @@ class GLPane(
             self.win.statusBar().globalDisplayStylesComboBox.setEnabled(True)
 
         self.win.statusBar().globalDisplayStylesComboBox.setDisplayStyle(disp)
-        # Note: we don't need to call changeapp on all chunks with no individual
-        # display style set, because their draw methods compare self.displayMode
-        # (or their currently set individual display style) to the one they used
-        # to make their display lists. [bruce 080305 comment]
-        
         return
     
     _needs_repaint = True #bruce 050516

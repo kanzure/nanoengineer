@@ -3107,15 +3107,25 @@ class Chunk(Chunk_Dna_methods,
 
     def changeapp(self, atoms):
         """
-        call when you've changed appearance of self
-        (but you don't need to call it if only the external bonds look different).
-        Arg atoms = 1 means that not only the entire mol appearance,
-        but specifically the set of atoms or atomic radii
-        (for purposes of selection), have changed.
-           Note that changeapp does not itself call self.assy.changed(),
-        since that is not always correct to do (e.g., selecting an atom
-        should call changeapp(), but not assy.changed(), on its chunk aka .molecule).
+        Call this when you've changed the graphical appearance of self.
+        
+        (But there is no need to call it if only self's external bonds 
+         look different, or (at present) just for a change to self.picked.)
+        
+        @param atoms: (required) True means that not only the graphical
+                      appearance of self,  but also specifically the set of 
+                      atoms of self or their atomic radii (for purposes of 
+                      hover-highlighting(?) or selection), have changed.
+        @type atoms: boolean
+        
+        @note: changeapp does not itself call self.assy.changed(),
+               since that is not always correct to do (e.g., selecting an atom
+               should call changeapp(), but not assy.changed(), on
+               atom.molecule).
+        
+        @see: changed_selected_atoms
         """ 
+        ### REVIEW and document: need this be called when changing self's color?
         self.havelist = 0
         if atoms: #bruce 041207 added this arg and its effect
             self.haveradii = 0 # invalidate self.sel_radii_squared
@@ -3143,6 +3153,20 @@ class Chunk(Chunk_Dna_methods,
             pass
         return
 
+    def changed_selected_atoms(self): #bruce 090119
+        """
+        Invalidate whatever is needed due to something having
+        changed the selectness of some of self's atoms.
+        
+        @note: this is a low-level method, called by Atom.pick/unpick etc,
+               so most new code need never call this.
+        """
+        self.changeapp(1) 
+            # * for atom appearance (since selected atom wireframes are part of
+            #   the main chunk display list)
+            # * for selatom radius (affected by selectedness for invisible atoms)
+        self.changed_selection() # reports an undoable change to selection
+        
     def natoms(self): #bruce 060215
         """
         Return number of atoms (real atoms or bondpoints) in self.
@@ -4190,7 +4214,7 @@ class _nullMol_Chunk(Chunk):
     [private]
     subclass for _nullMol
     """
-    def changed_selection(self):
+    def changed_selection(self): # in class _nullMol_Chunk
         msg = "bug: _nullMol.changed_selection() should never be called"
         if env.debug():
             print_compact_stack(msg + ": ")
