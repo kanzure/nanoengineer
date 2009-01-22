@@ -58,6 +58,24 @@ class TestGraphics_GraphicsMode(GraphicsMode):
     Graphics mode for TestGraphics command. 
     """
     
+    # The left mouse button is much easier to press and drag than the middle.
+    # Put rotate on Left, pan on LeftShift.
+    def leftDown(self, event): self.middleDown(event)
+    def leftDrag(self, event): self.middleDrag(event)
+    def leftUp(self, event): self.middleUp(event)
+
+    def leftShiftDown(self, event): self.middleShiftDown(event)
+    def leftShiftDrag(self, event): self.middleShiftDrag(event)
+    def leftShiftUp(self, event): self.middleShiftUp(event)
+
+    # Still want the left-button select functions, bound to the right button.
+    def rightDown(self, event): 
+        super(TestGraphics_GraphicsMode, self).leftDown(event)
+    def rightDrag(self, event):
+        super(TestGraphics_GraphicsMode, self).leftDrag(event)
+    def rightUp(self, event):
+        super(TestGraphics_GraphicsMode, self).leftUp(event)
+
     def gm_start_of_paintGL(self, glpane):
         """
         This is called near the start of every call of glpane.paintGL

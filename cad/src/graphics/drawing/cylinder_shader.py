@@ -161,6 +161,11 @@ cylinderVertSrc = """
 
 // XXX Start by copying a lot of stuff from the sphere shaders, factor later.
 
+// Debugging aid; fills in *the rest* of the drawing pattern pixels.
+// (Won't work on nVidia 7000's where return can't be in a conditional.)
+///This fails on MBP/8600. Upper-cased, says 'DISCARD' : undeclared identifier.
+///#define discard {gl_FragColor = var_basecolor; return;}
+
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform int draw_for_mouseover; // 0:use normal color, 1:glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
@@ -317,8 +322,7 @@ void main(void) {
   vec3 axis_line_vec = var_endpts[1] - var_endpts[0];
   vec3 axis_line_dir = normalize(axis_line_vec);
   float axis_length = length(axis_line_vec);
-  float axis_radius_taper = (billboard_radii[1] - billboard_radii[0])
-                            / axis_length;
+  float axis_radius_taper = (var_radii[1] - var_radii[0]) / axis_length;
 
   //===
   // . The shader determines our position vs. the endcap planes by projecting
@@ -326,8 +330,8 @@ void main(void) {
   //   along the axis line of the cylinder endpoints.
   //===
 
-  bool vp_between_endcaps;
   float vp_axis_proj_len; // Used for perspective only.
+  bool vp_between_endcaps;
   int visible_endcap;
   if (perspective == 1) {
 
@@ -384,7 +388,10 @@ void main(void) {
     
   } else {
 
-    int near_end = int(var_endpts[1].z > var_endpts[0].z);
+    // In orthogonal projection, the barrel surface is hidden from view if the
+    // far endcap is not larger than the near one, and the XY offset of the axis
+    // is not larger than the difference in the endcap radii.
+    int near_end = visible_endcap;
     int far_end = 1-near_end;
     float radius_diff = var_radii[near_end] - var_radii[far_end];
     float axis_offset = length(var_endpts[near_end].xy-var_endpts[far_end].xy);
@@ -392,15 +399,15 @@ void main(void) {
                    
     // Directions relative to the view dir, perpendicular to the cylinder axis,
     // for constructing swiveling trapezoid billboard vertices.
-   if (axis_offset < 0.001) {
-      // Special case when looking straight down the axis.
+    if (axis_offset < 0.001) {
+      // Special case looking straight down the axis, close to the -Z direction.
       endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = vec3(1.0, 0.0, 0.0);
       endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = vec3(0.0, 1.0, 0.0);
     } else {
-      // Perpendicular to cylinder axis and the view direction.
+      // Perpendicular to cylinder axis and the view direction, in the XY plane.
       endpt_across_vp_dir[i] = cross(axis_line_dir, var_ray_vec);
 
-      // Perpendicular to both the axis and the endpt_across_vp_dir.
+      // Perpendicular to both the cylinder axis and endpt_across_vp_dir.
       endpt_toward_vp_dir[i] = cross(axis_line_dir, endpt_toward_vp_dir[i]);
     }
 
@@ -583,6 +590,17 @@ float pt_dist_sq_from_line(in vec3 point, in vec3 pt_on_line, in vec3 line_dir){
 
 // Fragment (pixel) shader main procedure.
 void main(void) {
+
+#if 0 /// 1 // Debugging vertex shaders: fill in the drawing pattern.
+  gl_FragColor = var_basecolor * var_visible; // Show visibility type as shade.
+
+  // Sigh.  Must not leave uniforms unused.
+  float x = override_opacity;
+  vec4 x4 = material; x4 = intensity; x4 = clip;
+  vec3 x3 = light0; x3 = light1; x3 = light2; x3 = light3;
+  x3 = light0H; x3 = light1H; x3 = light2H; x3 = light3H;
+#else
+
   // This is all in *eye space* (pre-projection camera coordinates.)
 
   // Nothing to do if the viewpoint is inside the cylinder.
@@ -985,7 +1003,7 @@ void main(void) {
       discard; // **Exit**
 
   // No shading or lighting on halos.
-  if (! halo_hit) {
+  if (halo_hit) {
       gl_FragColor = override_color; // No shading or lighting on halos.
   } else {
 
@@ -1022,5 +1040,6 @@ void main(void) {
                             vec3(specular),   // White highlights.
                           var_basecolor.a * override_opacity);
   }
+#endif
 }
 """

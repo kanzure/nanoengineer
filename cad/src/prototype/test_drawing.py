@@ -65,10 +65,13 @@ def test_Draw(glpane):
     elif int(testCase) == 3:
         test_spheres.draw() 
     elif int(testCase) == 8:
-        shader = drawing_globals.sphereShader
-        if testCase == 8.3:
-            shader = drawing_globals.cylinderShader
-        shader.configShader(glpane)
+        if drawing_globals.use_batched_primitive_shaders:
+            shader = drawing_globals.sphereShader
+            if testCase == 8.3 and drawing_globals.use_cylinder_shaders:
+                shader = drawing_globals.cylinderShader
+                pass
+            shader.configShader(glpane)
+            pass
         test_DrawingSet.draw()
     elif int(testCase) >= 100:
         #bruce 090102
@@ -129,6 +132,7 @@ testCase = 8.1; nSpheres = 10; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.2; nSpheres = 100; chunkLength = 200
 #testCase = 8.2; nSpheres = 100; chunkLength = 50
 
+#testCase = 8.3; nSpheres =   2; chunkLength = 8
 #testCase = 8.3; nSpheres =  10; chunkLength = 8
 #testCase = 8.3; nSpheres =  50; chunkLength = 8
 #testCase = 8.3; nSpheres = 100; chunkLength = 8
@@ -943,12 +947,21 @@ def test_drawing(glpane, initOnly = False):
                 ColorSorter.start(csdl)
                 for (color, center, radius) in zip(colors, centers, radii):
                     if not doCylinders:
-                        # Through the ColorSorter to the sphere primitive buffer...
-                        drawsphere(color, center, radius, DRAWSPHERE_DETAIL_LEVEL)
+                        # Through ColorSorter to the sphere primitive buffer...
+                        drawsphere(color, center, radius, 
+                                   DRAWSPHERE_DETAIL_LEVEL)
                     else:
-                        # Through the ColorSorter to the cylinder primitive buffer...
-                        drawcylinder(color, center, center + V(1.0, 1.0, -1.0),
-                                     (radius/2.0, (.875-radius)/2.0))
+                        # Through ColorSorter to cylinder primitive buffer...
+                        if (True and # Whether to do tapered shader-cylinders.
+                            # Display List cylinders don't support taper.
+                            drawing_globals.use_cylinder_shaders):
+                            cylRad = radius/2.0
+                        else:
+                            cylRad = (radius/2.0, (.875-radius)/2.0)
+                            pass
+                        axisVec = V(0.5, 0.5, -0.5);
+                        drawcylinder(color, center, center + axisVec, cylRad)
+                        pass
                     continue
                 ColorSorter.finish()
                 ColorSorter.popName()

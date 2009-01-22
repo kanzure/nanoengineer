@@ -89,10 +89,12 @@ class GLPrimitiveSet:
         """
         # Draw primitives from CSDLs through shaders, if that's turned on.
         if drawing_globals.use_batched_primitive_shaders_pref:
-            for primitives, shader in (
-                (self.spheres, drawing_globals.spherePrimitives),
-                (self.cylinders, drawing_globals.cylinderPrimitives)):
-
+            primShaders = [(self.spheres, drawing_globals.spherePrimitives)]
+            if drawing_globals.use_cylinder_shaders:
+                primShaders += [(self.cylinders, 
+                                 drawing_globals.cylinderPrimitives)]
+                pass
+            for primitives, shader in primShaders:
                 if len(primitives) > 0:
                     if True: # False ## True: indexed drawing, False: unindexed.
                         # Generate and cache index lists for selective drawing
