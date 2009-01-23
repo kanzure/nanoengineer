@@ -24,19 +24,19 @@ There are some large hunks of duplicated code in this file
 See also the REVIEW comments below, as always.
 """
 
-import re
-
 from utilities.constants import noop
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
-from utilities.debug import print_compact_stack
+from foundation.NodeWithAtomContents import NodeWithAtomContents
 
-from dna.model.Dna_Constants import getComplementSequence
-
-from operations.bond_chains import grow_directional_bond_chain
-
-
-class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint?
+class Chunk_Dna_methods(NodeWithAtomContents):
+    # REVIEW: inherit NodeWithAtomContents to mollify pylint?
+    # It does mollify it somewhat and seems to be ok...
+    # Note: Chunk (as all Nodes) is still an old-style class,
+    # so it has no __mro__ attribute and (I think) follows
+    # different inheritance rules than if it did. 
+    # I *think* inheriting it here can't cause harm,
+    # but I still haven't proved that 100%. [bruce 090122]
     """
     Dna-related methods to be mixed in to class Chunk.
     """  
@@ -45,7 +45,8 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
     #
     # ### REVIEW [bruce 090115]: can some of these be deprecated and removed?
     #
-    # self.display_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion on input
+    # self.display_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion 
+    #   on input
     #   to the specified PAM model for display and editing of self, or can be
     #   "" to use global preference settings. (There is no value which always
     #   causes no conversion, but there may be preference settings which disable
@@ -54,7 +55,8 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
     #   conversion for that chunk.)
     #
     #  The value MODEL_PAM3 implies preservation of PAM5 data when present
-    #  (aka "pam3+5" or "pam3plus5"). The allowed values are "", MODEL_PAM3, MODEL_PAM5.
+    #  (aka "pam3+5" or "pam3plus5"). 
+    #  The allowed values are "", MODEL_PAM3, MODEL_PAM5.
     #
     # self.save_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion on save
     #   to the specified PAM model. When not set, global settings or save
@@ -145,9 +147,11 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
             _addDnaGroupMenuItems(dnaGroup)
             
             # add menu commands from our DnaLadder [bruce 080407]
-            # REVIEW: should these be added regardless of command? [bruce 090115 question]
-            # REVIEW: I think self.ladder is not valid except in dna-specific subclasses of Chunk.
-            # Probably that means this code should be moved there. [bruce 090115]
+            # REVIEW: should these be added regardless of command? 
+            # [bruce 090115 question]
+            # REVIEW: I think self.ladder is not valid except in dna-specific
+            # subclasses of Chunk. Probably that means this code should be 
+            # moved there. [bruce 090115]
             if self.ladder:
                 menu_spec = self.ladder.dnaladder_menu_spec(self)
                     # note: this is empty when self (the arg) is a Chunk.
@@ -348,7 +352,8 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
             # if not recognized, use ""
             if val not in ("", MODEL_PAM3, MODEL_PAM5):
                 # maybe todo: use deferred_summary_message?
-                print "fyi: info chunk display_as_pam with unrecognized value %r" % (val,) 
+                print "fyi: info chunk display_as_pam with unrecognized value %r" % \
+                      (val,) 
                 val = ""
             #bruce 080523: silently ignore this, until the bug 2842 dust fully
             # settles. This is #1 of 2 changes (in the same commit) which
@@ -365,7 +370,8 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
             # if not recognized, use ""
             if val not in ("", MODEL_PAM3, MODEL_PAM5):
                 # maybe todo: use deferred_summary_message?
-                print "fyi: info chunk save_as_pam with unrecognized value %r" % (val,)
+                print "fyi: info chunk save_as_pam with unrecognized value %r" % \
+                      (val,)
                 val = ""
             self.save_as_pam = val
         else:
@@ -379,11 +385,12 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
         @return: None
         """
         if self.display_as_pam:
-            # not normally set on most chunks, even when PAM3+5 is in use.
-            # future optim (unimportant since not normally set):
+            # Note: not normally set on most chunks, even when PAM3+5 is in use.
+            # Future optim (unimportant since not normally set):
             # we needn't write this is self contains no PAM atoms.
-            # and if we failed to write it when dna updater was off, that would be ok.
-            # so we could assume we don't need it for ordinary chunks
+            # and if we failed to write it when dna updater was off, 
+            # that would be ok.
+            # So we could assume we don't need it for ordinary chunks
             # (even though that means dna updater errors on atoms would discard it).
             mapping.write("info chunk display_as_pam = %s\n" % self.display_as_pam)
         if self.save_as_pam:
@@ -419,7 +426,8 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
         #bruce 090115 split this out of Chunk.getAxis_of_self_or_eligible_parent_node
         dnaSegment = self.parent_node_of_class(self.assy.DnaSegment)
         if dnaSegment and self.isAxisChunk():
-            axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
+            axisVector = dnaSegment.getAxisVector(
+                atomAtVectorOrigin = atomAtVectorOrigin )
             if axisVector is not None:
                 return axisVector, dnaSegment
 
@@ -429,7 +437,8 @@ class Chunk_Dna_methods: # REVIEW: inherit NodeWithAtomContent to mollify pylint
             dnaSegment = dnaStrand.get_DnaSegment_with_content_atom(
                 arbitraryAtom)
             if dnaSegment:
-                axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
+                axisVector = dnaSegment.getAxisVector(
+                    atomAtVectorOrigin = atomAtVectorOrigin )
                 if axisVector is not None:
                     return axisVector, dnaSegment
 
