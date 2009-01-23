@@ -183,10 +183,10 @@ _inval_all_bonds_counter = 1 # private global counter [bruce 050516]
 #  physical space, containing perhaps many bonded chunks. So any use of
 #  "part" to mean "chunk" would be misleading.]
 
-# Note: as of bruce 041116 we kill any mol which loses all its atoms
-# after having had some. This is an experimental change; if it causes
-# problems, we should instead do it when we update the model tree or glpane,
-# since we need to ensure it's always done by the end of any user event.)
+# Note: we immediately kill any Chunk which loses all its atoms after having
+# had some. If this ever causes problems (unlikely -- it's been done since
+# 041116), we should instead do it when we update the model tree or glpane,
+# since we need to ensure it's always done by the end of any user event.
 
 _superclass = NodeWithAtomContents #bruce 080305 revised this
 

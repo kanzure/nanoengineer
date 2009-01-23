@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 BreakSite_Marker object wraps the functionality of identifying
 the potential break sites within a DnaStrand.
@@ -7,10 +7,16 @@ NOTE: This class has nothing to do with DnaMarker class.
     
 @author: Ninad
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
+
 July 2008: created. 
+
+As of 2008-08-08 a comment here by Ninad said this was not used, 
+but was to be used for new Break options features.
+
+As of 2009-01-21 it appears to be used (not fully verified). [--bruce]
 """
 from model.bond_constants import find_bond
 DEBUG_DRAW_SPHERES_AROUND_ATOMS_AT_BREAK_SITES = False
