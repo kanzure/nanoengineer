@@ -27,16 +27,24 @@ See also the REVIEW comments below, as always.
 from utilities.constants import noop
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
-from foundation.NodeWithAtomContents import NodeWithAtomContents
-
-class Chunk_Dna_methods(NodeWithAtomContents):
-    # REVIEW: inherit NodeWithAtomContents to mollify pylint?
-    # It does mollify it somewhat and seems to be ok...
-    # Note: Chunk (as all Nodes) is still an old-style class,
-    # so it has no __mro__ attribute and (I think) follows
-    # different inheritance rules than if it did. 
-    # I *think* inheriting it here can't cause harm,
-    # but I still haven't proved that 100%. [bruce 090122]
+class Chunk_Dna_methods: ## (NodeWithAtomContents):
+    # Someday: inherit NodeWithAtomContents (Chunk's main superclass) to
+    # mollify pylint? It does mollify it somewhat and seemed initially to be
+    # ok... but Chunk (as all Nodes) is still an old-style class, so it has no
+    # __mro__ attribute and follows different inheritance rules than new-style
+    # classes. It turns out that the old rules mess up in this case, if we use
+    # that superclass on more than one pre-mixin class split out of class
+    # Chunk, e.g. Chunk_mmp_methods, since then whichever one comes first
+    # pulls in NodeWithAtomContents methods ahead of the other mixin's
+    # methods, which prevents the other mixin from overriding those methods.
+    # (This is exactly the "diamond-shaped inheritance diagram" issue that the
+    # new-style mro rules fix.)
+    #
+    # The upside of this is that we can't inherit Chunk's main superclass in
+    # its special-method-mixin classes until we make Chunk a new-style class
+    # (which has issues of its own, common to all Nodes, described elsewhere).
+    # Hopefully, before that happens, we'll have refactored Chunk further to
+    # use cooperating objects rather than mixin classes. [bruce 090123]
     """
     Dna-related methods to be mixed in to class Chunk.
     """  
