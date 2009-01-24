@@ -1155,8 +1155,6 @@ class Node( StateMixin):
         self.unpick() # before 050131 was Node.unpick(self), which was wrong for chunk and jig.
 
     def is_glpane_content_itself(self): #bruce 080319
-        # note: some code which tests for "Chunk or Jig" might do better
-        # to test for this method's return value.
         """
         Is self (not counting its content) normally shown in the glpane
         due to its class or nature (ignoring anything transient like
@@ -1182,6 +1180,15 @@ class Node( StateMixin):
         """
         # See comment on Jig method for effect of this being False
         # when self is visible in GLPane, and discussion. [bruce 080319]
+
+        # Note: some code which tests for "Chunk or Jig" might do better
+        # to test for this method's return value. [bruce circa 080319]
+        
+        # REVIEW: rename to indicate "3d" or something else about the physical
+        # model, rather than "glpane"? It's not about graphical display, but
+        # about selection semantics based on what's part of the 3d model on
+        # which selection operates. [bruce 090123 comment]
+
         return False
 
     def pick_if_all_glpane_content_is_picked(self): #bruce 080319

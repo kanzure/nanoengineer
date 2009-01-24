@@ -11,7 +11,7 @@ History:
 
 Written over several years as part of chunk.py.
 
-Bruce 090123 split into a mixin in a separate file.
+Bruce 090123 split these methods out of class Chunk in chunk.py.
 (For prior svn history, see chunk.py -- this is too small
 to be worth dragging along all that history via svn copy.)
 
@@ -222,6 +222,6 @@ class Chunk_mmp_methods:
         """
         assert 0, "subclasses which need this must override it"
 
-    pass
+    pass # end of class Chunk_mmp_methods
 
 # end
