@@ -577,21 +577,22 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         if self._f_gained_externs:
             for bond in self.externs: # this might recompute self.externs
                 otherchunk = bond.other_chunk(self)
-                if not self._bonded_chunks.has_key( otherchunk):
-                    if not otherchunk._bonded_chunks.has_key( self):
+                ebset = self._bonded_chunks.get(otherchunk) # might be None
+                if ebset is None:
+                    ebset = otherchunk._bonded_chunks.get( self) # might be None
+                    if ebset is None:
                         ebset = ExternalBondSet( self, otherchunk)
                         otherchunk._bonded_chunks[ self] = ebset
                     else:
-                        # was there but not here -- should never happen
+                        # ebset was memoized in otherchunk but not in self -- 
+                        # this should never happen
                         # (since the only way to make one is the above case,
                         #  which ends up storing it in both otherchunk and self,
                         #  and the only way to remove one removes it from both)
-                        ebset = otherchunk._bonded_chunks[ self]
                         print "likely bug: ebset %r was in %r but not in %r" % \
                               (ebset, otherchunk, self)
                     self._bonded_chunks[ otherchunk] = ebset
-                else:
-                    ebset = self._bonded_chunks[ otherchunk]
+                    pass
                 ebset.add_bond( bond) # ok if bond is already there
             self._f_gained_externs = False
         # if some of our ExternalBondSets are now empty, destroy them
