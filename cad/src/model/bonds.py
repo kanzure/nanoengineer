@@ -332,42 +332,57 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     WARNING: If vnew is not provided, this function behaves differently and is
     much less safe for general use (details below).
     
-       Behavior when vnew is provided:
+    Behavior when vnew is provided:
+    
     Bond atoms a1 and a2 by making a new bond of order vnew (which must be one
-    of the constants in chem.BOND_VALENCES, not a numerically expressed bond order;
-    for the effect of not providing vnew, see below).
-       The new bond is returned. If for some reason it can't be made, None is returned
-    (but if that can happen, we should revise the API so an error message can be returned).
-       Error if these two atoms are already bonded. [Question: is this detected? ###k]
-       If provided, s1 and s2 are the existing singlets on a1 and a2 (respectively)
-    whose valence (i.e. bond order code on their open bonds)
-    should be reduced (or eliminated, in which case they are deleted)
-    to provide valence (bond order) for the new bond. (If they don't have enough,
-    other adjustments will be made; this function is free to alter, remove, or replace
-    any existing singlets on either atom.)
-       For now, this function will never alter the bond order of any existing bonds
-    to real atoms. If necessary, it will introduce valence errors on a1 and/or a2.
-    (Or if they already had valence errors, it might remove or alter those.)
-       If no_corrections = True, this function will not alter singlets on a1 or a2,
-    but will either completely ignore issues of total valence of these atoms, or will
-    limit itself to tracking valence errors or setting related flags (this is undecided).
-    (This might be useful for code which builds new atoms rather than modifying
-    existing ones, such as when reading mmp files or copying existing atoms.)
-       If no_corrections is false, and if the open bonds on s1 or s2 have directions set,
-    not inconsistently, then if the new bond is directional, it's given a direction
-    consistent with those open bonds (new feature 071017).
-
-       Behavior when vnew is not provided (less safe in general):
-    For backwards compatibility, when vnew is not provided, this function calls the
-    old code [pre-higher-valence-bonds, pre-050502] which acts roughly as if
-    vnew = V_SINGLE, s1 = s2 = None, no_corrections = True, except that it returns
-    None rather than the newly made bond, and unlike this function doesn't mind
-    if there's an existing bond, but does nothing in that case; this behavior might
-    be relied on by the current code for copying bonds when copying a chunk, which
-    might copy some of them twice.
-       Using the old bond_atoms code by not providing vnew is deprecated,
-    and might eventually be made impossible after all old calling code is converted
-    for higher-order bonds. [However, as of 051216 it's still called in lots of places.]
+    of the constants in chem.BOND_VALENCES, not a numerically expressed bond 
+    order; for the effect of not providing vnew, see below).
+    
+    The new bond is returned. If for some reason it can't be made, None is
+    returned (but if that can happen, we should revise the API so an error
+    message can be returned).
+    
+    Error if these two atoms are already bonded. 
+    [Question: is this detected? ###k]
+    
+    If provided, s1 and s2 are the existing singlets on a1 and a2
+    (respectively) whose valence (i.e. bond order code on their open bonds)
+    should be reduced (or eliminated, in which case they are deleted) to
+    provide valence (bond order) for the new bond. (If they don't have enough,
+    other adjustments will be made; this function is free to alter, remove, or
+    replace any existing singlets on either atom.)
+    
+    For now, this function will never alter the bond order of any existing
+    bonds to real atoms. If necessary, it will introduce valence errors on a1
+    and/or a2. (Or if they already had valence errors, it might remove or
+    alter those.)
+    
+    If no_corrections = True, this function will not alter singlets on a1 or
+    a2, but will either completely ignore issues of total valence of these
+    atoms, or will limit itself to tracking valence errors or setting related
+    flags (this is undecided). (This might be useful for code which builds new
+    atoms rather than modifying existing ones, such as when reading mmp files
+    or copying existing atoms.)
+    
+    If no_corrections is false, and if the open bonds on s1 or s2 have
+    directions set, not inconsistently, then if the new bond is directional,
+    it's given a direction consistent with those open bonds (new feature
+    071017).
+    
+    Behavior when vnew is not provided (less safe in general):
+    
+    For backwards compatibility, when vnew is not provided, this function
+    calls the old code [pre-higher-valence-bonds, pre-050502] which acts
+    roughly as if vnew = V_SINGLE, s1 = s2 = None, no_corrections = True,
+    except that it returns None rather than the newly made bond, and unlike
+    this function doesn't mind if there's an existing bond, but does nothing
+    in that case; this behavior might be relied on by the current code for
+    copying bonds when copying a chunk, which might copy some of them twice.
+    
+    Using the old bond_atoms code by not providing vnew is deprecated, and
+    might eventually be made impossible after all old calling code is
+    converted for higher-order bonds. [However, as of 051216 it's still called
+    in lots of places.]
     """
     # DOCSTRING BUG (unconfirmed, docstring is unclear): if s1 and s2 are not
     # provided but vnew is provided, the docstring is unclear about whether
@@ -842,13 +857,19 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         """
         Copy the bond_direction on self (which must be a directional bond)
         onto all bonds in the same chain or ring of directional bonds
-        in the direction (from self) of atom (which must be one of self's atoms).
-           Stop when reaching self (in a ring) or the last bond in a chain.
-        (Note that this means we *don't* change bonds *before* self in a chain,
-         unless it's a ring; to change all bonds in a chain we have to be called twice.)
+        in the direction (from self) of atom (which must be one of self's 
+        atoms).
+        
+        Stop when reaching self (in a ring) or the last bond in a chain. 
+        (Note that this means we *don't* change bonds *before* self in a
+        chain, unless it's a ring; to change all bonds in a chain we have to
+        be called twice.)
+        
         Don't modify self's own direction.
+        
         Do all necessary change-notification.
-           Return ringQ, a boolean which is True if self is part of a ring
+        
+        Return ringQ, a boolean which is True if self is part of a ring
         (as opposed to a linear chain) of directional bonds.
         """
         backdir = self.bond_direction_from(atom) 
@@ -1173,9 +1194,11 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     def is_open_bond(self): #bruce 050727
         return self.atom1.element is Singlet or self.atom2.element is Singlet
     
-    def set_v6(self, v6): #bruce 050717 revision: only call _changed_v6 when needed
+    def set_v6(self, v6): #bruce 050717 revision: only call _changed_v6 when
+        needed
         """
-        #doc; can't be used for illegal valences, as some of our actual setters need to do...
+        #doc; can't be used for illegal valences, as some of our actual setters
+        need to do...
         """
         assert v6 in BOND_VALENCES
         if self.v6 != v6:
@@ -1536,28 +1559,31 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     
     def setup_invalidate(self): # revised 050516
         """
-        Semi-private method for bonds -- used by code in Bond, atom and chunk classes.
-        Invalidates cached geometric values related to drawing the bond.
+        Semi-private method for bonds -- used by code in Bond, atom and chunk
+        classes. Invalidates cached geometric values related to drawing the
+        bond.
         
         This must be called whenever the position or element of either bonded
-        atom is changed, or when either atom's molecule changes if this affects
-        whether it's an external bond (since the coordinate system used for drawing
-        is different in each case), UNLESS either bonded chunk's _invalidate_all_bonds()
-        methods is called (which increment a counter checked by our __getattr__).
+        atom is changed, or when either atom's molecule changes if this
+        affects whether it's an external bond (since the coordinate system
+        used for drawing is different in each case), UNLESS either bonded
+        chunk's _invalidate_all_bonds() methods is called (which increment a
+        counter checked by our __getattr__).
         
         (FYI: It need not be called for other changes that might affect bond
-        appearance, like disp or color of bonded molecules, though for internal
-        bonds, the molecule's .havelist should be reset when those things change.)
+        appearance, like disp or color of bonded molecules, though for
+        internal bonds, the molecule's .havelist should be reset when those
+        things change.)
         
         (It's not yet clear whether this needs to be called when bond-valence
         is changed. If it does, that will be done from one place, the
         _changed_v6() method. [bruce 050502])
         
         Note that before the "inval/update" revisions [bruce 041104],
-        self.setup() (the old name for this method, from point of view of callers)
-        did the recomputation now done on demand by __setup_update; now this method
-        only does the invalidation which makes sure that recomputation will happen
-        when it's needed.
+        self.setup() (the old name for this method, from point of view of
+        callers) did the recomputation now done on demand by __setup_update;
+        now this method only does the invalidation which makes sure that
+        recomputation will happen when it's needed.
         """
         self._valid_data = None
         # For internal bonds, or bonds that used to be internal,
@@ -2663,7 +2689,8 @@ class _bonder_at_singlets:
 ##    res = []
 ##    for bond in mol.externs:
 ##        mol2 = bond.other_chunk(mol)
-##        assert mol2 != mol, "an internal bond %r was in self.externs of %r" % (bond, mol)
+##        assert mol2 != mol, \
+##               "an internal bond %r was in self.externs of %r" % (bond, mol)
 ##        if mol not in others:
 ##            if mol not in res:
 ##                res.append(mol)
