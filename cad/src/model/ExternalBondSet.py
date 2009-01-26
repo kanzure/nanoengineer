@@ -18,14 +18,16 @@ ExternalBondSet.py - keep track of external bonds, to optimize redraw
 # for now, we just maintain them but do nothing else with them,
 # as of 080702 noon PT. update 080707: a debug_pref draws with them,
 # false by default since predicted to be a slowdown for now. 
-# Retesting this 090126, it seems to work. 
+# Retesting this 090126, it seems to work. Put drawing code into
+# ExternalBondSetDrawer, but not yet doing any caching there (CSDLs).
+# When we do, not yet known how much inval/update code goes there vs. here.
 
 
 from geometry.VQT import V
 
-from graphics.drawing.ColorSorter import ColorSorter
-from graphics.drawing.ColorSorter import ColorSortedDisplayList # not yet used?
-
+from graphics.model_drawing.ExternalBondSetDrawer import ExternalBondSetDrawer
+    # todo: this import shouldn't be needed once we have the right
+    # GraphicsRule architecture
 
 _DEBUG_EBSET = False # ok to commit with True, until the debug_pref 
     # that calls us is on by default
@@ -40,8 +42,11 @@ class ExternalBondSet(object):
     """
     def __init__(self, chunk1, chunk2):
         self.chunks = (chunk1, chunk2) # note: not private
+        # todo: rename: _f_invalid, _f_bonds
         self._bonds = {}
         self._invalid = True # since we have no display list for drawing
+        self._drawer = ExternalBondSetDrawer(self) 
+            # review: make on demand? GL context not current now...
         return
 
     def other_chunk(self, chunk):
@@ -127,6 +132,9 @@ class ExternalBondSet(object):
             return # permit repeated destroy
         if _DEBUG_EBSET:
             print "destroying %r" % self
+        if self._drawer:
+            self._drawer.destroy() # deallocate displists
+            self._drawer = None
         for chunk in self.chunks:
             chunk._f_remove_ExternalBondSet(self)
         self.chunks = ()
@@ -174,25 +182,9 @@ class ExternalBondSet(object):
             return bond.should_draw_as_picked()
     
     def draw(self, glpane, disp, color, drawLevel): # selected? highlighted?
-        # initial testing stub -- just draw in immediate mode, in the same way
-        # as if we were not being used.
-        # (notes for a future implem: 
-        #  displist still valid (self._invalid)? culled?)
-
-        # modified from Chunk._draw_external_bonds:
-        
-        use_outer_colorsorter = True # not sure whether/why this is needed
-        
-        if use_outer_colorsorter:
-            ColorSorter.start(None)
-
-        for bond in self._bonds.itervalues():
-            bond.draw(glpane, disp, color, drawLevel)
-        
-        if use_outer_colorsorter:
-            ColorSorter.finish()
-
-        return
+        # todo: this method (and perhaps even our self._drawer attribute)
+        # won't be needed once we have the right GraphicsRule architecture)
+        self._drawer.draw(glpane, disp, color, drawLevel)
     
     pass
 
