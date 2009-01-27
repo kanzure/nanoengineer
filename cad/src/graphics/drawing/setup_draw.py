@@ -347,10 +347,10 @@ def setup_drawer():
     drawing_globals.cylinderBillboardVerts = verts = [
         (0.0, -1.0,  1.0),
         (1.0, -1.0,  1.0),
-        (0.0,  1.0,  1.0),
-        (1.0,  1.0,  1.0)]
+        (1.0,  1.0,  1.0),
+        (0.0,  1.0,  1.0)]
     drawing_globals.cylinderBillboardIndices = indices = [
-        [0, 1, 3, 2]] # +Z face.
+        [0, 1, 2, 3]] # +Z face.
 
     drawing_globals.rotSignList = rotSignList = glGenLists(1)
     glNewList(rotSignList, GL_COMPILE)

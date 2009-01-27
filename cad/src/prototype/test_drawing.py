@@ -72,13 +72,46 @@ def test_Draw(glpane):
                 pass
             shader.configShader(glpane)
             pass
+        if testCase == 8.2:
+            animate_TCs()
+            pass
         test_DrawingSet.draw()
+        if testCase == 8.3:
+            draw_cylinder_axes()
+        pass
+
     elif int(testCase) >= 100:
         #bruce 090102
         shader = drawing_globals.sphereShader
         shader.configShader(glpane)
         test_Object.draw_complete()
         pass
+    return
+
+def animate_TCs():
+    # Animate TCs, rotating them slowly.
+    slow = 10.0 # Seconds.
+    angle = 2*pi * fmod(time.time(), slow) / slow
+    # Leave the first one as identity, and rotate the others in
+    # opposite directions around the X axis.
+    TCs[1].identTranslateRotate(V(0, 0, 0),
+                                Q(V(1, 0, 0), angle * 2))
+    TCs[2].identTranslateRotate(V(0, 0, 0),
+                                Q(V(1, 0, 0), -angle))
+    return
+
+def draw_cylinder_axes():
+    # Overdraw with the cylinder axes.
+    glDisable(GL_DEPTH_TEST)
+    glBegin(GL_LINES)
+    for endpt1, endpt2 in test_endpoints:
+        glColor3i(0, 0, 0)
+        glVertex(endpt1)
+        glColor3i(255,255,255)
+        glVertex(endpt2)
+        continue
+    glEnd()
+    glEnable(GL_DEPTH_TEST)
     return
 
 # Draw an array of nSpheres x nSpheres, with divider gaps every 10 and 100.
@@ -178,14 +211,17 @@ from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import GL_STENCIL_BUFFER_BIT
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
+from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import GL_ELEMENT_ARRAY_BUFFER_ARB
 from OpenGL.GL import GL_FLOAT
+from OpenGL.GL import GL_LINES
 from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import GL_QUADS
 from OpenGL.GL import GL_STATIC_DRAW
 from OpenGL.GL import GL_UNSIGNED_INT
 from OpenGL.GL import GL_VERTEX_ARRAY
 
+from OpenGL.GL import glBegin
 from OpenGL.GL import glCallList
 from OpenGL.GL import glClear
 from OpenGL.GL import glClearColor
@@ -195,6 +231,7 @@ from OpenGL.GL import glDisableClientState
 from OpenGL.GL import glDrawElements
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
+from OpenGL.GL import glEnd
 from OpenGL.GL import glEndList
 from OpenGL.GL import glFlush
 from OpenGL.GL import glGenLists
@@ -205,6 +242,7 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glSecondaryColor3fv
 from OpenGL.GL import glTranslatef
+from OpenGL.GL import glVertex
 from OpenGL.GL import glVertexPointer
 
 from OpenGL.GL.ARB.vertex_program import glDisableVertexAttribArrayARB
@@ -235,6 +273,7 @@ def delete_caches():
     test_vbo = None
     test_spheres = None
     test_DrawingSet = None
+    test_endpoints = None
     if test_Object:
         test_Object.destroy()
     test_Object = None
@@ -324,7 +363,7 @@ def test_drawing(glpane, initOnly = False):
         pass
 
     global test_csdl, test_dl, test_dls, test_ibo, test_vbo, test_spheres
-    global test_DrawingSet, test_Object
+    global test_DrawingSet, test_endpoints, test_Object
 
     # See below for test case descriptions and timings on a MacBook Pro.
     # The Qt event toploop in NE1 tops out at about 60 frames-per-second.
@@ -959,8 +998,10 @@ def test_drawing(glpane, initOnly = False):
                         else:
                             cylRad = (radius/2.0, (.875-radius)/2.0)
                             pass
-                        axisVec = V(0.5, 0.5, -0.5);
-                        drawcylinder(color, center, center + axisVec, cylRad)
+                        endPt2 = center + V(0.5, 0.0, 0.0) # 0.5, -0.5)
+                        drawcylinder(color, center, endPt2, cylRad)
+                        global test_endpoints
+                        test_endpoints += [(center, endPt2)]
                         pass
                     continue
                 ColorSorter.finish()
@@ -980,6 +1021,9 @@ def test_drawing(glpane, initOnly = False):
             centers = []
             radii = []
             colors = []
+            global test_endpoints
+            test_endpoints = []
+
             for x in range(nSpheres):
                 for y in range(nSpheres):
                     centers += [sphereLoc(x, y)]
@@ -1018,19 +1062,12 @@ def test_drawing(glpane, initOnly = False):
                 pass
             else:
                 if testCase == 8.2:
-                    # Animate TCs, rotating them slowly.
-                    slow = 10.0 # Seconds.
-                    angle = 2*pi * fmod(time.time(), slow) / slow
-                    # Leave the first one as identity, and rotate the others in
-                    # opposite directions around the X axis.
-                    TCs[1].identTranslateRotate(V(0, 0, 0),
-                                                Q(V(1, 0, 0), angle * 2))
-                    TCs[2].identTranslateRotate(V(0, 0, 0),
-                                                Q(V(1, 0, 0), -angle))
+                    animate_TCs()
                     pass
                 test_DrawingSet.draw()
+                if doCylinders:
+                    draw_cylinder_axes()
                 pass
-
             pass
         pass
     elif testCase == 100: #bruce 090102

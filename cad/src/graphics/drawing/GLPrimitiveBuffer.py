@@ -331,7 +331,7 @@ class GLPrimitiveBuffer(object):
 
         If no drawIndex is given, the whole array is drawn.
         """
-        self.shader.use(True)                # Turn on the sphere shader.
+        self.shader.use(True)                # Turn on the chosen shader.
 
         glEnableClientState(GL_VERTEX_ARRAY)
 
@@ -388,7 +388,7 @@ class GLPrimitiveBuffer(object):
                 pass
             continue
 
-        self.shader.use(False)            # Turn off the sphere shader.
+        self.shader.use(False)            # Turn off the chosen shader.
         glEnable(GL_CULL_FACE)
 
         self.hunkIndexIBO.unbind()   # Deactivate the ibo.

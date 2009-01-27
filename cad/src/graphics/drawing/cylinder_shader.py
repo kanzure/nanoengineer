@@ -226,6 +226,11 @@ void main(void) {
     var_basecolor = override_color;
   else
     var_basecolor = color;
+
+#if 1 /// 0 // Debugging vertex shaders: identify vertices by color.
+  // X in the billboard drawing pattern is red (0 to 1), Y (+-1) is green.
+  var_basecolor = vec4(gl_Vertex.x, gl_Vertex.y + 1.0 / 2.0, 0.0, 1.0);
+#endif
   
   // The endpoints and radii are combined in one attribute: endpt_rad.
   vec4 endpts[2];
@@ -339,8 +344,8 @@ void main(void) {
     vp_axis_proj_len = dot(axis_line_dir, var_view_pt - var_endpts[0]);
     vp_between_endcaps = vp_axis_proj_len >= 0.0 &&       // First endpoint.
                          vp_axis_proj_len <= axis_length; // Second endpoint.
-    // (Only valid when not between endcap planes, where no endcap is visible.)
-    visible_endcap = int(vp_axis_proj_len < 0.0);
+    // (Only valid when NOT between endcap planes, where no endcap is visible.)
+    visible_endcap = int(vp_axis_proj_len >= 0.0);
 
   } else {
 
@@ -378,11 +383,12 @@ void main(void) {
       } else {
         vec3 vp_endpt_dir = normalize(var_endpts[i] - var_view_pt);
 
-        // Perpendicular to axis at endpt, in the plane of axis and viewpt.
-        endpt_across_vp_dir[i] = cross(axis_line_dir, vp_endpt_dir);
+        // Perpendicular to axis at the endpt, in the axis and viewpt plane.
+        endpt_across_vp_dir[i] = normalize(cross(axis_line_dir, vp_endpt_dir));
 
-        // Perpendicular to both the axis and the across_vp 
-        endpt_toward_vp_dir[i] = cross(axis_line_dir, endpt_toward_vp_dir[i]);
+        // Perpendicular to both the axis and the endpt_across_vp directions.
+        endpt_toward_vp_dir[i] = normalize(cross(axis_line_dir,
+                                           endpt_across_vp_dir[i]));
       }
     }
     
@@ -396,22 +402,26 @@ void main(void) {
     float radius_diff = var_radii[near_end] - var_radii[far_end];
     float axis_offset = length(var_endpts[near_end].xy-var_endpts[far_end].xy);
     vp_in_barrel =  radius_diff >= 0.0 && axis_offset <= radius_diff;
-                   
+
     // Directions relative to the view dir, perpendicular to the cylinder axis,
     // for constructing swiveling trapezoid billboard vertices.
-    if (axis_offset < 0.001) {
+    if (axis_offset < 0.01) {
       // Special case looking straight down the axis, close to the -Z direction.
       endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = vec3(1.0, 0.0, 0.0);
-      endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = vec3(0.0, 1.0, 0.0);
+      endpt_toward_vp_dir[0] = endpt_toward_vp_dir[1] = vec3(0.0, 1.0, 0.0);
     } else {
       // Perpendicular to cylinder axis and the view direction, in the XY plane.
-      endpt_across_vp_dir[i] = cross(axis_line_dir, var_ray_vec);
+      endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = 
+        normalize(cross(axis_line_dir, var_ray_vec));
 
-      // Perpendicular to both the cylinder axis and endpt_across_vp_dir.
-      endpt_toward_vp_dir[i] = cross(axis_line_dir, endpt_toward_vp_dir[i]);
+      // Perpendicular to both the cylinder axis and endpt_across_vp directions.
+      endpt_toward_vp_dir[0] = endpt_toward_vp_dir[1] = 
+        normalize(cross(axis_line_dir, endpt_across_vp_dir[0]));
     }
 
   }
+
+  ///vp_in_barrel = vp_between_endcaps = false; /// Single case for debugging.
 
   //===
   // The output vertices for the billboard quadrilateral are based on the
@@ -468,8 +478,8 @@ void main(void) {
     vec3 scaled_across = billboard_radii[endcap] * endpt_across_vp_dir[endcap];
     vec3 scaled_toward = billboard_radii[endcap] * endpt_toward_vp_dir[endcap];
     billboard_vertex = var_endpts[endcap]
-      + scaled_toward  // Offset to  the pyramid face toward the viewpoint.
-      + gl_Vertex.y * scaled_across;
+      + scaled_toward  // Offset to the pyramid face closer to the viewpoint.
+      + gl_Vertex.y * scaled_across;  // Offset to either side of the axis.
   }
 
   //===
@@ -592,7 +602,9 @@ float pt_dist_sq_from_line(in vec3 point, in vec3 pt_on_line, in vec3 line_dir){
 void main(void) {
 
 #if 0 /// 1 // Debugging vertex shaders: fill in the drawing pattern.
-  gl_FragColor = var_basecolor * var_visible; // Show visibility type as shade.
+  gl_FragColor = var_basecolor;
+  // Show the visibility type as a fractional shade in blue.
+  gl_FragColor.b =  0.25 * var_visible;
 
   // Sigh.  Must not leave uniforms unused.
   float x = override_opacity;
