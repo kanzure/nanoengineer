@@ -407,8 +407,8 @@ void main(void) {
     // for constructing swiveling trapezoid billboard vertices.
     if (axis_offset < 0.01) {
       // Special case looking straight down the axis, close to the -Z direction.
-      endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = vec3(1.0, 0.0, 0.0);
-      endpt_toward_vp_dir[0] = endpt_toward_vp_dir[1] = vec3(0.0, 1.0, 0.0);
+      endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = vec3(0.0, 1.0, 0.0);
+      endpt_toward_vp_dir[0] = endpt_toward_vp_dir[1] = vec3(1.0, 0.0, 0.0);
     } else {
       // Perpendicular to cylinder axis and the view direction, in the XY plane.
       endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = 
@@ -421,7 +421,8 @@ void main(void) {
 
   }
 
-  ///vp_in_barrel = vp_between_endcaps = false; /// Single case for debugging.
+  ///
+  vp_in_barrel = vp_between_endcaps = false; /// Single case for debugging.
 
   //===
   // The output vertices for the billboard quadrilateral are based on the
@@ -643,18 +644,18 @@ void main(void) {
   // dot-product, and take the distance between them with another dot-product.
   //===
 
-  // The direction of the passing line is from the axis line to the ray line.
-  // With normalized inputs, the length is the sine of the angle between them.
+  // With normalized inputs, length is sine of the angle between the vectors.
   vec3 passing_line_crossprod = cross(ray_line_dir, axis_line_dir);
   vec3 passing_line_dir = normalize(passing_line_crossprod);
 
   // The distance between the passing points is the projection of the vector
-  // between two points on the two lines (the viewpoint on the ray line, and a
-  // cylinder endpoint on the axis line) onto the passing-line direction vector.
-  float passing_pt_dist = dot(passing_line_dir, var_view_pt - endpt_0);
+  // between two points on the two lines (from cylinder endpoint on the axis
+  // line, to viewpoint on the ray line) onto the passing-line direction vector.
+  float passing_pt_signed_dist = dot(passing_line_dir, var_view_pt - endpt_0);
+  float passing_pt_dist = abs(passing_pt_signed_dist);
 
   // The vector between the passing points, from the axis to the ray.
-  vec3 passing_pt_vec = passing_pt_dist * passing_line_dir;
+  vec3 passing_pt_vec = passing_pt_signed_dist * passing_line_dir;
 
   // Project the first cylinder endpoint onto the plane containing the ray from
   // the viewpoint, and perpendicular to the passing_line at the ray_passing_pt.
@@ -664,20 +665,25 @@ void main(void) {
   // the cylinder axis, and going through through the ray_passing_pt we want.
   vec3 vp_proj_pt = pt_proj_onto_line(var_view_pt, ep0_proj_pt, axis_line_dir);
   // Distance from the viewpoint to its projection.
-  float vp_proj_dist = length(vp_proj_pt - var_view_pt);
+  float vp_proj_dist = length(vp_proj_pt - var_view_pt);// Opposite-side length.
 
   // Now we have a right triangle with the right angle where the viewpoint was
-  // projected and can compute the ray_passing_pt.
-  //  * The hypotenuse is along the ray from the viewpoint to the passing point.
-  //  * The sine of the angle there between the ray and axis line directions is
-  //    the length of the cross product vector.
-  //  * The side opposite the angle goes from the viewpoint to its projection.
-  //  * So the (signed) length of the adjacent side, from the projected point to
-  //    the ray_passing_pt, is the length of the opposite side over the sine.
-  float proj_passing_dist = vp_proj_dist / length(passing_line_crossprod);
-  vec3 ray_passing_pt = vp_proj_pt + proj_passing_dist * axis_line_dir;
+  // projected onto the line, and can compute the ray_passing_pt.
+  //  * The hypotenuse is along the ray from the viewpoint to the ray passing
+  //    point.
+  //  * The sine of the angle at the passing line, between the ray and axis
+  //    line directions, is the length of the passing-line cross-product vector.
+  //  * The side opposite the passing angle goes from the viewpoint to its
+  //    projection.  Its length is vp_proj_dist, and tells us the length of the
+  //    hypotenuse.  Recall that sine is opposite over hypotenuse side lengths:
+  //      sine = opp/hyp
+  //      opp/sine = opp x 1/sine = opp x hyp/opp = hyp
+  float vp_passing_dist = vp_proj_dist / length(passing_line_crossprod);// Hyp.
+  vec3 ray_passing_pt = var_view_pt + vp_passing_dist * ray_line_dir;
+   // Right triangle adjacent-side length, from vp projection to passing-point.
+  float proj_passing_dist = length(ray_passing_pt - vp_proj_pt);
 
-  // Project down to the plane containing the axis for the other passing point.
+  // Project back to the plane containing the axis for the other passing point.
   vec3 axis_passing_pt = ray_passing_pt - passing_pt_vec;
   vec3 vp_axis_proj_pt = vp_proj_pt - passing_pt_vec;
 
@@ -693,8 +699,8 @@ void main(void) {
   bool halo_hit = false;
   int visible_endcap = int(var_visible_endcap); // Varyings are always floats.
 
-  // Skip if no endcap is visible.
-  if (var_visible != VISIBLE_BARREL_ONLY) { // (Never VISIBLE_NOTHING.)
+  // Skip the endcap hit test if no endcap is visible.
+  if (var_visible != VISIBLE_BARREL_ONLY) { // (Never VISIBLE_NOTHING here.)
     // (VISIBLE_ENDCAP_ONLY or VISIBLE_ENDCAP_AND_BARREL.)
 
     //===
@@ -737,7 +743,8 @@ void main(void) {
     }      
   }
 
-  // Skip if we already hit an endcap. (Never VISIBLE_NOTHING here.)
+  // Skip the barrel hit test if we already hit an endcap.
+  // (Never VISIBLE_NOTHING here.)
   if (! endcap_hit && var_visible != VISIBLE_ENDCAP_ONLY) {
     // (VISIBLE_BARREL_ONLY, or VISIBLE_ENDCAP_AND_BARREL but missed endcap.)
 
@@ -753,7 +760,7 @@ void main(void) {
 
     float ep0_app_dist = length(axis_passing_pt - endpt_0);
     float passing_radius = axis_radius_taper * ep0_app_dist;
-    if (passing_pt_dist > passing_radius) {
+    if (false) { ///passing_pt_dist > passing_radius) {
 
       // Missed the edge of the barrel, but might still hit a halo on it.
       float halo_radius_taper = (var_halo_radii[1] - var_halo_radii[0])
