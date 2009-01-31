@@ -227,7 +227,7 @@ void main(void) {
   else
     var_basecolor = color;
 
-#if 1 /// 0 // Debugging vertex shaders: identify vertices by color.
+#if 0 /// 1 // Debugging vertex shaders: identify vertices by color.
   // X in the billboard drawing pattern is red (0 to 1), Y (+-1) is green.
   var_basecolor = vec4(gl_Vertex.x, gl_Vertex.y + 1.0 / 2.0, 0.0, 1.0);
 #endif
@@ -405,7 +405,7 @@ void main(void) {
 
     // Directions relative to the view dir, perpendicular to the cylinder axis,
     // for constructing swiveling trapezoid billboard vertices.
-    if (axis_offset < 0.01) {
+    if (axis_offset < 0.001) {
       // Special case looking straight down the axis, close to the -Z direction.
       endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = vec3(0.0, 1.0, 0.0);
       endpt_toward_vp_dir[0] = endpt_toward_vp_dir[1] = vec3(1.0, 0.0, 0.0);
@@ -421,8 +421,7 @@ void main(void) {
 
   }
 
-  ///
-  vp_in_barrel = vp_between_endcaps = false; /// Single case for debugging.
+  ///  vp_in_barrel = vp_between_endcaps = false; /// Single case for debugging.
 
   //===
   // The output vertices for the billboard quadrilateral are based on the
@@ -714,11 +713,14 @@ void main(void) {
     //   in the plane.  (Tweaked for halos as in the sphere shader.)
     //===
 
-    // Interpolate the intersection of the ray with the endcap plane, between
-    // the projection of the viewpoint onto the axis, and the ray_passing_pt.
-    ray_hit_pt = mix(var_view_pt, ray_passing_pt,
-      length(var_endpts[visible_endcap] - vp_axis_proj_pt) /
-        length(ray_passing_pt - vp_axis_proj_pt));
+    // Calculate the intersection of the ray with the endcap plane, based on
+    // the projections of the viewpoint and endpoint onto the axis.
+    float vp_dist_along_axis = dot(axis_line_dir, var_view_pt);
+    float ep_dist_along_axis = dot(axis_line_dir, var_endpts[visible_endcap]);
+    float axis_ray_angle_cos = dot(axis_line_dir, ray_line_dir);
+    ray_hit_pt = var_view_pt
+      + ((ep_dist_along_axis - vp_dist_along_axis) / axis_ray_angle_cos)
+        * ray_line_dir;
 
     // Is the intersection within the endcap radius from the endpoint?
     vec3 closest_vec = ray_hit_pt - var_endpts[visible_endcap];
@@ -759,8 +761,8 @@ void main(void) {
     //===
 
     float ep0_app_dist = length(axis_passing_pt - endpt_0);
-    float passing_radius = axis_radius_taper * ep0_app_dist;
-    if (false) { ///passing_pt_dist > passing_radius) {
+    float passing_radius = var_radii[0] + axis_radius_taper * ep0_app_dist;
+    if (passing_pt_dist > passing_radius) {
 
       // Missed the edge of the barrel, but might still hit a halo on it.
       float halo_radius_taper = (var_halo_radii[1] - var_halo_radii[0])
