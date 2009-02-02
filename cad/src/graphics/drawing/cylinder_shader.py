@@ -501,11 +501,31 @@ void main(void) {
     // the hidden endcap face at the other end of the cylinder barrel.
     var_visible = VISIBLE_ENDCAP_AND_BARREL;
     int endcap = int(gl_Vertex.x);
-    vec3 scaled_across = max_billboard_radius * endpt_across_vp_dir[endcap];
+    vec3 scaled_across = (gl_Vertex.y * max_billboard_radius)
+                         * endpt_across_vp_dir[endcap];
     vec3 scaled_toward = max_billboard_radius * endpt_toward_vp_dir[endcap];
-    billboard_vertex = var_endpts[endcap]
-      + (endcap == visible_endcap ? -1.0 : 1.0 ) * scaled_toward
-      + gl_Vertex.y * scaled_across;
+
+    // On the near face of the pyramid toward the viewpt, for the no-endcap end.
+    vec3 near_edge_midpoint = var_endpts[endcap] + scaled_toward;
+    billboard_vertex = near_edge_midpoint + scaled_across;
+
+    if (endcap == visible_endcap) {
+      vec3 away_vec = -scaled_toward;  // Orthogonal: parallel projection.
+      if (perspective == 1) {
+        // In perspective, we have to go a little bit wider, projecting the near
+        // endcap-edge vertex width onto the far edge line.  Otherwise, slivers
+        // of the edges of the cylinder barrel are sliced away by the billboard
+        // edge.  Do this BEFORE pushing away from the viewpoint, so we can get
+        // the cosine of the half-edge angle as the dot product of the vectors
+        // from the viewpoint to the near-face vertex and the near-edge midpt.
+        vec3 endpt_dir = normalize(billboard_vertex - var_view_pt);
+        vec3 vertex_dir = normalize(near_edge_midpoint - var_view_pt);
+        away_vec += dot(endpt_dir, vertex_dir) * scaled_across;
+      }
+      // This is a vertex of the visible endcap.  Push it away from the viewpt,
+      // across the cylinder endcap by TWICE the radius, to the far face.
+      billboard_vertex += away_vec + away_vec;
+    }
   }
 
   if (perspective == 1) {
