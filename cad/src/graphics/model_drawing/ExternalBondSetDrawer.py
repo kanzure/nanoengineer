@@ -9,20 +9,12 @@ for it (e.g. display lists, perhaps for multiple drawing styles)
 
 """
 
+from graphics.model_drawing.TransformedDisplayListsDrawer import TransformedDisplayListsDrawer
+
 from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.ColorSorter import ColorSortedDisplayList # not yet used?
 
 # ==
-
-class TransformedDisplayListsDrawer(object): # refile when done and name is stable
-    """
-    Superclass for drawing classes which make use of one or more display lists
-    (actually CSDLs) to be drawn relative to a transform. 
-    
-    (The specific subclass knows where to get the transform,
-    and when to invalidate the display lists.)
-    """
-    pass
 
 class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
     """
@@ -58,6 +50,12 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
 
         return
 
+    def _draw_into_displist(self, glpane, disp, drawLevel):
+        color = None ###k
+        for bond in self.ebset._bonds.itervalues():
+            bond.draw(glpane, disp, color, drawLevel)
+        return
+        
     pass # end of class
 
 # end
