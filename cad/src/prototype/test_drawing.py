@@ -94,10 +94,10 @@ def animate_TCs():
     angle = 2*pi * fmod(time.time(), slow) / slow
     # Leave the first one as identity, and rotate the others in
     # opposite directions around the X axis.
-    TCs[1].identTranslateRotate(V(0, 0, 0),
-                                Q(V(1, 0, 0), angle * 2))
-    TCs[2].identTranslateRotate(V(0, 0, 0),
-                                Q(V(1, 0, 0), -angle))
+    TCs[1].setRotateTranslate( Q(V(1, 0, 0), angle * 2),
+                               V(0, 0, 0) )
+    TCs[2].setRotateTranslate( Q(V(1, 0, 0), -angle),
+                               V(0, 0, 0) )
     return
 
 def draw_cylinder_axes():
