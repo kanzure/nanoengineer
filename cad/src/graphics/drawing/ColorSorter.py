@@ -127,7 +127,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     CSDLs are now created with a TransformControl reference as an argument (and
     are internally listed in it while they exist). This TransformControl
     reference is constant (although the transform in the TransformControl is
-    mutable.)
+    mutable).
 
     For convenience, the TransformControl argument can be left out if you don't
     want to use a TransformControl to move the CSDL. This has the same effect as
@@ -219,7 +219,8 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 global _warned_del
                 if not _warned_del:
                     print_compact_traceback(
-                        "exception in ColorSortedDisplayList.destroy ignored:")
+                        "bug (printed only once per session): "
+                        "exception in ColorSortedDisplayList.destroy ignored: ")
                     _warned_del = True
                     pass
                 pass
