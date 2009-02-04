@@ -2,6 +2,8 @@
 """
 TransformState.py -- mutable transform classes, shared by TransformNodes
 
+NOT YET USED as of 090204
+
 @author: Bruce
 @version: $Id$
 @copyright: 2009 Nanorex, Inc.  See LICENSE file for details.
@@ -9,32 +11,30 @@ TransformState.py -- mutable transform classes, shared by TransformNodes
 
 
 from foundation.state_utils import StateMixin
+from foundation.state_utils import register_instancelike_class
+from foundation.state_utils import copy_val
+
 from utilities.Comparison import same_vals
 
+# ==
+
+ORIGIN = V(0, 0, 0)
 _IDENTITY_TRANSLATION = V(0, 0, 0)
 _IDENTITY_ROTATION = Q(1, 0, 0, 0)
     # review: let these be class attrs of the types, or of the classes V and Q?
     # REVIEW: does same_vals think 0 and 0.0 are the same? if not, should we use 0.0 here?
     # TEST whether anything looks like identity... note that if initial values use 0 this might be ok
 
-class TransformState(StateMixin, object): # review: this class name ok? # review: where to file this? geometry? but it's a model object...
-    ### SharedTransformSlot? SharedTransform? TransformSlot? TransformState?
-    # not a slot, since it doesn't literally hold a transform (as separate data). TransformState?
-    # shared is true, but anything might be shared.
+# ==
 
-    
-    # todo: if object superclass, register with same_vals? note that this is a state-holding object, not a data one
+class TransformState(StateMixin, object):
     """
     A mutable orthonormal 3d transform, represented as a rotation followed by
     a translation (with the rotation and translation being undoable state).
 
     Changes to the transform value can be subscribed to.
     """
-    # review:
-    # - should some transforms own TransformControls and keep them up to date?
-    #   - or should external client code handle that itself, by subscribing?
-    #   (Note that external code has to manage the set of these in a complex way,
-    #    in order to conserve the number of TransformControls.)
+    # REVIEW:
     # - can you subscribe separately to changes to its translation and rotation?
     #   - if so, are they public usagetracked attrs?
     # - make value accessible as data object? (if so, let it be an attr self.value)
@@ -42,7 +42,8 @@ class TransformState(StateMixin, object): # review: this class name ok? # review
     # - permit comparison as if we were data? (no, buggy if someone uses '==' when they mean 'is')
     
     # todo:
-    # - undoable state for the data, ops to change the data (move, rotate, etc),
+    # - undoable state for the data
+    # - finish nim ops to change the data (translate, rotate, etc),
     # - make sure the data (or overall value only?) can be subscribed to
 
     rotation = State(Quaternion)
@@ -61,9 +62,14 @@ class TransformState(StateMixin, object): # review: this class name ok? # review
 
     
     # TODO: add formula for matrix?
-    # TODO: somehow, integrate with TransformControl (or let this be used as one)
-    
-    def move(self, vector):
+
+    def applyDataFrom(self, other):
+        """
+        """
+        self.rotate( other.rotation, center = ORIGIN) ###IMPLEM center arg
+        self.translate( other.translation)
+        
+    def translate(self, vector): # see also 'def move' in other classes
         self.translation = self.translation + vector
 
     def rotate(self, quat):
@@ -84,11 +90,56 @@ class TransformState(StateMixin, object): # review: this class name ok? # review
                           (_IDENTITY_TRANSLATION, _IDENTITY_ROTATION) )
     pass
 
+register_instancelike_class( TransformState)
+
+# ==
 
 class StaticTransform( TransformState):
+    """
+    A subclass of TransformState that keeps track of which nodes it belongs to,
+    and owns a TransformControl, and maintains it to always hold the same transform
+    value as self.
+    """
+    # REVIEW: merge this class with TransformControl?
+    ### IMPLEM: intercept changes and inval or update our TC... and its own subscribers in the graphics code...
+
+    transformControl = None
+    
+    def __init__(self, value = None, tc = None):
+        if value is not None:
+            # copy our value from the given value or TransformState
+            if isinstance(value, TransformState):
+                self.rotation = copy_val(value.rotation)
+                self.translation = copy_val(value.translation)
+            else:
+                assert 0 # nim
+        assert tc ### probably required by other code... REVIEW
+        if tc is not None:
+            self.transformControl = tc ### IMPLEM proper fields/effects and maintenance of the relationship
+        return
+    
+    def add_node(self, node):
+        self._nodes[node] = node
+        return
+
+    def del_node(self, node):
+        del self._nodes[node]
+        return
+    
     def nodecount(self):
         """
         Return the number of nodes we belong to.
         """
-        nim
+        return len(self._nodes)
+
+    def iternodes(self):
+        """
+        yield the nodes we belong to
+        """
+        return self._nodes.itervalues()
+    
     pass
+
+register_instancelike_class( StaticTransform)
+
+# end
