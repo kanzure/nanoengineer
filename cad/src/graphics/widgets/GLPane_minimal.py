@@ -420,16 +420,19 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glTranslatef( 0.0, 0.0, - self.vdist)
-            # translate coords for drawing, away from eye (through screen
-            # and beyond it) by vdist; this places origin at desired position
-            # in eyespace for "center of view" (and for center of trackball
-            # rotation)
+            # translate coordinate system for drawing, away from eye
+            # (-Z direction) by vdist. This positions center of view
+            # in eyespace.
         q = self.quat
         glRotatef( q.angle * 180.0 / math.pi, q.x, q.y, q.z)
-            # rotate those coords by the trackball quat
+            # rotate coordinate system for drawing by trackball quat
+            # (this rotation is around the center of view, since that is what
+            #  is positioned at drawing coordsystem's current origin,
+            #  by the following code)
         glTranslatef( self.pov[0], self.pov[1], self.pov[2])
-            # and translate them by -cov, to bring cov (center of view)
-            # to origin
+            # translate model (about to be drawn) to bring its center of view
+            # (cov == - pov) to origin of coordinate system for drawing.
+            # We translate by -cov to bring model.cov to origin.
         return
     
     def _setup_lighting(self):

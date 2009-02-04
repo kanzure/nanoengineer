@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 DrawingSet.py -- Top-level API for drawing with batched primitives (spheres,
 cylinders, cones) supported by specialized OpenGL shader programs.
 
 @author: Russ
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Originally written by Russ Fish; designed together with Bruce Smith.
@@ -109,6 +109,8 @@ class DrawingSet:
     def addCSDL(self, csdl):
         """
         Add a CSDL to the DrawingSet.
+
+        No error if it's already present.
         """
         if csdl.csdl_id not in self.CSDLs:
             # Clear the cache when the set is changing.
@@ -160,6 +162,11 @@ class DrawingSet:
         for csdl in self.CSDLs.itervalues():
             if csdl.transformControl is not None:
                 csdl.transformControl.updateSince(self.drawn)
+                    ### REVIEW: possible LOGIC BUG:
+                    # if this TransformControl is shared with other DrawingSets
+                    # which were drawn at other times, how can self.drawn be
+                    # both relevant and correct? Guess: it's not relevant.
+                    # [bruce 090203 comment]
                 
         # See if any of the CSDLs has changed more recently than the primSet and
         # clear the primSet cache if so.  (Possible optimization: regenerate
