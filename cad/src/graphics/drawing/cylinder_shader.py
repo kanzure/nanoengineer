@@ -227,7 +227,7 @@ void main(void) {
   else
     var_basecolor = color;
 
-#if 0 /// 1 // Debugging vertex shaders: identify vertices by color.
+#if 0 /// 1 // Debugging vertex shader: identify billboard vertices by color.
   // X in the billboard drawing pattern is red (0 to 1), Y (+-1) is green.
   var_basecolor = vec4(gl_Vertex.x, gl_Vertex.y + 1.0 / 2.0, 0.0, 1.0);
 #endif
@@ -621,6 +621,11 @@ float pt_dist_sq_from_line(in vec3 point, in vec3 pt_on_line, in vec3 line_dir){
 // Fragment (pixel) shader main procedure.
 void main(void) {
 
+  // Varyings are always floats. Because of the interpolation calculations, even
+  // though the same integer value goes into this variable at each vertex, the
+  // interpolated result is not *exactly* the same integer, so round to nearest.
+  int visibility_type = int(var_visible + 0.5);
+
 #if 0 /// 1 // Debugging vertex shaders: fill in the drawing pattern.
   gl_FragColor = var_basecolor;
   // Show the visibility type as a fractional shade in blue.
@@ -636,7 +641,7 @@ void main(void) {
   // This is all in *eye space* (pre-projection camera coordinates.)
 
   // Nothing to do if the viewpoint is inside the cylinder.
-  if (var_visible == VISIBLE_NOTHING)
+  if (visibility_type == VISIBLE_NOTHING)
     discard; // **Exit**
 
   // Vertex ray direction vectors were interpolated into pixel ray vectors.
@@ -716,10 +721,15 @@ void main(void) {
 
   bool endcap_hit = false;
   bool halo_hit = false;
-  int visible_endcap = int(var_visible_endcap); // Varyings are always floats.
+
+  // Varyings are always floats. Because of the interpolation calculations, even
+  // though the same integer value goes into this variable at each vertex, the
+  // interpolated result is not *exactly* the same integer, so round to nearest.
+  int visible_endcap = int(var_visible_endcap + 0.5);
 
   // Skip the endcap hit test if no endcap is visible.
-  if (var_visible != VISIBLE_BARREL_ONLY) { // (Never VISIBLE_NOTHING here.)
+  if (//false && /// May skip the endcap entirely to see just the barrel.
+      visibility_type != VISIBLE_BARREL_ONLY) { // (Never VISIBLE_NOTHING here.)
     // (VISIBLE_ENDCAP_ONLY or VISIBLE_ENDCAP_AND_BARREL.)
 
     //===
@@ -757,7 +767,7 @@ void main(void) {
       // Missed the endcap, but hit an endcap halo.
       halo_hit = endcap_hit = true;
 
-    } else if (var_visible == VISIBLE_ENDCAP_ONLY ) {
+    } else if (visibility_type == VISIBLE_ENDCAP_ONLY ) {
 
       // Early out.  We know only an endcap is visible, and we missed it.
       discard; // **Exit**
@@ -767,7 +777,7 @@ void main(void) {
 
   // Skip the barrel hit test if we already hit an endcap.
   // (Never VISIBLE_NOTHING here.)
-  if (! endcap_hit && var_visible != VISIBLE_ENDCAP_ONLY) {
+  if (! endcap_hit && visibility_type != VISIBLE_ENDCAP_ONLY) {
     // (VISIBLE_BARREL_ONLY, or VISIBLE_ENDCAP_AND_BARREL but missed endcap.)
 
     //===
@@ -839,7 +849,7 @@ void main(void) {
 
     // Untapered cylinders.
     if (var_radii[0] == var_radii[1]) {
-      cpl_proj_view_pt = var_view_pt + proj_passing_dist * axis_line_dir;
+      cpl_proj_view_pt = var_view_pt + (ray_passing_pt - vp_proj_pt);
       cpl_passing_pt = ray_passing_pt;
       cpl_passing_dist_sq = passing_pt_dist * passing_pt_dist;
       cpl_radius_sq = var_radii[0] * var_radii[0];
