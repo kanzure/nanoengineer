@@ -363,7 +363,7 @@ class Chunk_drawing_methods:
             origin = self.basecenter
             glTranslatef(origin[0], origin[1], origin[2])
             q = self.quat
-            glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
+            glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
             pass
         return
 
