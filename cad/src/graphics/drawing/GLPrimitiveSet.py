@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLPrimitiveSet.py -- Cached data structure for rapidly drawing a set of batched
 primitives collected from the CSDLs in a DrawingSet.
 
 @author: Russ
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Originally written by Russ Fish; designed together with Bruce Smith.
@@ -114,35 +114,27 @@ class GLPrimitiveSet:
                 continue
             pass
 
-        # Draw just the Display Lists in CSDLs with DLs in them.
-        # Put TransformControl matrices onto the GL matrix stack if present.
-        # Does nothing if the TransformControls all have a tranform of None.
+        # Draw just the Display Lists, in all CSDLs which have any.
+        # Put TransformControl matrices onto the GL matrix stack when present.
         # (Pushing/popping could be minimized by sorting the cached CSDL's.)
+        # [algorithm revised by bruce 090203]
         lastTC = None
-        pushed = False
         for csdl in self.CSDLs_with_DLs:
             tc = csdl.transformControl
-            if tc is not None and tc != lastTC:
-                # Restore matrix stack top to push a different transform.
-                if pushed:
+            if tc is not lastTC:
+                if lastTC is not None:
                     glPopMatrix()
                     pass
-
-                glPushMatrix()
-                pushed = True
-                tc.applyTransform()
-            elif tc is None and pushed:
-                # Back to transformless drawing.
-                glPopMatrix()
-                pushed = False
+                if tc is not None:
+                    glPushMatrix()
+                    tc.applyTransform()
+                    pass
                 pass
-            lastTC = tc
-
+                lastTC = tc
             csdl.draw(highlighted, selected, patterning, highlight_color,
                       draw_primitives = False) # Just draw the DL's.
             continue
-
-        if pushed:
+        if lastTC is not None:
             glPopMatrix()
         
         return
