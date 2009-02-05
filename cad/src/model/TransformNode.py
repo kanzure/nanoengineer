@@ -64,8 +64,14 @@ class TransformNode(Node3D): # review superclass and its name
     # due to a limitation on the number of TransformControls which arises from the rendering implementation?
     # If we do that, should we also remake CSDLs, or just transform them (presumably no difference in end result)?
     # Note: transforming them is what requires them to have mutable TC refs.
-    
+
     def set_dynamic_transform(self, t): # review: use a setter? the initial assert might not be appropriate then...
+        #### FIX: I don't like having a setter but also allowing direct sets, like we use in other code.
+        #### pick one way and always use that way. Make sure setting it does proper invals, checking t.is_identity() or t is None.
+        # If I want to put off letting nodes be new-style classes, then make raw version private and use setter explicitly...
+        # but I can't put that off for long, if I also want these things to act like state -- actually I can if setters do inval manually...
+        # but what about usage tracking? I'd need getters which do that manually... ##### DECIDE
+        # (guess about new-style nodes: it's enough to call register-whatever, but check InstanceType uses in Undo to be sure.)
         """
         """
         assert not self.dynamic_transform
@@ -164,48 +170,9 @@ def merge_dynamic_into_static_transform(nodes):
     for st in statics.keys():
         if st in replacements:
             st = replacements[st]
-        st.applyDataFrom(dt) ### IMPLEM, and use in __init__
-            
-        ##### REVIEW: how do we prevent someone who is subscribing to a node's total transform value
-        ##### from thinking this op just changed that??? ########
-        # either this is lower level than change tracking, or we capture and modify the tracking
-        # to add notes saying it conformed to certain kinds of changes -- which requires first-class
-        # reference to the morphism that represents the change, I think (likely to be represented
-        # as a set of changesets and an index into that -- but then would we be deleting this change
-        # from some of those side changesets???) ######
-        # note that we're tracking a single change [for each node in nodes]... maybe it's not *yet* represented that way,
-        # and we can set flags which will alter what happens when trackers learn of it and
-        # decide what to subscribe to or what else to do as they inval themselves...
-        # i.e. they'll do a lesser inval due to the flags we're setting now. ###
-        # but it's not so simple, because the invals go out immediately upon each set to a node.attr above.
-        # we might need to capture all of them within a time period (by setting a global in this code, begin/end fashion,
-        # by pushing our own change tracker if that's possible-- note, it's more common to push our own usage tracker,
-        # so this might be unprecedented or not yet supported) and then send them all out in modified form.
-        # BTW we might encapsulate that part inside the node class, if we can fold all the mods we're doing here
-        # into one method call onto that class -- remove dt, replace st with copy, fold dt into st.
-        # BTW how would we prevent bugs if we catch everything? assert that t. value has not changed, by comparison,
-        # when doing some tests (set debug flag to do that assert during certain tests of this code, or during all correctness
-        # tests as opposed to performance tests).
-        # ...
-        # The best way is probably to use low-level-looking untracked access to do the mods,
-        # then to explicitly send the tracked changes that we want to. Ideally re bugs, we'd also
-        # disable higher level changes during that time (setting a flag on the node to make them an error).
-        # And we'd do all that inside a begin/end thing that if we failed out of would clean that up
-        # and also send general changes on all the nodes as a precaution.
-        #   pool = begin_custom_changes()
-        #   pool.own_changes_on(node)...
-        #   ### do stuff
-        #   pool.changed(X)
-        #   pool.end()
-        # I am not sure if the changes to st vars could be tracked normally anyway...
-        # only if someone wanting to use the transform value (overall or static) didn't track those,
-        # which is unlikely if they access it normally -- but ok if they access it through a synthesized slot
-        # just for that purpose, since that slot can have special policies for its own usage being tracked,
-        # i.e. it can understand that it only "uses an aspect" and can trust invals of that aspect to be complete.
-        # (It can even return the same thing as the main slot but doing less tracking than that would do...
-        #  but only makes sense if the main slot is private. Hmm, a "formula which explicitly does less usage tracking"...)
-        
-    # more... 
+        st.applyDataFrom(dt)
+    
+    ### more... 
     return
 
 # end

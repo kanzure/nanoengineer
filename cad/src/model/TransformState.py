@@ -61,29 +61,27 @@ class TransformState(StateMixin, object):
     value = TransformData( rotation, translation ) # REVIEW expr name, whether this formula def is appropriate
 
     
-    # TODO: add formula for matrix?
+    # TODO: add formula for matrix? (to help merge with TransformControl?)
 
     def applyDataFrom(self, other):
         """
         """
-        self.rotate( other.rotation, center = ORIGIN) ###IMPLEM center arg
+        self.rotate( other.rotation, center = ORIGIN)
         self.translate( other.translation)
         
     def translate(self, vector): # see also 'def move' in other classes
         self.translation = self.translation + vector
 
-    def rotate(self, quat):
+    def rotate(self, quat, center = None):
         """
-        Rotate self around its own current origin.
+        Rotate self around self.translation, or around the specified center.
         """
         self.rotation = self.rotation + quat # review operation order, compare with chunk.py --
             ### also compare default choice of center, THIS MIGHT BE WRONG
-
-    def pivot(self, quat, center = None): ### REVIEW: merge with rotate? probably yes if default center is the same
-        """
-        Rotate self around a specified center.
-        """
-        nim, see chunk.py
+        if center is not None:
+            offset = self.translation - center
+            self.translate( quat.rot(offset) - offset ) # REVIEW - compare with chunk.py
+        return
 
     def is_identity(self): # review: optimize? special fast case if data never modified?
         return same_vals( (self.translation, self.rotation),
