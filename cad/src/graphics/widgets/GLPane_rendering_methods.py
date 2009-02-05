@@ -903,6 +903,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
 # ==
 
 if "test same_vals during import": #bruce 080922, of interest to GLPane_image_methods
+    # note: we don't want to define this test in utilities.Comparison itself,
+    # since it should not import geometry.VQT. REVIEW: move it into VQT?
     from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
     # not a full test, just look for known bugs and print warnings if found
     ALWAYS_PRINT = False
