@@ -1,11 +1,11 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 utilities/Comparison.py - provides same_vals, for correct equality comparison.
 See also state_utils.py, which contains the closely related copy_val.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -88,23 +88,28 @@ def same_vals(v1, v2): #060303
      This version is used by some developers who don't build the C version
      for some reason.)
     
-    Efficiently scan v1 and v2 in parallel to determine whether they're the same, for purposes of undoable state
-    or saved state.
-       The only reason we really need this (as opposed to just using Python '==' or '!=' and our own __eq__ methods)
-    is because Numeric.array.__eq__ is erroneously defined, and if we were using '==' or '!=' on a Python tuple containing 
-    a Numeric array, we'd have no way of preventing this issue from making '==' or '!=' come out wrong on the tuple.
+    Efficiently scan v1 and v2 in parallel to determine whether they're the
+    same, for purposes of undoable state or saved state.
+
+    Note: the only reason we really need this method (as opposed to just
+    using Python '==' or '!=' and our own __eq__ methods)
+    is because Numeric.array.__eq__ is erroneously defined, and if we were
+    using '==' or '!=' on a Python tuple containing  a Numeric array,
+    we'd have no way of preventing this issue from making '==' or '!='
+    come out wrong on the tuple.
 
     (For details, see bruce email to 'all' of 060302, partially included below.)
 
-    [...]
     It turns out that you can safely naively use != on Numeric arrays,
     but not ==, since they both act elementwise, and this only 
     does what you usually want with != . I knew this in the past
     (and fixed some weird bugs caused by it) but forgot it recently,
     so Undo was thinking that atom position arrays had not changed
     provided at least one coordinate of one atom had not changed.
-    [...]
-    - Bruce
+
+    [But note that you can't use either '==' or '!=' on tuples that might
+    contain Numeric arrays, since either way, Python uses '==' on the
+    tuple elements.]
 
     In particular:
 
@@ -124,33 +129,44 @@ def same_vals(v1, v2): #060303
     testing, and made the semantics of __eq__ and __ne__ work as
     expected.  Probably too late to expect them to change this now.
 
-       As long as we have it, we might as well make it a bit more stringent than Python '==' in other ways too,
-    like not imitating the behaviors (which are good for '==') of 1.0 == 1, array([1]) == [1], etc. The only reason
-    we'll count non-identical objects as equal is that we're not interested in their addresses or in whether someone
-    will change one of them and not the other (for whole objects or for their parts).
-       ###doc for InstanceType... note that we get what we want by using __eq__ for the most part...
+    As long as we have it, we might as well make it a bit more stringent
+    than Python '==' in other ways too, like not imitating the behaviors
+    (which are good for '==') of 1.0 == 1, array([1]) == [1], etc.
+    The only reason we'll count non-identical objects as equal is that
+    we're not interested in their addresses or in whether someone
+    will change one of them and not the other (for whole objects or for
+    their parts).
+
+    ###doc for InstanceType... note that we get what we want by using
+    __eq__ for the most part...
     """
 
     if v1 is v2:
         # Optimization:
-        # this will happen in practice when whole undoable attrvals are immutable
-        # (so that we're comparing originals, not different copies),
+        # this will happen in practice when whole undoable attrvals are
+        # immutable (so that we're comparing originals, not different copies),
         # therefore it's probably common enough to optimize for.
         # It's just as well we're not doing it in the recursive helper,
-        # since it would probably slow us down when done at every level. [060303 11pm]
+        # since it would probably slow us down when done at every level.
+        # [060303 11pm]
         return True 
     try:
         _same_vals_helper(v1, v2)
     except _NotTheSame:
         if _debug_same_vals and not (v1 != v2):
-            print "debug_same_vals: same_vals says False but 'not !=' says True, for",v1,v2
-                # happens for bug 1869 (even though it's fixed; cause is understood)
+            print "debug_same_vals: " \
+                  "same_vals says False but 'not !=' says True, for", v1, v2
+                # happens for bug 1869 (even though it's fixed;
+                # cause is understood)
         return False
     if _debug_same_vals and (v1 != v2):
-        print "debug_same_vals: same_vals says True but '!=' also says True, for",v1,v2 ##@@ remove when pattern seen
+        print "debug_same_vals: " \
+              "same_vals says True but '!=' also says True, for", v1, v2
+              ##@@ remove when pattern seen
     return True
 
-class _NotTheSame(Exception): pass
+class _NotTheSame(Exception):
+    pass
 
 def _same_list_helper(v1, v2):
     n = len(v1)
@@ -169,43 +185,121 @@ def _same_dict_helper(v1, v2):
         if not v2.has_key(key):
             raise _NotTheSame
         _same_vals_helper(val1, v2[key])
-    # if we get this far, no need to check for extra keys in v2, since lengths were the same
+    # if we get this far, no need to check for extra keys in v2,
+    # since lengths were the same
     return
 
+# implem/design discussion
+# [very old; slightly clarified, bruce 090205; see new summary below]:
+#
 # Choice 1:
-# no need for _same_InstanceType_helper; we set them up so that their __eq__ method is good enough;
-# this only works if we assume that any container-like ones (which compare their parts) are ones we wrote,
-# so they don't use == on Numeric arrays or != on general values...
+# no need for _same_InstanceType_helper; we set up all (old-style) classes
+# so that their __eq__ method is good enough; this only works if we assume
+# that any container-like instances (which compare their parts) are ones we
+# wrote, so they don't use == on Numeric arrays, and don't use == or != on
+# general values.
+#
 # Choice 2:
 # on naive objects, we just require id(v1) == id(v2).
+# Downside: legitimate data-like classes by others, with proper __eq__
+# methods, will compare different when they should be same.
+# Upside: if those classes have Numeric parts and compare them with ==,
+# that's a bug, which we'll avoid.
+# Note that if it's only our own classes which run, and if they have no bugs,
+# then it makes no difference which choice we use.
+#
 ### UNDECIDED. For now, doing nothing is equivalent to Choice 1.
 # but note that choice 2 is probably safer.
-# in fact, if I do that, i'd no longer need _eq_id_mixin just due to StateMixin. (only when __getattr__ and someone calls '==')
-# [060303]
-# Update 060306: some objects will need _s_same_as(self, other) different from __eq__,
-# since __eq__ *might* want to compare some components with != (like int and float) rather than be as strict as same_vals.
-# Even __eq__ needs to try to avoid the "Numeric array in list" bug, which in some cases will force it to also call same_vals,
-# but when types are known it's plausible that it won't have to, so the distinct methods might be needed.
-# When we first need _s_same_as, that will force use of a new _same_InstanceType_helper func.
-# Do we need it before then? Not sure. Maybe not; need to define __eq__ better in GAMESS Jig (bug 1616) but _s_same_as
-# can probably be the same method. OTOH should we let DataMixin be the thing that makes _s_same_as default to __eq__?? ###
+# in fact, if I do that, i'd no longer need _eq_id_mixin just due to StateMixin.
+# (only when __getattr__ and someone calls '==') [060303]
+# 
+# Update 060306: some objects will need _s_same_as(self, other) different from
+# __eq__, since __eq__ *might* want to compare some components with !=
+# (like int and float) rather than be as strict as same_vals.
+# Even __eq__ needs to try to avoid the "Numeric array in list" bug,
+# which in some cases will force it to also call same_vals,
+# but when types are known it's plausible that it won't have to,
+# so the distinct methods might be needed.
+# When we first need _s_same_as, that will force use of a new
+# _same_InstanceType_helper func. Do we need it before then? Not sure.
+# Maybe not; need to define __eq__ better in GAMESS Jig (bug 1616) but
+# _s_same_as can probably be the same method. OTOH should we let DataMixin
+# be the thing that makes _s_same_as default to __eq__?? ###
 ######@@@@@@
-# update, bruce 060419, after thinking about bug 1869 (complaint about different bonds with same key):
-# - The Bond object needs to use id for sameness, in Undo diffs at least (only caller of same_vals?) (but can't use id for __eq__ yet).
+#
+# update, bruce 060419, after thinking about bug 1869
+# (complaint about different bonds with same key):
+# - The Bond object needs to use id for sameness, in Undo diffs at least
+#  (only caller of same_vals?) (but can't use id for __eq__ yet).
 #   - Q: What is it about Bond that decides that -- Bond? StateMixin? not DataMixin?
-#     A: The fact that scan_children treats it as a "child object", not as a data object (see obj_is_data method).
-#     That's what makes Undo change attrs in it, which only makes sense if Undo treats refs to it (in values of other attrs,
-#      which it's diffing) as the same iff their id is same.
-# Conclusion: we need to use the same criterion in same_vals, via a new _same_InstanceType_helper -- *not* (only) a new method
-# as suggested above and in a comment I added to bug 1869 report. For now, we don't need the new method at all.
+#     A: The fact that scan_children treats it as a "child object",
+#     not as a data object (see obj_is_data method).
+#     That's what makes Undo change attrs in it, which only makes sense if
+#     Undo treats refs to it (in values of other attrs, which it's diffing)
+#     as the same iff their id is same.
+# Conclusion: we need to use the same criterion in same_vals, via a new
+# _same_InstanceType_helper -- *not* (only) a new method
+# [later: I guess I meant the '_s_same_as' method -- nim, discussed only here]
+# as suggested above and in a comment I added to bug 1869 report.
+# For now, we don't need the new method at all.
+#
+# ==
+#
+# Update, bruce 090205: reviewing the above, there are only the following cases
+# where same_vals needs to disagree with '==', given that we are free to define
+# proper __eq__/__ne__ methods in our own code:
+#
+# * Numeric arrays (due to the design flaw in their __eq__ method semantics)
+#
+# * Python data objects which might contain Numeric arrays
+#   (i.e. list, dict, tuple -- also 'set', if we start using that in model
+#    state -- we don't do so yet, since it's not supported in our minimum
+#    supported Python version)
+#
+# * supporting same_vals(1, 1.0) == False, for conservatism in Undo
+#   (but note that most __eq__ methods don't bother to worry about that
+#    when comparing components in data-like instances; often this is justified,
+#    either since they treat those values equivalently or only store them with
+#    one type, so it's reasonable to permit it even though it could in theory
+#    lead to bugs)
+#
+# * any future similar cases of same_vals being more conservative than __eq__,
+#   especially if they apply within instances, motivating us to define a new
+#   "data API" method called '_s_same_as' (not needed for now); OTOH, any new
+#   cases of that should be deprecated, as far as I know
+#
+# * for Bond, as long as it has an __eq__ method more liberal than id comparison
+#   (used by same_vals), since as a State holder, id comparison is correct in
+#   principle. It only needs the looser __eq__ due to old code in a bad style,
+#   but it's hard to know whether that code is entirely gone (and I think it's
+#   not and is hard to finally remove it).
+#
+# How does this affect the issue of changing Node to a new-style class?
+# If we do this with no code changes, Nodes lose the services of
+# _same_InstanceType_helper, but the above suggests they might never have
+# needed it anyway -- of the above issues, only the ones concerned with
+# '_s_same_as' and 'Bond' apply to instances of old or new classes.
+#
+# Conclusion: we can ignore extending _same_InstanceType_helper to new-style
+# Nodes -- in fact, we could dispense with it entirely in current code except
+# for Bond.
+#
+# (FYI: If we were to write a completely new framework, I think we'd use our
+# own classes rather than Numeric, with proper semantics for ==/!=,
+# and then dispense with same_vals entirely, relying on '==' even for Undo.)
 
-def _same_InstanceType_helper(obj1, obj2): #bruce 060419, relates to bug 1869; see detailed comment above
+
+def _same_InstanceType_helper(obj1, obj2):
+    #bruce 060419, relates to bug 1869; see detailed comment above
     if obj1 is obj2:
-        return # not just an optimization -- remaining code assumes obj1 is not obj2
-    # We might like to ask classify_instance(obj1).obj_is_data, but we have no canonical object-classifier to ask,
-    # so for A7 (no time to clean this up) we'lljust duplicate its code instead (and optimize it too).
+        return # not just an optim -- remaining code assumes obj1 is not obj2
+    # We might like to ask classify_instance(obj1).obj_is_data,
+    # but we have no canonical object-classifier to ask,
+    # so for A7 (no time to clean this up) we'll just duplicate its code instead
+    # (and optimize it too).
     class1 = obj1.__class__
-    ###k don't check copiers_for_InstanceType_class_names.has_key(class1.__name__), since that's always False for now.
+    ###k don't check copiers_for_InstanceType_class_names.has_key(class1.__name__),
+    # since that's always False for now.
     obj_is_data = hasattr(class1, '_s_isPureData')
     if obj_is_data:
         if obj1 != obj2: # rely on our implem of __eq__
@@ -225,16 +319,19 @@ def _same_Numeric_array_helper(obj1, obj2):
         raise _NotTheSame
     if obj1.typecode() == PyObject:
         if env.debug():
-            print "atom_debug: ran _same_Numeric_array_helper, PyObject case" # remove when works once ###@@@
-        # assume not multi-dimensional (if we are, this should work [untested] but it will be inefficient)
+            print "atom_debug: ran _same_Numeric_array_helper, PyObject case"
+                # remove when works once ###@@@
+        # assume not multi-dimensional (if we are, this should work [untested]
+        # but it will be inefficient)
         for i in xrange(len(obj1)):
-            _same_vals_helper(obj1[i], obj2[i]) # two PyObjects (if obj1 is 1-dim) or two lower-dim Numeric arrays
+            # two PyObjects (if obj1 is 1-dim) or two lower-dim Numeric arrays
+            _same_vals_helper(obj1[i], obj2[i]) 
     else:
-##        if env.debug():
-##            print "atom_debug: ran _same_Numeric_array_helper, non-PyObject case" # remove when works once ###@@@
         if obj1 != obj2:
-            # take pointwise !=, then boolean value of that (correct, but is there a more efficient Numeric function?)
-            # note: using '==' here (and negating boolean value of result) would NOT be correct
+            # take pointwise !=, then boolean value of that (correct, but is
+            # there a more efficient Numeric function?)
+            # note: using '==' here (and negating boolean value of result)
+            # would NOT be correct
             raise _NotTheSame
     return
 
@@ -281,7 +378,9 @@ _known_type_same_helpers[ InstanceType ] = _same_InstanceType_helper
 
 if _haveNumeric:
     # note: related code exists in state_utils.py.
-    numeric_array_type = type(array(range(2))) # __name__ is 'array', but Numeric.array itself is a built-in function, not a type
+    numeric_array_type = type(array(range(2)))
+        # __name__ is 'array', but Numeric.array itself is a built-in function,
+        # not a type
     assert numeric_array_type != InstanceType
     _known_type_same_helpers[ numeric_array_type ] = _same_Numeric_array_helper
     del numeric_array_type
@@ -294,27 +393,38 @@ if _haveNumpy:
     
 def _same_vals_helper(v1, v2): #060303
     """
-    [private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
-    (i.e. if their type or structure differs, or if any corresponding parts are not the same)
+    [private recursive helper for same_vals]
+
+    raise _NotTheSame if v1 is not the same as v2
+    (i.e. if their type or structure differs,
+     or if any corresponding parts are not the same)
     """
     typ = type(v1)
     if typ is not type(v2):
         raise _NotTheSame
-    same_helper = _known_type_same_helpers.get(typ) # this is a fixed public dictionary
+    same_helper = _known_type_same_helpers.get(typ) # a fixed public dictionary
     if same_helper is not None:
-        same_helper(v1, v2) # we optimize by not storing any scanner for atomic types, or a few others.
+        # we optim by not storing any scanner for atomic types, or a few others
+        same_helper(v1, v2) 
         return
-    # otherwise we assume v1 and v2 are things that can't be or contain a Numeric array, so it's sufficient to use !=.
-    # (If not for Numeric arrays of type PyObject, we could safely use != right here on a pair of Numeric arrays --
-    #  just not on things that might contain them, in case their type's != method used == on the Numeric arrays,
-    #  whose boolean value doesn't correctly say whether they're equal (instead it says whether one or more
-    #  corresponding elements are equal). Another difference is that 1 == 1.0, but we'll say those are not the same,
-    #  but that aspect of our specification doesn't matter much.)
+    # otherwise we assume v1 and v2 are things that can't be or contain a
+    # Numeric array, so it's sufficient to use !=.
+    # (If not for Numeric arrays of type PyObject, we could safely use !=
+    #  right here on a pair of Numeric arrays --
+    #  just not on things that might contain them, in case their type's !=
+    #  method used == on the Numeric arrays,
+    #  whose boolean value doesn't correctly say whether they're equal
+    #  (instead it says whether one or more
+    #   corresponding elements are equal).
+    #  Another difference is that 1 == 1.0, but we'll say those are not the
+    #  same; but that aspect of our specification doesn't matter much.)
     if v1 != v2:
         raise _NotTheSame
-    ###k is it reasonable to treat naive non-InstanceType objects as the same if they are merely __eq__ ?
-    # guess: yes, and is even good, but it's not obviously good nor obviously necessary. See also the comments
-    # above _same_InstanceType_helper. [bruce 060419]
+    ###k is it reasonable to treat naive non-InstanceType objects as the same
+    # if they are merely __eq__ ?
+    # guess: yes, and is even good, but it's not obviously good nor obviously
+    # necessary. See also the comments above _same_InstanceType_helper.
+    # [bruce 060419]
     return
 
 # ==

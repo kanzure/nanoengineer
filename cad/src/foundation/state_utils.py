@@ -1,10 +1,10 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 state_utils.py - general state-related utilities, and undo-related uses of them.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Note: same_vals was moved from here into a new file, utilities/Comparison.py,
 to break an import cycle. It is closely related to copy_val which remains here.
@@ -774,7 +774,7 @@ instancelike_classes = []
 
 # ==
 
-def register_instancelike_class( class1 ):
+def register_instancelike_class( class1 ): # todo: rename this, name is misleading
     """
     Classes whose instances need to be treated like InstanceType objects
     by scan_vals, copy_val, same_vals, and Undo, but which might not be
@@ -806,7 +806,10 @@ def register_instancelike_class( class1 ):
         # note: if class1 is a classic class, this entry is not needed,
         # but causes no harm since it will never be used (since no object
         # has a type of class1 in that case).
-    if (SAMEVALS_SPEEDUP):
+    if SAMEVALS_SPEEDUP:
+        ### TODO: optimize this, in case it's called with lots of classes.
+        # Right now it's quadratic time to set up, and linear in number of
+        # registered classes to use (but ought to be constant time).
         instancelike_classes.append(class1)
         from samevals import setInstanceLikeClasses
         setInstanceLikeClasses(instancelike_classes)
