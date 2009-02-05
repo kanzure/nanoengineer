@@ -15,6 +15,87 @@ TODO:
 and/or some code from there to here, so that this module no longer
 needs to import undo_archive.
 [bruce 071025 suggestion, echoing older comments herein]
+
+
+DISCUSSION of general data handling functions, their C extensions,
+their relation to Undo, and their relation to new-style classes [bruce 090205]:
+
+There are four general data-handling functions, which might be used on
+any data value found in undoable state or model state:
+
+- same_vals
+
+- copy_val
+
+- scan_vals
+
+- is_mutable
+
+These functions need to handle many Python builtin types and extension types,
+as well as our own classes, old style or new style. They each use lookup tables
+by type, and for class instances, we define special APIs by which classes can
+customize their behavior regarding these functions.
+
+There is also type-specific code in Undo other than just calls to those
+functions.
+
+We have a C extension module, samevals.pyx / samevalshelp.c, which defines
+optimized C versions of same_vals and copy_val.
+
+We have an experimental C extension module which causes classes Atom and Bond
+(normally old-style) to be Python extension classes (new-style).
+
+The customization/optimization system for all those functions, which relies
+on looking up an object's type and in some cases testing it for equalling
+InstanceType, works for old-style classes (whose instances' type is
+InstanceType) but not for new-style classes (whose instances' type is just
+their class).
+
+To make it work for new-style classes, such classes (including each individual
+subclass) need to be passed to register_instancelike_class. They also
+(like old-style classes) need to inherit one of StateMixin or DataMixin,
+and need to have correct definitions of __eq__ and __ne__. (One special
+case is class Bond, discussed in comments in Comparison.py dated 090205.)
+
+Here is how each Python and C function mentioned above works properly for
+new-style classes (or will do so soon):
+
+- same_vals: this is discussed at length in a comment in Comparison.py
+dated 090205. Briefly, its special case for InstanceType is only needed
+for class Bond, which is an old-style class (when standard code is being used),
+so it's fine that we don't extend it to cover new-style classes. This is true
+for both the Python and C versions of same_vals. Re the experimental code
+which makes Bond a new-style class, I haven't recently reviewed this for
+correctness when Bonds are passed to same_vals, and I don't recall its status. ### TODO: document that issue there
+
+- copy_val: this handles new-style classes which are passed to
+register_instancelike_class, since that function adds them to the type lookup
+dictionary for the Python version [#### WRONG (but it ought to) #####], and to a list of "instancelike classes"
+(warning: misleading name) used by the C version, resulting in both cases
+in copy_InstanceType being called to copy instances of these classes.
+
+##### HOW DOES IT (or smth else) REALLY HANDLE PYTHON copy_val???
+Guess: it is not yet working for Python version, but this is ok in current code
+since existing such classes (experimental Atom & Bond, maybe others) are not
+data-like. #### VERIFY, FIX
+
+- scan_vals: this only has a Python version. It handles new-style classes
+passed to register_instancelike_class, since that adds them to the type
+lookup table for scan_vals, so that scan_InstanceType will be called on them.
+
+- is_mutable: not yet reviewed ######
+
+- other code, all related to Undo, some in this file:
+
+  - various checks for InstanceType -- not yet reviewed ######
+
+  - other checks for mutable data object (if any) -- not yet reviewed ######
+
+  - use of class names via __class__.__name__ -- should work for old- or new-
+    style classes, as long as class "basenames" are unique (which is probably not verified ### FIX)
+    (old-style __name__ has dotted module name, new-style __name__ doesn't)
+
+
 """
 
 from types import InstanceType
@@ -136,18 +217,24 @@ class _eq_id_mixin_: #bruce 060209 ##e refile? use more? (GLPane?)
     def __eq__(self, other):
         return self is other
     def __ne__(self, other):
-        ## return not (self == other) # presumably this uses self.__eq__ -- would direct use be faster?
+        ## return not (self == other)
+        ##     # presumably this uses self.__eq__ -- would direct use be faster?
         return not self.__eq__(other)
-    def __nonzero__(self): ###k I did not verify in Python docs that __nonzero__ is the correct name for this! [bruce 060209]
-        ## return self is not None # of course it isn't!
+    def __nonzero__(self):
+        ### warning: I did not verify in Python docs that __nonzero__ is the
+        ### correct name for this! [bruce 060209]
         return True
-    def __hash__(self): #####k guess at name; guess at need for this due to __eq__, but it did make our objects ok as dict keys again
+    def __hash__(self):
+        #####k guess at name; guess at need for this due to __eq__,
+        #####  but it did make our objects ok as dict keys again
         return id(self) #####k guess at legal value
     pass
 
 # ==
 
-def noop(*args, **kws): #k redundant with noop in constants, but i don't want to try importing from there right now [bruce 070412]
+def noop(*args, **kws):
+    # duplicate code warning: redundant with def noop in constants.py,
+    # but i don't want to try importing from there right now [bruce 070412]
     pass
 
 def transclose( toscan, collector, layer_collector = noop, pass_counter = False):
@@ -632,18 +719,27 @@ def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficienc
 
 def is_mutable(val): #060302 [###@@@ use this more]
     """
-    Efficiently scan a potential argument to copy_val to see if it contains any mutable parts (including itself),
-    with special cases suitable for use on state-holding attribute values for Undo,
-    which might be surprising in other applications (notably, for most InstanceType objects).
-       Details:
-    Treat list and dict as mutable, tuple (per se) as not (but scan its components) -- all this is correct.
-    Treat Numeric.array as mutable, regardless of size or type (dubious for size 0, though type and maybe shape
-     could probably be changed, but this doesn't matter for now).
-    Treat unknown types with known_type_copiers entries as mutable (wrong in general, ok for now,
-     and might cover some of the above cases).
-    Treat InstanceType objects as mutable if and only if they define an _s_isPureData method.
-    (The other ones, we're thinking of as immutable references or object pointers,
-    and we don't care whether the objects they point to are mutable.)
+    Efficiently scan a potential argument to copy_val to see if it contains
+    any mutable parts (including itself), with special cases suitable for use
+    on state-holding attribute values for Undo, which might be surprising
+    in other applications (notably, for most InstanceType objects).
+
+    Details:
+
+    Treat list and dict as mutable, tuple (per se) as not (but scan its
+     components) -- all this is correct.
+
+    Treat Numeric.array as mutable, regardless of size or type
+    (dubious for size 0, though type and maybe shape could probably be changed,
+     but this doesn't matter for now).
+
+    Treat unknown types with known_type_copiers entries as mutable (wrong in
+     general, ok for now, and might cover some of the above cases).
+
+    Treat InstanceType objects as mutable if and only if they define an
+    _s_isPureData method. (The other ones, we're thinking of as immutable
+    references or object pointers, and we don't care whether the objects they
+    point to are mutable.)
     """
     try:
         _is_mutable_helper(val)
@@ -653,7 +749,9 @@ def is_mutable(val): #060302 [###@@@ use this more]
 
 def _is_mutable_helper(val): #060303
     """
-    [private recursive helper for is_mutable] raise _IsMutable if val (or part of it) is mutable
+    [private recursive helper for is_mutable]
+
+    raise _IsMutable if val (or part of it) is mutable
     """
     typ = type(val)
     if typ is type(()):
@@ -678,19 +776,28 @@ def _is_mutable_helper(val): #060303
     
 def scan_val(val, func): 
     """
-    Efficiently scan a general Python value, and call func on all InstanceType objects encountered
-    (or in the future, on objects of certain other types, like registered new-style classes or extension classes).
-       No need to descend inside any values unless they might contain InstanceType objects. Note that some InstanceType
-    objects define the _s_scan_children method, but we *don't* descend into them here using that -- this is only done
+    Efficiently scan a general Python value, and call func on all InstanceType
+    objects encountered (or in the future, on objects of certain other types,
+    like registered new-style classes or extension classes).
+
+    No need to descend inside any values unless they might contain InstanceType
+    (or similar) objects.
+
+    Note that some InstanceType objects define the _s_scan_children method,
+    but we *don't* descend into them here using that -- this is only done
     by other code, such as whatever code func might end up delivering such objects to.
-       Special case: we never descend into bound method objects either (see comment on known_type_scanners
-    for why).
-       Return an arbitrary value which caller should not use (always None in the present implem).
+    
+    Special case: we never descend into bound method objects either
+    (see comment on known_type_scanners for why).
+    
+    @return: an arbitrary value which caller should not use (always None in
+             the present implem)
     """
     typ = type(val)
     scanner = known_type_scanners.get(typ) # this is a fixed public dictionary
     if scanner is not None:
-        scanner(val, func) # we optimize by not storing any scanner for atomic types, or a few others.
+        # we optim by not storing any scanner for atomic types, or a few others
+        scanner(val, func) 
     return
     
 known_type_copiers[type([])] = copy_list
@@ -703,16 +810,29 @@ known_type_scanners[type(())] = scan_tuple
 
 
 def copy_InstanceType(obj): #e pass copy_val as an optional arg?
+    """
+    This is called by copy_val to support old-style instances,
+    or new-style instances whose classes were passed to
+    register_instancelike_class. [### REVIEW: is the latter true for Python copy_val or only C copy_val?? ##########]
+
+    @param obj: the object (class instance) being copied.
+    """
     # note: this shares some code with InstanceClassification  ###@@@DOIT
-    # not yet needed, since QColor is not InstanceType (but keep the code here for when it is needed):
+    
+    # the following code for QColor is not yet needed, since QColor instances
+    # are not of type InstanceType (but keep the code for when it is needed):
     ##copier = copiers_for_InstanceType_class_names.get(obj.__class__.__name__)
-    ##    # We do this by name so we don't need to import QColor (for example) unless we encounter one.
-    ##    # Similar code might be needed by anything that looks for _copyOfObject (as a type test or to use it). ###@@@ DOIT, then remove cmt
-    ##    #e There's no way around checking this every time, though we might optimize
-    ##    # by storing specific classes which copy as selves into some dict;
-    ##    # it's not too important since we'll optimize Atom and Bond copying in other ways.
+    ##    # We do this by name so we don't need to import QColor (for example)
+    ##    # unless we encounter one. Similar code might be needed by anything
+    ##    # that looks for _copyOfObject (as a type test or to use it).
+    ##    # ###@@@ DOIT, then remove cmt
+    ##    #e There's no way around checking this every time, though we might
+    ##    # optimize by storing specific classes which copy as selves into some
+    ##    # dict; it's not too important since we'll optimize Atom and Bond
+    ##    # copying in other ways.
     ##if copier is not None:
     ##    return copier(obj, copy_val) # e.g. for QColor
+    
     try:
         # note: not compatible with copy.deepcopy's __deepcopy__ method.
         # see DataMixin and IdentityCopyMixin below.
@@ -722,13 +842,19 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
         return obj
     res = copy_method() 
         #bruce 081229 no longer pass copy_val (removed never-used copyfunc arg)
-    if _debug_copyOfObject and (obj != res or (not (obj == res))): #bruce 060311 adding _debug_copyOfObject as optim (suggested by Will)
-        # Bug in copy_method, which will cause false positives in change-detection in Undo (since we'll return res anyway).
-        # (It's still better to return res than obj, since returning obj could cause Undo to completely miss changes.)
+    if _debug_copyOfObject and (obj != res or (not (obj == res))):
+        #bruce 060311 adding _debug_copyOfObject as optim (suggested by Will)
+        
+        # This has detected a bug in copy_method, which will cause false
+        # positives in change-detection in Undo (since we'll return res anyway).
+        # (It's still better to return res than obj, since returning obj could
+        #  cause Undo to completely miss changes.)
         #
-        # Note: we require obj == res, but not res == obj (e.g. in case a fancy number turns into a plain one).
-        # Hopefully the fancy object could define some sort of __req__ method, but we'll try to not force it to for now;
-        # this has implications for how our diff-making archiver should test for differences. ###@@@doit
+        # Note: we require obj == res, but not res == obj (e.g. in case a fancy
+        # number turns into a plain one). Hopefully the fancy object could
+        # define some sort of __req__ method, but we'll try to not force it to
+        # for now; this has implications for how our diff-making archiver should
+        # test for differences. ###@@@doit
 
         msg = "bug: obj != res or (not (obj == res)), res is _copyOfObject of obj; " \
               "obj is %r, res is %r, == is %r, != is %r: " % \
@@ -740,7 +866,9 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
             print_compact_stack( msg + ": ")
             try:
                 method = obj._s_printed_diff
-                    # experimental (#e rename): list of strings (or so) which explain why __eq_ returns false [060306, for bug 1616]
+                    # experimental (#e rename):
+                    # list of strings (or so) which explain why __eq_ returns
+                    # false [060306, for bug 1616]
             except AttributeError:
                 pass
             else:
@@ -754,6 +882,9 @@ if SAMEVALS_SPEEDUP:
     #  and for copy_val here in state_utils.py.)
     from samevals import copy_val, setInstanceCopier, setArrayCopier
     setInstanceCopier(copy_InstanceType)
+        # note: this means copy_InstanceType is applied by the C version
+        # of copy_val to instances of InstanceType or of any class in the
+        # list passed to setInstanceLikeClasses.
     setArrayCopier(lambda x: x.copy())
 
 # inlined:
@@ -763,16 +894,26 @@ if SAMEVALS_SPEEDUP:
 known_type_copiers[ InstanceType ] = copy_InstanceType
 
 def scan_InstanceType(obj, func):
+    """
+    This is called by scan_vals to support old-style instances,
+    or new-style instances whose classes were passed to
+    register_instancelike_class.
+
+    @param obj: the object (class instance) being scanned.
+
+    @param func: ###doc this
+    """
     func(obj)
-    #e future optim: could we change API so that apply could serve in place of scan_InstanceType?
-    # Probably not, but nevermind, we'll just do all this in C.
+    #e future optim: could we change API so that apply could serve in place
+    # of scan_InstanceType? Probably not, but nevermind, we'll just do all
+    # this in C.
     return None 
 
 known_type_scanners[ InstanceType ] = scan_InstanceType
 
-instancelike_classes = []
-
 # ==
+
+_instancelike_classes = [] # extended below; affects C copy_val only
 
 def register_instancelike_class( class1 ): # todo: rename this, name is misleading
     """
@@ -810,12 +951,12 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
         ### TODO: optimize this, in case it's called with lots of classes.
         # Right now it's quadratic time to set up, and linear in number of
         # registered classes to use (but ought to be constant time).
-        instancelike_classes.append(class1)
+        _instancelike_classes.append(class1)
         from samevals import setInstanceLikeClasses
-        setInstanceLikeClasses(instancelike_classes)
+        setInstanceLikeClasses(_instancelike_classes) # fix C copy_val
     return
 
-def is_instancelike_class( class1 ): #bruce 080325
+def is_instancelike_class( class1 ): #bruce 080325; used only in debug code as of 090205
     return known_type_scanners.get(class1, None) is scan_InstanceType
 
 # ==
@@ -829,43 +970,45 @@ def copy_Numeric_array(obj):
             # Note: We can't assume the typecode of the copied array should also be PyObject,
             # since _copyOfObject methods could return anything, so let it be inferred.
             # In future we might decide to let this typecode be declared somehow...
-##    if env.debug():
-##        print "atom_debug: ran copy_Numeric_array, non-PyObject case" # remove when works once ... it did
 ##    if debug_dont_trust_Numeric_copy: # 060302
 ##        res = array( map( copy_val, list(obj)) )
 ##        if debug_print_every_array_passed_to_Numeric_copy and env.debug():
-##            print "copy_Numeric_array on %#x produced %#x (not using Numeric.copy); input data %s" % (id(obj), id(res), obj) 
+##            print "copy_Numeric_array on %#x produced %#x (not using Numeric.copy); input data %s" % \
+##                  (id(obj), id(res), obj) 
 ##        return res
     return obj.copy() # use Numeric's copy method for Character and number arrays 
         ###@@@ verify ok from doc of this method...
 
 def scan_Numeric_array(obj, func):
-    if obj.typecode() == PyObject: # note: this doesn't imply each element is an InstanceType instance, just an arbitrary Python value
-        if (env.debug() or DEBUG_PYREX_ATOMS):
+    if obj.typecode() == PyObject:
+        # note: this doesn't imply each element is an InstanceType instance,
+        # just an arbitrary Python value
+        if env.debug() or DEBUG_PYREX_ATOMS:
             print "atom_debug: ran scan_Numeric_array, PyObject case" # remove when works once ###@@@
         ## map( func, obj)
         for elt in obj:
             scan_val(elt, func) #bruce 060315 bugfix
         # is there a more efficient way?
         ###e this is probably correct but far too slow for multiple dimensions; doesn't matter for now.
-##    else:
-##        if env.debug():
-##            print "atom_debug: ran scan_Numeric_array, non-PyObject case" # remove when works once [it did, on test values, 060314]
     return
 
 try:
     from Numeric import array, PyObject
 except:
-    if (env.debug() or DEBUG_PYREX_ATOMS):
+    if env.debug() or DEBUG_PYREX_ATOMS:
         print "fyi: can't import array, PyObject from Numeric, so not registering its copy & scan functions"
 else:
     # note: related code exists in utilities/Comparison.py.
-    numeric_array_type = type(array(range(2))) # __name__ is 'array', but Numeric.array itself is a built-in function, not a type
+    numeric_array_type = type(array(range(2)))
+        # note: __name__ is 'array', but Numeric.array itself is a
+        # built-in function, not a type
     assert numeric_array_type != InstanceType
     known_type_copiers[ numeric_array_type ] = copy_Numeric_array
     known_type_scanners[ numeric_array_type ] = scan_Numeric_array
     _Numeric_array_type = numeric_array_type #bruce 060309 kluge, might be temporary
-    del numeric_array_type # but leave array, PyObject as module globals for use by the functions above, for efficiency
+    del numeric_array_type
+        # but leave array, PyObject as module globals for use by the
+        # functions above, for efficiency
     pass
 
 # ==
@@ -901,8 +1044,9 @@ else:
         print " so Undo is not yet able to copy QColors properly; this is not known to cause bugs"
         print " but its full implications are not yet understood. So far this is only known to happen"
         print " in some systems running Mandrake Linux 10.1. [message last updated 060421]"
-    # no scanner for QColor is needed, since it contains no InstanceType objects.
-    # no same_helper is needed, since '!=' will work correctly (only possible since it contains no general Python objects).
+    # no scanner for QColor is needed, since it contains no InstanceType
+    # objects. no same_helper is needed, since '!=' will work correctly
+    # (only possible since it contains no general Python objects).
     del QColor, QColor_type
     pass
 
@@ -1933,10 +2077,12 @@ class StateMixin( _eq_id_mixin_, IdentityCopyMixin ):
     """
     # try not having this:
     ## _s_attr__StateMixin__fake = S_IGNORE
-        # decl for fake attr __fake (name-mangled to _StateMixin__fake to be private to this mixin class),
-        # to avoid warnings about classes with no declared state attrs without requiring them to be registered (which might be nim)
-        # (which is ok, since if you added this mixin to them, you must have thought about
-        #  whether they needed such decls)
+        # decl for fake attr __fake (name-mangled to _StateMixin__fake
+        # to be private to this mixin class),
+        # to avoid warnings about classes with no declared state attrs
+        # without requiring them to be registered (which might be nim)
+        # (which is ok, since if you added this mixin to them, you must
+        #  have thought about whether they needed such decls)
     def _undo_update(self):
         """
         #doc [see docstring in chunk]

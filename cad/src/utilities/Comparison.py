@@ -19,7 +19,7 @@ moved SAMEVALS_SPEEDUP and "import samevals" along with it
 setup2.py [now in outtakes], and part of Makefile) [bruce 071005]
 """
 
-from types import InstanceType # use this form in inner loops
+from types import InstanceType
 
 _haveNumeric = True # might be modified below
 
@@ -375,6 +375,9 @@ _known_type_same_helpers[type([])] = _same_list_helper
 _known_type_same_helpers[type({})] = _same_dict_helper
 _known_type_same_helpers[type(())] = _same_tuple_helper
 _known_type_same_helpers[ InstanceType ] = _same_InstanceType_helper
+    # note: see long comment below, which concludes "we can ignore
+    # extending _same_InstanceType_helper to new-style Nodes"
+    # (re changing class Node to be a new-style class). [bruce 090205 comment]
 
 if _haveNumeric:
     # note: related code exists in state_utils.py.
@@ -400,17 +403,30 @@ def _same_vals_helper(v1, v2): #060303
      or if any corresponding parts are not the same)
     """
     typ = type(v1)
+        # note: if v1 is an instance of an old-style class,
+        # type(v1) is InstanceType;
+        # if v1 is an instance of a new-style class,
+        # type(v1) is the class itself.
+        # Either way, v1.__class__ is the class itself.
     if typ is not type(v2):
         raise _NotTheSame
     same_helper = _known_type_same_helpers.get(typ) # a fixed public dictionary
+        # note: this has an entry for InstanceType (necessary only for Bond)
+        # but not for new-style classes. This is ok; see comments dated 090205.
     if same_helper is not None:
         # we optim by not storing any scanner for atomic types, or a few others
-        same_helper(v1, v2) 
-        return
-    # otherwise we assume v1 and v2 are things that can't be or contain a
-    # Numeric array, so it's sufficient to use !=.
+        same_helper(v1, v2) # might raise _NotTheSame
+    else:
+        # general case -- depend on __eq__/__ne__. The things this is wrong for
+        # are listed in comments dated 090205, and are all covered by
+        # entries in _known_type_same_helpers.
+        if v1 != v2:
+            raise _NotTheSame
+    return
+
+    # old comment, still true but might be redundant:
     # (If not for Numeric arrays of type PyObject, we could safely use !=
-    #  right here on a pair of Numeric arrays --
+    #  in the above code on a pair of Numeric arrays --
     #  just not on things that might contain them, in case their type's !=
     #  method used == on the Numeric arrays,
     #  whose boolean value doesn't correctly say whether they're equal
@@ -418,14 +434,6 @@ def _same_vals_helper(v1, v2): #060303
     #   corresponding elements are equal).
     #  Another difference is that 1 == 1.0, but we'll say those are not the
     #  same; but that aspect of our specification doesn't matter much.)
-    if v1 != v2:
-        raise _NotTheSame
-    ###k is it reasonable to treat naive non-InstanceType objects as the same
-    # if they are merely __eq__ ?
-    # guess: yes, and is even good, but it's not obviously good nor obviously
-    # necessary. See also the comments above _same_InstanceType_helper.
-    # [bruce 060419]
-    return
 
 # ==
 
