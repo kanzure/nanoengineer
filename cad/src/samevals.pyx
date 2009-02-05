@@ -1,8 +1,8 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author: EricM
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import types
@@ -59,13 +59,13 @@ def setInstanceCopier(copier):
     if (PyCallable_Check(copier)):
         c_setInstanceCopier(copier)
     else:
-        raise TypeError, "argument must be executable"
+        raise TypeError, "argument must be callable"
 
 def setArrayCopier(copier):
     if (PyCallable_Check(copier)):
         c_setArrayCopier(copier)
     else:
-        raise TypeError, "argument must be executable"
+        raise TypeError, "argument must be callable"
 
 def setInstanceLikeClasses(classList):
     if (PyList_Check(classList)):
