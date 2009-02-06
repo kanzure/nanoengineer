@@ -255,11 +255,13 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         self.drawIndex = None
         return
         
-    def addSphere(self, center, radius, color, transform_id, glname):
+    def addSphere(self, center, radius, color, glname):
         """
         Allocate a sphere primitive and add its ID to the sphere list.
-        color is a list of components: [R, G, B].
-        transform_id may be None.
+        . center is a VQT point.
+        . radius is a number.
+        . color is a list of components: [R, G, B].
+        . glname comes from the _gl_name_stack.
         """
         self.spheres += drawing_globals.spherePrimitives.addSpheres(
             [center], radius, color, self.transform_id(), glname)
@@ -267,13 +269,13 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         return
 
     # Russ 090119: Added.
-    def addCylinder(self, endpts, radii, color, transform_id, glname):
+    def addCylinder(self, endpts, radii, color, glname):
         """
         Allocate a cylinder primitive and add its ID to the cylinder list.
         . endpts is a tuple of two VQT points.
         . radii may be a single number, or a tuple of two radii for taper.
         . color is a list of components: [R, G, B] or [R, G, B, A].
-        . transform_id may be None.
+        . glname comes from the _gl_name_stack.
         """
         self.cylinders += drawing_globals.cylinderPrimitives.addCylinders(
             [endpts], radii, color, self.transform_id(), glname)
@@ -710,7 +712,6 @@ class ColorSorter:
                 assert ColorSorter.sorting # since _parent_csdl is present
                 ColorSorter._parent_csdl.addSphere(
                     pos, radius, lcolor,
-                    ColorSorter._parent_csdl.transform_id(),
                     # Mouseover glnames come from ColorSorter.pushName() .
                     ColorSorter._gl_name_stack[-1])
             else:
@@ -773,7 +774,6 @@ class ColorSorter:
                 ColorSorter._parent_csdl.addCylinder(
                     # For a tapered cylinder or cone, pass a tuple of two radii.
                     (pos1, pos2), radius, lcolor,
-                    ColorSorter._parent_csdl.transform_id(),
                     # Mouseover glnames come from ColorSorter.pushName() .
                     ColorSorter._gl_name_stack[-1])
             else:
