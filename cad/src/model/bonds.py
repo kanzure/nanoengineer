@@ -54,7 +54,6 @@ import foundation.env as env
 from foundation.changedicts import register_changedict, register_class_changedicts
 
 from foundation.state_utils import StateMixin
-from foundation.state_utils import register_instancelike_class
 
 from foundation.state_constants import S_CACHE, S_DATA, S_PARENT
 from foundation.state_constants import UNDO_SPECIALCASE_BOND
@@ -2297,7 +2296,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
 
     pass # end of class Bond
 
-register_instancelike_class( Bond) # ericm & bruce 080225
+# ==
 
 def is_new_style_class(c): #bruce 090206, refile
     # I'm not sure if this is the best test, but it's the best I have now.
@@ -2309,8 +2308,7 @@ def is_new_style_class(c): #bruce 090206, refile
     return hasattr(c, '__mro__')
 
 if is_new_style_class(Bond): #bruce 090205
-    # see comments in state_utils.py docstring, Comparison.py, and above;
-    # register_instancelike_class doesn't yet handle same_vals.
+    # see comments in state_utils.py docstring, Comparison.py, and above.
     # The comments also say how to fix this (not hard, but does require
     # changes to the C version of same_vals).
     msg = "WARNING: Bond (%r) is new-style -- possible Undo bugs related " \

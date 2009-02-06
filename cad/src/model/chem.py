@@ -158,7 +158,6 @@ from platform_dependent.PlatformDependent import fix_plurals
 import foundation.env as env
 
 from foundation.state_utils import StateMixin
-from foundation.state_utils import register_instancelike_class
 from foundation.state_utils import copy_val
 
 from foundation.state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
@@ -5049,8 +5048,6 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
 # ==
 
-register_instancelike_class( Atom) # ericm & bruce 080225
-
 register_class_changedicts( Atom, _Atom_global_dicts )
     # error if one class has two same-named changedicts 
     # (so be careful re module reload)
@@ -5067,6 +5064,5 @@ register_class_changedicts( Atom, _Atom_global_dicts )
 ##    # tell undo to treat the class as Atom when grabbing and storing diffs:
 ##    _s_undo_class_alias = Atom
 ##    pass
-##register_instancelike_class( Atom2)
 
 # end

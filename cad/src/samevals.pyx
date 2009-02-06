@@ -74,7 +74,7 @@ def setArrayCopier(copier):
     else:
         raise TypeError, "argument must be callable"
 
-def setInstanceLikeClasses(classList):
+def setInstanceLikeClasses(classList): # deprecated, bruce 090206
     if (PyList_Check(classList)):
         c_setInstanceLikeClasses(classList)
     else:

@@ -20,6 +20,9 @@ needs to import undo_archive.
 DISCUSSION of general data handling functions, their C extensions,
 their relation to Undo, and their relation to new-style classes [bruce 090205]:
 
+WARNING: this discussion is obsolete as of 090206, since the system is being
+generalized to handle all new-style classes, and simplified.
+
 There are four general data-handling functions, which might be used on
 any data value found in undoable state or model state:
 
@@ -52,7 +55,7 @@ InstanceType) but not for new-style classes (whose instances' type is just
 their class).
 
 To make it work for new-style classes, such classes (including each individual
-subclass) need to be passed to register_instancelike_class. They also
+subclass) need to be passed to register_instancelike_class [### not anymore]. They also
 (like old-style classes) need to inherit one of StateMixin or DataMixin,
 and need to have correct definitions of __eq__ and __ne__. (One special
 case is class Bond, discussed in comments in Comparison.py dated 090205.)
@@ -726,9 +729,9 @@ _DEBUG_COPYOFOBJECT = False # initial value not used -- set to env.debug() in ea
 def copy_val(val):
     """
     Efficiently copy a general Python value (so that mutable components are
-    not shared with the original), returning class instances (and similar
-    objects) unchanged, unless they define a _copyOfObject method,
-    and returning unrecognized objects (e.g. QWidgets, bound methods) unchanged.
+    not shared with the original), returning class instances unchanged unless
+    they define a _copyOfObject method, and returning unrecognized objects
+    (e.g. QWidgets, bound methods) unchanged.
 
     (See a code comment for the reason we can't just use the standard Python
      copy module for this.)
@@ -824,14 +827,13 @@ def _is_mutable_helper(val): #060303
 def scan_val(val, func): 
     """
     Efficiently scan a general Python value, and call func on all InstanceType
-    objects encountered (or in the future, on objects of certain other types,
-    like registered new-style classes or extension classes).
+    objects (old-style class instances) and/or InstanceLike objects (instances
+    of subclasses of InstanceLike, whether old or new style) encountered.
 
-    No need to descend inside any values unless they might contain InstanceType
-    (or similar) objects.
+    No need to descend inside any values unless they might contain class instances.
 
-    Note that some InstanceType objects define the _s_scan_children method,
-    but we *don't* descend into them here using that -- this is only done
+    Note that some classes define the _s_scan_children method, but we *don't*
+    descend into their instances here using that method -- this is only done
     by other code, such as whatever code func might end up delivering such objects to.
     
     Special case: we never descend into bound method objects either.
@@ -869,10 +871,13 @@ _known_type_scanners[type(())] = scan_tuple
 def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy_instance ? TODO: merge with generalCopier
     """
     This is called by copy_val to support old-style instances,
-    or new-style instances whose classes were passed to
-    register_instancelike_class. [### REVIEW: is the latter true for Python copy_val or only C copy_val?? ##########]
+    or (for C copy_val only) new-style instances whose classes were
+    passed to setInstanceLikeClasses (as of 090206 that is never done).
 
-    Its main point is to honor the _copyOfObject method on obj
+    (The same thing is done for other new-style InstanceLike classes
+     by generalCopier, which will soon be merged with this function.)
+
+    This function's main point is to honor the _copyOfObject method on obj
     (returning whatever it returns), rather than just returning obj
     (as it does anyway if that method is not defined).
 
@@ -1007,18 +1012,17 @@ if SAMEVALS_SPEEDUP:
     from samevals import copy_val, setInstanceCopier, setGeneralCopier, setArrayCopier
     setInstanceCopier(copy_InstanceType)
         # note: this means copy_InstanceType is applied by the C version
-        # of copy_val to instances of InstanceType or of any class in the
-        # list passed to setInstanceLikeClasses.
+        # of copy_val to instances of InstanceType (or of any class in the
+        # list passed to setInstanceLikeClasses, but we no longer do that).
     setGeneralCopier(generalCopier)
         # note: generalCopier is applied to anything that lacks hardcoded copy
         # code which isn't handled by setInstanceCopier, including
         # miscellaneous extension types, and instances of any new-style classes
         # not passed to setInstanceLikeClasses. In current code and in routine
         # usage, it is probably never used, but if we introduce new-style model
-        # classes and don't register them, it will be used to copy their
-        # instances. Soon I plan to stop registering anything (no longer using
-        # setInstanceLikeClasses) and to make some model classes new-style.
-        # [new feature, bruce 090206]
+        # classes (or use the experimental atombase extension), it will be used
+        # to copy their instances. Soon I plan to make some model classes
+        # new-style. [new feature, bruce 090206]
     setArrayCopier(lambda x: x.copy())
 
 # inlined:
@@ -1048,54 +1052,6 @@ _known_type_scanners[ InstanceType ] = scan_InstanceType
     #  if there are any old-style classes that we should scan this way
     #  but which don't inherit InstanceLike; that is probably an error
     #  but not currently detected. [bruce 090206 comment])
-
-# ==
-
-##_instancelike_classes = [] # extended below; affects C copy_val only
-
-def register_instancelike_class( class1 ): # todo: rename this, name is misleading
-    """
-    Classes whose instances need to be treated like InstanceType objects
-    by scan_vals, copy_val, same_vals, and Undo, but which might not be
-    InstanceType objects (e.g. they might be instances of new-style or extension
-    classes or their subclasses, which have their class as their type --
-    or as of 090206, we can just say, if they're new-style instances of InstanceLike),
-    must call this function immediately after they are defined
-    (before the above-mentioned code could possibly be called).
-
-    If they are in fact classic classes (and therefore don't need to call it),
-    it's a noop, or has ignorable effects. It's ok to call it more than once
-    for the same class.
-
-    Note that their subclasses must also call it explicitly -- they are not
-    automatically registered because their superclasses are.
-
-    @param class1: the class to be registered.
-    @type class1: any kind of class (classic, new-style, or extension).
-
-    @warning: The error of not calling this when you should is not yet detected.
-              Nor is the error of calling it with an illegal value.
-
-    @warning: This is only implemented for scan_val Python version
-              as of 080225 -- not yet for copy_val, same_vals, or the C version
-              of those or (if it has a C version) scan_val. It may be implemented
-              for Undo by virtue of being implemented for scan_val, but this is
-              not yet reviewed in detail.
-    """
-##    _known_type_scanners[ class1 ] = scan_InstanceType # fix scan_val
-##        # note: if class1 is a classic class, this entry is not needed
-##        # but causes no harm since it will never be used (since no object
-##        # has a type of class1 in that case).
-##    ##### TODO, bruce 090205:
-##    ##### _known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
-##    if SAMEVALS_SPEEDUP:
-##        ### TODO: optimize this, in case it's called with lots of classes.
-##        # Right now it's quadratic time to set up, and linear in number of
-##        # registered classes to use (but ought to be constant time).
-##        _instancelike_classes.append(class1)
-##        from samevals import setInstanceLikeClasses
-##        setInstanceLikeClasses(_instancelike_classes) # fix C copy_val
-    return
 
 # ==
 

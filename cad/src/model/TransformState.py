@@ -11,7 +11,6 @@ NOT YET USED as of 090204
 
 
 from foundation.state_utils import StateMixin
-from foundation.state_utils import register_instancelike_class
 from foundation.state_utils import copy_val
 
 from utilities.Comparison import same_vals
@@ -88,8 +87,6 @@ class TransformState(StateMixin, object):
                           (_IDENTITY_TRANSLATION, _IDENTITY_ROTATION) )
     pass
 
-register_instancelike_class( TransformState)
-
 # ==
 
 class StaticTransform( TransformState):
@@ -137,7 +134,5 @@ class StaticTransform( TransformState):
         return self._nodes.itervalues()
     
     pass
-
-register_instancelike_class( StaticTransform)
 
 # end
