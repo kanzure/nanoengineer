@@ -465,7 +465,8 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                                 self.attrs_declared_as(S_CHILDREN) + \
                                 self.attrs_declared_as(S_CHILDREN_NOT_DATA)  #e sorted somehow? no need yet.
         
-        self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_isPureData')
+        self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or \
+                              hasattr(class1, '_s_isPureData')
             # WARNING: this code is duplicated/optimized in _same_InstanceType_helper [as of bruce 060419, for A7]
 
         if self.warn and (env.debug() or DEBUG_PYREX_ATOMS):
@@ -655,7 +656,9 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         """
         Should obj (one of our class's instances) be considered a data object?
         """
-        return self._objs_are_data ## or hasattr(obj, '_s_isPureData'), if we let individual instances override their classes on this
+        return self._objs_are_data
+            ## or hasattr(obj, '_s_isPureData'),
+            # if we want to let individual instances override this
     
     def copy(self, val, func): # from outside, when in vals, it might as well be atomic! WRONG, it might add self to todo list...
         """
@@ -766,7 +769,7 @@ def is_mutable(val): #060302
     Efficiently scan a potential argument to copy_val to see if it contains
     any mutable parts (including itself), with special cases suitable for use
     on state-holding attribute values for Undo, which might be surprising
-    in other applications (notably, for most InstanceType objects).
+    in other applications (notably, for most InstanceType/InstanceLike objects).
 
     Details:
 
@@ -781,8 +784,8 @@ def is_mutable(val): #060302
      though might need registration scheme in future; might cover some of the
      above cases).
 
-    Treat InstanceType objects as mutable if and only if they define an
-    _s_isPureData method. (The other ones, we're thinking of as immutable
+    Treat InstanceLike instances as mutable if and only if they define an
+    _s_isPureData attribute. (The other ones, we're thinking of as immutable
     references or object pointers, and we don't care whether the objects they
     point to are mutable.)
     """
@@ -1951,7 +1954,7 @@ class obj_classifier:
         found (recursively, on these same objects) in their attributes which were
         declared S_CHILD or S_CHILDREN or S_CHILDREN_NOT_DATA using the state attribute decl system... [#doc that more precisely]
         return them as the values of a dictionary whose keys are their python id()s.
-           Note: this scans through "data objects" (defined as those which define an '_s_isPureData' method)
+           Note: this scans through "data objects" (defined as those which define an '_s_isPureData' attribute on their class)
         only once, but doesn't include them in the return value. This is necessary (I think) because
         copy_val copies such objects. (Whether it's optimal is not yet clear.)
            If deferred_category_collectors is provided, it should be a dict from attr-category names
@@ -2210,6 +2213,11 @@ class DataMixin(InstanceLike):
     about it). All such data-like classes which may be handled by
     copy_val must inherit DataMixin.
     """
+    _s_isPureData = None # value is arbitrary; only presence of attr matters
+        # note: presence of this attribute makes sure this object is treated as data.
+        # (this is a kluge, and an isinstance test might make more sense,
+        #  but at the moment that might be an import cycle issue.)
+        # [by EricM, revised by Bruce 090206]
     def _copyOfObject(self):
         """
         This method must be defined in subclasses to implement
@@ -2236,9 +2244,6 @@ class DataMixin(InstanceLike):
         print "_copyOfObject needs to be overridden in", self
         print "  (implem must be compatible with __eq__)"
         return self
-    def _s_isPureData(self): 
-        # note: presence of this method makes sure this object is treated as data.
-        pass
     def __eq__(self, other):
         print "__eq__ needs to be overridden in", self
         print "  (implem must be compatible with _copyOfObject; " \
