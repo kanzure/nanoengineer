@@ -36,8 +36,8 @@ any data value found in undoable state or model state:
 
 These functions need to handle many Python builtin types and extension types,
 as well as our own classes, old style or new style. They each use lookup tables
-by type, and for class instances, we define special APIs by which classes can
-customize their behavior regarding these functions.
+by type, and for class instances (old style or new style), we define special
+APIs by which classes can customize their behavior regarding these functions.
 
 There is also type-specific code in Undo other than just calls to those
 functions.
@@ -51,17 +51,25 @@ We have an experimental C extension module which causes classes Atom and Bond
 The customization/optimization system for all those functions, which relies
 on looking up an object's type and in some cases testing it for equalling
 InstanceType, works for old-style classes (whose instances' type is
-InstanceType) but not for new-style classes (whose instances' type is just
-their class).
+InstanceType) but not fully for new-style classes (whose instances' type is
+just their class).
 
-To make it work for new-style classes, such classes (including each individual
-subclass) need to be passed to register_instancelike_class [### not anymore]. They also
-(like old-style classes) need to inherit one of StateMixin or DataMixin,
-and need to have correct definitions of __eq__ and __ne__. (One special
+This is being revised (partly done as of 090206) so that
+new-style classes are also handled if they define appropriate methods and/or
+inherit from a new superclass InstanceLike (which StateMixin and DataMixin
+now do). The code changes required include replacing checks for InstanceType
+with checks for InstanceLike (mostly not done), or directly checking arbitrary
+objects for instanceof InstanceLike and/or having certain methods (partly done).
+
+In general, to make this work properly for any class (old or new style),
+it needs to inherit one of the mixin superclasses StateMixin or DataMixin,
+and to have correct definitions of __eq__ and __ne__. (One special
 case is class Bond, discussed in comments in Comparison.py dated 090205.)
+
 
 Here is how each Python and C function mentioned above works properly for
 new-style classes (or will do so soon):
+
 
 - same_vals: this is discussed at length in a comment in Comparison.py dated
 090205. Briefly, its special case for InstanceType (to cause
@@ -72,7 +80,8 @@ class (when standard code is being used), so it's fine that we don't extend
 that same_vals special case for InstanceType to cover new-style classes.
 This is true for both the Python and C versions of same_vals. (And both would
 need fixing if we wanted to handle Bond being a new-style class but continue
-using its __eq__ kluge.)
+using its __eq__ kluge. Since Bond is the only class that would need that fix,
+we'd want a fix that didn't slow down the general case.)
 
 Re the experimental code which makes Bond a new-style class: the lack
 of a same_vals special case would cause __eq__ to be used by same_vals
@@ -80,45 +89,36 @@ of a same_vals special case would cause __eq__ to be used by same_vals
 in Undo, so it should be fixed. I documented that issue in Bond and made it
 print a warning and assert 0 if it's new-style.
 
-### FIX: can we just fix this in the register_instancelike_class call?
-what about for the C version? Not bothering for now, since there's no
-immediate need to let Bond be a new-style class, and the warning and assertion
-should mean we don't forget.
+I'm not bothering to fix this for now (in either Python or C same_vals),
+since there's no immediate need to let Bond be a new-style class,
+and the warning and assertion should mean we don't forget.
 
-- copy_val: this handles new-style classes which are passed to
-register_instancelike_class, since that function adds them to the type lookup
-dictionary for the Python version [#### WRONG (but it ought to) #####], and to a list of "instancelike classes"
-(warning: misleading name) used by the C version, resulting in both cases
-in copy_InstanceType being called to copy instances of these classes.
 
-##### HOW DOES IT (or something else) REALLY HANDLE PYTHON copy_val???
-Guess: that is not yet working for Python version, but this is ok in current code
-since existing such classes (experimental Atom & Bond, maybe others) are not
-data-like. #### VERIFY, FIX
-... what really happens: the copy_val bug is there for any new-style class that
-defines _copyOfObject as something other than returning self -- i.e. a datalike class.
-Most or all of these are a subclass of DataMixin. Note: they might not be correct
-to consider instancelike -- not sure. Or if they are, we can optim the registration
-by seeing if they're data or identitycopy. ####
-In python version this bug happens if you forget to register it and even if you do...
-in C version only if you forget, I think -- IF instancelike ie copy_InstanceType is a correct behavior. ### is it??
-btw can we dispense with this if we use some better test than the list? like isinstance of DataMixin? in Python and C code? ###
-that might be faster!!! ##### or just getattr and permit failure... or direct access to same dict as python uses...
+- copy_val: this properly handles all old-style and new-style classes.
+The details are slightly different for Python and C, and include
+detection of InstanceType, isinstance check for InstanceLike,
+and looking directly for the _copyOfObject method. The copying is
+handled by copy_InstanceType and/or generalCopier (which ought to be merged ###DOIT)
+being called to copy instances of these classes.
 
-- scan_vals: this only has a Python version. It handles new-style classes
-passed to register_instancelike_class, since that adds them to the type
-lookup table for scan_vals, so that scan_InstanceType will be called on them.
 
-- is_mutable: not yet reviewed ######
+- scan_vals: this only has a Python version. It properly handles all
+old-style and new-style classes similarly to copy_val, calling scan_InstanceType
+to handle them (though that's a misleading name when used on new-style classes ### FIX).
+
+
+- is_mutable: I think this is correct for both old and new style classes,
+since in either case it detects an attribute defined only in DataMixin.
+### NO, it's not yet fixed, it only does it for old-style so far. ##### FIX!!
+
 
 - other code, all related to Undo, some in this file:
 
   - various checks for InstanceType -- not yet reviewed ######
 
-  - other checks for mutable data object (if any) -- not yet reviewed ######
-
   - use of class names via __class__.__name__ -- should work for old- or new-
-    style classes, as long as class "basenames" are unique (which is probably not verified ### FIX)
+    style classes, as long as class "basenames" are unique (which is probably not
+    verified by this code ### FIX)
     (old-style __name__ has dotted module name, new-style __name__ doesn't)
 
 
