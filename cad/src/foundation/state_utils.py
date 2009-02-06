@@ -698,7 +698,9 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
 
 # == helper code  [##e all code in this module needs reordering]
 
-known_type_copiers = {} # needs no entry for types whose instances can all be copied as themselves. Also used by is_mutable.
+known_type_copiers = {} # needs no entry for types whose instances can all be copied as themselves
+
+_known_mutable_types = {} # used by is_mutable
 
 known_type_scanners = {} # only needs entries for types whose instances might contain (or be) InstanceType objects,
     # and which might need to be entered for finding "children" (declared with S_CHILD) -- for now we assume that means
@@ -744,8 +746,7 @@ def copy_val(val):
     except KeyError:
         # we used to optimize by not storing any copier for atomic types...
         # but now that we call generalCopier [bruce 090206] that is no longer
-        # an optimization. It's not trivial to fix (due to dual use of
-        # known_type_copiers as is_mutable kluge), but since the C code is
+        # an optimization, but since the C code is
         # used by all end-users and most developers, nevermind for now.
         return generalCopier(val)
     else:
@@ -753,7 +754,7 @@ def copy_val(val):
         return copier(val)
     pass
 
-def is_mutable(val): #060302 [###@@@ use this more]
+def is_mutable(val): #060302
     """
     Efficiently scan a potential argument to copy_val to see if it contains
     any mutable parts (including itself), with special cases suitable for use
@@ -769,14 +770,21 @@ def is_mutable(val): #060302 [###@@@ use this more]
     (dubious for size 0, though type and maybe shape could probably be changed,
      but this doesn't matter for now).
 
-    Treat unknown types with known_type_copiers entries as mutable (wrong in
-     general, ok for now, and might cover some of the above cases).
+    Treat unknown types occuring in _known_mutable_types as mutable (ok for now,
+     though might need registration scheme in future; might cover some of the
+     above cases).
 
     Treat InstanceType objects as mutable if and only if they define an
     _s_isPureData method. (The other ones, we're thinking of as immutable
     references or object pointers, and we don't care whether the objects they
     point to are mutable.)
     """
+    # REVIEW: should this be used more?
+    # As of 090206, it only occurs in this file, and its only actual use
+    # is for a debug-only warning about mutable default values of undoable
+    # attrs (which are allowed and do occur in our code). (Perhaps the
+    # original intent was to optimize for non-mutable ones, but this is
+    # not presently done.)
     try:
         _is_mutable_helper(val)
     except _IsMutable:
@@ -791,21 +799,20 @@ def _is_mutable_helper(val): #060303
     """
     typ = type(val)
     if typ is type(()):
-        # tuple is a special case -- later, make provisions for more
+        # tuple is a special case, since it has components that might be
+        # mutable but is not itself mutable -- someday, make provisions for
+        # more special cases like this, which can register themselves
         for thing in val:
             _is_mutable_helper(thing)
         return
     elif typ is InstanceType:
-        # another special case
+        # another special case ### TODO: extend this for new-style classes
         if hasattr(val, '_s_isPureData'):
             raise _IsMutable
         return
     else:
-        copier = known_type_copiers.get(typ) # this is a fixed public dictionary
-        if copier is not None:
-            # all copyable types (other than those handled specially above)
-            # are always mutable (since the containers themselves are) -- for now.
-            # should add a way for more exceptions to register themselves. #e
+        flag = _known_mutable_types.get(typ) # a fixed public dictionary
+        if flag:
             raise _IsMutable
         return # atomic or unrecognized types
     pass
@@ -839,6 +846,10 @@ def scan_val(val, func):
 known_type_copiers[type([])] = copy_list
 known_type_copiers[type({})] = copy_dict
 known_type_copiers[type(())] = copy_tuple
+
+_known_mutable_types[type([])] = True
+_known_mutable_types[type({})] = True
+# not tuple -- it's hardcoded in the code that uses this
 
 known_type_scanners[type([])] = scan_list
 known_type_scanners[type({})] = scan_dict
@@ -1063,7 +1074,6 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
         # has a type of class1 in that case).
 ##    ##### TODO, bruce 090205:
 ##    ##### known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
-##    ##### BUT FIRST FIX A BUG this would cause in _is_mutable_helper!
 ##    if SAMEVALS_SPEEDUP:
 ##        ### TODO: optimize this, in case it's called with lots of classes.
 ##        # Right now it's quadratic time to set up, and linear in number of
@@ -1122,6 +1132,8 @@ else:
     assert numeric_array_type != InstanceType
     known_type_copiers[ numeric_array_type ] = copy_Numeric_array
     known_type_scanners[ numeric_array_type ] = scan_Numeric_array
+    _known_mutable_types[ numeric_array_type ] = True
+
     _Numeric_array_type = numeric_array_type #bruce 060309 kluge, might be temporary
     del numeric_array_type
         # but leave array, PyObject as module globals for use by the
@@ -1154,6 +1166,7 @@ else:
     if QColor_type != InstanceType:
         ## wrong: copiers_for_InstanceType_class_names['qt.QColor'] = copy_QColor
         known_type_copiers[ QColor_type ] = copy_QColor
+        _known_mutable_types[ QColor_type ] = True # not sure if needed, but might be, and safe
     else:
         print "Warning: QColor_type is %r, id %#x,\n and InstanceType is %r, id %#x," % \
               ( QColor_type, id(QColor_type), InstanceType, id(InstanceType) )
