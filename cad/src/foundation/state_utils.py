@@ -60,13 +60,27 @@ case is class Bond, discussed in comments in Comparison.py dated 090205.)
 Here is how each Python and C function mentioned above works properly for
 new-style classes (or will do so soon):
 
-- same_vals: this is discussed at length in a comment in Comparison.py
-dated 090205. Briefly, its special case for InstanceType is only needed
-for class Bond, which is an old-style class (when standard code is being used),
-so it's fine that we don't extend it to cover new-style classes. This is true
-for both the Python and C versions of same_vals. Re the experimental code
-which makes Bond a new-style class, I haven't recently reviewed this for
-correctness when Bonds are passed to same_vals, and I don't recall its status. ### TODO: document that issue there
+- same_vals: this is discussed at length in a comment in Comparison.py dated
+090205. Briefly, its special case for InstanceType (to cause
+_same_InstanceType_helper to be called) is not useful for any well-coded class
+in principle, and is only needed for class Bond (to avoid its kluge in having
+a looser version of __eq__ than StateMixin provides), and Bond is an old-style
+class (when standard code is being used), so it's fine that we don't extend
+that same_vals special case for InstanceType to cover new-style classes.
+This is true for both the Python and C versions of same_vals. (And both would
+need fixing if we wanted to handle Bond being a new-style class but continue
+using its __eq__ kluge.)
+
+Re the experimental code which makes Bond a new-style class: the lack
+of a same_vals special case would cause __eq__ to be used by same_vals
+(for both Python and C versions); this might conceivably cause trouble
+in Undo, so it should be fixed. I documented that issue in Bond and made it
+print a warning and assert 0 if it's new-style.
+
+### FIX: can we just fix this in the register_instancelike_class call?
+what about for the C version? Not bothering for now, since there's no
+immediate need to let Bond be a new-style class, and the warning and assertion
+should mean we don't forget.
 
 - copy_val: this handles new-style classes which are passed to
 register_instancelike_class, since that function adds them to the type lookup
@@ -74,10 +88,19 @@ dictionary for the Python version [#### WRONG (but it ought to) #####], and to a
 (warning: misleading name) used by the C version, resulting in both cases
 in copy_InstanceType being called to copy instances of these classes.
 
-##### HOW DOES IT (or smth else) REALLY HANDLE PYTHON copy_val???
-Guess: it is not yet working for Python version, but this is ok in current code
+##### HOW DOES IT (or something else) REALLY HANDLE PYTHON copy_val???
+Guess: that is not yet working for Python version, but this is ok in current code
 since existing such classes (experimental Atom & Bond, maybe others) are not
 data-like. #### VERIFY, FIX
+... what really happens: the copy_val bug is there for any new-style class that
+defines _copyOfObject as something other than returning self -- i.e. a datalike class.
+Most or all of these are a subclass of DataMixin. Note: they might not be correct
+to consider instancelike -- not sure. Or if they are, we can optim the registration
+by seeing if they're data or identitycopy. ####
+In python version this bug happens if you forget to register it and even if you do...
+in C version only if you forget, I think -- IF instancelike ie copy_InstanceType is a correct behavior. ### is it??
+btw can we dispense with this if we use some better test than the list? like isinstance of DataMixin? in Python and C code? ###
+that might be faster!!! ##### or just getattr and permit failure... or direct access to same dict as python uses...
 
 - scan_vals: this only has a Python version. It handles new-style classes
 passed to register_instancelike_class, since that adds them to the type
@@ -692,22 +715,31 @@ copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes w
 
 # scanners_for_class_names would work the same way, but we don't need it yet.
 
-_debug_copyOfObject = False # initial value not used -- set to env.debug() in each run of copy_val [bruce 060311]
+_DEBUG_COPYOFOBJECT = False # initial value not used -- set to env.debug() in each run of copy_val [bruce 060311]
 
-def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficiency #bruce 060315 partly optimized env.debug() check
+def copy_val(val):
     """
-    Efficiently copy a general Python value (so that mutable components are not shared with the original),
-    passing Python instances unchanged, unless they define a _copyOfObject method,
-    and passing unrecognized objects (e.g. QWidgets, bound methods) through unchanged.
+    Efficiently copy a general Python value (so that mutable components are
+    not shared with the original), returning class instances (and similar
+    objects) unchanged, unless they define a _copyOfObject method,
+    and returning unrecognized objects (e.g. QWidgets, bound methods) unchanged.
 
-    (See a code comment for the reason we can't just use the standard Python copy module for this.)
+    (See a code comment for the reason we can't just use the standard Python
+     copy module for this.)
+
+    @note: this function is replaced by a C implementation when that is
+           available. See SAMEVALS_SPEEDUP in the code.
     """
-    global _debug_copyOfObject
-    _debug_copyOfObject = debug_flags.atom_debug # inlined env.debug() # DEBUG_PYREX_ATOMS?
+    #bruce 060221 generalized semantics and rewrote for efficiency
+    #bruce 060315 partly optimized env.debug() check
+    global _DEBUG_COPYOFOBJECT
+    _DEBUG_COPYOFOBJECT = debug_flags.atom_debug # inlined env.debug() # DEBUG_PYREX_ATOMS?
         ##e ideally we'd have a recursive _copy_val_helper that doesn't check this debug flag at all
     try:
-        # wware 060308 small performance improvement (use try/except); made safer by bruce, same day
-        # known_type_copiers is a fixed public dictionary
+        # wware 060308 small performance improvement (use try/except);
+        # made safer by bruce, same day.
+        # [REVIEW: is this in fact faster than using .get?]
+        # note: known_type_copiers is a fixed public dictionary
         copier = known_type_copiers[type(val)]
     except KeyError:
         # we optimize by not storing any copier for atomic types.
@@ -809,11 +841,20 @@ known_type_scanners[type({})] = scan_dict
 known_type_scanners[type(())] = scan_tuple
 
 
-def copy_InstanceType(obj): #e pass copy_val as an optional arg?
+def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy_instance ?
     """
     This is called by copy_val to support old-style instances,
     or new-style instances whose classes were passed to
     register_instancelike_class. [### REVIEW: is the latter true for Python copy_val or only C copy_val?? ##########]
+
+    Its main point is to honor the _copyOfObject method on obj
+    (returning whatever it returns), rather than just returning obj
+    (as it does anyway if that method is not defined).
+
+    Note that obj._copyOfObject() returns obj for most "model objects"
+    (which inherit StateMixin), even though they have other nontrivial
+    copy methods. What this copies is a reference to them in the value
+    of some attribute on some other object.
 
     @param obj: the object (class instance) being copied.
     """
@@ -838,12 +879,13 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
         # see DataMixin and IdentityCopyMixin below.
         copy_method = obj._copyOfObject 
     except AttributeError:
-        print "****************** needs _copyOfObject: %s" % repr(obj)
+        print "****************** needs _copyOfObject -- inherit DataMixin " \
+              "or IdentityCopyMixin or StateMixin: %s" % repr(obj)
         return obj
     res = copy_method() 
         #bruce 081229 no longer pass copy_val (removed never-used copyfunc arg)
-    if _debug_copyOfObject and (obj != res or (not (obj == res))):
-        #bruce 060311 adding _debug_copyOfObject as optim (suggested by Will)
+    if _DEBUG_COPYOFOBJECT and (obj != res or (not (obj == res))):
+        #bruce 060311 adding _DEBUG_COPYOFOBJECT as optim (suggested by Will)
         
         # This has detected a bug in copy_method, which will cause false
         # positives in change-detection in Undo (since we'll return res anyway).
@@ -943,10 +985,14 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
               for Undo by virtue of being implemented for scan_val, but this is
               not yet reviewed in detail.
     """
-    known_type_scanners[ class1 ] = scan_InstanceType
-        # note: if class1 is a classic class, this entry is not needed,
+    known_type_scanners[ class1 ] = scan_InstanceType # fix scan_val
+        # note: if class1 is a classic class, this entry is not needed
+        # (except for its use in is_instancelike_class, arguably a kluge),
         # but causes no harm since it will never be used (since no object
         # has a type of class1 in that case).
+    ##### TODO, bruce 090205:
+    ##### known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
+    ##### BUT FIRST FIX A BUG this would cause in _is_mutable_helper!
     if SAMEVALS_SPEEDUP:
         ### TODO: optimize this, in case it's called with lots of classes.
         # Right now it's quadratic time to set up, and linear in number of
@@ -1303,7 +1349,8 @@ def diff_snapshots_oneway(snap1, snap2):
     diff them, but only return what's needed to turn snap1 into snap2,
     as an object containing attrdicts (all mutable)
     """
-    return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) ) ######@@@@@@ also store val_diff_func per attrcode? [060309 comment]
+    return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) )
+        ######@@@@@@ also store val_diff_func per attrcode? [060309 comment]
 
 class DiffObj:
     attrname_valsizes = dict(_posn = 52)
