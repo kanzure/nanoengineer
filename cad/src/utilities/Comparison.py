@@ -282,7 +282,7 @@ def _same_dict_helper(v1, v2):
 #
 # Conclusion: we can ignore extending _same_InstanceType_helper to new-style
 # Nodes -- in fact, we could dispense with it entirely in current code except
-# for Bond.
+# for Bond. (See also the 090205 comments in the docstring of state_utils.py.)
 #
 # (FYI: If we were to write a completely new framework, I think we'd use our
 # own classes rather than Numeric, with proper semantics for ==/!=,
@@ -412,7 +412,8 @@ def _same_vals_helper(v1, v2): #060303
         raise _NotTheSame
     same_helper = _known_type_same_helpers.get(typ) # a fixed public dictionary
         # note: this has an entry for InstanceType (necessary only for Bond)
-        # but not for new-style classes. This is ok; see comments dated 090205.
+        # but not for new-style classes. This is ok (as long as Bond remains an
+        # old-style class); see comments dated 090205.
     if same_helper is not None:
         # we optim by not storing any scanner for atomic types, or a few others
         same_helper(v1, v2) # might raise _NotTheSame

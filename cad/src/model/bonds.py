@@ -98,6 +98,14 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
     # usePyrexAtomsAndBonds tests that we want to, and can, import all
     # necessary symbols from atombase
     from atombase import BondDictBase, BondBase
+
+    # WARNING: same_vals probably uses __eq__ for Bond when it inherits from
+    # BondBase (a new-style class), and this could conceivably cause Undo bugs;
+    # a warning is printed lower down if Bond is new-style for any reason
+    # (search for is_new_style_class(Bond) to find it).
+    # For more info see 090205 comments in state_utils.py docstring
+    # and in Comparison.py. [bruce 090205]
+    
     class BondDict(BondDictBase):
         # not yet used, except maybe in atombasetests.py
         # renamed from BondSet, bruce 080229
@@ -2291,6 +2299,26 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     pass # end of class Bond
 
 register_instancelike_class( Bond) # ericm & bruce 080225
+
+def is_new_style_class(c): #bruce 090206, refile
+    # I'm not sure if this is the best test, but it's the best I have now.
+    # isinstance(c, object) is true for both old and new style classes;
+    # the type of c varies (classobj or type) but I'm not sure if the specific
+    # types are guaranteed, and I don't want to exclude metaclasses (subclasses
+    # of type), and for all I know classobj might be (or become someday)
+    # a subclass of type.
+    return hasattr(c, '__mro__')
+
+if is_new_style_class(Bond): #bruce 090205
+    # see comments in state_utils.py docstring, Comparison.py, and above;
+    # register_instancelike_class doesn't yet handle same_vals.
+    # The comments also say how to fix this (not hard, but does require
+    # changes to the C version of same_vals).
+    msg = "WARNING: Bond (%r) is new-style -- possible Undo bugs related " \
+          "to same_vals; see comments dated 090205" % Bond
+    print msg
+    assert 0, msg + ". Assert 0 to make sure this is noticed."
+        # ok to remove this assertion for testing atombase
 
 register_class_changedicts( Bond, _Bond_global_dicts )
     # error if one class has two same-named changedicts
