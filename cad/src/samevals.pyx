@@ -16,6 +16,7 @@ cdef extern from "Python.h":
 cdef extern from "samevalshelp.c":
     int c_setArrayType(object atype)
     int c_setInstanceCopier(object copier)
+    int c_setGeneralCopier(object copier)
     int c_setArrayCopier(object copier)
     int c_setInstanceLikeClasses(object classList)
     object c_same_vals(object o1, object o2)
@@ -58,6 +59,12 @@ def setArrayType(atype):
 def setInstanceCopier(copier):
     if (PyCallable_Check(copier)):
         c_setInstanceCopier(copier)
+    else:
+        raise TypeError, "argument must be callable"
+
+def setGeneralCopier(copier):
+    if (PyCallable_Check(copier)):
+        c_setGeneralCopier(copier)
     else:
         raise TypeError, "argument must be callable"
 
