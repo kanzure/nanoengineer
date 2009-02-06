@@ -698,13 +698,17 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
 
 # == helper code  [##e all code in this module needs reordering]
 
-_known_type_copiers = {} # needs no entry for types whose instances can all be copied as themselves
+_known_type_copiers = {}
+    # needs no entry for types whose instances can all be copied as themselves
 
 _known_mutable_types = {} # used by is_mutable
 
-_known_type_scanners = {} # only needs entries for types whose instances might contain (or be) InstanceType objects,
-    # and which might need to be entered for finding "children" (declared with S_CHILD) -- for now we assume that means
-    # there's no need to scan inside bound method objects, though this policy might change.
+_known_type_scanners = {}
+    # only needs entries for types whose instances might contain (or be)
+    # InstanceType or InstanceLike objects, and which might need to be entered
+    # for finding "children" (declared with S_CHILD) -- for now we assume that
+    # means there's no need to scan inside bound method objects, though this
+    # policy might change.
 
 # not yet needed, but let the variable exist since there's one use of it I might as well leave active (since rarely run):
 copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes whose classes have certain names
@@ -830,17 +834,23 @@ def scan_val(val, func):
     but we *don't* descend into them here using that -- this is only done
     by other code, such as whatever code func might end up delivering such objects to.
     
-    Special case: we never descend into bound method objects either
-    (see comment on _known_type_scanners for why).
+    Special case: we never descend into bound method objects either.
     
     @return: an arbitrary value which caller should not use (always None in
              the present implem)
     """
+    #doc -- the docstring needs to explain why we never descend into bound
+    # method objects. It used to say "see comment on _known_type_scanners for
+    # why", but I removed that since I can no longer find that comment.
+    # [bruce 090206]
     typ = type(val)
-    scanner = _known_type_scanners.get(typ) # this is a fixed public dictionary
+    scanner = _known_type_scanners.get(typ) # a fixed public dictionary
     if scanner is not None:
-        # we optim by not storing any scanner for atomic types, or a few others
-        scanner(val, func) 
+        # we used to optimize by not storing any scanner for atomic types,
+        # or a few others; as of 090206 this might be a slowdown ###OPTIM sometime
+        scanner(val, func)
+    elif isinstance( val, InstanceLike):
+        scan_InstanceType(val, func) #bruce 090206, so no need to register these
     return
     
 _known_type_copiers[type([])] = copy_list
@@ -1020,8 +1030,8 @@ _known_type_copiers[ InstanceType ] = copy_InstanceType
 def scan_InstanceType(obj, func):
     """
     This is called by scan_vals to support old-style instances,
-    or new-style instances whose classes were passed to
-    register_instancelike_class.
+    or new-style instances whose classes inherit InstanceLike
+    (or its subclasses such as StateMixin or DataMixin).
 
     @param obj: the object (class instance) being scanned.
 
@@ -1030,10 +1040,14 @@ def scan_InstanceType(obj, func):
     func(obj)
     #e future optim: could we change API so that apply could serve in place
     # of scan_InstanceType? Probably not, but nevermind, we'll just do all
-    # this in C.
+    # this in C at some point.
     return None 
 
 _known_type_scanners[ InstanceType ] = scan_InstanceType
+    # (storing this is mainly just an optimization, but not entirely,
+    #  if there are any old-style classes that we should scan this way
+    #  but which don't inherit InstanceLike; that is probably an error
+    #  but not currently detected. [bruce 090206 comment])
 
 # ==
 
@@ -1044,7 +1058,8 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
     Classes whose instances need to be treated like InstanceType objects
     by scan_vals, copy_val, same_vals, and Undo, but which might not be
     InstanceType objects (e.g. they might be instances of new-style or extension
-    classes or their subclasses, which have their class as their type),
+    classes or their subclasses, which have their class as their type --
+    or as of 090206, we can just say, if they're new-style instances of InstanceLike),
     must call this function immediately after they are defined
     (before the above-mentioned code could possibly be called).
 
@@ -1067,10 +1082,10 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
               for Undo by virtue of being implemented for scan_val, but this is
               not yet reviewed in detail.
     """
-    _known_type_scanners[ class1 ] = scan_InstanceType # fix scan_val
-        # note: if class1 is a classic class, this entry is not needed
-        # but causes no harm since it will never be used (since no object
-        # has a type of class1 in that case).
+##    _known_type_scanners[ class1 ] = scan_InstanceType # fix scan_val
+##        # note: if class1 is a classic class, this entry is not needed
+##        # but causes no harm since it will never be used (since no object
+##        # has a type of class1 in that case).
 ##    ##### TODO, bruce 090205:
 ##    ##### _known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
 ##    if SAMEVALS_SPEEDUP:
