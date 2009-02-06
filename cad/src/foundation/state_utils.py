@@ -698,11 +698,11 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
 
 # == helper code  [##e all code in this module needs reordering]
 
-known_type_copiers = {} # needs no entry for types whose instances can all be copied as themselves
+_known_type_copiers = {} # needs no entry for types whose instances can all be copied as themselves
 
 _known_mutable_types = {} # used by is_mutable
 
-known_type_scanners = {} # only needs entries for types whose instances might contain (or be) InstanceType objects,
+_known_type_scanners = {} # only needs entries for types whose instances might contain (or be) InstanceType objects,
     # and which might need to be entered for finding "children" (declared with S_CHILD) -- for now we assume that means
     # there's no need to scan inside bound method objects, though this policy might change.
 
@@ -741,8 +741,8 @@ def copy_val(val):
         # wware 060308 small performance improvement (use try/except);
         # made safer by bruce, same day.
         # [REVIEW: is this in fact faster than using .get?]
-        # note: known_type_copiers is a fixed public dictionary
-        copier = known_type_copiers[type(val)]
+        # note: _known_type_copiers is a fixed public dictionary
+        copier = _known_type_copiers[type(val)]
     except KeyError:
         # we used to optimize by not storing any copier for atomic types...
         # but now that we call generalCopier [bruce 090206] that is no longer
@@ -750,7 +750,7 @@ def copy_val(val):
         # used by all end-users and most developers, nevermind for now.
         return generalCopier(val)
     else:
-        # assume copier is not None, since we know what's stored in known_type_copiers
+        # assume copier is not None, since we know what's stored in _known_type_copiers
         return copier(val)
     pass
 
@@ -831,29 +831,29 @@ def scan_val(val, func):
     by other code, such as whatever code func might end up delivering such objects to.
     
     Special case: we never descend into bound method objects either
-    (see comment on known_type_scanners for why).
+    (see comment on _known_type_scanners for why).
     
     @return: an arbitrary value which caller should not use (always None in
              the present implem)
     """
     typ = type(val)
-    scanner = known_type_scanners.get(typ) # this is a fixed public dictionary
+    scanner = _known_type_scanners.get(typ) # this is a fixed public dictionary
     if scanner is not None:
         # we optim by not storing any scanner for atomic types, or a few others
         scanner(val, func) 
     return
     
-known_type_copiers[type([])] = copy_list
-known_type_copiers[type({})] = copy_dict
-known_type_copiers[type(())] = copy_tuple
+_known_type_copiers[type([])] = copy_list
+_known_type_copiers[type({})] = copy_dict
+_known_type_copiers[type(())] = copy_tuple
 
 _known_mutable_types[type([])] = True
 _known_mutable_types[type({})] = True
 # not tuple -- it's hardcoded in the code that uses this
 
-known_type_scanners[type([])] = scan_list
-known_type_scanners[type({})] = scan_dict
-known_type_scanners[type(())] = scan_tuple
+_known_type_scanners[type([])] = scan_list
+_known_type_scanners[type({})] = scan_dict
+_known_type_scanners[type(())] = scan_tuple
 
 
 def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy_instance ? TODO: merge with generalCopier
@@ -1015,7 +1015,7 @@ if SAMEVALS_SPEEDUP:
 ## def is_mutable_InstanceType(obj): 
 ##     return hasattr(obj, '_s_isPureData')
   
-known_type_copiers[ InstanceType ] = copy_InstanceType
+_known_type_copiers[ InstanceType ] = copy_InstanceType
 
 def scan_InstanceType(obj, func):
     """
@@ -1033,7 +1033,7 @@ def scan_InstanceType(obj, func):
     # this in C.
     return None 
 
-known_type_scanners[ InstanceType ] = scan_InstanceType
+_known_type_scanners[ InstanceType ] = scan_InstanceType
 
 # ==
 
@@ -1067,13 +1067,13 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
               for Undo by virtue of being implemented for scan_val, but this is
               not yet reviewed in detail.
     """
-    known_type_scanners[ class1 ] = scan_InstanceType # fix scan_val
+    _known_type_scanners[ class1 ] = scan_InstanceType # fix scan_val
         # note: if class1 is a classic class, this entry is not needed
         # (except for its use in is_instancelike_class, arguably a kluge),
         # but causes no harm since it will never be used (since no object
         # has a type of class1 in that case).
 ##    ##### TODO, bruce 090205:
-##    ##### known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
+##    ##### _known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
 ##    if SAMEVALS_SPEEDUP:
 ##        ### TODO: optimize this, in case it's called with lots of classes.
 ##        # Right now it's quadratic time to set up, and linear in number of
@@ -1084,7 +1084,7 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
     return
 
 def is_instancelike_class( class1 ): #bruce 080325; used only in debug code as of 090205
-    return known_type_scanners.get(class1, None) is scan_InstanceType
+    return _known_type_scanners.get(class1, None) is scan_InstanceType
 
 # ==
 
@@ -1130,8 +1130,8 @@ else:
         # note: __name__ is 'array', but Numeric.array itself is a
         # built-in function, not a type
     assert numeric_array_type != InstanceType
-    known_type_copiers[ numeric_array_type ] = copy_Numeric_array
-    known_type_scanners[ numeric_array_type ] = scan_Numeric_array
+    _known_type_copiers[ numeric_array_type ] = copy_Numeric_array
+    _known_type_scanners[ numeric_array_type ] = scan_Numeric_array
     _known_mutable_types[ numeric_array_type ] = True
 
     _Numeric_array_type = numeric_array_type #bruce 060309 kluge, might be temporary
@@ -1165,7 +1165,7 @@ else:
         # so we don't need to handle it specially.
     if QColor_type != InstanceType:
         ## wrong: copiers_for_InstanceType_class_names['qt.QColor'] = copy_QColor
-        known_type_copiers[ QColor_type ] = copy_QColor
+        _known_type_copiers[ QColor_type ] = copy_QColor
         _known_mutable_types[ QColor_type ] = True # not sure if needed, but might be, and safe
     else:
         print "Warning: QColor_type is %r, id %#x,\n and InstanceType is %r, id %#x," % \
