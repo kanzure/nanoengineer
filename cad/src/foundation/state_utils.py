@@ -1069,7 +1069,6 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
     """
     _known_type_scanners[ class1 ] = scan_InstanceType # fix scan_val
         # note: if class1 is a classic class, this entry is not needed
-        # (except for its use in is_instancelike_class, arguably a kluge),
         # but causes no harm since it will never be used (since no object
         # has a type of class1 in that case).
 ##    ##### TODO, bruce 090205:
@@ -1082,9 +1081,6 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
 ##        from samevals import setInstanceLikeClasses
 ##        setInstanceLikeClasses(_instancelike_classes) # fix C copy_val
     return
-
-def is_instancelike_class( class1 ): #bruce 080325; used only in debug code as of 090205
-    return _known_type_scanners.get(class1, None) is scan_InstanceType
 
 # ==
 
@@ -2019,7 +2015,7 @@ class obj_classifier:
             """
             # note, obj1 might be (what we consider) either a StateHolder or a Data object (or neither).
             # Its clas will know what to do.
-            if env_debug or DEBUG_PYREX_ATOMS:
+            if 1: #bruce 090206 revised ## env_debug or DEBUG_PYREX_ATOMS: 
                 #bruce 060314: realized there was a bug in scan_val -- it stops at all elements of lists, tuples, and dicts,
                 # rather than recursing as intended and only stopping at InstanceType objects.
                 # (copy_val and same_vals (py implems anyway) don't have this bug.)
@@ -2031,7 +2027,8 @@ class obj_classifier:
                 #bruce 060315: decided to fix scan_val.
                 ##k Once this is tested, should this check depend on atom_debug?
                 # Maybe in classify_instance? (Maybe already there?) ###@@@
-                if not is_instancelike_class(type(obj1)): #bruce 080325 revised
+                if not isinstance(obj1, InstanceLike): #bruce 080325, 090206 revised
+##                if not is_instancelike_class(type(obj1)): #bruce 080325 revised
                     print "debug: bug: scan_children hit obj at %#x of type %r" % (id(obj1), type(obj1))
             clas = classify_instance(obj1)
             if clas.obj_is_data(obj1):
@@ -2164,7 +2161,19 @@ class obj_classifier:
 
 # ==
 
-class IdentityCopyMixin: # by EricM
+class InstanceLike: #bruce 090206 ### FIX: not yet used in enough places
+    """
+    Common superclass for classes whose instances should be considered
+    "instancelike" by same_vals, copy_val, scan_vals, is_mutable, and Undo
+    (meaning they should participate in various APIs where they can define
+    special methods/attrs to get special behavior).
+    
+    (Where old code checked type(obj) == InstanceType, new code can check
+     isinstance(obj, InstanceLike), so it works for new-style classes.)
+    """
+    pass
+
+class IdentityCopyMixin(InstanceLike): # by EricM
     def _copyOfObject(self):
         """
         Implements the copying of an object for copy_val.  For objects
@@ -2221,7 +2230,7 @@ class StateMixin( _eq_id_mixin_, IdentityCopyMixin ):
         return
     pass
 
-class DataMixin:
+class DataMixin(InstanceLike):
     """
     Convenience mixin for classes that act as 'data' when present in
     values of declared state-holding attributes. Provides method stubs
