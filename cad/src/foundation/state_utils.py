@@ -18,10 +18,8 @@ needs to import undo_archive.
 
 
 DISCUSSION of general data handling functions, their C extensions,
-their relation to Undo, and their relation to new-style classes [bruce 090205]:
-
-WARNING: this discussion is obsolete as of 090206, since the system is being
-generalized to handle all new-style classes, and simplified.
+their relation to Undo, and their relation to new-style classes
+[bruce 090205/090206]:
 
 There are four general data-handling functions, which might be used on
 any data value found in undoable state or model state:
@@ -48,27 +46,31 @@ optimized C versions of same_vals and copy_val.
 We have an experimental C extension module which causes classes Atom and Bond
 (normally old-style) to be Python extension classes (new-style).
 
-The customization/optimization system for all those functions, which relies
-on looking up an object's type and in some cases testing it for equalling
-InstanceType, works for old-style classes (whose instances' type is
-InstanceType) but not fully for new-style classes (whose instances' type is
-just their class).
+The customization/optimization system for all those functions relies on looking
+up an object's type to find hardcoded cases, and in some cases testing it for
+equalling InstanceType (for old-style class instances) or for the object
+being an instance of InstanceLike (for new-style class instances). (The class
+of a new style instance is also its type, but we don't take advantage of that
+to optimize by memoizing the classes in the hardcoded-type dicts, since we
+presume the isinstance test is fast enough. If we later want to change that,
+we can make the C code directly access the same per-type dicts that the Python
+code both accesses and maintains.)
 
-This is being revised (partly done as of 090206) so that
+This is being revised (supposedly done as of 090206, but not well tested) so that
 new-style classes are also handled if they define appropriate methods and/or
 inherit from a new superclass InstanceLike (which StateMixin and DataMixin
-now do). The code changes required include replacing checks for InstanceType
-with checks for InstanceLike (mostly not done), or directly checking arbitrary
-objects for instanceof InstanceLike and/or having certain methods (partly done).
+now do). The code changes required included replacing or augmenting checks for
+InstanceType with checks for InstanceLike, and/or directly checking for
+certain methods or attrs without bothering to first check for InstanceLike.
 
-In general, to make this work properly for any class (old or new style),
-it needs to inherit one of the mixin superclasses StateMixin or DataMixin,
+In general, to make this work properly for any newly defined class (old or new style),
+the new class needs to inherit one of the mixin superclasses StateMixin or DataMixin,
 and to have correct definitions of __eq__ and __ne__. (One special
 case is class Bond, discussed in comments in Comparison.py dated 090205.)
 
 
 Here is how each Python and C function mentioned above works properly for
-new-style classes (or will do so soon):
+new-style classes (assuming the code added 090206 works properly):
 
 
 - same_vals: this is discussed at length in a comment in Comparison.py dated
@@ -111,15 +113,25 @@ to handle them (though that's a misleading name when used on new-style classes #
 since in either case it detects an attribute defined only in DataMixin.
 
 
-- other code, all related to Undo, some in this file:
+- other code, all related to Undo:
 
-  - various checks for InstanceType -- not yet reviewed ######
+  - various checks for InstanceType -- these now also check for InstanceLike,
+    or are removed in favor of just checking an arbitrary object for certain
+    attrs or methods
 
   - use of class names via __class__.__name__ -- should work for old- or new-
     style classes, as long as class "basenames" are unique (which is probably not
     verified by this code ### FIX)
     (old-style __name__ has dotted module name, new-style __name__ doesn't)
 
+TODO [as of 090206]:
+
+- cleanups
+  - merge copy_InstanceType and generalCopier
+  - others listed herein
+- renamings
+  - variables and functions with InstanceType in their names -- most of these
+    now also cover InstanceLikes; the name can just say Instance
 
 """
 
@@ -1143,7 +1155,7 @@ else:
         print " so Undo is not yet able to copy QColors properly; this is not known to cause bugs"
         print " but its full implications are not yet understood. So far this is only known to happen"
         print " in some systems running Mandrake Linux 10.1. [message last updated 060421]"
-    # no scanner for QColor is needed, since it contains no InstanceType
+    # no scanner for QColor is needed, since it contains no InstanceType/InstanceLike
     # objects. no same_helper is needed, since '!=' will work correctly
     # (only possible since it contains no general Python objects).
     del QColor, QColor_type
@@ -1880,13 +1892,16 @@ def apply_and_reverse_diff(diff, snap):
 class obj_classifier: 
     """
     Classify objects seen, and save the results, and provide basic uses of the results for scanning.
-    Probably can't yet handle "new-style" classes. Doesn't handle extension types (presuming they're not InstanceTypes) [not sure].
+    Probably can't yet handle "new-style" classes [this is being worked on as of 090206, see InstanceLike in the code].
+    Doesn't handle extension types (presuming they're not InstanceTypes) [not sure].
        Note: the amount of data this stores is proportional to the number of classes and state-holding attribute declarations;
     it doesn't (and shouldn't) store any per-object info. I.e. it soon reaches a small fixed size, regardless of number of objects
     it's used to classify.
     """
     def __init__(self):
-        self._clas_for_class = {} # maps Python classes (values of obj.__class__ for obj an InstanceType, for now) to Classifications
+        self._clas_for_class = {}
+            # maps Python classes (values of obj.__class__ for obj an
+            #  InstanceType/InstanceLike, for now) to Classifications
         self.dict_of_all_state_attrcodes = {} # maps attrcodes to arbitrary values, for all state-holding attrs ever declared to us
         self.dict_of_all_Atom_chunk_attrcodes = {} # same, only for attrcodes for .molecule attribute of UNDO_SPECIALCASE_ATOM classes
         self.attrcodes_with_undo_setattr = {} # see doc in clas
@@ -1894,12 +1909,13 @@ class obj_classifier:
     
     def classify_instance(self, obj):
         """
-        Obj is known to be of InstanceType. Classify it (memoizing classifications per class when possible).
+        Obj is known to be InstanceType or InstanceLike.
+        Classify it (memoizing classifications per class when possible).
         It might be a StateHolder, Data object, or neither.
         """
         if DEBUG_PYREX_ATOMS:
-            if not type(obj) is InstanceType:
-                print "bug: type(%r) is not InstanceType" % (obj,) ### too verbose if fails!! btw why is it a bug?
+            if not (type(obj) is InstanceType or isinstance(obj, InstanceLike)):
+                print "bug: type(%r) is not InstanceType or InstanceLike" % (obj,) ### too verbose if fails!! btw why is it a bug?
                     # and i ought to review all other uses of InstanceType in this file. [bruce 080221 re DEBUG_PYREX_ATOMS]
         class1 = obj.__class__
         try:
@@ -1990,7 +2006,7 @@ class obj_classifier:
             # Its clas will know what to do.
             if 1: #bruce 090206 revised ## env_debug or DEBUG_PYREX_ATOMS: 
                 #bruce 060314: realized there was a bug in scan_val -- it stops at all elements of lists, tuples, and dicts,
-                # rather than recursing as intended and only stopping at InstanceType objects.
+                # rather than recursing as intended and only stopping at InstanceType/InstanceLike objects.
                 # (copy_val and same_vals (py implems anyway) don't have this bug.)
                 # Does this happen in practice in Undo, or do we so far only store child objs 1 level deep in lists or dicts?
                 # (Apparently it never happens, since following debug code doesn't print anything.)
@@ -2134,7 +2150,7 @@ class obj_classifier:
 
 # ==
 
-class InstanceLike: #bruce 090206 ### FIX: not yet used in enough places
+class InstanceLike: #bruce 090206
     """
     Common superclass for classes whose instances should be considered
     "instancelike" by same_vals, copy_val, scan_vals, is_mutable, and Undo

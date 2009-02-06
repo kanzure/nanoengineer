@@ -377,7 +377,8 @@ _known_type_same_helpers[type(())] = _same_tuple_helper
 _known_type_same_helpers[ InstanceType ] = _same_InstanceType_helper
     # note: see long comment below, which concludes "we can ignore
     # extending _same_InstanceType_helper to new-style Nodes"
-    # (re changing class Node to be a new-style class). [bruce 090205 comment]
+    # (re changing class Node to be a new-style class), since we can
+    # rely on our overrides of __eq__/__ne__. [bruce 090205 comment]
 
 if _haveNumeric:
     # note: related code exists in state_utils.py.

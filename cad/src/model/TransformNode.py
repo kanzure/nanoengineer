@@ -71,7 +71,7 @@ class TransformNode(Node3D): # review superclass and its name
         # If I want to put off letting nodes be new-style classes, then make raw version private and use setter explicitly...
         # but I can't put that off for long, if I also want these things to act like state -- actually I can if setters do inval manually...
         # but what about usage tracking? I'd need getters which do that manually... ##### DECIDE
-        # (guess about new-style nodes: it's enough to call register-whatever, but check InstanceType uses in Undo to be sure.)
+        # (about new-style nodes -- as of 090206 I think I've revised enough code to make them ok, but this is untested.)
         """
         """
         assert not self.dynamic_transform
