@@ -109,7 +109,6 @@ to handle them (though that's a misleading name when used on new-style classes #
 
 - is_mutable: I think this is correct for both old and new style classes,
 since in either case it detects an attribute defined only in DataMixin.
-### NO, it's not yet fixed, it only does it for old-style so far. ##### FIX!!
 
 
 - other code, all related to Undo, some in this file:
@@ -764,7 +763,7 @@ def copy_val(val):
         return copier(val)
     pass
 
-def is_mutable(val): #060302
+def is_mutable(val): #bruce 060302
     """
     Efficiently scan a potential argument to copy_val to see if it contains
     any mutable parts (including itself), with special cases suitable for use
@@ -801,32 +800,32 @@ def is_mutable(val): #060302
         return True
     return False
 
-def _is_mutable_helper(val): #060303
+def _is_mutable_helper(val, _tupletype = type(())):
     """
     [private recursive helper for is_mutable]
 
     raise _IsMutable if val (or part of it) is mutable
     """
+    #bruce 060303, revised 090206
     typ = type(val)
-    if typ is type(()):
+    if typ is _tupletype:
+        # (kluge, 090206: storing _tupletype as an optional arg's default value
+        #  is just for faster comparison -- caller should never pass it)
+        
         # tuple is a special case, since it has components that might be
         # mutable but is not itself mutable -- someday, make provisions for
         # more special cases like this, which can register themselves
         for thing in val:
             _is_mutable_helper(thing)
-        return
-    elif typ is InstanceType:
-        # another special case ### TODO: extend this for new-style classes
-        if hasattr(val, '_s_isPureData'):
-            raise _IsMutable
-        return
-    else:
-        flag = _known_mutable_types.get(typ) # a fixed public dictionary
-        if flag:
-            raise _IsMutable
-        return # atomic or unrecognized types
-    pass
-    
+        pass
+    elif _known_mutable_types.get(typ): # a fixed public dictionary
+        raise _IsMutable
+    elif hasattr(val, '_s_isPureData'):
+        # (note: only possible when isinstance(val, InstanceLike),
+        #  but always safe to check, so no need to check for InstanceLike)
+        raise _IsMutable
+    return # immutable or unrecognized types
+
 def scan_val(val, func): 
     """
     Efficiently scan a general Python value, and call func on all InstanceType
