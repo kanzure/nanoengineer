@@ -1202,8 +1202,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     def is_open_bond(self): #bruce 050727
         return self.atom1.element is Singlet or self.atom2.element is Singlet
     
-    def set_v6(self, v6): #bruce 050717 revision: only call _changed_v6 when
-        needed
+    def set_v6(self, v6): #bruce 050717 revision: only call _changed_v6 when needed
         """
         #doc; can't be used for illegal valences, as some of our actual setters
         need to do...
