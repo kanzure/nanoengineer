@@ -742,8 +742,12 @@ def copy_val(val):
         # note: known_type_copiers is a fixed public dictionary
         copier = known_type_copiers[type(val)]
     except KeyError:
-        # we optimize by not storing any copier for atomic types.
-        return val
+        # we used to optimize by not storing any copier for atomic types...
+        # but now that we call generalCopier [bruce 090206] that is no longer
+        # an optimization. It's not trivial to fix (due to dual use of
+        # known_type_copiers as is_mutable kluge), but since the C code is
+        # used by all end-users and most developers, nevermind for now.
+        return generalCopier(val)
     else:
         # assume copier is not None, since we know what's stored in known_type_copiers
         return copier(val)
@@ -920,9 +924,37 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy
         #e also print history redmsg, once per class per session?
     return res
 
-def generalCopier(obj): #bruce 090206, only called from C copy_val
+# ==
+
+_generalCopier_exceptions = {}
+    # set of types which generalCopier should not complain about;
+    # extended at runtime
+
+if 1:
+    # add exceptions for known types we should trivially copy
+    # whenever they lack a _copyOfObject method
+    class _NEW_STYLE_1(object):
+        pass
+    class _OLD_STYLE_1:
+        pass
+
+    for _x in [1, # int
+               None, # NoneType
+               True, # bool
+               "", # str
+               u"", # unicode
+               0.1, # float
+               # not InstanceType -- warn about missing _copyOfObject method
+               ## _OLD_STYLE_1(), # instance == InstanceType
+               _OLD_STYLE_1, # classobj
+               _NEW_STYLE_1 # type
+              ]:
+        _generalCopier_exceptions[type(_x)] = type(_x)
+    
+def generalCopier(obj): #bruce 090206, called from both C and Python copy_val
     """
-    @param obj: a new-style class instance, or perhaps anything (e.g. float)
+    @param obj: a new-style class instance, or anything else whose type is not
+                known to copy_val
     @type obj: anything
     
     ###doc; related to copy_InstanceType
@@ -930,14 +962,23 @@ def generalCopier(obj): #bruce 090206, only called from C copy_val
     try:
         copy_method = obj._copyOfObject
     except AttributeError:
-        ####### see if this happens much, probably put in some special case exceptions to the rule, for types
-        print "****************** needs _copyOfObject (or special case) -- inherit DataMixin " \
-              "or IdentityCopyMixin or StateMixin: %r, type %r (in generalCopier)" % (obj, type(obj))
+        # This will happen once for anything whose type is not known to copy_val
+        # and which doesn't inherit DataMixin or IdentityCopyMixin or StateMixin
+        # (or otherwise define _copyOfObject), unless we added it to 
+        # _generalCopier_exceptions above.
+        if not _generalCopier_exceptions.get(type(obj)):
+            print "\n***** adding generalCopier exception for %r " \
+                  "(bad if not a built-in type -- classes used in copied model " \
+                  "attributes should inherit something like DataMixin or " \
+                  "StateMixin)" % type(obj)
+            _generalCopier_exceptions[type(obj)] = type(obj)
         return obj
     else:
         return copy_method()
     pass
-    
+
+# ==
+
 if SAMEVALS_SPEEDUP:
     # Replace definition above with the extension's version.
     # (This is done for same_vals in utilities/Comparison.py,
@@ -1020,9 +1061,9 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
         # (except for its use in is_instancelike_class, arguably a kluge),
         # but causes no harm since it will never be used (since no object
         # has a type of class1 in that case).
-    ##### TODO, bruce 090205:
-    ##### known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
-    ##### BUT FIRST FIX A BUG this would cause in _is_mutable_helper!
+##    ##### TODO, bruce 090205:
+##    ##### known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
+##    ##### BUT FIRST FIX A BUG this would cause in _is_mutable_helper!
 ##    if SAMEVALS_SPEEDUP:
 ##        ### TODO: optimize this, in case it's called with lots of classes.
 ##        # Right now it's quadratic time to set up, and linear in number of
