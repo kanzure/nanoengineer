@@ -63,9 +63,9 @@ now do). The code changes required included replacing or augmenting checks for
 InstanceType with checks for InstanceLike, and/or directly checking for
 certain methods or attrs without bothering to first check for InstanceLike.
 
-In general, to make this work properly for any newly defined class (old or new style),
-the new class needs to inherit one of the mixin superclasses StateMixin or DataMixin,
-and to have correct definitions of __eq__ and __ne__. (One special
+In general, to make this work properly for any newly defined class (old or new
+style), the new class needs to inherit one of the mixin superclasses StateMixin
+or DataMixin, and to have correct definitions of __eq__ and __ne__. (One special
 case is class Bond, discussed in comments in Comparison.py dated 090205.)
 
 
@@ -89,11 +89,14 @@ Re the experimental code which makes Bond a new-style class: the lack
 of a same_vals special case would cause __eq__ to be used by same_vals
 (for both Python and C versions); this might conceivably cause trouble
 in Undo, so it should be fixed. I documented that issue in Bond and made it
-print a warning and assert 0 if it's new-style.
+print a warning if it's new-style. In fact, now it *is* new-style,
+since I'm trying out making all InstanceLike classes new-style.
 
 I'm not bothering to fix this for now (in either Python or C same_vals),
-since there's no immediate need to let Bond be a new-style class,
-and the warning and assertion should mean we don't forget.
+since there's no immediate need to let Bond be a new-style class
+(though I've made it one, along with all InstanceLikes, as an experiment),
+and the warning should mean we don't forget; we'll see if it causes
+any noticable undo bugs. But it ought to be cleaned up before the next release. ### DOIT
 
 
 - copy_val: this properly handles all old-style and new-style classes.
@@ -126,9 +129,15 @@ since in either case it detects an attribute defined only in DataMixin.
 
 TODO [as of 090206]:
 
+- I've experimentally made InstanceLike inherit object, forcing all DataMixin/
+  StateMixins (incl Atom Bond Node) to be new-style. Test everything to see
+  whether this has caused any trouble, and optimize for it by replacing
+  __getattr__ methods with properties in certain classes.
+  
 - cleanups
   - merge copy_InstanceType and generalCopier
   - others listed herein
+
 - renamings
   - variables and functions with InstanceType in their names -- most of these
     now also cover InstanceLikes; the name can just say Instance
@@ -2150,7 +2159,7 @@ class obj_classifier:
 
 # ==
 
-class InstanceLike: #bruce 090206
+class InstanceLike(object): #bruce 090206; remove 'object' to make it safer (more like old code) ####
     """
     Common superclass for classes whose instances should be considered
     "instancelike" by same_vals, copy_val, scan_vals, is_mutable, and Undo
