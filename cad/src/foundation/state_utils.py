@@ -841,7 +841,7 @@ known_type_scanners[type({})] = scan_dict
 known_type_scanners[type(())] = scan_tuple
 
 
-def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy_instance ?
+def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy_instance ? TODO: merge with generalCopier
     """
     This is called by copy_val to support old-style instances,
     or new-style instances whose classes were passed to
@@ -857,6 +857,8 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy
     of some attribute on some other object.
 
     @param obj: the object (class instance) being copied.
+
+    @see: generalCopier
     """
     # note: this shares some code with InstanceClassification  ###@@@DOIT
     
@@ -918,15 +920,43 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy
         #e also print history redmsg, once per class per session?
     return res
 
+def generalCopier(obj): #bruce 090206, only called from C copy_val
+    """
+    @param obj: a new-style class instance, or perhaps anything (e.g. float)
+    @type obj: anything
+    
+    ###doc; related to copy_InstanceType
+    """
+    try:
+        copy_method = obj._copyOfObject
+    except AttributeError:
+        ####### see if this happens much, probably put in some special case exceptions to the rule, for types
+        print "****************** needs _copyOfObject (or special case) -- inherit DataMixin " \
+              "or IdentityCopyMixin or StateMixin: %r, type %r (in generalCopier)" % (obj, type(obj))
+        return obj
+    else:
+        return copy_method()
+    pass
+    
 if SAMEVALS_SPEEDUP:
     # Replace definition above with the extension's version.
     # (This is done for same_vals in utilities/Comparison.py,
     #  and for copy_val here in state_utils.py.)
-    from samevals import copy_val, setInstanceCopier, setArrayCopier
+    from samevals import copy_val, setInstanceCopier, setGeneralCopier, setArrayCopier
     setInstanceCopier(copy_InstanceType)
         # note: this means copy_InstanceType is applied by the C version
         # of copy_val to instances of InstanceType or of any class in the
         # list passed to setInstanceLikeClasses.
+    setGeneralCopier(generalCopier)
+        # note: generalCopier is applied to anything that lacks hardcoded copy
+        # code which isn't handled by setInstanceCopier, including
+        # miscellaneous extension types, and instances of any new-style classes
+        # not passed to setInstanceLikeClasses. In current code and in routine
+        # usage, it is probably never used, but if we introduce new-style model
+        # classes and don't register them, it will be used to copy their
+        # instances. Soon I plan to stop registering anything (no longer using
+        # setInstanceLikeClasses) and to make some model classes new-style.
+        # [new feature, bruce 090206]
     setArrayCopier(lambda x: x.copy())
 
 # inlined:
@@ -955,7 +985,7 @@ known_type_scanners[ InstanceType ] = scan_InstanceType
 
 # ==
 
-_instancelike_classes = [] # extended below; affects C copy_val only
+##_instancelike_classes = [] # extended below; affects C copy_val only
 
 def register_instancelike_class( class1 ): # todo: rename this, name is misleading
     """
@@ -993,13 +1023,13 @@ def register_instancelike_class( class1 ): # todo: rename this, name is misleadi
     ##### TODO, bruce 090205:
     ##### known_type_copiers[ class1 ] = copy_InstanceType # fix Python copy_val
     ##### BUT FIRST FIX A BUG this would cause in _is_mutable_helper!
-    if SAMEVALS_SPEEDUP:
-        ### TODO: optimize this, in case it's called with lots of classes.
-        # Right now it's quadratic time to set up, and linear in number of
-        # registered classes to use (but ought to be constant time).
-        _instancelike_classes.append(class1)
-        from samevals import setInstanceLikeClasses
-        setInstanceLikeClasses(_instancelike_classes) # fix C copy_val
+##    if SAMEVALS_SPEEDUP:
+##        ### TODO: optimize this, in case it's called with lots of classes.
+##        # Right now it's quadratic time to set up, and linear in number of
+##        # registered classes to use (but ought to be constant time).
+##        _instancelike_classes.append(class1)
+##        from samevals import setInstanceLikeClasses
+##        setInstanceLikeClasses(_instancelike_classes) # fix C copy_val
     return
 
 def is_instancelike_class( class1 ): #bruce 080325; used only in debug code as of 090205
