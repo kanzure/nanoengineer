@@ -56,12 +56,14 @@ presume the isinstance test is fast enough. If we later want to change that,
 we can make the C code directly access the same per-type dicts that the Python
 code both accesses and maintains.)
 
-This is being revised (supposedly done as of 090206, but not well tested) so that
+This is being revised (supposedly done as of 090206, but not fully tested) so that
 new-style classes are also handled if they define appropriate methods and/or
 inherit from a new superclass InstanceLike (which StateMixin and DataMixin
 now do). The code changes required included replacing or augmenting checks for
 InstanceType with checks for InstanceLike, and/or directly checking for
 certain methods or attrs without bothering to first check for InstanceLike.
+(I tested all 4 combos of (Python vs C same_vals) x (InstanceLike old vs new style),
+but only briefly: make atoms, change bond type, make dna, undo all that.)
 
 In general, to make this work properly for any newly defined class (old or new
 style), the new class needs to inherit one of the mixin superclasses StateMixin
@@ -2026,7 +2028,6 @@ class obj_classifier:
                 ##k Once this is tested, should this check depend on atom_debug?
                 # Maybe in classify_instance? (Maybe already there?) ###@@@
                 if not isinstance(obj1, InstanceLike): #bruce 080325, 090206 revised
-##                if not is_instancelike_class(type(obj1)): #bruce 080325 revised
                     print "debug: bug: scan_children hit obj at %#x of type %r" % (id(obj1), type(obj1))
             clas = classify_instance(obj1)
             if clas.obj_is_data(obj1):
