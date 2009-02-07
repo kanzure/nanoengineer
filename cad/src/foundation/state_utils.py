@@ -110,8 +110,8 @@ is handled by _generalCopier (formerly called copy_InstanceType).
 
 
 - scan_vals: this only has a Python version. It properly handles all
-old-style and new-style classes similarly to copy_val, calling scan_InstanceType
-to handle them (though that's a misleading name when used on new-style classes ### FIX).
+old-style and new-style classes similarly to copy_val, calling _scan_Instance
+to handle them.
 
 
 - is_mutable: I think this is correct for both old and new style classes,
@@ -136,12 +136,25 @@ TODO [as of 090206]:
   whether this has caused any trouble, and optimize for it by replacing
   __getattr__ methods with properties in certain classes.
   
-- cleanups
-  - others listed herein
+- cleanups listed herein
 
 - renamings
   - variables and functions with InstanceType in their names -- most of these
-    now also cover InstanceLikes; the name can just say Instance
+    now also cover InstanceLikes; maybe the name can just say Instance or
+    InstanceLike?
+    
+    - _same_InstanceType_helper (defined and used in Comparison.py)
+      (actually, for this one, InstanceType in name is still appropriate,
+       until we clean it up to work for a new-style Bond as well as old-style)
+      
+    - copiers_for_InstanceType_class_names (a kluge which I forget; obsolete?)
+    
+  - misleasing names
+  
+    - _s_isPureData
+    
+    - others?
+
 
 """
 
@@ -870,7 +883,7 @@ def scan_val(val, func):
         # or a few others; as of 090206 this might be a slowdown ###OPTIM sometime
         scanner(val, func)
     elif isinstance( val, InstanceLike):
-        scan_InstanceType(val, func) #bruce 090206, so no need to register these
+        _scan_Instance(val, func) #bruce 090206, so no need to register these
     return
     
 _known_type_copiers[type([])] = copy_list
@@ -1050,12 +1063,12 @@ if SAMEVALS_SPEEDUP:
     setArrayCopier(lambda x: x.copy())
 
 # inlined:
-## def is_mutable_InstanceType(obj): 
+## def is_mutable_Instance(obj): 
 ##     return hasattr(obj, '_s_isPureData')
   
 _known_type_copiers[ InstanceType ] = _generalCopier
 
-def scan_InstanceType(obj, func):
+def _scan_Instance(obj, func):
     """
     This is called by scan_vals to support old-style instances,
     or new-style instances whose classes inherit InstanceLike
@@ -1067,11 +1080,11 @@ def scan_InstanceType(obj, func):
     """
     func(obj)
     #e future optim: could we change API so that apply could serve in place
-    # of scan_InstanceType? Probably not, but nevermind, we'll just do all
+    # of _scan_Instance? Probably not, but nevermind, we'll just do all
     # this in C at some point.
     return None 
 
-_known_type_scanners[ InstanceType ] = scan_InstanceType
+_known_type_scanners[ InstanceType ] = _scan_Instance
     # (storing this is mainly just an optimization, but not entirely,
     #  if there are any old-style classes that we should scan this way
     #  but which don't inherit InstanceLike; that is probably an error
@@ -1925,8 +1938,10 @@ class obj_classifier:
         """
         if DEBUG_PYREX_ATOMS:
             if not (type(obj) is InstanceType or isinstance(obj, InstanceLike)):
-                print "bug: type(%r) is not InstanceType or InstanceLike" % (obj,) ### too verbose if fails!! btw why is it a bug?
-                    # and i ought to review all other uses of InstanceType in this file. [bruce 080221 re DEBUG_PYREX_ATOMS]
+                print "bug: type(%r) is not InstanceType or InstanceLike" % (obj,)
+                    ### too verbose if fails!! btw why is it a bug?
+                    # [bruce 080221 re DEBUG_PYREX_ATOMS; comment might be obs
+                    #  since it's from before InstanceLike existed]
         class1 = obj.__class__
         try:
             # easy & usual case: we recognize that __class__ -- just return the memoized answer.
@@ -2238,10 +2253,17 @@ class DataMixin(InstanceLike):
     copy_val must inherit DataMixin.
     """
     _s_isPureData = None # value is arbitrary; only presence of attr matters
+    
+        # TODO: rename _s_isPureData -- current name is misleading (used to
+        # indicate mutability, but not all data is mutable; maybe this means
+        # we need to let it be overridden or introduce a third subclass?
+        # [bruce 090206 comment])
+        
         # note: presence of this attribute makes sure this object is treated as data.
         # (this is a kluge, and an isinstance test might make more sense,
         #  but at the moment that might be an import cycle issue.)
         # [by EricM, revised by Bruce 090206]
+    
     def _copyOfObject(self):
         """
         This method must be defined in subclasses to implement
