@@ -104,9 +104,9 @@ any noticable undo bugs. But it ought to be cleaned up before the next release. 
 - copy_val: this properly handles all old-style and new-style classes.
 The details are slightly different for Python and C, and include
 detection of InstanceType, isinstance check for InstanceLike,
-and looking directly for the _copyOfObject method. The copying is
-handled by copy_InstanceType and/or generalCopier (which ought to be merged ###DOIT)
-being called to copy instances of these classes.
+and looking directly for the _copyOfObject method. The copying of instances
+(old or new style) (and unrecognized types and some builtin types)
+is handled by _generalCopier (formerly called copy_InstanceType).
 
 
 - scan_vals: this only has a Python version. It properly handles all
@@ -137,7 +137,6 @@ TODO [as of 090206]:
   __getattr__ methods with properties in certain classes.
   
 - cleanups
-  - merge copy_InstanceType and generalCopier
   - others listed herein
 
 - renamings
@@ -771,10 +770,10 @@ def copy_val(val):
         copier = _known_type_copiers[type(val)]
     except KeyError:
         # we used to optimize by not storing any copier for atomic types...
-        # but now that we call generalCopier [bruce 090206] that is no longer
+        # but now that we call _generalCopier [bruce 090206] that is no longer
         # an optimization, but since the C code is
         # used by all end-users and most developers, nevermind for now.
-        return generalCopier(val)
+        return _generalCopier(val)
     else:
         # assume copier is not None, since we know what's stored in _known_type_copiers
         return copier(val)
@@ -886,61 +885,12 @@ _known_type_scanners[type([])] = scan_list
 _known_type_scanners[type({})] = scan_dict
 _known_type_scanners[type(())] = scan_tuple
 
-
-def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy_instance ?
-    ### TODO: merge with generalCopier
-    """
-    This is called by copy_val to support old-style instances,
-    or (for C copy_val only) new-style instances whose classes were
-    passed to setInstanceLikeClasses (as of 090206 that is never done).
-
-    (The same thing is done for other new-style InstanceLike classes
-     by generalCopier, which will soon be merged with this function.)
-
-    This function's main point is to honor the _copyOfObject method on obj
-    (returning whatever it returns), rather than just returning obj
-    (as it does anyway if that method is not defined).
-
-    Note that obj._copyOfObject() returns obj for most "model objects"
-    (which inherit StateMixin), even though they have other nontrivial
-    copy methods. What this copies is a reference to them in the value
-    of some attribute on some other object.
-
-    @param obj: the object (class instance) being copied.
-
-    @see: generalCopier
-    """
-    # note: this shares some code with InstanceClassification  ###@@@DOIT
-    
-    # the following code for QColor is not yet needed, since QColor instances
-    # are not of type InstanceType (but keep the code for when it is needed):
-    ##copier = copiers_for_InstanceType_class_names.get(obj.__class__.__name__)
-    ##    # We do this by name so we don't need to import QColor (for example)
-    ##    # unless we encounter one. Similar code might be needed by anything
-    ##    # that looks for _copyOfObject (as a type test or to use it).
-    ##    # ###@@@ DOIT, then remove cmt
-    ##    #e There's no way around checking this every time, though we might
-    ##    # optimize by storing specific classes which copy as selves into some
-    ##    # dict; it's not too important since we'll optimize Atom and Bond
-    ##    # copying in other ways.
-    ##if copier is not None:
-    ##    return copier(obj, copy_val) # e.g. for QColor
-    
-    try:
-        # note: not compatible with copy.deepcopy's __deepcopy__ method.
-        # see DataMixin and IdentityCopyMixin below.
-        copy_method = obj._copyOfObject 
-    except AttributeError:
-        print "****************** needs _copyOfObject -- inherit DataMixin " \
-              "or IdentityCopyMixin or StateMixin: %s" % repr(obj)
-        return obj
-    res = copy_method() 
-        #bruce 081229 no longer pass copy_val (removed never-used copyfunc arg)
-    if debug_flags.atom_debug:
-        _debug_check_copyOfObject(obj, res)
-    return res
+# ==
 
 def _debug_check_copyOfObject(obj, res):
+    """
+    [private helper for _generalCopier]
+    """
     if (obj != res or (not (obj == res))):
         #bruce 060311, revised 090206
         # [warning -- copy_val recursion means enabling the call of this function
@@ -982,7 +932,7 @@ def _debug_check_copyOfObject(obj, res):
 # ==
 
 _generalCopier_exceptions = {}
-    # set of types which generalCopier should not complain about;
+    # set of types which _generalCopier should not complain about;
     # extended at runtime
 
 if 1:
@@ -1005,32 +955,77 @@ if 1:
                _NEW_STYLE_1 # type
               ]:
         _generalCopier_exceptions[type(_x)] = type(_x)
-    
-def generalCopier(obj): #bruce 090206, called from both C and Python copy_val
+
+# ==
+
+def _generalCopier(obj): 
     """
-    @param obj: a new-style class instance, or anything else whose type is not
-                known to copy_val
+    @param obj: a class instance (old or new style), or anything else whose type
+                is not specifically known to copy_val, which occurs as or in the
+                value of some copyable attribute in a "model object" passed to
+                copy_val
     @type obj: anything
-    
-    ###doc; related to copy_InstanceType
+
+    @return: a copy of obj, for the purposes of copy_val. Note: this is *not*
+             the same as a copy of a model object for purposes of user-level
+             copy operations -- e.g., that usually makes a new model object,
+             whereas this just returns it unchanged (treating it as a reference
+             to the same mutable object as before) if it inherits StateMixin.
+             The difference comes from copying obj as it's used in some other
+             object's attr value (as we do here), vs copying "obj itself".    
+
+    @note: This function's main point is to honor the _copyOfObject method on
+           obj (returning whatever it returns), rather than just returning obj
+           (as it does anyway if that method is not defined).
+
+    @note: this is called from both C and Python copy_val, for both old and new
+           style class instances (and any other unrecognized types)
+
+    @see: InstanceClassification (related; may share code, or maybe ought to)
     """
+    #bruce 090206 (modelled after older copy_InstanceType, and superceding it) 
     try:
         copy_method = obj._copyOfObject
+            # note: not compatible with copy.deepcopy's __deepcopy__ method;
+            # see DataMixin and IdentityCopyMixin below.
     except AttributeError:
         # This will happen once for anything whose type is not known to copy_val
         # and which doesn't inherit DataMixin or IdentityCopyMixin or StateMixin
         # (or otherwise define _copyOfObject), unless we added it to 
         # _generalCopier_exceptions above.
         if not _generalCopier_exceptions.get(type(obj)):
-            print "\n***** adding generalCopier exception for %r " \
+            print "\n***** adding _generalCopier exception for %r " \
                   "(bad if not a built-in type -- classes used in copied model " \
                   "attributes should inherit something like DataMixin or " \
                   "StateMixin)" % type(obj)
             _generalCopier_exceptions[type(obj)] = type(obj)
         return obj
     else:
-        return copy_method()
+        res = copy_method()
+            #bruce 081229 no longer pass copy_val (no implem used it)
+        if debug_flags.atom_debug: ## TEST: this might slow down the C version
+            _debug_check_copyOfObject(obj, res)
+        return res
     pass
+
+# note: the following old code/comments came from copy_InstanceType when it
+# was merged into _generalCopier; they may or may not be obsolete. [bruce 090206]
+
+    #e pass copy_val as an optional arg?
+
+    # the following code for QColor is not yet needed, since QColor instances
+    # are not of type InstanceType (but keep the code for when it is needed):
+    ##copier = copiers_for_InstanceType_class_names.get(obj.__class__.__name__)
+    ##    # We do this by name so we don't need to import QColor (for example)
+    ##    # unless we encounter one. Similar code might be needed by anything
+    ##    # that looks for _copyOfObject (as a type test or to use it).
+    ##    # ###@@@ DOIT, then remove cmt
+    ##    #e There's no way around checking this every time, though we might
+    ##    # optimize by storing specific classes which copy as selves into some
+    ##    # dict; it's not too important since we'll optimize Atom and Bond
+    ##    # copying in other ways.
+    ##if copier is not None:
+    ##    return copier(obj, copy_val) # e.g. for QColor
 
 # ==
 
@@ -1039,12 +1034,12 @@ if SAMEVALS_SPEEDUP:
     # (This is done for same_vals in utilities/Comparison.py,
     #  and for copy_val here in state_utils.py.)
     from samevals import copy_val, setInstanceCopier, setGeneralCopier, setArrayCopier
-    setInstanceCopier(copy_InstanceType)
-        # note: this means copy_InstanceType is applied by the C version
+    setInstanceCopier(_generalCopier) # [review: still needed?]
+        # note: this means _generalCopier is applied by the C version
         # of copy_val to instances of InstanceType (or of any class in the
         # list passed to setInstanceLikeClasses, but we no longer do that).
-    setGeneralCopier(generalCopier)
-        # note: generalCopier is applied to anything that lacks hardcoded copy
+    setGeneralCopier(_generalCopier)
+        # note: _generalCopier is applied to anything that lacks hardcoded copy
         # code which isn't handled by setInstanceCopier, including
         # miscellaneous extension types, and instances of any new-style classes
         # not passed to setInstanceLikeClasses. In current code and in routine
@@ -1058,7 +1053,7 @@ if SAMEVALS_SPEEDUP:
 ## def is_mutable_InstanceType(obj): 
 ##     return hasattr(obj, '_s_isPureData')
   
-_known_type_copiers[ InstanceType ] = copy_InstanceType
+_known_type_copiers[ InstanceType ] = _generalCopier
 
 def scan_InstanceType(obj, func):
     """
@@ -2196,7 +2191,7 @@ class IdentityCopyMixin(InstanceLike): # by EricM
         which inherits from IdentityCopyMixin).  So, both
         _isIdentityCopyMixin and _s_isPureData should not be defined
         on the same object.  This can be used to check coverage of
-        types in copy_InstanceType().
+        types in _generalCopier().
         """
         pass
     pass
@@ -2265,7 +2260,7 @@ class DataMixin(InstanceLike):
         the attribute name does not start with underscore. In
         general, such objects should inherit from IdentityCopyMixin as
         well, and thus have _copyOfObject defined in order to avoid
-        exception processing overhead in copy_InstanceType(), so it
+        exception processing overhead in _generalCopier(), so it
         doesn't really matter. Should something slip through the
         cracks, at least we're only imposing one slowdown on the copy,
         and not two.
