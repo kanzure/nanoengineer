@@ -749,8 +749,6 @@ copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes w
 
 # scanners_for_class_names would work the same way, but we don't need it yet.
 
-_DEBUG_COPYOFOBJECT = False # initial value not used -- set to env.debug() in each run of copy_val [bruce 060311]
-
 def copy_val(val):
     """
     Efficiently copy a general Python value (so that mutable components are
@@ -765,10 +763,6 @@ def copy_val(val):
            available. See SAMEVALS_SPEEDUP in the code.
     """
     #bruce 060221 generalized semantics and rewrote for efficiency
-    #bruce 060315 partly optimized env.debug() check
-    global _DEBUG_COPYOFOBJECT
-    _DEBUG_COPYOFOBJECT = debug_flags.atom_debug # inlined env.debug() # DEBUG_PYREX_ATOMS?
-        ##e ideally we'd have a recursive _copy_val_helper that doesn't check this debug flag at all
     try:
         # wware 060308 small performance improvement (use try/except);
         # made safer by bruce, same day.
@@ -893,7 +887,8 @@ _known_type_scanners[type({})] = scan_dict
 _known_type_scanners[type(())] = scan_tuple
 
 
-def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy_instance ? TODO: merge with generalCopier
+def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy_instance ?
+    ### TODO: merge with generalCopier
     """
     This is called by copy_val to support old-style instances,
     or (for C copy_val only) new-style instances whose classes were
@@ -941,8 +936,17 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg? # rename: _copy
         return obj
     res = copy_method() 
         #bruce 081229 no longer pass copy_val (removed never-used copyfunc arg)
-    if _DEBUG_COPYOFOBJECT and (obj != res or (not (obj == res))):
-        #bruce 060311 adding _DEBUG_COPYOFOBJECT as optim (suggested by Will)
+    if debug_flags.atom_debug:
+        _debug_check_copyOfObject(obj, res)
+    return res
+
+def _debug_check_copyOfObject(obj, res):
+    if (obj != res or (not (obj == res))):
+        #bruce 060311, revised 090206
+        # [warning -- copy_val recursion means enabling the call of this function
+        #  is exponential time in depth of copied values, I think... not sure,
+        #  maybe it cuts off at instances and is only relevant for depths of
+        #  the pure python part, rarely more than 2. --bruce 090206]
         
         # This has detected a bug in copy_method, which will cause false
         # positives in change-detection in Undo (since we'll return res anyway).
