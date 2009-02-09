@@ -215,6 +215,9 @@ varying float var_radii[2];     // Transformed cylinder radii
 varying float var_halo_radii[2];// Halo radius at transformed endpt Z depth.
 varying vec4 var_basecolor;     // Vertex color.
 
+// Debugging data.
+varying vec2 var_input_xy;      // Drawing pattern billboard vertex.
+
 // Vertex shader main procedure.
 void main(void) {
 
@@ -231,6 +234,7 @@ void main(void) {
   // X in the billboard drawing pattern is red (0 to 1), Y (+-1) is green.
   var_basecolor = vec4(gl_Vertex.x, gl_Vertex.y + 1.0 / 2.0, 0.0, 1.0);
 #endif
+  var_input_xy = gl_Vertex.xy;
   
   // The endpoints and radii are combined in one attribute: endpt_rad.
   vec4 endpts[2];
@@ -285,22 +289,28 @@ void main(void) {
     float eye_radius = length(vec3(eye_radius4));
 
     // The non-halo radius.
-    var_radii[i] = billboard_radii[i] = eye_radius;
+    /// GLSL bug?  Chained assignment of indexed array elements is broken???
+    /// var_radii[i] = billboard_radii[i] = eye_radius;
+    var_radii[i] = eye_radius;
+    billboard_radii[i] = eye_radius;
 
     // For halo drawing, scale up drawing primitive vertices to cover the halo.
     if (drawing_style == DS_HALO) {
 
       // Take eye-space radius to post-projection units at the endpt depth.
       // Projection matrix does not change the view alignment, just the scale.
-      vec4 post_proj_radius4 =
-        gl_ProjectionMatrix * vec4(eye_radius, 0.0, var_endpts[i].z, 1.0);
+      vec4 post_proj_radius4 = gl_ProjectionMatrix *
+                               vec4(eye_radius, 0.0, var_endpts[i].z, 1.0);
       float post_proj_radius = post_proj_radius4.x / post_proj_radius4.w;
 
       // Ratio to increase the eye space radius for the halo.
       float radius_ratio = (post_proj_radius + ndc_halo_width)/post_proj_radius;
 
       // Eye space halo radius for use in the pixel shader.
-      var_halo_radii[i] = billboard_radii[i] = radius_ratio * eye_radius;
+      /// GLSL bug?  Chained assignment of indexed array elements is broken???
+      /// var_halo_radii[i] = billboard_radii[i] = radius_ratio * eye_radius;
+      var_halo_radii[i] = radius_ratio * eye_radius;
+      billboard_radii[i] = var_halo_radii[i];
     }
     max_billboard_radius = max(max_billboard_radius, billboard_radii[i]);
   }
@@ -507,24 +517,42 @@ void main(void) {
 
     // On the near face of the pyramid toward the viewpt, for the no-endcap end.
     vec3 near_edge_midpoint = var_endpts[endcap] + scaled_toward;
-    billboard_vertex = near_edge_midpoint + scaled_across;
+    vec3 near_edge_vertex = near_edge_midpoint + scaled_across;
 
-    if (endcap == visible_endcap) {
-      vec3 away_vec = -scaled_toward;  // Orthogonal: parallel projection.
-      if (perspective == 1) {
+    if (endcap != visible_endcap) {
+      billboard_vertex = near_edge_vertex;
+
+      if (drawing_style == DS_HALO) {  // Halo on the non-endcap cylinder end.
+        // Extend the billboard axis length a little bit for a barrel-end halo.
+        billboard_vertex += axis_line_dir * // Axis direction (unit vector).
+          (float(endcap*2 - 1)              // Endcap 0:backward, 1:forward.
+           * (var_halo_radii[endcap]-var_radii[endcap]) // Eye space halo width.
+           * (axis_length /                 // Longer when view is more end-on.
+              max(0.1 * axis_length, length(axis_line_vec.xy))));
+      }
+    } else {
+
+      // This is a vertex of the visible endcap.  Push it away from the viewpt,
+      // across the cylinder endcap by TWICE the radius, to the far face.
+      vec3 away_vec = -(scaled_toward + scaled_toward);
+      if (perspective == 0) {
+
+        // Orthogonal: parallel projection.
+        billboard_vertex = near_edge_vertex + away_vec;
+
+      } else {
+
         // In perspective, we have to go a little bit wider, projecting the near
         // endcap-edge vertex width onto the far edge line.  Otherwise, slivers
         // of the edges of the cylinder barrel are sliced away by the billboard
-        // edge.  Do this BEFORE pushing away from the viewpoint, so we can get
-        // the cosine of the half-edge angle as the dot product of the vectors
-        // from the viewpoint to the near-face vertex and the near-edge midpt.
-        vec3 endpt_dir = normalize(billboard_vertex - var_view_pt);
-        vec3 vertex_dir = normalize(near_edge_midpoint - var_view_pt);
-        away_vec += dot(endpt_dir, vertex_dir) * scaled_across;
+        // edge.  Use the ratio of the distances from the viewpoint to the
+        // midpoints of the far and near edges for widening.  This is right when
+        // the endcap is edge-on and face-on, and conservative in between.
+        vec3 far_edge_midpoint = near_edge_midpoint + away_vec;
+        float ratio = length(far_edge_midpoint - var_view_pt) /
+                      length(near_edge_midpoint - var_view_pt);
+        billboard_vertex = far_edge_midpoint + ratio * scaled_across;
       }
-      // This is a vertex of the visible endcap.  Push it away from the viewpt,
-      // across the cylinder endcap by TWICE the radius, to the far face.
-      billboard_vertex += away_vec + away_vec;
     }
   }
 
@@ -553,6 +581,7 @@ cylinderFragSrc = """
 #version 120
 
 // Uniform variables, which are constant inputs for the whole shader execution.
+uniform int debug_code;         // 0:none, 1: show billboard outline.
 uniform int draw_for_mouseover; // 0: use normal color, 1: glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
 #define DS_NORMAL 0
@@ -565,13 +594,11 @@ uniform float override_opacity; // Multiplies the normal color alpha component.
 // Lighting properties for the material.
 uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
 
-// Uniform variables, which are constant inputs for the whole shader execution.
 uniform int perspective;
 uniform vec4 clip;              // [near, far, middle, depth_inverse]
 
-uniform vec4 intensity;    // Set an intensity component to 0 to ignore a light.
-
 // A fixed set of lights.
+uniform vec4 intensity;    // Set an intensity component to 0 to ignore a light.
 uniform vec3 light0;
 uniform vec3 light1;
 uniform vec3 light2;
@@ -601,6 +628,9 @@ varying float var_radii[2];     // Transformed cylinder radii
 varying float var_halo_radii[2];// Halo radius at transformed endpt Z depth.
 
 varying vec4 var_basecolor;     // Vertex color.
+
+// Debugging data.
+varying vec2 var_input_xy;      // Billboard vertices, interpolated to pixel.
 
 // Line functions; assume line direction vectors are normalized (unit vecs.)
 vec3 pt_proj_onto_line(in vec3 point, in vec3 pt_on_line, in vec3 line_dir) {
@@ -632,6 +662,7 @@ void main(void) {
   gl_FragColor.b =  0.25 * var_visible;
 
   // Sigh.  Must not leave uniforms unused.
+  int i = debug_code;
   float x = override_opacity;
   vec4 x4 = material; x4 = intensity; x4 = clip;
   vec3 x3 = light0; x3 = light1; x3 = light2; x3 = light3;
@@ -639,9 +670,28 @@ void main(void) {
 #else
 
   // This is all in *eye space* (pre-projection camera coordinates.)
+  vec3 ray_hit_pt;      // For ray-hit and depth calculations.
+  vec3 normal;          // For shading calculation.
+  bool debug_hit = false;
+  bool endcap_hit = false;
+  bool halo_hit = false;
+  vec4 halo_color = override_color;  // Default from uniform variable.
 
+  // Debugging - Optionally halo pixels along the billboard outline, along with
+  // the cylinder.  Has to be an overlay rather than a background, unless we
+  // abondon use of 'discard' on all of the other hit cases.
+  if (debug_code == 1 &&
+      (var_input_xy.x <  0.01 || var_input_xy.x > 0.99 ||
+       var_input_xy.y < -0.99 || var_input_xy.y > 0.99)) {
+    // Draw billboard outline pixel like halo, overrides everything else below.
+    debug_hit = true;
+    halo_hit = true;
+    // X in the billboard drawing pattern is red (0 to 1), Y (+-1) is green.
+    halo_color = vec4(var_input_xy.x, var_input_xy.y + 1.0 / 2.0, 0.0, 1.0);
+  }
+  
   // Nothing to do if the viewpoint is inside the cylinder.
-  if (visibility_type == VISIBLE_NOTHING)
+  if (!debug_hit && visibility_type == VISIBLE_NOTHING)
     discard; // **Exit**
 
   // Vertex ray direction vectors were interpolated into pixel ray vectors.
@@ -716,12 +766,6 @@ void main(void) {
   // hits the endcap, it will not get through to the barrel.
   //===
 
-  vec3 ray_hit_pt;      // For ray-hit and depth calculations.
-  vec3 normal;          // For shading calculation.
-
-  bool endcap_hit = false;
-  bool halo_hit = false;
-
   // Varyings are always floats. Because of the interpolation calculations, even
   // though the same integer value goes into this variable at each vertex, the
   // interpolated result is not *exactly* the same integer, so round to nearest.
@@ -729,6 +773,7 @@ void main(void) {
 
   // Skip the endcap hit test if no endcap is visible.
   if (//false && /// May skip the endcap entirely to see just the barrel.
+      !debug_hit && // Skip be a debug billboard-outline pixels.
       visibility_type != VISIBLE_BARREL_ONLY) { // (Never VISIBLE_NOTHING here.)
     // (VISIBLE_ENDCAP_ONLY or VISIBLE_ENDCAP_AND_BARREL.)
 
@@ -777,7 +822,7 @@ void main(void) {
 
   // Skip the barrel hit test if we already hit an endcap.
   // (Never VISIBLE_NOTHING here.)
-  if (! endcap_hit && visibility_type != VISIBLE_ENDCAP_ONLY) {
+  if (!endcap_hit && !debug_hit && visibility_type != VISIBLE_ENDCAP_ONLY) {
     // (VISIBLE_BARREL_ONLY, or VISIBLE_ENDCAP_AND_BARREL but missed endcap.)
 
     //===
@@ -790,16 +835,21 @@ void main(void) {
     //   passing distance.
     //===
 
-    float ep0_app_dist = length(axis_passing_pt - endpt_0);
-    float passing_radius = var_radii[0] + axis_radius_taper * ep0_app_dist;
+    float ep0_app_signed_dist = dot(axis_line_dir, axis_passing_pt - endpt_0);
+    float passing_radius = var_radii[0] +
+                           axis_radius_taper * ep0_app_signed_dist;
     if (passing_pt_dist > passing_radius) {
 
       // Missed the edge of the barrel, but might still hit a halo on it.
       float halo_radius_taper = (var_halo_radii[1] - var_halo_radii[0])
                                 / axis_length;
-      float passing_halo_radius = halo_radius_taper * ep0_app_dist;
+      float passing_halo_radius = var_halo_radii[0] +
+                                  halo_radius_taper * ep0_app_signed_dist;
       halo_hit = drawing_style == DS_HALO &&
-                 passing_pt_dist <= passing_halo_radius;
+                 passing_pt_dist <= passing_halo_radius &&
+                 // Only when between the endcap planes.
+                 ep0_app_signed_dist >= 0.0 &&
+                 ep0_app_signed_dist <= axis_length;
       if (halo_hit) {
 
         // The ray_passing_pt is beyond the edge of the cylinder barrel, but
@@ -814,240 +864,250 @@ void main(void) {
       }
     }
 
-    //===
-    // We already know that the viewpoint is not within the cylinder (the vertex
-    // shader would have set VISIBLE_ENDCAP_ONLY), and that the ray from the
-    // viewpoint to the pixel passes within the cylinder radius of the axis
-    // line, so it has to come in from outside, intersecting the extended barrel
-    // of the cylinder.  We will have a hit if the projection of this
-    // intersection point onto the axis line lies between the endpoints of the
-    // cylinder.
-    // 
-    // The pixel-ray goes from the viewpoint toward the pixel we are shading,
-    // intersects the cylinder barrel, passes closest to the axis-line inside
-    // the barrel, and intersects the barrel again on the way out.  We want the
-    // ray-line vs. barrel-line intersection that is closer to the viewpoint.
-    // (Note: The two intersection points and the ray passing-point will all be
-    // the same point when the ray is tangent to the cylinder.)
-    // 
-    // . First, we find a point on the barrel line that contains the
-    //   intersection, in the cross-section plane of the cylinder.  This
-    //   crossing-plane is perpendicular to the axis line and contains the two
-    //   closest passing points, as well as the passing-line through them,
-    //   perpendicular to the axis of the cylinder.
-    // 
-    //   If the radii are the same at both ends of the cylinder, the
-    //   barrel-lines are parallel.  The projection of the ray-line, along a
-    //   ray-plane *parallel to the cylinder axis* into the crossing-plane, is
-    //   perpendicular to the passing-line at the ray passing-point, both of
-    //   which we already have.
-    //===
-
-    // (The 'csp_' prefix is used for objects in the cross-section plane.)
-    vec3 csp_proj_view_pt, csp_passing_pt;
-    float csp_passing_dist_sq, csp_radius_sq;
-    vec3 convergence_pt;  // Only used for tapered cylinders.
-
-    // Untapered cylinders.
-    if (var_radii[0] == var_radii[1]) {
-      csp_proj_view_pt = var_view_pt + (ray_passing_pt - vp_proj_pt);
-      csp_passing_pt = ray_passing_pt;
-      csp_passing_dist_sq = passing_pt_dist * passing_pt_dist;
-      csp_radius_sq = var_radii[0] * var_radii[0];
-
-    } else {
-
-      // Tapered cylinders.
-
+    if (!halo_hit) { // Barrel/ray intersection.
       //===
-      //   If the cylinder radii differ, instead project the viewpoint and the
-      //   ray-line direction vector into the cross-plane *toward the
-      //   convergence-point*, scaling by the taper of the cylinder along the
-      //   axis.  [This is the one place where tapered cylinders and cones are
-      //   handled differently.]
-      //   
-      //   - Note: If we project parallel to the axis without tapering toward
-      //     the convergence-point, we are working in a plane parallel to the
-      //     cylinder axis, which intersects a tapered cylinder or cone in a
-      //     hyperbola.  Intersecting a ray with a hyperbola is hard.  Instead,
-      //     we arrange to work in a plane that includes the convergence point,
-      //     so the intersection of the plane with the cylinder is two straight
-      //     lines.  Lines are easy.
+      // We already know that the viewpoint is not within the cylinder (the vertex
+      // shader would have set VISIBLE_ENDCAP_ONLY), and that the ray from the
+      // viewpoint to the pixel passes within the cylinder radius of the axis
+      // line, so it has to come in from outside, intersecting the extended barrel
+      // of the cylinder.  We will have a hit if the projection of this
+      // intersection point onto the axis line lies between the endpoints of the
+      // cylinder.
       // 
-      //   - The ray-line and the convergence-point determine a ray-plane, with
-      //     the projected ray-line at the intersection of the ray-plane with
-      //     the cross-plane.  If the ray-line goes through (i.e. within one
-      //     pixel of) the convergence-point, we instead discard the pixel.
-      //     Right at the tip of a cone, the normal sample is very unstable, so
-      //     we can not do valid shading there anyway.
-      //===
-
-      // Distance to the convergence point where the radius tapers to zero,
-      // along the axis from the first cylinder endpoint.
-      float ep0_cp_axis_dist = var_radii[0] / axis_radius_taper;
-      
-      convergence_pt = endpt_0 + ep0_cp_axis_dist * axis_line_dir;
-
-      float ray_cpt_dist = dot(convergence_pt - var_view_pt, ray_line_dir);
-      if (ray_cpt_dist <= .001) // XXX Approximation; should be in NDC coords.
-            discard; // **Exit**
-
-      //===
-      //   - We calculate a *different 2D ray-line passing-point*, and hence
-      //     passing-line, for tapered cylinders and cones.  It is the closest
-      //     point, on the *projected* ray-line in the cross-plane, to the
-      //     cylinder axis passing-point (which does not move.)
-      //     
-      //     Note: The original passing-point is still *also* on the projected
-      //     ray-line, but not midway between the projected barrel-line
-      //     intersections anymore.  In projecting the ray-line into the
-      //     crossing-plane within the ray-plane, the passing-line twists around
-      //     the cylinder axis.  You can see this from the asymmetry of the
-      //     tapering barrel-lines in 3D.  The ray-line/barrel-line intersection
-      //     further from the convergence-point has to travel further to the
-      //     crossing-plane than the nearer one.  (Of course, we do not *know*
-      //     those points yet, we are in the process of computing one of them.)
-      //===
-
-      // Interpolate the viewpoint to the crossing-plane, along the line-segment
-      // from the viewpoint to the convergence point, with a ratio along the
-      // axis from the projected viewpoint, to the axis passing point, to the
-      // convergence point.
-      csp_proj_view_pt = mix(var_view_pt, convergence_pt,
-        proj_passing_dist / length(convergence_pt - vp_axis_proj_pt));
-
-      // New passing point.
-      vec3 csp_ray_line_dir = normalize(ray_passing_pt - csp_proj_view_pt);
-      csp_passing_pt = pt_proj_onto_line(axis_passing_pt,
-        csp_proj_view_pt, csp_ray_line_dir);
-
-      csp_passing_dist_sq = pt_dist_sq_from_line(axis_passing_pt,
-        csp_proj_view_pt, csp_ray_line_dir);
-
-      csp_radius_sq = passing_radius * passing_radius;
-
-    }
-    
-    //===
-    //   [Now we are back to common code for tapered and untapered cylinders.]
-    // 
-    //   - In the cross-plane, the projected ray-line intersects the circular
-    //     cross section of the cylinder at two points, going through the ray
-    //     passing-point, and cutting off a chord of the line and an arc of the
-    //     circle.  Two barrel lines go through the intersection points, along
-    //     the surface of the cylinder and also in the ray-plane.  Each of them
-    //     contains one of the intersection points between the ray and the
-    //     cylinder.
-    // 
-    //     . The chord of the projected ray-line is perpendicularly bisected by
-    //       the passing-line, making a right triangle in the cross-plane.
-    // 
-    //     . The passing-distance is the length of the base of the triangle on
-    //       the passing-line, adjacent to the cylinder axis point.
-    // 
-    //     . The cylinder cross-section circle radius, tapered along the
-    //       cylinder to the cross-plane, is the length of the hypotenuse,
-    //       between the axis point and the first intersection point of the ray
-    //       chord with the circle.
-    // 
-    //     . The length of the right triangle side opposite the axis, along the
-    //       chord of the ray-line toward the viewpoint, is given by the
-    //       Pythagorean Theorem.  This locates the third vertex of the
-    //       triangle, in the cross-plane and the ray-plane.
-    //===
-
-    vec3 barrel_line_pt = csp_passing_pt +
-      sqrt(csp_radius_sq - csp_passing_dist_sq)
-        * normalize(csp_proj_view_pt - csp_passing_pt);
-
-    //===
-    //     . The barrel line we want passes through the cross-plane at that
-    //       point as well as the convergence-point (which is at infinity in the
-    //       direction of the axis for an untapered cylinder.)
-    //===
-
-    vec3 barrel_line_dir = axis_line_dir;
-    if (var_radii[0] != var_radii[1])
-      barrel_line_dir = normalize(convergence_pt - barrel_line_pt);
-
-    //===
-    // . Intersect the 3D ray-line with the barrel line in the ray-plane, giving
-    //   the 3D ray-cylinder intersection point.  Note: this is not in general
-    //   contained in the 2D crossing-plane, depending on the location of the
-    //   viewpoint.
-    // 
-    //   - The intersection point may be easily calculated by interpolating two
-    //     points on the ray line (e.g. the viewpoint and the ray
-    //     passing-point.)  The interpolation coefficients are the ratios of
-    //     their projection distances to the barrel line.  (More dot-products.)
-    //===
-
-    float vp_bl_proj_dist = pt_dist_from_line(var_view_pt,
-                                              barrel_line_pt, barrel_line_dir);
-
-    float bl_cpp_proj_dist = pt_dist_from_line(csp_passing_pt,
-                                               barrel_line_pt, barrel_line_dir);
-
-    ray_hit_pt = mix(var_view_pt, csp_passing_pt,
-      vp_bl_proj_dist / (vp_bl_proj_dist + bl_cpp_proj_dist));
-
-    //===
-    // . Project the intersection point onto the axis line to determine whether
-    //   we hit the cylinder between the endcap planes.  If so, calculate the
-    //   barrel-line normal.
-    //===
-    
-    float ip_axis_proj_len = dot(axis_line_dir, ray_hit_pt - endpt_0);
-    if (ip_axis_proj_len < 0.0 || ip_axis_proj_len > axis_length) {
-
-      // We missed the portion of the cylinder barrel between the endcap planes.
-      // A halo may be required past the end.  We try endcap hits *before* the
-      // barrel, so we know there is not one providing a halo on this end yet.
-      halo_hit = drawing_style == DS_HALO &&
-          (ip_axis_proj_len < 0.0 &&
-             ip_axis_proj_len >= var_radii[0] - var_halo_radii[0] ||
-           ip_axis_proj_len > axis_length &&
-             ip_axis_proj_len <= axis_length + var_halo_radii[1] - var_radii[1]
-          );
-
-      if (! halo_hit)
-        discard; // **Exit**
-
-    } else {
-
-      //===
-      //   - The normal at the intersection point (and all along the same barrel
-      //     line) is *perpendicular to the barrel line* (not the cylinder
-      //     axis), in the radial plane containing the cylinder axis and the
-      //     barrel line.
+      // The pixel-ray goes from the viewpoint toward the pixel we are shading,
+      // intersects the cylinder barrel, passes closest to the axis-line inside
+      // the barrel, and intersects the barrel again on the way out.  We want the
+      // ray-line vs. barrel-line intersection that is closer to the viewpoint.
+      // (Note: The two intersection points and the ray passing-point will all be
+      // the same point when the ray is tangent to the cylinder.)
       // 
-      //   - The cross-product of the axis-intersection vector (from the
-      //     intersection point toward the axis passing-point), with the
-      //     barrel-line direction vector (from the first cylinder endpoint
-      //     toward the second) makes a vector tangent to the cross-plane
-      //     circle, pointed along the arc toward the passing-line.
+      // . First, we find a point on the barrel line that contains the
+      //   intersection, in the cross-section plane of the cylinder.  This
+      //   crossing-plane is perpendicular to the axis line and contains the two
+      //   closest passing points, as well as the passing-line through them,
+      //   perpendicular to the axis of the cylinder.
       // 
-      //   - The cross-product of the tangent-vector, with the barrel-line
-      //     direction vector, makes the normal to the cylinder along the barrel
-      //     line.
-      //==
+      //   If the radii are the same at both ends of the cylinder, the
+      //   barrel-lines are parallel.  The projection of the ray-line, along a
+      //   ray-plane *parallel to the cylinder axis* into the crossing-plane, is
+      //   perpendicular to the passing-line at the ray passing-point, both of
+      //   which we already have.
+      //===
 
-      vec3 arc_tangent_vec = cross(axis_passing_pt - ray_hit_pt,
-                                   barrel_line_dir);
-      normal = normalize(cross(arc_tangent_vec, barrel_line_dir));
-    }
-  }
+      // (The 'csp_' prefix is used for objects in the cross-section plane.)
+      vec3 csp_proj_view_pt, csp_passing_pt;
+      float csp_passing_dist_sq, csp_radius_sq;
+      vec3 convergence_pt;  // Only used for tapered cylinders.
 
-  // Distance from the view point to the intersection, transformed into
-  // normalized device coordinates, sets the fragment depth.  (Note: The
-  // clipping box depth is passed as its inverse, to save a divide.)
-  float sample_z = ray_hit_pt.z;
-  if (perspective == 1) {
-    // Perspective: 0.5 + (mid + (far * near / sample_z)) / depth
-    gl_FragDepth = 0.5 + (clip[2] + (clip[1] * clip[0] / sample_z)) * clip[3];
+      // Untapered cylinders.
+      if (var_radii[0] == var_radii[1]) {
+        csp_proj_view_pt = var_view_pt + (ray_passing_pt - vp_proj_pt);
+        csp_passing_pt = ray_passing_pt;
+        csp_passing_dist_sq = passing_pt_dist * passing_pt_dist;
+        csp_radius_sq = var_radii[0] * var_radii[0];
+
+      } else {  // Tapered cylinders.
+
+        //===
+        //   If the cylinder radii differ, instead project the viewpoint and the
+        //   ray-line direction vector into the cross-plane *toward the
+        //   convergence-point*, scaling by the taper of the cylinder along the
+        //   axis.  [This is the one place where tapered cylinders and cones are
+        //   handled differently.]
+        //   
+        //   - Note: If we project parallel to the axis without tapering toward
+        //     the convergence-point, we are working in a plane parallel to the
+        //     cylinder axis, which intersects a tapered cylinder or cone in a
+        //     hyperbola.  Intersecting a ray with a hyperbola is hard.  Instead,
+        //     we arrange to work in a plane that includes the convergence point,
+        //     so the intersection of the plane with the cylinder is two straight
+        //     lines.  Lines are easy.
+        // 
+        //   - The ray-line and the convergence-point determine a ray-plane, with
+        //     the projected ray-line at the intersection of the ray-plane with
+        //     the cross-plane.  If the ray-line goes through (i.e. within one
+        //     pixel of) the convergence-point, we instead discard the pixel.
+        //     Right at the tip of a cone, the normal sample is very unstable, so
+        //     we can not do valid shading there anyway.
+        //===
+
+        // Distance to the convergence point where the radius tapers to zero,
+        // along the axis from the first cylinder endpoint.
+        float ep0_cp_axis_dist = var_radii[0] / axis_radius_taper;
+
+        convergence_pt = endpt_0 + ep0_cp_axis_dist * axis_line_dir;
+
+        float ray_cpt_dist = dot(convergence_pt - var_view_pt, ray_line_dir);
+        if (ray_cpt_dist <= .001) // XXX Approximation; should be in NDC coords.
+              discard; // **Exit**
+
+        //===
+        //   - We calculate a *different 2D ray-line passing-point*, and hence
+        //     passing-line, for tapered cylinders and cones.  It is the closest
+        //     point, on the *projected* ray-line in the cross-plane, to the
+        //     cylinder axis passing-point (which does not move.)
+        //     
+        //     Note: The original passing-point is still *also* on the projected
+        //     ray-line, but not midway between the projected barrel-line
+        //     intersections anymore.  In projecting the ray-line into the
+        //     crossing-plane within the ray-plane, the passing-line twists around
+        //     the cylinder axis.  You can see this from the asymmetry of the
+        //     tapering barrel-lines in 3D.  The ray-line/barrel-line intersection
+        //     further from the convergence-point has to travel further to the
+        //     crossing-plane than the nearer one.  (Of course, we do not *know*
+        //     those points yet, we are in the process of computing one of them.)
+        //===
+
+        // Interpolate the viewpoint to the crossing-plane, along the line-segment
+        // from the viewpoint to the convergence point, with a ratio along the
+        // axis from the projected viewpoint, to the axis passing point, to the
+        // convergence point.
+        csp_proj_view_pt = mix(var_view_pt, convergence_pt,
+          proj_passing_dist / length(convergence_pt - vp_axis_proj_pt));
+
+        // New passing point.
+        vec3 csp_ray_line_dir = normalize(ray_passing_pt - csp_proj_view_pt);
+        csp_passing_pt = pt_proj_onto_line(axis_passing_pt,
+          csp_proj_view_pt, csp_ray_line_dir);
+
+        csp_passing_dist_sq = pt_dist_sq_from_line(axis_passing_pt,
+          csp_proj_view_pt, csp_ray_line_dir);
+
+        csp_radius_sq = passing_radius * passing_radius;
+
+      } // End of tapered cylinders.
+
+      //===
+      //   [Now we are back to common code for tapered and untapered cylinders.]
+      // 
+      //   - In the cross-plane, the projected ray-line intersects the circular
+      //     cross section of the cylinder at two points, going through the ray
+      //     passing-point, and cutting off a chord of the line and an arc of the
+      //     circle.  Two barrel lines go through the intersection points, along
+      //     the surface of the cylinder and also in the ray-plane.  Each of them
+      //     contains one of the intersection points between the ray and the
+      //     cylinder.
+      // 
+      //     . The chord of the projected ray-line is perpendicularly bisected by
+      //       the passing-line, making a right triangle in the cross-plane.
+      // 
+      //     . The passing-distance is the length of the base of the triangle on
+      //       the passing-line, adjacent to the cylinder axis point.
+      // 
+      //     . The cylinder cross-section circle radius, tapered along the
+      //       cylinder to the cross-plane, is the length of the hypotenuse,
+      //       between the axis point and the first intersection point of the ray
+      //       chord with the circle.
+      // 
+      //     . The length of the right triangle side opposite the axis, along the
+      //       chord of the ray-line toward the viewpoint, is given by the
+      //       Pythagorean Theorem.  This locates the third vertex of the
+      //       triangle, in the cross-plane and the ray-plane.
+      //===
+
+      vec3 barrel_line_pt = csp_passing_pt +
+        sqrt(csp_radius_sq - csp_passing_dist_sq)
+          * normalize(csp_proj_view_pt - csp_passing_pt);
+
+      //===
+      //     . The barrel line we want passes through the cross-plane at that
+      //       point as well as the convergence-point (which is at infinity in the
+      //       direction of the axis for an untapered cylinder.)
+      //===
+
+      vec3 barrel_line_dir = axis_line_dir;
+      if (var_radii[0] != var_radii[1])
+        barrel_line_dir = normalize(convergence_pt - barrel_line_pt);
+
+      //===
+      // . Intersect the 3D ray-line with the barrel line in the ray-plane, giving
+      //   the 3D ray-cylinder intersection point.  Note: this is not in general
+      //   contained in the 2D crossing-plane, depending on the location of the
+      //   viewpoint.
+      // 
+      //   - The intersection point may be easily calculated by interpolating two
+      //     points on the ray line (e.g. the viewpoint and the ray
+      //     passing-point.)  The interpolation coefficients are the ratios of
+      //     their projection distances to the barrel line.  (More dot-products.)
+      //===
+
+      float vp_bl_proj_dist = pt_dist_from_line(var_view_pt,
+                                                barrel_line_pt, barrel_line_dir);
+
+      float bl_cpp_proj_dist = pt_dist_from_line(csp_passing_pt,
+                                                 barrel_line_pt, barrel_line_dir);
+
+      ray_hit_pt = mix(var_view_pt, csp_passing_pt,
+        vp_bl_proj_dist / (vp_bl_proj_dist + bl_cpp_proj_dist));
+
+      //===
+      // . Project the intersection point onto the axis line to determine whether
+      //   we hit the cylinder between the endcap planes.  If so, calculate the
+      //   barrel-line normal.
+      //===
+
+      float ip_axis_proj_len = dot(axis_line_dir, ray_hit_pt - endpt_0);
+      if (ip_axis_proj_len < 0.0 || ip_axis_proj_len > axis_length) {
+
+        // We missed the portion of the cylinder barrel between the endcap planes.
+        // A halo may be required past the end.  We find endcap hits *before* the
+        // barrel, so we know there is not one providing a halo on this end yet.
+        halo_hit = drawing_style == DS_HALO &&
+            (ip_axis_proj_len < 0.0 &&
+               ip_axis_proj_len >= var_radii[0] - var_halo_radii[0] ||
+             ip_axis_proj_len > axis_length &&
+               ip_axis_proj_len <= axis_length + var_halo_radii[1] - var_radii[1]
+            );
+
+        if (! halo_hit)
+          discard; // **Exit**
+
+      } else {
+
+        //===
+        //   - The normal at the intersection point (and all along the same barrel
+        //     line) is *perpendicular to the barrel line* (not the cylinder
+        //     axis), in the radial plane containing the cylinder axis and the
+        //     barrel line.
+        // 
+        //   - The cross-product of the axis-intersection vector (from the
+        //     intersection point toward the axis passing-point), with the
+        //     barrel-line direction vector (from the first cylinder endpoint
+        //     toward the second) makes a vector tangent to the cross-plane
+        //     circle, pointed along the arc toward the passing-line.
+        // 
+        //   - The cross-product of the tangent-vector, with the barrel-line
+        //     direction vector, makes the normal to the cylinder along the barrel
+        //     line.
+        //==
+
+        vec3 arc_tangent_vec = cross(axis_passing_pt - ray_hit_pt,
+                                     barrel_line_dir);
+        normal = normalize(cross(arc_tangent_vec, barrel_line_dir));
+
+      } // End of barrel normal calculation.
+
+    } // End of barrel/ray intersection.
+  } // End of barrel hit test.
+
+  if (debug_hit) {
+    gl_FragDepth = gl_FragCoord.z; // Debug display: Z from billboard polygon.
   } else {
-    // Ortho: 0.5 + (-middle - sample_z) / depth
-    gl_FragDepth = 0.5 + (-clip[2] - sample_z) * clip[3];
+    float sample_z = ray_hit_pt.z;
+
+    // Distance from the view point to the intersection, transformed into
+    // normalized device coordinates, sets the fragment depth.  (Note: The
+    // clipping box depth is passed as its inverse, to save a divide.)
+    if (perspective == 1) {
+
+      // Perspective: 0.5 + (mid + (far * near / sample_z)) / depth
+      gl_FragDepth = 0.5 + (clip[2] + (clip[1] * clip[0] / sample_z)) * clip[3];
+
+    } else {
+
+      // Ortho: 0.5 + (-middle - sample_z) / depth
+      gl_FragDepth = 0.5 + (-clip[2] - sample_z) * clip[3];
+    }
   }
 
   // Nothing more to do if the intersection point is clipped.
@@ -1056,7 +1116,7 @@ void main(void) {
 
   // No shading or lighting on halos.
   if (halo_hit) {
-      gl_FragColor = override_color; // No shading or lighting on halos.
+      gl_FragColor = halo_color; // No shading or lighting on halos.
   } else {
 
     // Shading control, from the material and lights.

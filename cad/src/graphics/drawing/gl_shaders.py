@@ -107,6 +107,9 @@ from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import SS_SOLID, SS_HALO
 from utilities.prefs_constants import haloWidth_prefs_key
 
+from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
+
 import numpy
 
 from OpenGL.GL import GL_FLOAT
@@ -290,6 +293,11 @@ class GLShaderObject(object):
         if not wasActive:
             self.use(True)
             pass
+
+        # Debugging control.
+        glUniform1iARB(self.uniform("debug_code"),
+                       int(debug_pref("GLPane: shader debug graphics?",
+                                      Choice_boolean_False, prefs_key = True)))
 
         # Default override_opacity, multiplies the normal color alpha component.
         glUniform1fARB(self.uniform("override_opacity"), 1.0)

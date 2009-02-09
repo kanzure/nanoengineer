@@ -75,7 +75,9 @@ def test_Draw(glpane):
         if testCase == 8.2:
             animate_TCs()
             pass
-        test_DrawingSet.draw()
+        test_DrawingSet.draw(
+            ###highlighted=True ### Test halo drawing.
+            )
         if testCase == 8.3:
             draw_cylinder_axes()
         pass
@@ -991,12 +993,12 @@ def test_drawing(glpane, initOnly = False):
                                    DRAWSPHERE_DETAIL_LEVEL)
                     else:
                         # Through ColorSorter to cylinder primitive buffer...
-                        if (True and # Whether to do tapered shader-cylinders.
+                        if (False and  # Whether to do tapered shader-cylinders.
                             # Display List cylinders don't support taper.
                             drawing_globals.use_cylinder_shaders):
-                            cylRad = radius/2.0
+                            cylRad = (radius/2.0, (.75-radius)/2.0)
                         else:
-                            cylRad = (radius/2.0, (.875-radius)/2.0)
+                            cylRad = radius/2.0
                             pass
                         endPt2 = center + V(0.5, 0.0, 0.0) # 0.5, -0.5)
                         drawcylinder(color, center, endPt2, cylRad)
@@ -1030,7 +1032,7 @@ def test_drawing(glpane, initOnly = False):
                     
                     # Sphere radii progress from 3/4 to full size.
                     t = float(x+y)/(nSpheres+nSpheres) # 0 to 1 fraction.
-                    thisRad = radius * (.75 + t*.25)
+                    thisRad = radius * (.5 + t*.5)
                     radii += [thisRad]
 
                     # Colors progress from red to blue.

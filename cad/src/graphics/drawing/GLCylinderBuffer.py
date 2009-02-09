@@ -24,8 +24,6 @@ import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer, HunkBuffer
 
 from geometry.VQT import V
-from utilities.debug_prefs import debug_pref
-from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
 
 import numpy
 

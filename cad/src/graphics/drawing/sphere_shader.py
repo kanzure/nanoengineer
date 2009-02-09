@@ -74,6 +74,7 @@ sphereVertSrc = """
 // See the description at the beginning of this file.
 
 // Uniform variables, which are constant inputs for the whole shader execution.
+uniform int debug_code;         // 0:none, 1: not used yet.
 uniform int draw_for_mouseover; // 0:use normal color, 1:glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
 #define DS_NORMAL 0
@@ -111,6 +112,8 @@ varying float var_halo_rad_sq;  // Halo rad sq at transformed center_pt Z depth.
 varying vec4 var_basecolor;     // Vertex color.
 
 void main(void) { // Vertex shader procedure.
+
+  int unused = debug_code;      // Must not leave uniforms unused.
 
   // Fragment (pixel) color will be interpolated from the vertex colors.
   if (draw_for_mouseover == 1)
