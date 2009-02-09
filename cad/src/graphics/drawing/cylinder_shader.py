@@ -866,20 +866,21 @@ void main(void) {
 
     if (!halo_hit) { // Barrel/ray intersection.
       //===
-      // We already know that the viewpoint is not within the cylinder (the vertex
-      // shader would have set VISIBLE_ENDCAP_ONLY), and that the ray from the
-      // viewpoint to the pixel passes within the cylinder radius of the axis
-      // line, so it has to come in from outside, intersecting the extended barrel
-      // of the cylinder.  We will have a hit if the projection of this
-      // intersection point onto the axis line lies between the endpoints of the
-      // cylinder.
+      // We already know that the viewpoint is not within the cylinder (the
+      // vertex shader would have set VISIBLE_ENDCAP_ONLY), and that the ray
+      // from the viewpoint to the pixel passes within the cylinder radius of
+      // the axis line, so it has to come in from outside, intersecting the
+      // extended barrel of the cylinder.  We will have a hit if the projection
+      // of this intersection point onto the axis line lies between the
+      // endpoints of the cylinder.
       // 
       // The pixel-ray goes from the viewpoint toward the pixel we are shading,
       // intersects the cylinder barrel, passes closest to the axis-line inside
-      // the barrel, and intersects the barrel again on the way out.  We want the
-      // ray-line vs. barrel-line intersection that is closer to the viewpoint.
-      // (Note: The two intersection points and the ray passing-point will all be
-      // the same point when the ray is tangent to the cylinder.)
+      // the barrel, and intersects the barrel again on the way out.  We want
+      // the ray-line vs. barrel-line intersection that is closer to the
+      // viewpoint.  (Note: The two intersection points and the ray
+      // passing-point will all be the same point when the ray is tangent to the
+      // cylinder.)
       // 
       // . First, we find a point on the barrel line that contains the
       //   intersection, in the cross-section plane of the cylinder.  This
@@ -918,17 +919,17 @@ void main(void) {
         //   - Note: If we project parallel to the axis without tapering toward
         //     the convergence-point, we are working in a plane parallel to the
         //     cylinder axis, which intersects a tapered cylinder or cone in a
-        //     hyperbola.  Intersecting a ray with a hyperbola is hard.  Instead,
-        //     we arrange to work in a plane that includes the convergence point,
-        //     so the intersection of the plane with the cylinder is two straight
-        //     lines.  Lines are easy.
+        //     hyperbola.  Intersecting a ray with a hyperbola is hard.
+        //     Instead, we arrange to work in a plane that includes the
+        //     convergence point, so the intersection of the plane with the
+        //     cylinder is two straight lines.  Lines are easy.
         // 
-        //   - The ray-line and the convergence-point determine a ray-plane, with
-        //     the projected ray-line at the intersection of the ray-plane with
-        //     the cross-plane.  If the ray-line goes through (i.e. within one
-        //     pixel of) the convergence-point, we instead discard the pixel.
-        //     Right at the tip of a cone, the normal sample is very unstable, so
-        //     we can not do valid shading there anyway.
+        //   - The ray-line and the convergence-point determine a ray-plane,
+        //     with the projected ray-line at the intersection of the ray-plane
+        //     with the cross-plane.  If the ray-line goes through (i.e. within
+        //     one pixel of) the convergence-point, we instead discard the
+        //     pixel.  Right at the tip of a cone, the normal sample is very
+        //     unstable, so we can not do valid shading there anyway.
         //===
 
         // Distance to the convergence point where the radius tapers to zero,
@@ -950,18 +951,19 @@ void main(void) {
         //     Note: The original passing-point is still *also* on the projected
         //     ray-line, but not midway between the projected barrel-line
         //     intersections anymore.  In projecting the ray-line into the
-        //     crossing-plane within the ray-plane, the passing-line twists around
-        //     the cylinder axis.  You can see this from the asymmetry of the
-        //     tapering barrel-lines in 3D.  The ray-line/barrel-line intersection
-        //     further from the convergence-point has to travel further to the
-        //     crossing-plane than the nearer one.  (Of course, we do not *know*
-        //     those points yet, we are in the process of computing one of them.)
+        //     crossing-plane within the ray-plane, the passing-line twists
+        //     around the cylinder axis.  You can see this from the asymmetry of
+        //     the tapering barrel-lines in 3D.  The ray-line/barrel-line
+        //     intersection further from the convergence-point has to travel
+        //     further to the crossing-plane than the nearer one.  (Of course,
+        //     we do not *know* those points yet, we are in the process of
+        //     computing one of them.)
         //===
 
-        // Interpolate the viewpoint to the crossing-plane, along the line-segment
-        // from the viewpoint to the convergence point, with a ratio along the
-        // axis from the projected viewpoint, to the axis passing point, to the
-        // convergence point.
+        // Interpolate the viewpoint to the crossing-plane, along the
+        // line-segment from the viewpoint to the convergence point, with a
+        // ratio along the axis from the projected viewpoint, to the axis
+        // passing point, to the convergence point.
         csp_proj_view_pt = mix(var_view_pt, convergence_pt,
           proj_passing_dist / length(convergence_pt - vp_axis_proj_pt));
 
@@ -982,25 +984,25 @@ void main(void) {
       // 
       //   - In the cross-plane, the projected ray-line intersects the circular
       //     cross section of the cylinder at two points, going through the ray
-      //     passing-point, and cutting off a chord of the line and an arc of the
-      //     circle.  Two barrel lines go through the intersection points, along
-      //     the surface of the cylinder and also in the ray-plane.  Each of them
-      //     contains one of the intersection points between the ray and the
-      //     cylinder.
+      //     passing-point, and cutting off a chord of the line and an arc of
+      //     the circle.  Two barrel lines go through the intersection points,
+      //     along the surface of the cylinder and also in the ray-plane.  Each
+      //     of them contains one of the intersection points between the ray and
+      //     the cylinder.
       // 
-      //     . The chord of the projected ray-line is perpendicularly bisected by
-      //       the passing-line, making a right triangle in the cross-plane.
+      //     . The chord of the projected ray-line is perpendicularly bisected
+      //       by the passing-line, making a right triangle in the cross-plane.
       // 
       //     . The passing-distance is the length of the base of the triangle on
       //       the passing-line, adjacent to the cylinder axis point.
       // 
       //     . The cylinder cross-section circle radius, tapered along the
       //       cylinder to the cross-plane, is the length of the hypotenuse,
-      //       between the axis point and the first intersection point of the ray
-      //       chord with the circle.
+      //       between the axis point and the first intersection point of the
+      //       ray chord with the circle.
       // 
-      //     . The length of the right triangle side opposite the axis, along the
-      //       chord of the ray-line toward the viewpoint, is given by the
+      //     . The length of the right triangle side opposite the axis, along
+      //       the chord of the ray-line toward the viewpoint, is given by the
       //       Pythagorean Theorem.  This locates the third vertex of the
       //       triangle, in the cross-plane and the ray-plane.
       //===
@@ -1011,8 +1013,8 @@ void main(void) {
 
       //===
       //     . The barrel line we want passes through the cross-plane at that
-      //       point as well as the convergence-point (which is at infinity in the
-      //       direction of the axis for an untapered cylinder.)
+      //       point as well as the convergence-point (which is at infinity in
+      //       the direction of the axis for an untapered cylinder.)
       //===
 
       vec3 barrel_line_dir = axis_line_dir;
@@ -1020,43 +1022,46 @@ void main(void) {
         barrel_line_dir = normalize(convergence_pt - barrel_line_pt);
 
       //===
-      // . Intersect the 3D ray-line with the barrel line in the ray-plane, giving
-      //   the 3D ray-cylinder intersection point.  Note: this is not in general
-      //   contained in the 2D crossing-plane, depending on the location of the
-      //   viewpoint.
+      // . Intersect the 3D ray-line with the barrel line in the ray-plane,
+      //   giving the 3D ray-cylinder intersection point.  Note: this is not in
+      //   general contained in the 2D crossing-plane, depending on the location
+      //   of the viewpoint.
       // 
-      //   - The intersection point may be easily calculated by interpolating two
-      //     points on the ray line (e.g. the viewpoint and the ray
+      //   - The intersection point may be easily calculated by interpolating
+      //     two points on the ray line (e.g. the viewpoint and the ray
       //     passing-point.)  The interpolation coefficients are the ratios of
-      //     their projection distances to the barrel line.  (More dot-products.)
+      //     their projection distances to the barrel line.  (More
+      //     dot-products.)
       //===
 
-      float vp_bl_proj_dist = pt_dist_from_line(var_view_pt,
-                                                barrel_line_pt, barrel_line_dir);
+      float vp_bl_proj_dist = pt_dist_from_line(
+        var_view_pt, barrel_line_pt, barrel_line_dir);
 
-      float bl_cpp_proj_dist = pt_dist_from_line(csp_passing_pt,
-                                                 barrel_line_pt, barrel_line_dir);
+      float bl_cpp_proj_dist = pt_dist_from_line(
+        csp_passing_pt, barrel_line_pt, barrel_line_dir);
 
       ray_hit_pt = mix(var_view_pt, csp_passing_pt,
         vp_bl_proj_dist / (vp_bl_proj_dist + bl_cpp_proj_dist));
 
       //===
-      // . Project the intersection point onto the axis line to determine whether
-      //   we hit the cylinder between the endcap planes.  If so, calculate the
-      //   barrel-line normal.
+      // . Project the intersection point onto the axis line to determine
+      //   whether we hit the cylinder between the endcap planes.  If so,
+      //   calculate the barrel-line normal.
       //===
 
       float ip_axis_proj_len = dot(axis_line_dir, ray_hit_pt - endpt_0);
       if (ip_axis_proj_len < 0.0 || ip_axis_proj_len > axis_length) {
 
-        // We missed the portion of the cylinder barrel between the endcap planes.
-        // A halo may be required past the end.  We find endcap hits *before* the
-        // barrel, so we know there is not one providing a halo on this end yet.
+        // We missed the portion of the cylinder barrel between the endcap
+        // planes.  A halo may be required past the end.  We find endcap hits
+        // *before* the barrel, so we know there is not one providing a halo on
+        // this end yet.
         halo_hit = drawing_style == DS_HALO &&
             (ip_axis_proj_len < 0.0 &&
                ip_axis_proj_len >= var_radii[0] - var_halo_radii[0] ||
              ip_axis_proj_len > axis_length &&
-               ip_axis_proj_len <= axis_length + var_halo_radii[1] - var_radii[1]
+               ip_axis_proj_len <= axis_length +
+                                   var_halo_radii[1] - var_radii[1]
             );
 
         if (! halo_hit)
@@ -1065,10 +1070,10 @@ void main(void) {
       } else {
 
         //===
-        //   - The normal at the intersection point (and all along the same barrel
-        //     line) is *perpendicular to the barrel line* (not the cylinder
-        //     axis), in the radial plane containing the cylinder axis and the
-        //     barrel line.
+        //   - The normal at the intersection point (and all along the same
+        //     barrel line) is *perpendicular to the barrel line* (not the
+        //     cylinder axis), in the radial plane containing the cylinder axis
+        //     and the barrel line.
         // 
         //   - The cross-product of the axis-intersection vector (from the
         //     intersection point toward the axis passing-point), with the
@@ -1077,8 +1082,8 @@ void main(void) {
         //     circle, pointed along the arc toward the passing-line.
         // 
         //   - The cross-product of the tangent-vector, with the barrel-line
-        //     direction vector, makes the normal to the cylinder along the barrel
-        //     line.
+        //     direction vector, makes the normal to the cylinder along the
+        //     barrel line.
         //==
 
         vec3 arc_tangent_vec = cross(axis_passing_pt - ray_hit_pt,
