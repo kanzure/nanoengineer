@@ -104,12 +104,12 @@ class TransformNode(Node3D): # review superclass and its name
         transform values of those dynamic transforms).
         """
         res = []
-        for obj in self.potential_bridging_objects(): # implem is per-subclass, I guess? ### DECIDE
-            if obj.is_currently_bridging_dynamic_transforms(): ### IMPLEM in ebset
+        for obj in self.potential_bridging_objects():
+            if obj.is_currently_bridging_dynamic_transforms():
                 res.append(obj)
         return res
 
-    def potential_bridging_objects(self): ### TODO: override in class Chunk
+    def potential_bridging_objects(self):
         """
         Return a list of objects whose coordinates depend on the value of
         self's dynamic_transform and also on the value of one or more
@@ -120,8 +120,14 @@ class TransformNode(Node3D): # review superclass and its name
         in self's dynamic transform value, if the other nodes have different
         dynamic transforms at the time.)
         
-        [subclasses should override as needed]
+        [subclasses should override as needed; overridden in class Chunk]
         """
+        # note: implem is per-subclass, for now; might generalize later
+        # so this class maintains a set of them -- depends on whether
+        # subclasses maintain distinct custom types, as Chunk may do
+        # when it has error indicators implemented similarly to ExternalBondSet;
+        # right now, I don't know if they'll be kept in the same dict as it is
+        # or not.
         return ()
     
     pass

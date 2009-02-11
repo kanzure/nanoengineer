@@ -35,6 +35,10 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         # (notes for a future implem: 
         #  displist still valid (self.ebset._invalid)? culled?)
 
+
+        ##### note: does not yet ever call superclass TransformedDisplayListsDrawer.draw, as of before 090211
+        
+
         # modified from Chunk._draw_external_bonds:
         
         use_outer_colorsorter = True # not sure whether/why this is needed

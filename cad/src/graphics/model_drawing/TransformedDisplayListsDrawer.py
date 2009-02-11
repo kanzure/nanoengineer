@@ -27,10 +27,10 @@ from graphics.drawing.ColorSorter import ColorSortedDisplayList # not yet used?
 class TransformedDisplayListsDrawer(object): # refile when done and name is stable
     """
     Superclass for drawing classes which make use of one or more display lists
-    (actually CSDLs) to be drawn relative to a transform. 
+    (actually CSDLs) to be drawn relative to a transform known to the drawing class.
     
     (The specific subclass knows where to get the transform,
-    and when to invalidate the display lists.)
+     and when to invalidate the display lists.)
     """
     if 0: # just to not execute this until it's ready
         # we'll need these attrs, or revised code:
@@ -44,10 +44,14 @@ class TransformedDisplayListsDrawer(object): # refile when done and name is stab
         # that is handled outside by choosing the right rule (this class)
     
     def draw(self, glpane, dispdef):
-        ####### WARNING: DUPLICATED CODE: following is grabbed from Chunk_drawing_methods.draw,
-        # then generalized; chunk comments left in so it's easy to see what was grabbed.
-        # When this class is ready, Chunk itself should be modified to use it.
+
         
+        assert 0 #### note: never yet called as of before 090211 (not even when debug_prefs are set)
+
+        
+####### WARNING: DUPLICATED CODE: following is grabbed from Chunk_drawing_methods.draw,
+# then generalized; chunk comments left in so it's easy to see what was grabbed.
+# When this class is ready, Chunk itself should be modified to use it.
         
         
         #bruce 050804:
@@ -204,6 +208,8 @@ class TransformedDisplayListsDrawer(object): # refile when done and name is stab
                         #e (in future it might be safer to remake the display list to contain
                         # only a known-safe thing, like a bbox and an indicator of the bug.)
 
+
+###### DUPLICATED CODE ends here [090211 comment, code was copied earlier]
 
                         ####### more, at various indent levels?
                         ####### todo: if this survives, split interior into separate methods to clarify.

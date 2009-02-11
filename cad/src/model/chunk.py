@@ -57,6 +57,9 @@ bruce 090115 split Chunk_Dna_methods from here into a new mixin class
 bruce 090100 split Chunk_mmp_methods from here into a new mixin class
 
 bruce 090100 split Chunk_drawing_methods from here into a new mixin class
+
+bruce 090211 making compatible with TransformNode, though that is unfinished
+and not yet actually used; places to fix for this are marked ####
 """
 
 import Numeric # for sqrt
@@ -611,7 +614,12 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
     def _f_remove_ExternalBondSet(self, ebset):
         otherchunk = ebset.other_chunk(self)
         del self._bonded_chunks[otherchunk]
-        
+
+    def potential_bridging_objects(self):
+        return self._bonded_chunks.values()
+    
+    # ==
+    
     def edit(self):
         ### REVIEW: model tree has a special case for isProteinChunk;
         # should we pull that in here too? Guess yes.
@@ -1454,10 +1462,15 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         This is meant to be called when something whose usage we tracked
         (while making our display list) next changes.
         """
-        # REVIEW: how does this relate to class Chunk_drawing_methods? Guess:
-        # when that becomes a cooperating object, each one subscribes to this
-        # somehow. [bruce 091223 comment]
+        #### REVIEW: how does this relate to class Chunk_drawing_methods? Guess:
+        # when that becomes a cooperating object, this method splits into
+        # one on this class, called by model changes, and one on the
+        # cooperating object (or on each one, if we're drawn in more than one
+        # place), called when a usage-tracked thing changes as described
+        # in the docstring. [bruce 091223/090211 comment]
+        
         self.changeapp(0) # that now tells self.glpane to update, if necessary
+
         ###@@@ glpane needs to track changes anyway due to external bonds....
         # [not sure of status of this comment; as of bruce 060404]
 
@@ -1898,6 +1911,17 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
             pass
         return
 
+    def invalidate_distortion(self): #bruce 090211; #### TODO: refile into superclass TransformNode
+        #### TODO: call where needed, eg some changeapp calls; also make sib method for external atoms display changes
+        """
+        Called when any of our atoms' relative coordinates move
+        (thus changing our shape, and presumably that of all our
+        transform-bridging objects such as ExternalBondSets). 
+        """
+        for bo in self.bridging_objects(): #### note: this method is only defined in TransformNode
+            bo.invalidate_distortion()
+        return
+    
     def changed_selected_atoms(self): #bruce 090119
         """
         Invalidate whatever is needed due to something having

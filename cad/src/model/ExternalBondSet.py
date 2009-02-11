@@ -6,6 +6,13 @@ ExternalBondSet.py - keep track of external bonds, to optimize redraw
 @version: $Id$
 @copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
+History:
+
+bruce 080702 created
+
+bruce 090211 making compatible with TransformNode, though that is unfinished
+and not yet actually used
+
 """
 
 # plan:
@@ -42,13 +49,37 @@ class ExternalBondSet(object):
     """
     def __init__(self, chunk1, chunk2):
         self.chunks = (chunk1, chunk2) # note: not private
+            # note: our chunks are also called "our nodes",
+            # since some of this code would work for them being any TransformNodes
         # todo: rename: _f_invalid, _f_bonds
         self._bonds = {}
         self._invalid = True # since we have no display list for drawing
         self._drawer = ExternalBondSetDrawer(self) 
             # review: make on demand? GL context not current now...
+            # hopefully ok, since it will only makes it DL on demand by .draw.
         return
 
+    def is_currently_bridging_dynamic_transforms(self):
+        """
+        @return: whether not all of our nodes share the same dynamic
+                 transform object (counting None as such as object)
+        @rtype: boolean
+        """
+        dt1 = self.chunks[0].dynamic_transform
+        for chunk in self.chunks:
+            if chunk.dynamic_transform is not dt1:
+                return True
+        return False
+
+    def invalidate_distortion(self):
+        """
+        Called when any of our nodes' (chunks') dynamic transforms changes
+        transform value (thus moving that node in space), if not all of our
+        nodes share the same dynamic transform object.
+        """
+        print "nim: invalidate_distortion in %r" % self #######
+        return
+    
     def other_chunk(self, chunk):
         """
         @see: Bond.other_chunk

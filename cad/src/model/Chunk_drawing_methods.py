@@ -31,9 +31,14 @@ TODO: refactor this in two ways:
  * split it into sub/superclasses for Chunk and the superclasses
    to be split out of Chunk (e.g. AtomCloud, PointCloud, TransformNode
    (all names tentative); this involves picking apart def draw in
-   particular, since the display list and transform code is general
-   but there is speciic code for atoms & bonds as well; some of this
+   particular, since the display list and transform code is general,
+   but there is specific code for atoms & bonds as well; some of this
    will ultimately turn into GraphicsRules (name also tentative)
+
+bruce 090211 added markers where code was recently duplicated between self.draw
+and TransformedDisplayListsDrawer.draw (not yet used). This should be refactored
+soon into a common superclass, but first we need to make this module supply
+a cooperating object rather than a mixin class.
 
 """
 
@@ -457,6 +462,12 @@ class Chunk_drawing_methods:
         # the mol coord system has not changed by the time we're done:
         should_not_change = ( + self.basecenter, + self.quat )
 
+    ####### WARNING: DUPLICATED CODE: following was recently copied into TransformedDisplayListsDrawer,
+    # then generalized; chunk comments left in so it's easy to see what was grabbed.
+    # Soon we'll make the copied code a common superclass, but first we need
+    # to turn this mixin class into a separate cooperating object for Chunk. [bruce 090211 comment]
+    #######
+
         #bruce 050804:
         # tell whatever is now drawing our display list
         # (presumably our arg, glpane, but we don't assume this right here)
@@ -509,6 +520,8 @@ class Chunk_drawing_methods:
                 # But what if there is an exception in self.get_dispdef ?
                 # disp = self.get_dispdef(glpane)
 
+## non-duplicated code interlude starts here
+                
     ##            delegate_selection_wireframe = False
                 delegate_draw_atoms = False
                 delegate_draw_chunk = False
@@ -530,6 +543,8 @@ class Chunk_drawing_methods:
                             # based on the chunk state.
                     pass
 
+## non-duplicated code interlude ends here
+                
                 #bruce 060608 moved drawing of selection wireframe from here to
                 # after the new increment of _havelist_inval_counter
                 # (and split it into a new submethod), even though it's done
@@ -627,6 +642,9 @@ class Chunk_drawing_methods:
                         # so it doesn't keep happening with every redraw of this Chunk.
                         #e (in future it might be safer to remake the display list to contain
                         # only a known-safe thing, like a bbox and an indicator of the bug.)
+
+    ####### DUPLICATED CODE ends here [090211 comment, code was copied earlier]
+    #######
 
                     # draw the extra_displists (only needed if wantlist? not sure, so do always;
                     #  guess: there will be none of them unless wantlist is set, so it doesn't matter)

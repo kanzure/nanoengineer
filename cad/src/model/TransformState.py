@@ -74,9 +74,11 @@ class TransformState(StateMixin, object):
     def _kluge_manual_inval(self):
         """
         Kluge: manually invalidate our overall transform value.
+
+        @note: calls only needed until we support State decls for
+               self.rotation and self.translation;
+               implem only needed in some subclasses
         """
-        # calls only needed until we make State work above;
-        # implem only needed in some subclasses
         return
     
     def applyDataFrom(self, other):
@@ -198,7 +200,7 @@ class DynamicTransform( TransformState):
         
     def _invalidate_transform_value(self):
         for bo in self._bridging_objects:
-            bo.inval_bridging_dynamic_transform_value() ### IMPLEM in EBSet
+            bo.invalidate_distortion()
         return
 
     pass
