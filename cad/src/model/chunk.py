@@ -771,7 +771,8 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
 
     def set_hotspot(self, hotspot, silently_fix_if_invalid = False, store_if_invalid = False):
         #bruce 050217; 050524 added keyword arg; 060410 renamed it & more
-        # make sure no other code forgot to call us and set it directly
+        
+        # first make sure no other code forgot to call us and set it directly
         assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
         if self._hotspot is not hotspot:
             self.changed() 
