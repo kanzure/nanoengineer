@@ -793,9 +793,8 @@ void main(void) {
     float vp_dist_along_axis = dot(axis_line_dir, var_view_pt);
     float ep_dist_along_axis = dot(axis_line_dir, var_endpts[visible_endcap]);
     float axis_ray_angle_cos = dot(axis_line_dir, ray_line_dir);
-    ray_hit_pt = var_view_pt
-      + ((ep_dist_along_axis - vp_dist_along_axis) / axis_ray_angle_cos)
-        * ray_line_dir;
+    ray_hit_pt = var_view_pt + ray_line_dir *
+      ((ep_dist_along_axis - vp_dist_along_axis) / axis_ray_angle_cos);
 
     // Is the intersection within the endcap radius from the endpoint?
     vec3 closest_vec = ray_hit_pt - var_endpts[visible_endcap];
@@ -932,14 +931,18 @@ void main(void) {
         //     unstable, so we can not do valid shading there anyway.
         //===
 
-        // Distance to the convergence point where the radius tapers to zero,
-        // along the axis from the first cylinder endpoint.
-        float ep0_cp_axis_dist = var_radii[0] / axis_radius_taper;
+        // The convergence point is where the radius tapers to zero, along the
+        // axis from the first cylinder endpoint. Notice that if the second
+        // radius is less than the first, the taper is negative, but we want to
+        // go in the positive direction along the axis to the convergence point,
+        // and vice versa.
+        float ep0_cp_axis_signed_dist = var_radii[0] / -axis_radius_taper;
+        convergence_pt = endpt_0 + ep0_cp_axis_signed_dist * axis_line_dir;
 
-        convergence_pt = endpt_0 + ep0_cp_axis_dist * axis_line_dir;
-
-        float ray_cpt_dist = dot(convergence_pt - var_view_pt, ray_line_dir);
-        if (ray_cpt_dist <= .001) // XXX Approximation; should be in NDC coords.
+        // XXX Approximation; distance should be in NDC (pixel) coords.
+        float ray_cpt_dist = pt_dist_sq_from_line(  // Save a sqrt.
+          convergence_pt, var_view_pt, ray_line_dir);
+        if (ray_cpt_dist <= .00001)
               discard; // **Exit**
 
         //===
@@ -960,12 +963,20 @@ void main(void) {
         //     computing one of them.)
         //===
 
-        // Interpolate the viewpoint to the crossing-plane, along the
-        // line-segment from the viewpoint to the convergence point, with a
-        // ratio along the axis from the projected viewpoint, to the axis
-        // passing point, to the convergence point.
-        csp_proj_view_pt = mix(var_view_pt, convergence_pt,
-          proj_passing_dist / length(convergence_pt - vp_axis_proj_pt));
+        // Project the viewpoint into the crossing-plane that contains the
+        // passing-points, along a line to the convergence point, based on the
+        // projection of the viewpoint onto the axis and the positions of the
+        // axis_passing_pt and the convergence point along the axis.  We know
+        // above that the viewpoint isn't already in the crossing-plane, that
+        // the crossing-plane doesn't go through the convergence point, and that
+        // the viewpoint is not on the axis (i.e. inside the cylinder barrel.)
+        float cp_axis_loc = dot(axis_line_dir, convergence_pt);
+        float vp_axis_loc = dot(axis_line_dir, var_view_pt);
+        float app_axis_loc = dot(axis_line_dir, axis_passing_pt);
+        // Ratios from similar triangles work with signed distances (relative to
+        // the convergence point along the axis, in this case.)
+        csp_proj_view_pt = convergence_pt + (var_view_pt - convergence_pt) *
+          ((app_axis_loc - cp_axis_loc) / (vp_axis_loc - cp_axis_loc));  
 
         // New passing point.
         vec3 csp_ray_line_dir = normalize(ray_passing_pt - csp_proj_view_pt);
