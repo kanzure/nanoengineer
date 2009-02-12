@@ -266,7 +266,7 @@ def bond_atoms_oldversion(a1, a2):
 ##        #  been changed or mol.copy has or I misunderstand the above code (which
 ##        #  I predict would hit that message). Just to check, I'll print a debug 
 ##        #  message here (below); that message is not happening either, so maybe 
-##        #  this deprecated feature is no longer used at all. #k ####@@@@
+##        #  this deprecated feature is no longer used at all. #k ###@@@
 ##        #  (Should also try reading a pdb file with the same bond
 ##        #   listed twice... ###k) [like bug 1226!]
 ##        if debug_flags.atom_debug:
@@ -1193,7 +1193,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
                 ###k is this safe, if that obj and ones its knows are destroyed?
             ##e is this also needed in self._changed_atoms or _changed_v6???
             # see if bond orientation bugs are helped by that...
-            #####@@@@@ [bruce 060322 comments]
+            ###@@@ [bruce 060322 comments]
         self.__dict__.clear() ###k is this safe??? [see comments in
             # Atom.destroy implem for ways we might change this ##e]
         return
@@ -1229,7 +1229,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         [The starting valence (self.v6) need not be a legal one(??); but by
         default the final valence must be legal; not sure what should happen
         if no delta in [0, vdelta] makes it legal! For now, raise an
-        AssertionError(?) exception then. #####@@@@@]
+        AssertionError(?) exception then. ###@@@]
         """
         # we want the lowest permitted valence which is at least v_have -
         # vdelta, i.e. in the range v_want to v_have. This code is very
@@ -1291,7 +1291,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         [The starting valence (self.v6) need not be a legal one(??); but by
         default the final valence must be legal; not sure what should happen
         if no delta in [0, vdelta] makes it legal! For now, raise an
-        AssertionError(?) exception then. #####@@@@@]
+        AssertionError(?) exception then. ###@@@]
         """
         # we want the highest permitted valence which is at most v_have +
         # vdelta, i.e. in the range v_have to v_want. This code is very
@@ -2226,7 +2226,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
                 ## ... or not self in atom1.bonds
                 # Problem: without it, this might be wrong if the bond was "busted"
                 # without either atom being killed. For now, just leave it out; 
-                # fix this sometime. #####@@@@@
+                # fix this sometime. ###@@@
                 # Warning: that last condition is slow, too.
                 # [later: see also ExternalBondSet._correct_bond, which
                 #  checks this itself, and its comments. [bruce 080702 comment]]
@@ -2348,7 +2348,7 @@ def bond_at_singlets(s1, s2, **opts):
     atomtypes.
 
     If the singlets are bonded to their base atoms with different bond orders,
-    it's an error if we're unable to adjust those to match... #####@@@@@ #k.
+    it's an error if we're unable to adjust those to match... ###@@@ #k.
     (We might add more error or warning conditions later.)
 
     If the bond directions on the open bonds of s1 and s2 are not what is
@@ -2397,8 +2397,8 @@ class _bonder_at_singlets:
     #bruce 041109 rewrote this, added move arg, renamed it from makeBonded
     #bruce 041119 added args and retvals to help fix bugs #203 and #121
     #bruce 050429 plans to permit increasing the valence of an existing bond,
-    # #####@@@@@doit
-    # and also checking for matched valences of s1 and s2. #####@@@@@doit
+    ###@@@doit
+    # and also checking for matched valences of s1 and s2. ###@@@doit
     # also changed it from function to class
     def __init__(self, s1, s2, 
                  move = True, 
@@ -2472,7 +2472,7 @@ class _bonder_at_singlets:
                     why = "can't"
                 return do_error("%s increase bond order between already-" \
                                 "bonded atoms %r and %r" % (why, a1, a2), None )
-        #####@@@@@ worry about s1 and s2 valences being different
+        ###@@@ worry about s1 and s2 valences being different
             # [much later, 050702: that might be obs, but worrying about their
             # *permitted* valences might not be...] (not sure exactly what
             # we'll do then! do bonds want to keep track of a range of
@@ -2481,7 +2481,7 @@ class _bonder_at_singlets:
             # way to resolve the error, they might want to permit the linkage
             # but not pick the way to resolve it, but wait for you to drag the
             # v-error indicator (or whatever).)
-        #####@@@@@ worry about s1 and s2 valences being not V_SINGLE
+        ###@@@ worry about s1 and s2 valences being not V_SINGLE
         
         # ok, now we'll really do it.
         return self.bond_unbonded_atoms()
@@ -2535,7 +2535,7 @@ class _bonder_at_singlets:
         """
         #e [bruce 041109 asks: does it matter that the following code
         #   forgets which singlets were involved, before bonding?]
-        #####@@@@@ this needs to worry about valence of s1 and s2 bonds, 
+        ###@@@ this needs to worry about valence of s1 and s2 bonds, 
         # and thus of new bond
         s1 = self.s1
         s2 = self.s2
@@ -2575,7 +2575,7 @@ class _bonder_at_singlets:
             # if it could, it'd need to have new API and return us an error
             # message explaining why.
             
-            ###########@@@@@@@@@@ TODO bruce 071018: need to make this not
+            ###@@@ TODO bruce 071018: need to make this not
             #harm any *other* singlets on these atoms, since some callers
             #already recorded them and want to call this immediately again to
             #make other bonds. it's good if it kills *these* singlets when
