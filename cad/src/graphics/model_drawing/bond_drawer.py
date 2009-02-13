@@ -1,16 +1,18 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 bond_drawer.py -- implementations of Bond.draw and Bond.writepov.
 
 @author: Josh, Bruce
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 050727 bruce moved bodies of Bond.draw and Bond.writepov into functions in this
 file, in preparation for further extending Bond.draw (and someday Bond.writepov)
 for higher-order bonds.
+
+090213 bruce refiled this module into graphics.model_drawing package
 """
 
 from OpenGL.GL import glPushName
@@ -30,8 +32,8 @@ from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.CS_draw_primitives import drawpolycone
 
-from graphics.drawing.special_drawing import USE_CURRENT
-from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
+from graphics.model_drawing.special_drawing import USE_CURRENT
+from graphics.model_drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
 
 import foundation.env as env
 from utilities import debug_flags

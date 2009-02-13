@@ -95,9 +95,9 @@ import graphics.drawing.drawing_globals as drawing_globals
 
 from graphics.drawing.gl_lighting import apply_material
 
-from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
-from graphics.drawing.special_drawing import SpecialDrawing_ExtraChunkDisplayList
-from graphics.drawing.special_drawing import Chunk_SpecialDrawingHandler
+from graphics.model_drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
+from graphics.model_drawing.special_drawing import SpecialDrawing_ExtraChunkDisplayList
+from graphics.model_drawing.special_drawing import Chunk_SpecialDrawingHandler
 
 from model.elements import PeriodicTable
 

@@ -74,9 +74,9 @@ import model.global_model_changedicts as global_model_changedicts
 
 from operations.bond_chains import grow_directional_bond_chain
 
-from graphics.drawing.bond_drawer import writepov_bond
+from graphics.model_drawing.bond_drawer import writepov_bond
 
-from graphics.drawing.special_drawing import USE_CURRENT
+from graphics.model_drawing.special_drawing import USE_CURRENT
 
 from graphics.drawables.Selobj import Selobj_API
 
@@ -2138,9 +2138,9 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # As of 041109 this is now handled by bond.__getattr__.
         # The attr toolong is new as of 041112.
         if debug_flags.atom_debug:
-            import graphics.drawing.bond_drawer as bond_drawer
+            import graphics.model_drawing.bond_drawer as bond_drawer
             reload_once_per_event( bond_drawer)
-        from graphics.drawing.bond_drawer import draw_bond
+        from graphics.model_drawing.bond_drawer import draw_bond
         draw_bond( self, glpane, dispdef, col, detailLevel, highlighted,
                    special_drawing_handler = special_drawing_handler,
                    special_drawing_prefs = special_drawing_prefs

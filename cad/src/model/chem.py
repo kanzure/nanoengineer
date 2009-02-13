@@ -177,8 +177,8 @@ from dna.operations.crossovers import crossover_menu_spec
 
 from model.PAM_Atom_methods import PAM_Atom_methods
 
-from graphics.drawing.special_drawing import USE_CURRENT
-from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
+from graphics.model_drawing.special_drawing import USE_CURRENT
+from graphics.model_drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
 
 # ==
 
