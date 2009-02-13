@@ -1,10 +1,10 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 special_drawing.py - help class Chunk do special drawing in extra display lists
 
 @author: Bruce
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 
@@ -467,10 +467,10 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
             self.comparator.after_recompute()
         if wantlist:
             ColorSorter.finish()
-            # needed by self.inval_display_list for gl_update
+            # needed by self._invalidate_display_lists for gl_update
             self._glpane = glpane
             self.end_tracking_usage( match_checking_code,
-                                     self.inval_display_list )
+                                     self._invalidate_display_lists )
         return
 
     def _draw_by_reusing(self, glpane, selected, highlighted):
@@ -487,12 +487,12 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         self.comparator.invalidate()
         return
 
-    def inval_display_list(self):
+    def _invalidate_display_lists(self):
         """
         This is meant to be called when something whose usage we tracked
         (while making our display list) next changes.
         """
-        # print "fyi: called %r.inval_display_list" % self # this happens
+        # print "fyi: called %r._invalidate_display_lists" % self # this happens
         self.invalidate()
         self._glpane.gl_update() # self._glpane should always exist
         return
