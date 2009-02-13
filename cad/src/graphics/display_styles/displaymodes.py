@@ -223,7 +223,7 @@ class ChunkDisplayMode(DisplayMode):
         memoplace = memo_dict.setdefault(our_key_there, {})
             # memoplace is our own persistent mutable dict on this chunk, which
             # lasts as long as the chunk does
-        counter = chunk._havelist_inval_counter
+        counter = chunk._drawer._havelist_inval_counter #### TODO: refactor -- move this method partly into class Chunk
         memo_validity_data = (counter,)
             # a tuple of everything which has to remain the same, for the memo
             # data to remain valid
