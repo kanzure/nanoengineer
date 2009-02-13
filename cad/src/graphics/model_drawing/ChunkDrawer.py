@@ -8,11 +8,12 @@ as well, but it doesn't as of early 2009)
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
+
 History:
 
 Written over several years as part of chunk.py.
 
-Bruce 090123 split these methods out of class Chunk in chunk.py.
+bruce 090123 split these methods out of class Chunk in chunk.py.
 (For prior svn history, see chunk.py. I decided against using
 svn copy, even though this code has lots of history in there,
 since it's shortly going to get refactored much more within
@@ -20,26 +21,30 @@ this file, and things will be clearer if this split starts
 a clear separation of old and new in the history,
 especially since 3/4 of the old chunk.py is not this code.)
 
-TODO: refactor this in two ways:
+bruce 090211 added markers where code was recently duplicated between self.draw
+and TransformedDisplayListsDrawer.draw (not yet used). This should be refactored
+soon into a common superclass, but first we need to
 
- * make this code into a separate drawing-controller object 
-   which cooperates with class Chunk
-   (but more than one instance per Chunk might be possible, 
-    if it's drawn in more than one glpane or more than one way; 
-    re this, review the self.glpane attr)
+bruce 090212 change mixin class into cooperating object ChunkDrawer
 
- * split it into sub/superclasses for Chunk and the superclasses
+bruce 090213 rename and move this module into graphics.model_drawing.ChunkDrawer
+
+
+TODO: refactor:
+
+ * someday, use GraphicsRules, and make more than one instance per Chunk
+   possible (supporting more than one view of a chunk, mixed display styles,
+   and/or multiple cached display styles)
+
+ * soon [old description:]
+   split it into sub/superclasses for Chunk and the superclasses
    to be split out of Chunk (e.g. AtomCloud, PointCloud, TransformNode
    (all names tentative); this involves picking apart def draw in
    particular, since the display list and transform code is general,
    but there is specific code for atoms & bonds as well; some of this
    will ultimately turn into GraphicsRules (name also tentative)
 
-bruce 090211 added markers where code was recently duplicated between self.draw
-and TransformedDisplayListsDrawer.draw (not yet used). This should be refactored
-soon into a common superclass, but first we need to make this module supply
-a cooperating object rather than a mixin class. Note: once that's done,
-this file will also be renamed ChunkDrawer and moved into graphics/model_drawing. ####
+   [newer description:] split out a superclass TransformedDisplayListsDrawer
 
 """
 
@@ -114,48 +119,40 @@ class ChunkDrawer(object,
     # drawing-related methods for class Chunk which use
     # OpenGL drawing (or the same drawing primitives)
     # or which directly handle its OpenGL display lists.
+    
+    # Note: there are a few significant points of interaction between methods
+    # and attrs in Chunk and ChunkDrawer. These can be found via their
+    # interobject references: self._drawer in Chunk points to this object,
+    # and self._chunk in this class points to its Chunk. That might be revised
+    # if there can be more than one instance of this class per Chunk (though we
+    # presume they all refer back to the chunk for its color and display
+    # style settings). 
 
+    # Some of the methods/attrs that might want further refactoring include:
     
-    #### REVIEW: following comment is from when it was a mixin:
     
-    # Note: there are a few significant points of interaction between other
-    # Chunk methods/attrs and the ones in this mixin, which all have to be
-    # refactored if we turn this into a cooperating class, especially if there
-    # can be more than one instance of this class per Chunk (even though we
-    # presume they all refer back to the chunk for its collor and display
-    # style settings).
-    
-    # One of them is self.havelist, used extensively here and set to 0
-    # in many places in chunk.py (both legitimate). (And also haveradii,
-    # if it's different for different displayed views of one chunk,
-    # which seems likely; if we move it, we might move sel_radii etc and
-    # findAtomUnderMouse too -- or maybe they belong in yet another
-    # cooperating class??)
+    # - haveradii, if it should be different for different displayed views
+    # of one chunk, which seems likely; if we move it, we might move sel_radii
+    # etc and findAtomUnderMouse too -- or maybe they belong in yet another
+    # cooperating class??
 
-    # Also, findAtomUnderMouse is either specific to a glpane or needs one
+    # - findAtomUnderMouse is either specific to a glpane or needs one
     # (and a viewing ray, etc) passed in, though it's not a display/drawing
     # method but a picking/selection method.
     
-    # One might be _havelist_inval_counter, set in one place on a chunk by
-    # external code.
+    # - _havelist_inval_counter in this class, and Chunk memo_dict, are only
+    # used together (by whole-Chunk display styles (displaymodes.py);
+    # both ought to be refactored so that the external client code for them
+    # is a method on class Chunk.
     
-    # One might be the Chunk superclasses SelfUsageTrackingMixin,
-    # SubUsageTrackingMixin, and the calls of their methods (which may occur
-    # mostly or entirely in this file -- not reviewed).
-        
-    # The attribute self.memo_dict may belong in this class. It's used
-    # by whole-Chunk display styles (displaymodes.py) -- we'll have to see
-    # whether those run on a single displayed-Chunk object out of several
-    # associated with one Chunk, and review the issue at that time.
-    
-    # The attribute glname is non-obvious, since it's possible that a chunk
+    # - self.glname is non-obvious, since it's possible that a chunk
     # has the same one even if displayed in more than one place -- or not,
     # if we want to use that to distinguish which copy is being hit.
-    # Review this again when more refactoring is done.
+    # Review this again when more refactoring is done. For now, it's in Chunk.
 
     glpane = None
     
-    _havelist_inval_counter = 0 # see also self.havelist in chunk.py
+    _havelist_inval_counter = 0 # see also self.havelist
     
     # there is no class default for displist; see __get_displist.
     
@@ -179,33 +176,24 @@ class ChunkDrawer(object,
         #### TODO: revise this when chunks can cache display lists even for
         # non-current display styles, to revise any cached diDNACYLINDER
         # display lists, whether or not that's the current style.
-        # (also, review: does it need to invalidate ExternalBondSetDrawer DLs?)
+        # (also, #### review: does it need to invalidate ExternalBondSetDrawer DLs?)
         if self._chunk.get_dispdef(self.glpane) == style:
             self.invalidate_display_lists()
         return
 
     def invalidate_display_lists(self): #bruce 050804, revised 090212
-        ####TODO: docstring/comments not yet revised for new class
-        #### TODO / also review if belongs in Chunk instead
         """
-        [public, though uses outside this class or Chunk are suspicious
+        [public, though uses outside this class or class Chunk are suspicious
          re modularity, and traditionally have been coded as changeapp calls
          on Chunk instead]
         
         This is meant to be called when something whose usage we tracked
         (while making our main display list) next changes.
         """
-        #### REVIEW: how does this relate to class ChunkDrawer? Guess:
-        # when that becomes a cooperating object, this method splits into
-        # one on this class, called by model changes, and one on the
-        # cooperating object (or on each one, if we're drawn in more than one
-        # place), called when a usage-tracked thing changes as described
-        # in the docstring. [bruce 090123/090211 comment]
-        
         # note: the old code when this was in class Chunk and used mainly
         # for end_tracking_usage invalidator was:
         ## self.changeapp(0) # that now tells self.glpane to update, if necessary
-        # but I think the correct new code is now:
+        # but I think the correct code should have been more like this, all along:
         self.havelist = 0
         self.track_inval()
         #### REVIEW: all comments about track_inval, havelist, changeapp,
@@ -558,14 +546,12 @@ class ChunkDrawer(object,
     # to turn this mixin class into a separate cooperating object for Chunk. [bruce 090211 comment]
     #######
 
-        #bruce 050804: [#### REVIEW: looks like an out of date comment]
+        #bruce 050804 (probably not needed at that time due to glpane code
+        #  in changeapp) / 090212 (probably needed now):
         # call track_use to tell whatever is now drawing our display list
         # (presumably our arg, glpane, but we don't assume this right here)
-        # how to find out when our display list next becomes invalid,
+        # how to find out when our display list content next becomes invalid,
         # so it can know it needs to redraw us.
-        # (This is probably not actually needed at the moment, 
-        # due to a special system used by self.changeapp() in place of
-        # self.track_inval(), but it should be harmless. ####WRONG, see above)
         self.track_use()
 
         drawLevel = self._chunk.assy.drawLevel # this might recompute it

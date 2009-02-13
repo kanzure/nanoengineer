@@ -60,8 +60,7 @@ bruce 090100 split Chunk_drawing_methods from here into a new mixin class
 (which on 090212 was turned into a cooperating separate class, ChunkDrawer)
 
 bruce 090211 making compatible with TransformNode, though that is unfinished
-and not yet actually used; places to fix for this are marked ####; see also
-any mention herein of ChunkDrawer.
+and not yet actually used; places to fix for this are marked ####.
 """
 
 import Numeric # for sqrt
@@ -288,7 +287,8 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     protein = None # this is set to an object of class Protein in some chunks
     
     glpane = None #bruce 050804 ### TODO: RENAME (last glpane we displayed on??)
-        # (warning: same-named attr is also used/set in ChunkDrawer)
+        # (warning: same-named attr is also used/set in ChunkDrawer;
+        #  see comment therein for discussion)
 
     # ==
 
@@ -401,10 +401,8 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         #    BTW, we don't presently save the hotspot in the mmp file,
         # which is a reported bug which we hope to fix soon.
 
-        # REVIEW: do any of our memo_dict, glname, glpane attributes belong in
-        # class ChunkDrawer? See comments there about future
-        # refactoring and its effect on various attributes. 
-        # [bruce 090123 comment]
+        # note: see comments in ChunkDrawer about future refactoring
+        # re our memo_dict, glpane attributes. [bruce 090123 comment]
 
         self.memo_dict = {}
             # for use by anything that wants to store its own memo data on us,
@@ -473,7 +471,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         self._drawer.draw_highlighted(glpane, color)
         
     # == bruce 090212 moved the following methods back to class Chunk
-    #    from ChunkDrawer #### todo: refile into original location?
+    #    from ChunkDrawer #### todo: refile into original location in this class?
 
     def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
         """
@@ -2033,7 +2031,8 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 ##            pass
         return
 
-    def invalidate_distortion(self): #bruce 090211; #### TODO: refile into superclass TransformNode
+    def invalidate_distortion(self): #bruce 090211; note, NOT YET CALLED as of 090213 (awaiting use of superclass TransformNode)
+        #### TODO: refile into superclass TransformNode
         #### TODO: call where needed, eg some changeapp calls; also make sib method for external atoms display changes
         """
         Called when any of our atoms' relative coordinates move
