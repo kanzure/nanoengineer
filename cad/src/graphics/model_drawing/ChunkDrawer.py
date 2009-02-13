@@ -745,7 +745,7 @@ class ChunkDrawer(object,
 
                 # piotr 080320
                 if hd:
-                    hd._f_drawchunk_realtime(glpane, self)
+                    hd._f_drawchunk_realtime(glpane, self._chunk)
 
                 if self._chunk.hotspot is not None: 
                     # note: accessing self._chunk.hotspot can have side effects in getattr
@@ -965,18 +965,19 @@ class ChunkDrawer(object,
 
 ##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd):
 ##        "[private submethod of self.draw]"
-##        if self._chunk.picked:
+##        chunk = self._chunk
+##        if chunk.picked:
 ##            if not delegate_selection_wireframe:
 ##                try:
-##                    drawlinelist(PickedColor, self.polyhedron or [])
+##                    drawlinelist(PickedColor, chunk.polyhedron or [])
 ##                except:
 ##                    # bruce 041119 debug code;
 ##                    # also "or []" failsafe (above)
 ##                    # in case recompute exception makes it None
 ##                    print_compact_traceback("exception in drawlinelist: ")
-##                    print "(self.polyhedron is %r)" % self.polyhedron
+##                    print "(chunk.polyhedron is %r)" % chunk.polyhedron
 ##            else:
-##                hd._f_drawchunk_selection_frame(glpane, self, PickedColor, highlighted = False)
+##                hd._f_drawchunk_selection_frame(glpane, chunk, PickedColor, highlighted = False)
 ##            pass
 ##        return
 
@@ -1049,6 +1050,8 @@ class ChunkDrawer(object,
             # (It ought to, but that's a refactoring too big for this release,
             #  and giving it a fake one just good enough for this purpose doesn't
             #  seem safe enough.)
+
+            ### REVIEW: can/should we optim this by doing it during __init__?
             special_drawing_classes = { # todo: move into a class constant
                 SPECIAL_DRAWING_STRAND_END: SpecialDrawing_ExtraChunkDisplayList,
              }
@@ -1071,7 +1074,7 @@ class ChunkDrawer(object,
 
         # draw something for the chunk as a whole
         if delegate_draw_chunk:
-            hd._f_drawchunk(self.glpane, self)
+            hd._f_drawchunk(self.glpane, self._chunk)
         else:
             self._standard_draw_chunk(glpane, disp0)
 
@@ -1143,7 +1146,7 @@ class ChunkDrawer(object,
         # Highlight "realtime" objects (e.g. 2D DNA cylinder style).
         hd = get_display_mode_handler(disp)
         if hd:
-            hd._f_drawchunk_realtime(glpane, self, highlighted = True)
+            hd._f_drawchunk_realtime(glpane, self._chunk, highlighted = True)
             pass
         
         return
