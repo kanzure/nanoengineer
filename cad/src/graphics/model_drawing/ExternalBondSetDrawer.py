@@ -54,14 +54,19 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
 
         return
 
-    def _draw_into_displist(self, glpane, disp, drawLevel):
+    def _draw_into_displist(self, glpane, disp, drawLevel): # not yet called
         color = None ###k
         for bond in self.ebset._bonds.itervalues():
             bond.draw(glpane, disp, color, drawLevel)
         return
 
     def invalidate_display_lists(self):
-        # we don't yet have any
+        # we don't yet have any display lists, so do nothing
+        
+        # note, this is called even if we didn't turn on the debug_pref to draw using this object!
+        # at present [090213] it's called at least once per external bond when dna is being rigidly dragged.
+        # once TransformNode works well enough, it won't be called for rigid drag.
+        
         ## print "called invalidate_display_lists in", self # happens a lot when dragging one end of ext bond (good)
         return
 

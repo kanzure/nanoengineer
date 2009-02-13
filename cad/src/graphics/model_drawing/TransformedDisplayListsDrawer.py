@@ -28,10 +28,13 @@ from graphics.drawing.ColorSorter import ColorSortedDisplayList # not yet used?
 class TransformedDisplayListsDrawer(object): # refile when done and name is stable
     """
     Superclass for drawing classes which make use of one or more display lists
-    (actually CSDLs) to be drawn relative to a transform known to the drawing class.
+    (actually CSDLs) to be drawn relative to a transform known to the specific
+    subclass, and to be invalidated at appropriate times (with help from the
+    subclass).
     
     (The specific subclass knows where to get the transform,
-     and when to invalidate the display lists.)
+     and when to invalidate the display lists beyond when usage tracking
+     does so.)
     """
     if 0: # just to not execute this until it's ready
         # we'll need these attrs, or revised code:

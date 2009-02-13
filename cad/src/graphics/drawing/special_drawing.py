@@ -553,8 +553,9 @@ class Chunk_SpecialDrawingHandler(object):
     """
     A kind of SpecialDrawingHandler for a Chunk.
     (There is not yet any other kind; what we know about class Chunk
-    is mainly the names of a few of its attributes we use and modify,
-    namely ###doc.)
+    is mainly the names of a few of its attributes we use and modify --
+    I guess just chunk.extra_displists, a dict from special_drawing_kind
+    to subclasses of ExtraChunkDisplayList.)
 
     A SpecialDrawingHandler is .... #doc
     """

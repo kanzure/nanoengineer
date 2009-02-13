@@ -547,10 +547,12 @@ class ChunkDrawer(object,
 
         #bruce 050804 (probably not needed at that time due to glpane code
         #  in changeapp) / 090212 (probably needed now):
-        # call track_use to tell whatever is now drawing our display list
+        # call track_use to tell whatever is now drawing us
         # (presumably our arg, glpane, but we don't assume this right here)
-        # how to find out when our display list content next becomes invalid,
-        # so it can know it needs to redraw us.
+        # how to find out when any of our display list contents next become
+        # invalid, so it can know it needs to redraw us. [note: I didn't check
+        # whether extra_displist invalidity is handled by this same code (guess:
+        # no), or in some independent way using gl_update.]
         self.track_use()
 
         drawLevel = self._chunk.assy.drawLevel # this might recompute it
