@@ -75,11 +75,17 @@ class ExternalBondSet(object):
         """
         Called when any of our nodes' (chunks') dynamic transforms changes
         transform value (thus moving that node in space), if not all of our
-        nodes share the same dynamic transform object.
+        nodes share the same dynamic transform object, or when any of our nodes
+        gets distorted internally (i.e. some of its atoms move, other than by
+        all of them moving rigidly).
         """
-        print "nim: invalidate_distortion in %r" % self #######
+        self.invalidate_display_lists()
         return
     
+    def invalidate_display_lists(self):
+        self._drawer.invalidate_display_lists()
+        return
+        
     def other_chunk(self, chunk):
         """
         @see: Bond.other_chunk

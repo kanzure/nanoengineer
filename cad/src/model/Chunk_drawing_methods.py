@@ -1,6 +1,6 @@
 # Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-Chunk_drawing_methods.py -- Chunk mixin for methods related to drawing 
+Chunk_drawing_methods.py -- class ChunkDrawer, for drawing a chunk
 (using OpenGL or compatible primitives -- someday this may cover POV-Ray
 as well, but it doesn't as of early 2009)
 
@@ -38,18 +38,16 @@ TODO: refactor this in two ways:
 bruce 090211 added markers where code was recently duplicated between self.draw
 and TransformedDisplayListsDrawer.draw (not yet used). This should be refactored
 soon into a common superclass, but first we need to make this module supply
-a cooperating object rather than a mixin class.
+a cooperating object rather than a mixin class. Note: once that's done,
+this file will also be renamed ChunkDrawer and moved into graphics/model_drawing. ####
 
 """
 
-import math # only used for pi, everything else is from Numeric [as of before 071113]
-
 from OpenGL.GL import glPushMatrix
-from OpenGL.GL import glTranslatef
-from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
-from OpenGL.GL import glPopName
+
 from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
 
 
 from utilities.constants import diBALL
@@ -70,11 +68,15 @@ from utilities.GlobalPreferences import use_frustum_culling
 from utilities.Log import graymsg
 
 from utilities.prefs_constants import bondpointHotspotColor_prefs_key
-from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
 
 
 import foundation.env as env
+
+from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
+    #bruce 050804, so glpanes can know when they need to redraw a chunk's display list,
+    # and chunks can know when they need to inval that because something drawn into it
+    # would draw differently due to a change in some graphics pref it used
 
 
 from graphics.display_styles.displaymodes import get_display_mode_handler
@@ -96,17 +98,25 @@ from model.elements import PeriodicTable
 
 # ==
 
-_DRAW_BONDS = True # Debug/test switch. Similar constant in CS_workers.py.
+_DRAW_EXTERNAL_BONDS = True # Debug/test switch.
+    # note: there is a similar constant _DRAW_BONDS in CS_workers.py.
 
 # ==
 
-class Chunk_drawing_methods:
+class ChunkDrawer(object,
+                  SelfUsageTrackingMixin, SubUsageTrackingMixin
+                  ):
     """
-    Mixin (meant only for use by class Chunk) with all
-    drawing-related methods for class Chunk which use
-    OpenGL drawing (or the same drawing primitives)
-    or which directly handle its OpenGL display lists.
+    Drawing class (meant only for use by class Chunk)
     """
+    #bruce 090211 renamed from Chunk_drawing_methods, revised from mixin
+    # into cooperating class. The older mixin class in this file contained all
+    # drawing-related methods for class Chunk which use
+    # OpenGL drawing (or the same drawing primitives)
+    # or which directly handle its OpenGL display lists.
+
+    
+    #### REVIEW: following comment is from when it was a mixin:
     
     # Note: there are a few significant points of interaction between other
     # Chunk methods/attrs and the ones in this mixin, which all have to be
@@ -129,16 +139,10 @@ class Chunk_drawing_methods:
     # One might be _havelist_inval_counter, set in one place on a chunk by
     # external code.
     
-    # One is the methods inval_display_list and changeapp. See one of them for
-    # a more detailed comment about how to refactor them.
-
     # One might be the Chunk superclasses SelfUsageTrackingMixin,
     # SubUsageTrackingMixin, and the calls of their methods (which may occur
     # mostly or entirely in this file -- not reviewed).
-    
-    # Other users/setters of self.glpane include: this drawing code,
-    # some external code, and the changeapp method in chunk.py.
-    
+        
     # The attribute self.memo_dict may belong in this class. It's used
     # by whole-Chunk display styles (displaymodes.py) -- we'll have to see
     # whether those run on a single displayed-Chunk object out of several
@@ -149,68 +153,137 @@ class Chunk_drawing_methods:
     # if we want to use that to distinguish which copy is being hit.
     # Review this again when more refactoring is done.
 
-        
+    glpane = None
+    
     _havelist_inval_counter = 0 # see also self.havelist in chunk.py
     
-    # there is no class default for displist; see _get_displist.
+    # there is no class default for displist; see __get_displist.
     
-    def _init_Chunk_drawing_methods(self):
+    def __init__(self, chunk): #### was _init_Chunk_drawing_methods
         """
         """
-        # note: self.displist is allocated on demand by _get_displist 
+        self._chunk = chunk
+        
+        # note: self.displist is allocated on demand by __get_displist 
         # [bruce 070523]
 
         self.extra_displists = {} # precaution, probably not needed
         
         return
-    
-    # == Methods relating to our OpenGL display list, self.displist.
-    #
-    # (Note: most of these methods could be moved with few changes to a new
-    # mixin class [or cooperating class] concerned with maintaining
-    # self.displist for any sort of object that needs one. If that's done, see
-    # also GLPane_mixin_for_DisplayListChunk for useful features of other
-    # kinds to integrate into that code. [bruce 071103/090123 comment])
 
-    # Note about InvalMixin (Chunk superclass which handles invalidation
-    # between attributes and calls _get_ and _recompute_ methods) relation to
-    # display list:
-    #
-    # * display list contents (i.e. about invalidating the drawing effects of
-    # executing it, when our graphical appearance changes): It's not sensible
-    # to integrate the drawing effect of the display list contents into this
-    # recompute system, since we normally execute it in OpenGL as a side
-    # effect of recomputing it. To invalidate its contents, we just do this
-    # directly as a special case, self.havelist = 0, in the low-level
-    # modifiers that need to. The external interface to that is changeapp.
-    #
-    # * display list name allocated from OpenGL (value of self.displist); 
-    # see _get_displist.
-    
-    def _get_displist(self):
-        """
-        initialize and return self.displist
-        [must only be called when an appropriate GL context is current]
-        """
-        #bruce 070523 change: do this on demand, not in __init__, to see if it
-        #fixes bug 2402 in which this displist can be 0 on Linux (when
-        #entering Extrude).
-        
-        # Theory: you should allocate it only when you know you're in a good
-        # GL context and are ready to draw, which is most safely done when you
-        # are first drawing, so allocating it on demand is the easiest way to
-        # do that. Theory about bug 2042: maybe some Qt drawing was changing
-        # the GL context in an unpredictable way; we were not even making
-        # glpane (or a thumbview) current before allocating this, until now.
-        
-        # Note: we use _get_displist rather than _recompute_displist so we
-        # don't need to teach full_inval_and_update to ignore 'displist' as a
-        # special case. WARNING: for this method it's appropriate to set
-        # self.displist as well as returning it, but for most uses of _get_xxx
-        # methods, setting it would be wrong.
-        self.displist = ColorSortedDisplayList()
-        return self.displist
+    # == unsorted methods
 
+    def invalidate_display_lists_for_style(self, style): #bruce 090211
+        """
+        """
+        #### TODO: revise this when chunks can cache display lists even for
+        # non-current display styles, to revise any cached diDNACYLINDER
+        # display lists, whether or not that's the current style.
+        # (also, review: does it need to invalidate ExternalBondSetDrawer DLs?)
+        if self._chunk.get_dispdef(self.glpane) == style:
+            self.invalidate_display_lists()
+        return
+
+    def invalidate_display_lists(self): #bruce 050804, revised 090212
+        ####TODO: docstring/comments not yet revised for new class
+        #### TODO / also review if belongs in Chunk instead
+        """
+        [public, though uses outside this class or Chunk are suspicious
+         re modularity, and traditionally have been coded as changeapp calls
+         on Chunk instead]
+        
+        This is meant to be called when something whose usage we tracked
+        (while making our main display list) next changes.
+        """
+        #### REVIEW: how does this relate to class Chunk_drawing_methods? Guess:
+        # when that becomes a cooperating object, this method splits into
+        # one on this class, called by model changes, and one on the
+        # cooperating object (or on each one, if we're drawn in more than one
+        # place), called when a usage-tracked thing changes as described
+        # in the docstring. [bruce 090123/090211 comment]
+        
+        # note: the old code when this was in class Chunk and used mainly
+        # for end_tracking_usage invalidator was:
+        ## self.changeapp(0) # that now tells self.glpane to update, if necessary
+        # but I think the correct new code is now:
+        self.havelist = 0
+        self.track_inval()
+        #### REVIEW: all comments about track_inval, havelist, changeapp,
+        # and whether the old code did indeed do changeapp and thus gl_update_something.
+        return
+
+    # == Methods relating to our main OpenGL display list (or CSDL),
+    #    self.displist [revised, bruce 090212]
+    
+    # (Note: most of these methods could be moved to a new superclass
+    #  concerned with maintaining self.displist for any sort of object
+    #  that needs one (TransformedDisplayListsDrawer?). If that's done, see also
+    #  GLPane_mixin_for_DisplayListChunk for useful features of other
+    #  kinds to integrate into that code. But note that a typical object
+    #  probably needs a dictionary of displists for different uses,
+    #  not just a single one -- even this class has some like that,
+    #  in self.extra_displists. That might be more useful to generalize.
+    #  [bruce 071103/090123/090212 comment])
+    
+    # Note: to invalidate the drawing effects of
+    # executing self.displist (along with our extra_displists),
+    # when our graphical appearance changes,
+    # we set self.havelist = 0 and sometimes call track_inval.
+    # The external interface to that is invalidate_display_lists.
+    #
+    # As for the display list name or CSDL itself, it's allocated on demand
+    # (during drawing, when the right GL context is sure to be current),
+    # and discarded when we're killed, using the self.displist property
+    # that follows.
+
+    _displist = None
+    
+    def __get_displist(self):
+        """
+        get method for self.displist property:
+        
+        Initialize self._displist if necessary, and return it.
+
+        @note: This must only be called when the correct GL context is current.
+               (If several contexts share display lists, it doesn't matter
+                which one is current, but one of them must be.)
+               There is no known way to check this, but ignoring it will cause
+               bugs. The simplest way to be sure of this is to call this method
+               only during drawing.
+        """
+        if not self._displist:
+            self._displist = ColorSortedDisplayList()
+        return self._displist
+    
+    def __set_displist(self):
+        """
+        set method for self.displist property; should never be called
+        """
+        assert 0
+    
+    def __del_displist(self):
+        """
+        del method for self.displist property
+
+        @warning: doesn't deallocate OpenGL display lists;
+                  caller must do that first if desired
+        """
+        self._displist = None ### review: pull more of the deallocator into here?
+
+    displist = property(__get_displist, __set_displist, __del_displist)
+
+    def _has_displist(self):
+        """
+        @return: whether we presently have a valid display list name
+                 (or equivalent object), as self.displist.
+        @rtype: boolean
+
+        @note: not the same as self.havelist, which contains data related
+               to whether self.displist not only exists, but has up to date
+               contents.
+        """
+        return self._displist is not None
+    
     # new feature [bruce 071103]:
     # deallocate display lists of killed chunks.
     # TODO items re this:
@@ -225,49 +298,65 @@ class Chunk_drawing_methods:
     #   - create chunk, undo, redo, etc or then kill it
     #   - kill chunk, undo, redo, undo, etc or then kill it
 
-    def _deallocate_displist(self): #bruce 071103
+    def _immediately_deallocate_displists(self): #bruce 071103
         """
-        [private method; must only be called when our displist's GL context is current]
-        Deallocate our OpenGL display list, and record that we did so.
+        [private method]
+        
+        Deallocate our OpenGL display lists, and make sure they'll be
+        reallocated when next needed.
+
+        @warning: This always deallocates and always does so immediately;
+        caller must ensure this is desired and safe at this time
+        (e.g. that our GL context is current).
         """
-        if self.__dict__.has_key('displist'):
-            # Note: we can't use hasattr for that test, since it would
-            # allocate self.displist (by calling _get_displist) if we
-            # don't have one yet.
+        if self._has_displist():
             #russ 080225: Moved deallocation into ColorSortedDisplayList class
             # for ColorSorter.
             self.displist.deallocate_displists()
             for extra_displist in self.extra_displists.values():
                 extra_displist.deallocate_displists()
             self.extra_displists = {}
-            self.displist = None
-            del self.displist
-                # this del is necessary, so _get_displist will be called if another
-                # display list is needed (e.g. if a killed chunk is revived by Undo)
+            del self.displist # note: runs __del_displist due to a property
+                # this del is necessary, so __get_displist will allocate another
+                # display list when next called (e.g. if a killed chunk is revived by Undo)
             self.havelist = 0
-            self.glpane = None
+            ## REVIEWED: this self.glpane = None seems suspicious,
+            # but removing it could mess up _gl_context_if_any
+            # if that needs to return None, but the docstring of that
+            # says that our glpane (once it occurs) is permanent,
+            # so I think it should be more correct to leave it assigned here
+            # than to remove it (e.g. conceivably removing it could prevent
+            # deallocation of DLs when that should happen, though since it's
+            # happening now, that seems unlikely, but what if this code is
+            # extended to deallocate other DLs on self, one at a time).
+            # OTTH what if this is needed to remove a reference cycle?
+            # but that can't matter for a permanent glpane
+            # and can be fixed for any by removing its ref to the model.
+            # Conclusion: best not to remove it here, though pre-090212
+            # code did remove it. [bruce 090212]
+            ## self.glpane = None
         pass
 
-    def deallocate_displist_later(self): #bruce 071103
+    def _deallocate_displist_later(self): #bruce 071103
         """
         At the next convenient time when our OpenGL context is current,
-        if self.ok_to_deallocate_displist(),
-        call self._deallocate_displist().
+        if self._ok_to_deallocate_displist(),
+        call self._immediately_deallocate_displists().
         """
         self.call_when_glcontext_is_next_current( self._deallocate_displist_if_ok )
         return
 
     def _deallocate_displist_if_ok(self): #bruce 071103
-        if self.ok_to_deallocate_displist():
-            self._deallocate_displist()
+        if self._ok_to_deallocate_displist():
+            self._immediately_deallocate_displists()
         return
 
-    def ok_to_deallocate_displist(self): #bruce 071103
+    def _ok_to_deallocate_displist(self): #bruce 071103
         """
         Say whether it's ok to deallocate self's OpenGL display list
         right now (assuming our OpenGL context is current).
         """
-        return len(self.atoms) == 0
+        return len(self._chunk.atoms) == 0
             # self.killed() might also be correct,
             # but would be redundant with this anyway
 
@@ -281,7 +370,7 @@ class Chunk_drawing_methods:
         """
         # (I'm not sure whether use of self.glpane is a kluge.
         #  I guess it would not be if we formalized what it already means.)
-        return self.__dict__.get('glpane', None)
+        return self.glpane
 
     def call_when_glcontext_is_next_current(self, func): #bruce 071103
         """
@@ -291,19 +380,20 @@ class Chunk_drawing_methods:
             glpane.call_when_glcontext_is_next_current(func)
         return
 
-    def _deallocate_displist_if_needed(self):
+    def deallocate_displist_if_needed(self):
         """
+        If we can and need to deallocate our display lists,
+        do so when next safe and convenient (if it's still ok then).
         """
-        # bruce 090123 split this out of 
-        # Chunk._f_invalidate_atom_lists_and_maybe_deallocate_displist
+        # bruce 090123 split this out
         if self._enable_deallocate_displist():
-            need_to_deallocate = self.ok_to_deallocate_displist()
+            need_to_deallocate = self._ok_to_deallocate_displist()
             if need_to_deallocate:
-                ## print "undo or redo calling deallocate_displist_later on %r" % self
-                self.deallocate_displist_later()
+                ## print "undo or redo calling _deallocate_displist_later on %r" % self
+                self._deallocate_displist_later()
         return
         
-    def _kill_displists(self): #bruce 090123 split this out of Chunk.kill
+    def _f_kill_displists(self): #bruce 090123 split this out of Chunk.kill
         """
         Private helper for Chunk.kill.
         """
@@ -311,7 +401,7 @@ class Chunk_drawing_methods:
         # somehow this needs to happen to all such objects attached to one chunk
         # when that chunk is killed. [bruce 090123 comment]
         if self._enable_deallocate_displist():
-            self.deallocate_displist_later() #bruce 071103
+            self._deallocate_displist_later() #bruce 071103
         return
 
     def _enable_deallocate_displist(self):
@@ -320,14 +410,20 @@ class Chunk_drawing_methods:
                          prefs_key = True )
         return res
 
-    def _selectedness_drawing_effects(self, picked):
+    def _f_kluge_set_selectedness_for_drawing(self, picked):
         """
-        private helper for drawing effects of Chunk.pick and Chunk.unpick
+        private helper for performing necessary side effects
+        (on our behavior when we subsequently draw)
+        of Chunk.pick and Chunk.unpick.
+
+        @note: won't be needed once CSDL stops storing picked state;
+               also could probably be removed as an external API call
+               by calling it with self._chunk.picked at the start of our own
+               drawing methods.
         """
         #bruce 090123 split this out of Chunk.pick and Chunk.unpick;
-        # REFACTOR: should not be needed once CSDL stops storing picked state.
+        # REFACTOR: should not be needed once CSDL stops storing picked state
 
-        #russ 080303: Back again to display lists, this time color-sorted.
         self.displist.selectPick(picked)
             # Note: selectPick shouldn't be needed for self.extra_displists,
             # due to how they're drawn.
@@ -337,76 +433,80 @@ class Chunk_drawing_methods:
             # this, see my 090114 comments in ColorSorter.py (summary: it is
             # almost but not quite possible to remove it now).
         return
-
-    # == drawing methods applicable to any TransformNode
     
-    def pushMatrix(self):
-        """
-        Do glPushMatrix(), 
-        then transform from (presumed) world coordinates
-        to self's private coordinates.
-        @see: self.applyMatrix()
-        @see: self.popMatrix()
-        """
-        glPushMatrix()
-        self.applyMatrix()
-        return
-
-    def applyMatrix(self):
-        """
-        Without doing glPushMatrix(), 
-        transform from (presumed) world coordinates 
-        to self's private coordinates.
-        @see: self.pushMatrix()
-        """
-        # Russ 080922: If there is a transform in our main CSDL, use it instead.
-        ### REVIEW [bruce 090113]: that is probably not correct in general.
-        tc = self.displist.transformControl
-        if tc is not None:
-            tc.applyTransform()
-        else:
-            origin = self.basecenter
-            glTranslatef(origin[0], origin[1], origin[2])
-            q = self.quat
-            glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
-            pass
-        return
-
-    def popMatrix(self): #bruce 050609
-        """
-        Undo the effect of self.pushMatrix().
-        """
-        glPopMatrix()
-
     # == drawing methods which are mostly specific to Chunk, though they have
     # == plenty of more general aspects which ought to be factored out
-    
-    def draw(self, glpane, dispdef):
-        """
-        Draw all the atoms, using the atom's, self's,
-        or GLPane's display mode in that order of preference.
-        (Note that our dispdef argument is not used at all.)
-        Draw each bond only once, even though internal bonds
-        will be referenced from two atoms in this Chunk.
-        (External bonds are drawn once by each Chunk they connect.)
-        If the Chunk itself is selected, draw its bounding box as a
-        wireframe; selected atoms are drawn specially by atom.draw.
-        """
 
+    def is_visible(self, glpane):
+        """
+        Is self visible in the given glpane?
+
+        Use a fast test; false positives are ok.
+        """
+        # by piotr 080331; bruce 090212 split into separate method
+        # piotr 080402: Added a correction for the true maximum
+        # DNA CPK atom radius.
+        # Maximum VdW atom radius in PAM3/5 = 5.0 * 1.25 + 0.2 = 6.2
+        # = MAX_ATOM_SPHERE_RADIUS
+        # The default radius used by BBox is equal to sqrt(3*(1.8)^2) =
+        # = 3.11 A, so the difference = approx. 3.1 A = BBOX_MIN_RADIUS
+        # The '0.5' is another 'fuzzy' safety margin, added here just 
+        # to be sure that all objects are within the sphere.
+        # piotr 080403: moved the correction here from GLPane.py
+        bbox = self._chunk.bbox
+        center = bbox.center()
+        radius = bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5
+        return glpane.is_sphere_visible( center, radius )
+        
+    def draw(self, glpane):
+        """
+        Draw self (including its external bonds, perhaps optimizing
+        to avoid drawing them twice) in the appropriate display style,
+        based on the style assigned to self's individual atoms
+        (if there is one), or to self, or to glpane.
+
+        This draws everything associated with self or its atoms or bonds,
+        including atom-selection indicators, atom overlap indicators,
+        error indicators, self's appearance as selected or not,
+        bond letters, base letters, etc. Most but not all of what we draw
+        is included in one or more display lists, which are updated as needed
+        before drawing them.
+
+        The output of this method consists of side effects, namely OpenGL calls
+        (which are not in general suitable for inclusion in a display list being
+        compiled by the caller).
+        
+        The correct GL context must be current whenever this method is called.
+        """
+        #bruce 090212 revised docstring
+        ####REVIEW: is glpane argument used, aside from setting self.glpane?
+        # is self.glpane used (after we set it initially)?
+        # is any other way of finding the glpane used?)
+        
         # piotr 080331 moved this assignment before visibility 
         # and frustum culling tests 
-        self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
-            # (and now also needed by BorrowerChunk during draw_dispdef's call
-            #  of _dispfunc [bruce 060411])
+        self.glpane = glpane # needed, see below 
+            #### REVIEW (not urgent): is self.glpane needed here or in self._chunk or both? [bruce 090212]
             #
-            ##e bruce 041109: couldn't we figure out self.glpane on the fly from self.dad?
-            # (in getattr or in a special method)
-            #bruce 050804: self.glpane is now also used in self.changeapp(),
-            # since it's faster than self.track_change (whose features are overkill for this),
-            # though the fact that only one glpane can be recorded in self
-            # is a limitation we'll need to remove at some point.
-
-        if not self.atoms:
+            # known reasons self.glpane might be needed in one or the other class:
+            # - for the edit method - Mark [2004-10-13]
+            # - in BorrowerChunk._dispfunc, called by draw_dispdef [bruce 060411]
+            # - in invalidate_display_lists_for_style [bruce 090212]
+            # - by self.call_when_glcontext_is_next_current via self._gl_context_if_any
+            # - for delegate_draw_chunk, see code below
+            # - in Chunk.changeapp [removed as of bruce 090212]
+            #   note: the old comment about that use said:
+                #bruce 050804: self.glpane is now also used in self.changeapp(),
+                # since it's faster than self.track_inval (whose features are overkill for this),
+                # though the fact that only one glpane can be recorded in self
+                # is a limitation we'll need to remove at some point.
+            # but now I'm revising that (in self.invalidate_display_lists) to use
+            # track_inval, not direct gl_update (or related method), since
+            # that's theoretically better. (So it's no longer a use of
+            # self.glpane.) If it's too slow (which I doubt), we'll notice it
+            # in a profile and optimize it.
+        
+        if not self._chunk.atoms:
             # do nothing for a Chunk without any atoms
             # [to fix bugs -- Huaicai 09/30/04]
             # (moved before frustum test, bruce 080411)
@@ -419,48 +519,38 @@ class Chunk_drawing_methods:
         # etc. (But not for frustum culled atoms, since the indicators
         # would also be off-screen.) [bruce 080411 new feature]
 
-        indicate_overlapping_atoms = self.part and self.part.indicate_overlapping_atoms
-            # note: using self.part for this is a slight kluge;
+        indicate_overlapping_atoms = self._chunk.part and \
+                                     self._chunk.part.indicate_overlapping_atoms
+            # note: using self._chunk.part for this is a slight kluge;
             # see the comments where this variable is defined in class Part.
 
-        if self.hidden and not indicate_overlapping_atoms:
+        if self._chunk.hidden and not indicate_overlapping_atoms:
             # (usually do this now, to avoid overhead of frustum test;
-            #  if indicate_overlapping_atoms is true, we'll test self.hidden
-            #  again below, to make sure we still skip other drawing)
+            #  if indicate_overlapping_atoms is true, we'll test
+            #  self._chunk.hidden again below, to make sure we still
+            #  skip other drawing)
             return
 
-        # Frustum culling test # piotr 080331
-        # piotr 080401: Do not return yet, because external bonds 
-        # may be still drawn.
-        # piotr 080402: Added a correction for the true maximum
-        # DNA CPK atom radius.
-        # Maximum VdW atom radius in PAM3/5 = 5.0 * 1.25 + 0.2 = 6.2
-        # = MAX_ATOM_SPHERE_RADIUS
-        # The default radius used by BBox is equal to sqrt(3*(1.8)^2) =
-        # = 3.11 A, so the difference = approx. 3.1 A = BBOX_MIN_RADIUS
-        # The '0.5' is another 'fuzzy' safety margin, added here just 
-        # to be sure that all objects are within the sphere.
-        # piotr 080403: moved the correction here from GLPane.py
-        is_chunk_visible = glpane.is_sphere_visible(self.bbox.center(), 
-                                                    self.bbox.scale() + 
-                                                     (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS)
-                                                     + 0.5 )
-
+        # Frustum culling test [piotr 080331]
+        # Don't return yet on failure, because external bonds 
+        # may be still drawn [piotr 080401]
+        is_chunk_visible = self.is_visible(glpane)
+        
         if indicate_overlapping_atoms and is_chunk_visible:
             self.draw_overlap_indicators_if_needed()
 
-        if self.hidden:
+        if self._chunk.hidden:
             # catch the case where indicate_overlapping_atoms skipped this test earlier
             return
 
-        self.basepos
-        # make sure basepos is up-to-date, so basecenter is not changed
-        # during the redraw. #e Ideally we'd have a way to detect or
-        # prevent further changes to it during redraw, but this is not
-        # needed for now since they should not be possible, and should
-        # cause visible bugs if they happen. At least let's verify
-        # the mol coord system has not changed by the time we're done:
-        should_not_change = ( + self.basecenter, + self.quat )
+        self._chunk.basepos # note: has side effects in __getattr__
+            # make sure basepos is up-to-date, so basecenter is not changed
+            # during the redraw. #e Ideally we'd have a way to detect or
+            # prevent further changes to it during redraw, but this is not
+            # needed for now since they should not be possible, and should
+            # cause visible bugs if they happen. At least let's verify the
+            # self._chunk coord system has not changed by the time we're done:
+        should_not_change = ( + self._chunk.basecenter, + self._chunk.quat )
 
     ####### WARNING: DUPLICATED CODE: following was recently copied into TransformedDisplayListsDrawer,
     # then generalized; chunk comments left in so it's easy to see what was grabbed.
@@ -468,17 +558,17 @@ class Chunk_drawing_methods:
     # to turn this mixin class into a separate cooperating object for Chunk. [bruce 090211 comment]
     #######
 
-        #bruce 050804:
-        # tell whatever is now drawing our display list
+        #bruce 050804: [#### REVIEW: looks like an out of date comment]
+        # call track_use to tell whatever is now drawing our display list
         # (presumably our arg, glpane, but we don't assume this right here)
         # how to find out when our display list next becomes invalid,
         # so it can know it needs to redraw us.
         # (This is probably not actually needed at the moment, 
         # due to a special system used by self.changeapp() in place of
-        # self.track_change(), but it should be harmless.)
+        # self.track_inval(), but it should be harmless. ####WRONG, see above)
         self.track_use()
 
-        drawLevel = self.assy.drawLevel # this might recompute it
+        drawLevel = self._chunk.assy.drawLevel # this might recompute it
             # (if that happens and grabs the pref value, I think this won't
             #  subscribe our display list to it, since we're outside the
             #  begin/end for that, and that's good, since we include this in
@@ -488,9 +578,7 @@ class Chunk_drawing_methods:
             # update, bruce 080930: that point is probably moot, since
             #  drawLevel is part of havelist.
 
-        disp = self.get_dispdef(glpane) 
-            # piotr 080401: Moved it here, because disp is required by 
-            # _draw_external_bonds.
+        disp = self._chunk.get_dispdef(glpane)
 
         if is_chunk_visible:
             # piotr 080401: If the chunk is culled, skip drawing, but still draw 
@@ -508,17 +596,13 @@ class Chunk_drawing_methods:
             # with their own glnames (atoms and bonds), or cause bugs, though
             # I think both of those are unlikely, so this review is not urgent.
             # [bruce 080411 comment]
-            glPushName(self.glname)
+            glPushName(self._chunk.glname)
 
             # put it in its place
             glPushMatrix()
 
-            try: #bruce 041119: do our glPopMatrix no matter what
-                self.applyMatrix() # Russ 080922: This used to be inlined here.
-
-                # Moved to above - piotr 080401
-                # But what if there is an exception in self.get_dispdef ?
-                # disp = self.get_dispdef(glpane)
+            try: # do our glPopMatrix no matter what
+                self._chunk.applyMatrix()
 
 ## non-duplicated code interlude starts here
                 
@@ -574,11 +658,14 @@ class Chunk_drawing_methods:
                     # (note: value must agree with set of havelist, below)
                     # self.displist is still valid -- use it.
                     # Russ 081128: Switch from draw_dl() [now removed] to draw() with selection arg.
-                    self.displist.draw(selected = self.picked)
+                    self.displist.draw(selected = self._chunk.picked)
                     for extra_displist in self.extra_displists.itervalues():
                         # [bruce 080604 new feature]
                         # note: similar code in else clause, differs re wantlist
-                        extra_displist.draw_but_first_recompile_if_needed(glpane, selected = self.picked)
+                        extra_displist.draw_but_first_recompile_if_needed(
+                            glpane,
+                            selected = self._chunk.picked
+                         )
                         # todo: pass wantlist? yes in theory, but not urgent.
                         continue
                     pass
@@ -612,7 +699,7 @@ class Chunk_drawing_methods:
                         #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
                         #russ 080225: displist side effect allocates a ColorSortedDisplayList.
                         #russ 080305: Chunk may already be selected, tell the CSDL.
-                        ColorSorter.start(self.displist, self.picked)
+                        ColorSorter.start(self.displist, self._chunk.picked)
 
                     # bruce 041028 -- protect against exceptions while making display
                     # list, or OpenGL will be left in an unusable state (due to the lack
@@ -630,7 +717,7 @@ class Chunk_drawing_methods:
                         ColorSorter.finish()
                         #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
 
-                        self.end_tracking_usage( match_checking_code, self.inval_display_list )
+                        self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                         # This is the only place where havelist is set to anything true;
                         # the value it's set to must match the value it's compared with, above.
                         # [bruce 050415 revised what it's set to/compared with; details above]
@@ -649,20 +736,23 @@ class Chunk_drawing_methods:
                     # draw the extra_displists (only needed if wantlist? not sure, so do always;
                     #  guess: there will be none of them unless wantlist is set, so it doesn't matter)
                     for extra_displist in self.extra_displists.itervalues():
-                        extra_displist.draw_but_first_recompile_if_needed(glpane,
-                                                                          selected = self.picked,
-                                                                          wantlist = wantlist)
+                        extra_displist.draw_but_first_recompile_if_needed(
+                            glpane,
+                            selected = self._chunk.picked,
+                            wantlist = wantlist
+                         )
                         
                     pass # end of the case where "main display list (and extra lists) needs to be remade"
 
-                # REVIEW: is it ok that self.glname is exposed for the following
-                # renderOverlayText drawing? Guess: yes, even though it means mouseover
+                # REVIEW: is it ok that self._chunk.glname is exposed for the following
+                # _renderOverlayText drawing? Guess: yes, even though it means mouseover
                 # of the text will cause a redraw, and access to chunk context menu.
                 # If it turns out that that redraw also visually highlights the chunk,
                 # we might reconsider, but even that might be ok.
                 # [bruce 081211 comments]
-                if (self.chunkHasOverlayText and self.showOverlayText):
-                    self.renderOverlayText(glpane)
+                if ( self._chunk.chunkHasOverlayText and
+                     self._chunk.showOverlayText ):
+                    self._renderOverlayText(glpane)
                 
                 #@@ninad 070219 disabling the following--
                 ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
@@ -671,8 +761,8 @@ class Chunk_drawing_methods:
                 if hd:
                     hd._f_drawchunk_realtime(glpane, self)
 
-                if self.hotspot is not None: 
-                    # note: accessing self.hotspot can have side effects in getattr
+                if self._chunk.hotspot is not None: 
+                    # note: accessing self._chunk.hotspot can have side effects in getattr
                     self.overdraw_hotspot(glpane, disp) 
                         # note: this only does anything for pastables
                         # (toplevel clipboard items) as of 050316
@@ -680,11 +770,11 @@ class Chunk_drawing_methods:
                 # russ 080409 Array to string formatting is slow, avoid it
                 # when not needed.  Use !=, not ==, to compare Numeric arrays.
                 # (!= returns V(0,0,0), a False boolean value, when equal.)
-                if (should_not_change[0] != self.basecenter or
-                    should_not_change[1] != self.quat):
-                    assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
+                if (should_not_change[0] != self._chunk.basecenter or
+                    should_not_change[1] != self._chunk.quat):
+                    assert `should_not_change` == `( + self._chunk.basecenter, + self._chunk.quat )`, \
                            "%r != %r, what's up?" % (should_not_change,
-                                                     ( + self.basecenter, + self.quat))
+                                                     ( + self._chunk.basecenter, + self._chunk.quat))
 
                 pass # end of drawing within self's local coordinate frame
 
@@ -693,7 +783,7 @@ class Chunk_drawing_methods:
 
             glPopMatrix()
 
-            glPopName() # pops self.glname
+            glPopName() # pops self._chunk.glname
 
             pass # end of 'if is_chunk_visible:'
 
@@ -701,9 +791,9 @@ class Chunk_drawing_methods:
 
         return # from Chunk.draw()
 
-    def renderOverlayText(self, glpane): # by EricM
+    def _renderOverlayText(self, glpane): # by EricM
         gotone = False
-        for atom in self.atoms.itervalues():
+        for atom in self._chunk.atoms.itervalues():
             text = atom.overlayText
             if (text):
                 gotone = True
@@ -712,16 +802,16 @@ class Chunk_drawing_methods:
                 pos = pos + glpane.out * radius
                 glpane.renderTextAtPosition(pos, text)
         if (not gotone):
-            self.chunkHasOverlayText = False
+            self._chunk.chunkHasOverlayText = False
 
     def _draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible):
-        #bruce 080520 split this out
         """
         Do the part of self.draw that goes outside self's
-        local coordinate system and outside its display list.
+        local coordinate system and outside its display lists.
 
-        [Subclasses can extend this if needed.]
+        [Subclasses can extend this if needed]
         """
+        #bruce 080520 split this out; extended in class VirtualSiteChunkDrawer
         draw_external_bonds = True # piotr 080401
             # Added for the additional test - the external bonds could be still
             # visible even if the chunk is culled.
@@ -748,7 +838,7 @@ class Chunk_drawing_methods:
         # rare for atoms to override display modes. Or we might even keep a
         # list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
-        if draw_external_bonds and self.externs:
+        if draw_external_bonds and self._chunk.externs:
             self._draw_external_bonds(glpane, disp, drawLevel, is_chunk_visible)
 
         return # from Chunk._draw_outside_local_coords()
@@ -757,7 +847,7 @@ class Chunk_drawing_methods:
         """
         Draw self's external bonds (if debug_prefs and frustum culling permit).
         """
-        if not _DRAW_BONDS:
+        if not _DRAW_EXTERNAL_BONDS:
             return
         #bruce 080215 split this out, added one debug_pref
         
@@ -779,7 +869,8 @@ class Chunk_drawing_methods:
                            prefs_key = True
                            ))
            or 
-           (self.assy.o.is_animating # review: test in self.assy.o or glpane?
+           (self._chunk.assy.o.is_animating
+                # review: test in self._chunk.assy.o or glpane?
             and
             debug_pref("GLPane: suppress external bonds when animating?",
                            Choice_boolean_False,
@@ -794,9 +885,9 @@ class Chunk_drawing_methods:
         # external bonds will be drawn (though some might be culled).
         # make sure the info needed to draw them is up to date.
         
-        self._update_bonded_chunks()
+        self._chunk._update_bonded_chunks()
         
-        bondcolor = self.drawing_color()
+        bondcolor = self._chunk.drawing_color()
         selColor = env.prefs[selectionColor_prefs_key]
         
         # decide whether external bonds should be frustum-culled.
@@ -821,17 +912,18 @@ class Chunk_drawing_methods:
         # we'll need to modify this scheme, e.g. by optionally passing
         # that kind of object -- in general, a "drawing environment"
         # which might differ on each draw call of the same object.)
-        model_draw_frame = self.part # kluge, explained above
+        model_draw_frame = self._chunk.part # kluge, explained above
             # note: that's the same as each bond's part.
-        repeated_bonds_dict = model_draw_frame and model_draw_frame.repeated_bonds_dict
+        repeated_bonds_dict = model_draw_frame and \
+                              model_draw_frame.repeated_bonds_dict
         del model_draw_frame
         if repeated_bonds_dict is None:
             # (Note: we can't just test "not repeated_bonds_dict",
             #  in case it's {}.)
             # This can happen when chunks are drawn in other ways than
             # via Part.draw (e.g. as Extrude mode repeat units),
-            # or [as revised 080314] due to bugs in which self.part is None;
-            # we need a better fix for this, but for now,
+            # or [as revised 080314] due to bugs in which self._chunk.part
+            # is None; we need a better fix for this, but for now,
             # just don't use the dict. As a kluge to avoid messing up
             # the loop below, just use a junk dict instead.
             # [bruce 070928 fix new bug 2548]
@@ -846,10 +938,10 @@ class Chunk_drawing_methods:
                           # won't be default True until it's not slower, & tested
                       non_debug = True,
                       prefs_key = True ):
-            objects_to_draw = self._bonded_chunks.itervalues()
+            objects_to_draw = self._chunk._bonded_chunks.itervalues()
             use_outer_colorsorter = False
         else:
-            objects_to_draw = self.externs
+            objects_to_draw = self._chunk.externs
             use_outer_colorsorter = True
         
         # actually draw them
@@ -887,7 +979,7 @@ class Chunk_drawing_methods:
 
 ##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd):
 ##        "[private submethod of self.draw]"
-##        if self.picked:
+##        if self._chunk.picked:
 ##            if not delegate_selection_wireframe:
 ##                try:
 ##                    drawlinelist(PickedColor, self.polyhedron or [])
@@ -912,11 +1004,12 @@ class Chunk_drawing_methods:
         least once, assuming this method is called on all atoms drawn
         during this drawing frame.
         """
-        model_draw_frame = self.part # kluge, explained elsewhere in this file
+        model_draw_frame = self._chunk.part
+            # kluge, explained elsewhere in this file
         if not model_draw_frame:
             return
         neighborhoodGenerator = model_draw_frame._f_state_for_indicate_overlapping_atoms
-        for atom in self.atoms.itervalues():
+        for atom in self._chunk.atoms.itervalues():
             pos = atom.posn()
             prior_atoms_too_close = neighborhoodGenerator.region(pos)
             if prior_atoms_too_close:
@@ -1003,25 +1096,6 @@ class Chunk_drawing_methods:
             self._standard_draw_atoms(glpane, disp0)
         return
 
-    def highlight_color_for_modkeys(self, modkeys):
-        """
-        This is used to return a highlight color for the chunk highlighting. 
-        See a comment in this method below
-        """
-        #NOTE: before 2008-03-13, the chunk highlighting was achieved by using
-        #the atoms and bonds within the chunk. The Atom and Bond classes have
-        #their own glselect name, so the code was able to recognize them as
-        #highlightable objects and then depending upon the graphics mode the
-        #user was in, it used to highlight the whole chunk by accessing the
-        #chunk using, for instance, atom.molecule. although this is still
-        #implemented, for certain display styles such as DnaCylinderChunks,
-        #the atoms and bonds are never drawn. So there is no way to access the
-        #chunk! To fix this, we need to make chunk a highlightable object.
-        #This is done by making sure that the chunk gets a glselect name
-        #(glname) and by defining this API method - Ninad 2008-03-13
-
-        return env.prefs[hoverHighlightingColor_prefs_key]
-
     def draw_highlighted(self, glpane, color):
         """
         Draws this chunk as highlighted with the specified color. 
@@ -1045,35 +1119,34 @@ class Chunk_drawing_methods:
         # REVIEW [bruce 090114]: is there any good reason to use this test
         # for highlighted-object drawing (i.e. cases when some chunks out
         # of whatever gets highlighted are not at all visible)?
-        if not glpane.is_sphere_visible(self.bbox.center(), self.bbox.scale()):
+        if not self.is_visible(glpane): #bruce 090212 revised slightly
             return
 
         # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
-        if self.__dict__.has_key('displist'):
-            # (note: attr is missing if displist was not yet allocated)
+        if self._has_displist():
             apply_material(color) ### REVIEW: still needed?
-            self.pushMatrix()
+            self._chunk.pushMatrix()
             for csdl in ([self.displist] +
                          [ed.csdl for ed in self.extra_displists.values()]):
                 csdl.draw(highlighted = True, highlight_color = color)
-            self.popMatrix()
+            self._chunk.popMatrix()
             pass
 
         # piotr 080521: Get display mode for drawing external bonds and/or
         # the "realtime" objects.
-        disp = self.get_dispdef(glpane)
+        disp = self._chunk.get_dispdef(glpane)
 
         #russ 080302: Draw external bonds.
-        if self.externs:
+        if self._chunk.externs:
             # From Chunk.draw():
-            drawLevel = self.assy.drawLevel
+            drawLevel = self._chunk.assy.drawLevel
             # From Chunk._draw_external_bonds:
             # todo [bruce 090114 comment]: optimize this to not draw them twice
             # (as was done in older code). (Note that there will soon be
             # objects containing display lists for them, and our job will
             # be to not draw *those objects* twice, in any one frame.)
             ColorSorter.start(None)
-            for bond in self.externs:
+            for bond in self._chunk.externs:
                 bond.draw(glpane, disp, color, drawLevel)
                 continue
             ColorSorter.finish()
@@ -1113,22 +1186,6 @@ class Chunk_drawing_methods:
         del glpane, disp0, highlighted
         return
 
-    def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
-        """
-        Return the color tuple to use for drawing self, or None if
-        per-atom colors should be used.
-        """
-        color = self.color # None or a color
-        color = self.modify_color_for_error(color)
-            # (no change in color if no error)
-        return color
-
-    def modify_color_for_error(self, color):
-        """
-        [overridden in some subclasses]
-        """
-        return color
-
     def _standard_draw_atoms(self, glpane, disp0): 
         """
         [private submethod of self.draw:]
@@ -1139,17 +1196,16 @@ class Chunk_drawing_methods:
         it doesn't occur if atom drawing is delegated to our display mode.
         """
         #bruce 060608 split this out of _draw_for_main_display_list
-        drawLevel = self.assy.drawLevel
+        drawLevel = self._chunk.assy.drawLevel
         drawn = {}
-        ## self.externs = [] # bruce 050513 removing this
         # bruce 041014 hack for extrude -- use _colorfunc if present
         # [part 1; optimized 050513]
-        _colorfunc = self._colorfunc # might be None 
+        _colorfunc = self._chunk._colorfunc # might be None 
             # [as of 050524 we supply a default so it's always there]
-        _dispfunc = self._dispfunc 
+        _dispfunc = self._chunk._dispfunc
             #bruce 060411 hack for BorrowerChunk, might be more generally useful someday
 
-        atomcolor = self.drawing_color() # None or a color
+        atomcolor = self._chunk.drawing_color() # None or a color
             # bruce 080210 bugfix (predicted) [part 1 of 2]:
             # use this even when _colorfunc is being used
             # (so chunk colors work in Extrude; IIRC there was a bug report on that)
@@ -1157,7 +1213,7 @@ class Chunk_drawing_methods:
 
         bondcolor = atomcolor # never changed below
 
-        for atom in self.atoms.itervalues(): 
+        for atom in self._chunk.atoms.itervalues(): 
             #bruce 050513 using itervalues here (probably safe, speed is needed)
             try:
                 color = atomcolor # might be modified before use
@@ -1192,7 +1248,7 @@ class Chunk_drawing_methods:
                 # otherwise color and disp remain unchanged
 
                 # end bruce hack 041014, except for use of color rather than
-                # self.color in atom.draw (but not in bond.draw -- good??)
+                # self.color in Atom.draw (but not in Bond.draw -- good??)
 
                 atomdisp = atom.draw(
                     glpane, disp, color, drawLevel,
@@ -1212,14 +1268,15 @@ class Chunk_drawing_methods:
                 # bond-valence number is still drawn...) [bruce 050513]
                 #bruce 080212: this optim got a lot less effective since a few CPK bonds
                 # are now also drawn (though most are not).
-
+                
                 if atomdisp in (diBALL, diLINES, diTUBES, diTrueCPK, diDNACYLINDER):
                     # todo: move this tuple into bonds module or Bond class
                     for bond in atom.bonds:
                         if id(bond) not in drawn:
-                            ## if bond.other(atom).molecule != self: could be faster [bruce 050513]:
-                            if bond.atom1.molecule is not self or bond.atom2.molecule is not self:
-                                pass ## self.externs.append(bond) # bruce 050513 removing this
+                            if bond.atom1.molecule is not self._chunk or \
+                               bond.atom2.molecule is not self._chunk:
+                                # external bond (todo: could simplify the test)
+                                pass
                             else:
                                 # internal bond, not yet drawn
                                 drawn[id(bond)] = bond
@@ -1244,18 +1301,20 @@ class Chunk_drawing_methods:
         return # from _standard_draw_atoms (submethod of _draw_for_main_display_list)
 
     def overdraw_hotspot(self, glpane, disp): #bruce 050131
+        #### REVIEW: ok if this remains outside any CSDL?
         """
-        If this chunk is a (toplevel) clipboard item with a hotspot
-        (i.e. if pasting it onto a bond will work and use its hotspot),
-        display its hotspot in a special form.
-        As with selatom, we do this outside of the display list.        
+        If self._chunk is a (toplevel) clipboard item with a hotspot
+        (i.e. if pasting it onto a bondpoint will work and use its hotspot),
+        draw its hotspot in a special manner.
+
+        @note: As with selatom, we do this outside of the display list.        
         """
         if self._should_draw_hotspot(glpane):
-            hs = self.hotspot
+            hs = self._chunk.hotspot
             try:
                 color = env.prefs[bondpointHotspotColor_prefs_key] #bruce 050808
 
-                level = self.assy.drawLevel #e or always use best level??
+                level = self._chunk.assy.drawLevel #e or always use best level??
                 ## code copied from selatom.draw_as_selatom(glpane, disp, color, level)
                 pos1 = hs.baseposn()
                 drawrad1 = hs.highlighting_radius(disp)
@@ -1272,7 +1331,8 @@ class Chunk_drawing_methods:
 
     def _should_draw_hotspot(self, glpane): #bruce 080723 split this out, cleaned it up
         """
-        Determine whether self has a valid hotspot and wants to draw it specially.
+        Determine whether self has a valid hotspot and
+        wants to draw it specially.
         """
         # bruce 050416 warning: the conditions here need to match those in depositMode's
         # methods for mentioning hotspot in statusbar, and for deciding whether a clipboard
@@ -1282,11 +1342,11 @@ class Chunk_drawing_methods:
         # without checking whether they are that chunk's hotspot.
 
         # review/cleanup: some of these checks might be redundant with checks
-        # in the get method run by accessing self.hotspot.
+        # in the get method run by accessing self._chunk.hotspot.
             
-        hs = self.hotspot ### todo: move lower, after initial tests
+        hs = self._chunk.hotspot ### todo: move lower, after initial tests
 
-        wanted = (self in self.assy.shelf.members) or glpane.always_draw_hotspot
+        wanted = (self in self._chunk.assy.shelf.members) or glpane.always_draw_hotspot
             #bruce 060627 added always_draw_hotspot re bug 2028
         if not wanted:
             return False
@@ -1295,10 +1355,10 @@ class Chunk_drawing_methods:
             return False
         if not hs.is_singlet():
             return False
-        if not hs.key in self.atoms:
+        if not hs.key in self._chunk.atoms:
             return False
         return True
 
-    pass # end of class Chunk_drawing_methods
+    pass # end of class ChunkDrawer
 
 # end

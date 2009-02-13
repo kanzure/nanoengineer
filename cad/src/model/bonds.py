@@ -1530,13 +1530,13 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
 
         return
     
-    def invalidate_bonded_mols(self): #bruce 041109
+    def invalidate_bonded_mols(self): #bruce 041109, revised 090211
         """
-        Mostly-private method (also called from atoms),
+        Mostly-private method (also called from methods in our atoms),
         to be called when a bond is made or destroyed;
-        knows which kinds of bonds are put into the Chunk display list by
-        molecule.draw (internal bonds) or put into mol.externs (external bonds),
-        though this knowledge should ideally be private to class Chunk.
+        knows which kinds of bonds are put into chunk display lists
+        and/or into chunk.externs, though this knowledge should ideally
+        be private to class Chunk.
 
         @note: we don't set the chunk flags _f_lost_externs and _f_gained_externs
                (on our atoms' chunks) if we're an external bond; caller must
@@ -1550,15 +1550,21 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
             # external bond
             mol1.invalidate_attr('externs')
             mol2.invalidate_attr('externs')
+            
+            # note: we don't also set these flags:
             ## mol1._f_lost_externs = mol1._f_gained_externs = True
             ## mol2._f_lost_externs = mol2._f_gained_externs = True
-            # note: we don't also set these flags,
             # since some callers want to optimize that away (rebond)
             # and others do it themselves, perhaps in an optimized
             # manner (e.g. __init__). [bruce 080702 comment]
+            
+            # note: assume no need to invalidate appearance of ExternalBondSet
+            # between mol1 and mol2, since they should detect that themselves
+            # due to caller setting _f_gained_externs or _f_lost_externs
+            # if needed. [bruce 090211 comment] #### REVIEW/TEST, is that correct?
         else:
             # internal bond
-            mol1.havelist = 0
+            mol1.invalidate_internal_bonds_display()
         return
 
     # ==
@@ -1578,8 +1584,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         
         (FYI: It need not be called for other changes that might affect bond
         appearance, like disp or color of bonded molecules, though for
-        internal bonds, the molecule's .havelist should be reset when those
-        things change.)
+        internal bonds, something should call invalidate_internal_bonds_display
+        (a chunk method) when those things change.)
         
         (It's not yet clear whether this needs to be called when bond-valence
         is changed. If it does, that will be done from one place, the
@@ -1592,8 +1598,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         recomputation will happen when it's needed.
         """
         self._valid_data = None
-        # For internal bonds, or bonds that used to be internal,
-        # callers need to have reset havelist of affected mols,
+        # For internal bonds, or bonds that used to be internal, callers
+        # need to call invalidate_internal_bonds_display on affected mols,
         # but the changes in atoms that required them to call setup_invalidate
         # mean they should have done that anyway (except for bond making and
         # breaking, in this file, which does this in invalidate_bonded_mols).
@@ -1601,6 +1607,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # so I'm removing the explicit resets of havelist here, which were often
         # more than needed since they hit both mols of external bonds.
         # This change might speed up some redraws, esp. in move or deposit modes.
+        # update, bruce 090211: #### REVIEW -- still true?
 
         # new feature, bruce 080214:
         atom1 = self.atom1
@@ -1609,6 +1616,14 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         atom2 = self.atom2
         if atom2._f_checks_neighbor_geom and atom2._f_valid_neighbor_geom:
             atom2._f_invalidate_neighbor_geom()
+
+        # new feature, bruce 090211:
+        mol1 = atom1.molecule
+        mol2 = atom2.molecule
+        if mol1 is not mol2:
+            # external bond -- invalidate the appropriate ExternalBondSet
+            # (review/profile: should we optim by storing a pointer on self?)
+            mol1.invalidate_ExternalBondSet_display_for( mol2)
         return
 
     def bond_to_abs_coords_quat(self): #bruce 050722
@@ -2092,20 +2107,26 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
              special_drawing_prefs = USE_CURRENT
             ):
         """
-        Draw the bond. Note that for external bonds, this is [or used to be?]
+        Draw the bond self.
+
+        Note that for external bonds, this is [or used to be?]
         called twice, once for each bonded molecule (in arbitrary order)
         (and is never cached in either mol's display list);
         each of these calls gets dispdef, col, and detailLevel from a different mol.
         [bruce, 041104, thinks that leads to some bugs in bond looks.]
-           Bonds are drawn only in certain display modes.
+
+        Bonds are drawn only in certain display modes.
         The display mode is inherited from the atoms or molecule (as passed in
-        via dispdef from the calling molecule -- this might cause bugs if some
-        callers change display mode but don't set havelist = 0, but maybe they
-        do). Lines or tubes change color from atom to atom, and are red in the
+        via dispdef from the calling molecule -- this would cause bugs if some
+        callers change display mode but don't invalidate their display lists
+        containing bonds, but maybe they do).
+
+        Lines or tubes change color from atom to atom, and are red in the
         middle for long bonds. oldCPK(?) bonds are drawn in the calling chunk's
         color or in the user pref color whose default value used to be called
         bondColor (which is light gray).
-           Note that all drawing coords are based on either .posn or .baseposn
+
+        Note that all drawing coords are based on either .posn or .baseposn
         of the atoms, according to whether this is an external or internal bond,
         and the caller has to draw those kinds of bonds in the proper coordinate
         system (absolute or chunk-relative for external or internal bonds

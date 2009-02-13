@@ -359,6 +359,19 @@ class VirtualBondJig( VisualFeedbackJig):
 
 # ==
 
+class VirtualSiteChunkDrawer( Chunk._drawer_class ): #bruce 090212 split this out (###UNTESTED)
+    def _draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible):
+        Chunk._drawer_class._draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible)
+        for atom in self._chunk.atoms.itervalues():
+            if hasattr(atom, '_site_atom_jig'):
+                color = 'not used'
+                atom._site_atom_jig._draw_jig(glpane, color) # note: needs to be in abs coords
+                ## print "called %r._draw_jig" % atom # works
+                pass
+            continue
+        return
+    pass
+
 class VirtualSiteChunk(Chunk):
     """
     A chunk that (initially) has only a virtual site atom, and represents it in the MT.
@@ -386,17 +399,7 @@ class VirtualSiteChunk(Chunk):
     # then), though I guess it probably is since updaters change it quite a bit.
     # Anyway, for now, this feature is not needed.
 
-    def _draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible):
-        Chunk._draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible)
-        for atom in self.atoms.itervalues():
-            if hasattr(atom, '_site_atom_jig'):
-                color = 'not used'
-                atom._site_atom_jig._draw_jig(glpane, color) # note: needs to be in abs coords
-                ## print "called %r._draw_jig" % atom # works
-                pass
-            continue
-        return
-
+    _drawer_class = VirtualSiteChunkDrawer
     pass
 
 # ==

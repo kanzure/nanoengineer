@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaLadderRailChunk.py - Chunk subclasses for axis and strand rails of a DnaLadder
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna.model.pam_conversion_mmp import DnaLadderRailChunk_writemmp_mapping_memo
@@ -665,6 +665,8 @@ class DnaLadderRailChunk(Chunk):
         Given the drawing color for this chunk, or None if element colors
         should be used, either return it unchanged, or modify it to
         indicate an error or warning condition (if one exists on this chunk).
+
+        [overrides Chunk method]
         """
         error = self.ladder and self.ladder.error
             # maybe: use self.ladder.drawing_color(), if not None??
@@ -679,8 +681,13 @@ class DnaLadderRailChunk(Chunk):
 
     def draw(self, glpane, dispdef):
         """
-        [overrides Chunk.draw]
+        [extends Chunk.draw]
         """
+        # note: for now this can continue to extend Chunk.draw
+        # rather than being in a ChunkDrawer subclass and extending
+        # one of that class's drawing methods, since it only does
+        # immediate mode drawing (no effect on any display list).
+        # [bruce 090212 comment]
         _superclass.draw(self, glpane, dispdef)
         if not self.__ok():
             return

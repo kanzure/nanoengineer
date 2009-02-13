@@ -59,7 +59,12 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         for bond in self.ebset._bonds.itervalues():
             bond.draw(glpane, disp, color, drawLevel)
         return
-        
+
+    def invalidate_display_lists(self):
+        # we don't yet have any
+        ## print "called invalidate_display_lists in", self # happens a lot when dragging one end of ext bond (good)
+        return
+
     pass # end of class
 
 # end

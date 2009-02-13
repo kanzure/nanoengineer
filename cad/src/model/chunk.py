@@ -59,10 +59,14 @@ bruce 090100 split Chunk_mmp_methods from here into a new mixin class
 bruce 090100 split Chunk_drawing_methods from here into a new mixin class
 
 bruce 090211 making compatible with TransformNode, though that is unfinished
-and not yet actually used; places to fix for this are marked ####
+and not yet actually used; places to fix for this are marked ####; see also
+any mention herein of Chunk_drawing_methods (old name of the mixin class
+which has now been turned into ChunkDrawer).
 """
 
 import Numeric # for sqrt
+
+import math # only used for pi, everything else is from Numeric [as of before 071113]
 
 from Numeric import array
 from Numeric import add
@@ -74,6 +78,11 @@ from Numeric import nonzero
 from Numeric import take
 from Numeric import argmax
 
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glRotatef
+from OpenGL.GL import glPopMatrix
+
 
 from utilities.Comparison import same_vals
 
@@ -84,6 +93,8 @@ from utilities.constants import diDNACYLINDER
 from utilities.constants import diPROTEIN
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from utilities.constants import noop
+
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 
 from utilities.debug import print_compact_stack
 ## from utilities.debug import compact_stack
@@ -102,10 +113,6 @@ import foundation.env as env
 
 from foundation.NodeWithAtomContents import NodeWithAtomContents
 from foundation.inval import InvalMixin
-from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
-    #bruce 050804, so glpanes can know when they need to redraw a chunk's display list,
-    # and chunks can know when they need to inval that because something drawn into it
-    # would draw differently due to a change in some graphics pref it used
 from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
 from foundation.undo_archive import set_undo_nullMol
 
@@ -120,7 +127,7 @@ from model.ExternalBondSet import ExternalBondSet
 from model.global_model_changedicts import _changed_parent_Atoms
 
 from model.Chunk_Dna_methods import Chunk_Dna_methods
-from model.Chunk_drawing_methods import Chunk_drawing_methods
+from model.Chunk_drawing_methods import ChunkDrawer
 from model.Chunk_mmp_methods import Chunk_mmp_methods
 
 from commands.ChunkProperties.ChunkProp import ChunkProp
@@ -156,15 +163,18 @@ _inval_all_bonds_counter = 1 # private global counter [bruce 050516]
 
 _superclass = NodeWithAtomContents #bruce 080305 revised this
 
-class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
+class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             NodeWithAtomContents, 
             InvalMixin,
-            SelfUsageTrackingMixin, SubUsageTrackingMixin,
             Selobj_API ):
     """
     A set of atoms treated as a unit.
     """
     #bruce 071114 renamed this from class molecule -> class Chunk
+
+    # subclass-specific constants
+
+    _drawer_class = ChunkDrawer # subclasses can set this to a subclass of that
 
     # class constants to serve as default values of attributes, and _s_attr
     # decls for some of them
@@ -278,7 +288,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
     protein = None # this is set to an object of class Protein in some chunks
     
     glpane = None #bruce 050804 ### TODO: RENAME (last glpane we displayed on??)
-        # (also used/set in Chunk_drawing_methods)
+        # (warning: same-named attr is also used/set in ChunkDrawer)
 
     # ==
 
@@ -376,8 +386,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         # - self.average_position (average posn of atoms or singlets; default
         #   value for self.center).
 
-        self.havelist = 0 # note: havelist is not handled by InvalMixin
-        self.haveradii = 0 # ditto
+        self.haveradii = 0 # note: haveradii is not handled by InvalMixin
 
         # hotspot: default place to bond this Chunk when pasted;
         # should be a singlet in this Chunk, or None.
@@ -414,17 +423,140 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         # [bruce 080702]
         self._bonded_chunks = {}
 
-        self._init_Chunk_drawing_methods()
+        self._drawer = self._drawer_class(self)
+            ### todo: refactor when we have GraphicsRules
         
         return # from Chunk.__init__
+
+    # == unsorted methods, new as of bruce 090211 or so
+
+    def invalidate_display_lists_for_style(self, style): #bruce 090211
+        """
+        """
+        self._drawer.invalidate_display_lists_for_style(style)
+        return
+
+    def invalidate_internal_bonds_display(self): #bruce 090211
+        """
+        """
+        #### TODO: refactor
+        #### todo: optim: only in styles which show bonds!
+        # but, that's only a correct optim if no atoms have individual styles
+        # or if those that do are in their own displists.
+
+        self._drawer.invalidate_display_lists() # might be overkill (eventually)
+        return
+
+    def invalidate_ExternalBondSet_display_for(self, other): #bruce 090211
+        ebset = self._bonded_chunks.get(other) # might be None
+        if ebset is not None:
+            ebset.invalidate_display_lists()
+                # review: call invalidate_distortion, or merge invalidate_distortion with invalidate_display_lists?
+                # justification: when this is called there is a real distortion, i think...
+        return
+
+    def draw(self, glpane, dispdef): #### won't be needed once we have GraphicsRules
+        """
+        #doc
+
+        @note: extended in DnaLadderRailChunk
+        """
+        self.glpane = glpane
+            # self.glpane is needed, but needs review anyway; see comment after
+            # similar assignment in ChunkDrawer.draw [bruce 090212 comment]
+        self._drawer.draw(glpane)
+
+    def draw_highlighted(self, glpane, color): #### won't be needed once we have GraphicsRules, I hope
+        """
+        """
+        #### note: should probably be merged with draw_in_abs_coords; see comments elsewhere
+        self._drawer.draw_highlighted(glpane, color)
+        
+    # == bruce 090212 moved the following methods back to class Chunk
+    #    from Chunk_drawing_methods #### todo: refile into original location?
+
+    def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
+        """
+        Return the color tuple to use for drawing self, or None if
+        per-atom colors should be used.
+        """
+        color = self.color # None or a color
+        color = self.modify_color_for_error(color)
+            # (no change in color if no error)
+        return color
+
+    def modify_color_for_error(self, color):
+        """
+        [overridden in some subclasses]
+        """
+        return color
+
+    def highlight_color_for_modkeys(self, modkeys):
+        """
+        This is used to return a highlight color for the chunk highlighting. 
+        See code comment for more info.
+
+        @note: this method is part of the Selobj_API.
+        """
+        #NOTE: before 2008-03-13, the chunk highlighting was achieved by using
+        #the atoms and bonds within the chunk. The Atom and Bond classes have
+        #their own glselect name, so the code was able to recognize them as
+        #highlightable objects and then depending upon the graphics mode the
+        #user was in, it used to highlight the whole chunk by accessing the
+        #chunk using, for instance, atom.molecule. although this is still
+        #implemented, for certain display styles such as DnaCylinderChunks,
+        #the atoms and bonds are never drawn. So there is no way to access the
+        #chunk! To fix this, we need to make chunk a highlightable object.
+        #This is done by making sure that the chunk gets a glselect name
+        #(glname) and by defining this API method - Ninad 2008-03-13
+
+        return env.prefs[hoverHighlightingColor_prefs_key]
+            #### REVIEW: does the return value matter, except for not being None?
+            # Is this value ever None? [bruce 090212 questions]
+
+    # == drawing-helper methods applicable to any TransformNode
+    #    [bruce 090212 moved all these back to class Chunk;
+    #     they're often called externally]
+
+    def pushMatrix(self):
+        """
+        Do glPushMatrix(), 
+        then transform from (presumed) world coordinates
+        to self's private coordinates.
+        @see: self.applyMatrix()
+        @see: self.popMatrix()
+        """
+        glPushMatrix()
+        self.applyMatrix()
+        return
+
+    def applyMatrix(self):
+        """
+        Without doing glPushMatrix(), 
+        transform from (presumed) world coordinates 
+        to self's private coordinates.
+        @see: self.pushMatrix()
+        """
+        origin = self.basecenter
+        glTranslatef(origin[0], origin[1], origin[2])
+        q = self.quat
+        glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
+        return
+
+    def popMatrix(self):
+        """
+        Undo the effect of self.pushMatrix().
+        """
+        glPopMatrix()
 
     # ==
 
     def isNullChunk(self): # by Ninad
         """
         @return: whether chunk is a "null object" (used as atom.molecule for some
-        killed atoms).
-
+                 killed atoms).
+        @rtype: boolean
+        
         This is overridden in subclass _nullMol_Chunk ONLY.
 
         @see: _nullMol_Chunk.isNullChunk()
@@ -717,7 +849,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         # one to keep here and one to move into Chunk_drawing_methods for now.
         # [bruce 090123]
         
-        self._deallocate_displist_if_needed()
+        self._drawer.deallocate_displist_if_needed()
         return
     
     # ==
@@ -973,11 +1105,11 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
 
     def invalidate_atom_lists(self, invalidate_atom_content = True):
         """
-        private method (but also called directly from undo_archive):
-        for now this is the same for addatom and delatom
-        so we have common code for it --
-        some atom is joining or leaving this mol, do all needed invals
-        (or this can be called once if many atoms are joining and/or leaving)
+        [private method (but also called directly from undo_archive)]
+        
+        some atom is joining or leaving self; do all needed invalidations
+
+        @note: ok to call just once, if many atoms are joining and/or leaving
         """
         # Note: as of 060409 I think Undo/Redo can call this on newly dead Chunks
         # (from _fix_all_chunk_atomsets_differential, as of 071105 via the new
@@ -985,7 +1117,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         # I'm not 100% sure that's ok, but I can't see a problem in the method
         # and I didn't find a bug in testing. [bruce 060409]
 
-        self.havelist = 0
+        self._drawer.invalidate_display_lists()
         self.haveradii = 0
         self._f_lost_externs = True
         self._f_gained_externs = True
@@ -993,19 +1125,19 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         if invalidate_atom_content:
             self.invalidate_atom_content() #bruce 080306
 
-        # bruce 050513 try to optimize this
-        # (since it's 25% of time to read atom records from mmp file, 1 sec for 8k atoms)
+        # the following is just an optimization [bruce 050513] of:
         ## self.invalidate_attrs(['externs', 'atlist'])
-            # (invalidating externs is needed if atom (when in mol) has bonds
-            # going out (extern bonds), or inside it (would be extern if atom
-            # moved out), so do it always)
-        need = 0
+        # (since it's 25% of time to read atom records from mmp file,
+        #  1 sec for 8k atoms)
+        # note: invalidating externs is usually needed, so simplest to
+        # do it always
+        need = False
         try:
             del self.externs
         except:
             pass
         else:
-            need = 1
+            need = True
         try:
             del self.atlist
                 # this is what makes it ok for atom indices to be invalid, as
@@ -1014,7 +1146,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         except:
             pass
         else:
-            need = 1
+            need = True
         if need:
             # this causes trouble, not yet sure why:
             ## self.changed_attrs(['externs', 'atlist'])
@@ -1072,9 +1204,8 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         ## attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             junk = getattr(self, attr)
-        # don't actually remake display list, but next redraw will do that;
-        # don't invalidate it (havelist = 0) since our semantics are to only
-        # update.
+        # don't actually remake display lists, but next redraw will do that;
+        # don't invalidate them, since our semantics are to only update.
         return
 
     # some more invalidation methods
@@ -1082,14 +1213,16 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
     def changed_atom_posn(self): #bruce 060308
         """
         One of self's atoms changed position; 
-        invalidate whatever we might own that depends on that.
+        invalidate whatever we might own that depends on that
+        (other than our ExternalBondSets, whose appearance the
+         caller must invalidate if needed).
         """
         # initial implem might be too conservative; should optimize, perhaps
         # recode in a new Pyrex ChunkBase. Some code is copied from
         # now-obsolete setatomposn; some of its comments might apply here as
         # well.
         self.changed()
-        self.havelist = 0
+        self._drawer.invalidate_display_lists()
         self.invalidate_attr('atpos') #e should optim this 
             ##k verify this also invals basepos, or add that to the arg of this call
         return
@@ -1177,8 +1310,9 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         And extrude calls it since it uses the deprecated method
         set_basecenter_and_quat.
         """
-        # full inval:
-        self.havelist = 0
+        # full inval (has some common code with invalidate_atom_lists):
+        self._drawer.invalidate_display_lists()
+        self._f_lost_externs = self._f_gained_externs = True
         self.haveradii = 0
         self.invalidate_attrs(['atlist', 'externs']) # invalidates everything, I think
         assert not self.valid_attrs(), \
@@ -1324,11 +1458,17 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
                 
         This method invals other things (besides self.basepos) which depend 
         on self's local coordinate system -- i.e. self's internal bonds 
-        and self.havelist; and it calls changed_attr('basepos').
+        and self's OpenGL display lists; and it calls changed_attr('basepos').
         """ 
         self._invalidate_internal_bonds()
         self.changed_attr('basepos')
-        self.havelist = 0
+        self._drawer.invalidate_display_lists()
+            #### REVIEW: can we transform them instead? Not sure there's much
+            # reason, since this usually happens due to changes that
+            # invalidate_display_lists anyway.
+        #### REVIEW: do we need to invalidate ExternalBondSet DLs?
+        #### Is this called when we remove a dynamic_transform from self
+        #### (once our super of TransformNode is implemented)?
 
     def _invalidate_internal_bonds(self):
         self._invalidate_all_bonds() # easiest to just do this
@@ -1415,21 +1555,16 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
     
     def get_dispdef(self, glpane = None):
         """
-        @return: the display style we will use to draw self
+        @return: display style we'd use to draw self on the given glpane
+                 (or on self.assy.o if glpane is not provided)
         
         @see: getDisplayStyle
         """        
-        # REVIEW: does this belong in class Chunk_drawing_methods? 
-        # (Probably yes, once that's a cooperating class, with perhaps
-        #  more than one instance for self, each with its own self.glpane?
-        #  But note that this method itself doesn't access self.glpane.)
-        #
-        # And, how should it be refactored so each type of chunk 
+        # REVIEW: how should it be refactored so each type of chunk 
         # (protein, dna, etc) has its own drawing code, including its own way
         # of interpreting display style settings (which themselves need a lot
-        # of refactoring and generalization)? 
-        # 
-        # [bruce 091223 comments]
+        # of refactoring and generalization)?
+        # [bruce 090123 comment]
         
         if self.display != diDEFAULT:
             disp = self.display
@@ -1440,7 +1575,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
 
         if disp == diDNACYLINDER and not self.isDnaChunk():
             # piotr 080409 fix bug 2785, revised by piotr 080709
-            if self.isProteinChunk(): 
+            if self.isProteinChunk():
                 disp = diPROTEIN
             else:
                 disp = glpane.lastNonReducedDisplayMode
@@ -1453,26 +1588,6 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
                 disp = glpane.lastNonReducedDisplayMode
                     
         return disp
-
-    def inval_display_list(self): #bruce 050804
-        """
-        [public, though external uses are suspicious re modularity,
-         and traditionally have been coded as changeapp calls instead]
-        
-        This is meant to be called when something whose usage we tracked
-        (while making our display list) next changes.
-        """
-        #### REVIEW: how does this relate to class Chunk_drawing_methods? Guess:
-        # when that becomes a cooperating object, this method splits into
-        # one on this class, called by model changes, and one on the
-        # cooperating object (or on each one, if we're drawn in more than one
-        # place), called when a usage-tracked thing changes as described
-        # in the docstring. [bruce 091223/090211 comment]
-        
-        self.changeapp(0) # that now tells self.glpane to update, if necessary
-
-        ###@@@ glpane needs to track changes anyway due to external bonds....
-        # [not sure of status of this comment; as of bruce 060404]
 
     # ==
 
@@ -1633,7 +1748,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         """
         # Do the needed invals, and recomputation of curpos from basepos
         # (I'm not sure if the order would need review if we revise inval rules):
-        self.havelist = 0
+        self._drawer.invalidate_display_lists()
             # (not needed for mov or rot, so not done by _changed_basecenter_or_quat_to_move_atoms)
         self.changed_attr('basepos') # invalidate whatever depends on basepos ...
         self._invalidate_internal_bonds() # ... including the internal bonds, handled separately
@@ -1785,7 +1900,9 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
             # warning: some callers (ChunkProp.py) first replace self.color, 
             # then call us to bless the new value. Therefore the following is
             # needed even if self.color didn't change here. [bruce 050505 comment]
-        self.havelist = 0
+        self._drawer.invalidate_display_lists()
+            #### TODO: optim -- draw self when colored with nocolor_dl,
+            # so no need to inval here [bruce comment 090211]
         self.changed()
         if repaint_in_MT and pref_show_node_color_in_MT():
             #bruce 080507, mainly for testing new method repaint_some_nodes
@@ -1804,8 +1921,11 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
             return
 
         self.display = disp
-        # inlined self.changeapp(1):
-        self.havelist = 0
+
+        # part of inlined self.changeapp(1) (not all is needed):
+        self._drawer.invalidate_display_lists()
+            #### TODO: optim: cache DLs for at least one old display style,
+            # to speed up changing back to prior style
         self.haveradii = 0
         self.changed()
         return
@@ -1883,32 +2003,34 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         
         @see: changed_selected_atoms
         """ 
-        ### REVIEW and document: need this be called when changing self's color?
-        self.havelist = 0
+        #### REVIEW and document: need this be called when changing self's color?
+        #### TODO: classify external calls, figure out which ones must also invalidate EBSets ####
+        self._drawer.invalidate_display_lists()
         if atoms: #bruce 041207 added this arg and its effect
             self.haveradii = 0 # invalidate self.sel_radii_squared
             # (using self.invalidate_attr would be too slow)
-        #bruce 050804 new feature
-        # (related to graphics prefs updating,
-        # probably more generally useful):
-        # REVIEW: do some inlines of changeapp need to do this too?
-        # If they did, would that catch the redraws that currently
-        # only Qt knows we need to do? [bruce 080305 question]
-        glpane = self.glpane 
-            # the last glpane that drew this chunk, or None if it was never
-            # drawn (if more than one can ever draw it at once, this code
-            # needs to be revised to scan them all ##k)
-        if glpane is not None:
-            try:
-                flag = glpane.wants_gl_update
-            except AttributeError:
-                # this will happen for ThumbViews, until they are fixed to use
-                # this system so they get updated when graphics prefs change
-                pass
-            else:
-                if flag:
-                    glpane.wants_gl_update_was_True() # sets it False and does gl_update
-            pass
+#### REVIEW my removal of the following code (now that invalidate_display_lists does track_inval): [bruce 090212]
+##        #bruce 050804 new feature
+##        # (related to graphics prefs updating,
+##        # probably more generally useful):
+##        # REVIEW: do some inlines of changeapp need to do this too?
+##        # If they did, would that catch the redraws that currently
+##        # only Qt knows we need to do? [bruce 080305 question]
+##        glpane = self.glpane 
+##            # the last glpane that drew this chunk, or None if it was never
+##            # drawn (if more than one can ever draw it at once, this code
+##            # needs to be revised to scan them all ##k)
+##        if glpane is not None:
+##            try:
+##                flag = glpane.wants_gl_update
+##            except AttributeError:
+##                # this will happen for ThumbViews, until they are fixed to use
+##                # this system so they get updated when graphics prefs change
+##                pass
+##            else:
+##                if flag:
+##                    glpane.wants_gl_update_was_True() # sets it False and does gl_update
+##            pass
         return
 
     def invalidate_distortion(self): #bruce 090211; #### TODO: refile into superclass TransformNode
@@ -2045,7 +2167,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
             if self.part:
                 self.part.selmols_append(self)
             
-            self._selectedness_drawing_effects(True)
+            self._drawer._f_kluge_set_selectedness_for_drawing(True)
             pass
         return
 
@@ -2059,7 +2181,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
             _superclass.unpick(self)
             if self.part:
                 self.part.selmols_remove(self)
-            self._selectedness_drawing_effects(False)
+            self._drawer._f_kluge_set_selectedness_for_drawing(False)
             pass
         return
 
@@ -2177,7 +2299,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
                 self.part.remove(self)
                 assert self.part is None
         _superclass.kill(self) #bruce 050214 moved this here, made it unconditional
-        self._kill_displists()
+        self._drawer._f_kill_displists()
         return # from Chunk.kill
 
     def _f_set_will_kill(self, val): #bruce 060327 in Chunk
@@ -2376,7 +2498,7 @@ class Chunk(Chunk_Dna_methods, Chunk_drawing_methods, Chunk_mmp_methods,
         # and it is, by atom.setDisplayStyle calling changeapp(1) on its chunk.
         disp = self.get_dispdef() ##e should caller pass this instead?
         eltprefs = PeriodicTable.rvdw_change_counter 
-            # (color changes don't matter for this, unlike for havelist)
+            # (color changes don't matter for this, unlike for display lists)
         radiusprefs = Atom.selradius_prefs_values() 
             #bruce 060317 -- include this in the tuple below, to fix bug 1639
         if self.haveradii != (disp, eltprefs, radiusprefs): # value must agree with set, below

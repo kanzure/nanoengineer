@@ -375,7 +375,7 @@ class GLPane_highlighting_methods(object):
                         ##    # this debug print was useful for debugging bug 2945,
                         ##    # and when it happens it's usually a bug,
                         ##    # but not always:
-                        ##    # - it's predicted to happen for chunk.renderOverlayText
+                        ##    # - it's predicted to happen for ChunkDrawer._renderOverlayText
                         ##    # - and whenever we're using a whole-chunk display style
                         ##    # so we can't leave it in permanently. [bruce 081211]
                         ##    if isinstance( obj, self.assy.Chunk ):

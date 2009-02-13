@@ -17,6 +17,7 @@ This code relates to:
   (needed by vertex arrays in CSDLs, not by pure OpenGL display lists)
 - usage/change tracking related to display list contents
 
+TODO: unify similar code in three places: here, ChunkDrawer, ExtraDisplist. ####
 """
 
 from graphics.drawing.ColorSorter import ColorSorter
@@ -55,7 +56,7 @@ class TransformedDisplayListsDrawer(object): # refile when done and name is stab
         
         
         #bruce 050804:
-        # tell whatever is now drawing our display list
+        # call track_use to tell whatever is now drawing our display list
         # (presumably our arg, glpane, but we don't assume this right here)
         # how to find out when our display list next becomes invalid,
         # so it can know it needs to redraw us.
@@ -195,7 +196,7 @@ class TransformedDisplayListsDrawer(object): # refile when done and name is stab
                         ColorSorter.finish()
                         #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
 
-                        self.end_tracking_usage( match_checking_code, self.inval_display_list )
+                        self.end_tracking_usage( match_checking_code, self._invalidate_display_lists )
                         # This is the only place where havelist is set to anything true;
                         # the value it's set to must match the value it's compared with, above.
                         # [bruce 050415 revised what it's set to/compared with; details above]

@@ -805,21 +805,21 @@ class DnaStrand(DnaStrandOrSegment):
         # piotr 080319:
         # Invalidate display lists for chunks in DNA display style
         # so they'll be remade to reflect sequence changes
+        # [bruce 09021 refactored this, in case chunks cache non-current styles]
         from utilities.constants import diDNACYLINDER
         for c in self.members: 
             if isinstance(c, DnaStrandChunk):
-                if c.get_dispdef() == diDNACYLINDER:
-                    c.inval_display_list() 
-                    # do the same for all complementary chunks
-                    prev_cc = None
-                    for atom in c.atoms.itervalues():
-                        atm_mate = atom.get_strand_atom_mate()
-                        if atm_mate:
-                            cc = atm_mate.molecule
-                            if cc != prev_cc and isinstance(cc, DnaStrandChunk):
-                                prev_cc = cc
-                                if cc.get_dispdef() == diDNACYLINDER:
-                                    cc.inval_display_list()
+                c.invalidate_display_lists_for_style(diDNACYLINDER)
+                # do the same for all complementary chunks
+                # [note: could be optimized]
+                prev_cc = None
+                for atom in c.atoms.itervalues():
+                    atm_mate = atom.get_strand_atom_mate()
+                    if atm_mate:
+                        cc = atm_mate.molecule
+                        if cc is not prev_cc and isinstance(cc, DnaStrandChunk):
+                            prev_cc = cc
+                            cc.invalidate_display_lists_for_style(diDNACYLINDER)
         return
 
     def get_strand_atoms_in_bond_direction(self, 
