@@ -57,11 +57,11 @@ bruce 090115 split Chunk_Dna_methods from here into a new mixin class
 bruce 090100 split Chunk_mmp_methods from here into a new mixin class
 
 bruce 090100 split Chunk_drawing_methods from here into a new mixin class
+(which on 090212 was turned into a cooperating separate class, ChunkDrawer)
 
 bruce 090211 making compatible with TransformNode, though that is unfinished
 and not yet actually used; places to fix for this are marked ####; see also
-any mention herein of Chunk_drawing_methods (old name of the mixin class
-which has now been turned into ChunkDrawer).
+any mention herein of ChunkDrawer.
 """
 
 import Numeric # for sqrt
@@ -117,7 +117,7 @@ from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
 from foundation.undo_archive import set_undo_nullMol
 
 from graphics.display_styles.displaymodes import get_display_mode_handler
-from graphics.drawables.Selobj import Selobj_API # REVIEW: here or Chunk_drawing_methods?
+from graphics.drawables.Selobj import Selobj_API
 
 from model.bonds import bond_copied_atoms
 from model.chem import Atom # for making bondpoints, and a prefs function
@@ -127,7 +127,7 @@ from model.ExternalBondSet import ExternalBondSet
 from model.global_model_changedicts import _changed_parent_Atoms
 
 from model.Chunk_Dna_methods import Chunk_Dna_methods
-from model.Chunk_drawing_methods import ChunkDrawer
+from graphics.model_drawing.ChunkDrawer import ChunkDrawer
 from model.Chunk_mmp_methods import Chunk_mmp_methods
 
 from commands.ChunkProperties.ChunkProp import ChunkProp
@@ -283,7 +283,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     
     showOverlayText = False 
         # whether the user wishes to see the overlay text on this chunk
-        # (used in Chunk_drawing_methods)
+        # (used in ChunkDrawer)
 
     protein = None # this is set to an object of class Protein in some chunks
     
@@ -402,7 +402,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # which is a reported bug which we hope to fix soon.
 
         # REVIEW: do any of our memo_dict, glname, glpane attributes belong in
-        # class Chunk_drawing_methods? See comments there about future
+        # class ChunkDrawer? See comments there about future
         # refactoring and its effect on various attributes. 
         # [bruce 090123 comment]
 
@@ -473,7 +473,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         self._drawer.draw_highlighted(glpane, color)
         
     # == bruce 090212 moved the following methods back to class Chunk
-    #    from Chunk_drawing_methods #### todo: refile into original location?
+    #    from ChunkDrawer #### todo: refile into original location?
 
     def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
         """
@@ -846,7 +846,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # REVIEW: would a better name and more general description be something
         # like "undo has modified your atoms dict, do necessary invals and 
         # deallocates"? I think it would; so I'll split it into two methods, 
-        # one to keep here and one to move into Chunk_drawing_methods for now.
+        # one to keep here and one to move into ChunkDrawer for now.
         # [bruce 090123]
         
         self._drawer.deallocate_displist_if_needed()
@@ -2233,7 +2233,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # Note: this method is misnamed, since it's not about graphics drawing
         # or the GLPane as an implementation of that; it's a selection-
         # semantics method. (See comment on Node def for more info.) So it
-        # should not be moved to Chunk_drawing_methods. [bruce 090123 comment]
+        # should not be moved to ChunkDrawer. [bruce 090123 comment]
         return True
 
     def kill(self):

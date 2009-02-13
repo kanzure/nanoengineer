@@ -50,7 +50,7 @@ class TransformedDisplayListsDrawer(object): # refile when done and name is stab
         assert 0 #### note: never yet called as of before 090211 (not even when debug_prefs are set)
 
         
-####### WARNING: DUPLICATED CODE: following is grabbed from Chunk_drawing_methods.draw,
+####### WARNING: DUPLICATED CODE: following is grabbed from ChunkDrawer.draw,
 # then generalized; chunk comments left in so it's easy to see what was grabbed.
 # When this class is ready, Chunk itself should be modified to use it.
         

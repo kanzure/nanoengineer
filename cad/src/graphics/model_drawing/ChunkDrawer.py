@@ -1,11 +1,11 @@
 # Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-Chunk_drawing_methods.py -- class ChunkDrawer, for drawing a chunk
+ChunkDrawer.py -- class ChunkDrawer, for drawing a chunk
 (using OpenGL or compatible primitives -- someday this may cover POV-Ray
 as well, but it doesn't as of early 2009)
 
 @author: Josh, Bruce, others
-@version; $Id$
+@version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
@@ -159,7 +159,7 @@ class ChunkDrawer(object,
     
     # there is no class default for displist; see __get_displist.
     
-    def __init__(self, chunk): #### was _init_Chunk_drawing_methods
+    def __init__(self, chunk):
         """
         """
         self._chunk = chunk
@@ -195,7 +195,7 @@ class ChunkDrawer(object,
         This is meant to be called when something whose usage we tracked
         (while making our main display list) next changes.
         """
-        #### REVIEW: how does this relate to class Chunk_drawing_methods? Guess:
+        #### REVIEW: how does this relate to class ChunkDrawer? Guess:
         # when that becomes a cooperating object, this method splits into
         # one on this class, called by model changes, and one on the
         # cooperating object (or on each one, if we're drawn in more than one
