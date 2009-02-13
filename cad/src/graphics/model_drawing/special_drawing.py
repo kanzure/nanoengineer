@@ -16,7 +16,6 @@ from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.ColorSorter import ColorSortedDisplayList
 
 from utilities.Comparison import same_vals
-from foundation.state_utils import copy_val
 
 import foundation.env as env
 
@@ -25,8 +24,6 @@ from foundation.changes import SubUsageTrackingMixin
 from utilities.debug import print_compact_traceback
 
 from utilities import debug_flags
-
-from OpenGL.GL import glCallList
 
 DEBUG_COMPARATOR = False
 

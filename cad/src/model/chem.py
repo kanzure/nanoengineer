@@ -51,7 +51,6 @@ and will need fixing to work properly for subclasses with different names.
 """
 
 import math
-import string
 
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
@@ -2165,9 +2164,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if 0: #### experiment, unfinished [bruce 080917]
                 verts = [b.center for b in self.bonds]
                 if len(verts) == 4:
-                    drawtetrahedron(color, verts)
+                    drawtetrahedron(color, verts) # implem
                 elif len(verts) == 3:
-                    drawtriangle(color, verts)
+                    drawtriangle(color, verts) # implem
                 pass ###
             else:
                 drawsphere(color, pos, drawrad, level)
