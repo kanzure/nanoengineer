@@ -207,7 +207,7 @@ class ChunkDisplayMode(DisplayMode):
         memo = self.getmemo(chunk)        
         self.writepov(chunk, memo, file)
         
-    def getmemo(self, chunk):
+    def getmemo(self, chunk): # refactored, bruce 090213 ####untested
         """
         [needs doc]
         """
@@ -216,24 +216,20 @@ class ChunkDisplayMode(DisplayMode):
         # less often than we're called for drawing the selection frame,
         # since that is drawn outside the display list and the chunk might get
         # drawn selected many times without having to remake the display list.
-        memo_dict = chunk.memo_dict
-        our_key_there = id(self)
+        
+        our_key_in_chunk = id(self)
             # safer than using mmp_code, in case a developer reloads the class
             # at runtime and the memo algorithm changed
-        memoplace = memo_dict.setdefault(our_key_there, {})
-            # memoplace is our own persistent mutable dict on this chunk, which
-            # lasts as long as the chunk does
-        counter = chunk._drawer._havelist_inval_counter #### TODO: refactor -- move this method partly into class Chunk
+        counter = chunk.changeapp_counter()
         memo_validity_data = (counter,)
             # a tuple of everything which has to remain the same, for the memo
-            # data to remain valid
-        if memoplace.get('memo_validity_data') != memo_validity_data:
-            # need to compute or recompute memo, and save it
-            memo = self.compute_memo(chunk)
-            memoplace['memo_validity_data'] = memo_validity_data
-            memoplace['memo'] = memo
-        return memoplace['memo']
-    
+            # data to remain valid; if invalid, the following calls compute_memo
+        memo = chunk.find_or_recompute_memo(
+                         our_key_in_chunk,
+                         memo_validity_data,
+                         self.compute_memo )
+        return memo
+
     pass # end of class ChunkDisplayMode
     
 # end

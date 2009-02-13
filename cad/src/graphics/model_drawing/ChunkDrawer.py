@@ -140,10 +140,9 @@ class ChunkDrawer(object,
     # (and a viewing ray, etc) passed in, though it's not a display/drawing
     # method but a picking/selection method.
     
-    # - _havelist_inval_counter in this class, and Chunk memo_dict, are only
-    # used together (by whole-Chunk display styles (displaymodes.py);
-    # both ought to be refactored so that the external client code for them
-    # is a method on class Chunk.
+    # - _havelist_inval_counter in this class, and Chunk _memo_dict, are only
+    # used together (by whole-Chunk display styles (displaymodes.py), via new
+    # methods in class Chunk). Further refactoring is desirable.
     
     # - self.glname is non-obvious, since it's possible that a chunk
     # has the same one even if displayed in more than one place -- or not,

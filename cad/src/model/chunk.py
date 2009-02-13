@@ -402,11 +402,12 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # which is a reported bug which we hope to fix soon.
 
         # note: see comments in ChunkDrawer about future refactoring
-        # re our memo_dict, glpane attributes. [bruce 090123 comment]
+        # re our _memo_dict, glpane attributes. [bruce 090123 comment]
 
-        self.memo_dict = {}
+        self._memo_dict = {}
             # for use by anything that wants to store its own memo data on us,
-            # using a key it's sure is unique [bruce 060608] 
+            # using a key it's sure is unique [bruce 060608]
+            # [now private and has an accessor method, bruce 090213]
             # (when we eventually have a real destroy method, it should zap
             # this; maybe this will belong on class Node #e)
         
@@ -511,6 +512,38 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         return env.prefs[hoverHighlightingColor_prefs_key]
             #### REVIEW: does the return value matter, except for not being None?
             # Is this value ever None? [bruce 090212 questions]
+
+    # ==
+
+    def find_or_recompute_memo( self,
+                                address,
+                                memo_validity_data,
+                                compute_memo_func ):
+        """
+        #doc
+        """
+        #bruce 090213 factored this out of its caller;
+        # needs cleanup and maybe further refactoring
+        memoplace = self._memo_dict.setdefault(address, {})
+            # memoplace is our caller's own persistent mutable dict on self
+            # (kept unique by the client passing in a unique address), which
+            # lasts as long as self does
+        # todo: optimize the following -- could use single _memo_dict from address to (data, memo)
+        if memoplace.get('memo_validity_data') != memo_validity_data: # same_vals?
+            # need to compute or recompute memo, and save it
+            memo = compute_memo_func(self) # review: also pass our other args?
+            memoplace['memo_validity_data'] = memo_validity_data
+            memoplace['memo'] = memo
+        return memoplace['memo']
+
+    def changeapp_counter(self):
+        """
+        #doc
+
+        @warning: current implem is not correct unless called during self.draw!
+        """
+        #bruce 090213 factored this out of its caller
+        return self._drawer._havelist_inval_counter #### needs further refactoring
 
     # == drawing-helper methods applicable to any TransformNode
     #    [bruce 090212 moved all these back to class Chunk;
