@@ -1,10 +1,10 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 changes.py - utilities for tracking changes, usage, nested events, etc.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -170,50 +170,106 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
         return
     pass # end of class OneTimeSubsList
 
-#
+# ==
 
-class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class Chunk and (via UsageTracker) in preferences.py
+class SelfUsageTrackingMixin: #bruce 050804; docstring revised 090212
     """
-    You can mix this into classes which need to let all other code track uses and changes
-    of their "main value" (what value that means is up to them).
-    (If they need to permit tracking of more than one value or aspect they own,
-     they should instead use one UsageTracker object for each trackable value, in the way described here.)
-       To accomplish the tracking, their objects must notice all uses and changes of that main value,
-    and call (respectively, for uses and changes):
-    - self.track_use() to track that that value is being used [must be called on every use, not just first one after a change];
-    - self.track_change() to tell everything which noticed that it used our prior value
-      (and which then subscribed to this event) that our prior value is no longer current.
-       Note: this needs to track not just changes, but invalidations, of our current value. ###e so rename it to track_inval? not sure.
-    WARNING: The way Formula uses track_change only works when it comes after new value is available,
-    but when using it to report an invalidation, that's not possible!
-    ####@@@@ this design flaw needs to be corrected somehow. See also comments near one of preferences.py's uses of track_change.
-       If something is "killed" or in some other way becomes unusable, it only needs to call track_change
-    if a use after that is theoretically possible (which is usually the case, since bugs in callers can cause that),
-    and if a use after that would have a different effect because it had been killed.
-    (I think it's always safe to call it then, and not even an anti-optimization, but I'm not 100% sure.)
-    (Typically, other changes, which themselves call track_change(), occur when something is killed,
-     so whether it's called directly doesn't matter anyway.)
+    You can mix this into client classes which need to let all other code
+    track uses and changes (or invalidations) of their "main value".
+
+    What "main value" means is up to the client class. Usually it's the value
+    returned by accessing some "get method" (in the client class instance
+    itself, or if that class implements a "high-level slot", then in an instance
+    of the slot's client), but it can instead be an externally stored value
+    or implicit value, or even something like the side effects that a
+    certain method would perform, or the cumulative side effects that would
+    have occurred over all calls of a certain method if it was called again
+    now (e.g. a method to keep something up to date). In the more complex cases
+    of what value is being tracked, there is still usually a method that must
+    be called by external code to indicate a use of that value (and sometimes
+    to return a related quantity such as a change indicator), which can be
+    considered to be a kind of "get method" even though it doesn't actually
+    return the tracked value.
+    
+    If a client class needs to permit tracking of more than one value or aspect,
+    it should use more than one instance of this class or a client class,
+    one for each tracked value. (Our subclass UsageTracker can be used as a
+    "stand-alone instance of this class".)
+
+    To accomplish the tracking, the client class instances must notice all
+    uses and changes of the "main value" they want to track, and call the
+    following methods whenever these occur:
+
+    * for uses, call self.track_use() (must be called on every use, not just
+      the first use after a change, in case the using entity is different);
+
+    * for changes or invalidations, call self.track_change() or
+      self.track_inval() (these are presently synonyms but might not always be).
+
+    For more info see the docstrings of the specific methods.
+
+    See also code comments warning about an issue in correctly using this
+    in conjunction with class Formula, and after client objects are killed.
     """
+    # note: as of 061022 this was used only in class Chunk and
+    # (via UsageTracker) in preferences.py; more uses were added later.
+
+    ### REVIEW the status of these old comments, and clarify them:
+    
+    # WARNING: The way Formula uses track_change only works when the call of
+    # track_change comes after the new value is available,
+    # but when using track_change to report an invalidation, that's not
+    # possible in general! ###@@@ this design flaw needs to be corrected
+    # somehow. See also comments near one of preferences.py's uses of
+    # track_change.
+
+    # note about whether to call track_change after something is "killed":
+    # If something is "killed" or in some other way becomes unusable,
+    # it only needs to call track_change if a use after that is theoretically
+    # possible (which is usually the case, since bugs in callers can cause
+    # that), and if a use after that would have a different effect because it
+    # had been killed. (I think it's always safe to call it then, and not even
+    # an anti-optimization, but I'm not 100% sure.) (Typically, other changes,
+    # which themselves call track_change(), occur when something is killed,
+    # so whether it's called directly doesn't matter anyway.)
+
     def track_use(self):
         """
-        #doc
+        This must be called whenever the "get method" for the value we're
+        tracking is called, or more generally whenever that value is "used"
+        (see class docstring for background).
+
+        @note: This must be called on every use, not just the first use after
+               a change, in case the using entity is different, since all users
+               need to know about the next change or invalidation.
+
+        This works by telling cooperating users (clients of SubUsageTrackingMixin ###VERIFY)
+        what they used, so they can subscribe to invalidations or changes of all
+        values they used.
+        
         [some callers might inline this method]
-        [must be called on every use, not just first one after a change,
-         in case env.track points to different objects for different uses]
         """
         if getattr(self, '_changes__debug_print', False):
+            ####REVIEW: can we give _changes__debug_print a default value
+            # as an optim? Note that since we're a mixin class, it would end up
+            # defined in arbitrary client classes, but its mangled-like name
+            # ought to make that ok. [bruce 090212 comment]
             print_compact_stack( "\n_changes__debug_print: track_use of %r: " % self )
         try:
             subslist = self.__subslist
         except AttributeError:
-            # this is the only way self.__subslist gets created;
-            # it means this is the first call of track_use ever, or since track_change was last called
-            debug_name = debug_flags.atom_debug and ("%r" % self) or None #061118
-            subslist = self.__subslist = OneTimeSubsList(debug_name) # (more generally, some sort of unique name for self's current value era)
-        # (Should we now return subslist.subscribe(func)? No -- that's what the value-user should do *after* subslist
-        #  gets entered here into its list of used objs, and value-user later finds it there.)
+            # note: this is the only way self.__subslist gets created;
+            # it happens on the first call of track_use (on self),
+            # and on the first call after each call of track_change/track_inval
+            debug_name = debug_flags.atom_debug and ("%r" % self) or None #061118; TODO: optimize
+            subslist = self.__subslist = OneTimeSubsList(debug_name)
+                # (more generally, some sort of unique name for self's current value era)
+        # (design note: Should we now return subslist.subscribe(func)? No --
+        #  that's what the value-user should do *after* subslist gets entered
+        #  here into its list of used objects, and value-user later finds it
+        #  there.)
         env.track( subslist)
-            ###@@@ #e:
+            ###@@@ REVIEW:
             # - is it right that the name of this function doesn't imply it's specific to usage-tracking?
             #   can it be used for tracking other things too?? [guess: no and no -- rename it ###@@@.]
             # - (Wouldn't it be faster to save self, not self.__subslist, and then at the end to create and use the subslist?
@@ -222,37 +278,98 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
             # - Maybe some callers can inline this method using essentially only a line like this:
             #     env.used_value_sublists[id(subslist)] = subslist
         return
-    def track_change(self): #e rename to track_inval?? see class docstring
+
+    def track_change(self):
         """
-        [also call on invals being propogated -- see class docstring]
+        This method (which implements both track_change and track_inval)
+        must be called whenever something changes or invalidates the value
+        self is tracking (see class docstring for background).
+
+        It tells everything which tracked a use of self's value that
+        self's value is no longer valid (unless this would be redundant
+        since it already told them this since they last subscribed).
+
+        (What the recipients do with that message is up to them,
+        but typically includes propogating further invalidations to
+        their own subscribers, directly marking their own value as invalid
+        (using another instance of this class or anything analogous to it),
+        and/or adding themselves to a set of objects that need later updates.)
+
+        Note that in typical use cases, there are several distinct
+        reasons to call this method -- all of them which apply must be done,
+        which typically means two or three kinds of calls of this method
+        can occur for each instance of self:
+
+        * the tracked value is explicitly set
+
+        * something used to compute the tracked value has changed (or been
+          invalidated), so the tracked value needs to be invalidated
+          (to ensure it will be recomputed when next needed).
+          
+          (This differs from the tracked value changing by being set,
+          since we don't yet know the new value, or even (in general) whether
+          it's definitely different than the old value. But this class doesn't
+          yet behave differently in those cases -- in general, it's rare for
+          there to be a simple correct way to take advantage of knowing the new
+          value, except for comparing it to an old value and avoiding
+          propogating an invalidation if they're equivalent, but in all cases
+          where that can be done simply and correctly, it can be done by our
+          client before calling this method. [###todo: refer to external docs
+          which elaborate on this point, discussing why this comparison-optim
+          can't be propogated in general in any simple way.])
+
+          This kind of call has two subcases:
+
+          * done manually by the client, since it knows some value
+            used in that computation has changed (this is the only way to handle
+            it for values it uses which are not automatically tracked
+            by the system used by this class);
+
+          * done automatically, since something the client usage-tracked
+            (via the system used by this class)
+            while last recomputing that value has changed -- this case
+            is called "propogating an invalidation" (propogating it
+            from the other value usage-tracked by our client during its
+            recomputation, to the value directly tracked by our client).
         """
-        #e add args? e.g. "why" (for debugging), nature of change (for optims), etc...
-        # ... or args about inval vs change-is-done (see comments in class's docstring)
+        ### REVIEW: rename to track_inval?? see class docstring and other
+        # comments for discussion
+
+        # review: add args? e.g. "why" (for debugging), nature of change
+        # (for optims), etc...
         debug = getattr(self, '_changes__debug_print', False)
         if debug:
             print_compact_stack( "\n_changes__debug_print: track_change of %r: " % self )
         try:
             subslist = self.__subslist
-        except AttributeError: # this is common
-            return # optimization (there were no uses of the current value, or, they were already invalidated)
+        except AttributeError:
+            # this is common [TODO: optimize by replacing with boolean test]
+            return # optimization (there were no uses of the current value, or,
+                   # they were already invalidated)
         del self.__subslist
         subslist.fulfill_all(debug = debug)
         return
-    track_inval = track_change #bruce 061022 added this to API, though I don't know if it ever needs to have a different implem
+
+    track_inval = track_change
+        #bruce 061022 added track_inval to API, though I don't know if it ever
+        # needs to have a different implem. ### REVIEW: does each client use the
+        # appropriate one of track_inval vs. track_change?
+    
     pass # end of class SelfUsageTrackingMixin
 
-#
+# ==
 
 class UsageTracker( SelfUsageTrackingMixin): #bruce 050804 #e rename?
     """
     Ownable version of SelfUsageTrackingMixin, for owners that have
-    more than one aspect whose usage can be tracked.
+    more than one aspect whose usage can be tracked, or which want to use
+    a cooperating class rather than a mixin class for clarity.
     """
     # note: as of 061022 this is used only in _tracker_for_pkey (preferences.py);
     # this or its superclass might soon be used in exprs/lvals.py
     pass
 
-# ==
+# ===
 
 class begin_end_matcher: #bruce 050804
     """
@@ -410,10 +527,17 @@ def after_current_tracked_usage_ends(func):# new feature 070108 [tested and work
     return
 
 class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class Chunk, class GLPane, class Formula
-    # [note, 060926: this doesn't use self at all. Does it need to be a mixin?? addendum 061022: maybe for inval propogation??]
+    # [note, 060926: this doesn't use self at all [later: except for debug messages].
+    #  Does it need to be a mixin?? addendum 061022: maybe for inval propogation??]
     """
-    ###doc - for doing usagetracking in whatever code we call when we remake a value, and handling results of that;
+    ###doc - for doing usagetracking in whatever code we call when we
+    remake a value, and handling results of that;
     see class usage_tracker_obj for a related docstring
+
+    @note: this is often used in conjunction with SelfUsageTrackingMixin,
+           in which case (for a client class which inherits this class and
+           that one together) the invalidator passed to self.end_tracking_usage
+           can often be self.track_inval or a client method that calls it.
     """
     def begin_tracking_usage(self): #e there's a docstring for this in an outtakes file, if one is needed
         debug_name = debug_flags.atom_debug and ("%r" % self) or None #061118
@@ -447,7 +571,8 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
                     try:
                         func()
                     except:
-                        print_compact_traceback("after_current_tracked_usage_ends: error: exception in call of %r (ignored): " % (func,))
+                        print_compact_traceback(
+                            "after_current_tracked_usage_ends: error: exception in call of %r (ignored): " % (func,))
                         pass
                     continue
                 pass

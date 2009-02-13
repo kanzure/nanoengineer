@@ -1,8 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 transforms.py - provide Translate [and more later]
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 Translate was developed in Center.py, split out of that 061115
 
@@ -144,7 +146,8 @@ class RotateTranslate(DelegatingInstanceOrExpr):#070225
         self.popMatrix()
         return
     def pushMatrix(self): # [modified from same method in class Chunk]
-        """Do glPushMatrix(), and then transform from external to local coordsys.
+        """
+        Do glPushMatrix(), and then transform from external to local coordsys.
         """
         # do most of the things that might cause exceptions before doing any OpenGL calls.
         x,y,z = self.motion
@@ -163,7 +166,9 @@ class RotateTranslate(DelegatingInstanceOrExpr):#070225
         glTranslatef(-cx,-cy,-cz)
         return
     def popMatrix(self): # [copied from same method in class Chunk]
-        "Undo the effect of self.pushMatrix()."
+        """
+        Undo the effect of self.pushMatrix().
+        """
         glPopMatrix()
     pass
 

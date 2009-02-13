@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 BorrowerChunk.py -- a chunk which temporarily borrows the atoms
 from another one, for an experimental optimization of display lists
@@ -10,7 +10,7 @@ would be much better.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -147,8 +147,12 @@ class BorrowerChunk(Chunk):
             raise
 
         return # from take_atomset
-
-    # instead of overriding _draw_for_main_display_list, it's enough to define _colorfunc and _dispfunc to help it:
+    
+    # instead of overriding _draw_for_main_display_list
+    # (now in ChunkDrawer rather than in our superclass Chunk,
+    #  so overriding it would require defining a custom _drawer_class),
+    # it's enough to define _colorfunc and _dispfunc to help it:
+    
     def _colorfunc(self, atm):
         """
         Define this to use atm's home mol's color instead of self.color, and also so that self._dispfunc gets called
@@ -157,11 +161,13 @@ class BorrowerChunk(Chunk):
         """
         #e this has bugs if we removed atoms from self -- that's not supported (#e could override delatom to support it)
         return self.origmols[atm.key].drawing_color()
+
     def _dispfunc(self, atm):
         origmol = self.origmols[atm.key]
-        glpane = origmol.glpane # set shortly before this call, in origmol._draw_for_main_display_list (kluge)
+        glpane = origmol.glpane # set shortly before this call, in origmol.draw (kluge)
         disp = origmol.get_dispdef(glpane)
         return disp
+
     def restore_atoms_to_their_homes(self):
         """
         put your atoms back where they belong
@@ -185,6 +191,7 @@ class BorrowerChunk(Chunk):
         if self.part is not None:
             self.part.remove(self)
         return
+    
     def demolish(self):
         """
         Restore atoms, and make self reusable
@@ -193,6 +200,7 @@ class BorrowerChunk(Chunk):
         self.restore_atoms_to_their_homes()
         self.name = self._name_when_empty()
         return
+    
     def take_atoms_from_list(self, atomlist):
         """
         We must be empty (ready for reuse).
@@ -215,20 +223,26 @@ class BorrowerChunk(Chunk):
         atomset = dict([(a.key, a) for a in our_atoms])
         self.take_atomset( atomset)
         return other_chunks, other_atoms
+    
     def kill(self):
         self.restore_atoms_to_their_homes() # or should we delete them instead?? (this should never matter in our planned uses)
             # this includes self.part = None
         Chunk.kill(self)
+    
     def destroy(self):
         self.kill()
         self.name = "(destroyed borrowerchunk)"
+    
     # for testing, we might let one of these show up in the MT, and then we need these cmenu methods for it:
+    
     def __CM_Restore_Atoms_To_Their_Homes(self):
         self.restore_atoms_to_their_homes()
         assy = self.assy
         self.kill()
         assy.w.win_update() # at least mt_update is needed
+    
     #e we might need destroy and/or kill methods which call restore_atoms_to_their_homes
+    
     pass # end of class BorrowerChunk
 
 # ==

@@ -95,9 +95,10 @@ class PAM_Atom_methods:
     """
     Intended only as a pre-mixin for class Atom.
     """
-    # Someday will be refactored into subclasses of Atom.
-    # Then those can be moved inside the dna package.
-    # (Maybe this could be moved there right now?)
+    # Someday these methods will be refactored into subclasses of Atom.
+    # Then those subclasses can be moved inside the dna package.
+    # (Maybe this module could be moved there right now? Not easily,
+    #  regarding package import conventions/worries.)
 
     # ===
     #
@@ -107,7 +108,8 @@ class PAM_Atom_methods:
     # (Some of these methods might need trivial default defs on class Atom
     #  until old code is fully revised to only call them on the subclasses.)
     #
-    # Several general methods above also have special cases that might be
+    # Several general methods which remain in class Atom
+    # also have special cases that might be
     # revised to be in subclass methods that extend them. These include:
     #
     #  drawing_color

@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 displaymodes.py -- support for new modular display modes.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Initially this only handles ChunkDisplayModes, which draw entire chunks (even if they are
 highlighted or selected) without drawing their atoms or bonds in the usual way. (Such a
@@ -237,10 +237,3 @@ class ChunkDisplayMode(DisplayMode):
     pass # end of class ChunkDisplayMode
     
 # end
-##        chunk.pushMatrix() ###k or does caller do this?? (safer re exceptions)
-##        try:
-##            drawer.drawcylinder(color, end1, end2, radius)
-##        except:
-##            print_compact_traceback("exception in CylinderChunks.drawchunk ignored: ")
-##            pass
-##        chunk.popMatrix()

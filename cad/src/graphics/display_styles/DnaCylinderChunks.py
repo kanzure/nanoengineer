@@ -1,11 +1,11 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaCylinderChunks.py -- defines I{DNA Cylinder} display mode, which draws 
 axis chunks as a cylinder in the chunk's color.
 
-@author: Mark
+@author: Mark, Piotr
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -208,7 +208,6 @@ def get_dna_base_orientation_indicators(chunk, normal):
     
     return (indicators, inv_indicators)
 
-# piotr 080903: The two following methods were created by Ninad. 
 
 def get_all_available_dna_base_orientation_indicators(chunk, 
                                                       normal,
@@ -217,8 +216,7 @@ def get_all_available_dna_base_orientation_indicators(chunk,
     """
     
     """
-    
-    
+    # by Ninad
     #@TODO: Move this and other methods out of this file, into a general
     #helper pkg and module -- Ninad 2008-06-01
     from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
@@ -271,6 +269,7 @@ def get_dna_base_orientation_indicator_dict(chunk,
     Returns two  dictionaries for DNA bases perpendicular and anti-perpendicular
     to a plane specified by the plane normal vector.
     """
+    # by Ninad
     #@TODO: Move this and other methods out of this file, into a general
     #helper pkg and module -- Ninad 2008-06-01
     
@@ -880,7 +879,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         ### if strand_direction == -1:
         ###    q = 1.0 - q
         return self._get_rainbow_color(q, 0.75, 1.0)
-    pass
+
 
     def _get_strand_colors(self, atom_list, color_style, start, end, \
                            length, chunk_color, group_color):
@@ -934,7 +933,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
         colors[0] = colors[1]
         colors[n_atoms + 1] = colors[n_atoms]
         return colors
-    pass
 
     def _get_strand_radii(self, atom_list, radius):
         """
@@ -952,7 +950,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
         radii[0] = radii[1]
         radii[n_atoms + 1] = radii[n_atoms]
         return radii
-    pass
 
 
     def _make_discrete_polycone(self, positions, colors, radii):
@@ -985,7 +982,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
             new_radii.append(radii[i])
             new_radii.append(radii[i])
         return (new_positions, new_colors, new_radii)
-    pass
 
 
     def drawchunk(self, glpane, chunk, memo, highlighted):
@@ -1257,6 +1253,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
             """
             Draws external bonds between different chunks of the same group.
             """
+            # note: this is a local function inside 'def drawchunk_realtime'.
+            # it has no direct relation to ChunkDrawer._draw_external_bonds.
             for bond in chunk.externs:
                 if bond.atom1.molecule.dad == bond.atom2.molecule.dad: # same group
                     if bond.atom1.molecule != bond.atom2.molecule: # but different chunks
@@ -1275,6 +1273,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
             lcolor[1] = 0.5 * (1.0 + color[1])
             lcolor[2] = 0.5 * (1.0 + color[2])
             return lcolor
+
+        # note: this starts the body of def drawchunk_realtime,
+        # after it defines several local functions.
         
         from utilities.constants import lightgreen
         from PyQt4.Qt import QFont, QString, QColor, QFontMetrics
@@ -1681,6 +1682,10 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             
                             # draw the external bonds
                             _draw_external_bonds()
+                                # note: this calls a local function defined
+                                # earlier (not a method, thus the lack of self),
+                                # which has no direct relation to
+                                # ChunkDrawer._draw_external_bonds.
             
                             # Line drawing done
                             glEnd()
