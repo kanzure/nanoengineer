@@ -207,7 +207,7 @@ class ChunkDisplayMode(DisplayMode):
         memo = self.getmemo(chunk)        
         self.writepov(chunk, memo, file)
         
-    def getmemo(self, chunk): # refactored, bruce 090213 ####untested
+    def getmemo(self, chunk): # refactored, bruce 090213
         """
         [needs doc]
         """
