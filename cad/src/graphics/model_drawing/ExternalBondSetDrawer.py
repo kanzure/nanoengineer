@@ -28,7 +28,19 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         remove cyclic refs, free display lists, etc
         """
         self.ebset = None
-    
+
+    def _ok_to_deallocate_displist(self): #bruce 071103
+        """
+        Say whether it's ok to deallocate self's OpenGL display list
+        right now (assuming our OpenGL context is current).
+
+        [overrides TransformedDisplayListsDrawer method]
+        """
+        return self.ebset.empty()
+            # conservative -- maybe they're in a style that doesn't draw them --
+            # otoh, current code would still try to use a display list then
+            # (once it supports DLs at all -- not yet as of 090213)
+
     def draw(self, glpane, disp, color, drawLevel): # selected? highlighted?
         # initial testing stub -- just draw in immediate mode, in the same way
         # as if we were not being used.
