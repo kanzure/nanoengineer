@@ -113,7 +113,7 @@ class ExternalBondSet(object):
                 print "added bond %r to %r" % (bond, self)
         return
 
-    def empty(self):
+    def empty(self): # todo: rename to is_empty
         return not self._bonds
 
     def remove_incorrect_bonds(self):
