@@ -94,6 +94,12 @@ class ExternalBondSet(object):
         self._drawer.invalidate_display_lists()
         return
         
+    def invalidate_display_lists_for_style(self, style): #bruce 090217
+        """
+        @see: documentation of same method in class Chunk
+        """
+        self._drawer.invalidate_display_lists_for_style(style)
+
     def other_chunk(self, chunk):
         """
         @see: Bond.other_chunk

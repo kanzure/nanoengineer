@@ -53,6 +53,27 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             # otoh, current code would still try to use a display list then
             # (once it supports DLs at all -- not yet as of 090213)
 
+    def invalidate_display_lists_for_style(self, style): #bruce 090217
+        """
+        @see: documentation of same method in class Chunk
+
+        [overrides superclass method]
+        """
+        #### TODO: revise this when we can cache display lists even for
+        # non-current display styles, to revise any cached style-including
+        # display lists, whether or not that's the current style.
+        
+        # note: this is needed in principle, but might not be needed in
+        # practice for the current calls. If it's slow, consider
+        # a style-specific optim. [bruce 090217]
+        
+        c1, c2 = self._ebset.chunks
+        if not self.glpane or \
+           c1.get_dispdef(self.glpane) == style or \
+           c2.get_dispdef(self.glpane) == style:
+            self.invalidate_display_lists()
+        return
+
     def draw(self, glpane, disp, color, drawLevel): # selected? highlighted?
         """
         """

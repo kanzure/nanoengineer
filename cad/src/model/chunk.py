@@ -431,8 +431,25 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def invalidate_display_lists_for_style(self, style): #bruce 090211
         """
+        Invalidate any of our display lists used with the given style
+        (whose appearance might contain anything specific to that style),
+        since the caller has changed something which sometimes affects
+        appearances in that style but which is not change/usage-tracked
+        in the standard way.
+
+        @see: DnaStrand.setStrandSequence, which calls this with style =
+              diDNACYLINDER when it changes dna sequence information,
+              since that style sometimes visually indicates sequence.
         """
+        # review: add to Node API? might be better to just add enough
+        # change tracking to never need it.
         self._drawer.invalidate_display_lists_for_style(style)
+        for ebset in self._bonded_chunks.itervalues():
+            ebset.invalidate_display_lists_for_style(style)
+                # note: doing this in our ExternalBondSets is needed in
+                # principle, but might not be needed in practice for the
+                # current calls or for certain styles. See the similar
+                # comment in ExternalBondSetDrawer. [bruce 090217]
         return
 
     def invalidate_internal_bonds_display(self): #bruce 090211
@@ -472,7 +489,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         self._drawer.draw_highlighted(glpane, color)
         
     # == bruce 090212 moved the following methods back to class Chunk
-    #    from ChunkDrawer #### todo: refile into original location in this class?
+    #    from ChunkDrawer ### todo: refile into original location in this class?
 
     def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
         """
@@ -2040,7 +2057,11 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         if atoms: #bruce 041207 added this arg and its effect
             self.haveradii = 0 # invalidate self.sel_radii_squared
             # (using self.invalidate_attr would be too slow)
-#### REVIEW my removal of the following code (now that invalidate_display_lists does track_inval): [bruce 090212]
+### REVIEW my removal of the following code (now that invalidate_display_lists does track_inval):
+# the best test would be, does something that calls changeapp and nothing else
+# do a gl_update? I'm not sure what op does that, so leave this here until
+# that's definitively tested. [bruce 090212/090217]
+#
 ##        #bruce 050804 new feature
 ##        # (related to graphics prefs updating,
 ##        # probably more generally useful):
@@ -2065,7 +2086,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         return
 
     def invalidate_distortion(self): #bruce 090211; note, NOT YET CALLED as of 090213 (awaiting use of superclass TransformNode)
-        #### TODO: refile into superclass TransformNode
+        #### TODO: refile into superclass TransformNode, when we have it
         #### TODO: call where needed, eg some changeapp calls; also make sib method for external atoms display changes
         """
         Called when any of our atoms' relative coordinates move

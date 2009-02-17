@@ -73,7 +73,17 @@ class TransformedDisplayListsDrawer(object,
         
         return
 
-    # review: does some implem of invalidate_display_lists_for_style belong here?
+    # ==
+    
+    def invalidate_display_lists_for_style(self, style): #bruce 090217
+        """
+        @see: documentation of same method in class Chunk
+
+        [this is a conservative implementation; many subclasses
+         will want to override this as an optimization]
+        """
+        self.invalidate_display_lists()
+        return
 
     # ======
     

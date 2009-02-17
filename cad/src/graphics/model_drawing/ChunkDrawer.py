@@ -154,12 +154,15 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
     def invalidate_display_lists_for_style(self, style): #bruce 090211
         """
+        @see: documentation of same method in class Chunk
+
+        [overrides superclass method]
         """
         #### TODO: revise this when chunks can cache display lists even for
-        # non-current display styles, to revise any cached diDNACYLINDER
+        # non-current display styles, to revise any cached style-including
         # display lists, whether or not that's the current style.
-        # (also, #### review: does it need to invalidate ExternalBondSetDrawer DLs?)
-        if self._chunk.get_dispdef(self.glpane) == style:
+        if not self.glpane or \
+           self._chunk.get_dispdef(self.glpane) == style:
             self.invalidate_display_lists()
         return
 
