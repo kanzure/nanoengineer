@@ -671,10 +671,11 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             repeated_bonds_dict = {} # KLUGE
 
         if debug_pref("GLPane: use ExternalBondSets for drawing?", #bruce 080707
-                      Choice_boolean_False,
-                          # won't be default True until it's not slower, & tested
+                      Choice_boolean_True,
+                          # changed to default True, bruce 090217,
+                          # though not yet fully tested
                       non_debug = True,
-                      prefs_key = True ):
+                      prefs_key = "v1.2/use ExternalBondSets for drawing?" ):
             objects_to_draw = self._chunk._bonded_chunks.itervalues()
             use_outer_colorsorter = False
         else:
