@@ -102,8 +102,28 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         ### DUPLICATED CODE WARNING:
         # the following is similar in many ways to ChunkDrawer.draw.
         # See related comment there.
-
-        del disp, color #### REVIEW, esp when highlighted
+        
+        # KLUGE: we'll use disp and color below, even though they come
+        # from whichever of our chunks gets drawn first (i.e. occurs first
+        # in Model Tree order). The reasons are:
+        #
+        # - avoids changing current behavior about which chunk disp and color
+        #   gets used (changing that is desirable, but nontrivial to design
+        #   the intent);
+        #
+        # - not easy to recode things to draw bonds with half-colors
+        #   (though if disps differ, drawing it both ways would be easy).
+        #
+        # Note that we'd like to optim color changes, which is probably easy
+        # in the DL case but not yet easy in the shader case, so nevermind that
+        # for now. (Also disp changes, which would be easier.)
+        #
+        # We'd also like to use this method for highlighting; that's a separate
+        # project which needs its own review; it might motivate us to revise
+        # this, but probably not, since CSDL and DrawingSet draw methods
+        # implement highlighting themselves, whether or not it's a solid color.
+        #
+        # [bruce 090217 comments & revisions]
         
         # first, return early if no need to draw self at all
 
@@ -159,21 +179,36 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         #### TODO: glPushMatrix() etc, using matrix of chunk1. (here or in a subr)
         # Not needed until our coords are relative (when we optimize drag).
 
-        disp1 = c1.get_dispdef(glpane)
-        disp2 = c2.get_dispdef(glpane)
         eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
         matprefs = drawing_globals.glprefs.materialprefs_summary()
 
-        havelist_data = (disp1, disp2, eltprefs, matprefs, drawLevel)
-            # note: havelist_data must be boolean true
+        if 0:
+            # this is related to what we ought to do:
+            disp1 = c1.get_dispdef(glpane)
+            disp2 = c2.get_dispdef(glpane)
+            # todo: and both chunk colors too?
+            havelist_data = (disp1, disp2, eltprefs, matprefs, drawLevel)
+        else:
+            # but this is what we actually do for now (see KLUGE comment above)
+            # [bruce 090217]
+            if color is not None:
+                color = tuple(color)
+                    # be sure it's not a Numeric array (so we can avoid bug
+                    # for '==' without having to use same_vals)
+            havelist_data = (disp, color, eltprefs, matprefs, drawLevel)
+        
+        # note: havelist_data must be boolean true
 
         # note: in the following, the only difference from the chunk case is:
+        # missing:
         # - extra_displists
         # - some exception protection
+        # different:
         # - c1.picked and c2.picked (two places)
         # - args to _draw_for_main_display_list
         # - comments
         # - some error message text
+        # - maybe, disp and color
         
         if self.havelist == havelist_data:
             # self.displist is still valid -- use it
@@ -206,7 +241,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             # invalid operation.
             try:
                 self._draw_for_main_display_list(
-                    glpane, disp1, disp2, drawLevel,
+                    glpane, disp, color, drawLevel,
                     wantlist )
             except:
                 msg = "exception in ExternalBondSet._draw_for_main_display_list ignored"
@@ -225,9 +260,20 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
 
         return
     
-    def _draw_for_main_display_list(self, glpane, disp1, disp2, drawLevel, wantlist): #bruce 090213, working stub
-        disp = disp1 #### guess: if they differ, draw it twice, or choose max, or treat halves differently
-        color = None #### guess: might be needed for override if highlighting, but better to optim that somehow
+    def _draw_for_main_display_list(self, glpane, disp, color, drawLevel, wantlist):
+        """
+        Draw graphics primitives into the display list (actually CSDL)
+        set up by the caller. (For now, there is only one display list,
+        which contains all our drawing under all conditions.)
+        """
+        #bruce 090213, revised 090217
+
+        # todo: let caller pass (disp, color) pair for each chunk,
+        # reorder atoms in each bond to correspond to that order
+        # (easy if we always use chunk id sorting for that),
+        # and draw things in a sensible way given both (disp, color) pairs.
+        # This is mainly waiting for that "sensible way" to be designed. 
+        
         for bond in self._ebset._bonds.itervalues():
             bond.draw(glpane, disp, color, drawLevel)
         return
