@@ -194,9 +194,8 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 wantlist = True
 
             if wantlist:
-                print "Regenerating display list for %r (%d)" % \
-                      (self, env.redraw_counter)
-                       ##### remove when works and tested
+                # print "Regenerating display list for %r (%d)" % \
+                #       (self, env.redraw_counter)
                 match_checking_code = self.begin_tracking_usage()
                 ColorSorter.start(self.displist, c1.picked and c2.picked)
                     # not sure whether picked arg needed
@@ -227,7 +226,6 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         return
     
     def _draw_for_main_display_list(self, glpane, disp1, disp2, drawLevel, wantlist): #bruce 090213, working stub
-        print "_draw_for_main_display_list in %r (%d)" % (self, env.redraw_counter) #####
         disp = disp1 #### guess: if they differ, draw it twice, or choose max, or treat halves differently
         color = None #### guess: might be needed for override if highlighting, but better to optim that somehow
         for bond in self._ebset._bonds.itervalues():
