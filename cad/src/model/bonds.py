@@ -1392,7 +1392,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         
         # older note: _changed_bond_and_atom_appearances is an alias
         # for this method -- that will need revision for ExternalBondSet.
-        #### REVIEW: is that really true? I don't see why. Ah. maybe for
+        ### REVIEW: is that really true? I don't see why. Ah. maybe for
         # external bonds, we also need to call both changeapps... my guess is
         # we already do (since we only added calls to this method for them now,
         # we didn't remove any changeapps when adding it and they would
@@ -1616,7 +1616,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         # so I'm removing the explicit resets of havelist here, which were often
         # more than needed since they hit both mols of external bonds.
         # This change might speed up some redraws, esp. in move or deposit modes.
-        # update, bruce 090211: #### REVIEW -- still true?
+        # update, bruce 090211: ### REVIEW -- still true?
 
         # new feature, bruce 080214:
         atom1 = self.atom1

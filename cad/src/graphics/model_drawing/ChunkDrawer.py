@@ -225,14 +225,19 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         The correct GL context must be current whenever this method is called.
         """
         #bruce 090212 revised docstring
-        ####REVIEW: is glpane argument used, aside from setting self.glpane?
-        # is self.glpane used (after we set it initially)?
-        # is any other way of finding the glpane used?)
         
-        # piotr 080331 moved this assignment before visibility 
-        # and frustum culling tests 
+        # review:
+        # - is glpane argument used, aside from setting self.glpane? [yes.]
+        # - is self.glpane used in this method (after we set it initially)?
+        #   [yes, at least in a submethod.]
+        # - (regarding self.glpane uses after this method returns, see below.)
+        # - is any other way of finding the glpane used?
+        # someday, clean up everything related to the glpane arg and self.glpane
+        # (or effectively supersede them by using GraphicsRules).
+        
         self.glpane = glpane # needed, see below 
-            #### REVIEW (not urgent): is self.glpane needed here or in self._chunk or both? [bruce 090212]
+            ### review (not urgent): during this method, or after it returns,
+            # is self.glpane needed here or in self._chunk or both? [bruce 090212]
             #
             # known reasons self.glpane might be needed in one or the other class:
             # - for the edit method - Mark [2004-10-13]
@@ -253,9 +258,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # in a profile and optimize it.
         
         if not self._chunk.atoms:
-            # do nothing for a Chunk without any atoms
-            # [to fix bugs -- Huaicai 09/30/04]
-            # (moved before frustum test, bruce 080411)
             return
 
         # Indicate overlapping atoms, if that pref is enabled.
@@ -298,11 +300,10 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # self._chunk coord system has not changed by the time we're done:
         should_not_change = ( + self._chunk.basecenter, + self._chunk.quat )
 
-    ####### WARNING: DUPLICATED CODE: following was recently copied into TransformedDisplayListsDrawer,
-    # then generalized; chunk comments left in so it's easy to see what was grabbed.
-    # Soon we'll make the copied code a common superclass, but first we need
-    # to turn this mixin class into a separate cooperating object for Chunk. [bruce 090211 comment]
-    #######
+        ### WARNING: DUPLICATED CODE: much of the remaining code in this method
+        # is very similar to ExternalBondSetDrawer.draw. Ideally the common
+        # parts would be moved into our common superclass,
+        # TransformedDisplayListsDrawer. [bruce 090211/090217 comment]
 
         #bruce 050804 (probably not needed at that time due to glpane code
         #  in changeapp) / 090212 (probably needed now):
@@ -347,10 +348,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
             try: # do our glPopMatrix no matter what
                 self._chunk.applyMatrix()
-
-## non-duplicated code interlude starts here
                 
-    ##            delegate_selection_wireframe = False
+                ##delegate_selection_wireframe = False
                 delegate_draw_atoms = False
                 delegate_draw_chunk = False
                 hd = None
@@ -364,14 +363,12 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     # we delegate those tasks to it
                     if hd:
                         chunk_only = hd.chunk_only
-    ##                    delegate_selection_wireframe = chunk_only
+                        ##delegate_selection_wireframe = chunk_only
                         delegate_draw_atoms = chunk_only
                         delegate_draw_chunk = chunk_only
                             #e maybe later, we'll let hd tell us each of these,
                             # based on the chunk state.
                     pass
-
-## non-duplicated code interlude ends here
                 
                 #bruce 060608 moved drawing of selection wireframe from here to
                 # after the new increment of _havelist_inval_counter
@@ -472,9 +469,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                         # so it doesn't keep happening with every redraw of this Chunk.
                         #e (in future it might be safer to remake the display list to contain
                         # only a known-safe thing, like a bbox and an indicator of the bug.)
-
-    ####### DUPLICATED CODE ends here [090211 comment, code was copied earlier]
-    #######
 
                     # draw the extra_displists (only needed if wantlist? not sure, so do always;
                     #  guess: there will be none of them unless wantlist is set, so it doesn't matter)

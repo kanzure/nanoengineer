@@ -96,9 +96,12 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
 
             return
 
-        ##### note: does not yet ever call superclass TransformedDisplayListsDrawer.draw, as of before 090211
+        ### note: never calls superclass TransformedDisplayListsDrawer.draw,
+        # as of before 090211
 
-        # DUPLICATED CODE WARNING: the following is similar in many ways to ChunkDrawer.draw.
+        ### DUPLICATED CODE WARNING:
+        # the following is similar in many ways to ChunkDrawer.draw.
+        # See related comment there.
 
         del disp, color #### REVIEW, esp when highlighted
         
@@ -193,7 +196,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             if wantlist:
                 print "Regenerating display list for %r (%d)" % \
                       (self, env.redraw_counter)
-                       ##### remove when works
+                       ##### remove when works and tested
                 match_checking_code = self.begin_tracking_usage()
                 ColorSorter.start(self.displist, c1.picked and c2.picked)
                     # not sure whether picked arg needed
@@ -203,7 +206,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             # of a matching glEndList) in which any subsequent glNewList is an
             # invalid operation.
             try:
-                self._draw_for_main_display_list( #### IMPLEM #k args?
+                self._draw_for_main_display_list(
                     glpane, disp1, disp2, drawLevel,
                     wantlist )
             except:
@@ -223,8 +226,8 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
 
         return
     
-    def _draw_for_main_display_list(self, glpane, disp1, disp2, drawLevel, wantlist): #bruce 090213, working stub ###untested
-        print "_draw_for_main_display_list in %r (%d)" % (self, env.redraw_counter) ####
+    def _draw_for_main_display_list(self, glpane, disp1, disp2, drawLevel, wantlist): #bruce 090213, working stub
+        print "_draw_for_main_display_list in %r (%d)" % (self, env.redraw_counter) #####
         disp = disp1 #### guess: if they differ, draw it twice, or choose max, or treat halves differently
         color = None #### guess: might be needed for override if highlighting, but better to optim that somehow
         for bond in self._ebset._bonds.itervalues():

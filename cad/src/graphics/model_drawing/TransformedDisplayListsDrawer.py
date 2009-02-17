@@ -3,10 +3,11 @@
 TransformedDisplayListsDrawer.py - abstract class for something that draws
 using display lists which it caches under a local coordinate system.
 
-Note: as of 090203 this is mostly a scratch file...
-but as of 090213 I'm using it for ChunkDrawer superclass ans
-starting to fill it in with code that might share with ExternalBondSetDrawer
-(who already inherits it but not yet to any effect)... #####
+Note: as of 090213-17 this contains common code which is used, though
+the "transformed" aspects are still not implemented or not used,
+and there is still a lot of potential common code in the subclasses
+(mainly in the draw method) not yet in this superclass since highly
+nontrivial to refactor.
 
 @author: Bruce
 @version: $Id$
@@ -20,7 +21,7 @@ This code relates to:
   (needed by vertex arrays in CSDLs, not by pure OpenGL display lists)
 - usage/change tracking related to display list contents
 
-TODO: unify similar code in three places: here, ChunkDrawer, ExtraChunkDisplayList. ####
+TODO: unify similar code in three places: here, ChunkDrawer, ExtraChunkDisplayList. ###
 """
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_True
@@ -47,15 +48,20 @@ class TransformedDisplayListsDrawer(object,
      and when to invalidate the display lists beyond when usage tracking
      does so.)
     """
-    if 0: # just to not execute this until it's ready
-        # we'll need these attrs, or revised code:
-        assy # for drawLevel
-        glname # if there is a "whole-chunk" one for all our primitives
-        get_dispdef # method in subclass -- not in the API?? maybe it is if it's "get cache key and style args" ####
-        1 or is_chunk_visible # ???
-        applyMatrix
-        # not get_display_mode_handler, delegate_*, hd, chunk_only --
-        # that is handled outside by choosing the right rule (this class)
+    # todo (someday): might be partly obs as of 090217;
+    # OTOH some of it doesn't apply yet until ExternalBondSetDrawer
+    # handles transforms (to optimize drag):
+    #
+    # to pull in more of the subclass draw methods,
+    # we'd need the following attrs, or revised code:
+    # - assy # for drawLevel
+    # - glname # if there is a "whole-chunk" one for all our primitives
+    # - get_dispdef # method in subclass -- not in the API?? maybe it is if
+    #   it's "get cache key and style args" ###
+    # - is_chunk_visible # ???
+    # - applyMatrix
+    # but not get_display_mode_handler, delegate_*, hd, chunk_only --
+    # that is handled outside by choosing the right rule (this class)
 
     _havelist_inval_counter = 0 # see also self.havelist
     
@@ -87,9 +93,9 @@ class TransformedDisplayListsDrawer(object,
 
     # ======
     
-    ##### note: many following methods were moved here from our subclass Chunk
+    #### note: many following methods were moved here from our subclass Chunk
     # by bruce 090213, but their docstrings and comments are mostly not yet
-    # updated for that move. #####
+    # updated for that move.
     
     def invalidate_display_lists(self): #bruce 050804, revised 090212
         """
@@ -337,8 +343,6 @@ class TransformedDisplayListsDrawer(object,
             # this, see my 090114 comments in ColorSorter.py (summary: it is
             # almost but not quite possible to remove it now).
         return
-
-    ##### review: need is_visible?
     
     # =====
 
@@ -346,7 +350,7 @@ class TransformedDisplayListsDrawer(object,
         
         raise Exception("subclass must implement")
 
-        # In future, we'll either have a real draw method here,
+        # someday, we'll either have a real draw method here,
         # or at least some significant helper methods for it.
     
     pass # end of class
