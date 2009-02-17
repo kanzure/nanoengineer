@@ -30,7 +30,6 @@ from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     # and chunks can know when they need to inval that because something drawn into it
     # would draw differently due to a change in some graphics pref it used
 
-from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.ColorSorter import ColorSortedDisplayList # not yet used?
 
 # ==
@@ -52,7 +51,6 @@ class TransformedDisplayListsDrawer(object,
         # we'll need these attrs, or revised code:
         assy # for drawLevel
         glname # if there is a "whole-chunk" one for all our primitives
-        track_use # method from superclass
         get_dispdef # method in subclass -- not in the API?? maybe it is if it's "get cache key and style args" ####
         1 or is_chunk_visible # ???
         applyMatrix
@@ -64,6 +62,8 @@ class TransformedDisplayListsDrawer(object,
     # there is no class default for displist; see __get_displist.
 
     glpane = None
+
+    havelist = 0
 
     def __init__(self):
         # note: self.displist is allocated on demand by __get_displist 
@@ -98,6 +98,13 @@ class TransformedDisplayListsDrawer(object,
         self.track_inval()
         #### REVIEW: all comments about track_inval, havelist, changeapp,
         # and whether the old code did indeed do changeapp and thus gl_update_something.
+
+        # note: as of 090216, in our subclass ExternalBondSetDrawer, this is
+        # called at least once per external bond (rung bond) when dna is being
+        # rigidly dragged. Once TransformNode works well enough, it won't be
+        # called at all for rigid drag. (It will still be called often in some
+        # other cases, so it ought to be fast.)
+        
         return
 
     # == Methods relating to our main OpenGL display list (or CSDL),
@@ -208,6 +215,8 @@ class TransformedDisplayListsDrawer(object,
                 # this del is necessary, so __get_displist will allocate another
                 # display list when next called (e.g. if a killed chunk is revived by Undo)
             self.havelist = 0
+            self._havelist_inval_counter += 1 # precaution, need not analyzed
+            
             ## REVIEWED: this self.glpane = None seems suspicious,
             # but removing it could mess up _gl_context_if_any
             # if that needs to return None, but the docstring of that
@@ -324,32 +333,12 @@ class TransformedDisplayListsDrawer(object,
     # =====
 
     def draw(self, glpane):
-        self.glpane = glpane # see comments in ChunkDrawer.py (still there?? ###)
         
-        
-        assert 0 #### note: never yet called as of before 090211 (not even when debug_prefs are set)
+        raise Exception("subclass must implement")
 
-        
-####### WARNING: DUPLICATED CODE: following is grabbed from ChunkDrawer.draw,
-# then generalized; chunk comments left in so it's easy to see what was grabbed.
-# When this class is ready, Chunk itself should be modified to use it.
-        
-        
-# [dup code removed for now]
-
-
-###### DUPLICATED CODE ends here [090211 comment, code was copied earlier]
-
-                        ####### more, at various indent levels?
-                        ####### todo: if this survives, split interior into separate methods to clarify.
-
-##                        pass
-##                    pass
-##                pass
-##            except:
-##                xxx
-##            pass
-        return # from draw
+        # In future, we'll either have a real draw method here,
+        # or at least some significant helper methods for it.
+    
     pass # end of class
 
 # end

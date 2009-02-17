@@ -82,7 +82,6 @@ import foundation.env as env
 from graphics.display_styles.displaymodes import get_display_mode_handler
 
 from graphics.drawing.ColorSorter import ColorSorter
-from graphics.drawing.ColorSorter import ColorSortedDisplayList
 
 ##from drawer import drawlinelist
 
@@ -319,8 +318,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             #  havelist instead, which avoids some unneeded redrawing, e.g. if
             #  pref changed and changed back while displaying a different Part.
             #  [bruce 060215])
-            # update, bruce 080930: that point is probably moot, since
-            #  drawLevel is part of havelist.
 
         disp = self._chunk.get_dispdef(glpane)
 
@@ -397,9 +394,11 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
                 eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
                 matprefs = drawing_globals.glprefs.materialprefs_summary() #bruce 051126
-                #bruce 060215 adding drawLevel to havelist
-                if self.havelist == (disp, eltprefs, matprefs, drawLevel): 
-                    # (note: value must agree with set of havelist, below)
+                havelist_data = (disp, eltprefs, matprefs, drawLevel)
+                    # note: havelist_data must be boolean true
+                    #bruce 060215 adding drawLevel to havelist
+                
+                if self.havelist == havelist_data: 
                     # self.displist is still valid -- use it.
                     # Russ 081128: Switch from draw_dl() [now removed] to draw() with selection arg.
                     self.displist.draw(selected = self._chunk.picked)
@@ -433,6 +432,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     try:
                         wantlist = not env.mainwindow().movie_is_playing #bruce 051209
                             # warning: use of env.mainwindow is a KLUGE
+                            #### REVIEW: is this a speedup (as intended) or a slowdown?
                     except:
                         print_compact_traceback("exception (a bug) ignored: ")
                         wantlist = True
@@ -448,27 +448,23 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     # bruce 041028 -- protect against exceptions while making display
                     # list, or OpenGL will be left in an unusable state (due to the lack
                     # of a matching glEndList) in which any subsequent glNewList is an
-                    # invalid operation. (Also done in shape.py; not needed in drawer.py.)
+                    # invalid operation.
                     try:
                         self._draw_for_main_display_list(
                             glpane, disp,
                             (hd, delegate_draw_atoms, delegate_draw_chunk),
                             wantlist)
                     except:
-                        print_compact_traceback("exception in Chunk._draw_for_main_display_list ignored: ")
+                        msg = "exception in Chunk._draw_for_main_display_list ignored"
+                        print_compact_traceback(msg + ": ")
 
                     if wantlist:
                         ColorSorter.finish()
                         #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
 
                         self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
-                        # This is the only place where havelist is set to anything true;
-                        # the value it's set to must match the value it's compared with, above.
-                        # [bruce 050415 revised what it's set to/compared with; details above]
-                        self.havelist = (disp, eltprefs, matprefs, drawLevel)
-                        assert self.havelist, (
-                            "bug: havelist must be set to a true value here, not %r"
-                            % (self.havelist,))
+                        self.havelist = havelist_data
+                        
                         # always set the self.havelist flag, even if exception happened,
                         # so it doesn't keep happening with every redraw of this Chunk.
                         #e (in future it might be safer to remake the display list to contain

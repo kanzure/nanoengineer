@@ -1375,20 +1375,29 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     def _changed_bond_appearance(self): #bruce 080210
         """
         [private]
-        Self's appearance might have changed, but not that of its atoms.
-        Do necessary invals of chunk display lists.
+        Self's appearance might have changed, but not necessarily that
+        of its atoms. Do necessary invals of chunk and/or ExternalBondSet
+        display lists.
         """
         mol1 = self.atom1.molecule
-        if mol1 is self.atom2.molecule:
+        mol2 = self.atom2.molecule
+        if mol1 is mol2:
             # internal bond: we're in our chunk's display list,
             # so it needs to know we'll look different when redrawn
             mol1.changeapp(0)
-        # otherwise we're not in any chunk's display list
-        # (since we're an external bond).
-        # todo: gl_update in some cases?
-        # todo: something new when we're using ExternalBondSet?
-        # note that now, _changed_bond_and_atom_appearances is an alias
-        # for this method -- that will need revision then.
+        else:
+            # external bond
+            mol1.invalidate_ExternalBondSet_display_for( mol2)
+        # note: both of those do gl_update if needed
+        
+        # older note: _changed_bond_and_atom_appearances is an alias
+        # for this method -- that will need revision for ExternalBondSet.
+        #### REVIEW: is that really true? I don't see why. Ah. maybe for
+        # external bonds, we also need to call both changeapps... my guess is
+        # we already do (since we only added calls to this method for them now,
+        # we didn't remove any changeapps when adding it and they would
+        # already have been needed), but analyze this sometime. [bruce 090213]
+        
         return
 
     def _changed_atom_appearances(self): #bruce 080210 split this out

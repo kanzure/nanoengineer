@@ -51,14 +51,22 @@ class ExternalBondSet(object):
         self.chunks = (chunk1, chunk2) # note: not private
             # note: our chunks are also called "our nodes",
             # since some of this code would work for them being any TransformNodes
-        # todo: rename: _f_invalid, _f_bonds
+        # maybe todo: rename: _f_bonds
         self._bonds = {}
-        self._invalid = True # since we have no display list for drawing
         self._drawer = ExternalBondSetDrawer(self) 
             # review: make on demand? GL context not current now...
-            # hopefully ok, since it will only makes it DL on demand by .draw.
+            # hopefully ok, since it will only make DL on demand during .draw.
         return
 
+    def __repr__(self):
+        res = "<%s at %#x with %d bonds for %r>" % \
+              (self.__class__.__name__.split('.')[-1],
+               id(self),
+               len(self._bonds),
+               self.chunks # this is () if self is destroyed
+              )
+        return res
+    
     def is_currently_bridging_dynamic_transforms(self):
         """
         @return: whether not all of our nodes share the same dynamic
@@ -107,7 +115,7 @@ class ExternalBondSet(object):
         # removed for speed: assert self._correct_bond(bond)
         if not self._bonds.has_key(id(bond)):
             # test is to avoid needless invalidation (important optim)
-            self._invalid = True
+            self.invalidate_display_lists()
             self._bonds[id(bond)] = bond
             if _DEBUG_EBSET:
                 print "added bond %r to %r" % (bond, self)
@@ -128,7 +136,7 @@ class ExternalBondSet(object):
             if not self._correct_bond(bond):
                 bad.append(bond)
         if bad:
-            self._invalid = True # REVIEW: do more, in a method?
+            self.invalidate_display_lists()
             for bond in bad:
                 del self._bonds[id(bond)]
                 if _DEBUG_EBSET:
@@ -178,15 +186,6 @@ class ExternalBondSet(object):
         self._bonds = () # make len() still work
         ### TODO: other deallocations, e.g. of display lists
         return
-
-    def __repr__(self):
-        res = "<%s at %#x with %d bonds for %r>" % \
-              (self.__class__.__name__.split('.')[-1],
-               id(self),
-               len(self._bonds),
-               self.chunks # this is () if self is destroyed
-              )
-        return res
 
     # ==
 

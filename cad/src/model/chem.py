@@ -2642,9 +2642,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # so: do we need to invalidate the bonds? No, they don't store display
         # info, and the geometry related to bond.setup_invalidate has not changed.
         # What about the chunks on both ends of the bonds? The changeapp() handles
-        # that for internal bonds, and external bonds are redrawn every time so
-        # no invals are needed if their appearance changes.
-        
+        # that for internal bonds. Before 090213: external bonds are redrawn
+        # every time so no invals are needed if their appearance changes.
+        # After 090213 (roughly), we need to invalidate external bond appearance.
+
+        self._changed_external_bond_appearance() #bruce 090213
         return
 
     def revise_atom_content(self, old, new): #bruce 080306/080307
@@ -4511,8 +4513,23 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # (see comment at _changed_structure_Atoms about how these two dicts are related)
         self._f_valid_neighbor_geom = False
         self._f_checks_neighbor_geom = (self.element.role == 'axis')
+        self._changed_external_bond_appearance() # precaution, need not analyzed [bruce 090213]
         return
 
+    def _changed_external_bond_appearance(self): #bruce 090213
+        """
+        If self has external bonds, invalidate their appearance.
+        """
+        # (Could be optimized by knowing which atoms have external bonds,
+        #  and in other ways. Some calls may be redundant, or may make other
+        #  invalidations of ExternalBondSet display redundant.)
+        mychunk = self.molecule
+        for bond in self.bonds:
+            otherchunk = bond.other_chunk(mychunk)
+            if otherchunk is not mychunk:
+                mychunk.invalidate_ExternalBondSet_display_for( otherchunk)
+        return
+    
     def _f_changed_some_bond_direction(self): #bruce 080210
         """
         [friend method]
