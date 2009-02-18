@@ -65,7 +65,6 @@ from OpenGL.GL import glBlendFunc
 from OpenGL.GL import glCallList
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import GL_COMPILE
-from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glDepthMask
 from OpenGL.GL import glDisable
@@ -112,7 +111,6 @@ from graphics.drawing.CS_workers import drawsurface_worker
 from graphics.drawing.CS_workers import drawwiresphere_worker
 from graphics.drawing.CS_workers import drawtriangle_strip_worker
 from graphics.drawing.gl_lighting import apply_material
-from graphics.drawing.TransformControl import TransformControl
 
 # ==
 
@@ -213,11 +211,12 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # code for details. This hangs NE1 now, so it's commented out.
         ## self.deallocate_displists()
 
-        # Unregister the CSDL from its TransformControl, breaking the Python
+        # Unregister self from its TransformControl, breaking the Python
         # reference cycle so the CSDL can be reclaimed.
         if self.transformControl is not None:
             try:
-                transformControl.removeCSDL(self.csdl_id)
+                self.transformControl.removeCSDL(self)
+                    #bruce 090218 fixed two bugs in this line; untested either way
             except:
                 global _warned_del
                 if not _warned_del:
