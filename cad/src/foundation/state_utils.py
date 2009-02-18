@@ -2174,7 +2174,7 @@ class obj_classifier:
 
 # ==
 
-class InstanceLike(object): #bruce 090206; remove 'object' to make it safer (more like old code) ####
+class InstanceLike(object):
     """
     Common superclass for classes whose instances should be considered
     "instancelike" by same_vals, copy_val, scan_vals, is_mutable, and Undo
@@ -2184,6 +2184,9 @@ class InstanceLike(object): #bruce 090206; remove 'object' to make it safer (mor
     (Where old code checked type(obj) == InstanceType, new code can check
      isinstance(obj, InstanceLike), so it works for new-style classes.)
     """
+    #bruce 090206; adding 'object' makes Atom, Bond, and all Nodes
+    # new-style classes, which seems to work, so it's being retained;
+    # some newer code depends on this now.
     pass
 
 class IdentityCopyMixin(InstanceLike): # by EricM
