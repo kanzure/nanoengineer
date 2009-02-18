@@ -247,8 +247,19 @@ class GLPane_highlighting_methods(object):
                     if debugPicking:
                         print "shader mouseover glname=%r, obj=%r." % (glname, obj)
                     if obj is None:
-                        # REVIEW: does this happen for mouse over a non-shader primitive? [bruce 090105 question]
-                        print "bug: object_for_glselect_name returns None for glname %r." % glname
+                        # REVIEW: does this happen for mouse over a non-shader primitive?
+                        # [bruce 090105 question]
+
+                        #### Note: this bug is common. Guess: we are still drawing
+                        # ordinary colors for some primitives and/or for the
+                        # background, and they are showing up here and confusing
+                        # us. To help debug this, print the color too. But testing
+                        # shows it's not so simple -- e.g. for rung bonds it happens
+                        # where shader sphere and cylinder overlap, but not on either
+                        # one alone; for strand bonds it also happens on the bonds alone
+                        # (tested in Build DNA, in or not in Insert DNA).
+                        # [bruce 090218]
+                        print "bug: object_for_glselect_name returns None for glname %r (color %r)" % (glname, bytes)
                     else:
                         self.glselect_dict[id(obj)] = obj
                         pass
