@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 part.py -- class Part, for all chunks and jigs in a single physical space,
 together with their selection state and grouping structure (shown in the
 model tree).
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 see assembly.py docstring, some of which is really about this module. ###@@@ revise
 
@@ -37,41 +37,44 @@ bruce 050513 replaced some == with 'is' and != with 'is not',
 to avoid __getattr__ on __xxx__ attrs in python objects.
 """
 
-from OpenGL.GL import GL_LIGHTING
-from OpenGL.GL import glDisable
-from OpenGL.GL import GL_DEPTH_TEST
-from OpenGL.GL import glPushMatrix
-from OpenGL.GL import glPopMatrix
-from OpenGL.GL import glEnable
+from utilities import debug_flags
 
-from PyQt4.Qt import Qt
-from PyQt4.Qt import QFont, QString
+from utilities.debug import print_compact_traceback, print_compact_stack
+from utilities.Log import redmsg
+
+from utilities.constants import diINVISIBLE
+from utilities.constants import diDEFAULT
+from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
+
+from utilities.prefs_constants import levelOfDetail_prefs_key
+from utilities.prefs_constants import startup_GLPane_scale_prefs_key
+from utilities.prefs_constants import indicateOverlappingAtoms_prefs_key
+
+
+from geometry.VQT import V, Q
+from geometry.BoundingBox import BBox
+from geometry.NeighborhoodGenerator import NeighborhoodGenerator
+
 
 from foundation.Utility import Node
 from foundation.Group import Group
-
 from foundation.Assembly_API import Assembly_API
-
-from model.NamedView import NamedView
-from geometry.VQT import V, Q
-from utilities.debug import print_compact_traceback, print_compact_stack
-from utilities import debug_flags
-
-from utilities.Log import greenmsg, redmsg
-from geometry.BoundingBox import BBox
-
-from model.chunk import Chunk
-from model.jigs import Jig
 from foundation.node_indices import fix_one_or_complain
-
-from geometry.NeighborhoodGenerator import NeighborhoodGenerator
-
-from utilities.constants import diINVISIBLE
+from foundation.inval import InvalMixin
+from foundation.state_utils import StateMixin
+from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
 
 import foundation.env as env
 
-from foundation.inval import InvalMixin
-from foundation.state_utils import StateMixin
+
+from graphics.model_drawing.PartDrawer import PartDrawer
+
+
+from model.NamedView import NamedView
+from model.chunk import Chunk
+from model.jigs import Jig
+
+
 from operations.jigmakers_Mixin import jigmakers_Mixin
 from operations.ops_atoms import ops_atoms_Mixin
 from operations.ops_connected import ops_connected_Mixin
@@ -80,16 +83,10 @@ from operations.ops_motion import ops_motion_Mixin
 from operations.ops_rechunk import ops_rechunk_Mixin
 from operations.ops_select import ops_select_Mixin
 
-from dna.operations.ops_pam import ops_pam_Mixin #bruce 080413
 
-from utilities.constants import diDEFAULT
-from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
-from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
-from utilities.prefs_constants import levelOfDetail_prefs_key
-from utilities.prefs_constants import startup_GLPane_scale_prefs_key
-from utilities.prefs_constants import indicateOverlappingAtoms_prefs_key
+from dna.operations.ops_pam import ops_pam_Mixin
 
-from model.Line import Line
+# ==
 
 # number of atoms for detail level 0
 HUGE_MODEL = 40000
@@ -100,9 +97,58 @@ debug_parts = False # set this to True in a debugger, to enable some print state
 
 debug_1855 = False # DO NOT COMMIT WITH TRUE [bruce 060415]
 
+# ==
+
+#### NOT YET USED:
+
+class Part_drawing_frame_superclass: #bruce 090218 refactoring; todo: rename
+    # semi-obs comment:
+    # repeated_bonds_dict is a dict during calls of self.draw,
+    # but is intentionally not a dict outside of those calls,
+    # so that erroneous use of it is noticed as an error.
+    # For intended use, see comments where it's used. [bruce 070928]
+    # (Update, 080411: at least one use, in Chunk._draw_external_bonds,
+    #  silently tolerates its being None.)
+    repeated_bonds_dict = None
+
+    # These are for implementing optional indicators about overlapping atoms.
+    _f_state_for_indicate_overlapping_atoms = None
+    indicate_overlapping_atoms = False
+
+    pass
+
+class Part_drawing_frame(Part_drawing_frame_superclass):
+    """
+    One of these is created whenever drawing all or part of a Part,
+    once per "drawing frame" (e.g. call of Part.draw()).
+
+    It holds attributes needed during a single draw call
+    (or, a draw of a portion of the model).
+
+    For more info, see docstring of Part.before_drawing_model.
+    """
+    def __init__(self):
+        self.repeated_bonds_dict = {}
+    pass
+
+class fake_Part_drawing_frame(Part_drawing_frame_superclass):
+    """
+    Use one of these "in between draw calls" to avoid or mitigate bugs.
+    """
+    # todo: print a warning whenever our methods/attrs are used,
+    # or create self on demand and print a warning then.
+    def __init__(self):
+        self.repeated_bonds_dict = {} ####k
+    pass
+    
+        
+# == 
+
 class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             ops_atoms_Mixin, ops_pam_Mixin, ops_connected_Mixin, ops_copy_Mixin,
-            ops_motion_Mixin, ops_rechunk_Mixin, ops_select_Mixin
+            ops_motion_Mixin, ops_rechunk_Mixin, ops_select_Mixin,
+            Part_drawing_frame_superclass, #### TEMPORARY KLUGE
+            object # fyi; redundant with InstanceLike inherited via StateMixin
             ):
     """
     One Part object is created to hold any set of chunks and jigs whose
@@ -124,6 +170,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # rather than autogenerating another name.
         # It would also be useful if there was a Part Tree Widget...
     alive = False # set to True at end of __init__, and again to False if we're destroyed(??#k)
+    _drawer = None
 
     # state decls (for attrs set in __init__) [bruce 060224]
     _s_attr_name = S_DATA
@@ -137,27 +184,6 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     _s_attr_ppa3 = S_REF
     _s_attr_ppm = S_REF
     _s_attr_alive = S_DATA # needed since the part can be destroyed, which sets alive to False
-
-    # default values of instance variables:
-
-    # variables which are effectively part of a "model_draw_frame"
-    # (and ought to be moved into a class for that which we own one of here):
-    # - repeated_bonds_dict
-    # - indicate_overlapping_atoms
-    # - _f_state_for_indicate_overlapping_atoms
-
-    # repeated_bonds_dict is a dict during calls of self.draw,
-    # but is intentionally not a dict outside of those calls,
-    # so that erroneous use of it is noticed as an error.
-    # For intended use, see comments where it's used. [bruce 070928]
-    # (Update, 080411: at least one use, in Chunk._draw_external_bonds,
-    #  silently tolerates its being None.)
-    repeated_bonds_dict = None
-
-    # These are for implementing optional indicators about overlapping atoms.
-    _f_state_for_indicate_overlapping_atoms = None
-    indicate_overlapping_atoms = False
-
 
     def _undo_update_always(self): #bruce 060224
         """
@@ -268,6 +294,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
         self.alive = True # we're not yet destroyed
 
+        self._drawer = PartDrawer(self) #bruce 090218 refactoring
+
         if debug_parts:
             print "debug_parts: fyi: created Part:", self
 
@@ -337,7 +365,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         node.part = node.prior_part = self
             #bruce 050527 comment: I hope and guess this is the only place node.part is set to anything except None; need to check ###k
         self.nodecount += 1
-        if isinstance(node, Chunk): #####@@@@@ #e better if we let the node add itself to our stats and lists, i think...
+        if isinstance(node, Chunk): ###@@@ #e better if we let the node add itself to our stats and lists, i think...
             self.invalidate_attrs(['molecules'], skip = ['natoms']) # this also invals bbox, center
                 #e or we could append node to self.molecules... but I doubt that's worthwhile ###@@@
             self.adjust_natoms( len(node.atoms))
@@ -359,7 +387,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         node.unpick() # this maintains selmols if necessary
         if isinstance(node, Chunk):
             # need to unpick the atoms? [would be better to let the node itself have a method for this]
-            # (#####@@@@@ fix atom.unpick to not remake selatoms if missing, or to let this part maintain it)
+            ###@@@ (fix atom.unpick to not remake selatoms if missing, or to let this part maintain it)
             if (not self.__dict__.has_key('selatoms')) or self.selatoms:
                 for atm in node.atoms.itervalues():
                     atm.unpick(filtered = False)
@@ -400,7 +428,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         """
         forget enough to prevent memory leaks; only valid if we have no nodes left; MUST NOT forget views!
         WARNING [060322]: This doesn't follow the semantics of other destroy methods; in particular, destroyed Parts might be revived
-        later by Undo. This should be fixed by renaming this method (perhaps to kill), so we can add a real destroy method. ####@@@@
+        later by Undo. This should be fixed by renaming this method (perhaps to kill), so we can add a real destroy method. ###@@@
         """
         #bruce 050527 added requirement (already true in current implem) that this not forget views,
         # so node.prior_part needn't prevent destroy, but can be used to retrieve default initial views for node.
@@ -411,7 +439,10 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if self.assy and self.assy.o: #e someday change this to self.glpane??
             self.assy.o.forget_part(self) # just in case we're its current part
         ## self.invalidate_all_attrs() # not needed
-        self.alive = False # do this one first ####@@@@ see if this can help a Movie who knows us see if we're safe... [050420]
+        self.alive = False # do this one first ###@@@ see if this can help a Movie who knows us see if we're safe... [050420]
+        if self._drawer:
+            self._drawer.destroy()
+            del self._drawer
         if "be conservative for now, though memory leaks might result": #bruce 050428
             return
         # bruce 050428 removed the rest for now. In fact, even what we had was probably not enough to
@@ -464,7 +495,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # == compatibility methods
 
-    #####@@@@@ find and fix all sets of .tree or .root or .data (old name, should all be renamed now) or .viewdata (new name) or .shelf
+    ###@@@ find and fix all sets of .tree or .root or .data (old name, should all be renamed now) or .viewdata (new name) or .shelf
 
     def _get_tree(self): #k this would run for part.tree; does that ever happen?
         print_compact_stack("_get_tree is deprecated: ")
@@ -495,7 +526,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # and for now can keep doing that. Within the Part, perhaps we should
         # use a set_selwhat method if we need one, but for now we just assign
         # directly to self.assy.selwhat.
-    assy_attrs_temporary = ['changed'] # tolerable, but might be better to track per-part changes, esp. re movies #####@@@@@
+    assy_attrs_temporary = ['changed'] # tolerable, but might be better to track per-part changes, esp. re movies ###@@@
     assy_attrs_review = ['shelf', 'current_movie']
         #e in future, we'll split out our own methods for some of these, incl .changed
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat).
@@ -514,7 +545,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # == attributes which should be invalidated and recomputed as needed (both inval and recompute methods follow)
 
-    _inputs_for_molecules = [] # only invalidated directly #####@@@@@ need to do it in any other places too?
+    _inputs_for_molecules = [] # only invalidated directly ###@@@ need to do it in any other places too?
     def _recompute_molecules(self):
         """
         recompute self.molecules as a list of this part's chunks, IN ARBITRARY AND NONDETERMINISTIC ORDER.
@@ -782,7 +813,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # ==
 
-    _inputs_for_alist = [] # only invalidated directly. Not sure if we'll inval this whenever we should, or before uses. #####@@@@@
+    _inputs_for_alist = [] # only invalidated directly. Not sure if we'll inval this whenever we should, or before uses. ###@@@
     def _recompute_alist(self):
         """
         Recompute self.alist, a list of all atoms in this Part, in the same order in which they
@@ -1056,7 +1087,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self.after_drawing_model(error)
         return
 
-    def before_drawing_model(self): #bruce 070928
+    def before_drawing_model(self): #bruce 070928; #### TODO: use Part_drawing_frame
         """
         Whenever self's model, or part of it, is drawn,
         that should be bracketed by calls of self.before_drawing_model()
@@ -1065,7 +1096,20 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         but must be done explicitly if something draws a portion of
         self's model in some other way.
 
-        Nesting of these calls is not permitted and will cause bugs.
+        Specifically, the caller must do (in this order):
+        * call self.before_drawing_model()
+        
+        * call node.draw() (with proper arguments, and exception protection)
+          on some subset of the nodes of self (not drawing any node twice);
+          during these calls, reference can be made to self.repeated_bonds_dict
+          and self.indicate_overlapping_atoms
+          and self._f_state_for_indicate_overlapping_atoms
+        
+        * call self.after_drawing_model() (with proper arguments)
+
+        Nesting of these pairs of before_drawing_model/after_drawing_model calls
+        is not permitted and will cause bugs.
+        
         This API will need revision when the model can contain repeated parts,
         since each repetition will need to be bracketed by matched calls
         of before_drawing_model and after_drawing_model, but they will need
@@ -1076,7 +1120,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         self.repeated_bonds_dict = {}
             # This lets bonds avoid being drawn twice. It maps id(bond) to bond
             # for all bonds that might otherwise be drawn twice. It is public
-            # for use and modification by anything that draws bonds.
+            # for use and modification by anything that draws bonds, but only
+            # during a single draw call.
             #
             # Note that OpenGL drawing (draw methods) uses it only for external
             # bonds, but POV-Ray drawing (writepov methods) uses it for all
@@ -1143,24 +1188,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # caller catches exceptions, so we don't have to bother
         text = self.glpane_text()
         if text:
-            # code from GLPane.drawarrow
-            glDisable(GL_LIGHTING)
-            glDisable(GL_DEPTH_TEST)
-                # Note: disabling GL_DEPTH_TEST properly affects 2d renderText
-                # (as used here), but not 3d renderText. For more info see
-                # today's comments in Guides.py. [bruce 081204 comment]
-            glPushMatrix() # REVIEW: needed? [bruce 081204 question]
-            font = QFont(QString("Helvetica"), 24, QFont.Bold)
-            glpane.qglColor(Qt.red) # this needs to be impossible to miss -- not nice-looking!
-                #e tho it might be better to pick one of several bright colors
-                # by hashing the partname, so as to change the color when the part changes.
-            # this version of renderText uses window coords (0,0 at upper left)
-            # rather than model coords (but I'm not sure what point on the string-image
-            # we're setting the location of here -- guessing it's bottom-left corner):
-            glpane.renderText(25,40, QString(text), font)
-            glPopMatrix()
-            glEnable(GL_DEPTH_TEST)
-            glEnable(GL_LIGHTING)
+            #bruce 090218 refactored this
+            self._drawer.draw_text_label(glpane, text)
         return
 
     def glpane_text(self):
@@ -1215,20 +1244,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         self.topnode.apply2picked(lambda x: x.unhide())
         self.w.win_update()
 
-
     # ==
-
-
-    def createLine(self):
-        """
-        Create a line passing through the center of the selected atoms.
-        TODO: This feature is available only as a debug option as of 20070726.
-        The line generation options will be heavily revised after Command
-        Sequencer implementation.
-        """
-        # Insert a line
-        lst = self.getOnlyAtomsSelectedByUser()
-        line = Line(self.w, lst = lst)
 
     def place_new_geometry(self, plane):
         self.ensure_toplevel_group()
@@ -1303,7 +1319,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         n = 0
         for chunk in self.selmols:
             n += chunk.set_atoms_display(diDEFAULT)
-        if n: self.changed()
+        if n:
+            self.changed()
         return n
 
     def showInvisibleAtoms(self):
@@ -1315,7 +1332,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         n = 0
         for chunk in self.selmols:
             n += chunk.show_invisible_atoms()
-        if n: self.changed()
+        if n:
+            self.changed()
         return n
 
     ###e refile these new methods:
