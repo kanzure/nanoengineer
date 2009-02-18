@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPane_rendering_methods.py
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 bruce 080913 split this out of class GLPane
 """
@@ -665,8 +665,10 @@ class GLPane_rendering_methods(GLPane_image_methods):
             pass
 
         if (drawing_globals.use_batched_primitive_shaders_pref
-            and drawing_globals.use_cylinder_shaders_pref): #bruce 090218 bugfix
+            and drawing_globals.use_cylinder_shaders_pref):
+            #bruce 090218 bugfix; but, it may be causing a bug in atom positions ####
             drawing_globals.cylinderShader.configShader(self)
+            pass
 
         for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)
