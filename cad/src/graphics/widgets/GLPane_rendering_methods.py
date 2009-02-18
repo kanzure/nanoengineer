@@ -664,6 +664,10 @@ class GLPane_rendering_methods(GLPane_image_methods):
             drawing_globals.sphereShader.configShader(self)
             pass
 
+        if (drawing_globals.use_batched_primitive_shaders_pref
+            and drawing_globals.use_cylinder_shaders_pref): #bruce 090218 bugfix
+            drawing_globals.cylinderShader.configShader(self)
+
         for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)
                 # note: this relies on modelview matrix already being correctly
