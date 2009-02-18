@@ -482,11 +482,6 @@ def setup_drawer():
                 "Error initializing cylinder shaders, NOT using them.\n")
 
             drawing_globals.use_cylinder_shaders_pref = False
-
-            # Could we support shaders with the older GL_ARB_vertex_program and
-            # GL_ARB_fragment_program with some work?  Get assembly-like vertex
-            # and fragment programs from the GLSL source using an option of the
-            # nVidia Cg compiler.  Needs some loading API changes too...
             return False
         return True
 
@@ -513,7 +508,11 @@ def setup_drawer():
     if drawing_globals.use_batched_primitive_shaders_pref:
         print "note: this session WILL use", \
               "batched primitive shaders\n"
-        
+
+        drawing_globals.spherePrimitives = None # might be modified below
+            # (so other code can test this attr rather than a debug_pref)
+            # [bruce 090218]
+                
         try:
             # GLSphereBuffer requires GLSphereShaderObject.
             if not drawing_globals.use_sphere_shaders_pref:
@@ -531,6 +530,10 @@ def setup_drawer():
             ### REVIEW [bruce 090114]: do we also want to modify 
             # drawing_globals.use_batched_primitive_shaders_pref?
             pass
+
+        drawing_globals.cylinderPrimitives = None # might be modified below
+            # (so other code can test this attr rather than a debug_pref)
+            # [bruce 090218]
         
         if drawing_globals.use_cylinder_shaders_pref: # Still optional.
             try:

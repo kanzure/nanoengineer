@@ -150,10 +150,13 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         self.cylinders = []
 
         # Russ 081128: A cached primitives drawing index.  This is only used
-        # when drawing individual CSDLs for hover-highlighting.  Normally,
+        # when drawing individual CSDLs for hover-highlighting, for testing,
+        # and during development.  Normally,
         # primitives from a number of CSDLs are collected into a GLPrimitiveSet
         # with a drawing index covering all of them.
-        self.drawIndex = None
+        #bruce 090218: corrected above comment, and changed drawIndex ->
+        # drawIndices so it can support more than one primitive type.
+        self.drawIndices = {}
 
         # TransformControl constructor argument is optional.
         self.transformControl = transformControl
@@ -205,10 +208,10 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     
     def destroy(self):         # Called by us to break cyclic reference loops.
         # Free any OpenGL resources.
-        ## REVIEW: Need to wait for our OpenGL context to become current when
-        ## GLPane calls its method saying it's current again.  See chunk dealloc
-        ## code for details. This hangs NE1 now, so it's commented out.
-        ####self.deallocate_displists()
+        ### REVIEW: Need to wait for our OpenGL context to become current when
+        # GLPane calls its method saying it's current again.  See chunk dealloc
+        # code for details. This hangs NE1 now, so it's commented out.
+        ## self.deallocate_displists()
 
         # Unregister the CSDL from its TransformControl, breaking the Python
         # reference cycle so the CSDL can be reclaimed.
@@ -232,10 +235,10 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     # Russ 080925: For batched primitive drawing, drawing-primitive functions
     # conditionally collect lists of primitive IDs here in the CSDL, rather than
     # sending them down through the ColorSorter schedule methods into the DL
-    # layer. Later, those primitive lists are are collected across the CSDLs in
+    # layer. Later, those primitive lists are collected across the CSDLs in
     # a DrawingSet, into the per-primitive-type VBO caches and MultiDraw indices
     # managed by its GLPrimitiveSet.  Most of the intermediate stuff will be
-    # cached in the underlying GLPrimitiveBuffer, since glPrimitiveSet is meant
+    # cached in the underlying GLPrimitiveBuffer, since GLPrimitiveSet is meant
     # to be very transient.
     #
     # This can be factored when we get a lot of primitive shaders.  For now,
@@ -252,7 +255,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
             pass
         self.spheres = []
         self.cylinders = []
-        self.drawIndex = None
+        self.drawIndices = {}
         return
         
     def addSphere(self, center, radius, color, glname):
@@ -265,7 +268,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         self.spheres += drawing_globals.spherePrimitives.addSpheres(
             [center], radius, color, self.transform_id(), glname)
-        self.drawIndex = None
+        self.drawIndices = {}
         return
 
     # Russ 090119: Added.
@@ -279,7 +282,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         self.cylinders += drawing_globals.cylinderPrimitives.addCylinders(
             [endpts], radii, color, self.transform_id(), glname)
-        self.drawIndex = None
+        self.drawIndices = {}
         return
     
     # ==
@@ -304,6 +307,25 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     # ==
 
+    def shaders_and_primitives(self): #bruce 090218, needed only for CSDL.draw 
+        """
+        Yield each pair of (shader, primitive-list) which we need to draw.
+        """
+        if self.spheres:
+            assert drawing_globals.spherePrimitives
+            yield drawing_globals.spherePrimitives, self.spheres
+        if self.cylinders:
+            assert drawing_globals.cylinderPrimitives
+            yield drawing_globals.cylinderPrimitives, self.cylinders
+        return
+
+    def draw_shader_primitives(self, *args): #bruce 090218, needed only for CSDL.draw
+        for shader, primitives in self.shaders_and_primitives():
+            index = self.drawIndices[shader]            
+            shader.draw(index, *args)
+            continue
+        return
+            
     def draw(self, 
              highlighted = False, 
              selected = False,
@@ -345,20 +367,27 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                              env.prefs[hoverHighlightingColorStyle_prefs_key] ==
                              HHS_HALO)
 
-        # Russ 081128: GLPrimitiveSet.draw() calls CSDL.draw on CSDLs_with_DLs.
-        # It gathers the primitives in a set of CSDLs into a large drawIndex,
-        # and draws them in a big batch.  This draw() method is also called to
+        # Russ 081128 (clarified, bruce 090218):
+        # GLPrimitiveSet.draw() calls this method (CSDL.draw) on CSDLs_with_DLs,
+        # passing draw_primitives = False to only draw the DLs.
+        # It gathers the primitives in a set of CSDLs into one big drawIndex
+        # per primitive type, and draws each drawIndex in a big batch.
+        #
+        # This method (CSDL.draw) is also called to
         # draw *both* DLs and primitives in a CSDL, e.g. for hover-highlighting.
+        #
         # Russ 081208: Skip drawing shader primitives while in GL_SELECT.
+        #
+        # Bruce 090218: support cylinders too.
         prims_to_do = (drawing_globals.drawing_phase != "glselect" and
-                       draw_primitives and self.spheres)
+                       draw_primitives and (self.spheres or self.cylinders))
         if prims_to_do:
-            prims = drawing_globals.spherePrimitives
-
-            # Cache a drawing index for just the primitives in this CSDL.
-            if self.drawIndex is None:
-                ## print "makeDrawIndex for %d spheres in %r" % (len(self.spheres), self)
-                self.drawIndex = prims.makeDrawIndex(self.spheres)
+            # Cache drawing indices for just the primitives in this CSDL,
+            # in self.drawIndices, used in self.draw_shader_primitives below.
+            if not self.drawIndices:
+                for shader, primitives in self.shaders_and_primitives():
+                    self.drawIndices[shader] = shader.makeDrawIndex(primitives)
+                    continue
                 pass
             pass
 
@@ -376,7 +405,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
             if selected:
                 # Draw the selected appearance.
                 if prims_to_do:                  # Shader primitives.
-                    prims.draw(self.drawIndex, highlighted, selected,
+                    self.draw_shader_primitives( highlighted, selected,
                                patterning, highlight_color)
                     pass
 
@@ -389,7 +418,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
             else:
                 # Plain, old, solid drawing of the base object appearance.
                 if prims_to_do:
-                    prims.draw(self.drawIndex)   # Shader primitives.
+                    self.draw_shader_primitives()   # Shader primitives.
                     pass
 
                 if DLs_to_do:
@@ -401,7 +430,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         if highlighted:
 
             if prims_to_do:                      # Shader primitives.
-                prims.draw(self.drawIndex, highlighted, selected,
+                self.draw_shader_primitives( highlighted, selected,
                            patterning, highlight_color)
                 pass
                 
