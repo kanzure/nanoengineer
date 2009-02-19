@@ -1651,10 +1651,15 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         if self.display != diDEFAULT:
             disp = self.display
 
-        drawn = self.part.repeated_bonds_dict
+        drawn = self.part.drawing_frame.repeated_bonds_dict
             # bruce 070928 bugfix: use repeated_bonds_dict
             # instead of a per-chunk dict, so we don't
             # draw external bonds twice
+        if drawn is None:
+            # bug, but we can work around it locally;
+            # I'd add a debug print except I might never test this
+            # before the release and it might be verbose [bruce 090218]
+            drawn = {}
         for atom in self.atoms.values():
             atom.writepov(file, disp, self.color)
             for bond in atom.bonds:

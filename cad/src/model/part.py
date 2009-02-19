@@ -99,16 +99,29 @@ debug_1855 = False # DO NOT COMMIT WITH TRUE [bruce 060415]
 
 # ==
 
-#### NOT YET USED:
+# Part_drawing_frame, for use in Part._drawing_frame [bruce 090218]
 
-class Part_drawing_frame_superclass: #bruce 090218 refactoring; todo: rename
-    # semi-obs comment:
-    # repeated_bonds_dict is a dict during calls of self.draw,
-    # but is intentionally not a dict outside of those calls,
-    # so that erroneous use of it is noticed as an error.
-    # For intended use, see comments where it's used. [bruce 070928]
-    # (Update, 080411: at least one use, in Chunk._draw_external_bonds,
-    #  silently tolerates its being None.)
+# (todo: better name? put in its own file?)
+
+# WARNING: The present scheme for Part._drawing_frame would not work
+# if multiple threads could draw one Part, or if complex objects in
+# a part (e.g. chunks) might be drawn twice in one frame. See comments
+# near its use in Chunk.draw for ways we might need to generalize it.
+# [bruce 070928/090218]
+
+class Part_drawing_frame_superclass:
+    """
+    """
+    # repeated_bonds_dict lets bonds (or ExternalBondSets) avoid being
+    # drawn twice. It maps id(bond) to bond (for any Bond or ExternalBondSet)
+    # for all bonds that might otherwise be drawn twice. It is public
+    # for use and modification by anything that draws bonds, but only
+    # during a single draw call (or a single draw of a subset of the model).
+    #
+    # Note that OpenGL drawing (draw methods) uses it only for external
+    # bonds, but POV-Ray drawing (writepov methods) uses it for all
+    # bonds; this is ok even if some writepov methods someday call some
+    # draw methods.
     repeated_bonds_dict = None
 
     # These are for implementing optional indicators about overlapping atoms.
@@ -125,10 +138,36 @@ class Part_drawing_frame(Part_drawing_frame_superclass):
     It holds attributes needed during a single draw call
     (or, a draw of a portion of the model).
 
+    See superclass code comments for documentation of attributes.
+
     For more info, see docstring of Part.before_drawing_model.
     """
     def __init__(self):
+        
         self.repeated_bonds_dict = {}
+
+        # Note: this env reference may cause undesirable usage tracking,
+        # depending on when it occurs. This should cause no harm --
+        # only a needless display list remake when the pref is changed.
+        self.indicate_overlapping_atoms = \
+            env.prefs[indicateOverlappingAtoms_prefs_key]
+
+        if self.indicate_overlapping_atoms:
+            TOO_CLOSE = 0.3 # stub, guess; needs to not be true even for
+                # bonded atoms, or atoms and their bondpoints,
+                # but big enough to catch "visually hard to separate" atoms.
+                # (1.0 is far too large; 0.1 is ok but too small to be best.)
+                # It would be much better to let this depend on the elements
+                # and whether they're bonded, and not hard to implement
+                # (each atom could be asked whether it's too close to each
+                #  other one, and take all this into account). If we do that,
+                # this value should be the largest tolerance for any pair
+                # of atoms, and the code that uses this NeighborhoodGenerator
+                # should do more filtering on the results. [bruce 080411]
+            self._f_state_for_indicate_overlapping_atoms = \
+                NeighborhoodGenerator( [], TOO_CLOSE, include_singlets = True )
+        return
+    
     pass
 
 class fake_Part_drawing_frame(Part_drawing_frame_superclass):
@@ -138,16 +177,20 @@ class fake_Part_drawing_frame(Part_drawing_frame_superclass):
     # todo: print a warning whenever our methods/attrs are used,
     # or create self on demand and print a warning then.
     def __init__(self):
-        self.repeated_bonds_dict = {} ####k
+        print_compact_stack(
+            "warning: fake_Part_drawing_frame is being instantiated: " )
+        # done in superclass: self.repeated_bonds_dict = None
+            # This is necessary to remove any chance of self surviving
+            # for more than one draw of one object (since using an actual
+            # dict then would make bonds sometimes fail to be drawn).
+            # Client code must tolerate this value.
     pass
-    
         
 # == 
 
 class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             ops_atoms_Mixin, ops_pam_Mixin, ops_connected_Mixin, ops_copy_Mixin,
             ops_motion_Mixin, ops_rechunk_Mixin, ops_select_Mixin,
-            Part_drawing_frame_superclass, #### TEMPORARY KLUGE
             object # fyi; redundant with InstanceLike inherited via StateMixin
             ):
     """
@@ -1066,6 +1109,53 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # ==
 
+    # note: self._drawer and self.drawing_frame
+    # are mostly-orthogonal refactorings, both by bruce 090218
+    
+    _drawing_frame = None # allocated on demand
+
+    _drawing_frame_class = fake_Part_drawing_frame
+        # Note: this attribute is modified dynamically.
+        # This default value is appropriate for drawing which does not
+        # occur between matched calls of before/after_drawing_model, since
+        # drawing then is deprecated but needs to work,
+        # so this class will work, but warn when created.
+        # Its "normal" value is used between matched calls
+        # of before/after_drawing_model.
+    
+    def __get_drawing_frame(self):
+        """
+        get method for self.drawing_frame property:
+        
+        Initialize self._drawing_frame if necessary, and return it.
+        """
+        if not self._drawing_frame:
+            self._drawing_frame = self._drawing_frame_class()
+            # note: self._drawing_frame_class changes dynamically
+        return self._drawing_frame
+    
+    def __set_drawing_frame(self):
+        """
+        set method for self.drawing_frame property; should never be called
+        """
+        assert 0
+    
+    def __del_drawing_frame(self):
+        """
+        del method for self.drawing_frame property
+        """
+        self._drawing_frame = None
+
+    drawing_frame = property(__get_drawing_frame, __set_drawing_frame, __del_drawing_frame)
+
+    def _has_drawing_frame(self):
+        """
+        @return: whether we presently have an allocated drawing frame
+                 (which would be returned by self.drawing_frame).
+        @rtype: boolean
+        """
+        return self._drawing_frame is not None
+
     def draw(self, glpane):
         """
         Draw all of self's visible model objects
@@ -1087,7 +1177,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self.after_drawing_model(error)
         return
 
-    def before_drawing_model(self): #bruce 070928; #### TODO: use Part_drawing_frame
+    def before_drawing_model(self): #bruce 070928
         """
         Whenever self's model, or part of it, is drawn,
         that should be bracketed by calls of self.before_drawing_model()
@@ -1101,9 +1191,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         
         * call node.draw() (with proper arguments, and exception protection)
           on some subset of the nodes of self (not drawing any node twice);
-          during these calls, reference can be made to self.repeated_bonds_dict
-          and self.indicate_overlapping_atoms
-          and self._f_state_for_indicate_overlapping_atoms
+          during these calls, reference can be made to attributes of
+          self.drawing_frame (which is allocated on demand if/when first used
+          after this method is called)
         
         * call self.after_drawing_model() (with proper arguments)
 
@@ -1116,43 +1206,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         to behave differently to permit nesting (e.g. have a stack of prior
         values of the variables they reset).
         """
-        assert self.repeated_bonds_dict is None
-        self.repeated_bonds_dict = {}
-            # This lets bonds avoid being drawn twice. It maps id(bond) to bond
-            # for all bonds that might otherwise be drawn twice. It is public
-            # for use and modification by anything that draws bonds, but only
-            # during a single draw call.
-            #
-            # Note that OpenGL drawing (draw methods) uses it only for external
-            # bonds, but POV-Ray drawing (writepov methods) uses it for all
-            # bonds; this is ok even if some writepov methods someday call some
-            # draw methods.
-            #
-            # WARNING: The present scheme would not work if multiple threads
-            # could draw one part, or if complex objects in a part (e.g. chunks)
-            # might be drawn twice in one frame. See comments near its use in
-            # Chunk.draw (and in docstring) for ways we might need to generalize
-            # it. [bruce 070928]
-
-        self.indicate_overlapping_atoms = \
-            env.prefs[indicateOverlappingAtoms_prefs_key]
-
-        if self.indicate_overlapping_atoms:
-            TOO_CLOSE = 0.3 # stub, guess; needs to not be true even for
-                # bonded atoms, or atoms and their bondpoints,
-                # but big enough to catch "visually hard to separate" atoms.
-                # (1.0 is far too large; 0.1 is ok but too small to be best.)
-                # It would be much better to let this depend on the elements
-                # and whether they're bonded, and not hard to implement
-                # (each atom could be asked whether it's too close to each
-                #  other one, and take all this into account). If we do that,
-                # this value should be the largest tolerance for any pair
-                # of atoms, and the code that uses this NeighborhoodGenerator
-                # should do more filtering on the results. [bruce 080411]
-            self._f_state_for_indicate_overlapping_atoms = \
-                NeighborhoodGenerator( [], TOO_CLOSE, include_singlets = True )
-            pass
-
+        del self.drawing_frame
+        self._drawing_frame_class = Part_drawing_frame
+            # instantiated the first time self.drawing_frame is accessed
         return
 
     def after_drawing_model(self, error = False): #bruce 070928
@@ -1166,19 +1222,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                       since most calls don't pass anything. (#REVIEW: good?)
         """
         del error # not yet used (error param added by bruce 080411)
-
-        assert self.repeated_bonds_dict is not None
-        del self.repeated_bonds_dict
-            # this exposes the default value (not a dict)
-            # so that any use not during this method call
-            # is detected as an error; it also removes references
-            # to its values so as to not prevent those objects
-            # from being freed.
-        assert self.repeated_bonds_dict is None
-
-        self.indicate_overlapping_atoms = False
-        self._f_state_for_indicate_overlapping_atoms = None
-
+        del self.drawing_frame
+        del self._drawing_frame_class # expose class default value
         return
 
     def draw_text_label(self, glpane):
@@ -1195,20 +1240,23 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def glpane_text(self):
         return "" # default implem, subclasses might override this
 
-    def writepov(self, f, dispdef):
+    def writepov(self, f, dispdef): # revised, bruce 090218
         """
         Draw self's visible model objects into an open povray file
         (which already has whatever headers & macros it needs),
         using the given display mode by default.
         """
-        self.repeated_bonds_dict = {}
-            # See comments in self.draw. We intentionally use the same
-            # attribute of self, to permit future draw methods than
+        self.before_drawing_model()
+            # This is needed at least for its setting up of
+            # self.drawing_frame.repeated_bonds_dict, and using its
+            # "full version" will help permit future draw methods that
             # work for either OpenGL or POV-Ray.
+        error = True
         try:
             self.topnode.writepov(f, dispdef)
+            error = False
         finally:
-            del self.repeated_bonds_dict
+            self.after_drawing_model(error)
         return
 
     # ==

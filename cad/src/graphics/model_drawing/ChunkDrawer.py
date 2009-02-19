@@ -267,8 +267,10 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         # etc. (But not for frustum culled atoms, since the indicators
         # would also be off-screen.) [bruce 080411 new feature]
 
-        indicate_overlapping_atoms = self._chunk.part and \
-                                     self._chunk.part.indicate_overlapping_atoms
+        drawing_frame = self.get_drawing_frame()
+        
+        indicate_overlapping_atoms = drawing_frame and \
+                                     drawing_frame.indicate_overlapping_atoms
             # note: using self._chunk.part for this is a slight kluge;
             # see the comments where this variable is defined in class Part.
 
@@ -649,26 +651,29 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         # we'll need to modify this scheme, e.g. by optionally passing
         # that kind of object -- in general, a "drawing environment"
         # which might differ on each draw call of the same object.)
-        model_draw_frame = self._chunk.part # kluge, explained above
-            # note: that's the same as each bond's part.
-        repeated_bonds_dict = model_draw_frame and \
-                              model_draw_frame.repeated_bonds_dict
-        del model_draw_frame
+        
+        # update, bruce 090218: revised drawing_frame code below;
+        # this fixes some but not all of the future problems mentioned above.
+
+        drawing_frame = self.get_drawing_frame() # might be None, in theory
+        
+        repeated_bonds_dict = drawing_frame and drawing_frame.repeated_bonds_dict
+            # might be None, if we're not being drawn between a pair
+            # of calls to part.before/after_drawing_model
+            # (which is deprecated but might still occur),
+            # or if our chunk has no Part (a bug).
+        
         if repeated_bonds_dict is None:
             # (Note: we can't just test "not repeated_bonds_dict",
             #  in case it's {}.)
             # This can happen when chunks are drawn in other ways than
-            # via Part.draw (e.g. as Extrude mode repeat units),
+            # via Part.draw (e.g. as Extrude repeat units?),
             # or [as revised 080314] due to bugs in which self._chunk.part
             # is None; we need a better fix for this, but for now,
             # just don't use the dict. As a kluge to avoid messing up
             # the loop below, just use a junk dict instead.
             # [bruce 070928 fix new bug 2548]
-            # (This kluge means that external bonds drawn by e.g. Extrude
-            # will still be subject to the bug of being drawn twice.
-            # The better fix is for Extrude to set up part.repeated_bonds_dict
-            # when it draws its extra objects. We need a bug report for that.)
-            repeated_bonds_dict = {} # KLUGE
+            repeated_bonds_dict = {} # kluge
 
         if debug_pref("GLPane: use ExternalBondSets for drawing?", #bruce 080707
                       Choice_boolean_True,
@@ -733,6 +738,16 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 ##            pass
 ##        return
 
+    def get_drawing_frame(self): #bruce 090218
+        """
+        Return the current drawing_frame if we have one, or None.
+
+        @see: class Part_drawing_frame
+        """
+        # note: accessing part.drawing_frame allocates it on demand
+        # if it wasn't already allocated during that call of Part.draw.
+        return self._chunk.part and self._chunk.part.drawing_frame
+    
     def draw_overlap_indicators_if_needed(self): #bruce 080411, renamed 090108
         """
         If self overlaps any atoms (in self's chunk or in other chunks)
@@ -743,11 +758,13 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         least once, assuming this method is called on all atoms drawn
         during this drawing frame.
         """
-        model_draw_frame = self._chunk.part
-            # kluge, explained elsewhere in this file
+        model_draw_frame = self.get_drawing_frame()
         if not model_draw_frame:
             return
         neighborhoodGenerator = model_draw_frame._f_state_for_indicate_overlapping_atoms
+        if not neighborhoodGenerator:
+            # precaution after refactoring, probably can't happen [bruce 090218]
+            return
         for atom in self._chunk.atoms.itervalues():
             pos = atom.posn()
             prior_atoms_too_close = neighborhoodGenerator.region(pos)
