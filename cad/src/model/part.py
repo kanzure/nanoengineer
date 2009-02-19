@@ -1153,18 +1153,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         del self._drawing_frame_class # expose class default value
         return
 
-    def draw_text_label(self, glpane):
-        """
-        #doc; called from GLPane.paintGL just after it calls mode.Draw()
-        """
-        # caller catches exceptions, so we don't have to bother
-        text = self.glpane_text()
-        if text:
-            #bruce 090218 refactored this
-            self._drawer.draw_text_label(glpane, text)
-        return
-
-    def glpane_text(self):
+    def glpane_label_text(self): #bruce 090219 renamed from glpane_text
         return "" # default implem, subclasses might override this
 
     def writepov(self, f, dispdef): # revised, bruce 090218
@@ -1337,7 +1326,7 @@ class MainPart(Part):
     pass
 
 class ClipboardItemPart(Part):
-    def glpane_text(self):
+    def glpane_label_text(self):
         #e abbreviate long names...
         return "%s (%s)" % (self.topnode.name, self.location_name())
     def location_name(self):

@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GraphicsMode.py -- base class for "graphics modes" (display and GLPane event handling)
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -565,6 +565,24 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         selobj.draw_in_abs_coords(glpane, hicolor)
 
+    def draw_glpane_label(self, glpane):
+        """
+        #doc [see doc in the glpane method we call] [#doc coord sys when called]
+        
+        @note: called from GLPane.paintGL shortly after graphicsMode.Draw()
+        """
+        #bruce 090219 moved this here from part.py, renamed from draw_text_label
+        # (after refactoring it the prior day, 090218)
+        
+        # (note: caller catches exceptions, so we don't have to bother)
+
+        text = self.glpane.part.glpane_label_text()
+        if text:
+            glpane.draw_glpane_label_text(text)
+        return
+
+    # ==
+    
     def end_selection_from_GLPane(self):
         """
         GraphicsMode API method that decides whether to do some additional

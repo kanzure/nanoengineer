@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPane_text_and_color_methods.py - methods for GLPane related to
 text rendering or backgroundColor/backgroundGradient
@@ -6,7 +6,7 @@ text rendering or backgroundColor/backgroundGradient
 (Maybe it should be renamed GLPane_text_and_background_methods?)
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 bruce 080910 split this out of class GLPane
 """
@@ -14,6 +14,7 @@ bruce 080910 split this out of class GLPane
 from OpenGL.GL import glEnable
 from OpenGL.GL import glDisable
 from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import GL_DEPTH_TEST
 
 from OpenGL.GL import glClear
 from OpenGL.GL import glClearColor
@@ -32,19 +33,17 @@ from OpenGL.GL import glLoadIdentity
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glPopMatrix
 
+
 from OpenGL.GLU import gluUnProject, gluProject
 
-
-from graphics.drawing.drawers import drawFullWindow
-          
-from widgets.widget_helpers import RGBf_to_QColor
 
 from PyQt4.Qt import QFontMetrics
 from PyQt4.Qt import QFont, QString
 from PyQt4.Qt import QPalette
 from PyQt4.Qt import QColor
+from PyQt4.Qt import Qt
 
-import foundation.env as env
+
 from utilities.debug import print_compact_stack
 
 from utilities.constants import black, white
@@ -61,6 +60,14 @@ from utilities.prefs_constants import backgroundColor_prefs_key
 from utilities.prefs_constants import backgroundGradient_prefs_key
 
 from utilities.prefs_constants import originAxisColor_prefs_key
+
+import foundation.env as env
+
+from graphics.drawing.drawers import drawFullWindow
+          
+from widgets.widget_helpers import RGBf_to_QColor
+
+# ==
 
 assert bgSOLID == 0 # some code in GLPane depends on this
 
@@ -110,6 +117,39 @@ class GLPane_text_and_color_methods(object):
     private mixin for providing text- and color-related methods
     to class GLPane
     """
+
+    def draw_glpane_label_text(self, text):
+        """
+        Draw a text label for the glpane as a whole.
+        
+        @note: called indirectly from GLPane.paintGL shortly after
+               it calls graphicsMode.Draw(), via GraphicsMode.draw_glpane_label
+        """
+        #bruce 090219 moved this here from part of Part.draw_text_label
+        # (after a temporary stop in the short-lived class PartDrawer);
+        # the other part is now our caller GraphicsMode.draw_glpane_label.
+
+        # (note: caller catches exceptions, so we don't have to bother)
+        
+        glDisable(GL_LIGHTING)
+        glDisable(GL_DEPTH_TEST)
+            # Note: disabling GL_DEPTH_TEST properly affects 2d renderText
+            # (as used here), but not 3d renderText. For more info see
+            # today's comments in Guides.py. [bruce 081204 comment]
+        glPushMatrix() # REVIEW: needed? [bruce 081204 question]
+        font = QFont(QString("Helvetica"), 24, QFont.Bold)
+        self.qglColor(Qt.red) # this needs to be impossible to miss -- not nice-looking!
+            #e tho it might be better to pick one of several bright colors
+            # by hashing the partname, so as to change the color when the part changes.
+        # this version of renderText uses window coords (0,0 at upper left)
+        # rather than model coords (but I'm not sure what point on the string-image
+        # we're setting the location of here -- guessing it's bottom-left corner):
+        self.renderText(25,40, QString(text), font)
+        glPopMatrix()
+        glEnable(GL_DEPTH_TEST)
+        glEnable(GL_LIGHTING)
+        return
+
     def renderTextAtPosition(self,
                              position,
                              textString,

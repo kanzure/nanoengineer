@@ -147,7 +147,7 @@ class MainPrefsGroupPart(Part):
     [public, meant to be imported and used by code in assembly.py]
     """
     def immortal(self): return True
-    def glpane_text(self):
+    def glpane_label_text(self):
         return "(preferences area; not in the mmp file)"
     def location_name(self):
         return "prefs tree" #k used??

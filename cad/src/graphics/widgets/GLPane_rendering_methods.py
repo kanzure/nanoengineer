@@ -13,6 +13,8 @@ TEST_DRAWING = False # True  ## Debug/test switch.  Never check in a True value.
 
 if TEST_DRAWING:
     from prototype.test_drawing import test_drawing
+        # review: is this needed here for its side effects?
+        # guess yes, should document if so.
     pass
 
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
@@ -464,7 +466,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         #              -- glRenderMode(GL_RENDER) in effect; reduced projection matrix and viewport (one pixel.)
         # - 'main' -- normal drawing, main coordinate system for model (includes trackball/zoom effect)
         # - 'main/Draw_after_highlighting' -- normal drawing, but after selobj is drawn ###e which coord system?
-        # - 'main/draw_text_label' -- ###e
+        # - 'main/draw_glpane_label' -- ###e
         # - 'selobj' -- we're calling selobj.draw_in_abs_coords (not drawing the entire model), within same coordsys as 'main'
         # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ###e which coord system, incl projection??
         # [end]
@@ -698,16 +700,18 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         # let parts (other than the main part) draw a text label, to warn
         # the user that the main part is not being shown [bruce 050408]
+        # [but let the GM control this: moved and renamed
+        #  part.draw_text_label -> GM.draw_glpane_label; bruce 090219]
         try:
-            self.set_drawing_phase('main/draw_text_label') #bruce 070124
-            self.part.draw_text_label(self)
+            self.set_drawing_phase('main/draw_glpane_label') #bruce 070124, renamed 090219
+            self.graphicsMode.draw_glpane_label(self)
         except:
             # if this happens at all, it'll happen too often to bother non-debug
             # users with a traceback (but always print an error message)
             if debug_flags.atom_debug:
-                print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
+                print_compact_traceback( "atom_debug: exception in self.graphicsMode.draw_glpane_label(self): " )
             else:
-                print "bug: exception in self.part.draw_text_label; use ATOM_DEBUG to see details"
+                print "bug: exception in self.graphicsMode.draw_glpane_label; use ATOM_DEBUG to see details"
         self.set_drawing_phase('?')
 
         # draw the compass (coordinate-orientation arrows) in chosen corner
