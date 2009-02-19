@@ -470,8 +470,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                         print_compact_traceback(msg + ": ")
 
                     if wantlist:
-                        ColorSorter.finish()
-                        #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
+                        ColorSorter.finish(draw_now = True) ##### BUG: should draw separately, using self.draw_csdl. #####
 
                         self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                         self.havelist = havelist_data
@@ -594,6 +593,9 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
     def _draw_external_bonds(self, glpane, disp, drawLevel, is_chunk_visible = True):
         """
         Draw self's external bonds (if debug_prefs and frustum culling permit).
+
+        @note: handles both cases of debug_pref for whether to use
+               ExternalBondSets for drawing them.
         """
         if not _DRAW_EXTERNAL_BONDS:
             return
@@ -699,6 +701,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         # actually draw them
 
         if use_outer_colorsorter:
+            # note: not used with ExternalBondSets
             ColorSorter.start(None)
                 # [why is this needed? bruce 080707 question]
         
@@ -725,7 +728,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             continue
         
         if use_outer_colorsorter:
-            ColorSorter.finish()
+            ColorSorter.finish(draw_now = True)
         
         return # from _draw_external_bonds
 
@@ -890,6 +893,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             return
 
         # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
+        ##### TODO: use self.draw_csdl.
         if self._has_displist():
             apply_material(color) ### REVIEW: still needed?
             self._chunk.pushMatrix()
@@ -904,6 +908,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         disp = self._chunk.get_dispdef(glpane)
 
         #russ 080302: Draw external bonds.
+        ##### TODO: use ExternalBondSets.
         if self._chunk.externs:
             # From Chunk.draw():
             drawLevel = self._chunk.assy.drawLevel
@@ -916,7 +921,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             for bond in self._chunk.externs:
                 bond.draw(glpane, disp, color, drawLevel)
                 continue
-            ColorSorter.finish()
+            ColorSorter.finish(draw_now = True)
             pass
         pass
 

@@ -463,7 +463,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         else:
             self.comparator.after_recompute()
         if wantlist:
-            ColorSorter.finish()
+            ColorSorter.finish(draw_now = True)
             # needed by self._invalidate_display_lists for gl_update
             self._glpane = glpane
             self.end_tracking_usage( match_checking_code,

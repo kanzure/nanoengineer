@@ -556,11 +556,12 @@ class ColorSorter:
     passed to apply_material, which on 20051204 is only color 4-tuples)
 
     Invoke start() to begin sorting.
-    Call finish() to complete sorting and draw all sorted objects.
+    Call finish() to complete sorting; pass draw_now = True to also draw
+    all sorted objects at that time.
 
     Call schedule() with any function and parameters to be sorted by color.
     If not sorting, schedule() will invoke the function immediately.  If
-    sorting, then the function will not be called until "finish()".
+    sorting, then the function will not be called until "finish()" or later.
 
     In any function which will take part in sorting which previously did
     not, create a worker function from the old function except the call to
@@ -966,15 +967,26 @@ class ColorSorter:
 
     start = staticmethod(start)
 
-    def finish(draw_now = True): # staticmethod
+    def finish(draw_now = None): # staticmethod
         """
-        Finish sorting -- objects recorded since "start" will be sorted and
-        invoked now. If there's no CSDL, we're in all-in-one-display-list mode,
+        Finish sorting -- objects recorded since "start" will be sorted;
+        if draw_now is True, they'll also then be drawn.
+
+        If there's no parent CSDL, we're in all-in-one-display-list mode,
         which is still a big speedup over plain immediate-mode drawing.
+        In that case, draw_now must be True since it doesn't make sense
+        to not draw (the drawing has already happened).
         """
         if not ColorSorter.sorting:
             assert draw_now, "finish(draw_now = False) makes no sense unless ColorSorter.sorting"
             return                      # Plain immediate-mode, nothing to do.
+
+        if draw_now is None:
+            draw_now = False # not really needed
+            print_compact_stack( "temporary warning: draw_now was not explicitly passed, using False: ") ####
+            #### before release, leaving it out can mean False without a warning,
+            # since by then it ought to be the "usual case". [bruce 090219]
+            pass
 
         from utilities.debug_prefs import debug_pref, Choice_boolean_False
         debug_which_renderer = debug_pref(
@@ -987,6 +999,8 @@ class ColorSorter:
             # it can be done here, since nothing in this method after this
             # should use it directly or add primitives to it [bruce 090105]
         if drawing_globals.use_c_renderer:
+            # WARNING: this case has not been maintained for a long time
+            # [bruce 090219 comment]
             quux.shapeRendererInit()
             if debug_which_renderer:
                 #bruce 060314 uncommented/revised the next line; it might have
@@ -1020,7 +1034,7 @@ class ColorSorter:
                 # Either all in one display list, or immediate-mode drawing.
                 ### REVIEW [bruce 090114]: are both possibilities still present, 
                 # now that several old options have been removed?
-                objects_drawn += ColorSorter.draw_sorted(
+                objects_drawn += ColorSorter._draw_sorted(
                     ColorSorter.sorted_by_color)
 
                 if parent_csdl is not None:
@@ -1202,7 +1216,7 @@ class ColorSorter:
 
     finish = staticmethod(finish)
 
-    def draw_sorted(sorted_by_color):   #russ 080320: factored out of finish().
+    def _draw_sorted(sorted_by_color):   #russ 080320: factored out of finish().
         """
         Traverse color-sorted lists, invoking worker procedures.
         """
@@ -1239,7 +1253,7 @@ class ColorSorter:
             continue
         return objects_drawn
 
-    draw_sorted = staticmethod(draw_sorted)
+    _draw_sorted = staticmethod(_draw_sorted)
 
     pass # End of class ColorSorter.
 

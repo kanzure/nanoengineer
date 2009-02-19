@@ -868,8 +868,7 @@ class CrystalShape(shape):
             print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
         self.markedAtoms = {}
 
-        ColorSorter.finish() # grantham 20051205
-        #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
+        ColorSorter.finish(draw_now = True)
 
         self.havelist = 1 # always set this flag, even if exception happened.
 

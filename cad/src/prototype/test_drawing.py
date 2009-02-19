@@ -388,7 +388,7 @@ def test_drawing(glpane, initOnly = False):
                        .5, # radius
                        DRAWSPHERE_DETAIL_LEVEL,
                        testloop = nSpheres )
-            ColorSorter.finish()
+            ColorSorter.finish(draw_now = True)
             pass
         else:
             test_csdl.draw()
@@ -1006,7 +1006,7 @@ def test_drawing(glpane, initOnly = False):
                         test_endpoints += [(center, endPt2)]
                         pass
                     continue
-                ColorSorter.finish()
+                ColorSorter.finish(draw_now = True)
                 ColorSorter.popName()
 
                 test_DrawingSet.addCSDL(csdl)

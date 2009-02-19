@@ -92,7 +92,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 bond.draw(glpane, disp, color, drawLevel)
             
             if use_outer_colorsorter:
-                ColorSorter.finish()
+                ColorSorter.finish(draw_now = True)
 
             return
 
@@ -248,7 +248,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 print_compact_traceback(msg + ": ")
 
             if wantlist:
-                ColorSorter.finish()
+                ColorSorter.finish(draw_now = True)
                 self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                 self.havelist = havelist_data
                 
