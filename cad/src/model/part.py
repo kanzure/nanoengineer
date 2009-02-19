@@ -40,6 +40,7 @@ to avoid __getattr__ on __xxx__ attrs in python objects.
 from utilities import debug_flags
 
 from utilities.debug import print_compact_traceback, print_compact_stack
+from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 from utilities.Log import redmsg
 
 from utilities.constants import diINVISIBLE
@@ -128,6 +129,8 @@ class Part_drawing_frame_superclass:
     _f_state_for_indicate_overlapping_atoms = None
     indicate_overlapping_atoms = False
 
+    use_drawingsets = False # whether to draw CSDLs using DrawingSets
+
     pass
 
 class Part_drawing_frame(Part_drawing_frame_superclass):
@@ -166,8 +169,61 @@ class Part_drawing_frame(Part_drawing_frame_superclass):
                 # should do more filtering on the results. [bruce 080411]
             self._f_state_for_indicate_overlapping_atoms = \
                 NeighborhoodGenerator( [], TOO_CLOSE, include_singlets = True )
+            pass
+        
         return
-    
+
+    def setup_for_drawingsets(self):
+        # review: needed in fake_Part_drawing_frame too??
+        """
+        """
+        self.use_drawingsets = True
+        self._drawingset_contents = {}
+
+    def draw_csdl_in_drawingset(self, csdl, intent): #### CALL IN MORE PLACES
+        """
+        When self.use_drawingsets is set, model component drawing code which
+        wants to draw a CSDL should pass it to this method rather than
+        drawing it directly.
+
+        At the end of the current drawing frame, all csdls passed to this method
+        will be added to (or maintained in) an appropriate DrawingSet,
+        and all DrawingSets will be drawn, by our part's PartDrawer.
+
+        @param csdl: a CSDL to draw later
+        @type csdl: ColorSortedDisplayList
+
+        @param intent: specifies how the DrawingSet which csdl ends up in
+                       should be drawn (transform, other GL state, draw options)
+        @type intent: not defined here, but must be useable as a dict key
+
+        @return: None
+
+        This API requires that every csdl to be drawn must be passed here in
+        every frame (though the DrawingSets themselves can be persistent
+        and incrementally updated, depending on how the data accumulated here
+        is used). A more incremental API would probably perform better
+        but would be much more complex, having to deal with chunks which
+        move in and out of self, get killed, or don't get drawn for any other
+        reason, and also requiring chunks to "diff" their own drawing intents
+        and do incremental update themselves.
+        """
+        try:
+            csdl_dict = self._drawingset_contents[intent]
+        except KeyError:
+            csdl_dict = self._drawingset_contents[intent] = {}
+        csdl_dict[csdl.csdl_id] = csdl
+        return
+
+    def get_drawingset_intent_csdl_dicts(self):
+        """
+        A return a dict from intent to a dict from csdl.csdl_id to csdl
+        (with intent and csdl having been passed to draw_csdl_in_drawingset).
+        
+        Meant to be used only by PartDrawer.
+        """
+        return self._drawingset_contents
+
     pass
 
 class fake_Part_drawing_frame(Part_drawing_frame_superclass):
@@ -1122,7 +1178,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # so this class will work, but warn when created.
         # Its "normal" value is used between matched calls
         # of before/after_drawing_model.
-    
+
     def __get_drawing_frame(self):
         """
         get method for self.drawing_frame property:
@@ -1209,6 +1265,15 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         del self.drawing_frame
         self._drawing_frame_class = Part_drawing_frame
             # instantiated the first time self.drawing_frame is accessed
+
+        if debug_pref("GLPane: draw model using DrawingSets?",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True ):
+            self.drawing_frame.setup_for_drawingsets()
+                # sets self.drawing_frame.use_drawingsets, and more
+            pass
+        
         return
 
     def after_drawing_model(self, error = False): #bruce 070928
@@ -1221,7 +1286,13 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                       things we normally do. Default value is False
                       since most calls don't pass anything. (#REVIEW: good?)
         """
-        del error # not yet used (error param added by bruce 080411)
+        if not error:
+            if self.drawing_frame.use_drawingsets:
+                self._drawer.draw_drawingsets()
+                # note, the DrawingSets themselves last between draw calls,
+                # and are stored in self._drawer. self.drawing_frame has a
+                # friend attribute used to collect necessary info during a
+                # draw call for updating the DrawingSets before drawing them.
         del self.drawing_frame
         del self._drawing_frame_class # expose class default value
         return

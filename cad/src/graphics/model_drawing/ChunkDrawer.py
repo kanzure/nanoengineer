@@ -203,7 +203,16 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         center = bbox.center()
         radius = bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5
         return glpane.is_sphere_visible( center, radius )
-        
+
+    def draw_csdl(self, csdl, selected = False): #bruce 090218 ##### CALL IN MORE PLACES, this class and EBset
+        drawing_frame = self.get_drawing_frame()
+        if drawing_frame and drawing_frame.use_drawingsets:
+            intent = bool(selected) #### for now ##### PROBABLY WRONG RE TRANSFORM in current calling code
+            drawing_frame.draw_csdl_in_drawingset(csdl, intent)
+        else:
+            csdl.draw(selected = selected)
+        return
+    
     def draw(self, glpane):
         """
         Draw self (including its external bonds, perhaps optimizing
@@ -403,7 +412,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 if self.havelist == havelist_data: 
                     # self.displist is still valid -- use it.
                     # Russ 081128: Switch from draw_dl() [now removed] to draw() with selection arg.
-                    self.displist.draw(selected = self._chunk.picked)
+                    self.draw_csdl(self.displist, selected = self._chunk.picked)
                     for extra_displist in self.extra_displists.itervalues():
                         # [bruce 080604 new feature]
                         # note: similar code in else clause, differs re wantlist

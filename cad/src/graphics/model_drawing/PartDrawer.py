@@ -42,6 +42,10 @@ class PartDrawer(object):
     def destroy(self):
         self._part = None
         return
+
+    # note: the Part methods draw, before_drawing_model, after_drawing_model
+    # are not sensible to define here for now, but they can call methods
+    # in self.
     
     def draw_text_label(self, glpane, text):
         """
@@ -70,6 +74,18 @@ class PartDrawer(object):
         glEnable(GL_LIGHTING)
         return
 
+    def draw_drawingsets(self):
+        """
+        Using info collected in self._part.drawing_frame,
+        update our cached DrawingSets for this frame;
+        then draw them.
+        """
+        drawing_frame = self._part.drawing_frame
+        for intent, csdls in drawing_frame.get_drawingset_intent_csdl_dicts().items():
+            # stub: make drawingset from these csdls, then draw it based on intent
+            print "draw_drawingsets stub:", intent, len( csdls ) ####
+        return
+    
     pass
 
 # end
