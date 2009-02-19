@@ -1593,11 +1593,11 @@ class extrudeMode(basicMode):
         """
         try:
             basicMode.Draw(self) # draw axes, if displayed
-            model = self.o.assy.part
+            part = self.o.assy.part # "the model"
             if self.show_entire_model:
-                model.draw(self.o) # includes before_drawing_model, etc
+                part.draw(self.o) # includes before_drawing_model, etc
             else:
-                model.before_drawing_model() #bruce 070928 fix predicted bug
+                part.before_drawing_model() #bruce 070928 fix predicted bug
                 try:
                     for mol in self.molcopies:
                         #e use per-repunit drawing styles...
@@ -1607,7 +1607,7 @@ class extrudeMode(basicMode):
                             # update, bruce 070407: now that mol can also be a fake_copied_mol,
                             # it's simplest to just use a fake dispdef here.
                 finally:
-                    model.after_drawing_model() #bruce 070928 fix predicted bug
+                    part.after_drawing_model() #bruce 070928 fix predicted bug
             try: #bruce 050203
                 for unit1,unit2 in zip(self.molcopies[:-1],self.molcopies[1:]):
                     self.draw_bond_lines(unit1,unit2)
@@ -1650,7 +1650,7 @@ class extrudeMode(basicMode):
                     print_compact_traceback(msg + ": ")
                     pass
                 pass
-        ## self.draw_model() # -- see below
+        ## self.draw_model() -- can be done in one of several places below
         if self.show_bond_offsets:
             hsets = self.show_bond_offsets_handlesets
             if self.transparent and len(hsets) == 2: #kluge, and messy experimental code [050218];
