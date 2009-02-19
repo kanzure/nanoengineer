@@ -455,8 +455,13 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     if wantlist:
                         ##print "Regenerating display list for %s" % self.name
                         match_checking_code = self.begin_tracking_usage()
-                        #russ 080305: Chunk may already be selected, tell the CSDL.
-                        ColorSorter.start(self.displist, self._chunk.picked)
+                        ColorSorter.start(self.displist)
+                            # Note: passing self._chunk.picked was needed
+                            # when ColorSorter.finish (below) got
+                            # draw_now = True, but is not needed now
+                            # since it's passed when drawing self.displist.
+                            # (This cleanup is part of deprecating CSDL picked state.)
+                            # [bruce 090219]
 
                     # bruce 041028 -- protect against exceptions while making display
                     # list, or OpenGL will be left in an unusable state (due to the lack
