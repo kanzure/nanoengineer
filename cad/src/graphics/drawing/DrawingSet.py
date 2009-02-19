@@ -1,11 +1,11 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 DrawingSet.py -- Top-level API for drawing with batched primitives (spheres,
 cylinders, cones) supported by specialized OpenGL shader programs.
 
 @author: Russ
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Originally written by Russ Fish; designed together with Bruce Smith.
@@ -103,6 +103,11 @@ class DrawingSet:
         # timestamp showing when this DrawingSet was last drawn.
         self.drawn = drawing_globals.NO_EVENT_YET
 
+    def destroy(self): #bruce 090218
+        self.primSet = None
+        self.CSDLs = {}
+        return
+    
     # ==
 
     # A subset of the set-type API.

@@ -28,6 +28,8 @@ from OpenGL.GL import glEnable
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QFont, QString
 
+from graphics.drawing.DrawingSet import DrawingSet
+
 # ==
 
 class PartDrawer(object):
@@ -82,8 +84,16 @@ class PartDrawer(object):
         """
         drawing_frame = self._part.drawing_frame
         for intent, csdls in drawing_frame.get_drawingset_intent_csdl_dicts().items():
-            # stub: make drawingset from these csdls, then draw it based on intent
-            print "draw_drawingsets stub:", intent, len( csdls ) ####
+            # stub: make drawingset from these csdls, then draw it based on intent.
+            # - slow since not incremental
+            # - incorrect since transforms are ignored
+            #   (they're only present in gl state when csdl is added!)
+            selected = intent
+            ## print "draw_drawingsets stub: selected = %r, %d csdls" % (selected, len( csdls )) ####
+            d = DrawingSet(csdls.itervalues())
+            # future: d.addCSDL(csdl), d.removeCSDL(csdl)
+            d.draw(selected = selected)
+            d.destroy()
         return
     
     pass
