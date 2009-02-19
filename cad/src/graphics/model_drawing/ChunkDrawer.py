@@ -204,10 +204,14 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         radius = bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5
         return glpane.is_sphere_visible( center, radius )
 
-    def draw_csdl(self, csdl, selected = False): #bruce 090218 ##### CALL IN MORE PLACES, this class and EBset
+    def draw_csdl(self, csdl, selected = False): #bruce 090218
+        """
+        """
+        ##### CALL IN MORE PLACES, this class and EBset; refile into part?
+        ##### WRONG RE TRANSFORM in current calling code
         drawing_frame = self.get_drawing_frame()
         if drawing_frame and drawing_frame.use_drawingsets:
-            intent = bool(selected) #### for now ##### PROBABLY WRONG RE TRANSFORM in current calling code
+            intent = bool(selected) #### for now 
             drawing_frame.draw_csdl_in_drawingset(csdl, intent)
         else:
             csdl.draw(selected = selected)
@@ -451,8 +455,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     if wantlist:
                         ##print "Regenerating display list for %s" % self.name
                         match_checking_code = self.begin_tracking_usage()
-                        #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
-                        #russ 080225: displist side effect allocates a ColorSortedDisplayList.
                         #russ 080305: Chunk may already be selected, tell the CSDL.
                         ColorSorter.start(self.displist, self._chunk.picked)
 
@@ -470,10 +472,12 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                         print_compact_traceback(msg + ": ")
 
                     if wantlist:
-                        ColorSorter.finish(draw_now = True) ##### BUG: should draw separately, using self.draw_csdl. #####
+                        ColorSorter.finish(draw_now = False)
 
                         self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                         self.havelist = havelist_data
+
+                        self.draw_csdl(self.displist, selected = self._chunk.picked)
                         
                         # always set the self.havelist flag, even if exception happened,
                         # so it doesn't keep happening with every redraw of this Chunk.
