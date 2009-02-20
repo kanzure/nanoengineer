@@ -129,7 +129,8 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
     # class constants
 
-    SIZE_FOR_glSelectBuffer = 10000 # guess, probably overkill, seems to work, no other value was tried
+    SIZE_FOR_glSelectBuffer = 10000
+        # guess, probably overkill, seems to work, no other value was tried
     
     # default values of instance variables:
 
@@ -149,9 +150,11 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
-        If shareWidget is specified, useStencilBuffer is ignored: set it in the widget you're sharing with.
+        #doc
+        
+        @note: If shareWidget is specified, useStencilBuffer is ignored:
+               set it in the widget you're sharing with.
         """
-
         if shareWidget:
             self.shareWidget = shareWidget #bruce 051212
             glformat = shareWidget.format()
@@ -173,9 +176,32 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
                 glformat.setSampleBuffers(True)
                 
             QGLWidget.__init__(self, glformat, parent)
+        
+        self._initialize_view_attributes()
 
-        # Current view attributes (sometimes saved in or loaded from
-        #  the currently displayed part or its mmp file):
+        # Initial value of depth "constant" (changeable by prefs.)
+        self.DEPTH_TWEAK = DEPTH_TWEAK_UNITS * DEPTH_TWEAK_VALUE
+
+        self.trackball = Trackball(10, 10)
+
+        self._functions_to_call_when_gl_context_is_current = []
+
+        # piotr 080714: Defined this attribute here in case
+        # chunk.py accesses it in ThumbView. 
+        self.lastNonReducedDisplayMode = default_display_mode
+        
+        # piotr 080807
+        # Most recent quaternion to be used in animation timer.
+        self.last_quat = None
+        
+        return
+
+    def _initialize_view_attributes(self): #bruce 090220 split this out
+        """
+        Initialize the current view attributes
+        """
+        # note: these are sometimes saved in or loaded from
+        # the currently displayed part or its mmp file
 
         # rotation
         self.quat = Q(1, 0, 0, 0)
@@ -196,24 +222,8 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
             # was chosen, which makes zoomFactor useless. Someday we should
             # consider removing it, unless we think it might be useful for
             # something in the future. [bruce 080910 comment]
-
-        # Initial value of depth "constant" (changeable by prefs.)
-        self.DEPTH_TWEAK = DEPTH_TWEAK_UNITS * DEPTH_TWEAK_VALUE
-
-        self.trackball = Trackball(10, 10)
-
-        self._functions_to_call_when_gl_context_is_current = []
-
-        # piotr 080714: Defined this attribute here in case
-        # chunk.py accesses it in ThumbView. 
-        self.lastNonReducedDisplayMode = default_display_mode
-        
-        # piotr 080807
-        # Most recent quaternion to be used in animation timer.
-        self.last_quat = None
-        
         return
-
+    
     # define properties which return model-space vectors
     # corresponding to various directions relative to the screen
     # (can be used during drawing or when handling mouse events)
@@ -279,7 +289,8 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
     vdist = property(__get_vdist)
 
-    def eyeball(self): #bruce 060219 ##e should call this to replace equivalent formulae in other places
+    def eyeball(self): #bruce 060219
+        ##e should call this to replace equivalent formulae in other places
         """
         Return the location of the eyeball in model coordinates.
 
@@ -352,7 +363,8 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
     
     aspect = property(__get_aspect)
     
-    def _setup_projection(self, glselect = False): ### WARNING: This is not actually private! TODO: rename it.
+    def _setup_projection(self, glselect = False):
+        ### WARNING: This is not actually private! TODO: rename it.
         """
         Set up standard projection matrix contents using various attributes of
         self (aspect, vdist, scale, zoomFactor).  Also reads the current OpenGL
@@ -519,7 +531,8 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
                 func()
             except:
                 print_compact_traceback(
-                    "bug: %r._call_whatever_waits_for_gl_context_current ignoring exception in %r: " % \
+                    "bug: %r._call_whatever_waits_for_gl_context_current "
+                    "ignoring exception in %r: " % \
                     (self, func) )
             continue
         return
@@ -602,46 +615,47 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         return namedView # ideally would not return a Node but just a
             # "view object" with the same 4 elements in it as passed to NamedView
 
-    def set_view_for_Undo(self, assy, namedView): # shares code with NamedView.set_view; might be very similar to some GLPane method, too
+    def set_view_for_Undo(self, assy, namedView):
         """
-        Restore the view (and the current Part) to what was saved by current_view_for_Undo.
-        WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
-        WARNING: might not gl_update, assume caller does so [#k obs warning?]
+        Restore the view (and the current Part) to what was saved by
+        current_view_for_Undo.
+
+        @warning: present implem of saving current Part (using its index in MT)
+                  is not suitable for out-of-order Redo.
+
+        @warning: might not gl_update, assume caller does so [#k obs warning?]
         """
-        ## compare to NamedView.set_view (which passes animate = True) -- not sure if we want to animate in this case [we do, for A8],
+        # shares code with NamedView.set_view; might be very similar to some GLPane method, too
+        ## compare to NamedView.set_view (which passes animate = True) -- not sure if we want
+        # to animate in this case [we do, for A8],
         # but if we do, we might have to do that at a higher level in the call chain
         restore_view = env.prefs[undoRestoreView_prefs_key] #060314
         restore_current_part = True # always do this no matter what
         ## restore_mode?? nah (not for A7 anyway; unclear what's best in long run)
         if restore_view:
             if type(namedView) == type(""):
-                #####@@@@@ code copied from GLPane.__init__, should be shared somehow, or at least comment GLPane and warn it's copied
-                #e also might not be the correct view, it's just the hardcoded default view... but i guess it's correct.
-                # rotation
-                self.quat = Q(1, 0, 0, 0)
-                # point of view (i.e. negative of center of view)
-                self.pov = V(0.0, 0.0, 0.0)
-                
-                # half-height of window in Angstroms (gets reset by certain 
-                #view-changing operations [bruce 050615 comment])                
-                #@REVIEW: Should self.scale here should be set from 
-                #startup_GLPane_scale_prefs_key ??
-                self.scale = 10.0
-                # zoom factor
-                self.zoomFactor = 1.0
+                self._initialize_view_attributes()
+                    #bruce 090220 revision to remove copied code; not fully
+                    # equivalent to prior code (sets scale from prefs rather
+                    # than to 10.0) but I think that's ok, since I think this
+                    # functionality (Undo changing the view) is only cosmetic.
             else:
-                self.animateToView(namedView.quat, namedView.scale, namedView.pov, namedView.zoomFactor, animate = False)
-                    # if we want this to animate, we probably have to move that higher in the call chain and do it after everything else
+                self.animateToView(namedView.quat, namedView.scale, namedView.pov,
+                                   namedView.zoomFactor, animate = False)
+                    # if we want this to animate, we probably have to move that
+                    # higher in the call chain and do it after everything else
         if restore_current_part:
             if type(namedView) == type(""):
                 if env.debug():
-                    print "debug: fyi: cys == '' still happens" # does it? ###@@@ 060314 remove if seen, or if not seen
+                    print "debug: fyi: cys == '' still happens"
+                        # does it? ###@@@ 060314 remove if seen, or if not seen
                 current_selgroup_index = 0
             else:
                 current_selgroup_index = namedView.current_selgroup_index
             sg = assy.selgroup_at_index(current_selgroup_index)
             assy.set_current_selgroup(sg)
-                #e how might that interact with setting the selection? Hopefully, not much, since selection (if any) should be inside sg.
+                #e how might that interact with setting the selection?
+                # Hopefully, not much, since selection (if any) should be inside sg.
         #e should we update_parts?
         return
 
