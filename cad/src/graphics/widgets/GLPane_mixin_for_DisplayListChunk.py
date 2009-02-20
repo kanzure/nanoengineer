@@ -108,7 +108,7 @@ class GLPane_mixin_for_DisplayListChunk(object):
             dlist_owner._your_drawing_effects_are_valid()
                 # Q: this resets flags which cause inval propogation... does it retain consistency?
                 # A: it does it in reverse logic dir and reverse arrow dir (due to transclose) as inval prop, so it's ok.
-                # Note: that comment won't be understandable in a month [from 070102]. Need to explain it better. ####doc
+                # Note: that comment won't be understandable in a month [from 070102]. Need to explain it better. ###doc
         return
     pass # end of class GLPane_mixin_for_DisplayListChunk
 

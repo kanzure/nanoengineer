@@ -229,7 +229,7 @@ class ThumbView(GLPane_minimal):
         #  and is not planned for near future since it's easy enough to close & reopen them)
         try:
             lights = self.shareWidget._lights #bruce 060415 shareWidget --> self.shareWidget; presumably always failed before that
-                ####@@@@ will this fix some bugs about common lighting prefs??
+                ###@@@ will this fix some bugs about common lighting prefs??
         except:
             lights = _default_lights
         

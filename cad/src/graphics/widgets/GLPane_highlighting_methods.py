@@ -101,7 +101,7 @@ class GLPane_highlighting_methods(object):
                of the objects we store into self.glselect_dict.
         """
         if self.glselect_wanted: # note: this will be reset below.
-            ####@@@@ WARNING: The original code for this, here in GLPane, has been duplicated and slightly modified
+            ###@@@ WARNING: The original code for this, here in GLPane, has been duplicated and slightly modified
             # in at least three other places (search for glRenderMode to find them). This is bad; common code
             # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
             # that should be fixed too. [bruce 060721 comment]

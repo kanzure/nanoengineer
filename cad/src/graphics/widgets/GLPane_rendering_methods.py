@@ -649,7 +649,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
                     capture_saved_bg_image = True
                     if bg_image_comparison_data == self._cached_bg_image_comparison_data: 
                         print "DEBUG FYI: equal values not same_vals:\n%r, \n%r" % \
-                          ( bg_image_comparison_data, self._cached_bg_image_comparison_data ) #####
+                          ( bg_image_comparison_data, self._cached_bg_image_comparison_data ) ###
                 pass
             pass
         else:
@@ -860,7 +860,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # draw transparent things (e.g. Build Atoms water surface,
         # parts of Plane or ESPImage nodes)
         # [bruce 080919 bugfix: do this inside the stereo loop]
-        #### REVIEW: any need for before_drawing_csdls etc? guess no for now.
+        ### REVIEW: any need for _call_func_that_draws_model? I guess not now,
+        # but revise if we ever want to use csdls with objects drawn by this.
+        # [bruce 090219 comment]
         try:
             self.set_drawing_phase('main/Draw_after_highlighting')
             self.graphicsMode.Draw_after_highlighting()

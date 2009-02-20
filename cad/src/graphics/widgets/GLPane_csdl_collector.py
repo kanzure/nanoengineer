@@ -48,7 +48,7 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         self.use_drawingsets = True
         self._drawingset_contents = {}
 
-    def draw_csdl_in_drawingset(self, csdl, intent): #### CALL IN MORE PLACES
+    def draw_csdl_in_drawingset(self, csdl, intent):
         """
         When self.use_drawingsets is set, model component drawing code which
         wants to draw a CSDL should pass it to this method rather than
@@ -56,7 +56,8 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
 
         At the end of the current drawing frame, all csdls passed to this method
         will be added to (or maintained in) an appropriate DrawingSet,
-        and all DrawingSets will be drawn, by external code #####doc which code
+        and all DrawingSets will be drawn, by external code which calls
+        get_drawingset_intent_csdl_dicts.
 
         @param csdl: a CSDL to draw later
         @type csdl: ColorSortedDisplayList
@@ -83,7 +84,7 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         csdl_dict[csdl.csdl_id] = csdl
         return
 
-    def get_drawingset_intent_csdl_dicts(self): ##### CALL ME
+    def get_drawingset_intent_csdl_dicts(self):
         """
         Return a dict from intent to a dict from csdl.csdl_id to csdl
         (with intent and csdl having been passed to draw_csdl_in_drawingset).

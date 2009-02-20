@@ -241,7 +241,7 @@ class GLPane(
         # Other "current preference" attributes. ###e Maybe some of these should
         # also be part-specific and/or saved in the mmp file? [bruce 050418]
 
-        ###### User Preference initialization ##############################
+        # == User Preference initialization ==
 
         # Get glpane related settings from prefs db.
         # Default values are set in "prefs_table" in prefs_constants.py.
@@ -280,7 +280,7 @@ class GLPane(
             self.lastNonReducedDisplayMode = self.displayMode
         #self.win.statusBar().dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
 
-        ###### End of User Preference initialization ##########################
+        # == End of User Preference initialization ==
 
         self._init_GLPane_rendering_methods()
 

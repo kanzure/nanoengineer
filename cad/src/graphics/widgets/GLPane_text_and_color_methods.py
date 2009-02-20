@@ -256,7 +256,6 @@ class GLPane_text_and_color_methods(object):
         # [-- Ninad 2007-12-03]
         glDisable(GL_LIGHTING)
         
-        ############
         #Add 'stoppers' for the cursor text. Example: If the cursor is near the
         #extreme right hand corner of the 3D workspace, the following code 
         #ensures that all the text string is visible. It does this check for 
@@ -308,7 +307,7 @@ class GLPane_text_and_color_methods(object):
         for dx, dy in deltas_for_halo_color: 
             self.qglColor(RGBf_to_QColor(halo_color)) 
 
-            ### Note: self.renderText is QGLWidget.renderText method.
+            # Note: self.renderText is QGLWidget.renderText method.
             self.renderText(x + dx*signForDX ,
                             y + dy*signForDY,
                             textString,

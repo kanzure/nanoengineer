@@ -193,7 +193,7 @@ class GLPane_drawingset_methods(object):
             # - incorrect since transforms are ignored
             #   (they're only present in gl state when csdl is added!)
             selected = intent
-            ## print "_draw_drawingsets stub: selected = %r, %d csdls" % (selected, len( csdls )) ####
+            ## print "_draw_drawingsets stub: selected = %r, %d csdls" % (selected, len( csdls ))
             d = DrawingSet(csdls.itervalues())
             # future: d.addCSDL(csdl), d.removeCSDL(csdl)
             d.draw(selected = selected)
