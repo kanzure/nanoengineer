@@ -1112,7 +1112,9 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
-            assy.draw(self.o)
+            def func():
+                assy.draw(self.o)
+            self.o._call_func_that_draws_model( func)
             self.Draw_after_highlighting(pickCheckOnly = True)
             glDisable(GL_CLIP_PLANE0)
         except:
@@ -1378,13 +1380,17 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # If caller needs to, that needs to be documented.
         # [bruce 080917 comment]
         glMatrixMode(GL_MODELVIEW)
-        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
 
-        if self.Draw_after_highlighting(pickCheckOnly = True): # Only when we have translucent planes drawn
-            self.o.assy.draw(self.o)
+        if self.Draw_after_highlighting(pickCheckOnly = True):
+            # Only when we have translucent planes drawn
+            def func():
+                self.o.assy.draw(self.o)
+            self.o._call_func_that_draws_model( func)
+            pass
 
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 
         return wZ[0][0]
 
@@ -1438,8 +1444,10 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
-            assy.draw(self.o)
-            self.Draw_after_highlighting(pickCheckOnly=True)
+            def func():
+                assy.draw(self.o)
+            self.o._call_func_that_draws_model( func)
+            self.Draw_after_highlighting(pickCheckOnly = True)
             glDisable(GL_CLIP_PLANE0)
         except:
             # Restore Model view matrix, select mode to render mode

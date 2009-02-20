@@ -37,25 +37,12 @@ from OpenGL.GL import glPopMatrix
 
 from PyQt4.QtOpenGL import QGLWidget
 
-import graphics.drawing.drawing_globals as drawing_globals
-
-from graphics.drawing.drawers import drawOriginAsSmallAxis
-from graphics.drawing.drawers import drawaxes
-
-from graphics.drawing.gl_lighting import disable_fog
-from graphics.drawing.gl_lighting import enable_fog
-from graphics.drawing.gl_lighting import setup_fog
-
-from graphics.drawing.drawcompass import Compass
-from graphics.drawing.Guides import Guides
 
 from utilities import debug_flags
 
 from utilities.debug import print_compact_traceback, print_compact_stack
 
 from utilities.Comparison import same_vals
-
-import foundation.env as env
 
 from utilities.prefs_constants import displayCompass_prefs_key
 from utilities.prefs_constants import displayOriginAxis_prefs_key
@@ -70,6 +57,23 @@ from utilities.debug_prefs import Choice_boolean_False
 
 from utilities.GlobalPreferences import use_frustum_culling
 from utilities.GlobalPreferences import pref_skip_redraws_requested_only_by_Qt
+
+
+import foundation.env as env
+
+
+import graphics.drawing.drawing_globals as drawing_globals
+
+from graphics.drawing.drawers import drawOriginAsSmallAxis
+from graphics.drawing.drawers import drawaxes
+
+from graphics.drawing.gl_lighting import disable_fog
+from graphics.drawing.gl_lighting import enable_fog
+from graphics.drawing.gl_lighting import setup_fog
+
+from graphics.drawing.drawcompass import Compass
+from graphics.drawing.Guides import Guides
+
 
 from graphics.widgets.GLPane_image_methods import GLPane_image_methods
 
@@ -789,10 +793,10 @@ class GLPane_rendering_methods(GLPane_image_methods):
         if self._fog_test_enable:
             enable_fog()
 
+        self.set_drawing_phase('main')
+        
         try:
-            self.set_drawing_phase('main')
-
-            self.graphicsMode.Draw()
+            self._do_graphicsMode_Draw()
                 # draw self.part (the model), with chunk & atom selection
                 # indicators, and graphicsMode-specific extras.
                 # Some GraphicsModes only draw portions of the model.
@@ -806,9 +810,30 @@ class GLPane_rendering_methods(GLPane_image_methods):
         finally:
             self.set_drawing_phase('?')
 
-        if self._fog_test_enable:
-            disable_fog()
+            if self._fog_test_enable: #bruce 090219 moved inside 'finally'
+                disable_fog()
 
+        return
+
+    def _do_graphicsMode_Draw(self): #bruce 090219
+        """
+        Private helper for various places in which we need to draw the model
+        (in this GLPane mixin and others).
+        """
+        def func():
+            self.graphicsMode.Draw()
+                # draw self.part (the model), with chunk & atom selection
+                # indicators, and graphicsMode-specific extras.
+                # Some GraphicsModes only draw portions of the model.
+                # Base class method in GraphicsMode also does miscellaneous
+                # special drawing controlled by user prefs.
+                ### todo: Likely refactoring: .Draw only draws model,
+                # then .Draw_special draws other stuff, in case that depends
+                # on more prefs than the model itself does (should help with
+                # the optim of caching a fixed background image).
+                # [bruce 080919 comment]
+            return            
+        self._call_func_that_draws_model( func)
         return
 
     def _do_other_drawing_inside_stereo(self): #bruce 080919 split this out
@@ -835,6 +860,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # draw transparent things (e.g. Build Atoms water surface,
         # parts of Plane or ESPImage nodes)
         # [bruce 080919 bugfix: do this inside the stereo loop]
+        #### REVIEW: any need for before_drawing_csdls etc? guess no for now.
         try:
             self.set_drawing_phase('main/Draw_after_highlighting')
             self.graphicsMode.Draw_after_highlighting()
@@ -908,7 +934,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
          )
         return
 
-    pass
+    pass # end of class
 
 # ==
 

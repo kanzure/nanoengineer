@@ -204,19 +204,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         radius = bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5
         return glpane.is_sphere_visible( center, radius )
 
-    def draw_csdl(self, csdl, selected = False): #bruce 090218
-        """
-        """
-        ##### CALL IN MORE PLACES, this class and EBset; refile into part?
-        ##### WRONG RE TRANSFORM in current calling code
-        drawing_frame = self.get_drawing_frame()
-        if drawing_frame and drawing_frame.use_drawingsets:
-            intent = bool(selected) #### for now 
-            drawing_frame.draw_csdl_in_drawingset(csdl, intent)
-        else:
-            csdl.draw(selected = selected)
-        return
-    
     def draw(self, glpane):
         """
         Draw self (including its external bonds, perhaps optimizing
@@ -280,7 +267,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         # etc. (But not for frustum culled atoms, since the indicators
         # would also be off-screen.) [bruce 080411 new feature]
 
-        drawing_frame = self.get_drawing_frame()
+        drawing_frame = self.get_part_drawing_frame()
         
         indicate_overlapping_atoms = drawing_frame and \
                                      drawing_frame.indicate_overlapping_atoms
@@ -416,7 +403,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 if self.havelist == havelist_data: 
                     # self.displist is still valid -- use it.
                     # Russ 081128: Switch from draw_dl() [now removed] to draw() with selection arg.
-                    self.draw_csdl(self.displist, selected = self._chunk.picked)
+                    glpane.draw_csdl(self.displist, selected = self._chunk.picked)
                     for extra_displist in self.extra_displists.itervalues():
                         # [bruce 080604 new feature]
                         # note: similar code in else clause, differs re wantlist
@@ -482,7 +469,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                         self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                         self.havelist = havelist_data
 
-                        self.draw_csdl(self.displist, selected = self._chunk.picked)
+                        glpane.draw_csdl(self.displist, selected = self._chunk.picked)
                         
                         # always set the self.havelist flag, even if exception happened,
                         # so it doesn't keep happening with every redraw of this Chunk.
@@ -675,7 +662,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         # update, bruce 090218: revised drawing_frame code below;
         # this fixes some but not all of the future problems mentioned above.
 
-        drawing_frame = self.get_drawing_frame() # might be None, in theory
+        drawing_frame = self.get_part_drawing_frame() # might be None, in theory
         
         repeated_bonds_dict = drawing_frame and drawing_frame.repeated_bonds_dict
             # might be None, if we're not being drawn between a pair
@@ -759,14 +746,22 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 ##            pass
 ##        return
 
-    def get_drawing_frame(self): #bruce 090218
+    def get_part_drawing_frame(self): #bruce 090218
         """
-        Return the current drawing_frame if we have one, or None.
+        Return the current Part_drawing_frame if we can find one, or None.
 
         @see: class Part_drawing_frame
         """
         # note: accessing part.drawing_frame allocates it on demand
         # if it wasn't already allocated during that call of Part.draw.
+        
+        ##### REVIEW: drawing_frame is probably the misnamed,
+        # now that it's not the same as GLPane.csdl_collector;
+        # see related docstrings in Part or its helper class for this attr
+        # for better description, explaining when we'd use more than
+        # one per frame in the future. Maybe part_drawing_frame would be
+        # a better name?? [bruce 090219 comment]
+        
         return self._chunk.part and self._chunk.part.drawing_frame
     
     def draw_overlap_indicators_if_needed(self): #bruce 080411, renamed 090108
@@ -779,7 +774,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         least once, assuming this method is called on all atoms drawn
         during this drawing frame.
         """
-        model_draw_frame = self.get_drawing_frame()
+        model_draw_frame = self.get_part_drawing_frame()
         if not model_draw_frame:
             return
         neighborhoodGenerator = model_draw_frame._f_state_for_indicate_overlapping_atoms
@@ -902,7 +897,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             return
 
         # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
-        ##### TODO: use self.draw_csdl.
+        ##### TODO: use glpane.draw_csdl.
         if self._has_displist():
             apply_material(color) ### REVIEW: still needed?
             self._chunk.pushMatrix()

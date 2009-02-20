@@ -131,7 +131,7 @@ class test_selection_redraw(GraphicsTestCase):
         return
     def activate(self):
         # make sure the correct two DrawingSets will be drawn
-        pass # implicit in our def of draw_drawingsets
+        pass # implicit in our def of _draw_drawingsets
     def draw(self):
         # move some of the CSDLs from one to another DrawingSet
         # (for now, just put each one into a pseudorandomly chosen DrawingSet, out of all of them)

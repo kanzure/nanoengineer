@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLPane_minimal.py -- common superclass for GLPane-like widgets.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -61,6 +61,10 @@ import foundation.env as env
 from graphics.drawing.setup_draw import setup_drawer
 from graphics.drawing.draw_grid_lines import setup_draw_grid_lines
 
+from graphics.widgets.GLPane_drawingset_methods import GLPane_drawingset_methods
+
+# ==
+
 DEPTH_TWEAK_UNITS = (2.0)**(-32)
 DEPTH_TWEAK_VALUE = 100000
     # For bond cylinders subject to shorten_tubes:
@@ -93,7 +97,9 @@ DEPTH_TWEAK_CHOICE = \
                             10000, 100000, 10**6, 10**7, 10**8],
                             defaultValue = DEPTH_TWEAK_VALUE )
 
-class GLPane_minimal(QGLWidget, object): #bruce 070914
+# ==
+
+class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 070914
     """
     Mostly a stub superclass, just so GLPane and ThumbView can have a common
     superclass.
@@ -104,10 +110,18 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     """
 
     # bruce 070920 added object superclass to our subclass GLPane;
+
     # bruce 080220 moved object superclass from GLPane to this class.
     # Purpose is to make this a new-style class so as to allow
     # defining a python property in any subclass.
 
+    # bruce 090219 added GLPane_drawingset_methods mixin superclass
+    # (for draw_csdl method; requires calling before_drawing_csdls and
+    #  after_drawing_csdls in all our subclass draw-like methods;
+    #  to help with this the mixin provides methods
+    #  _call_func_that_draws_model and
+    #  _call_func_that_draws_objects)
+    
     # note: every subclass defines .assy as an instance variable or property
     # (as of bruce 080220), but we can't define a default value or property
     # for that here, since some subclasses define it in each way
@@ -550,7 +564,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     def setDepthRange_Highlighting(self):
         glDepthRange(0.0, 1.0 - self.DEPTH_TWEAK)
         return
-
+    
     # ==
 
     # REVIEW:
@@ -631,6 +645,6 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         #e should we update_parts?
         return
 
-    pass
+    pass # end of class
 
 # end

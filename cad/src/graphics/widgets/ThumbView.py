@@ -157,6 +157,14 @@ class ThumbView(GLPane_minimal):
         [subclasses which need to draw anything must override this method]
         """        
         pass
+
+    def _drawModel_using_DrawingSets(self): #bruce 090219
+        """
+        """
+        def func():
+            self.drawModel()
+        self._call_func_that_draws_model( func )
+        return
     
     def drawSelected(self, obj):
         """
@@ -166,6 +174,19 @@ class ThumbView(GLPane_minimal):
         """
         pass
 
+    def _drawSelected_using_DrawingSets(self, obj): #bruce 090219
+        """
+        """
+        def func():
+            self.drawSelected(obj)
+        self._call_func_that_draws_model( func )
+            ### REVIEW: should we use _call_func_that_draws_objects instead?
+            # This requires passing a part which contains obj,
+            # and I don't know for sure whether there is one, or how to find it
+            # in all cases. Guess: this is desirable, but not yet essential.
+            # [bruce 090219 comment]
+        return
+    
     def _get_assy(self): #bruce 080220
         """
         Return the assy which contains all objects we are drawing
@@ -310,7 +331,7 @@ class ThumbView(GLPane_minimal):
             # since I don't know if they might be depended on by non-paintGL
             # drawing (e.g. for highlighting, which btw is called "selection"
             # in some method names and comments in this file). [bruce 080220]
-            self.drawModel()
+            self._drawModel_using_DrawingSets()
    
     def mousePressEvent(self, event):
         """
@@ -563,10 +584,10 @@ class ThumbView(GLPane_minimal):
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
-            self.drawModel()
+            self._drawModel_using_DrawingSets()
         except:
             #bruce 080917 fixed predicted bugs in this except clause (untested)
-            print_compact_traceback("exception in ThumbView.drawModel() during GL_SELECT; ignored; restoring matrices: ")
+            print_compact_traceback("exception in ThumbView._drawModel_using_DrawingSets() during GL_SELECT; ignored; restoring matrices: ")
             glDisable(GL_CLIP_PLANE0)
             glMatrixMode(GL_PROJECTION)
             glPopMatrix()
@@ -622,7 +643,7 @@ class ThumbView(GLPane_minimal):
         
         self._preHighlight()
         
-        self.drawSelected(obj)
+        self._drawSelected_using_DrawingSets(obj)
         
         self._endHighlight()
         

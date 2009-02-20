@@ -181,7 +181,7 @@ class GLPane_highlighting_methods(object):
                     for stereo_image in self.stereo_images_to_draw:
                         self._enable_stereo(stereo_image)
                         try:
-                            self.graphicsMode.Draw()
+                            self._do_graphicsMode_Draw()
                                 # note: we can't disable depth writing here, 
                                 # since we need it to make sure the correct 
                                 # shader object comes out on top, or is
@@ -294,7 +294,7 @@ class GLPane_highlighting_methods(object):
                 for stereo_image in self.stereo_images_to_draw:
                     self._enable_stereo(stereo_image)
                     try:
-                        self.graphicsMode.Draw()
+                        self._do_graphicsMode_Draw()
                     finally:
                         self._disable_stereo()
             except:
@@ -489,10 +489,12 @@ class GLPane_highlighting_methods(object):
                 #bruce 070329 moved set of drawing_phase from just after selobj.draw_in_abs_coords to just before it.
                 # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
                 #  though it can't be tested yet since it has no known effect on current code, only on future code.]
-                
-            self.graphicsMode.drawHighlightedObjectUnderMouse( self, selobj, hicolor)
+            def func():
+                self.graphicsMode.drawHighlightedObjectUnderMouse( self, selobj, hicolor)
                 # TEST someday: test having color writing disabled here -- does stencil write still happen??
                 # (not urgent, since we definitely need color writing here.)
+                return
+            self._call_func_that_draws_objects(func, self.part)
         except:
             # try/except added for GL-state safety, bruce 061218
             print_compact_traceback(
@@ -626,7 +628,13 @@ class GLPane_highlighting_methods(object):
                         self._enable_stereo(stereo_image)
 
                         self.set_drawing_phase('selobj/preDraw_glselect_dict') # bruce 070124
-                        method(self, white) # draw depth info (color doesn't matter since we're not drawing pixels)
+
+                        def func():
+                            method(self, white)
+                                # draw depth info
+                                # (color doesn't matter since we're not drawing pixels)
+                            return
+                        self._call_func_that_draws_objects( func, self.part)
 
                         self._disable_stereo()
 

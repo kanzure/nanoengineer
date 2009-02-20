@@ -40,7 +40,6 @@ to avoid __getattr__ on __xxx__ attrs in python objects.
 from utilities import debug_flags
 
 from utilities.debug import print_compact_traceback, print_compact_stack
-from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.Log import redmsg
 
 from utilities.constants import diINVISIBLE
@@ -64,9 +63,6 @@ from foundation.state_utils import StateMixin
 from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
 
 import foundation.env as env
-
-
-from graphics.model_drawing.PartDrawer import PartDrawer
 
 
 from model.NamedView import NamedView
@@ -125,7 +121,6 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # rather than autogenerating another name.
         # It would also be useful if there was a Part Tree Widget...
     alive = False # set to True at end of __init__, and again to False if we're destroyed(??#k)
-    _drawer = None
 
     # state decls (for attrs set in __init__) [bruce 060224]
     _s_attr_name = S_DATA
@@ -248,8 +243,6 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         self.ppa2 = self.ppa3 = self.ppm = None
 
         self.alive = True # we're not yet destroyed
-
-        self._drawer = PartDrawer(self) #bruce 090218 refactoring
 
         if debug_parts:
             print "debug_parts: fyi: created Part:", self
@@ -395,9 +388,6 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self.assy.o.forget_part(self) # just in case we're its current part
         ## self.invalidate_all_attrs() # not needed
         self.alive = False # do this one first ###@@@ see if this can help a Movie who knows us see if we're safe... [050420]
-        if self._drawer:
-            self._drawer.destroy()
-            del self._drawer
         if "be conservative for now, though memory leaks might result": #bruce 050428
             return
         # bruce 050428 removed the rest for now. In fact, even what we had was probably not enough to
@@ -1022,7 +1012,10 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # ==
 
     # note: self._drawer and self.drawing_frame
-    # are mostly-orthogonal refactorings, both by bruce 090218
+    # are mostly-orthogonal refactorings, both by bruce 090218;
+    # they also initially included what's now in before/after_drawing_csdls,
+    # but I realized that code belonged elsewhere and moved it;
+    # there is no longer a need for self._drawer or PartDrawer. [bruce 090219]
     
     _drawing_frame = None # allocated on demand
 
@@ -1089,16 +1082,17 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self.after_drawing_model(error)
         return
 
-    def before_drawing_model(self): #bruce 070928
+    def before_drawing_model(self): #bruce 070928; revised 090219 #### TODO: rename _model -> _Part
         """
         Whenever self's model, or part of it, is drawn,
         that should be bracketed by calls of self.before_drawing_model()
         and self.after_drawing_model() (using try/finally to guarantee
         the latter call). This is already done by self.draw,
         but must be done explicitly if something draws a portion of
-        self's model in some other way.
+        self's model in some other way. (For examples, see our other calls.)
 
         Specifically, the caller must do (in this order):
+        
         * call self.before_drawing_model()
         
         * call node.draw() (with proper arguments, and exception protection)
@@ -1116,23 +1110,22 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         since each repetition will need to be bracketed by matched calls
         of before_drawing_model and after_drawing_model, but they will need
         to behave differently to permit nesting (e.g. have a stack of prior
-        values of the variables they reset).
+        values of the variables they reset). Nesting would not be needed to
+        support "multiple views of one whole Part" or "views of multiple Parts"
+        (but each Part-view would need to be bracketed by before/after calls);
+        but nesting would be needed to support multiple views of "part of one
+        Part" within a larger view of the "whole Part", if they were implemented
+        by drawing "part of one Part" multiple times (due to repeated drawing
+        of bonds being legitimate then). If the repetition was implemented
+        at a graphical level (e.g. by reusing a DrawingSet), nesting of
+        this bracketing would not be needed, and that would be faster too.
         """
         del self.drawing_frame
         self._drawing_frame_class = Part_drawing_frame
             # instantiated the first time self.drawing_frame is accessed
-
-        if debug_pref("GLPane: draw model using DrawingSets?",
-                      Choice_boolean_False,
-                      non_debug = True,
-                      prefs_key = True ):
-            self.drawing_frame.setup_for_drawingsets()
-                # sets self.drawing_frame.use_drawingsets, and more
-            pass
-        
         return
 
-    def after_drawing_model(self, error = False): #bruce 070928
+    def after_drawing_model(self, error = False): #bruce 070928; revised 090219
         """
         @see: before_drawing_model
 
@@ -1142,13 +1135,6 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                       things we normally do. Default value is False
                       since most calls don't pass anything. (#REVIEW: good?)
         """
-        if not error:
-            if self.drawing_frame.use_drawingsets:
-                self._drawer.draw_drawingsets()
-                # note, the DrawingSets themselves last between draw calls,
-                # and are stored in self._drawer. self.drawing_frame has a
-                # friend attribute used to collect necessary info during a
-                # draw call for updating the DrawingSets before drawing them.
         del self.drawing_frame
         del self._drawing_frame_class # expose class default value
         return
@@ -1156,7 +1142,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def glpane_label_text(self): #bruce 090219 renamed from glpane_text
         return "" # default implem, subclasses might override this
 
-    def writepov(self, f, dispdef): # revised, bruce 090218
+    def writepov(self, f, dispdef): # revised, bruce 090219
         """
         Draw self's visible model objects into an open povray file
         (which already has whatever headers & macros it needs),
@@ -1167,6 +1153,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # self.drawing_frame.repeated_bonds_dict, and using its
             # "full version" will help permit future draw methods that
             # work for either OpenGL or POV-Ray.
+            # (It might also be desirable to use GLPane.before_drawing_csdls
+            #  at that time.)
         error = True
         try:
             self.topnode.writepov(f, dispdef)

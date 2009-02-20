@@ -8,7 +8,10 @@ Part_drawing_frame.py -- classes for use as a Part's drawing_frame
 
 History:
 
-Bruce 090218 wrote this in part.py, then split into its own file
+Bruce 090218 wrote this in part.py, then split into its own file,
+then added features related to DrawingSets.
+
+Bruce 090219 moved everything related to DrawingSets elsewhere.
 """
 
 # (todo: better name?)
@@ -25,6 +28,8 @@ from utilities.prefs_constants import indicateOverlappingAtoms_prefs_key
 from geometry.NeighborhoodGenerator import NeighborhoodGenerator
 
 import foundation.env as env
+
+# ==
 
 class _Part_drawing_frame_superclass:
     """
@@ -45,17 +50,17 @@ class _Part_drawing_frame_superclass:
     _f_state_for_indicate_overlapping_atoms = None
     indicate_overlapping_atoms = False
 
-    use_drawingsets = False # whether to draw CSDLs using DrawingSets
-
     pass
+
+# ==
 
 class Part_drawing_frame(_Part_drawing_frame_superclass):
     """
     One of these is created whenever drawing all or part of a Part,
-    once per "drawing frame" (e.g. call of Part.draw()).
+    provided Part.before_drawing_model is called as it should be.
 
-    It holds attributes needed during a single draw call
-    (or, a draw of a portion of the model).
+    It holds attributes needed during a single draw of one Part
+    (or, a draw of a portion of the model for one Part).
 
     See superclass code comments for documentation of attributes.
 
@@ -89,69 +94,14 @@ class Part_drawing_frame(_Part_drawing_frame_superclass):
         
         return
 
-    # review: should some of the following methods be moved to PartDrawer?
-    # maybe logically yes, but at least for draw_csdl_in_drawingset,
-    # that would make access slower and less convenient, so not for now.
-    
-    def setup_for_drawingsets(self):
-        # review: needed in fake_Part_drawing_frame too??
-        """
-        """
-        self.use_drawingsets = True
-        self._drawingset_contents = {}
-
-    def draw_csdl_in_drawingset(self, csdl, intent): #### CALL IN MORE PLACES
-        """
-        When self.use_drawingsets is set, model component drawing code which
-        wants to draw a CSDL should pass it to this method rather than
-        drawing it directly.
-
-        At the end of the current drawing frame, all csdls passed to this method
-        will be added to (or maintained in) an appropriate DrawingSet,
-        and all DrawingSets will be drawn, by our part's PartDrawer.
-
-        @param csdl: a CSDL to draw later
-        @type csdl: ColorSortedDisplayList
-
-        @param intent: specifies how the DrawingSet which csdl ends up in
-                       should be drawn (transform, other GL state, draw options)
-        @type intent: not defined here, but must be useable as a dict key
-
-        @return: None
-
-        This API requires that every csdl to be drawn must be passed here in
-        every frame (though the DrawingSets themselves can be persistent
-        and incrementally updated, depending on how the data accumulated here
-        is used). A more incremental API would probably perform better
-        but would be much more complex, having to deal with chunks which
-        move in and out of self, get killed, or don't get drawn for any other
-        reason, and also requiring chunks to "diff" their own drawing intents
-        and do incremental update themselves.
-        """
-        try:
-            csdl_dict = self._drawingset_contents[intent]
-        except KeyError:
-            csdl_dict = self._drawingset_contents[intent] = {}
-        csdl_dict[csdl.csdl_id] = csdl
-        return
-
-    def get_drawingset_intent_csdl_dicts(self):
-        """
-        A return a dict from intent to a dict from csdl.csdl_id to csdl
-        (with intent and csdl having been passed to draw_csdl_in_drawingset).
-        
-        Meant to be used only by PartDrawer.
-        """
-        return self._drawingset_contents
-
     pass
+
+# ==
 
 class fake_Part_drawing_frame(_Part_drawing_frame_superclass):
     """
-    Use one of these "in between draw calls" to avoid or mitigate bugs.
+    Use one of these "between draws" to avoid or mitigate bugs.
     """
-    # todo: print a warning whenever our methods/attrs are used,
-    # or create self on demand and print a warning then.
     def __init__(self):
         print_compact_stack(
             "warning: fake_Part_drawing_frame is being instantiated: " )
@@ -160,6 +110,8 @@ class fake_Part_drawing_frame(_Part_drawing_frame_superclass):
             # for more than one draw of one object (since using an actual
             # dict then would make bonds sometimes fail to be drawn).
             # Client code must tolerate this value.
+        return
+    
     pass
         
 # end
