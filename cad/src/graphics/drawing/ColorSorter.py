@@ -131,7 +131,16 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     want to use a TransformControl to move the CSDL. This has the same effect as
     giving a TransformControl whose transform remains as the identity matrix.
     """
-    def __init__(self, transformControl = None):
+
+    # default values of instance variables
+    transformControl = None
+    reentrant = False #bruce 090220
+    
+    def __init__(self, transformControl = None, reentrant = False):
+        """
+        """
+        if reentrant:
+            self.reentrant = True # permits reentrant ColorSorter.start
         
         # [Russ 080915: Added.
         # A unique integer ID for each CSDL.
@@ -156,13 +165,11 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # drawIndices so it can support more than one primitive type.
         self.drawIndices = {}
 
-        # TransformControl constructor argument is optional.
-        self.transformControl = transformControl
-        if self.transformControl is not None:
+        if transformControl is not None:
+            self.transformControl = transformControl
             # Note: this requires the csdlID to be already set!
             self.transformControl.addCSDL(self)
             pass
-        # Russ 080915]
 
         # Russ 081122: Mark CSDLs with a glname for selection.
         self.glname = env._shared_glselect_name_dict.\
@@ -920,8 +927,13 @@ class ColorSorter:
         #russ 080225: Moved glNewList here for displist re-org.
         # (bruce 090114: removed support for use_color_sorted_vbos)
         
+        assert not ColorSorter.sorting, \
+               "Called ColorSorter.start but already sorting?!"
+        ColorSorter.sorting = True
+
         assert ColorSorter._parent_csdl is None #bruce 090105
         ColorSorter._parent_csdl = csdl  # used by finish()
+
         if pickstate is not None:
             csdl.selectPick(pickstate)
             pass
@@ -933,7 +945,7 @@ class ColorSorter:
             # Clear the primitive data to start collecting a new set.
             csdl.clearPrimitives()
 
-            if 0: 
+            if 0: # keep around, in case we want a catchall DL in the future
                 #bruce 090114 removed support for 
                 # (not (drawing_globals.allow_color_sorting and
                 #       drawing_globals.use_color_sorted_dls)):
@@ -956,9 +968,6 @@ class ColorSorter:
                     raise
                 pass
             pass
-        assert not ColorSorter.sorting, \
-               "Called ColorSorter.start but already sorting?!"
-        ColorSorter.sorting = True
         if drawing_globals.use_c_renderer:
             ColorSorter._cur_shapelist = ShapeList_inplace()
             ColorSorter.sphereLevel = -1
@@ -977,6 +986,8 @@ class ColorSorter:
         In that case, draw_now must be True since it doesn't make sense
         to not draw (the drawing has already happened).
         """
+        assert ColorSorter.sorting #bruce 090220, appears to be true from this code
+        
         if not ColorSorter.sorting:
             assert draw_now, "finish(draw_now = False) makes no sense unless ColorSorter.sorting"
             return                      # Plain immediate-mode, nothing to do.
