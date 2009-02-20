@@ -494,7 +494,7 @@ class GLPane_highlighting_methods(object):
                 # TEST someday: test having color writing disabled here -- does stencil write still happen??
                 # (not urgent, since we definitely need color writing here.)
                 return
-            self._call_func_that_draws_objects(func, self.part)
+            self._call_func_that_draws_objects(func, self.part, bare_primitives = True)
         except:
             # try/except added for GL-state safety, bruce 061218
             print_compact_traceback(
@@ -634,7 +634,7 @@ class GLPane_highlighting_methods(object):
                                 # draw depth info
                                 # (color doesn't matter since we're not drawing pixels)
                             return
-                        self._call_func_that_draws_objects( func, self.part)
+                        self._call_func_that_draws_objects( func, self.part, bare_primitives = True)
 
                         self._disable_stereo()
 

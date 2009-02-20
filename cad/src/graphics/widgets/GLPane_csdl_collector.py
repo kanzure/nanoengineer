@@ -15,13 +15,17 @@ a separate object on 090219
 
 from utilities.debug import print_compact_stack
 
+from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.ColorSorter import ColorSorter
+
 # ==
 
 class _GLPane_csdl_collector_superclass:
     """
     """
     use_drawingsets = False # whether to draw CSDLs using DrawingSets
-
+    bare_primitives = None # None, or a CSDL for collecting bare primitives
+    
     pass
 
 # ==
@@ -48,6 +52,13 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         self.use_drawingsets = True
         self._drawingset_contents = {}
 
+    def setup_for_bare_primitives(self): #bruce 090220
+        """
+        """
+        self.bare_primitives = ColorSortedDisplayList(reentrant = True)
+        ColorSorter.start(self.bare_primitives)
+        return
+    
     def draw_csdl_in_drawingset(self, csdl, intent):
         """
         When self.use_drawingsets is set, model component drawing code which
@@ -84,6 +95,14 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         csdl_dict[csdl.csdl_id] = csdl
         return
 
+    def finish_bare_primitives(self):
+        assert self.bare_primitives
+        csdl = self.bare_primitives
+        self.bare_primitives = None # precaution
+        assert ColorSorter._parent_csdl is csdl
+        ColorSorter.finish( draw_now = False)
+        return csdl
+    
     def get_drawingset_intent_csdl_dicts(self):
         """
         Return a dict from intent to a dict from csdl.csdl_id to csdl

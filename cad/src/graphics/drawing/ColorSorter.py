@@ -58,6 +58,13 @@ to make this very clear.
 and activate (and related comments in CrystalShape.py and chunk.py).
 
 russ 090119 Added cylinder shader-primitive support.
+
+TODO:
+
+Change ColorSorter into a normal class with distinct instances.
+Give it a stack of instances rather than its current _suspend system.
+Refactor some things between ColorSorter and ColorSortedDisplayList
+(which needs renaming). Split them into separate files. [bruce 090220 comment]
 """
 
 from OpenGL.GL import GL_BLEND
@@ -556,13 +563,15 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     pass # End of ColorSortedDisplayList.
 
-class ColorSorter:
+# ==
 
+class ColorSorter:
     """
-    State Sorter specializing in color (Really any object that can be
+    State Sorter specializing in color (really any object that can be
     passed to apply_material, which on 20051204 is only color 4-tuples)
 
     Invoke start() to begin sorting.
+    
     Call finish() to complete sorting; pass draw_now = True to also draw
     all sorted objects at that time.
 
@@ -582,21 +591,99 @@ class ColorSorter:
     __author__ = "grantham@plunk.org"
 
     # For now, these are class globals.  As long as OpenGL drawing is
-    # serialized and Sorting isn't nested, this is okay.  When/if
+    # serialized and Sorting isn't nested, this is okay.
+    #
+    # [update, bruce 090220: it's now nested, so this should be changed.
+    #  for now, we kluge it with _suspend/_unsuspend_if_needed methods.
+    #  Note that this makes ColorSorter.start/finish slower than if we had
+    #  a stack of ColorSorter instances, which is what we *should* do.]
+    # 
+    # When/if
     # OpenGL drawing becomes multi-threaded, sorters will have to
     # become instances.  This is probably okay because objects and
     # materials will probably become objects of their own about that
     # time so the whole system will get a redesign and
     # reimplementation.
 
-    sorting = False     # Guard against nested sorting
-    _sorted = 0         # Number of calls to _add_to_sorter since last
-                        # _printstats
-    _immediate = 0      # Number of calls to _invoke_immediately since last
-                        # _printstats
-    _gl_name_stack = [0]     # internal record of GL name stack; 0 is a sentinel
-    _parent_csdl = None  # Passed from the start() method to finish().
+    _suspended_states = [] #bruce 090220
 
+    def _init_state(): # staticmethod
+        """
+        Initialize all state variables.except _suspended_states.
+        
+        @note: this is called immediately after defining this class,
+               and in _suspend.
+        """
+        # Note: all state variables (except _suspended_states) must be
+        # initialized here, saved in _suspend, and restored in
+        # _unsuspend_if_needed.
+    
+        ColorSorter.sorting = False # Guard against nested sorting
+
+        ColorSorter._sorted = 0     # Number of calls to _add_to_sorter since last _printstats
+
+        ColorSorter._immediate = 0  # Number of calls to _invoke_immediately since last _printstats
+
+        ColorSorter._gl_name_stack = [0] # internal record of GL name stack; 0 is a sentinel
+
+        ColorSorter._parent_csdl = None  # Passed from start() to finish()
+
+        # following are guesses by bruce 090220:
+        ColorSorter.sorted_by_color = None
+        ColorSorter._cur_shapelist = None
+        ColorSorter.sphereLevel = -1
+        
+        return
+
+    _init_state = staticmethod(_init_state)
+
+    def _suspend(): # staticmethod
+        """
+        Save our state so we can reentrantly start.
+        """
+        # ColorSorter._suspended_states is a list of suspended states.
+        class _attrholder:
+            pass
+        state = _attrholder()
+        
+        state.sorting = ColorSorter.sorting
+        state._sorted = ColorSorter._sorted
+        state._immediate = ColorSorter._immediate
+        state._gl_name_stack = ColorSorter._gl_name_stack
+        state._parent_csdl = ColorSorter._parent_csdl
+        state.sorted_by_color = ColorSorter.sorted_by_color
+        state._cur_shapelist = ColorSorter._cur_shapelist
+        state.sphereLevel = ColorSorter.sphereLevel
+        
+        ColorSorter._suspended_states += [state]
+        ColorSorter._init_state()
+        return
+    
+    _suspend = staticmethod(_suspend)
+
+    def _unsuspend_if_needed(): # staticmethod
+        """
+        If we're suspended, unsuspend.
+        """
+        if ColorSorter._suspended_states:
+            state = ColorSorter._suspended_states.pop()
+
+            ColorSorter.sorting = state.sorting
+            ColorSorter._sorted = state._sorted
+            ColorSorter._immediate = state._immediate
+            ColorSorter._gl_name_stack = state._gl_name_stack
+            ColorSorter._parent_csdl = state._parent_csdl
+            ColorSorter.sorted_by_color = state.sorted_by_color
+            ColorSorter._cur_shapelist = state._cur_shapelist
+            ColorSorter.sphereLevel = state.sphereLevel
+            pass
+        
+        return
+    
+    _unsuspend_if_needed = staticmethod(_unsuspend_if_needed)
+
+    # ==
+    
     def pushName(glname):
         """
         Record the current pushed GL name, which must not be 0.
@@ -700,6 +787,7 @@ class ColorSorter:
 
     schedule = staticmethod(schedule)
 
+
     def schedule_sphere(color, pos, radius, detailLevel,
                         opacity = 1.0, testloop = 0):
         """
@@ -756,6 +844,7 @@ class ColorSorter:
 
     schedule_sphere = staticmethod(schedule_sphere)
 
+
     def schedule_wiresphere(color, pos, radius, detailLevel = 1):
         """
         Schedule a wiresphere for rendering whenever ColorSorter thinks is
@@ -780,6 +869,7 @@ class ColorSorter:
                                  (color, pos, radius, detailLevel))
 
     schedule_wiresphere = staticmethod(schedule_wiresphere)
+
 
     def schedule_cylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
         """
@@ -819,6 +909,7 @@ class ColorSorter:
 
     schedule_cylinder = staticmethod(schedule_cylinder)
 
+
     def schedule_polycone(color, pos_array, rad_array,
                           capped = 0, opacity = 1.0):
         """
@@ -844,6 +935,7 @@ class ColorSorter:
                                  (pos_array, rad_array))
 
     schedule_polycone = staticmethod(schedule_polycone)
+
 
     def schedule_polycone_multicolor(color, pos_array, color_array, rad_array,
                                      capped = 0, opacity = 1.0):
@@ -875,6 +967,7 @@ class ColorSorter:
 
     schedule_polycone_multicolor = staticmethod(schedule_polycone_multicolor)
 
+
     def schedule_surface(color, pos, radius, tm, nm):
         """
         Schedule a surface for rendering whenever ColorSorter thinks is
@@ -887,6 +980,7 @@ class ColorSorter:
         ColorSorter.schedule(lcolor, drawsurface_worker, (pos, radius, tm, nm))
 
     schedule_surface = staticmethod(schedule_surface)
+
 
     def schedule_line(color, endpt1, endpt2, dashEnabled,
                       stipleFactor, width, isSmooth):
@@ -913,6 +1007,8 @@ class ColorSorter:
 
     schedule_triangle_strip = staticmethod(schedule_triangle_strip)
 
+    # ==
+    
     def start(csdl, pickstate = None): # staticmethod
         """
         Start sorting - objects provided to "schedule" and primitives such as
@@ -926,6 +1022,11 @@ class ColorSorter:
         """
         #russ 080225: Moved glNewList here for displist re-org.
         # (bruce 090114: removed support for use_color_sorted_vbos)
+        #bruce 090220: support _parent_csdl.reentrant
+
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            assert ColorSorter.sorting
+            ColorSorter._suspend()
         
         assert not ColorSorter.sorting, \
                "Called ColorSorter.start but already sorting?!"
@@ -976,6 +1077,8 @@ class ColorSorter:
 
     start = staticmethod(start)
 
+    # ==
+    
     def finish(draw_now = None): # staticmethod
         """
         Finish sorting -- objects recorded since "start" will be sorted;
@@ -988,8 +1091,14 @@ class ColorSorter:
         """
         assert ColorSorter.sorting #bruce 090220, appears to be true from this code
         
-        if not ColorSorter.sorting:
-            assert draw_now, "finish(draw_now = False) makes no sense unless ColorSorter.sorting"
+        if not ColorSorter._parent_csdl:
+            #bruce 090220 revised, check _parent_csdl rather than sorting
+            # (since sorting is always true); looks right but not fully analyzed
+            assert draw_now, "finish(draw_now = False) makes no sense unless ColorSorter._parent_csdl"
+            ### WARNING: DUPLICATE CODE with end of this method
+            # (todo: split out some submethods to clean up)
+            ColorSorter.sorting = False
+            ColorSorter._unsuspend_if_needed()
             return                      # Plain immediate-mode, nothing to do.
 
         if draw_now is None:
@@ -1215,6 +1324,9 @@ class ColorSorter:
 
             ColorSorter.sorted_by_color = None
             pass
+
+        ### WARNING: DUPLICATE CODE with another return statement in this method
+
         ColorSorter.sorting = False
 
         if draw_now:
@@ -1223,9 +1335,12 @@ class ColorSorter:
                 parent_csdl.draw(
                     # Use either the normal-color display list or the selected one.
                     selected = parent_csdl.selected)
+
+        ColorSorter._unsuspend_if_needed()
         return
 
     finish = staticmethod(finish)
+
 
     def _draw_sorted(sorted_by_color):   #russ 080320: factored out of finish().
         """
@@ -1266,6 +1381,9 @@ class ColorSorter:
 
     _draw_sorted = staticmethod(_draw_sorted)
 
-    pass # End of class ColorSorter.
+    pass # End of class ColorSorter
+
+ColorSorter._init_state()
+    # (this would be called in __init__ if ColorSorter was a normal class.)
 
 # end

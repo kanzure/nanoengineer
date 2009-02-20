@@ -15,7 +15,6 @@ Part.after_drawing_model.
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
 
-
 from graphics.drawing.DrawingSet import DrawingSet
 
 from graphics.widgets.GLPane_csdl_collector import GLPane_csdl_collector
@@ -72,15 +71,27 @@ class GLPane_drawingset_methods(object):
         """
         return self._csdl_collector is not None
 
-    def before_drawing_csdls(self):
+    def before_drawing_csdls(self, bare_primitives = False, cachename = None):
         """
         Whenever some CSDLs are going to be drawn by self.draw_csdl,
         call this first, draw them, and then call self.after_drawing_csdls.
+
+        @param bare_primitives: when True, also open up a new CSDL
+        and collect all "bare primitives" (not drawn into other CSDLs)
+        into it, and draw it at the end. The new CSDL will be marked to
+        permit reentrancy of ColorSorter.start, and will not be allowed
+        to open up a "catchall display list" (an nfr for CSDL) since that
+        might lead to nested display list compiles, not allowed by OpenGL.
         """
-        # someday we might take args, e.g. an "intent map"
+        # someday we might take other args, e.g. an "intent map" (related to cachename?)
+        #### TODO: use cachename, and call with it;
+        # issue of using too much ram: all whole-model caches should be the same;
+        # small ones don't matter too much but might be best temporary in case they are not always small;
+        # at least use the same cache in all temp cases.
         del self.csdl_collector 
         self._csdl_collector_class = GLPane_csdl_collector
             # instantiated the first time self.csdl_collector is accessed
+            # (which might be just below, depending on prefs and options)
 
         if debug_pref("GLPane: use DrawingSets to draw model?",
                       Choice_boolean_False,
@@ -89,6 +100,14 @@ class GLPane_drawingset_methods(object):
             self.csdl_collector.setup_for_drawingsets()
                 # sets self.csdl_collector.use_drawingsets, and more
             pass
+
+        if debug_pref("GLPane: highlight prims in csdls?",
+                      Choice_boolean_False, # since not yet working. when it works, default True and soon scrap the pref.
+                      non_debug = True,
+                      prefs_key = True ):
+            if bare_primitives:
+                self.csdl_collector.setup_for_bare_primitives()
+
         return
 
     def draw_csdl(self, csdl, selected = False):
@@ -115,19 +134,26 @@ class GLPane_drawingset_methods(object):
                       since most calls don't pass anything. (#REVIEW: good? true?)
         """
         if not error:
+            if self.csdl_collector.bare_primitives:
+                # this must come before the _draw_drawingsets below
+                csdl = self.csdl_collector.finish_bare_primitives()
+                self.draw_csdl(csdl)
+                pass
             if self.csdl_collector.use_drawingsets:
                 self._draw_drawingsets()
                 # note, the DrawingSets themselves last between draw calls,
                 # and are stored elsewhere in self. self.csdl_collector has
                 # attributes used to collect necessary info during a
                 # draw call for updating the DrawingSets before drawing them.
+                pass
+            pass
         del self.csdl_collector
         del self._csdl_collector_class # expose class default value
         return
 
-    def _call_func_that_draws_model(self, func, *args, **kws):
+    def _call_func_that_draws_model(self, func, **kws):
         """
-        Call func() between calls of self.before_drawing_csdls(*args)
+        Call func() between calls of self.before_drawing_csdls(**kws)
         and self.after_drawing_csdls(). Return whatever func() returns
         (or raise whatever exception it raises, but call
          after_drawing_csdls even when raising an exception).
@@ -136,10 +162,7 @@ class GLPane_drawingset_methods(object):
         inside it, e.g. one of the standard functions for drawing the
         entire model (e.g. part.draw or graphicsMode.Draw).
         """
-        kws.pop('cachename', None) # not yet used; will be used to specify which drawingset cache to use ####
-            # (by default, use drawing_phase, or in event methods, same as when drawing main model)
-        assert not kws # no other optional args permitted yet
-        self.before_drawing_csdls(*args)
+        self.before_drawing_csdls(**kws) # kws: bare_primitives, cachename
         error = True
         res = None
         try:
@@ -148,10 +171,10 @@ class GLPane_drawingset_methods(object):
         finally:
             # (note: this is sometimes what does the actual drawing
             #  requested by func())
-            self.after_drawing_csdls(error) 
+            self.after_drawing_csdls( error) 
         return res
 
-    def _call_func_that_draws_objects(self, func, part):
+    def _call_func_that_draws_objects(self, func, part, **kws):
         """
         Like _call_func_that_draws_model,
         but also wraps func with the part methods
@@ -175,7 +198,9 @@ class GLPane_drawingset_methods(object):
             finally:
                 part.after_drawing_model(error)
             return
-        self._call_func_that_draws_model( func2, cachename = 'temp')
+        use_kws = dict(cachename = 'temp') # default kws
+        use_kws.update(kws)
+        self._call_func_that_draws_model( func2, **use_kws)
         return
     
     def _draw_drawingsets(self):
