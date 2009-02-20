@@ -1011,11 +1011,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # ==
 
-    # note: self._drawer and self.drawing_frame
-    # are mostly-orthogonal refactorings, both by bruce 090218;
-    # they also initially included what's now in before/after_drawing_csdls,
-    # but I realized that code belonged elsewhere and moved it;
-    # there is no longer a need for self._drawer or PartDrawer. [bruce 090219]
+    # self.drawing_frame and related methods [bruce 090218/090219]
     
     _drawing_frame = None # allocated on demand
 
@@ -1082,7 +1078,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self.after_drawing_model(error)
         return
 
-    def before_drawing_model(self): #bruce 070928; revised 090219 #### TODO: rename _model -> _Part
+    def before_drawing_model(self): #bruce 070928; revised 090219 ### maybe: rename _model -> _part?
         """
         Whenever self's model, or part of it, is drawn,
         that should be bracketed by calls of self.before_drawing_model()
