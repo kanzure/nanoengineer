@@ -755,7 +755,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         # note: accessing part.drawing_frame allocates it on demand
         # if it wasn't already allocated during that call of Part.draw.
         
-        ##### REVIEW: drawing_frame is probably the misnamed,
+        #### REVIEW: drawing_frame is probably the misnamed,
         # now that it's not the same as GLPane.csdl_collector;
         # see related docstrings in Part or its helper class for this attr
         # for better description, explaining when we'd use more than

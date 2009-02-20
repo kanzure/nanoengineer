@@ -162,7 +162,7 @@ def _initTextureEnv(have_mipmaps):
         # ideally it'd be controllable per-jig for side-by-side comparison;
         # also, changing its menu item ought to gl_update but doesn't ##e
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        if have_mipmaps: #####@@@@@
+        if have_mipmaps: ###@@@
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                             GL_LINEAR_MIPMAP_LINEAR)
         else:

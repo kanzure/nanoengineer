@@ -51,7 +51,7 @@ class HandleSet:
     """
     color = (0.5,0.5,0.5) # default color (gray50)
     radius_multiplier = 1.0 # this might be patched to some other value by our owner;
-     # should affect all internal computations using radii, but not returned radii inside handle tuples ######NIM
+     # should affect all internal computations using radii, but not returned radii inside handle tuples ####NIM
     def __init__(self):
         self.origin = V(0,0,0) # changed from this only by certain subclasses, in practice
         self.handles = [] # list of (pos,radius,info) tuples
@@ -106,7 +106,7 @@ class HandleSet:
 ##    def findHandles_near(self, point, radius = None):
 ##        """return a list (in arbitrary order) of pairs (dist, handle) for all the handles
 ##           which are near the given point (within the given radius (default very large###e???),
-##           *or* within their own sphere-radius). ####### WRONG CODE
+##           *or* within their own sphere-radius). #### WRONG CODE
 ##        """
 ##        assert 0
     def findHandles_exact(self, p1, p2, cutoff = 0.0, backs_ok = 1, offset = V(0,0,0)):

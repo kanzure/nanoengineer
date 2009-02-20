@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 Draws the DNA ribbons where each strand is represented as a ribbon. DNA ribbons
 are drawn as sine waves 
 
 @author:    Ninad
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
 @license:   GPL
 
@@ -208,7 +208,7 @@ def drawDnaSingleRibbon(glpane,
         pass
     del vectorAlongLadderStep
     
-    #####################################################################
+    ###===
     #Following limits the arrowHead Size to the given value. When you zoom out, 
     #the rest of ladder drawing becomes smaller (expected) and the following
     #check ensures that the arrowheads are drawn proportionately. 
@@ -440,7 +440,7 @@ def drawDnaRibbons(glpane,
 
     unitVectorAlongLength = norm(endCenter2 - endCenter1)
      
-    ##############
+    ###===
     pointOnAxis = endCenter1
 
     axial_shift_1 = V(0.0, 0.0, 0.0) # might be changed below

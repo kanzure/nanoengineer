@@ -2215,7 +2215,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Now that we have higher-order bonds, we also need to check valence more generally.
         # The check for glpane class is a kluge to prevent this from showing in thumbviews:
         # should remove ASAP.
-        #####@@@@@ need to do this in atom.getinfo().
+        ####@@@@ need to do this in atom.getinfo().
         #e We might need to be able to turn this [what?] off by a preference setting;
         # or, only do it in Build mode.
         # Don't check prefs until we know we need them, to avoid needless
@@ -4812,7 +4812,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         for atom in bn:
             if not atom.is_singlet():
                 pass ###e record element and position
-                atom.mvElement(Singlet) ####k ??? #####@@@@@ kluge to kill it w/o 
+                atom.mvElement(Singlet) ####k ??? ####@@@@ kluge to kill it w/o 
                     # replacing w/ singlet; better to just tell kill that
             atom.kill() # (since atom is a singlet, this kill doesn't replace it with a singlet)
         self.make_enough_bondpoints() ###e might pass old posns to ask this to imitate them if it can

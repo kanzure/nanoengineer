@@ -446,7 +446,7 @@ def make_virtual_bond( assy, atoms, bond_params, MT_name = None ):
     jig = VirtualBondJig( assy, atoms )
     jig.setProps( bond_params)
     # also put them into the model somewhere? not for now. just make it findable/drawable from its atoms. NIM
-    ###### PROBLEM: how will two chemical atoms draw one of these?
+    #### PROBLEM: how will two chemical atoms draw one of these?
     # - could put it in the model
     #   - only needed if both atoms are chem, since VirtualSiteChunk could draw it itself
     #     (best implem?: ask each atom's chunk if it has a special property that says it'll draw it)

@@ -618,7 +618,7 @@ class Guides(object):
         # can still be highlighted/selected.
         glDepthMask(GL_FALSE) 
         
-        # Draw v/h ruler rectangles in the user defined color and opacity. #####
+        # == Draw v/h ruler rectangles in the user defined color and opacity.
     
         glColor4fv(list(ruler_color) + [ruler_opacity])
         glEnable(GL_BLEND)
@@ -651,7 +651,7 @@ class Guides(object):
             if env.prefs[displayHorzRuler_prefs_key]:
                 self.drawLine(hr_line_pt1, hr_line_pt2)
             
-        # Draw vertical ruler line(s) and tick marks ##########################
+        # == Draw vertical ruler line(s) and tick marks
         
         if env.prefs[displayVertRuler_prefs_key] and draw_ticks_and_text:
         
@@ -696,7 +696,7 @@ class Guides(object):
         
             # End vertical ruler
         
-        # Draw horizontal ruler line(s) and tick marks #########################
+        # == Draw horizontal ruler line(s) and tick marks
         
         if env.prefs[displayHorzRuler_prefs_key] and draw_ticks_and_text:
             # Draw horizontal line along top/bottom edge of ruler.

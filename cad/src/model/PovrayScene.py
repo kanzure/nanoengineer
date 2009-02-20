@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 PovrayScene.py - The POV-Ray Scene class.
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -61,6 +61,8 @@ def get_povrayscene_filename_derived_from_name(assy, name):
     povrayscene_file = os.path.normpath(os.path.join(dir, name))
     #print "get_povrayscene_filename_derived_from_name(): povrayscene_file=", povrayscene_file
     return povrayscene_file
+
+# ==
 
 class PovrayScene(SimpleCopyMixin, Node):
     """
@@ -408,7 +410,7 @@ class PovrayScene(SimpleCopyMixin, Node):
             # or (if other nodes also point to it) to copy it so this node owns a unique one.
         Node.kill(self)
         
-    # Context menu item methods #######################################
+    # == Context menu item methods
     
     def __CM_Raytrace_Scene(self):
         """
@@ -417,6 +419,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         self.raytrace_scene()
 
     pass # end of class PovrayScene
+
+# ==
 
 # ImageViewer class for displaying the image after it is rendered. Mark 060701.
 class ImageViewer(QDialog):

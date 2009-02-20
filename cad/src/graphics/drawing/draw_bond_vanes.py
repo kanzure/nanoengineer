@@ -113,7 +113,7 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
         color = col
     else:
         #bruce 050804: initial test of bond color prefs; inadequate in several
-        #  ways #######@@@@@@@
+        #  ways ###@@@
         from foundation.preferences import prefs_context
         prefs = prefs_context()
         from utilities.prefs_constants import bondVaneColor_prefs_key
@@ -123,7 +123,7 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
         # maybe in PyOpenGL)
         assert len(color) == 3
         
-        #####@@@@@ it would be much faster to update this pref (or almost any
+        ###@@@ it would be much faster to update this pref (or almost any
         # graphics color pref) if the OpenGL command to set the color was in its
         # own display list, redefined when the redraw starts, and called from
         # inside every other display list that needs it.  Then when you changed
