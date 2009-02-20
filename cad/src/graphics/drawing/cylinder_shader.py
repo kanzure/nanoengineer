@@ -285,7 +285,8 @@ void main(void) {
     var_endpts[i] = eye_endpt4.xyz / eye_endpt4.w;
 
     // Scaled cylinder radii in eye space.  (Assume uniform scale on all axes.)
-    vec4 eye_radius4 = gl_ModelViewMatrix * vec4(radii[i], 0.0, 0.0, 0.0);
+    vec4 eye_radius4 = gl_ModelViewMatrix *
+      vec4(max(.001, radii[i]), 0.0, 0.0, 0.0); // Russ 090220: zero radius bug.
     float eye_radius = length(vec3(eye_radius4));
 
     // The non-halo radius.
@@ -754,12 +755,9 @@ void main(void) {
   //      opp/sine = opp x 1/sine = opp x hyp/opp = hyp
   float vp_passing_dist = vp_proj_dist / length(passing_line_crossprod);// Hyp.
   vec3 ray_passing_pt = var_view_pt + vp_passing_dist * ray_line_dir;
-   // Right triangle adjacent-side length, from vp projection to passing-point.
-  float proj_passing_dist = length(ray_passing_pt - vp_proj_pt);
 
   // Project back to the plane containing the axis for the other passing point.
   vec3 axis_passing_pt = ray_passing_pt - passing_pt_vec;
-  vec3 vp_axis_proj_pt = vp_proj_pt - passing_pt_vec;
 
   //===
   // Endcap circle ray-hit detection is done first, because if the pixel ray
@@ -773,7 +771,7 @@ void main(void) {
 
   // Skip the endcap hit test if no endcap is visible.
   if (//false && /// May skip the endcap entirely to see just the barrel.
-      !debug_hit && // Skip be a debug billboard-outline pixels.
+      !debug_hit && // Skip when already hit debug billboard-outline pixels.
       visibility_type != VISIBLE_BARREL_ONLY) { // (Never VISIBLE_NOTHING here.)
     // (VISIBLE_ENDCAP_ONLY or VISIBLE_ENDCAP_AND_BARREL.)
 
@@ -896,13 +894,17 @@ void main(void) {
 
       // (The 'csp_' prefix is used for objects in the cross-section plane.)
       vec3 csp_proj_view_pt, csp_passing_pt;
-      float csp_passing_dist_sq, csp_radius_sq;
+      float csp_bl_offset_sign, csp_passing_dist_sq, csp_radius_sq;
       vec3 convergence_pt;  // Only used for tapered cylinders.
 
       // Untapered cylinders.
-      if (var_radii[0] == var_radii[1]) {
+      if (abs(var_radii[1] - var_radii[0]) <= 0.001) {
         csp_proj_view_pt = var_view_pt + (ray_passing_pt - vp_proj_pt);
         csp_passing_pt = ray_passing_pt;
+        // With untapered parallel projection, the projected viewpoint is always
+        // on the same side of the axis as the viewpoint.
+        csp_bl_offset_sign = 1.0;
+
         csp_passing_dist_sq = passing_pt_dist * passing_pt_dist;
         csp_radius_sq = var_radii[0] * var_radii[0];
 
@@ -910,18 +912,20 @@ void main(void) {
 
         //===
         //   If the cylinder radii differ, instead project the viewpoint and the
-        //   ray-line direction vector into the cross-plane *toward the
-        //   convergence-point*, scaling by the taper of the cylinder along the
+        //   ray-line direction vector *toward the convergence-point* into the
+        //   cross-section plane, scaling by the taper of the cylinder along the
         //   axis.  [This is the one place where tapered cylinders and cones are
-        //   handled differently.]
+        //   handled differently from untapered cylinders.]
         //   
         //   - Note: If we project parallel to the axis without tapering toward
         //     the convergence-point, we are working in a plane parallel to the
         //     cylinder axis, which intersects a tapered cylinder or cone in a
         //     hyperbola.  Intersecting a ray with a hyperbola is hard.
-        //     Instead, we arrange to work in a plane that includes the
-        //     convergence point, so the intersection of the plane with the
-        //     cylinder is two straight lines.  Lines are easy.
+        //     
+        //     Instead, we arrange to work in a ray-plane that includes the
+        //     convergence point, as well as the viewpoint and ray direction, so
+        //     the intersection of the plane with the cylinder is two straight
+        //     lines.  It is much easier to intersect a ray with a line.
         // 
         //   - The ray-line and the convergence-point determine a ray-plane,
         //     with the projected ray-line at the intersection of the ray-plane
@@ -940,9 +944,9 @@ void main(void) {
         convergence_pt = endpt_0 + ep0_cp_axis_signed_dist * axis_line_dir;
 
         // XXX Approximation; distance should be in NDC (pixel) coords.
-        float ray_cpt_dist = pt_dist_sq_from_line(  // Save a sqrt.
+        float ray_cpt_dist_sq = pt_dist_sq_from_line(  // Save a sqrt.
           convergence_pt, var_view_pt, ray_line_dir);
-        if (ray_cpt_dist <= .00001)
+        if (ray_cpt_dist_sq <= .00001)
               discard; // **Exit**
 
         //===
@@ -971,20 +975,30 @@ void main(void) {
         // the crossing-plane doesn't go through the convergence point, and that
         // the viewpoint is not on the axis (i.e. inside the cylinder barrel.)
         float cp_axis_loc = dot(axis_line_dir, convergence_pt);
-        float vp_axis_loc = dot(axis_line_dir, var_view_pt);
-        float app_axis_loc = dot(axis_line_dir, axis_passing_pt);
+        float vp_axis_rel_loc = dot(axis_line_dir, var_view_pt) - cp_axis_loc;
+        float app_axis_rel_loc = dot(axis_line_dir, axis_passing_pt) -
+                                 cp_axis_loc;
         // Ratios from similar triangles work with signed distances (relative to
         // the convergence point along the axis, in this case.)
         csp_proj_view_pt = convergence_pt + (var_view_pt - convergence_pt) *
-          ((app_axis_loc - cp_axis_loc) / (vp_axis_loc - cp_axis_loc));  
+          (app_axis_rel_loc / vp_axis_rel_loc);
 
-        // New passing point.
+        // New passing point in the cross-section plane. 
         vec3 csp_ray_line_dir = normalize(ray_passing_pt - csp_proj_view_pt);
         csp_passing_pt = pt_proj_onto_line(axis_passing_pt,
           csp_proj_view_pt, csp_ray_line_dir);
 
-        csp_passing_dist_sq = pt_dist_sq_from_line(axis_passing_pt,
-          csp_proj_view_pt, csp_ray_line_dir);
+        // With tapered projection through the convergence point, when the
+        // convergence point is *between* the cylinder and the projection of the
+        // viewpoint onto the axis line, the projection of the viewpoint
+        // *through* the convergence point into the cross-section plane will be
+        // on the *opposite side* of the axis from the viewpoint.  So we need a
+        // sign bit to choose the other barrel-line point in that case.
+        csp_bl_offset_sign =
+          sign(vp_axis_rel_loc) != sign(app_axis_rel_loc) ? -1.0: 1.0;
+
+        vec3 csp_passing_vec = csp_passing_pt - axis_passing_pt;
+        csp_passing_dist_sq = dot(csp_passing_vec, csp_passing_vec);
 
         csp_radius_sq = passing_radius * passing_radius;
 
@@ -1019,8 +1033,8 @@ void main(void) {
       //===
 
       vec3 barrel_line_pt = csp_passing_pt +
-        sqrt(csp_radius_sq - csp_passing_dist_sq)
-          * normalize(csp_proj_view_pt - csp_passing_pt);
+        (sqrt(csp_radius_sq - csp_passing_dist_sq) * csp_bl_offset_sign) *
+        normalize(csp_proj_view_pt - csp_passing_pt);
 
       //===
       //     . The barrel line we want passes through the cross-plane at that
@@ -1028,8 +1042,9 @@ void main(void) {
       //       the direction of the axis for an untapered cylinder.)
       //===
 
-      vec3 barrel_line_dir = axis_line_dir;
-      if (var_radii[0] != var_radii[1])
+      vec3 barrel_line_dir = axis_line_dir;  // Untapered.
+      if (abs(var_radii[1] - var_radii[0]) > 0.001)
+        // Tapered.  Sign of line direction doesn't affect projecting onto it.
         barrel_line_dir = normalize(convergence_pt - barrel_line_pt);
 
       //===
@@ -1048,11 +1063,11 @@ void main(void) {
       float vp_bl_proj_dist = pt_dist_from_line(
         var_view_pt, barrel_line_pt, barrel_line_dir);
 
-      float bl_cpp_proj_dist = pt_dist_from_line(
-        csp_passing_pt, barrel_line_pt, barrel_line_dir);
+      float bl_rpp_proj_dist = pt_dist_from_line(
+        ray_passing_pt, barrel_line_pt, barrel_line_dir);
 
-      ray_hit_pt = mix(var_view_pt, csp_passing_pt,
-        vp_bl_proj_dist / (vp_bl_proj_dist + bl_cpp_proj_dist));
+      ray_hit_pt = mix(var_view_pt, ray_passing_pt,
+        vp_bl_proj_dist / (vp_bl_proj_dist + bl_rpp_proj_dist));
 
       //===
       // . Project the intersection point onto the axis line to determine
@@ -1095,7 +1110,7 @@ void main(void) {
         //   - The cross-product of the tangent-vector, with the barrel-line
         //     direction vector, makes the normal to the cylinder along the
         //     barrel line.
-        //==
+        //===
 
         vec3 arc_tangent_vec = cross(axis_passing_pt - ray_hit_pt,
                                      barrel_line_dir);

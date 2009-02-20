@@ -168,6 +168,7 @@ testCase = 8.1; nSpheres = 10; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.2; nSpheres = 100; chunkLength = 50
 
 #testCase = 8.3; nSpheres =   2; chunkLength = 8
+#testCase = 8.3; nSpheres =   5; chunkLength = 8
 #testCase = 8.3; nSpheres =  10; chunkLength = 8
 #testCase = 8.3; nSpheres =  50; chunkLength = 8
 #testCase = 8.3; nSpheres = 100; chunkLength = 8
@@ -993,10 +994,11 @@ def test_drawing(glpane, initOnly = False):
                                    DRAWSPHERE_DETAIL_LEVEL)
                     else:
                         # Through ColorSorter to cylinder primitive buffer...
-                        if (False and  # Whether to do tapered shader-cylinders.
+                        if (True and  # Whether to do tapered shader-cylinders.
                             # Display List cylinders don't support taper.
                             drawing_globals.use_cylinder_shaders):
-                            cylRad = (radius/2.0, (.75-radius)/2.0)
+                            ###cylRad = (radius/2.0, (.75-radius)/2.0)
+                            cylRad = (radius/1.5 - .167, .3 - radius/1.5)
                         else:
                             cylRad = radius/2.0
                             pass
