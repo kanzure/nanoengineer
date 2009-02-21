@@ -2530,7 +2530,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #does seem to work. Note that it needs testing for rotated chunks,
         #since until you next modify them, the wirespheres are also drawn
         #rotated.)
-        self.molecule.pushMatrix()
+        self.molecule.pushMatrix(glpane)
         try:
             # note: the following inlines self.drawing_radius(picked_Radius = True),
             # but makes further use of intermediate values which that method
@@ -2551,7 +2551,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             print_compact_traceback("exception in draw_wirespheres " \
                                     "part of draw_in_abs_coords ignored: ")
             pass
-        self.molecule.popMatrix()
+        self.molecule.popMatrix(glpane)
         return
     
     def drawing_radius(self, picked_radius = False):

@@ -778,19 +778,19 @@ class CrystalShape(shape):
             drawline(white, p0, p1)  
 
 
-    def draw(self, win, layerColor):
+    def draw(self, glpane, layerColor):
         """
-        Draw the shape. win, not used, is for consistency among
-        drawing functions (and may be used if drawing logic gets
-        more sophisticated.
+        Draw the shape.
 
-        Find  the bounding box for the curve and check the position of each
+        Find the bounding box for the curve and check the position of each
         carbon atom in a lattice would occupy for being 'in'
         the shape. A tube representation of the atoms thus selected is
         saved as a GL call list for fast drawing.
 
         This method is only for crystal-cutter mode. --Huaicai
         """
+        #bruce 090220 renamed first arg from win to glpane (which is what
+        # was actually passed) and used it in ColorSorter.start (required now).
         if 0: 
             self._anotherDraw(layerColor)
             return
@@ -802,7 +802,7 @@ class CrystalShape(shape):
             return
         #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
         #russ 080225: displist side effect allocates a ColorSortedDisplayList.
-        ColorSorter.start(self.displist) # grantham 20051205
+        ColorSorter.start(glpane, self.displist) # grantham 20051205
         try:
             for layer, bonds in self.bondLayers.items():
                 color = layerColor[layer]

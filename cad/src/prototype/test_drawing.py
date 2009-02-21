@@ -383,7 +383,7 @@ def test_drawing(glpane, initOnly = False):
                    (nSpheres, "ColorSorter"))
 
             test_csdl = ColorSortedDisplayList()
-            ColorSorter.start(test_csdl)
+            ColorSorter.start(None, test_csdl)
             drawsphere([0.5, 0.5, 0.5], # color
                        [0.0, 0.0, 0.0], # pos
                        .5, # radius
@@ -986,7 +986,7 @@ def test_drawing(glpane, initOnly = False):
 
                 # Test selection using the CSDL glname.
                 ColorSorter.pushName(csdl.glname)
-                ColorSorter.start(csdl)
+                ColorSorter.start(None, csdl)
                 for (color, center, radius) in zip(colors, centers, radii):
                     if not doCylinders:
                         # Through ColorSorter to the sphere primitive buffer...

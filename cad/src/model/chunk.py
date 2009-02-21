@@ -566,36 +566,58 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     #    [bruce 090212 moved all these back to class Chunk;
     #     they're often called externally]
 
-    def pushMatrix(self):
+    def pushMatrix(self, glpane):
         """
-        Do glPushMatrix(), 
-        then transform from (presumed) world coordinates
-        to self's private coordinates.
+        Do glPushMatrix(), then transform from (presumed) world coordinates
+        to self's private coordinates. Also tell glpane this was done
+        (for more info and requirements see docstring of applyMatrix).
+        
         @see: self.applyMatrix()
         @see: self.popMatrix()
         """
         glPushMatrix()
-        self.applyMatrix()
+        self.applyMatrix(glpane)
         return
 
-    def applyMatrix(self):
+    def applyMatrix(self, glpane):
         """
-        Without doing glPushMatrix(), 
-        transform from (presumed) world coordinates 
-        to self's private coordinates.
+        Without doing glPushMatrix(), transform the current GL matrix state
+        from (presumed) world coordinates to self's private coordinates.
+
+        This is only permitted in 1-1 correspondence with a call
+        (just done by caller) of either self.pushMatrix(glpane)
+        or glPushMatrix(). I.e. two calls in a row of self.applyMatrix
+        are illegal. This is not checked; errors in this will
+        cause some things to be drawn in the wrong place.
+
+        glpane must correspond to the current GL context.
+
+        Also tell glpane that a push/apply of self's coordinate system has
+        just been done, in case deferred drawing done after this call
+        wants to know how to reproduce the current GL matrix state later
+        (or more precisely, the current *symbolic* state -- i.e. which local
+        coordinate systems are pushed, even if their value when used later
+        differs from their current value). (This is why we require 1-1
+        correspondence between push and apply.)
+        
         @see: self.pushMatrix()
         """
         origin = self.basecenter
         glTranslatef(origin[0], origin[1], origin[2])
         q = self.quat
         glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
+        glpane.transforms += [self]
         return
 
-    def popMatrix(self):
+    def popMatrix(self, glpane):
         """
-        Undo the effect of self.pushMatrix().
+        Undo the effect of self.pushMatrix(glpane). Also tell glpane this was
+        done (for more info and requirements see docstring of applyMatrix).
         """
         glPopMatrix()
+        assert glpane.transforms[-1] is self
+        glpane.transforms.pop()
+        return
 
     # ==
 

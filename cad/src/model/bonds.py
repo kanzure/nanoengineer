@@ -2201,7 +2201,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         if mol is mol2:
             # internal bond; geometric info is stored in chunk-relative
             # coords; we need mol's help to use those
-            mol.pushMatrix()
+            mol.pushMatrix(glpane)
             self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel, 
                       highlighted )
                 # sorry for all the kluges (e.g. 1 or 2 of those args) that beg for
@@ -2218,7 +2218,7 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
                 #commit, same day, GLPane.py (sort selobj candidates) and this
                 #file (don't shorten_tubes next to singlets [later moved to
                 #bond_drawer.py]), this has been fixed.
-            mol.popMatrix()
+            mol.popMatrix(glpane)
         else:
             # external bond -- draw it at max dispdef of those from its mols
             disp = max( mol.get_dispdef(glpane), mol2.get_dispdef(glpane) )

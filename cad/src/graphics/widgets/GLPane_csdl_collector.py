@@ -42,7 +42,11 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
 
     For more info, see docstring of GLPane.before_drawing_csdls.
     """
-    def __init__(self):        
+    def __init__(self, glpane):
+        ## print "\ninit GLPane_csdl_collector", glpane, glpane.drawing_phase
+        self._glpane = glpane
+            # note: this won't be a ref cycle once we're done with,
+            # since glpane won't refer to us anymore then
         return
     
     def setup_for_drawingsets(self):
@@ -56,7 +60,7 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         """
         """
         self.bare_primitives = ColorSortedDisplayList(reentrant = True)
-        ColorSorter.start(self.bare_primitives)
+        ColorSorter.start(self._glpane, self.bare_primitives)
         return
     
     def draw_csdl_in_drawingset(self, csdl, intent):
@@ -118,7 +122,7 @@ class fake_GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
     """
     Use one of these "between draws" to avoid or mitigate bugs.
     """
-    def __init__(self):
+    def __init__(self, glpane):
         print_compact_stack(
             "warning: fake_GLPane_csdl_collector is being instantiated: " )
         return

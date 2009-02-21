@@ -15,6 +15,8 @@ Part.after_drawing_model.
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
 
+from utilities.debug import print_compact_traceback
+
 from graphics.drawing.DrawingSet import DrawingSet
 
 from graphics.widgets.GLPane_csdl_collector import GLPane_csdl_collector
@@ -44,10 +46,25 @@ class GLPane_drawingset_methods(object):
         
         Initialize self._csdl_collector if necessary, and return it.
         """
-        if not self._csdl_collector:
-            self._csdl_collector = self._csdl_collector_class()
-            # note: self._csdl_collector_class changes dynamically
-        return self._csdl_collector
+        try:
+            ## print "__get_csdl_collector", self
+            if not self._csdl_collector:
+                ## print "alloc in __get_csdl_collector", self
+                self._csdl_collector = self._csdl_collector_class( self)
+                # note: self._csdl_collector_class changes dynamically
+            return self._csdl_collector
+        except:
+            # without this try/except, python will report any exception in here
+            # (or at least any AttributeError) as if it was an AttributeError
+            # on self.csdl_collector, discarding all info about the nature
+            # and code location of the actual error! [bruce 090220]
+            ### TODO: flush all output streams in print_compact_traceback;
+            # in current code, the following prints before we finish printing
+            # whatever print statement had the exception partway through, if one did
+            print_compact_traceback("\nfollowing exception is *really* this one, inside __get_csdl_collector: ")
+            print
+            raise
+        pass
     
     def __set_csdl_collector(self):
         """
@@ -59,6 +76,7 @@ class GLPane_drawingset_methods(object):
         """
         del method for self.csdl_collector property
         """
+        ## print "\ndel csdl_collector", self
         self._csdl_collector = None
 
     csdl_collector = property(__get_csdl_collector, __set_csdl_collector, __del_csdl_collector)

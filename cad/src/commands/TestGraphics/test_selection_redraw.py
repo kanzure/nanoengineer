@@ -64,7 +64,7 @@ class CSDL_holder(object):
     def __init__(self, x, y, n):
         self.csdl = ColorSortedDisplayList()
         # draw into it, based on x, y, n
-        ColorSorter.start(self.csdl)
+        ColorSorter.start(None, self.csdl)
         for i in range(n):
             z = i - (_NUM_SPHERES_PER_CSDL - 1) / 2.0
             color = (random.uniform(0.2, 0.8),

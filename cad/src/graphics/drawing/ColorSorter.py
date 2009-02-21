@@ -124,6 +124,10 @@ from graphics.drawing.gl_lighting import apply_material
 _csdl_id_counter = 0
 _warned_del = False
 
+_DEBUG = False
+
+# ==
+
 class ColorSortedDisplayList:    #Russ 080225: Added.
     """
     The ColorSorter's parent uses one of these to store color-sorted display
@@ -350,7 +354,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         Allocate a CSDL in the parent class and fill it with the ColorSorter:
             self.csdl = ColorSortedDisplayList()
-            ColorSorter.start(self.csdl)
+            ColorSorter.start(glpane, self.csdl)
             drawsphere(...), drawcylinder(...), drawpolycone(...), and so on.
             ColorSorter.finish()
 
@@ -565,6 +569,12 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
 # ==
 
+class _fake_GLPane: #bruce 090220
+    transforms = () # or make this [] if necessary, but value should never change
+    pass
+
+_the_fake_GLPane = _fake_GLPane()
+
 class ColorSorter:
     """
     State Sorter specializing in color (really any object that can be
@@ -628,6 +638,10 @@ class ColorSorter:
 
         ColorSorter._parent_csdl = None  # Passed from start() to finish()
 
+        ColorSorter.glpane = None #bruce 090220
+
+        ColorSorter._initial_transforms = None #bruce 090220
+
         # following are guesses by bruce 090220:
         ColorSorter.sorted_by_color = None
         ColorSorter._cur_shapelist = None
@@ -645,12 +659,17 @@ class ColorSorter:
         class _attrholder:
             pass
         state = _attrholder()
+
+        if len(ColorSorter._gl_name_stack) > 1:
+            print "fyi: name stack is non-null when suspended -- bug?", ColorSorter._gl_name_stack #####
         
         state.sorting = ColorSorter.sorting
         state._sorted = ColorSorter._sorted
         state._immediate = ColorSorter._immediate
         state._gl_name_stack = ColorSorter._gl_name_stack
         state._parent_csdl = ColorSorter._parent_csdl
+        state.glpane = ColorSorter.glpane
+        state._initial_transforms = ColorSorter._initial_transforms
         state.sorted_by_color = ColorSorter.sorted_by_color
         state._cur_shapelist = ColorSorter._cur_shapelist
         state.sphereLevel = ColorSorter.sphereLevel
@@ -664,6 +683,7 @@ class ColorSorter:
     def _unsuspend_if_needed(): # staticmethod
         """
         If we're suspended, unsuspend.
+        Otherwise, reinit state as a precaution.
         """
         if ColorSorter._suspended_states:
             state = ColorSorter._suspended_states.pop()
@@ -673,14 +693,51 @@ class ColorSorter:
             ColorSorter._immediate = state._immediate
             ColorSorter._gl_name_stack = state._gl_name_stack
             ColorSorter._parent_csdl = state._parent_csdl
+            ColorSorter.glpane = state.glpane
+            ColorSorter._initial_transforms = state._initial_transforms
             ColorSorter.sorted_by_color = state.sorted_by_color
             ColorSorter._cur_shapelist = state._cur_shapelist
             ColorSorter.sphereLevel = state.sphereLevel
             pass
+        else:
+            #bruce 090220 guess precaution
+            assert len(ColorSorter._gl_name_stack) == 1
+            ColorSorter._init_state()
         
         return
     
     _unsuspend_if_needed = staticmethod(_unsuspend_if_needed)
+
+    # ==
+
+    def _relative_transforms(): # staticmethod #bruce 090220
+        """
+        Return a list or tuple (owned by caller) of the additional transforms
+        we're presently inside, relative to when start() was called.
+        
+        Also do related sanity checks (as assertions).
+        """
+        t1 = ColorSorter._initial_transforms
+        n1 = len(t1)
+
+        t2 = ColorSorter.glpane.transforms # should be same or more
+        n2 = len(t2)
+
+        if n1 < n2:
+            assert t1 == t2[:n1]
+            return tuple(t2[n1:])
+        else:
+            assert n1 <= n2
+            return ()
+        pass
+    
+    _relative_transforms = staticmethod(_relative_transforms)
+
+    def _debug_transforms(): # staticmethod #bruce 090220
+        return [ColorSorter._initial_transforms,
+                ColorSorter._relative_transforms()]
+
+    _debug_transforms = staticmethod(_debug_transforms)
 
     # ==
     
@@ -794,6 +851,10 @@ class ColorSorter:
         Schedule a sphere for rendering whenever ColorSorter thinks is
         appropriate.
         """
+        if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            print "bare_prim sphere:", ColorSorter._gl_name_stack[-1], \
+                  color, pos, radius, ColorSorter._debug_transforms() #####
+        
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], opacity)
@@ -850,6 +911,10 @@ class ColorSorter:
         Schedule a wiresphere for rendering whenever ColorSorter thinks is
         appropriate.
         """
+        if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            print "bare_prim wiresphere:", ColorSorter._gl_name_stack[-1], \
+                  color, pos, radius, ColorSorter._debug_transforms() #####
+
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
@@ -876,6 +941,10 @@ class ColorSorter:
         Schedule a cylinder for rendering whenever ColorSorter thinks is
         appropriate.
         """
+        if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            print "bare_prim cylinder:", ColorSorter._gl_name_stack[-1], \
+                  color, pos1, pos2, radius, capped, ColorSorter._debug_transforms() #####
+
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
@@ -1009,11 +1078,15 @@ class ColorSorter:
 
     # ==
     
-    def start(csdl, pickstate = None): # staticmethod
+    def start(glpane, csdl, pickstate = None): # staticmethod
         """
         Start sorting - objects provided to "schedule" and primitives such as
         "schedule_sphere" and "schedule_cylinder" will be stored for a sort at
         the time "finish" is called.
+
+        glpane is used for its transform stack. It can be None, but then
+        we will not notice whether primitives we collect are inside
+        any transforms beyond the ones current when we start.
 
         csdl is a ColorSortedDisplayList or None, in which case immediate
         drawing is done.
@@ -1023,6 +1096,7 @@ class ColorSorter:
         #russ 080225: Moved glNewList here for displist re-org.
         # (bruce 090114: removed support for use_color_sorted_vbos)
         #bruce 090220: support _parent_csdl.reentrant
+        #bruce 090220: added new required first argument glpane
 
         if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             assert ColorSorter.sorting
@@ -1035,6 +1109,15 @@ class ColorSorter:
         assert ColorSorter._parent_csdl is None #bruce 090105
         ColorSorter._parent_csdl = csdl  # used by finish()
 
+        assert ColorSorter.glpane is None
+        if glpane is None:
+            glpane = _the_fake_GLPane
+            assert not glpane.transforms
+        ColorSorter.glpane = glpane
+        ColorSorter._initial_transforms = list(glpane.transforms)
+        if _DEBUG:
+            print "CS.initial transforms:", ColorSorter._debug_transforms() #####
+        
         if pickstate is not None:
             csdl.selectPick(pickstate)
             pass
@@ -1090,6 +1173,7 @@ class ColorSorter:
         to not draw (the drawing has already happened).
         """
         assert ColorSorter.sorting #bruce 090220, appears to be true from this code
+        assert ColorSorter.glpane #bruce 090220
         
         if not ColorSorter._parent_csdl:
             #bruce 090220 revised, check _parent_csdl rather than sorting
@@ -1098,6 +1182,7 @@ class ColorSorter:
             ### WARNING: DUPLICATE CODE with end of this method
             # (todo: split out some submethods to clean up)
             ColorSorter.sorting = False
+            ColorSorter.glpane = None
             ColorSorter._unsuspend_if_needed()
             return                      # Plain immediate-mode, nothing to do.
 
@@ -1336,6 +1421,8 @@ class ColorSorter:
                     # Use either the normal-color display list or the selected one.
                     selected = parent_csdl.selected)
 
+        ColorSorter.glpane = None
+        
         ColorSorter._unsuspend_if_needed()
         return
 

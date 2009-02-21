@@ -446,7 +446,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         if wantlist:
             match_checking_code = self.begin_tracking_usage()
                 # note: method defined in superclass, SubUsageTrackingMixin
-            ColorSorter.start(self.csdl, selected)
+            ColorSorter.start(glpane, self.csdl, selected)
                 ### REVIEW: is selected arg needed? guess yes,
                 # since .finish will draw it based on the csdl state
                 # which is determined by that arg. If so, this point needs

@@ -86,7 +86,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             use_outer_colorsorter = True # not sure whether/why this is needed
             
             if use_outer_colorsorter:
-                ColorSorter.start(None)
+                ColorSorter.start(glpane, None)
 
             for bond in self._ebset._bonds.itervalues():
                 bond.draw(glpane, disp, color, drawLevel)
@@ -232,7 +232,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 # print "Regenerating display list for %r (%d)" % \
                 #       (self, env.redraw_counter)
                 match_checking_code = self.begin_tracking_usage()
-                ColorSorter.start(self.displist, c1.picked and c2.picked)
+                ColorSorter.start(glpane, self.displist, c1.picked and c2.picked)
                     # not sure whether picked arg needed
 
             # protect against exceptions while making display list,

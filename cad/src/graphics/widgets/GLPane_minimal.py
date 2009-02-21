@@ -142,6 +142,9 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
     _resize_counter = 0
 
+    drawing_phase = '?' # overridden in GLPane_rendering_methods, but needed for
+        # debug prints that might happen in any class of GLPane [bruce 090220]
+
     # default values of subclass-specific constants
 
     permit_draw_bond_letters = True #bruce 071023
@@ -193,6 +196,17 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         # piotr 080807
         # Most recent quaternion to be used in animation timer.
         self.last_quat = None
+
+        self.transforms = [] ### TODO: clear this at start of frame, complain if not clear
+            # stack of current transforms (or Nodes that generate them)
+            # [bruce 090220]
+            # Note: this may be revised once we have TransformNode,
+            # e.g. we might push their dt and st separately;
+            # note we might need to push a "slot" for them if they might
+            # change before being popped, or perhaps even if they might
+            # change between the time pushed and the time later used
+            # (by something that collects them from here in association
+            #  with a ColorSortedDisplayList).
         
         return
 

@@ -348,8 +348,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # put it in its place
             glPushMatrix()
 
-            try: # do our glPopMatrix no matter what
-                self._chunk.applyMatrix()
+            try: # do our popMatrix no matter what
+                self._chunk.applyMatrix(glpane)
                 
                 ##delegate_selection_wireframe = False
                 delegate_draw_atoms = False
@@ -442,7 +442,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     if wantlist:
                         ##print "Regenerating display list for %s" % self.name
                         match_checking_code = self.begin_tracking_usage()
-                        ColorSorter.start(self.displist)
+                        ColorSorter.start(glpane, self.displist)
                             # Note: passing self._chunk.picked was needed
                             # when ColorSorter.finish (below) got
                             # draw_now = True, but is not needed now
@@ -524,7 +524,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             except:
                 print_compact_traceback("exception in Chunk.draw, continuing: ")
 
-            glPopMatrix()
+            self._chunk.popMatrix(glpane)
 
             glPopName() # pops self._chunk.glname
 
@@ -698,7 +698,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
         if use_outer_colorsorter:
             # note: not used with ExternalBondSets
-            ColorSorter.start(None)
+            ColorSorter.start(glpane, None)
                 # [why is this needed? bruce 080707 question]
         
         for bond in objects_to_draw:
@@ -900,11 +900,11 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         ##### TODO: use glpane.draw_csdl.
         if self._has_displist():
             apply_material(color) ### REVIEW: still needed?
-            self._chunk.pushMatrix()
+            self._chunk.pushMatrix(glpane)
             for csdl in ([self.displist] +
                          [ed.csdl for ed in self.extra_displists.values()]):
                 csdl.draw(highlighted = True, highlight_color = color)
-            self._chunk.popMatrix()
+            self._chunk.popMatrix(glpane)
             pass
 
         # piotr 080521: Get display mode for drawing external bonds and/or
@@ -921,7 +921,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # (as was done in older code). (Note that there will soon be
             # objects containing display lists for them, and our job will
             # be to not draw *those objects* twice, in any one frame.)
-            ColorSorter.start(None)
+            ColorSorter.start(glpane, None)
             for bond in self._chunk.externs:
                 bond.draw(glpane, disp, color, drawLevel)
                 continue
