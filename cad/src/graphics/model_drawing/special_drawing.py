@@ -13,7 +13,7 @@ with some parts refiled into foundations.
 """
 
 from graphics.drawing.ColorSorter import ColorSorter
-from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 
 from utilities.Comparison import same_vals
 

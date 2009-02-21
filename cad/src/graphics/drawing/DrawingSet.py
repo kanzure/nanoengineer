@@ -75,7 +75,7 @@ has no name in this proposal.
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveSet import GLPrimitiveSet
-from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 
 class DrawingSet:
     """

@@ -15,7 +15,7 @@ a separate object on 090219
 
 from utilities.debug import print_compact_stack
 
-from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 from graphics.drawing.ColorSorter import ColorSorter
 
 # ==

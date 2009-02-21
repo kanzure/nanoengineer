@@ -33,7 +33,7 @@ import foundation.env as env
 from graphics.drawing.DrawingSet import DrawingSet
 ## from graphics.drawing.TransformControl import TransformControl
 from graphics.drawing.ColorSorter import ColorSorter
-from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 from graphics.drawing.CS_draw_primitives import drawsphere
 
 from commands.TestGraphics.GraphicsTestCase import GraphicsTestCase

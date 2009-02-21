@@ -31,7 +31,7 @@ from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     # and chunks can know when they need to inval that because something drawn into it
     # would draw differently due to a change in some graphics pref it used
 
-from graphics.drawing.ColorSorter import ColorSortedDisplayList # not yet used?
+from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList # not yet used?
 
 # ==
 

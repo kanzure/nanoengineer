@@ -47,7 +47,7 @@ See design comments on:
 """
 
 import graphics.drawing.drawing_globals as drawing_globals
-from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer
 from graphics.drawing.TransformControl import TransformControl
 

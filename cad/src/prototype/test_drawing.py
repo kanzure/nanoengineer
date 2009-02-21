@@ -200,7 +200,7 @@ from graphics.drawing.GLSphereBuffer import GLSphereBuffer
 from graphics.drawing.DrawingSet import DrawingSet
 from graphics.drawing.TransformControl import TransformControl
 from graphics.drawing.ColorSorter import ColorSorter
-from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 from graphics.drawing.CS_draw_primitives import drawsphere, drawcylinder
 from graphics.drawing.CS_workers import drawsphere_worker_loop
 from graphics.drawing.gl_buffers import GLBufferObject

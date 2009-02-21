@@ -51,7 +51,7 @@ from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.ColorSorter import ColorSorter
-from graphics.drawing.ColorSorter import ColorSortedDisplayList
+from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 
 from utilities.constants import SUBTRACT_FROM_SELECTION
 from utilities.constants import OUTSIDE_SUBTRACT_FROM_SELECTION
