@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLPrimitiveBuffer.py -- Manage VBO space for drawing primitives in large batches.
 
 @author: Russ
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Originally written by Russ Fish; designed together with Bruce Smith.
@@ -525,7 +525,7 @@ class HunkBuffer:
 
         Just passes it on to the relevant hunks for the range.
         """
-        (lowHunk, highHunk) = (chgLowID / HUNK_SIZE, chgHighID / HUNK_SIZE)
+        (lowHunk, highHunk) = (chgLowID / HUNK_SIZE, (chgHighID - 1) / HUNK_SIZE)
         for hunk in self.hunks[lowHunk:highHunk+1]:
             hunk.changedRange(chgLowID, chgHighID)
             continue
