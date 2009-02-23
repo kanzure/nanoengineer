@@ -1897,21 +1897,46 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             atlist[i]._f_setposn_no_chunk_or_bond_invals( atpos[i] )
         return
 
-    def base_to_abs(self, anything): # bruce 041115
+    def applyToPoint(self, point): #bruce 090223
+        """
+        Considering self as a transform (namely, the transform used
+        to map relative to absolute coordinates), apply that transform
+        to the given point.
+
+        @return: transformed point
+
+        This is part of an informal "transform API" assumed by ColorSorter
+        for anything added to glpane.transforms.
+        """
+        # review: should we pick single name and merge methods?
+        # or do they have different contracts (point vs anything)?
+        return self.base_to_abs(point)
+        
+    def base_to_abs(self, anything): # bruce 041115, docstring revised 090223
         """
         map anything (which is accepted by quat.rot() and Numeric.array's '+'
-        method) from Chunk-relative coords to absolute coords; guaranteed to
-        never recompute basepos/atpos or modify the mol-relative coordinate
-        system it uses. Inverse of abs_to_base.
+        method, and which is semantically equivalent to a point or array
+        of points -- not a vector!) from Chunk-relative coordinates to
+        absolute coordinates.
+
+        @note: guaranteed to never recompute basepos/atpos or modify the
+               chunk-relative coordinate system state it uses.
+
+        @see: Inverse of abs_to_base. Used to implement applyToPoint.
         """
         return self.basecenter + self.quat.rot( anything)
 
-    def abs_to_base(self, anything): # bruce 041201
+    def abs_to_base(self, anything): # bruce 041201, docstring revised 090223
         """
         map anything (which is accepted by quat.unrot() and Numeric.array's
-        '-' method) from absolute coords to mol-relative coords; guaranteed to
-        never recompute basepos/atpos or modify the mol-relative coordinate
-        system it uses. Inverse of base_to_abs.
+        '-' method, and which is semantically equivalent to a point or array
+        of points -- not a vector!) from absolute coordinates to chunk-relative
+        coordinates.
+
+        @note: guaranteed to never recompute basepos/atpos or modify the
+               chunk-relative coordinate system state it uses.
+
+        @see: Inverse of base_to_abs.
         """
         return self.quat.unrot( anything - self.basecenter)
 

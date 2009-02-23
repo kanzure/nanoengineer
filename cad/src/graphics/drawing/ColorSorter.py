@@ -291,6 +291,20 @@ class ColorSorter:
 
     _debug_transforms = staticmethod(_debug_transforms)
 
+    def _transform_point(point): # staticmethod #bruce 090223
+        """
+        Apply our current relative transforms to the given point.
+
+        @return: the transformed point.
+        """
+        for t in ColorSorter._relative_transforms():
+            point = t.applyToPoint(point) ##### IMPLEM in anything transformlike (for now, Chunk)
+        return point
+
+    _transform_point = staticmethod(_transform_point)
+
+    # if necessary, we'll also implement _transform_vector
+
     # ==
     
     def pushName(glname):
@@ -406,6 +420,9 @@ class ColorSorter:
         if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             print "bare_prim sphere:", ColorSorter._gl_name_stack[-1], \
                   color, pos, radius, ColorSorter._debug_transforms() #####
+
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant: ##### todo: use different flag
+            pos = ColorSorter._transform_point(pos)
         
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
@@ -437,12 +454,6 @@ class ColorSorter:
                 lcolor = color	
                 pass
 
-            if testloop > 0:
-                worker = drawsphere_worker_loop
-            else:
-                worker = drawsphere_worker
-                pass
-            
             if sphereBatches and ColorSorter._parent_csdl: # Russ 080925: Added.
                 # Collect lists of primitives in the CSDL, rather than sending
                 # them down through the ColorSorter schedule methods into DLs.
@@ -452,8 +463,14 @@ class ColorSorter:
                     # Mouseover glnames come from ColorSorter.pushName() .
                     ColorSorter._gl_name_stack[-1])
             else:
+                if testloop > 0:
+                    worker = drawsphere_worker_loop
+                else:
+                    worker = drawsphere_worker
                 ColorSorter.schedule(
                     lcolor, worker, (pos, radius, detailLevel, testloop))
+            pass
+        return
 
     schedule_sphere = staticmethod(schedule_sphere)
 
@@ -496,6 +513,17 @@ class ColorSorter:
         if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             print "bare_prim cylinder:", ColorSorter._gl_name_stack[-1], \
                   color, pos1, pos2, radius, capped, ColorSorter._debug_transforms() #####
+
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant: ##### todo: use different flag
+            # note: if drawing a cylinder requires an implicit coordinate system
+            # rather than just the axis endpoints (e.g. if it has a polygonal
+            # cross-section or a surface texture), we'd also need to pick a
+            # disambiguating point on the barrel here, outside this condition,
+            # and include it in what we transform, inside this condition.
+            # This need may be present now if we use this case for non-shader
+            # cylinders (since they have polygonal cross-section). ##### REVIEW
+            pos1 = ColorSorter._transform_point(pos1)
+            pos2 = ColorSorter._transform_point(pos2)
 
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
