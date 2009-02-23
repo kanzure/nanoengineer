@@ -86,6 +86,8 @@ from OpenGL.GL import GL_SRC_ALPHA
 
 from OpenGL.GL import GL_TRUE
 
+from geometry.VQT import A
+
 import foundation.env as env
 
 from graphics.drawing.gl_lighting import isPatternedDrawing
@@ -305,6 +307,12 @@ class ColorSorter:
 
     # if necessary, we'll also implement _transform_vector
 
+    def _warn_transforms_nim(funcname): # staticmethod #bruce 090223
+        print_compact_stack("bug: use of _relative_transforms nim in %s: " % funcname)
+        return
+
+    _warn_transforms_nim = staticmethod(_warn_transforms_nim)
+        
     # ==
     
     def pushName(glname):
@@ -410,7 +418,8 @@ class ColorSorter:
 
     schedule = staticmethod(schedule)
 
-
+    # ==
+    
     def schedule_sphere(color, pos, radius, detailLevel,
                         opacity = 1.0, testloop = 0):
         """
@@ -421,7 +430,8 @@ class ColorSorter:
             print "bare_prim sphere:", ColorSorter._gl_name_stack[-1], \
                   color, pos, radius, ColorSorter._debug_transforms() #####
 
-        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant: ##### todo: use different flag
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
             pos = ColorSorter._transform_point(pos)
         
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
@@ -484,6 +494,11 @@ class ColorSorter:
             print "bare_prim wiresphere:", ColorSorter._gl_name_stack[-1], \
                   color, pos, radius, ColorSorter._debug_transforms() #####
 
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
+            if ColorSorter._relative_transforms():
+                ColorSorter._warn_transforms_nim("schedule_wiresphere")
+
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
@@ -514,7 +529,9 @@ class ColorSorter:
             print "bare_prim cylinder:", ColorSorter._gl_name_stack[-1], \
                   color, pos1, pos2, radius, capped, ColorSorter._debug_transforms() #####
 
-        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant: ##### todo: use different flag
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
+
             # note: if drawing a cylinder requires an implicit coordinate system
             # rather than just the axis endpoints (e.g. if it has a polygonal
             # cross-section or a surface texture), we'd also need to pick a
@@ -565,6 +582,10 @@ class ColorSorter:
         Schedule a polycone for rendering whenever ColorSorter thinks is
         appropriate.
         """
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
+            pos_array = [ColorSorter._transform_point(A(pos)) for pos in pos_array]
+
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
@@ -595,6 +616,10 @@ class ColorSorter:
         piotr 080311: this variant accepts a color array as an additional
         parameter
         """
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
+            pos_array = [ColorSorter._transform_point(A(pos)) for pos in pos_array]
+
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
@@ -622,6 +647,11 @@ class ColorSorter:
         Schedule a surface for rendering whenever ColorSorter thinks is
         appropriate.
         """
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
+            if ColorSorter._relative_transforms():
+                ColorSorter._warn_transforms_nim("schedule_surface")
+
         if len(color) == 3:		
             lcolor = (color[0], color[1], color[2], 1.0)
         else:
@@ -637,6 +667,11 @@ class ColorSorter:
         Schedule a line for rendering whenever ColorSorter thinks is
         appropriate.
         """
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
+            endpt1 = ColorSorter._transform_point(endpt1)
+            endpt2 = ColorSorter._transform_point(endpt2)
+        
         #russ 080306: Signal "unshaded colors" for lines by an opacity of -1.
         color = tuple(color) + (-1,)
         ColorSorter.schedule(color, drawline_worker,
@@ -651,6 +686,11 @@ class ColorSorter:
         Schedule a line for rendering whenever ColorSorter thinks is
         appropriate.
         """
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
+            if ColorSorter._relative_transforms():
+                ColorSorter._warn_transforms_nim("schedule_triangle_strip")
+
         ColorSorter.schedule(color, drawtriangle_strip_worker,
                              (triangles, normals, colors))
 
