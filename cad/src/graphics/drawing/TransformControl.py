@@ -124,10 +124,6 @@ class TransformControl:
         self.cached = drawing_globals.NO_EVENT_YET
 
         self.transform = floatIdent(4)
-
-        # Use the integer IDs of the CSDLs as keys in a dictionary.
-        self.CSDLs = {}
-
         return
 
     # ==
@@ -213,36 +209,7 @@ class TransformControl:
             # XXX Update transforms in graphics card RAM here...
             pass
         return
-
-    # ==
-
-    # A subset of the set-type API.
-    
-    def addCSDL(self, csdl):
-        """
-        Add a CSDL to self.
-        """
-        self.CSDLs[csdl.csdl_id] = csdl
-        return
-
-    def removeCSDL(self, csdl):
-        """
-        Remove a CSDL from self.
-        Raises KeyError if not present.
-        """
-        del self.CSDLs[csdl.csdl_id]  # May raise KeyError.
-        return
-
-    def discardCSDL(self, csdl):
-        """
-        Discard a CSDL from self, if present.
-        No error if it isn't.
-        """
-        if csdl.csdl_id in self.CSDLs:
-            del self.CSDLs[csdl.csdl_id]
-            pass
-
-        return
     
     pass # end of class TransformControl
 
+# end

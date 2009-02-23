@@ -101,8 +101,6 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         if transformControl is not None:
             self.transformControl = transformControl
-            # Note: this requires the csdlID to be already set!
-            self.transformControl.addCSDL(self)
             pass
 
         # Russ 081122: Mark CSDLs with a glname for selection.
@@ -152,22 +150,10 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # code for details. This hangs NE1 now, so it's commented out.
         ## self.deallocate_displists()
 
-        # Unregister self from its TransformControl, breaking the Python
-        # reference cycle so the CSDL can be reclaimed.
-        if self.transformControl is not None:
-            try:
-                self.transformControl.removeCSDL(self)
-                    #bruce 090218 fixed two bugs in this line; untested either way
-            except:
-                global _warned_del
-                if not _warned_del:
-                    print_compact_traceback(
-                        "bug (printed only once per session): "
-                        "exception in ColorSortedDisplayList.destroy ignored: ")
-                    _warned_del = True
-                    pass
-                pass
-            pass
+        # Free primitives stored in VBO hunks.
+        self.clearPrimitives() #bruce 090223 guess implem
+
+        self.transformControl = None #bruce 090223 revised
         return
 
     # ==

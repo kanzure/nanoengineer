@@ -140,7 +140,7 @@ class DrawingSet:
 
         return
 
-    def discardCSDL(self, csdl):
+    def discardCSDL(self, csdl): # (note: not presently used)
         """
         Discard a CSDL from the DrawingSet, if present.
         No error if it isn't.
