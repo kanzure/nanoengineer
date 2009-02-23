@@ -147,6 +147,8 @@ class GLPrefs:
                               drawing_globals.use_sphere_shaders_default),)
         res += (env.prefs.get(drawing_globals.use_cylinder_shaders_prefs_key,
                               drawing_globals.use_cylinder_shaders_default),)
+        res += (env.prefs.get(drawing_globals.use_cone_shaders_prefs_key,
+                              drawing_globals.use_cone_shaders_default),)
         res += (env.prefs.get(
             drawing_globals.use_batched_primitive_shaders_prefs_key,
             drawing_globals.use_batched_primitive_shaders_default),)

@@ -34,6 +34,9 @@ use_sphere_shaders_prefs_key = "use_sphere_shaders"
 #russ 090116: Added.
 use_cylinder_shaders = use_cylinder_shaders_default = False
 use_cylinder_shaders_prefs_key = "use_cylinder_shaders"
+#russ 090223: Added.
+use_cone_shaders = use_cone_shaders_default = False
+use_cone_shaders_prefs_key = "use_cone_shaders"
 # Russ 081002: Added.
 use_batched_primitive_shaders = use_batched_primitive_shaders_default = False
 use_batched_primitive_shaders_prefs_key = "use_batched_primitive_shaders"
@@ -95,7 +98,7 @@ def updatePrefsVars():
     """
     Helper for GLPrefs.update() .
     """
-    global use_sphere_shaders, use_cylinder_shaders
+    global use_sphere_shaders, use_cylinder_shaders, use_cone_shaders
     global use_batched_primitive_shaders, use_drawing_variant
     global use_c_renderer
 
@@ -106,6 +109,10 @@ def updatePrefsVars():
     use_cylinder_shaders = env.prefs.get(
         use_cylinder_shaders_prefs_key,
         use_cylinder_shaders_default)
+
+    use_cone_shaders = env.prefs.get(
+        use_cone_shaders_prefs_key,
+        use_cone_shaders_default)
 
     use_batched_primitive_shaders = env.prefs.get(
         use_batched_primitive_shaders_prefs_key,

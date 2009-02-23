@@ -26,6 +26,7 @@ from PyQt4.Qt import QFont, QString, QColor
 from geometry.VQT import V
 from geometry.VQT import norm, vlen
 
+import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.CS_draw_primitives import drawcylinder
@@ -1057,17 +1058,17 @@ def draw_bond_cyl_arrowhead(a1pos,
         pos = a1pos
         axis = a2pos - a1pos
         drawrad = sigmabond_cyl_radius
-        drawpolycone(color, [[pos[0] + 0.5 * axis[0], pos[1] + 0.5 * axis[1],
-                      pos[2] + 0.5 * axis[2]],
-                     [pos[0] + 0.6 * axis[0], pos[1] + 0.6 * axis[1],
-                      pos[2] + 0.6 * axis[2]],
-                     [pos[0] + 1.0 * axis[0], pos[1] + 1.0 * axis[1],
-                      pos[2] + 1.0 * axis[2]],
-                     [pos[0] + 1.1 * axis[0], pos[1] + 1.1 * axis[1],
-                      pos[2] + 1.1 * axis[2]]], # Point array (the two end
-                                                # points not drawn)
-                    [drawrad * 2, drawrad * 2, 0, 0] # Radius array
-                   )
+        # Point array (the two end points are not drawn by glePolyCone.)
+        pts = [pos + t * axis for t in [0.5, 0.6, 1.0, 1.1]]
+        # Russ 090223: Shader cones are tapered cylinders with two radii.
+        coneBatches = (drawing_globals.use_batched_primitive_shaders and
+                       drawing_globals.use_cylinder_shaders and
+                       drawing_globals.use_cone_shaders)
+        if coneBatches:
+            drawcylinder(color, pts[1], pts[2], (drawrad * 2, 0))
+        else:
+            drawpolycone(color, pts, 
+                         [drawrad * 2, drawrad * 2, 0, 0]) # Radius array.
     return
 
 # ==
