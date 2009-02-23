@@ -194,7 +194,7 @@ uniform int n_transforms;
 attribute vec4 endpt_rad_0, endpt_rad_1; // Cylinder endpoints and radii, twice.
 // The following may be set to constants, when no arrays are provided.
 attribute vec4 color;           // Cylinder color and opacity (RGBA).
-attribute float transform_id;   // Ignored if zero.  (Attribs cannot be ints.)
+attribute float transform_id;   // Ignored if -1.  (Attribs cannot be ints.)
 attribute vec4 glname_color;    // Mouseover id (glname) as RGBA for drawing.
 
 // Varying outputs, interpolated in the pipeline to the fragment (pixel) shader.
