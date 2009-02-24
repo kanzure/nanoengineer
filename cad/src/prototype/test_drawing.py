@@ -65,13 +65,30 @@ def test_Draw(glpane):
     elif int(testCase) == 3:
         test_spheres.draw() 
     elif int(testCase) == 8:
-        if drawing_globals.use_batched_primitive_shaders:
-            shader = drawing_globals.sphereShader
-            if testCase == 8.3 and drawing_globals.use_cylinder_shaders:
-                shader = drawing_globals.cylinderShader
-                pass
-            shader.configShader(glpane)
+        test_Draw_8x()
+        pass
+    elif int(testCase) >= 100:
+        #bruce 090102
+        shader = drawing_globals.sphereShader
+        shader.configShader(glpane)
+        test_Object.draw_complete()
+        pass
+    return
+
+def test_Draw_8x(): #bruce 090223 refactoring of common code
+    if drawing_globals.use_batched_primitive_shaders:
+        shader = drawing_globals.sphereShader
+        if testCase == 8.3 and drawing_globals.use_cylinder_shaders:
+            shader = drawing_globals.cylinderShader
             pass
+        shader.configShader(glpane)
+        pass
+    if testCase == 8:
+        for chunk in test_spheres:
+            chunk.draw()
+            continue
+        pass
+    else:
         if testCase == 8.2:
             animate_TCs()
             pass
@@ -81,17 +98,15 @@ def test_Draw(glpane):
         if testCase == 8.3:
             draw_cylinder_axes()
         pass
-
-    elif int(testCase) >= 100:
-        #bruce 090102
-        shader = drawing_globals.sphereShader
-        shader.configShader(glpane)
-        test_Object.draw_complete()
-        pass
     return
-
+    
 def animate_TCs():
     # Animate TCs, rotating them slowly.
+    
+    # Note: as of 090223 and before, this works in DL case but not in shader
+    # case, because coordinate updates after TCs are modified are nim in
+    # shader case (I think). [bruce 090223 comment]
+    
     slow = 10.0 # Seconds.
     angle = 2*pi * fmod(time.time(), slow) / slow
     # Leave the first one as identity, and rotate the others in
@@ -276,6 +291,7 @@ def delete_caches():
     test_vbo = None
     test_spheres = None
     test_DrawingSet = None
+    print "set test_DrawingSet = None"
     test_endpoints = None
     if test_Object:
         test_Object.destroy()
@@ -518,7 +534,8 @@ def test_drawing(glpane, initOnly = False):
 
                     continue
                 continue
-            test_spheres = GLSphereBuffer(centers, radii, colors, transformIDs)
+            test_spheres = GLSphereBuffer()
+            test_spheres.addSpheres(centers, radii, colors, transformIDs, None)
             if doTransforms:
                 print ("%d primitives in %d transform chunks of size <= %d" %
                        (nSpheres * nSpheres, len(transforms),
@@ -794,7 +811,8 @@ def test_drawing(glpane, initOnly = False):
                     # Colors progress from red to blue.
                     colors += [rainbow(t)]
                     continue
-                test_sphere = GLSphereBuffer(centers, radii, colors)
+                test_sphere = GLSphereBuffer()
+                test_sphere.addSpheres(centers, radii, colors, None, None)
                 test_spheres += [test_sphere]
 
                 glNewList(test_dls + x, GL_COMPILE_AND_EXECUTE)
@@ -846,7 +864,9 @@ def test_drawing(glpane, initOnly = False):
                     # Colors progress from red to blue.
                     colors += [rainbow(t)]
                     continue
-                test_spheres += [GLSphereBuffer(centers, radii, colors)]
+                _spheres1 = GLSphereBuffer()
+                _spheres1.addSpheres(centers, radii, colors, None, None)
+                test_spheres += [_spheres1]
                 continue
             pass
         else:
@@ -955,6 +975,9 @@ def test_drawing(glpane, initOnly = False):
                 test_DrawingSet = DrawingSet()
                 doCylinders = True
                 pass
+            if test_DrawingSet:
+                # note: doesn't happen in test 8.0, which causes a bug then. [bruce 090223 comment]
+                print "constructed test_DrawingSet =", test_DrawingSet
 
             if USE_GRAPHICSMODE_DRAW:
                 print ("Use graphicsMode.Draw for DrawingSet in paintGL.")
@@ -1008,14 +1031,19 @@ def test_drawing(glpane, initOnly = False):
                         test_endpoints += [(center, endPt2)]
                         pass
                     continue
-                ColorSorter.finish(draw_now = True)
                 ColorSorter.popName()
+                ColorSorter.finish(draw_now = True)
 
                 test_DrawingSet.addCSDL(csdl)
                 return csdl
 
             if testCase == 8:
-                chunkFn = GLSphereBuffer
+                #bruce 090223 revised to try to avoid traceback
+                def chunkFn(centers, radii, colors):
+                    res = GLSphereBuffer()
+                    res.addSpheres(centers, radii, colors, None, None)
+                    return res
+                pass
             else:
                 chunkFn = primCSDL
                 pass
@@ -1057,22 +1085,7 @@ def test_drawing(glpane, initOnly = False):
             print "%d chunk buffers" % len(test_spheres)
             pass
         elif not initOnly: # Run.
-            shader = drawing_globals.sphereShader
-            shader.configShader(glpane)
-            if testCase == 8:
-                for chunk in test_spheres:
-                    chunk.draw()
-                    continue
-                pass
-            else:
-                if testCase == 8.2:
-                    animate_TCs()
-                    pass
-                test_DrawingSet.draw()
-                if doCylinders:
-                    draw_cylinder_axes()
-                pass
-            pass
+            test_Draw_8x()
         pass
     elif testCase == 100: #bruce 090102
         # before making more of these, modularize it somehow

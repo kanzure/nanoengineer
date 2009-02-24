@@ -255,7 +255,8 @@ class ColorSorter:
             pass
         else:
             #bruce 090220 guess precaution
-            assert len(ColorSorter._gl_name_stack) == 1
+            assert len(ColorSorter._gl_name_stack) == 1, \
+                   "should be length 1: %r" % (ColorSorter._gl_name_stack,)
             ColorSorter._init_state()
         
         return
