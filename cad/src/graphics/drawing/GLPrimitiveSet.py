@@ -86,6 +86,8 @@ class GLPrimitiveSet:
              patterning = True, highlight_color = None, opacity = 1.0):
         """
         Draw the cached display.
+
+        @note: all arguments are sometimes passed positionally.
         """
         # Draw primitives from CSDLs through shaders, if that's turned on.
         if drawing_globals.use_batched_primitive_shaders_pref:
@@ -129,10 +131,11 @@ class GLPrimitiveSet:
                     glPushMatrix()
                     tc.applyTransform()
                     pass
-                pass
                 lastTC = tc
+                pass
             csdl.draw(highlighted, selected, patterning, highlight_color,
-                      draw_primitives = False) # Just draw the DL's.
+                      draw_primitives = False, transform_DLs = False)
+                # Just draw the DL's, ignoring csdl.transformControl.
             continue
         if lastTC is not None:
             glPopMatrix()

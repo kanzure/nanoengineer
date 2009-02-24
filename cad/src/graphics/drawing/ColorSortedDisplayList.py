@@ -561,7 +561,8 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
              selected = False,
              patterning = True, 
              highlight_color = None,
-             draw_primitives = True ):
+             draw_primitives = True,
+             transform_DLs = True ):
         """
         Simple all-in-one interface to CSDL drawing.
 
@@ -586,6 +587,9 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
           the color scheme preferences.
 
         @param draw_primitives: Whether to draw shader primitives in the CSDL.
+          Defaults to True.
+
+        @param transform_DLs: Whether to apply self.transformControl to our DLs.
           Defaults to True.
         """
 
@@ -637,7 +641,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         transform_once = False # whether to transform exactly once around the
             # following code (as opposed to not at all, or once per callList)
 
-        if self.transformControl:
+        if self.transformControl and transform_DLs:
             if prims_to_do and DLs_to_do:
                 # shader primitives have transform built in, but DLs don't,
                 # so we need to get in and out of local coords repeatedly

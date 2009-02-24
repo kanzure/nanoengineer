@@ -81,27 +81,24 @@ class DrawingSet:
     """
     Manage a set of CSDLs to be repeatedly drawn together.
     """
-    def __init__(self, csdl_list = None):   # Optional CSDL list.
-
+    def __init__(self, csdl_list = ()):
+        """
+        @param csdl_list: Optional initial CSDL list.
+        """
+        
         # Use the integer IDs of the CSDLs as keys in a dictionary.
         #
         # The "set" type is not used here, since it was introduced in Python
-        # 2.4, and we still support 2.3 .
+        # 2.4, and we still support 2.3.
         #
         # Could also use id(csdl) as keys, but it's easier to understand with
         # small integer IDs when debugging, and runs twice as fast too.
-        if csdl_list is not None:
-            self.CSDLs = dict([(csdl.csdl_id, csdl) for csdl in csdl_list])
-        else:
-            self.CSDLs = {}           # Fill in later.
-            pass
+        self.CSDLs = dict([(csdl.csdl_id, csdl) for csdl in csdl_list])
+            # also can add more later, using addCSDL
 
         # Cache a GLPrimitiveSet to speed drawing.
+        # This must be reset to None whenever we modify self.CSDLs.
         self.primSet = None
-
-##        # Support for lazily updating drawing caches, namely a
-##        # timestamp showing when this DrawingSet was last drawn.
-##        self.drawn = drawing_globals.NO_EVENT_YET
 
     def destroy(self): #bruce 090218
         self.primSet = None
@@ -111,6 +108,7 @@ class DrawingSet:
     # ==
 
     # A subset of the set-type API.
+    
     def addCSDL(self, csdl):
         """
         Add a CSDL to the DrawingSet.
@@ -118,12 +116,9 @@ class DrawingSet:
         No error if it's already present.
         """
         if csdl.csdl_id not in self.CSDLs:
-            # Clear the cache when the set is changing.
-            self.primSet = None
-
             self.CSDLs[csdl.csdl_id] = csdl
+            self.primSet = None
             pass
-
         return
 
     def removeCSDL(self, csdl):
@@ -131,13 +126,8 @@ class DrawingSet:
         Remove a CSDL from the DrawingSet.
         Raises KeyError if not present.
         """
-        if csdl.csdl_id in self.CSDLs:
-            # Clear the cache when the set is changing.
-            self.primSet = None
-            pass
-
-        del self.CSDLs[csdl.csdl_id]     # May raise KeyError.
-
+        del self.CSDLs[csdl.csdl_id]     # may raise KeyError
+        self.primSet = None
         return
 
     def discardCSDL(self, csdl): # (note: not presently used)
@@ -145,40 +135,30 @@ class DrawingSet:
         Discard a CSDL from the DrawingSet, if present.
         No error if it isn't.
         """
-
         if csdl.csdl_id in self.CSDLs:
-            # Clear the cache when the set is changing.
-            self.primSet = None
-
             del self.CSDLs[csdl.csdl_id]
+            self.primSet = None
             pass
-
         return
 
     # ==
 
     def draw(self, highlighted = False, selected = False,
-             patterning = True, highlight_color = None, opacity=1.0):
+             patterning = True, highlight_color = None, opacity = 1.0):
         """
         Draw the set of CSDLs in the DrawingSet.
         """
-        # Lazily update any CSDL whose transformControl has changed
-        # since the last draw. Update, bruce 090223: this is not needed
+        # Note: see similar code in CSDL.draw.
+
+        # note: we do nothing about CSDLs whose transformControl has changed
+        # since the last draw. This is not needed
         # when the transformControl is a Chunk, and I won't bother to
         # (re)implement it for now when using deprecated class
         # TransformControl. This will make TCs do nothing in their
-        # test cases in test_drawing.
-        #
-##        for csdl in self.CSDLs.itervalues():
-##            if csdl.transformControl is not None:
-##                csdl.transformControl.updateSince(self.drawn)
-##                    ### REVIEW: possible LOGIC BUG:
-##                    # if this TransformControl is shared with other DrawingSets
-##                    # which were drawn at other times, how can self.drawn be
-##                    # both relevant and correct? Guess: it's not relevant.
-##                    # [bruce 090203 comment]
-                
-        # See if any of the CSDLs has changed more recently than the primSet and
+        # test cases in test_drawing. [bruce 090223 revision]
+                        
+        # See if any of the CSDLs has changed (in primitive content, not in
+        # transformControl value) more recently than the primSet and
         # clear the primSet cache if so.  (Possible optimization: regenerate
         # only some affected parts of the primSet.)
         if self.primSet is not None:
@@ -190,16 +170,18 @@ class DrawingSet:
             pass
 
         # Lazily (re)generate the primSet when needed for drawing.
+
+        ##### REVIEW: does it copy any coordinates? [i don't think so]
+        # if so, fix updateTransform somehow. [bruce 090224 comment]
+        
         if self.primSet is None:
             self.primSet = GLPrimitiveSet(self.CSDLs.values())
             pass
 
-        # Draw the primitives.
+        # Draw the shader primitives and the OpenGL display lists.
         self.primSet.draw(highlighted, selected,
                           patterning, highlight_color, opacity)
 
-##        # Timestamp the drawing event.
-##        self.drawn = drawing_globals.eventStamp()
         return
 
     pass # End of class DrawingSet.
