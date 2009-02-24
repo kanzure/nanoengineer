@@ -22,9 +22,26 @@ Refactor some things between ColorSorter and ColorSortedDisplayList
 (which needs renaming). [bruce 090220 comment]
 """
 
+from OpenGL.GL import GL_COMPILE
+from OpenGL.GL import glNewList
+from OpenGL.GL import glEndList
 from OpenGL.GL import glCallList
 from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glGenLists
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glDisable
+from OpenGL.GL import glEnable
+from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
+from OpenGL.GL import glColor3fv
+from OpenGL.GL import GL_LIGHTING
+
+# todo: reorder these imports
+
+from graphics.drawing.CS_workers import drawpolycone_multicolor_worker
+from graphics.drawing.CS_workers import drawpolycone_worker
+from graphics.drawing.CS_workers import drawtriangle_strip_worker
 
 import foundation.env as env
 
@@ -35,6 +52,7 @@ from graphics.drawing.gl_lighting import endPatternedDrawing
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
 from utilities.prefs_constants import HHS_HALO
+from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import SS_HALO
 
@@ -64,15 +82,30 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     For convenience, the TransformControl argument can be left out if you don't
     want to use a TransformControl to move the CSDL. This has the same effect as
     giving a TransformControl whose transform remains as the identity matrix.
+
+    @note: as of 090223, the transformControl can also be a Chunk.
+           Details to be documented later.
     """
 
-    # default values of instance variables
-    transformControl = None
+    # default values of instance variables [note: incomplete]
+    
+    ### todo: some of these and/or the dl variables not listed here
+    #   could be renamed to indicate that they are private.
+    
+    transformControl = None # might be a TransformControl or a Chunk
     reentrant = False #bruce 090220
+    _transform_id = None #bruce 090223
+    _untransformed_data = None #bruce 090223
+    spheres = () #bruce 090224
+    cylinders = () #bruce 090224
     
     def __init__(self, transformControl = None, reentrant = False):
         """
         """
+        self._clear_when_deallocate_DLs_might_be_unsafe()
+            #bruce 090224 moved this earlier, made it do more,
+            # removed inits from this method which are now redundant
+
         if reentrant:
             self.reentrant = True # permits reentrant ColorSorter.start
         
@@ -86,29 +119,32 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # timestamp showing when this CSDL was last changed.
         self.changed = drawing_globals.eventStamp()
 
-        # Included drawing-primitive IDs.
-        self.spheres = []
-        self.cylinders = []
-
-        # Russ 081128: A cached primitives drawing index.  This is only used
-        # when drawing individual CSDLs for hover-highlighting, for testing,
-        # and during development.  Normally,
-        # primitives from a number of CSDLs are collected into a GLPrimitiveSet
-        # with a drawing index covering all of them.
-        #bruce 090218: corrected above comment, and changed drawIndex ->
-        # drawIndices so it can support more than one primitive type.
-        self.drawIndices = {}
-
         if transformControl is not None:
             self.transformControl = transformControl
+            try:
+                ##### KLUGE (temporary), for dealing with a perhaps-permanent change:
+                # transformControl might be a Chunk,
+                # which has (we assume & depend on) no transform_id
+                _x = self.transformControl.transform_id # should fail for Chunk
+            except AttributeError:
+                # Assume transformControl is a Chunk.
+                # Note: no point in doing self.updateTransform() yet (to record
+                # untransformed data early) -- we have no data, since no
+                # shader primitives have been stored yet. Untransformed data
+                # will be recorded the first time it's transformed (after init,
+                # and after each time primitives get cleared and remade).
+                pass
+            else:
+                assert _x is not None
+                assert _x is not -1
+                self._transform_id = _x
             pass
 
         # Russ 081122: Mark CSDLs with a glname for selection.
-        self.glname = env._shared_glselect_name_dict.\
+        # (Note: this is a temporary kluge for testing. [bruce 090223 comment])
+        self.glname = env._shared_glselect_name_dict. \
                       alloc_my_glselect_name(self)
         ###self.glname = 0x12345678 ### For testing.
-
-        self.clear()
 
         # Whether to draw in the selection over-ride color.
         self.selected = False
@@ -128,36 +164,256 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         return
 
+    def __repr__(self): #bruce 090224
+        name = self.__class__.__name__.split('.')[-1]
+        if self.transformControl:
+            return "<%s at %#x for %r>" % (name, id(self), self.transformControl)
+        else:
+            return "<%s at %#x>" % (name, id(self))
+        pass
+    
     # Russ 080925: Added.
     def transform_id(self):
         """
         Return the transform_id of the CSDL, or None if there is no associated
-        TransformControl.
+        TransformControl (including if self.transformControl is not an instance
+        of TransformControl).
         """
-        if self.transformControl is None:
-            return None
-        return self.transformControl.transform_id
+        return self._transform_id
 
-    # Russ 080915: Added.
-    def __del__(self):         # Called by Python when an object is being freed.
-        self.destroy()
-        return
-    
-    def destroy(self):         # Called by us to break cyclic reference loops.
-        # Free any OpenGL resources.
-        ### REVIEW: Need to wait for our OpenGL context to become current when
-        # GLPane calls its method saying it's current again.  See chunk dealloc
-        # code for details. This hangs NE1 now, so it's commented out.
-        ## self.deallocate_displists()
+    # ==
 
-        # Free primitives stored in VBO hunks.
-        self.clearPrimitives() #bruce 090223 guess implem
+    def start(self, pickstate): #bruce 090224 split this out of caller
+        """
+        Clear self and start collecting new primitives for use inside it.
+        
+        (They are collected by staticmethods in the ColorSorter singleton class,
+         and saved partly in ColorSorter class attributes, partly in self
+         by direct assignment (maybe not anymore), and partly in self by
+         methods ColorSorter calls in self.)
 
-        self.transformControl = None #bruce 090223 revised
+        [meant to be called only by ColorSorter.start, for now]
+        """
+        if pickstate is not None:
+            # todo: refactor to remove this deprecated argument
+            ### review: is it correct to not reset self.selected when this is None??
+            self.selectPick(pickstate)
+            pass
+
+        # Russ 080915: This supports lazily updating drawing caches.
+        self.changed = drawing_globals.eventStamp()
+
+        # Clear the primitive data to start collecting a new set.
+        
+        # REVIEW: is it good that we don't also deallocate DLs here?
+        # Guess: yes if we reuse them, no if we don't.
+        # It looks like finish calls _reset, which deallocates them,
+        # so we might as well do that right here instead. Also, that
+        # way I can remove _reset from finish, which is good since
+        # I've made _reset clearPrimitives, which is a bug if done
+        # in finish (when were added between start and finish).
+        # [bruce 090224 comment and revision]
+        ## self._clearPrimitives()
+        self._reset()
+
+        if 0: # keep around, in case we want a catchall DL in the future
+            #bruce 090114 removed support for 
+            # (not (drawing_globals.allow_color_sorting and
+            #       drawing_globals.use_color_sorted_dls)):
+            # This is the beginning of the single display list created when
+            # color sorting is turned off. It is ended in
+            # ColorSorter.finish . In between, the calls to
+            # draw{sphere,cylinder,polycone} methods pass through
+            # ColorSorter.schedule_* but are immediately sent to *_worker
+            # where they do OpenGL drawing that is captured into the display
+            # list.
+            try:
+                if self.dl == 0:
+                    self.activate() # Allocate a display list for our use.
+                    pass
+                # Start a single-level list.
+                glNewList(self.dl, GL_COMPILE)
+            except:
+                print ("data related to following exception: self.dl = %r" %
+                       (self.dl,)) #bruce 070521
+                raise
+            pass
         return
 
     # ==
 
+    def finish(self, sorted_by_color): #bruce 090224 split this out of caller
+        """
+        Finish collecting new primitives for use in self, and store them all
+        in self, ready to be drawn in various ways.
+
+        [meant to be called only by ColorSorter.start, for now]
+        """
+##        self._reset() 
+##            # (note: this deallocates any existing display lists)
+
+        if self.transformControl and (self.spheres or self.cylinders):
+            self.updateTransform()
+                # needed to do the transform for the first time,
+                # even if it didn't change. Review: refactor to
+                # whereever we first compile these down? That
+                # might be a different place in self.draw vs.
+                # draw from DrawingSet.
+        
+        selColor = env.prefs[selectionColor_prefs_key]
+        vboLevel = drawing_globals.use_drawing_variant
+
+        # First build the lower level per-color sublists of primitives.
+        for color, funcs in sorted_by_color.iteritems():
+            sublists = [glGenLists(1), 0]
+
+            # Remember the display list ID for this color.
+            self.per_color_dls.append([color, sublists])
+
+            glNewList(sublists[0], GL_COMPILE)
+            opacity = color[3]
+
+            if opacity == -1:
+                #russ 080306: "Unshaded colors" for lines are signaled
+                # by an opacity of -1 (4th component of the color.)
+                glDisable(GL_LIGHTING) # Don't forget to re-enable it!
+                pass
+
+            if opacity == -3 and vboLevel == 6:
+                #russ 080714: "Shader spheres" are signaled
+                # by an opacity of -3 (4th component of the color.)
+                ### REVIEW: does this work when building a DL? [bruce 090224 Q]
+                drawing_globals.sphereShader.use(True)
+                pass
+
+            for func, params, name in funcs:
+                if name:
+                    glPushName(name)
+                else:
+                    pass ## print "bug_2: attempt to push non-glname", name
+                func(params)    # Call the draw worker function.
+                if name:
+                    glPopName()
+                    pass
+                continue
+
+            if opacity == -3 and vboLevel == 6:
+                drawing_globals.sphereShader.use(False)
+                pass
+
+            if opacity == -1:
+                # Enable lighting after drawing "unshaded" objects.
+                glEnable(GL_LIGHTING)
+                pass
+            glEndList()
+
+            if opacity == -2:
+                # piotr 080419: Special case for drawpolycone_multicolor
+                # create another display list that ignores
+                # the contents of color_array.
+                # Remember the display list ID for this color.
+
+                sublists[1] = glGenLists(1)
+
+                glNewList(sublists[1], GL_COMPILE)
+
+                for func, params, name in funcs:
+                    if name:
+                        glPushName(name)
+                    else:
+                        pass ## print "bug_3: attempt to push non-glname", name
+                    if func == drawpolycone_multicolor_worker:
+                        # Just to be sure, check if the func
+                        # is drawpolycone_multicolor_worker
+                        # and call drawpolycone_worker instead.
+                        # I think in the future we can figure out 
+                        # a more general way of handling the 
+                        # GL_COLOR_MATERIAL objects. piotr 080420
+                        pos_array, color_array, rad_array = params
+                        drawpolycone_worker((pos_array, rad_array))
+                    elif func == drawtriangle_strip_worker:
+                        # piotr 080710: Multi-color modification
+                        # for triangle_strip primitive (used by 
+                        # reduced protein style).
+                        pos_array, normal_array, color_array = params
+                        drawtriangle_strip_worker((pos_array, 
+                                                   normal_array,
+                                                   None))
+                    if name:
+                        glPopName()
+                        pass
+                    continue
+                glEndList()
+
+            continue
+
+        # Now the upper-level lists call all of the per-color sublists.
+        #### REVIEW: these are created even when empty. Is that necessary?
+        # [bruce 090224 Q]
+        
+        # One with colors.
+        color_dl = self.color_dl = glGenLists(1)
+        glNewList(color_dl, GL_COMPILE)
+
+        for color, dls in self.per_color_dls:
+
+            opacity = color[3]
+            if opacity < 0:
+                #russ 080306: "Unshaded colors" for lines are signaled
+                # by a negative alpha.
+                glColor3fv(color[:3])
+                # piotr 080417: for opacity == -2, i.e. if
+                # GL_COLOR_MATERIAL is enabled, the color is going 
+                # to be ignored, anyway, so it is not necessary
+                # to be tested here
+            else:
+                apply_material(color)
+
+            glCallList(dls[0])
+
+            continue
+        glEndList()
+
+        # A second one without any colors.
+        nocolor_dl = self.nocolor_dl = glGenLists(1)
+        glNewList(nocolor_dl, GL_COMPILE)
+        for color, dls in self.per_color_dls:                    
+            opacity = color[3]
+
+            if opacity == -2 \
+               and dls[1] > 0:
+                # piotr 080420: If GL_COLOR_MATERIAL is enabled,
+                # use a regular, single color dl rather than the
+                # multicolor one. Btw, dls[1] == 0 should never 
+                # happen.
+                glCallList(dls[1])
+            else:
+                glCallList(dls[0])
+
+        glEndList()
+
+        # A third DL implements the selected appearance.
+        selected_dl = self.selected_dl = glGenLists(1)
+        glNewList(selected_dl, GL_COMPILE)
+        # russ 080530: Support for patterned selection drawing modes.
+        patterned = isPatternedDrawing(select = True)
+        if patterned:
+            # Patterned drawing needs the colored dl drawn first.
+            glCallList(color_dl)
+            startPatternedDrawing(select = True)
+            pass
+        # Draw solid color (unpatterned) or an overlay pattern, in the
+        # selection color.
+        apply_material(selColor)
+        glCallList(nocolor_dl)
+        if patterned:
+            # Reset from patterning drawing mode.
+            endPatternedDrawing(select = True)
+        glEndList()
+        pass
+
+    # ==
+    
     # Russ 080925: For batched primitive drawing, drawing-primitive functions
     # conditionally collect lists of primitive IDs here in the CSDL, rather than
     # sending them down through the ColorSorter schedule methods into the DL
@@ -169,20 +425,6 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     #
     # This can be factored when we get a lot of primitive shaders.  For now,
     # simply cache the drawing-primitive IDs at the top level of CSDL.
-    def clearPrimitives(self):
-        # Free them in the GLPrimitiveBuffers.
-        if drawing_globals.use_batched_primitive_shaders:
-            drawing_globals.spherePrimitives.releasePrimitives(self.spheres)
-
-            if drawing_globals.use_cylinder_shaders:
-                drawing_globals.cylinderPrimitives.releasePrimitives(
-                    self.cylinders)
-                pass
-            pass
-        self.spheres = []
-        self.cylinders = []
-        self.drawIndices = {}
-        return
         
     def addSphere(self, center, radius, color, glname):
         """
@@ -194,7 +436,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         self.spheres += drawing_globals.spherePrimitives.addSpheres(
             [center], radius, color, self.transform_id(), glname)
-        self.drawIndices = {}
+        self._clear_derived_primitive_caches()
         return
 
     # Russ 090119: Added.
@@ -208,9 +450,9 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         self.cylinders += drawing_globals.cylinderPrimitives.addCylinders(
             [endpts], radii, color, self.transform_id(), glname)
-        self.drawIndices = {}
+        self._clear_derived_primitive_caches()
         return
-    
+
     # ==
 
     ### REVIEW: the methods draw_in_abs_coords and nodes_containing_selobj
@@ -233,7 +475,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     # ==
 
-    def shaders_and_primitives(self): #bruce 090218, needed only for CSDL.draw 
+    def shaders_and_primitive_lists(self): #bruce 090218
         """
         Yield each pair of (shader, primitive-list) which we need to draw.
         """
@@ -245,13 +487,75 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
             yield drawing_globals.cylinderPrimitives, self.cylinders
         return
 
+    def shader_primID_pairs(self): #bruce 090223
+        for shader, primitives in self.shaders_and_primitive_lists():
+            for p in primitives:
+                yield shader, p
+        return
+
     def draw_shader_primitives(self, *args): #bruce 090218, needed only for CSDL.draw
-        for shader, primitives in self.shaders_and_primitives():
+        for shader, primitives in self.shaders_and_primitive_lists():
             index = self.drawIndices[shader]            
             shader.draw(index, *args)
             continue
         return
+
+    def updateTransform(self): #bruce 090223
+        """
+        Update transformed version of cached coordinates,
+        using the current transform value of self.transformControl.
+        This should only be called if transformControl was provided to__init__,
+        and must be called whenever its transform value changes, sometime before
+        we are next drawn.
+
+        @note: in current implem, this is only needed if self is drawn using
+               shader primitives, and may only work properly if
+               self.transformControl is a Chunk.
+        """
+        try:
+            s_p_pairs = list(self.shader_primID_pairs())
+
+            if not s_p_pairs:
+                # optimization
+                return
+
+            if not self._untransformed_data:
+                # save untransformed data here for reuse (format depends on shader)
+                _untransformed_data = []
+                    # don't retain this in self until it's all collected
+                    # (otherwise we get confusing bugs from its being too short,
+                    #  if there's an exception while collecting it)
+                for shader, p in s_p_pairs:
+                    ut = shader.grab_untransformed_data(p)
+                    _untransformed_data += [ut]
+                    continue
+                self._untransformed_data = _untransformed_data
+                # print "remade len %d of utdata in" % len(self._untransformed_data), self
+                assert len(self._untransformed_data) == len( s_p_pairs )
+                assert s_p_pairs == list(self.shader_primID_pairs())
+                    # this could fail if shader_primID_pairs isn't deterministic
+                    # or if its value gets modified while collecting it
+                    # (either scenario would be a bug)
+                pass
+            else:
+                # print "found %d utdata in" % len(self._untransformed_data), self
+                assert len(self._untransformed_data) == len( s_p_pairs )
+                    # this could fail if the length of s_p_pairs could vary
+                    # over time, without resets to self._untransformed_data
+                    # (which would be a bug)
             
+            transform = self.transformControl
+            for (shader, p), ut in zip( s_p_pairs , self._untransformed_data ):
+                shader.store_transformed_primitive( p, ut, transform)
+                continue
+            pass
+        except:
+            # might as well skip the update but not mess up anything else
+            # being drawn at the same time (this typically runs during drawing)
+            msg = "bug: ignoring exception in updateTransform in %r" % self
+            print_compact_traceback(msg + ": ")
+        return
+    
     def draw(self, 
              highlighted = False, 
              selected = False,
@@ -311,7 +615,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
             # Cache drawing indices for just the primitives in this CSDL,
             # in self.drawIndices, used in self.draw_shader_primitives below.
             if not self.drawIndices:
-                for shader, primitives in self.shaders_and_primitives():
+                for shader, primitives in self.shaders_and_primitive_lists():
                     self.drawIndices[shader] = shader.makeDrawIndex(primitives)
                     continue
                 pass
@@ -326,6 +630,31 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # Russ 081208: Skip DLs when drawing shader-prims with glnames-as-color.
         DLs_to_do = (drawing_globals.drawing_phase != "glselect_glname_color"
                      and len(self.per_color_dls) > 0)
+
+        # the following might be changed, then are used repeatedly below;
+        # this simplifies the various ways we can handle transforms [bruce 090224]
+        callList = glCallList # how to call a DL, perhaps inside our transform
+        transform_once = False # whether to transform exactly once around the
+            # following code (as opposed to not at all, or once per callList)
+
+        if self.transformControl:
+            if prims_to_do and DLs_to_do:
+                # shader primitives have transform built in, but DLs don't,
+                # so we need to get in and out of local coords repeatedly
+                # (once for each callList) during the following
+                # (note similar code in DrawingSet.draw): [bruce 090224]
+                callList = self._callList_inside_transformControl
+            elif DLs_to_do:
+                # we need to get into and out of local coords just once
+                transform_once = True
+            else:
+                pass # nothing special needed for just shader prims (or nothing)
+            pass
+
+        if transform_once:
+            glPushMatrix()
+            self.transformControl.applyTransform()
+        
         if (patterned_highlighting or not highlighted or
             (halo_selection and not halo_highlighting)) :
             if selected:
@@ -338,7 +667,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 if DLs_to_do:                    # Display lists.
                     # If the selection mode is patterned, the selected_dl does
                     # first normal drawing and then draws an overlay.
-                    glCallList(self.selected_dl)
+                    callList(self.selected_dl)
                     pass
                 pass
             else:
@@ -348,7 +677,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                     pass
 
                 if DLs_to_do:
-                    glCallList(self.color_dl)    # Display lists.
+                    callList(self.color_dl)    # Display lists.
                     pass
                 pass
             pass
@@ -369,7 +698,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 # Draw a highlight overlay (solid, or in an overlay pattern.)
                 apply_material(highlight_color is not None and highlight_color
                                or env.prefs[hoverHighlightingColor_prefs_key])
-                glCallList(self.nocolor_dl)
+                callList(self.nocolor_dl)
 
                 if patterned_highlighting:
                     # Reset from a patterned drawing mode set up above.
@@ -378,29 +707,20 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 pass
 
             pass
+
+        if transform_once:
+            glPopMatrix()
+        
         return
 
-    # ==
-    # CSDL state maintenance.
-
-    def clear(self):
-        """
-        Empty state.
-        """
-        self.dl = 0             # Current display list (color or selected.)
-        self.color_dl = 0       # DL to set colors, call each lower level list.
-        self.selected_dl = 0    # DL with a single (selected) over-ride color.
-        self.nocolor_dl = 0     # DL of lower-level calls for color over-rides.
-        self.per_color_dls = [] # Lower level, per-color primitive sublists.
+    def _callList_inside_transformControl(self, DL): #bruce 090224
+        glPushMatrix()
+        self.transformControl.applyTransform()
+        glCallList(DL)
+        glPopMatrix()
         return
 
-    def not_clear(self):
-        """
-        Check for empty state.
-        """
-        return (self.dl or self.color_dl or self.nocolor_dl or
-                self.selected_dl or
-                self.per_color_dls and len(self.per_color_dls))
+    # == CSDL state maintenance
 
     def activate(self):
         """
@@ -437,41 +757,142 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         self.dl = self.selected and self.selected_dl or self.color_dl
         return
 
-    def reset(self):
+    # == state clearing methods, also used to set up initial state
+    #    (should be refactored a bit more [bruce 090224 comment])
+    
+    def _reset(self):
         """
-        Return to initialized state.
+        Return to initialized state (but don't clear constructor parameters).
+
+        Only legal when our GL context is current.
         """
-        if self.not_clear():
-            # deallocate leaves it clear.
-            self.deallocate_displists()
-            pass
+        #bruce 090224 revision: not worth the bug risk and maintenance issue
+        # to figure out whether we have any state that needs clearing --
+        # so just always clear it all.
+        self.deallocate_displists()
         return
 
     def deallocate_displists(self):
         """
         Free any allocated display lists.
+        (Also clear or initialize shader primitives and all other cached
+         drawing state, but not constructor parameters.)
+
+        @note: this is part of our external API.
+
+        @see: _clear_when_deallocate_DLs_might_be_unsafe,
+              which does all possible clearing *except* for
+              deallocating display lists, for use when we're not sure
+              deallocating them is safe.
         """
         # With CSDL active, self.dl duplicates either selected_dl or color_dl.
-        if (self.dl != self.color_dl and
-            self.dl != self.selected_dl):
-            glDeleteLists(self.dl, 1)
-        for dl in [self.color_dl, self.nocolor_dl, self.selected_dl]:
-            if dl != 0:
-                glDeleteLists(dl, 1) 
-                pass
-            continue
+        
+        #bruce 090224 rewrote to make no assumptions about which DLs
+        # are currently allocated or overlapping -- just delete all valid ones.
+        DLs = {}
+        for dl in [self.dl, self.color_dl, self.nocolor_dl, self.selected_dl]:
+            DLs[dl] = dl
         # piotr 080420: The second level dl's are 2-element lists of DL ids 
         # rather than just a list of ids. The second DL is used in case
         # of multi-color objects and is required for highlighting 
         # and selection (not in rc1)
         for clr, dls in self.per_color_dls: # Second-level dl's.
             for dl in dls: # iterate over DL pairs.
-                if dl != 0:
-                    glDeleteLists(dl, 1) 
-                    pass
-                continue
+                DLs[dl] = dl
+        for dl in DLs:
+            if dl: # skip 0 or None (not sure if None ever happens)
+                glDeleteLists(dl, 1)
             continue
-        self.clear()
+        self._clear_when_deallocate_DLs_might_be_unsafe()
+        return
+
+    def _clear_when_deallocate_DLs_might_be_unsafe(self):
+        """
+        Clear and initialize cached and stored drawing state (but not
+        constructor parameters), except for deallocating OpenGL display lists.
+        (In theory, this is safe to call even when our GL context is not
+         current.)
+
+        @note: this does not deallocate display lists.
+               Therefore, it might be a VRAM memory leak if any DLs
+               are allocated. So don't call it except via
+               deallocate_displists, if possible.
+        """
+        #bruce 090224 added _clearPrimitives, renamed, revised docstring
+        self.dl = 0             # Current display list (color or selected.)
+        self.color_dl = 0       # DL to set colors, call each lower level list.
+        self.selected_dl = 0    # DL with a single (selected) over-ride color.
+        self.nocolor_dl = 0     # DL of lower-level calls for color over-rides.
+        self.per_color_dls = [] # Lower level, per-color primitive sublists.
+        self._clearPrimitives()
+        return
+
+    def _clearPrimitives(self):
+        """
+        Clear cached and stored drawing state related to shader primitives.
+        """
+        # REVIEW: any reason to keep this separate from its caller,
+        # _clear_when_deallocate_DLs_might_be_unsafe? Maybe other callers
+        # can call that instead? For now, there are some calls for which
+        # this is unclear, so I'm not merging them. [bruce 090224 comment]
+        
+        # Free them in the GLPrimitiveBuffers.
+        # TODO: refactor to use self.shaders_and_primitive_lists().
+        
+        #bruce 090224 revised conditions so they ignore current prefs
+        if self.spheres:
+            drawing_globals.spherePrimitives.releasePrimitives(self.spheres)
+        if self.cylinders:
+            drawing_globals.cylinderPrimitives.releasePrimitives(self.cylinders)
+        
+        # Included drawing-primitive IDs. (These can be accessed more generally
+        # using self.shaders_and_primitive_lists().)
+        self.spheres = []
+        self.cylinders = []
+        
+        self._clear_derived_primitive_caches()
+        return
+
+    def _clear_derived_primitive_caches(self): #bruce 090224 split this out
+        """
+        Call this after modifying our lists of shader primitives.
+        """
+        # Russ 081128: A cached primitives drawing index.  This is only used
+        # when drawing individual CSDLs for hover-highlighting, for testing,
+        # and during development.  Normally,
+        # primitives from a number of CSDLs are collected into a GLPrimitiveSet
+        # with a drawing index covering all of them.
+        #bruce 090218: corrected above comment, and changed drawIndex ->
+        # drawIndices so it can support more than one primitive type.
+        self.drawIndices = {}
+        
+        self._untransformed_data = None
+        return
+
+    def __del__(self): # Russ 080915
+        """
+        Called by Python when an object is being freed.
+        """
+        self.destroy()
+        return
+    
+    def destroy(self):
+        """
+        Free external resources and break reference cycles.
+        """
+        # Free any OpenGL resources.
+        ### REVIEW: Need to wait for our OpenGL context to become current when
+        # GLPane calls its method saying it's current again.  See chunk dealloc
+        # code for details. This hangs NE1 now, so it's commented out.
+        ## self.deallocate_displists()
+
+        # Free primitives stored in VBO hunks.
+        self._clearPrimitives() #bruce 090223 guess implem; would be redundant
+            # with deallocate_displists if we called that here
+            ## REVIEW: call _clear_when_deallocate_DLs_might_be_unsafe instead?
+
+        # clear constructor parameters if they might cause reference cycles.
+        self.transformControl = None #bruce 090223
         return
 
     pass # end of class ColorSortedDisplayList

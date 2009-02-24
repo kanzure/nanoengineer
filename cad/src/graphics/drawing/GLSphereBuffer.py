@@ -21,7 +21,7 @@ See design comments on:
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer, HunkBuffer
 
-from geometry.VQT import V
+from geometry.VQT import V, A
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
 
@@ -131,4 +131,25 @@ class GLSphereBuffer(GLPrimitiveBuffer):
 
         return newIDs
 
+    def grab_untransformed_data(self, primID): #bruce 090223
+        """
+        """
+        ctrRad = self.ctrRadHunks.getData(primID)
+        return A(ctrRad[:3]), ctrRad[3]
+
+    def store_transformed_primitive(self, primID, untransformed_data, transform):
+        #bruce 090223
+        """
+        @param untransformed_data: something returned earlier from
+               self.grab_untransformed_data(primID)
+        """
+        # todo: heavily optimize this, by combining multiple values of
+        # untransformed_data into a single array, like Chunk.baseposn
+        # (and/or by coding it in C)
+        point, radius = untransformed_data
+        point = transform.applyToPoint(point)
+        ctrRad = V(point[0], point[1], point[2], radius)
+        self.ctrRadHunks.setData(primID, ctrRad)
+        return
+        
     pass # End of class GLSphereBuffer.

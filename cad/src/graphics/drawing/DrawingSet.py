@@ -99,9 +99,9 @@ class DrawingSet:
         # Cache a GLPrimitiveSet to speed drawing.
         self.primSet = None
 
-        # Support for lazily updating drawing caches, namely a
-        # timestamp showing when this DrawingSet was last drawn.
-        self.drawn = drawing_globals.NO_EVENT_YET
+##        # Support for lazily updating drawing caches, namely a
+##        # timestamp showing when this DrawingSet was last drawn.
+##        self.drawn = drawing_globals.NO_EVENT_YET
 
     def destroy(self): #bruce 090218
         self.primSet = None
@@ -162,16 +162,21 @@ class DrawingSet:
         """
         Draw the set of CSDLs in the DrawingSet.
         """
-        # Lazily update any transform referenced by a CSDL that has changed
-        # since the last draw.
-        for csdl in self.CSDLs.itervalues():
-            if csdl.transformControl is not None:
-                csdl.transformControl.updateSince(self.drawn)
-                    ### REVIEW: possible LOGIC BUG:
-                    # if this TransformControl is shared with other DrawingSets
-                    # which were drawn at other times, how can self.drawn be
-                    # both relevant and correct? Guess: it's not relevant.
-                    # [bruce 090203 comment]
+        # Lazily update any CSDL whose transformControl has changed
+        # since the last draw. Update, bruce 090223: this is not needed
+        # when the transformControl is a Chunk, and I won't bother to
+        # (re)implement it for now when using deprecated class
+        # TransformControl. This will make TCs do nothing in their
+        # test cases in test_drawing.
+        #
+##        for csdl in self.CSDLs.itervalues():
+##            if csdl.transformControl is not None:
+##                csdl.transformControl.updateSince(self.drawn)
+##                    ### REVIEW: possible LOGIC BUG:
+##                    # if this TransformControl is shared with other DrawingSets
+##                    # which were drawn at other times, how can self.drawn be
+##                    # both relevant and correct? Guess: it's not relevant.
+##                    # [bruce 090203 comment]
                 
         # See if any of the CSDLs has changed more recently than the primSet and
         # clear the primSet cache if so.  (Possible optimization: regenerate
@@ -193,8 +198,8 @@ class DrawingSet:
         self.primSet.draw(highlighted, selected,
                           patterning, highlight_color, opacity)
 
-        # Timestamp the drawing event.
-        self.drawn = drawing_globals.eventStamp()
+##        # Timestamp the drawing event.
+##        self.drawn = drawing_globals.eventStamp()
         return
 
     pass # End of class DrawingSet.

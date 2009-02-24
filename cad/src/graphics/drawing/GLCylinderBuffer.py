@@ -23,7 +23,7 @@ See design comments on:
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer, HunkBuffer
 
-from geometry.VQT import V
+from geometry.VQT import V, A
 
 import numpy
 
@@ -131,8 +131,8 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
             zip(newIDs, endpts, radii, colors, transform_ids, glnames):
 
             # Combine each center and radius into one vertex attribute.
-            endptRad0 = [V(endpt2[0][0], endpt2[0][1], endpt2[0][2], radius2[0])]
-            endptRad1 = [V(endpt2[1][0], endpt2[1][1], endpt2[1][2], radius2[1])]
+            endptRad0 = V(endpt2[0][0], endpt2[0][1], endpt2[0][2], radius2[0])
+            endptRad1 = V(endpt2[1][0], endpt2[1][1], endpt2[1][2], radius2[1])
             self.endptRad0Hunks.setData(newID, endptRad0)
             self.endptRad1Hunks.setData(newID, endptRad1)
             self.colorHunks.setData(newID, color)
@@ -144,5 +144,35 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
             continue
 
         return newIDs
+
+    def grab_untransformed_data(self, primID): #bruce 090223
+        """
+        """
+        endptRad0 = self.endptRad0Hunks.getData(primID)
+        endptRad1 = self.endptRad1Hunks.getData(primID)
+
+        #### these can be removed after debugging:
+        assert len(endptRad0) == 4, "len(endptRad0) should be 4: %r" % (endptRad0,)
+        assert len(endptRad1) == 4, "len(endptRad1) should be 4: %r" % (endptRad1,)
+        assert len(endptRad0[:3]) == 3, "len slice of 3 (in endptRad0) should be 3: %r" % (endptRad0[:3],)
+        assert len(endptRad1[:3]) == 3, "len slice of 3 (in endptRad1) should be 3: %r" % (endptRad1[:3],)
+        
+        return A(endptRad0[:3]), endptRad0[3], A(endptRad1[:3]), endptRad1[3]
+
+    def store_transformed_primitive(self, primID, untransformed_data, transform):
+        #bruce 090223
+        """
+        @param untransformed_data: something returned earlier from
+               self.grab_untransformed_data(primID)
+        """
+        # todo: heavily optimize this (see comment in sphere version)
+        point0, radius0, point1, radius1 = untransformed_data
+        point0 = transform.applyToPoint(point0)
+        point1 = transform.applyToPoint(point1)
+        endptRad0 = V(point0[0], point0[1], point0[2], radius0)
+        endptRad1 = V(point1[0], point1[1], point1[2], radius1)
+        self.endptRad0Hunks.setData(primID, endptRad0)
+        self.endptRad1Hunks.setData(primID, endptRad1)
+        return
 
     pass # End of class GLCylinderBuffer.

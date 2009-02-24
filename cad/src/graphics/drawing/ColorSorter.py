@@ -45,11 +45,11 @@ gl_lighting.py gl_buffers.py
 
 090220 bruce split class ColorSortedDisplayList into its own file
 
-REVIEW [bruce 090114]:
+REVIEW [bruce 090114; some of this now belongs in ColorSortedDisplayList.py]:
 
 * there are a lot of calls of glGenLists(1) that would be VRAM memory leaks
 if they didn't deallocate any prior display list being stored in the same attribute
-as the new one. I *think* they are not leaks, since self.reset is called
+as the new one. I *think* they are not leaks, since self._reset is called
 before them, and it calls self.deallocate_displists, but it would be good 
 to confirm this by independent review, and perhaps to assert that all 
 re-allocated DL id attributes are zero (and zero them in deallocate_displists),
@@ -62,23 +62,18 @@ TODO:
 
 Change ColorSorter into a normal class with distinct instances.
 Give it a stack of instances rather than its current _suspend system.
-Refactor some things between ColorSorter and ColorSortedDisplayList
-(which also needs renaming). [bruce 090220 comment]
+Maybe, refactor some more things between ColorSorter and ColorSortedDisplayList
+(which also needs renaming). [bruce 090220/090224 comment]
 """
 
 from OpenGL.GL import GL_BLEND
 from OpenGL.GL import glBlendFunc
-from OpenGL.GL import glCallList
 from OpenGL.GL import glColor3fv
-from OpenGL.GL import GL_COMPILE
 from OpenGL.GL import glDepthMask
 from OpenGL.GL import glDisable
 from OpenGL.GL import glEnable
-from OpenGL.GL import glEndList
 from OpenGL.GL import GL_FALSE
-from OpenGL.GL import glGenLists
 from OpenGL.GL import GL_LIGHTING
-from OpenGL.GL import glNewList
 from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
@@ -88,13 +83,6 @@ from OpenGL.GL import GL_TRUE
 
 from geometry.VQT import A
 
-import foundation.env as env
-
-from graphics.drawing.gl_lighting import isPatternedDrawing
-from graphics.drawing.gl_lighting import startPatternedDrawing
-from graphics.drawing.gl_lighting import endPatternedDrawing
-
-from utilities.prefs_constants import selectionColor_prefs_key
 
 from utilities.debug import print_compact_stack
 
@@ -301,7 +289,10 @@ class ColorSorter:
         @return: the transformed point.
         """
         for t in ColorSorter._relative_transforms():
-            point = t.applyToPoint(point) ##### IMPLEM in anything transformlike (for now, Chunk)
+            point = t.applyToPoint(point)
+                ### todo (not urgent): implem in TransformControl,
+                # document it there as part of TransformControl_API,
+                # make a class of that name, inherit it from Chunk
         return point
 
     _transform_point = staticmethod(_transform_point)
@@ -497,8 +488,10 @@ class ColorSorter:
 
         if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             # todo: use different flag than .reentrant
-            if ColorSorter._relative_transforms():
-                ColorSorter._warn_transforms_nim("schedule_wiresphere")
+            pos = ColorSorter._transform_point(pos)
+            ### TODO: for this primitive more than most, it's also necessary to
+            # transform the local coordinate system orientation
+            # used to align the wiresphere.
 
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
@@ -738,41 +731,11 @@ class ColorSorter:
         ColorSorter._initial_transforms = list(glpane.transforms)
         if _DEBUG:
             print "CS.initial transforms:", ColorSorter._debug_transforms() #####
-        
-        if pickstate is not None:
-            csdl.selectPick(pickstate)
-            pass
 
         if csdl is not None:
-            # Russ 080915: This supports lazily updating drawing caches.
-            csdl.changed = drawing_globals.eventStamp()
+            csdl.start(pickstate)
+                #bruce 090224 refactored this into csdl.start
 
-            # Clear the primitive data to start collecting a new set.
-            csdl.clearPrimitives()
-
-            if 0: # keep around, in case we want a catchall DL in the future
-                #bruce 090114 removed support for 
-                # (not (drawing_globals.allow_color_sorting and
-                #       drawing_globals.use_color_sorted_dls)):
-                # This is the beginning of the single display list created when
-                # color sorting is turned off. It is ended in
-                # ColorSorter.finish . In between, the calls to
-                # draw{sphere,cylinder,polycone} methods pass through
-                # ColorSorter.schedule_* but are immediately sent to *_worker
-                # where they do OpenGL drawing that is captured into the display
-                # list.
-                try:
-                    if csdl.dl == 0:
-                        csdl.activate() # Allocate a display list for our use.
-                        pass
-                    # Start a single-level list.
-                    glNewList(csdl.dl, GL_COMPILE)
-                except:
-                    print ("data related to following exception: csdl.dl = %r" %
-                           (csdl.dl,)) #bruce 070521
-                    raise
-                pass
-            pass
         if drawing_globals.use_c_renderer:
             ColorSorter._cur_shapelist = ShapeList_inplace()
             ColorSorter.sphereLevel = -1
@@ -793,6 +756,9 @@ class ColorSorter:
         In that case, draw_now must be True since it doesn't make sense
         to not draw (the drawing has already happened).
         """
+        # TODO: refactor by moving some of this into methods in CSDL
+        # (specifically, in ColorSorter._parent_csdl). [bruce 090224 comment]
+        
         assert ColorSorter.sorting #bruce 090220, appears to be true from this code
         assert ColorSorter.glpane #bruce 090220
         
@@ -853,181 +819,18 @@ class ColorSorter:
         else:
             if debug_which_renderer:
                 print "using Python renderer"
-            color_groups = len(ColorSorter.sorted_by_color)
-            objects_drawn = 0
 
             if parent_csdl is None:
                 # Either all in one display list, or immediate-mode drawing.
                 ### REVIEW [bruce 090114]: are both possibilities still present, 
                 # now that several old options have been removed?
-                objects_drawn += ColorSorter._draw_sorted(
-                    ColorSorter.sorted_by_color)
-
-                if parent_csdl is not None:
-                    # (Note [bruce 090114]: this can't happen now, but I think
-                    # it could happen when color sorter was off, before I removed
-                    # support for that. ### REVIEW: any future use for this code?)
-                    # Terminate a single display list, created when color
-                    # sorting is turned off. Started in ColorSorter.start .
-                    #russ 080225: Moved glEndList here for displist re-org.
-                    glEndList()
-                    pass
+                ColorSorter._draw_sorted( ColorSorter.sorted_by_color)
                 pass
-
             else: #russ 080225
-
-                parent_csdl.reset() 
-                    # (note: this deallocates any existing display lists)
-                selColor = env.prefs[selectionColor_prefs_key]
-                vboLevel = drawing_globals.use_drawing_variant
-
-                # First build the lower level per-color sublists of primitives.
-                for color, funcs in ColorSorter.sorted_by_color.iteritems():
-                    sublists = [glGenLists(1), 0]
-
-                    # Remember the display list ID for this color.
-                    parent_csdl.per_color_dls.append([color, sublists])
-
-                    glNewList(sublists[0], GL_COMPILE)
-                    opacity = color[3]
-
-                    if opacity == -1:
-                        #russ 080306: "Unshaded colors" for lines are signaled
-                        # by an opacity of -1 (4th component of the color.)
-                        glDisable(GL_LIGHTING) # Don't forget to re-enable it!
-                        pass
-
-                    if opacity == -3 and vboLevel == 6:
-                        #russ 080714: "Shader spheres" are signaled
-                        # by an opacity of -3 (4th component of the color.)
-                        drawing_globals.sphereShader.use(True)
-                        pass
-
-                    for func, params, name in funcs:
-                        objects_drawn += 1
-                        if name:
-                            glPushName(name)
-                        else:
-                            pass ## print "bug_2: attempt to push non-glname", name
-                        func(params)    # Call the draw worker function.
-                        if name:
-                            glPopName()
-                            pass
-                        continue
-
-                    if opacity == -3 and vboLevel == 6:
-                        drawing_globals.sphereShader.use(False)
-                        pass
-
-                    if opacity == -1:
-                        # Enable lighting after drawing "unshaded" objects.
-                        glEnable(GL_LIGHTING)
-                        pass
-                    glEndList()
-
-                    if opacity == -2:
-                        # piotr 080419: Special case for drawpolycone_multicolor
-                        # create another display list that ignores
-                        # the contents of color_array.
-                        # Remember the display list ID for this color.
-
-                        sublists[1] = glGenLists(1)
-
-                        glNewList(sublists[1], GL_COMPILE)
-
-                        for func, params, name in funcs:
-                            objects_drawn += 1
-                            if name:
-                                glPushName(name)
-                            else:
-                                pass ## print "bug_3: attempt to push non-glname", name
-                            if func == drawpolycone_multicolor_worker:
-                                # Just to be sure, check if the func
-                                # is drawpolycone_multicolor_worker
-                                # and call drawpolycone_worker instead.
-                                # I think in the future we can figure out 
-                                # a more general way of handling the 
-                                # GL_COLOR_MATERIAL objects. piotr 080420
-                                pos_array, color_array, rad_array = params
-                                drawpolycone_worker((pos_array, rad_array))
-                            elif func == drawtriangle_strip_worker:
-                                # piotr 080710: Multi-color modification
-                                # for triangle_strip primitive (used by 
-                                # reduced protein style).
-                                pos_array, normal_array, color_array = params
-                                drawtriangle_strip_worker((pos_array, 
-                                                           normal_array,
-                                                           None))
-                            if name:
-                                glPopName()
-                                pass
-                            continue
-                        glEndList()
-
-                    continue
-
-                # Now the upper-level lists call all of the per-color sublists.
-                # One with colors.
-                color_dl = parent_csdl.color_dl = glGenLists(1)
-                glNewList(color_dl, GL_COMPILE)
-
-                for color, dls in parent_csdl.per_color_dls:
-
-                    opacity = color[3]
-                    if opacity < 0:
-                        #russ 080306: "Unshaded colors" for lines are signaled
-                        # by a negative alpha.
-                        glColor3fv(color[:3])
-                        # piotr 080417: for opacity == -2, i.e. if
-                        # GL_COLOR_MATERIAL is enabled, the color is going 
-                        # to be ignored, anyway, so it is not necessary
-                        # to be tested here
-                    else:
-                        apply_material(color)
-
-                    glCallList(dls[0])
-
-                    continue
-                glEndList()
-
-                # A second one without any colors.
-                nocolor_dl = parent_csdl.nocolor_dl = glGenLists(1)
-                glNewList(nocolor_dl, GL_COMPILE)
-                for color, dls in parent_csdl.per_color_dls:                    
-                    opacity = color[3]
-
-                    if opacity == -2 \
-                       and dls[1] > 0:
-                        # piotr 080420: If GL_COLOR_MATERIAL is enabled,
-                        # use a regular, single color dl rather than the
-                        # multicolor one. Btw, dls[1] == 0 should never 
-                        # happen.
-                        glCallList(dls[1])
-                    else:
-                        glCallList(dls[0])
-
-                glEndList()
-
-                # A third DL implements the selected appearance.
-                selected_dl = parent_csdl.selected_dl = glGenLists(1)
-                glNewList(selected_dl, GL_COMPILE)
-                # russ 080530: Support for patterned selection drawing modes.
-                patterned = isPatternedDrawing(select = True)
-                if patterned:
-                    # Patterned drawing needs the colored dl drawn first.
-                    glCallList(color_dl)
-                    startPatternedDrawing(select = True)
-                    pass
-                # Draw solid color (unpatterned) or an overlay pattern, in the
-                # selection color.
-                apply_material(selColor)
-                glCallList(nocolor_dl)
-                if patterned:
-                    # Reset from patterning drawing mode.
-                    endPatternedDrawing(select = True)
-                glEndList()
+                parent_csdl.finish( ColorSorter.sorted_by_color)
+                    #bruce 090224 refactored this into parent_csdl
                 pass
-
+            
             ColorSorter.sorted_by_color = None
             pass
 
@@ -1054,7 +857,10 @@ class ColorSorter:
         """
         Traverse color-sorted lists, invoking worker procedures.
         """
-        objects_drawn = 0               # Keep track and return.
+        ### REVIEW: still needed? does this have some duplicated code with
+        # parent_csdl.finish? If so, has this been maintained as that's been
+        # modified? [bruce 090224 questions]
+        
         glEnable(GL_LIGHTING)
 
         for color, funcs in sorted_by_color.iteritems():
@@ -1063,14 +869,13 @@ class ColorSorter:
             if opacity == -1:
                 #piotr 080429: Opacity == -1 signals the "unshaded color".
                 # Also, see my comment in "schedule".
-                glDisable(GL_LIGHTING) # Don't forget to re-enable it!
+                glDisable(GL_LIGHTING) # reenabled below
                 glColor3fv(color[:3])
             else:
                 apply_material(color)
                 pass
 
             for func, params, name in funcs:
-                objects_drawn += 1
                 if name:
                     glPushName(name)
                 else:
@@ -1085,7 +890,7 @@ class ColorSorter:
                 glEnable(GL_LIGHTING)
 
             continue
-        return objects_drawn
+        return
 
     _draw_sorted = staticmethod(_draw_sorted)
 

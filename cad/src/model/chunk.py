@@ -424,6 +424,10 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
         self._drawer = self._drawer_class(self)
             ### todo: refactor when we have GraphicsRules
+            ### todo: optim: do this on demand, since some chunks are never drawn,
+            # e.g. the ones named 'BasePairChunk' created internally by the dna
+            # generator, and perhaps all dna chunks read from mmp files
+            # (since the dna updater remakes them before they're drawn)
         
         return # from Chunk.__init__
 
@@ -602,13 +606,22 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         
         @see: self.pushMatrix()
         """
+        self.applyTransform()
+        glpane.transforms += [self]
+        return
+
+    def applyTransform(self): #bruce 090223
+        """
+        @note: part of the TransformControl API
+        """
+        #### REVIEW: when we have separate dt/st (see TransformNode),
+        # will this apply both or only st? Same Q for applyMatrix.
         origin = self.basecenter
         glTranslatef(origin[0], origin[1], origin[2])
         q = self.quat
         glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
-        glpane.transforms += [self]
         return
-
+    
     def popMatrix(self, glpane):
         """
         Undo the effect of self.pushMatrix(glpane). Also tell glpane this was
@@ -1879,6 +1892,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         #  note that we don't, and need not, inval internal bonds]
         for bond in self.externs:
             bond.setup_invalidate()
+        
         return
 
     def _set_atom_posns_from_atpos(self, atpos): #bruce 060308; revised 060313
@@ -1905,10 +1919,9 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
         @return: transformed point
 
-        This is part of an informal "transform API" assumed by ColorSorter
-        for anything added to glpane.transforms.
+        @note: part of the TransformControl API
         """
-        # review: should we pick single name and merge methods?
+        # review: should we pick single name, and merge methods applyToPoint and base_to_abs?
         # or do they have different contracts (point vs anything)?
         return self.base_to_abs(point)
         

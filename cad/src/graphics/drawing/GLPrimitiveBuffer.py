@@ -511,6 +511,13 @@ class HunkBuffer:
         self.changedRange(primID, primID+1)
         return
 
+    def getData(self, primID): #bruce 090223
+        """
+        Inverse of setData. The ID must always be within the array.
+        """
+        assert 0 <= primID < len(self.data)
+        return self.data[primID][0]
+
     # Maybe a range setter would be useful, too:
     # def setDataRange(self, primLow, primHigh, valueList):
 

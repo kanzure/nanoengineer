@@ -163,9 +163,18 @@ class TransformedDisplayListsDrawer(object,
                only during drawing.
         """
         if not self._displist:
-            self._displist = ColorSortedDisplayList()
+            self._displist = ColorSortedDisplayList(self.getTransformControl())
         return self._displist
-    
+
+    def getTransformControl(self): #bruce 090223 ##### TODO: also in ExtraChunkDisplayList
+        """
+        @return: the transformControl to use for our ColorSortedDisplayLists
+                 (perhaps None)
+        
+        [subclasses should override as needed]
+        """
+        return None
+        
     def __set_displist(self):
         """
         set method for self.displist property; should never be called
@@ -334,7 +343,8 @@ class TransformedDisplayListsDrawer(object,
         #bruce 090123 split this out of Chunk.pick and Chunk.unpick;
         # REFACTOR: should not be needed once CSDL stops storing picked state
 
-        self.displist.selectPick(picked)
+        if self._has_displist(): #bruce 090223 added condition
+            self.displist.selectPick(picked)
             # Note: selectPick shouldn't be needed for self.extra_displists,
             # due to how they're drawn.
             ### REVIEW [bruce 090114]: is selectPick still needed for

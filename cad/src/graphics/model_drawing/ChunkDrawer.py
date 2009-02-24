@@ -142,6 +142,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
     # has the same one even if displayed in more than one place -- or not,
     # if we want to use that to distinguish which copy is being hit.
     # Review this again when more refactoring is done. For now, it's in Chunk.
+
+    _last_should_not_change = (None, None) # todo: rename
     
     def __init__(self, chunk):
         """
@@ -150,6 +152,9 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         self._chunk = chunk
         return
 
+    def getTransformControl(self): #bruce 090223
+        return self._chunk
+    
     # == unsorted methods
 
     def invalidate_display_lists_for_style(self, style): #bruce 090211
@@ -179,7 +184,15 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         return len(self._chunk.atoms) == 0
             # self.killed() might also be correct,
             # but would be redundant with this anyway
-    
+
+    def updateTransform(self): #bruce 090223
+        if self._has_displist():
+            self.displist.updateTransform()
+        for extra_displist in self.extra_displists.itervalues():
+            if 0: ###### NOT YET SAFE until we make them with self._chunk as their transformControl
+                extra_displist.updateTransform()
+        return
+
     # == drawing methods which are mostly specific to Chunk, though they have
     # == plenty of more general aspects which ought to be factored out
 
@@ -301,7 +314,17 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # cause visible bugs if they happen. At least let's verify the
             # self._chunk coord system has not changed by the time we're done:
         should_not_change = ( + self._chunk.basecenter, + self._chunk.quat )
+            #### TODO: rename for clarity -- it's ok if it changes since
+            # last time, just not if it changes during this method
 
+        # see comment below for why we have to compare the pieces, not the whole
+        if should_not_change[0] != self._last_should_not_change[0] or \
+           should_not_change[1] != self._last_should_not_change[1] :
+            self.updateTransform()
+
+        self._last_should_not_change = should_not_change
+
+        
         ### WARNING: DUPLICATED CODE: much of the remaining code in this method
         # is very similar to ExternalBondSetDrawer.draw. Ideally the common
         # parts would be moved into our common superclass,
@@ -328,6 +351,10 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         disp = self._chunk.get_dispdef(glpane)
 
         if is_chunk_visible:
+
+            do_outside_local_coords = []
+                # temporary kluge, won't be needed once we always use DrawingSets
+            
             # piotr 080401: If the chunk is culled, skip drawing, but still draw 
             # external bonds (unless a separate debug pref is set.) 
             # The frustum culling test is now performed individually for every
@@ -403,7 +430,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 if self.havelist == havelist_data: 
                     # self.displist is still valid -- use it.
                     # Russ 081128: Switch from draw_dl() [now removed] to draw() with selection arg.
-                    glpane.draw_csdl(self.displist, selected = self._chunk.picked)
+                    #bruce 090224 need to do this outside local coords, not here:
+                    ## glpane.draw_csdl(self.displist, selected = self._chunk.picked)
                     for extra_displist in self.extra_displists.itervalues():
                         # [bruce 080604 new feature]
                         # note: similar code in else clause, differs re wantlist
@@ -469,7 +497,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                         self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                         self.havelist = havelist_data
 
-                        glpane.draw_csdl(self.displist, selected = self._chunk.picked)
+                        #bruce 090224: do this outside local coords, not here:
+                        ## glpane.draw_csdl(self.displist, selected = self._chunk.picked)
                         
                         # always set the self.havelist flag, even if exception happened,
                         # so it doesn't keep happening with every redraw of this Chunk.
@@ -525,6 +554,13 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 print_compact_traceback("exception in Chunk.draw, continuing: ")
 
             self._chunk.popMatrix(glpane)
+
+            # this has to be done here, not above, since the TransformControl
+            # now in self.displist would be redundant with the local coords
+            # we were inside in GL state, above. This won't be needed once
+            # we're always using DrawingSets, so at that time we can put it
+            # back inside the exception protection, etc. [bruce 090224]
+            glpane.draw_csdl(self.displist, selected = self._chunk.picked)
 
             glPopName() # pops self._chunk.glname
 
@@ -900,9 +936,13 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         ##### TODO: use glpane.draw_csdl.
         if self._has_displist():
             apply_material(color) ### REVIEW: still needed?
+            for csdl in ([self.displist]):
+                # the ones with a TC go outside local coords
+                csdl.draw(highlighted = True, highlight_color = color)
             self._chunk.pushMatrix(glpane)
-            for csdl in ([self.displist] +
-                         [ed.csdl for ed in self.extra_displists.values()]):
+            for csdl in ([ed.csdl for ed in self.extra_displists.values()]):
+                # the other ones go inside them
+                # (soon these will have TC and alao go above #####)
                 csdl.draw(highlighted = True, highlight_color = color)
             self._chunk.popMatrix(glpane)
             pass

@@ -271,6 +271,7 @@ import time
 from math import sin, pi, fmod, floor
 
 test_Object = None
+test_DrawingSet = None
 
 def delete_caches():
     """
@@ -290,8 +291,9 @@ def delete_caches():
     test_ibo = None
     test_vbo = None
     test_spheres = None
-    test_DrawingSet = None
-    print "set test_DrawingSet = None"
+    if test_DrawingSet is not None:
+        test_DrawingSet = None
+        print "set test_DrawingSet = None"
     test_endpoints = None
     if test_Object:
         test_Object.destroy()

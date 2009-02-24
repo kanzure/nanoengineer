@@ -2,6 +2,10 @@
 """
 TransformControl.py -- A local coordinate frame for a set of CSDLs.
 
+WARNING: This class is deprecated, though it's still used by some test cases
+and still partly supported in the code. It was never finished. As of 090223,
+the CSDL attribute intended for instances of this class is filled by Chunks.
+
 @author: Russ
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
@@ -89,6 +93,8 @@ _transform_id_counter = -1
 
 class TransformControl:
     """
+    @warning: this is a deprecated class; see module docstring for more info.
+    
     Store a shared mutable transform value for a set of CSDLs sharing a
     common local coordinate frame, and help the graphics subsystem
     render those CSDLs using that transform value. (This requires also storing
@@ -199,17 +205,6 @@ class TransformControl:
         glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
         return
 
-    def updateSince(self, sinceStamp):
-        """
-        Do any updating necessary on cached drawing transforms.
-        """
-        ### REVIEW: I think passing or needing sinceStamp is a LOGIC BUG.
-        # See comment in caller. [bruce 090203]
-        if self.changed > sinceStamp or self.changed > self.cached:
-            # XXX Update transforms in graphics card RAM here...
-            pass
-        return
-    
     pass # end of class TransformControl
 
 # end
