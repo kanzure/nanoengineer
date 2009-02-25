@@ -2124,6 +2124,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # WARNING: this cone would obscure the wirespheres, except for
             # special cases in self.draw_wirespheres(). If you make the cone
             # bigger you might need to change that code too.
+
+            ### TODO: a newer, better way to draw a cone is by passing a tuple
+            # of two radii (one 0) to drawcylinder. This uses shaders when
+            # available, and makes a polycone otherwise. [bruce 090225 comment]
             
             drawpolycone(arrowColor,
                          [[pos[0] - 2 * axis[0], 

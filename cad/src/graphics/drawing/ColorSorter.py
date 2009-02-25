@@ -467,7 +467,7 @@ class ColorSorter:
                 assert ColorSorter.sorting # since _parent_csdl is present
                 ColorSorter._parent_csdl.addSphere(
                     pos, radius, lcolor,
-                    # Mouseover glnames come from ColorSorter.pushName() .
+                    # glnames come from ColorSorter.pushName()
                     ColorSorter._gl_name_stack[-1])
             else:
                 if testloop > 0:
@@ -524,12 +524,24 @@ class ColorSorter:
         Schedule a cylinder for rendering whenever ColorSorter thinks is
         appropriate.
 
-        @note: when shader cylinders are active, this can also be a tapered
-            cylinder by using a tuple of two radii. A special case is a cone,
-            if one of those radii is 0. This doesn't work with polygonal
-            cylinders, so we assert that this doesn't happen in that case.
-            [##### TODO: instead, draw a polycone with the same appearance.]
+        @param pos1: axis endpoint 1
+        @type pos1: Numeric array (list or tuple won't always work)
+
+        @param pos2: axis endpoint 2
+        @type pos2: Numeric array
+
+        @note: you can pass a tuple of two radii (in place of radius)
+            to make this a tapered cylinder. When cylinder shaders are active
+            and supported, this will use them, otherwise it will use a polycone.
         """
+        # check type of radius in the same way for all calls [bruce 090225]
+        if type(radius) == type(()):
+            # radius must be a tuple of 2 radii (length not checked here)
+            ColorSorter._schedule_tapered_cylinder(color, pos1, pos2, radius, capped, opacity)
+            return
+        
+        radius = float(radius)
+        
         if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             print "bare_prim cylinder:", ColorSorter._gl_name_stack[-1], \
                   color, pos1, pos2, radius, capped, ColorSorter._debug_transforms()
@@ -548,7 +560,6 @@ class ColorSorter:
             pos2 = ColorSorter._transform_point(pos2)
 
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
-            radius = float(radius) # make sure it's the right type
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -566,17 +577,17 @@ class ColorSorter:
             cylinderBatches = (ColorSorter._permit_shaders and
                                drawing_globals.use_cylinder_shaders)
             if cylinderBatches and ColorSorter._parent_csdl:
-                # Collect lists of primitives in the CSDL, rather than sending
-                # them down through the ColorSorter schedule methods into DLs.
+                # Note: capped is not used; a test indicates it's always on
+                # (at least in the tapered case). [bruce 090225 comment]
                 assert ColorSorter.sorting # since _parent_csdl is present
-                # note: radius can legally be a number, or a tuple of two radii
+                # note: radius can legally be a number, or a tuple of two radii,
+                # but the tuple case never gets this far -- it's diverted above
+                # into _schedule_tapered_cylinder.
                 ColorSorter._parent_csdl.addCylinder(
-                    # For a tapered cylinder or cone, pass a tuple of two radii.
                     (pos1, pos2), radius, lcolor,
-                    # Mouseover glnames come from ColorSorter.pushName() .
+                    # glnames come from ColorSorter.pushName()
                     ColorSorter._gl_name_stack[-1])
             else:
-                radius = float(radius) # make sure it's the right type
                 ColorSorter.schedule(lcolor,
                                  drawcylinder_worker,
                                  (pos1, pos2, radius, capped))
@@ -584,17 +595,82 @@ class ColorSorter:
     schedule_cylinder = staticmethod(schedule_cylinder)
 
 
+    def _schedule_tapered_cylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
+        """
+        Schedule a tapered cylinder for rendering whenever ColorSorter thinks is
+        appropriate.
+
+        @param pos1: axis endpoint 1
+        @type pos1: Numeric array (list or tuple won't always work)
+
+        @param pos2: axis endpoint 2
+        @type pos2: Numeric array
+
+        @note: When cylinder shaders are active and supported, this will use
+            them, otherwise it will use a polycone.
+
+        @note: this is for internal use only; it does less checking that it
+            might need to do if there was a public function drawtaperedcylinder
+            that called it.
+        """
+        #bruce 090225 made this by copying and modifying schedule_cylinder.
+        r1, r2 = map(float, radius)
+        
+        if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            print "bare_prim tapered cylinder:", ColorSorter._gl_name_stack[-1], \
+                  color, pos1, pos2, radius, capped, ColorSorter._debug_transforms()
+
+        if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
+            # todo: use different flag than .reentrant
+            # (see also comments in schedule_cylinder)
+            pos1 = ColorSorter._transform_point(pos1)
+            pos2 = ColorSorter._transform_point(pos2)
+
+        if len(color) == 3:
+            lcolor = (color[0], color[1], color[2], opacity)
+        else:
+            lcolor = color
+
+        use_cylinder_shader = (ColorSorter._permit_shaders and
+                               drawing_globals.use_cylinder_shaders and
+                               drawing_globals.use_cone_shaders)
+        if use_cylinder_shader and ColorSorter._parent_csdl:
+            assert ColorSorter.sorting
+            ColorSorter._parent_csdl.addCylinder(
+                # Note: capped is not used; a test indicates it's always on
+                # (at least in the tapered case). [bruce 090225 comment]
+                (pos1, pos2), radius, lcolor,
+                # glnames come from ColorSorter.pushName()
+                ColorSorter._gl_name_stack[-1])
+        else:
+            # Note: capped is not used in this case either; a test indicates
+            # it's effectively always on. (If it wasn't, we could try fixing
+            # that by repeating pos1 and pos2 in pos_array, with 0 radius.)
+            # [bruce 090225 comment]
+            vec = pos2 - pos1
+            pos_array = [pos1 - vec, pos1, pos2, pos2 + vec]
+            rad_array = [r1, r1, r2, r2]
+            ColorSorter.schedule(lcolor, drawpolycone_worker,
+                                 (pos_array, rad_array))
+
+    _schedule_tapered_cylinder = staticmethod(_schedule_tapered_cylinder)
+
+
     def schedule_polycone(color, pos_array, rad_array,
                           capped = 0, opacity = 1.0):
         """
         Schedule a polycone for rendering whenever ColorSorter thinks is
         appropriate.
-        """
+
+        @note: this never uses shaders, even if it could. For a simple cone
+            or tapered cylinder, you can pass a tuple of 2 radii to drawcylinder
+            which will use shaders when available.
+        """        
         if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             # todo: use different flag than .reentrant
             pos_array = [ColorSorter._transform_point(A(pos)) for pos in pos_array]
 
-        if drawing_globals.use_c_renderer and ColorSorter.sorting:
+        if drawing_globals.use_c_renderer and ColorSorter.sorting and 0: #bruce 090225 'and 0'
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:

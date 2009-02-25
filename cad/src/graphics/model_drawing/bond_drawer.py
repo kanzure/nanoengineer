@@ -31,7 +31,6 @@ from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
-from graphics.drawing.CS_draw_primitives import drawpolycone
 
 from graphics.model_drawing.special_drawing import USE_CURRENT
 from graphics.model_drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
@@ -1058,22 +1057,11 @@ def draw_bond_cyl_arrowhead(a1pos,
         pos = a1pos
         axis = a2pos - a1pos
         drawrad = sigmabond_cyl_radius
-        # Point array (the two end points are not drawn by glePolyCone.)
-        pts = [pos + t * axis for t in [0.5, 0.6, 1.0, 1.1]]
-        # Russ 090223: Shader cones are tapered cylinders with two radii.
-        coneBatches = (drawing_globals.use_batched_primitive_shaders and
-                       drawing_globals.use_cylinder_shaders and
-                       drawing_globals.use_cone_shaders)
-            ##### BUG: need to also test glpane.permit_shaders,
-            # since this won't work with polyhedral cylinders.
-            # But where do we find glpane? Need to pass it in,
-            # or find it in drawing_globals as a kluge.
-            # [bruce 090224 comment]
-        if coneBatches:
-            drawcylinder(color, pts[1], pts[2], (drawrad * 2, 0))
-        else:
-            drawpolycone(color, pts, 
-                         [drawrad * 2, drawrad * 2, 0, 0]) # Radius array.
+        pts = [pos + t * axis for t in (0.6, 1.0)]
+        # call drawcylinder with two radii for taper.
+        # note: this is drawn by shader cylinders or as a polycone
+        # depending on debug_prefs [bruce 090225 revision]
+        drawcylinder(color, pts[0], pts[1], (drawrad * 2, 0))
     return
 
 # ==
