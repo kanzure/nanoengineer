@@ -36,16 +36,6 @@ TODO: refactor:
    possible (supporting more than one view of a chunk, mixed display styles,
    and/or multiple cached display styles)
 
- * soon [old description:]
-   split it into sub/superclasses for Chunk and the superclasses
-   to be split out of Chunk (e.g. AtomCloud, PointCloud, TransformNode
-   (all names tentative); this involves picking apart def draw in
-   particular, since the display list and transform code is general,
-   but there is specific code for atoms & bonds as well; some of this
-   will ultimately turn into GraphicsRules (name also tentative)
-
-   [newer description:] split out a superclass TransformedDisplayListsDrawer
-
 """
 
 from OpenGL.GL import glPushMatrix

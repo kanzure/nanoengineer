@@ -11,7 +11,14 @@ History:
 bruce 080702 created
 
 bruce 090211 making compatible with TransformNode, though that is unfinished
-and not yet actually used
+and not yet actually used.
+
+(Update: as of 090225 TransformNode is abandoned.
+However, I'm leaving some comments that refer to TransformNode in place
+(in still-active files), since they also help point out the code which any 
+other attempt to optimize rigid drags would need to modify. In those comments,
+dt and st refer to dynamic transform and static transform, as used in
+scratch/TransformNode.py.)
 
 """
 

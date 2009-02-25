@@ -61,6 +61,14 @@ bruce 090100 split Chunk_drawing_methods from here into a new mixin class
 
 bruce 090211 making compatible with TransformNode, though that is unfinished
 and not yet actually used; places to fix for this are marked ####.
+
+(Update: as of 090225 TransformNode is abandoned.
+However, I'm leaving some comments that refer to TransformNode in place
+(in still-active files), since they also help point out the code which any 
+other attempt to optimize rigid drags would need to modify. In those comments,
+dt and st refer to dynamic transform and static transform, as used in
+scratch/TransformNode.py.)
+
 """
 
 import Numeric # for sqrt

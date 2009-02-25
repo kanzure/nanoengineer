@@ -3,9 +3,11 @@
 TransformNode.py -- mutable transform classes, shared by TransformNodes
 
 NOT YET USED as of 090204... declared obsolete as of bruce 090225:
+
 - much of the specific code is obsolete, since we abandoned the idea of a
   number-capped TransformControl object (no need to merge TCs when too many
   are used)
+  
 - the concept of a separated dynamic and static transform, and letting
   them be pointers to separate objects, potentially shared, is a good one,
   which will be used in some form if we ever optimize rigid drag of
@@ -16,6 +18,10 @@ NOT YET USED as of 090204... declared obsolete as of bruce 090225:
   which modifies Chunk to a lesser degree.
 
 Therefore, this file (and TransformState which it uses) are now scratch files.
+However, I'm leaving some comments that refer to TransformNode in place
+(in still-active files), since they also help point out the code which any 
+other attempt to optimize rigid drags would need to modify. In those comments,
+dt and st refer to dynamic transform and static transform, as used herein.
 
 @author: Bruce
 @version: $Id$
