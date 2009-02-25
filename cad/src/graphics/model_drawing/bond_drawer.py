@@ -26,7 +26,6 @@ from PyQt4.Qt import QFont, QString, QColor
 from geometry.VQT import V
 from geometry.VQT import norm, vlen
 
-import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.CS_draw_primitives import drawcylinder
