@@ -184,6 +184,9 @@ class ColorSorter:
 
         ColorSorter._initial_transforms = None #bruce 090220
 
+        ColorSorter._permit_shaders = drawing_globals.use_batched_primitive_shaders
+            #bruce 090224; modified in ColorSorter.start based on glpane
+
         # following are guesses by bruce 090220:
         ColorSorter.sorted_by_color = None
         ColorSorter._cur_shapelist = None
@@ -212,6 +215,7 @@ class ColorSorter:
         state._parent_csdl = ColorSorter._parent_csdl
         state.glpane = ColorSorter.glpane
         state._initial_transforms = ColorSorter._initial_transforms
+        state._permit_shaders = ColorSorter._permit_shaders
         state.sorted_by_color = ColorSorter.sorted_by_color
         state._cur_shapelist = ColorSorter._cur_shapelist
         state.sphereLevel = ColorSorter.sphereLevel
@@ -237,6 +241,7 @@ class ColorSorter:
             ColorSorter._parent_csdl = state._parent_csdl
             ColorSorter.glpane = state.glpane
             ColorSorter._initial_transforms = state._initial_transforms
+            ColorSorter._permit_shaders = state._permit_shaders
             ColorSorter.sorted_by_color = state.sorted_by_color
             ColorSorter._cur_shapelist = state._cur_shapelist
             ColorSorter.sphereLevel = state.sphereLevel
@@ -420,7 +425,7 @@ class ColorSorter:
         """
         if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             print "bare_prim sphere:", ColorSorter._gl_name_stack[-1], \
-                  color, pos, radius, ColorSorter._debug_transforms() #####
+                  color, pos, radius, ColorSorter._debug_transforms()
 
         if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             # todo: use different flag than .reentrant
@@ -445,7 +450,7 @@ class ColorSorter:
         else: 
             # Non-C-coded material rendering (might be sorted and/or use shaders)
             vboLevel = drawing_globals.use_drawing_variant
-            sphereBatches = drawing_globals.use_batched_primitive_shaders
+            sphereBatches = ColorSorter._permit_shaders
             if vboLevel == 6 and not sphereBatches:
                 #russ 080714: Individual "shader spheres" are signaled
                 # by an opacity of -3 (4th component of the color.)
@@ -484,7 +489,7 @@ class ColorSorter:
         """
         if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             print "bare_prim wiresphere:", ColorSorter._gl_name_stack[-1], \
-                  color, pos, radius, ColorSorter._debug_transforms() #####
+                  color, pos, radius, ColorSorter._debug_transforms()
 
         if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             # todo: use different flag than .reentrant
@@ -521,7 +526,7 @@ class ColorSorter:
         """
         if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             print "bare_prim cylinder:", ColorSorter._gl_name_stack[-1], \
-                  color, pos1, pos2, radius, capped, ColorSorter._debug_transforms() #####
+                  color, pos1, pos2, radius, capped, ColorSorter._debug_transforms()
 
         if ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             # todo: use different flag than .reentrant
@@ -551,7 +556,7 @@ class ColorSorter:
                 lcolor = color		    
 
             # Russ 090119: Added.
-            cylinderBatches = (drawing_globals.use_batched_primitive_shaders and
+            cylinderBatches = (ColorSorter._permit_shaders and
                                drawing_globals.use_cylinder_shaders)
             if cylinderBatches and ColorSorter._parent_csdl:
                 # Collect lists of primitives in the CSDL, rather than sending
@@ -729,8 +734,12 @@ class ColorSorter:
             assert not glpane.transforms
         ColorSorter.glpane = glpane
         ColorSorter._initial_transforms = list(glpane.transforms)
+        ColorSorter._permit_shaders = (
+            drawing_globals.use_batched_primitive_shaders and
+            glpane.permit_shaders #bruce 090224 added glpane test
+         )
         if _DEBUG:
-            print "CS.initial transforms:", ColorSorter._debug_transforms() #####
+            print "CS.initial transforms:", ColorSorter._debug_transforms()
 
         if csdl is not None:
             csdl.start(pickstate)

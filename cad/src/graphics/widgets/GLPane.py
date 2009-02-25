@@ -159,6 +159,8 @@ class GLPane(
     
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
+    permit_shaders = True #bruce 090224
+    
     assy = None #bruce 080314
     
     # the stereo attributes are maintained by the methods in

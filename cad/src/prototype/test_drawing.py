@@ -65,7 +65,7 @@ def test_Draw(glpane):
     elif int(testCase) == 3:
         test_spheres.draw() 
     elif int(testCase) == 8:
-        test_Draw_8x()
+        test_Draw_8x(glpane)
         pass
     elif int(testCase) >= 100:
         #bruce 090102
@@ -75,8 +75,8 @@ def test_Draw(glpane):
         pass
     return
 
-def test_Draw_8x(): #bruce 090223 refactoring of common code
-    if drawing_globals.use_batched_primitive_shaders:
+def test_Draw_8x(glpane): #bruce 090223 refactoring of common code
+    if drawing_globals.use_batched_primitive_shaders and glpane.permit_shaders:
         shader = drawing_globals.sphereShader
         if testCase == 8.3 and drawing_globals.use_cylinder_shaders:
             shader = drawing_globals.cylinderShader
@@ -1087,7 +1087,7 @@ def test_drawing(glpane, initOnly = False):
             print "%d chunk buffers" % len(test_spheres)
             pass
         elif not initOnly: # Run.
-            test_Draw_8x()
+            test_Draw_8x(glpane)
         pass
     elif testCase == 100: #bruce 090102
         # before making more of these, modularize it somehow

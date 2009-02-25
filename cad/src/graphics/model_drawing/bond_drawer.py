@@ -1064,6 +1064,11 @@ def draw_bond_cyl_arrowhead(a1pos,
         coneBatches = (drawing_globals.use_batched_primitive_shaders and
                        drawing_globals.use_cylinder_shaders and
                        drawing_globals.use_cone_shaders)
+            ##### BUG: need to also test glpane.permit_shaders,
+            # since this won't work with polyhedral cylinders.
+            # But where do we find glpane? Need to pass it in,
+            # or find it in drawing_globals as a kluge.
+            # [bruce 090224 comment]
         if coneBatches:
             drawcylinder(color, pts[1], pts[2], (drawrad * 2, 0))
         else:

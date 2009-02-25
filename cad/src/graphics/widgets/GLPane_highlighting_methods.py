@@ -129,7 +129,7 @@ class GLPane_highlighting_methods(object):
             debugPicking = debug_pref("GLPane: debug mouseover picking?",
                                       Choice_boolean_False, prefs_key = True )
 
-            if drawing_globals.use_batched_primitive_shaders:
+            if drawing_globals.use_batched_primitive_shaders and self.permit_shaders:
                 # TODO: optimization: find an appropriate place to call 
                 # _compute_frustum_planes. [bruce 090105 comment]
                 

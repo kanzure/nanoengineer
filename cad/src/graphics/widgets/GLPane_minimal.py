@@ -149,6 +149,10 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
     permit_draw_bond_letters = True #bruce 071023
 
+    permit_shaders = False #bruce 090224
+        # default False until shaders can work with more than one glpane
+        # (set to true in the main GLPane)
+
     useMultisample = env.prefs[enableAntiAliasing_prefs_key]
 
     def __init__(self, parent, shareWidget, useStencilBuffer):
