@@ -29,17 +29,17 @@ Access variables as drawing_globals.varname .
 use_drawing_variant = use_drawing_variant_default = 1 # DrawArrays from CPU RAM.
 use_drawing_variant_prefs_key = "use_drawing_variant"
 #russ 080819: Added.
-use_sphere_shaders = use_sphere_shaders_default = False
-use_sphere_shaders_prefs_key = "use_sphere_shaders"
+use_sphere_shaders = use_sphere_shaders_default = True #bruce 090225 revised
+use_sphere_shaders_prefs_key = "v1.2/use_sphere_shaders"
 #russ 090116: Added.
-use_cylinder_shaders = use_cylinder_shaders_default = False
+use_cylinder_shaders = use_cylinder_shaders_default = False ##### todo: true when atom pos bug is solved
 use_cylinder_shaders_prefs_key = "use_cylinder_shaders"
 #russ 090223: Added.
-use_cone_shaders = use_cone_shaders_default = False
+use_cone_shaders = use_cone_shaders_default = False ##### todo: true when bond_drawer checks glpane.permit_shaders
 use_cone_shaders_prefs_key = "use_cone_shaders"
 # Russ 081002: Added.
-use_batched_primitive_shaders = use_batched_primitive_shaders_default = False
-use_batched_primitive_shaders_prefs_key = "use_batched_primitive_shaders"
+use_batched_primitive_shaders = use_batched_primitive_shaders_default = True #bruce 090225 revised
+use_batched_primitive_shaders_prefs_key = "v1.2/use_batched_primitive_shaders"
 
 # Experimental native C renderer (quux module in
 # cad/src/experimental/pyrex-opengl)

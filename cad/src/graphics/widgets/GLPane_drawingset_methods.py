@@ -13,7 +13,7 @@ Part.after_drawing_model.
 """
 
 from utilities.debug_prefs import debug_pref
-from utilities.debug_prefs import Choice_boolean_False
+from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
 
 from utilities.debug import print_compact_traceback
 
@@ -123,19 +123,19 @@ class GLPane_drawingset_methods(object):
             # note: this affects how we use both debug_prefs, below.
         
         if debug_pref("GLPane: use DrawingSets to draw model?",
-                      Choice_boolean_False,
+                      Choice_boolean_True, #bruce 090225 revised
                       non_debug = True,
-                      prefs_key = True ):
+                      prefs_key = "v1.2/GLPane: use DrawingSets?" ):
             if self._remake_display_lists:
                 self.csdl_collector.setup_for_drawingsets()
                     # sets self.csdl_collector.use_drawingsets, and more
             pass
 
-        if debug_pref("GLPane: highlight prims in csdls?",
-                      Choice_boolean_False,
-                          # todo: when it works reliably, make default True and soon scrap the pref
+        if debug_pref("GLPane: highlight atoms in CSDLs?",
+                      Choice_boolean_True, #bruce 090225 revised
+                          ##### todo: soon, scrap the pref or make it not non_debug
                       non_debug = True,
-                      prefs_key = True ):
+                      prefs_key = "v1.2/GLPane: highlight atoms in CSDLs?" ):
             if bare_primitives and self._remake_display_lists:
                 self.csdl_collector.setup_for_bare_primitives()
 
@@ -144,7 +144,7 @@ class GLPane_drawingset_methods(object):
     def _compute_remake_display_lists_now(self): #bruce 090224
         remake_during_movies = debug_pref(
             "GLPane: remake display lists during movies?",
-            Choice_boolean_False,
+            Choice_boolean_True,
                 # Historically this was hardcoded to False;
                 # but I don't know whether it's still a speedup
                 # to avoid remaking them (on modern graphics cards),
@@ -153,8 +153,11 @@ class GLPane_drawingset_methods(object):
                 # forcing use of polygonal primitives instead;
                 #### REVIEW whether it makes sense at all in that case.
                 # [bruce 090224]
+                # update: I'll make it default True, since that's more reliable,
+                # and we might not have time to test it.
+                # [bruce 090225]
             non_debug = True,
-            prefs_key = True )
+            prefs_key = "v1.2/GLPane: remake display lists during movies?" )
 
         # whether to actually remake is more complicated -- it depends on self
         # (thumbviews always remake) and on movie_is_playing flag (external).

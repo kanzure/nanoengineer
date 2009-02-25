@@ -515,7 +515,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     def draw_shader_primitives(self, *args): #bruce 090218, needed only for CSDL.draw
         for shader, primitives in self.shaders_and_primitive_lists():
-            index = self.drawIndices[shader]            
+            index = self.drawIndices[shader]
             shader.draw(index, *args)
             continue
         return

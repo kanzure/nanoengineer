@@ -426,22 +426,26 @@ def setup_drawer():
     initial_choice = choices[drawing_globals.use_sphere_shaders_default]
     drawing_globals.use_sphere_shaders_pref = debug_pref(
         "GLPane: use sphere-shaders? (next session)", initial_choice,
+        ##### todo: non_debug = True when turning it off has an effect.
         prefs_key = drawing_globals.use_sphere_shaders_prefs_key)
     #russ 90116: Added.
     initial_choice = choices[drawing_globals.use_cylinder_shaders_default]
     drawing_globals.use_cylinder_shaders_pref = debug_pref(
         "GLPane: use cylinder-shaders? (next session)", initial_choice,
+        non_debug = True,
         prefs_key = drawing_globals.use_cylinder_shaders_prefs_key)
     #russ 90223: Added.
     initial_choice = choices[drawing_globals.use_cone_shaders_default]
     drawing_globals.use_cone_shaders_pref = debug_pref(
         "GLPane: use cone-shaders? (next session)", initial_choice,
+        non_debug = True,
         prefs_key = drawing_globals.use_cone_shaders_prefs_key)
     # Russ 081002: Added.
     initial_choice = choices[
         drawing_globals.use_batched_primitive_shaders_default]
     drawing_globals.use_batched_primitive_shaders_pref = debug_pref(
         "GLPane: use batched primitive shaders? (next session)", initial_choice,
+        non_debug = True,
         prefs_key = drawing_globals.use_batched_primitive_shaders_prefs_key)
 
     #russ 080403: Added drawing variant selection
