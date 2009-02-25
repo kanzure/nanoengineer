@@ -373,8 +373,8 @@ class MWsemantics(QMainWindow,
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
 
         # 'movie_is_playing' is a flag that indicates a movie is playing. It is
-        # used by other code to speed up rendering times by disabling the
-        # (re)building of display lists for each frame of the movie.
+        # used by other code to speed up rendering times by optionally disabling
+        # the (re)building of display lists for each frame of the movie.
         self.movie_is_playing = False
 
         # Current Working Directory (CWD).

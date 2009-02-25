@@ -105,6 +105,8 @@ class ThumbView(GLPane_minimal):
     shareWidget = None #bruce 051212
     always_draw_hotspot = False #bruce 060627
 
+    _always_remake_during_movies = True #bruce 090224
+
     # default values of subclass-specific constants
 
     permit_draw_bond_letters = False #bruce 071023, overrides superclass

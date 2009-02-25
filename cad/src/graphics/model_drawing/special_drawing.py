@@ -1,6 +1,6 @@
 # Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-special_drawing.py - help class Chunk do special drawing in extra display lists
+special_drawing.py - help class ChunkDrawer do special drawing in extra display lists
 
 @author: Bruce
 @version: $Id$
@@ -25,7 +25,7 @@ from utilities.debug import print_compact_traceback
 
 from utilities import debug_flags
 
-DEBUG_COMPARATOR = False
+DEBUG_COMPARATOR = True ####### False
 
 # ==
 
@@ -358,8 +358,8 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
     Has a public member, self.csdl, whose value is a
     ColorSortedDisplayList used for doing some kind of extra
-    drawing associated with a Chunk, but not drawn as part of that chunk's main
-    CSDL.
+    drawing associated with a ChunkDrawer,
+    but not drawn as part of its main CSDL.
 
     Also holds the state that determines whether self.csdl is invalid,
     and under what conditions it will remain valid.
@@ -369,6 +369,11 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     External code can call self.csdl.draw(), but only when it knows
     that self.csdl is already valid. This probably means, only when
     highlighting self after it's already been drawn during the same frame.
+
+    @note: there is a cooperating object Chunk_SpecialDrawingHandler
+           which knows about storing our instances in a
+           ChunkDrawer.extra_displists attribute, but this class itself
+           (or its subclass, so far) knows nothing about where they are stored.
     """
     
     # class constants
@@ -380,8 +385,9 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     
     ## valid = False -- WRONG, we use self.comparator.valid for this.
 
-    def __init__(self):
-        self.csdl = ColorSortedDisplayList() # public member, see class docstring
+    def __init__(self, transformControl = None):
+        self.csdl = ColorSortedDisplayList(transformControl)
+            # self.csdl is a public attribute, see class docstring
         self.comparator = self._comparator_class()
         self.before_client_main_recompile() # get ready right away
         return
@@ -389,6 +395,9 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     def deallocate_displists(self):
         self.csdl.deallocate_displists()
     
+    def updateTransform(self):
+        self.csdl.updateTransform()
+
     # == methods related to the client compiling its *main* display list
     # (not this extra one, but that's when it finds out what goes into
     #  this extra one, or that it needs it at all)
@@ -410,11 +419,16 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     # == methods for drawing self (with or without recompiling)
 
     def draw_but_first_recompile_if_needed(
-        self, glpane, selected = False, highlighted = False, wantlist = True):
+        self,
+        glpane,
+        selected = False,
+        highlighted = False,
+        wantlist = True,
+        draw_now = True ):
         """
-        Recompile self as needed, then draw.
+        Recompile self as needed, then (unless draw_now = False) draw.
         Only make internal display lists (in cases where we need to remake them)
-        if wantlist is true.
+        if wantlist is true; otherwise draw_now is required.
 
         @param selected: whether to draw in selected or plain style. (The same
           csdl handles both.)
@@ -424,7 +438,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         """
         graphicsMode = glpane.graphicsMode
             # note: ThumbView lacks this attribute;
-            # for now, client code in Chunk worries about this,
+            # for now, client code in ChunkDrawer worries about this,
             # and won't call us then. [bruce 080606 comment]
         context = graphicsMode
         if self.comparator.do_we_need_to_recompute(context):
@@ -432,17 +446,18 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
             if DEBUG_COMPARATOR:
                 print "_draw_by_remaking in %r; valid = %r" % \
                       (self, self.comparator.valid)
-            self._draw_by_remaking(glpane, selected, highlighted, wantlist)
-        else:
+            self._draw_by_remaking(glpane, selected, highlighted, wantlist, draw_now)
+        elif draw_now:
             if DEBUG_COMPARATOR:
                 print "_draw_by_reusing in %r" % self
             self._draw_by_reusing(glpane, selected, highlighted)
         return
 
-    def _draw_by_remaking(self, glpane, selected, highlighted, wantlist):
+    def _draw_by_remaking(self, glpane, selected, highlighted, wantlist, draw_now):
         """
         """
-        # modified from similar code in Chunk.draw
+        # modified from similar code in ChunkDrawer.draw
+        assert not (not wantlist and not draw_now)
         if wantlist:
             match_checking_code = self.begin_tracking_usage()
                 # note: method defined in superclass, SubUsageTrackingMixin
@@ -463,7 +478,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         else:
             self.comparator.after_recompute()
         if wantlist:
-            ColorSorter.finish(draw_now = True)
+            ColorSorter.finish(draw_now = draw_now)
             # needed by self._invalidate_display_lists for gl_update
             self._glpane = glpane
             self.end_tracking_usage( match_checking_code,
@@ -472,12 +487,22 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
     def _draw_by_reusing(self, glpane, selected, highlighted):
         """
+        @see: self.draw
         """
-        # see also: code in Chunk.draw which uses its self.displist
-        # and/or [ed.csdl for ed in self.extra_displists]
         self.csdl.draw(selected = selected, highlighted = highlighted)
         return
 
+    def draw(self, **kws): #bruce 090224; probably not needed or ever called
+        """
+        Draw self, accepting the same keyword args that CSDL.draw does.
+
+        @note: doesn't remake us, or notice any error, if we need remaking.
+        
+        @see: self._draw_by_reusing (which doesn't take all the args we do)
+        """
+        self.csdl.draw(**kws)
+        return
+    
     # ==
 
     def invalidate(self):
@@ -500,6 +525,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         # drawsphere(...), drawcylinder(...), drawpolycone(...), and so on.
         args = self._construct_args_for_drawing_functions()
         for func in self._drawing_functions:
+            print "running func %r while remaking %r" % (func, self) #######
             func(*args)
         return
 
@@ -548,15 +574,15 @@ class SpecialDrawing_ExtraChunkDisplayList(ExtraChunkDisplayList):
 
 class Chunk_SpecialDrawingHandler(object):
     """
-    A kind of SpecialDrawingHandler for a Chunk.
-    (There is not yet any other kind; what we know about class Chunk
+    A kind of SpecialDrawingHandler for a ChunkDrawer.
+    (There is not yet any other kind; what we know about class ChunkDrawer
     is mainly the names of a few of its attributes we use and modify --
-    I guess just chunk.extra_displists, a dict from special_drawing_kind
+    I guess just chunkdrawer.extra_displists, a dict from special_drawing_kind
     to subclasses of ExtraChunkDisplayList.)
 
     A SpecialDrawingHandler is .... #doc
     """
-    def __init__(self, chunk, classes):
+    def __init__(self, chunkdrawer, classes):
         """
         @param classes: a dict from special_drawing_kinds to subclasses of
                         ExtraChunkDisplayList whose method
@@ -567,7 +593,7 @@ class Chunk_SpecialDrawingHandler(object):
                         the only suitable class as of 080605 is
                         SpecialDrawing_ExtraChunkDisplayList.
         """
-        self.chunk = chunk
+        self.chunkdrawer = chunkdrawer
         self.classes = classes
         return 
     def should_defer(self, special_drawing_kind):
@@ -586,13 +612,16 @@ class Chunk_SpecialDrawingHandler(object):
         Find or make, and return, the right kind of ExtraChunkDisplayList
         for the given special_drawing_kind.
         """
-        extra_displists = self.chunk.extra_displists
+        # review: does some or all of this belong in our client,
+        # self.chunkdrawer (in some method we'd call back to)?
+        extra_displists = self.chunkdrawer.extra_displists
             # a dict from kind to extra_displist
         try:
             return extra_displists[special_drawing_kind]
         except KeyError:
             class1 = self.classes[special_drawing_kind]
-            new = class1() #k args?
+            transformControl = self.chunkdrawer.getTransformControl()
+            new = class1(transformControl)
             extra_displists[special_drawing_kind] = new
             return new
         pass

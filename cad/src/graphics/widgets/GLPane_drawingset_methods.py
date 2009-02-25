@@ -17,6 +17,10 @@ from utilities.debug_prefs import Choice_boolean_False
 
 from utilities.debug import print_compact_traceback
 
+
+import foundation.env as env
+
+
 from graphics.drawing.DrawingSet import DrawingSet
 
 from graphics.widgets.GLPane_csdl_collector import GLPane_csdl_collector
@@ -39,6 +43,10 @@ class GLPane_drawingset_methods(object):
         # so this class will work, but warn when created.
         # Its "normal" value is used between matched calls
         # of before/after_drawing_csdls.
+
+    _always_remake_during_movies = False # True in some subclasses
+
+    _remake_display_lists = True # might change at start and end of each frame
 
     def __get_csdl_collector(self):
         """
@@ -111,28 +119,65 @@ class GLPane_drawingset_methods(object):
             # instantiated the first time self.csdl_collector is accessed
             # (which might be just below, depending on prefs and options)
 
+        self._remake_display_lists = self._compute_remake_display_lists_now()
+            # note: this affects how we use both debug_prefs, below.
+        
         if debug_pref("GLPane: use DrawingSets to draw model?",
                       Choice_boolean_False,
                       non_debug = True,
                       prefs_key = True ):
-            self.csdl_collector.setup_for_drawingsets()
-                # sets self.csdl_collector.use_drawingsets, and more
+            if self._remake_display_lists:
+                self.csdl_collector.setup_for_drawingsets()
+                    # sets self.csdl_collector.use_drawingsets, and more
             pass
 
         if debug_pref("GLPane: highlight prims in csdls?",
-                      Choice_boolean_False, # since not yet working. when it works, default True and soon scrap the pref.
+                      Choice_boolean_False,
+                          # todo: when it works reliably, make default True and soon scrap the pref
                       non_debug = True,
                       prefs_key = True ):
-            if bare_primitives:
+            if bare_primitives and self._remake_display_lists:
                 self.csdl_collector.setup_for_bare_primitives()
 
         return
 
+    def _compute_remake_display_lists_now(self): #bruce 090224
+        remake_during_movies = debug_pref(
+            "GLPane: remake display lists during movies?",
+            Choice_boolean_False,
+                # Historically this was hardcoded to False;
+                # but I don't know whether it's still a speedup
+                # to avoid remaking them (on modern graphics cards),
+                # or perhaps a slowdown, so I'm making it optional.
+                # Also, when active it will disable shader primitives,
+                # forcing use of polygonal primitives instead;
+                #### REVIEW whether it makes sense at all in that case.
+                # [bruce 090224]
+            non_debug = True,
+            prefs_key = True )
+
+        # whether to actually remake is more complicated -- it depends on self
+        # (thumbviews always remake) and on movie_is_playing flag (external).
+        remake_during_movies = remake_during_movies or \
+                               self._always_remake_during_movies
+        remake_now = remake_during_movies or not self._movie_is_playing()
+        if remake_now != self._remake_display_lists:
+            # (kluge: knows how calling code uses value)
+            # leave this in until we've tested the performance of movie playing
+            # for both prefs values; it's not verbose
+            print "fyi: setting _remake_display_lists = %r" % remake_now
+        return remake_now
+
+    def _movie_is_playing(self): #bruce 090224 split this out of ChunkDrawer
+        return env.mainwindow().movie_is_playing #bruce 051209
+            # warning: use of env.mainwindow is a KLUGE;
+            # could probably be fixed, but needs review for thumbviews
+
     def draw_csdl(self, csdl, selected = False):
         """
         """
-        ##### CALL IN MORE PLACES, in ChunkDrawer and ExternalBondSetDrawer
-        ##### WRONG RE TRANSFORM in current calling code
+        print "draw_csdl", csdl #########
+        ##### TODO: call for chunk highlighting, and in ExternalBondSetDrawer
         csdl_collector = self.csdl_collector
         if csdl_collector.use_drawingsets:
             intent = bool(selected) #### for now 
@@ -151,6 +196,8 @@ class GLPane_drawingset_methods(object):
                       things we normally do. Default value is False
                       since most calls don't pass anything. (#REVIEW: good? true?)
         """
+        self._remake_display_lists = self._compute_remake_display_lists_now()
+
         if not error:
             if self.csdl_collector.bare_primitives:
                 # this must come before the _draw_drawingsets below

@@ -189,8 +189,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         if self._has_displist():
             self.displist.updateTransform()
         for extra_displist in self.extra_displists.itervalues():
-            if 0: ###### NOT YET SAFE until we make them with self._chunk as their transformControl
-                extra_displist.updateTransform()
+            extra_displist.updateTransform()
         return
 
     # == drawing methods which are mostly specific to Chunk, though they have
@@ -373,6 +372,10 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             glPushName(self._chunk.glname)
 
             # put it in its place
+            # (note: this still matters even though we use transformControls in
+            #  our CSDLs, when wantlist (computed below) is False, and probably
+            #  for other drawing not in CSDLs (not fully analyzed whether there
+            #  is any). [bruce 090224 comment])
             glPushMatrix()
 
             try: # do our popMatrix no matter what
@@ -426,21 +429,45 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 havelist_data = (disp, eltprefs, matprefs, drawLevel)
                     # note: havelist_data must be boolean true
                     #bruce 060215 adding drawLevel to havelist
+
+                wantlist = glpane._remake_display_lists #bruce 090224
+                    # We'll only remake invalid displists when this is true;
+                    # otherwise we'll just draw their desired contents directly,
+                    # without remaking any CSDLs.
+                    #
+                    # Specifically: When the following code decides to remake
+                    # and draw, or just draw, a CSDL, it behaves differently
+                    # depending on this flag.
+                    #
+                    # If wantlist is true (usual case), remakes and draws are
+                    # separated (in some cases by passing draw_now = False to
+                    # various draw-like methods), so drawing can be done later,
+                    # outside of local coords, since CSDL.transformControl would
+                    # be redundant with them, and since it might be deferred
+                    # even more (into a DrawingSet we merely maintain in this
+                    # method, by calling glpane.draw_csdl).
+                    #
+                    # If wantlist is False, remakes won't happen and drawing
+                    # will be done immediately, within GL state that reproduces
+                    # the desired local coordinates (current now, set up above
+                    # by applyMatrix). (In the future we might not even set up
+                    # that GL state except when wantlist is false, as an optim.)
+
+                    ### POSSIBLE BUG: chunk highlighting when not wantlist;
+                    # see comment in draw_highlighted.
+
+                print "wantlist =", wantlist #######
+
+                draw_outside = [] # csdls to draw outside local coords
                 
                 if self.havelist == havelist_data: 
-                    # self.displist is still valid -- use it.
-                    # Russ 081128: Switch from draw_dl() [now removed] to draw() with selection arg.
-                    #bruce 090224 need to do this outside local coords, not here:
-                    ## glpane.draw_csdl(self.displist, selected = self._chunk.picked)
-                    for extra_displist in self.extra_displists.itervalues():
-                        # [bruce 080604 new feature]
-                        # note: similar code in else clause, differs re wantlist
-                        extra_displist.draw_but_first_recompile_if_needed(
-                            glpane,
-                            selected = self._chunk.picked
-                         )
-                        # todo: pass wantlist? yes in theory, but not urgent.
-                        continue
+                    # self.displist is still valid -- just draw it (regardless
+                    # of wantlist). This is done below, outside local coords,
+                    # since they would be redundant with use of
+                    # self.displist.transformControl. Note that some extra
+                    # displists may still need remaking -- this is handled
+                    # separately below.
+                    draw_outside += [self.displist]
                     pass
                 else:
                     # our main display list (and all extra lists) needs to be remade
@@ -459,13 +486,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                         ##e in future we might also record eltprefs, matprefs,
                         ##drawLevel (since they're stored in .havelist)
                     self.havelist = 0 #bruce 051209: this is now needed
-                    try:
-                        wantlist = not env.mainwindow().movie_is_playing #bruce 051209
-                            # warning: use of env.mainwindow is a KLUGE
-                            #### REVIEW: is this a speedup (as intended) or a slowdown?
-                    except:
-                        print_compact_traceback("exception (a bug) ignored: ")
-                        wantlist = True
                     self.extra_displists = {} # we'll make new ones as needed
                     if wantlist:
                         ##print "Regenerating display list for %s" % self.name
@@ -478,10 +498,16 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                             # (This cleanup is part of deprecating CSDL picked state.)
                             # [bruce 090219]
 
-                    # bruce 041028 -- protect against exceptions while making display
+                    # Protect against exceptions while making display
                     # list, or OpenGL will be left in an unusable state (due to the lack
                     # of a matching glEndList) in which any subsequent glNewList is an
-                    # invalid operation.
+                    # invalid operation. [bruce 041028]
+                    
+                    # Note: if not wantlist, this does immediate drawing
+                    # (and never creates extra_displists, due to logic inside
+                    #  _draw_for_main_display_list).
+                    # The transformControl is not used, but we got the same effect
+                    # by a pushMatrix/applyMatrix above. [bruce 090224 comment]
                     try:
                         self._draw_for_main_display_list(
                             glpane, disp,
@@ -493,29 +519,48 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
                     if wantlist:
                         ColorSorter.finish(draw_now = False)
+                        draw_outside += [self.displist]
 
                         self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                         self.havelist = havelist_data
+                            # we always set self.havelist, even if an exception
+                            # happened, so it doesn't keep happening with every
+                            # redraw of this Chunk. (Someday: it might be better
+                            # to remake the display list to contain only a
+                            # known-safe thing, like a bbox and an indicator of
+                            # the bug.)
+                    pass # end of "remake self.displist" case
 
-                        #bruce 090224: do this outside local coords, not here:
-                        ## glpane.draw_csdl(self.displist, selected = self._chunk.picked)
-                        
-                        # always set the self.havelist flag, even if exception happened,
-                        # so it doesn't keep happening with every redraw of this Chunk.
-                        #e (in future it might be safer to remake the display list to contain
-                        # only a known-safe thing, like a bbox and an indicator of the bug.)
+                # we still need to draw_outside below, but first,
+                # remake and/or draw each extra displist. This can be done in
+                # the same way whether or not we just remade self.displist,
+                # since if we did, they all need remaking, and if we didn't,
+                # perhaps some of them need remaking anyway, and in either
+                # case, the ones that need it know this. The only issue is
+                # the effect of wantlist if the main list was valid but
+                # the extra lists need remaking, but it should be the case
+                # that passing wantlist = False to their "remake and draw"
+                # can still correctly draw them without remaking them,
+                # and the coordinate system vs transformControl issues
+                # should be the same. (If not wantlist but self.displist is
+                # not valid, it's simpler, since we won't make any
+                # extra_displists then (I think), but we can't take
+                # advantage of that due to the other case described.)
+                # [bruce 090224]
 
-                    # draw the extra_displists (only needed if wantlist? not sure, so do always;
-                    #  guess: there will be none of them unless wantlist is set, so it doesn't matter)
-                    for extra_displist in self.extra_displists.itervalues():
-                        extra_displist.draw_but_first_recompile_if_needed(
-                            glpane,
-                            selected = self._chunk.picked,
-                            wantlist = wantlist
-                         )
-                        
-                    pass # end of the case where "main display list (and extra lists) needs to be remade"
-
+                # draw the extra_displists, remaking as needed if wantlist
+                for extra_displist in self.extra_displists.itervalues():
+                    extra_displist.draw_but_first_recompile_if_needed(
+                        glpane,
+                        selected = self._chunk.picked,
+                        wantlist = wantlist,
+                        draw_now = not wantlist
+                     )
+                    if wantlist:
+                        print "will draw csdl %r for ed %r" % (extra_displist.csdl, extra_displist) #######
+                        draw_outside += [extra_displist.csdl]
+                    continue
+                
                 # REVIEW: is it ok that self._chunk.glname is exposed for the following
                 # _renderOverlayText drawing? Guess: yes, even though it means mouseover
                 # of the text will cause a redraw, and access to chunk context menu.
@@ -555,12 +600,22 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
             self._chunk.popMatrix(glpane)
 
-            # this has to be done here, not above, since the TransformControl
-            # now in self.displist would be redundant with the local coords
-            # we were inside in GL state, above. This won't be needed once
-            # we're always using DrawingSets, so at that time we can put it
-            # back inside the exception protection, etc. [bruce 090224]
-            glpane.draw_csdl(self.displist, selected = self._chunk.picked)
+            print "draw_outside =", draw_outside ########
+
+            # some csdl-drawing has to be done here, not above, since the
+            # transformControls they contain would be redundant with the
+            # local coords (in GL matrix state) we were in above. (The
+            # local coords in GL state wouldn't be needed if we eliminated
+            # "wantlist = false" and always use DrawingSets -- except for
+            # some other, non-CSDL drawing also done above.)
+            # This also helps us pass all drawn CSDLs to draw_csdl,
+            # to support DrawingSets. [bruce 090224]
+            # (todo: exception protection for this, too?)
+            for csdl in draw_outside:
+                # csdl is always a real CSDL
+                # (since for an extra_displist we added extra_displist.csdl
+                #  to this list)
+                glpane.draw_csdl(csdl, selected = self._chunk.picked)
 
             glPopName() # pops self._chunk.glname
 
@@ -932,19 +987,16 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         if not self.is_visible(glpane): #bruce 090212 revised slightly
             return
 
-        # Russ 081212: Switch from glCallList to CSDL.draw for shader prims.
-        ##### TODO: use glpane.draw_csdl.
+        #### TODO: use glpane.draw_csdl so we use DrawingSets for chunk highlighting.
+        ### POSSIBLE BUG: extra_displists might not be up to date if wantlist
+        # was False during the last draw. A real bug, but not important enough
+        # to worry about for now. [bruce 090224 comment]
         if self._has_displist():
-            apply_material(color) ### REVIEW: still needed?
-            for csdl in ([self.displist]):
-                # the ones with a TC go outside local coords
+##            apply_material(color) ### REVIEW: still needed? [i guess not -- bruce 090224]
+            for csdl in ([self.displist] +
+                         self.extra_displists.values() ):
+                # they all have a TC, so they all go outside local coords
                 csdl.draw(highlighted = True, highlight_color = color)
-            self._chunk.pushMatrix(glpane)
-            for csdl in ([ed.csdl for ed in self.extra_displists.values()]):
-                # the other ones go inside them
-                # (soon these will have TC and alao go above #####)
-                csdl.draw(highlighted = True, highlight_color = color)
-            self._chunk.popMatrix(glpane)
             pass
 
         # piotr 080521: Get display mode for drawing external bonds and/or
@@ -1118,6 +1170,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
     def overdraw_hotspot(self, glpane, disp): #bruce 050131
         #### REVIEW: ok if this remains outside any CSDL?
+        # A possible issue is whether it's big enough (as a polyhedral sphere)
+        # to completely cover an underlying shader sphere.
         """
         If self._chunk is a (toplevel) clipboard item with a hotspot
         (i.e. if pasting it onto a bondpoint will work and use its hotspot),

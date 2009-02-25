@@ -193,9 +193,10 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
         self.showEachFrame = False
         # a flag that indicates the movie is paused
         self.isPaused = True
-        # 'movie_is_playing' is a flag that indicates a movie is playing. It is used by other code to
-        # speed up rendering times by disabling the (re)building of display lists for each frame
-        # of the movie. Mark 051209.
+        # 'movie_is_playing' is a flag that indicates a movie is playing. It is
+        # used by other code to speed up rendering times by optionally disabling
+        # the (re)building of display lists for each frame of the movie.
+        # [Mark 051209.]
         self.win.movie_is_playing = False
         # moveToEnd: a flag that indicates the movie is currently fast-forwarding to the end.
         # [bruce 050428 comment: in present code, self.moveToEnd might not be properly maintained

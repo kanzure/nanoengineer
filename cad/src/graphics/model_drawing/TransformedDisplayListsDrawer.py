@@ -76,6 +76,13 @@ class TransformedDisplayListsDrawer(object,
         # [bruce 070523]
 
         self.extra_displists = {} # precaution, probably not needed
+            ### REFACTOR: the code to make these is not in this class
+            # or even in the subclass ChunkDrawer, but in a cooperating object
+            # Chunk_SpecialDrawingHandler -- probably that ought to be calling
+            # back to ChunkDrawer to make this, so only this class and its
+            # subclasses would know about self.extra_displists, and so
+            # this class could have methods to fill it in which its
+            # subclass would be overriding. [bruce 090224 comment]
         
         return
 
@@ -166,7 +173,7 @@ class TransformedDisplayListsDrawer(object,
             self._displist = ColorSortedDisplayList(self.getTransformControl())
         return self._displist
 
-    def getTransformControl(self): #bruce 090223 ##### TODO: also in ExtraChunkDisplayList
+    def getTransformControl(self): #bruce 090223
         """
         @return: the transformControl to use for our ColorSortedDisplayLists
                  (perhaps None)
