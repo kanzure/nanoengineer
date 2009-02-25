@@ -2,7 +2,20 @@
 """
 TransformNode.py -- mutable transform classes, shared by TransformNodes
 
-NOT YET USED as of 090204
+NOT YET USED as of 090204... declared obsolete as of bruce 090225:
+- much of the specific code is obsolete, since we abandoned the idea of a
+  number-capped TransformControl object (no need to merge TCs when too many
+  are used)
+- the concept of a separated dynamic and static transform, and letting
+  them be pointers to separate objects, potentially shared, is a good one,
+  which will be used in some form if we ever optimize rigid drag of
+  multiple chunks bridges by external bonds (as I hope we will),
+  but there is no longer time to implement it in this form (new superclass
+  for Chunk), before the next release, since it impacts too much else about
+  a Chunk. If we implement that soon, it will be in some more klugy form
+  which modifies Chunk to a lesser degree.
+
+Therefore, this file (and TransformState which it uses) are now scratch files.
 
 @author: Bruce
 @version: $Id$

@@ -2,7 +2,8 @@
 """
 TransformState.py -- mutable transform classes, shared by TransformNodes
 
-NOT YET USED as of 090204
+NOT YET USED as of 090204... declared a scratch file, bruce 090225;
+see comments in TransformNode docstring for why.
 
 @author: Bruce
 @version: $Id$
