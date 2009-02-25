@@ -523,6 +523,12 @@ class ColorSorter:
         """
         Schedule a cylinder for rendering whenever ColorSorter thinks is
         appropriate.
+
+        @note: when shader cylinders are active, this can also be a tapered
+            cylinder by using a tuple of two radii. A special case is a cone,
+            if one of those radii is 0. This doesn't work with polygonal
+            cylinders, so we assert that this doesn't happen in that case.
+            [##### TODO: instead, draw a polycone with the same appearance.]
         """
         if _DEBUG and ColorSorter._parent_csdl and ColorSorter._parent_csdl.reentrant:
             print "bare_prim cylinder:", ColorSorter._gl_name_stack[-1], \
@@ -542,6 +548,7 @@ class ColorSorter:
             pos2 = ColorSorter._transform_point(pos2)
 
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
+            radius = float(radius) # make sure it's the right type
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -562,12 +569,14 @@ class ColorSorter:
                 # Collect lists of primitives in the CSDL, rather than sending
                 # them down through the ColorSorter schedule methods into DLs.
                 assert ColorSorter.sorting # since _parent_csdl is present
+                # note: radius can legally be a number, or a tuple of two radii
                 ColorSorter._parent_csdl.addCylinder(
                     # For a tapered cylinder or cone, pass a tuple of two radii.
                     (pos1, pos2), radius, lcolor,
                     # Mouseover glnames come from ColorSorter.pushName() .
                     ColorSorter._gl_name_stack[-1])
             else:
+                radius = float(radius) # make sure it's the right type
                 ColorSorter.schedule(lcolor,
                                  drawcylinder_worker,
                                  (pos1, pos2, radius, capped))
