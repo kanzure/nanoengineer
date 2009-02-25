@@ -176,7 +176,6 @@ class GLPane_drawingset_methods(object):
     def draw_csdl(self, csdl, selected = False):
         """
         """
-        print "draw_csdl", csdl #########
         ##### TODO: call for chunk highlighting, and in ExternalBondSetDrawer
         csdl_collector = self.csdl_collector
         if csdl_collector.use_drawingsets:

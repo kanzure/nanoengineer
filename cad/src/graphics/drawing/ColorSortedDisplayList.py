@@ -592,7 +592,6 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         @param transform_DLs: Whether to apply self.transformControl to our DLs.
           Defaults to True.
         """
-        print "drawing", self #######
 
         patterned_highlighting = (patterning and
                                   isPatternedDrawing(highlight = highlighted))
@@ -624,9 +623,6 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                     self.drawIndices[shader] = shader.makeDrawIndex(primitives)
                     continue
                 pass
-            if 1: ####### debug code
-                for primID in self.spheres:
-                    print "i'm drawing a sphere:", primID, self #######
             pass
 
         # Normal or selected drawing are done before a patterned highlight

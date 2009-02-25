@@ -456,8 +456,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     ### POSSIBLE BUG: chunk highlighting when not wantlist;
                     # see comment in draw_highlighted.
 
-                print "wantlist =", wantlist #######
-
                 draw_outside = [] # csdls to draw outside local coords
                 
                 if self.havelist == havelist_data: 
@@ -557,7 +555,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                         draw_now = not wantlist
                      )
                     if wantlist:
-                        print "will draw csdl %r for ed %r" % (extra_displist.csdl, extra_displist) #######
                         draw_outside += [extra_displist.csdl]
                     continue
                 
@@ -599,8 +596,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 print_compact_traceback("exception in Chunk.draw, continuing: ")
 
             self._chunk.popMatrix(glpane)
-
-            print "draw_outside =", draw_outside ########
 
             # some csdl-drawing has to be done here, not above, since the
             # transformControls they contain would be redundant with the

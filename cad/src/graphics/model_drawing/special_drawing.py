@@ -25,7 +25,7 @@ from utilities.debug import print_compact_traceback
 
 from utilities import debug_flags
 
-DEBUG_COMPARATOR = True ####### False
+DEBUG_COMPARATOR = False
 
 # ==
 
@@ -525,7 +525,6 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         # drawsphere(...), drawcylinder(...), drawpolycone(...), and so on.
         args = self._construct_args_for_drawing_functions()
         for func in self._drawing_functions:
-            print "running func %r while remaking %r" % (func, self) #######
             func(*args)
         return
 
