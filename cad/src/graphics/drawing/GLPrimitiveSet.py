@@ -57,6 +57,9 @@ class GLPrimitiveSet:
     """
     Cached data structure for rapidly drawing a list of batched primitives
     collected from the CSDLs in a DrawingSet.
+
+    @note: this needs to be remade from scratch if its set of CSDLs,
+           or any of its CSDLs' contents or properties, changes.
     """
     def __init__(self, csdl_list):
         self.CSDLs = csdl_list
@@ -69,7 +72,7 @@ class GLPrimitiveSet:
         for csdl in self.CSDLs:
             self.spheres += csdl.spheres
             self.cylinders += csdl.cylinders
-            if len(csdl.per_color_dls) > 0:
+            if csdl.has_nonempty_DLs():
                 self.CSDLs_with_DLs += [csdl]
                 pass
             continue
@@ -79,6 +82,13 @@ class GLPrimitiveSet:
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this GLPrimitiveSet was created.
         self.created = drawing_globals.eventStamp()
+
+        # optimization: sort CSDLs_with_DLs by their transformControl.
+        # [bruce 090225]
+        items = [(id(csdl.transformControl), csdl)
+                 for csdl in self.CSDLs_with_DLs]
+        items.sort()
+        self.CSDLs_with_DLs = [csdl for (junk, csdl) in items]
 
         return
 
@@ -118,7 +128,8 @@ class GLPrimitiveSet:
 
         # Draw just the Display Lists, in all CSDLs which have any.
         # Put TransformControl matrices onto the GL matrix stack when present.
-        # (Pushing/popping could be minimized by sorting the cached CSDL's.)
+        # (Pushing/popping could be minimized by sorting the cached CSDL's.
+        #  As of 090025 this is done in __init__.)
         # [algorithm revised by bruce 090203]
         lastTC = None
         for csdl in self.CSDLs_with_DLs:

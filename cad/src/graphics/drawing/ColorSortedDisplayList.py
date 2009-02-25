@@ -181,6 +181,18 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         return self._transform_id
 
+    def has_nonempty_DLs(self): #bruce 090225
+        """
+        Are any of our toplevel OpenGL display lists nonempty
+        (i.e. do they have any drawing effect)?
+
+        @note: This test is useful, since we build all our toplevel display
+            lists even if they are empty, due to some client code which may
+            require this. When shaders are turned on, having all DLs empty
+            will be common.
+        """
+        return bool( self._per_color_dls)
+        
     # ==
 
     def start(self, pickstate): #bruce 090224 split this out of caller
@@ -263,12 +275,20 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         selColor = env.prefs[selectionColor_prefs_key]
         vboLevel = drawing_globals.use_drawing_variant
 
+        # Note: if sorted_by_color is empty, current code still builds all
+        # toplevel display lists, though they are noops. This may be needed
+        # by some client code which uses those dls directly. Client code
+        # wanting to know if it needs to draw our dls should test
+        # self.has_nonempty_DLs(), which tests self._per_color_dls.
+        # [bruce 090225 comment]
+
         # First build the lower level per-color sublists of primitives.
+        
         for color, funcs in sorted_by_color.iteritems():
             sublists = [glGenLists(1), 0]
 
             # Remember the display list ID for this color.
-            self.per_color_dls.append([color, sublists])
+            self._per_color_dls.append([color, sublists])
 
             glNewList(sublists[0], GL_COMPILE)
             opacity = color[3]
@@ -355,7 +375,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         color_dl = self.color_dl = glGenLists(1)
         glNewList(color_dl, GL_COMPILE)
 
-        for color, dls in self.per_color_dls:
+        for color, dls in self._per_color_dls:
 
             opacity = color[3]
             if opacity < 0:
@@ -377,7 +397,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # A second one without any colors.
         nocolor_dl = self.nocolor_dl = glGenLists(1)
         glNewList(nocolor_dl, GL_COMPILE)
-        for color, dls in self.per_color_dls:                    
+        for color, dls in self._per_color_dls:                    
             opacity = color[3]
 
             if opacity == -2 \
@@ -633,7 +653,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # obscured by halo highlighting.  [russ 080610]
         # Russ 081208: Skip DLs when drawing shader-prims with glnames-as-color.
         DLs_to_do = (drawing_globals.drawing_phase != "glselect_glname_color"
-                     and len(self.per_color_dls) > 0)
+                     and self.has_nonempty_DLs())
 
         # the following might be changed, then are used repeatedly below;
         # this simplifies the various ways we can handle transforms [bruce 090224]
@@ -800,7 +820,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # rather than just a list of ids. The second DL is used in case
         # of multi-color objects and is required for highlighting 
         # and selection (not in rc1)
-        for clr, dls in self.per_color_dls: # Second-level dl's.
+        for clr, dls in self._per_color_dls: # Second-level dl's.
             for dl in dls: # iterate over DL pairs.
                 DLs[dl] = dl
         for dl in DLs:
@@ -827,7 +847,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         self.color_dl = 0       # DL to set colors, call each lower level list.
         self.selected_dl = 0    # DL with a single (selected) over-ride color.
         self.nocolor_dl = 0     # DL of lower-level calls for color over-rides.
-        self.per_color_dls = [] # Lower level, per-color primitive sublists.
+        self._per_color_dls = [] # Lower level, per-color primitive sublists.
         self._clearPrimitives()
         return
 
