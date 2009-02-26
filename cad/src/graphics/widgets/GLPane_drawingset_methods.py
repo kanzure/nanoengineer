@@ -176,13 +176,18 @@ class GLPane_drawingset_methods(object):
             # warning: use of env.mainwindow is a KLUGE;
             # could probably be fixed, but needs review for thumbviews
 
-    def draw_csdl(self, csdl, selected = False):
+    def draw_csdl(self, csdl, selected = False, highlight_color = None):
         """
+        Depending on prefs, either draw csdl now (with the given draw options),
+        or make sure it will be in a DrawingSet which will be drawn later
+        with those options.
         """
-        ##### TODO: call for chunk highlighting, and in ExternalBondSetDrawer
+        ##### TODO: call in ExternalBondSetDrawer
+        # future: to optimize rigid drag, options (aka "drawing intent")
+        # will also include which dynamic transform (if any) to draw it inside.
         csdl_collector = self.csdl_collector
         if csdl_collector.use_drawingsets:
-            intent = bool(selected) #### for now 
+            intent = (bool(selected), highlight_color) #### for now 
             csdl_collector.draw_csdl_in_drawingset(csdl, intent)
         else:
             csdl.draw(selected = selected)
@@ -284,12 +289,19 @@ class GLPane_drawingset_methods(object):
             # - slow since not incremental
             # - incorrect since transforms are ignored
             #   (they're only present in gl state when csdl is added!)
-            selected = intent
+            selected, highlight_color = intent
             ## print "_draw_drawingsets stub: selected = %r, %d csdls" % (selected, len( csdls ))
             d = DrawingSet(csdls.itervalues())
             # future: d.addCSDL(csdl), d.removeCSDL(csdl)
-            d.draw(selected = selected)
+            if highlight_color is None:
+                d.draw(selected = selected)
+            else:
+                d.draw(selected = selected,
+                       highlighted = True,
+                       highlight_color = highlight_color)
+                pass
             d.destroy()
+            continue
         return
 
     pass # end of class

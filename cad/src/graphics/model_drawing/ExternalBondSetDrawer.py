@@ -15,10 +15,8 @@ from graphics.drawing.ColorSorter import ColorSorter
 
 from model.elements import PeriodicTable
 import graphics.drawing.drawing_globals as drawing_globals
-import foundation.env as env
+##import foundation.env as env
 from utilities.debug import print_compact_traceback
-
-from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False ###
 
 # ==
 
@@ -74,7 +72,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             self.invalidate_display_lists()
         return
 
-    def draw(self, glpane, disp, color, drawLevel): # selected? highlighted?
+    def draw(self, glpane, disp, color, drawLevel, highlight_color):
         """
         """
         if 0: ##  debug_pref:
@@ -84,6 +82,9 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             # modified from Chunk._draw_external_bonds:
             
             use_outer_colorsorter = True # not sure whether/why this is needed
+
+            if highlight_color is not None:
+                color = highlight_color # untested
             
             if use_outer_colorsorter:
                 ColorSorter.start(glpane, None)
@@ -141,7 +142,8 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         if c1.hidden and c2.hidden:
             return
 
-
+        highlighted = highlight_color is not None
+        
         # TODO: return if disp (from both chunks) doesn't draw bonds
         # and none of our bonds' atoms
         # have individual display styles set; for now, this situation will result
@@ -170,7 +172,8 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         c1.basepos # for __getattr__ effect (precaution, no idea if needed)
         c2.basepos
 
-        self.track_use()
+        if not highlighted:
+            self.track_use()
 
         ### REVIEW: need anything like glPushName(some glname) ? maybe one glname for the ebset itself?
         # guess: not needed: in DL case, bond glnames work, and in shader case, they work as colors,
@@ -209,10 +212,12 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         # - comments
         # - some error message text
         # - maybe, disp and color
+
+        draw_outside = [] # csdls to draw
         
         if self.havelist == havelist_data:
             # self.displist is still valid -- use it
-            self.displist.draw(selected = c1.picked and c2.picked)
+            draw_outside += [self.displist]
         else:
             # self.displist needs to be remade (and then drawn, or also drawn)
             if not self.havelist:
@@ -220,14 +225,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 # (probably not needed in this class, but needed in chunk,
                 #  so would be in common superclass draw method if we had that)
             self.havelist = 0
-            try:
-                wantlist = not env.mainwindow().movie_is_playing #bruce 051209
-                    # warning: use of env.mainwindow is a KLUGE
-                    #### REVIEW: is this a speedup (as intended) or a slowdown?
-            except:
-                print_compact_traceback("exception (a bug) ignored: ")
-                wantlist = True
-
+            wantlist = glpane._remake_display_lists
             if wantlist:
                 # print "Regenerating display list for %r (%d)" % \
                 #       (self, env.redraw_counter)
@@ -248,7 +246,8 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 print_compact_traceback(msg + ": ")
 
             if wantlist:
-                ColorSorter.finish(draw_now = True)
+                ColorSorter.finish(draw_now = False)
+                draw_outside += [self.displist]
                 self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                 self.havelist = havelist_data
                 
@@ -258,6 +257,13 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 # only a known-safe thing, like a bbox and an indicator of the bug.)
             pass
 
+        # note: if we ever have a local coordinate system, we may have it in
+        # effect above but not below, like in ChunkDrawer; review at that time.
+
+        for csdl in draw_outside:
+            glpane.draw_csdl(csdl,
+                             selected = c1.picked and c2.picked,
+                             highlight_color = highlight_color)
         return
     
     def _draw_for_main_display_list(self, glpane, disp, color, drawLevel, wantlist):
@@ -278,6 +284,6 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             bond.draw(glpane, disp, color, drawLevel)
         return
 
-    pass # end of class
+    pass # end of class ExternalBondSetDrawer
 
 # end

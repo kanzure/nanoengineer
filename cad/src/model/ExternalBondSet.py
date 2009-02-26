@@ -230,10 +230,10 @@ class ExternalBondSet(object):
         for bond in self._bonds.itervalues():
             return bond.should_draw_as_picked()
     
-    def draw(self, glpane, disp, color, drawLevel): # selected? highlighted?
+    def draw(self, glpane, disp, color, drawLevel, highlight_color = None):
         # todo: this method (and perhaps even our self._drawer attribute)
         # won't be needed once we have the right GraphicsRule architecture)
-        self._drawer.draw(glpane, disp, color, drawLevel)
+        self._drawer.draw(glpane, disp, color, drawLevel, highlight_color)
     
     pass
 

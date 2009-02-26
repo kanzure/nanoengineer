@@ -206,7 +206,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         radius = bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5
         return glpane.is_sphere_visible( center, radius )
 
-    def draw(self, glpane):
+    def draw(self, glpane, highlight_color = None):
         """
         Draw self (including its external bonds, perhaps optimizing
         to avoid drawing them twice) in the appropriate display style,
@@ -225,8 +225,21 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         compiled by the caller).
         
         The correct GL context must be current whenever this method is called.
+
+        @param highlight_color: if passed (and not None), draw self in
+            highlighted form using the given highlight_color, with some
+            details changed about exactly what we draw and how.
         """
         #bruce 090212 revised docstring
+        #bruce 090225 added highlight_color option, so I can rewrite
+        # draw_highlighted as a call to this method.
+
+        highlighted = (highlight_color is not None)
+
+        hidden = self._chunk.hidden and not highlighted
+            # REVIEW: is this wise, compared to just self._chunk.hidden?
+            # It affects the code below, since it means displists might
+            # need remaking even when highlighted. [bruce 090225 comment]
         
         # review:
         # - is glpane argument used, aside from setting self.glpane? [yes.]
@@ -275,11 +288,12 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                                      drawing_frame.indicate_overlapping_atoms
             # note: using self._chunk.part for this is a slight kluge;
             # see the comments where this variable is defined in class Part.
+            # review: is there any problem with this when highlighted?
 
-        if self._chunk.hidden and not indicate_overlapping_atoms:
+        if hidden and not indicate_overlapping_atoms:
             # (usually do this now, to avoid overhead of frustum test;
             #  if indicate_overlapping_atoms is true, we'll test
-            #  self._chunk.hidden again below, to make sure we still
+            #  hidden again below, to make sure we still
             #  skip other drawing)
             return
 
@@ -290,10 +304,21 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         
         if indicate_overlapping_atoms and is_chunk_visible:
             self.draw_overlap_indicators_if_needed()
+                # todo: pass highlight_color
 
-        if self._chunk.hidden:
+        if hidden:
             # catch the case where indicate_overlapping_atoms skipped this test earlier
+            # (don't return just from not is_chunk_visible, due to external bonds)
             return
+
+        # note: if highlighted and self._chunk.hidden, but (not hidden)
+        # (which is possible due to definition of hidden above),
+        # then we might draw self for the first time
+        # after a move, in highlighted form. That means we need all the
+        # same logic for possibly remaking our display lists as if
+        # not highlighted. If this proves problematic, we can condition
+        # that logic on not highlighted, but only if we also define hidden
+        # as self._chunk.hidden when highlighted. [bruce 090225 comment]
 
         self._chunk.basepos # note: has side effects in __getattr__
             # make sure basepos is up-to-date, so basecenter is not changed
@@ -327,7 +352,10 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         # invalid, so it can know it needs to redraw us. [note: I didn't check
         # whether extra_displist invalidity is handled by this same code (guess:
         # no), or in some independent way using gl_update.]
-        self.track_use()
+
+        if not highlighted:
+            # (### review the logic of this condition sometime)
+            self.track_use()
 
         drawLevel = self._chunk.assy.drawLevel # this might recompute it
             # (if that happens and grabs the pref value, I think this won't
@@ -359,7 +387,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # with their own glnames (atoms and bonds), or cause bugs, though
             # I think both of those are unlikely, so this review is not urgent.
             # [bruce 080411 comment]
-            glPushName(self._chunk.glname)
+            glPushName(self._chunk.glname) # doesn't matter when highlighted
 
             # put it in its place
             # (note: this still matters even though we use transformControls in
@@ -374,22 +402,21 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 ##delegate_selection_wireframe = False
                 delegate_draw_atoms = False
                 delegate_draw_chunk = False
-                hd = None
-                if 1:
-                    #bruce 060608 look for a display mode handler for this chunk
-                    # (whether it's a whole-chunk mode, or one we'll pass to the
-                    #  atoms as we draw them (nim)).
-                    hd = get_display_mode_handler(disp)
-                    # see if it's a chunk-only handler. If so, we don't draw
-                    # atoms or chunk selection wireframe ourselves -- instead,
-                    # we delegate those tasks to it
-                    if hd:
-                        chunk_only = hd.chunk_only
-                        ##delegate_selection_wireframe = chunk_only
-                        delegate_draw_atoms = chunk_only
-                        delegate_draw_chunk = chunk_only
-                            #e maybe later, we'll let hd tell us each of these,
-                            # based on the chunk state.
+                
+                # look for a display mode handler for this chunk
+                # (whether it's a whole-chunk mode, or one we'll pass to the
+                #  atoms as we draw them (nim)) [bruce 060608]
+                hd = get_display_mode_handler(disp)
+                # see if it's a chunk-only handler. If so, we don't draw
+                # atoms or chunk selection wireframe ourselves -- instead,
+                # we delegate those tasks to it.
+                if hd:
+                    chunk_only = hd.chunk_only
+                    ##delegate_selection_wireframe = chunk_only
+                    delegate_draw_atoms = chunk_only
+                    delegate_draw_chunk = chunk_only
+                        #e maybe later, we'll let hd tell us each of these,
+                        # based on the chunk state.
                     pass
                 
                 #bruce 060608 moved drawing of selection wireframe from here to
@@ -459,20 +486,21 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     pass
                 else:
                     # our main display list (and all extra lists) needs to be remade
-                    if 1:
-                        #bruce 060608: record info to help per-chunk display modes
-                        # figure out whether they need to invalidate their memo data.
-                        if not self.havelist:
-                            # Only count when it was set to 0 externally, not
-                            # just when it doesn't match and we reset it
-                            # below. (Note: current code will also increment
-                            # this every frame, when wantlist is false. I'm
-                            # not sure what to do about that. Could we set it
-                            # here to False rather than 0, so we can tell??
-                            # ##e)
-                            self._havelist_inval_counter += 1
-                        ##e in future we might also record eltprefs, matprefs,
-                        ##drawLevel (since they're stored in .havelist)
+                    
+                    #bruce 060608: record info to help per-chunk display modes
+                    # figure out whether they need to invalidate their memo data.
+                    if not self.havelist:
+                        # Only count when it was set to 0 externally, not
+                        # just when it doesn't match and we reset it
+                        # below. (Note: current code will also increment
+                        # this every frame, when wantlist is false. I'm
+                        # not sure what to do about that. Could we set it
+                        # here to False rather than 0, so we can tell??
+                        # ##e)
+                        self._havelist_inval_counter += 1
+                    ##e in future we might also record eltprefs, matprefs,
+                    ##drawLevel (since they're stored in .havelist)
+                    
                     self.havelist = 0 #bruce 051209: this is now needed
                     self.extra_displists = {} # we'll make new ones as needed
                     if wantlist:
@@ -507,6 +535,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
                     if wantlist:
                         ColorSorter.finish(draw_now = False)
+                            # args when highlighted don't need to differ,
+                            # since not drawing now
                         draw_outside += [self.displist]
 
                         self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
@@ -556,18 +586,20 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 # [bruce 081211 comments]
                 if ( self._chunk.chunkHasOverlayText and
                      self._chunk.showOverlayText ):
-                    self._renderOverlayText(glpane)
+                    self._renderOverlayText(glpane) # review args when highlighted
                 
                 #@@ninad 070219 disabling the following--
                 ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
 
                 # piotr 080320
                 if hd:
-                    hd._f_drawchunk_realtime(glpane, self._chunk)
+                    hd._f_drawchunk_realtime(glpane,
+                                             self._chunk,
+                                             highlighted = highlighted )
 
                 if self._chunk.hotspot is not None: 
                     # note: accessing self._chunk.hotspot can have side effects in getattr
-                    self.overdraw_hotspot(glpane, disp) 
+                    self.overdraw_hotspot(glpane, disp) ### REVIEW args when highlighted 
                         # note: this only does anything for pastables
                         # (toplevel clipboard items) as of 050316
 
@@ -600,13 +632,16 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 # csdl is always a real CSDL
                 # (since for an extra_displist we added extra_displist.csdl
                 #  to this list)
-                glpane.draw_csdl(csdl, selected = self._chunk.picked)
+                glpane.draw_csdl(csdl,
+                                 selected = self._chunk.picked,
+                                 highlight_color = highlight_color)
 
             glPopName() # pops self._chunk.glname
 
             pass # end of 'if is_chunk_visible:'
 
-        self._draw_outside_local_coords(glpane, disp, drawLevel, is_chunk_visible)
+        self._draw_outside_local_coords(glpane, disp, drawLevel,
+                                        is_chunk_visible, highlight_color )
 
         return # from Chunk.draw()
 
@@ -623,7 +658,9 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         if (not gotone):
             self._chunk.chunkHasOverlayText = False
 
-    def _draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible):
+    def _draw_outside_local_coords(self,
+                                   glpane, disp, drawLevel,
+                                   is_chunk_visible, highlight_color ):
         """
         Do the part of self.draw that goes outside self's
         local coordinate system and outside its display lists.
@@ -658,11 +695,14 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         # list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
         if draw_external_bonds and self._chunk.externs:
-            self._draw_external_bonds(glpane, disp, drawLevel, is_chunk_visible)
+            self._draw_external_bonds(glpane, disp, drawLevel,
+                                      is_chunk_visible, highlight_color )
 
         return # from Chunk._draw_outside_local_coords()
 
-    def _draw_external_bonds(self, glpane, disp, drawLevel, is_chunk_visible = True):
+    def _draw_external_bonds(self,
+                             glpane, disp, drawLevel,
+                             is_chunk_visible, highlight_color ):
         """
         Draw self's external bonds (if debug_prefs and frustum culling permit).
 
@@ -701,7 +741,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                            ))
          )
         
-        if suppress_external_bonds:
+        if suppress_external_bonds: # review: and not highlighted?
             return
         
         # external bonds will be drawn (though some might be culled).
@@ -766,9 +806,11 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                       prefs_key = "v1.2/use ExternalBondSets for drawing?" ):
             objects_to_draw = self._chunk._bonded_chunks.itervalues()
             use_outer_colorsorter = False
+            pass_highlight_color = True
         else:
             objects_to_draw = self._chunk.externs
             use_outer_colorsorter = True
+            pass_highlight_color = False
         
         # actually draw them
 
@@ -796,7 +838,11 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     color = selColor #bruce 080430 cosmetic improvement
                 else:
                     color = bondcolor
-                bond.draw(glpane, disp, color, drawLevel)
+                if pass_highlight_color:
+                    bond.draw(glpane, disp, color, drawLevel,
+                              highlight_color = highlight_color)
+                else:
+                    bond.draw(glpane, disp, color, drawLevel)
             continue
         
         if use_outer_colorsorter:
@@ -948,13 +994,10 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
     def draw_highlighted(self, glpane, color):
         """
-        Draws this chunk as highlighted with the specified color. 
+        Draw self._chunk as highlighted with the specified color.
         
-        In future, 'draw_in_abs_coords' defined on some node classes
-        could be merged into this method (for highlighting various objects).
-
         @param glpane: the GLPane
-        @param color: highlight color
+        @param color: highlight color (must not be None)
         
         @see: dna_model.DnaGroup.draw_highlighted
         @see: SelectChunks_GraphicsMode.drawHighlightedChunk()
@@ -962,57 +1005,20 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         """
         #This was originally a sub-method in 
         #SelectChunks_GraphicsMode.drawHighlightedChunks. Moved here 
-        #(Chunk.draw_highlighted) on 2008-02-26
+        #(Chunk.draw_highlighted) on 2008-02-26 [by Ninad]
+        # In future, 'draw_in_abs_coords' defined on some node classes
+        # could be merged into this method (for highlighting various objects).
+        # [heavily revised by bruce 090225]
 
-        # Early frustum clipping test. piotr 080331
-        # Could it cause any trouble by not drawing the external bonds?
-        # REVIEW [bruce 090114]: is there any good reason to use this test
-        # for highlighted-object drawing (i.e. cases when some chunks out
-        # of whatever gets highlighted are not at all visible)?
-        if not self.is_visible(glpane): #bruce 090212 revised slightly
-            return
-
-        #### TODO: use glpane.draw_csdl so we use DrawingSets for chunk highlighting.
-        ### POSSIBLE BUG: extra_displists might not be up to date if wantlist
-        # was False during the last draw. A real bug, but not important enough
-        # to worry about for now. [bruce 090224 comment]
-        if self._has_displist():
-##            apply_material(color) ### REVIEW: still needed? [i guess not -- bruce 090224]
-            for csdl in ([self.displist] +
-                         self.extra_displists.values() ):
-                # they all have a TC, so they all go outside local coords
-                csdl.draw(highlighted = True, highlight_color = color)
-            pass
-
-        # piotr 080521: Get display mode for drawing external bonds and/or
-        # the "realtime" objects.
-        disp = self._chunk.get_dispdef(glpane)
-
-        #russ 080302: Draw external bonds.
-        ##### TODO: use ExternalBondSets.
-        if self._chunk.externs:
-            # From Chunk.draw():
-            drawLevel = self._chunk.assy.drawLevel
-            # From Chunk._draw_external_bonds:
-            # todo [bruce 090114 comment]: optimize this to not draw them twice
-            # (as was done in older code). (Note that there will soon be
-            # objects containing display lists for them, and our job will
-            # be to not draw *those objects* twice, in any one frame.)
-            ColorSorter.start(glpane, None)
-            for bond in self._chunk.externs:
-                bond.draw(glpane, disp, color, drawLevel)
-                continue
-            ColorSorter.finish(draw_now = True)
-            pass
-        pass
-
-        # piotr 080521
-        # Highlight "realtime" objects (e.g. 2D DNA cylinder style).
-        hd = get_display_mode_handler(disp)
-        if hd:
-            hd._f_drawchunk_realtime(glpane, self._chunk, highlighted = True)
-            pass
+        assert color is not None
         
+        wantlist = glpane._remake_display_lists
+        if not wantlist:
+            # not worth highlighting if valid csdls not available
+            # [bruce 090225 revision; #REVIEW: do inside .draw?]
+            return
+        
+        self.draw(glpane, highlight_color = color)
         return
 
     def _standard_draw_chunk(self, glpane, disp0, highlighted = False):

@@ -441,6 +441,15 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     # == unsorted methods, new as of bruce 090211 or so
 
+    def set_assy(self, assy): #bruce 090225 precaution
+        """
+        [override superclass method]
+        """
+        if self._drawer:
+            self._drawer.invalidate_display_lists()
+        _superclass.set_assy(self, assy)
+        return
+
     def invalidate_display_lists_for_style(self, style): #bruce 090211
         """
         Invalidate any of our display lists used with the given style
