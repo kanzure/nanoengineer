@@ -537,10 +537,17 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # be the same; small ones don't matter too much, but might be best
         # temporary in case they are not always small;
         # at least use the same cache in all temp cases.
+
+        # todo: Further optimization is possible but not yet done:
+        # for drawing main model for selobj tests, just reuse
+        # the cached drawingsets without even scanning the model
+        # to see if they need to be modified. This is worth
+        # doing if we have time, but less urgent than several
+        # other things we need to do.
         
         drawing_phase = self.drawing_phase
         if drawing_phase == '?':
-            print_compact_stack("warning: _choose_drawingset_cache during '?' -- should clean up: ") #######
+            print_compact_stack("warning: _choose_drawingset_cache during '?' -- should clean up: ") ######
         cachename = self._drawingset_cachename_from_drawing_phase.get(drawing_phase)
         if cachename is None:
             cachename = 'temp'
