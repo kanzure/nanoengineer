@@ -133,7 +133,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
     # if we want to use that to distinguish which copy is being hit.
     # Review this again when more refactoring is done. For now, it's in Chunk.
 
-    _last_should_not_change = (None, None) # todo: rename
+    _last_drawn_transform_value = (None, None)
     
     def __init__(self, chunk):
         """
@@ -176,6 +176,11 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # but would be redundant with this anyway
 
     def updateTransform(self): #bruce 090223
+        """
+        Tell all our CSDLs that their transform may have changed,
+        so they should immediately get its new value and update their cached
+        coordinates.
+        """
         if self._has_displist():
             self.displist.updateTransform()
         for extra_displist in self.extra_displists.itervalues():
@@ -327,16 +332,31 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # needed for now since they should not be possible, and should
             # cause visible bugs if they happen. At least let's verify the
             # self._chunk coord system has not changed by the time we're done:
-        should_not_change = ( + self._chunk.basecenter, + self._chunk.quat )
-            #### TODO: rename for clarity -- it's ok if it changes since
-            # last time, just not if it changes during this method
+        current_transform_value = ( + self._chunk.basecenter, + self._chunk.quat )
 
         # see comment below for why we have to compare the pieces, not the whole
-        if should_not_change[0] != self._last_should_not_change[0] or \
-           should_not_change[1] != self._last_should_not_change[1] :
+        if current_transform_value[0] != self._last_drawn_transform_value[0] or \
+           current_transform_value[1] != self._last_drawn_transform_value[1] :
+            # Our local coordinate system (aka our transform, stored in
+            # self._chunk) has changed since we were last drawn. Before
+            # drawing any CSDLs whose tranformControl is self._chunk (i.e.
+            # any of our CSDLs), we need to make sure they update their
+            # internal coordinates based on the new value of our transform.
+            
+            ### TODO: optimize this to not be redundant with the one called by
+            # ColorSorter.finish for any of those CSDLs we are about to remake.
+            # (Not trivial. If CSDLs updated lazily, they'd need to know which
+            #  DrawingSets contained them, adding complexity. So we'd need to
+            #  track this here instead, or in a "needs update" flag on CSDLs
+            #  which we or something else checks on all the ones we'll draw at
+            #  the end. I don't know whether redundant update is common, so I
+            #  don't know whether that's worthwhile. Note that this update needs
+            #  to cover extra_displists now, and ExternalBondSets in the
+            #  future.) [bruce 090226 comment]
             self.updateTransform()
+            pass
 
-        self._last_should_not_change = should_not_change
+        self._last_drawn_transform_value = current_transform_value
 
         
         ### WARNING: DUPLICATED CODE: much of the remaining code in this method
@@ -603,14 +623,20 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                         # note: this only does anything for pastables
                         # (toplevel clipboard items) as of 050316
 
-                # russ 080409 Array to string formatting is slow, avoid it
-                # when not needed.  Use !=, not ==, to compare Numeric arrays.
-                # (!= returns V(0,0,0), a False boolean value, when equal.)
-                if (should_not_change[0] != self._chunk.basecenter or
-                    should_not_change[1] != self._chunk.quat):
-                    assert `should_not_change` == `( + self._chunk.basecenter, + self._chunk.quat )`, \
-                           "%r != %r, what's up?" % (should_not_change,
-                                                     ( + self._chunk.basecenter, + self._chunk.quat))
+                # Make sure our transform value didn't change during draw
+                # (serious bug if so -- it would make display list coordinate
+                #  system ambiguous). [Note: always use !=, not ==, to compare
+                # Numeric arrays, and never compare tuples containing them
+                # (except with same_vals), to avoid bugs. See same_vals
+                # docstring for details.]
+                if ( current_transform_value[0] != self._chunk.basecenter or
+                     current_transform_value[1] != self._chunk.quat ):
+                    assert 0, \
+                        "bug: %r transform changed during draw, from %r to %r" % \
+                        ( self._chunk,
+                          current_transform_value,
+                          ( self._chunk.basecenter, self._chunk.quat ) )
+                    pass
 
                 pass # end of drawing within self's local coordinate frame
 
