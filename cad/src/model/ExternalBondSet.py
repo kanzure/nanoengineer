@@ -58,6 +58,9 @@ class ExternalBondSet(object):
         self.chunks = (chunk1, chunk2) # note: not private
             # note: our chunks are also called "our nodes",
             # since some of this code would work for them being any TransformNodes
+            # WARNING: KLUGE: self.chunks might be reordered inside self.draw.
+            # The order has no effect on anything except drawing,
+            # and need not remain constant or relate to atom order in our bonds.
         # maybe todo: rename: _f_bonds
         self._bonds = {}
         self._drawer = ExternalBondSetDrawer(self) 
@@ -183,7 +186,9 @@ class ExternalBondSet(object):
         c2 = bond.atom2.molecule
         return (c1, c2) == self.chunks or (c2, c1) == self.chunks 
             # REVIEW: too slow due to == ? 
-            # todo: optimize by sorting these when making bond? [bruce 090126]
+            # todo: optimize by sorting these when making bond?
+            # (see also the kluge in draw, which can reverse them)
+            # [bruce 090126]
 
     def destroy(self):
         if not self.chunks:
@@ -229,12 +234,55 @@ class ExternalBondSet(object):
         # (after implem revised 090227)
         # warning: ChunkDrawer has an optim which depends on this
         # method's semantics; see its selColor assignment.
-        return self.chunks[0].picked and  self.chunks[1].picked
-    
-    def draw(self, glpane, disp, color, drawLevel, highlight_color = None):
+        return self.chunks[0].picked and self.chunks[1].picked
+
+    def bondcolor(self): #bruce 090227
+        """
+        Return the color in which to draw all our bonds.
+        """
+        return self.chunks[0].drawing_color()
+            # Note: this choice of bondcolor is flawed, because it depends
+            # on which chunk is drawn first of the two that are connected.
+            # (The reason it depends on that is because of a kluge in which
+            #  we reorder the chunks to match that order, in self.draw().
+            #  It would be better if it depended more directly on model tree
+            #  order (the same, provided the chunks actually get drawn),
+            #  or on something else (e.g. axis vs strand chunks).)
+            # I'm leaving this behavior in place, but revising how it works
+            # in order to avoid color changes or DL remake when highlighting
+            # external bonds within ChunkDrawer.draw_highlighted.
+            # [bruce 090227]
+
+    def get_dispdef(self, glpane): #bruce 090227
+        """
+        Return the display style in which to draw all our bonds.
+        """
+        # [see comments in def bondcolor about choice of self.chunks[0]]
+        # Note: if we ever decide to draw our bonds in both styles,
+        # when our chunks disagree, we should revise this method's API
+        # to return both disps to overdraw. (Or we might let it return
+        # an opacity for each one, and also let users set a style like
+        # that directly.)
+        return self.chunks[0].get_dispdef(glpane)
+
+    def draw(self, glpane, chunk, drawLevel, highlight_color = None):
         # todo: this method (and perhaps even our self._drawer attribute)
         # won't be needed once we have the right GraphicsRule architecture)
-        self._drawer.draw(glpane, disp, color, drawLevel, highlight_color)
+        if not self.chunks:
+            # we've been destroyed (should not happen)
+            return
+        if chunk is not self.chunks[0] and highlight_color is None:
+            # KLUGE; see self.bondcolor() comment for explanation.
+            # This should happen at most once each time the model tree is
+            # reordered (or the first time we're drawn), provided we don't
+            # do it during ChunkDrawer.draw_highlighted (as we ensure by
+            # testing highlight_color). Note that self (and therefore the
+            # state of which chunk comes first) lasts as long as both chunks
+            # remain alive. [bruce 090227]
+            assert chunk is self.chunks[1]
+            self.chunks = (self.chunks[1], self.chunks[0])
+            pass
+        self._drawer.draw(glpane, drawLevel, highlight_color)
     
     pass # end of class ExternalBondSet
 

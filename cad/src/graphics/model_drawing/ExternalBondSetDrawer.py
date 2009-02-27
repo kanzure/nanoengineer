@@ -18,7 +18,7 @@ import graphics.drawing.drawing_globals as drawing_globals
 ##import foundation.env as env
 from utilities.debug import print_compact_traceback
 
-_DEBUG_DL_REMAKES = False
+_DEBUG_DL_REMAKES = 1#########False
 
 # ==
 
@@ -74,19 +74,16 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             self.invalidate_display_lists()
         return
 
-    def draw(self, glpane, disp, color, drawLevel, highlight_color):
+    def draw(self, glpane, drawLevel, highlight_color):
         """
         Draw all our bonds. Make them look selected if our ExternalBondSet
         says it should look selected (and if glpane._remake_display_lists
         is set).
-
-        Note that color is always used for the bonds we draw, and passing
-        a different color than last time we were drawn (for any reason)
-        causes us to discard and remake our display lists. Watch out for
-        a performance hit from this in cases when color doesn't matter
-        except for this effect (e.g. when drawing self as part of a "selobj
-        candidate", if that ever happens).
         """
+
+        color = self._ebset.bondcolor()
+        disp = self._ebset.get_dispdef(glpane)
+        
         if 0: ##  debug_pref:
             # initial testing stub -- just draw in immediate mode, in the same way
             # as if we were not being used.
@@ -96,7 +93,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             use_outer_colorsorter = True # not sure whether/why this is needed
 
             if highlight_color is not None:
-                color = highlight_color # untested
+                color = highlight_color # untested, also questionable cosmetically
             
             if use_outer_colorsorter:
                 ColorSorter.start(glpane, None)
@@ -118,7 +115,10 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         
         # KLUGE: we'll use disp and color below, even though they come
         # from whichever of our chunks gets drawn first (i.e. occurs first
-        # in Model Tree order). The reasons are:
+        # in Model Tree order). [After changing how we get them, bruce 090227,
+        # that remains true -- it's just also true, now, even when we're
+        # highlighted, fixing some bugs, except in rare cases where we were
+        # never drawn unhighlighted.] The reasons are:
         #
         # - avoids changing current behavior about which chunk disp and color
         #   gets used (changing that is desirable, but nontrivial to design
@@ -197,24 +197,24 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
         matprefs = drawing_globals.glprefs.materialprefs_summary()
 
-        if 0:
-            # this is related to what we ought to do:
-            disp1 = c1.get_dispdef(glpane)
-            disp2 = c2.get_dispdef(glpane)
-            # todo: and both chunk colors too?
-            havelist_data = (disp1, disp2, eltprefs, matprefs, drawLevel)
-        else:
-            # but this is what we actually do for now (see KLUGE comment above)
-            # [bruce 090217]
-            if color is not None:
-                color = tuple(color)
-                    # be sure it's not a Numeric array (so we can avoid bug
-                    # for '==' without having to use same_vals)
-            havelist_data = (disp, color, eltprefs, matprefs, drawLevel)
+        # Note: if we change how color and/or disp from our two chunks are combined
+        # to determine our appearance, or if color of some bonds can be a combination
+        # of color from both chunks, havelist_data might need revision.
+        # For now, AFAIK, we draw with a single color and disp, so the following is
+        # correct regardless of how they are determined (but the determination
+        # ought to be stable to reduce undesirable color changes and DL remakes;
+        # this was improved on 090227 re selection and highlighting).
+        # See also the KLUGE comment above. [bruce 090217/090227]
+        if color is not None:
+            color = tuple(color)
+                # be sure it's not a Numeric array (so we can avoid bug
+                # for '==' without having to use same_vals)
+        havelist_data = (disp, color, eltprefs, matprefs, drawLevel)
         
         # note: havelist_data must be boolean true
 
         # note: in the following, the only difference from the chunk case is:
+        # [comment not yet updated after changes of 090227]
         # missing:
         # - extra_displists
         # - some exception protection

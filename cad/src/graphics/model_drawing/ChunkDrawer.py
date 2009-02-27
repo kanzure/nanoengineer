@@ -775,15 +775,6 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         
         self._chunk._update_bonded_chunks()
         
-        bondcolor = self._chunk.drawing_color()
-            # Note: this is flawed, because this bondcolor depends on which
-            # chunk is drawn first of the two that are connected.
-            # Also, this info is less available during highlighting,
-            # making the code more complex or the color vary then (as now).
-            ##### FIX THIS SOON, since it also causes highlighting
-            # to remake ExternalBondSet display lists, a big slowdown!
-            # [bruce 090227 comment]
-        
         # decide whether external bonds should be frustum-culled.
         frustum_culling_for_external_bonds = \
             not is_chunk_visible and use_frustum_culling()
@@ -836,14 +827,22 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                           # though not yet fully tested
                       non_debug = True,
                       prefs_key = "v1.2/use ExternalBondSets for drawing?" ):
+            # draw ExternalBondSets
             objects_to_draw = self._chunk._bonded_chunks.itervalues()
             objects_are_ExternalBondSets = True
             use_outer_colorsorter = False
-            selColor = None # not used in this case
+            selColor = bondcolor = None # not used in this case (nor is disp)
         else:
+            # draw Bonds (not using display lists; no longer happens by default)
             objects_to_draw = self._chunk.externs
             objects_are_ExternalBondSets = False
             use_outer_colorsorter = True
+            bondcolor = self._chunk.drawing_color()
+                # Note: this choice of bondcolor is flawed, because it depends
+                # on which chunk is drawn first of the two that are connected.
+                # I'm leaving this behavior in place, but revising how it works
+                # in the two cases of which kind of object we draw.
+                # [bruce 090227]
             selColor = self._chunk.picked and env.prefs[selectionColor_prefs_key]
                 # kluge optim of tracked usage: we happen to know
                 # that selColor can only be used if self._chunk.picked;
@@ -859,10 +858,12 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         for bond in objects_to_draw:
             # note: bond might be a Bond, or an ExternalBondSet
             if id(bond) not in repeated_bonds_dict:
-                # BUG: disp and bondcolor depend on self, so the bond appearance
-                # may depend on which chunk draws it first (i.e. on their Model
-                # Tree order). How to fix this is the subject of a current design
-                # discussion. [bruce 070928 comment]
+                # BUG: disp and bondcolor (whether computed here or in EBSet)
+                # depend on self, so the bond appearance may depend on which
+                # chunk draws it first (i.e. on their Model Tree order).
+                # How to fix this is the subject of a current design discussion.
+                # (Even after bruce 090227, since only the implem changed then.)
+                # [bruce 070928 comment]
                 repeated_bonds_dict[id(bond)] = bond
                 if frustum_culling_for_external_bonds:
                     # bond frustum culling test piotr 080401
@@ -874,12 +875,13 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 if objects_are_ExternalBondSets:
                     # bond is an ExternalBondSet; it will test
                     # should_draw_as_picked internally
-                    # (in a better way than just color = selColor).
+                    # (in a better way than just color = selColor),
+                    # and also determine disp and bondcolor internally.
                     # Note that varying color passed here in place of bondcolor
                     # would cause this ExternalBondSet to remake its display
                     # lists, which would slow down redraw after chunk selection
-                    # changes, so don't do it.
-                    bond.draw(glpane, disp, bondcolor, drawLevel,
+                    # changes, so don't do it. [bruce 080702]
+                    bond.draw(glpane, self._chunk, drawLevel,
                               highlight_color = highlight_color)
                 else:
                     # bond is a Bond
