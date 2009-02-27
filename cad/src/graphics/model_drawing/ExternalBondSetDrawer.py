@@ -18,6 +18,8 @@ import graphics.drawing.drawing_globals as drawing_globals
 ##import foundation.env as env
 from utilities.debug import print_compact_traceback
 
+_DEBUG_DL_REMAKES = False
+
 # ==
 
 class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
@@ -74,6 +76,16 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
 
     def draw(self, glpane, disp, color, drawLevel, highlight_color):
         """
+        Draw all our bonds. Make them look selected if our ExternalBondSet
+        says it should look selected (and if glpane._remake_display_lists
+        is set).
+
+        Note that color is always used for the bonds we draw, and passing
+        a different color than last time we were drawn (for any reason)
+        causes us to discard and remake our display lists. Watch out for
+        a performance hit from this in cases when color doesn't matter
+        except for this effect (e.g. when drawing self as part of a "selobj
+        candidate", if that ever happens).
         """
         if 0: ##  debug_pref:
             # initial testing stub -- just draw in immediate mode, in the same way
@@ -220,6 +232,9 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             draw_outside += [self.displist]
         else:
             # self.displist needs to be remade (and then drawn, or also drawn)
+            if _DEBUG_DL_REMAKES:
+                print "remaking %r DL since %r -> %r" % \
+                      (self, self.havelist, havelist_data)
             if not self.havelist:
                 self._havelist_inval_counter += 1
                 # (probably not needed in this class, but needed in chunk,
@@ -230,8 +245,8 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 # print "Regenerating display list for %r (%d)" % \
                 #       (self, env.redraw_counter)
                 match_checking_code = self.begin_tracking_usage()
-                ColorSorter.start(glpane, self.displist, c1.picked and c2.picked)
-                    # not sure whether picked arg needed
+                ColorSorter.start(glpane, self.displist)
+                    # picked arg not needed since draw_now = False in finish
 
             # protect against exceptions while making display list,
             # or OpenGL will be left in an unusable state (due to the lack
@@ -262,7 +277,11 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
 
         for csdl in draw_outside:
             glpane.draw_csdl(csdl,
-                             selected = c1.picked and c2.picked,
+                             selected = self._ebset.should_draw_as_picked(),
+                                 # note: if not wantlist, this doesn't run,
+                                 # so picked appearance won't happen
+                                 # unless caller supplies it in color
+                                 # (which is not equivalent)
                              highlight_color = highlight_color)
         return
     

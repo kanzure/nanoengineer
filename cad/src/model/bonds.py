@@ -2106,8 +2106,11 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
         """
         Should the visual appearance conventions for a selected object
         be used on (all of) self when drawing it?
+
+        @see: same method in ExternalBondSet
         """
-        #bruce 080702 split this out of Chunk._draw_external_bonds
+        #bruce 080702 split this out of Chunk._draw_external_bonds;
+        # ExternalBondSet method of same name has equivalent code as of 090227
         return self.atom1.molecule.picked and self.atom2.molecule.picked
     
     def draw(self, glpane, dispdef, col, detailLevel,

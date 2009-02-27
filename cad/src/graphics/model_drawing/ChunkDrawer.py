@@ -776,7 +776,13 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         self._chunk._update_bonded_chunks()
         
         bondcolor = self._chunk.drawing_color()
-        selColor = env.prefs[selectionColor_prefs_key]
+            # Note: this is flawed, because this bondcolor depends on which
+            # chunk is drawn first of the two that are connected.
+            # Also, this info is less available during highlighting,
+            # making the code more complex or the color vary then (as now).
+            ##### FIX THIS SOON, since it also causes highlighting
+            # to remake ExternalBondSet display lists, a big slowdown!
+            # [bruce 090227 comment]
         
         # decide whether external bonds should be frustum-culled.
         frustum_culling_for_external_bonds = \
@@ -831,12 +837,17 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                       non_debug = True,
                       prefs_key = "v1.2/use ExternalBondSets for drawing?" ):
             objects_to_draw = self._chunk._bonded_chunks.itervalues()
+            objects_are_ExternalBondSets = True
             use_outer_colorsorter = False
-            pass_highlight_color = True
+            selColor = None # not used in this case
         else:
             objects_to_draw = self._chunk.externs
+            objects_are_ExternalBondSets = False
             use_outer_colorsorter = True
-            pass_highlight_color = False
+            selColor = self._chunk.picked and env.prefs[selectionColor_prefs_key]
+                # kluge optim of tracked usage: we happen to know
+                # that selColor can only be used if self._chunk.picked;
+                # this depends on implementation of Bond.should_draw_as_picked
         
         # actually draw them
 
@@ -860,14 +871,24 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                     c1, c2, radius = bond.bounding_lozenge()
                     if not glpane.is_lozenge_visible(c1, c2, radius):
                         continue # skip the bond drawing if culled
-                if bond.should_draw_as_picked():
-                    color = selColor #bruce 080430 cosmetic improvement
-                else:
-                    color = bondcolor
-                if pass_highlight_color:
-                    bond.draw(glpane, disp, color, drawLevel,
+                if objects_are_ExternalBondSets:
+                    # bond is an ExternalBondSet; it will test
+                    # should_draw_as_picked internally
+                    # (in a better way than just color = selColor).
+                    # Note that varying color passed here in place of bondcolor
+                    # would cause this ExternalBondSet to remake its display
+                    # lists, which would slow down redraw after chunk selection
+                    # changes, so don't do it.
+                    bond.draw(glpane, disp, bondcolor, drawLevel,
                               highlight_color = highlight_color)
                 else:
+                    # bond is a Bond
+                    if bond.should_draw_as_picked():
+                        # note, this can differ for different bonds,
+                        # since they connect to different chunks besides self
+                        color = selColor #bruce 080430 cosmetic improvement
+                    else:
+                        color = bondcolor
                     bond.draw(glpane, disp, color, drawLevel)
             continue
         

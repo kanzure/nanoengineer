@@ -222,19 +222,20 @@ class ExternalBondSet(object):
     def should_draw_as_picked(self):
         """
         Should all the bonds in self be drawn as looking selected?
+
+        @see: same named method in class Bond
         """
-        # stub: ask one of our bonds
-        # (kluge: doesn't matter which one, answer depends only on their chunks)
-        # todo: clean this up by defining this directly, duplicating code from
-        # Bond.should_draw_as_picked
-        for bond in self._bonds.itervalues():
-            return bond.should_draw_as_picked()
+        # note: same-named method in class Bond has equivalent code
+        # (after implem revised 090227)
+        # warning: ChunkDrawer has an optim which depends on this
+        # method's semantics; see its selColor assignment.
+        return self.chunks[0].picked and  self.chunks[1].picked
     
     def draw(self, glpane, disp, color, drawLevel, highlight_color = None):
         # todo: this method (and perhaps even our self._drawer attribute)
         # won't be needed once we have the right GraphicsRule architecture)
         self._drawer.draw(glpane, disp, color, drawLevel, highlight_color)
     
-    pass
+    pass # end of class ExternalBondSet
 
 # end
