@@ -80,6 +80,11 @@ from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 class DrawingSet:
     """
     Manage a set of CSDLs to be repeatedly drawn together.
+
+    @note: self.CSDLs is a public member, but readonly for public use.
+           It's a dict of our current CSDLs (mapping csdl.csdl_id to csdl),
+           modified immediately by our methods which change our set of
+           CSDLs.
     """
     def __init__(self, csdl_list = ()):
         """
@@ -94,14 +99,14 @@ class DrawingSet:
         # Could also use id(csdl) as keys, but it's easier to understand with
         # small integer IDs when debugging, and runs twice as fast too.
         self.CSDLs = dict([(csdl.csdl_id, csdl) for csdl in csdl_list])
-            # also can add more later, using addCSDL
+            # client can modify this set later, using various methods
 
         # Cache a GLPrimitiveSet to speed drawing.
         # This must be reset to None whenever we modify self.CSDLs.
-        self.primSet = None
+        self._primSet = None
 
     def destroy(self): #bruce 090218
-        self.primSet = None
+        self._primSet = None
         self.CSDLs = {}
         return
     
@@ -114,10 +119,12 @@ class DrawingSet:
         Add a CSDL to the DrawingSet.
 
         No error if it's already present.
+
+        @see: set_CSDLs, to optimize multiple calls.
         """
         if csdl.csdl_id not in self.CSDLs:
             self.CSDLs[csdl.csdl_id] = csdl
-            self.primSet = None
+            self._primSet = None
             pass
         return
 
@@ -125,9 +132,11 @@ class DrawingSet:
         """
         Remove a CSDL from the DrawingSet.
         Raises KeyError if not present.
+
+        @see: set_CSDLs, to optimize multiple calls.
         """
         del self.CSDLs[csdl.csdl_id]     # may raise KeyError
-        self.primSet = None
+        self._primSet = None
         return
 
     def discardCSDL(self, csdl): # (note: not presently used)
@@ -137,10 +146,71 @@ class DrawingSet:
         """
         if csdl.csdl_id in self.CSDLs:
             del self.CSDLs[csdl.csdl_id]
-            self.primSet = None
+            self._primSet = None
             pass
         return
 
+    # ==
+
+    def set_CSDLs(self, csdldict): #bruce 090226
+        """
+        Change our set of CSDLs (self.CSDLs) to csdldict,
+        which we now own and might modify destructively
+        (though the present implem doesn't do that),
+        doing necessary invalidations or updates,
+        in an optimal way.
+
+        (Both self.CSDLs and csdldict are dictionaries which map
+        csdl.csdl_id to csdl, to represent a set of CSDLs.)
+
+        This is faster than figuring out and doing separate calls
+        of removeCSDL and addCSDL, but is otherwise equivalent.
+
+        It's allowed for csdldict to be empty. Self is not destroyed
+        in that case, though all its CSDLs are removed.
+
+        What we should optimize for: old and new csdldicts are either
+        identical, or similar (large and mostly overlapping).
+        """
+        have = self.CSDLs
+        remove = dict(have) # modified below, by removing what we want,
+            # thus leaving what we don't want
+        add = {} # modified below, by adding what we want but don't have
+            # question: is it more efficient to start with all we want,
+            # then remove what we already have (usually removing fewer)?
+            # in that case we'd start with csdldict, which we own.
+            # guess: it's not more efficient, since add is usually smaller
+            # than half of want (we assume).
+        for csdl_id in csdldict.iterkeys():
+            # we want csdl_id; do we have it?
+            csdl_if_have = remove.pop(csdl_id, None)
+            if csdl_if_have is not None:
+                # we want it and already have it -- don't remove it
+                # (we're done, since we just popped it from remove)
+                # (note that a csdl_id might be 0, so don't do a boolean test)
+                pass
+            else:
+                # we want it but don't have it, so add it
+                # (we optim for this set being small, so we don't
+                #  iterate over items, but look up csdl instead)
+                # (we keep 'add' separate partly so we know whether it's
+                #  empty or not. review: whether it's more efficient to
+                #  set a flag and store csdl directly into self.CSDLs here.
+                #  Note that in future we might have to do more work
+                #  to each one we add, so that revision is probably
+                #  bad then, even if it's ok now.)
+                add[csdl_id] = csdldict[csdl_id]
+            continue
+        # now remove and add are correct
+        if remove:
+            for csdl_id in remove.iterkeys():
+                del have[csdl_id] # modifies self.CSDLs
+            self._primSet = None
+        if add:
+            have.update(add)
+            self._primSet = None
+        return
+    
     # ==
 
     def draw(self, highlighted = False, selected = False,
@@ -158,28 +228,28 @@ class DrawingSet:
         # test cases in test_drawing. [bruce 090223 revision]
                         
         # See if any of the CSDLs has changed (in primitive content, not in
-        # transformControl value) more recently than the primSet and
-        # clear the primSet cache if so.  (Possible optimization: regenerate
-        # only some affected parts of the primSet.)
-        if self.primSet is not None:
+        # transformControl value) more recently than the _primSet and
+        # clear the _primSet cache if so.  (Possible optimization: regenerate
+        # only some affected parts of the _primSet.)
+        if self._primSet is not None:
             for csdl in self.CSDLs.itervalues():
-                if csdl.changed > self.primSet.created:
-                    self.primSet = None
+                if csdl.changed > self._primSet.created:
+                    self._primSet = None
                     break
                 continue
             pass
 
-        # Lazily (re)generate the primSet when needed for drawing.
+        # Lazily (re)generate the _primSet when needed for drawing.
 
         ##### REVIEW: does it copy any coordinates? [i don't think so]
         # if so, fix updateTransform somehow. [bruce 090224 comment]
         
-        if self.primSet is None:
-            self.primSet = GLPrimitiveSet(self.CSDLs.values())
+        if self._primSet is None:
+            self._primSet = GLPrimitiveSet(self.CSDLs.values())
             pass
 
         # Draw the shader primitives and the OpenGL display lists.
-        self.primSet.draw(highlighted, selected,
+        self._primSet.draw(highlighted, selected,
                           patterning, highlight_color, opacity)
 
         return

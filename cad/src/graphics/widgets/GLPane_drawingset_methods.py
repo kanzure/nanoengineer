@@ -26,6 +26,8 @@ from graphics.drawing.DrawingSet import DrawingSet
 from graphics.widgets.GLPane_csdl_collector import GLPane_csdl_collector
 from graphics.widgets.GLPane_csdl_collector import fake_GLPane_csdl_collector
 
+_DEBUG_DSETS = False
+
 # ==
 
 class GLPane_drawingset_methods(object):
@@ -129,6 +131,8 @@ class GLPane_drawingset_methods(object):
             if self._remake_display_lists:
                 self.csdl_collector.setup_for_drawingsets()
                     # sets self.csdl_collector.use_drawingsets, and more
+                    # (note: this is independent of self.permit_shaders,
+                    #  since DrawingSets can be used even if shaders are not)
             pass
 
         if debug_pref("GLPane: highlight atoms in CSDLs?",
@@ -182,16 +186,34 @@ class GLPane_drawingset_methods(object):
         or make sure it will be in a DrawingSet which will be drawn later
         with those options.
         """
-        ##### TODO: call in ExternalBondSetDrawer
         # future: to optimize rigid drag, options (aka "drawing intent")
         # will also include which dynamic transform (if any) to draw it inside.
         csdl_collector = self.csdl_collector
+        intent = (bool(selected), highlight_color) #### for now
+            # note: intent must match the "inverse code" in
+            # self._draw_options(), and must be a suitable
+            # dict key
         if csdl_collector.use_drawingsets:
-            intent = (bool(selected), highlight_color) #### for now 
-            csdl_collector.draw_csdl_in_drawingset(csdl, intent)
+            csdl_collector.draw_csdl_in_drawingset(csdl, intent) #### rename? it only collects, doesn't draw
         else:
-            csdl.draw(selected = selected)
+            options = self._draw_options(intent)
+            csdl.draw(**options)
         return
+
+    def _draw_options(self, intent): #bruce 090226
+        """
+        Given a drawing intent (as created inside self.draw_csdl),
+        return suitable options (as a dict) to be passed to either
+        CSDL.draw or DrawingSet.draw.
+        """
+        selected, highlight_color = intent # must match the code in draw_csdl
+        if highlight_color is None:
+            return dict(selected = selected)
+        else:
+            return dict(selected = selected,
+                        highlighted = True,
+                        highlight_color = highlight_color )
+        pass
     
     def after_drawing_csdls(self, error = False):
         """
@@ -274,6 +296,12 @@ class GLPane_drawingset_methods(object):
         use_kws.update(kws)
         self._call_func_that_draws_model( func2, **use_kws)
         return
+
+    _persistent_dsets = None # None, or a per-instance dict which
+        # maps drawing intent to a persistent DrawingSet for it
+        ##### TODO: make this per-Part, or include Part in intent?
+        # Maybe not (might be a memory leak).
+        # But do include some of drawing_phase (details in another comment).
     
     def _draw_drawingsets(self):
         """
@@ -283,27 +311,98 @@ class GLPane_drawingset_methods(object):
         """
         ### REVIEW: move inside csdl_collector?
         # or into some new cooperating object, which keeps the DrawingSets?
+
+        incremental = debug_pref("GLPane: use incremental DrawingSets?",
+                          Choice_boolean_True, #bruce 090226, since it works
+                          non_debug = True,
+                          prefs_key = "v1.2/GLPane: incremental DrawingSets?" )
+
         csdl_collector = self.csdl_collector
-        for intent, csdls in csdl_collector.get_drawingset_intent_csdl_dicts().items():
-            # stub: make drawingset from these csdls, then draw it based on intent.
-            # - slow since not incremental
-            # - incorrect since transforms are ignored
-            #   (they're only present in gl state when csdl is added!)
-            selected, highlight_color = intent
-            ## print "_draw_drawingsets stub: selected = %r, %d csdls" % (selected, len( csdls ))
-            d = DrawingSet(csdls.itervalues())
-            # future: d.addCSDL(csdl), d.removeCSDL(csdl)
-            if highlight_color is None:
-                d.draw(selected = selected)
-            else:
-                d.draw(selected = selected,
-                       highlighted = True,
-                       highlight_color = highlight_color)
-                pass
-            d.destroy()
+        intent_to_csdls = \
+            csdl_collector.grab_intent_to_csdls_dict()
+            # grab (and reset) the current value of the
+            # dict from intent (about how a csdl's drawingset should be drawn)
+            # to a set of csdls (as a dict from their csdl_id's),
+            # which includes exactly the CSDLs which should be drawn in this
+            # frame (whether or not they were drawn in the last frame).
+            # We own this dict, and can destructively modify it as convenient
+            # (though ownership is needed only in our incremental case below).
+
+        if self._persistent_dsets is None:
+            self._persistent_dsets = {}
+
+        # handle existing dsets/intents
+        if incremental:
+            # - if any prior DrawingSets are completely unused, get rid of them
+            #   (note: this defeats optimizations based on intents which are
+            #    "turned on and off", such as per-Part or per-graphicsMode
+            #    intents)
+            # - for the other prior DrawingSets, figure out csdls to remove and
+            #   add; try to optimize for no change; try to do removals first,
+            #   to save RAM in case cache updates during add are immediate
+            for intent, dset in self._persistent_dsets.items(): # not iteritems!
+                if intent not in intent_to_csdls:
+                    # this intent is not needed at all for this frame
+                    dset.destroy()
+                    del self._persistent_dsets[intent]
+                else:
+                    # this intent is used this frame; update dset.CSDLs
+                    # (using a method which optimizes that into the
+                    #  minimal number of inlined removes and adds)
+                    csdls_wanted = intent_to_csdls.pop(intent)
+                    dset.set_CSDLs( csdls_wanted)
+                    del csdls_wanted # junk now, since set_CSDLs owns it
+                continue
+            # - for completely new intents, make new DrawingSets in a quick way;
+            #   we do this simply by running the non-incremental code outside
+            #   this 'if' statement, but also persisting the new dsets.
+            pass
+        else:
+            # (not incremental)
+            # destroy old drawingsets (in case of runtime changes to this pref)
+            for dset in self._persistent_dsets.values():
+                dset.destroy()
+            self._persistent_dsets = {}
+
+        # handle new intents (incremental) or all intents (non-incremental):
+        # make new DrawingSets for whatever intents remain in intent_to_csdls
+        for intent, csdls in intent_to_csdls.items():
+            del intent_to_csdls[intent]
+                # (this might save temporary ram, depending on python optims)
+            dset = DrawingSet(csdls.itervalues())
+            self._persistent_dsets[intent] = dset
+                # always store them here; remove them later if non-incremental
+            del intent, csdls, dset
+                # notice bug of reusing these below (it happened)
             continue
+
+        del intent_to_csdls
+
+        # draw all current DrawingSets
+        if _DEBUG_DSETS:
+            print
+            print env.redraw_counter
+        for intent, dset in self._persistent_dsets.items():
+            if _DEBUG_DSETS:
+                print "drawing dset with intent %r and %d items, phase %r" % \
+                      (intent, len(dset.CSDLs), self.drawing_phase)
+                ##### TODO: put some of drawing_phase into intent --
+                # at least special cases for 'selobj/preDraw_glselect_dict'
+                # and 'selobj' (could be the same one I guess);
+                # and there are three phases that can all be the main one,
+                # main and two glselect ones.
+            options = self._draw_options(intent)
+            dset.draw(**options)
+            if not incremental:
+                # don't save them any longer than needed, to save RAM
+                # (without this, we'd destroy them all at once near start
+                #  of next frame, using code above)
+                dset.destroy()
+                del self._persistent_dsets[intent]
+            continue
+        
         return
 
-    pass # end of class
+    pass # end of mixin class GLPane_drawingset_methods
 
 # end

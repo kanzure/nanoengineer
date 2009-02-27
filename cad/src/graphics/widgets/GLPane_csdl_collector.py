@@ -72,7 +72,7 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         At the end of the current drawing frame, all csdls passed to this method
         will be added to (or maintained in) an appropriate DrawingSet,
         and all DrawingSets will be drawn, by external code which calls
-        get_drawingset_intent_csdl_dicts.
+        grab_intent_to_csdls_dict.
 
         @param csdl: a CSDL to draw later
         @type csdl: ColorSortedDisplayList
@@ -107,12 +107,20 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         ColorSorter.finish( draw_now = False)
         return csdl
     
-    def get_drawingset_intent_csdl_dicts(self):
+    def grab_intent_to_csdls_dict(self):
         """
-        Return a dict from intent to a dict from csdl.csdl_id to csdl
-        (with intent and csdl having been passed to draw_csdl_in_drawingset).
+        Return (with ownership) to the caller (and reset in self)
+        a dict from intent (about how a csdl's drawingset should be drawn)
+        to a set of csdls (as a dict from their csdl_id's),
+        which includes exactly the CSDLs which should be drawn in this
+        frame (whether or not they were drawn in the last frame).
+
+        The intent and csdl pairs in what we return are just the ones
+        which were passed to draw_csdl_in_drawingset during this frame.
         """
-        return self._drawingset_contents
+        res = self._drawingset_contents
+        self._drawingset_contents = {}
+        return res
 
     pass
 
