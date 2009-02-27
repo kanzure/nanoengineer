@@ -30,10 +30,35 @@ _DEBUG_DSETS = False
 
 # ==
 
+class DrawingSetCache(object): #bruce 090227
+    """
+    A persistent cache of DrawingSets, one for each "drawing intent"
+    passed to draw_csdl.
+    """
+    def __init__(self, cachename, temporary):
+        self.cachename = cachename
+        self.temporary = temporary
+        self.dsets = {} # maps drawing intent to DrawingSet
+    def destroy(self):
+        for dset in self.dsets.values():
+            dset.destroy()
+        self.dsets = {}
+        return
+    pass
+
+# ==
+
 class GLPane_drawingset_methods(object):
     """
-    DrawingSet/CSDL helpers for GLPane_minimal
+    DrawingSet/CSDL helpers for GLPane_minimal, as a mixin class
     """
+    # todo, someday: split our intended mixin-target, GLPane_minimal,
+    # into a base class GLPane_minimal_base which doesn't inherit us,
+    # which we can inherit to explain to pylint that we *do* have a
+    # drawing_phase attribute, and the rest. These need to be in
+    # separate modules to avoid an import cycle. We can't inherit
+    # GLPane_minimal itself -- that is not only an import cycle
+    # but a superclass-cycle! [bruce 090227 comment]
     
     _csdl_collector = None # allocated on demand
 
@@ -99,7 +124,9 @@ class GLPane_drawingset_methods(object):
         """
         return self._csdl_collector is not None
 
-    def before_drawing_csdls(self, bare_primitives = False, cachename = None):
+    _current_drawingset_cache = None
+    
+    def before_drawing_csdls(self, bare_primitives = False):
         """
         Whenever some CSDLs are going to be drawn by self.draw_csdl,
         call this first, draw them, and then call self.after_drawing_csdls.
@@ -111,11 +138,7 @@ class GLPane_drawingset_methods(object):
         to open up a "catchall display list" (an nfr for CSDL) since that
         might lead to nested display list compiles, not allowed by OpenGL.
         """
-        # someday we might take other args, e.g. an "intent map" (related to cachename?)
-        #### TODO: use cachename, and call with it;
-        # issue of using too much ram: all whole-model caches should be the same;
-        # small ones don't matter too much but might be best temporary in case they are not always small;
-        # at least use the same cache in all temp cases.
+        # someday we might take other args, e.g. an "intent map"
         del self.csdl_collector 
         self._csdl_collector_class = GLPane_csdl_collector
             # instantiated the first time self.csdl_collector is accessed
@@ -133,11 +156,12 @@ class GLPane_drawingset_methods(object):
                     # sets self.csdl_collector.use_drawingsets, and more
                     # (note: this is independent of self.permit_shaders,
                     #  since DrawingSets can be used even if shaders are not)
+                self._current_drawingset_cache = self._choose_drawingset_cache()
             pass
 
         if debug_pref("GLPane: highlight atoms in CSDLs?",
                       Choice_boolean_True, #bruce 090225 revised
-                          ##### todo: soon, scrap the pref or make it not non_debug
+                          # maybe: scrap the pref or make it not non_debug
                       non_debug = True,
                       prefs_key = "v1.2/GLPane: highlight atoms in CSDLs?" ):
             if bare_primitives and self._remake_display_lists:
@@ -189,12 +213,14 @@ class GLPane_drawingset_methods(object):
         # future: to optimize rigid drag, options (aka "drawing intent")
         # will also include which dynamic transform (if any) to draw it inside.
         csdl_collector = self.csdl_collector
-        intent = (bool(selected), highlight_color) #### for now
+        intent = (bool(selected), highlight_color)
             # note: intent must match the "inverse code" in
             # self._draw_options(), and must be a suitable
-            # dict key
+            # dict key.
+            # someday: include symbolic "dynamic transform" in intent,
+            # to optimize rigid drag. (see scratch/TransformNode.py)
         if csdl_collector.use_drawingsets:
-            csdl_collector.draw_csdl_in_drawingset(csdl, intent) #### rename? it only collects, doesn't draw
+            csdl_collector.collect_csdl(csdl, intent)
         else:
             options = self._draw_options(intent)
             csdl.draw(**options)
@@ -256,7 +282,8 @@ class GLPane_drawingset_methods(object):
         inside it, e.g. one of the standard functions for drawing the
         entire model (e.g. part.draw or graphicsMode.Draw).
         """
-        self.before_drawing_csdls(**kws) # kws: bare_primitives, cachename
+        self.before_drawing_csdls(**kws) # allowed kws: bare_primitives
+            # todo: just make them explicit keywords of our own.
         error = True
         res = None
         try:
@@ -292,16 +319,19 @@ class GLPane_drawingset_methods(object):
             finally:
                 part.after_drawing_model(error)
             return
-        use_kws = dict(cachename = 'temp') # default kws
-        use_kws.update(kws)
-        self._call_func_that_draws_model( func2, **use_kws)
+        self._call_func_that_draws_model( func2, **kws)
         return
 
-    _persistent_dsets = None # None, or a per-instance dict which
-        # maps drawing intent to a persistent DrawingSet for it
-        ##### TODO: make this per-Part, or include Part in intent?
-        # Maybe not (might be a memory leak).
-        # But do include some of drawing_phase (details in another comment).
+    _dset_caches = None # or map from cachename to persistent DrawingSetCache
+        ### review: make _dset_caches per-Part? Probably not -- might be a big
+        # user of memory or VRAM, and the CSDLs persist so it might not matter
+        # too much. OTOH, Part-switching will be slower without doing this.
+        # Consider doing it only for the last two Parts, or so.
+        # Be sure to delete it for destroyed Parts.
+        #
+        # todo: delete this when deleting an assy, or next using a new one
+        # (not very important -- could reduce VRAM in some cases,
+        #  but won't matter after loading a new similar file)
     
     def _draw_drawingsets(self):
         """
@@ -328,9 +358,48 @@ class GLPane_drawingset_methods(object):
             # We own this dict, and can destructively modify it as convenient
             # (though ownership is needed only in our incremental case below).
 
-        if self._persistent_dsets is None:
-            self._persistent_dsets = {}
+        # set dset_cache to the DrawingSetCache we should use;
+        # if it's temporary, make sure not to store it in any dict
+        if incremental:
+            # figure out (temporary, cachename)
+            cache_before = self._current_drawingset_cache # chosen during before_drawing_csdls
+            cache_after = self._choose_drawingset_cache() # chosen now
+            ## assert cache_after == cache_before
+            if not (cache_after == cache_before):
+                print "bug: _choose_drawingset_cache differs: before %r vs after %r" % \
+                      (cache_before, cache_after)
+            temporary, cachename = cache_before
+            # find or make the DrawingSetCache to use
+            if temporary:
+                dset_cache = DrawingSetCache(cachename, temporary)
+            else:
+                if self._dset_caches is None:
+                    self._dset_caches = {}
+                dset_cache = self._dset_caches.get(cachename)
+                if not dset_cache:
+                    dset_cache = DrawingSetCache(cachename, temporary)
+                    self._dset_caches[cachename] = dset_cache
+                    pass
+                pass
+            pass
+        else:
+            # not incremental:
+            # destroy all old caches (matters after runtime prefs change)
+            if self._dset_caches:
+                for cachename, cache in self._dset_caches:
+                    cache.destroy()
+                self._dset_caches = None
+                pass
+            # make a new DrawingSetCache to use
+            temporary, cachename = True, None
+            dset_cache = DrawingSetCache(cachename, temporary)
+            pass
+        del temporary, cachename
 
+        persistent_dsets = dset_cache.dsets
+            # review: consider refactoring to turn code around all uses of this
+            # into methods in DrawingSetCache
+        
         # handle existing dsets/intents
         if incremental:
             # - if any prior DrawingSets are completely unused, get rid of them
@@ -340,11 +409,11 @@ class GLPane_drawingset_methods(object):
             # - for the other prior DrawingSets, figure out csdls to remove and
             #   add; try to optimize for no change; try to do removals first,
             #   to save RAM in case cache updates during add are immediate
-            for intent, dset in self._persistent_dsets.items(): # not iteritems!
+            for intent, dset in persistent_dsets.items(): # not iteritems!
                 if intent not in intent_to_csdls:
                     # this intent is not needed at all for this frame
                     dset.destroy()
-                    del self._persistent_dsets[intent]
+                    del persistent_dsets[intent]
                 else:
                     # this intent is used this frame; update dset.CSDLs
                     # (using a method which optimizes that into the
@@ -357,12 +426,6 @@ class GLPane_drawingset_methods(object):
             #   we do this simply by running the non-incremental code outside
             #   this 'if' statement, but also persisting the new dsets.
             pass
-        else:
-            # (not incremental)
-            # destroy old drawingsets (in case of runtime changes to this pref)
-            for dset in self._persistent_dsets.values():
-                dset.destroy()
-            self._persistent_dsets = {}
 
         # handle new intents (incremental) or all intents (non-incremental):
         # make new DrawingSets for whatever intents remain in intent_to_csdls
@@ -370,7 +433,7 @@ class GLPane_drawingset_methods(object):
             del intent_to_csdls[intent]
                 # (this might save temporary ram, depending on python optims)
             dset = DrawingSet(csdls.itervalues())
-            self._persistent_dsets[intent] = dset
+            persistent_dsets[intent] = dset
                 # always store them here; remove them later if non-incremental
             del intent, csdls, dset
                 # notice bug of reusing these below (it happened)
@@ -381,27 +444,43 @@ class GLPane_drawingset_methods(object):
         # draw all current DrawingSets
         if _DEBUG_DSETS:
             print
-            print env.redraw_counter
-        for intent, dset in self._persistent_dsets.items():
+            print env.redraw_counter ,
+            print "  cache %r%s" % (dset_cache.cachename,
+                                     dset_cache.temporary and " (temporary)" or "") ,
+            print "  (for phase %r)" % self.drawing_phase
+            pass
+        for intent, dset in persistent_dsets.items():
             if _DEBUG_DSETS:
-                print "drawing dset with intent %r and %d items, phase %r" % \
-                      (intent, len(dset.CSDLs), self.drawing_phase)
-                ##### TODO: put some of drawing_phase into intent --
-                # at least special cases for 'selobj/preDraw_glselect_dict'
-                # and 'selobj' (could be the same one I guess);
-                # and there are three phases that can all be the main one,
-                # main and two glselect ones.
+                print "drawing dset, intent %r, %d items" % \
+                      (intent, len(dset.CSDLs), )
+                pass
             options = self._draw_options(intent)
             dset.draw(**options)
             if not incremental:
                 # don't save them any longer than needed, to save RAM
                 # (without this, we'd destroy them all at once near start
-                #  of next frame, using code above)
+                #  of next frame, using code above, or later in this frame)
                 dset.destroy()
-                del self._persistent_dsets[intent]
+                del persistent_dsets[intent]
             continue
+
+        if dset_cache.temporary:
+            # dset_cache is guaranteed not to be in any dict we have
+            dset_cache.destroy()
         
         return
+
+    def _choose_drawingset_cache(self): #bruce 090227
+        """
+        Based on self.drawing_phase, decide which cache to keep DrawingSets in
+        and whether it should be temporary.
+
+        @return: (temporary, cachename)
+        @rtype: (bool, string)
+
+        [overridden in subclasses of the class we mix into]
+        """
+        return False, None
 
     pass # end of mixin class GLPane_drawingset_methods
 

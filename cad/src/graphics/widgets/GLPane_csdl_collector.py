@@ -63,11 +63,13 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         ColorSorter.start(self._glpane, self.bare_primitives)
         return
     
-    def draw_csdl_in_drawingset(self, csdl, intent):
+    def collect_csdl(self, csdl, intent):
         """
         When self.use_drawingsets is set, model component drawing code which
         wants to draw a CSDL should pass it to this method rather than
         drawing it directly.
+
+        This method just collects it into a dict based on intent.
 
         At the end of the current drawing frame, all csdls passed to this method
         will be added to (or maintained in) an appropriate DrawingSet,
@@ -116,7 +118,7 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         frame (whether or not they were drawn in the last frame).
 
         The intent and csdl pairs in what we return are just the ones
-        which were passed to draw_csdl_in_drawingset during this frame.
+        which were passed to collect_csdl during this frame.
         """
         res = self._drawingset_contents
         self._drawingset_contents = {}

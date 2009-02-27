@@ -446,22 +446,48 @@ class GLPane_rendering_methods(GLPane_image_methods):
             if env.prefs.get(debug_prints_prefs_key, False):
                 print "glpane end_tracking_usage" #bruce 070110
         return
+    
+    drawing_phase = '?' # set to different fixed strings for different drawing phases
+        # [new feature, bruce 070124] [also defined in GLPane_minimal]
+        #
+        # WARNING: some of the strings are hardcoded in condition checks in
+        # various places in the code. If spelling is changed, or new strings are
+        # added, or the precise drawing covered by each string is modified,
+        # all existing uses need to be examined for possibly needing changes.
+        # (Ideally, this would be cleaned up by defining in one place the
+        #  possible values, as symbolic constants, and the functions for testing
+        #  aspect of interest from them, e.g. whether to draw shader primitives,
+        #  whether to draw OpenGL display lists, which DrawingSet cache to use.)
+        # [bruce 090227 comment]
+    
+    drawing_globals.drawing_phase = drawing_phase # KLUGE (as is everything about drawing_globals)
+    
+    def set_drawing_phase(self, drawing_phase): 
+        """
+        Set self.drawing_phase to the specified value, and do any updates
+        this requires (presently, copy it into drawing_globals.drawing_phase).
 
-    drawing_phase = '?' # new feature, bruce 070124 (set to different fixed strings for different drawing phases)
-    drawing_globals.drawing_phase = drawing_phase
-    def set_drawing_phase(self, phase): # Russ 081208: Encapsulate setting, to tell shaders as well.
-        self.drawing_phase = phase
-        drawing_globals.drawing_phase = phase
-        # For now, this is only needed during draw (or draw-like) calls which might run drawing code in the exprs module.
-        # (Thus it's not needed around internal drawing calls like self.drawcompass, whose drawing code can't use the exprs module.)
-        # The purpose is to let some of the drawing code behave differently in these different phases.
+        Various internal code looks at self.drawing_phase (and/or
+        drawing_globals.drawing_phase) so it can behave differently during
+        different drawing phases. See code and code comments for details, and
+        a list of permitted values of drawing_phase and what they mean.
+
+        @note: setting self.drawing_phase directly (not using this method)
+            would cause bugs.
+        """
+        # Russ 081208: Encapsulate setting, to tell shaders as well.
+        self.drawing_phase = drawing_phase
+        drawing_globals.drawing_phase = drawing_phase
+        # Note, there are direct calls of GL_SELECT drawing not from class
+        # GLPane, which ought to set this but don't. (They have a lot of other
+        # things wrong with them too, especially duplicated code). The biggest
+        # example is for picking jigs. During those calls, this attr will
+        # probably equal '?' -- all the draw calls here reset it to that right
+        # after they're done. (## todo: We ought to set it to that at the end of
+        # paintGL as well, for safety.)
         #
-        # Note, there are direct calls of GL_SELECT drawing not from class GLPane, which now need to set this but don't.
-        # (They have a lot of other things wrong with them too, esp. duplicated code). Biggest example is for picking jigs.
-        # During those calls, this attr will probably equal '?' -- all the draw calls here reset it to that right after they're done.
-        # (##e We ought to set it to that at the end of paintGL as well, for safety.)
-        #
-        # Explanation of possible values: [###e means explan needs to be filled in]
+        # Explanation of possible values: [### means explan needs to be filled in]
+        # - '?' -- drawing at an unexpected time, or outside of paintGL
         # - 'glselect' -- only used if mode requested object picking
         #              -- Only draws Display Lists since the glSelect stack is not available to shaders.
         #              -- glRenderMode(GL_SELECT) in effect; reduced projection matrix
@@ -469,12 +495,62 @@ class GLPane_rendering_methods(GLPane_image_methods):
         #              -- Only draws shader primitives, and reads the glnames back as pixel colors.
         #              -- glRenderMode(GL_RENDER) in effect; reduced projection matrix and viewport (one pixel.)
         # - 'main' -- normal drawing, main coordinate system for model (includes trackball/zoom effect)
-        # - 'main/Draw_after_highlighting' -- normal drawing, but after selobj is drawn ###e which coord system?
-        # - 'main/draw_glpane_label' -- ###e
+        # - 'main/Draw_after_highlighting' -- normal drawing, but after selobj is drawn ### which coord system?
+        # - 'main/draw_glpane_label' -- ###
+        # - 'overlay' -- ###
         # - 'selobj' -- we're calling selobj.draw_in_abs_coords (not drawing the entire model), within same coordsys as 'main'
-        # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ###e which coord system, incl projection??
+        # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ### which coord system, incl projection??
         # [end]
         return
+
+    _drawingset_cachename_from_drawing_phase = {
+        '?': 'main', # theory: used by event methods that draw entire model for
+            # selection, e.g. jigGLselect (sp?); should clean them up #### review
+        'glselect': 'main',
+        'glselect_glname_color': 'main',
+        'main': 'main',
+        'main/Draw_after_highlighting': 'main/Draw_after_highlighting',
+        'main/draw_glpane_label': 'temp',
+        'overlay': 'temp',
+        'selobj': 'selobj',
+        'selobj/preDraw_glselect_dict': 'temp',
+     }
+
+    _drawingset_temporary_cachenames = {
+        'temp': True
+     }
+    def _choose_drawingset_cache(self): #bruce 090227
+        """
+        Based on self.drawing_phase, decide which cache to keep DrawingSets in
+        and whether it should be temporary.
+
+        @return: (temporary, cachename)
+        @rtype: (bool, string)
+
+        [overrides a method defined in a mixin of a superclass
+         of the class we mix into]
+        """
+        # Note: mistakes in what we return will reduce graphics performance,
+        # and could increase VRAM usage, but have no effect on what is drawn.
+
+        # About the issue of using too much ram: all whole-model caches should
+        # be the same; small ones don't matter too much, but might be best
+        # temporary in case they are not always small;
+        # at least use the same cache in all temp cases.
+        
+        drawing_phase = self.drawing_phase
+        if drawing_phase == '?':
+            print_compact_stack("warning: _choose_drawingset_cache during '?' -- should clean up: ") #######
+        cachename = self._drawingset_cachename_from_drawing_phase.get(drawing_phase)
+        if cachename is None:
+            cachename = 'temp'
+            print "bug: unknown drawing_phase %r, using cachename %r" % \
+                  (drawing_phase, cachename)
+            assert self._drawingset_temporary_cachenames.get(cachename, False) == True
+            pass
+        temporary = self._drawingset_temporary_cachenames.get(cachename, False)
+        return (temporary, cachename)
+        
 
     _cached_bg_image_comparison_data = None
         # note: for the image itself, see attrs of class GLPane_image_methods
