@@ -943,20 +943,44 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # draw transparent things (e.g. Build Atoms water surface,
         # parts of Plane or ESPImage nodes)
         # [bruce 080919 bugfix: do this inside the stereo loop]
+
+        self.call_Draw_after_highlighting(self.graphicsMode)
+        return
+
+    def call_Draw_after_highlighting(self, graphicsMode, pickCheckOnly = False):
+        """
+        Call graphicsMode.Draw_after_highlighting() in the correct way
+        (with appropriate drawing_phase), with exception protection,
+        and return whatever it returns. Pass pickCheckOnly.
+
+        @note: calls of this should be inside a stereo loop, to be correct.
+
+        @note: event processing or drawing code should use this method to call
+            graphicsMode.Draw_after_highlighting(), rather than
+            calling it directly. But implementations of Draw_after_highlighting
+            itself should call their superclass versions directly.
+        """
+        # note: some existing calls of this are buggy since not in a stereo
+        # loop. They are bad in other ways too. See comment there for more info.
+        
         ### REVIEW: any need for _call_func_that_draws_model? I guess not now,
-        # but revise if we ever want to use csdls with objects drawn by this.
-        # [bruce 090219 comment]
+        # but revise if we ever want to use csdls with objects drawn by this,
+        # in any GraphicsMode. [bruce 090219 comment]
+        self.set_drawing_phase('main/Draw_after_highlighting')
         try:
-            self.set_drawing_phase('main/Draw_after_highlighting')
-            self.graphicsMode.Draw_after_highlighting()
+            res = self.graphicsMode.Draw_after_highlighting( pickCheckOnly)
                 # e.g. draws water surface in Build mode [###REVIEW: ok inside stereo loop?],
                 # or transparent parts of ESPImage or Plane (must be inside stereo loop).
                 # Note: this is called in the main model coordinate system
                 # (perhaps modified for current stereo image),
                 # just like self.graphicsMode.Draw() [bruce 061208/080919 comment]
-        finally:
-            self.set_drawing_phase('?')
-        return
+        except:
+            res = None
+            msg = "bug in %r.Draw_after_highlighting ignored" % (graphicsMode,)
+            print_compact_traceback(msg + ": ")
+            pass
+        self.set_drawing_phase('?')
+        return res
 
     def validate_selobj_and_hicolor(self): #bruce 070919 split this out, slightly revised behavior, and simplified code
         """

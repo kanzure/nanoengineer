@@ -1045,12 +1045,12 @@ class BuildCrystal_Command(basicMode):
             self.o.assy.draw(self.o)
         return
 
-    def Draw_after_highlighting(self): 
+    def Draw_after_highlighting(self, pickCheckOnly = False): 
         """
         Only draw those translucent parts of the whole model when we are requested to draw the whole model
         """
         if self.showFullModel:
-            basicMode.Draw_after_highlighting(self)
+            return basicMode.Draw_after_highlighting(self, pickCheckOnly)
         return
 
     def griddraw(self):

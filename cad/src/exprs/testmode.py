@@ -128,7 +128,7 @@ class testmode_GM(_superclass_GM):
         ## _superclass_GM.Draw_after_highlighting(self, pickCheckOnly) # let testdraw do this if if wants to
         import exprs.testdraw as testdraw
         try:
-            testdraw.Draw_after_highlighting(self, pickCheckOnly, self.o, _superclass_GM)
+            return testdraw.Draw_after_highlighting(self, pickCheckOnly, self.o, _superclass_GM)
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.Draw_after_highlighting ignored: ")

@@ -271,7 +271,10 @@ class GLPane_drawingset_methods(object):
         del self._csdl_collector_class # expose class default value
         return
 
-    def _call_func_that_draws_model(self, func, **kws):
+    def _call_func_that_draws_model(self,
+                                    func,
+                                    bare_primitives = None,
+                                    drawing_phase = None ):
         """
         Call func() between calls of self.before_drawing_csdls(**kws)
         and self.after_drawing_csdls(). Return whatever func() returns
@@ -281,9 +284,21 @@ class GLPane_drawingset_methods(object):
         func should usually be something which calls before/after_drawing_model
         inside it, e.g. one of the standard functions for drawing the
         entire model (e.g. part.draw or graphicsMode.Draw).
+
+        @param bare_primitives: passed to before_drawing_csdls.
+
+        @param drawing_phase: if provided, drawing_phase must be '?'
+            on entry; we'll set it as specified only during this call.
+            If not provided, we don't check it or change it
+            (typically, in that case, caller ought to do something
+            like we do itself).
         """
-        self.before_drawing_csdls(**kws) # allowed kws: bare_primitives
-            # todo: just make them explicit keywords of our own.
+        # todo: convert some older callers to pass drawing_phase
+        # rather than implementing their own similar behavior.
+        if drawing_phase is not None:
+            assert self.drawing_phase == '?'
+            self.set_drawing_phase(drawing_phase)
+        self.before_drawing_csdls(bare_primitives = bare_primitives)
         error = True
         res = None
         try:
@@ -293,9 +308,11 @@ class GLPane_drawingset_methods(object):
             # (note: this is sometimes what does the actual drawing
             #  requested by func())
             self.after_drawing_csdls( error) 
+            if drawing_phase is not None:
+                self.set_drawing_phase('?')
         return res
 
-    def _call_func_that_draws_objects(self, func, part, **kws):
+    def _call_func_that_draws_objects(self, func, part, bare_primitives = None):
         """
         Like _call_func_that_draws_model,
         but also wraps func with the part methods
@@ -319,7 +336,7 @@ class GLPane_drawingset_methods(object):
             finally:
                 part.after_drawing_model(error)
             return
-        self._call_func_that_draws_model( func2, **kws)
+        self._call_func_that_draws_model( func2, bare_primitives = bare_primitives)
         return
 
     _dset_caches = None # or map from cachename to persistent DrawingSetCache

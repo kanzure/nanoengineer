@@ -2006,9 +2006,8 @@ class Node( StateMixin):
         drew something. 
         @rtype: boolean
         
-        @see: GraphicsMode.Draw_after_highlighting() which returns this method
-        @see: Group.draw_after_highlighting()
-        @see: Plane.draw_after_highlighting()     
+        @see: GraphicsMode.Draw_after_highlighting() which calls this method
+              [note difference in capitalization and arg signature]
         """
         #Ninad 2008-06-20: This is a new API method that completely 
         #replaces the implementation originally in method Utility._drawESPImage().

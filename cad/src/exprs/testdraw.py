@@ -228,8 +228,7 @@ def Draw(mode, glpane, super): # called by testmode.Draw
 
 def Draw_after_highlighting(mode, pickCheckOnly, glpane, super):
     ## print "testdraw.Draw_after_highlighting(pickCheckOnly = %r)" % (pickCheckOnly,) # pickCheckOnly is True once when I click
-    super.Draw_after_highlighting(mode, pickCheckOnly)
-    return
+    return super.Draw_after_highlighting(mode, pickCheckOnly)
 
 # ==
 

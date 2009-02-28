@@ -1,15 +1,15 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author: Ninad
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 ninad 2007-05-21: Created. 
 ninad 2007-06-03: Implemented Plane Property Manager
 piotr 2008-06-13: Added image reading from MMP file.
 
-This file also used to contain DirectionArrow and  ResizeHandle classes. 
+This file also used to contain DirectionArrow and ResizeHandle classes. 
 Those were moved to their own module on Aug 20 and Oct 17, 2007 respt.
 
 """
@@ -350,12 +350,10 @@ class Plane(ReferenceGeometry):
         @type  highlighted: bool
         
         @see: self.draw_after_highlighting() which draws things like filled 
-        plane, grids etc after the main drawing code is finished.
+            plane, grids etc after the main drawing code is finished.
         """
-        
-        #IMPORTANT NOTE: See also self.draw_after_highlighting() which draws 
-        #some more things such as filled plane etc after the main drawing code
-        #is finished. It makes sure that plane get selected even when you click
+        #IMPORTANT NOTE: self.draw_after_highlighting makes sure that
+        #plane get selected even when you click
         #on the filled portion of it. -- Ninad 2008-06-20
         
         glPushMatrix()
@@ -404,7 +402,7 @@ class Plane(ReferenceGeometry):
         glPopMatrix()
         return
     
-    def draw_after_highlighting(self,  glpane, dispdef, pickCheckOnly = False):
+    def draw_after_highlighting(self, glpane, dispdef, pickCheckOnly = False):
         """
         Things to draw after highlighting. Subclasses can override this 
         method. This API method ensures that, when user clicks on the filled
@@ -421,7 +419,6 @@ class Plane(ReferenceGeometry):
                  drew something. 
         @rtype: boolean
         
-        @see: GraphicsMode.Draw_after_highlighting()
         @see: Node.draw_after_highlighting() which is overridden here   
         """      
         #This implementation fixes bug 2900

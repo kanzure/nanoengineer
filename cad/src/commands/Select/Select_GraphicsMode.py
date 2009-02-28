@@ -778,7 +778,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             if obj is None: # a "highlighted" jig [i think this comment is
                             #misleading, it might really be nothing -- bruce 060726]
                 obj = self.get_jig_under_cursor(event) # [this can be slow -- bruce comment 070322]
-                if 0 and env.debug():
+                if env.debug(): #######
                     print "debug fyi: get_jig_under_cursor returns %r" % (obj,) # [bruce 060721]
             pass
 
@@ -1114,8 +1114,8 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             glEnable(GL_CLIP_PLANE0)
             def func():
                 assy.draw(self.o)
-            self.o._call_func_that_draws_model( func)
-            self.Draw_after_highlighting(pickCheckOnly = True)
+            self.o._call_func_that_draws_model( func, drawing_phase = 'main')
+            self.o.call_Draw_after_highlighting(self, pickCheckOnly = True)
             glDisable(GL_CLIP_PLANE0)
         except:
             # BUG: this except clause looks wrong. It doesn't return,
@@ -1123,7 +1123,8 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             # [bruce 080917 comment]
             
             # Restore Model view matrix, select mode to render mode
-            msg = "exception in mode.Draw_after_highlighting() during GL_SELECT; ignored; restoring modelview matrix: "
+            msg = "exception in code around mode.Draw_after_highlighting() " \
+                  "during GL_SELECT; ignored; restoring modelview matrix: "
             print_compact_traceback(msg + ": ")
             glPopMatrix()
             glRenderMode(GL_RENDER)
@@ -1382,11 +1383,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         glMatrixMode(GL_MODELVIEW)
         glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
 
-        if self.Draw_after_highlighting(pickCheckOnly = True):
+        if self.o.call_Draw_after_highlighting(self, pickCheckOnly = True):
             # Only when we have translucent planes drawn
             def func():
                 self.o.assy.draw(self.o)
-            self.o._call_func_that_draws_model( func)
+            self.o._call_func_that_draws_model( func, drawing_phase = 'main')
             pass
 
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
@@ -1411,15 +1412,18 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
         # BUG: both methods like this in this class are wrong when left/right
         # stereo is enabled. The best fix would be to remove them completely,
-        # since they should ever have existed at all, since general highlighting
+        # since they should never have existed at all, since general highlighting
         # code handles jigs. Unfortunately removing them is hard --
         # for how to do it, see comment near the call of this method
         # in this file. [bruce 080917 comment]
 
+        # this method has two calls, one in this file and one in commands/Move/Move_GraphicsMode
+        # [bruce 090227 comment]
+
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
 
-        gz = self._calibrateZ(wX, wY) # note: this redraws the entire model
+        gz = self._calibrateZ(wX, wY) # note: this sometimes redraws the entire model
         if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
             return False
 
@@ -1446,8 +1450,8 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             glEnable(GL_CLIP_PLANE0)
             def func():
                 assy.draw(self.o)
-            self.o._call_func_that_draws_model( func)
-            self.Draw_after_highlighting(pickCheckOnly = True)
+            self.o._call_func_that_draws_model( func, drawing_phase = 'main')
+            self.o.call_Draw_after_highlighting(self, pickCheckOnly = True)
             glDisable(GL_CLIP_PLANE0)
         except:
             # Restore Model view matrix, select mode to render mode

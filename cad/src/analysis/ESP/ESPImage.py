@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 ESPImage.py - display an Electrostatic Potential Image (or any OpenGL texture)
 
@@ -8,7 +8,7 @@ the 3d model space.
 
 @author: Huaicai, Bruce
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History: 
 
@@ -396,8 +396,7 @@ class ESPImage(RectGadget):
     def draw(self, glpane, dispdef):
         """
         Does nothing. All the drawing is done after the main drawing code is 
-        done. (i.e. in self.draw_after_highlighting(). 
-        @see: self.draw_after_highlighting()
+        done. (i.e. in self.draw_after_highlighting()). 
         """
         pass
     
@@ -410,9 +409,6 @@ class ESPImage(RectGadget):
         drawing code is finished drawing.) This method ensures that the 
         ESP image jig gets selected even when you click inside the 
         rectangular box (i.e. not just along the edges of the box).
-        @see: GraphicsMode.Draw_after_highlighting()
-        @see: Node.draw_after_highlighting()
-        @see: Plane.draw_after_highlighting()
         """
         anythingDrawn = False
         if self.hidden:

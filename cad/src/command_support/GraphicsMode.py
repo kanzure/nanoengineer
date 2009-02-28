@@ -493,11 +493,12 @@ class basicGraphicsMode(GraphicsMode_API):
         UPDATE 2008-06-20: Another example use of this method:
         Used for selecting a Reference Plane when user clicks inside the
         filled plane (i.e. not along the edges).
-        See new API method Node.draw_after_highlighthing
+        See new API method Node.draw_after_highlighting
+        [note capitalization and arg signature difference]
         which is called here. It fixes bug 2900--  Ninad ]
 
-        @see: Plane.draw_after_highlighthing()
-        @see: Node.draw_after_highlighitng()
+        @see: Plane.draw_after_highlighting()
+        @see: Node.draw_after_highlighting()
         """
         return self.o.assy.part.topnode.draw_after_highlighting(
             self.glpane,

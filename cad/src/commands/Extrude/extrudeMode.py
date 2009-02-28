@@ -1742,13 +1742,13 @@ class extrudeMode(basicMode):
         return # from Draw
 
     ## Added this method to fix bug 1043 [Huaicai 10/04/05]
-    def Draw_after_highlighting(self):
+    def Draw_after_highlighting(self, pickCheckOnly = False):
         """
         Only draw those translucent parts of the whole model when we are
         requested to draw the whole model
         """
         if self.show_entire_model:
-            basicMode.Draw_after_highlighting(self)
+            return basicMode.Draw_after_highlighting(self, pickCheckOnly)
         return
 
     call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes bug 971]

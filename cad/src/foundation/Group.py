@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Group.py -- Class (or superclass) for all non-leaf nodes in the
 internal model tree of Nodes.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -1328,7 +1328,7 @@ class Group(NodeWithAtomContents):
         self.draw_begin(glpane, dispdef)
         try:
             for ob in self.members: ## [:]:
-                ob.draw(glpane, dispdef) #see also self.draw_after_highlighting()
+                ob.draw(glpane, dispdef) #see also self.draw_after_highlighting
             # Check: Do they actually use dispdef? I know some of them 
             # sometimes circumvent it (i.e. look directly at outermost one).
             # Todo: I might like to get them to honor it, and generalize
@@ -1349,10 +1349,7 @@ class Group(NodeWithAtomContents):
         """
         Things to draw after highlighting. See superclass method for more info.
         @see: self.draw()
-        @see: GraphicsMode.Draw_after_highlighting()
         @see: Node.draw_after_highlighting() which this overrides
-        @see: Plane.draw_after_highlighting()
-        @see: ESPImage.draw_after_highlighting()
         """
         anythingDrawn = False
 

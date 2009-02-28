@@ -361,7 +361,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         -- just a hack for Build mode's water surface. Could be used for 
         transparent drawing in general.]
         """
-        _superclass.Draw_after_highlighting(self, pickCheckOnly) #Draw possible other translucent objects. [huaicai 9/28/05]
+        res = _superclass.Draw_after_highlighting(self, pickCheckOnly) #Draw possible other translucent objects. [huaicai 9/28/05]
         
         glDepthMask(GL_FALSE)
             # disable writing the depth buffer, so bareMotion selobj check measures depths behind it,
@@ -372,7 +372,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #  but ok then, since water was drawn last and bareMotion had no depth-buffer pixel check.)
         self.surface() 
         glDepthMask(GL_TRUE)
-        return
+        return res
         
     def surface(self):
         """

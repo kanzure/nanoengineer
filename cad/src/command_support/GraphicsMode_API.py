@@ -87,7 +87,7 @@ class GraphicsMode_API(object):
         # [bruce 081223 comment]
         return
 
-    def Draw_after_highlighting(self):
+    def Draw_after_highlighting(self, pickCheckOnly = False):
         return
 
     def draw_overlay(self): # misnamed
