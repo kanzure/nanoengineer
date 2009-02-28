@@ -312,6 +312,13 @@ class GLPane_drawingset_methods(object):
                 self.set_drawing_phase('?')
         return res
 
+    def set_drawing_phase(self, drawing_phase):
+        """
+        [overridden in subclasses of the class we mix into;
+         see those for doc]
+        """
+        return
+
     def _call_func_that_draws_objects(self, func, part, bare_primitives = None):
         """
         Like _call_func_that_draws_model,
