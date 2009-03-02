@@ -153,7 +153,7 @@ Russ 090106: Design description file created.
 # <line 0>
 # ================================================================
 # Note: if texture_xforms is off, a #define N_CONST_XFORMS array dimension is
-# prepended to the following.  The #version statement must precede it.
+# prepended to the following.  The #version statement precedes it.
 cylinderVertSrc = """
 // Vertex shader program for cylinder primitives.
 // 
@@ -162,17 +162,17 @@ cylinderVertSrc = """
 // XXX Start by copying a lot of stuff from the sphere shaders, factor later.
 
 // Debugging aid; fills in *the rest* of the drawing pattern pixels.
-// (Won't work on nVidia 7000's where return can't be in a conditional.)
+// (Will not work on nVidia 7000s where return can not be in a conditional.)
 ///This fails on MBP/8600. Upper-cased, says 'DISCARD' : undeclared identifier.
 ///#define discard {gl_FragColor = var_basecolor; return;}
 
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform int draw_for_mouseover; // 0:use normal color, 1:glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
-#define DS_NORMAL 0
-#define DS_OVERRIDE_COLOR 1
-#define DS_PATTERN 2
-#define DS_HALO 3
+const int DS_NORMAL = 0;
+const int DS_OVERRIDE_COLOR = 1;
+const int DS_PATTERN = 2;
+const int DS_HALO = 3;
 uniform vec4 override_color;    // Color for selection or highlighted drawing.
 uniform int perspective;        // 0:orthographic, 1:perspective.
 uniform float ndc_halo_width;   // Halo width in normalized device coords.
@@ -200,23 +200,33 @@ attribute vec4 glname_color;    // Mouseover id (glname) as RGBA for drawing.
 // Varying outputs, interpolated in the pipeline to the fragment (pixel) shader.
 // The varying qualifier can be used only with float, floating-point vectors,
 // matrices, or arrays of these.  Structures cannot be varying.
-varying vec3 var_ray_vec; // Vertex dir vec (pixel sample vec in frag shader.)
-varying vec3 var_view_pt;       // Transformed view point.
-varying float var_visible;      // What is visible from the viewpoint.
-#define VISIBLE_NOTHING 0.0
-#define VISIBLE_BARREL_ONLY 1.0
-#define VISIBLE_ENDCAP_ONLY 2.0
-#define VISIBLE_ENDCAP_AND_BARREL 3.0
-varying float var_visible_endcap; // 0:first endcap visible, 1:second endcap.
+//
+// The nVidia 7000 series (and maybe other older graphics chips), has 32
+// interpolators for varyings, but they are organized as 8 vec4s, so we have to
+// pack some things together.  Enumerated as slot-number(n-elements) below.
+varying vec4 var_pack1;       // 1(4), var_ray_vec + var_visible_endcap.
+vec3 var_ray_vec; // Vertex direction vector (pixel sample vec in frag shader.)
+int var_visible_endcap;      // 0:first endcap visible, 1:second endcap.
+
+varying vec4 var_pack2;       // 2(4), var_view_pt + var_visibility_type.
+vec3 var_view_pt;             // Transformed view point.
+int var_visibility_type;      // What is visible from the viewpoint.
+const int VISIBLE_NOTHING = 0;
+const int VISIBLE_BARREL_ONLY = 1;
+const int VISIBLE_ENDCAP_ONLY = 2;
+const int VISIBLE_ENDCAP_AND_BARREL = 3;
 
 // Cylinder data.
-varying vec3 var_endpts[2];     // Transformed cylinder endpoints.
-varying float var_radii[2];     // Transformed cylinder radii
-varying float var_halo_radii[2];// Halo radius at transformed endpt Z depth.
-varying vec4 var_basecolor;     // Vertex color.
+varying vec3 var_endpts[2];   // 3,4(3) Transformed cylinder endpoints.
+
+varying vec4 var_pack3;       // 5(4) var_radii[2] + var_halo_radii[2];
+float var_radii[2];           // Transformed cylinder radii.
+float var_halo_radii[2];      // Halo radii at transformed endpt Z depth.
+
+varying vec4 var_basecolor;   // 6(4) Vertex color.
 
 // Debugging data.
-varying vec2 var_input_xy;      // Drawing pattern billboard vertex.
+varying vec2 var_input_xy;   // 7(2) Drawing pattern billboard vertex.
 
 // Vertex shader main procedure.
 void main(void) {
@@ -348,7 +358,6 @@ void main(void) {
 
   float vp_axis_proj_len; // Used for perspective only.
   bool vp_between_endcaps;
-  int visible_endcap;
   if (perspective == 1) {
 
     // (Note: axis_line_dir vector is normalized, viewpt to endpt vec is not.)
@@ -356,7 +365,7 @@ void main(void) {
     vp_between_endcaps = vp_axis_proj_len >= 0.0 &&       // First endpoint.
                          vp_axis_proj_len <= axis_length; // Second endpoint.
     // (Only valid when NOT between endcap planes, where no endcap is visible.)
-    visible_endcap = int(vp_axis_proj_len >= 0.0);
+    var_visible_endcap = int(vp_axis_proj_len >= 0.0);
 
   } else {
 
@@ -364,10 +373,9 @@ void main(void) {
     // endcaps are nearly edge-on and are ignored.  Otherwise, the one with the
     // greater Z is the visible one.
     vp_between_endcaps = abs(var_endpts[1].z - var_endpts[0].z) < 0.001;
-    visible_endcap = int(var_endpts[1].z > var_endpts[0].z);
+    var_visible_endcap = int(var_endpts[1].z > var_endpts[0].z);
 
   }
-  var_visible_endcap = float(visible_endcap); // Varyings are always floats.
 
   //===
   // . The viewpoint is inside the barrel surface if the distance to its
@@ -408,10 +416,26 @@ void main(void) {
     // In orthogonal projection, the barrel surface is hidden from view if the
     // far endcap is not larger than the near one, and the XY offset of the axis
     // is not larger than the difference in the endcap radii.
-    int near_end = visible_endcap;
+#ifdef FULL_SUBSCRIPTING
+    int near_end = var_visible_endcap;
     int far_end = 1-near_end;
     float radius_diff = var_radii[near_end] - var_radii[far_end];
     float axis_offset = length(var_endpts[near_end].xy-var_endpts[far_end].xy);
+#else
+    // GLSL bug on GeForce 7600: Expand to use constant subscripts instead.
+    // C6016: Profile requires arrays with non-constant indexes to be uniform
+    float radius_diff;
+    float axis_offset;
+    if (var_visible_endcap == 1) {
+      // near_end == 1, far_end == 0.
+      radius_diff = var_radii[1] - var_radii[0];
+      axis_offset = length(var_endpts[1].xy-var_endpts[0].xy);
+    } else {
+      // near_end == 0, far_end == 1.
+      radius_diff = var_radii[0] - var_radii[1];
+      axis_offset = length(var_endpts[0].xy-var_endpts[1].xy);
+    }
+#endif
     vp_in_barrel =  radius_diff >= 0.0 && axis_offset <= radius_diff;
 
     // Directions relative to the view dir, perpendicular to the cylinder axis,
@@ -447,7 +471,7 @@ void main(void) {
   vec3 billboard_vertex;  
 
   if (vp_between_endcaps && vp_in_barrel) {
-    var_visible = VISIBLE_NOTHING;
+    var_visibility_type = VISIBLE_NOTHING;
     billboard_vertex = vec3(0.0, 0.0, -1.0); // Could be anything (nonzero?)
   }
 
@@ -459,18 +483,40 @@ void main(void) {
 
   else if (vp_in_barrel) {
     // Just the single visible endcap in this case.
-    var_visible = VISIBLE_ENDCAP_ONLY;
-    vec3 scaled_across = billboard_radii[visible_endcap]
-                         * endpt_across_vp_dir[visible_endcap];
-    vec3 scaled_toward = billboard_radii[visible_endcap]
-                         * endpt_toward_vp_dir[visible_endcap];
+    var_visibility_type = VISIBLE_ENDCAP_ONLY;
+#ifdef FULL_SUBSCRIPTING
+    vec3 scaled_across = billboard_radii[var_visible_endcap]
+                         * endpt_across_vp_dir[var_visible_endcap];
+    vec3 scaled_toward = billboard_radii[var_visible_endcap]
+                         * endpt_toward_vp_dir[var_visible_endcap];
 
     // The unit rectangle drawing pattern is 0 to 1 in X, elsewhere
     // corresponding to the direction along the cylinder axis, but here we are
     // looking only at the endcap square, and so adjust to +-1 in X.
-    billboard_vertex = var_endpts[visible_endcap]
+    billboard_vertex = var_endpts[var_visible_endcap]
       + (gl_Vertex.x * 2.0 - 1.0) * scaled_across
       + gl_Vertex.y * scaled_toward;
+#else
+    // GLSL bug on GeForce 7600: Expand to use constant subscripts instead.
+    // C6016: Profile requires arrays with non-constant indexes to be uniform
+
+    // The unit rectangle drawing pattern is 0 to 1 in X, elsewhere
+    // corresponding to the direction along the cylinder axis, but here we are
+    // looking only at the endcap square, and so adjust to +-1 in X.
+    if (var_visible_endcap == 1) {
+      vec3 scaled_across = billboard_radii[1] * endpt_across_vp_dir[1];
+      vec3 scaled_toward = billboard_radii[1] * endpt_toward_vp_dir[1];
+      billboard_vertex = var_endpts[1]
+        + (gl_Vertex.x * 2.0 - 1.0) * scaled_across
+        + gl_Vertex.y * scaled_toward;
+    } else {
+      vec3 scaled_across = billboard_radii[0] * endpt_across_vp_dir[0];
+      vec3 scaled_toward = billboard_radii[0] * endpt_toward_vp_dir[0];
+      billboard_vertex = var_endpts[0]
+        + (gl_Vertex.x * 2.0 - 1.0) * scaled_across
+        + gl_Vertex.y * scaled_toward;
+    }
+#endif
   }
 
   //===
@@ -483,7 +529,8 @@ void main(void) {
   //===
 
   else if (vp_between_endcaps) {
-    var_visible = VISIBLE_BARREL_ONLY;
+    var_visibility_type = VISIBLE_BARREL_ONLY;
+#ifdef FULL_SUBSCRIPTING
     // Connecting two endcaps, X identifies which one this vertex comes from.
     int endcap = int(gl_Vertex.x);
     vec3 scaled_across = billboard_radii[endcap] * endpt_across_vp_dir[endcap];
@@ -491,6 +538,25 @@ void main(void) {
     billboard_vertex = var_endpts[endcap]
       + scaled_toward  // Offset to the pyramid face closer to the viewpoint.
       + gl_Vertex.y * scaled_across;  // Offset to either side of the axis.
+#else
+    // GLSL bug on GeForce 7600: Expand to use constant subscripts instead.
+    // C6016: Profile requires arrays with non-constant indexes to be uniform
+
+    // Connecting two endcaps, X identifies which one this vertex comes from.
+    if (int(gl_Vertex.x) == 1) {
+      vec3 scaled_across = billboard_radii[1] * endpt_across_vp_dir[1];
+      vec3 scaled_toward = billboard_radii[1] * endpt_toward_vp_dir[1];
+      billboard_vertex = var_endpts[1]
+        + scaled_toward  // Offset to the pyramid face closer to the viewpoint.
+        + gl_Vertex.y * scaled_across;  // Offset to either side of the axis.
+    } else {
+      vec3 scaled_across = billboard_radii[0] * endpt_across_vp_dir[0];
+      vec3 scaled_toward = billboard_radii[0] * endpt_toward_vp_dir[0];
+      billboard_vertex = var_endpts[0]
+        + scaled_toward  // Offset to the pyramid face closer to the viewpoint.
+        + gl_Vertex.y * scaled_across;  // Offset to either side of the axis.
+    }
+#endif
   }
 
   //===
@@ -510,8 +576,9 @@ void main(void) {
   else {
     // Connect the outer edge of the visible endcap face with the inner edge of
     // the hidden endcap face at the other end of the cylinder barrel.
-    var_visible = VISIBLE_ENDCAP_AND_BARREL;
+    var_visibility_type = VISIBLE_ENDCAP_AND_BARREL;
     int endcap = int(gl_Vertex.x);
+#ifdef FULL_SUBSCRIPTING
     vec3 scaled_across = (gl_Vertex.y * max_billboard_radius)
                          * endpt_across_vp_dir[endcap];
     vec3 scaled_toward = max_billboard_radius * endpt_toward_vp_dir[endcap];
@@ -520,14 +587,43 @@ void main(void) {
     vec3 near_edge_midpoint = var_endpts[endcap] + scaled_toward;
     vec3 near_edge_vertex = near_edge_midpoint + scaled_across;
 
-    if (endcap != visible_endcap) {
+    float endcap_radius = var_radii[endcap];
+    float endcap_halo_radius = var_halo_radii[endcap];
+#else
+    // GLSL bug on GeForce 7600: Expand to use constant subscripts instead.
+    // C6016: Profile requires arrays with non-constant indexes to be uniform
+    vec3 endcap_across, endcap_toward, endcap_endpt;
+    float endcap_radius, endcap_halo_radius;
+    if (endcap == 1) {
+      endcap_across = endpt_across_vp_dir[1];
+      endcap_toward = endpt_toward_vp_dir[1];
+      endcap_endpt = var_endpts[1];
+      endcap_radius = var_radii[1];
+      endcap_halo_radius = var_halo_radii[1];
+    } else {
+      endcap_across = endpt_across_vp_dir[0];
+      endcap_toward = endpt_toward_vp_dir[0];
+      endcap_endpt = var_endpts[0];
+      endcap_radius = var_radii[0];
+      endcap_halo_radius = var_halo_radii[0];
+    }
+      
+    vec3 scaled_across = (gl_Vertex.y * max_billboard_radius) * endcap_across;
+    vec3 scaled_toward = max_billboard_radius * endcap_toward;
+
+    // On the near face of the pyramid toward the viewpt, for the no-endcap end.
+    vec3 near_edge_midpoint = endcap_endpt * scaled_toward;
+    vec3 near_edge_vertex = near_edge_midpoint + scaled_across;
+#endif
+
+    if (endcap != var_visible_endcap) {
       billboard_vertex = near_edge_vertex;
 
       if (drawing_style == DS_HALO) {  // Halo on the non-endcap cylinder end.
         // Extend the billboard axis length a little bit for a barrel-end halo.
         billboard_vertex += axis_line_dir * // Axis direction (unit vector).
           (float(endcap*2 - 1)              // Endcap 0:backward, 1:forward.
-           * (var_halo_radii[endcap]-var_radii[endcap]) // Eye space halo width.
+           * (endcap_halo_radius - endcap_radius) // Eye space halo width.
            * (axis_length /                 // Longer when view is more end-on.
               max(0.1 * axis_length, length(axis_line_vec.xy))));
       }
@@ -568,27 +664,32 @@ void main(void) {
   // Transform the billboard vertex through the projection matrix, making clip
   // coordinates for the next stage of the pipeline.
   gl_Position = gl_ProjectionMatrix * vec4(billboard_vertex, 1.0);
+
+  // Pack some varyings for nVidia 7000 series and similar graphics chips. 
+  var_pack1 = vec4(var_ray_vec, float(var_visible_endcap));
+  var_pack2 = vec4(var_view_pt, float(var_visibility_type));
+  var_pack3 = vec4(var_radii[0], var_radii[1],
+                   var_halo_radii[0], var_halo_radii[1]);
 }
 """
 
-# ================================================================
 # <line 0>
+# ================================================================
+# Note: a prefix with the #version statement is prepended to the following,
+# together with an optional #define line.
 cylinderFragSrc = """
 // Fragment (pixel) shader program for cylinder primitives.
 // 
 // See the description at the beginning of this file.
 
-// requires GLSL version 1.20
-#version 120
-
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform int debug_code;         // 0:none, 1: show billboard outline.
 uniform int draw_for_mouseover; // 0: use normal color, 1: glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
-#define DS_NORMAL 0
-#define DS_OVERRIDE_COLOR 1
-#define DS_PATTERN 2
-#define DS_HALO 3
+const int DS_NORMAL = 0;
+const int DS_OVERRIDE_COLOR = 1;
+const int DS_PATTERN = 2;
+const int DS_HALO = 3;
 uniform vec4 override_color;    // Color for selection or highlighted drawing.
 uniform float override_opacity; // Multiplies the normal color alpha component.
 
@@ -613,25 +714,33 @@ uniform vec3 light3H;
 // Inputs, interpolated by raster conversion from the vertex shader outputs.
 // The varying qualifier can be used only with float, floating-point vectors,
 // matrices, or arrays of these.  Structures cannot be varying.
-varying vec3 var_ray_vec; // Pixel sample vec (vertex dir vec in vert shader.)
-varying vec3 var_view_pt;       // Transformed view point.
+//
+// The nVidia 7000 series (and maybe other older graphics chips), has 32
+// interpolators for varyings, but they are organized as 8 vec4s, so we have to
+// pack some things together.  Enumerated as slot-number(n-elements) below.
+varying vec4 var_pack1;       // 1(4), var_ray_vec + var_visible_endcap.
+vec3 var_ray_vec;       // Pixel sample vector (vertex dir vec in vert shader.)
+int var_visible_endcap;       // 0:first endcap visible, 1:second endcap.
 
-varying float var_visible;      // What is visible from the viewpoint.
-#define VISIBLE_NOTHING 0.0
-#define VISIBLE_BARREL_ONLY 1.0
-#define VISIBLE_ENDCAP_ONLY 2.0
-#define VISIBLE_ENDCAP_AND_BARREL 3.0
-varying float var_visible_endcap; // 0:first endcap visible, 1:second endcap.
+varying vec4 var_pack2;       // 2(4), var_view_pt + var_visibility_type.
+vec3 var_view_pt;             // Transformed view point.
+int var_visibility_type;      // What is visible from the viewpoint.
+const int VISIBLE_NOTHING = 0;
+const int VISIBLE_BARREL_ONLY = 1;
+const int VISIBLE_ENDCAP_ONLY = 2;
+const int VISIBLE_ENDCAP_AND_BARREL = 3;
 
 // Cylinder data.
-varying vec3 var_endpts[2];     // Transformed cylinder endpoints.
-varying float var_radii[2];     // Transformed cylinder radii
-varying float var_halo_radii[2];// Halo radius at transformed endpt Z depth.
+varying vec3 var_endpts[2];   // 3,4(3) Transformed cylinder endpoints.
 
-varying vec4 var_basecolor;     // Vertex color.
+varying vec4 var_pack3;       // 5(4) var_radii[2] + var_halo_radii[2];
+float var_radii[2];           // Transformed cylinder radii.
+float var_halo_radii[2];      // Halo radii at transformed endpt Z depth.
+
+varying vec4 var_basecolor;   // 6(4) Vertex color.
 
 // Debugging data.
-varying vec2 var_input_xy;      // Billboard vertices, interpolated to pixel.
+varying vec2 var_input_xy;    // 7(2) Drawing pattern billboard vertex.
 
 // Line functions; assume line direction vectors are normalized (unit vecs.)
 vec3 pt_proj_onto_line(in vec3 point, in vec3 pt_on_line, in vec3 line_dir) {
@@ -652,15 +761,21 @@ float pt_dist_sq_from_line(in vec3 point, in vec3 pt_on_line, in vec3 line_dir){
 // Fragment (pixel) shader main procedure.
 void main(void) {
 
+  // Unpack varyings that were packed for graphics chips like nVidia 7000s.
+  var_ray_vec = var_pack1.xyz;
+  var_view_pt = var_pack2.xyz;
   // Varyings are always floats. Because of the interpolation calculations, even
   // though the same integer value goes into this variable at each vertex, the
   // interpolated result is not *exactly* the same integer, so round to nearest.
-  int visibility_type = int(var_visible + 0.5);
+  var_visible_endcap = int(var_pack1.w + 0.5);
+  var_visibility_type = int(var_pack2.w + 0.5);
+  var_radii[0] = var_pack3.x; var_radii[1] = var_pack3.y;
+  var_halo_radii[0] = var_pack3.z; var_halo_radii[1] = var_pack3.w;
 
 #if 0 /// 1 // Debugging vertex shaders: fill in the drawing pattern.
   gl_FragColor = var_basecolor;
   // Show the visibility type as a fractional shade in blue.
-  gl_FragColor.b =  0.25 * var_visible;
+  gl_FragColor.b =  0.25 * var_visibility_type;
 
   // Sigh.  Must not leave uniforms unused.
   int i = debug_code;
@@ -692,7 +807,7 @@ void main(void) {
   }
   
   // Nothing to do if the viewpoint is inside the cylinder.
-  if (!debug_hit && visibility_type == VISIBLE_NOTHING)
+  if (!debug_hit && var_visibility_type == VISIBLE_NOTHING)
     discard; // **Exit**
 
   // Vertex ray direction vectors were interpolated into pixel ray vectors.
@@ -764,15 +879,10 @@ void main(void) {
   // hits the endcap, it will not get through to the barrel.
   //===
 
-  // Varyings are always floats. Because of the interpolation calculations, even
-  // though the same integer value goes into this variable at each vertex, the
-  // interpolated result is not *exactly* the same integer, so round to nearest.
-  int visible_endcap = int(var_visible_endcap + 0.5);
-
   // Skip the endcap hit test if no endcap is visible.
   if (//false && /// May skip the endcap entirely to see just the barrel.
       !debug_hit && // Skip when already hit debug billboard-outline pixels.
-      visibility_type != VISIBLE_BARREL_ONLY) { // (Never VISIBLE_NOTHING here.)
+      var_visibility_type != VISIBLE_BARREL_ONLY) { // (Never VISIBLE_NOTHING.)
     // (VISIBLE_ENDCAP_ONLY or VISIBLE_ENDCAP_AND_BARREL.)
 
     //===
@@ -786,30 +896,51 @@ void main(void) {
     //   in the plane.  (Tweaked for halos as in the sphere shader.)
     //===
 
+#ifdef FULL_SUBSCRIPTING
+    vec3 endcap_endpt = var_endpts[var_visible_endcap];
+    float endcap_radius = var_radii[var_visible_endcap];
+    float endcap_halo_radius = var_halo_radii[var_visible_endcap];
+#else
+    // GLSL bug on GeForce 7600: Expand to use constant subscripts instead.
+    // error C6013: Only arrays of texcoords may be indexed in this profile,
+    // and only with a loop index variable
+    vec3 endcap_endpt;
+    float endcap_radius, endcap_halo_radius;
+    if (var_visible_endcap == 1) {
+      endcap_endpt = var_endpts[1];
+      endcap_radius = var_radii[1];
+      endcap_halo_radius = var_halo_radii[1];
+    } else {
+      endcap_endpt = var_endpts[0];
+      endcap_radius = var_radii[0];
+      endcap_halo_radius = var_halo_radii[0];
+    }
+#endif
+
     // Calculate the intersection of the ray with the endcap plane, based on
     // the projections of the viewpoint and endpoint onto the axis.
     float vp_dist_along_axis = dot(axis_line_dir, var_view_pt);
-    float ep_dist_along_axis = dot(axis_line_dir, var_endpts[visible_endcap]);
+    float ep_dist_along_axis = dot(axis_line_dir, endcap_endpt);
     float axis_ray_angle_cos = dot(axis_line_dir, ray_line_dir);
     ray_hit_pt = var_view_pt + ray_line_dir *
       ((ep_dist_along_axis - vp_dist_along_axis) / axis_ray_angle_cos);
 
     // Is the intersection within the endcap radius from the endpoint?
-    vec3 closest_vec = ray_hit_pt - var_endpts[visible_endcap];
+    vec3 closest_vec = ray_hit_pt - endcap_endpt;
     float plane_closest_dist = length(closest_vec);
-    if (plane_closest_dist <= var_radii[visible_endcap]) {
+    if (plane_closest_dist <= endcap_radius) {
 
       // Hit the endcap.  The normal is the axis direction, pointing outward.
       endcap_hit = true;
-      normal = axis_line_dir * float(visible_endcap * 2 - 1); // * -1 or +1.
+      normal = axis_line_dir * float(var_visible_endcap * 2 - 1); // * -1 or +1.
 
     } else if (drawing_style == DS_HALO &&
-               plane_closest_dist <= var_halo_radii[visible_endcap]) {
+               plane_closest_dist <= endcap_halo_radius) {
 
       // Missed the endcap, but hit an endcap halo.
       halo_hit = endcap_hit = true;
 
-    } else if (visibility_type == VISIBLE_ENDCAP_ONLY ) {
+    } else if (var_visibility_type == VISIBLE_ENDCAP_ONLY ) {
 
       // Early out.  We know only an endcap is visible, and we missed it.
       discard; // **Exit**
@@ -819,7 +950,7 @@ void main(void) {
 
   // Skip the barrel hit test if we already hit an endcap.
   // (Never VISIBLE_NOTHING here.)
-  if (!endcap_hit && !debug_hit && visibility_type != VISIBLE_ENDCAP_ONLY) {
+  if (!endcap_hit && !debug_hit && var_visibility_type != VISIBLE_ENDCAP_ONLY) {
     // (VISIBLE_BARREL_ONLY, or VISIBLE_ENDCAP_AND_BARREL but missed endcap.)
 
     //===
@@ -971,9 +1102,9 @@ void main(void) {
         // passing-points, along a line to the convergence point, based on the
         // projection of the viewpoint onto the axis and the positions of the
         // axis_passing_pt and the convergence point along the axis.  We know
-        // above that the viewpoint isn't already in the crossing-plane, that
-        // the crossing-plane doesn't go through the convergence point, and that
-        // the viewpoint is not on the axis (i.e. inside the cylinder barrel.)
+        // above that the viewpoint is not already in the crossing-plane, the
+        // crossing-plane does not go through the convergence point, and the
+        // viewpoint is not on the axis (i.e. inside the cylinder barrel.)
         float cp_axis_loc = dot(axis_line_dir, convergence_pt);
         float vp_axis_rel_loc = dot(axis_line_dir, var_view_pt) - cp_axis_loc;
         float app_axis_rel_loc = dot(axis_line_dir, axis_passing_pt) -
@@ -1044,7 +1175,7 @@ void main(void) {
 
       vec3 barrel_line_dir = axis_line_dir;  // Untapered.
       if (abs(var_radii[1] - var_radii[0]) > 0.001)
-        // Tapered.  Sign of line direction doesn't affect projecting onto it.
+        // Tapered.  Sign of line direction does not affect projecting onto it.
         barrel_line_dir = normalize(convergence_pt - barrel_line_pt);
 
       //===

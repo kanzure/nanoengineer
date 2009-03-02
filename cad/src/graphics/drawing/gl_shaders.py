@@ -226,13 +226,25 @@ class GLShaderObject(object):
         # Insert preprocessor constants.
         if not texture_xforms:
             prefix += "#define N_CONST_XFORMS %d\n" % N_CONST_XFORMS
+        else:
+            prefix += "" # To keep the shader line numbers unchanged.
             pass
+
+        # GLSL on the nVidia GeForce 7000 only supports constant array
+        # subscripts, and subscripting by a loop index variable.
+        if not debug_pref("GLPane: shaders with only constant subscripts?",
+                      Choice_boolean_False, prefs_key = True):
+            prefix += "#define FULL_SUBSCRIPTING"
+        else:
+            prefix += "" # To keep the shader line numbers unchanged.
+            pass
+
         # Pass the source strings to the shader compiler.
         self.error = False
         self.vertShader = self.createShader(shaderName, GL_VERTEX_SHADER,
                                             prefix + shaderVertSrc)
         self.fragShader = self.createShader(shaderName, GL_FRAGMENT_SHADER,
-                                            shaderFragSrc)
+                                            prefix + shaderFragSrc)
         if self.error:          # May be set by createShader.
             return              # Can't do anything good after an error.
         # Link the compiled shaders into a shader program.
@@ -277,7 +289,7 @@ class GLShaderObject(object):
             pass
         return shader
 
-    def configShader(self, glpane):
+    def configShader(self, glpane, has_debug = False):
         """
         Fill in uniform variables in the shader before using to draw.
 
@@ -295,9 +307,11 @@ class GLShaderObject(object):
             pass
 
         # Debugging control.
-        glUniform1iARB(self.uniform("debug_code"),
-                       int(debug_pref("GLPane: shader debug graphics?",
-                                      Choice_boolean_False, prefs_key = True)))
+        if has_debug:
+            glUniform1iARB(
+                self.uniform("debug_code"),
+                int(debug_pref("GLPane: shader debug graphics?",
+                               Choice_boolean_False, prefs_key = True)))
 
         # Default override_opacity, multiplies the normal color alpha component.
         glUniform1fARB(self.uniform("override_opacity"), 1.0)

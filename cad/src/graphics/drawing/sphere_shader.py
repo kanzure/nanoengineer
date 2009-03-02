@@ -65,6 +65,7 @@ Russ 090106: Chopped the GLSL source string blocks out of gl_shaders.py .
 # distance from the center.  If the ray is outside the sphere radius, it may
 # still be within the halo disk radius surrounding the sphere.
 
+# <line 0>
 # ================================================================
 # Note: if texture_xforms is off, a #define N_CONST_XFORMS array dimension is
 # prepended to the following.  The #version statement must precede it.
@@ -74,13 +75,12 @@ sphereVertSrc = """
 // See the description at the beginning of this file.
 
 // Uniform variables, which are constant inputs for the whole shader execution.
-uniform int debug_code;         // 0:none, 1: not used yet.
 uniform int draw_for_mouseover; // 0:use normal color, 1:glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
-#define DS_NORMAL 0
-#define DS_OVERRIDE_COLOR 1
-#define DS_PATTERN 2
-#define DS_HALO 3
+const int DS_NORMAL = 0;
+const int DS_OVERRIDE_COLOR = 1;
+const int DS_PATTERN = 2;
+const int DS_HALO = 3;
 uniform vec4 override_color;    // Color for selection or highlighted drawing.
 uniform int perspective;        // 0:orthographic, 1:perspective.
 uniform float ndc_halo_width;   // Halo width in normalized device coords.
@@ -112,8 +112,6 @@ varying float var_halo_rad_sq;  // Halo rad sq at transformed center_pt Z depth.
 varying vec4 var_basecolor;     // Vertex color.
 
 void main(void) { // Vertex shader procedure.
-
-  int unused = debug_code;      // Must not leave uniforms unused.
 
   // Fragment (pixel) color will be interpolated from the vertex colors.
   if (draw_for_mouseover == 1)
@@ -256,29 +254,28 @@ void main(void) { // Vertex shader procedure.
 }
 """
 
+# <line 0>
 # ================================================================
+# Note: a prefix with the #version statement is prepended to the following,
+# together with an optional #define line.
 sphereFragSrc = """
 // Fragment (pixel) shader program for sphere primitives.
 //
 // See the description at the beginning of this file.
 
-// requires GLSL version 1.10
-#version 110
-
 // Uniform variables, which are constant inputs for the whole shader execution.
 uniform int draw_for_mouseover; // 0: use normal color, 1: glname_color.
 uniform int drawing_style;      // 0:normal, 1:override_color, 2:pattern, 3:halo
-#define DS_NORMAL 0
-#define DS_OVERRIDE_COLOR 1
-#define DS_PATTERN 2
-#define DS_HALO 3
+const int DS_NORMAL = 0;
+const int DS_OVERRIDE_COLOR = 1;
+const int DS_PATTERN = 2;
+const int DS_HALO = 3;
 uniform vec4 override_color;    // Color for selection or highlighted drawing.
 uniform float override_opacity; // Multiplies the normal color alpha component.
 
 // Lighting properties for the material.
 uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
 
-// Uniform variables, which are constant inputs for the whole shader execution.
 uniform int perspective;
 uniform vec4 clip;              // [near, far, middle, depth_inverse]
 
