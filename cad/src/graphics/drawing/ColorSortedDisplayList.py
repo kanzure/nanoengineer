@@ -303,7 +303,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 #russ 080714: "Shader spheres" are signaled
                 # by an opacity of -3 (4th component of the color.)
                 ### REVIEW: does this work when building a DL? [bruce 090224 Q]
-                drawing_globals.sphereShader.use(True)
+                drawing_globals.sphereShader.setActive(True)
                 pass
 
             for func, params, name in funcs:
@@ -318,7 +318,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 continue
 
             if opacity == -3 and vboLevel == 6:
-                drawing_globals.sphereShader.use(False)
+                drawing_globals.sphereShader.setActive(False)
                 pass
 
             if opacity == -1:

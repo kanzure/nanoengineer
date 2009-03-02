@@ -674,7 +674,7 @@ def test_drawing(glpane, initOnly = False):
             test_vbo.bind()             # Vertex data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
 
-            drawing_globals.sphereShader.use(True)
+            drawing_globals.sphereShader.setActive(True)
             glDisable(GL_CULL_FACE)
 
             glColor3i(127, 127, 127)
@@ -696,7 +696,7 @@ def test_drawing(glpane, initOnly = False):
                     continue
                 continue
 
-            drawing_globals.sphereShader.use(False)
+            drawing_globals.sphereShader.setActive(False)
             glEnable(GL_CULL_FACE)
 
             test_ibo.unbind()
@@ -738,7 +738,7 @@ def test_drawing(glpane, initOnly = False):
             test_vbo.bind()             # Vertex data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
 
-            drawing_globals.sphereShader.use(True)
+            drawing_globals.sphereShader.setActive(True)
             glDisable(GL_CULL_FACE)
 
             glColor3i(127, 127, 127)
@@ -760,7 +760,7 @@ def test_drawing(glpane, initOnly = False):
                     continue
                 continue
 
-            drawing_globals.sphereShader.use(False)
+            drawing_globals.sphereShader.setActive(False)
             glEnable(GL_CULL_FACE)
 
             test_ibo.unbind()

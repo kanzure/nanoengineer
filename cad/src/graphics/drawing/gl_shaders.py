@@ -24,7 +24,7 @@ gl_shaders.py - OpenGL shader objects.
 
 @author: Russ Fish
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -136,7 +136,7 @@ from OpenGL.GL import glGetTexImage
 from OpenGL.GL import glTexImage2D
 from OpenGL.GL import glTexSubImage2D
 
-### Substitute the 3.0.0b3 versions, which work on Windows as well as MacOS.
+### Substitute the PyOpenGL 3.0.0b3 versions, which work on Windows as well as MacOS.
 ##from OpenGL.GL.ARB.shader_objects import glAttachObjectARB
 ##from OpenGL.GL.ARB.shader_objects import glCompileShaderARB
 ##from OpenGL.GL.ARB.shader_objects import glCreateProgramObjectARB
@@ -259,7 +259,7 @@ class GLShaderObject(object):
             self.error = True
             return              # Can't do anything good after an error.
         
-        self.used = False
+        self._active = False
 
         # Optional, may be useful for debugging.
         glValidateProgramARB(self.progObj)
@@ -301,20 +301,20 @@ class GLShaderObject(object):
             return
 
         # Shader needs to be active to set uniform variables.
-        wasActive = self.used
+        wasActive = self._active
         if not wasActive:
-            self.use(True)
+            self.setActive(True)
             pass
 
         # Debugging control.
         if has_debug:
             glUniform1iARB(
-                self.uniform("debug_code"),
+                self._uniform("debug_code"),
                 int(debug_pref("GLPane: shader debug graphics?",
                                Choice_boolean_False, prefs_key = True)))
 
         # Default override_opacity, multiplies the normal color alpha component.
-        glUniform1fARB(self.uniform("override_opacity"), 1.0)
+        glUniform1fARB(self._uniform("override_opacity"), 1.0)
 
         # Russ 081208: Consider caching the glpane pointer.  GLPane_minimal
         # inherits from QGLWidget, which includes the OpenGL graphics context.
@@ -326,15 +326,15 @@ class GLShaderObject(object):
 
         # XXX Hook in full NE1 lighting scheme and material settings.
         # Material is [ambient, diffuse, specular, shininess].
-        glUniform4fvARB(self.uniform("material"), 1, [0.3, 0.6, 0.5, 20.0])
-        glUniform1iARB(self.uniform("perspective"), (1, 0)[glpane.ortho])
+        glUniform4fvARB(self._uniform("material"), 1, [0.3, 0.6, 0.5, 20.0])
+        glUniform1iARB(self._uniform("perspective"), (1, 0)[glpane.ortho])
 
         # XXX Try built-in "uniform gl_DepthRangeParameters gl_DepthRange;"
         vdist = glpane.vdist            # See GLPane._setup_projection().
         # See GLPane_minimal.setDepthRange_Normal().
         near = vdist * (glpane.near + glpane.DEPTH_TWEAK)
         far = vdist * glpane.far
-        glUniform4fvARB(self.uniform("clip"), 1,
+        glUniform4fvARB(self._uniform("clip"), 1,
                         [near, far, 0.5*(far + near), 1.0/(far - near)])
 
         # Pixel width of window for halo drawing calculations.
@@ -342,16 +342,16 @@ class GLShaderObject(object):
 
         # Single light for now.
         # XXX Get NE1 lighting environment state.
-        glUniform4fvARB(self.uniform("intensity"), 1, [1.0, 0.0, 0.0, 0.0])
+        glUniform4fvARB(self._uniform("intensity"), 1, [1.0, 0.0, 0.0, 0.0])
         light0 = A([-1.0, 1.0, 1.0])
-        glUniform3fvARB(self.uniform("light0"), 1, light0)
+        glUniform3fvARB(self._uniform("light0"), 1, light0)
         # Blinn shading highlight vector, halfway between the light and the eye.
         eye = A([0.0, 0.0, 1.0])
         halfway0 = norm((eye + light0) / 2.0)
-        glUniform3fvARB(self.uniform("light0H"), 1, halfway0)
+        glUniform3fvARB(self._uniform("light0H"), 1, halfway0)
 
         if not wasActive:
-            self.use(False)
+            self.setActive(False)
         return
 
     def setupDraw(self, highlighted = False, selected = False,
@@ -363,9 +363,9 @@ class GLShaderObject(object):
         XXX Does Solid and halo now, need to implement patterned drawing too.
         """
         # Shader needs to be active to set uniform variables.
-        wasActive = self.used
+        wasActive = self._active
         if not wasActive:
-            self.use(True)
+            self.setActive(True)
             pass
 
         patterned_highlighting = (False and # XXX
@@ -393,11 +393,11 @@ class GLShaderObject(object):
             # clipping normalized device coords (+-1), it's a fraction of the
             # window half-width of 1.0 .
             ndc_halo_width = halo_width / (self.window_width / 2.0)
-            glUniform1fARB(self.uniform("ndc_halo_width"), ndc_halo_width)
+            glUniform1fARB(self._uniform("ndc_halo_width"), ndc_halo_width)
 
         elif highlighted or selected:
             drawing_style = DS_NORMAL   # Non-halo highlighting or selection.
-        glUniform1iARB(self.uniform("drawing_style"), drawing_style)
+        glUniform1iARB(self._uniform("drawing_style"), drawing_style)
 
         # Color for selection or highlighted drawing.
         override_color = None
@@ -413,11 +413,11 @@ class GLShaderObject(object):
             if len(override_color) == 3:
                 override_color += (opacity,)
                 pass
-            glUniform4fvARB(self.uniform("override_color"), 1, override_color)
+            glUniform4fvARB(self._uniform("override_color"), 1, override_color)
             pass
 
         if not wasActive:
-            self.use(False)
+            self.setActive(False)
             pass
         return
 
@@ -433,22 +433,23 @@ class GLShaderObject(object):
         @param tf: Boolean, draw glnames-as-color if True. 
         """
         # Shader needs to be active to set uniform variables.
-        wasActive = self.used
+        wasActive = self._active
         if not wasActive:
-            self.use(True)
+            self.setActive(True)
             pass
 
-        glUniform1iARB(self.uniform("draw_for_mouseover"), int(tf))
+        glUniform1iARB(self._uniform("draw_for_mouseover"), int(tf))
 
         if not wasActive:
-            self.use(False)
+            self.setActive(False)
             pass
         return
 
-    def uniform(self, name):
+    def _uniform(self, name): #bruce 090302 renamed from self.uniform()
         """
         Return location of a uniform (input) shader variable.
-        Raise a ValueError if it isn't found.
+        If it's not found, return -1 and warn once per session for end users,
+        or raise an AssertionError for developers.
         """
         loc = glGetUniformLocationARB(self.progObj, name)
         if loc == -1:
@@ -487,12 +488,13 @@ class GLShaderObject(object):
         """
         Return value of a uniform (input) shader variable.
         """
-        return glGetUniformivARB(self.progObj, self.uniform(name))
+        return glGetUniformivARB(self.progObj, self._uniform(name))
 
-    def attribute(self, name):
+    def attributeLocation(self, name): #bruce 090302 renamed from self.attribute()
         """
         Return location of an attribute (per-vertex input) shader variable.
-        Raise a ValueError if it isn't found.
+        If it's not found, return -1 and warn once per session for end users,
+        or raise an AssertionError for developers.
         """
         loc = glGetAttribLocationARB(self.progObj, name)
         if loc == -1:
@@ -516,16 +518,16 @@ class GLShaderObject(object):
             pass
         return loc
 
-    def use(self, on):
+    def setActive(self, on): #bruce 090302 renamed from self.use()
         """
-        Activate a shader.
+        Activate or deactivate a shader.
         """
         if on:
             glUseProgramObjectARB(self.progObj)
         else:
             glUseProgramObjectARB(0)
             pass
-        self.used = on
+        self._active = on
         return
 
     def get_texture_xforms(self):
@@ -535,6 +537,7 @@ class GLShaderObject(object):
         return N_CONST_XFORMS
 
     def setupTransforms(self, transforms):
+        # note: this is only called from test_drawing.py (as of before 090302)
         """
         Fill a block of transforms.
 
@@ -544,9 +547,9 @@ class GLShaderObject(object):
         @param transforms: A list of transform matrices, where each transform is
         a flattened list (or Numpy array) of 16 numbers.
         """
-        self.use(True)                # Must activate before setting uniforms.
+        self.setActive(True)                # Must activate before setting uniforms.
         self.n_transforms = nTransforms = len(transforms)
-        glUniform1iARB(self.uniform("n_transforms"), self.n_transforms)
+        glUniform1iARB(self._uniform("n_transforms"), self.n_transforms)
 
         # The shader bypasses transform logic if n_transforms is 0.
         # (Then location coordinates are in global modeling coordinates.)
@@ -556,7 +559,7 @@ class GLShaderObject(object):
                 # extension supports sharing this array of mat4s through a VBO.
                 # XXX Need to bank-switch this data if more than N_CONST_XFORMS.
                 C_transforms = numpy.array(transforms, dtype=numpy.float32)
-                glUniformMatrix4fvARB(self.uniform("transforms"),
+                glUniformMatrix4fvARB(self._uniform("transforms"),
                                       # Don't over-run the array size.
                                       min(len(transforms), N_CONST_XFORMS),
                                       GL_TRUE, # Transpose.
@@ -621,7 +624,7 @@ class GLShaderObject(object):
                     print "]]"
                 pass
             pass
-        self.use(False)                # Deactivate again.
+        self.setActive(False)                # Deactivate again.
         return
 
     pass # End of class GLShaderObject.

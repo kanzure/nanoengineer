@@ -132,14 +132,14 @@ def drawsphere_worker(params):
         glCallList(drawing_globals.sphereList[detailLevel])
 
     elif vboLevel == 6:  # Russ 080710: OpenGL 1.4/2.0 - GLSL Vert/Frag shaders.
-        drawing_globals.sphereShader.use(True)
+        drawing_globals.sphereShader.setActive(True)
         glDisable(GL_CULL_FACE)
 
         # Draw a bounding box through the shader.  A single "billboard" quad
         # (just front face of a box) oriented toward the eye would be faster.
         glCallList(drawing_globals.shaderCubeList)
         
-        drawing_globals.sphereShader.use(False)
+        drawing_globals.sphereShader.setActive(False)
         glEnable(GL_CULL_FACE)
 
         pass

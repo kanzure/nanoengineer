@@ -148,9 +148,22 @@ from OpenGL.GL.ARB.vertex_program import glVertexAttrib3fARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
 
 # Constants.
+
 BYTES_PER_FLOAT = 4             # All per-vertex attributes are floats in GLSL.
+
 BYTES_PER_UINT = 4                   # We use unsigned ints for vertex indices.
+
 HUNK_SIZE = 5000 # 10000 # 20000   # The number of primitives in each VBO hunk.
+    # Note: if HUNK_SIZE is too large, it causes trouble in PyOpenGL or the GL driver
+    # for unknown reasons. If too small, it causes more element draws than needed.
+    # Russ determined a safe value by experiment (on Mac), at a time when the
+    # "vertex replication" (which multiplies this to get actual number of
+    # entries in the hunk arrays) was larger than it is now. Larger values
+    # did not show performance speedup, and values this small did not show
+    # a slowdown, on test cases with lots of spheres (more than 10k).
+    # [bruce 090302 comment]
+
+# ==
 
 def decodePrimID(ID):
     """
@@ -331,7 +344,7 @@ class GLPrimitiveBuffer(object):
 
         If no drawIndex is given, the whole array is drawn.
         """
-        self.shader.use(True)                # Turn on the chosen shader.
+        self.shader.setActive(True)                # Turn on the chosen shader.
 
         glEnableClientState(GL_VERTEX_ARRAY)
 
@@ -349,7 +362,7 @@ class GLPrimitiveBuffer(object):
             # Set the sampler to the handle for the active texture image (0).
             ## XXX Not needed if only one texture is being used?
             ##glActiveTexture(GL_TEXTURE0)
-            ##glUniform1iARB(self.shader.uniform("transforms"), 0)
+            ##glUniform1iARB(self.shader._uniform("transforms"), 0)
             pass
 
         glDisable(GL_CULL_FACE)
@@ -388,7 +401,7 @@ class GLPrimitiveBuffer(object):
                 pass
             continue
 
-        self.shader.use(False)            # Turn off the chosen shader.
+        self.shader.setActive(False)            # Turn off the chosen shader.
         glEnable(GL_CULL_FACE)
 
         self.hunkIndexIBO.unbind()   # Deactivate the ibo.
@@ -456,7 +469,7 @@ class HunkBuffer:
 
         # Look up the location of the named generic vertex attribute in the
         # previously linked shader program object.
-        self.attribLocation = shader.attribute(attribName)
+        self.attribLocation = shader.attributeLocation(attribName)
 
         # Cache the Python data that will be sent to the graphics card RAM.
         # Internally, the data is a list, block-indexed by primitive ID, but
