@@ -2,39 +2,16 @@
 """
 glprefs.py - Attributes from drawing-related prefs stored in the prefs db cache.
 
+@author: Brad G, Bruce, Russ
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
-Originated by Josh as drawer.py .
-
-Various developers extended it since then.
-
-Brad G. added ColorSorter features.
-
-At some point Bruce partly cleaned up the use of display lists.
-
-071030 bruce split some functions and globals into draw_grid_lines.py
-and removed some obsolete functions.
-
-080210 russ Split the single display-list into two second-level lists (with and
-without color) and a set of per-color sublists so selection and hover-highlight
-can over-ride Chunk base colors.  ColorSortedDisplayList is now a class in the
-parent's displist attr to keep track of all that stuff.
-
-080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
-tubes with per-vertex colors (necessary for DNA display style)
-
-080313 russ Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
-
-080420 piotr Solved highlighting and selection problems for multi-colored
-objects (e.g. rainbow colored DNA structures).
-
 080519 russ pulled the globals into a drawing_globals module and broke drawer.py
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
 ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
-gl_lighting.py gl_buffers.py
+gl_lighting.py gl_buffers.py.
 """
 
 from utilities.prefs_constants import material_specular_highlights_prefs_key
@@ -45,7 +22,7 @@ from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.prefs_constants import haloWidth_prefs_key
 
-import foundation.env as env #bruce 051126
+import foundation.env as env
 
 # grantham 20051118; revised by bruce 051126
 class GLPrefs:
