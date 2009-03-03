@@ -129,7 +129,7 @@ class GLPane_highlighting_methods(object):
             debugPicking = debug_pref("GLPane: debug mouseover picking?",
                                       Choice_boolean_False, prefs_key = True )
 
-            if drawing_globals.use_batched_primitive_shaders and self.permit_shaders:
+            if self.permit_shaders and list(drawing_globals.enabled_shaders()):
                 # TODO: optimization: find an appropriate place to call 
                 # _compute_frustum_planes. [bruce 090105 comment]
                 
@@ -165,7 +165,8 @@ class GLPane_highlighting_methods(object):
                 
                 # We must be in glRenderMode(GL_RENDER) (as usual) when this is called.
                 # Note: _setup_projection leaves the matrix mode as GL_PROJECTION.
-                glMatrixMode(GL_MODELVIEW) 
+                glMatrixMode(GL_MODELVIEW)
+                shaders = list(drawing_globals.enabled_shaders())
                 try:
                     # Set flags so that we will use glnames-as-color mode 
                     # in shaders, and draw only shader primitives.
@@ -175,7 +176,8 @@ class GLPane_highlighting_methods(object):
                     #  in order to obscure shader primitives where appropriate.
                     #  This is intended to be done but is not yet implemented.
                     #  [bruce 090105 addendum])
-                    drawing_globals.sphereShader.setPicking(True)
+                    for shader in shaders:                        
+                        shader.setPicking(True)
                     self.set_drawing_phase("glselect_glname_color")
                     
                     for stereo_image in self.stereo_images_to_draw:
@@ -199,7 +201,8 @@ class GLPane_highlighting_methods(object):
                     self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                     # now it's important to continue, at least enough to restore other gl state
                     pass
-                drawing_globals.sphereShader.setPicking(False)
+                for shader in shaders:                        
+                    shader.setPicking(False)
                 self.set_drawing_phase('?')
                 
                 # Restore the viewport.

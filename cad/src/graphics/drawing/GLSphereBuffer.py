@@ -45,8 +45,8 @@ class GLSphereBuffer(GLPrimitiveBuffer):
             print "fyi: using the billboard shader-sphere drawing pattern."
             super(GLSphereBuffer, self).__init__(
                 shader, GL_QUADS,
-                drawing_globals.shaderBillboardVerts,
-                drawing_globals.shaderBillboardIndices)
+                drawing_globals.sphereBillboardVerts,
+                drawing_globals.sphereBillboardIndices)
         else:
             super(GLSphereBuffer, self).__init__(
                 shader, GL_QUADS,

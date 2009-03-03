@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 CS_workers.py - Drawing functions for primitives drawn by the ColorSorter.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -131,18 +131,6 @@ def drawsphere_worker(params):
     if vboLevel == 0:  # OpenGL 1.0 - glBegin/glEnd tri-strips vertex-by-vertex.
         glCallList(drawing_globals.sphereList[detailLevel])
 
-    elif vboLevel == 6:  # Russ 080710: OpenGL 1.4/2.0 - GLSL Vert/Frag shaders.
-        drawing_globals.sphereShader.setActive(True)
-        glDisable(GL_CULL_FACE)
-
-        # Draw a bounding box through the shader.  A single "billboard" quad
-        # (just front face of a box) oriented toward the eye would be faster.
-        glCallList(drawing_globals.shaderCubeList)
-        
-        drawing_globals.sphereShader.setActive(False)
-        glEnable(GL_CULL_FACE)
-
-        pass
     else:                             # OpenGL 1.1/1.5 - Array/VBO/IBO variants.
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)

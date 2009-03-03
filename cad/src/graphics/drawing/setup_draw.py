@@ -331,16 +331,16 @@ def setup_drawer():
             continue
         continue
     glEnd()
-    glEndList()                
+    glEndList()
 
     # Use with shaders where drawing patterns are applied in eye (camera)
     # coordinates.  The billboard stays between the eye and the primitive.
-    drawing_globals.shaderBillboardVerts = verts = [
+    drawing_globals.sphereBillboardVerts = verts = [
         (-1.0, -1.0,  1.0),
         ( 1.0, -1.0,  1.0),
         (-1.0,  1.0,  1.0),
         ( 1.0,  1.0,  1.0)]
-    drawing_globals.shaderBillboardIndices = indices = [
+    drawing_globals.sphereBillboardIndices = indices = [
         [0, 1, 3, 2]] # +Z face.
 
     # Special billboard drawing pattern for the cylinder shader.
@@ -422,11 +422,17 @@ def setup_drawer():
     from utilities.debug_prefs import Choice_boolean_True
     choices = [Choice_boolean_False, Choice_boolean_True]
 
+    ##### TODO: refactor this, merge it with similar code in glprefs and drawing_globals.
+    # In current code, there is duplicated use of each debug_pref which stores
+    # the result in different variables (e.g. drawing_globals.use_sphere_shaders_pref
+    # vs. drawing_globals._use_sphere_shaders) and maintains/uses it differently!!
+    # [bruce 090303 comment]
+
     #russ 080819: Added.
     initial_choice = choices[drawing_globals.use_sphere_shaders_default]
     drawing_globals.use_sphere_shaders_pref = debug_pref(
         "GLPane: use sphere-shaders? (next session)", initial_choice,
-        ##### todo: non_debug = True when turning it off has an effect.
+        non_debug = True,
         prefs_key = drawing_globals.use_sphere_shaders_prefs_key)
     #russ 90116: Added.
     initial_choice = choices[drawing_globals.use_cylinder_shaders_default]
@@ -456,7 +462,7 @@ def setup_drawer():
         "3. OpenGL 1.5 - glDrawArrays from graphics RAM VBO.",
         "4. OpenGL 1.5 - glDrawElements, verts in VBO, index in CPU.",
         "5. OpenGL 1.5 - VBO/IBO buffered glDrawElements.",
-        "6. OpenGL 1.4/2.0 - GLSL Vertex/Fragment shaders."]
+     ]
     drawing_globals.use_drawing_variant = debug_pref(
         "GLPane: drawing method",
         Choice(names = variants, values = range(len(variants)),
@@ -473,6 +479,7 @@ def setup_drawer():
                 "Error initializing sphere shaders, NOT using them.\n")
 
             drawing_globals.use_sphere_shaders_pref = False
+                ##### REVIEW: is this the right variable to clear when this fails? Compare glprefs. [bruce 090303 question]
 
             # Could we support shaders with the older GL_ARB_vertex_program and
             # GL_ARB_fragment_program with some work?  Get assembly-like vertex
@@ -491,62 +498,79 @@ def setup_drawer():
                 "Error initializing cylinder shaders, NOT using them.\n")
 
             drawing_globals.use_cylinder_shaders_pref = False
+                ##### REVIEW: is this the right variable to clear when this fails? Compare glprefs. [bruce 090303 question]
             return False
         return True
 
     def checkInitShader(pref, name, initFn):
         if pref:
             if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
-                print "note: this session WILL use %s-shaders" % name
+                print "note: this session WILL try to use %s-shaders" % name
                 initFn()
                 pass
             else:
-                print "note: this session WOULD use %s-shaders,\n" % name, \
+                print "note: this session WOULD try to use %s-shaders,\n" % name, \
                     "but GL_EXTENSION GL_ARB_shader_objects is not supported.\n"
                 pass
             pass
         else:
-            print "note: this session will NOT use %s-shaders\n" % name
+            print "note: this session will NOT try to use %s-shaders\n" % name
             pass
         return
-    checkInitShader(drawing_globals.use_sphere_shaders_pref, 
-                    "sphere", initSphereShader);
-    checkInitShader(drawing_globals.use_cylinder_shaders_pref,
-                    "cylinder", initCylinderShader);
 
     if drawing_globals.use_batched_primitive_shaders_pref:
-        print "note: this session WILL use", \
+
+        #bruce 090303 pulled checkInitShader calls inside this 'if';
+        # this may affect some testCases, but simplifies life for users and
+        # testers since they can completely turn off shaders (including
+        # all related init code) using a single pref
+        checkInitShader(drawing_globals.use_sphere_shaders_pref, 
+                        "sphere",
+                        initSphereShader )
+        
+        checkInitShader(drawing_globals.use_cylinder_shaders_pref,
+                        "cylinder",
+                        initCylinderShader )
+
+        print "note: this session WILL try to use", \
               "batched primitive shaders\n"
 
         drawing_globals.spherePrimitives = None # might be modified below
             # (so other code can test this attr rather than a debug_pref)
             # [bruce 090218]
-                
-        try:
-            # GLSphereBuffer requires GLSphereShaderObject.
-            if not drawing_globals.use_sphere_shaders_pref:
-                if not initSphereShader():
-                    raise ValueError, "sphere shader setup failed."
-                pass
+            ##### REVIEW: still needed? [bruce 090303 Q]
 
-            from graphics.drawing.GLSphereBuffer import GLSphereBuffer
-            drawing_globals.spherePrimitives = GLSphereBuffer()
-            print "Sphere primitive buffer initialization is complete.\n"
-        except:
-            print_compact_traceback(
-                "Error setting up sphere primitive buffers, NOT using them.\n")
-            drawing_globals.use_sphere_shaders_pref = False
-            ### REVIEW [bruce 090114]: do we also want to modify 
-            # drawing_globals.use_batched_primitive_shaders_pref?
+        if drawing_globals.use_sphere_shaders_pref: # Still optional.
+            try:
+                # GLSphereBuffer requires GLSphereShaderObject.
+                ##### REVIEW: why the 'not'? What is the reason to call this here? [bruce 090303 Q]
+                if not drawing_globals.use_sphere_shaders_pref:
+                    if not initSphereShader():
+                        raise ValueError, "sphere shader setup failed."
+                    pass
+
+                from graphics.drawing.GLSphereBuffer import GLSphereBuffer
+                drawing_globals.spherePrimitives = GLSphereBuffer()
+                print "Sphere primitive buffer initialization is complete.\n"
+            except:
+                print_compact_traceback(
+                    "Error setting up sphere primitive buffers, NOT using them.\n")
+                drawing_globals.use_sphere_shaders_pref = False
+                ##### REVIEW: is this the right variable to clear when this fails? Compare glprefs. [bruce 090303 question]
+                ### REVIEW [bruce 090114]: do we also want to modify 
+                # drawing_globals.use_batched_primitive_shaders_pref?
+                pass
             pass
 
         drawing_globals.cylinderPrimitives = None # might be modified below
             # (so other code can test this attr rather than a debug_pref)
             # [bruce 090218]
+            ##### REVIEW: still needed? [bruce 090303 Q]
         
         if drawing_globals.use_cylinder_shaders_pref: # Still optional.
             try:
                 # GLCylinderBuffer requires GLCylinderShaderObject.
+                ##### REVIEW: why the 'not'? What is the reason to call this here? [bruce 090303 Q]
                 if not drawing_globals.use_cylinder_shaders_pref:
                     if not initCylinderShader():
                         raise ValueError, "cylinder shader setup failed."
@@ -559,6 +583,7 @@ def setup_drawer():
                 print_compact_traceback(
                     "Error setting up cylinder primitive buffers, NOT using them.\n")
                 drawing_globals.use_cylinder_shaders_pref = False
+                ##### REVIEW: is this the right variable to clear when this fails? Compare glprefs. [bruce 090303 question]
                 ### REVIEW [bruce 090114]: do we also want to modify 
                 # drawing_globals.use_batched_primitive_shaders_pref?
                 pass

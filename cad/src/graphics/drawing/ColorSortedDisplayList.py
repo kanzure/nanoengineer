@@ -273,7 +273,6 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 # draw from DrawingSet.
         
         selColor = env.prefs[selectionColor_prefs_key]
-        vboLevel = drawing_globals.use_drawing_variant
 
         # Note: if sorted_by_color is empty, current code still builds all
         # toplevel display lists, though they are noops. This may be needed
@@ -299,13 +298,6 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 glDisable(GL_LIGHTING) # Don't forget to re-enable it!
                 pass
 
-            if opacity == -3 and vboLevel == 6:
-                #russ 080714: "Shader spheres" are signaled
-                # by an opacity of -3 (4th component of the color.)
-                ### REVIEW: does this work when building a DL? [bruce 090224 Q]
-                drawing_globals.sphereShader.setActive(True)
-                pass
-
             for func, params, name in funcs:
                 if name:
                     glPushName(name)
@@ -316,10 +308,6 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                     glPopName()
                     pass
                 continue
-
-            if opacity == -3 and vboLevel == 6:
-                drawing_globals.sphereShader.setActive(False)
-                pass
 
             if opacity == -1:
                 # Enable lighting after drawing "unshaded" objects.

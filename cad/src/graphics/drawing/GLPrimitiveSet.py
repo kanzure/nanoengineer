@@ -99,32 +99,35 @@ class GLPrimitiveSet:
 
         @note: all arguments are sometimes passed positionally.
         """
-        # Draw primitives from CSDLs through shaders, if that's turned on.
-        if drawing_globals.use_batched_primitive_shaders_pref:
-            primShaders = [(self.spheres, drawing_globals.spherePrimitives)]
-            if drawing_globals.use_cylinder_shaders:
-                primShaders += [(self.cylinders, 
-                                 drawing_globals.cylinderPrimitives)]
-                pass
-            for primitives, shader in primShaders:
-                if len(primitives) > 0:
-                    if True: # False ## True: indexed drawing, False: unindexed.
-                        # Generate and cache index lists for selective drawing
-                        # of primitives through glMultiDrawElements().
-                        if shader not in self.drawIndices:
-                            self.drawIndices[shader] = shader.makeDrawIndex(primitives)
-                            pass
-                        # With a drawIndex, draw calls glMultiDrawElements().
-                        shader.draw(self.drawIndices[shader], highlighted, selected,
-                                  patterning, highlight_color, opacity)
-                    else:
-                        # (For initial testing.)  Here GLPrimitiveBuffer draws the
-                        # entire set of sphere primitives using glDrawElements().
-                        shader.draw()
-                        pass
-                    pass
-                continue
+        # Draw primitives from CSDLs through shaders (via GLPrimitiveBuffers),
+        # if that's turned on.
+        primlist_buffer_pairs = []
+        if drawing_globals.sphereShader_desired():
+            primlist_buffer_pairs += [(self.spheres,
+                             drawing_globals.spherePrimitives)]
             pass
+        if drawing_globals.cylinderShader_desired():
+            primlist_buffer_pairs += [(self.cylinders,
+                             drawing_globals.cylinderPrimitives)]
+            pass
+        for primitives, primbuffer in primlist_buffer_pairs:
+            if len(primitives) > 0:
+                if True: # False ## True: indexed drawing, False: unindexed.
+                    # Generate and cache index lists for selective drawing
+                    # of primitives through glMultiDrawElements().
+                    if primbuffer not in self.drawIndices:
+                        self.drawIndices[primbuffer] = primbuffer.makeDrawIndex(primitives)
+                        pass
+                    # With a drawIndex, draw calls glMultiDrawElements().
+                    primbuffer.draw(self.drawIndices[primbuffer], highlighted, selected,
+                              patterning, highlight_color, opacity)
+                else:
+                    # (For initial testing.)  Here GLPrimitiveBuffer draws the
+                    # entire set of sphere primitives using glDrawElements().
+                    primbuffer.draw()
+                    pass
+                pass
+            continue
 
         # Draw just the Display Lists, in all CSDLs which have any.
         # Put TransformControl matrices onto the GL matrix stack when present.

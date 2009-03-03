@@ -639,6 +639,8 @@ class GLShaderObject(object):
 
     pass # End of class GLShaderObject.
 
+# ==
+
 class GLSphereShaderObject(GLShaderObject):
     """
     An analytic sphere shader.

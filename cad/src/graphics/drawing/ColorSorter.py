@@ -184,8 +184,12 @@ class ColorSorter:
 
         ColorSorter._initial_transforms = None #bruce 090220
 
-        ColorSorter._permit_shaders = drawing_globals.use_batched_primitive_shaders
-            #bruce 090224; modified in ColorSorter.start based on glpane
+        ColorSorter._permit_shaders = True
+            # modified in ColorSorter.start based on glpane;
+            # note that it has no effect on use of specific shaders
+            # unless a corresponding shader_desired function in drawing_globals
+            # returns true (due to how it's used in this code)
+            # [bruce 090224, revised 090303]
 
         # following are guesses by bruce 090220:
         ColorSorter.sorted_by_color = None
@@ -449,13 +453,9 @@ class ColorSorter:
             pass
         else: 
             # Non-C-coded material rendering (might be sorted and/or use shaders)
-            vboLevel = drawing_globals.use_drawing_variant
-            sphereBatches = ColorSorter._permit_shaders
-            if vboLevel == 6 and not sphereBatches:
-                #russ 080714: Individual "shader spheres" are signaled
-                # by an opacity of -3 (4th component of the color.)
-                lcolor = (color[0], color[1], color[2], -3)
-            elif len(color) == 3:		
+            sphereBatches = ColorSorter._permit_shaders and \
+                            drawing_globals.sphereShader_desired()
+            if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color	
@@ -575,7 +575,7 @@ class ColorSorter:
 
             # Russ 090119: Added.
             cylinderBatches = (ColorSorter._permit_shaders and
-                               drawing_globals.use_cylinder_shaders)
+                               drawing_globals.cylinderShader_desired() )
             if cylinderBatches and ColorSorter._parent_csdl:
                 # Note: capped is not used; a test indicates it's always on
                 # (at least in the tapered case). [bruce 090225 comment]
@@ -632,8 +632,7 @@ class ColorSorter:
             lcolor = color
 
         use_cylinder_shader = (ColorSorter._permit_shaders and
-                               drawing_globals.use_cylinder_shaders and
-                               drawing_globals.use_cone_shaders)
+                               drawing_globals.coneShader_desired() )
         if use_cylinder_shader and ColorSorter._parent_csdl:
             assert ColorSorter.sorting
             ColorSorter._parent_csdl.addCylinder(
@@ -790,7 +789,8 @@ class ColorSorter:
 
         glpane is used for its transform stack. It can be None, but then
         we will not notice whether primitives we collect are inside
-        any transforms beyond the ones current when we start.
+        any transforms beyond the ones current when we start,
+        and we will also never permit shaders if it's None.
 
         csdl is a ColorSortedDisplayList or None, in which case immediate
         drawing is done.
@@ -819,10 +819,7 @@ class ColorSorter:
             assert not glpane.transforms
         ColorSorter.glpane = glpane
         ColorSorter._initial_transforms = list(glpane.transforms)
-        ColorSorter._permit_shaders = (
-            drawing_globals.use_batched_primitive_shaders and
-            glpane.permit_shaders #bruce 090224 added glpane test
-         )
+        ColorSorter._permit_shaders = glpane and glpane.permit_shaders
         if _DEBUG:
             print "CS.initial transforms:", ColorSorter._debug_transforms()
 

@@ -69,19 +69,17 @@ def test_Draw(glpane):
         pass
     elif int(testCase) >= 100:
         #bruce 090102
-        shader = drawing_globals.sphereShader
-        shader.configShader(glpane)
+        for shader in drawing_globals.enabled_shaders():
+            shader.configShader(glpane)
         test_Object.draw_complete()
         pass
     return
 
 def test_Draw_8x(glpane): #bruce 090223 refactoring of common code
-    if drawing_globals.use_batched_primitive_shaders and glpane.permit_shaders:
-        shader = drawing_globals.sphereShader
-        if testCase == 8.3 and drawing_globals.use_cylinder_shaders:
-            shader = drawing_globals.cylinderShader
-            pass
-        shader.configShader(glpane)
+    if glpane.permit_shaders:
+        for shader in drawing_globals.enabled_shaders():
+            shader.configShader(self)
+            continue
         pass
     if testCase == 8:
         for chunk in test_spheres:
@@ -349,7 +347,7 @@ def test_drawing(glpane, initOnly = False):
     # Load the sphere shaders if needed.
     global _USE_SHADERS
     if _USE_SHADERS:
-        if not hasattr(drawing_globals, "sphereShader"):
+        if not drawing_globals.sphereShader:
             print "Loading sphere shaders."
 
             try:
@@ -1021,7 +1019,7 @@ def test_drawing(glpane, initOnly = False):
                         # Through ColorSorter to cylinder primitive buffer...
                         if (True and  # Whether to do tapered shader-cylinders.
                             # Display List cylinders don't support taper.
-                            drawing_globals.use_cylinder_shaders):
+                            drawing_globals.cylinderShader_desired()):
                             ###cylRad = (radius/2.0, (.75-radius)/2.0)
                             cylRad = (radius/1.5 - .167, .3 - radius/1.5)
                         else:

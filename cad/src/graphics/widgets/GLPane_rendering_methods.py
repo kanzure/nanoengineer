@@ -746,17 +746,10 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # capture it below, and only after that, do this assignment:
             # self._cached_bg_image_comparison_data = bg_image_comparison_data
             pass
-        pass
 
-        if (drawing_globals.use_drawing_variant == 6                # russ 080714
-            or drawing_globals.use_batched_primitive_shaders_pref): # Russ 081128
-            drawing_globals.sphereShader.configShader(self)
-            pass
-
-        if (drawing_globals.use_batched_primitive_shaders_pref
-            and drawing_globals.use_cylinder_shaders_pref):
-            drawing_globals.cylinderShader.configShader(self)
-            pass
+        if self.permit_shaders:
+            for shader in drawing_globals.enabled_shaders():
+                shader.configShader(self)
 
         for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)

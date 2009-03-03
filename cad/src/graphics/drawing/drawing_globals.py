@@ -42,18 +42,94 @@ Access variables as drawing_globals.varname .
 #russ 080403: Added drawing variant selection.
 use_drawing_variant = use_drawing_variant_default = 1 # DrawArrays from CPU RAM.
 use_drawing_variant_prefs_key = "use_drawing_variant"
+
 #russ 080819: Added.
-use_sphere_shaders = use_sphere_shaders_default = True #bruce 090225 revised
+_use_sphere_shaders = use_sphere_shaders_default = True #bruce 090225 revised
 use_sphere_shaders_prefs_key = "v1.2/GLPane: use_sphere_shaders"
+
 #russ 090116: Added.
-use_cylinder_shaders = use_cylinder_shaders_default = True #bruce 090303 revised
+_use_cylinder_shaders = use_cylinder_shaders_default = True #bruce 090303 revised
 use_cylinder_shaders_prefs_key = "v1.2/GLPane: use_cylinder_shaders"
+
 #russ 090223: Added.
-use_cone_shaders = use_cone_shaders_default = True #bruce 090225 revised
+_use_cone_shaders = use_cone_shaders_default = True #bruce 090225 revised
 use_cone_shaders_prefs_key = "v1.2/GLPane: use_cone_shaders"
+
 # Russ 081002: Added.
-use_batched_primitive_shaders = use_batched_primitive_shaders_default = True #bruce 090225 revised
+_use_batched_primitive_shaders = use_batched_primitive_shaders_default = True #bruce 090225 revised
 use_batched_primitive_shaders_prefs_key = "v1.2/GLPane: use_batched_primitive_shaders"
+
+#bruce 090303 adding these inits to ease testing for shader presence
+# (these variables are set elsewhere, but before this might remain unset when
+#  not in use), and an iterator over enabled shaders, and helpers for which
+# shaders are desired by prefs.
+# This will shortly be moved elsewhere as a refactoring
+# (along with the prefs variables related to shaders).
+
+sphereShader = None
+cylinderShader = None
+
+def sphereShader_desired(): #bruce 090303
+    """
+    Based only on preferences, is it desired to use shaders
+    for spheres in CSDLs?
+    """
+    return _use_batched_primitive_shaders and _use_sphere_shaders
+
+def cylinderShader_desired(): #bruce 090303
+    """
+    Based only on preferences, is it desired to use shaders
+    for cylinders in CSDLs?
+    """
+    return _use_batched_primitive_shaders and _use_cylinder_shaders
+
+def coneShader_desired(): #bruce 090303
+    """
+    Based only on preferences, is it desired to use shaders
+    for cones in CSDLs?
+    """
+    # this is intentionally not symmetric with cylinderShader_desired(),
+    # since we want turning off cylinder shader pref to turn off all uses
+    # of the cylinder shader, including cones.
+    return _use_batched_primitive_shaders and _use_cylinder_shaders and \
+           _use_cone_shaders
+
+def enabled_shaders(): #bruce 090303
+    """
+    Yield the shaders that are enabled for use during this drawing frame
+    (in a deterministic order). The result, if turned into a list,
+    is currently [090303] one of the values
+
+    []
+    [sphereShader]
+    [cylinderShader]
+    [sphereShader, cylinderShader]
+
+    where sphereShader and cylinderShader are globals in this module
+    whose values are instances of subclasses of GLShaderObject.
+    
+    For a shader to be "enabled for use" means that it exists, that shader.error
+    is not set, and that current prefs say we should use it for its type of
+    primitive in any CSDL.
+
+    Note that prefs might request a shader without it being enabled (due to
+    error or to its not yet being created), or it might exist and be useable
+    without prefs wanting to use it (if they were turned off during the
+    session).
+    """
+    if not _use_batched_primitive_shaders:
+        # optimization (kluge)
+        return
+    for desired, shader in [
+        (sphereShader_desired(), sphereShader),
+        (cylinderShader_desired(), cylinderShader),
+     ]:
+        if desired and shader and not shader.error:
+            yield shader
+        continue
+    return
+
+# ==
 
 # Experimental native C renderer (quux module in
 # cad/src/experimental/pyrex-opengl)
@@ -112,23 +188,23 @@ def updatePrefsVars():
     """
     Helper for GLPrefs.update() .
     """
-    global use_sphere_shaders, use_cylinder_shaders, use_cone_shaders
-    global use_batched_primitive_shaders, use_drawing_variant
+    global _use_sphere_shaders, _use_cylinder_shaders, _use_cone_shaders
+    global _use_batched_primitive_shaders, use_drawing_variant
     global use_c_renderer
 
-    use_sphere_shaders = env.prefs.get(
+    _use_sphere_shaders = env.prefs.get(
         use_sphere_shaders_prefs_key,
         use_sphere_shaders_default)
 
-    use_cylinder_shaders = env.prefs.get(
+    _use_cylinder_shaders = env.prefs.get(
         use_cylinder_shaders_prefs_key,
         use_cylinder_shaders_default)
 
-    use_cone_shaders = env.prefs.get(
+    _use_cone_shaders = env.prefs.get(
         use_cone_shaders_prefs_key,
         use_cone_shaders_default)
 
-    use_batched_primitive_shaders = env.prefs.get(
+    _use_batched_primitive_shaders = env.prefs.get(
         use_batched_primitive_shaders_prefs_key,
         use_batched_primitive_shaders_default)
 
