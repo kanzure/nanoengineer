@@ -3,21 +3,35 @@
 drawing_globals.py - A module containing global state within the
 graphics.drawing suite.
 
+Desireable refactoring: Note that most of this state really belongs
+in an object that corresponds to each "GL display list namespace",
+i.e. each OpenGL shared resource pool of display lists, textures,
+shaders, VBOs, etc. In current code we require all OpenGL drawing
+contexts to share that state, so we can get away with keeping it
+as globals in a module. Even so, it ought to be refactored, since
+this way it makes the code less clear, causes import cycles and
+dependencies on import order, confuses pylint, etc.
+
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 Variables can be (and are) dynamically added to this module at runtime.
-
-Note: This should *not* be done as a side effect of loading other modules.  It
-makes the imports of those modules falsely appear unnecessary, since nothing
-defined in them is used.  It also confuses tools which import the module in
-which the assignment is used, but not the one which makes the assignment.
+Note: Setting globals here should not be (but, unfortunately, is presently)
+done as a side effect of loading other modules. It makes the imports of those
+modules falsely appear unnecessary, since nothing defined in them is used.
+It also confuses tools which import the module in which the assignment is
+used, but not the one which makes the assignment.
 
 Some of the variables contained here are mode control for the whole drawing
 package, including the ColorSorter suite.  Other parts are communication between
 the phases of setup and operations, which is only incidentally about OpenGL.
+Other things are just geometric constants useful for setting up display lists,
+e.g. a list of vertices of a diamond grid.
+
+Usage:
 
 Import it this way to show that it is a module:
+
   import graphics.drawing.drawing_globals as drawing_globals
 
 Access variables as drawing_globals.varname .
@@ -32,8 +46,8 @@ use_drawing_variant_prefs_key = "use_drawing_variant"
 use_sphere_shaders = use_sphere_shaders_default = True #bruce 090225 revised
 use_sphere_shaders_prefs_key = "v1.2/GLPane: use_sphere_shaders"
 #russ 090116: Added.
-use_cylinder_shaders = use_cylinder_shaders_default = False ##### todo: true when atom pos bug is solved
-use_cylinder_shaders_prefs_key = "use_cylinder_shaders"
+use_cylinder_shaders = use_cylinder_shaders_default = True #bruce 090303 revised
+use_cylinder_shaders_prefs_key = "v1.2/GLPane: use_cylinder_shaders"
 #russ 090223: Added.
 use_cone_shaders = use_cone_shaders_default = True #bruce 090225 revised
 use_cone_shaders_prefs_key = "v1.2/GLPane: use_cone_shaders"
