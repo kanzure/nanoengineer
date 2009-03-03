@@ -755,8 +755,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         if (drawing_globals.use_batched_primitive_shaders_pref
             and drawing_globals.use_cylinder_shaders_pref):
-            #bruce 090218 bugfix; but, it may be causing a bug in atom positions ####
-            drawing_globals.cylinderShader.configShader(self, has_debug = True)
+            drawing_globals.cylinderShader.configShader(self)
             pass
 
         for stereo_image in self.stereo_images_to_draw:

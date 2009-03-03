@@ -186,6 +186,15 @@ class GLShaderObject(object):
     """
     Base class for managing OpenGL shaders.
     """
+
+    # default values of per-subclass constants
+    
+    _has_uniform_debug_code = False
+        # whether this shader has the uniform variable 'debug_code'
+        # (a boolean which enables debug behavior)
+        # (it might be better to set this by asking OpenGL whether
+        #  that uniform exists, after loading the shader source)
+
     def __init__(self, shaderName, shaderVertSrc, shaderFragSrc):
         # Cached info for blocks of transforms.
         self.n_transforms = None        # Size of the block.
@@ -289,12 +298,13 @@ class GLShaderObject(object):
             pass
         return shader
 
-    def configShader(self, glpane, has_debug = False):
+    def configShader(self, glpane):
         """
-        Fill in uniform variables in the shader before using to draw.
+        Fill in uniform variables in the shader self, before using it to draw.
 
         @param glpane: The current glpane, containing NE1 graphics context
-        information related to the drawing environment.
+            information related to the drawing environment. This is used to
+            find proper values for uniform variables we set in the shader.
         """
         # Can't do anything good after an error loading the shader programs.
         if self.error:
@@ -307,7 +317,7 @@ class GLShaderObject(object):
             pass
 
         # Debugging control.
-        if has_debug:
+        if self._has_uniform_debug_code:
             glUniform1iARB(
                 self._uniform("debug_code"),
                 int(debug_pref("GLPane: shader debug graphics?",
@@ -660,6 +670,7 @@ class GLCylinderShaderObject(GLShaderObject):
     send rays through the scene for reflection/refraction, nor toward the lights
     to compute shadows.)
     """
+    _has_uniform_debug_code = True
     def __init__(self):
         super(GLCylinderShaderObject, self).__init__(
             "Cylinder", cylinderVertSrc, cylinderFragSrc)
