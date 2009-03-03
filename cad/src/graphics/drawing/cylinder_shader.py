@@ -587,32 +587,29 @@ void main(void) {
     vec3 near_edge_midpoint = var_endpts[endcap] + scaled_toward;
     vec3 near_edge_vertex = near_edge_midpoint + scaled_across;
 
-    float endcap_radius = var_radii[endcap];
-    float endcap_halo_radius = var_halo_radii[endcap];
+    float halo_width = var_halo_radii[endcap]-var_radii[endcap];
 #else
     // GLSL bug on GeForce 7600: Expand to use constant subscripts instead.
     // C6016: Profile requires arrays with non-constant indexes to be uniform
     vec3 endcap_across, endcap_toward, endcap_endpt;
-    float endcap_radius, endcap_halo_radius;
+    float halo_width;
     if (endcap == 1) {
       endcap_across = endpt_across_vp_dir[1];
       endcap_toward = endpt_toward_vp_dir[1];
       endcap_endpt = var_endpts[1];
-      endcap_radius = var_radii[1];
-      endcap_halo_radius = var_halo_radii[1];
+      halo_width = var_halo_radii[1]-var_radii[1];
     } else {
       endcap_across = endpt_across_vp_dir[0];
       endcap_toward = endpt_toward_vp_dir[0];
       endcap_endpt = var_endpts[0];
-      endcap_radius = var_radii[0];
-      endcap_halo_radius = var_halo_radii[0];
+      halo_width = var_halo_radii[0]-var_radii[0];
     }
       
     vec3 scaled_across = (gl_Vertex.y * max_billboard_radius) * endcap_across;
     vec3 scaled_toward = max_billboard_radius * endcap_toward;
 
     // On the near face of the pyramid toward the viewpt, for the no-endcap end.
-    vec3 near_edge_midpoint = endcap_endpt * scaled_toward;
+    vec3 near_edge_midpoint = endcap_endpt + scaled_toward;
     vec3 near_edge_vertex = near_edge_midpoint + scaled_across;
 #endif
 
@@ -623,7 +620,7 @@ void main(void) {
         // Extend the billboard axis length a little bit for a barrel-end halo.
         billboard_vertex += axis_line_dir * // Axis direction (unit vector).
           (float(endcap*2 - 1)              // Endcap 0:backward, 1:forward.
-           * (endcap_halo_radius - endcap_radius) // Eye space halo width.
+           * halo_width                     // Eye space halo width.
            * (axis_length /                 // Longer when view is more end-on.
               max(0.1 * axis_length, length(axis_line_vec.xy))));
       }

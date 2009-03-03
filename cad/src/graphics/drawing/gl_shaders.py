@@ -233,7 +233,7 @@ class GLShaderObject(object):
         # GLSL on the nVidia GeForce 7000 only supports constant array
         # subscripts, and subscripting by a loop index variable.
         if not debug_pref("GLPane: shaders with only constant subscripts?",
-                      Choice_boolean_False, prefs_key = True):
+                      Choice_boolean_True, prefs_key = True):
             prefix += "#define FULL_SUBSCRIPTING"
         else:
             prefix += "" # To keep the shader line numbers unchanged.

@@ -182,7 +182,7 @@ testCase = 8.1; nSpheres = 10; chunkLength = 24; USE_GRAPHICSMODE_DRAW = True
 #testCase = 8.2; nSpheres = 100; chunkLength = 200
 #testCase = 8.2; nSpheres = 100; chunkLength = 50
 
-#testCase = 8.3; nSpheres =   2; chunkLength = 8
+testCase = 8.3; nSpheres =   2; chunkLength = 8
 #testCase = 8.3; nSpheres =   5; chunkLength = 8
 #testCase = 8.3; nSpheres =  10; chunkLength = 8
 #testCase = 8.3; nSpheres =  50; chunkLength = 8
@@ -1011,7 +1011,7 @@ def test_drawing(glpane, initOnly = False):
 
                 # Test selection using the CSDL glname.
                 ColorSorter.pushName(csdl.glname)
-                ColorSorter.start(None, csdl)
+                ColorSorter.start(glpane, csdl)
                 for (color, center, radius) in zip(colors, centers, radii):
                     if not doCylinders:
                         # Through ColorSorter to the sphere primitive buffer...
