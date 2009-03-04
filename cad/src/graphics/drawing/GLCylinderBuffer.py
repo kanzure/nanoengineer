@@ -20,7 +20,6 @@ See design comments on:
 * GLPrimitiveSet in GLPrimitiveSet in GLPrimitiveSet.py
 """
 
-import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer, HunkBuffer
 
 from geometry.VQT import V, A
@@ -34,11 +33,12 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
     Draws a bounding-box of quads (or a single billboard quad) to a custom
     cylinder shader for each cylinder, along with control attribute data.
     """
-    def __init__(self):
+    def __init__(self, shaderGlobals):
         """
+        @param shaderGlobals: the instance of class ShaderGlobals
+            we will be associated with.
         """
-        super(GLCylinderBuffer, self).__init__(
-            drawing_globals.cylinderShaderGlobals )
+        super(GLCylinderBuffer, self).__init__( shaderGlobals )
 
         # Per-vertex attribute hunk VBOs that are specific to the cylinder
         # shader.  Combine endpoints and radii into two vec4's.  It would be

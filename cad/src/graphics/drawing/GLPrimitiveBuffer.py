@@ -178,6 +178,10 @@ class GLPrimitiveBuffer(object):
     def __init__(self, shaderGlobals):
         """
         Fill in the vertex VBO and IBO drawing pattern for this primitive type.
+
+        @param shaderGlobals: the instance of class ShaderGlobals
+            we will be associated with, used for its .shader
+            and various related constants.
         """
         # set localvars as follows, for the drawing pattern for VBOs/IBOs
         # for this primitive type:

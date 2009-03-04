@@ -18,7 +18,6 @@ See design comments on:
 * GLPrimitiveSet in GLPrimitiveSet in GLPrimitiveSet.py
 """
 
-import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer, HunkBuffer
 
 from geometry.VQT import V, A
@@ -33,11 +32,12 @@ class GLSphereBuffer(GLPrimitiveBuffer):
     sphere shader for each sphere primitive, along with control attribute data.
     """
     
-    def __init__(self):
+    def __init__(self, shaderGlobals):
         """
+        @param shaderGlobals: the instance of class ShaderGlobals
+            we will be associated with.
         """
-        super(GLSphereBuffer, self).__init__(
-            drawing_globals.sphereShaderGlobals )
+        super(GLSphereBuffer, self).__init__( shaderGlobals )
 
         # Per-vertex attribute hunk VBOs that are specific to the sphere shader.
         # Combine centers and radii into a 4-element vec4 attribute VBO.  (Each

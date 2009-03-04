@@ -163,7 +163,7 @@ class ShaderGlobals:
             print "%s shader initialization is complete." % self.primtype
 
         primitiveBuffer_class = self.get_primitiveBuffer_class()
-        self.primitiveBuffer = primitiveBuffer_class()
+        self.primitiveBuffer = primitiveBuffer_class( self)
         print "%s primitive buffer initialization is complete." % self.primtype
         print
 
