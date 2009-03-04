@@ -278,10 +278,10 @@ uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
 
 uniform int perspective;
 uniform vec4 clip;              // [near, far, middle, depth_inverse]
-
-uniform vec4 intensity;    // Set an intensity component to 0 to ignore a light.
+uniform float DEPTH_TWEAK;      // Offset for highlight over-drawing.
 
 // A fixed set of lights.
+uniform vec4 intensity;    // Set an intensity component to 0 to ignore a light.
 uniform vec3 light0;
 uniform vec3 light1;
 uniform vec3 light2;
@@ -375,6 +375,9 @@ void main(void) {  // Fragment (pixel) shader procedure.
     // Ortho: 0.5 + (-middle - sample_z) / depth
     gl_FragDepth = 0.5 + (-clip[2] - sample_z) * clip[3];
   }
+  // Subtract DEPTH_TWEAK to pull Z toward us during highlighted drawing.
+  if (drawing_style != DS_NORMAL)
+    gl_FragDepth -= DEPTH_TWEAK;
 
   // No shading or lighting on halos.
   //// The nVidia 7600GS does not allow return in a conditional.

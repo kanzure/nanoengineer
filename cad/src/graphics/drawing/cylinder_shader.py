@@ -695,6 +695,7 @@ uniform vec4 material; // Properties: [ambient, diffuse, specular, shininess].
 
 uniform int perspective;
 uniform vec4 clip;              // [near, far, middle, depth_inverse]
+uniform float DEPTH_TWEAK;      // Offset for highlight over-drawing.
 
 // A fixed set of lights.
 uniform vec4 intensity;    // Set an intensity component to 0 to ignore a light.
@@ -1268,6 +1269,9 @@ void main(void) {
       gl_FragDepth = 0.5 + (-clip[2] - sample_z) * clip[3];
     }
   }
+  // Subtract DEPTH_TWEAK to pull Z toward us during highlighted drawing.
+  if (drawing_style != DS_NORMAL)
+    gl_FragDepth -= DEPTH_TWEAK;
 
   // Nothing more to do if the intersection point is clipped.
   if (gl_FragDepth < 0.0 || gl_FragDepth > 1.0)

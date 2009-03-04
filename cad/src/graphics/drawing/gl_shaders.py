@@ -339,13 +339,16 @@ class GLShaderObject(object):
         glUniform4fvARB(self._uniform("material"), 1, [0.3, 0.6, 0.5, 20.0])
         glUniform1iARB(self._uniform("perspective"), (1, 0)[glpane.ortho])
 
-        # XXX Try built-in "uniform gl_DepthRangeParameters gl_DepthRange;"
-        vdist = glpane.vdist            # See GLPane._setup_projection().
+        # See GLPane._setup_projection().
+        vdist = glpane.vdist
         # See GLPane_minimal.setDepthRange_Normal().
         near = vdist * (glpane.near + glpane.DEPTH_TWEAK)
         far = vdist * glpane.far
         glUniform4fvARB(self._uniform("clip"), 1,
                         [near, far, 0.5*(far + near), 1.0/(far - near)])
+        # The effect of setDepthRange_Highlighting() is done as the shaders
+        # set the gl_FragDepth during a highlighted drawing style.
+        glUniform1fARB(self._uniform("DEPTH_TWEAK"), glpane.DEPTH_TWEAK)
 
         # Pixel width of window for halo drawing calculations.
         self.window_width = glpane.width
