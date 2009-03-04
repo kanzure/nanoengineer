@@ -58,6 +58,8 @@ from utilities.prefs_constants import SS_HALO
 
 from utilities.debug import print_compact_traceback
 
+import graphics.drawing.drawing_constants as drawing_constants
+
 import graphics.drawing.drawing_globals as drawing_globals
 
 from graphics.drawing.gl_lighting import apply_material
@@ -117,7 +119,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this CSDL was last changed.
-        self.changed = drawing_globals.eventStamp()
+        self.changed = drawing_constants.eventStamp()
 
         if transformControl is not None:
             self.transformControl = transformControl
@@ -213,7 +215,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
             pass
 
         # Russ 080915: This supports lazily updating drawing caches.
-        self.changed = drawing_globals.eventStamp()
+        self.changed = drawing_constants.eventStamp()
 
         # Clear the primitive data to start collecting a new set.
         
@@ -229,7 +231,8 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         self._reset()
 
         if 0: # keep around, in case we want a catchall DL in the future
-            #bruce 090114 removed support for 
+            #bruce 090114 removed support for
+            # [note: later: these are no longer in drawing_globals]
             # (not (drawing_globals.allow_color_sorting and
             #       drawing_globals.use_color_sorted_dls)):
             # This is the beginning of the single display list created when

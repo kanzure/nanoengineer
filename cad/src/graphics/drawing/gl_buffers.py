@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 gl_buffers.py - OpenGL data buffer objects.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -37,7 +37,7 @@ ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 """
 
-import graphics.drawing.drawing_globals as drawing_globals
+import graphics.drawing.drawing_constants as drawing_constants
 
 # Vertex Buffer Object (VBO) and Index Buffer Object (IBO) support.
 # For docs see http://www.opengl.org/sdk/docs/man/xhtml/glBufferData.xml .
@@ -100,7 +100,7 @@ class GLBufferObject(object):
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this GLBufferObject was last flushed.
-        self.flushed = drawing_globals.NO_EVENT_YET
+        self.flushed = drawing_constants.NO_EVENT_YET
 
         return
 

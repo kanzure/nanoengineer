@@ -70,9 +70,9 @@ See design comments on:
   in this DrawingSet.)
 """
 
-import graphics.drawing.drawing_globals as drawing_globals
+import graphics.drawing.drawing_constants as drawing_constants
 
-from geometry.VQT import V, Q, A
+from geometry.VQT import Q
 import Numeric
 import math
 
@@ -126,8 +126,8 @@ class TransformControl:
         ### REVIEW: I think we only need a valid flag, not any timestamps --
         # at least for internal use. If we have clients but not subscribers,
         # then they could make use of our changed timestamp. [bruce 090203]
-        self.changed = drawing_globals.eventStamp()
-        self.cached = drawing_globals.NO_EVENT_YET
+        self.changed = drawing_constants.eventStamp()
+        self.cached = drawing_constants.NO_EVENT_YET
 
         self.transform = floatIdent(4)
         return
@@ -139,7 +139,7 @@ class TransformControl:
         Post-multiply self's transform with a rotation given by a quaternion.
         """
         self.transform = Numeric.matrixmultiply(self.transform, qmat4x4(quat))
-        self.changed = drawing_globals.eventStamp()
+        self.changed = drawing_constants.eventStamp()
         return
 
     def translate(self, vec):
@@ -148,7 +148,7 @@ class TransformControl:
         """
         # This only affects the fourth row x,y,z elements.
         self.transform[3, 0:3] += vec
-        self.changed = drawing_globals.eventStamp()
+        self.changed = drawing_constants.eventStamp()
         return
         
     def setRotateTranslate(self, quat, vec):

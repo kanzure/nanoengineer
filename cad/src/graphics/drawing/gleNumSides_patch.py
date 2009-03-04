@@ -1,3 +1,13 @@
+"""
+# Patch the gle[GS]etNumSides functions to call gle[GS]etNumSlices.
+
+$Id$
+
+# The following was extracted and modified from gle[GS]etNumSides in
+#    /Library/Python/2.5/site-packages/PyOpenGL-3.0.0a6-py2.5.egg/
+#        OpenGL/raw/GLE/__init__.py
+"""
+
 # Patch the gle[GS]etNumSides functions to call gle[GS]etNumSlices.
 #
 # This can be loaded only if needed, for example:
@@ -28,7 +38,7 @@
 
 from ctypes import c_int
 from OpenGL import platform, arrays
-from OpenGL.constant import Constant
+from OpenGL.constant import Constant # not used -- what is it?
 from OpenGL import constants as GLconstants
 
 # /usr/include/GL/gle.h 114

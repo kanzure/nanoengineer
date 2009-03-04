@@ -46,6 +46,8 @@ See design comments on:
   glMultiDrawElements call, with the relevant VBO hunk arrays enabled in the GL.
 """
 
+import graphics.drawing.drawing_constants as drawing_constants
+
 import graphics.drawing.drawing_globals as drawing_globals
 
 from OpenGL.GL import glPushMatrix, glPopMatrix
@@ -78,7 +80,7 @@ class GLPrimitiveSet:
 
         # Support for lazily updating drawing caches, namely a
         # timestamp showing when this GLPrimitiveSet was created.
-        self.created = drawing_globals.eventStamp()
+        self.created = drawing_constants.eventStamp()
 
         # optimization: sort CSDLs_with_DLs by their transformControl.
         # [bruce 090225]

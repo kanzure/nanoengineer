@@ -109,7 +109,7 @@ See design comments on:
   small number of glMultiDrawElements calls, no more than the number of active
   allocation hunks of each primitive type that needs to be drawn.
 """
-import graphics.drawing.drawing_globals as drawing_globals
+import graphics.drawing.drawing_constants as drawing_constants
 from graphics.drawing.gl_buffers import GLBufferObject
 
 import numpy
@@ -232,7 +232,7 @@ class GLPrimitiveBuffer(object):
 
         # Support for lazily updating drawing caches, namely a timestamp showing
         # when this GLPrimitiveBuffer was last flushed to graphics card RAM.
-        self.flushed = drawing_globals.NO_EVENT_YET
+        self.flushed = drawing_constants.NO_EVENT_YET
 
         # Fill in shared data in the graphics card RAM.
         self._setupSharedVertexData()

@@ -72,22 +72,6 @@ from graphics.drawing.glprefs import GLPrefs
 
 glprefs = GLPrefs()
 
-# ==
-
-# Common code for DrawingSet, TransformControl, et al.
-
-# Russ 080915: Support for lazily updating drawing caches, namely a change
-# timestamp.  Rather than recording a time per se, an event counter is used.
-NO_EVENT_YET = 0
-_event_counter = NO_EVENT_YET
-def eventStamp():
-    global _event_counter
-    _event_counter += 1
-    return _event_counter
-
-def eventNow():
-    return _event_counter
-
 # =====
 
 # these are assigned by external code (incomplete list;

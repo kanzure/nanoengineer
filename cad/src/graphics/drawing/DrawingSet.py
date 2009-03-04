@@ -73,9 +73,7 @@ has no name in this proposal.
   then re-allocated in a stable order.
 """
 
-import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveSet import GLPrimitiveSet
-from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
 
 class DrawingSet:
     """

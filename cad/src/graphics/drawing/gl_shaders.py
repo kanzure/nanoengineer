@@ -93,8 +93,6 @@ CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
 from geometry.VQT import A, norm
 import utilities.EndUser as EndUser
 
-import graphics.drawing.drawing_globals as drawing_globals
-from graphics.drawing.gl_buffers import GLBufferObject
 from graphics.drawing.sphere_shader import sphereVertSrc, sphereFragSrc
 from graphics.drawing.cylinder_shader import cylinderVertSrc, cylinderFragSrc
 
@@ -121,15 +119,12 @@ from OpenGL.GL import GL_RGBA32F_ARB
 from OpenGL.GL import GL_TEXTURE_2D
 #from OpenGL.GL import GL_TEXTURE_MAG_FILTER
 #from OpenGL.GL import GL_TEXTURE_MIN_FILTER
-#from OpenGL.GL import GL_TEXTURE0
 from OpenGL.GL import GL_TRUE
 from OpenGL.GL import GL_VERTEX_SHADER
 from OpenGL.GL import GL_VALIDATE_STATUS
 
-#from OpenGL.GL import glActiveTexture
 from OpenGL.GL import glBindTexture
 #from OpenGL.GL import glEnable
-from OpenGL.GL import glEnableClientState
 from OpenGL.GL import glGenTextures
 from OpenGL.GL import glGetInteger
 from OpenGL.GL import glGetTexImage
@@ -384,6 +379,14 @@ class GLShaderObject(object):
         patterned_highlighting = (False and # XXX
                                   patterning and
                                   isPatternedDrawing(highlight = highlighted))
+           # warning in case that code is enabled:
+           #   pylint warning: Undefined variable 'isPatternedDrawing
+           # and fixing this might require moving 'def isPatternedDrawing'
+           # into a different module than the one it's in now (in which it
+           # never belonged). [bruce 090304 comment]
+
+           # note: patterned_highlighting variable is not yet used here
+           
         halo_selection = (selected and
                           env.prefs[selectionColorStyle_prefs_key] == SS_HALO)
         halo_highlighting = (highlighted and

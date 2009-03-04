@@ -25,7 +25,7 @@ from OpenGL.GL import glget
 import ctypes
 from OpenGL.raw.GL.ARB.vertex_shader import *
 
-from shader_objects_patch import glGetObjectParameterivARB ### Added _patch.
+from graphics.drawing.shader_objects_patch import glGetObjectParameterivARB ### Added _patch.
 
 base_glGetActiveAttribARB = glGetActiveAttribARB
 def glGetActiveAttribARB(program, index):
