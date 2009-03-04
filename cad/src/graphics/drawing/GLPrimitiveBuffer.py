@@ -109,9 +109,8 @@ See design comments on:
   small number of glMultiDrawElements calls, no more than the number of active
   allocation hunks of each primitive type that needs to be drawn.
 """
-import foundation.env as env
 import graphics.drawing.drawing_globals as drawing_globals
-from gl_buffers import GLBufferObject
+from graphics.drawing.gl_buffers import GLBufferObject
 
 import numpy
 
@@ -133,7 +132,6 @@ from OpenGL.GL import glDisableClientState
 from OpenGL.GL import glDrawElements
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
-###from OpenGL.GL import glMultiDrawElements
 from OpenGL.GL import glVertexPointer
 
 # Pass an array of byte offsets into the graphics card index buffer object.
@@ -143,9 +141,11 @@ from graphics.drawing.vbo_patch import glMultiDrawElementsVBO
 
 from OpenGL.GL.ARB.vertex_program import glDisableVertexAttribArrayARB
 from OpenGL.GL.ARB.vertex_program import glEnableVertexAttribArrayARB
-from OpenGL.GL.ARB.vertex_program import glVertexAttrib1fARB
-from OpenGL.GL.ARB.vertex_program import glVertexAttrib3fARB
 from OpenGL.GL.ARB.vertex_program import glVertexAttribPointerARB
+
+from utilities.debug_prefs import debug_pref, Choice_boolean_True
+
+# ==
 
 # Constants.
 
@@ -175,20 +175,34 @@ class GLPrimitiveBuffer(object):
     """
     Manage VBO space for drawing primitives in large batches.
     """
-    def __init__(self, shader, drawingMode, vertexBlock, indexBlock):
+    def __init__(self, shaderGlobals):
         """
         Fill in the vertex VBO and IBO drawing pattern for this primitive type.
-
-        shader - The GLShaderObject to use.
-
-        drawingMode - What kind of primitives to render, e.g. GL_QUADS.
-
-        vertexBlock, indexBlock - Single blocks (lists) of vertices and indices
-        making up the drawing pattern for this primitive.
-        See description in the file docstring.
         """
+        # set localvars as follows, for the drawing pattern for VBOs/IBOs
+        # for this primitive type:
+        # 
+        # shader - The GLShaderObject to use.
+        # 
+        # drawingMode - What kind of primitives to render, e.g. GL_QUADS.
+        # 
+        # vertexBlock, indexBlock - Single blocks (lists) of vertices and indices
+        # making up the drawing pattern for this primitive.
+        # See description in the module docstrings for this class or its subclasses.
+        if debug_pref("GLPane: use billboard primitives? (next session)",
+                      Choice_boolean_True, prefs_key = True ):
+            drawingMode = GL_QUADS
+            vertexBlock = shaderGlobals.billboardVerts
+            indexBlock = shaderGlobals.billboardIndices
+            pass
+        else:
+            drawingMode = GL_QUADS
+            vertexBlock = shaderGlobals.shaderCubeVerts
+            indexBlock = shaderGlobals.shaderCubeIndices
+            pass
+
         # Remember the shader.
-        self.shader = shader
+        self.shader = shader = shaderGlobals.shader
 
         # Shared data for drawing calls to follow.
         self.drawingMode = drawingMode
@@ -358,6 +372,11 @@ class GLPrimitiveBuffer(object):
             ## XXX Not necessary for custom shader programs.
             ##glEnable(GL_TEXTURE_2D)
             glBindTexture(GL_TEXTURE_2D, self.transform_memory)
+                ### BUG: pylint warning:
+                # Instance of 'GLPrimitiveBuffer' has no 'transform_memory' member
+                #### REVIEW: should this be the attr of that name in GLShaderObject,
+                # i.e. self.shader? I didn't fix it myself as a guess, in case other
+                # uses of self also need fixing in the same way. [bruce 090304 comment]
 
             # Set the sampler to the handle for the active texture image (0).
             ## XXX Not needed if only one texture is being used?

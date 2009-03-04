@@ -1,10 +1,10 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 ProteinChunks.py -- defines I{Reduced Protein} display modes.
 
 @author: Piotr
-$Id$ 
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+@version: $Id$ 
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -28,14 +28,11 @@ piotr 080904: Added missing docstrings, prepared for review.
 
 import foundation.env as env
 
-from model.chunk import Chunk
-
 from geometry.VQT import V, norm, cross
 
 from graphics.display_styles.displaymodes import ChunkDisplayMode
 
 from graphics.drawing.CS_draw_primitives import drawcylinder
-from graphics.drawing.CS_draw_primitives import drawpolycone
 from graphics.drawing.CS_draw_primitives import drawpolycone_multicolor
 from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.CS_draw_primitives import drawline
@@ -43,12 +40,6 @@ from graphics.drawing.CS_draw_primitives import drawtriangle_strip
 
 from Numeric import dot
 
-from OpenGL.GL import glBegin
-from OpenGL.GL import glColor3f
-from OpenGL.GL import glEnd
-from OpenGL.GL import GL_QUADS
-from OpenGL.GL import glVertex3fv
-from OpenGL.GL import glColor3fv
 from OpenGL.GL import glMaterialfv
 from OpenGL.GL import GL_FRONT_AND_BACK
 from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
@@ -60,11 +51,18 @@ from OpenGL.GL import GL_COMPILE
 
 import colorsys
 
-from graphics.drawing.gl_lighting import apply_material
-
-from utilities.constants import blue, cyan, green, orange, red, white, black, gray
+from utilities.constants import blue, cyan, green, orange, red, white, gray
 
 from utilities.constants import yellow
+
+##### TODO: FIX: The *_worker functions are an internal part of the drawing code
+# and should never be called directly from outside it. Doing so makes it
+# difficult to modify the drawing code internally. All calls herein to
+# drawsphere_worker or drawcylinder_worker should be replaced
+# with equivalent calls to drawsphere or drawcylinder (and then if
+# that's too much slower, those should be optimized in the drawing
+# code, not here). [bruce 090304 comment]
+
 from graphics.drawing.CS_workers import drawcylinder_worker
 from graphics.drawing.CS_workers import drawsphere_worker
 
@@ -80,31 +78,15 @@ from utilities.prefs_constants import proteinStyleCoilColor_prefs_key
 from utilities.prefs_constants import proteinStyleSmooth_prefs_key
 
 try:
-    from OpenGL.GLE import glePolyCone
-    from OpenGL.GLE import gleGetNumSides 
-    from OpenGL.GLE import gleSetNumSides 
-    from OpenGL.GLE import gleExtrusion
-    from OpenGL.GLE import gleTwistExtrusion
-    from OpenGL.GLE import glePolyCylinder 
     from OpenGL.GLE import gleSetJoinStyle
-    from OpenGL.GLE import TUBE_NORM_EDGE 
     from OpenGL.GLE import TUBE_NORM_PATH_EDGE 
-    from OpenGL.GLE import TUBE_JN_ROUND
     from OpenGL.GLE import TUBE_JN_ANGLE
     from OpenGL.GLE import TUBE_CONTOUR_CLOSED 
     from OpenGL.GLE import TUBE_JN_CAP 
 except:
     print "Protein Chunks: GLE module can't be imported. Now trying _GLE"
-    from OpenGL._GLE import glePolyCone 
-    from OpenGL._GLE import gleGetNumSides 
-    from OpenGL._GLE import gleSetNumSides 
-    from OpenGL._GLE import gleExtrusion
-    from OpenGL._GLE import gleTwistExtrusion    
-    from OpenGL._GLE import glePolyCylinder 
     from OpenGL._GLE import gleSetJoinStyle
-    from OpenGL._GLE import TUBE_NORM_EDGE 
     from OpenGL._GLE import TUBE_NORM_PATH_EDGE 
-    from OpenGL._GLE import TUBE_JN_ROUND
     from OpenGL._GLE import TUBE_JN_ANGLE
     from OpenGL._GLE import TUBE_CONTOUR_CLOSED 
     from OpenGL._GLE import TUBE_JN_CAP 
@@ -1038,7 +1020,7 @@ class ProteinChunks(ChunkDisplayMode):
         
         This method seems to be obsolete. piotr 080803
         """
-        drawchunk(self, glpane, chunk, selection_frame_color, memo, highlighted)
+        self.drawchunk(self, glpane, chunk, selection_frame_color, memo, highlighted)
         return
 
     def drawchunk_realtime(self, glpane, chunk, highlighted=False):
@@ -1125,7 +1107,11 @@ class ProteinChunks(ChunkDisplayMode):
                                 glMaterialfv(
                                     GL_FRONT_AND_BACK, 
                                     GL_AMBIENT_AND_DIFFUSE, 
-                                    color[:3])        
+                                    color[:3])
+
+                                ##### TODO: FIX: The *_worker functions should never be
+                                # called directly from outside the drawing code. See longer
+                                # comment where they are imported. [bruce 090304 comment]
                                 
                                 drawsphere_worker((pos1, 0.2, 1, 1))
                                 
@@ -1208,7 +1194,7 @@ class ProteinChunks(ChunkDisplayMode):
             if aa:
                 return aa.get_secondary_structure()
 
-            return SS_COIL
+            return SS_COIL # BUG: Undefined variable
 
         def _get_aa(aa):
             """

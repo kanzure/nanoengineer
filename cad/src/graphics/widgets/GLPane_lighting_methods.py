@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPane_lighting_methods.py
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 bruce 080910 split this out of class GLPane
 """
@@ -60,12 +60,16 @@ class GLPane_lighting_methods(object):
 
     def setup_lighting_if_needed(self): #bruce 080910 un-inlined this
         if self.need_setup_lighting \
-           or self._last_glprefs_data_used_by_lights != glprefs_data_used_by_setup_standard_lights() \
+           or (self._last_glprefs_data_used_by_lights !=
+               glprefs_data_used_by_setup_standard_lights( self.glprefs)) \
            or debug_pref("always setup_lighting?", Choice_boolean_False):
-            #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
+            #bruce 060415 added debug_pref("always setup_lighting?"),
+            # in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
             # using it makes specularity work on my iMac G4,
-            # except for brief periods as you move mouse around to change selobj (also observed on G5, but less frequently I think).
-            # BTW using this (on G4) has no effect on whether "new wirespheres" is needed to make wirespheres visible.
+            # except for brief periods as you move mouse around to change selobj
+            # (also observed on G5, but less frequently I think).
+            # BTW using this (on G4) has no effect on whether "new wirespheres"
+            # is needed to make wirespheres visible.
             #
             # (bruce 051126 added override_light_specular part of condition)
             # I don't know if it matters to avoid calling this every time...
@@ -153,16 +157,12 @@ class GLPane_lighting_methods(object):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-        glprefs = None
-            #e someday this could be an argument providing a different glprefs object
-            # for local use in part of a scenegraph (if other code was also revised) [bruce 051212 comment]
-
         #bruce 051212 moved most code from this method into new function, setup_standard_lights
-        setup_standard_lights( self._lights, glprefs)
+        setup_standard_lights( self._lights, self.glprefs)
 
         # record what glprefs data was used by that, for comparison to see when we need to call it again
         # (not needed for _lights since another system tells us when that changes)
-        self._last_glprefs_data_used_by_lights = glprefs_data_used_by_setup_standard_lights(glprefs)
+        self._last_glprefs_data_used_by_lights = glprefs_data_used_by_setup_standard_lights( self.glprefs)
         return
 
     def saveLighting(self):

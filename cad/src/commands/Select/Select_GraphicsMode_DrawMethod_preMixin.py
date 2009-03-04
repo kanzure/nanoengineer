@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 Select_GraphicsMode_DrawMethod_preMixin.py 
 
@@ -12,23 +12,14 @@ inherited by the subclass 'Select_basicGraphicsMode' _before_ it inherits the
 To be used as a Mixin class only for Select_basicGraphicsMode. 
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
+TODO: this is now short enough that we could merge this module back into
+its client code.
 """
-
-import sys
-import os
-import foundation.env as env
-import Numeric
-from OpenGL.GL import glPopMatrix
-from OpenGL.GL import glPushMatrix
-from OpenGL.GL import glTranslate
-
-from utilities.Log import redmsg
 
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice
-from utilities.debug import print_compact_stack
 
 from command_support.GraphicsMode import commonGraphicsMode
 
@@ -55,79 +46,26 @@ class Select_GraphicsMode_DrawMethod_preMixin(commonGraphicsMode):
             # Set to 2 to see the Large-Bearing model, but this is most effective if
             #  the Large-Bearing has already been loaded normally into rotate mode
             #bruce 060209 set this from a debug_pref menu item, not a hardcoded flag
-            TEST_PYREX_OPENGL = debug_pref("TEST_PYREX_OPENGL", Choice([0,1,2]))
+            TEST_PYREX_OPENGL = debug_pref("GLPane: TEST_PYREX_OPENGL", Choice([0,1,2]))
             # uncomment this line to set it in the old way:
             ## TEST_PYREX_OPENGL = 1
         if TEST_PYREX_OPENGL:
-            try:
-                print_compact_stack("selectMode Draw: " )###
-                ### BUG: if import quux fails, we get into some sort of infinite
-                ###   loop of Draw calls. [bruce 070917 comment]
-
-                #self.w.win_update()
-                ## sys.path.append("./experimental/pyrex-opengl") # no longer 
-                ##needed here -- always done in drawer.py
-                binPath = os.path.normpath(os.path.dirname(
-                    os.path.abspath(sys.argv[0])) + '/../bin')
-                if binPath not in sys.path:
-                    sys.path.append(binPath)
-                import quux
-                if "experimental" in os.path.dirname(quux.__file__):
-                    print "WARNING: Using experimental version of quux module"
-                # quux.test()
-                quux.shapeRendererInit()
-                quux.shapeRendererSetUseDynamicLOD(0)
-                quux.shapeRendererStartDrawing()
-                if TEST_PYREX_OPENGL == 1:
-                    center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
-                                            Numeric.array((0, 0, 1), 'f'),
-                                            Numeric.array((0, 1, 0), 'f'),
-                                            Numeric.array((0, 1, 1), 'f'),
-                                            Numeric.array((1, 0, 0), 'f'),
-                                            Numeric.array((1, 0, 1), 'f'),
-                                            Numeric.array((1, 1, 0), 'f'),
-                                            Numeric.array((1, 1, 1), 'f')), 'f')
-                    radius = Numeric.array((0.2, 0.4, 0.6, 0.8,
-                                            1.2, 1.4, 1.6, 1.8), 'f')
-                    color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
-                                           Numeric.array((0, 0, 1, 0.5), 'f'),
-                                           Numeric.array((0, 1, 0, 0.5), 'f'),
-                                           Numeric.array((0, 1, 1, 0.5), 'f'),
-                                           Numeric.array((1, 0, 0, 0.5), 'f'),
-                                           Numeric.array((1, 0, 1, 0.5), 'f'),
-                                           Numeric.array((1, 1, 0, 0.5), 'f'),
-                                           Numeric.array((1, 1, 1, 0.5), 'f')), 'f')
-                    result = quux.shapeRendererDrawSpheres(8, center, radius, color)
-                elif TEST_PYREX_OPENGL == 2:
-                    # grantham - I'm pretty sure the actual compilation, init,
-                    # etc happens once
-                    from bearing_data import sphereCenters, sphereRadii
-                    from bearing_data import sphereColors, cylinderPos1
-                    from bearing_data import cylinderPos2, cylinderRadii
-                    from bearing_data import cylinderCapped, cylinderColors
-                    glPushMatrix()
-                    glTranslate(-0.001500, -0.000501, 151.873627)
-                    result = quux.shapeRendererDrawSpheres(1848, 
-                                                           sphereCenters, 
-                                                           sphereRadii, 
-                                                           sphereColors)
-                    result = quux.shapeRendererDrawCylinders(5290, 
-                                                             cylinderPos1,
-                                                             cylinderPos2, 
-                                                             cylinderRadii, 
-                                                             cylinderCapped, 
-                                                             cylinderColors)
-                    glPopMatrix()
-                quux.shapeRendererFinishDrawing()
-
-            except ImportError:
-                env.history.message(redmsg(
-                    "Can't import Pyrex OpenGL or maybe bearing_data.py, rebuild it"))
+            from graphics.drawing.c_renderer import test_pyrex_opengl
+            test_pyrex_opengl(TEST_PYREX_OPENGL)
+                #bruce 090303 split this out (untested;
+                # it did work long ago when first written, inlined here)
+            pass
         else:
             if self.bc_in_use is not None: #bruce 060414
                 self.bc_in_use.draw(self.o, 'fake dispdef kluge')
             
             commonGraphicsMode.Draw(self)   
             #self.griddraw()
-            if self.selCurve_List: self.draw_selection_curve()
+            if self.selCurve_List:
+                self.draw_selection_curve()
             self.o.assy.draw(self.o)
+        return
+
+    pass
+
+# end

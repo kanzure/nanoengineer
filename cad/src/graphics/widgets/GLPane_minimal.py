@@ -58,6 +58,8 @@ from utilities.debug import print_compact_traceback
 
 import foundation.env as env
 
+import graphics.drawing.drawing_globals as drawing_globals
+
 from graphics.drawing.setup_draw import setup_drawer
 from graphics.drawing.draw_grid_lines import setup_draw_grid_lines
 
@@ -116,7 +118,9 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
     # defining a python property in any subclass.
 
     # bruce 090219 added GLPane_drawingset_methods mixin superclass
-    # (for draw_csdl method; requires calling before_drawing_csdls and
+    # (for draw_csdl method; ok to ignore pylint warning about not
+    #  calling its __init__ method (it doesn't have one);
+    #  requires calling before_drawing_csdls and
     #  after_drawing_csdls in all our subclass draw-like methods;
     #  to help with this the mixin provides methods
     #  _call_func_that_draws_model and
@@ -155,6 +159,8 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
     useMultisample = env.prefs[enableAntiAliasing_prefs_key]
 
+    glprefs = None
+
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
         #doc
@@ -167,7 +173,8 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
             glformat = shareWidget.format()
             QGLWidget.__init__(self, glformat, parent, shareWidget)
             if not self.isSharing():
-                print "Request of display list sharing is failed."
+                assert 0, "%r refused to share GL display list namespace " \
+                          "with %r" % (self, shareWidget)
                 return
         else:
             glformat = QGLFormat()
@@ -181,8 +188,16 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
                 # use full scene anti-aliasing on hardware that supports it
                 # (note: setting this True works around bug 2961 on some systems)
                 glformat.setSampleBuffers(True)
-                
+            
             QGLWidget.__init__(self, glformat, parent)
+            pass
+
+        self.glprefs = drawing_globals.glprefs
+            # future: should be ok if this differs for different glpanes,
+            # even between self and self.shareWidget. AFAIK, the refactoring
+            # I'm doing yesterday and today means this would work fine,
+            # or at least it does most of what would be required for that.
+            # [bruce 090304]
         
         self._initialize_view_attributes()
 

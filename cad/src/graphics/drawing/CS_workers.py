@@ -7,33 +7,21 @@ CS_workers.py - Drawing functions for primitives drawn by the ColorSorter.
 
 History:
 
-Originated by Josh as drawer.py .
+Originated by Josh in drawer.py .
 
 Various developers extended it since then.
 
 Brad G. added ColorSorter features.
 
-At some point Bruce partly cleaned up the use of display lists.
-
-071030 bruce split some functions and globals into draw_grid_lines.py
-and removed some obsolete functions.
-
-080210 russ Split the single display-list into two second-level lists (with and
-without color) and a set of per-color sublists so selection and hover-highlight
-can over-ride Chunk base colors.  ColorSortedDisplayList is now a class in the
-parent's displist attr to keep track of all that stuff.
-
 080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
 tubes with per-vertex colors (necessary for DNA display style)
-
-080313 russ Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
 
 080420 piotr Solved highlighting and selection problems for multi-colored
 objects (e.g. rainbow colored DNA structures).
 
 080519 russ pulled the globals into a drawing_globals module and broke drawer.py
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
-ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
+ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 """
 
@@ -48,7 +36,6 @@ from Numeric import pi
 # russ 080519 No doubt many of the following imports are unused.
 # When the dust settles, the unnecessary ones will be removed.
 from OpenGL.GL import glBegin
-from OpenGL.GL import GL_BACK 
 from OpenGL.GL import glCallList
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import GL_COLOR_MATERIAL
@@ -78,12 +65,10 @@ from OpenGL.GL import glNormal3fv
 from OpenGL.GL import glNormalPointer
 from OpenGL.GL import GL_NORMAL_ARRAY
 from OpenGL.GL import glPolygonMode
-from OpenGL.GL import glPolygonOffset 
 from OpenGL.GL import glPopAttrib
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushAttrib
 from OpenGL.GL import glPushMatrix
-from OpenGL.GL import GL_QUAD_STRIP
 from OpenGL.GL import glRotate
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import GL_TRIANGLE_STRIP
@@ -93,9 +78,11 @@ from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import glVertexPointer
 from OpenGL.GL import GL_TRUE
 
-from geometry.VQT import norm, vlen, V, Q, A
+from geometry.VQT import norm, V
 
 import graphics.drawing.drawing_globals as drawing_globals
+    # used only for GL resources related to geometric primitives, as of 090304
+
 from graphics.drawing.drawers import renderSurface
 from graphics.drawing.gl_GLE import glePolyCone
 from graphics.drawing.gl_Scale import glScale
@@ -121,8 +108,19 @@ def drawsphere_worker(params):
     """
 
     (pos, radius, detailLevel, n) = params
+    del n
 
-    vboLevel = drawing_globals.use_drawing_variant
+    # KLUGE: the detailLevel can be a tuple, (vboLevel, detailLevel).
+    # The only for reason for this is that drawsphere_worker is used
+    # in ProteinChunks (I added a comment there saying why that's bad)
+    # and I don't have time to clean that up now. Ideally, vboLevel
+    # would just be another parameter, or we'd combine it with detailLevel
+    # in some other way not constrained by backward compatibility of
+    # this internal worker function's API. [bruce 090304]
+    if type(detailLevel) == type(()):
+        (vboLevel, detailLevel) = detailLevel
+
+    ## vboLevel = drawing_globals.use_drawing_variant
 
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
@@ -254,7 +252,8 @@ def drawcylinder_worker(params):
 
     glScale(radius,radius,Numeric.dot(vec,vec)**.5)
     glCallList(drawing_globals.CylList)
-    if capped: glCallList(drawing_globals.CapList)
+    if capped:
+        glCallList(drawing_globals.CapList)
 
     glPopMatrix()
 

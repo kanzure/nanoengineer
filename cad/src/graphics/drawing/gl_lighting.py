@@ -1,39 +1,23 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 gl_lighting.py - Lights, materials, and special effects.
 
+(Also, dumping ground for a few unrelated helper functions.)
+
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
-Originated by Josh as drawer.py .
+Originated by Josh in drawer.py .
 
 Various developers extended it since then.
 
-Brad G. added ColorSorter features.
-
-At some point Bruce partly cleaned up the use of display lists.
-
-071030 bruce split some functions and globals into draw_grid_lines.py
-and removed some obsolete functions.
-
-080210 russ: Split the single display-list into two second-level lists (with and
-without color) and a set of per-color sublists so selection and hover-highlight
-can over-ride Chunk base colors.  ColorSortedDisplayList is now a class in the
-parent's displist attr to keep track of all that stuff.
-
-080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
-tubes with per-vertex colors (necessary for DNA display style)
-
-080313 russ: Added triangle-strip icosa-sphere constructor,"getSphereTriStrips".
-
-080420 piotr Solved highlighting and selection problems for multi-colored
-objects (e.g. rainbow colored DNA structures).
+Brad G. added ColorSorter features and probably apply_material.
 
 080519 russ: pulled the globals into a drawing_globals module and broke
 drawer.py into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
-ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
+ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 
 080530 russ: Refactored to move the patterned drawing style setup here from
@@ -101,7 +85,8 @@ from OpenGL.GL import glVertex2f
 from OpenGL.GLU import gluBuild2DMipmaps
 
 from utilities.constants import white
-import utilities.debug as debug # for debug.print_compact_traceback
+
+from utilities.debug import print_compact_traceback
 
 import numpy
 import foundation.env as env
@@ -114,7 +99,7 @@ from utilities.prefs_constants import SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1
 from utilities.prefs_constants import SS_BW_PATTERN, SS_POLYGON_EDGES, SS_HALO
 from utilities.prefs_constants import haloWidth_prefs_key
 
-import graphics.drawing.drawing_globals as drawing_globals
+import graphics.drawing.drawing_globals as drawing_globals # only for glprefs in apply_material
 
 try:
     from OpenGL.GL import glFog
@@ -149,43 +134,40 @@ _default_lights = ((white, 0.1, 0.5, 0.5, -50, 70, 30, True),
         # synchronized.
         # Mark 051204. [a comment from when this was located in GLPane]
 
-def glprefs_data_used_by_setup_standard_lights( glprefs = None): #bruce 051212
+def glprefs_data_used_by_setup_standard_lights( glprefs): #bruce 051212
     """
-    Return a summary of the glprefs data used by setup_standard_lights, for use
-    in later deciding whether it needs to be called again due to changes in
-    glprefs.
+    Return a summary of the glprefs data used by setup_standard_lights
+    (when that was passed the same glprefs argument).
     """
-    if glprefs is None:
-        glprefs = drawing_globals.glprefs
-        pass
     # This must be kept in sync with what's used by setup_standard_lights() .
     return (glprefs.override_light_specular,)
 
-def setup_standard_lights( lights, glprefs = None):
+def setup_standard_lights( lights, glprefs):
     """
     Set up lighting in the current GL context using the supplied "lights" tuple
-    (in the format used by GLPane's prefs) and the optional glprefs object
-    (which defaults to drawing_globals.glprefs ).
+    (in the format used by GLPane's prefs) and the required glprefs object
+    (of class GLPrefs).
 
-       Note: the glprefs data used can be summarized by the related function
-       glprefs_data_used_by_setup_standard_lights (which see).
+    @note: the glprefs data used can be summarized by the related function
+        glprefs_data_used_by_setup_standard_lights (which see).
 
-       Warning: has side effects on GL_MODELVIEW matrix.
+    @warning: has side effects on GL_MODELVIEW matrix.
 
-       Note: If GL_NORMALIZE needs to be enabled, callers should do that
-       themselves, since this depends on what they will draw and might slow down
-       drawing.
+    @note: If GL_NORMALIZE needs to be enabled, callers should do that
+        themselves, since this depends on what they will draw and might
+        slow down drawing.
     """
+
+    assert glprefs is not None
+    
+    # note: whatever glprefs data is used below must also be present
+    # in the return value of glprefs_data_used_by_setup_standard_lights().
+    # [bruce 051212]
+
     #e not sure whether projection matrix also needs to be reset here
     # [bruce 051212]
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-
-    if glprefs is None:
-        glprefs = drawing_globals.glprefs
-        # note: whatever glprefs data is used below must also be present
-        # in the return value of glprefs_data_used_by_setup_standard_lights().
-        # [bruce 051212]
 
     try:
         # new code
@@ -247,7 +229,7 @@ def setup_standard_lights( lights, glprefs = None):
         else:
             glDisable(GL_LIGHT2)
     except:
-        debug.print_compact_traceback(
+        print_compact_traceback(
             "bug (worked around): setup_standard_lights reverting to old code.")
         # old code, used only to set up some sort of workable lighting in case
         # of bugs (this is not necessarily using the same values as
@@ -295,13 +277,30 @@ def disable_fog():
 # ==
 
 # grantham 20051121, renamed 20051201; revised by bruce 051126, 051203 (added
-# specular_brightness), 051215
-def apply_material(color):
-    """
-    Set OpenGL material parameters based on the given color (length 3 or 4) and
-    the material-related prefs values in drawing_globals.glprefs.
-    """
+# specular_brightness), 051215, 090304 (added optional glprefs arg)
 
+### REVIEW: should apply_material be a method of GLPrefs and perhaps GLPane?
+# Or at least, should its glprefs arg be required (removing the last use of
+# drawing_globals in this module)?
+# Probably yes, but making all uses know glprefs requires passing glpane or glprefs
+# args or attrs into quite a few functions or methods or instances that don't
+# have them yet, including at least CSDL, which ought to have a glprefs or glpane
+# attr for use in .draw (as well as a GL resource context attr for other reasons),
+# and the bond drawing code. So I don't quite have time to do it now. But it would
+# be a good refactoring to do, for itself and to help refactor other things, and
+# not too hard to do when someone has time. [bruce 090304 comment]
+
+def apply_material(color, glprefs = None):
+    """
+    In the current GL context,
+    set material parameters based on the given color (length 3 or 4) and
+    the material-related prefs values in glprefs (which defaults to
+    drawing_globals.glprefs).
+    """
+    if glprefs is None:
+        glprefs = drawing_globals.glprefs
+        pass
+    
     #bruce 051215: make sure color is a tuple, and has length exactly 4, for all
     # uses inside this function, assuming callers pass sequences of length 3 or
     # 4. Needed because glMaterial requires four-component vector and PyOpenGL
@@ -317,15 +316,15 @@ def apply_material(color):
 
     glColor4fv(color)          # For drawing lines with lighting disabled.
 
-    if not drawing_globals.glprefs.enable_specular_highlights:
+    if not glprefs.enable_specular_highlights:
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
         # glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (0,0,0,1))
         return
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
 
-    whiteness = drawing_globals.glprefs.specular_whiteness
-    brightness = drawing_globals.glprefs.specular_brightness
+    whiteness = glprefs.specular_whiteness
+    brightness = glprefs.specular_brightness
     if whiteness == 1.0:
         specular = (1.0, 1.0, 1.0, 1.0) # optimization
     else:
@@ -346,7 +345,7 @@ def apply_material(color):
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular)
 
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS,
-                drawing_globals.glprefs.specular_shininess)
+                glprefs.specular_shininess)
     return
 
 # ==

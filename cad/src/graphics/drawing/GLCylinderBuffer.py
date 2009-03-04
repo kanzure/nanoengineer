@@ -25,9 +25,6 @@ from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer, HunkBuffer
 
 from geometry.VQT import V, A
 
-import numpy
-
-from OpenGL.GL import GL_QUADS
 
 class GLCylinderBuffer(GLPrimitiveBuffer):
     """
@@ -38,19 +35,17 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
     cylinder shader for each cylinder, along with control attribute data.
     """
     def __init__(self):
-        # Tell GLPrimitiveBuffer the drawing pattern for cylinder VBOs/IBOs.
-        shader = drawing_globals.cylinderShader
+        """
+        """
         super(GLCylinderBuffer, self).__init__(
-            shader, GL_QUADS,
-            drawing_globals.cylinderBillboardVerts,
-            drawing_globals.cylinderBillboardIndices)
+            drawing_globals.cylinderShaderGlobals )
 
         # Per-vertex attribute hunk VBOs that are specific to the cylinder
         # shader.  Combine endpoints and radii into two vec4's.  It would be
         # nicer to use a twice-4-element mat2x4 attribute VBO, but it would have
         # to be sent as two attribute slots anyway, because OpenGL only allows
         # "size" to be 1 to 4 in glVertexAttribPointer.
-        nVerts = self.nVertices
+        shader = self.shader
         self.endptRad0Hunks = HunkBuffer(shader, "endpt_rad_0",
                                          self.nVertices, 4)
         self.endptRad1Hunks = HunkBuffer(shader, "endpt_rad_1",

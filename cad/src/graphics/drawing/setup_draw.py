@@ -4,38 +4,27 @@ setup_draw.py - The function to allocate and compile our standard display lists
 into the current GL context, and initialize the globals that hold their opengl
 names.
 
+NOTE/TODO: this needs to be merged with drawing_globals, and refactored,
+since it's specific to a "GL resource context" (of which we only use one so far,
+since all our GLPanes share display lists).
+
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
-Originated by Josh as drawer.py .
+Originated by Josh in drawer.py
 
 Various developers extended it since then.
-
-Brad G. added ColorSorter features.
 
 At some point Bruce partly cleaned up the use of display lists.
 
 071030 bruce split some functions and globals into draw_grid_lines.py
 and removed some obsolete functions.
 
-080210 russ Split the single display-list into two second-level lists (with and
-without color) and a set of per-color sublists so selection and hover-highlight
-can over-ride Chunk base colors.  ColorSortedDisplayList is now a class in the
-parent's displist attr to keep track of all that stuff.
-
-080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
-tubes with per-vertex colors (necessary for DNA display style)
-
-080313 russ Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
-
-080420 piotr Solved highlighting and selection problems for multi-colored
-objects (e.g. rainbow colored DNA structures).
-
 080519 russ pulled the globals into a drawing_globals module and broke drawer.py
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
-ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
+ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 """
 
@@ -72,17 +61,13 @@ from OpenGL.GL import glVertex
 from OpenGL.GL import glVertex3f
 from OpenGL.GL import glVertex3fv
 
-from geometry.VQT import norm, vlen, V, Q, A
-
-from utilities.debug_prefs import Choice
-from utilities.debug import print_compact_stack, print_compact_traceback
+from geometry.VQT import norm, V, A
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.shape_vertices import getSphereTriStrips
 from graphics.drawing.shape_vertices import getSphereTriangles
 from graphics.drawing.shape_vertices import indexVerts
 from graphics.drawing.gl_buffers import GLBufferObject
-from graphics.drawing.GLSphereBuffer import GLSphereBuffer
 
 import numpy
 
@@ -306,52 +291,6 @@ def setup_drawer():
     glEnd()
     glEndList()                
 
-    drawing_globals.shaderCubeList = shaderCubeList = glGenLists(1)
-    drawing_globals.shaderCubeVerts = verts = [
-        (-1.0, -1.0, -1.0),
-        ( 1.0, -1.0, -1.0),
-        (-1.0,  1.0, -1.0),
-        ( 1.0,  1.0, -1.0),
-        (-1.0, -1.0,  1.0),
-        ( 1.0, -1.0,  1.0),
-        (-1.0,  1.0,  1.0),
-        ( 1.0,  1.0,  1.0)]
-    drawing_globals.shaderCubeIndices = indices = [
-        [0, 1, 3, 2], # -Z face.
-        [4, 5, 7, 6], # +Z face.
-        [0, 1, 5, 4], # -Y face.
-        [2, 3, 7, 6], # +Y face.
-        [0, 2, 6, 4], # -X face.
-        [1, 3, 7, 5]] # +X face.
-    glNewList(shaderCubeList, GL_COMPILE)
-    glBegin(GL_QUADS)
-    for i in range(6):
-        for j in range(4):
-            glVertex3fv(A(verts[indices[i][j]]))
-            continue
-        continue
-    glEnd()
-    glEndList()
-
-    # Use with shaders where drawing patterns are applied in eye (camera)
-    # coordinates.  The billboard stays between the eye and the primitive.
-    drawing_globals.sphereBillboardVerts = verts = [
-        (-1.0, -1.0,  1.0),
-        ( 1.0, -1.0,  1.0),
-        (-1.0,  1.0,  1.0),
-        ( 1.0,  1.0,  1.0)]
-    drawing_globals.sphereBillboardIndices = indices = [
-        [0, 1, 3, 2]] # +Z face.
-
-    # Special billboard drawing pattern for the cylinder shader.
-    drawing_globals.cylinderBillboardVerts = verts = [
-        (0.0, -1.0,  1.0),
-        (1.0, -1.0,  1.0),
-        (1.0,  1.0,  1.0),
-        (0.0,  1.0,  1.0)]
-    drawing_globals.cylinderBillboardIndices = indices = [
-        [0, 1, 2, 3]] # +Z face.
-
     drawing_globals.rotSignList = rotSignList = glGenLists(1)
     glNewList(rotSignList, GL_COMPILE)
     glBegin(GL_LINE_STRIP)
@@ -413,198 +352,8 @@ def setup_drawer():
     cvIndices = [0,1, 2,3, 4,5, 6,7, 0,3, 1,2, 5,6, 4,7, 0,4, 1,5, 2,6, 3,7]
     for i in cvIndices:
         glVertex3fv(tuple(drawing_globals.cubeVertices[i]))
-    glEnd()    
+    glEnd()
     glEndList()
-
-    # Debug Preferences
-    from utilities.debug_prefs import debug_pref
-    from utilities.debug_prefs import Choice_boolean_False
-    from utilities.debug_prefs import Choice_boolean_True
-    choices = [Choice_boolean_False, Choice_boolean_True]
-
-    ##### TODO: refactor this, merge it with similar code in glprefs and drawing_globals.
-    # In current code, there is duplicated use of each debug_pref which stores
-    # the result in different variables (e.g. drawing_globals.use_sphere_shaders_pref
-    # vs. drawing_globals._use_sphere_shaders) and maintains/uses it differently!!
-    # [bruce 090303 comment]
-
-    #russ 080819: Added.
-    initial_choice = choices[drawing_globals.use_sphere_shaders_default]
-    drawing_globals.use_sphere_shaders_pref = debug_pref(
-        "GLPane: use sphere-shaders? (next session)", initial_choice,
-        non_debug = True,
-        prefs_key = drawing_globals.use_sphere_shaders_prefs_key)
-    #russ 90116: Added.
-    initial_choice = choices[drawing_globals.use_cylinder_shaders_default]
-    drawing_globals.use_cylinder_shaders_pref = debug_pref(
-        "GLPane: use cylinder-shaders? (next session)", initial_choice,
-        non_debug = True,
-        prefs_key = drawing_globals.use_cylinder_shaders_prefs_key)
-    #russ 90223: Added.
-    initial_choice = choices[drawing_globals.use_cone_shaders_default]
-    drawing_globals.use_cone_shaders_pref = debug_pref(
-        "GLPane: use cone-shaders? (next session)", initial_choice,
-        non_debug = True,
-        prefs_key = drawing_globals.use_cone_shaders_prefs_key)
-    # Russ 081002: Added.
-    initial_choice = choices[
-        drawing_globals.use_batched_primitive_shaders_default]
-    drawing_globals.use_batched_primitive_shaders_pref = debug_pref(
-        "GLPane: use batched primitive shaders? (next session)", initial_choice,
-        non_debug = True,
-        prefs_key = drawing_globals.use_batched_primitive_shaders_prefs_key)
-
-    #russ 080403: Added drawing variant selection
-    variants = [
-        "0. OpenGL 1.0 - glBegin/glEnd tri-strips vertex-by-vertex.",
-        "1. OpenGL 1.1 - glDrawArrays from CPU RAM.",
-        "2. OpenGL 1.1 - glDrawElements indexed arrays from CPU RAM.",
-        "3. OpenGL 1.5 - glDrawArrays from graphics RAM VBO.",
-        "4. OpenGL 1.5 - glDrawElements, verts in VBO, index in CPU.",
-        "5. OpenGL 1.5 - VBO/IBO buffered glDrawElements.",
-     ]
-    drawing_globals.use_drawing_variant = debug_pref(
-        "GLPane: drawing method",
-        Choice(names = variants, values = range(len(variants)),
-               defaultValue = drawing_globals.use_drawing_variant_default),
-        prefs_key = drawing_globals.use_drawing_variant_prefs_key)
-
-    def initSphereShader():
-        try:
-            from graphics.drawing.gl_shaders import GLSphereShaderObject
-            drawing_globals.sphereShader = GLSphereShaderObject()
-            print "Sphere-shader initialization is complete.\n"
-        except:
-            print_compact_traceback(
-                "Error initializing sphere shaders, NOT using them.\n")
-
-            drawing_globals.use_sphere_shaders_pref = False
-                ##### REVIEW: is this the right variable to clear when this fails? Compare glprefs. [bruce 090303 question]
-
-            # Could we support shaders with the older GL_ARB_vertex_program and
-            # GL_ARB_fragment_program with some work?  Get assembly-like vertex
-            # and fragment programs from the GLSL source using an option of the
-            # nVidia Cg compiler.  Needs some loading API changes too...
-            return False
-        return True
-
-    def initCylinderShader():
-        try:
-            from graphics.drawing.gl_shaders import GLCylinderShaderObject
-            drawing_globals.cylinderShader = GLCylinderShaderObject()
-            print "Cylinder-shader initialization is complete.\n"
-        except:
-            print_compact_traceback(
-                "Error initializing cylinder shaders, NOT using them.\n")
-
-            drawing_globals.use_cylinder_shaders_pref = False
-                ##### REVIEW: is this the right variable to clear when this fails? Compare glprefs. [bruce 090303 question]
-            return False
-        return True
-
-    def checkInitShader(pref, name, initFn):
-        if pref:
-            if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
-                print "note: this session WILL try to use %s-shaders" % name
-                initFn()
-                pass
-            else:
-                print "note: this session WOULD try to use %s-shaders,\n" % name, \
-                    "but GL_EXTENSION GL_ARB_shader_objects is not supported.\n"
-                pass
-            pass
-        else:
-            print "note: this session will NOT try to use %s-shaders\n" % name
-            pass
-        return
-
-    if drawing_globals.use_batched_primitive_shaders_pref:
-
-        #bruce 090303 pulled checkInitShader calls inside this 'if';
-        # this may affect some testCases, but simplifies life for users and
-        # testers since they can completely turn off shaders (including
-        # all related init code) using a single pref
-        checkInitShader(drawing_globals.use_sphere_shaders_pref, 
-                        "sphere",
-                        initSphereShader )
-        
-        checkInitShader(drawing_globals.use_cylinder_shaders_pref,
-                        "cylinder",
-                        initCylinderShader )
-
-        print "note: this session WILL try to use", \
-              "batched primitive shaders\n"
-
-        drawing_globals.spherePrimitives = None # might be modified below
-            # (so other code can test this attr rather than a debug_pref)
-            # [bruce 090218]
-            ##### REVIEW: still needed? [bruce 090303 Q]
-
-        if drawing_globals.use_sphere_shaders_pref: # Still optional.
-            try:
-                # GLSphereBuffer requires GLSphereShaderObject.
-                ##### REVIEW: why the 'not'? What is the reason to call this here? [bruce 090303 Q]
-                if not drawing_globals.use_sphere_shaders_pref:
-                    if not initSphereShader():
-                        raise ValueError, "sphere shader setup failed."
-                    pass
-
-                from graphics.drawing.GLSphereBuffer import GLSphereBuffer
-                drawing_globals.spherePrimitives = GLSphereBuffer()
-                print "Sphere primitive buffer initialization is complete.\n"
-            except:
-                print_compact_traceback(
-                    "Error setting up sphere primitive buffers, NOT using them.\n")
-                drawing_globals.use_sphere_shaders_pref = False
-                ##### REVIEW: is this the right variable to clear when this fails? Compare glprefs. [bruce 090303 question]
-                ### REVIEW [bruce 090114]: do we also want to modify 
-                # drawing_globals.use_batched_primitive_shaders_pref?
-                pass
-            pass
-
-        drawing_globals.cylinderPrimitives = None # might be modified below
-            # (so other code can test this attr rather than a debug_pref)
-            # [bruce 090218]
-            ##### REVIEW: still needed? [bruce 090303 Q]
-        
-        if drawing_globals.use_cylinder_shaders_pref: # Still optional.
-            try:
-                # GLCylinderBuffer requires GLCylinderShaderObject.
-                ##### REVIEW: why the 'not'? What is the reason to call this here? [bruce 090303 Q]
-                if not drawing_globals.use_cylinder_shaders_pref:
-                    if not initCylinderShader():
-                        raise ValueError, "cylinder shader setup failed."
-                    pass
-
-                from graphics.drawing.GLCylinderBuffer import GLCylinderBuffer
-                drawing_globals.cylinderPrimitives = GLCylinderBuffer()
-                print "Cylinder primitive buffer initialization is complete.\n"
-            except:
-                print_compact_traceback(
-                    "Error setting up cylinder primitive buffers, NOT using them.\n")
-                drawing_globals.use_cylinder_shaders_pref = False
-                ##### REVIEW: is this the right variable to clear when this fails? Compare glprefs. [bruce 090303 question]
-                ### REVIEW [bruce 090114]: do we also want to modify 
-                # drawing_globals.use_batched_primitive_shaders_pref?
-                pass
-            pass
-
-        pass
-    else:
-        print "note: this session will NOT use", \
-              "batched primitive shaders\n"
-        pass
-
-    # 20060313 grantham Added use_c_renderer debug pref, can
-    # take out when C renderer used by default.
-    if drawing_globals.quux_module_import_succeeded:
-        initial_choice = choices[drawing_globals.use_c_renderer_default]
-        drawing_globals.use_c_renderer = (
-            debug_pref("Use native C renderer?",
-                       initial_choice,
-                       prefs_key = drawing_globals.use_c_renderer_prefs_key))
-            #bruce 060323 removed non_debug = True for A7 release, and changed
-            # its prefs_key so developers start over with the default value.
 
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
     return # from setup_drawer

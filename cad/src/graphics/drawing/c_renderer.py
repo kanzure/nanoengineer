@@ -1,51 +1,88 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
-CS_ShapeList.py - The C++ ColorSorter's arrays of primitives to draw.
+c_renderer.py - Interface to the experimental C++ renderer:
 
-Does some memoization as a speedup.
+- quux_module_import_succeeded (boolean)
 
+- classes for the ColorSorter's arrays of C++ primitives to draw;
+  does some memoization as a speedup.
+
+WARNING: this has not been maintained for a long time, and has not
+been tested after at least two major refactorings, one on 090303.
+But it once worked and might be useful as example code, so it's
+being kept around for now.
+
+@author: Brad G, Will
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
-Originated by Josh as drawer.py .
+Brad G wrote much of this in drawer.py.
 
-Various developers extended it since then.
-
-Brad G. added ColorSorter features.
-
-At some point Bruce partly cleaned up the use of display lists.
-
-071030 bruce split some functions and globals into draw_grid_lines.py
-and removed some obsolete functions.
-
-080210 russ Split the single display-list into two second-level lists (with and
-without color) and a set of per-color sublists so selection and hover-highlight
-can over-ride Chunk base colors.  ColorSortedDisplayList is now a class in the
-parent's displist attr to keep track of all that stuff.
-
-080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
-tubes with per-vertex colors (necessary for DNA display style)
-
-080313 russ Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
-
-080420 piotr Solved highlighting and selection problems for multi-colored
-objects (e.g. rainbow colored DNA structures).
+I think Will modified the quux init code at some point.
 
 080519 russ pulled the globals into a drawing_globals module and broke drawer.py
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
-ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
+ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
+
+090303 Bruce refactored it.
 """
 
+import foundation.env as env #bruce 051126
+import utilities.EndUser as EndUser
+import sys
+import os
 import Numeric
-import graphics.drawing.drawing_globals as drawing_globals
-if drawing_globals.quux_module_import_succeeded:
-    import quux
+
+# these are used only by the test code at the bottom;
+# if these ever cause an import cycle, move that code to a separate module.
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glTranslate
+from utilities.Log import redmsg
+from utilities.debug import print_compact_stack
+
+# ==
+
+# Machinery to load the C renderer, from either of two places,
+# one for developers and one for end users.
+
+if EndUser.getAlternateSourcePath() != None:
+    sys.path.append(os.path.join( EndUser.getAlternateSourcePath(),
+                                  "experimental/pyrex-opengl"))
+else:
+    sys.path.append("./experimental/pyrex-opengl")
+
+binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0]))
+                           + '/../bin')
+if binPath not in sys.path:
+    sys.path.append(binPath)
+
+quux_module_import_succeeded = False
+
+try:
+    import quux # can't be toplevel
+    quux_module_import_succeeded = True
+    if "experimental" in os.path.dirname(quux.__file__):
+        # Should never happen for end users, but if it does we want to print the
+        # warning.
+        if env.debug() or not EndUser.enableDeveloperFeatures():
+            print "debug: fyi:", \
+                  "Loaded experimental version of C rendering code:", \
+                  quux.__file__
+except:
+    quux = None
+    quux_module_import_succeeded = False
+    if env.debug(): #bruce 060323 added condition
+        print "WARNING: unable to import C rendering code (quux module).", \
+              "Only Python rendering will be available."
+    pass
+
+# ==
 
 class ShapeList_inplace:
-
     """
     Records sphere and cylinder data and invokes it through the native C++
     rendering system.
@@ -55,9 +92,7 @@ class ShapeList_inplace:
     Instead, it stores directly in a list of fixed-size Numeric arrays.
     It shows some speedup, but not a lot.  And tons of memory is being
     used.  I'm not sure where. -grantham
-
     """
-
     __author__ = "grantham@plunk.org"
 
     _blocking = 512     # balance between memory zeroing and drawing efficiency
@@ -191,16 +226,17 @@ class ShapeList_inplace:
                 newblock = Numeric.array(block[0:count], 'f')
                 self.cylinders[-1][0] = newblock
 
+    pass
 
-class ShapeList:
+# ==
 
+class ShapeList: # not used as of before 090303
     """
     Records sphere and cylinder data and invokes it through the native C++
     rendering system.
 
     Probably better to use "ShapeList_inplace".
     """
-
     __author__ = "grantham@plunk.org"
 
     def __init__(self):
@@ -327,3 +363,78 @@ class ShapeList:
         del self.cylinder_pos2
         del self.cylinder_cappings
         del self.cylinder_names
+
+    pass
+
+# ==
+
+def test_pyrex_opengl(test_type): # not tested since major refactoring
+    try:
+        print_compact_stack("selectMode Draw: " )###
+        ### BUG: if import quux fails, we get into some sort of infinite
+        ###   loop of Draw calls. [bruce 070917 comment]
+
+        #self.w.win_update()
+        ## sys.path.append("./experimental/pyrex-opengl") # no longer 
+        ##needed here -- always done in drawer.py
+        binPath = os.path.normpath(os.path.dirname(
+            os.path.abspath(sys.argv[0])) + '/../bin')
+        if binPath not in sys.path:
+            sys.path.append(binPath)
+        import quux
+        if "experimental" in os.path.dirname(quux.__file__):
+            print "WARNING: Using experimental version of quux module"
+        # quux.test()
+        quux.shapeRendererInit()
+        quux.shapeRendererSetUseDynamicLOD(0)
+        quux.shapeRendererStartDrawing()
+        if test_type == 1:
+            center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
+                                    Numeric.array((0, 0, 1), 'f'),
+                                    Numeric.array((0, 1, 0), 'f'),
+                                    Numeric.array((0, 1, 1), 'f'),
+                                    Numeric.array((1, 0, 0), 'f'),
+                                    Numeric.array((1, 0, 1), 'f'),
+                                    Numeric.array((1, 1, 0), 'f'),
+                                    Numeric.array((1, 1, 1), 'f')), 'f')
+            radius = Numeric.array((0.2, 0.4, 0.6, 0.8,
+                                    1.2, 1.4, 1.6, 1.8), 'f')
+            color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
+                                   Numeric.array((0, 0, 1, 0.5), 'f'),
+                                   Numeric.array((0, 1, 0, 0.5), 'f'),
+                                   Numeric.array((0, 1, 1, 0.5), 'f'),
+                                   Numeric.array((1, 0, 0, 0.5), 'f'),
+                                   Numeric.array((1, 0, 1, 0.5), 'f'),
+                                   Numeric.array((1, 1, 0, 0.5), 'f'),
+                                   Numeric.array((1, 1, 1, 0.5), 'f')), 'f')
+            result = quux.shapeRendererDrawSpheres(8, center, radius, color)
+        elif test_type == 2:
+            # grantham - I'm pretty sure the actual compilation, init,
+            # etc happens once
+            from bearing_data import sphereCenters, sphereRadii
+            from bearing_data import sphereColors, cylinderPos1
+            from bearing_data import cylinderPos2, cylinderRadii
+            from bearing_data import cylinderCapped, cylinderColors
+            glPushMatrix()
+            glTranslate(-0.001500, -0.000501, 151.873627)
+            result = quux.shapeRendererDrawSpheres(1848, 
+                                                   sphereCenters, 
+                                                   sphereRadii, 
+                                                   sphereColors)
+            result = quux.shapeRendererDrawCylinders(5290, 
+                                                     cylinderPos1,
+                                                     cylinderPos2, 
+                                                     cylinderRadii, 
+                                                     cylinderCapped, 
+                                                     cylinderColors)
+            glPopMatrix()
+        quux.shapeRendererFinishDrawing()
+
+    except ImportError:
+        env.history.message(redmsg(
+            "Can't import Pyrex OpenGL or maybe bearing_data.py, rebuild it"))
+
+    return
+
+# end
+

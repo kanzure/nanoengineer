@@ -34,7 +34,7 @@ objects (e.g. rainbow colored DNA structures).
 
 080519 russ pulled the globals into a drawing_globals module and broke drawer.py
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
-ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
+ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 
 081003 russ Added sphere shader-primitive support to CSDLs.
@@ -86,12 +86,11 @@ from geometry.VQT import A
 
 from utilities.debug import print_compact_stack
 
-import graphics.drawing.drawing_globals as drawing_globals
-
-if drawing_globals.quux_module_import_succeeded:
+from graphics.drawing.c_renderer import quux_module_import_succeeded
+if quux_module_import_succeeded:
     import quux
 
-from graphics.drawing.CS_ShapeList import ShapeList_inplace
+from graphics.drawing.c_renderer import ShapeList_inplace
 
 from graphics.drawing.CS_workers import drawcylinder_worker
 from graphics.drawing.CS_workers import drawline_worker
@@ -111,11 +110,18 @@ _DEBUG = False
 
 # ==
 
+import graphics.drawing.drawing_globals as drawing_globals # only used for glprefs
+
 class _fake_GLPane: #bruce 090220
+    permit_shaders = False
+        # not sure if this matters -- maybe it does for immediate-mode spheres?
     transforms = () # or make this [] if necessary, but value should never change
+    glprefs = drawing_globals.glprefs #bruce 090304
     pass
 
 _the_fake_GLPane = _fake_GLPane()
+    # as of 090304 we use this as the non-sorting value of
+    # ColorSorter.glpane, rather than None like before
 
 class ColorSorter:
     """
@@ -180,14 +186,14 @@ class ColorSorter:
 
         ColorSorter._parent_csdl = None  # Passed from start() to finish()
 
-        ColorSorter.glpane = None #bruce 090220
+        ColorSorter.glpane = _the_fake_GLPane #bruce 090220/090304
 
         ColorSorter._initial_transforms = None #bruce 090220
 
         ColorSorter._permit_shaders = True
             # modified in ColorSorter.start based on glpane;
             # note that it has no effect on use of specific shaders
-            # unless a corresponding shader_desired function in drawing_globals
+            # unless a corresponding shader_desired function in ColorSorter.glpane.glprefs
             # returns true (due to how it's used in this code)
             # [bruce 090224, revised 090303]
 
@@ -435,7 +441,7 @@ class ColorSorter:
             # todo: use different flag than .reentrant
             pos = ColorSorter._transform_point(pos)
         
-        if drawing_globals.use_c_renderer and ColorSorter.sorting:
+        if ColorSorter.glpane.glprefs.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
@@ -454,7 +460,7 @@ class ColorSorter:
         else: 
             # Non-C-coded material rendering (might be sorted and/or use shaders)
             sphereBatches = ColorSorter._permit_shaders and \
-                            drawing_globals.sphereShader_desired()
+                            ColorSorter.glpane.glprefs.sphereShader_desired()
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
@@ -470,6 +476,10 @@ class ColorSorter:
                     # glnames come from ColorSorter.pushName()
                     ColorSorter._gl_name_stack[-1])
             else:
+                vboLevel = ColorSorter.glpane.glprefs.use_drawing_variant
+                    # vboLevel sets drawing strategy for unbatched spheres
+                detailLevel = (vboLevel, detailLevel)
+                    # KLUGE, explained in a comment inside drawsphere_worker
                 if testloop > 0:
                     worker = drawsphere_worker_loop
                 else:
@@ -498,7 +508,7 @@ class ColorSorter:
             # transform the local coordinate system orientation
             # used to align the wiresphere.
 
-        if drawing_globals.use_c_renderer and ColorSorter.sorting:
+        if ColorSorter.glpane.glprefs.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -559,7 +569,7 @@ class ColorSorter:
             pos1 = ColorSorter._transform_point(pos1)
             pos2 = ColorSorter._transform_point(pos2)
 
-        if drawing_globals.use_c_renderer and ColorSorter.sorting:
+        if ColorSorter.glpane.glprefs.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -575,7 +585,7 @@ class ColorSorter:
 
             # Russ 090119: Added.
             cylinderBatches = (ColorSorter._permit_shaders and
-                               drawing_globals.cylinderShader_desired() )
+                               ColorSorter.glpane.glprefs.cylinderShader_desired() )
             if cylinderBatches and ColorSorter._parent_csdl:
                 # Note: capped is not used; a test indicates it's always on
                 # (at least in the tapered case). [bruce 090225 comment]
@@ -632,7 +642,7 @@ class ColorSorter:
             lcolor = color
 
         use_cylinder_shader = (ColorSorter._permit_shaders and
-                               drawing_globals.coneShader_desired() )
+                               ColorSorter.glpane.glprefs.coneShader_desired() )
         if use_cylinder_shader and ColorSorter._parent_csdl:
             assert ColorSorter.sorting
             ColorSorter._parent_csdl.addCylinder(
@@ -669,7 +679,7 @@ class ColorSorter:
             # todo: use different flag than .reentrant
             pos_array = [ColorSorter._transform_point(A(pos)) for pos in pos_array]
 
-        if drawing_globals.use_c_renderer and ColorSorter.sorting and 0: #bruce 090225 'and 0'
+        if ColorSorter.glpane.glprefs.use_c_renderer and ColorSorter.sorting and 0: #bruce 090225 'and 0'
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -703,7 +713,7 @@ class ColorSorter:
             # todo: use different flag than .reentrant
             pos_array = [ColorSorter._transform_point(A(pos)) for pos in pos_array]
 
-        if drawing_globals.use_c_renderer and ColorSorter.sorting:
+        if ColorSorter.glpane.glprefs.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -813,7 +823,7 @@ class ColorSorter:
         assert ColorSorter._parent_csdl is None #bruce 090105
         ColorSorter._parent_csdl = csdl  # used by finish()
 
-        assert ColorSorter.glpane is None
+        assert ColorSorter.glpane is _the_fake_GLPane
         if glpane is None:
             glpane = _the_fake_GLPane
             assert not glpane.transforms
@@ -827,7 +837,7 @@ class ColorSorter:
             csdl.start(pickstate)
                 #bruce 090224 refactored this into csdl.start
 
-        if drawing_globals.use_c_renderer:
+        if ColorSorter.glpane.glprefs.use_c_renderer:
             ColorSorter._cur_shapelist = ShapeList_inplace()
             ColorSorter.sphereLevel = -1
         else:
@@ -851,7 +861,8 @@ class ColorSorter:
         # (specifically, in ColorSorter._parent_csdl). [bruce 090224 comment]
         
         assert ColorSorter.sorting #bruce 090220, appears to be true from this code
-        assert ColorSorter.glpane #bruce 090220
+        assert ColorSorter.glpane is not None #bruce 090220
+        assert ColorSorter.glpane is not _the_fake_GLPane #bruce 090304
         
         if not ColorSorter._parent_csdl:
             #bruce 090220 revised, check _parent_csdl rather than sorting
@@ -860,7 +871,6 @@ class ColorSorter:
             ### WARNING: DUPLICATE CODE with end of this method
             # (todo: split out some submethods to clean up)
             ColorSorter.sorting = False
-            ColorSorter.glpane = None
             ColorSorter._unsuspend_if_needed()
             return                      # Plain immediate-mode, nothing to do.
 
@@ -881,7 +891,7 @@ class ColorSorter:
             # this must be done sometime before we return;
             # it can be done here, since nothing in this method after this
             # should use it directly or add primitives to it [bruce 090105]
-        if drawing_globals.use_c_renderer:
+        if ColorSorter.glpane.glprefs.use_c_renderer:
             # WARNING: this case has not been maintained for a long time
             # [bruce 090219 comment]
             quux.shapeRendererInit()
@@ -935,8 +945,6 @@ class ColorSorter:
                 parent_csdl.draw(
                     # Use either the normal-color display list or the selected one.
                     selected = parent_csdl.selected)
-
-        ColorSorter.glpane = None
         
         ColorSorter._unsuspend_if_needed()
         return

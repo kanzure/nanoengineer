@@ -337,13 +337,13 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                         # I think in the future we can figure out 
                         # a more general way of handling the 
                         # GL_COLOR_MATERIAL objects. piotr 080420
-                        pos_array, color_array, rad_array = params
+                        pos_array, color_array_junk, rad_array = params
                         drawpolycone_worker((pos_array, rad_array))
                     elif func == drawtriangle_strip_worker:
                         # piotr 080710: Multi-color modification
                         # for triangle_strip primitive (used by 
                         # reduced protein style).
-                        pos_array, normal_array, color_array = params
+                        pos_array, normal_array, color_array_junk = params
                         drawtriangle_strip_worker((pos_array, 
                                                    normal_array,
                                                    None))
@@ -436,13 +436,19 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         
     def addSphere(self, center, radius, color, glname):
         """
-        Allocate a sphere primitive and add its ID to the sphere list.
+        Allocate a shader sphere primitive (in the set of all spheres
+         that are able to be drawn in this GL resource context),
+        set up its drawing parameters,
+        and add its primID to self's list of spheres
+        (so it will be drawn when self is drawn, or included in
+        DrawingSet drawing indices when they are drawn and include self).
+        
         . center is a VQT point.
         . radius is a number.
         . color is a list of components: [R, G, B].
         . glname comes from the _gl_name_stack.
         """
-        self.spheres += drawing_globals.spherePrimitives.addSpheres(
+        self.spheres += drawing_globals.sphereShaderGlobals.primitiveBuffer.addSpheres(
             [center], radius, color, self.transform_id(), glname)
         self._clear_derived_primitive_caches()
         return
@@ -450,20 +456,21 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     # Russ 090119: Added.
     def addCylinder(self, endpts, radii, color, glname):
         """
-        Allocate a cylinder primitive and add its ID to the cylinder list.
+        Like addSphere, but for cylinders. See addSphere docstring for details.
+        
         . endpts is a tuple of two VQT points.
         . radii may be a single number, or a tuple of two radii for taper.
         . color is a list of components: [R, G, B] or [R, G, B, A].
         . glname comes from the _gl_name_stack.
         """
-        self.cylinders += drawing_globals.cylinderPrimitives.addCylinders(
+        self.cylinders += drawing_globals.cylinderShaderGlobals.primitiveBuffer.addCylinders(
             [endpts], radii, color, self.transform_id(), glname)
         self._clear_derived_primitive_caches()
         return
 
     # ==
 
-    ### REVIEW: the methods draw_in_abs_coords and nodes_containing_selobj
+    #### REVIEW: the methods draw_in_abs_coords and nodes_containing_selobj
     # don't make sense in this class in the long run, since it is not meant
     # to be directly used as a "selobj" or as a Node. I presume they are
     # only needed by temporary testing and debugging code, and they should be
@@ -483,16 +490,20 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     # ==
 
+    ##### TODO: FIX TERMINOLOGY BUG:
+    # in the following three methodnames and all localvar names and comments
+    # where they are used, replace shader with primitiveBuffer. [bruce 090303]
+    
     def shaders_and_primitive_lists(self): #bruce 090218
         """
-        Yield each pair of (shader, primitive-list) which we need to draw.
+        Yield each pair of (primitiveBuffer, primitive-list) which we need to draw.
         """
         if self.spheres:
-            assert drawing_globals.spherePrimitives
-            yield drawing_globals.spherePrimitives, self.spheres
+            assert drawing_globals.sphereShaderGlobals.primitiveBuffer
+            yield drawing_globals.sphereShaderGlobals.primitiveBuffer, self.spheres
         if self.cylinders:
-            assert drawing_globals.cylinderPrimitives
-            yield drawing_globals.cylinderPrimitives, self.cylinders
+            assert drawing_globals.cylinderShaderGlobals.primitiveBuffer
+            yield drawing_globals.cylinderShaderGlobals.primitiveBuffer, self.cylinders
         return
 
     def shader_primID_pairs(self): #bruce 090223
@@ -502,7 +513,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         return
 
     def draw_shader_primitives(self, *args): #bruce 090218, needed only for CSDL.draw
-        for shader, primitives in self.shaders_and_primitive_lists():
+        for shader, primitives_junk in self.shaders_and_primitive_lists():
             index = self.drawIndices[shader]
             shader.draw(index, *args)
             continue
@@ -609,6 +620,18 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                              env.prefs[hoverHighlightingColorStyle_prefs_key] ==
                              HHS_HALO)
 
+
+        # KLUGES which should be replaced by our having suitable new attrs,
+        # such as glpane or glprefs or glresourcecontext (replacing drawing_globals):
+        
+        drawing_phase = drawing_globals.drawing_phase # kluge in CSDL.draw
+        
+        # (the other kluge is not having glpane.glprefs to pass to apply_material,
+        #  in draw; we do have glpane in finish but no point in using it there
+        #  until we have it in .draw too, preferably by attr rather than arg
+        #  (should review that opinion).)
+        
+
         # Russ 081128 (clarified, bruce 090218):
         # GLPrimitiveSet.draw() calls this method (CSDL.draw) on CSDLs_with_DLs,
         # passing draw_primitives = False to only draw the DLs.
@@ -621,7 +644,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # Russ 081208: Skip drawing shader primitives while in GL_SELECT.
         #
         # Bruce 090218: support cylinders too.
-        prims_to_do = (drawing_globals.drawing_phase != "glselect" and
+        prims_to_do = (drawing_phase != "glselect" and
                        draw_primitives and (self.spheres or self.cylinders))
         if prims_to_do:
             # Cache drawing indices for just the primitives in this CSDL,
@@ -640,7 +663,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # highlight.  But halo selection extends beyond the object and is only
         # obscured by halo highlighting.  [russ 080610]
         # Russ 081208: Skip DLs when drawing shader-prims with glnames-as-color.
-        DLs_to_do = (drawing_globals.drawing_phase != "glselect_glname_color"
+        DLs_to_do = (drawing_phase != "glselect_glname_color"
                      and self.has_nonempty_DLs())
 
         # the following might be changed, then are used repeatedly below;
@@ -708,8 +731,11 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                     pass
 
                 # Draw a highlight overlay (solid, or in an overlay pattern.)
-                apply_material(highlight_color is not None and highlight_color
-                               or env.prefs[hoverHighlightingColor_prefs_key])
+                if highlight_color is not None:
+                    hcolor = highlight_color
+                else:
+                    hcolor = env.prefs[hoverHighlightingColor_prefs_key]
+                apply_material(hcolor)
                 callList(self.nocolor_dl)
 
                 if patterned_highlighting:
@@ -808,7 +834,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # rather than just a list of ids. The second DL is used in case
         # of multi-color objects and is required for highlighting 
         # and selection (not in rc1)
-        for clr, dls in self._per_color_dls: # Second-level dl's.
+        for clr_junk, dls in self._per_color_dls: # Second-level dl's.
             for dl in dls: # iterate over DL pairs.
                 DLs[dl] = dl
         for dl in DLs:
@@ -853,9 +879,9 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         
         #bruce 090224 revised conditions so they ignore current prefs
         if self.spheres:
-            drawing_globals.spherePrimitives.releasePrimitives(self.spheres)
+            drawing_globals.sphereShaderGlobals.primitiveBuffer.releasePrimitives(self.spheres)
         if self.cylinders:
-            drawing_globals.cylinderPrimitives.releasePrimitives(self.cylinders)
+            drawing_globals.cylinderShaderGlobals.primitiveBuffer.releasePrimitives(self.cylinders)
         
         # Included drawing-primitive IDs. (These can be accessed more generally
         # using self.shaders_and_primitive_lists().)

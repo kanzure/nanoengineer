@@ -235,7 +235,7 @@ class ThumbView(GLPane_minimal):
         except:
             lights = _default_lights
         
-        setup_standard_lights( lights)
+        setup_standard_lights( lights, self.glprefs)
         return
         
     def resetView(self):

@@ -378,7 +378,11 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         #k not sure whether next things are also needed in the split-out standard_repaint [bruce 050617]
 
-        drawing_globals.glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
+        self.glprefs.update()
+            #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
+            # [addendum, bruce 090304: I assume that's because we need it for lighting, but also
+            #  need its prefs accesses to be usage-tracked, so changes in them do gl_update;
+            #  maybe a better solution would be to start usage-tracking sooner?]
 
         self.setup_lighting_if_needed() # defined in GLPane_lighting_methods
 
@@ -557,8 +561,46 @@ class GLPane_rendering_methods(GLPane_image_methods):
             pass
         temporary = self._drawingset_temporary_cachenames.get(cachename, False)
         return (temporary, cachename)
-        
 
+    # ==
+
+    def setup_shaders_each_frame(self): #bruce 090304
+        """
+        This must be called once near the start of each call of paintGL,
+        sometime after self.glprefs.update has been first called during that
+        call of paintGL. It makes sure shaders exist and are loaded, but does
+        not configure them (since that requires some GL state which is
+        not yet set when this is called, and may need to be done more
+        than once per frame).
+        """
+        drawing_globals.setup_desired_shaders( self.glprefs)
+            # review: should we condition this on self.permit_shaders?
+            # it doesn't matter for now, since ThumbView never calls it.
+        return
+    
+    def enabled_shaders(self): #bruce 090303
+        return drawing_globals.enabled_shaders(self)
+            #### todo: refactor: self.drawing_globals (but renamed)
+
+    def configure_enabled_shaders(self): #bruce 090303
+        """
+        This must be called before any drawing that might use shaders,
+        but after all preferences are cached (by glprefs.update or any other
+        means), and after other GL drawing state is set up (in case
+        configShader reads that state) (including matrix state, I think).
+
+        It is ok to call it multiple times per paintGL call. If in doubt
+        about where to correctly call it, just call it in both places.
+
+        setup_shaders_each_frame must have been called
+        before this, during the same paintGL call.
+        """
+        for shader in self.enabled_shaders():
+            shader.configShader(self)
+        return
+
+    # ==
+    
     _cached_bg_image_comparison_data = None
         # note: for the image itself, see attrs of class GLPane_image_methods
     
@@ -579,8 +621,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
                   (self.width, self.height, QGLWidget.width, QGLWidget.height)
             pass
         
-        drawing_globals.glprefs.update()
+        self.glprefs.update()
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
+            # (this is also required to come BEFORE setup_shaders_each_frame)
 
         self.clear_and_draw_background( GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
             # also sets self.fogColor
@@ -627,6 +670,11 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # then used only in the same paintGL call to alert some objects
             # they might be the one under the mouse
 
+        self.setup_shaders_each_frame()
+        
+        self.configure_enabled_shaders() # not sure if this is needed before do_glselect_if_wanted
+            # (or maybe it should be done inside that if needed) ###### REVIEW [it's a new call, 090304]
+
         self.do_glselect_if_wanted()
             # note: if self.glselect_wanted, this sets up a special projection
             # matrix, and leaves it in place (effectively trashing the
@@ -663,6 +711,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # glselect_dict then; if not for that, we might need to reset
             # selobj to None here for empty glselect_dict -- not sure, not
             # fully analyzed. [bruce 050612]
+
+            self.configure_enabled_shaders() #### new call 090304, maybe not needed
+            
             newpicked = self.preDraw_glselect_dict() # retval is new mouseover object, or None
             # now record which object is hit by the mouse in self.selobj
             # (or None if none is hit); and (later) overdraw it for highlighting.
@@ -747,9 +798,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # self._cached_bg_image_comparison_data = bg_image_comparison_data
             pass
 
-        if self.permit_shaders:
-            for shader in drawing_globals.enabled_shaders():
-                shader.configShader(self)
+        self.configure_enabled_shaders() ##### REVIEW where to call this, and how often [this is the only pre-090304 call]
 
         for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)

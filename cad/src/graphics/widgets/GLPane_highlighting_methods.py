@@ -7,10 +7,11 @@ GLPane_highlighting_methods.py - highlight drawing and hit-detection
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 bruce 080915 split this out of class GLPane_rendering_methods
+
+Russ added some shader-related code.
 """
 
 from OpenGL.GL import GL_ALWAYS
-from OpenGL.GL import GL_BACK
 from OpenGL.GL import GL_DEPTH_BUFFER_BIT
 from OpenGL.GL import GL_DEPTH_COMPONENT
 from OpenGL.GL import GL_DEPTH_FUNC
@@ -41,7 +42,6 @@ from OpenGL.GL import glGetIntegerv
 from OpenGL.GL import glInitNames
 from OpenGL.GL import glMatrixMode
 from OpenGL.GL import glWindowPos3i
-from OpenGL.GL import glReadBuffer
 from OpenGL.GL import glReadPixels
 from OpenGL.GL import glReadPixelsf
 from OpenGL.GL import glRenderMode
@@ -58,8 +58,6 @@ from utilities.constants import white, orange
 
 from utilities.debug_prefs import debug_pref
 from utilities.debug_prefs import Choice_boolean_False
-
-import graphics.drawing.drawing_globals as drawing_globals
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from model.bonds import Bond # used only for selobj ordering
@@ -129,7 +127,7 @@ class GLPane_highlighting_methods(object):
             debugPicking = debug_pref("GLPane: debug mouseover picking?",
                                       Choice_boolean_False, prefs_key = True )
 
-            if self.permit_shaders and list(drawing_globals.enabled_shaders()):
+            if self.enabled_shaders():
                 # TODO: optimization: find an appropriate place to call 
                 # _compute_frustum_planes. [bruce 090105 comment]
                 
@@ -166,7 +164,7 @@ class GLPane_highlighting_methods(object):
                 # We must be in glRenderMode(GL_RENDER) (as usual) when this is called.
                 # Note: _setup_projection leaves the matrix mode as GL_PROJECTION.
                 glMatrixMode(GL_MODELVIEW)
-                shaders = list(drawing_globals.enabled_shaders())
+                shaders = self.enabled_shaders()
                 try:
                     # Set flags so that we will use glnames-as-color mode 
                     # in shaders, and draw only shader primitives.

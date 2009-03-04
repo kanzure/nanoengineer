@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLSphereBuffer.py -- Subclass of GLPrimitiveBuffer for sphere primitives.
 
 @author: Russ
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Originally written by Russ Fish; designed together with Bruce Smith.
@@ -22,12 +22,7 @@ import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer, HunkBuffer
 
 from geometry.VQT import V, A
-from utilities.debug_prefs import debug_pref
-from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
 
-import numpy
-
-from OpenGL.GL import GL_QUADS
 
 class GLSphereBuffer(GLPrimitiveBuffer):
     """
@@ -37,29 +32,22 @@ class GLSphereBuffer(GLPrimitiveBuffer):
     Draws a bounding-box of quads (or a single billboard quad) to a custom
     sphere shader for each sphere primitive, along with control attribute data.
     """
+    
     def __init__(self):
-        # Tell GLPrimitiveBuffer the drawing pattern for sphere VBOs/IBOs.
-        shader = drawing_globals.sphereShader
-        if debug_pref("GLPane: use billboard primitives? (next session)",
-                      Choice_boolean_True, prefs_key = True ):
-            print "fyi: using the billboard shader-sphere drawing pattern."
-            super(GLSphereBuffer, self).__init__(
-                shader, GL_QUADS,
-                drawing_globals.sphereBillboardVerts,
-                drawing_globals.sphereBillboardIndices)
-        else:
-            super(GLSphereBuffer, self).__init__(
-                shader, GL_QUADS,
-                drawing_globals.shaderCubeVerts,
-                drawing_globals.shaderCubeIndices)
+        """
+        """
+        super(GLSphereBuffer, self).__init__(
+            drawing_globals.sphereShaderGlobals )
 
         # Per-vertex attribute hunk VBOs that are specific to the sphere shader.
         # Combine centers and radii into a 4-element vec4 attribute VBO.  (Each
         # attribute slot takes 4 floats, no matter how many of them are used.)
+        shader = self.shader
         self.ctrRadHunks = HunkBuffer(shader, "center_rad", self.nVertices, 4)
         self.hunkBuffers += [self.ctrRadHunks]
 
         return
+    
     def addSpheres(self, centers, radii, colors, transform_ids, glnames):
         """
         Sphere centers must be a list of VQT points.

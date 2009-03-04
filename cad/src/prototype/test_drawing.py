@@ -69,18 +69,13 @@ def test_Draw(glpane):
         pass
     elif int(testCase) >= 100:
         #bruce 090102
-        for shader in drawing_globals.enabled_shaders():
-            shader.configShader(glpane)
+        glpane.configure_enabled_shaders()
         test_Object.draw_complete()
         pass
     return
 
 def test_Draw_8x(glpane): #bruce 090223 refactoring of common code
-    if glpane.permit_shaders:
-        for shader in drawing_globals.enabled_shaders():
-            shader.configShader(self)
-            continue
-        pass
+    glpane.configure_enabled_shaders()
     if testCase == 8:
         for chunk in test_spheres:
             chunk.draw()
@@ -347,17 +342,21 @@ def test_drawing(glpane, initOnly = False):
     # Load the sphere shaders if needed.
     global _USE_SHADERS
     if _USE_SHADERS:
-        if not drawing_globals.sphereShader:
-            print "Loading sphere shaders."
+        if not drawing_globals.test_sphereShader:
+            print "test_drawing: Loading sphere shaders."
 
             try:
                 from graphics.drawing.gl_shaders import GLSphereShaderObject
-                drawing_globals.sphereShader = GLSphereShaderObject()
+                drawing_globals.test_sphereShader = GLSphereShaderObject()
+                ##### REVIEW: is this compatible with my refactoring in drawing_globals?
+                # If not, use of Test Graphics Performance command might cause subsequent
+                # bugs in other code. Ideally we'd call the new methods that encapsulate
+                # this, to setup shaders. [bruce 090304 comment]
 
-                print "Sphere-shader initialization is complete.\n"
+                print "test_drawing: Sphere-shader initialization is complete.\n"
             except:
                 _USE_SHADERS = False
-                print "Exception while loading sphere shaders, will reraise and not try again"
+                print "test_drawing: Exception while loading sphere shaders, will reraise and not try again"
                 raise
             pass
 
@@ -540,11 +539,11 @@ def test_drawing(glpane, initOnly = False):
                 print ("%d primitives in %d transform chunks of size <= %d" %
                        (nSpheres * nSpheres, len(transforms),
                         transformChunkLength))
-                shader = drawing_globals.sphereShader
+                shader = drawing_globals.test_sphereShader
                 shader.setupTransforms(transforms)
             pass
         else:
-            shader = drawing_globals.sphereShader
+            shader = drawing_globals.test_sphereShader
             shader.configShader(glpane)
 
             # Update portions for animation.
@@ -665,14 +664,14 @@ def test_drawing(glpane, initOnly = False):
             test_vbo.unbind()
             pass
         else:
-            drawing_globals.sphereShader.configShader(glpane)
+            drawing_globals.test_sphereShader.configShader(glpane)
 
             glEnableClientState(GL_VERTEX_ARRAY)
 
             test_vbo.bind()             # Vertex data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
 
-            drawing_globals.sphereShader.setActive(True)
+            drawing_globals.test_sphereShader.setActive(True)
             glDisable(GL_CULL_FACE)
 
             glColor3i(127, 127, 127)
@@ -694,7 +693,7 @@ def test_drawing(glpane, initOnly = False):
                     continue
                 continue
 
-            drawing_globals.sphereShader.setActive(False)
+            drawing_globals.test_sphereShader.setActive(False)
             glEnable(GL_CULL_FACE)
 
             test_ibo.unbind()
@@ -736,7 +735,7 @@ def test_drawing(glpane, initOnly = False):
             test_vbo.bind()             # Vertex data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
 
-            drawing_globals.sphereShader.setActive(True)
+            drawing_globals.test_sphereShader.setActive(True)
             glDisable(GL_CULL_FACE)
 
             glColor3i(127, 127, 127)
@@ -758,7 +757,7 @@ def test_drawing(glpane, initOnly = False):
                     continue
                 continue
 
-            drawing_globals.sphereShader.setActive(False)
+            drawing_globals.test_sphereShader.setActive(False)
             glEnable(GL_CULL_FACE)
 
             test_ibo.unbind()
@@ -826,7 +825,7 @@ def test_drawing(glpane, initOnly = False):
                 continue
             pass
         else:
-            shader = drawing_globals.sphereShader
+            shader = drawing_globals.test_sphereShader
             shader.configShader(glpane) # Turn the lights on.
             for x in range(nSpheres):
                 glCallList(test_dls + x)
@@ -870,7 +869,7 @@ def test_drawing(glpane, initOnly = False):
                 continue
             pass
         else:
-            shader = drawing_globals.sphereShader
+            shader = drawing_globals.test_sphereShader
             shader.configShader(glpane)
             for chunk in test_spheres:
                 chunk.draw()
@@ -1019,7 +1018,7 @@ def test_drawing(glpane, initOnly = False):
                         # Through ColorSorter to cylinder primitive buffer...
                         if (True and  # Whether to do tapered shader-cylinders.
                             # Display List cylinders don't support taper.
-                            drawing_globals.cylinderShader_desired()):
+                            glpane.glprefs.cylinderShader_desired()):
                             ###cylRad = (radius/2.0, (.75-radius)/2.0)
                             cylRad = (radius/1.5 - .167, .3 - radius/1.5)
                         else:

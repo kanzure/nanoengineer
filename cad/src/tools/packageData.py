@@ -346,7 +346,7 @@ packageMapping_for_files = {
     "shape_vertices"                   : "graphics_drawing",
     "ColorSorter"                      : "graphics_drawing",
     "CS_workers"                       : "graphics_drawing",
-    "CS_ShapeList"                     : "graphics_drawing",
+    "c_renderer"                       : "graphics_drawing",
     "CS_draw_primitives"               : "graphics_drawing",
     "drawers"                          : "graphics_drawing",
     "draw_bond_vanes"                  : "graphics_drawing",

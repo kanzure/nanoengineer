@@ -80,8 +80,9 @@ class BBox:
 
     def draw(self):
         if self.data:
-            drawwirebox(black, add.reduce(self.data)/2,
-                        subtract.reduce(self.data)/2)
+            drawwirebox(black,
+                        add.reduce(self.data) / 2,
+                        subtract.reduce(self.data) / 2 )
 
     def center(self):
         if self.data:

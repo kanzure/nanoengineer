@@ -47,9 +47,6 @@ See design comments on:
 """
 
 import graphics.drawing.drawing_globals as drawing_globals
-from graphics.drawing.ColorSortedDisplayList import ColorSortedDisplayList
-from graphics.drawing.GLPrimitiveBuffer import GLPrimitiveBuffer
-from graphics.drawing.TransformControl import TransformControl
 
 from OpenGL.GL import glPushMatrix, glPopMatrix
 
@@ -102,13 +99,13 @@ class GLPrimitiveSet:
         # Draw primitives from CSDLs through shaders (via GLPrimitiveBuffers),
         # if that's turned on.
         primlist_buffer_pairs = []
-        if drawing_globals.sphereShader_desired():
+        if self.spheres: # note: similar code exists in CSDL.
             primlist_buffer_pairs += [(self.spheres,
-                             drawing_globals.spherePrimitives)]
+                             drawing_globals.sphereShaderGlobals.primitiveBuffer)]
             pass
-        if drawing_globals.cylinderShader_desired():
+        if self.cylinders:
             primlist_buffer_pairs += [(self.cylinders,
-                             drawing_globals.cylinderPrimitives)]
+                             drawing_globals.cylinderShaderGlobals.primitiveBuffer)]
             pass
         for primitives, primbuffer in primlist_buffer_pairs:
             if len(primitives) > 0:

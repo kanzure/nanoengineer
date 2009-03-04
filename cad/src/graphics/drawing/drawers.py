@@ -1,39 +1,24 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 drawers.py - Miscellaneous drawing functions that are not used as primitives.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
-Originated by Josh as drawer.py .
+Originated by Josh as drawer.py
 
 Various developers extended it since then.
-
-Brad G. added ColorSorter features.
 
 At some point Bruce partly cleaned up the use of display lists.
 
 071030 bruce split some functions and globals into draw_grid_lines.py
 and removed some obsolete functions.
 
-080210 russ Split the single display-list into two second-level lists (with and
-without color) and a set of per-color sublists so selection and hover-highlight
-can over-ride Chunk base colors.  ColorSortedDisplayList is now a class in the
-parent's displist attr to keep track of all that stuff.
-
-080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
-tubes with per-vertex colors (necessary for DNA display style)
-
-080313 russ Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
-
-080420 piotr Solved highlighting and selection problems for multi-colored
-objects (e.g. rainbow colored DNA structures).
-
 080519 russ pulled the globals into a drawing_globals module and broke drawer.py
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
-ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
+ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 """
 
@@ -108,16 +93,16 @@ from OpenGL.GL import glTexEnvf
 from OpenGL.GL import GL_TEXTURE_ENV
 from OpenGL.GL import GL_TEXTURE_ENV_MODE
 from OpenGL.GL import GL_MODULATE
-from OpenGL.GL import glVertexPointer
+
 from OpenGL.GL import glNormalPointer
 from OpenGL.GL import glTexCoordPointer
 from OpenGL.GL import glDrawArrays
-from OpenGL.GL import glEnableClientState
-from OpenGL.GL import GL_VERTEX_ARRAY
+
+
 from OpenGL.GL import GL_NORMAL_ARRAY
 from OpenGL.GL import GL_TEXTURE_COORD_ARRAY
 
-from geometry.VQT import norm, vlen, V, Q, A
+from geometry.VQT import norm, V, Q, A
 
 from utilities.constants import blue, red, darkgreen, black
 
@@ -396,7 +381,7 @@ def drawLineCube(color, pos, radius):
     glDisableClientState(GL_VERTEX_ARRAY)
     return    
 
-def drawwirecube(color, pos, radius, lineWidth=3.0):
+def drawwirecube(color, pos, radius, lineWidth = 3.0):
     glPolygonMode(GL_FRONT, GL_LINE)
     glPolygonMode(GL_BACK, GL_LINE)
     glDisable(GL_LIGHTING)
@@ -419,7 +404,7 @@ def drawwirecube(color, pos, radius, lineWidth=3.0):
     glPolygonMode(GL_BACK, GL_FILL)
     return
 
-def drawwirebox(color, pos, len):
+def drawwirebox(color, pos, length):
     glPolygonMode(GL_FRONT, GL_LINE)
     glPolygonMode(GL_BACK, GL_LINE)
     glDisable(GL_LIGHTING)
@@ -427,7 +412,7 @@ def drawwirebox(color, pos, len):
     glColor3fv(color)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
-    glScale(len[0], len[1], len[2])
+    glScale(length[0], length[1], length[2])
     glCallList(drawing_globals.CubeList)
     glPopMatrix()
     glEnable(GL_CULL_FACE)
@@ -556,7 +541,7 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     if (dashEnabled):
         dashShrinkage = 0.9
     else:
-        dashShrinkage=1
+        dashShrinkage = 1
     x1, y1, z1 = scale * 0.01, scale * 0.01, scale * 0.01
     xEnd, yEnd, zEnd = scale * 0.04, scale * 0.09, scale * 0.025
     arrowBase = scale * 0.0075 * dashShrinkage
@@ -682,9 +667,8 @@ def findCell(pt, latticeType):
     Return the cell which contains the point <pt>
     """
     if latticeType == 'DIAMOND':
-        a = 0; cellX = cellY = cellZ = drawing_globals.DiGridSp
+        cellX = cellY = cellZ = drawing_globals.DiGridSp
     elif latticeType == 'LONSDALEITE':
-        a = 1
         cellX = drawing_globals.XLen
         cellY = drawing_globals.YLen
         cellZ = drawing_globals.ZLen
@@ -705,7 +689,8 @@ def genDiam(bblo, bbhi, latticeType):
     <Return>: A list of unit cells
     """
     if latticeType == 'DIAMOND':
-        a = 0; cellX = cellY = cellZ = drawing_globals.DiGridSp
+        a = 0
+        cellX = cellY = cellZ = drawing_globals.DiGridSp
     elif latticeType == 'LONSDALEITE':
         a = 1
         cellX = drawing_globals.XLen
@@ -720,8 +705,10 @@ def genDiam(bblo, bbhi, latticeType):
             for k in range(int(floor(bblo[2]/cellZ)),
                            int(ceil(bbhi[2]/cellZ))):
                 off = V(i*cellX, j*cellY, k*cellZ)
-                if a == 0: allCells += [drawing_globals.digrid + off]
-                elif a ==1: allCells += [drawing_globals.lonsEdges + off]
+                if a == 0:
+                    allCells += [drawing_globals.digrid + off]
+                elif a ==1:
+                    allCells += [drawing_globals.lonsEdges + off]
     return allCells  
 
 
@@ -948,7 +935,7 @@ def drawCubeCell(color):
     return
 
 def drawPlane(color, w, h, textureReady, opacity,
-              SOLID=False, pickCheckOnly=False, tex_coords=None):
+              SOLID = False, pickCheckOnly = False, tex_coords = None):
     """
     Draw polygon with size of <w>*<h> and with color <color>. Optionally, it
     could be texuture mapped, translucent.
@@ -995,7 +982,8 @@ def drawPlane(color, w, h, textureReady, opacity,
 
     glBegin(GL_QUADS)
     for ii in range(len(vs)):
-        t = vt[ii]; v = vs[ii]
+        t = vt[ii]
+        v = vs[ii]
         if textureReady:
             glTexCoord2fv(t)
         glVertex3fv(v)
@@ -1018,7 +1006,7 @@ def drawPlane(color, w, h, textureReady, opacity,
 
 
 def drawHeightfield(color, w, h, textureReady, opacity,
-                    SOLID=False, pickCheckOnly=False, hf=None):
+                    SOLID = False, pickCheckOnly = False, hf = None):
     """
     Draw a heighfield using vertex and normal arrays. Optionally, it could be
     texture mapped.
@@ -1131,7 +1119,7 @@ def drawtext(text, color, origin, point_size, glpane):
     glDisable(GL_LIGHTING)
     glDisable(GL_DEPTH_TEST)
 
-    from PyQt4.Qt import QFont, QString, QColor
+    from PyQt4.Qt import QFont, QString ##, QColor
     font = QFont( QString("Helvetica"), point_size)
     #glpane.qglColor(QColor(75, 75, 75))
     from widgets.widget_helpers import RGBf_to_QColor
@@ -1142,25 +1130,25 @@ def drawtext(text, color, origin, point_size, glpane):
     glEnable(GL_LIGHTING)
     return
 
-##Junk code###
-## The following code used to be for drawing text on a QGLWidget --
-# some of it might still be useful if integrated into drawtext() above
-# [moved here from elementColors.py and slightly cleaned up by bruce 080223]
-def _old_code_for_drawing_text(glpane):
-    self = glpane
-    glDisable(GL_LIGHTING)
-    glDisable(GL_DEPTH_TEST) 
-    self.qglColor(QColor(0, 0, 0))
-    font = QFont( QString("Times"), 10)
-    text = QString('Rvdw = ' + str(self.rad))
-    fontMecs = QFontMetrics(font)
-    strWd = fontMecs.width(text)
-    strHt = fontMecs.height()
-    w = self.width/2 - strWd/2
-    h = self.height - strHt/2 
-    self.renderText(w, h, text, font)
-    glEnable(GL_DEPTH_TEST)
-    glEnable(GL_LIGHTING)        
+### obsolete code:
+### The following code used to be for drawing text on a QGLWidget --
+### some of it might still be useful if integrated into drawtext() above
+### [moved here from elementColors.py and slightly cleaned up by bruce 080223]
+##def _old_code_for_drawing_text(glpane):
+##    self = glpane
+##    glDisable(GL_LIGHTING)
+##    glDisable(GL_DEPTH_TEST) 
+##    self.qglColor(QColor(0, 0, 0))
+##    font = QFont( QString("Times"), 10)
+##    text = QString('Rvdw = ' + str(self.rad))
+##    fontMecs = QFontMetrics(font)
+##    strWd = fontMecs.width(text)
+##    strHt = fontMecs.height()
+##    w = self.width/2 - strWd/2
+##    h = self.height - strHt/2 
+##    self.renderText(w, h, text, font)
+##    glEnable(GL_DEPTH_TEST)
+##    glEnable(GL_LIGHTING)        
 
 def renderSurface(surfaceEntities, surfaceNormals):
     ####@@@@ bruce 060927 comments:
@@ -1214,15 +1202,18 @@ def renderSurface(surfaceEntities, surfaceNormals):
     def onevert(vertex_index):
         glNormal3fv(surfaceNormals[vertex_index])
         # This needs to be done before glVertex3fv.
-        if nc > 0 and color_first: use_color(surfaceColors[vertex_index])
+        if nc > 0 and color_first:
+            use_color(surfaceColors[vertex_index])
         glVertex3fv(surfacePoints[vertex_index])
         # Old code did it here -- used wrong colors sometimes.
         if nc > 0 and not color_first:
             use_color(surfaceColors[vertex_index])
             pass
         return
-    ## if nc > 0 : glDisable(GL_LIGHTING)
-    if disable_lighting: glDisable(GL_LIGHTING)
+    ## if nc > 0 :
+    ##     glDisable(GL_LIGHTING)
+    if disable_lighting:
+        glDisable(GL_LIGHTING)
     if n == 3:
         glBegin(GL_TRIANGLES)
         for entity in entityIndex:
@@ -1238,7 +1229,8 @@ def renderSurface(surfaceEntities, surfaceNormals):
             onevert(entity[2])
             onevert(entity[3])
         glEnd()
-    if disable_lighting: glEnable(GL_LIGHTING)
+    if disable_lighting:
+        glEnable(GL_LIGHTING)
     return
 
 # end

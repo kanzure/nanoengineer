@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 CS_draw_primitives.py - Public entry points for ColorSorter drawing primitives.
 
@@ -7,41 +7,24 @@ data for sorting, including the object color and an eventual call on the
 appropriate drawing worker function.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
-Originated by Josh as drawer.py .
+Originated by Josh in drawer.py .
 
-Various developers extended it since then.
-
-Brad G. added ColorSorter features.
-
-At some point Bruce partly cleaned up the use of display lists.
-
-071030 bruce split some functions and globals into draw_grid_lines.py
-and removed some obsolete functions.
-
-080210 russ Split the single display-list into two second-level lists (with and
-without color) and a set of per-color sublists so selection and hover-highlight
-can over-ride Chunk base colors.  ColorSortedDisplayList is now a class in the
-parent's displist attr to keep track of all that stuff.
+Various developers extended it since then, including Brad G (ColorSorter).
 
 080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
 tubes with per-vertex colors (necessary for DNA display style)
-
-080313 russ Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
 
 080420 piotr Solved highlighting and selection problems for multi-colored
 objects (e.g. rainbow colored DNA structures).
 
 080519 russ pulled the globals into a drawing_globals module and broke drawer.py
 into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
-ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
+ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
-
-081003 russ Added sphere shader-primitive support.
-090119 russ Added cylinder shader-primitive support.
 """
 
 from OpenGL.GL import GL_BACK
@@ -54,13 +37,12 @@ from OpenGL.GL import GL_LIGHTING
 from OpenGL.GL import GL_LINE
 from OpenGL.GL import glPolygonMode
 
-import foundation.env as env #bruce 051126
-from geometry.VQT import norm, vlen, V, Q, A
+from geometry.VQT import norm, vlen
 import utilities.debug as debug # for debug.print_compact_traceback
 
 from graphics.drawing.ColorSorter import ColorSorter
 from graphics.drawing.drawers import drawPoint
-from graphics.drawing.gl_GLE import gleGetNumSides, gleSetNumSides
+from graphics.drawing.gl_GLE import gleSetNumSides
 
 def drawsphere(color, pos, radius, detailLevel,
                opacity = 1.0,
@@ -393,4 +375,8 @@ def draw3DFlag(glpane,
                sphereRadius,
                SPHERE_DRAWLEVEL,
                opacity = opacity)
+    return
+
+# end
+
 
