@@ -442,7 +442,8 @@ def _same_vals_helper(v1, v2): #060303
 if SAMEVALS_SPEEDUP:
     # Replace definition above with the extension's version.
     # (This is done for same_vals here in utilities/Comparison.py,
-    #  and for copy_val in state_utils.py.)
+    #  and for copy_val in state_utils.py, which sets COPYVAL_SPEEDUP
+    #  if it works, since it might fail even if SAMEVALS_SPEEDUP works.)
     from samevals import same_vals
         # this overwrites the public global which other modules import
     # note: there is no point in saving the python version before this

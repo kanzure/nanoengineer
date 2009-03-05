@@ -772,7 +772,7 @@ def copy_val(val):
      copy module for this.)
 
     @note: this function is replaced by a C implementation when that is
-           available. See SAMEVALS_SPEEDUP in the code.
+           available. See COPYVALS_SPEEDUP in the code.
     """
     #bruce 060221 generalized semantics and rewrote for efficiency
     try:
@@ -1042,25 +1042,37 @@ def _generalCopier(obj):
 
 # ==
 
+COPYVAL_SPEEDUP = False # changed below if possible [bruce 090305 revised]
+
 if SAMEVALS_SPEEDUP:
-    # Replace definition above with the extension's version.
-    # (This is done for same_vals in utilities/Comparison.py,
-    #  and for copy_val here in state_utils.py.)
-    from samevals import copy_val, setInstanceCopier, setGeneralCopier, setArrayCopier
-    setInstanceCopier(_generalCopier) # [review: still needed?]
-        # note: this means _generalCopier is applied by the C version
-        # of copy_val to instances of InstanceType (or of any class in the
-        # list passed to setInstanceLikeClasses, but we no longer do that).
-    setGeneralCopier(_generalCopier)
-        # note: _generalCopier is applied to anything that lacks hardcoded copy
-        # code which isn't handled by setInstanceCopier, including
-        # miscellaneous extension types, and instances of any new-style classes
-        # not passed to setInstanceLikeClasses. In current code and in routine
-        # usage, it is probably never used, but if we introduce new-style model
-        # classes (or use the experimental atombase extension), it will be used
-        # to copy their instances. Soon I plan to make some model classes
-        # new-style. [new feature, bruce 090206]
-    setArrayCopier(lambda x: x.copy())
+    try:
+        # Try to replace copy_val definition above with the extension's version.
+        # (This is done for same_vals in utilities/Comparison.py,
+        #  and for copy_val here in state_utils.py.)
+        from samevals import copy_val as _copy_val, setInstanceCopier, setGeneralCopier, setArrayCopier
+    except:
+        print "using SAMEVALS_SPEEDUP but not COPYVAL_SPEEDUP; is samevals.{dll,so} out of date?"
+        pass
+    else:
+        copy_val = _copy_val
+        setInstanceCopier(_generalCopier) # [review: still needed?]
+            # note: this means _generalCopier is applied by the C version
+            # of copy_val to instances of InstanceType (or of any class in the
+            # list passed to setInstanceLikeClasses, but we no longer do that).
+        setGeneralCopier(_generalCopier)
+            # note: _generalCopier is applied to anything that lacks hardcoded copy
+            # code which isn't handled by setInstanceCopier, including
+            # miscellaneous extension types, and instances of any new-style classes
+            # not passed to setInstanceLikeClasses. In current code and in routine
+            # usage, it is probably never used, but if we introduce new-style model
+            # classes (or use the experimental atombase extension), it will be used
+            # to copy their instances. Soon I plan to make some model classes
+            # new-style. [new feature, bruce 090206]
+        setArrayCopier(lambda x: x.copy())
+        COPYVAL_SPEEDUP = True
+        print "COPYVAL_SPEEDUP is True"
+        pass
+    pass
 
 # inlined:
 ## def is_mutable_Instance(obj): 
