@@ -135,13 +135,12 @@ class GLPrefs: # rename?? can't rename module to GLPrefs.py, might confuse svn o
 
         # REVIEW: is this still next-session, or does it work fine for same session now?
         # Guess: works for same-session after today's refactoring (once it works again at all).
-        # [bruce 090304]
+        # So I modified the debug_pref menu text optimistically. [bruce 090304]
         
         if quux_module_import_succeeded:
-            initial_choice = _choices[self.use_c_renderer_default]
             self.use_c_renderer = (
-                debug_pref("GLPane: use native C renderer? (next session)", #bruce 090303 revised text
-                           initial_choice,
+                debug_pref("GLPane: use native C renderer?", #bruce 090304 revised text
+                           _choices[self.use_c_renderer_default],
                            prefs_key = self.use_c_renderer_prefs_key))
                 #bruce 060323 removed non_debug = True for A7 release, and changed
                 # its prefs_key so developers start over with the default value.
@@ -149,31 +148,32 @@ class GLPrefs: # rename?? can't rename module to GLPrefs.py, might confuse svn o
         return
 
     def _setup_shader_prefs(self):
-        #russ 080819: Added.
-        initial_choice = _choices[self.use_sphere_shaders_default]
+        # note: as of bruce 090304 these all should work as same-session prefs,
+        # and most of them have been tested that way.
+        
         self.use_sphere_shaders_pref = debug_pref(
-            "GLPane: use sphere-shaders? (next session)", initial_choice,
+            "GLPane: use sphere-shaders?",
+            _choices[self.use_sphere_shaders_default],
             non_debug = True,
-            prefs_key = self.use_sphere_shaders_prefs_key)
-        #russ 90116: Added.
-        initial_choice = _choices[self.use_cylinder_shaders_default]
+            prefs_key = self.use_sphere_shaders_prefs_key )
+
         self.use_cylinder_shaders_pref = debug_pref(
-            "GLPane: use cylinder-shaders? (next session)", initial_choice,
+            "GLPane: use cylinder-shaders?",
+            _choices[self.use_cylinder_shaders_default],
             non_debug = True,
-            prefs_key = self.use_cylinder_shaders_prefs_key)
-        #russ 90223: Added.
-        initial_choice = _choices[self.use_cone_shaders_default]
+            prefs_key = self.use_cylinder_shaders_prefs_key )
+
         self.use_cone_shaders_pref = debug_pref(
-            "GLPane: use cone-shaders? (next session)", initial_choice,
+            "GLPane: use cone-shaders?",
+            _choices[self.use_cone_shaders_default],
             non_debug = True,
-            prefs_key = self.use_cone_shaders_prefs_key)
-        # Russ 081002: Added.
-        initial_choice = _choices[
-            self.use_batched_primitive_shaders_default]
+            prefs_key = self.use_cone_shaders_prefs_key )
+
         self.use_batched_primitive_shaders_pref = debug_pref(
-            "GLPane: use batched primitive shaders? (next session)", initial_choice,
+            "GLPane: use batched primitive shaders?",
+            _choices[ self.use_batched_primitive_shaders_default],
             non_debug = True,
-            prefs_key = self.use_batched_primitive_shaders_prefs_key)
+            prefs_key = self.use_batched_primitive_shaders_prefs_key )
 
         #russ 080403: Added drawing variant selection for unbatched spheres
         # (update, bruce 090304: mainly of historical interest or for testing,
@@ -311,7 +311,7 @@ class GLPrefs: # rename?? can't rename module to GLPrefs.py, might confuse svn o
 
     # ==
     
-    def materialprefs_summary(self): #bruce 051126  #### TODO: RENAME
+    def materialprefs_summary(self): #bruce 051126  ### TODO: RENAME
         """
         Return a Python data object summarizing our prefs which affect chunk
         display lists, so that memoized display lists should become invalid (due
