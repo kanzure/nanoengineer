@@ -37,17 +37,6 @@ from OpenGL.GL import glPopName
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import GL_LIGHTING
 
-# todo: reorder these imports
-
-from graphics.drawing.CS_workers import drawpolycone_multicolor_worker
-from graphics.drawing.CS_workers import drawpolycone_worker
-from graphics.drawing.CS_workers import drawtriangle_strip_worker
-
-import foundation.env as env
-
-from graphics.drawing.gl_lighting import isPatternedDrawing
-from graphics.drawing.gl_lighting import startPatternedDrawing
-from graphics.drawing.gl_lighting import endPatternedDrawing
 
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
@@ -57,6 +46,18 @@ from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import SS_HALO
 
 from utilities.debug import print_compact_traceback
+
+
+import foundation.env as env
+
+
+from graphics.drawing.CS_workers import drawpolycone_multicolor_worker
+from graphics.drawing.CS_workers import drawpolycone_worker
+from graphics.drawing.CS_workers import drawtriangle_strip_worker
+
+from graphics.drawing.patterned_drawing import isPatternedDrawing
+from graphics.drawing.patterned_drawing import startPatternedDrawing
+from graphics.drawing.patterned_drawing import endPatternedDrawing
 
 import graphics.drawing.drawing_constants as drawing_constants
 

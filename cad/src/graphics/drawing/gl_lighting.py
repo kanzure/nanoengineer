@@ -19,16 +19,11 @@ Brad G. added ColorSorter features and probably apply_material.
 drawer.py into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
 ColorSorter.py CS_workers.py c_renderer.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
-
-080530 russ: Refactored to move the patterned drawing style setup here from
-chunk.py, and generalized the prefs decoding to handle selection as well as
-hover highlighting.
 """
 
 from OpenGL.GL import GL_AMBIENT
 from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
 from OpenGL.GL import glAreTexturesResident
-from OpenGL.GL import GL_BACK
 from OpenGL.GL import glBegin
 from OpenGL.GL import glBindTexture
 from OpenGL.GL import glColor4fv
@@ -45,8 +40,7 @@ from OpenGL.GL import GL_FOG_COLOR
 from OpenGL.GL import GL_FOG_END
 from OpenGL.GL import GL_FOG_MODE
 from OpenGL.GL import GL_FOG_START
-from OpenGL.GL import GL_FILL
-from OpenGL.GL import GL_FRONT
+
 from OpenGL.GL import GL_FRONT_AND_BACK
 from OpenGL.GL import glGenTextures
 from OpenGL.GL import glGetString
@@ -56,19 +50,15 @@ from OpenGL.GL import GL_LIGHT2
 from OpenGL.GL import glLightf
 from OpenGL.GL import glLightfv
 from OpenGL.GL import GL_LIGHTING
-from OpenGL.GL import GL_LINE
-from OpenGL.GL import glLineWidth
+
 from OpenGL.GL import GL_LINEAR
 from OpenGL.GL import glLoadIdentity
 from OpenGL.GL import glMaterialf
 from OpenGL.GL import glMaterialfv
 from OpenGL.GL import glMatrixMode
 from OpenGL.GL import GL_MODELVIEW
-from OpenGL.GL import glPolygonMode
-from OpenGL.GL import glPolygonOffset
-from OpenGL.GL import GL_POLYGON_OFFSET_LINE
-from OpenGL.GL import GL_POLYGON_STIPPLE
-from OpenGL.GL import glPolygonStipple
+
+
 from OpenGL.GL import GL_POSITION
 from OpenGL.GL import GL_QUADS
 from OpenGL.GL import GL_RENDERER
@@ -82,22 +72,12 @@ from OpenGL.GL import GL_VENDOR
 from OpenGL.GL import GL_VERSION
 from OpenGL.GL import glVertex2f
 
+
 from OpenGL.GLU import gluBuild2DMipmaps
 
 from utilities.constants import white
 
 from utilities.debug import print_compact_traceback
-
-import numpy
-import foundation.env as env
-from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
-from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR1
-from utilities.prefs_constants import HHS_CROSSHATCH1, HHS_BW_PATTERN
-from utilities.prefs_constants import HHS_POLYGON_EDGES, HHS_HALO
-from utilities.prefs_constants import selectionColorStyle_prefs_key
-from utilities.prefs_constants import SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1
-from utilities.prefs_constants import SS_BW_PATTERN, SS_POLYGON_EDGES, SS_HALO
-from utilities.prefs_constants import haloWidth_prefs_key
 
 import graphics.drawing.drawing_globals as drawing_globals # only for glprefs in apply_material
 
@@ -281,7 +261,8 @@ def disable_fog():
 
 ### REVIEW: should apply_material be a method of GLPrefs and perhaps GLPane?
 # Or at least, should its glprefs arg be required (removing the last use of
-# drawing_globals in this module)?
+# drawing_globals in this module)? [And in the meantime, moved to that module?]
+#
 # Probably yes, but making all uses know glprefs requires passing glpane or glprefs
 # args or attrs into quite a few functions or methods or instances that don't
 # have them yet, including at least CSDL, which ought to have a glprefs or glpane
@@ -291,6 +272,7 @@ def disable_fog():
 # not too hard to do when someone has time. [bruce 090304 comment]
 
 def apply_material(color, glprefs = None):
+    # todo: move into glprefs.py (see comment above for why)
     """
     In the current GL context,
     set material parameters based on the given color (length 3 or 4) and
@@ -350,7 +332,7 @@ def apply_material(color, glprefs = None):
 
 # ==
 
-#russ 080515: We should find a better place for this!
+#russ 080515: We should find a better place for this! [maybe drawing_constants?]
 def get_gl_info_string(glpane): # grantham 20051129
     """
     Return a string containing some useful information about the OpenGL
@@ -415,137 +397,5 @@ def get_gl_info_string(glpane): # grantham 20051129
                           % tex_count
     return gl_info_string
 
-# ==
-# russ 080523: Special effects for highlighting and selection drawing styles.
+# end
 
-# 32x32 stipple bitmask patterns, in C arrays.
-# To avoid "seams", repeated subpattern sizes must be a power of 2.
-# ScreenDoor - 2x2 repeat, 1/4 density (one corner turned on.)
-ScreenDoor = numpy.array(16*(4*[0xaa] + 4*[0x00]), dtype = numpy.uint8)
-# CrossHatch - 4x4 repeat, 7/16 density (two edges of a square turned on.)
-CrossHatch = numpy.array(8*(4*[0xff] + 12*[0x11]), dtype = numpy.uint8)
-
-def _decodePatternPrefs(highlight = False, select = False):
-    """
-    Internal common code for startPatternedDrawing and endPatternedDrawing.
-    Returns a tuple of prefs data.
-    """
-    key = (highlight and hoverHighlightingColorStyle_prefs_key
-           or select and selectionColorStyle_prefs_key) # False or string.
-    style = bool(key) and env.prefs[key] # False or enum string.
-    solid = style == False or (highlight and style == HHS_SOLID or
-                               select and style == SS_SOLID) # bool.
-    pattern = None          # None or a bitarray pointer.
-    edges = halos = False   # bool.
-
-    # Nothing to do for solid colors.
-    if not solid:
-        # Check for stipple-patterned drawing styles.
-        if (highlight and style == HHS_SCREENDOOR1
-            or select and style == SS_SCREENDOOR1):
-            pattern = ScreenDoor
-            pass
-        elif (highlight and style == HHS_CROSSHATCH1
-              or select and style == SS_CROSSHATCH1):
-            pattern = CrossHatch
-            pass
-        # Check for polygon-edge drawing styles.
-        if pattern is None:
-            edges = (highlight and style == HHS_POLYGON_EDGES
-                     or select and style == SS_POLYGON_EDGES)
-            halos = (highlight and style == HHS_HALO
-                     or select and style == SS_HALO)
-            pass
-        pass
-
-    return (key, style, solid, pattern, edges, halos)
-
-def isPatternedDrawing(highlight = False, select = False):
-    """
-    Return True if either highlight or select is passed as True, and the
-    corresponding preference is set to select a patterned (non-solid) drawing
-    style.
-    """
-    (key, style, solid, pattern, edges, halos) = \
-          _decodePatternPrefs(highlight, select)
-    return not solid
-
-def startPatternedDrawing(highlight = False, select = False):
-    """
-    Start drawing with a patterned style, if either highlight or select is
-    passed as True, and the corresponding preference is set to select a
-    patterned drawing style.
-
-    This is common code for two different prefs keys, each of which has its own
-    set of settings constants...
-
-    Return value is True if one of the patterned styles is selected.
-    """
-    (key, style, solid, pattern, edges, halos) = \
-          _decodePatternPrefs(highlight, select)
-        
-    if solid:
-        # Nothing to do here for solid colors.
-        return False
-
-    # Set up stipple-patterned drawing styles.
-    if pattern is not None:
-        glEnable(GL_POLYGON_STIPPLE)
-        glPolygonStipple(pattern)
-        return True
-
-    # Both polygon edges and halos are drawn in line-mode.
-    if edges or halos:
-        glPolygonMode(GL_FRONT, GL_LINE)
-        glPolygonMode(GL_BACK, GL_LINE)
-
-        if halos:
-            # Draw wide, unshaded lines, offset a little bit away from the
-            # viewer so that only the silhouette edges are visible.
-            glDisable(GL_LIGHTING)
-            glLineWidth(env.prefs[haloWidth_prefs_key])
-            glEnable(GL_POLYGON_OFFSET_LINE)
-            glPolygonOffset(0.0, 5.e4) # Constant offset.
-            pass
-
-        pass
-    return True
-
-def endPatternedDrawing(highlight = False, select = False):
-    """
-    End drawing with a patterned style, if either highlight or select is
-    passed as True, and the corresponding preference is set to select a
-    patterned drawing style.
-
-    This is common code for two different prefs keys, each of which has its own
-    set of settings constants...
-
-    Return value is True if one of the patterned styles is selected.
-    """
-    (key, style, solid, pattern, edges, halos) = \
-          _decodePatternPrefs(highlight, select)
-        
-    if solid:
-        # Nothing to do here for solid colors.
-        return False
-
-    # End stipple-patterned drawing styles.
-    if pattern is not None:
-        glDisable(GL_POLYGON_STIPPLE)
-        return True
-
-    # End line-mode for polygon-edges or halos styles.
-    if edges or halos:
-        glPolygonMode(GL_FRONT, GL_FILL)
-        glPolygonMode(GL_BACK, GL_FILL)
-
-        if halos:
-            # Back to normal lighting and treatment of lines and polygons.
-            glEnable(GL_LIGHTING)
-            glLineWidth(1.0)
-            glDisable(GL_POLYGON_OFFSET_LINE)
-            glPolygonOffset(0.0, 0.0)
-            pass
-
-        pass
-    return True

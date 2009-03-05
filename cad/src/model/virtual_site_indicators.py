@@ -10,23 +10,32 @@ not as part of their implementation for minimize.
 @copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from model.jigs import Jig
 import foundation.env as env
+
+
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
-from utilities.constants import red, orange, yellow, average_value, ave_colors, blue, gray
-from graphics.drawing.drawers import drawwirecube
-from graphics.drawing.CS_draw_primitives import drawline
-from graphics.drawing.CS_draw_primitives import drawcylinder
-from graphics.drawing.gl_lighting import isPatternedDrawing
-from graphics.drawing.gl_lighting import startPatternedDrawing
-from graphics.drawing.gl_lighting import endPatternedDrawing
 
-from geometry.VQT import V, vlen
+from utilities.constants import red, orange, yellow, average_value, ave_colors, blue, gray
 
 from utilities.Log import quote_html
 
+from geometry.VQT import V, vlen
+
+
+from graphics.drawing.drawers import drawwirecube
+
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.CS_draw_primitives import drawcylinder
+
+from graphics.drawing.patterned_drawing import isPatternedDrawing
+from graphics.drawing.patterned_drawing import startPatternedDrawing
+from graphics.drawing.patterned_drawing import endPatternedDrawing
+
+
 from model.chunk import Chunk
+
+from model.jigs import Jig
 
 # ==
 
@@ -295,11 +304,11 @@ class VirtualBondJig( VisualFeedbackJig):
 
         # russ 080530: Support for patterned highlighting drawing modes.
         selected = self.picked
-        patterned = isPatternedDrawing(select=selected, highlight=highlighted)
+        patterned = isPatternedDrawing(select = selected, highlight = highlighted)
         if patterned:
             # Patterned selection drawing needs the normal drawing first.
             drawcylinder( normcolor, posns[0], posns[1], drawrad)
-            startPatternedDrawing(select=selected, highlight=highlighted)
+            startPatternedDrawing(select = selected, highlight = highlighted)
             pass
         # Draw solid color, or overlay pattern in highlight or selection color.
         drawcylinder(
@@ -308,7 +317,7 @@ class VirtualBondJig( VisualFeedbackJig):
              normcolor), posns[0], posns[1], drawrad)
         if patterned:
             # Reset from patterned drawing mode.
-            endPatternedDrawing(select=selected, highlight=highlighted)
+            endPatternedDrawing(select = selected, highlight = highlighted)
             pass
         return
 

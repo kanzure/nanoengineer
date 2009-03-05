@@ -96,7 +96,10 @@ import utilities.EndUser as EndUser
 from graphics.drawing.sphere_shader import sphereVertSrc, sphereFragSrc
 from graphics.drawing.cylinder_shader import cylinderVertSrc, cylinderFragSrc
 
+from graphics.drawing.patterned_drawing import isPatternedDrawing
+
 import foundation.env as env
+
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
 from utilities.prefs_constants import HHS_SOLID, HHS_HALO
@@ -379,13 +382,7 @@ class GLShaderObject(object):
         patterned_highlighting = (False and # XXX
                                   patterning and
                                   isPatternedDrawing(highlight = highlighted))
-           # warning in case that code is enabled:
-           #   pylint warning: Undefined variable 'isPatternedDrawing
-           # and fixing this might require moving 'def isPatternedDrawing'
-           # into a different module than the one it's in now (in which it
-           # never belonged). [bruce 090304 comment]
-
-           # note: patterned_highlighting variable is not yet used here
+           # note: patterned_highlighting variable is not yet used here [bruce 090304 comment]
            
         halo_selection = (selected and
                           env.prefs[selectionColorStyle_prefs_key] == SS_HALO)

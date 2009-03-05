@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 jigs.py -- Classes for motors and other jigs, and their superclass, Jig.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -40,32 +40,47 @@ from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 from OpenGL.GL import GL_FILL
 
+
 from utilities import debug_flags
 
-from foundation.Utility import NodeWith3DContents
 from utilities.icon_utilities import imagename_to_pixmap
-from geometry.VQT import A
-from commands.ThermostatProperties.StatProp import StatProp
-from commands.ThermometerProperties.ThermoProp import ThermoProp
-
-from utilities.Log import orangemsg
-from graphics.rendering.povray.povheader import povpoint
-from utilities.debug import print_compact_stack, print_compact_traceback
-import foundation.env as env
-from graphics.drawing.drawers import drawwirecube
-from graphics.drawing.gl_lighting import isPatternedDrawing
-from graphics.drawing.gl_lighting import startPatternedDrawing
-from graphics.drawing.gl_lighting import endPatternedDrawing
 
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
+
 from utilities.constants import gensym
 from utilities.constants import blue
 from utilities.constants import darkred
 from utilities.constants import black
+
+from utilities.Log import orangemsg
+
+from utilities.debug import print_compact_stack, print_compact_traceback
+
+
+from geometry.VQT import A
+
+
+import foundation.env as env
+from foundation.Utility import NodeWith3DContents
 from foundation.state_constants import S_REFS
 
+
+from graphics.rendering.povray.povheader import povpoint
+
+from graphics.drawing.drawers import drawwirecube
+
+from graphics.drawing.patterned_drawing import isPatternedDrawing
+from graphics.drawing.patterned_drawing import startPatternedDrawing
+from graphics.drawing.patterned_drawing import endPatternedDrawing
+
 from graphics.drawables.Selobj import Selobj_API
+
+
+from commands.ThermostatProperties.StatProp import StatProp
+from commands.ThermometerProperties.ThermoProp import ThermoProp
+
+# ==
 
 _superclass = NodeWith3DContents #bruce 080305 revised this
 
@@ -257,11 +272,11 @@ class Jig(NodeWith3DContents, Selobj_API):
         """
         # russ 080530: Support for patterned selection drawing modes.
         selected = self.picked and not self.is_disabled()
-        patterned = isPatternedDrawing(select=selected)
+        patterned = isPatternedDrawing(select = selected)
         if patterned:
             # Patterned selection drawing needs the normal drawing first.
             self._draw_jig(glpane, self.normcolor)
-            startPatternedDrawing(select=True)
+            startPatternedDrawing(select = True)
             pass
         # Draw solid color (unpatterned) or overlay pattern in the selection color.
         self._draw_jig(glpane,
@@ -269,7 +284,7 @@ class Jig(NodeWith3DContents, Selobj_API):
                         or self.color))
         if patterned:
             # Reset from patterned drawing mode.
-            endPatternedDrawing(select=True)
+            endPatternedDrawing(select = True)
             pass
         return
         
@@ -278,14 +293,14 @@ class Jig(NodeWith3DContents, Selobj_API):
         Draws the jig in the highlighted way.
         """
         # russ 080530: Support for patterned highlighting drawing modes.
-        patterned = isPatternedDrawing(highlight=True)
+        patterned = isPatternedDrawing(highlight = True)
         if patterned:
             # Patterned highlighting drawing needs the normal drawing first.
             self._draw_jig(glpane, self.normcolor, 1)
-            startPatternedDrawing(highlight=True)
+            startPatternedDrawing(highlight = True)
             self._draw_jig(glpane,
                            env.prefs[hoverHighlightingColor_prefs_key], 1)
-            endPatternedDrawing(highlight=True)
+            endPatternedDrawing(highlight = True)
         else:
             self._draw_jig(glpane, color, 1)
             pass
