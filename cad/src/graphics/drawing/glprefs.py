@@ -39,7 +39,7 @@ _choices = [Choice_boolean_False, Choice_boolean_True]
 
 # ==
 
-class GLPrefs: # rename?? can't rename module to GLPrefs.py, might confuse svn on Macs
+class GLPrefs:
     """
     This has not yet been split into its abstract and concrete classes,
     but is best described by specifying both aspects:
@@ -61,6 +61,14 @@ class GLPrefs: # rename?? can't rename module to GLPrefs.py, might confuse svn o
     """
     # grantham 20051118; revised by bruce 051126, 090303
 
+    # review: rename?? can't rename module to GLPrefs.py, might confuse svn on Macs.
+    # gl_material_and_shader_prefs?? what is the general kind of prefs that belong here?
+    # note: apply_material should probably be moved here (and perhaps made into
+    # a method of this class and then of glpane). See comment near it for why.
+    # [bruce 090304 comment]
+
+    # ==
+    
     # class constants and initial values of instance variables
 
     # Prefs related to experimental native C renderer (quux module in
@@ -311,18 +319,70 @@ class GLPrefs: # rename?? can't rename module to GLPrefs.py, might confuse svn o
 
     # ==
     
-    def materialprefs_summary(self): #bruce 051126  ### TODO: RENAME
+    def materialprefs_summary(self): #bruce 051126  ### TODO: RENAME; refactor to connect more strongly to apply_material
         """
-        Return a Python data object summarizing our prefs which affect chunk
-        display lists, so that memoized display lists should become invalid (due
-        to changes in this object) if and only if this value becomes different.
+        Return a Python data object (which can be correctly compared using '==')
+        summarizing our cached pref values which affect the OpenGL output of
+        apply_material. OpenGL display lists whose content includes output from
+        apply_material need to be remade if our output differs from when they
+        were first made.
+
+        Note that any env.prefs value accessed directly (via env.prefs[key] or
+        debug_pref()) when making a DL needn't be included in our output, since
+        those accesses are usage-tracked and anything making a DL can
+        independently subscribe to changes in them (see begin_usage_tracking).
+        The only prefs values that doesn't work for are the ones cached in self,
+        so only those values need to be included in this method's output.
+
+        Note also that CSDLs (ColorSortedDisplayLists) may depend on fewer
+        prefs values, since they are likely to use apply_material when drawn
+        rather than when made. So our output may be overkill if used to
+        invalidate them in the same circumstances in which it would invalidate
+        a plain OpenGL DL.
 
         @note: only valid if self.update() has been called recently.
         """
-        #### todo: optimization: condense into a single change indicator counter,
-        # by comparing the tuple ourselves. Or (perhaps more optimal
-        # when we're shared by several GLPanes), make sure all callers do that.
-
+        # bruce 090305 rewrote docstring to explain the purpose better.
+        
+        #### todo: optimizations (not urgent except for user experience
+        #      when adjusting these prefs on a large model):
+        #
+        # * remove prefs from our output which are not needed according to the
+        #   docstring above, as rewritten 090305.
+        #
+        # * if some prefs are only needed here for DLs but not for CSDLs,
+        #   revise callers accordingly. (AFAIK no revision in this class itself
+        #   makes sense then, unless we need to add a new analgous method to
+        #   correspond to a new way of accessing a subset of our prefs values,
+        #   for making CSDLs. But AFAIK, our values are used only for *drawing*
+        #   CSDL shader primitives, never for *making* them (though they may be
+        #   used for making CSDLs using DL primitives rather than shader
+        #   primitives), so we're simply not needed in ChunkDrawer.havelist
+        #   when it's not using apply_material in any plain DLs. Note that
+        #   whether it's doing that or not depends on prefs settings normally
+        #   only used inside ColorSorter, so it probably wants to ask
+        #   ColorSorter for a "prefs summary" applicable to how it's making
+        #   CSDLs at that time. This would always include
+        #   self._use_batched_primitive_shaders, and when that's false,
+        #   also include the "material prefs" which this method used to only
+        #   include.)
+        #
+        # * clients and/or this method should condense the summary tuple
+        #   into a single change indicator/counter, by comparing the tuple
+        #   to the last one used. Clients can do this better in principle
+        #   (if we're shared by several GLPanes which don't always redraw
+        #   together).
+        #
+        # * include values in our output only when they matter based on
+        #   other values. This is probably true already for the actual
+        #   "material prefs".
+        #
+        # Summary: much of what we output is not needed, and needlessly
+        # slows down some prefs changes, but this takes some analysis to fix.
+        # If in doubt, including too much is better since it only slows down
+        # prefs changes, whereas including too little causes bugs of lack of
+        # chunk appearance update when it's required.
+        
         res = (self.enable_specular_highlights,)
         if self.enable_specular_highlights:
             res = res + ( self.specular_shininess,
