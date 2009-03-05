@@ -586,14 +586,21 @@ class GLPane_rendering_methods(GLPane_image_methods):
         """
         This must be called before any drawing that might use shaders,
         but after all preferences are cached (by glprefs.update or any other
-        means), and after other GL drawing state is set up (in case
-        configShader reads that state) (including matrix state, I think).
+        means), and after certain other GL drawing state is set up (in case
+        configShader reads that state). The state it reads from glpane
+        (including from glpane.glprefs) are related to debug_code, material,
+        perspective, clip/DEPTH_TWEAK, and lights (see configShader
+        for details).
 
         It is ok to call it multiple times per paintGL call. If in doubt
         about where to correctly call it, just call it in both places.
+        However, it is believed that in current code, it only uses state
+        set by user pref changes, which means a single call per paintGL
+        call should be sufficient if it's in the right place. (It never
+        uses the GL matrices or glpane.drawing_phase. But see setPicking.)
 
-        setup_shaders_each_frame must have been called
-        before this, during the same paintGL call.
+        @note: setup_shaders_each_frame must have been called
+            before this, during the same paintGL call.
         """
         for shader in self.enabled_shaders():
             shader.configShader(self)
@@ -672,8 +679,14 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         self.setup_shaders_each_frame()
         
-        self.configure_enabled_shaders() # not sure if this is needed before do_glselect_if_wanted
-            # (or maybe it should be done inside that if needed) ###### REVIEW [it's a new call, 090304]
+        self.configure_enabled_shaders()
+            # I don't know if this is needed this early (i.e. before
+            # do_glselect_if_wanted), but it shouldn't hurt (though it
+            # can't come much earlier than this, and must come after
+            # setup_shaders_each_frame which must come after glprefs.update).
+            # Supposedly we only need one call of this per paintGL call
+            # (see its docstring for details), so we'll see if only this one
+            # is sufficient. [bruce 090304]
 
         self.do_glselect_if_wanted()
             # note: if self.glselect_wanted, this sets up a special projection
@@ -712,7 +725,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # selobj to None here for empty glselect_dict -- not sure, not
             # fully analyzed. [bruce 050612]
 
-            self.configure_enabled_shaders() #### new call 090304, maybe not needed
+##            self.configure_enabled_shaders() #### new call 090304, maybe not needed
             
             newpicked = self.preDraw_glselect_dict() # retval is new mouseover object, or None
             # now record which object is hit by the mouse in self.selobj
@@ -798,7 +811,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # self._cached_bg_image_comparison_data = bg_image_comparison_data
             pass
 
-        self.configure_enabled_shaders() ##### REVIEW where to call this, and how often [this is the only pre-090304 call]
+##        self.configure_enabled_shaders() ##### REVIEW where to call this, and how often [this is the only pre-090304 call]
 
         for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)
