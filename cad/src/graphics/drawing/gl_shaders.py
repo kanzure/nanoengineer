@@ -54,14 +54,18 @@ Russ 090116: Factored GLShaderObject out of GLSphereShaderObject, and added
 """
 
 # Whether to use texture memory for transforms, or a uniform array of mat4s,
-# or neither. As of before 090306, current code never uses TransformControl
-# so needs neither, but UNIFORM_XFORMS is still enabled for now. We should
-# remove it before the release in case this expands the range of graphics
-# cards we work on.
-# [bruce 090306 comment, and separated UNIFORM_XFORMS from (not TEXTURE_XFORMS)]
+# or neither (no support for transforms).
+
 TEXTURE_XFORMS = False
-UNIFORM_XFORMS = True
+UNIFORM_XFORMS = False
 assert not (TEXTURE_XFORMS and UNIFORM_XFORMS)
+
+# Note [bruce 090306]: Current code never uses TransformControl, so I revised
+# things to permit turning off both kinds of transform support, and I'm doing
+# that now in case it improves anything on any graphics cards to leave out the
+# associated GLSL code. (We still have a tiny bit of GLSL code and one extra
+# uniform which are not needed when transforms are not supported.
+# That would be easy to clean up, but is not important for now.)
 
 # When UNIFORM_XFORMS, use a fixed-sized block of uniform memory for transforms.
 # (This is a max, refined using GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB later.)
