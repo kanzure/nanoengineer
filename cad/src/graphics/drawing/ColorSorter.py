@@ -110,7 +110,7 @@ _DEBUG = False
 
 # ==
 
-import graphics.drawing.drawing_globals as drawing_globals # only used for glprefs
+import graphics.drawing.drawing_globals as drawing_globals
 
 class _fake_GLPane: #bruce 090220
     permit_shaders = False
@@ -459,8 +459,10 @@ class ColorSorter:
             pass
         else: 
             # Non-C-coded material rendering (might be sorted and/or use shaders)
-            sphereBatches = ColorSorter._permit_shaders and \
-                            ColorSorter.glpane.glprefs.sphereShader_desired()
+            sphereBatches = ( ColorSorter._permit_shaders and
+                              ColorSorter.glpane.glprefs.sphereShader_desired() and
+                              drawing_globals.sphereShader_available()
+                            )
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
@@ -584,8 +586,10 @@ class ColorSorter:
                 lcolor = color		    
 
             # Russ 090119: Added.
-            cylinderBatches = (ColorSorter._permit_shaders and
-                               ColorSorter.glpane.glprefs.cylinderShader_desired() )
+            cylinderBatches = ( ColorSorter._permit_shaders and
+                                ColorSorter.glpane.glprefs.cylinderShader_desired() and
+                                drawing_globals.cylinderShader_available()
+                              )
             if cylinderBatches and ColorSorter._parent_csdl:
                 # Note: capped is not used; a test indicates it's always on
                 # (at least in the tapered case). [bruce 090225 comment]
@@ -641,8 +645,10 @@ class ColorSorter:
         else:
             lcolor = color
 
-        use_cylinder_shader = (ColorSorter._permit_shaders and
-                               ColorSorter.glpane.glprefs.coneShader_desired() )
+        use_cylinder_shader = ( ColorSorter._permit_shaders and
+                                ColorSorter.glpane.glprefs.coneShader_desired() and
+                                drawing_globals.coneShader_available()
+                              )
         if use_cylinder_shader and ColorSorter._parent_csdl:
             assert ColorSorter.sorting
             ColorSorter._parent_csdl.addCylinder(

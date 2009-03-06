@@ -416,6 +416,8 @@ class GLPrefs:
             which is called only in configure_enabled_shaders, which is only
             called after its caller (GLPane in one call of paintGL)
             has called self.update.
+
+        @see: drawing_globals.sphereShader_available()
         """
         return self._use_batched_primitive_shaders and self._use_sphere_shaders
 
@@ -425,6 +427,8 @@ class GLPrefs:
         for cylinders in CSDLs?
 
         @note: only valid if self.update() has been called recently.
+
+        @see: drawing_globals.cylinderShader_available()
         """
         return self._use_batched_primitive_shaders and self._use_cylinder_shaders
 
@@ -434,6 +438,8 @@ class GLPrefs:
         for cones in CSDLs?
 
         @note: only valid if self.update() has been called recently.
+
+        @see: drawing_globals.coneShader_available()
         """
         # this is intentionally not symmetric with cylinderShader_desired(),
         # since we want turning off cylinder shader pref to turn off all uses

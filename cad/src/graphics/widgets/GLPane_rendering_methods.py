@@ -573,8 +573,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
         not yet set when this is called, and may need to be done more
         than once per frame).
         """
-        drawing_globals.setup_desired_shaders( self.glprefs)
-            # review: should we condition this on self.permit_shaders?
+        if self.permit_shaders:
+            drawing_globals.setup_desired_shaders( self.glprefs)
+            # review: is it good that we condition this on self.permit_shaders?
             # it doesn't matter for now, since ThumbView never calls it.
         return
     

@@ -105,6 +105,8 @@ test_sphereShader = None
 def setup_desired_shaders(glprefs): #bruce 090303
     """
     Setup shaders within our state, according to shader-use desires of glprefs.
+
+    @note: does not check glpane.permit_shaders.
     """
     if glprefs.sphereShader_desired():
         sphereShaderGlobals.setup_if_needed_and_not_failed()
@@ -114,12 +116,25 @@ def setup_desired_shaders(glprefs): #bruce 090303
 
     return
 
+def sphereShader_available(): #bruce 090306
+    return sphereShaderGlobals.shader_available()
+
+def cylinderShader_available():
+    return cylinderShaderGlobals.shader_available()
+
+coneShader_available = cylinderShader_available
+
 # ==
 
 def enabled_shaders(glpane): #bruce 090303
     """
     Return a list of the shaders that are enabled for use during this
     drawing frame (in a deterministic order), in this glpane.
+    
+    "enabled" means three things are true:
+    * desired for its types of primitives in CSDLs (re glpane.glprefs),
+    * available for use (re shader setup errors; see shader_available),
+    * permitted for use (glpane.permit_shaders).
 
     @note: the result is currently [090303] one of the values
 
@@ -131,10 +146,6 @@ def enabled_shaders(glpane): #bruce 090303
     where sphereShader and cylinderShader are instances of subclasses
     of GLShaderObject which are enabled for current use in the
     GL resource context represented by this (singleton) module.
-    
-    For a shader to be "enabled for use" means that it exists, that shader.error
-    is not set, that glpane permits shaders, and that glpane's current prefs
-    say we should use it for its type of primitive in any CSDL.
 
     Note that prefs might request a shader without it being enabled (due to
     error or to its not yet being created), or it might exist and be useable
@@ -146,12 +157,12 @@ def enabled_shaders(glpane): #bruce 090303
     if glpane.permit_shaders and glprefs._use_batched_primitive_shaders:
         # note: testing _use_batched_primitive_shaders is just
         # an optimization (and a kluge) (so nevermind that it's private)
-        for desired, shader in [
-            (glprefs.sphereShader_desired(), sphereShaderGlobals.shader),
-            (glprefs.cylinderShader_desired(), cylinderShaderGlobals.shader),
+        for desired, shaderGlobals in [
+            (glprefs.sphereShader_desired(), sphereShaderGlobals),
+            (glprefs.cylinderShader_desired(), cylinderShaderGlobals),
          ]:
-            if desired and shader and not shader.error:
-                res += [ shader ]
+            if desired and shaderGlobals.shader_available():
+                res += [ shaderGlobals.shader ]
             continue
     return res
 

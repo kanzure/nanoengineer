@@ -45,7 +45,7 @@ class ShaderGlobals:
       - flags about what warnings/errors have been printed in this session
       - higher-level methods for whether to use shaders in specific ways
     - status of trying to initialize this shader in this resource context
-    - the shader itself (which, if it exists, knows whether it had an error)
+    - the shader itself (note: if it exists, it knows whether it had an error)
     - the associated GLPrimitiveBuffer
     """
 
@@ -72,7 +72,7 @@ class ShaderGlobals:
 
     # instance variable default values
     
-    shader = None
+    shader = None # a public attribute, None or a GLShaderObject
 
     primitiveBuffer = None
 
@@ -80,10 +80,23 @@ class ShaderGlobals:
         ##### fix: shouldn't use shader source code, do that later at runtime;
         # but for now, constructing a shader also loads its source code,
         # and we have no provision to change that later even if it depends on prefs.
-        # This also relates to the Q of whether shader.error can be set on construction.
+        # This also relates to the Q of whether shader.error can be set on construction -- it means it can.
         # Several other comments here are about this. Fixing it is high priority
         # after this refactoring. [bruce 090304]
 
+    # access methods
+
+    def shader_available(self):
+        """
+        @return: whether our shader is available for use (ignoring preferences).
+
+        @note: this just returns (self.shader and not self.shader.error); all of
+            those are public attributes, but using this method is preferred
+            over testing them directly, so it's less likely you'll forget to
+            test shader.error.
+        """
+        return self.shader and not self.shader.error
+    
     # init or setup methods
 
     def setup_if_needed_and_not_failed(self): 
@@ -99,24 +112,39 @@ class ShaderGlobals:
         set it up now. Print message on any error.
 
         Caller can determine whether this worked (now or later)
-        by a boolean test on self.shader.
+        by a boolean test on self.shader_available().
 
-        @see: self.shader.error, [nim#####] self.enabled.
+        @see: self.shader_available().
         """
-        ##### REVIEW for doc: can this set self.shader but set its .error?? if so, have two kinds of .error, create and load..
         if not self.shader and not self._tried_shader_init:
             self._tried_shader_init = True # set early in case of exceptions
+                # note: in future, if we support reloading shader source code,
+                # we'll need to reset this flag (and self.shader) to try new
+                # source code.
             try:
                 self._try_shader_init()
             except:
                 print_compact_traceback(
-                    "Error initializing %s shaders (or primitiveBuffers); NOT using them.\n" % self.primtype
+                    "Error initializing %s shaders (or primitiveBuffers): " % self.primtype
                 )
                 self.shader = None # precaution
                 pass
-            if not self.shader or self.shader.error:
-                print "setup failed:", self
+            if not self.shader_available():
+                # Note: it's possible that self.shader but also
+                # self.shader.error, e.g. due to a GLSL syntax error or
+                # version error. When source code can be reloaded later,
+                # due to changes in preferences which affect it,
+                # we may want to set an additional error flag for creation
+                # errors (to prevent us from even trying to load new code),
+                # to distinguish them from code-loading errors (after which
+                # it's ok to try again to load new code).
+                print "Shader setup failed:", self
                     # precaution in case more specific message was not printed
+                print " To work around this error, we'll use non-shader drawing for %ss." % self.primtype
+                print " You can avoid trying to load GLSL shaders each time NE1 starts up"
+                print " by unsetting appropriate GLPane debug_prefs. Or, updating your"
+                print " graphics card drivers might make shaders work, speeding up graphics."
+                print
             pass
         return
 
@@ -127,19 +155,17 @@ class ShaderGlobals:
         and if this works, set self.shader to the shader.
         
         When anything goes wrong it should simply print an error
-        and return without setting self.shader. It's ok for this
-        to raise an exception, though when practical it's preferable
-        to print an error and exit normally (so the error message
-        can be more specific and understandable).
+        and return without setting self.shader (or setting both that
+        and self.shader.error).
+
+        It's ok for this to raise an exception, though when practical
+        it's preferable to print an error and exit normally (so the
+        error message can be more specific and understandable).
         
         (If we ever have more than one GL resource context, we'll want
         to factor it into the part that doesn't depend on context
         (to avoid redundant error messages) and the part that does.)
         """
-        ##### REVIEW: add this to docstring? I hope not (confusing for trying new source code in shader):
-        # (Or if it already
-        #  set self.shader, after setting self.shader.error.)
-
         if glGetString(GL_EXTENSIONS).find("GL_ARB_shader_objects") >= 0:
             print "note: this session WILL try to use %s-shaders" % self.primtype
             pass
@@ -156,16 +182,14 @@ class ShaderGlobals:
         
         shader_class = self.get_shader_class()
         self.shader = shader_class()
-        if not self.shader.error:
-            ##### REVIEW: is self.shader.error possible at this stage?
-            # If so, should we go on to initialize self.primitiveBuffer as we do?
-            # [bruce 090303 questions]
+        if not self.shader.error: # see also shader_available
+            # Note: self.shader.error is possible at this stage; see above.
             print "%s shader initialization is complete." % self.primtype
 
-        primitiveBuffer_class = self.get_primitiveBuffer_class()
-        self.primitiveBuffer = primitiveBuffer_class( self)
-        print "%s primitive buffer initialization is complete." % self.primtype
-        print
+            primitiveBuffer_class = self.get_primitiveBuffer_class()
+            self.primitiveBuffer = primitiveBuffer_class( self)
+            print "%s primitive buffer initialization is complete." % self.primtype
+            print
 
         return
 
@@ -211,7 +235,7 @@ class SphereShaderGlobals(ShaderGlobals):
      ]
 
     def get_shader_class(self):
-        # done at runtime, so import error won't prevent startup ##### refile this comment
+        # done at runtime, so import error won't prevent startup #### refile this comment
         from graphics.drawing.gl_shaders import GLSphereShaderObject
         return GLSphereShaderObject
 

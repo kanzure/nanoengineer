@@ -1019,6 +1019,8 @@ def test_drawing(glpane, initOnly = False):
                                    DRAWSPHERE_DETAIL_LEVEL)
                     else:
                         # Through ColorSorter to cylinder primitive buffer...
+                        if not drawing_globals.cylinderShader_available():
+                            print "warning: not cylinderShader_available(), error is likely:"
                         if (True and  # Whether to do tapered shader-cylinders.
                             # Display List cylinders don't support taper.
                             glpane.glprefs.cylinderShader_desired()):
