@@ -218,6 +218,10 @@ class GLShaderObject(object):
 
     def __init__(self, shaderName, shaderVertSrc, shaderFragSrc):
 
+        # note: on any error, we set self.error, print a message, and return.
+        # exceptions will be caught by caller and also set self.error,
+        # but result in less specific printed error messages.
+
         # Configure the max constant RAM used for a "uniform" transforms block.
         if UNIFORM_XFORMS:
             global N_CONST_XFORMS
@@ -233,9 +237,9 @@ class GLShaderObject(object):
                     (N_CONST_XFORMS, maxComponents))
 
                 # Now, we think this means we should use display lists instead.
-                # A try clause around the import should disable shaders.
-                ##### TODO: replace this with setting self.error.
-                raise ValueError, "not enough shader constant memory."
+                print "error: not enough shader constant memory"
+                self.error = True
+                return
 
             elif N_CONST_XFORMS == oldNCX:
                 print ("N_CONST_XFORMS unchanged at %d. %d max components." %
@@ -294,18 +298,18 @@ class GLShaderObject(object):
         try:
             glLinkProgramARB(self.progObj) # Checks status, raises error if bad.
         except:
+            self.error = True
             print shaderName, "shader program link error"
             print glGetInfoLogARB(self.progObj)
-            self.error = True
             return              # Can't do anything good after an error.
         
         # Optional, may be useful for debugging.
         glValidateProgramARB(self.progObj)
         status = glGetObjectParameterivARB(self.progObj, GL_VALIDATE_STATUS)
         if (not status):
+            self.error = True
             print "Shader program validation error"
             print glGetInfoLogARB(self.progObj)
-            self.error = True
             return              # Can't do anything good after an error.
 
         return
