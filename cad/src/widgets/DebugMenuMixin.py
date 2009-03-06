@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Mixin class to help some of our widgets offer a debug menu.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Needs refactoring:  [bruce 080104]
 
@@ -45,7 +45,7 @@ from utilities.debug import debug_run_command
 from utilities.constants import debugModifiers
 from utilities.constants import noop
 from time import clock
-from utilities.debug import profile, doProfile
+from utilities.debug import profile_single_call_if_enabled, set_enabled_for_profile_single_call
 from widgets.simple_dialogs import grab_text_line_using_dialog
 
 # enable the undocumented debug menu by default [bruce 040920]
@@ -186,7 +186,9 @@ class DebugMenuMixin:
         #command entered profiling
         res.extend( [
             ('Profile entering a command...',
-             self._debug_command_entered_profiling),
+             self._debug_profile_userEnterCommand),
+            ('(print profile output)',
+             self._debug_print_profile_output),
         ] )
             
 
@@ -351,7 +353,7 @@ class DebugMenuMixin:
     def _draw_hundred_frames(self, par1, par2):
         # redraw 100 frames, piotr 080403
         for i in range(0, 100):
-            self.win.glpane.paintGL()
+            self.win.glpane.paintGL() # BUG; see below. [bruce 090305 comment]
 
     def _debug_do_benchmark(self):
         # simple graphics benchmark, piotr 080311
@@ -359,61 +361,86 @@ class DebugMenuMixin:
         print "Entering graphics benchmark. Drawing 100 frames... please wait."
         win = self._debug_win
         self.win.resize(1024,768) # resize the window to a constant size
+        
         self.win.glpane.paintGL() 
         # draw once just to make sure the GL context is current
         # piotr 080405
+        # [BUG: the right way is gl_update -- direct call of paintGL won't
+        #  always work, context might not be current -- bruce 090305 comment]
+        
         env.call_qApp_processEvents() # make sure all events were processed
         tm0 = clock()
-        profile(self._draw_hundred_frames, self, None)
+        profile_single_call_if_enabled(self._draw_hundred_frames, self, None)
         tm1 = clock()
-        print "Benchmark complete. FPS = ", 100.0/(tm1-tm0)
+        print "Benchmark complete. FPS = ", 100.0 / (tm1 - tm0)
+        return
         
-    def _debug_command_entered_profiling(self):
+    def _debug_profile_userEnterCommand(self):
         """
-        Debug option for profiling code to enter BuildAtoms command. 
-        """      
-        #Note: To profile other commands, simply repalce call to 
-        #'toolsBuildAtoms' with the appropriate method. Other option is 
-        #to just do "win.commandSequencer.userEnterCommand('COMMAND_NAME')"
-        # -- Ninad 2008-10-03
+        Debug menu command for profiling userEnterCommand(commandName).
+
+        This creates a profile.output file on each use
+        (replacing a prior one if any, even if it was created
+        during the same session).
+
+        Note that for some commands, a lot more work will be done the
+        first time they are entered during a session (or in some cases,
+        the first time since opening a new file) than in subsequent times.
+        """
+        # Ninad 2008-10-03; renamed/revised by bruce 090305
         
-        ALLOWED_COMMAND_NAMES = ('DEPOSIT', 
-                                 'BUILD_DNA', 
-                                 'DNA_SEGMENT', 
-                                 'DNA_STRAND',
-                                 'CRYSTAL', 
-                                 'BUILD_NANOTUBE', 
-                                 'EDIT_NANOTUBE',
-                                 'EXTRUDE', 
-                                 'MODIFY',
-                                 'MOVIE'
-                                 )
+        RECOGNIZED_COMMAND_NAMES = (
+            'DEPOSIT', 
+            'BUILD_DNA', 
+            'DNA_SEGMENT', 
+            'DNA_STRAND',
+            'CRYSTAL', 
+            'BUILD_NANOTUBE', 
+            'EDIT_NANOTUBE',
+            'EXTRUDE', 
+            'MODIFY',
+            'MOVIE'
+         )
         
         ok, commandName =  grab_text_line_using_dialog(
             title = "profile entering given command", 
             label = "Enter the command.commandName e.g. 'BUILD_DNA' , 'DEPOSIT'"
-        )
+         )
         if not ok:
-            print "No command name entered , returning"
+            print "No command name entered, returning"
             return
         
         commandName = str(commandName)
         commandName = commandName.upper()
-        if not commandName in ALLOWED_COMMAND_NAMES:
-            print "Invalid command name %s. Returning."%(commandName)
-            return 
+        if not commandName in RECOGNIZED_COMMAND_NAMES:
+            #bruce 090305 changed this to just a warning, added try/except
+            print "Warning: command name %r might or might not work. " \
+                  "Trying it anyway." % (commandName,)
+            pass 
         
-        print "Profiling command enter for %s"%(commandName)
+        print "Profiling command enter for %s" % (commandName,)
                  
         win = self._debug_win
         meth = self.win.commandSequencer.userEnterCommand
-        doProfile(True)
+        set_enabled_for_profile_single_call(True)
         tm0 = clock()
-        profile(meth, commandName)
+        try:
+            profile_single_call_if_enabled(meth, commandName)
+        except:
+            print "exception entering command caught and discarded." #e improve
+            sys.stdout.flush()
+            pass
         tm1 = clock()
-        print "Profiling complete. Total time to enter %s = %s" % \
+        set_enabled_for_profile_single_call(False)
+        print "Profiling complete. Total CPU time to enter %s = %s" % \
               (commandName, (tm1 - tm0))
-        doProfile(False)
+        return
+
+    def _debug_print_profile_output(self): #bruce 090305
+        """
+        """
+        # todo: improve printing options used inside the following
+        debug.print_profile_output()
         return
 
     def debug_menu_source_name(self): #bruce 050112

@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GamessJob.py -- This is the GAMESS Job parms default settings.
 
 @author: Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification: this is a kind of SimJob specialized
 for running a GAMESS simulation. So it is probably an operation,
@@ -396,7 +396,7 @@ class GamessJob(SimJob):
         simProgressDialog = QProgressDialog()
         simProgressDialog.setModal(True)
         simProgressDialog.setObjectName("progressDialog")
-        simProgressDialog.setWindowIcon(geticon('ui/border/MainWindow'))
+        simProgressDialog.setWindowIcon(geticon('ui/border/MainWindow.png'))
         if self.Calculation == 'Energy':
             simProgressDialog.setWindowTitle("Calculating Energy ...Please Wait")
         else:

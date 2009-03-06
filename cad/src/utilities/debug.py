@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 debug.py -- various debugging utilities and debug-related UI code
 
@@ -6,7 +6,7 @@ TODO: split into several modules in a debug package.
 (Some of the functions here should logically be moved into ops_debug.py.)
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Names and behavior of some functions here (print_compact_traceback, etc)
 are partly modelled after code by Sam Rushing in asyncore.py
@@ -699,88 +699,128 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
             module.__redraw_counter_when_reloaded__ = 'never again'
     return
 
+# ==
 
-DO_PROFILE = False
+_profile_single_call_ENABLED = False #bruce 090305 renamed this
 
-def doProfile(t):
-    global DO_PROFILE
-    DO_PROFILE = t
+def set_enabled_for_profile_single_call(t): #bruce 090305 renamed this
+    global _profile_single_call_ENABLED
+    _profile_single_call_ENABLED = t
     return
 
+# state used by profile_single_call_if_enabled
 _profile_function = None
 _profile_args = None
 _profile_keywordArgs = None
 _profile_output_file = 'profile.output'
 
-def _run_profile():
-    _profile_function(*_profile_args, **_profile_keywordArgs)
-
-def profile(func, *args, **keywordArgs):
+def _call_profile_function():
     """
-    Profile a function call, if profiling is enabled.  Change a normal
-    function call f(a, b, c=3) into profile(f, a, b, c=3), and f will
-    be profiled.  A method call can also be profiled: o.f(a) becomes
-    profile(o.f, a).
+    This is called internally by profile_single_call_if_enabled.
+    Profiling might be on or off. It just runs the function call
+    stored by profile_single_call_if_enabled into some private globals.
 
-    Profiling is enabled by setting DO_PROFILE = True in
-    utilities.debug.  Otherwise, the function is called without
-    profiling.
+    @return: None (return value from _profile_function is discarded)
+    """
+    _profile_function(*_profile_args, **_profile_keywordArgs)
+    return
 
-    Fancier schemes, like profiling the Nth call of a function could
-    be implemented here, if desired.
+def profile_single_call_if_enabled(func, *args, **keywordArgs):
+    """
+    helper function:
+    
+    Profile a function call, if enabled (see set_enabled_for_profile_single_call).
+
+    This creates a profile.output file on each use
+    (replacing a prior one if any, even if it was created
+    during the same session).
+
+    @return: None (return value from func is discarded).
+
+    Usage: change a normal function call f(a, b, c = 3) into:
+
+      profile_single_call_if_enabled(f, a, b, c = 3)
+
+    and f will be profiled if enabled (or will run normally if not).
+
+    A method call can also be profiled: o.f(a) becomes
+    profile_single_call_if_enabled(o.f, a).
+
+    Profiling by this helper function is enabled by calling
+    
+      utilities.debug.set_enabled_for_profile_single_call(True)
+      
+    and disabled by calling
+    
+      utilities.debug.set_enabled_for_profile_single_call(False)
     
     @see: print_profile_output()
+
+    @see: atom_debug_profile_filename in main_startup.py, for profiling
+          an entire session
     """
+    #bruce 090305 renamed this from 'profile'
+
+    # note: Fancier schemes, like profiling the Nth call of a function, could
+    # be implemented here, if desired.
+
     global _profile_function
     global _profile_args
     global _profile_keywordArgs
-    global DO_PROFILE
+    global _profile_single_call_ENABLED
     
     _profile_function = func
     _profile_args = args
     _profile_keywordArgs = keywordArgs
 
-    if (DO_PROFILE):
+    if _profile_single_call_ENABLED:
         try:
             import cProfile as py_Profile
         except ImportError:
             print "Unable to import cProfile. Using profile module instead."
             import profile as py_Profile
-            
+            pass
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0])) + "/" + _profile_output_file
         filePath = os.path.normpath(filePath) 
         print "Capturing profile..."
         print "Profile output file: %s" % (filePath,)
-        py_Profile.run('from utilities.debug import _run_profile; _run_profile()', _profile_output_file)
-        print "...end of profile capture"  
-        
-        #Print the profile output in a human readable form. The call to the 
-        #function that does this is commented out by default. --        
-        ##print_profile_output(_profile_output_file)
+        py_Profile.run('from utilities.debug import _call_profile_function; _call_profile_function()', _profile_output_file)
+        print "...end of profile capture"
+        print "(to analyze, see utilities.debug.print_profile_output)"
+
+        # Uncomment this to print the profile output in a human readable form:
+        ## print_profile_output(_profile_output_file)
         
     else:
-        _run_profile()
+        _call_profile_function()
 
     _profile_function = None
     _profile_args = None
     _profile_keywordArgs = None
+
+    return
     
     
-def print_profile_output(raw_profile_result_file):
+def print_profile_output(raw_profile_result_file = _profile_output_file):
     """
-    Print the profile output in the console window in a human readable form.
-    @param raw_profile_result_file: The file generated by running cProfile
-                                    or profile. 
-    @see: profile()
+    Print the profile output collected by profile_single_call_if_enabled
+    in the console in a human readable form.
+    
+    @param raw_profile_result_file: name of the file generated by running cProfile
+                                    or profile
+    @type raw_profile_result_file: string (pathname)
+    
+    @see: profile_single_call_if_enabled()
+
+    @note: it's often more convenient to run the following commands in an
+        interactive python interpreter, and provide additional arguments.
+        See pstats documentation for details.
     """
-    #The following code is useful to print the profiling output in a 
-    #human readable form. 
     import pstats
-    p = pstats.Stats(raw_profile_result_file) 
-    #Strip directories etc could be an argument to this function. 
-    p.strip_dirs().sort_stats('cumulative').print_stats()
-     
-    
+    p = pstats.Stats(raw_profile_result_file)
+    #Strip directories etc could be an argument to this function.
+    p.strip_dirs().sort_stats('cumulative').print_stats(100)
+    return
 
 # end

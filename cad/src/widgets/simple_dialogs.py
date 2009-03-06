@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 simple_dialogs.py - simple dialogs, collected here for convenience.
 
@@ -6,7 +6,7 @@ TODO: merge some of them into one function.
 
 @author: Bruce, based on code by others
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from PyQt4.Qt import QInputDialog, QLineEdit, QDialog
@@ -15,7 +15,7 @@ from utilities.icon_utilities import geticon
 def grab_text_using_dialog( default = "", 
                             title = "title", 
                             label = "label",
-                            iconPath  = "ui/border/MainWindow"):
+                            iconPath  = "ui/border/MainWindow.png"):
     """
     Get some text from the user by putting up a dialog with the
     supplied title, label, and default text. Return (ok, text)
@@ -62,7 +62,7 @@ def grab_text_using_dialog( default = "",
 def grab_text_line_using_dialog( default = "",
                                  title = "title",
                                  label = "label",
-                                 iconPath  = "ui/border/MainWindow"): #bruce 070531
+                                 iconPath  = "ui/border/MainWindow.png"): #bruce 070531
     """
     Use a dialog to get one line of text from the user, with given default 
     (initial) value, dialog window title, and label text inside the dialog.

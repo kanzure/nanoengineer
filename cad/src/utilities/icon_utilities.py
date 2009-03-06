@@ -111,8 +111,8 @@ def get_image_path(name, print_errors = True):
     
     if not ext:
         if name: # 'name' can be an empty string. See docstring for details.
-            msg = "Warning: No '.png' extension provided for [%s]. " \
-                "\nPlease add the .png suffix to remove this warning.\n" % name
+            msg = "Warning: No '.png' extension passed to get_image_path for [%s]. " \
+                "\nPlease add the .png suffix in the source code to remove this warning.\n" % name
             print_compact_stack(msg)
         name = name + '.png'
     

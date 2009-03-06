@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 Rotate mode functionality.
 
 @author:    Mark Sims
 @version:   $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 
 piotr 080808: added "auto-rotation" feature.
@@ -13,8 +13,8 @@ piotr 080808: added "auto-rotation" feature.
 from temporary_commands.TemporaryCommand import TemporaryCommand_Overdrawing
 from PyQt4.Qt import Qt, QTimer, SIGNAL
 
-### from utilities.debug import doProfile   ###
-### clicked = False                         ###
+## from utilities.debug import set_enabled_for_profile_single_call
+## clicked = False
 
 # == GraphicsMode part
 _superclass = TemporaryCommand_Overdrawing.GraphicsMode_class
@@ -32,8 +32,8 @@ class RotateMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         self.last_quat = None # last quaternion to be used for incremental rotation 
     
     def leftDown(self, event):
-        ### global clicked                  ###
-        ### clicked = True                  ###
+        ## global clicked
+        ## clicked = True
         self.glpane.SaveMouse(event)
         self.glpane.trackball.start(self.glpane.MousePos[0],
                                     self.glpane.MousePos[1])
@@ -47,10 +47,10 @@ class RotateMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         return
         
     def leftDrag(self, event):
-        ### global clicked                  ###
-        ### if clicked:                     ###
-        ###     doProfile(True)             ###
-        ###     clicked = False             ###
+        ## global clicked
+        ## if clicked:
+        ##     set_enabled_for_profile_single_call(True)
+        ##     clicked = False
 
         self.glpane.SaveMouse(event)
         q = self.glpane.trackball.update(self.glpane.MousePos[0],
