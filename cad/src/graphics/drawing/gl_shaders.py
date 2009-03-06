@@ -10,6 +10,11 @@ gl_shaders.py - OpenGL shader objects.
      http://www.mew.cx/glsl_quickref.pdf
      http://www.opengl.org/registry/doc/GLSLangSpec.Full.1.20.8.pdf
 
+    Some details about different "shader models", i.e. versions of the
+    "GPU assembly language" behind GLSL:
+     http://en.wikipedia.org/wiki/Comparison_of_ATI_graphics_processing_units#DirectX_version_note
+     http://en.wikipedia.org/wiki/Shader_Model_3#Shader_model_comparison
+
     For the OpenGL interface, see the API man pages and ARB specifications:
      http://www.opengl.org/sdk/docs/man/
      http://oss.sgi.com/projects/ogl-sample/registry/ARB/vertex_shader.txt
@@ -266,6 +271,10 @@ class GLShaderObject(object):
         else:
             prefix += "\n" # To keep the shader line numbers unchanged.
             pass
+
+        if debug_pref("GLPane: simulate GLSL syntax error (next session)",
+                      Choice_boolean_False, prefs_key = True):
+            prefix += "}\n"
 
         # remove whitespace before and after each prefix line [bruce 090306]
         prefix = '\n'.join( [line.strip() for line in prefix.split('\n')] )
