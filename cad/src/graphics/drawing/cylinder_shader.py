@@ -152,8 +152,14 @@ Russ 090106: Design description file created.
 
 # <line 0>
 # ================================================================
-# Note: if TEXTURE_XFORMS is off, a #define N_CONST_XFORMS array dimension is
-# prepended to the following.  The #version statement precedes it.
+
+# Note: if UNIFORM_XFORMS and/or TEXTURE_XFORMS are set in gl_shaders.py,
+# some #defines are prepended to the following shader sources, by code in
+# gl_shaders.py, which include UNIFORM_XFORMS and TEXTURE_XFORMS for ifdefs,
+# and a number N_CONST_XFORMS. For more details see a similar comment in
+# sphere_shader.py. [this note and what it's about was revised by bruce 090306]
+
+
 cylinderVertSrc = """
 // Vertex shader program for cylinder primitives.
 // 
@@ -178,10 +184,11 @@ uniform int perspective;        // 0:orthographic, 1:perspective.
 uniform float ndc_halo_width;   // Halo width in normalized device coords.
 
 uniform int n_transforms;
-#ifdef N_CONST_XFORMS
+#ifdef UNIFORM_XFORMS
   // Transforms are in uniform (constant) memory. 
   uniform mat4 transforms[N_CONST_XFORMS]; // Must dimension at compile time.
-#else
+#endif
+#ifdef TEXTURE_XFORMS
   // Transforms are in texture memory, indexed by a transform slot ID attribute.
   // Column major, one matrix per column: width=N cols, height=4 rows of vec4s.
   // GL_TEXTURE_2D is bound to transform matrices, tex coords in (0...1, 0...1).
@@ -261,13 +268,13 @@ void main(void) {
   if (n_transforms > 0 && int(transform_id) > -1) {
     // Apply a transform, indexed by a transform slot ID vertex attribute.
 
-#ifdef N_CONST_XFORMS
+#ifdef UNIFORM_XFORMS
     // Get transforms from a fixed-sized block of uniform (constant) memory.
     // The GL_EXT_bindable_uniform extension allows sharing this through a VBO.
     for (i = 0; i <= 1; i++)
       endpts[i] = transforms[int(transform_id)] * endpts[i];
-
-#else  // TEXTURE_XFORMS
+#endif
+#ifdef TEXTURE_XFORMS
 # if 0 // 1   /// Never check in a 1 value.
     xform = mat4(1.0); /// Testing, override texture xform with identity matrix.
 # else

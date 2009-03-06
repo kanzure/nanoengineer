@@ -466,11 +466,14 @@ def test_drawing(glpane, initOnly = False):
                 print ("Sub-test 3.4, add transforms indexed by IDs.")
                 from graphics.drawing.gl_shaders import TEXTURE_XFORMS
                 from graphics.drawing.gl_shaders import N_CONST_XFORMS
+                from graphics.drawing.gl_shaders import UNIFORM_XFORMS
                 if TEXTURE_XFORMS:
                     print "Transforms in texture memory."
-                else:
+                elif UNIFORM_XFORMS:
                     print "%d transforms in uniform memory." % N_CONST_XFORMS
                     pass
+                else:
+                    print "transforms not supported, error is likely"
                 doTransforms = True
                 pass
 

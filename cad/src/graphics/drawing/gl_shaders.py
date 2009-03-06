@@ -48,15 +48,23 @@ Russ 090116: Factored GLShaderObject out of GLSphereShaderObject, and added
   GLSL source passed in during initialization.
 """
 
-# Whether to use texture memory for transforms, or a uniform array of mat4s.
-TEXTURE_XFORMS = False # True
-# Otherwise, use a fixed-sized block of uniform memory for transforms.
+# Whether to use texture memory for transforms, or a uniform array of mat4s,
+# or neither. As of before 090306, current code never uses TransformControl
+# so needs neither, but UNIFORM_XFORMS is still enabled for now. We should
+# remove it before the release in case this expands the range of graphics
+# cards we work on.
+# [bruce 090306 comment, and separated UNIFORM_XFORMS from (not TEXTURE_XFORMS)]
+TEXTURE_XFORMS = False
+UNIFORM_XFORMS = True
+assert not (TEXTURE_XFORMS and UNIFORM_XFORMS)
+
+# When UNIFORM_XFORMS, use a fixed-sized block of uniform memory for transforms.
 # (This is a max, refined using GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB later.)
 N_CONST_XFORMS = 270  # (Gets CPU bound at 275.  Dunno why.)
 # Used in fine-tuning N_CONST_XFORMS to leave room for other GPU vars and temps.
 # If you increase the complexity of the vertex shader program a little bit, and
 # rendering slows down by 100x, maybe you ran out of room.  Try increasing this.
-VERTEX_SHADER_GPU_VAR_SLACK = 110
+_VERTEX_SHADER_GPU_VAR_SLACK = 110
 
 # Turns on a debug info message.
 CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
@@ -89,6 +97,7 @@ CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
 #   3   GLEngine          	0x1ea16198 gleTextureImagePut + 1752
 #   4   GLEngine          	0x1ea1f896 glTexSubImage2D_Exec + 1350
 #   5   libGL.dylib       	0x91708cdb glTexSubImage2D + 155
+
 
 from geometry.VQT import A, norm
 import utilities.EndUser as EndUser
@@ -193,20 +202,26 @@ class GLShaderObject(object):
         # (it might be better to set this by asking OpenGL whether
         #  that uniform exists, after loading the shader source)
 
+    # initial values of instance variables
+
+    error = False # set for shader creation/compilation error
+    _active = False # whether this is GL's current shader now
+
+    # Cached info for blocks of transforms.
+    n_transforms = None        # Size of the block.
+    transform_memory = None    # Texture memory handle.
+
     def __init__(self, shaderName, shaderVertSrc, shaderFragSrc):
-        # Cached info for blocks of transforms.
-        self.n_transforms = None        # Size of the block.
-        self.transform_memory = None    # Texture memory handle.
 
         # Configure the max constant RAM used for a "uniform" transforms block.
-        if not TEXTURE_XFORMS:  # Won't be used if transforms in texture memory.
+        if UNIFORM_XFORMS:
             global N_CONST_XFORMS
             oldNCX = N_CONST_XFORMS
             maxComponents = glGetInteger(GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB)
             N_CONST_XFORMS = min(
                 N_CONST_XFORMS,
                 # Each matrix has 16 components. Leave slack for other vars too.
-                (maxComponents - VERTEX_SHADER_GPU_VAR_SLACK) / 16)
+                (maxComponents - _VERTEX_SHADER_GPU_VAR_SLACK) / 16)
             if N_CONST_XFORMS <= 0:
                 print (
                     "N_CONST_XFORMS not positive, is %d. %d max components." %
@@ -214,6 +229,7 @@ class GLShaderObject(object):
 
                 # Now, we think this means we should use display lists instead.
                 # A try clause around the import should disable shaders.
+                ##### TODO: replace this with setting self.error.
                 raise ValueError, "not enough shader constant memory."
 
             elif N_CONST_XFORMS == oldNCX:
@@ -230,24 +246,32 @@ class GLShaderObject(object):
         prefix = """// requires GLSL version 1.20
                     #version 120
                     """
-        # Insert preprocessor constants.
-        if not TEXTURE_XFORMS:
+        # Insert preprocessor constants before both shader source code strings
+        # (using a constant number of lines, to preserve GLSL line numbers)
+        if UNIFORM_XFORMS:
+            prefix += "#define UNIFORM_XFORMS\n"
             prefix += "#define N_CONST_XFORMS %d\n" % N_CONST_XFORMS
+        elif TEXTURE_XFORMS:
+            prefix += "#define TEXTURE_XFORMS\n"
+            prefix += "\n"
         else:
-            prefix += "" # To keep the shader line numbers unchanged.
+            prefix += "\n\n"
             pass
 
         # GLSL on the nVidia GeForce 7000 only supports constant array
         # subscripts, and subscripting by a loop index variable.
         if not debug_pref("GLPane: shaders with only constant subscripts?",
                       Choice_boolean_True, prefs_key = True):
-            prefix += "#define FULL_SUBSCRIPTING"
+            prefix += "#define FULL_SUBSCRIPTING\n"
         else:
-            prefix += "" # To keep the shader line numbers unchanged.
+            prefix += "\n" # To keep the shader line numbers unchanged.
             pass
 
+        # remove whitespace before and after each prefix line [bruce 090306]
+        prefix = '\n'.join( [line.strip() for line in prefix.split('\n')] )
+        assert prefix[-1] == '\n'
+        
         # Pass the source strings to the shader compiler.
-        self.error = False
         self.vertShader = self.createShader(shaderName, GL_VERTEX_SHADER,
                                             prefix + shaderVertSrc)
         self.fragShader = self.createShader(shaderName, GL_FRAGMENT_SHADER,
@@ -266,8 +290,6 @@ class GLShaderObject(object):
             self.error = True
             return              # Can't do anything good after an error.
         
-        self._active = False
-
         # Optional, may be useful for debugging.
         glValidateProgramARB(self.progObj)
         status = glGetObjectParameterivARB(self.progObj, GL_VALIDATE_STATUS)
@@ -546,6 +568,9 @@ class GLShaderObject(object):
     def get_TEXTURE_XFORMS(self):
         return TEXTURE_XFORMS
 
+    def get_UNIFORM_XFORMS(self):
+        return UNIFORM_XFORMS
+
     def get_N_CONST_XFORMS(self):
         return N_CONST_XFORMS
 
@@ -554,11 +579,12 @@ class GLShaderObject(object):
         """
         Fill a block of transforms.
 
-        Depending on the setting of TEXTURE_XFORMS, the transforms are either in
-        texture memory, or else in a uniform array of mat4s ("constant memory".)
+        Depending on the setting of TEXTURE_XFORMS and UNIFORM_XFORMS, the
+        transforms are either in texture memory, or in a uniform array of mat4s
+        ("constant memory"), or unsupported (error if we need any here).
 
         @param transforms: A list of transform matrices, where each transform is
-        a flattened list (or Numpy array) of 16 numbers.
+            a flattened list (or Numpy array) of 16 numbers.
         """
         self.setActive(True)                # Must activate before setting uniforms.
         self.n_transforms = nTransforms = len(transforms)
@@ -567,17 +593,17 @@ class GLShaderObject(object):
         # The shader bypasses transform logic if n_transforms is 0.
         # (Then location coordinates are in global modeling coordinates.)
         if nTransforms > 0:
-            if not TEXTURE_XFORMS:
+            if UNIFORM_XFORMS:
                 # Load into constant memory.  The GL_EXT_bindable_uniform
                 # extension supports sharing this array of mat4s through a VBO.
                 # XXX Need to bank-switch this data if more than N_CONST_XFORMS.
-                C_transforms = numpy.array(transforms, dtype=numpy.float32)
+                C_transforms = numpy.array(transforms, dtype = numpy.float32)
                 glUniformMatrix4fvARB(self._uniform("transforms"),
                                       # Don't over-run the array size.
                                       min(len(transforms), N_CONST_XFORMS),
                                       GL_TRUE, # Transpose.
                                       C_transforms)
-            else: # TEXTURE_XFORMS
+            elif TEXTURE_XFORMS:
                 # Generate a texture ID and bind the texture unit to it.
                 self.transform_memory = glGenTextures(1)
                 glBindTexture(GL_TEXTURE_2D, self.transform_memory)
@@ -636,6 +662,8 @@ class GLShaderObject(object):
                         continue
                     print "]]"
                 pass
+            else:
+                assert 0, "can't setupTransforms unless UNIFORM_XFORMS or TEXTURE_XFORMS is set"
             pass
         self.setActive(False)                # Deactivate again.
         return

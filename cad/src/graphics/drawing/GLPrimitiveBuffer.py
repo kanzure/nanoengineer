@@ -371,6 +371,8 @@ class GLPrimitiveBuffer(object):
 
         # XXX No transform data until that is more implemented.
         ###self.shader.setupTransforms(self.transforms)
+        # (note: the reason TransformControls work in their test case
+        #  is due to a manual call of shader.setupTransforms. [bruce 090306 guess])
         if self.shader.get_TEXTURE_XFORMS():
             # Activate a texture unit for transforms.
             ## XXX Not necessary for custom shader programs.

@@ -67,8 +67,18 @@ Russ 090106: Chopped the GLSL source string blocks out of gl_shaders.py .
 
 # <line 0>
 # ================================================================
-# Note: if TEXTURE_XFORMS is off, a #define N_CONST_XFORMS array dimension is
-# prepended to the following.  The #version statement must precede it.
+
+# Note:
+# - if UNIFORM_XFORMS is true in gl_shaders.py, some #defines are
+#   prepended to the following shader sources, by code in gl_shaders.py:
+#     #define UNIFORM_XFORMS   (to signal this for use in #ifdefs)
+#     #define N_CONST_XFORMS <array dimension>
+# - if TEXTURE_XFORMS is true, this one is prepended instead:
+#     #define TEXTURE_XFORMS
+# - if neither is true, none of those defines are prepended.
+# The #version statement is prepended before that since it must come first.
+# [this note and what it's about was revised by bruce 090306]
+
 sphereVertSrc = """
 // Vertex shader program for sphere primitives.
 // 
@@ -85,11 +95,15 @@ uniform vec4 override_color;    // Color for selection or highlighted drawing.
 uniform int perspective;        // 0:orthographic, 1:perspective.
 uniform float ndc_halo_width;   // Halo width in normalized device coords.
 
-uniform int n_transforms;
-#ifdef N_CONST_XFORMS
+uniform int n_transforms;       // number of transforms supplied (must be 0 if
+                                // they are not supported here) (todo?: to
+                                // conserve code and uniforms, we could put this
+                                // inside a new ifdef, SUPPORT_TRANSFORMS)
+#ifdef UNIFORM_XFORMS
   // Transforms are in uniform (constant) memory. 
   uniform mat4 transforms[N_CONST_XFORMS]; // Must dimension at compile time.
-#else
+#endif
+#ifdef TEXTURE_XFORMS
   // Transforms are in texture memory, indexed by a transform slot ID attribute.
   // Column major, one matrix per column: width=N cols, height=4 rows of vec4s.
   // GL_TEXTURE_2D is bound to transform matrices, tex coords in (0...1, 0...1).
@@ -128,15 +142,16 @@ void main(void) { // Vertex shader procedure.
 
 //[ ----------------------------------------------------------------
 // Per-primitive transforms.
-  mat4 xform;
+  mat4 xform; // always defined; only used when TEXTURE_XFORMS or by debug code
   if (n_transforms > 0 && int(transform_id) > -1) {
     // Apply a transform, indexed by a transform slot ID vertex attribute.
 
-#ifdef N_CONST_XFORMS
+#ifdef UNIFORM_XFORMS
     // Get transforms from a fixed-sized block of uniform (constant) memory.
     // The GL_EXT_bindable_uniform extension allows sharing this through a VBO.
     center = transforms[int(transform_id)] * center;
-#else  // TEXTURE_XFORMS
+#endif
+#ifdef TEXTURE_XFORMS
 # if 0 // 1   /// Never check in a 1 value.
     xform = mat4(1.0); /// Testing, override texture xform with identity matrix.
 # else
@@ -169,7 +184,7 @@ void main(void) { // Vertex shader procedure.
   if (col > 10) col--;                  // Skip the gaps.
   if (row > 10) row--;
 
-# ifdef N_CONST_XFORMS
+# ifdef UNIFORM_XFORMS
   // Not allowed: mat4 xform = mat4(transforms[int(transform_id)]);
   xform = mat4(transforms[int(transform_id)][0],
                transforms[int(transform_id)][1],
