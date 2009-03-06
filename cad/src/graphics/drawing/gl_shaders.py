@@ -30,7 +30,7 @@ History:
 
 Russ 081002: Added some Transform state to GLSphereShaderObject, and code to
   notice when there is not enough constant memory for a matrix block
-  there. Added get_texture_xforms() and get_N_CONST_XFORMS() methods.
+  there. Added get_TEXTURE_XFORMS() and get_N_CONST_XFORMS() methods.
 
   Moved GLSphereBuffer to its own file.  Much of its code goes to the new
   superclass, GLPrimitiveBuffer, and its helper classes HunkBuffer and Hunk.
@@ -49,7 +49,7 @@ Russ 090116: Factored GLShaderObject out of GLSphereShaderObject, and added
 """
 
 # Whether to use texture memory for transforms, or a uniform array of mat4s.
-texture_xforms = False # True
+TEXTURE_XFORMS = False # True
 # Otherwise, use a fixed-sized block of uniform memory for transforms.
 # (This is a max, refined using GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB later.)
 N_CONST_XFORMS = 270  # (Gets CPU bound at 275.  Dunno why.)
@@ -199,7 +199,7 @@ class GLShaderObject(object):
         self.transform_memory = None    # Texture memory handle.
 
         # Configure the max constant RAM used for a "uniform" transforms block.
-        if not texture_xforms:  # Won't be used if transforms in texture memory.
+        if not TEXTURE_XFORMS:  # Won't be used if transforms in texture memory.
             global N_CONST_XFORMS
             oldNCX = N_CONST_XFORMS
             maxComponents = glGetInteger(GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB)
@@ -231,7 +231,7 @@ class GLShaderObject(object):
                     #version 120
                     """
         # Insert preprocessor constants.
-        if not texture_xforms:
+        if not TEXTURE_XFORMS:
             prefix += "#define N_CONST_XFORMS %d\n" % N_CONST_XFORMS
         else:
             prefix += "" # To keep the shader line numbers unchanged.
@@ -288,11 +288,11 @@ class GLShaderObject(object):
         try:
             glCompileShaderARB(shader)    # Checks status, raises error if bad.
         except:
+            self.error = True
             types = {GL_VERTEX_SHADER:"vertex", GL_FRAGMENT_SHADER:"fragment"}
             print ("\n%s %s shader program compilation error" % 
                    (shaderName, types[shaderType]))
             print glGetInfoLogARB(shader)
-            self.error = True
             pass
         return shader
 
@@ -543,8 +543,8 @@ class GLShaderObject(object):
         self._active = on
         return
 
-    def get_texture_xforms(self):
-        return texture_xforms
+    def get_TEXTURE_XFORMS(self):
+        return TEXTURE_XFORMS
 
     def get_N_CONST_XFORMS(self):
         return N_CONST_XFORMS
@@ -554,7 +554,7 @@ class GLShaderObject(object):
         """
         Fill a block of transforms.
 
-        Depending on the setting of texture_xforms, the transforms are either in
+        Depending on the setting of TEXTURE_XFORMS, the transforms are either in
         texture memory, or else in a uniform array of mat4s ("constant memory".)
 
         @param transforms: A list of transform matrices, where each transform is
@@ -567,7 +567,7 @@ class GLShaderObject(object):
         # The shader bypasses transform logic if n_transforms is 0.
         # (Then location coordinates are in global modeling coordinates.)
         if nTransforms > 0:
-            if not texture_xforms:
+            if not TEXTURE_XFORMS:
                 # Load into constant memory.  The GL_EXT_bindable_uniform
                 # extension supports sharing this array of mat4s through a VBO.
                 # XXX Need to bank-switch this data if more than N_CONST_XFORMS.
@@ -577,7 +577,7 @@ class GLShaderObject(object):
                                       min(len(transforms), N_CONST_XFORMS),
                                       GL_TRUE, # Transpose.
                                       C_transforms)
-            else: # texture_xforms
+            else: # TEXTURE_XFORMS
                 # Generate a texture ID and bind the texture unit to it.
                 self.transform_memory = glGenTextures(1)
                 glBindTexture(GL_TEXTURE_2D, self.transform_memory)

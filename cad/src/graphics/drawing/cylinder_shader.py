@@ -152,7 +152,7 @@ Russ 090106: Design description file created.
 
 # <line 0>
 # ================================================================
-# Note: if texture_xforms is off, a #define N_CONST_XFORMS array dimension is
+# Note: if TEXTURE_XFORMS is off, a #define N_CONST_XFORMS array dimension is
 # prepended to the following.  The #version statement precedes it.
 cylinderVertSrc = """
 // Vertex shader program for cylinder primitives.
@@ -267,7 +267,7 @@ void main(void) {
     for (i = 0; i <= 1; i++)
       endpts[i] = transforms[int(transform_id)] * endpts[i];
 
-#else  // texture_xforms.
+#else  // TEXTURE_XFORMS
 # if 0 // 1   /// Never check in a 1 value.
     xform = mat4(1.0); /// Testing, override texture xform with identity matrix.
 # else
@@ -283,7 +283,7 @@ void main(void) {
 # endif
     for (i = 0; i <= 1; i++)
       endpts[i] = xform * endpts[i];
-#endif // texture_xforms.
+#endif // TEXTURE_XFORMS
   }
 //] ----------------------------------------------------------------
 

@@ -67,7 +67,7 @@ Russ 090106: Chopped the GLSL source string blocks out of gl_shaders.py .
 
 # <line 0>
 # ================================================================
-# Note: if texture_xforms is off, a #define N_CONST_XFORMS array dimension is
+# Note: if TEXTURE_XFORMS is off, a #define N_CONST_XFORMS array dimension is
 # prepended to the following.  The #version statement must precede it.
 sphereVertSrc = """
 // Vertex shader program for sphere primitives.
@@ -136,7 +136,7 @@ void main(void) { // Vertex shader procedure.
     // Get transforms from a fixed-sized block of uniform (constant) memory.
     // The GL_EXT_bindable_uniform extension allows sharing this through a VBO.
     center = transforms[int(transform_id)] * center;
-#else  // texture_xforms.
+#else  // TEXTURE_XFORMS
 # if 0 // 1   /// Never check in a 1 value.
     xform = mat4(1.0); /// Testing, override texture xform with identity matrix.
 # else
@@ -151,7 +151,7 @@ void main(void) { // Vertex shader procedure.
                  texture2D(transforms, vec2(3.0/3.0, mat)));
 # endif
     center = xform * center;
-#endif // texture_xforms.
+#endif // TEXTURE_XFORMS
   }
 //] ----------------------------------------------------------------
 
