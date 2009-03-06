@@ -234,8 +234,9 @@ class GLPane_highlighting_methods(object):
                         return 256 + b
                     return b
                 bytes = tuple([us(b) for b in rgba])
-                glname = (bytes[0] << 24 | bytes[1] << 16 |
-                          bytes[2] << 8 | bytes[3])
+                ##glname = (bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3])
+                ## Temp fix: Ignore the last byte, which always comes back 255 on Windows.
+                glname = (bytes[0] << 16 | bytes[1] << 8 | bytes[2])
                 if debugPicking:
                     print ("shader mouseover xy %d %d, " %  (wX, wY) +
                            "rgba bytes (0x%x, 0x%x, 0x%x, 0x%x), " % bytes +
