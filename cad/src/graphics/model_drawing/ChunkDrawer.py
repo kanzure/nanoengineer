@@ -319,8 +319,9 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # prevent further changes to it during redraw, but this is not
             # needed for now since they should not be possible, and should
             # cause visible bugs if they happen. At least let's verify the
-            # self._chunk coord system has not changed by the time we're done:
-        current_transform_value = ( + self._chunk.basecenter, + self._chunk.quat )
+            # self._chunk coord system has not changed by the time we're done
+            # (btw, copying quat.vec rather than quat is an optim, bruce 090306):
+        current_transform_value = ( + self._chunk.basecenter, + self._chunk.quat.vec )
 
         # see comment below for why we have to compare the pieces, not the whole
         if current_transform_value[0] != self._last_drawn_transform_value[0] or \
@@ -610,12 +611,12 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 # (except with same_vals), to avoid bugs. See same_vals
                 # docstring for details.]
                 if ( current_transform_value[0] != self._chunk.basecenter or
-                     current_transform_value[1] != self._chunk.quat ):
+                     current_transform_value[1] != self._chunk.quat.vec ):
                     assert 0, \
                         "bug: %r transform changed during draw, from %r to %r" % \
                         ( self._chunk,
                           current_transform_value,
-                          ( self._chunk.basecenter, self._chunk.quat ) )
+                          ( self._chunk.basecenter, self._chunk.quat.vec ) )
                     pass
 
                 pass # end of drawing within self's local coordinate frame

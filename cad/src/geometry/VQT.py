@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 VQT.py - Vectors, Quaternions, and [no longer in this file] Trackballs
 
@@ -9,7 +9,7 @@ A relatively full implementation of Quaternions
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Note: bruce 071216 moved class Trackball into its own file,
 so the remaining part of this module can be classified as "geometry"
@@ -22,11 +22,12 @@ from foundation.state_utils import DataMixin
 
 import Numeric 
 
-DEBUG_QUATS = True
+_DEBUG_QUATS = False
     #bruce 050518; I'll leave this turned on in the main sources for awhile
     #bruce 080401 update: good to leave this on for now, but turn it off soon
     # as an optimization -- no problems turned up so far, but the upcoming
     # PAM3+5 code is about to use it a lot more.
+    #bruce 090306 turned this off
 
 intType = type(2)
 floType = type(2.0)
@@ -227,7 +228,7 @@ class Q(DataMixin):
             #    (not just returning the inverse quat as I initially thought);
             #    so I fixed it.
             #  - The old code sometimes used 'z' but the new code never does
-            #    (except to decide to use this case, and when DEBUG_QUATS to check the results).
+            #    (except to decide to use this case, and when _DEBUG_QUATS to check the results).
             
             # Q(x, y, z) where x, y, and z are three orthonormal vectors
             # is the quaternion that rotates the standard axes into that
@@ -239,12 +240,12 @@ class Q(DataMixin):
             yfixer = twistor( x, y_axis_2, y)
             res = xfixer
             res += yfixer # warning: modifies res -- xfixer is no longer what it was
-            if DEBUG_QUATS:
+            if _DEBUG_QUATS:
                 check_posns_near( res.rot(X_AXIS), x, "x" )
                 check_posns_near( res.rot(Y_AXIS), y, "y" )
                 check_posns_near( res.rot(Z_AXIS), z, "z" )
             self.vec = res.vec
-            if DEBUG_QUATS:
+            if _DEBUG_QUATS:
                 res = self # sanity check
                 check_posns_near( res.rot(X_AXIS), x, "sx" )
                 check_posns_near( res.rot(Y_AXIS), y, "sy" )
@@ -323,8 +324,10 @@ class Q(DataMixin):
         elif attr in ('z', 'k'):
             return self.vec[3]
         elif attr == 'angle':
-            if -1.0<self.vec[0]<1.0: return 2.0 * math.acos(self.vec[0])
-            else: return 0.0
+            if -1.0 < self.vec[0] < 1.0:
+                return 2.0 * math.acos(self.vec[0])
+            else:
+                return 0.0
         elif attr == 'axis':
             return V(self.vec[1], self.vec[2], self.vec[3])
         elif attr == 'matrix':
@@ -514,7 +517,9 @@ class Q(DataMixin):
         return a
 
     def __pos__(self):
-        return Q(self.w, self.x, self.y, self.z)
+        ## return Q(self.w, self.x, self.y, self.z)
+        # [optimized by bruce 090306, not carefully tested]
+        return Q(self.vec)
 
     def __neg__(self):
         return Q(self.w, -self.x, -self.y, -self.z)
@@ -609,12 +614,12 @@ def cat(a, b):
     # I bet they should be testing the number of entries being 0, or so.
     # So I added some debug code to warn us if this happens.
     if not a:
-        if (DEBUG_QUATS or debug_flags.atom_debug):
-            print "DEBUG_QUATS: cat(a, b) with false a -- is it right?", a
+        if (_DEBUG_QUATS or debug_flags.atom_debug):
+            print "_DEBUG_QUATS: cat(a, b) with false a -- is it right?", a
         return b
     if not b:
-        if (DEBUG_QUATS or debug_flags.atom_debug):
-            print "DEBUG_QUATS: cat(a, b) with false b -- is it right?", b
+        if (_DEBUG_QUATS or debug_flags.atom_debug):
+            print "_DEBUG_QUATS: cat(a, b) with false b -- is it right?", b
         return a
     r1 = Numeric.shape(a)
     r2 = Numeric.shape(b)
