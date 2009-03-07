@@ -1,15 +1,21 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 TestGraphics_Command.py -- command to "Test Graphics Performance"
 (for now, available from the debug menu -> 'other' submenu)
 
 @author:    Bruce
 @version:   $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
+# python library imports
+
+import time # for time.time (wall clock time)
+
+# NE1 imports
+
 from command_support.Command import Command
-from command_support.GraphicsMode import GraphicsMode
+##from command_support.GraphicsMode import GraphicsMode
 
 from commands.TestGraphics.TestGraphics_PropertyManager import TestGraphics_PropertyManager
 
@@ -25,8 +31,6 @@ import foundation.env as env
 
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import levelOfDetail_prefs_key
-
-from time import time
 
 from geometry.VQT import Q, V
 
@@ -44,37 +48,80 @@ class test_globals:
 # other globals
 frame_count = 0
 last_frame_printed = 0
-last_time = time()
+last_time = time.time()
 
 
 # == GraphicsMode part
 
 ## _superclass_GM = GraphicsMode # not used as of 081223
 
-class TestGraphics_GraphicsMode(GraphicsMode):
-    # review: could superclass be 'object', if not for isinstance assertions?
-    # could try GraphicsMode_API ... ###
+class TestGraphics_GraphicsMode(object):
     """
     Graphics mode for TestGraphics command. 
     """
+
+    # ==
     
-    # The left mouse button is much easier to press and drag than the middle.
-    # Put rotate on Left, pan on LeftShift.
-    def leftDown(self, event): self.middleDown(event)
-    def leftDrag(self, event): self.middleDrag(event)
-    def leftUp(self, event): self.middleUp(event)
+    # new feature, bruce 090306: delegate almost everything to
+    # parentGraphicsMode. (We can't use idlelib.Delegator since
+    # the delegate needs to be dynamic.)
+    
+    def __init__(self, command):
+        self.command = command
+        return
 
-    def leftShiftDown(self, event): self.middleShiftDown(event)
-    def leftShiftDrag(self, event): self.middleShiftDrag(event)
-    def leftShiftUp(self, event): self.middleShiftUp(event)
+    def __get_parentGraphicsMode(self): #bruce 081223 [copied from GraphicsMode]
+        # review: does it need to check whether the following exists?
+        return self.command.parentCommand.graphicsMode
 
-    # Still want the left-button select functions, bound to the right button.
-    def rightDown(self, event): 
-        super(TestGraphics_GraphicsMode, self).leftDown(event)
-    def rightDrag(self, event):
-        super(TestGraphics_GraphicsMode, self).leftDrag(event)
-    def rightUp(self, event):
-        super(TestGraphics_GraphicsMode, self).leftUp(event)
+    parentGraphicsMode = property(__get_parentGraphicsMode)
+        # use this when you need to wrap a method, then delegate explicitly
+        # (but rely on __getattr__ instead, when you can delegate directly)
+
+    def __getattr__(self, attr):
+        if self.command.parentCommand:
+            if self.command.parentCommand.graphicsMode: # aka parentGraphicsMode
+                return getattr(self.command.parentCommand.graphicsMode, attr)
+                # May raise AttributeError
+            else:
+                # parentCommand has no graphicsMode [never yet seen]
+                print "%r has no graphicsMode!" % self.command.parentCommand
+                raise AttributeError, attr
+            pass
+        else:
+            # self.command has no parentCommand [never yet seen]
+            print "%r has no parentCommand!" % self.command
+            raise AttributeError, attr
+        pass
+
+    # (end of delegation section)
+    
+    # == 
+
+    if 0:
+        # this can be enabled by individual developers if desired (debug_pref?)
+        # (or just use alt/option key to make left button act like middle)
+        # [bruce 090306 if 0'd this, so delegation can work; didn't test 'if 1']
+        
+        # The left mouse button is much easier to press and drag than the middle.
+        # Put rotate on Left, pan on LeftShift. [Russ]
+        def leftDown(self, event): self.middleDown(event)
+        def leftDrag(self, event): self.middleDrag(event)
+        def leftUp(self, event): self.middleUp(event)
+
+        def leftShiftDown(self, event): self.middleShiftDown(event)
+        def leftShiftDrag(self, event): self.middleShiftDrag(event)
+        def leftShiftUp(self, event): self.middleShiftUp(event)
+
+        # Still want the left-button select functions, bound to the right button.
+        def rightDown(self, event): 
+            super(TestGraphics_GraphicsMode, self).leftDown(event)
+        def rightDrag(self, event):
+            super(TestGraphics_GraphicsMode, self).leftDrag(event)
+        def rightUp(self, event):
+            super(TestGraphics_GraphicsMode, self).leftUp(event)
+
+    # ==    
 
     def gm_start_of_paintGL(self, glpane):
         """
@@ -136,7 +183,7 @@ class TestGraphics_GraphicsMode(GraphicsMode):
         # print fps
         global frame_count, last_frame_printed, last_time # todo: make instance vars?
         frame_count += 1
-        now = time()
+        now = time.time()
         if test_globals.printFrames and int(now) > int(last_time):
             nframes = frame_count - last_frame_printed
             duration = now - last_time
