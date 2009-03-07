@@ -410,7 +410,7 @@ class GLPane_drawingset_methods(object):
             # not incremental:
             # destroy all old caches (matters after runtime prefs change)
             if self._dset_caches:
-                for cachename, cache in self._dset_caches:
+                for cachename, cache in self._dset_caches.items():
                     cache.destroy()
                 self._dset_caches = None
                 pass
