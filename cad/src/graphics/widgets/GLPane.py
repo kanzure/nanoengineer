@@ -53,7 +53,7 @@ import sys
 from OpenGL.GL import GL_STENCIL_BITS
 from OpenGL.GL import glGetInteger
 
-from command_support.GraphicsMode_API import GraphicsMode_API # for isinstance assertion
+from command_support.GraphicsMode_API import GraphicsMode_interface # for isinstance assertion
 
 import foundation.env as env
 
@@ -151,7 +151,7 @@ class GLPane(
     * several "point of view" attributes (some might be inherited
       from superclass GLPane_minimal)
 
-    * graphicsMode - an instance of GraphicsMode_API
+    * graphicsMode - an instance of GraphicsMode_interface
     """
     # Note: classes GLPane and ThumbView still share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal.
@@ -473,7 +473,7 @@ class GLPane(
         res = self.assy.commandSequencer.currentCommand.graphicsMode
             # don't go through commandSequencer.graphicsMode,
             # maybe that attr is not needed
-        assert isinstance(res, GraphicsMode_API)
+        assert isinstance(res, GraphicsMode_interface)
         return res
 
     graphicsMode = property( _get_graphicsMode)

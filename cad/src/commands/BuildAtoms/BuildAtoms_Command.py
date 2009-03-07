@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 BuildAtoms_Command.py 
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 The 'Command' part of the BuildAtoms Mode (BuildAtoms_Command and 
 BuildAtoms_basicGraphicsMode are the two split classes of the old 
@@ -40,7 +40,6 @@ from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
 from commands.BuildAtoms.BuildAtomsPropertyManager import BuildAtomsPropertyManager
 from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command
 
-from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from ne1_ui.toolbars.Ui_BuildAtomsFlyout import BuildAtomsFlyout
 

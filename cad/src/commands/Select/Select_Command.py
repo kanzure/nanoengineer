@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Select_Command.py
 
@@ -14,7 +14,7 @@ For example:
   to override them).
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 
 TODO:
@@ -31,7 +31,7 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 from command_support.Command import basicCommand
 from commands.Select.Select_GraphicsMode import Select_GraphicsMode
 
-from command_support.GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_interface
 
 class Select_basicCommand(basicCommand):
     """
@@ -216,7 +216,7 @@ class Select_Command(Select_basicCommand):
 
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class
-        assert issubclass(GM_class, GraphicsMode_API)
+        assert issubclass(GM_class, GraphicsMode_interface)
         args = [self]
         kws = {}
         self.graphicsMode = GM_class(*args, **kws)

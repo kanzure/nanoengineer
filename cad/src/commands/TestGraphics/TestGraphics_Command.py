@@ -15,7 +15,7 @@ import time # for time.time (wall clock time)
 # NE1 imports
 
 from command_support.Command import Command
-##from command_support.GraphicsMode import GraphicsMode
+from command_support.GraphicsMode_API import Delegating_GraphicsMode
 
 from commands.TestGraphics.TestGraphics_PropertyManager import TestGraphics_PropertyManager
 
@@ -53,50 +53,12 @@ last_time = time.time()
 
 # == GraphicsMode part
 
-## _superclass_GM = GraphicsMode # not used as of 081223
-
-class TestGraphics_GraphicsMode(object):
+class TestGraphics_GraphicsMode(Delegating_GraphicsMode):
     """
     Graphics mode for TestGraphics command. 
     """
-
-    # ==
-    
     # new feature, bruce 090306: delegate almost everything to
-    # parentGraphicsMode. (We can't use idlelib.Delegator since
-    # the delegate needs to be dynamic.)
-    
-    def __init__(self, command):
-        self.command = command
-        return
-
-    def __get_parentGraphicsMode(self): #bruce 081223 [copied from GraphicsMode]
-        # review: does it need to check whether the following exists?
-        return self.command.parentCommand.graphicsMode
-
-    parentGraphicsMode = property(__get_parentGraphicsMode)
-        # use this when you need to wrap a method, then delegate explicitly
-        # (but rely on __getattr__ instead, when you can delegate directly)
-
-    def __getattr__(self, attr):
-        if self.command.parentCommand:
-            if self.command.parentCommand.graphicsMode: # aka parentGraphicsMode
-                return getattr(self.command.parentCommand.graphicsMode, attr)
-                # May raise AttributeError
-            else:
-                # parentCommand has no graphicsMode [never yet seen]
-                print "%r has no graphicsMode!" % self.command.parentCommand
-                raise AttributeError, attr
-            pass
-        else:
-            # self.command has no parentCommand [never yet seen]
-            print "%r has no parentCommand!" % self.command
-            raise AttributeError, attr
-        pass
-
-    # (end of delegation section)
-    
-    # == 
+    # parentGraphicsMode, via our new superclass Delegating_GraphicsMode.
 
     if 0:
         # this can be enabled by individual developers if desired (debug_pref?)
@@ -201,7 +163,7 @@ class TestGraphics_GraphicsMode(object):
 
 # == Command part
 
-class TestGraphics_Command(Command): 
+class TestGraphics_Command(Command):
     """
 
     """

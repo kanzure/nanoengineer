@@ -47,7 +47,7 @@ from model.jigs import Jig
     # this is used only for cmenu making
     # TODO: probably it should be factored into a method on the object being tested
 
-from command_support.GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_interface
 
 from command_support.baseCommand import baseCommand 
 
@@ -1002,7 +1002,7 @@ class Command(basicCommand):
         # Each Command subclass must override this class constant with the
         # most abstract GraphicsMode subclass which they are able to work with.
         # In concrete Command subclasses, it must be a subclass of
-        # GraphicsMode_API, whose constructor takes a single argument,
+        # GraphicsMode_interface, whose constructor takes a single argument,
         # which will be the command instance.
         #
         # Command subclasses which inherit (say) SomeCommand can also define
@@ -1032,7 +1032,7 @@ class Command(basicCommand):
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class
             # maybe: let caller pass something to replace this?
-        assert issubclass(GM_class, GraphicsMode_API)
+        assert issubclass(GM_class, GraphicsMode_interface)
 
         args = [self] # the command is the only ordinary init argument
         kws = {} # TODO: let subclasses add kws to this

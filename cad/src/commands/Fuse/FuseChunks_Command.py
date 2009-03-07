@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 FuseChunks_Command.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Originally by Mark as class 'fuseChunksMode'.
@@ -41,7 +41,7 @@ FUSEATOMS = 'Fuse overlapping atoms'
 from commands.Fuse.FuseChunks_GraphicsMode import FuseChunks_GraphicsMode
 from commands.Fuse.FuseChunks_GraphicsMode import Translate_in_FuseChunks_GraphicsMode
 from commands.Fuse.FuseChunks_GraphicsMode import Rotate_in_FuseChunks_GraphicsMode
-from command_support.GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_interface
 
 from ne1_ui.toolbars.Ui_FuseFlyout import FuseFlyout
 
@@ -83,7 +83,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class
-        assert issubclass(GM_class, GraphicsMode_API)
+        assert issubclass(GM_class, GraphicsMode_interface)
         args = [self]
         kws = {}
         self.graphicsMode = GM_class(*args, **kws)

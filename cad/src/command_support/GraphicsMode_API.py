@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GraphicsMode_API.py -- API class for whatever is used as a GraphicsMode
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -28,10 +28,63 @@ TODO:
 See the TODO comment in module GraphicsMode.
 """
 
-class GraphicsMode_API(object):
+class GraphicsMode_interface(object): #bruce 090307
     """
-    API class and abstract superclass for all GraphicsMode objects,
-    including nullGraphicsMode; used for isinstance tests
+    This can be used in isinstance/issubclass assertions,
+    and inherited by classes which intend to delegate to an actual GraphicsMode
+    (such as Delegating_GraphicsMode) and which therefore don't want
+    to inherit the default method implementations in GraphicsMode_API.
+    """
+    pass
+
+# ==
+
+class Delegating_GraphicsMode(GraphicsMode_interface): #bruce 090307
+    """
+    Abstract class for GraphicsModes which delegate almost everything
+    to their parentGraphicsMode.
+    """
+    # implem note: We can't use idlelib.Delegator to help implement this class,
+    # since the delegate needs to be dynamic.
+    
+    def __init__(self, command):
+        self.command = command
+        return
+
+    def __get_parentGraphicsMode(self): #bruce 081223 [copied from GraphicsMode]
+        # review: does it need to check whether the following exists?
+        return self.command.parentCommand.graphicsMode
+
+    parentGraphicsMode = property(__get_parentGraphicsMode)
+        # use this when you need to wrap a method, then delegate explicitly
+        # (but rely on __getattr__ instead, when you can delegate directly)
+
+    def __getattr__(self, attr):
+        if self.command.parentCommand:
+            if self.command.parentCommand.graphicsMode: # aka parentGraphicsMode
+                return getattr(self.command.parentCommand.graphicsMode, attr)
+                # may raise AttributeError
+            else:
+                # parentCommand has no graphicsMode [never yet seen]
+                print "%r has no graphicsMode!" % self.command.parentCommand
+                raise AttributeError, attr
+            pass
+        else:
+            # self.command has no parentCommand [never yet seen]
+            print "%r has no parentCommand!" % self.command
+            raise AttributeError, attr
+        pass
+    pass
+
+# ==
+
+class GraphicsMode_API(GraphicsMode_interface):
+    """
+    API class and abstract superclass for most GraphicsMode objects,
+    including nullGraphicsMode.
+
+    @note: for isinstance/issubclass tests, and fully-delegating GraphicsModes,
+        use GraphicsMode_interface instead.
     """
     
     # GraphicsMode-specific attribute null values

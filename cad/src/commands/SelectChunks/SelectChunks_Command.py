@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 SelectChunks_Command.py 
 
@@ -14,7 +14,7 @@ For example:
   to override them).
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 
 TODO:
@@ -30,7 +30,6 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 """
 from commands.Select.Select_Command import Select_Command
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
-from command_support.GraphicsMode_API import GraphicsMode_API
 from utilities.Comparison import same_vals
 
 from model.chem import Atom

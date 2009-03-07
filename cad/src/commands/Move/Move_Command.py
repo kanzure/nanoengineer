@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Move_Command.py
 
@@ -14,7 +14,7 @@ For example:
   to override them).
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 
 History:
@@ -30,7 +30,7 @@ import foundation.env as env
 import math
 from commands.Move.MovePropertyManager import MovePropertyManager
 from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
-from command_support.GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_interface
 from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
 from geometry.VQT import V, Q
@@ -414,7 +414,7 @@ class Move_Command(SelectChunks_Command):
 
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class
-        assert issubclass(GM_class, GraphicsMode_API)
+        assert issubclass(GM_class, GraphicsMode_interface)
         args = [self]
         kws = {}
         self.graphicsMode = GM_class(*args, **kws)

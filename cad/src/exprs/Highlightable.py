@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 Highlightable.py - general-purpose expr for mouse-responsive drawable objects
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 This will start out as just a straight port of class Highlightable from cad/src/testdraw.py,
 with the same limitations in API and implem (e.g. it won't work inside display lists).
@@ -1157,8 +1157,8 @@ def _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode): #061218, revised 071010
     ## assert isinstance(graphicsMode, anyGraphicsMode)
     #
     # bruce 071028 reinstating it in a harmless form:
-    from command_support.GraphicsMode_API import GraphicsMode_API
-    assert isinstance(graphicsMode, GraphicsMode_API)
+    from command_support.GraphicsMode_API import GraphicsMode_interface
+    assert isinstance(graphicsMode, GraphicsMode_interface)
     
     if not hasattr(graphicsMode, 'UNKNOWN_SELOBJ'):
         # note: this means each graphicsMode ends up with a unique UNKNOWN_SELOBJ,

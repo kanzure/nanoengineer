@@ -33,7 +33,6 @@ from utilities.debug import print_compact_traceback
 from utilities.debug import reload_once_per_event
 
 from commands.Select.Select_Command import Select_Command
-from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
 _superclass = Select_Command
