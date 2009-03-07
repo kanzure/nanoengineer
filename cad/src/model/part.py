@@ -68,9 +68,11 @@ import foundation.env as env
 from model.NamedView import NamedView
 from model.chunk import Chunk
 from model.jigs import Jig
+
 from model.Part_drawing_frame import Part_drawing_frame
 from model.Part_drawing_frame import fake_Part_drawing_frame
 
+from model.elements import PeriodicTable
 
 from operations.jigmakers_Mixin import jigmakers_Mixin
 from operations.ops_atoms import ops_atoms_Mixin
@@ -546,7 +548,10 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def _recompute_drawLevel(self):
         """
         Recompute and set the value of self.drawLevel,
-        which controls the detail level of spheres used to draw atoms.
+        which controls the detail level of spheres used to draw atoms
+        (when shaders are not being used).
+
+        @see: GLPane_minimal.get_drawLevel
         """
         num = self.natoms # note: self.natoms must be accessed whether or not
             # its value is needed, due to limitations in InvalMixin.
@@ -1077,6 +1082,27 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         finally:
             self.after_drawing_model(error)
         return
+
+    def general_appearance_prefs_summary(self, glpane): #bruce 090306
+        """
+        Summarize the prefs values that affect the appearance of most or all
+        atoms and bonds (that can be drawn when self is drawn), using the
+        graphics prefs values in glpane.glprefs and for drawing in glpane.
+
+        Note about how this is used: when what we return changes, all
+        Chunk & ExternalBondSet display lists (to be drawn in self)
+        will be considered invalid (when next drawn in self).
+
+        @see: GLPane._general_appearance_change_indicator
+        """
+        eltprefs = (PeriodicTable.color_change_counter,
+                    PeriodicTable.rvdw_change_counter )
+        matprefs = glpane.glprefs.materialprefs_summary() #bruce 051126
+        drawLevel = glpane.get_drawLevel(self) # ok to pass assy or part
+            #bruce 060215 added drawLevel (when this was in Chunk.draw)
+            # review: does this drawLevel kluge belong inside
+            # GLPrefs.materialprefs_summary?
+        return (eltprefs, matprefs, drawLevel)
 
     def before_drawing_model(self): #bruce 070928; revised 090219 ### maybe: rename _model -> _part?
         """

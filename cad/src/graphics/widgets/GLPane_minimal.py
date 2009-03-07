@@ -596,6 +596,30 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         """
         return False
 
+    def get_drawLevel(self, assy_or_part):
+        """
+        Get the recommended sphere drawingLevel to use for drawing
+        assy_or_part in self.
+
+        @param assy_or_part: an Assembly, or its current .part, a Part
+        """
+        #bruce 090306 split out of ChunkDrawer, optimized for shaders
+        if self.permit_shaders and self.glprefs.sphereShader_desired():
+            # if shaders are working, drawLevel doesn't matter;
+            # if not, we'll just use the lowest level for speed.
+            # Either way, we avoid accessing assy.drawLevel and therefore
+            # (I hope) recomputing the number of atoms in assy.
+            return 0
+        else:
+            return assy_or_part.drawLevel # this might recompute it
+            # (if that happens and grabs the pref value, I think this won't
+            #  subscribe our Chunks' display list to it, since we're called
+            #  outside the begin/ends for those, and that's good, since they
+            #  include this in havelist instead, which avoids some unneeded
+            #  redrawing, e.g. if pref changed and changed back while
+            #  displaying a different Part. [bruce 060215])
+        pass
+
     # ==
 
     def setDepthRange_setup_from_debug_pref(self):

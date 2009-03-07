@@ -13,8 +13,6 @@ from graphics.model_drawing.TransformedDisplayListsDrawer import TransformedDisp
 
 from graphics.drawing.ColorSorter import ColorSorter
 
-from model.elements import PeriodicTable
-import graphics.drawing.drawing_globals as drawing_globals
 ##import foundation.env as env
 from utilities.debug import print_compact_traceback
 
@@ -194,8 +192,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         #### TODO: glPushMatrix() etc, using matrix of chunk1. (here or in a subr)
         # Not needed until our coords are relative (when we optimize drag).
 
-        eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
-        matprefs = drawing_globals.glprefs.materialprefs_summary()
+        elt_mat_prefs = glpane._general_appearance_change_indicator
 
         # Note: if we change how color and/or disp from our two chunks are combined
         # to determine our appearance, or if color of some bonds can be a combination
@@ -209,7 +206,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
             color = tuple(color)
                 # be sure it's not a Numeric array (so we can avoid bug
                 # for '==' without having to use same_vals)
-        havelist_data = (disp, color, eltprefs, matprefs, drawLevel)
+        havelist_data = (disp, color, elt_mat_prefs)
         
         # note: havelist_data must be boolean true
 

@@ -75,8 +75,6 @@ from graphics.drawing.ColorSorter import ColorSorter
 
 ##from drawer import drawlinelist
 
-import graphics.drawing.drawing_globals as drawing_globals
-
 from graphics.drawing.gl_lighting import apply_material
 
 from graphics.model_drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
@@ -84,8 +82,6 @@ from graphics.model_drawing.special_drawing import SpecialDrawing_ExtraChunkDisp
 from graphics.model_drawing.special_drawing import Chunk_SpecialDrawingHandler
 
 from graphics.model_drawing.TransformedDisplayListsDrawer import TransformedDisplayListsDrawer
-
-from model.elements import PeriodicTable
 
 # ==
 
@@ -210,6 +206,12 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         center = bbox.center()
         radius = bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5
         return glpane.is_sphere_visible( center, radius )
+
+    def _get_drawLevel(self, glpane): #bruce 090306 split out and optimized
+        """
+        Get the sphere drawingLevel to use for drawing self.
+        """
+        return glpane.get_drawLevel(self._chunk.assy)
 
     def draw(self, glpane, highlight_color = None):
         """
@@ -377,14 +379,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             # (### review the logic of this condition sometime)
             self.track_use()
 
-        drawLevel = self._chunk.assy.drawLevel # this might recompute it
-            # (if that happens and grabs the pref value, I think this won't
-            #  subscribe our display list to it, since we're outside the
-            #  begin/end for that, and that's good, since we include this in
-            #  havelist instead, which avoids some unneeded redrawing, e.g. if
-            #  pref changed and changed back while displaying a different Part.
-            #  [bruce 060215])
-
+        drawLevel = self._get_drawLevel(glpane)
+        
         disp = self._chunk.get_dispdef(glpane)
 
         if is_chunk_visible:
@@ -461,11 +457,9 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 #  color prefs, to fix bugs in updating display when those
                 #  change (eg bug 452 items 12-A, 12-B).]
 
-                eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
-                matprefs = drawing_globals.glprefs.materialprefs_summary() #bruce 051126
-                havelist_data = (disp, eltprefs, matprefs, drawLevel)
+                elt_mat_prefs = glpane._general_appearance_change_indicator
+                havelist_data = (disp, elt_mat_prefs)
                     # note: havelist_data must be boolean true
-                    #bruce 060215 adding drawLevel to havelist
 
                 wantlist = glpane._remake_display_lists #bruce 090224
                     # We'll only remake invalid displists when this is true;
@@ -1104,7 +1098,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         it doesn't occur if atom drawing is delegated to our display mode.
         """
         #bruce 060608 split this out of _draw_for_main_display_list
-        drawLevel = self._chunk.assy.drawLevel
+
+        drawLevel = self._get_drawLevel(glpane)
         drawn = {}
         # bruce 041014 hack for extrude -- use _colorfunc if present
         # [part 1; optimized 050513]

@@ -77,6 +77,7 @@ from graphics.drawing.Guides import Guides
 
 from graphics.widgets.GLPane_image_methods import GLPane_image_methods
 
+
 # ==
 
 class GLPane_rendering_methods(GLPane_image_methods):
@@ -608,9 +609,12 @@ class GLPane_rendering_methods(GLPane_image_methods):
         return
 
     # ==
-    
+
     _cached_bg_image_comparison_data = None
         # note: for the image itself, see attrs of class GLPane_image_methods
+
+    _last_general_appearance_prefs_summary = None #bruce 090306
+    _general_appearance_change_indicator = 0
     
     def standard_repaint_0(self):
         """
@@ -619,6 +623,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
         This is the main rendering routine -- it clears the OpenGL window,
         does all drawing done during paintGL, and does hit-testing if
         requested by event handlers before this call of paintGL.
+
+        @note: this is called inside a begin_tracking_usage/end_tracking_usage
+            pair, invalidation of which results (indirectly) in self.gl_update().
 
         @note: self.graphicsMode can control whether this gets called;
                for details see the call of self.render_scene in this class.
@@ -632,6 +639,17 @@ class GLPane_rendering_methods(GLPane_image_methods):
         self.glprefs.update()
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
             # (this is also required to come BEFORE setup_shaders_each_frame)
+
+        # optimization: compute a change indicator for Chunk & ExternalBondSet
+        # display lists here, not every time we draw one of them!
+        # (kluge: assume no need for same_vals, i.e. no Numeric arrays
+        #  in this value)
+        # [bruce 090306]
+        current_summary = self.part.general_appearance_prefs_summary(self)
+        if self._last_general_appearance_prefs_summary != current_summary:
+            self._general_appearance_change_indicator += 1 # invalidates display lists
+            self._last_general_appearance_prefs_summary = current_summary
+            pass
 
         self.clear_and_draw_background( GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
             # also sets self.fogColor
