@@ -50,8 +50,6 @@ from utilities.constants import diDNACYLINDER
 from utilities.constants import diLINES
 from utilities.constants import diTUBES
 from utilities.constants import diTrueCPK
-from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
-from utilities.constants import BBOX_MIN_RADIUS
 ##from utilities.constants import PickedColor
 
 from utilities.debug import print_compact_traceback
@@ -192,19 +190,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
         Use a fast test; false positives are ok.
         """
-        # by piotr 080331; bruce 090212 split into separate method
-        # piotr 080402: Added a correction for the true maximum
-        # DNA CPK atom radius.
-        # Maximum VdW atom radius in PAM3/5 = 5.0 * 1.25 + 0.2 = 6.2
-        # = MAX_ATOM_SPHERE_RADIUS
-        # The default radius used by BBox is equal to sqrt(3*(1.8)^2) =
-        # = 3.11 A, so the difference = approx. 3.1 A = BBOX_MIN_RADIUS
-        # The '0.5' is another 'fuzzy' safety margin, added here just 
-        # to be sure that all objects are within the sphere.
-        # piotr 080403: moved the correction here from GLPane.py
-        bbox = self._chunk.bbox
-        center = bbox.center()
-        radius = bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5
+        center, radius = self._chunk.bounding_sphere()
         return glpane.is_sphere_visible( center, radius )
 
     def _get_drawLevel(self, glpane): #bruce 090306 split out and optimized

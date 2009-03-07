@@ -159,24 +159,11 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         # have individual display styles set; for now, this situation will result
         # in our having an empty CSDL but drawing it
 
+        # Note: frustum culling is done in our caller,
+        # ChunkDrawer._draw_external_bonds, but only when its chunk
+        # was culled. (It uses self._ebset.bounding_lozenge.)
+        # So there is no need to do it here.
         
-        # TODO: frustum culling:
-        #
-        # - we don't yet have a bbox;
-        #
-        # do this when time, before release:
-        # - but we could approximate this (well enough, for DNA rung bonds)
-        #   as convex hull of our chunks, or more precisely as the round lozenge
-        #   which is convex hull of their bounding spheres (using max radius for
-        #   both); see ebset bounding methods and their comments for more info,
-        #   incl about caching the bounding volume in relative coords when we
-        #   use those here.
-        #
-        # - for now, use the debug_pref which avoids drawing unless when both
-        #   chunks get culled (wrong in general; ok for dna unless zoomed inside
-        #   a single ladder).
-
-
         # make sure self's CSDLs (display lists) are up to date, then draw them
 
         c1.basepos # for __getattr__ effect (precaution, no idea if needed)

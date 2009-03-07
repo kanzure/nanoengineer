@@ -37,7 +37,7 @@ scratch/TransformNode.py.)
 # When we do, not yet known how much inval/update code goes there vs. here.
 
 
-from geometry.VQT import V
+from geometry.VQT import V, vlen
 
 from graphics.model_drawing.ExternalBondSetDrawer import ExternalBondSetDrawer
     # todo: this import shouldn't be needed once we have the right
@@ -209,20 +209,21 @@ class ExternalBondSet(object):
 
     # methods needed only for drawing
     
-    def bounding_lozenge(self):
-        center, radius = self.bounding_sphere()
-        return center, center, radius
-
-    def bounding_sphere(self): 
+    def bounding_lozenge(self): #bruce 090306 unstubbed this
         # note: return this in abs coords, even after we have a
-        # display list and permit relative motion
-        ### STUB
-        # in future we'll compute a real one (though it may be a loose
-        # approximation), then cache it when we redraw display list, then
-        # transform here into abs coords
-        center = V(0, 0, 0)
-        radius = 10.0**9
-        return center, radius
+        # display list and permit relative motion.
+        # todo: if this takes time to compute, cache it when
+        # we redraw the display list, then
+        # transform here into abs coords.
+        chunk1, chunk2 = self.chunks
+        c1, r1 = chunk1.bounding_sphere()
+        c2, r2 = chunk2.bounding_sphere()
+        return c1, c2, max(r1, r2)
+
+    def bounding_sphere(self): #bruce 090306 unstubbed this; maybe never called
+        # see comments in bounding_lozenge
+        c1, c2, r = self.bounding_lozenge()
+        return (c1 + c2)/2.0, r + vlen(c2 - c1)/2.0
 
     def should_draw_as_picked(self):
         """

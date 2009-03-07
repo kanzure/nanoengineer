@@ -100,6 +100,8 @@ from utilities.constants import diDNACYLINDER
 from utilities.constants import diPROTEIN
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from utilities.constants import noop
+from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
+from utilities.constants import BBOX_MIN_RADIUS
 
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 
@@ -3173,6 +3175,41 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             return False
         else:
             return True
+
+    def bounding_sphere(self,
+                        tol = (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS + 0.5)
+                        ):
+        """
+        @return: a (loose) bounding sphere for self for purposes of drawing,
+            accounting for maximum possible atom/bond radius.
+
+        @param tol: a radius increment, whose default value accounts for
+            the maximum possible atom/bond radius. If this is passed as 0,
+            we only try to bound the centers of self's atoms.
+
+        @note: logically, atom/bond drawing radius are only known to self.drawer
+            rather than self, but for now it's more convenient to define this
+            here so ExternalBondSet can easily call it to get its own bounding
+            volume.
+
+        @see: overlapping_chunk, overlapping_atom,
+            ChunkDrawer.is_visible (which calls us)
+        """
+        # bbox test by piotr 080331; bruce 090212 split into separate method
+        # in ChunkDrawer; bruce 090306 split most of that into this method.
+        # piotr 080402: Added a correction for the true maximum
+        # DNA CPK atom radius.
+        # Maximum VdW atom radius in PAM3/5 = 5.0 * 1.25 + 0.2 = 6.2
+        # = MAX_ATOM_SPHERE_RADIUS
+        # The default radius used by BBox is equal to sqrt(3*(1.8)^2) =
+        # = 3.11 A, so the difference = approx. 3.1 A = BBOX_MIN_RADIUS
+        # The '0.5' is another 'fuzzy' safety margin, added here just 
+        # to be sure that all objects are within the sphere.
+        # piotr 080403: moved the correction here from GLPane.py
+        bbox = self.bbox
+        center = bbox.center()
+        radius = bbox.scale() + tol
+        return center, radius
 
     def isProteinChunk(self):
         """
