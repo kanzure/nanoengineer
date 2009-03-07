@@ -614,7 +614,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # note: for the image itself, see attrs of class GLPane_image_methods
 
     _last_general_appearance_prefs_summary = None #bruce 090306
-    _general_appearance_change_indicator = 0
+    _general_appearance_change_indicator = 0 # also defined in GLPane_minimal
     
     def standard_repaint_0(self):
         """

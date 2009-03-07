@@ -157,6 +157,12 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         # default False until shaders can work with more than one glpane
         # (set to true in the main GLPane)
 
+    _general_appearance_change_indicator = 0 #bruce 090306
+        # note: strictly speaking, ThumbView should update this like GLPane does,
+        # but that's difficult (it has no part or assy in general),
+        # and not very important (cosmetic bug when user changes certain prefs,
+        # worked around by changing what's shown in the ThumbView).
+
     useMultisample = env.prefs[enableAntiAliasing_prefs_key]
 
     glprefs = None
