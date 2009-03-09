@@ -175,6 +175,10 @@ class GLPrimitiveBuffer(object):
     """
     Manage VBO space for drawing primitives in large batches.
     """
+
+    # default values of instance variables
+    transform_id_Hunks = None
+    
     def __init__(self, shaderGlobals):
         """
         Fill in the vertex VBO and IBO drawing pattern for this primitive type.
@@ -229,10 +233,16 @@ class GLPrimitiveBuffer(object):
         nVerts = self.nVertices
         self.colorHunks = HunkBuffer(shader, "color", nVerts, 4)
         self.glname_color_Hunks = HunkBuffer(shader, "glname_color", nVerts, 4)
-        self.transform_id_Hunks = HunkBuffer(shader, "transform_id", nVerts, 1)
-        # Subclasses may add their own attributes to the hunkBuffers list.
-        self.hunkBuffers = [self.colorHunks, self.glname_color_Hunks,
-                            self.transform_id_Hunks]
+
+        # Subclasses may add their own attributes to the hunkBuffers list,
+        # beyond the ones we add here:
+        self.hunkBuffers = [self.colorHunks,
+                            self.glname_color_Hunks,
+                           ]
+
+        if shader.supports_transforms():
+            self.transform_id_Hunks = HunkBuffer(shader, "transform_id", nVerts, 1)
+            self.hunkBuffers += [self.transform_id_Hunks]
 
         # Support for lazily updating drawing caches, namely a timestamp showing
         # when this GLPrimitiveBuffer was last flushed to graphics card RAM.

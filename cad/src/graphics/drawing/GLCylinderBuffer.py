@@ -131,7 +131,8 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
             self.endptRad0Hunks.setData(newID, endptRad0)
             self.endptRad1Hunks.setData(newID, endptRad1)
             self.colorHunks.setData(newID, color)
-            self.transform_id_Hunks.setData(newID, transform_id)
+            if self.transform_id_Hunks:
+                self.transform_id_Hunks.setData(newID, transform_id)
             # Break the glname into RGBA pixel color components, 0.0 to 1.0 .
             # (Per-vertex attributes are all multiples (1-4) of Float32.)
             ##rgba = [(glname >> bits & 0xff) / 255.0 for bits in range(24,-1,-8)] 

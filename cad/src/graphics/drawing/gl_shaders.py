@@ -57,8 +57,10 @@ Russ 090116: Factored GLShaderObject out of GLSphereShaderObject, and added
 # or neither (no support for transforms).
 
 TEXTURE_XFORMS = False
-UNIFORM_XFORMS = True
+UNIFORM_XFORMS = False
 assert not (TEXTURE_XFORMS and UNIFORM_XFORMS)
+
+SUPPORTS_XFORMS = TEXTURE_XFORMS or UNIFORM_XFORMS
 
 # Note [bruce 090306]: Current code never uses TransformControl, so I revised
 # things to permit turning off both kinds of transform support, and I'm doing
@@ -355,6 +357,7 @@ class GLShaderObject(object):
 
         # Debugging control.
         if self._has_uniform_debug_code:
+            # review: use _has_uniform("debug_code") instead?
             glUniform1iARB(
                 self._uniform("debug_code"),
                 int(debug_pref("GLPane: shader debug graphics?",
@@ -497,11 +500,29 @@ class GLShaderObject(object):
             pass
         return
 
+    def _has_uniform(self, name): #bruce 090309
+        """
+        @return: whether the specified uniform (input)
+                 shader variable has a location.
+        @rtype: boolean        
+
+        @note: this can differ for different platforms based on the
+            level of optimization done by their implementation of GLSL
+            (if the uniform is allocated but not used by our shaders).
+
+        @see: _uniform
+
+        """
+        loc = glGetUniformLocationARB(self.progObj, name)
+        return (loc != -1)
+
     def _uniform(self, name): #bruce 090302 renamed from self.uniform()
         """
         Return location of a uniform (input) shader variable.
         If it's not found, return -1 and warn once per session for end users,
         or raise an AssertionError for developers.
+
+        @see: _has_uniform
         """
         loc = glGetUniformLocationARB(self.progObj, name)
         if loc == -1:
@@ -542,11 +563,28 @@ class GLShaderObject(object):
         """
         return glGetUniformivARB(self.progObj, self._uniform(name))
 
+    def _has_shader_attribute(self, name): #bruce 090309 [untested, not currently used]
+        """
+        @return: whether the specified attribute (per-vertex input)
+                 shader variable has a location.
+        @rtype: boolean        
+
+        @note: this can differ for different platforms based on the
+            level of optimization done by their implementation of GLSL
+            (if the attribute is allocated but not used by our shaders).
+
+        @see: attributeLocation
+        """
+        loc = glGetAttribLocationARB(self.progObj, name)
+        return (loc != -1)
+
     def attributeLocation(self, name): #bruce 090302 renamed from self.attribute()
         """
         Return location of an attribute (per-vertex input) shader variable.
         If it's not found, return -1 and warn once per session for end users,
         or raise an AssertionError for developers.
+
+        @see: _has_shader_attribute
         """
         loc = glGetAttribLocationARB(self.progObj, name)
         if loc == -1:
@@ -591,6 +629,9 @@ class GLShaderObject(object):
     def get_N_CONST_XFORMS(self):
         return N_CONST_XFORMS
 
+    def supports_transforms(self): #bruce 090309
+        return SUPPORTS_XFORMS
+
     def setupTransforms(self, transforms):
         # note: this is only called from test_drawing.py (as of before 090302)
         """
@@ -603,8 +644,15 @@ class GLShaderObject(object):
         @param transforms: A list of transform matrices, where each transform is
             a flattened list (or Numpy array) of 16 numbers.
         """
-        self.setActive(True)                # Must activate before setting uniforms.
         self.n_transforms = nTransforms = len(transforms)
+
+        if not self.supports_transforms():
+            assert not nTransforms, "%r doesn't support transforms" % self
+            return
+        
+        self.setActive(True)                # Must activate before setting uniforms.
+        
+        assert self._has_uniform("n_transforms") # redundant with following
         glUniform1iARB(self._uniform("n_transforms"), self.n_transforms)
 
         # The shader bypasses transform logic if n_transforms is 0.
@@ -680,6 +728,7 @@ class GLShaderObject(object):
                     print "]]"
                 pass
             else:
+                # should never happen if SUPPORTS_XFORMS is defined correctly
                 assert 0, "can't setupTransforms unless UNIFORM_XFORMS or TEXTURE_XFORMS is set"
             pass
         self.setActive(False)                # Deactivate again.
