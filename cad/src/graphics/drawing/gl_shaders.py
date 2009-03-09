@@ -57,7 +57,7 @@ Russ 090116: Factored GLShaderObject out of GLSphereShaderObject, and added
 # or neither (no support for transforms).
 
 TEXTURE_XFORMS = False
-UNIFORM_XFORMS = False
+UNIFORM_XFORMS = True
 assert not (TEXTURE_XFORMS and UNIFORM_XFORMS)
 
 # Note [bruce 090306]: Current code never uses TransformControl, so I revised
