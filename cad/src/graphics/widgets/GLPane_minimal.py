@@ -610,12 +610,17 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         @param assy_or_part: an Assembly, or its current .part, a Part
         """
         #bruce 090306 split out of ChunkDrawer, optimized for shaders
-        if self.permit_shaders and self.glprefs.sphereShader_desired():
-            # if shaders are working, drawLevel doesn't matter;
-            # if not, we'll just use the lowest level for speed.
-            # Either way, we avoid accessing assy.drawLevel and therefore
-            # (I hope) recomputing the number of atoms in assy.
-            return 0
+        #bruce 090309 revised
+        if self.permit_shaders and \
+           self.glprefs.sphereShader_desired() and \
+           drawing_globals.sphereShader_available():
+            # drawLevel doesn't matter (not used by shaders),
+            # so return a constant value to avoid accessing assy.drawLevel,
+            # and therefore (I hope) avoid recomputing the number of atoms
+            # in assy. But in case of bugs in which this ends up being used,
+            # let this constant be the usual level "2".
+            # [todo: use a symbolic constant, probably there is one already]
+            return 2
         else:
             return assy_or_part.drawLevel # this might recompute it
             # (if that happens and grabs the pref value, I think this won't

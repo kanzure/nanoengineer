@@ -195,7 +195,7 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
 
     def _get_drawLevel(self, glpane): #bruce 090306 split out and optimized
         """
-        Get the sphere drawingLevel to use for drawing self.
+        Get the sphere drawLevel (detail level) to use when drawing self.
         """
         return glpane.get_drawLevel(self._chunk.assy)
 
