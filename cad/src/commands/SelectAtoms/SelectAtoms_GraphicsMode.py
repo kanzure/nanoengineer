@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 SelectAtoms_GraphicsMode.py
 
@@ -13,7 +13,7 @@ For example:
 
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 
 TODO:
@@ -32,6 +32,9 @@ from analysis.ESP.ESPImage import ESPImage
 from PyQt4.Qt import QMouseEvent
 
 import foundation.env as env
+
+from foundation.state_utils import transclose
+
 from utilities import debug_flags
 
 from geometry.VQT import V, Q, norm, vlen, ptonline
@@ -88,7 +91,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
     def __init__(self, glpane):
         """
         """
-        Select_basicGraphicsMode.__init__(self, glpane)
+        _superclass.__init__(self, glpane)
         self.get_use_old_safe_drag_code() # ditto
 
     def Enter_GraphicsMode(self):
@@ -130,7 +133,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         """
         Overrides L{Select_basicGraphicsMode.reset_drag_vars}
         """
-        Select_basicGraphicsMode.reset_drag_vars(self)
+        _superclass.reset_drag_vars(self)
 
         self.dragatoms = []
             # dragatoms is constructed in get_dragatoms_and_baggage() and
@@ -216,16 +219,16 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         """
         # Note: this is not directly related to
         # ESPImage's translucency (handled by code in
-        # Utility and/or GraphicsMode in method draw_after_highlighting()/
-        #Draw_after_highlighting() respt.
+        # Utility.draw_after_highlighting() and/or
+        # GraphicsMode.Draw_after_highlighting()).
         # Rather it's due to its wanting to overdraw
         # certain model objects. AFAIK it doesn't need
         # this separate pass to do that, but could just
         # do it inside its draw method, but I'm not sure --
         # maybe not unless that method ran during the usual
-        # pass. If that alg was fixed so that esp draw did run then,
+        # pass. If that alg was fixed so that ESP draw did run then,
         # it could do this itself and not need this special case,
-        # I suspect. [bruce 071026]
+        # I suspect. (And this might be a slowdown.) [bruce 071026/090310]
         if isinstance(grp, ESPImage):
             grp.highlightAtomChunks()
         elif isinstance(grp, Group):
@@ -1196,7 +1199,6 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         # Do this by transclosing boundary across bonds to atoms in atoms_todo.
         layers = {} # will map N to set-of-atoms-with-N (using terminology of
                    #smooth-reshaping drag proposal)
-        from foundation.state_utils import transclose
         def collector( atom, dict1):
             """
             Add neighbors of atom which are in atoms_todo (which maps
@@ -1829,18 +1831,18 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         return
 
     def rightShiftDown(self, event):
-        Select_basicGraphicsMode.rightShiftDown(self, event)
+        _superclass.rightShiftDown(self, event)
         self.o.setCursor(self.w.SelectAtomsCursor)
 
     def rightCntlDown(self, event):
-        Select_basicGraphicsMode.rightCntlDown(self, event)
+        _superclass.rightCntlDown(self, event)
         self.o.setCursor(self.w.SelectAtomsCursor)
 
     def Draw(self):
         """
         Draw the model for Select Atoms mode.
         """
-        Select_basicGraphicsMode.Draw(self)
+        _superclass.Draw(self)
         self._highlightAtoms(self.o.assy.part.topnode)
         return
 
@@ -2010,6 +2012,9 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         self.w.win_update()
         return result
 
+    pass
+
+# ==
 
 class SelectAtoms_GraphicsMode(SelectAtoms_basicGraphicsMode):
     """
@@ -2028,21 +2033,25 @@ class SelectAtoms_GraphicsMode(SelectAtoms_basicGraphicsMode):
     def _get_commandSequencer(self):
         return self.command.commandSequencer
 
-    commandSequencer = property(_get_commandSequencer)
+    commandSequencer = property( _get_commandSequencer)
 
     def set_cmdname(self, name):
         self.command.set_cmdname(name)
         return
 
-    
     def _get_highlight_singlets(self):
         return self.command.highlight_singlets
 
     def _set_highlight_singlets(self, val):
         self.command.highlight_singlets = val
 
-    highlight_singlets = property(_get_highlight_singlets,
-                                          _set_highlight_singlets)
+    highlight_singlets = property( _get_highlight_singlets,
+                                   _set_highlight_singlets )
+
+    pass
+
+# end
+
 
 
 
