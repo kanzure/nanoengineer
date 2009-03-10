@@ -357,8 +357,16 @@ class basicGraphicsMode(GraphicsMode_API):
             else:
                 drawaxes(self.o.scale, (0.0, 0.0, 0.0), coloraxes = True)
 
-        if env.prefs[displayPOVAxis_prefs_key]:
-            drawPointOfViewAxes(self.o.scale, -self.o.pov)
+        # Note: the next statement seems redundant with what follows it.
+        # It was introduced in svn revision 5253, Wed Sep 20 21:15:08 2006 UTC,
+        # by Ninad, who also added the "cross wire" part to the comment below
+        # [signed ninad060920] at the same time. So I'm guessing it was unintended.
+        # But it's been in the program for so long that by now it might be intended
+        # behavior. However, since it makes the following code useless, and also
+        # slows down axis drawing, I'll treat it as a mistake and comment it out.
+        # [bruce 090310]
+        ## if env.prefs[displayPOVAxis_prefs_key]:
+        ##     drawPointOfViewAxes(self.o.scale, -self.o.pov)
 
         # Draw the Point of View axis unless it is at the origin (0, 0, 0) AND draw origin as cross wire is true ninad060920
         if env.prefs[displayPOVAxis_prefs_key]:
