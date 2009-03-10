@@ -35,6 +35,7 @@ class DrawingSetCache(object): #bruce 090227
     A persistent cache of DrawingSets, one for each "drawing intent"
     passed to draw_csdl.
     """
+    saved_change_indicator = None #bruce 090309
     def __init__(self, cachename, temporary):
         self.cachename = cachename
         self.temporary = temporary
@@ -43,6 +44,7 @@ class DrawingSetCache(object): #bruce 090227
         for dset in self.dsets.values():
             dset.destroy()
         self.dsets = {}
+        self.saved_change_indicator = None
         return
     pass
 
@@ -124,9 +126,11 @@ class GLPane_drawingset_methods(object):
         """
         return self._csdl_collector is not None
 
-    _current_drawingset_cache = None
+    _current_drawingset_cache_policy = None # or a tuple of (temporary, cachename)
     
-    def before_drawing_csdls(self, bare_primitives = False):
+    def before_drawing_csdls(self,
+                             bare_primitives = False,
+                             dset_change_indicator = None ):
         """
         Whenever some CSDLs are going to be drawn by self.draw_csdl,
         call this first, draw them, and then call self.after_drawing_csdls.
@@ -137,6 +141,18 @@ class GLPane_drawingset_methods(object):
         permit reentrancy of ColorSorter.start, and will not be allowed
         to open up a "catchall display list" (an nfr for CSDL) since that
         might lead to nested display list compiles, not allowed by OpenGL.
+
+        @param dset_change_indicator: if provided and not false,
+            and if a certain debug_pref is enabled, then if after_drawing_csdls
+            would use a drawingset_cache and one already
+            exists and has the same value of dset_change_indicator
+            saved from our last use of that cache, we assume there
+            is no need for the caller to remake the drawingsets in
+            that cache, which we tell it by returning True.
+            (This is never fully correct -- for details see caller docstring.)
+
+        @return: usually False; True in special cases explained in the
+            docstring for our dset_change_indicator parameter.
         """
         # someday we might take other args, e.g. an "intent map"
         del self.csdl_collector 
@@ -146,6 +162,8 @@ class GLPane_drawingset_methods(object):
 
         self._remake_display_lists = self._compute_remake_display_lists_now()
             # note: this affects how we use both debug_prefs, below.
+
+        res = False
         
         if debug_pref("GLPane: use DrawingSets to draw model?",
                       Choice_boolean_True, #bruce 090225 revised
@@ -156,8 +174,17 @@ class GLPane_drawingset_methods(object):
                     # sets self.csdl_collector.use_drawingsets, and more
                     # (note: this is independent of self.permit_shaders,
                     #  since DrawingSets can be used even if shaders are not)
-                self._current_drawingset_cache = self._choose_drawingset_cache()
-            pass
+                self._current_drawingset_cache_policy = self._choose_drawingset_cache_policy()
+                if debug_pref("GLPane: reuse dsets unless model or sel changes? (has drawing bugs)",
+                              Choice_boolean_False,
+                              prefs_key = False
+                              ):
+                    if dset_change_indicator:
+                        policy = self._current_drawingset_cache_policy
+                        cache = self._find_or_make_dset_cache_to_use(policy, make = False)
+                        if cache:
+                            if cache.saved_change_indicator == dset_change_indicator:
+                                res = True
 
         if debug_pref("GLPane: highlight atoms in CSDLs?",
                       Choice_boolean_True, #bruce 090225 revised
@@ -167,7 +194,7 @@ class GLPane_drawingset_methods(object):
             if bare_primitives and self._remake_display_lists:
                 self.csdl_collector.setup_for_bare_primitives()
 
-        return
+        return res
 
     def _compute_remake_display_lists_now(self): #bruce 090224
         remake_during_movies = debug_pref(
@@ -241,7 +268,10 @@ class GLPane_drawingset_methods(object):
                         highlight_color = highlight_color )
         pass
     
-    def after_drawing_csdls(self, error = False):
+    def after_drawing_csdls(self,
+                            error = False,
+                            reuse_cached_dsets_unchanged = False,
+                            dset_change_indicator = None ):
         """
         @see: before_drawing_csdls
 
@@ -250,6 +280,13 @@ class GLPane_drawingset_methods(object):
                       If it's known to have failed, we might not do some
                       things we normally do. Default value is False
                       since most calls don't pass anything. (#REVIEW: good? true?)
+
+        @param reuse_cached_dsets_unchanged: whether to do what it says.
+            Typically equal to the return value of the preceding call
+            of before_drawing_csdls.
+
+        @param dset_change_indicator: if true, store in the dset cache
+            (whether found or made, modified or not) as .saved_change_indicator.
         """
         self._remake_display_lists = self._compute_remake_display_lists_now()
 
@@ -260,7 +297,10 @@ class GLPane_drawingset_methods(object):
                 self.draw_csdl(csdl)
                 pass
             if self.csdl_collector.use_drawingsets:
-                self._draw_drawingsets()
+                self._draw_drawingsets(
+                    reuse_cached_dsets_unchanged = reuse_cached_dsets_unchanged,
+                    dset_change_indicator = dset_change_indicator
+                 )
                 # note, the DrawingSets themselves last between draw calls,
                 # and are stored elsewhere in self. self.csdl_collector has
                 # attributes used to collect necessary info during a
@@ -271,10 +311,17 @@ class GLPane_drawingset_methods(object):
         del self._csdl_collector_class # expose class default value
         return
 
+    def _whole_model_drawingset_change_indicator(self):
+        """
+        """
+        return None # disable this optim by default
+    
     def _call_func_that_draws_model(self,
                                     func,
                                     bare_primitives = None,
-                                    drawing_phase = None ):
+                                    drawing_phase = None,
+                                    whole_model = True
+                                   ):
         """
         Call func() between calls of self.before_drawing_csdls(**kws)
         and self.after_drawing_csdls(). Return whatever func() returns
@@ -283,7 +330,9 @@ class GLPane_drawingset_methods(object):
 
         func should usually be something which calls before/after_drawing_model
         inside it, e.g. one of the standard functions for drawing the
-        entire model (e.g. part.draw or graphicsMode.Draw).
+        entire model (e.g. part.draw or graphicsMode.Draw),
+        or self._call_func_that_draws_objects which draws a portion of
+        the model between those methods.
 
         @param bare_primitives: passed to before_drawing_csdls.
 
@@ -291,23 +340,54 @@ class GLPane_drawingset_methods(object):
             on entry; we'll set it as specified only during this call.
             If not provided, we don't check it or change it
             (typically, in that case, caller ought to do something
-            like we do itself).
+            to set it properly itself). The value of drawing_phase
+            matters and needs to correspond to what's drawn by func,
+            because it determines the "drawingset_cache" (see that
+            term in the code for details).
+
+        @param whole_model: whether func draws the whole model.
+            Default True. Permits optimizations when the model appearance
+            doesn't change since it was last drawn.
         """
         # todo: convert some older callers to pass drawing_phase
         # rather than implementing their own similar behavior.
+        if whole_model:
+            dset_change_indicator = self._whole_model_drawingset_change_indicator()
+            # note: if this is not false, then if a certain debug_pref is enabled,
+            # then if we'd use a drawingset_cache and one already
+            # exists and has the same value of dset_change_indicator
+            # saved from our last use of that cache, we assume there
+            # is no need to remake the drawingsets and therefore
+            # no need to call func at all; instead we just redraw
+            # the saved drawingsets. This is never correct -- in practice
+            # some faster but nonnull alternative to func would need
+            # to be called -- but is useful for testing the maximum
+            # speedup possible from an "incremental remake of drawing"
+            # optimization, and is a prototype for correct versions
+            # of similar optimizations. [bruce 090309]
+        else:
+            dset_change_indicator = None
         if drawing_phase is not None:
             assert self.drawing_phase == '?'
             self.set_drawing_phase(drawing_phase)
-        self.before_drawing_csdls(bare_primitives = bare_primitives)
+        skip_dset_remake = self.before_drawing_csdls(
+                        bare_primitives = bare_primitives,
+                        dset_change_indicator = dset_change_indicator
+         )
         error = True
         res = None
         try:
-            res = func()
+            if not skip_dset_remake:
+                res = func()
             error = False
         finally:
             # (note: this is sometimes what does the actual drawing
             #  requested by func())
-            self.after_drawing_csdls( error) 
+            self.after_drawing_csdls(
+                error,
+                reuse_cached_dsets_unchanged = skip_dset_remake,
+                dset_change_indicator = dset_change_indicator
+             )
             if drawing_phase is not None:
                 self.set_drawing_phase('?')
         return res
@@ -343,7 +423,9 @@ class GLPane_drawingset_methods(object):
             finally:
                 part.after_drawing_model(error)
             return
-        self._call_func_that_draws_model( func2, bare_primitives = bare_primitives)
+        self._call_func_that_draws_model( func2,
+                                          bare_primitives = bare_primitives,
+                                          whole_model = False )
         return
 
     _dset_caches = None # or map from cachename to persistent DrawingSetCache
@@ -357,10 +439,13 @@ class GLPane_drawingset_methods(object):
         # (not very important -- could reduce VRAM in some cases,
         #  but won't matter after loading a new similar file)
     
-    def _draw_drawingsets(self):
+    def _draw_drawingsets(self,
+                          reuse_cached_dsets_unchanged = False,
+                          dset_change_indicator = None ):
         """
         Using info collected in self.csdl_collector,
-        update our cached DrawingSets for this frame;
+        update our cached DrawingSets for this frame
+        (unless reuse_cached_dsets_unchanged is true),
         then draw them.
         """
         ### REVIEW: move inside csdl_collector?
@@ -382,30 +467,24 @@ class GLPane_drawingset_methods(object):
             # We own this dict, and can destructively modify it as convenient
             # (though ownership is needed only in our incremental case below).
 
+        if reuse_cached_dsets_unchanged:
+            # note: we assume reuse_cached_dsets_unchanged is never true
+            # unless caller verified that the cached dsets in question
+            # actually exist, so we don't need to check this
+            assert incremental # simple sanity check of caller behavior
+            intent_to_csdls.clear()
+
         # set dset_cache to the DrawingSetCache we should use;
         # if it's temporary, make sure not to store it in any dict
         if incremental:
             # figure out (temporary, cachename)
-            cache_before = self._current_drawingset_cache # chosen during before_drawing_csdls
-            cache_after = self._choose_drawingset_cache() # chosen now
+            cache_before = self._current_drawingset_cache_policy # chosen during before_drawing_csdls
+            cache_after = self._choose_drawingset_cache_policy() # chosen now
             ## assert cache_after == cache_before
             if not (cache_after == cache_before):
-                print "bug: _choose_drawingset_cache differs: before %r vs after %r" % \
+                print "bug: _choose_drawingset_cache_policy differs: before %r vs after %r" % \
                       (cache_before, cache_after)
-            temporary, cachename = cache_before
-            # find or make the DrawingSetCache to use
-            if temporary:
-                dset_cache = DrawingSetCache(cachename, temporary)
-            else:
-                if self._dset_caches is None:
-                    self._dset_caches = {}
-                dset_cache = self._dset_caches.get(cachename)
-                if not dset_cache:
-                    dset_cache = DrawingSetCache(cachename, temporary)
-                    self._dset_caches[cachename] = dset_cache
-                    pass
-                pass
-            pass
+            dset_cache = self._find_or_make_dset_cache_to_use( cache_before)
         else:
             # not incremental:
             # destroy all old caches (matters after runtime prefs change)
@@ -417,15 +496,18 @@ class GLPane_drawingset_methods(object):
             # make a new DrawingSetCache to use
             temporary, cachename = True, None
             dset_cache = DrawingSetCache(cachename, temporary)
+            del temporary, cachename
             pass
-        del temporary, cachename
 
+        if dset_change_indicator:
+            dset_cache.saved_change_indicator = dset_change_indicator
+        
         persistent_dsets = dset_cache.dsets
             # review: consider refactoring to turn code around all uses of this
             # into methods in DrawingSetCache
         
         # handle existing dsets/intents
-        if incremental:
+        if incremental and not reuse_cached_dsets_unchanged:
             # - if any prior DrawingSets are completely unused, get rid of them
             #   (note: this defeats optimizations based on intents which are
             #    "turned on and off", such as per-Part or per-graphicsMode
@@ -494,7 +576,39 @@ class GLPane_drawingset_methods(object):
         
         return
 
-    def _choose_drawingset_cache(self): #bruce 090227
+    def _find_or_make_dset_cache_to_use(self, policy, make = True):
+        """
+        Find, or make (if option permits), the DrawingSetCache to use,
+        based on policy, which can be None if not make,
+        or can be (temporary, cachename).
+
+        @return: existing or new DrawingSetCache, or None if not make and
+            no existing one is found.
+        """
+        # split out, bruce 090309
+        if not make and not policy:
+            return None
+        temporary, cachename = policy
+        if not make:
+            return not temporary and \
+                   self._dset_caches and \
+                   self._dset_caches.get(cachename)
+        else:
+            if temporary:
+                dset_cache = DrawingSetCache(cachename, temporary)
+            else:
+                if self._dset_caches is None:
+                    self._dset_caches = {}
+                dset_cache = self._dset_caches.get(cachename)
+                if not dset_cache:
+                    dset_cache = DrawingSetCache(cachename, temporary)
+                    self._dset_caches[cachename] = dset_cache
+                    pass
+                pass
+            return dset_cache
+        pass
+
+    def _choose_drawingset_cache_policy(self): #bruce 090227
         """
         Based on self.drawing_phase, decide which cache to keep DrawingSets in
         and whether it should be temporary.

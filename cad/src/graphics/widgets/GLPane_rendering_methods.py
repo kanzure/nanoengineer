@@ -524,7 +524,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
     _drawingset_temporary_cachenames = {
         'temp': True
      }
-    def _choose_drawingset_cache(self): #bruce 090227
+    def _choose_drawingset_cache_policy(self): #bruce 090227
         """
         Based on self.drawing_phase, decide which cache to keep DrawingSets in
         and whether it should be temporary.
@@ -552,7 +552,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         
         drawing_phase = self.drawing_phase
         if drawing_phase == '?':
-            print_compact_stack("warning: _choose_drawingset_cache during '?' -- should clean up: ") ######
+            print_compact_stack("warning: _choose_drawingset_cache_policy during '?' -- should clean up: ") ######
         cachename = self._drawingset_cachename_from_drawing_phase.get(drawing_phase)
         if cachename is None:
             cachename = 'temp'
@@ -991,6 +991,33 @@ class GLPane_rendering_methods(GLPane_image_methods):
             return            
         self._call_func_that_draws_model( func)
         return
+
+    def _whole_model_drawingset_change_indicator(self):
+        """
+        #doc
+        """
+        ## BUG:
+        #
+        # The following implementation is not correct:
+        # - view changes are not taken into account, but need to affect
+        #   drawingsets due to frustum culling
+        # - doesn't include effect of visual preferences
+        # (workaround for both: select something to update the display)
+        #
+        # Also, current code that uses this has bugs:
+        # - ignores necessary drawing not inside DrawingSets
+        #   - jigs, dna/protein styles, overlap indicators, atom sel wireframes, bond vanes...
+        #   - extra drawing by graphicsMode, e.g. expr handles, dna ribbons
+        #   - probably more
+        #
+        # So it is only used when a debug_pref is set.
+        # Another comment or docstring has more info on purpose and status.
+        # [bruce 090309]
+        return self.part and \
+               (self.part,
+                self.assy.model_change_indicator(),
+                self.assy.selection_change_indicator()
+               )
 
     def _do_other_drawing_inside_stereo(self): #bruce 080919 split this out
         """

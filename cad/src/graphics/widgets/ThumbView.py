@@ -165,7 +165,8 @@ class ThumbView(GLPane_minimal):
         """
         def func():
             self.drawModel()
-        self._call_func_that_draws_model( func, drawing_phase = 'main' )
+        self._call_func_that_draws_model( func,
+                                          drawing_phase = 'main' )
         return
     
     def drawSelected(self, obj):
@@ -181,7 +182,9 @@ class ThumbView(GLPane_minimal):
         """
         def func():
             self.drawSelected(obj)
-        self._call_func_that_draws_model( func, drawing_phase = 'selobj' )
+        self._call_func_that_draws_model( func,
+                                          drawing_phase = 'selobj',
+                                          whole_model = False )
             ### REVIEW: should we use _call_func_that_draws_objects instead?
             # That requires passing a part which contains obj,
             # and I don't know for sure whether there is one, or how to find it
