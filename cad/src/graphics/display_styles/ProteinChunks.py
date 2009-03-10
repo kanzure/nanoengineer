@@ -800,7 +800,7 @@ class ProteinChunks(ChunkDisplayMode):
                                         # represent alpha helices.
                                         if secondary > 0:
                                             
-                                            # Prepare traiangle strips positioned
+                                            # Prepare triangle strips positioned
                                             # along interpolated curve connecting
                                             # consecutive alpha carbon atoms
                                             
