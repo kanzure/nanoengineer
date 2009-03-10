@@ -552,7 +552,6 @@ packageMapping_for_files = {
     
     "Select_Command"                   : "command|commands/Select",
     "Select_GraphicsMode"              : "graphics_mode|commands/Select",
-    "Select_GraphicsMode_DrawMethod_preMixin"    : "graphics_mode|commands/Select",
     "Select_GraphicsMode_MouseHelpers_preMixin"    : "graphics_mode|commands/Select",
     "selectMode"                       : "unsplit_mode|commands/Select",
     
