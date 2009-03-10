@@ -35,7 +35,7 @@ from graphics.drawing.drawers import drawOriginAsSmallAxis
 from graphics.drawing.drawers import drawaxes, drawPointOfViewAxes
 from graphics.drawing.drawers import drawrectangle
 
-from utilities.debug import print_compact_traceback
+from utilities.debug import print_compact_traceback, print_compact_stack
 
 from utilities import debug_flags
 import foundation.env as env
@@ -315,34 +315,41 @@ class basicGraphicsMode(GraphicsMode_API):
                 print "atom_debug: fyi: ccinstance %r with no want_event_position method" % (self._ccinstance,)
         return None
 
-
     # ==
 
-    def Draw(self):
+    def Draw(self): #bruce 090310 deprecated this; will remove it from the GM API
         """
-        Generic Draw method, with drawing code common to all modes.
-        Specific modes should call this somewhere within their own Draw method,
-        unless they have a good reason not to.
-
-        @note: it doesn't draw the model,
-               since not all modes want to always draw it.
-
-        @note: this default implementation calls private methods such as
-               _drawTags, _drawSpecialIndicators, and _drawLabels,
-               but these are not part of the GraphicsMode API
-               and need never be called directly. They can still
-               be overridden in any subclasses of GraphicsMode
-               (the base class of all actual GraphicsModes)
-               and this will work as expected, provided either the
-               superclass or parentGraphicsMode Draw method is being
-               called, as it usually should be.
+        [temporary method for compatibility as we refactor Draw;
+         should not be overridden or extended]
         """
-        # Review: it might be cleaner to revise _drawTags,
-        # _drawSpecialIndicators, and _drawLabels, to be public methods
-        # of GraphicsMode_API. Presently they are not part of it at all;
-        # they are only part of the subclass-extending API of this base
-        # class GraphicsMode. [bruce 081223 comment]
+        # when done, enable this: ## print_compact_stack( "bug: old code is calling %r.Draw(): " % self)
+        self.Draw_preparation() #bruce 090310 do this first, not last or in middle as before
+        self.Draw_axes()
+        self.Draw_model()
+        self.Draw_other()
+        return
 
+    def Draw_preparation(self): #bruce 090310 split .Draw API
+        """
+        [subclasses should extend as needed]
+        """
+        # bruce 040929/041103 debug code -- for developers who enable this
+        # feature, check for bugs in atom.picked and mol.picked for everything
+        # in the assembly; print and fix violations. (This might be slow, which
+        # is why we don't turn it on by default for regular users.)
+        if debug_flags.atom_debug:
+            self.o.assy.checkpicked(always_print = 0)
+        return
+
+    def Draw_axes(self): #bruce 090310 split .Draw API
+        """
+        Draw the origin and/or point of view axes, according to user prefs.
+
+        [subclasses can extend or override, but perhaps none of them do]
+
+        @todo: probably merge this into GLPane, which has related code to help
+               draw the same axes.
+        """
         # Draw the Origin axes.
         # WARNING: this code is duplicated, or almost duplicated,
         # in GraphicsMode.py and GLPane.py.
@@ -379,6 +386,40 @@ class basicGraphicsMode(GraphicsMode_API):
                         drawPointOfViewAxes(self.o.scale, -self.o.pov)
             else:
                 drawPointOfViewAxes(self.o.scale, -self.o.pov)
+            pass
+        return
+
+    def Draw_model(self): #bruce 090310 split .Draw API
+        """
+        Draw whatever part of the model is desired.
+        
+        @note: the base implem doesn't draw the model,
+               since not all modes want to always draw it.
+
+        [subclasses should extend as needed]
+        """
+        # review: we might revise this API to draw it by default,
+        # so the few modes that don't want to should override this
+        # to draw nothing; or we might add a class attr about
+        # whether to draw it.
+        return
+    
+    def Draw_other(self): #bruce 090310 split .Draw API
+        """
+        Draw things other than the axes and model,
+        e.g. handles, cursor text, selection curve,
+        interactive construction guides, etc.
+        
+        [subclasses should extend as needed, and/or extend the methods
+         called by the base implementation (which are part of this class's
+         API for its subclasses, but are not part of the GraphicsMode_interface
+         itself): _drawTags, _drawSpecialIndicators, _drawLabels]
+        """
+        # Review: it might be cleaner to revise _drawTags,
+        # _drawSpecialIndicators, and _drawLabels, to be public methods
+        # of GraphicsMode_API. Presently they are not part of it at all;
+        # they are only part of the subclass-extending API of this base
+        # class GraphicsMode. [bruce 081223 comment]
 
         #Draw tags if any
         self._drawTags()
@@ -389,14 +430,9 @@ class basicGraphicsMode(GraphicsMode_API):
         #Draw labels if any 
         self._drawLabels()
 
-
-        # bruce 040929/041103 debug code -- for developers who enable this
-        # feature, check for bugs in atom.picked and mol.picked for everything
-        # in the assembly; print and fix violations. (This might be slow, which
-        # is why we don't turn it on by default for regular users.)
-        if debug_flags.atom_debug:
-            self.o.assy.checkpicked(always_print = 0)
         return
+        
+    # ==
 
     def setDrawTags(self, tagPositions = (), tagColor = yellow): # by Ninad
         """
