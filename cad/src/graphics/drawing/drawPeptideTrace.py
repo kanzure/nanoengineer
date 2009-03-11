@@ -1,15 +1,14 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 Creates a schematic "trace" drawing for PeptideBuilder.
 
-@author:    Piotr
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-$Id:$
-@license:   GPL
+@author: Piotr
+@version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
+@license: GPL
 """
 
-import foundation.env as env
 from OpenGL.GL import glDisable
 from OpenGL.GL import glEnable
 from OpenGL.GL import GL_LIGHTING
@@ -17,14 +16,16 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 
+from geometry.VQT import norm, vlen, V, cross
+
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
+from utilities.constants import blue, gray
+
+import foundation.env as env
+
 from graphics.drawing.CS_draw_primitives import drawline, drawsphere
 from graphics.drawing.drawers import drawPoint
 from graphics.drawing.drawers import drawCircle
-
-
-from geometry.VQT import norm, vlen, V, cross
-from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
-from utilities.constants import blue, gray
 
 from protein.commands.InsertPeptide.PeptideGenerator import get_unit_length
 
@@ -38,7 +39,7 @@ def drawPeptideTrace(alphaCarbonProteinChunk):
                                     backbone
     @param alphaCarbonProteinChunk: Chunk
     
-    @see PeptideLine_GraphicsMode.Draw(), PeptideGenerator.make_aligned()
+    @see PeptideLine_GraphicsMode.Draw_other(), PeptideGenerator.make_aligned()
     """
 
     if alphaCarbonProteinChunk and alphaCarbonProteinChunk.atoms:

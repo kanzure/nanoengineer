@@ -1513,7 +1513,8 @@ class Select_basicGraphicsMode( Select_GraphicsMode_MouseHelpers_preMixin,
             # Restore Model view matrix, select mode to render mode
             glPopMatrix()
             glRenderMode(GL_RENDER)
-            print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+            msg = "exception in drawing during GL_SELECT, ignored; restoring modelview matrix"
+            print_compact_traceback(msg + ": ")
         else:
             # Restore Model view matrix
             glPopMatrix()
