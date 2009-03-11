@@ -975,16 +975,24 @@ class GLPane_rendering_methods(GLPane_image_methods):
         """
         Private helper for various places in which we need to draw the model
         (in this GLPane mixin and others).
+
+        @note: this is used for both normal visible rendering, and finding
+            candidate objects to be "selobj" for mouseover-highlighting.
         """
-        def func():
-            # see comment in _do_drawing_for_bg_image_inside_stereo
-            # for refactoring suggestions [bruce 090311]
+        # see comment in _do_drawing_for_bg_image_inside_stereo
+        # for refactoring suggestions [bruce 090311]
+        ##### TODO: split in two, or pass an arg, to leave out some drawing
+        # when doing highlighting (namely, prefunc).
+        def prefunc():
             self.graphicsMode.Draw_preparation()
             self.graphicsMode.Draw_axes()
+        def func():
             self.graphicsMode.Draw_model()
-            self.graphicsMode.Draw_other()
-            return            
-        self._call_func_that_draws_model( func)
+        def postfunc():
+            self.graphicsMode.Draw_other()                        
+        self._call_func_that_draws_model( func,
+                                          prefunc = prefunc,
+                                          postfunc = postfunc )
         return
 
     def _whole_model_drawingset_change_indicator(self):

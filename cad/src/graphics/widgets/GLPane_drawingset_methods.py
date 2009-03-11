@@ -318,11 +318,15 @@ class GLPane_drawingset_methods(object):
     
     def _call_func_that_draws_model(self,
                                     func,
+                                    prefunc = None,
+                                    postfunc = None,
                                     bare_primitives = None,
                                     drawing_phase = None,
                                     whole_model = True
                                    ):
         """
+        If whole_model is False (*not* the default):
+        
         Call func() between calls of self.before_drawing_csdls(**kws)
         and self.after_drawing_csdls(). Return whatever func() returns
         (or raise whatever exception it raises, but call
@@ -333,6 +337,27 @@ class GLPane_drawingset_methods(object):
         entire model (e.g. part.draw or graphicsMode.Draw),
         or self._call_func_that_draws_objects which draws a portion of
         the model between those methods.
+
+        If whole_model is True (default):
+
+        Sometimes act as above, but other times do the same drawing
+        that func would have done, without actually calling it,
+        by reusing cached DrawingSets whenever nothing changed
+        to make them out of date.
+
+        Either way, always call prefunc (if provided) before, and
+        postfunc (if provided) after, calling or not calling func.
+        Those calls participate in the effect of our exception-protection
+        and drawing_phase behaviors, but they stay out of the whole_model-
+        related optimizations (so they are called even if func is not).
+        
+        @warning: prefunc and postfunc are not called between
+        before_drawing_csdls and after_drawing_csdls, so they
+        should not use csdls for drawing. (If we need to revise this,
+        we might want to pass a list of funcs rather than a single func,
+        with each one optimized separately for sometimes not being
+        called; or more likely, refactor this entirely to make each
+        func and its redraw-vs-reuse conditions a GraphicsRule object.)
 
         @param bare_primitives: passed to before_drawing_csdls.
 
@@ -351,6 +376,17 @@ class GLPane_drawingset_methods(object):
         """
         # todo: convert some older callers to pass drawing_phase
         # rather than implementing their own similar behavior.
+        if drawing_phase is not None:
+            assert self.drawing_phase == '?'
+            self.set_drawing_phase(drawing_phase)
+        if prefunc:
+            try:
+                prefunc()
+            except:
+                msg = "bug: exception in %r calling prefunc %r: skipping it" % (self, prefunc)
+                print_compact_traceback(msg + ": ")
+                pass
+            pass
         if whole_model:
             dset_change_indicator = self._whole_model_drawingset_change_indicator()
             # note: if this is not false, then if a certain debug_pref is enabled,
@@ -367,9 +403,6 @@ class GLPane_drawingset_methods(object):
             # of similar optimizations. [bruce 090309]
         else:
             dset_change_indicator = None
-        if drawing_phase is not None:
-            assert self.drawing_phase == '?'
-            self.set_drawing_phase(drawing_phase)
         skip_dset_remake = self.before_drawing_csdls(
                         bare_primitives = bare_primitives,
                         dset_change_indicator = dset_change_indicator
@@ -381,13 +414,21 @@ class GLPane_drawingset_methods(object):
                 res = func()
             error = False
         finally:
-            # (note: this is sometimes what does the actual drawing
+            # (note: this is usually what does much of the actual drawing
             #  requested by func())
             self.after_drawing_csdls(
                 error,
                 reuse_cached_dsets_unchanged = skip_dset_remake,
                 dset_change_indicator = dset_change_indicator
              )
+            if postfunc:
+                try:
+                    postfunc()
+                except:
+                    msg = "bug: exception in %r calling postfunc %r: skipping it" % (self, postfunc)
+                    print_compact_traceback(msg + ": ")
+                    pass
+                pass
             if drawing_phase is not None:
                 self.set_drawing_phase('?')
         return res
