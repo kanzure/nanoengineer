@@ -192,7 +192,7 @@ class GLPane_highlighting_methods(object):
                             self._disable_stereo()
                 except:
                     print_compact_traceback(
-                        "exception in or around graphicsMode.Draw() during glname_color;"
+                        "exception in or around _do_graphicsMode_Draw() during glname_color;"
                         "drawing ignored; restoring modelview matrix: ")
                         # REVIEW: what does "drawing ignored" mean, in that message? [bruce 090105 question]
                     glMatrixMode(GL_MODELVIEW)
@@ -300,7 +300,7 @@ class GLPane_highlighting_methods(object):
                     finally:
                         self._disable_stereo()
             except:
-                print_compact_traceback("exception in or around graphicsMode.Draw() during GL_SELECT; "
+                print_compact_traceback("exception in or around _do_graphicsMode_Draw() during GL_SELECT; "
                                         "ignored; restoring modelview matrix: ")
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!

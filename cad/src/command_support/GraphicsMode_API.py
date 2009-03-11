@@ -136,11 +136,20 @@ class GraphicsMode_API(GraphicsMode_interface):
         return
 
     def Draw(self):
-        # Review: it might be cleaner to revise _drawTags,
-        # _drawSpecialIndicators, and _drawLabels, to be public methods
-        # of GraphicsMode_API. (Presently they are not part of it at all.)
-        # For more info see the GraphicsMode.Draw docstring.
-        # [bruce 081223 comment]
+        # this should never happen as of bruce 090311
+        print "bug: old code is calling %r.Draw(): " % self
+        return
+
+    def Draw_preparation(self):
+        return
+
+    def Draw_axes(self):
+        return
+
+    def Draw_model(self):
+        return
+
+    def Draw_other(self):
         return
 
     def Draw_after_highlighting(self, pickCheckOnly = False):

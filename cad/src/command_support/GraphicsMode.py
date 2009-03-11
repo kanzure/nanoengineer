@@ -317,14 +317,20 @@ class basicGraphicsMode(GraphicsMode_API):
 
     # ==
 
-    def Draw(self): #bruce 090310 refactoring this; will remove it from the GM API very soon
+    # Note: toplevel drawing methods in the GraphicsMode API for its GLPane
+    # are called Draw_* (capital D) (at least the main ones for drawing the
+    # model and related things, in model coordinates -- a few older ones
+    # have not been reviewed for renaming to make this a consistent division).
+    # Other drawing methods use a lowercase 'd'. [bruce 090311 comment]
+
+    def Draw(self): #bruce 090310-11 split this up and removed it from the GraphicsMode API
         """
         [temporary method for compatibility as we refactor Draw;
          should not be overridden or extended -- instead, override
          or extend one of the following methods which it calls]
         """
-        ##### when done, enable this debug print:
-        ## print_compact_stack( "bug: old code is calling %r.Draw(): " % self)
+        # this should never happen as of 090311
+        print_compact_stack( "bug: old code is calling %r.Draw(): " % self)
         self.Draw_preparation() #bruce 090310 do this first, not last or in middle as before
         self.Draw_axes()
         self.Draw_model()
@@ -355,8 +361,12 @@ class basicGraphicsMode(GraphicsMode_API):
         # Draw the Origin axes.
         # WARNING: this code is duplicated, or almost duplicated,
         # in GraphicsMode.py and GLPane.py.
-        # It should be moved into a common method in drawers.py.
-        # [bruce 080710 comment]
+        # It should be moved into a common method in drawers.py,
+        # and called from GLPane like the related code -- no need for it to be
+        # in the GraphicsMode API since nothing overrides it (and if something
+        # wanted to override it correctly, it would need to affect the code now
+        # in GLPane as well, so more refactoring would be required).
+        # [bruce 080710/090311 comment]
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
                 drawOriginAsSmallAxis(self.o.scale, (0.0, 0.0, 0.0))
@@ -443,7 +453,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
         @note: this saves its arguments as private state in self, but does
         not actually draw them -- that is done later by self._drawTags().
-        Thus, this method is safe to call outside of self.Draw() and without
+        Thus, this method is safe to call outside of self.Draw_*() and without
         ensuring that self.glpane is the current OpenGL context.
         
         @param tagPositions: The client can provide a list or tuple of tag
@@ -466,7 +476,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def _drawTags(self):
         """
-        Private method, called in self.Draw that actually draws the tags
+        Private method, called in self.Draw_other, that actually draws the tags
         saved in self._tagPositions by self.setDrawTags.
         """
 
@@ -485,6 +495,7 @@ class basicGraphicsMode(GraphicsMode_API):
                         basePoint,
                         endPoint,
                         pointSize = pointSize)
+        return
 
 
     def _drawSpecialIndicators(self):
@@ -501,13 +512,13 @@ class basicGraphicsMode(GraphicsMode_API):
         @TODO: cleanup self._drawTags() that method and this method look
         similar but the actual implementation is different.
         """
-        pass
+        return
     
     def _drawLabels(self):
         """
         Subclasses should override this method. Default implementation does
         nothing. Many times, the graphics mode needs to draw some labels on the
-        top of everything. Called in self.Draw()
+        top of everything. Called in self.Draw_other().
         
         Example: For a DNA, user may want to turn on the labels next to the 
         atoms indicating the base numbers. 
@@ -515,9 +526,9 @@ class basicGraphicsMode(GraphicsMode_API):
         @see: BreakOrJoinStrands_GraphicsMode._drawLabels() for an example.   
         
         @see: self._drawSpecialIndicators()
-        @see: self.Draw()
+        @see: self.Draw_other()
         """
-        pass
+        return
 
     # ==
     
@@ -525,10 +536,10 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         Do more drawing, after the main drawing code has completed its
         highlighting/stenciling for selobj.
-        Caller will leave glstate in standard form for Draw.
+        Caller will leave glstate in standard form for Draw_* methods.
         Implems are free to turn off depth buffer read or write
         (but must restore standard glstate when done, just as for
-        GraphicsMode Draw() method).
+        other GraphicsMode Draw_*() method).
 
         Warning: anything implems do to depth or stencil buffers will affect
         the standard selobj-check in bareMotion
@@ -615,10 +626,12 @@ class basicGraphicsMode(GraphicsMode_API):
         selobj.draw_in_abs_coords(glpane, hicolor)
 
     def draw_glpane_label(self, glpane):
+        ### review: rename to start with Draw_, or reserve that prefix for
+        # when the same coords are in use as when calling Draw_model? [bruce 090311 Q]
         """
         #doc [see doc in the glpane method we call] [#doc coord sys when called]
         
-        @note: called from GLPane.paintGL shortly after graphicsMode.Draw()
+        @note: called from GLPane.paintGL shortly after graphicsMode.Draw_*()
         """
         #bruce 090219 moved this here from part.py, renamed from draw_text_label
         # (after refactoring it the prior day, 090218)

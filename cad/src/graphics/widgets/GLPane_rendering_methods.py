@@ -888,7 +888,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 self._enable_stereo(stereo_image, preserve_colors = True)
 
                 # REVIEW: can we simplify and/or optim by moving this into
-                # the same stereo_image loop used earlier for graphicsMode.Draw?
+                # the same stereo_image loop used earlier for _do_graphicsMode_Draw?
                 # [bruce 080911 question]
                 
                 # WARNING: this code is duplicated, or almost duplicated,
@@ -954,15 +954,15 @@ class GLPane_rendering_methods(GLPane_image_methods):
         try:
             self._do_graphicsMode_Draw()
                 # draw self.part (the model), with chunk & atom selection
-                # indicators, and graphicsMode-specific extras.
+                # indicators, and graphicsMode-specific extras,
+                # including axes, and handles/rubberbands/labels (Draw_other).
                 # Some GraphicsModes only draw portions of the model.
-                # Base class method in GraphicsMode also does miscellaneous
-                # special drawing controlled by user prefs.
-                ### todo: Likely refactoring: .Draw only draws model,
-                # then .Draw_special draws other stuff, in case that depends
+                #
+                ### todo: Likely refactoring: call only some of the 4 Draw_*
+                # methods this calls as of 090310, in case some of them depend
                 # on more prefs than the model itself does (should help with
                 # the optim of caching a fixed background image).
-                # [bruce 080919 comment]
+                # [bruce 080919/090311 comment]
         finally:
             self.set_drawing_phase('?')
 
@@ -971,23 +971,18 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         return
 
-    def _do_graphicsMode_Draw(self): #bruce 090219
+    def _do_graphicsMode_Draw(self): #bruce 090219, revised 090311
         """
         Private helper for various places in which we need to draw the model
         (in this GLPane mixin and others).
         """
         def func():
-            self.graphicsMode.Draw()
-                # draw self.part (the model), with chunk & atom selection
-                # indicators, and graphicsMode-specific extras.
-                # Some GraphicsModes only draw portions of the model.
-                # Base class method in GraphicsMode also does miscellaneous
-                # special drawing controlled by user prefs.
-                ### todo: Likely refactoring: .Draw only draws model,
-                # then .Draw_special draws other stuff, in case that depends
-                # on more prefs than the model itself does (should help with
-                # the optim of caching a fixed background image).
-                # [bruce 080919 comment]
+            # see comment in _do_drawing_for_bg_image_inside_stereo
+            # for refactoring suggestions [bruce 090311]
+            self.graphicsMode.Draw_preparation()
+            self.graphicsMode.Draw_axes()
+            self.graphicsMode.Draw_model()
+            self.graphicsMode.Draw_other()
             return            
         self._call_func_that_draws_model( func)
         return
@@ -1073,7 +1068,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 # or transparent parts of ESPImage or Plane (must be inside stereo loop).
                 # Note: this is called in the main model coordinate system
                 # (perhaps modified for current stereo image),
-                # just like self.graphicsMode.Draw() [bruce 061208/080919 comment]
+                # just like self.graphicsMode.Draw_model, etc
+                # [bruce 061208/080919 comment]
         except:
             res = None
             msg = "bug in %r.Draw_after_highlighting ignored" % (graphicsMode,)

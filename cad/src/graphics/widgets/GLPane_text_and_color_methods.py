@@ -123,7 +123,7 @@ class GLPane_text_and_color_methods(object):
         Draw a text label for the glpane as a whole.
         
         @note: called indirectly from GLPane.paintGL shortly after
-               it calls graphicsMode.Draw(), via GraphicsMode.draw_glpane_label
+               it calls _do_graphicsMode_Draw(), via GraphicsMode.draw_glpane_label
         """
         #bruce 090219 moved this here from part of Part.draw_text_label
         # (after a temporary stop in the short-lived class PartDrawer);
