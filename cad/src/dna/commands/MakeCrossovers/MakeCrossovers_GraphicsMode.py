@@ -1,9 +1,9 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 @author: Ninad
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 2008-05-21 - 2008-06-01 Created and further refactored and modified
@@ -16,6 +16,7 @@ History:
 TODO  2008-06-01 :
 See class CrossoverSite_Marker for details
 """
+
 import foundation.env as env
 
 from PyQt4.Qt import Qt
@@ -39,6 +40,7 @@ SPHERE_RADIUS_FOR_TAGS =  4.0
 
 
 _superclass = BuildDna_GraphicsMode
+
 class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
                                   ListWidgetItems_GraphicsMode_Mixin):
     
@@ -49,8 +51,9 @@ class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
     _crossoverSite_marker = None
     
     _handleDrawingRequested = True
-    #@see: self.leftADown where this flag is set. It is then used in 
-    #self.leftADrag
+    
+    #@see: self.leftADown where this flag is set.
+    # It is then used in self.leftADrag.
     _should_update_crossoverSites_during_leftDrag = False
     
     #Used to log a message in the command.propMgr.See self.leftDrag, self.leftUp
@@ -192,8 +195,8 @@ class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
         ListWidgetItems_GraphicsMode_Mixin.end_selection_from_GLPane(self)
 
 
-    def Draw(self):
-        _superclass.Draw(self)
+    def Draw_other(self):
+        _superclass.Draw_other(self)
         if self._handleDrawingRequested:
             self._drawHandles()
 

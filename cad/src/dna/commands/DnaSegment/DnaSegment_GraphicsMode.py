@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Graphics mode intended to be used while in DnaSegment_EditCommand.
 While in this command, user can
@@ -13,8 +13,8 @@ While in this command, user can
     handles to do these oprations.
 
 @author: Ninad
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Created 2008-01-25
@@ -61,7 +61,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     #set during left dragging, when no handle is 'grabbed'. This optimizes the
     #drawing code as it skips handle drawing code and also the computation
     #of handle positions each time the mouse moves
-    #@see self.leftUp , self.leftDrag, seld.Draw for more details
+    #@see self.Draw_other, and comments in superclass, for more details
     _handleDrawingRequested = True
 
     #Some left drag variables used to drag the whole segment along axis or
@@ -148,14 +148,14 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
         self.leftADown(objectUnderMouse, event)
 
-    def Draw(self):
+    def Draw_other(self):
         """
-        Draw glpane contents and its contents including handles (if any.) of
-        DnaSegment
+        Draw handles (if any) of our DnaSegment.
+        
         @see:self._drawCursorText()
         @see:self._drawHandles()
         """
-        _superclass.Draw(self)
+        _superclass.Draw_other(self)
         if self._handleDrawingRequested:
             self._drawHandles()
 
@@ -163,9 +163,10 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     def _drawHandles(self):
         """
         Draw the handles for the command.struct
+        
         @see: DnaSegment_EditCommand.getDnaRibbonParams()
-        @see:self._drawCursorText()
-        @see:self.Draw()
+        @see: self._drawCursorText()
+        @see: self.Draw_other()
         """
         if self.command and self.command.hasValidStructure():
             for handle in self.command.handles:
@@ -221,3 +222,9 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             #Draw the text next to the cursor that gives info about
             #number of base pairs etc
             self._drawCursorText()
+        return
+
+    pass
+
+# end
+

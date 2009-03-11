@@ -1,9 +1,9 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: Ninad
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -28,16 +28,19 @@ from graphics.drawing.drawDnaLabels import draw_dnaBaseNumberLabels
 DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND = True
 
 _superclass = SelectChunks_GraphicsMode
-class BuildDna_GraphicsMode(
-                            SelectChunks_GraphicsMode):
+class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
     """
+    #doc
+    
+    @note: this has subclasses, including DnaSegment_GraphicsMode.
     """
 
     #The flag that decides whether to draw the handles. This flag is
     #set during left dragging, when no handle is 'grabbed'. This optimizes the
     #drawing code as it skips handle drawing code and also the computation
-    #of handle positions each time the mouse moves
-    #@see self.leftUp , self.leftDrag, seld.Draw for more details
+    #of handle positions each time the mouse moves.
+    #@see self.leftUp , self.leftDrag, and subclass Draw_other methods
+    # for more details.
     _handleDrawingRequested = True
 
     #Some left drag variables used to drag the whole segment along axis or
@@ -66,7 +69,6 @@ class BuildDna_GraphicsMode(
     cursor_over_when_LMB_pressed = ''
 
     def Enter_GraphicsMode(self):
-        ## print "*** in BuildDna_GM.Enter_GraphicsMode"
         _superclass.Enter_GraphicsMode(self)
         #Precaution
         self.clear_leftA_variables()
@@ -485,8 +487,8 @@ class BuildDna_GraphicsMode(
         #Thus, it instructs what to do for other cases (when user is not moving
         #the draggable handles)
 
-        #First, don't draw handles (set the flag here so that self.Draw knows
-        #not to draw handles) This skips unnecessary computation of new handle
+        #First, don't draw handles (set the flag here so that self.Draw_other knows
+        #not to draw handles). This skips unnecessary computation of new handle
         #position during left dragging. The flag is reset to True in leftUp
 
         if hasattr(self.command, 'handles') and self.command.handles:
@@ -629,7 +631,7 @@ class BuildDna_GraphicsMode(
     def _drawLabels(self):
         """
         Overrides superclass method
-        @see: self.Draw()
+        @see: self.Draw_other()
         @see: drawDnaLabels.py
         """
         _superclass._drawLabels(self)

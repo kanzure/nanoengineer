@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaDuplex.py -- DNA duplex generator helper classes, based on empirical data.
 
 @author: Mark Sims
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -20,7 +20,6 @@ from utilities.debug import print_compact_traceback, print_compact_stack
 from platform_dependent.PlatformDependent import find_plugin_dir
 from files.mmp.files_mmp import readmmp
 from geometry.VQT import Q, V, angleBetween, cross, vlen
-from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from utilities.exception_classes import PluginBug
 from utilities.constants import gensym

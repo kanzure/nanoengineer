@@ -159,6 +159,8 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
 
 # ==
 
+_superclass = basicMode
+
 class extrudeMode(basicMode):
     """
     Extrude mode.
@@ -304,7 +306,7 @@ class extrudeMode(basicMode):
         #self.clear_command_state()
         # [-- Ninad Comment]
         
-        basicMode.command_entered(self)
+        _superclass.command_entered(self)
 
         #Copying all the code originally in self.Enter() that existed 
         #on or before  2008-09-19 [--Ninad comment ]
@@ -425,8 +427,7 @@ class extrudeMode(basicMode):
                 # the base unit to whatever we unbonded it from at the start (if anything).
                 # (That bug is untested and this fix for it is untested.)
                 
-        basicMode.command_will_exit(self)
-
+        _superclass.command_will_exit(self)
             
     def _command_entered_effects(self):
         """
@@ -921,7 +922,8 @@ class extrudeMode(basicMode):
                 return # no more updates #### should just raise, once callers cleaner
             pass
         #obs comment in this loc?
-        #e now we'd adjust view, or make drawing show if stuff is out of view; make atom overlaps transparent or red; etc...
+        #e now we'd adjust view, or make drawing show if stuff is out of view;
+        # make atom overlaps transparent or red; etc...
 
         # now update bonds (needed by most callers (not ncopies change!), so don't bother to have an invalid flag, for now...)
         if 1:
@@ -1584,15 +1586,91 @@ class extrudeMode(basicMode):
         """
         self.o.setCursor(QCursor(Qt.ArrowCursor))
 
-    # drawing code
+    # == drawing helper methods (called by Draw API methods below)
 
-    def draw_model(self): #bruce 050218 split this out
+    def _draw_hsets_transparent_before_model(self):
+        """
+        """
+        #bruce 09010 split this out, and into two large pieces
+        # before and after _draw_model
+
+        #kluge, and messy experimental code [bruce 050218];
+        # looks good w/ crystal, bad w/ dehydrogenated hoop moiety... 
+        # probably better to compute colors, forget transparency.
+        # or it might help just to sort them by depth... and/or 
+        # let hits of several work (hit sees transparency); not sure
+        hset1 = self.nice_offsets_handle # opaque
+        hset2 = self.nice_offsets_handleset # transparent
+
+        # draw back faces of hset2 into depth buffer
+        # (so far this also draws a color - which one? or does it? yes, white.)
+        ## glCullFace(GL_FRONT)
+        glFrontFace(GL_CW)
+        ## glDisable(GL_LIGHTING)
+        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
+        try:
+            hset2.draw(self.o, color = list(self.o.backgroundColor))##green) 
+                # alpha factor inside draw method will be 0.25 but won't matter
+                ###e wrong when the special_color gets mixed in
+            # bugs 1139pm: the back faces are not altering depth buffer,
+            # when invis, but are when color = green... why?
+            # is it list vs tuple? does tuple fail for a vector?
+            # they are all turning white or blue in synch, which is 
+            # wrong (and they are blue when *outside*, also wrong)
+            # generally it's not working as expected... let alone 
+            # looking nice
+            # If i stop disabling lighting above, then it works 
+            # better... confirms i'm now showing only insides of spheres
+            # (with color = A(green), ) does A matter btw? seems not to.
+            # ah, maybe the materialfv call in drawsphere assumes lighting...
+            # [this never ended up being diagnosed, but it never came back 
+            #  after i stopped disabling lighting]
+        except:
+            print_compact_traceback("exc in hset2.draw() backs: ")
+        ## glCullFace(GL_BACK)
+        glFrontFace(GL_CCW)
+        glEnable(GL_LIGHTING)
+        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+
+        # draw front faces (default) of hset2, transparently, not altering depth buffer
+        ## hsets = [hset2]
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        # this fails since the symbols are not defined, tho all docs say they should be:
+##                const_alpha = 0.25
+##                glBlendColor(1.0,1.0,1.0,const_alpha) # sets the CONSTANT_ALPHA to const_alpha
+##                glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA) # cf. redbook table 6-1 page 228
+        # so instead, I hacked hset2.draw to use alpha factor of 0.25, for now
+        # it looked bad until I remembered that I also need to disable writing the depth buffer.
+        # But the magenta handle should have it enabled...
+        glDepthMask(GL_FALSE)
+        try:
+            hset2.draw(self.o)
+        except:
+            print_compact_traceback("exc in hset2.draw() fronts with _TRANSPARENT: ")
+        glDisable(GL_BLEND)
+        glDepthMask(GL_TRUE)
+
+        # draw front faces again, into depth buffer only
+        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
+        try:
+            hset2.draw(self.o)
+        except:
+            print_compact_traceback("exc in hset2.draw() fronts depth: ")
+        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+
+        # draw model (and hset1) here, so it's obscured by those
+        # invisible front and (less importantly) back faces
+        # (this is done in _draw_model and then the following method;
+        #  it's split this way due to splitting of Draw in GM API, bruce 090310)
+        return
+
+    def _draw_model(self): #bruce 050218 split this out
         """
         Draw the entire model including our base and repeat units,
         or just our base and repeat units, depending on settings.
         """
         try:
-            basicMode.Draw(self) # draw axes, if displayed
             part = self.o.assy.part # "the model"
             if self.show_entire_model:
                 part.draw(self.o) # includes before_drawing_model, etc
@@ -1615,142 +1693,142 @@ class extrudeMode(basicMode):
                 print_compact_traceback("exception in draw_bond_lines, ignored: ")
                 print_compact_stack("stack from that exception was: ")
         except:
-            print_compact_traceback("exception in draw_model, ignored: ")
+            print_compact_traceback("exception in _draw_model, ignored: ")
         return
 
-    transparent = 1 #bruce 050222 - mark wants this "always on" for now... 
-        # but I ought to clean up the code sometime soon ###@@@
-        #bruce 050218 experiment -- set to 1 for "transparent bond-offset 
-        # spheres" (works but doesn't always look good)
+    def _draw_hsets_transparent_after_model(self):
+        """
+        """
+        #bruce 09010 split this out, and into two large pieces
+        # before and after _draw_model
+        hset1 = self.nice_offsets_handle # opaque
+        try:
+            hset1.draw(self.o) # opaque
+        except:
+            print_compact_traceback("exc in hset1.draw(): ")
+        return
 
-    def Draw(self):
-        if debug_pref("Extrude: draw ring axis and spokes",
-                      Choice_boolean_False, prefs_key = True ): #bruce 070928
-            if self.product_type == 'closed ring':
-                try:
-                    from utilities.constants import red
-                    self.update_ring_geometry(emit_messages = False)
-                        # emit_messages = False to fix infinite redraw loop
-                        # when it chooses z-y plane and prints a message about that
-                        # [bruce 071001]
-                    center = self.circle_center # set by update_ring_geometry
-                    axis = self.axis_dir # ditto
-                    radius_vec = self.radius_vec # ditto
-                    # draw axis
-                    drawline( red, center, center + axis * 10, width = 2)
-                    for ii in range(self.circle_n):
-                        # draw spoke ii
-                        quatii_rel_junk, spoke_vec = self._spoke_quat_and_vector(ii)
-                        color = (ii and green) or blue
-                        drawline(color, center, center + spoke_vec, width = 2)
-                    pass
-                except:
-                    msg = "exception using debug_pref(%r) ignored" % \
-                        "Extrude: draw ring axis"
-                    print_compact_traceback(msg + ": ")
-                    pass
+    def _draw_ring_axis_and_spokes(self): #bruce 09010 split this out
+        """
+        """
+        if self.product_type == 'closed ring':
+            try:
+                from utilities.constants import red
+                self.update_ring_geometry(emit_messages = False)
+                    # emit_messages = False to fix infinite redraw loop
+                    # when it chooses z-y plane and prints a message about that
+                    # [bruce 071001]
+                center = self.circle_center # set by update_ring_geometry
+                axis = self.axis_dir # ditto
+                radius_vec = self.radius_vec # ditto
+                # draw axis
+                drawline( red, center, center + axis * 10, width = 2)
+                for ii in range(self.circle_n):
+                    # draw spoke ii
+                    quatii_rel_junk, spoke_vec = self._spoke_quat_and_vector(ii)
+                    color = (ii and green) or blue
+                    drawline(color, center, center + spoke_vec, width = 2)
                 pass
-        ## self.draw_model() -- can be done in one of several places below
+            except:
+                msg = "exception using debug_pref(%r) ignored" % \
+                    "Extrude: draw ring axis"
+                print_compact_traceback(msg + ": ")
+                pass
+            pass
+        return
+
+    # ==
+    
+    _TRANSPARENT = True
+        #bruce 050218 experiment -- set to True for "transparent bond-offset 
+        # spheres" (works but doesn't always look good)
+        #bruce 050222 update - Mark wants this "always on" for now... 
+        # but I ought to clean up the code sometime soon
+    
+    def Draw_preparation(self):
+        """
+        """
+        # KLUGE: Use this method to do non-model drawing, *before* Draw_model.
+        # This is a kluge since it's normally intended to set attributes
+        # to prepare for drawing, not to actually draw. But it does come
+        # before Draw_model so it should work as if it was Draw_other_before_model
+        # as we're using it. If this seems needed in the "Draw API", we should
+        # formalize it by adding a method like that, or by calling back to the
+        # glpane and passing a function to actually draw the model rather
+        # than using Draw_model (not sure how that would affect the overall API).
+        # [bruce 090310]
+        _superclass.Draw_preparation(self)
+        self._Draw_other_before_model()
+        return
+
+    def _Draw_other_before_model(self):
+        """
+        [not in the GraphicsMode API]
+        """
         if self.show_bond_offsets:
             hsets = self.show_bond_offsets_handlesets
-            if self.transparent and len(hsets) == 2: #kluge, and messy experimental code [050218];
-                    # looks good w/ crystal, bad w/ dehydrogenated hoop moiety... 
-                    # probably better to compute colors, forget transparency.
-                    # or it might help just to sort them by depth... and/or 
-                    # let hits of several work (hit sees transparency); not sure
-                hset1 = self.nice_offsets_handle # opaque
-                hset2 = self.nice_offsets_handleset # transparent
+            if self._TRANSPARENT and len(hsets) == 2:
+                hset1 = self.nice_offsets_handle
+                hset2 = self.nice_offsets_handleset
                 assert hset1 in hsets
                 assert hset2 in hsets
-
-                # draw back faces of hset2 into depth buffer
-                # (so far this also draws a color - which one? or does it? yes, white.)
-                ## glCullFace(GL_FRONT)
-                glFrontFace(GL_CW)
-                ## glDisable(GL_LIGHTING)
-                glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
-                try:
-                    hset2.draw(self.o, color = list(self.o.backgroundColor))##green) 
-                        # alpha factor inside draw method will be 0.25 but won't matter
-                        ###e wrong when the special_color gets mixed in
-                    # bugs 1139pm: the back faces are not altering depth buffer,
-                    # when invis, but are when color = green... why?
-                    # is it list vs tuple? does tuple fail for a vector?
-                    # they are all turning white or blue in synch, which is 
-                    # wrong (and they are blue when *outside*, also wrong)
-                    # generally it's not working as expected... let alone 
-                    # looking nice
-                    # If i stop disabling lighting above, then it works 
-                    # better... confirms i'm now showing only insides of spheres
-                    # (with color = A(green), ) does A matter btw? seems not to.
-                    # ah, maybe the materialfv call in drawsphere assumes lighting...
-                    # [this never ended up being diagnosed, but it never came back 
-                    #  after i stopped disabling lighting]
-                except:
-                    print_compact_traceback("exc in hset2.draw() backs: ")
-                ## glCullFace(GL_BACK)
-                glFrontFace(GL_CCW)
-                glEnable(GL_LIGHTING)
-                glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
-
-                # draw front faces (default) of hset2, transparently, not altering depth buffer
-                ## hsets = [hset2]
-                del hsets
-                glEnable(GL_BLEND)
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-                # this fails since the symbols are not defined, tho all docs say they should be:
-##                const_alpha = 0.25
-##                glBlendColor(1.0,1.0,1.0,const_alpha) # sets the CONSTANT_ALPHA to const_alpha
-##                glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA) # cf. redbook table 6-1 page 228
-                # so instead, I hacked hset2.draw to use alpha factor of 0.25, for now
-                # it looked bad until I remembered that I also need to disable writing the depth buffer.
-                # But the magenta handle should have it enabled...
-                glDepthMask(GL_FALSE)
-                try:
-                    hset2.draw(self.o)
-                except:
-                    print_compact_traceback("exc in hset2.draw() fronts transparent: ")
-                glDisable(GL_BLEND)
-                glDepthMask(GL_TRUE)
-
-                # draw front faces again, into depth buffer only
-                glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
-                try:
-                    hset2.draw(self.o)
-                except:
-                    print_compact_traceback("exc in hset2.draw() fronts depth: ")
-                glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
-
-                # draw model (and hset1) here, so it's obscured by those
-                # invisible front and (less importantly) back faces
-                self.draw_model()
-                try:
-                    hset1.draw(self.o) # opaque
-                except:
-                    print_compact_traceback("exc in hset1.draw(): ")
-
+                self._draw_hsets_transparent_before_model()
+                pass
+            pass
+        return
+    
+    def Draw_model(self):
+        """
+        """
+        _superclass.Draw_model(self)
+        self._draw_model()
+        return
+    
+    def Draw_other(self):
+        """
+        Do non-model drawing, *after* Draw_model.
+        """
+        _superclass.Draw_other(self)
+        if self.show_bond_offsets:
+            hsets = self.show_bond_offsets_handlesets
+            if self._TRANSPARENT and len(hsets) == 2:
+                hset1 = self.nice_offsets_handle
+                hset2 = self.nice_offsets_handleset
+                assert hset1 in hsets
+                assert hset2 in hsets
+                self._draw_hsets_transparent_after_model()
             else:
                 #pre-050218 code
-                self.draw_model()
                 for hset in hsets:
                     try:
                         hset.draw(self.o)
                     except:
                         print_compact_traceback("exc in some hset.draw(): ")
-        else:
-            self.draw_model()
-        return # from Draw
+                    continue
+                pass
+            pass
+        if debug_pref("Extrude: draw ring axis and spokes",
+                      Choice_boolean_False,
+                      prefs_key = True ): #bruce 070928
+            # [this used to happen before Draw_model, but its order
+            #  shouldn't matter. [bruce 090310]]
+            self._draw_ring_axis_and_spokes()
+        return
 
+    # ==
+    
     ## Added this method to fix bug 1043 [Huaicai 10/04/05]
     def Draw_after_highlighting(self, pickCheckOnly = False):
         """
-        Only draw those translucent parts of the whole model when we are
-        requested to draw the whole model
+        Only draw translucent parts of the whole model when we are
+        requested to draw the whole model.
         """
         if self.show_entire_model:
-            return basicMode.Draw_after_highlighting(self, pickCheckOnly)
+            return _superclass.Draw_after_highlighting(self, pickCheckOnly)
         return
 
+    # ==
+    
     call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes bug 971]
 
     def makeMenus(self): #e not yet reviewed for being good choices of what needs including in extrude cmenu
@@ -1763,7 +1841,6 @@ class extrudeMode(basicMode):
 
         self.debug_Menu_spec = [
             ('debug: reload module', self.extrude_reload),
-            ('debug: transparent=1', self.set_transparent),
         ]
 
         self.Menu_spec_control = [
@@ -1778,9 +1855,6 @@ class extrudeMode(basicMode):
             ('Color', self.w.dispObjectColor) ]
 
         return
-
-    def set_transparent(self):
-        self.transparent = 1
 
     def extrude_reload(self):
         """

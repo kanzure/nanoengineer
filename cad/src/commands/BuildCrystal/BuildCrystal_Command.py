@@ -78,43 +78,43 @@ def _init_snapquats():
     Return a tuple of lists of quats that can be snapped to.
     """
     #bruce 080910 moved this here from GLPane.py, made it a function
-    pi2 = math.pi/2.0
-    pi3 = math.pi/3.0
-    pi4 = math.pi/4.0
+    pi2 = math.pi / 2.0
+    pi3 = math.pi / 3.0
+    pi4 = math.pi / 4.0
     xquats = [Q(1,0,0,0), Q(V(0,0,1),pi2), Q(V(0,0,1),math.pi), Q(V(0,0,1),-pi2),
-              Q(V(0,0,1),pi4), Q(V(0,0,1),3*pi4),
-              Q(V(0,0,1),-pi4), Q(V(0,0,1),-3*pi4)]
+              Q(V(0,0,1),pi4), Q(V(0,0,1),3 * pi4),
+              Q(V(0,0,1),-pi4), Q(V(0,0,1),-3 * pi4)]
     pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),math.pi), Q(V(0,1,0),-pi2), 
               Q(V(1,0,0),pi2), Q(V(1,0,0),-pi2)]
 
     quats100 = []
     for q in pquats:
         for q1 in xquats:
-            quats100 += [(q+q1, 0)]
+            quats100 += [(q + q1, 0)]
 
     rq = Q(V(0,1,0),pi2)
-    pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
-              Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4),
-              Q(V(1,0,0),pi4), Q(V(1,0,0),3*pi4),
-              Q(V(1,0,0),-pi4), Q(V(1,0,0),-3*pi4),
-              rq+Q(V(1,0,0),pi4), rq+Q(V(1,0,0),3*pi4),
-              rq+Q(V(1,0,0),-pi4), rq+Q(V(1,0,0),-3*pi4)]
+    pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3 * pi4),
+              Q(V(0,1,0),-pi4), Q(V(0,1,0),-3 * pi4),
+              Q(V(1,0,0),pi4), Q(V(1,0,0),3 * pi4),
+              Q(V(1,0,0),-pi4), Q(V(1,0,0),-3 * pi4),
+              rq + Q(V(1,0,0),pi4), rq + Q(V(1,0,0),3 * pi4),
+              rq + Q(V(1,0,0),-pi4), rq + Q(V(1,0,0),-3 * pi4)]
 
     quats110 = []
     for q in pquats:
         for q1 in xquats:
-            quats110 += [(q+q1, 1)]
+            quats110 += [(q + q1, 1)]
 
     cq = Q(V(1,0,0),0.615479708)
-    xquats = [Q(1,0,0,0), Q(V(0,0,1),pi3), Q(V(0,0,1),2*pi3), Q(V(0,0,1),math.pi),
-              Q(V(0,0,1),-pi3), Q(V(0,0,1),-2*pi3)]
-    pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
-              Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4)]
+    xquats = [Q(1,0,0,0), Q(V(0,0,1),pi3), Q(V(0,0,1),2 * pi3), Q(V(0,0,1),math.pi),
+              Q(V(0,0,1),-pi3), Q(V(0,0,1),-2 * pi3)]
+    pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3 * pi4),
+              Q(V(0,1,0),-pi4), Q(V(0,1,0),-3 * pi4)]
 
     quats111 = []
     for q in pquats:
         for q1 in xquats:
-            quats111 += [(q+cq+q1, 2), (q-cq+q1, 2)]
+            quats111 += [(q + cq + q1, 2), (q - cq + q1, 2)]
 
     allQuats = quats100 + quats110 + quats111
 
@@ -123,6 +123,8 @@ def _init_snapquats():
 allQuats, quats100, quats110, quats111 = _init_snapquats()
 
 # ==
+
+_superclass = basicMode # for both Command and GraphicsMode parts (a single class)
 
 class BuildCrystal_Command(basicMode):
     """
@@ -139,9 +141,9 @@ class BuildCrystal_Command(basicMode):
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
     command_level = CL_ENVIRONMENT_PROVIDING
 
-    backgroundColor = 0/255.0, 0/255.0, 0/255.0
+    backgroundColor = 0 / 255.0, 0 / 255.0, 0 / 255.0
     backgroundGradient = False # Mark 051029.
-    gridColor = 222/255.0, 148/255.0, 0/255.0
+    gridColor = 222 / 255.0, 148 / 255.0, 0 / 255.0
 
     displayMode = diTUBES 
         # displayMode isn't used except for updating the 'Display Mode' combobox in the Preference dialog.
@@ -158,12 +160,12 @@ class BuildCrystal_Command(basicMode):
 
     MAX_LATTICE_CELL = 25
 
-    layerColors = ((0.0, 85.0/255.0, 127/255.0),
-                   (85/255.0, 85/255.0, 0.0),
-                   (85/255.0, 85/255.0, 127/255.0),
-                   (170.0/255.0, 0.0, 127.0/255.0),
-                   (170.0/255.0, 0.0,  1.0),
-                   (1.0, 0.0, 127.0/255.0),
+    layerColors = ((0.0, 85.0 / 255.0, 127 / 255.0),
+                   (85 / 255.0, 85 / 255.0, 0.0),
+                   (85 / 255.0, 85 / 255.0, 127 / 255.0),
+                   (170.0 / 255.0, 0.0, 127.0 / 255.0),
+                   (170.0 / 255.0, 0.0,  1.0),
+                   (1.0, 0.0, 127.0 / 255.0),
                    )
 
     LATTICE_TYPES = ['DIAMOND', 'LONSDALEITE', 'GRAPHITE']
@@ -196,7 +198,7 @@ class BuildCrystal_Command(basicMode):
         self.oldPov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
         self.setOrientSurf(self.snap2trackball())
 
-        self.o.pov -= 3.5*self.o.out
+        self.o.pov -= 3.5 * self.o.out
         self.savedOrtho = self.o.ortho
         self.o.ortho = True
         self.cookieQuat = None
@@ -427,7 +429,7 @@ class BuildCrystal_Command(basicMode):
         """
         Set the grid Line color to c. c is an object of QColor
         """
-        self.gridColor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
+        self.gridColor = c.red() / 255.0, c.green() / 255.0, c.blue() / 255.0
 
     def changeDispMode(self, mode):
         """
@@ -450,7 +452,7 @@ class BuildCrystal_Command(basicMode):
     # mouse and key events
 
     def keyRelease(self,key):
-        basicMode.keyRelease(self, key)
+        _superclass.keyRelease(self, key)
         if key == Qt.Key_Escape and self.drawingCookieSelCurve:
             self._cancelSelection()
 
@@ -626,7 +628,7 @@ class BuildCrystal_Command(basicMode):
             # selection curve.
 
         if self.selectionShape == 'DEFAULT':
-            if self.selCurve_length < 2*chord_length:
+            if self.selCurve_length < 2 * chord_length:
             # Update the shape of the selection_curve.
             # The value of <defaultSelShape> can change back and forth between lasso and rectangle
             # as the user continues defining the selection curve.
@@ -648,7 +650,7 @@ class BuildCrystal_Command(basicMode):
 
         selCurve_pt, selCurve_AreaPt = self._getPoints(event)
 
-        if self.selCurve_length/self.o.scale < 0.03:
+        if self.selCurve_length / self.o.scale < 0.03:
             #Rect_corner/circular selection
             if not self.selectionShape in ['DEFAULT', 'LASSO']: 
                 if not (self.selCurve_List and self.o.selArea_List): # The first click release
@@ -700,7 +702,7 @@ class BuildCrystal_Command(basicMode):
         Disable this method when in curve drawing
         """
         if not self.drawingCookieSelCurve:
-            basicMode.middleDown(self, event)
+            _superclass.middleDown(self, event)
 
     def middleUp(self, event):
         """
@@ -710,7 +712,7 @@ class BuildCrystal_Command(basicMode):
         ---Huaicai 3/23/05
         """
         if not self.drawingCookieSelCurve:
-            basicMode.middleUp(self, event)
+            _superclass.middleUp(self, event)
             self._anyMiddleUp()
 
 
@@ -719,7 +721,7 @@ class BuildCrystal_Command(basicMode):
          Disable this action when cutting crystal.
          """   
         if self.freeView:
-            basicMode.middleCntlDown(self, event)
+            _superclass.middleCntlDown(self, event)
 
 
     def middleCntlUp(self, event):        
@@ -727,14 +729,14 @@ class BuildCrystal_Command(basicMode):
          Disable this action when cutting crystal.
          """   
         if self.freeView:
-            basicMode.middleCntlUp(self, event)
+            _superclass.middleCntlUp(self, event)
 
     def Wheel(self, event):
         """
         When in curve drawing stage, disable the zooming.
         """
         if not self.drawingCookieSelCurve: 
-            basicMode.Wheel(self, event)
+            _superclass.Wheel(self, event)
 
     def bareMotion(self, event):
         if self.freeView or not self.drawingCookieSelCurve:
@@ -848,7 +850,7 @@ class BuildCrystal_Command(basicMode):
             elif self.selectionShape == 'TRIANGLE': sides = 3
             elif self.selectionShape == 'SQUARE': sides = 4
 
-            hQ = Q(self.o.out, 2.0*math.pi/sides)
+            hQ = Q(self.o.out, 2.0 * math.pi / sides)
             pp = []
             pp += [p1]
             for ii in range(1, sides):
@@ -908,7 +910,7 @@ class BuildCrystal_Command(basicMode):
         <Param> sides: the number of sides for the polygon
         <Param> pts: (the center and a corner point)
         """
-        hQ = Q(self.o.out, 2.0*math.pi/sides)
+        hQ = Q(self.o.out, 2.0 * math.pi / sides)
         pt = pts[2] - pts[0]
         pp = []
         pp += [pts[2]]
@@ -958,15 +960,15 @@ class BuildCrystal_Command(basicMode):
         If background color is close to <color>, we'll use white color.
         """
         bg = self.backgroundColor
-        diff = vlen(A(color)-A(bg))
+        diff = vlen(A(color) - A(bg))
         if diff < 0.5:
-            return (1-bg[0], 1-bg[1], 1-bg[2])
+            return (1 - bg[0], 1 - bg[1], 1 - bg[2])
         else:
             rgb = []
             for ii in range(3):
-                f = int(color[ii]*255)
-                b = int(bg[ii]*255)
-                rgb += [(f ^ b)/255.0]
+                f = int(color[ii] * 255)
+                b = int(bg[ii] * 255)
+                rgb += [(f ^ b) / 255.0]
             return rgb  
 
     def draw_selection_curve(self, lastDraw = False):
@@ -1033,24 +1035,29 @@ class BuildCrystal_Command(basicMode):
         self.o.swapBuffers() #Update display
         return
 
-    def Draw(self):
-        basicMode.Draw(self)
+    def Draw_model(self):
+        _superclass.Draw_model(self)
+        if self.showFullModel:
+            self.o.assy.draw(self.o)
+        return
+    
+    def Draw_other(self):
+        _superclass.Draw_other(self)
         if self.gridShow:    
             self.griddraw()
         if self.selCurve_List: ## XOR color operation doesn't request paintGL() call.
             self.draw_selection_curve()
         if self.o.shape:
             self.o.shape.draw(self.o, self.layerColors)
-        if self.showFullModel:
-            self.o.assy.draw(self.o)
         return
 
     def Draw_after_highlighting(self, pickCheckOnly = False): 
         """
-        Only draw those translucent parts of the whole model when we are requested to draw the whole model
+        Only draw translucent parts of the whole model when
+        we are requested to draw the whole model.
         """
         if self.showFullModel:
-            return basicMode.Draw_after_highlighting(self, pickCheckOnly)
+            return _superclass.Draw_after_highlighting(self, pickCheckOnly)
         return
 
     def griddraw(self):
@@ -1063,14 +1070,14 @@ class BuildCrystal_Command(basicMode):
         glPushMatrix()
         q = self.o.quat
         glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
-        glRotatef(- q.angle*180.0/math.pi, q.x, q.y, q.z)
+        glRotatef(- q.angle * 180.0 / math.pi, q.x, q.y, q.z)
         glClipPlane(GL_CLIP_PLANE0, (0.0, 0.0, 1.0, 6.0))
         glClipPlane(GL_CLIP_PLANE1, (0.0, 0.0, -1.0, 0.1))
         glEnable(GL_CLIP_PLANE0)
         glEnable(GL_CLIP_PLANE1)
         glPopMatrix()
         glColor3fv(self.gridColor)
-        drawGrid(1.5*self.o.scale, -self.o.pov, self.latticeType)
+        drawGrid(1.5 * self.o.scale, -self.o.pov, self.latticeType)
         glDisable(GL_CLIP_PLANE0)
         glDisable(GL_CLIP_PLANE1)
         return
@@ -1108,7 +1115,7 @@ class BuildCrystal_Command(basicMode):
             size = len(self.layers)
 
             # Change the new layer as the current layer
-            self.change2Layer(size-1)
+            self.change2Layer(size - 1)
 
             return size
         # REVIEW: is return None in else case intended?
@@ -1144,9 +1151,9 @@ class BuildCrystal_Command(basicMode):
         if curLay == len(self.layers) - 1:
             return self.MAX_LATTICE_CELL
         else:
-            depth = vlen(self.layers[curLay+1] - self.layers[curLay])
+            depth = vlen(self.layers[curLay + 1] - self.layers[curLay])
             num = int(
-                depth/(drawing_globals.DiGridSp*sqrt(self.whichsurf+1)) + 0.5)
+                depth/(drawing_globals.DiGridSp * sqrt(self.whichsurf + 1)) + 0.5)
             return num
 
     def setOrientSurf(self, num):
@@ -1180,7 +1187,7 @@ class BuildCrystal_Command(basicMode):
         a = 1.1
         what = 0
         for q2, n in qlist:
-            a2 = vlen((q2-q1).axis)
+            a2 = vlen((q2 - q1).axis)
             if a2 < a:
                 a = a2
                 q = q2
@@ -1190,7 +1197,7 @@ class BuildCrystal_Command(basicMode):
         return what
 
     def setThickness(self, num):
-        self.thickness = num*drawing_globals.DiGridSp*sqrt(self.whichsurf+1)
+        self.thickness = num * drawing_globals.DiGridSp * sqrt(self.whichsurf + 1)
         s = "%3.3f Angstroms" % (self.thickness)
         self.propMgr.layerThicknessLineEdit.setText(s)
 
@@ -1246,7 +1253,7 @@ class BuildCrystal_Command(basicMode):
         """
         orig3d = self._project2Plane(cellOrig)
         out = self.o.out
-        sqrt2 = 1.41421356/2
+        sqrt2 = 1.41421356 / 2
         if abs(out[2]) > 0.5:
             rt0 = V(1, 0, 0)
             up0 = V(0,1, 0)
@@ -1265,12 +1272,12 @@ class BuildCrystal_Command(basicMode):
 
         pt1 = p2 - orig3d
         pt = V(dot(rt0, pt1), dot(up0, pt1))
-        pt -= V(2*bLen, 2*bLen)
+        pt -= V(2 * bLen, 2 * bLen)
 
-        pt1 = V(sqrt2*pt[0]-sqrt2*pt[1], sqrt2*pt[0]+sqrt2*pt[1])
+        pt1 = V(sqrt2 * pt[0]-sqrt2 * pt[1], sqrt2 * pt[0]+sqrt2 * pt[1])
 
-        dx = pt1[0]/(2*sqrt2*bLen)
-        dy = pt1[1]/(2*sqrt2*bLen)
+        dx = pt1[0] / (2 * sqrt2 * bLen)
+        dy = pt1[1] / (2 * sqrt2 * bLen)
         if dx > 0:
             dx += 0.5
         else:
@@ -1282,7 +1289,7 @@ class BuildCrystal_Command(basicMode):
             dy -= 0.5
         jj = int(dy)
 
-        nxy = orig3d + 4*sqrt2*bLen*up + ii*2*sqrt2*bLen*right + jj*2*sqrt2*bLen*up
+        nxy = orig3d + 4 * sqrt2 * bLen * up + ii * 2 * sqrt2 * bLen * right + jj * 2 * sqrt2 * bLen * up
 
         return nxy
 
@@ -1294,7 +1301,7 @@ class BuildCrystal_Command(basicMode):
         DELTA = 0.0005
 
         if abs(self.o.out[1]) < DELTA: #Looking between X-Z
-            if self.o.out[2]*self.o.out[0] < 0:
+            if self.o.out[2] * self.o.out[0] < 0:
                 vType = 0  
                 right = V(1, 0, 1)
                 up = V(0, 1, 0)
@@ -1352,37 +1359,37 @@ class BuildCrystal_Command(basicMode):
             if pt[1] < uLen:
                 uv1 = [[0,0], [1,1], [2, 0], [3, 1], [4, 0]]
                 ij = self._findSnap4Corners(uv1, uLen, pt)
-            elif pt[1] < 2*uLen:
-                if pt[0] < 2*uLen:
-                    if pt[1] < 1.5*uLen: ij = [1, 1]
+            elif pt[1] < 2 * uLen:
+                if pt[0] < 2 * uLen:
+                    if pt[1] < 1.5 * uLen: ij = [1, 1]
                     else: ij = [1, 2]
                 else:
-                    if pt[1] < 1.5*uLen: ij = [3, 1]
+                    if pt[1] < 1.5 * uLen: ij = [3, 1]
                     else: ij = [3, 2]
-            elif pt[1] < 3*uLen:
+            elif pt[1] < 3 * uLen:
                 uv1 = [[0,3], [1,2], [2,3], [3, 2], [4, 3]]
                 ij = self._findSnap4Corners(uv1, uLen, pt)
             else:
-                if pt[1] < 3.5*uLen: j = 3
+                if pt[1] < 3.5 * uLen: j = 3
                 else: j = 4
                 if pt[0] < uLen: i = 0
-                elif pt[0] < 3*uLen: i = 2
+                elif pt[0] < 3 * uLen: i = 2
                 else: i = 4
                 ij = [i, j]
 
         elif vType == 2: ## projected orig-point is in the middle
             if pt[1] < uLen:
-                if pt[1] < 0.5*uLen: j = 0
+                if pt[1] < 0.5 * uLen: j = 0
                 else: j = 1
-                if pt[0] < -1*uLen: i = -2
+                if pt[0] < -1 * uLen: i = -2
                 elif pt[0] < uLen: i = 0
                 else: i = 2
                 ij = [i, j]
-            elif pt[1] < 2*uLen:
+            elif pt[1] < 2 * uLen:
                 uv1 = [[-2, 1], [-1, 2], [0, 1], [1, 2], [2, 1]]
                 ij = self._findSnap4Corners(uv1, uLen, pt)
-            elif pt[1] < 3*uLen:
-                if pt[1] < 2.5*uLen: j = 2
+            elif pt[1] < 3 * uLen:
+                if pt[1] < 2.5 * uLen: j = 2
                 else: j = 3
                 if pt[0] < 0: i = -1
                 else: i = 1
@@ -1391,7 +1398,7 @@ class BuildCrystal_Command(basicMode):
                 uv1 = [[-2, 4], [-1, 3], [0, 4], [1, 3], [2, 4]]
                 ij = self._findSnap4Corners(uv1, uLen, pt)
 
-        nxy = orig3d + ij[0]*uLen*right + ij[1]*uLen*up
+        nxy = orig3d + ij[0] * uLen * right + ij[1] * uLen * up
         return nxy
 
 
@@ -1403,8 +1410,8 @@ class BuildCrystal_Command(basicMode):
         ax = norm(ax1)
         ay = norm(ay1)
         try:
-            lx = (ay[1]*pt[0] - ay[0]*pt[1])/(ax[0]*ay[1] - ay[0]*ax[1])
-            ly = (ax[1]*pt[0] - ax[0]*pt[1])/(ax[1]*ay[0] - ax[0]*ay[1])
+            lx = (ay[1] * pt[0] - ay[0] * pt[1]) / (ax[0] * ay[1] - ay[0] * ax[1])
+            ly = (ax[1] * pt[0] - ax[0] * pt[1]) / (ax[1] * ay[0] - ax[0] * ay[1])
         except ZeroDivisionError:
             print " In _getNCartP2d() of BuildCrystal_Command.py, divide-by-zero detected."
             return None
@@ -1442,21 +1449,21 @@ class BuildCrystal_Command(basicMode):
             ay = axy[1]
         else:
             for ii in range(size(axy) -1):
-                cos_theta = dot(axy[ii], p2)/(vlen(axy[ii])*vlen_p2)
+                cos_theta = dot(axy[ii], p2) / (vlen(axy[ii]) * vlen_p2)
                 ## the 2 vectors has an angle > 60 degrees 
                 if cos_theta < 0.5: continue
-                cos_theta = dot(axy[ii+1], p2)/(vlen(axy[ii+1])*vlen_p2)
+                cos_theta = dot(axy[ii + 1], p2) / (vlen(axy[ii + 1]) * vlen_p2)
                 if cos_theta > 0.5:  
                     ax = axy[ii]
-                    ay = axy[ii+1]
+                    ay = axy[ii + 1]
                     break
 
         p2d = self._getNCartP2d(ax, ay, p2)
 
-        i = intRound(p2d[0]/uLen/sqrt6)
-        j = intRound(p2d[1]/uLen/sqrt6)
+        i = intRound(p2d[0] / uLen / sqrt6)
+        j = intRound(p2d[1] / uLen / sqrt6)
 
-        nxy = orig3d + i*uLen*ax + j*uLen*ay 
+        nxy = orig3d + i * uLen * ax + j * uLen * ay 
 
         return nxy
 
@@ -1466,18 +1473,18 @@ class BuildCrystal_Command(basicMode):
         Compute distance from point <pt> to corners and select the nearest corner.
         """
         if not vLen: vLen = uLen
-        hd = 0.5*sqrt(uLen*uLen + vLen*vLen)
+        hd = 0.5 * sqrt(uLen * uLen + vLen * vLen)
 
-        ix = int(floor(pt[0]/uLen)) - uv1[0][0]
+        ix = int(floor(pt[0] / uLen)) - uv1[0][0]
         if ix == -1: ix = 0
         elif ix == (len(uv1) - 1): ix = len(uv1) - 2
         elif ix < -1 or ix >= len(uv1): raise ValueError, (uv1, pt, uLen, ix)
 
-        dist = vlen(V(uv1[ix][0]*uLen, uv1[ix][1]*vLen) - pt)
+        dist = vlen(V(uv1[ix][0] * uLen, uv1[ix][1] * vLen) - pt)
         if dist < hd:
             return uv1[ix]
         else:
-            return uv1[ix+1]
+            return uv1[ix + 1]
 
     def _getPoints(self, event):
         """
@@ -1504,13 +1511,13 @@ class BuildCrystal_Command(basicMode):
             else:
                 p2 = self._snap111Grid(cellOrig, p2)
 
-            return p2 + vlen_p1p2*self.o.out, p2
+            return p2 + vlen_p1p2 * self.o.out, p2
 
     pass # end of class BuildCrystal_Command
 
 # == helper functions
 
 def hashAtomPos(pos):
-    return int(dot(V(1000000, 1000,1), floor(pos*1.2)))
+    return int(dot(V(1000000, 1000,1), floor(pos * 1.2)))
 
 # end

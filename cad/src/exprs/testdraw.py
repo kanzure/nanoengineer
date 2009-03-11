@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 testdraw.py -- drawing code for testmode, which tests the exprs package.
 
@@ -6,7 +6,7 @@ testdraw.py -- drawing code for testmode, which tests the exprs package.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 BUGS:
 
@@ -170,31 +170,33 @@ def init_glpane_vars(glpane):
     glpane._testmode_stuff_3 = []
     glpane._alpha = 1.0
     
-def leftDown(mode, event, glpane, super): # called from testmode.leftDown
-    "[mode is needed to call super.leftDown]"
+def leftDown(mode, event, glpane, superclass): # called from testmode.leftDown
+    "[mode is needed to call superclass.leftDown]"
     ####@@@@ LOGIC BUG: when we reload, we replace one highlightable with a new one in the same place --
     # but don't replace selobj with the new one! So we predict not selobj_still_ok -- should print that from there ###@@@
-    # [fixed now? note, reload is not right here, but in super.leftDown when it calls testmode.emptySpaceLeftDown]
+    # [fixed now? note, reload is not right here, but in superclass.leftDown when it calls testmode.emptySpaceLeftDown]
     if printdraw: print "\ntestdraw leftDown" ###@@@
-    super.leftDown(mode, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
-    glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
+    superclass.leftDown(mode, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
+    glpane.gl_update() # always, for now [might be redundant with superclass.leftDown, too]
 
 def render_scene(mode, glpane): # called by testmode.render_scene # 061208
     # print "calling glpane.render_scene from testdraw.render_scene" -- works
     glpane.render_scene()
     return
     
-def Draw(mode, glpane, super): # called by testmode.Draw
-    
+def Draw_preparation(mode, glpane, superclass): # called by testmode.Draw_preparation
     init_glpane_vars(glpane)
-
+    return
+    
+def Draw_model(mode, glpane, superclass): # called by testmode.Draw_model
     if env.prefs.get("A9 devel/testdraw/super.Draw first?", True): #070404
         glPushMatrix() #k needed??
-        super.Draw(mode)
+        superclass.Draw_model(mode)
         glPopMatrix()
-
     # glpane.part.draw(glpane) # this doesn't draw the model in any different place as when done below... [061211]
-    
+    return
+
+def Draw_other(mode, glpane, superclass): # called by testmode.Draw_other
     glPushMatrix()
     try:
         drawtest0(glpane) # this does all our special drawing, and sometimes puts some of it into a display list
@@ -205,9 +207,12 @@ def Draw(mode, glpane, super): # called by testmode.Draw
     # [not sure what this next comment is about:]
     # makes us draw twice! noticed on g4, should happen on g5 too, did it happen but less??
     if env.prefs.get("A9 devel/testdraw/super.Draw last?", False): # revised prefs key and default, 070404
+        # NOTE: after 090310 refactoring of Draw API, this is happening at the wrong time
+        # (in Draw_other rather than in Draw_model) which may make it slower and/or have bugs.
+        # [bruce 090310 comment]
         glPushMatrix()
         if 1:
-            super.Draw(mode) # needed for region selection's separate xor-drawing;
+            superclass.Draw_model(mode) # needed for region selection's separate xor-drawing;
             # I suspect this is slower than the other case. Does it draw more than once (for glselect) or something like that? ####@@@@
         else:
             # region selection's drawing [later: xor mode, i guess] won't work in this case, though its selection op itself will work
@@ -217,7 +222,8 @@ def Draw(mode, glpane, super): # called by testmode.Draw
             glpane.part.draw(glpane) # but not on this one - i see why it doesn't draw it there, but why not complain about not finding it?
         glPopMatrix()
     # draw invisible stuff
-    #e (we'll want to split this into stages for more than one kind of such stuff; later, to go through a "rendering pass widget expr")
+    #e (we'll want to split this into stages for more than one kind of such stuff;
+    #   later, to go through a "rendering pass widget expr")
     for func in glpane._testmode_stuff_2: # colors, for translucent stuff
         func()
     for func in glpane._testmode_stuff_3: # depths, for translucent stuff (matters if they are highlightable)
@@ -226,9 +232,9 @@ def Draw(mode, glpane, super): # called by testmode.Draw
         func()
     return
 
-def Draw_after_highlighting(mode, pickCheckOnly, glpane, super):
+def Draw_after_highlighting(mode, pickCheckOnly, glpane, superclass):
     ## print "testdraw.Draw_after_highlighting(pickCheckOnly = %r)" % (pickCheckOnly,) # pickCheckOnly is True once when I click
-    return super.Draw_after_highlighting(mode, pickCheckOnly)
+    return superclass.Draw_after_highlighting(mode, pickCheckOnly)
 
 # ==
 

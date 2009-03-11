@@ -1,10 +1,10 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 Graphics mode intended to be used while in DnaStrand_EditCommand. 
 
 @author: Ninad
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Created 2008-02-14
@@ -22,14 +22,15 @@ class DnaStrand_GraphicsMode(BuildDna_GraphicsMode):
     _handleDrawingRequested = True
     cursor_over_when_LMB_pressed = ''
     
-    def Draw(self):
+    def Draw_other(self):
         """
-        Draw this DnaStrand object and its contents including handles (if any.)
+        Draw this DnaStrand object and its contents including handles (if any)
         @see:self._drawCursorText()
         @see:self._drawHandles()
         """
-             
-        _superclass.Draw(self)
+        # review: docstring may be wrong now that this method doesn't
+        # draw the model [bruce 090310 comment]
+        _superclass.Draw_other(self)
         if self._handleDrawingRequested:
             self._drawHandles()
         
@@ -38,7 +39,7 @@ class DnaStrand_GraphicsMode(BuildDna_GraphicsMode):
         Draw the handles for the command.struct 
         @see: DnaStrand_ResizeHandle.hasValidParamsForDrawing ()
         @see:self._drawCursorText()
-        @see:self.Draw()
+        @see:self.Draw_other()
         """    
         if self.command and self.command.hasValidStructure():            
             for handle in self.command.handles:

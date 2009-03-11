@@ -1,10 +1,13 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 fusechunksMode.py - helpers for Fuse Chunks command and related functionality
 
+NOTE: the only class defined herein is fusechunksBase, so this module
+should be renamed.
+
 @author: Mark
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import foundation.env as env
@@ -72,13 +75,6 @@ class fusechunksBase:
     tol = 1.0 # in Angstroms
         # For "Make Bonds", tol is the distance between two bondable singlets
         # For "Fuse Atoms", tol is the distance between two atoms to be considered overlapping
-
-    recompute_fusables = True
-        # 'recompute_fusables' is used to optimize redraws by skipping the recomputing of fusables
-        # (bondable pairs or overlapping atoms). When set to False, Draw() will not recompute fusables 
-        # before repainting the GLPane. When False, 'recompute_fusables' is reset to True in Draw(), 
-        # so it is the responsibility of the caller to Draw() (i.e. win_update() or gl_update()) to reset it to 
-        # False before each redraw if desired. For more info, see comments in Draw().
 
     def find_bondable_pairs(self, 
                             chunk_list = None, 

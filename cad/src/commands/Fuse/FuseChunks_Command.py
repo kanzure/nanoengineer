@@ -7,14 +7,17 @@ FuseChunks_Command.py
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
+
 Originally by Mark as class 'fuseChunksMode'.
+
 Ninad 2008-01-25: Split Command and GraphicsMode classes
                  out of class fuseChunksMode. The graphicsMode class can be
                  found in FuseChunks_GraphicsMode.py
                  
 TODO as of 2008-09-09:
+
 -refactor update ui related code. Example some methods call propMgr.updateMessage()
-etc. this needs to be in a central place... either in this callls or
+etc. this needs to be in a central place... either in this calls or
 in PM._update_UI_do_updates()
 """
 
@@ -188,7 +191,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         self.propMgr.updateMessage()
         self.o.gl_update() # the Draw() method will update based on the current
-                           #combo box item.
+                           # combo box item.
 
     def find_fusables(self):
         """

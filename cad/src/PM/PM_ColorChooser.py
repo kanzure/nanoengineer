@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 PM_ColorChooser.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  All rights reserved.
+@copyright: 2006-2009 Nanorex, Inc.  All rights reserved.
 
 History:
 
@@ -177,7 +177,6 @@ class PM_ColorChooser( QWidget ):
         if default:
             self.defaultColor = color
             self.setAsDefault = default
-        print "*** in PM_colorChoose.setColor"
         self.color = color
         self._updateColorFrame()
         return

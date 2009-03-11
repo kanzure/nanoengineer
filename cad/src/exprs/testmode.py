@@ -104,26 +104,55 @@ class testmode_GM(_superclass_for_GM):
             except:
                 print_compact_traceback("exception in testdraw.render_scene ignored: ")
         return
-    
-    def Draw(self):
+
+    def Draw_preparation(self):
         self.command._background_object = None
-            # a _background_object is only active for event handlers when it was set
-            # during the most recent call of testdraw.Draw
+            # Note: by resetting this at the start of Draw (by "Draw" I mean
+            # the sequence of Draw_* methods into which the old Draw method
+            # was split on 090310), we make sure that a new _background_object
+            # set during Draw is only active for event handlers
+            # when it was set during the most recent call of Draw
+            # before they run. [bruce 090310 clarified old comment]
+        
         import exprs.testdraw as testdraw
         try:
-            testdraw.Draw(self, self.o, _superclass_for_GM)
+            testdraw.Draw_preparation(self, self.o, _superclass_for_GM)
         except:
             #e history message?
-            print_compact_traceback("exception in testdraw.Draw ignored: ")
+            print_compact_traceback("exception in testdraw.Draw_preparation ignored: ")
+        return
+    
+    def Draw_model(self):
+        import exprs.testdraw as testdraw
+        try:
+            testdraw.Draw_model(self, self.o, _superclass_for_GM)
+        except:
+            #e history message?
+            print_compact_traceback("exception in testdraw.Draw_model ignored: ")
+        return
+        
+    def Draw_other(self):
+        import exprs.testdraw as testdraw
+        try:
+            testdraw.Draw_other(self, self.o, _superclass_for_GM)
+        except:
+            #e history message?
+            print_compact_traceback("exception in testdraw.Draw_other ignored: ")
         return
 
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         # I'm very suspicious of this pickCheckOnly arg in the API... it's not even acceptable to some modes,
         # it's not clear whether they'll be called with it, it's not documented what it should do,
         # and there seems to be a return value when it's used, but not all methods provide one.
-        """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
-        Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write.
-        Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion.
+        # [update: I subsequently rationalized it, so it's now ok and explained in a comment somewhere]
+        """
+        Do more drawing, after the main drawing code has completed its
+        highlighting/stenciling for selobj. Caller will leave glstate in
+        standard form for Draw. Implems are free to turn off depth buffer
+        read or write.
+
+        @warning: anything implems do to depth or stencil buffers
+            will affect the standard selobj-check in bareMotion.
         """
         ## _superclass_for_GM.Draw_after_highlighting(self, pickCheckOnly) # let testdraw do this if if wants to
         import exprs.testdraw as testdraw
@@ -357,7 +386,8 @@ class testmode(_superclass_C):
             pass # print "testdraw reload ImportError, ignoring"
         return
         
-    _background_object = None #070322 new feature: can be set during self.Draw to something to handle clicks on background
+    _background_object = None #070322 new feature: can be set during Draw
+        # to something to handle clicks on background
         # Note: this is stored in the Command instance, but usually accessed
         # from the GraphicsMode instance using .command._background_object.
         # [bruce 071010]

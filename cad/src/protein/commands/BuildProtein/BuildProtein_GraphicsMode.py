@@ -1,10 +1,10 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 BuildProtein_GraphicsMode.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 """
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
@@ -19,7 +19,6 @@ class BuildProtein_GraphicsMode(SelectChunks_GraphicsMode):
     """
     
     def Enter_GraphicsMode(self):
-        print "*** in BuildProtein_GraphicsMode.Enter_GraphicsMode"
         _superclass.Enter_GraphicsMode(self)
         return
     
