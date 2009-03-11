@@ -56,8 +56,6 @@ from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_PushButton import PM_PushButton
 from PM.PM_CheckBox import PM_CheckBox
 
-##from modes import *
-##from modes import basicMode
 from command_support.Command import Command
 from command_support.GraphicsMode import GraphicsMode
 
@@ -139,7 +137,6 @@ def cannon_oscillates():
 SILLY_TEST = False ####
 
 
-KLUGE_MANUAL_UPDATE = False # temporary
 TESTING_KLUGES = False # temporary
 
 class test_animation_mode_PM(ExampleCommand1_PM):
@@ -259,8 +256,7 @@ class test_animation_mode_PM(ExampleCommand1_PM):
 
         ## or just do this?? call_often(update_GroupBox2) -- a few times per sec, and explicit calls on the buttons... seems worse...
 
-        if not KLUGE_MANUAL_UPDATE:
-            self._keepme = Formula( self.update_GroupBox2, self.update_GroupBox2 ) ### hmm.....
+        self._keepme = Formula( self.update_GroupBox2, self.update_GroupBox2 ) ### hmm.....
         
         return
 
@@ -272,29 +268,12 @@ class test_animation_mode_PM(ExampleCommand1_PM):
         self.startButton.setEnabled( not in_loop) ### TODO: make something like setEnabledFormula for this... pass it a function??
         self.stopButton.setEnabled( in_loop)
         return
-
-    def update_after_Draw(self):
-        ### WARNINGS:
-        # 1. this is called *during* Draw (not strictly after all drawing), so if this method
-        # uses any state that tracks usage, that is treated as affecting the graphics area,
-        # and changes to it trigger redraw, whether or not redraw is needed (except insofar
-        # as it's "needed" in order to call this routine).
-        # 2. given when it's called, this routine can do true updates (recomputes and displays)
-        # or "Qt updates" (invals of Qt widgets), but must not do invals of NE1 tracked state.
-        if KLUGE_MANUAL_UPDATE:
-            self.update_GroupBox2()
         
     def cmd_Start(self):
         self.command.cmd_Start()
-        if KLUGE_MANUAL_UPDATE:
-            self.update_GroupBox2()
 
     def cmd_Stop(self):
         self.command.cmd_Stop()
-        if KLUGE_MANUAL_UPDATE:
-            self.update_GroupBox2()
-            ###BUG: KLUGE_MANUAL_UPDATE doesn't cover stops inside test_animation_mode object itself! restart impossible then.
-            # Workaround (untested): adjust cannon height or use arrow key -- should trigger redraw.
         
     def _addWhatsThisText(self):
         """
@@ -396,9 +375,8 @@ class _S_ImmutableData_Mixin(_S_Data_Mixin):
 def do_what_MainWindowUI_should_do(win):
     pass
 
-##_superclass = basicMode
 _superclass = Command
-# see also _superclass_GM
+# see also _superclass_for_GM
 
 # new stuff 060218
 
@@ -995,11 +973,10 @@ class TextState(InstanceMacro):#e rename?
 
 # ==============================================================================
 
-## _superclass_GM = _superclass.GraphicsMode_class # wrong, this is None now
-_superclass_GM = GraphicsMode
-print "_superclass = %r, _superclass_GM = %r" % (_superclass, _superclass_GM)####
+_superclass_for_GM = GraphicsMode
+# print "_superclass = %r, _superclass_for_GM = %r" % (_superclass, _superclass_for_GM)####
 
-class test_animation_mode_GM( _superclass_GM ):
+class test_animation_mode_GM( _superclass_for_GM ):
     
     def leftDown(self, event):
         pass
@@ -1013,7 +990,7 @@ class test_animation_mode_GM( _superclass_GM ):
     def middleDrag(self, event):
         glpane = self.glpane
 ##        q1 = Q(glpane.quat)
-        _superclass_GM.middleDrag(self, event)
+        _superclass_for_GM.middleDrag(self, event)
         self.command.modelstate += 1
 ##        q2 = Q(glpane.quat)
         novertigo(glpane)
@@ -1118,29 +1095,33 @@ class test_animation_mode_GM( _superclass_GM ):
             pass
         return
 
-    def Draw(self):
-##        ##print "test_animation_mode.Draw"
+    def Draw_model(self):
+        """
+        """
+        _superclass_for_GM.Draw_model(self)
+        glpane = self.glpane
+        glpane.assy.draw(glpane)
+
+    def Draw_other(self):
+        """
+        """
+        _superclass_for_GM.Draw_other(self)
 
         glpane = self.glpane
 
 ##        # can we use smth lke mousepoints to print model coords of eyeball?
 ##        print "glpane says eyeball is now at", glpane.eyeball(), "and cov at", - glpane.pov, " ." ####@@@@
-        ## basicMode.Draw(self)
-        _superclass_GM.Draw(self)
+        
         origin = self.command.origin
         endpoint = origin + self.command.right * 10.0
         drawline(white, origin, endpoint)
 
         self.command.cannon.draw()
 
-        glpane.assy.draw(glpane)
         ## thing.draw(glpane, endpoint)
         self.command.guy.draw(glpane)
         ## draw_debug_quats(glpane)
         self.command._expr_instance.draw() #070813 - works, but resizer highlight doesn't work, didn't investigate why not ###BUG
-
-        if self.command.propMgr:
-            self.command.propMgr.update_after_Draw()
         return
 
     def keyPressEvent(self, event):

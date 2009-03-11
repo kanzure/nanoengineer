@@ -155,8 +155,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
             from prototype.test_drawing import test_drawing, USE_GRAPHICSMODE_DRAW
                 # intentionally redundant with toplevel import [bruce 080930]
             if USE_GRAPHICSMODE_DRAW:
-                # Init and continue on, assuming that test_Draw will be called
-                # separately (in an override of graphicsMode.Draw).
+                # Init and continue on, assuming that test_Draw_model will be called
+                # separately (in an override of graphicsMode.Draw_model).
                 
                 # LIKELY BUG: USE_GRAPHICSMODE_DRAW is now a constant
                 # but needs to depend on the testCase or be a separately

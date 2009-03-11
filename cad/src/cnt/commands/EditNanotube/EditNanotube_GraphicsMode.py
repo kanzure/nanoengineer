@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 EditNanotube_GraphicsMode.py
 
@@ -11,7 +11,7 @@ While in this command, user can
     segment along the axis
 
 @author: Ninad, Mark
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
 
 History:
@@ -57,7 +57,7 @@ class EditNanotube_GraphicsMode(BuildNanotube_GraphicsMode):
     #set during left dragging, when no handle is 'grabbed'. This optimizes the
     #drawing code as it skips handle drawing code and also the computation
     #of handle positions each time the mouse moves
-    #@see self.leftUp , self.leftDrag, seld.Draw for more details
+    #@see self.leftUp , self.leftDrag, self.Draw_other for more details
     _handleDrawingRequested = True
 
     #Some left drag variables used to drag the whole segment along axis or
@@ -345,7 +345,7 @@ class EditNanotube_GraphicsMode(BuildNanotube_GraphicsMode):
         #Thus, it instructs what to do for other cases (when user is not moving
         #the draggable handles)
 
-        #First, don't draw handles (set the flag here so that self.Draw knows
+        #First, don't draw handles (set the flag here so that self.Draw_other knows
         #not to draw handles) This skips unnecessary computation of new handle
         #position during left dragging. The flag is reset to True in leftUp
         if self.command and self.command.handles:
@@ -409,10 +409,10 @@ class EditNanotube_GraphicsMode(BuildNanotube_GraphicsMode):
         # bruce 071008 (intending to be equivalent to prior code)
         return False
 
-    def Draw(self):
+    def Draw_other(self):
         """
         """
-        _superclass.Draw(self)
+        _superclass.Draw_other(self)
         if self._handleDrawingRequested:
             self._drawHandles()
         return

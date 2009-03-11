@@ -69,6 +69,16 @@ class ResizeHandle(DragHandler_API, Selobj_API):
         # should be False by default.
         self.textureReady  = False
         self.pickCheckOnly = False        
+            ### REVIEW/TODO: understanding how self.pickCheckOnly might be
+            # left over from one drawing call to another (potentially causing
+            # bugs) is a mess. It needs to be refactored so that it's just an
+            # argument to all methods it's passed through. This involves some
+            # superclass methods; maybe they can be overridden so the argument
+            # is only needed in local methods, I don't know. This is done in
+            # several Node classes, so I added this comment to all of them.
+            # (In this class, it looks like it's always False, but it's hard to
+            #  be sure re subclasses and superclasses.)
+            # [bruce 090310 comment]
         self.glname = glpane.alloc_my_glselect_name(self) #bruce 080917 revised
         self.type   = None      
     

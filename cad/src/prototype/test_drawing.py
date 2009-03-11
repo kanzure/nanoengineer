@@ -50,9 +50,9 @@ AVAILABLE_TEST_CASES_DICT = {
 AVAILABLE_TEST_CASES_ITEMS = AVAILABLE_TEST_CASES_DICT.items()
 AVAILABLE_TEST_CASES_ITEMS.sort()
 
-# Used for tests with graphicsMode.Draw() from TestGraphics_GraphicsMode.
+# Used for tests with graphicsMode.Draw_model() from TestGraphics_GraphicsMode.
 USE_GRAPHICSMODE_DRAW = False # Changed to True in cases that use the following.
-def test_Draw(glpane):
+def test_Draw_model(glpane):
     # WARNING: this duplicates some code with test_drawing().
     if first_time:
         return    # Do nothing during the initial setup script.
@@ -337,7 +337,7 @@ def test_drawing(glpane, initOnly = False):
     this file is loaded and GLPane.paintGL() calls the
     test_drawing() function instead of the usual body of paintGL().
     """
-    # WARNING: this duplicates some code with test_Draw().
+    # WARNING: this duplicates some code with test_Draw_model().
 
     # Load the sphere shaders if needed.
     global _USE_SHADERS
@@ -982,7 +982,7 @@ def test_drawing(glpane, initOnly = False):
                 print "constructed test_DrawingSet =", test_DrawingSet
 
             if USE_GRAPHICSMODE_DRAW:
-                print ("Use graphicsMode.Draw for DrawingSet in paintGL.")
+                print ("Use graphicsMode.Draw_model for DrawingSet in paintGL.")
                 pass
 
             t1 = time.time()

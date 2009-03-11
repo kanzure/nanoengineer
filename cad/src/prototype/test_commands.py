@@ -1,10 +1,12 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 test_commands.py -- try out using mode classes as command classes for a command stack;
  find out the minimal needs for a command with PM (and improve them);
  prototype a command stack
- 
+
+@author: Bruce
 @version: $Id$
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 
 
 How to run these test commands:
@@ -58,8 +60,8 @@ class _minimalGraphicsMode(GraphicsMode):
     # It's more efficient to refactor those to get a new generally useful GraphicsMode,
     # than to build them up separately here. HOWEVER, for the purpose of testing Command/GraphicsMode split,
     # this one might be enough, if we split it. So do that below.
-    def Draw(self):
-        super(_minimalGraphicsMode, self).Draw()
+    def Draw_model(self):
+        super(_minimalGraphicsMode, self).Draw_model()
         self.glpane.part.draw(self.glpane) # draw the current Part
     pass
 
@@ -79,7 +81,7 @@ class ExampleCommand(_superclass):
     Abstract superclass for the example commands in this file.
     Specific command subclasses need to define the following class constants:
     commandName, and PM_class.
-    Some of them also need to override mode methods, such as Draw.
+    Some of them also need to override mode methods, such as Draw_model and/or Draw_other.
     """
     test_commands_start_as_temporary_command = False
     PM_class = None # if not overridden, means we need no PM (BUG: we'll still get a PM tab)
@@ -92,7 +94,9 @@ class ExampleCommand(_superclass):
 
 ##class _Example_TemporaryCommand_useParentPM(ExampleCommand):
 ##    # BUGS:
-##    # - doesn't call parentCommand_Draw; should use something from TemporaryCommand.py ####
+##    # - doesn't call parentGraphicsMode.Draw; maybe should use something like
+##    #   Overdrawing_GraphicsMode_preMixin from TemporaryCommand.py ####
+##    #   [see also Delegating_GraphicsMode]
 ##    #
 ##    # Note: this works if you have your own PM; perhaps untested when you don't.
 ##    # Warning: currently only one level of temporary commands is permitted;

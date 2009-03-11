@@ -247,35 +247,56 @@ class Select_basicGraphicsMode( Select_GraphicsMode_MouseHelpers_preMixin,
 
     # ==
 
-    def Draw(self):
-        if 1:
-            # TODO: move this test code into a specific test mode just for it,
-            # so it doesn't clutter up or slow down this general-use mode.
-            #
-            # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
-            # grantham 060207:
-            # Set to 1 to see a small array of eight spheres.
-            # Set to 2 to see the Large-Bearing model, but this is most effective if
-            #  the Large-Bearing has already been loaded normally into rotate mode
-            #bruce 060209 set this from a debug_pref menu item, not a hardcoded flag
-            TEST_PYREX_OPENGL = debug_pref("GLPane: TEST_PYREX_OPENGL", Choice([0,1,2]))
-            # uncomment this line to set it in the old way:
-            ## TEST_PYREX_OPENGL = 1
+    def _draw_this_test_instead(self):
+        """
+        [private]
+        Decide whether to draw a special test graphic in place of the model,
+        and if so, which one.
+        """
+        # TODO: move this test code into a specific test mode just for it,
+        # so it doesn't clutter up or slow down this general-use mode.
+        #
+        # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
+        # grantham 060207:
+        # Set to 1 to see a small array of eight spheres.
+        # Set to 2 to see the Large-Bearing model, but this is most effective if
+        #  the Large-Bearing has already been loaded normally into rotate mode
+        #bruce 060209 set this from a debug_pref menu item, not a hardcoded flag
+        TEST_PYREX_OPENGL = debug_pref("GLPane: TEST_PYREX_OPENGL", Choice([0,1,2]))
+        # uncomment this line to set it in the old way:
+        ## TEST_PYREX_OPENGL = 1
+
+        return TEST_PYREX_OPENGL
+        
+    def Draw_model(self):
+        _superclass.Draw_model(self) # probably a noop -- actual model drawn below
+        
+        TEST_PYREX_OPENGL = self._draw_this_test_instead()
         if TEST_PYREX_OPENGL:
+            # draw this test instead of the usual model
             from graphics.drawing.c_renderer import test_pyrex_opengl
             test_pyrex_opengl(TEST_PYREX_OPENGL)
                 #bruce 090303 split this out (untested;
                 # it did work long ago when first written, inlined here)
+                # (revised again, 090310, still untested)
             pass
         else:
+            # draw the usual model
             if self.bc_in_use is not None: #bruce 060414
                 self.bc_in_use.draw(self.o, 'fake dispdef kluge')
-            
-            _superclass.Draw(self)
+            self.o.assy.draw(self.o)
+        return
+    
+    def Draw_other(self):
+        _superclass.Draw_other(self)
+        
+        TEST_PYREX_OPENGL = self._draw_this_test_instead()
+        if TEST_PYREX_OPENGL:
+            pass
+        else:
             #self.griddraw()
             if self.selCurve_List:
                 self.draw_selection_curve()
-            self.o.assy.draw(self.o)
         return
 
     # ==

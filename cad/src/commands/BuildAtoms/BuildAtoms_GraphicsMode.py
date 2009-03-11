@@ -337,16 +337,23 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 
     #== Draw methods
     
-    def Draw(self):
-        _superclass.Draw(self) # this includes self.o.assy.draw(self.o) 
-        #[bruce 060724 comment]
+    def Draw_other(self):
+        """
+        @see: Draw_after_highlighting (draws water surface)
+        """
+        _superclass.Draw_other(self)
+        
         if self.line:
-            color = get_selCurve_color(0,self.o.backgroundColor) 
-                # Make sure line color has good contrast with bg. mark 060305.
+            color = get_selCurve_color(0, self.o.backgroundColor)
+                # Make sure line color has good contrast with bg. [mark 060305]
+                ### REVIEW:
+                # this makes the line light orange (when bg is sky blue),
+                # which is harder to see than the white it used to be.
+                # [bruce 090310 comment]
             drawline(color, self.line[0], self.line[1])
-            ####@@@@ if this is for a higher-order bond, draw differently
-        ## self.o.assy.draw(self.o) # THIS WAS REDUNDANT [bruce 060724 removed it as a speedup]
-        #bruce 050610 moved self.surface() call elsewhere [it's in Draw_after_highlighting]
+            # todo: if this is for a higher-order bond, draw differently
+            pass
+        
         return
 
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610

@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 texture_helpers.py -- helper functions for using OpenGL textures
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from OpenGL.GL import glGenTextures
@@ -71,7 +71,7 @@ def setup_to_draw_texture_name(have_mipmaps, tex_name):
     ## now you can: (from ESPImage._draw_jig, which before this did pushmatrix
     ## etc)
     ## drawPlane(self.fill_color, self.width, self.width, textureReady,
-    ##           self.opacity, SOLID = True, pickCheckOnly = self.pickCheckOnly)
+    ##           self.opacity, SOLID = True, pickCheckOnly = False)
     ##hw = self.width/2.0
     ##corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0),
     ##               V(hw, -hw, 0.0), V(hw, hw, 0.0)]

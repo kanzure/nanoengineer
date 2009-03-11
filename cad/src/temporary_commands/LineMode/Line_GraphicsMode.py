@@ -1,8 +1,8 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Ninad
 @version:   $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 
 History:
@@ -22,18 +22,18 @@ TODOs:
 
 """
 
-from commands.Select.Select_GraphicsMode import Select_GraphicsMode
-
-from graphics.drawing.CS_draw_primitives import drawline
-from graphics.drawing.CS_draw_primitives import drawsphere
 from utilities.constants import black, darkred, blue
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
+from utilities.prefs_constants import cursorTextFontSize_prefs_key
 
 from geometry.VQT import vlen, norm, angleBetween, V, ptonline
 
 import foundation.env as env
-from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
-from utilities.prefs_constants import cursorTextFontSize_prefs_key
 
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.CS_draw_primitives import drawsphere
+
+from commands.Select.Select_GraphicsMode import Select_GraphicsMode
 
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
@@ -66,9 +66,6 @@ class Line_GraphicsMode( Select_GraphicsMode ):
     # free drag the mouse (bare motion) 
     endPoint2 = None
 
-
-    #Rubberband line color
-    rubberband_line_color = env.prefs[DarkBackgroundContrastColor_prefs_key]
     rubberband_line_width = 1  #thickness or 'width' for drawer.drawline
 
     endPoint1_sphereColor = darkred
@@ -79,14 +76,14 @@ class Line_GraphicsMode( Select_GraphicsMode ):
     _standardAxisVectorForDrawingSnapReference = None
 
     #Flag that determines whether the cursor text should be rendered in 
-    #self.Draw. Example: This class draws cursor text at the end of the draw 
-    #method. Subclass of this class (say DnaLine_GM) calls this Draw mthod 
-    #and then do some more drawing and then again want to draw the cursor text
+    #self.Draw_other. Example: This class draws cursor text at the end of the draw 
+    #method. Subclass of this class (say DnaLine_GM) calls this Draw_other method 
+    #and then do some more drawing and then again want to draw the cursor text.
     #So that subclass can temporarily suppress cursor text. 
-    #@see: DnaLine_GM.Draw()
+    #@see: DnaLine_GM.Draw_other()
     _ok_to_render_cursor_text = True
 
-    #cursor text. ##@@ rename it to 'cursorText' -- Ninad
+    #cursor text. ##@@ todo: rename it to 'cursorText' -- Ninad
     text = ''
 
     #the drawing plane on which the line (or the structure in subclasses) 
@@ -350,16 +347,16 @@ class Line_GraphicsMode( Select_GraphicsMode ):
 
     def _drawSnapReferenceLines(self):
         """
-        Draw the snap reference lines as dottedt lines. Example, if the 
+        Draw the snap reference lines as dotted lines. Example, if the 
         moving end of the rubberband line is 'close enough' to a standard axis 
         vector, that point is 'snapped' soi that it lies on the axis. When this 
         is done, program draws a dotted line from origin to the endPoint2 
         indicating that the endpoint is snapped to that axis line.
 
-        This method is called inside the self.Draw method. 
+        This method is called inside the self.Draw_other method. 
 
         @see: self._snapEndPointToStandardAxis 
-        @see: self.Draw
+        @see: self.Draw_other
         """
         if self.endPoint2 is None:
             return
@@ -370,22 +367,39 @@ class Line_GraphicsMode( Select_GraphicsMode ):
                      dashEnabled = True, 
                      stipleFactor = 4,
                      width = 2)
+        return
 
-
-    def Draw(self):
+    def Draw_other(self):
         """
-        Draw method for this temporary mode. 
         """
-        _superclass_for_GM.Draw(self)
+        _superclass_for_GM.Draw_other(self)
 
         #This fixes NFR bug  2803
         #Don't draw the Dna rubberband line if the cursor is over the confirmation
-        #corner. But make sure to call superclass.Draw method before doing this 
+        #corner. But make sure to call superclass.Draw_other method before doing this 
         #check because we need to draw the rest of the model in the graphics 
-        #mode!. @see: DnaLineMode_GM.Draw() which does similar thing to not 
+        #mode!. @see: DnaLineMode_GM.Draw_other() which does similar thing to not 
         #draw the rubberband line when the cursor is on the confirmation corner
         handler = self.o.mouse_event_handler
         if handler is not None and handler is self._ccinstance:
+            ##### REVIEW:
+            #
+            # 1. This is probably incorrect in principle, as a way of
+            # deciding what to draw. The mouse event handling methods
+            # should set an attribute which directly specifies whether
+            # the next call of Draw_other (or other Draw methods)
+            # should draw the rubberband line or not.
+            # (Or which affects the value of an access method, e.g.
+            #  something like self.should_draw_rubberband_lines().)
+            #
+            # 2. Why is update_cursor called here? Any call of update_cursor
+            # inside a specific Draw method seems suspicious.
+            #
+            # 3. This needs refactoring to merge with common code in its
+            # subclass DnaLineMode_GM, and to consider doing the same
+            # thing in its other 3 subclasses.
+            #
+            # [bruce 090310 comments]
             self.update_cursor()
             return
 
@@ -398,7 +412,7 @@ class Line_GraphicsMode( Select_GraphicsMode ):
                            STARTPOINT_SPHERE_DRAWLEVEL,
                            opacity = self.endPoint1_sphereOpacity
                            )            
-            drawline(self.rubberband_line_color, 
+            drawline(env.prefs[DarkBackgroundContrastColor_prefs_key], 
                      self.endPoint1, 
                      self.endPoint2,
                      width = self.rubberband_line_width,
@@ -416,6 +430,8 @@ class Line_GraphicsMode( Select_GraphicsMode ):
             return
 
         self.text = ''
+            #### REVIEW: why do we set an attribute here? That's very
+            # suspicious in any drawing method. [bruce 090310 comment]
         textColor = black
 
         #Draw the text next to the cursor that gives info about 
@@ -423,7 +439,7 @@ class Line_GraphicsMode( Select_GraphicsMode ):
         #cleanup. e.g. callbackMethodForCursorTextString should be simply
         #self.command.getCursorText() and like that. -- Ninad2008-04-17
         if self.command and hasattr(self.command, 
-                                    'callbackMethodForCursorTextString'):            
+                                    'callbackMethodForCursorTextString'):
             self.text, textColor = self.command.callbackMethodForCursorTextString(
                 self.endPoint1, 
                 self.endPoint2)            
@@ -435,9 +451,9 @@ class Line_GraphicsMode( Select_GraphicsMode ):
             if distString:
                 #This could be a user preference. At the moment, subclasses
                 #may return an empty string for distance. 
-                self.text = "%5.2fA, %s"%(dist, thetaString)
+                self.text = "%5.2fA, %s" % (dist, thetaString)
             else:
-                self.text = "%s"%(thetaString)
+                self.text = "%s" % (thetaString,)
 
         self.glpane.renderTextNearCursor(self.text, 
                                          textColor = textColor,
@@ -525,4 +541,8 @@ class Line_GraphicsMode( Select_GraphicsMode ):
         """
         self.endPoint1 = None
         self.endPoint2 = None
+
+    pass
+
+# end
 

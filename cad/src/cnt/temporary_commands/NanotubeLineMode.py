@@ -1,7 +1,7 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Ninad, Mark
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
 @license:   GPL
 
@@ -9,16 +9,16 @@ TODO:
 - User Preferences for different rubberband line display styles 
 """
 
+from utilities.constants import gray, black, darkred, blue, white
+
+from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
 
 from temporary_commands.LineMode.Line_Command import Line_Command
 from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
 
-from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
-
-from utilities.constants import gray, black, darkred, blue, white
-
-
 # == GraphicsMode part
+
+_superclass_for_GM = Line_GraphicsMode
 
 class NanotubeLine_GM( Line_GraphicsMode ):
     """
@@ -29,7 +29,7 @@ class NanotubeLine_GM( Line_GraphicsMode ):
           implementation  of self.command (see class NanotubeLineMode)          
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
-    #first endpoint of the line. See Line_GraphicsMode.Draw for details. 
+    # first endpoint of the line. See Line_GraphicsMode.Draw_other for details. 
     endPoint1_sphereColor = white 
     endPoint1_sphereOpacity = 1.0
     
@@ -64,32 +64,36 @@ class NanotubeLine_GM( Line_GraphicsMode ):
         """
                 
         if self.command.callbackForSnapEnabled() == 1:
-            endPoint2  = Line_GraphicsMode.snapLineEndPoint(self)
+            endPoint2 = _superclass_for_GM.snapLineEndPoint(self)
         else:
             endPoint2 = self.endPoint2
             
         return endPoint2
-        
-      
-    def Draw(self):
+    
+    def Draw_other(self):
         """
         Draw the Nanotube rubberband line (a ladder representation)
         """
-        Line_GraphicsMode.Draw(self)        
+        _superclass_for_GM.Draw_other(self)
         if self.endPoint2 is not None and \
-           self.endPoint1 is not None: 
+           self.endPoint1 is not None:
             
-            # Draw the ladder. 
-            drawNanotubeLadder(self.endPoint1,
-                          self.endPoint2, 
-                          self.command.nanotube.getRise(),
-                          self.glpane.scale,
-                          self.glpane.lineOfSight,
-                          ladderWidth = self.command.nanotube.getDiameter(),
-                          beamThickness = 4.0,
-                           ) 
+            # Draw the ladder.
+            drawNanotubeLadder(
+                self.endPoint1,
+                self.endPoint2, 
+                self.command.nanotube.getRise(),
+                self.glpane.scale,
+                self.glpane.lineOfSight,
+                ladderWidth = self.command.nanotube.getDiameter(),
+                beamThickness = 4.0,
+             )
+        return
+
+    pass # end of class NanotubeLine_GM
 
 # == Command part
+
 class NanotubeLineMode(Line_Command): # not used as of 080111, see docstring
     """
     [no longer used as of 080111, see details below]
@@ -135,7 +139,10 @@ class NanotubeLineMode(Line_Command): # not used as of 080111, see docstring
         @see: comment at the beginning of the class
         
         """
-        pass
+        return
     
-    
+    pass
+
+# end
+
     

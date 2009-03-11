@@ -1325,7 +1325,7 @@ class Group(NodeWithAtomContents):
             #k does this ever happen? This state might only be stored 
             # on the kids... [bruce 050615 question]
             return
-        self.draw_begin(glpane, dispdef)
+##        self._draw_begin(glpane, dispdef)
         try:
             for ob in self.members: ## [:]:
                 ob.draw(glpane, dispdef) #see also self.draw_after_highlighting
@@ -1342,7 +1342,7 @@ class Group(NodeWithAtomContents):
         except:
             msg = "exception in drawing some Group member; skipping to end"
             print_compact_traceback(msg + ": ")
-        self.draw_end(glpane, dispdef)
+##        self._draw_end(glpane, dispdef)
         return
 
     def draw_after_highlighting(self, glpane, dispdef, pickCheckOnly = False):
@@ -1365,21 +1365,21 @@ class Group(NodeWithAtomContents):
         return anythingDrawn
 
 
-    def draw_begin(self, glpane, dispdef): #bruce 050615
-        """
-        Subclasses can override this to change how their child nodes are drawn.
-        """
-        pass
-
-    def draw_end(self, glpane, dispdef): #bruce 050615
-        """
-        Subclasses which override draw_begin should also override draw_end to
-        undo whatever changes were made by draw_begin (preferably by popping
-        stacks, rather than by doing inverse transformations, which only work
-        if nothing was messed up by child nodes or exceptions from them, and
-        which might be subject to numerical errors).
-        """
-        pass
+##    def _draw_begin(self, glpane, dispdef): #bruce 050615
+##        """
+##        Subclasses can override this to change how their child nodes are drawn.
+##        """
+##        pass
+##
+##    def _draw_end(self, glpane, dispdef): #bruce 050615
+##        """
+##        Subclasses which override _draw_begin should also override _draw_end to
+##        undo whatever changes were made by _draw_begin (preferably by popping
+##        stacks, rather than by doing inverse transformations, which only work
+##        if nothing was messed up by child nodes or exceptions from them, and
+##        which might be subject to numerical errors).
+##        """
+##        pass
 
     def getstatistics(self, stats):
         """

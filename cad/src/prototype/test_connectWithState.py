@@ -1,11 +1,11 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 test_connectWithState.py -- test the connectWithState features.
 Also serves as scratch code for their improvement.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -88,9 +88,7 @@ class _test_connectWithState_GM(ExampleCommand.GraphicsMode_class):
     # [REVIEW -- do some attrs (and therefore some or all of the
     #  exprs overhead) belong here? Guess: yes.]
     
-    def Draw(self):
-
-        # TODO: also super draw, for model, axes, etc?
+    def Draw_other(self):
         
         color = self.command.cylinderColor
         length = cylinder_height()
@@ -103,6 +101,7 @@ class _test_connectWithState_GM(ExampleCommand.GraphicsMode_class):
         end2 = ORIGIN + direction * length/2.0
         radius = self.command.cylinderWidth / 2.0
         capped = True
+        
         drawcylinder(color, end1, end2, radius, capped)
 
         if cylinder_round_caps():
@@ -113,7 +112,7 @@ class _test_connectWithState_GM(ExampleCommand.GraphicsMode_class):
         if self.command.widthHandleEnabled:
             self.command.widthHandle.draw()
 
-        super(_test_connectWithState_GM, self).Draw() # added this, bruce 071022
+        super(_test_connectWithState_GM, self).Draw_other() # added this, bruce 071022
         return
     pass
 

@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 CommandSequencer.py - class for sequencing commands and maintaining command stack.
 Each Assembly owns one of these.
 
 @author: Bruce (partly based on older code by Josh)
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -32,17 +32,22 @@ Ninad 2008-09-26: Turned on USE_COMMAND_STACK by default; stripped out old code
 roughly: mode -> command or currentCommand, ...
 """
 
-from utilities.debug import print_compact_traceback, print_compact_stack
-from utilities import debug_flags
-import foundation.env as env
 import os
 import sys
 
 from utilities.constants import DEFAULT_COMMAND
+
+from utilities.debug import print_compact_traceback, print_compact_stack
+
+from utilities import debug_flags
+
+import foundation.env as env
+
 from commandSequencer.command_levels import allowed_parent
 
 from command_support.modes import nullMode
 from command_support.baseCommand import baseCommand # only for isinstance assertion
+
 
 _DEBUG_CSEQ_INIT = False # DO NOT COMMIT with True
 
@@ -965,40 +970,6 @@ class CommandSequencer(object):
             commands.append(command)
             command = command.parentCommand
         return commands
-    
-    # ==
-    
-    # delegation to parentCommands
-
-    def parentCommand_Draw(self, calling_command):
-        """
-        Draw whatever the parent command (relative to calling_command,
-         a Command object) would draw in its own Draw method,
-        if it was the currentCommand.
-        (Exception: the parent command is allowed to find out it's
-         not current and to modify its display style in response to that.)
-         
-        @return: True if you find a parent command and call its Draw method,
-                 False otherwise.
-        """
-        # Note: if we wanted, the method name 'Draw' could be an argument
-        # so we could delegate anything at all to the parentCommand in this way.
-        # We'd need a flag or variant method to say whether to call it in
-        # the Command or GraphicsMode part. (Or pass a lambda?? Seems like in
-        # that case we should just let caller find the parentCommand instead...)
-        
-        # new code (080730)
-        parentCommand = calling_command.parentCommand
-        if parentCommand is None:
-            # can happen, if calling_command is default command,
-            # though this is unexpected and probably a bug
-            print "unexpected: %r.parentCommand is None" % calling_command
-            return False
-        else:
-            assert not parentCommand.is_null
-            parentCommand.graphicsMode.Draw()
-            return True
-        pass
 
     # ==
 

@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 example_expr_command.py -- example of how to use an interactive graphics
 expr in a command (unfinished, so partly scratch code); command and PM
@@ -6,7 +6,7 @@ are each variants of ExampleCommand1's command and PM classes
  
 @author: Bruce
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -88,16 +88,16 @@ from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMo
 
 ##class ExampleCommand2E_GM( ExampleCommand1.GraphicsMode_class): #bruce 071014 split out _GM class; works, except highlighting
 class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
-    def Draw(self):
+    def Draw_other(self):
         """
-        Do some custom drawing (in the model's abs coordsys) after drawing the model.
+        Do some custom drawing (in the model's abs coordsys),
+        as well as whatever the superclass does.
         """
-        #print "start ExampleCommand2E Draw"
-        glpane = self.glpane
-        super(ExampleCommand2E_GM, self).Draw()
+        #print "start ExampleCommand2E Draw_other"
+        super(ExampleCommand2E_GM, self).Draw_other()
         drawline(red, V(1,0,1), V(1,1,1), width = 2)
         self.command._expr_instance.draw()
-        #print "end ExampleCommand2E Draw"
+        #print "end ExampleCommand2E Draw_other"
     pass
 
 ##class ExampleCommand2E_GM_KLUGED( ExampleCommand1.GraphicsMode_class,
@@ -124,12 +124,12 @@ class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
 ##            # which normally does this.
 ##        return
 ##
-##    def Draw(self):
+##    def Draw_other(self):
 ##        """
-##        Do some custom drawing (in the model's abs coordsys) after drawing the model.
+##        Do some custom drawing (in the model's abs coordsys)...
 ##        """
 ##        glpane = self.glpane
-##        super(ExampleCommand2E_GM_KLUGED, self).Draw()
+##        super(ExampleCommand2E_GM_KLUGED, self).Draw_other()
 ##        drawline(red, V(1,0,1), V(1,1,1), width = 2)
 ##        self.command._expr_instance.draw()
 ##    pass

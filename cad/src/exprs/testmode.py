@@ -1,11 +1,11 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 testmode.py -- Command/GraphicsMode for testing graphical exprs
 (implemented in the exprs module).
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 How to use:
 
@@ -52,9 +52,9 @@ annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
 ## superclass = depositMode
 from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command # [bruce 080825 split testmode into C & GM]
 _superclass_C = SelectAtoms_Command
-_superclass_GM = _superclass_C.GraphicsMode_class
+_superclass_for_GM = _superclass_C.GraphicsMode_class
 
-class testmode_GM(_superclass_GM):
+class testmode_GM(_superclass_for_GM):
     """
     GraphicsMode for testing graphical exprs
     """
@@ -111,7 +111,7 @@ class testmode_GM(_superclass_GM):
             # during the most recent call of testdraw.Draw
         import exprs.testdraw as testdraw
         try:
-            testdraw.Draw(self, self.o, _superclass_GM)
+            testdraw.Draw(self, self.o, _superclass_for_GM)
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.Draw ignored: ")
@@ -125,10 +125,10 @@ class testmode_GM(_superclass_GM):
         Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write.
         Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion.
         """
-        ## _superclass_GM.Draw_after_highlighting(self, pickCheckOnly) # let testdraw do this if if wants to
+        ## _superclass_for_GM.Draw_after_highlighting(self, pickCheckOnly) # let testdraw do this if if wants to
         import exprs.testdraw as testdraw
         try:
-            return testdraw.Draw_after_highlighting(self, pickCheckOnly, self.o, _superclass_GM)
+            return testdraw.Draw_after_highlighting(self, pickCheckOnly, self.o, _superclass_for_GM)
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.Draw_after_highlighting ignored: ")
@@ -137,8 +137,8 @@ class testmode_GM(_superclass_GM):
     def leftDown(self, event):
         import exprs.testdraw as testdraw
         try:
-            testdraw.leftDown(self, event, self.o, _superclass_GM)
-                # note: if _superclass_GM.leftDown and/or gl_update should be called now, this must do it.
+            testdraw.leftDown(self, event, self.o, _superclass_for_GM)
+                # note: if _superclass_for_GM.leftDown and/or gl_update should be called now, this must do it.
                 # note: this might reload testdraw (inside self.emptySpaceLeftDown).
         except:
             #e history message?
@@ -178,7 +178,7 @@ class testmode_GM(_superclass_GM):
                 method(event, self) #e protect from exceptions?
         else:
             print "fyi: testmode passing leftDouble to superclass (since no drag_handler)" ####
-            _superclass_GM.leftDouble(self, event)
+            _superclass_for_GM.leftDouble(self, event)
         return
 
     def get_obj_under_cursor(self, event): #070322 [assume part of GraphicsMode even though not in all subclasses of that]
@@ -202,7 +202,7 @@ class testmode_GM(_superclass_GM):
         #  there is not yet a good-enough way for hover-highlighting behavior to be different during a drag).
         # For some purposes, overriding the determination of selobj in GLPane would be more useful and more flexible
         # than overriding this method; to affect highlighting behavior, it would be essential. [070323 comment]
-        res = _superclass_GM.get_obj_under_cursor(self, event)
+        res = _superclass_for_GM.get_obj_under_cursor(self, event)
         #e here is where we might let some other mode attr replace or wrap objects in specified classes. [070323 comment]
         if res is None:
             res = self.command._background_object # usually None, sometimes set during draw to something else [070322]
@@ -220,7 +220,7 @@ class testmode_GM(_superclass_GM):
                                        prefs_key = "A9 devel/testmode/reload on empty space leftDown" ) #070312, also in exprs/test.py
         if emptySpace_reload:
             self.command.reload()
-        _superclass_GM.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this? no... instead we override get_obj_under_cursor
+        _superclass_for_GM.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this? no... instead we override get_obj_under_cursor
 
     # let superclass do these -- no need to define them here and let testdraw intercept them:
 ##    def leftDrag(self, event):
@@ -271,15 +271,15 @@ class testmode_GM(_superclass_GM):
         self._update_MMB_policy()
         if self._capture_MMB:
             if methodname.endswith('Down'):
-                _superclass_GM.leftDown(self, event) # don't go through self.leftDown for now -- it's only used for reload, gl_update, etc
+                _superclass_for_GM.leftDown(self, event) # don't go through self.leftDown for now -- it's only used for reload, gl_update, etc
             elif methodname.endswith('Drag'):
-                _superclass_GM.leftDrag(self, event)
+                _superclass_for_GM.leftDrag(self, event)
             elif methodname.endswith('Up'):
-                _superclass_GM.leftUp(self, event)
+                _superclass_for_GM.leftUp(self, event)
             else:
                 assert 0, "bad methodname %r" % (methodname,)
         else:
-            method = getattr(_superclass_GM, methodname)
+            method = getattr(_superclass_for_GM, methodname)
             method(self, event)
         return
         
@@ -320,11 +320,11 @@ class testmode_GM(_superclass_GM):
         if key == 32:
             pass ## self._please_exit_loop = True
         else:
-            _superclass_GM.keyPressEvent(self, event) #060429 try to get ',' and '.' binding #bruce 070122 basicMode->superclass
+            _superclass_for_GM.keyPressEvent(self, event) #060429 try to get ',' and '.' binding #bruce 070122 basicMode->superclass
         return
     
     def keyReleaseEvent(self, event):
-        _superclass_GM.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->superclass
+        _superclass_for_GM.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->superclass
 
 ##    # probably unused, but mentioned in real code, and might be added back (related to self.myloop):
 ##    _please_exit_loop = False

@@ -1,11 +1,11 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 TemporaryCommand.py -- provides several kinds of TemporaryCommand superclasses
 (so far, just TemporaryCommand_Overdrawing, used for Zoom/Pan/Rotate).
 
 @author:    Mark, Bruce
 @version:   $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 """
 
@@ -58,32 +58,36 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
 
 class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
     """
-    A pre-mixin class for GraphicsModes which overrides their Draw method
-    to do the saved prior command's drawing
+    A pre-mixin class for GraphicsModes which want to override their
+    Draw_* methods to do the parent command's drawing
     (perhaps in addition to their own, if they subclass this
-     and further extend its Draw method, or if they do incremental
+     and further extend its Draw_* methods, or if they do incremental
      OpenGL drawing in event handler methods).
 
-    (If there is no saved prior command, which I think never happens
-     given how this is used as of 071012, this just calls super(...).Draw()
-     followed by (KLUGE) self.glpane.assy.draw(self.glpane).
-     TODO: clean that up. (Standard flag for drawing model??
-     Same one as in extrudeMode, maybe other commands.))
+    (If there is no parent command, which I think never happens
+     given how this is used as of 071012, this will raise an exception
+     when any of its Draw_* methods are called.)
+
+    @see: related class Delegating_GraphicsMode
     """
-    def Draw(self):
-        drew = self.commandSequencer.parentCommand_Draw( self.command)
-            # doing this fixes the bug in which Pan etc doesn't show the right things
-            # for BuildCrystal or Extrude modes (e.g. bond-offset spheres in Extrude)
-        if not drew:
-            # (This means no prior command was found. It is unrelated to any Draw method
-            #  return value, since there isn't one.)
-            # I think this can't happen, since our subclasses always run as a temporary
-            # command while suspending another one:
-            print "fyi: %s using fallback Draw code (I suspect this can never happen)" % self
-            super(Overdrawing_GraphicsMode_preMixin, self).Draw()
-            self.glpane.assy.draw(self.glpane)
-                # TODO: use flag in super Draw for whether it should do this; see docstring for more info
-        return
+    #bruce 090310 revised this
+    def Draw_preparation(self):
+        self.parentGraphicsMode.Draw_preparation()
+    
+    def Draw_axes(self):
+        self.parentGraphicsMode.Draw_axes()
+    
+    def Draw_model(self):
+        self.parentGraphicsMode.Draw_model()
+    
+    def Draw_other(self):
+        # doing this fixes the bug in which Pan etc doesn't show the right things
+        # for BuildCrystal or Extrude modes (e.g. bond-offset spheres in Extrude)
+        self.parentGraphicsMode.Draw_other()
+    
+    def Draw_after_highlighting(self, pickCheckOnly = False):
+        #bruce 090310 new feature (or bugfix) -- delegate this too
+        self.parentGraphicsMode.Draw_after_highlighting(pickCheckOnly = pickCheckOnly)
 
     pass
 

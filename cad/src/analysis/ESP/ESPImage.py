@@ -164,6 +164,14 @@ class ESPImage(RectGadget):
 
         self.pickCheckOnly = False #This is used to notify drawing code if
             # it's just for picking purpose
+            ### REVIEW/TODO: understanding how self.pickCheckOnly might be
+            # left over from one drawing call to another (potentially causing
+            # bugs) is a mess. It needs to be refactored so that it's just an
+            # argument to all methods it's passed through. This involves some
+            # superclass methods; maybe they can be overridden so the argument
+            # is only needed in local methods, I don't know. This is done in
+            # several Node classes, so I added this comment to all of them.
+            # [bruce 090310 comment]
         return
 
     def _initTextureEnv(self): # called during draw method
@@ -282,6 +290,9 @@ class ESPImage(RectGadget):
     def _createShape(self, selSense = START_NEW_SELECTION):
         """
         """
+        # REVIEW: this is used during drawing. Is that too slow?
+        # [bruce 090310 question]
+        
         hw = self.width/2.0
         wo = self.image_offset
         eo = self.edge_offset
@@ -314,22 +325,42 @@ class ESPImage(RectGadget):
         shape.select(self.assy)
         return
 
-    def findObjsInside(self):
+    def _findObjsInside(self):
         """
         Find objects [atoms or chunks] inside the shape
         """
+        # note: this is used during drawing. [bruce 090310 comment]
         shape = self._createShape()
         return shape.findObjInside(self.assy)
 
-    def highlightAtomChunks(self):
+    def _highlightObjsInside(self):
         """
-        highlight atoms
+        highlight atoms covered by self
         """
+        # Note: I refactored how this is called [and also renamed it
+        # from highlightAtomChunks], so it doesn't slow down
+        # every draw of every model by a complete scan of nodes just for
+        # this (even when this rarely-used Node class is not present
+        # in the model). It used to be called by its own model scanner,
+        # _highlightAtoms, in SelectAtoms_basicGraphicsMode, called during
+        # graphicsMode.Draw. Now it's called directly by self.draw (which is
+        # also called during .Draw, or after today's refactoring of .Draw,
+        # by .Draw_model).
+        #
+        # This is predicted to cause one observable change: we'll call this
+        # during all modes, not only subclasses of SelectAtoms mode.
+        # This is not obviously bad, and is hard to change, and this Node
+        # is no longer considered very important, so I'm not worrying about
+        # it for now. If you want to change it, don't reintroduce
+        # anything that slows down all drawing, like the old code did!
+        #
+        # [bruce 090310]
+
         if not self.highlightChecked:
             return 
 
         color = ave_colors( 0.8, green, black)
-        atomChunks = self.findObjsInside()
+        atomChunks = self._findObjsInside() # atoms or chunks
         for m in atomChunks:
             if isinstance(m, Chunk):
                 for a in m.atoms.itervalues():
@@ -395,10 +426,12 @@ class ESPImage(RectGadget):
     
     def draw(self, glpane, dispdef):
         """
-        Does nothing. All the drawing is done after the main drawing code is 
+        Most drawing is done after the main drawing code is 
         done. (i.e. in self.draw_after_highlighting()). 
         """
-        pass
+        #bruce 090310 revised this; it used to do nothing.
+        # See comment in the following method for details.
+        self._highlightObjsInside() 
     
     def draw_after_highlighting(self, 
                                 glpane, 
@@ -429,7 +462,10 @@ class ESPImage(RectGadget):
 
     def _draw_jig(self, glpane, color, highlighted = False):
         """
-        Draw a ESP Image jig as a plane with an edge and a bounding box.
+        Draw an ESPImage jig (self) as a plane with an edge and a bounding box.
+
+        @note: this is not called during graphicsMode.Draw_model as with most
+            Jigs, but during graphicsMode.Draw_after_highlighting.
         """
         glPushMatrix()
 
@@ -560,7 +596,7 @@ class ESPImage(RectGadget):
         sim_parms.temp = 300 # Room temp
 
         # Get updated multiplicity from this ESP image jig bbox
-        atomList = self.findObjsInside()
+        atomList = self._findObjsInside()
         self.multiplicity = getMultiplicity(atomList)        
 
         sim_parms.esp_image = self

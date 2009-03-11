@@ -139,8 +139,16 @@ class Plane(ReferenceGeometry):
         self.directionArrow =  None
 
         # This is used to notify drawing code if it's just for picking purpose
-        # copied from class ESPImage 
-        self.pickCheckOnly  = False 
+        # [copied from class ESPImage ]
+        self.pickCheckOnly  = False
+            ### REVIEW/TODO: understanding how self.pickCheckOnly might be
+            # left over from one drawing call to another (potentially causing
+            # bugs) is a mess. It needs to be refactored so that it's just an
+            # argument to all methods it's passed through. This involves some
+            # superclass methods; maybe they can be overridden so the argument
+            # is only needed in local methods, I don't know. This is done in
+            # several Node classes, so I added this comment to all of them.
+            # [bruce 090310 comment]
 
         self.editCommand      =  editCommand
         self.imagePath = ""

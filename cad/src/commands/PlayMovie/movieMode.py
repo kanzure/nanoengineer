@@ -1,10 +1,10 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 movieMode.py -- movie player mode.
 
 @author: Mark
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -22,15 +22,23 @@ ninad2008-08-21: Cleanup: a) to introduce command_enter/exit_* methods in the
 """
 
 import os
+
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QDialog, QGridLayout, QPushButton, QTextBrowser, SIGNAL, QCursor
+
+from utilities.Log import redmsg, orangemsg
+
 import foundation.env as env
 import foundation.changes as changes
-from command_support.modes import basicMode
-from utilities.Log import redmsg, orangemsg
-from commands.PlayMovie.MoviePropertyManager import MoviePropertyManager
-from ne1_ui.toolbars.Ui_PlayMovieFlyout import PlayMovieFlyout
 import foundation.undo_manager as undo_manager
+
+from command_support.modes import basicMode
+
+from commands.PlayMovie.MoviePropertyManager import MoviePropertyManager
+
+from ne1_ui.toolbars.Ui_PlayMovieFlyout import PlayMovieFlyout
+
+# ==
 
 class _MovieRewindDialog(QDialog):
     """
@@ -77,6 +85,10 @@ class _MovieRewindDialog(QDialog):
         self.accept()
     pass
 
+# ==
+
+_superclass = basicMode
+
 class movieMode(basicMode):
     """
     This class is used to play movie files.
@@ -97,7 +109,6 @@ class movieMode(basicMode):
 
     PM_class = MoviePropertyManager #bruce 080909
     
-    #Flyout Toolbar
     FlyoutToolbar_class = PlayMovieFlyout
     
     flyoutToolbar = None
@@ -107,7 +118,7 @@ class movieMode(basicMode):
         Extends superclass method. 
         @see: baseCommand.command_entered() for documentation.
         """
-        basicMode.command_entered(self)
+        _superclass.command_entered(self)
         #UPDATE 2008-09-18: Copying old code from self.Enter()
         # [bruce 050427 comment: I'm skeptical of this effect on selection,
         #  since I can't think of any good reason for it [maybe rendering speed optimization??],
@@ -157,7 +168,7 @@ class movieMode(basicMode):
             # note: this assumes this is the only movie which might be "open",
             # and that redundant _close is ok.
         
-        basicMode.command_will_exit(self)
+        _superclass.command_will_exit(self)
         return
 
     def _offer_to_rewind_if_necessary(self): #bruce 080806 split this out
@@ -188,7 +199,7 @@ class movieMode(basicMode):
         @see: baseCommand.command_enter_PM()  for documentation        
         """
 
-        basicMode.command_enter_PM(self) #bruce 080909 call this instead of inlining it      
+        _superclass.command_enter_PM(self) #bruce 080909 call this instead of inlining it      
             
         #@WARNING: The following code in command_enter_PM was originally in 
         #def init_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21       
@@ -300,8 +311,8 @@ class movieMode(basicMode):
         if self.o.assy.current_movie:
             self.o.assy.current_movie._reset()
 
-    def Draw(self):
-        basicMode.Draw(self)
+    def Draw_model(self):
+        _superclass.Draw_model(self)
         self.o.assy.draw(self.o)
 
     # mouse and key events
@@ -324,7 +335,7 @@ class movieMode(basicMode):
         if key == Qt.Key_Right or key == Qt.Key_Up:
             movie._playToFrame(movie.currentFrame + 1)
 
-        basicMode.keyPress(self, key) # So F1 Help key works. mark 060321
+        _superclass.keyPress(self, key) # So F1 Help key works. mark 060321
 
         return
 
@@ -333,6 +344,8 @@ class movieMode(basicMode):
         Update the cursor for 'Movie Player' mode.
         """
         self.o.setCursor(QCursor(Qt.ArrowCursor))
+
+    pass
 
 # ==
 

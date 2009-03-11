@@ -210,34 +210,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
             # modifier keys pressed together.
 
 
-
     #==START Highlighting related methods================================
-
-    def _highlightAtoms(self, grp):
-        """
-        Highlight atoms or chunks inside ESPImage jigs.
-        """
-        # Note: this is not directly related to
-        # ESPImage's translucency (handled by code in
-        # Utility.draw_after_highlighting() and/or
-        # GraphicsMode.Draw_after_highlighting()).
-        # Rather it's due to its wanting to overdraw
-        # certain model objects. AFAIK it doesn't need
-        # this separate pass to do that, but could just
-        # do it inside its draw method, but I'm not sure --
-        # maybe not unless that method ran during the usual
-        # pass. If that alg was fixed so that ESP draw did run then,
-        # it could do this itself and not need this special case,
-        # I suspect. (And this might be a slowdown.) [bruce 071026/090310]
-        if isinstance(grp, ESPImage):
-            grp.highlightAtomChunks()
-        elif isinstance(grp, Group):
-            for m in grp.members:
-                if isinstance(m, ESPImage):
-                    m.highlightAtomChunks()
-                elif isinstance(m, Group):
-                    self._highlightAtoms(m)
-        return
 
     def _getAtomHighlightColor(self, selobj):
         """
@@ -1837,14 +1810,6 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
     def rightCntlDown(self, event):
         _superclass.rightCntlDown(self, event)
         self.o.setCursor(self.w.SelectAtomsCursor)
-
-    def Draw(self):
-        """
-        Draw the model for Select Atoms mode.
-        """
-        _superclass.Draw(self)
-        self._highlightAtoms(self.o.assy.part.topnode)
-        return
 
     def update_selatom(self,
                        event,

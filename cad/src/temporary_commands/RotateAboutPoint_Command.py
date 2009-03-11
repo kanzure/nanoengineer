@@ -13,28 +13,32 @@ conference. This may be revised further.
 -- Need documentation
 """
 
-from temporary_commands.LineMode.Line_Command import Line_Command
-from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
-import foundation.env as env
-from utilities.prefs_constants import atomHighlightColor_prefs_key
-from model.chem import Atom # for isinstance check as of 2008-04-17
-
-from geometry.VQT import cross, norm, Q
 from Numeric import dot
-import math
-from graphics.drawing.CS_draw_primitives import drawline
+import math # for pi
+
+from utilities.prefs_constants import atomHighlightColor_prefs_key
 from utilities.constants import black
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 from utilities.debug import print_compact_stack, print_compact_traceback
 
-PI = 3.141593
+from geometry.VQT import cross, norm, Q
+
+import foundation.env as env
+
+from graphics.drawing.CS_draw_primitives import drawline
+
+from model.chem import Atom # for isinstance check as of 2008-04-17
+
+from temporary_commands.LineMode.Line_Command import Line_Command
+from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
+
+# ==
 
 _superclass_for_GM = Line_GraphicsMode
 
 class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 
     pivotPoint = None
-    referece_line_color = env.prefs[DarkBackgroundContrastColor_prefs_key]
 
     def Enter_GraphicsMode(self):
         #TODO: use this more widely,  than calling grapicsMode.resetVariables
@@ -42,16 +46,14 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
         #-- Ninad 2008-04-17
         self.resetVariables() # For safety
         
-    def Draw(self):
+    def Draw_other(self):
         """
-        Draw method for this temporary mode. 
         """
-        _superclass_for_GM.Draw(self)
+        _superclass_for_GM.Draw_other(self)
         
-
         if len(self.command.mouseClickPoints) >= 2:
             #Draw reference vector.             
-            drawline(self.referece_line_color,
+            drawline(env.prefs[DarkBackgroundContrastColor_prefs_key],
                      self.command.mouseClickPoints[0], 
                      self.command.mouseClickPoints[1], 
                      width = 4,
@@ -171,12 +173,12 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
         
         if len(self.command.mouseClickPoints) < 2:
             theta = self.glpane.get_angle_made_with_screen_right(vec) 
-            thetaString = "%5.2f deg"%(theta)
+            thetaString = "%5.2f deg" % (theta,)
         else:            
             ref_vector = norm(self.command.mouseClickPoints[1] - self.pivotPoint)
             quat = Q(vec, ref_vector)
-            theta = quat.angle*180.0/PI
-            thetaString = "%5.2f deg"%(theta)
+            theta = quat.angle * 180.0 / math.pi
+            thetaString = "%5.2f deg" % (theta,)
         
         return thetaString
 
@@ -196,6 +198,9 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
         else:
             self.glpane.setCursor(self.win.rotateAboutPointCursor)
 
+    pass # end of class RotateAboutPoint_GraphicsMode
+
+# ==
 
 class RotateAboutPoint_Command(Line_Command):
     
@@ -222,7 +227,7 @@ class RotateAboutPoint_Command(Line_Command):
         """
         
         if len(self.mouseClickPoints) != self.mouseClickLimit:
-            print_compact_stack("Rotate about point bug: mouseclick points != mouseclicklimit")
+            print_compact_stack("Rotate about point bug: mouseclick points != mouseclicklimit: ")
             return
             
         
@@ -270,71 +275,6 @@ class RotateAboutPoint_Command(Line_Command):
 
         self.glpane.gl_update()
         return
-
-    
-
-    def ORIG_rotateAboutPoint(self): #THIS IS NOT USED AS OF NOV 28, 2008 SCHEDULED FOR REMOVAL
-        """
-        Rotates the selected entities along the specified vector, about the
-        specified pivot point (pivot point it the starting point of the
-        drawn vector.
-        """
-        startPoint = self.mouseClickPoints[0]
-        endPoint = self.mouseClickPoints[1]
-        pivotAtom = self.graphicsMode.pivotAtom
-        #initial assignment of reference_vec. The selected movables will be
-        #rotated by the angle between this vector and the lineVector
-        reference_vec = self.glpane.right
-        if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk():
-            ##if env.prefs[foo_prefs_key]:
-            if True:
-                reference_vec = norm(self.glpane.right*pivotAtom.posn())
-            else:
-                mol = pivotAtom.molecule
-                reference_vec, node_junk = mol.getAxis_of_self_or_eligible_parent_node(
-                    atomAtVectorOrigin = pivotAtom)
-                del node_junk
-        else:
-            reference_vec = self.glpane.right
-                   
-            
-        lineVector = endPoint - startPoint
-
-        quat1 = Q(lineVector, reference_vec)
-        
-        
-        #DEBUG Disabled temporarily . will not be used
-        if dot(lineVector, reference_vec) < 0:
-            theta = math.pi - quat1.angle
-        else:
-            theta = quat1.angle
-
-        #TEST_DEBUG-- Works fine
-        theta = quat1.angle
-
-        rot_axis = cross(lineVector, reference_vec)
-        
-        
-        if dot(lineVector, reference_vec) < 0:
-            rot_axis = - rot_axis
-
-        cross_prod_1 = norm(cross(reference_vec, rot_axis))
-        cross_prod_2 = norm(cross(lineVector, rot_axis))
-
-        if dot(cross_prod_1, cross_prod_2) < 0:
-            quat2 = Q(rot_axis, theta)
-        else:
-            quat2 = Q(rot_axis, - theta)
-
-        movables = self.graphicsMode.getMovablesForLeftDragging()
-        self.assy.rotateSpecifiedMovables(
-            quat2,
-            movables = movables,
-            commonCenter = startPoint)
-
-        self.glpane.gl_update()
-        return
-
     
     def _results_for_request_command_caller(self):
         """
@@ -350,7 +290,6 @@ class RotateAboutPoint_Command(Line_Command):
         # sets self._results_callback,and superclass command_will_exit()
         #calls it with this method's return value
         return ()
-    
     
     pass # end of class RotateAboutPoint_Command
 

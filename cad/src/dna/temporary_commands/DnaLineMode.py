@@ -1,7 +1,7 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Ninad
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
 @license:   GPL
 
@@ -9,22 +9,24 @@ TODO:
 - User Preferences for different rubberband line display styles 
 """
 
-from temporary_commands.LineMode.Line_Command import Line_Command
-from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
-
-from graphics.drawing.drawDnaLadder import drawDnaLadder
-from graphics.drawing.drawDnaRibbons import drawDnaRibbons
-
 from utilities.constants import black, white
-
-import foundation.env as env
 
 from utilities.prefs_constants import dnaDefaultStrand1Color_prefs_key
 from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key
 
+import foundation.env as env
+
+from graphics.drawing.drawDnaLadder import drawDnaLadder
+from graphics.drawing.drawDnaRibbons import drawDnaRibbons
+
+from temporary_commands.LineMode.Line_Command import Line_Command
+from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
+
+
 # == GraphicsMode part
 
 _superclass_for_GM = Line_GraphicsMode
+
 class DnaLine_GM( Line_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of DnaLineMode.
@@ -34,7 +36,7 @@ class DnaLine_GM( Line_GraphicsMode ):
           implementation  of self.command (see class DnaLineMode)          
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
-    #first endpoint of the line. See Line_GraphicsMode.Draw for details. 
+    #first endpoint of the line. See Line_GraphicsMode.Draw_other for details. 
     endPoint1_sphereColor = white 
     endPoint1_sphereOpacity = 1.0
     
@@ -78,9 +80,8 @@ class DnaLine_GM( Line_GraphicsMode ):
             endPoint2 = self.endPoint2
             
         return endPoint2
-        
-      
-    def Draw(self):
+    
+    def Draw_other(self):
         """
         Draw the DNA rubberband line (a ladder representation)
         """
@@ -94,23 +95,27 @@ class DnaLine_GM( Line_GraphicsMode ):
         #@see: Line_GraphicsMode class definition about this flag. Basically we suppress
         #cursor text drawing in the superclass and draw later in this method
         #after everyting is drawn.
+        # [update, bruce 090310. This could use refactoring. Not urgent.]
         self._ok_to_render_cursor_text = False
-        _superclass_for_GM.Draw(self) 
+        _superclass_for_GM.Draw_other(self) 
         self._ok_to_render_cursor_text = True
         
         #This fixes NFR bug  2803
         #Don't draw the Dna rubberband line if the cursor is over the confirmation
-        #corner. But make sure to call superclass.Draw method before doing this 
+        #corner. But make sure to call superclass.Draw_other method before doing this 
         #check because we need to draw the rest of the model in the graphics 
-        #mode!. @see: Line_GraphicsMode.Draw
+        #mode!. @see: Line_GraphicsMode.Draw_other
+        # [update, bruce 090310: that superclass call no longer draws the model,
+        #  but might still be needed for other reasons. Also, how this is implemented
+        #  is questionable; see longer review comment in the superclass.]
         handler = self.o.mouse_event_handler
         if handler is not None and handler is self._ccinstance:
             return
         
         if self.endPoint2 is not None and \
-           self.endPoint1 is not None: 
+           self.endPoint1 is not None:
             
-            #Draw the ladder. 
+            #Draw the ladder.
             #Convention:
             # The red band(beam) of the 
             # ladder is always the 'leading edge' of the ladder. i.e. the red 
@@ -133,7 +138,7 @@ class DnaLine_GM( Line_GraphicsMode ):
             # orientation while drawing the ladder
             
             if self.command.callback_rubberbandLineDisplay() == 'Ladder':
-                #Note there needs to be a radio button to switch on the 
+                # Note: there needs to be a radio button to switch on the 
                 # rubberband ladder display for a dna line. At the moment it is 
                 # disabled and is superseded by the ribbons ruberband display. 
 
@@ -146,7 +151,7 @@ class DnaLine_GM( Line_GraphicsMode ):
                               beam1Color = env.prefs[dnaDefaultStrand1Color_prefs_key],
                               beam2Color = env.prefs[dnaDefaultStrand2Color_prefs_key],
                               )
-            elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':  
+            elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':
                 #Default dna rubberband line display style       
                 drawDnaRibbons(self.glpane,
                                self.endPoint1,
@@ -164,10 +169,13 @@ class DnaLine_GM( Line_GraphicsMode ):
                 pass
             
             self._drawCursorText()
-            
-                    
+            pass
+        return
+
+    pass # end of class DnaLine_GM
 
 # == Command part
+
 class DnaLineMode(Line_Command): # not used as of 080111, see docstring
     """
     [no longer used as of 080111, see details below]
@@ -214,5 +222,6 @@ class DnaLineMode(Line_Command): # not used as of 080111, see docstring
         """
         pass
     
-    
-    
+    pass
+
+# end

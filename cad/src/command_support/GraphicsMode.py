@@ -317,12 +317,14 @@ class basicGraphicsMode(GraphicsMode_API):
 
     # ==
 
-    def Draw(self): #bruce 090310 deprecated this; will remove it from the GM API
+    def Draw(self): #bruce 090310 refactoring this; will remove it from the GM API very soon
         """
         [temporary method for compatibility as we refactor Draw;
-         should not be overridden or extended]
+         should not be overridden or extended -- instead, override
+         or extend one of the following methods which it calls]
         """
-        # when done, enable this: ## print_compact_stack( "bug: old code is calling %r.Draw(): " % self)
+        ##### when done, enable this debug print:
+        ## print_compact_stack( "bug: old code is calling %r.Draw(): " % self)
         self.Draw_preparation() #bruce 090310 do this first, not last or in middle as before
         self.Draw_axes()
         self.Draw_model()
@@ -517,6 +519,8 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         pass
 
+    # ==
+    
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         """
         Do more drawing, after the main drawing code has completed its

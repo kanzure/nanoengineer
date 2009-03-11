@@ -1990,20 +1990,22 @@ class Node( StateMixin):
                                 dispdef, 
                                 pickCheckOnly = False):
         """
-        Things to draw after highlighting. Subclasses can override this 
-        method. Default implementation draws nothing and returns False
-        (which is correct for most kinds of Nodes, at present).
-        
         Draw the part of self's graphical appearance (or that of its members
-        if its a Group) that needs to be drawn AFTER the main drawing 
-        code has completed its highlighting/stenciling for selobj.
+        if it's a Group) that needs to be drawn AFTER the main drawing
+        code has completed its highlighting/stenciling for selobj,
+        and after main model and graphicsMode drawing (Draw_model,
+        Draw_other, etc).
+
+        Subclasses can override this method. Default implementation
+        draws nothing and returns False (which is correct for most kinds
+        of Nodes, at present). Overridden in class Group.
         
         @param pickCheckOnly: [needs documentation of its effect]
                               (for example use, see this method in class Plane)
         @type pickCheckOnly: boolean
         
         @return: A boolean flag 'anythingDrawn' that tells whether this method
-        drew something. 
+            drew anything.
         @rtype: boolean
         
         @see: GraphicsMode.Draw_after_highlighting() which calls this method

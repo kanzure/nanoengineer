@@ -43,6 +43,9 @@ class Delegating_GraphicsMode(GraphicsMode_interface): #bruce 090307
     """
     Abstract class for GraphicsModes which delegate almost everything
     to their parentGraphicsMode.
+
+    @see: related class Overdrawing_GraphicsMode_preMixin,
+        used in TemporaryCommand_Overdrawing
     """
     # implem note: We can't use idlelib.Delegator to help implement this class,
     # since the delegate needs to be dynamic.

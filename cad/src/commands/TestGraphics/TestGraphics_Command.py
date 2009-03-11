@@ -25,7 +25,7 @@ from utilities.debug import register_debug_menu_command
 import graphics.widgets.GLPane_rendering_methods as GLPane_rendering_methods
 import prototype.test_drawing as test_drawing
 
-from prototype.test_drawing import AVAILABLE_TEST_CASES_ITEMS, test_Draw
+from prototype.test_drawing import AVAILABLE_TEST_CASES_ITEMS, test_Draw_model
 
 import foundation.env as env
 
@@ -118,19 +118,19 @@ class TestGraphics_GraphicsMode(Delegating_GraphicsMode):
 ##        """
 ##        return env.prefs[hoverHighlightingColor_prefs_key]
 
-    def Draw(self):
-        # Redirect Draw to test_drawing when TEST_DRAWING is set.
+    def Draw_model(self):
+        # Redirect Draw_model to test_drawing.py when TEST_DRAWING is set.
         if GLPane_rendering_methods.TEST_DRAWING:
-            test_Draw(self.glpane)
+            test_Draw_model(self.glpane)
         else:
             # delegate to parentCommand version
-            self.parentGraphicsMode.Draw()
-                # see also: parentCommand_Draw, TemporaryCommand_Overdrawing,
+            self.parentGraphicsMode.Draw_model()
+                # see also: TemporaryCommand_Overdrawing,
                 # Overdrawing_GraphicsMode_preMixin
-                # (related, but they do nothing besides this that we need here)
+                # (related, but they do nothing besides this that we need here);
+                # see also our superclass Delegating_GraphicsMode
         return
 
-    
     def gm_end_of_paintGL(self, glpane):
         """
         This is called near the end of every call of glpane.paintGL,

@@ -1,11 +1,11 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 NanoHive.py - dialog and control code for running ESP (and other?)
 calculations using NanoHive
 
 @author: Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification: has ui/control/ops code; put in ui for now.
 """
@@ -21,16 +21,16 @@ from utilities.constants import filesplit
 from utilities.Log import redmsg, greenmsg, orangemsg
 
 from analysis.ESP.NanoHiveDialog import Ui_NanoHiveDialog
-from analysis.ESP.ESPImage import ESPImage # no longer a cyclic import [bruce 071215]
+from analysis.ESP.ESPImage import ESPImage
 from analysis.ESP.NanoHiveUtils import run_nh_simulation
 
 from analysis.ESP.NanoHive_SimParameters import NanoHive_SimParameters
 
 cmd = greenmsg("Nano-Hive: ")
 
-# get_partname() should be a global function.  Mark 050915.
-# [or, better, an assy method. bruce 071215]
-def get_partname(assy):
+# _get_partname() should be a global function.  Mark 050915.
+# [or, better, refile it as an assy method. bruce 071215]
+def _get_partname(assy):
     """
     Returns the base name of the part.  If the filename is not set,
     returns "Untitled".
@@ -41,9 +41,9 @@ def get_partname(assy):
     else:
         return "Untitled"
 
-def find_all_ESP_image_jigs_under( root):
+def _find_all_ESPImage_jigs_under( root):
     """
-    Returns a list of ESP Image jigs.
+    Returns a list of ESPImage jigs.
     """
     # Code copied from node_indices.find_all_jigs_under().  Mark 050919.
     res = []
@@ -101,7 +101,7 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
     def _init_dialog(self):
         
         # Fill in the name_linedit widget.
-        self.name_linedit.setText(get_partname(self.assy))
+        self.name_linedit.setText(_get_partname(self.assy))
         
         self.MPQC_ESP_checkbox.setChecked(False)
         self.MPQC_GD_checkbox.setChecked(False)
@@ -112,7 +112,7 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         self.Measurements_to_File_checkbox.setChecked(False)
         self.POVRayVideo_checkbox.setChecked(False)
         
-# == Slots for Nano-Hive Dialog
+    # == Slots for Nano-Hive Dialog
                 
     def accept(self):
         """
@@ -142,9 +142,10 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         
     def populate_ESP_image_combox(self):
         """
-        Populates the ESP Image combo box with the names of all ESP Image jigs in the current part.
+        Populates the ESP Image combo box with the names of all ESPImage jigs
+        in the current part.
         """
-        self.esp_image_list = find_all_ESP_image_jigs_under(self.assy.tree)
+        self.esp_image_list = _find_all_ESPImage_jigs_under(self.assy.tree)
         
         self.ESP_image_combox.clear()
         for jig in self.esp_image_list:
@@ -184,7 +185,7 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         """
         print "MPQC Gradient Dynamics Options dialog is not implemented yet."
         
-# ==
+    # ==
 
     def get_sim_id(self):
         """
@@ -264,5 +265,7 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         results_to_save = self.get_results_to_save()
         
         run_nh_simulation(self.assy, sim_name, sim_parms, sims_to_run, results_to_save)
-            
+
+    pass
+
 # end

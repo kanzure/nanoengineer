@@ -1,21 +1,27 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Urmi, Mark
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
+@copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 """
+
+from utilities.constants import gray, black, darkred, blue, white
+
+from graphics.drawing.drawPeptideTrace import drawPeptideTrace ##, drawPeptideTrace_orig
 
 from temporary_commands.LineMode.Line_Command import Line_Command
 from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
 
-from graphics.drawing.drawPeptideTrace import drawPeptideTrace, drawPeptideTrace_orig
-
-from utilities.constants import gray, black, darkred, blue, white
-
 from protein.commands.InsertPeptide.PeptideGenerator import PeptideGenerator, get_unit_length
+    # note: it would be better to move those into some other file
+    # so we didn't need to import them from another command
+    # (potential import cycle if that command ever needs to refer to this one)
+    # [bruce 090310 comment]
 
-# == GraphicsMode part
+# ==
+
+_superclass_for_GM = Line_GraphicsMode
 
 class PeptideLine_GraphicsMode( Line_GraphicsMode ):
     """
@@ -25,15 +31,14 @@ class PeptideLine_GraphicsMode( Line_GraphicsMode ):
                   
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
-    #first endpoint of the line. See Line_GraphicsMode.Draw for details. 
+    #first endpoint of the line. See Line_GraphicsMode.Draw_other for details. 
     endPoint1_sphereColor = white 
     endPoint1_sphereOpacity = 1.0
     
-    text = ''
+    text = ""
 
     structGenerator = PeptideGenerator()
 
-        
     def leftUp(self, event):
         """
         Left up method.
@@ -58,23 +63,36 @@ class PeptideLine_GraphicsMode( Line_GraphicsMode ):
         """
                 
         if self.command.callbackForSnapEnabled() == 1:
-            endPoint2  = Line_GraphicsMode.snapLineEndPoint(self)
+            endPoint2  = _superclass_for_GM.snapLineEndPoint(self)
         else:
             endPoint2 = self.endPoint2
             
         return endPoint2
+    
+    def Draw_other(self):
+        """
+        """
+        _superclass_for_GM.Draw_other(self)
         
-      
-    def Draw(self):
-        """
-        Draw the Nanotube rubberband line (a ladder representation)
-        """
-        Line_GraphicsMode.Draw(self)        
         if self.endPoint2 is not None and \
            self.endPoint1 is not None:
             
             # Generate a special chunk that contains only alpha carbon atoms
             # that will be used to draw the peptide backbone trace.
+            # [by Mark, I guess?]
+
+            # Note: this chunk is used only for its (ordered) atom positions;
+            # it's not drawn in the usual way, and it's not part of the model.
+            # So this belongs in Draw_other, not Draw_model.
+            #
+            ### REVIEW: this is probably very slow, compared to just generating
+            # the positions and passing a position-list to drawPeptideTrace.
+            # It's conceivable it also introduces bugs to do it this way
+            # (depending on whether making this chunk has any side effects
+            #  on assy) -- I don't know of any, but didn't look closely.
+            #
+            # [bruce comments 090310]
+            
             alphaCarbonProteinChunk = \
                                     self.structGenerator.make_aligned(
                                         self.win.assy, "", 0, 
@@ -100,5 +118,7 @@ class PeptideLine_GraphicsMode( Line_GraphicsMode ):
 
             pass
         return
+    
     pass # end of class PeptideLine_GraphicsMode
 
+# end
