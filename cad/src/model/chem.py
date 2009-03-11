@@ -2257,7 +2257,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         This means that if the distance tolerance should depend on the
         elements or bonding status (or any other property) of a pair
         of too-close atoms, this can be implemented in this method
-        by only drawing the indicator around seld if one of the atoms
+        by only drawing the indicator around self if one of the atoms
         in the argument is in fact too close to self, considering
         that property of the pair of atoms.
 
