@@ -104,7 +104,7 @@ class GraphicsMode_API(GraphicsMode_interface):
         # but which receives a single argument which will be the GLPane.
 
     check_target_depth_fudge_factor = 0.0001
-        # affects GLPane's algorithm for finding objectUnderMouse (selobj)
+        # affects GLPane's algorithm for finding selobj (aka objectUnderMouse)
 
 
     # default methods of various kinds:
@@ -158,7 +158,7 @@ class GraphicsMode_API(GraphicsMode_interface):
     def draw_overlay(self): # misnamed
         return
 
-    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
+    def Draw_highlighted_selobj(self, glpane, selobj, hicolor):
         """
         @see: GraphicsMode version, for docstring
         """

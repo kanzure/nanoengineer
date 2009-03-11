@@ -1039,7 +1039,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         #   if it was (probably an important optimization).
         selobj, hicolor = self._selobj_and_hicolor
         if selobj is not None:
-            self.draw_highlighted_objectUnderMouse(selobj, hicolor)
+            self._draw_highlighted_selobj(selobj, hicolor)
                 # REVIEW: is it ok that the mode had to tell us selobj and hicolor
                 # (and validate selobj) before drawing the model?
 

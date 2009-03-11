@@ -474,23 +474,28 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     # ==
 
-    #### REVIEW: the methods draw_in_abs_coords and nodes_containing_selobj
-    # don't make sense in this class in the long run, since it is not meant
-    # to be directly used as a "selobj" or as a Node. I presume they are
-    # only needed by temporary testing and debugging code, and they should be
-    # removed when no longer needed. [bruce 090114 comment]
-    
-    # Russ 081128: Used by preDraw_glselect_dict() in standard_repaint_0(), and
-    # draw_highlighted_objectUnderMouse() in _do_other_drawing_inside_stereo().
-    def draw_in_abs_coords(self, glpane, color):
-        self.draw(highlighted = True, highlight_color = color)
-        return
-
-    # Russ 081128: Used by GLPane._update_nodes_containing_selobj().
-    def nodes_containing_selobj(self):
-        # XXX Only TestGraphics_GraphicsMode selects CSDL's now, so no
-        # XXX connection to the Model Tree.
-        return []
+#### NOTE: the methods draw_in_abs_coords and nodes_containing_selobj
+# don't make sense in this class in the long run, since it is not meant
+# to be directly used as a "selobj" or as a Node. I presume they are
+# only needed by temporary testing and debugging code, and they should be
+# removed when no longer needed. [bruce 090114 comment]
+#
+# Update, bruce 090311: I'm removing them now (since we need to test the
+# claim that nothing but test code depends on them). Any testCases this
+# breaks should be rewritten to put their CSDLs inside wrapper objects
+# which provide these methods.
+#
+##    # Russ 081128: Used by preDraw_glselect_dict() in standard_repaint_0(), and
+##    # _draw_highlighted_selobj() in _do_other_drawing_inside_stereo().
+##    def draw_in_abs_coords(self, glpane, color):
+##        self.draw(highlighted = True, highlight_color = color)
+##        return
+##
+##    # Russ 081128: Used by GLPane._update_nodes_containing_selobj().
+##    def nodes_containing_selobj(self):
+##        # XXX Only TestGraphics_GraphicsMode selects CSDL's now, so no
+##        # XXX connection to the Model Tree.
+##        return []
 
     # ==
 

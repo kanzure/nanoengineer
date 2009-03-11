@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 SelectChunks_GraphicsMode.py
 
@@ -13,7 +13,7 @@ For example:
 
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 
 TODO:
@@ -655,9 +655,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         It calls separate method for objects that implement drag handler API
 
         @param  event: mouse left drag event
-        @see : selectMode.leftDrag
-        @see : SelectChunks_GraphicsMode._leftDown_preparation_for_dragging
-        @see : SelectChunks_GraphicsMode.leftDragTranslation
+        @see: selectMode.leftDrag
+        @see: SelectChunks_GraphicsMode._leftDown_preparation_for_dragging
+        @see: SelectChunks_GraphicsMode.leftDragTranslation
 
         """
 
@@ -709,7 +709,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         leftDrag method (leftDragTranslation) .
         @param event: Mouse left down event
         @param objectUnderMouse: Object under the mouse during left down event.
-        @see : self.leftDown()
+        @see: self.leftDown()
         @see: self.getMovablesForLeftDragging()
         """
         #pseudo move mode related initialization STARTS
@@ -749,7 +749,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
     def _leftDragFreeTranslation(self, event):
         """
-        @see : self.leftDrag()
+        @see: self.leftDrag()
         @see: self._leftDragFreeTranslation()
         @see: self._leftDragConstrainedTranslation()
         """
@@ -967,7 +967,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                  (usually, this is just whether we drew something)
         @rtype: boolean
         @see: self._get_objects_to_highlight()
-        @see : self.drawHighlightedObjectUnderMouse()
+        @see: self.Draw_highlighted_selobj()
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into
         # SelectChunks_GraphicsMode and slightly revised it (including, adding the return
@@ -1016,7 +1016,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @return: dictionary of objects to be highlighted.
         @rtype: dict
         @see: self.drawHighlightedChunk()
-        @see : self.drawHighlightedObjectUnderMouse()
+        @see: self.Draw_highlighted_selobj()
         """
 
         #Create a dictionary of objects to be drawn highlighted.
@@ -1078,13 +1078,11 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
         return objectDict
     
-    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
+    def Draw_highlighted_selobj(self, glpane, selobj, hicolor):
         """
         [overrides superclass method]
         @see: self._get_objects_to_highlight()
         @see: self.drawHighlightedChunk()
-
-
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into
         # SelectChunks_GraphicsMode and slightly revised it.
@@ -1101,10 +1099,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             # The prior code was equivalent to every subclass doing that.
             # - [bruce 071008]
         if not skip_usual_selobj_highlighting:
-            _superclass.drawHighlightedObjectUnderMouse(self,
-                                                        glpane,
-                                                        selobj,
-                                                        hicolor)
+            _superclass.Draw_highlighted_selobj(self,
+                                                glpane,
+                                                selobj,
+                                                hicolor)
         return
 
     def _getAtomHighlightColor(self, selobj):

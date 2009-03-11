@@ -1,7 +1,7 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Ninad 2008-01-25: Split modifyMode into Commmand and GraphicsMode classes
@@ -161,7 +161,7 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
         - or slide and rotate along the an axis
 
         @param event: The mouse left drag event.
-        @see : self.leftDrag()
+        @see: self.leftDrag()
         @see: self._leftDragFreeTranslation()
         @see: self._leftDragConstrainedTranslation()
         """

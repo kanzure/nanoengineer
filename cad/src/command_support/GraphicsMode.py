@@ -318,10 +318,13 @@ class basicGraphicsMode(GraphicsMode_API):
     # ==
 
     # Note: toplevel drawing methods in the GraphicsMode API for its GLPane
-    # are called Draw_* (capital D) (at least the main ones for drawing the
-    # model and related things, in model coordinates -- a few older ones
-    # have not been reviewed for renaming to make this a consistent division).
-    # Other drawing methods use a lowercase 'd'. [bruce 090311 comment]
+    # have names starting with Draw_ (capital 'D') whenever they are intended
+    # for drawing the model, or objects in the same 3d space. They are all called
+    # within the stereo image loop, and with absolute model coordinates current.
+    #
+    # Other drawing methods in this API start with "draw" (lower-case 'd')
+    # (or perhaps something else if they are older and I missed them in my
+    #  review today), and are called under other conditions. [bruce 090311]
 
     def Draw(self): #bruce 090310-11 split this up and removed it from the GraphicsMode API
         """
@@ -610,33 +613,42 @@ class basicGraphicsMode(GraphicsMode_API):
             return True # let the selobj remain
         pass
 
-    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
+    def Draw_highlighted_selobj(self, glpane, selobj, hicolor):
         """
         [overrides GraphicsMode_API method]
 
-        Subclasses should override this as needed, though most don't need to:
-
-        Draw selobj in highlighted form for being the object under the mouse,
+        Draw selobj in highlighted form for being the "object under the mouse",
         as appropriate to this graphics mode.
         [TODO: document this properly: Use hicolor as its color
         if you return sensible colors from method XXX.]
 
+        Subclasses should override this as needed (for example, to highlight a
+        larger object that contains selobj), though many don't need to.
+
         Note: selobj is typically glpane.selobj, but don't assume this.
         """
+        #bruce 090311 renamed this from drawHighlightedObjectUnderMouse;
+        # it now starts with Draw_ since it's called inside the stereo loop
         selobj.draw_in_abs_coords(glpane, hicolor)
 
     def draw_glpane_label(self, glpane):
-        ### review: rename to start with Draw_, or reserve that prefix for
-        # when the same coords are in use as when calling Draw_model? [bruce 090311 Q]
         """
-        #doc [see doc in the glpane method we call] [#doc coord sys when called]
+        [part of the GraphicsMode API for drawing into a GLPane]
         
-        @note: called from GLPane.paintGL shortly after graphicsMode.Draw_*()
+        This is called with model coordinates, but outside of stereo loops,
+        once per paintGL call, after model drawing. It is meant to allow
+        the GraphicsMode to draw a text label for the entire GLPane.
+        
+        The default implementation determines the text by calling
+        glpane.part.glpane_label_text() and draws it using
+        glpane.draw_glpane_label_text (which uses a standard
+        location and style for a whole-glpane label).
         """
         #bruce 090219 moved this here from part.py, renamed from draw_text_label
         # (after refactoring it the prior day, 090218)
         
         # (note: caller catches exceptions, so we don't have to bother)
+        # (not named with a capital 'D' since not inside stereo loop [bruce 090311])
 
         text = self.glpane.part.glpane_label_text()
         if text:

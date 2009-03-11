@@ -412,7 +412,8 @@ class GLPane_highlighting_methods(object):
         """
         return self.assy.alloc_my_glselect_name(obj)
     
-    def draw_highlighted_objectUnderMouse(self, selobj, hicolor): #bruce 070920 split this out
+    def _draw_highlighted_selobj(self, selobj, hicolor):
+        #bruce 070920 split this out; 090311 renamed it
         """
         Draw selobj in highlighted form, using its "selobj drawing interface"
         (not yet a formal interface; we use several methods including draw_in_abs_coords).
@@ -492,7 +493,7 @@ class GLPane_highlighting_methods(object):
                 # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
                 #  though it can't be tested yet since it has no known effect on current code, only on future code.]
             def func():
-                self.graphicsMode.drawHighlightedObjectUnderMouse( self, selobj, hicolor)
+                self.graphicsMode.Draw_highlighted_selobj( self, selobj, hicolor)
                 # TEST someday: test having color writing disabled here -- does stencil write still happen??
                 # (not urgent, since we definitely need color writing here.)
                 return
@@ -500,7 +501,7 @@ class GLPane_highlighting_methods(object):
         except:
             # try/except added for GL-state safety, bruce 061218
             print_compact_traceback(
-                "bug: exception in %r.drawHighlightedObjectUnderMouse for %r ignored: " % \
+                "bug: exception in %r.Draw_highlighted_selobj for %r ignored: " % \
                 (self.graphicsMode, selobj)
             )
             pass
@@ -540,7 +541,7 @@ class GLPane_highlighting_methods(object):
         
         glDisable(GL_STENCIL_TEST)
         
-        return # from draw_highlighted_objectUnderMouse
+        return # from _draw_highlighted_selobj
     
     def preDraw_glselect_dict(self): #bruce 050609
         """

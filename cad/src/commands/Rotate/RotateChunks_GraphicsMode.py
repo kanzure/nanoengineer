@@ -1,7 +1,7 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Ninad 2008-01-25: Split the former 'modifyMode ' 
@@ -153,7 +153,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
 
         @param event: The mouse left drag event.
         @type  event: QMouseEvent object
-        @see : self.leftDrag
+        @see: self.leftDrag
         """
 
         if self.command and self.command.propMgr and \
@@ -227,8 +227,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
 
         @param event: The mouse left drag event.
         @type  event: QMouseEvent instance
-        @see : self.leftDragRotation
-
+        @see: self.leftDragRotation
         """
 
         selectedMovables = self._leftDrag_movables

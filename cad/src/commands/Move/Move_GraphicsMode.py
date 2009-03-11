@@ -221,7 +221,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
             return
 
         if self.o.modkeys is not None:
-            #@see : comment related to this condition in _superclass.leftDrag
+            #@see: comment related to this condition in _superclass.leftDrag
             self.emptySpaceLeftDown(self.LMB_press_event)
             return
 
