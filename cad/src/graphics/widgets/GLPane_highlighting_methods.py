@@ -181,7 +181,7 @@ class GLPane_highlighting_methods(object):
                     for stereo_image in self.stereo_images_to_draw:
                         self._enable_stereo(stereo_image)
                         try:
-                            self._do_graphicsMode_Draw()
+                            self._do_graphicsMode_Draw(for_mouseover_highlighting = True)
                                 # note: we can't disable depth writing here, 
                                 # since we need it to make sure the correct 
                                 # shader object comes out on top, or is
@@ -296,7 +296,7 @@ class GLPane_highlighting_methods(object):
                 for stereo_image in self.stereo_images_to_draw:
                     self._enable_stereo(stereo_image)
                     try:
-                        self._do_graphicsMode_Draw()
+                        self._do_graphicsMode_Draw(for_mouseover_highlighting = True)
                     finally:
                         self._disable_stereo()
             except:

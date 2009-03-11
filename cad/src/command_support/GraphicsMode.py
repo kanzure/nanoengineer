@@ -319,8 +319,13 @@ class basicGraphicsMode(GraphicsMode_API):
 
     # Note: toplevel drawing methods in the GraphicsMode API for its GLPane
     # have names starting with Draw_ (capital 'D') whenever they are intended
-    # for drawing the model, or objects in the same 3d space. They are all called
+    # for drawing the model, or objects in the same 3d space. They are called
     # within the stereo image loop, and with absolute model coordinates current.
+    #
+    # (There is one exception: Draw_preparation is named this way, but is called
+    # only once per paintGL call, because it's intended not for drawing, but for
+    # preparing for the other Draw_ methods to be called. Its name matches their
+    # names to indicate this association.)
     #
     # Other drawing methods in this API start with "draw" (lower-case 'd')
     # (or perhaps something else if they are older and I missed them in my
@@ -332,16 +337,30 @@ class basicGraphicsMode(GraphicsMode_API):
          should not be overridden or extended -- instead, override
          or extend one of the following methods which it calls]
         """
-        # this should never happen as of 090311
+        # this should never be called as of 090311
         print_compact_stack( "bug: old code is calling %r.Draw(): " % self)
         self.Draw_preparation() #bruce 090310 do this first, not last or in middle as before
+            # note: this is the wrong (suboptimal) place to call Draw_preparation.
+            # The new code that replaces this method calls it correctly --
+            # outside the stereo loop, and not for internal highlighting draws.
         self.Draw_axes()
+        self.Draw_other_before_model()
         self.Draw_model()
         self.Draw_other()
         return
 
-    def Draw_preparation(self): #bruce 090310 split .Draw API
+    def Draw_preparation(self): #bruce 090310-11 split .Draw API
         """
+        Do whatever updates and calculations are needed before drawing
+        anything during one paintGL call.
+
+        Unlike the other Draw_ methods, this is only called once per
+        paintGL call -- not once per stereo image, and not during internal
+        redraws to implement mouseover highlighting.
+
+        (A potential use for this method is to decide what needs to be
+        drawn at all by other Draw_ methods during the same paintGL call.)
+        
         [subclasses should extend as needed]
         """
         # bruce 040929/041103 debug code -- for developers who enable this
@@ -352,7 +371,7 @@ class basicGraphicsMode(GraphicsMode_API):
             self.o.assy.checkpicked(always_print = 0)
         return
 
-    def Draw_axes(self): #bruce 090310 split .Draw API
+    def Draw_axes(self): #bruce 090310-11 split .Draw API
         """
         Draw the origin and/or point of view axes, according to user prefs.
 
@@ -404,32 +423,79 @@ class basicGraphicsMode(GraphicsMode_API):
             pass
         return
 
-    def Draw_model(self): #bruce 090310 split .Draw API
+    def Draw_other_before_model(self): #bruce 090310-11 split .Draw API
         """
-        Draw whatever part of the model is desired.
+        Draw things in immediate mode OpenGL (not using CSDLs/DrawingSets)
+        (but it's ok to compile and/or call OpenGL display lists)
+        which need to be drawn before the model, but which lie in
+        the same 3d space as the model.
         
-        @note: the base implem doesn't draw the model,
-               since not all modes want to always draw it.
+        @see: Draw_model (for more info about what goes in what method)
+        @see: Draw_other (for drawing after the model)
+        
+        [subclasses should extend as needed]
+        """
+        # TODO: detect error of using CSDLs in this method
+        return
+    
+    def Draw_model(self): #bruce 090310-11 split .Draw API
+        """
+        Draw whatever part of the model (or anything else in the same 3d space)
+        is desired by self, using CSDLs and DrawingSets (if they are enabled).
+        
+        @note: the base implementation draws nothing,
+               since not all modes want to always draw the model.
+
+        @note: these methods are probably misnamed -- the real difference
+            between Draw_other* and Draw_model is whether they can use
+            CSDLs/dsets (ColorSortedDisplayLists and DrawingSets).
+            Draw_model can, and these can be cached so it needn't
+            be called again on every frame. The Draw_other* methods
+            currently can't, and they are called more often --
+            up to several times per paintGL call (due to mouseover
+            highlighting).
+
+        @note: if immediate-mode OpenGL is used here, including calls of
+            OpenGL display lists, it won't be visible when certain drawing
+            speed optimizations are turned on (which avoid calls of this
+            method by reusing cached DrawingSets).
+
+        @note: as of 090311, many Node.draw methods violate the rule about
+            not using immediate-mode OpenGL in this method.
+
+        @see: Draw_other, Draw_other_before_model, Draw_axes, Draw_preparation
 
         [subclasses should extend as needed]
         """
-        # review: we might revise this API to draw it by default,
-        # so the few modes that don't want to should override this
-        # to draw nothing; or we might add a class attr about
-        # whether to draw it.
+        # review: we might revise this API to draw the model (i.e. to call
+        # self.part.draw) by default, so the few modes that don't want to
+        # draw it should override this to draw nothing (rather than lots of
+        # modes having to call that themselves); or we might add a class attr
+        # about whether to draw it.
         return
     
-    def Draw_other(self): #bruce 090310 split .Draw API
+    def Draw_other(self): #bruce 090310-11 split .Draw API
         """
-        Draw things other than the axes and model,
-        e.g. handles, cursor text, selection curve,
-        interactive construction guides, etc.
+        Draw things in immediate mode OpenGL (not using CSDLs/DrawingSets)
+        (but it's ok to compile and/or call OpenGL display lists)
+        which need to be drawn after the model, but which lie in
+        the same 3d space as the model.
+        
+        @see: Draw_model (for more info about what goes in what method)
+
+        @note: this is typically used for things like handles, cursor text,
+            selection curve, interactive construction guides, etc,
+            but that's only because they are not presently drawn using
+            CSDLs/DrawingSets. If they are drawn that way in the future,
+            they should be moved out of Draw_other and into Draw_model.
         
         [subclasses should extend as needed, and/or extend the methods
          called by the base implementation (which are part of this class's
          API for its subclasses, but are not part of the GraphicsMode_interface
          itself): _drawTags, _drawSpecialIndicators, _drawLabels]
         """
+        # TODO: detect error of using CSDLs in this method
+
         # Review: it might be cleaner to revise _drawTags,
         # _drawSpecialIndicators, and _drawLabels, to be public methods
         # of GraphicsMode_API. Presently they are not part of it at all;

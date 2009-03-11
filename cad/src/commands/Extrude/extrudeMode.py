@@ -1744,27 +1744,12 @@ class extrudeMode(basicMode):
         # spheres" (works but doesn't always look good)
         #bruce 050222 update - Mark wants this "always on" for now... 
         # but I ought to clean up the code sometime soon
-    
-    def Draw_preparation(self):
-        """
-        """
-        # KLUGE: Use this method to do non-model drawing, *before* Draw_model.
-        # This is a kluge since it's normally intended to set attributes
-        # to prepare for drawing, not to actually draw. But it does come
-        # before Draw_model so it should work as if it was Draw_other_before_model
-        # as we're using it. If this seems needed in the "Draw API", we should
-        # formalize it by adding a method like that, or by calling back to the
-        # glpane and passing a function to actually draw the model rather
-        # than using Draw_model (not sure how that would affect the overall API).
-        # [bruce 090310]
-        _superclass.Draw_preparation(self)
-        self._Draw_other_before_model()
-        return
 
-    def _Draw_other_before_model(self):
+    def Draw_other_before_model(self):
         """
-        [not in the GraphicsMode API]
+        Do non-CSDL/DrawingSet drawing, *before* Draw_model.
         """
+        _superclass.Draw_other_before_model(self)
         if self.show_bond_offsets:
             hsets = self.show_bond_offsets_handlesets
             if self._TRANSPARENT and len(hsets) == 2:
@@ -1779,14 +1764,20 @@ class extrudeMode(basicMode):
     
     def Draw_model(self):
         """
+        Draw the model (using only CSDL/DrawingSet drawing).
         """
         _superclass.Draw_model(self)
         self._draw_model()
+            ### REVIEW: I'm not sure if this follows the rule of only using
+            # CSDLs (not plain drawprimitives or immediate-mode OpenGL)
+            # for drawing. (It does if it only calls Chunk draw methods,
+            # except for ways in which ChunkDrawer still violates that rule,
+            # but that will be fixed in ChunkDrawer.) [bruce 090311 comment]
         return
     
     def Draw_other(self):
         """
-        Do non-model drawing, *after* Draw_model.
+        Do non-CSDL/DrawingSet drawing, *after* Draw_model.
         """
         _superclass.Draw_other(self)
         if self.show_bond_offsets:

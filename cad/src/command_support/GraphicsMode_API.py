@@ -146,6 +146,9 @@ class GraphicsMode_API(GraphicsMode_interface):
     def Draw_axes(self):
         return
 
+    def Draw_other_before_model(self):
+        return
+
     def Draw_model(self):
         return
 

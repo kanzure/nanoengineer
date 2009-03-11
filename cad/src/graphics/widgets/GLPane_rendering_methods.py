@@ -707,7 +707,19 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # (see its docstring for details), so we'll see if only this one
             # is sufficient. [bruce 090304]
 
-        self.do_glselect_if_wanted()
+        try:
+            self.graphicsMode.Draw_preparation()
+        except:
+            msg = "bug: exception in %r.Draw_preparation ignored" % self.graphicsMode
+            print_compact_traceback(msg + ": ")
+            # Q: then skip the rest of this frame?
+            # A: No, typically that worsens bugs -- it's better to see
+            #    something than nothing.
+            pass
+        
+        self.do_glselect_if_wanted() # review: rename: _do_mouseover_picking?
+            # note: this might call _do_graphicsMode_Draw up to 2 times
+            # (as of before 090311).
             # note: if self.glselect_wanted, this sets up a special projection
             # matrix, and leaves it in place (effectively trashing the
             # projection matrix of the caller)
@@ -787,10 +799,15 @@ class GLPane_rendering_methods(GLPane_image_methods):
         
         if debug_pref("GLPane: use cached bg image? (experimental)",
                       Choice_boolean_False,
-                      non_debug = True,
+                      ## non_debug = True, [bruce 090311 removed non_debug]
                       prefs_key = True):
             # experimental implementation, has bugs (listed here or in
             # submethods when known, mostly in GLPane_image_methods)
+            
+            ### REVIEW: this doesn't yet work, and it's never been reviewed
+            # for compatibility with cached DrawingSet optimizations
+            # (which may mostly supercede the need for it).
+            # [bruce 090311 comment]
             if self._resize_just_occurred:
                 self._cached_bg_image_comparison_data = None
                 # discard cached image, and do *neither* capture nor draw of
@@ -830,8 +847,6 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # self._cached_bg_image_comparison_data = bg_image_comparison_data
             pass
 
-##        self.configure_enabled_shaders() ##### REVIEW where to call this, and how often [this is the only pre-090304 call]
-
         for stereo_image in self.stereo_images_to_draw:
             self._enable_stereo(stereo_image)
                 # note: this relies on modelview matrix already being correctly
@@ -839,7 +854,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
             if not draw_saved_bg_image:
                 self._do_drawing_for_bg_image_inside_stereo()
-                # otherwise, no need, we called _draw_saved_bg_image above
+                # note: this calls _do_graphicsMode_Draw once.
+            # otherwise, no need, we called _draw_saved_bg_image above
                 
             if not capture_saved_bg_image:
                 self._do_other_drawing_inside_stereo()
@@ -880,7 +896,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # review: needs drawing_phase? [bruce 070124 q]
 
         # draw the "origin axes"
-        ### TODO: put this, and the GM part of it (now at start of basicGraphicsMode.Draw),
+        ### TODO: put this, and the GM part of it (now in basicGraphicsMode.Draw_axes),
         # into one of the methods
         # _do_other_drawing_inside_stereo or _do_drawing_for_bg_image_inside_stereo
         if env.prefs[displayOriginAxis_prefs_key]:
@@ -943,9 +959,10 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         return # from standard_repaint_0 (the main rendering submethod of paintGL)
 
-    def _do_drawing_for_bg_image_inside_stereo(self): #bruce 080919 split this out
+    def _do_drawing_for_bg_image_inside_stereo(self):
         """
         """
+        #bruce 080919 split this out
         if self._fog_test_enable:
             enable_fog()
 
@@ -953,16 +970,6 @@ class GLPane_rendering_methods(GLPane_image_methods):
         
         try:
             self._do_graphicsMode_Draw()
-                # draw self.part (the model), with chunk & atom selection
-                # indicators, and graphicsMode-specific extras,
-                # including axes, and handles/rubberbands/labels (Draw_other).
-                # Some GraphicsModes only draw portions of the model.
-                #
-                ### todo: Likely refactoring: call only some of the 4 Draw_*
-                # methods this calls as of 090310, in case some of them depend
-                # on more prefs than the model itself does (should help with
-                # the optim of caching a fixed background image).
-                # [bruce 080919/090311 comment]
         finally:
             self.set_drawing_phase('?')
 
@@ -971,25 +978,36 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         return
 
-    def _do_graphicsMode_Draw(self): #bruce 090219, revised 090311
+    def _do_graphicsMode_Draw(self, for_mouseover_highlighting = False):
         """
         Private helper for various places in which we need to draw the model
         (in this GLPane mixin and others).
 
+        This draws self.part (the model)
+        (or some portion of it or none of it, depending on self.graphicsMode),
+        with chunk & atom selection indicators, and graphicsMode-specific extras
+        such as handles/rubberbands/labels (Draw_other).
+
+        It draws (some of) the axes only when for_mouseover_highlighting is false.
+
         @note: this is used for both normal visible rendering, and finding
             candidate objects to be "selobj" for mouseover-highlighting.
+            In the latter case, for_mouseover_highlighting = True tells us
+            to skip some drawing.
         """
-        # see comment in _do_drawing_for_bg_image_inside_stereo
-        # for refactoring suggestions [bruce 090311]
-        ##### TODO: split in two, or pass an arg, to leave out some drawing
-        # when doing highlighting (namely, prefunc).
+        #bruce 090219, revised 090311
         def prefunc():
-            self.graphicsMode.Draw_preparation()
-            self.graphicsMode.Draw_axes()
+            if not for_mouseover_highlighting:
+                self.graphicsMode.Draw_axes() # review: best place to do this?
+            self.graphicsMode.Draw_other_before_model()
+        
         def func():
+            # not always called (see _call_func_that_draws_model for details)
             self.graphicsMode.Draw_model()
+        
         def postfunc():
-            self.graphicsMode.Draw_other()                        
+            self.graphicsMode.Draw_other()
+        
         self._call_func_that_draws_model( func,
                                           prefunc = prefunc,
                                           postfunc = postfunc )

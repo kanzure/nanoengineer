@@ -175,9 +175,10 @@ class GLPane_drawingset_methods(object):
                     # (note: this is independent of self.permit_shaders,
                     #  since DrawingSets can be used even if shaders are not)
                 self._current_drawingset_cache_policy = self._choose_drawingset_cache_policy()
-                if debug_pref("GLPane: reuse dsets unless model or sel changes? (has drawing bugs)",
+                if debug_pref("GLPane: reuse cached DrawingSets? (has bugs)",
                               Choice_boolean_False,
-                              prefs_key = False
+                              non_debug = True,
+                              prefs_key = True
                               ):
                     if dset_change_indicator:
                         policy = self._current_drawingset_cache_policy

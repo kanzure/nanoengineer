@@ -80,7 +80,8 @@ class _FuseChunks_GraphicsMode_preMixin:
         # label in the Property Manager when all chunks are unselected.
         # It is set both here and in the associated command class. [by Mark?]
         
-        ### NOTE ABOUT INCORRECT CODE [bruce 090310 update and review comment]:
+        ### NOTE ABOUT INCORRECT CODE
+        # [bruce 090310-11 update and review comment]:
         #
         # The side effect of something_was_picked on the PM was done in
         # self.Draw, as was the recomputation related to _recompute_fusables.
@@ -98,7 +99,9 @@ class _FuseChunks_GraphicsMode_preMixin:
         # be called every frame. For now, I put the questionable side effects
         # into Draw_preparation, which will always be called. This is most
         # correct given the present code, without refactoring it into the
-        # command (for which I don't have time).
+        # command (for which I don't have time). In fact, it makes this more
+        # correct than it was before, since it's called exactly once per
+        # paintGL call (but the refactoring mentioned should still be done).
     
     def Enter_GraphicsMode(self):
         Move_GraphicsMode.Enter_GraphicsMode(self)

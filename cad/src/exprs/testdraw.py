@@ -187,7 +187,9 @@ def render_scene(mode, glpane): # called by testmode.render_scene # 061208
 def Draw_preparation(mode, glpane, superclass): # called by testmode.Draw_preparation
     init_glpane_vars(glpane)
     return
-    
+
+# no need so far for Draw_other_before_model
+
 def Draw_model(mode, glpane, superclass): # called by testmode.Draw_model
     if env.prefs.get("A9 devel/testdraw/super.Draw first?", True): #070404
         glPushMatrix() #k needed??

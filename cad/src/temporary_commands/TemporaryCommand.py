@@ -77,6 +77,9 @@ class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
     def Draw_axes(self):
         self.parentGraphicsMode.Draw_axes()
     
+    def Draw_other_before_model(self):
+        self.parentGraphicsMode.Draw_other_before_model()
+    
     def Draw_model(self):
         self.parentGraphicsMode.Draw_model()
     
