@@ -1093,7 +1093,15 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         Chunk & ExternalBondSet display lists (to be drawn in self)
         will be considered invalid (when next drawn in self).
 
-        @see: GLPane._general_appearance_change_indicator
+        @note: we don't include glpane.displayMode, because it only affects
+            some display lists (not the ones for which locally set display
+            styles determine their appearance).
+
+        @see: GLPane._general_appearance_change_indicator (related)
+
+        @see: GLPane._whole_model_drawingset_change_indicator (not directly related)
+
+        @see: GLPane._cached_bg_image_comparison_data (not directly related)
         """
         eltprefs = (PeriodicTable.color_change_counter,
                     PeriodicTable.rvdw_change_counter )
@@ -1102,7 +1110,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             #bruce 060215 added drawLevel (when this was in Chunk.draw)
             # review: does this drawLevel kluge belong inside
             # GLPrefs.materialprefs_summary?
-        return (eltprefs, matprefs, drawLevel)
+        return (eltprefs, matprefs, drawLevel,)
 
     def before_drawing_model(self): #bruce 070928; revised 090219 ### maybe: rename _model -> _part?
         """

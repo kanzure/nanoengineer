@@ -1017,15 +1017,20 @@ class GLPane_rendering_methods(GLPane_image_methods):
         """
         #doc
         """
-        ## BUG:
+        ## BUGS:
         #
         # The following implementation is not correct:
+        #
         # - view changes are not taken into account, but need to affect
         #   drawingsets due to frustum culling
+        #
         # - doesn't include effect of visual preferences
+        #   (or PM settings implemented via env.prefs)
+        #
         # (workaround for both: select something to update the display)
         #
         # Also, current code that uses this has bugs:
+        #
         # - ignores necessary drawing not inside DrawingSets
         #   - jigs, dna/protein styles, overlap indicators, atom sel wireframes, bond vanes...
         #   - extra drawing by graphicsMode, e.g. expr handles, dna ribbons
@@ -1033,12 +1038,16 @@ class GLPane_rendering_methods(GLPane_image_methods):
         #
         # So it is only used when a debug_pref is set.
         # Another comment or docstring has more info on purpose and status.
+        #
         # [bruce 090309]
-        return self.part and \
+
+        res = self.part and \
                (self.part,
                 self.assy.model_change_indicator(),
-                self.assy.selection_change_indicator()
+                self.assy.selection_change_indicator(),
+                self.displayMode, #bruce 090312 bugfix
                )
+        return res
 
     def _do_other_drawing_inside_stereo(self): #bruce 080919 split this out
         """
