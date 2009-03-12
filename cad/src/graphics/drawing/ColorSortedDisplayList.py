@@ -143,11 +143,14 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 self._transform_id = _x
             pass
 
-        # Russ 081122: Mark CSDLs with a glname for selection.
-        # (Note: this is a temporary kluge for testing. [bruce 090223 comment])
-        self.glname = env._shared_glselect_name_dict. \
-                      alloc_my_glselect_name(self)
-        ###self.glname = 0x12345678 ### For testing.
+# CSDLs should not have a glname since they are never a selobj.
+# Any testCases which depend on this should be rewritten.
+# [bruce 090311]
+##        # Russ 081122: Mark CSDLs with a glname for selection.
+##        # (Note: this is a temporary kluge for testing. [bruce 090223 comment])
+##        self.glname = env._shared_glselect_name_dict. \
+##                      alloc_my_glselect_name(self)
+##        ###self.glname = 0x12345678 ### For testing.
 
         # Whether to draw in the selection over-ride color.
         self.selected = False
