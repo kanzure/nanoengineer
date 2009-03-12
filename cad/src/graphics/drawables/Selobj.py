@@ -128,8 +128,10 @@ class Selobj_API:
     ### see list of methods below -- but don't add any method stubs here
     # for now, or some code will break (as explained in module docstring).
 
-    # some *new* api methods can safely be added here:
+    # some *new* api methods and attrs can safely be added here:
 
+    _selobj_colorsorter_safe = False #bruce 090311
+    
     def nodes_containing_selobj(self): #bruce 080507
         """
         Return a list (not a tuple) of all nodes that contain self,

@@ -183,6 +183,8 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     # subclass-specific constants
 
+    _selobj_colorsorter_safe = True #bruce 090311
+
     _drawer_class = ChunkDrawer # subclasses can set this to a subclass of that
 
     # class constants to serve as default values of attributes, and _s_attr

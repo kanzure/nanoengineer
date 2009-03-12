@@ -608,6 +608,8 @@ class Bond(BondBase, StateMixin, Selobj_API): #bruce 041109 partial rewrite
     forgotten about (no need to kill or otherwise explicitly destroy
     them after they're not on their atoms).
     """
+    _selobj_colorsorter_safe = True #bruce 090311
+
     pi_bond_obj = None 
         #bruce 050718; used to memoize a perceived PiBondSpChain object (if
         # any) which covers this bond. sometimes I search for pi_bond_info when

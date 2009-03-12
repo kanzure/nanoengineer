@@ -463,6 +463,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     for details. Other code might add other attributes to an atom; some of
     those might be copied in the private method Atom.copy_for_mol_copy() [now removed].
     """
+    _selobj_colorsorter_safe = True #bruce 090311
+
     # bruce 041109-16 wrote docstring
     # default values of instance variables:
     __killed = 0 # note: this is undoable state, declared below

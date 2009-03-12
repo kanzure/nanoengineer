@@ -488,6 +488,11 @@ class GLPane_highlighting_methods(object):
         self.setDepthRange_Highlighting()
         
         try:
+            colorsorter_safe = getattr(selobj, '_selobj_colorsorter_safe', False)
+                # colorsorter_safe being False (in two places in this file)
+                # is a bugfix for the breaking of expr handle highlighting
+                # by the debug_pref('GLPane: highlight atoms in CSDLs?')
+                # (but bug's cause is not understood) [bruce 090311]
             self.set_drawing_phase('selobj') #bruce 070124
                 #bruce 070329 moved set of drawing_phase from just after selobj.draw_in_abs_coords to just before it.
                 # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
@@ -497,7 +502,9 @@ class GLPane_highlighting_methods(object):
                 # TEST someday: test having color writing disabled here -- does stencil write still happen??
                 # (not urgent, since we definitely need color writing here.)
                 return
-            self._call_func_that_draws_objects(func, self.part, bare_primitives = True)
+            self._call_func_that_draws_objects(func,
+                                               self.part,
+                                               bare_primitives = colorsorter_safe)
         except:
             # try/except added for GL-state safety, bruce 061218
             print_compact_traceback(
@@ -618,6 +625,11 @@ class GLPane_highlighting_methods(object):
                 print "   items are:", items
             else:
                 try:
+                    colorsorter_safe = getattr(obj, '_selobj_colorsorter_safe', False)
+                        # colorsorter_safe being False (in two places in this file)
+                        # is a bugfix for the breaking of expr handle highlighting
+                        # by the debug_pref('GLPane: highlight atoms in CSDLs?')
+                        # (but bug's cause is not understood) [bruce 090311]
                     for stereo_image in self.stereo_images_to_draw:
                         # REVIEW: would it be more efficient, and correct,
                         # to iterate over stereo images outside, and candidates
@@ -637,7 +649,9 @@ class GLPane_highlighting_methods(object):
                                 # draw depth info
                                 # (color doesn't matter since we're not drawing pixels)
                             return
-                        self._call_func_that_draws_objects( func, self.part, bare_primitives = True)
+                        self._call_func_that_draws_objects( func,
+                                                            self.part,
+                                                            bare_primitives = colorsorter_safe )
 
                         self._disable_stereo()
 
