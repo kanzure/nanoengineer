@@ -1,7 +1,8 @@
 # Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLPrimitiveSet.py -- Cached data structure for rapidly drawing a set of batched
-primitives collected from the CSDLs in a DrawingSet.
+primitives collected from the CSDLs in a DrawingSet, along with any other kind
+of drawable content in the CSDLs.
 
 @author: Russ
 @version: $Id$
@@ -54,25 +55,49 @@ from OpenGL.GL import glPushMatrix, glPopMatrix
 
 class GLPrimitiveSet:
     """
-    Cached data structure for rapidly drawing a list of batched primitives
-    collected from the CSDLs in a DrawingSet.
+    Cached data structure for rapidly drawing a set of CSDLs.
+    It collects their shader primitives (of various kinds),
+    color-sorted DLs, and anything else they might have for
+    immediate-mode OpenGL drawing (nothing as of 090311), into a
+    structure that can be rapidly redrawn multiple times.
 
     @note: this needs to be remade from scratch if its set of CSDLs,
            or any of its CSDLs' contents or properties, changes.
+
+    @todo: provisions for incremental modification.
     """
     def __init__(self, csdl_list):
+        """
+        """
         self.CSDLs = csdl_list
         
         # Collect lists of primitives to draw in batches, and those CSDLs with
         # display lists to draw as well.  (A given CSDL may have both.)
         self.spheres = []            # Generalize to a dict of lists?
         self.cylinders = []
-        self.CSDLs_with_DLs = []
+        self._CSDLs_with_nonshader_drawing = []
+            #bruce 090312 renamed this from CSDLs_with_DLs,
+            # since the logic herein only cares that they have some sort of
+            # drawing to do in immediate-mode OpenGL, not how it's done.
+            #
+            # (todo, in future: split this into whatever can be compiled
+            #  into an overall DL of our own (meaning it never changes and
+            #  is all legal while compiling a DL -- in particular, it can call
+            #  other DLs but it can't recompile them), and whatever really has
+            #  to be done in immediate mode and perhaps recomputed on each
+            #  draw, as a further optimization. This requires splitting
+            #  each of the associated CSDL API methods, has_nonshader_drawing
+            #  and .draw(..., draw_shader_primitives = False,
+            #                 transform_nonshaders = False ).
+            #  If that's done, draw the immediate-mode-parts first here, in case
+            #  any of them also want to recompile DLs which are called in the
+            #  ok-for-inside-one-big-DL parts.)
+        
         for csdl in self.CSDLs:
             self.spheres += csdl.spheres
             self.cylinders += csdl.cylinders
-            if csdl.has_nonempty_DLs():
-                self.CSDLs_with_DLs += [csdl]
+            if csdl.has_nonshader_drawing():
+                self._CSDLs_with_nonshader_drawing += [csdl]
                 pass
             continue
 
@@ -82,23 +107,30 @@ class GLPrimitiveSet:
         # timestamp showing when this GLPrimitiveSet was created.
         self.created = drawing_constants.eventStamp()
 
-        # optimization: sort CSDLs_with_DLs by their transformControl.
+        # optimization: sort _CSDLs_with_nonshader_drawing by their transformControl.
         # [bruce 090225]
         items = [(id(csdl.transformControl), csdl)
-                 for csdl in self.CSDLs_with_DLs]
+                 for csdl in self._CSDLs_with_nonshader_drawing]
         items.sort()
-        self.CSDLs_with_DLs = [csdl for (junk, csdl) in items]
+        self._CSDLs_with_nonshader_drawing = [csdl for (junk, csdl) in items]
 
         return
 
-    def draw(self, highlighted = False, selected = False,
-             patterning = True, highlight_color = None, opacity = 1.0):
+    def draw(self,
+             highlighted = False,
+             selected = False,
+             patterning = True,
+             highlight_color = None,
+             opacity = 1.0 ):
         """
         Draw the cached display.
 
         @note: all arguments are sometimes passed positionally.
+
+        @note: opacity other than 1.0 is not yet implemented.
         """
-        # Draw primitives from CSDLs through shaders (via GLPrimitiveBuffers),
+        # Draw shader primitives from CSDLs through shaders
+        # (via GLPrimitiveBuffers, one per kind of shader),
         # if that's turned on.
         primlist_buffer_pairs = []
         if self.spheres: # note: similar code exists in CSDL.
@@ -128,13 +160,13 @@ class GLPrimitiveSet:
                 pass
             continue
 
-        # Draw just the Display Lists, in all CSDLs which have any.
+        # Draw just the non-shader drawing (e.g. color-sorted display lists),
+        # in all CSDLs which have any.
         # Put TransformControl matrices onto the GL matrix stack when present.
-        # (Pushing/popping could be minimized by sorting the cached CSDL's.
-        #  As of 090025 this is done in __init__.)
+        # (Pushing/popping is minimized by sorting the cached CSDL's earlier.)
         # [algorithm revised by bruce 090203]
         lastTC = None
-        for csdl in self.CSDLs_with_DLs:
+        for csdl in self._CSDLs_with_nonshader_drawing:
             tc = csdl.transformControl
             if tc is not lastTC:
                 if lastTC is not None:
@@ -146,13 +178,16 @@ class GLPrimitiveSet:
                     pass
                 lastTC = tc
                 pass
-            csdl.draw(highlighted, selected, patterning, highlight_color,
-                      draw_primitives = False, transform_DLs = False)
-                # Just draw the DL's, ignoring csdl.transformControl.
+            # just draw non-shader stuff, and ignore csdl.transformControl
+            csdl.draw( highlighted, selected, patterning, highlight_color,
+                       draw_shader_primitives = False,
+                       transform_nonshaders = False )
             continue
         if lastTC is not None:
             glPopMatrix()
         
         return
 
-    pass # End of class GLPrimitiveSet.
+    pass # end of class GLPrimitiveSet
+
+# end

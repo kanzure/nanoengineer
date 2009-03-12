@@ -247,9 +247,11 @@ class DrawingSet:
             pass
 
         # Draw the shader primitives and the OpenGL display lists.
-        self._primSet.draw(highlighted, selected,
-                          patterning, highlight_color, opacity)
+        self._primSet.draw( highlighted, selected,
+                            patterning, highlight_color, opacity)
 
         return
 
-    pass # End of class DrawingSet.
+    pass # end of class DrawingSet
+
+# end

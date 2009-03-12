@@ -14,6 +14,9 @@ See that file for its pre-090220 history.
 
 bruce 090220 added reentrancy, split it into this file.
 
+bruce 090312 generalizing API (and soon, functionality) to support
+other kinds of non-shader drawing besides color-sorted DLs.
+
 TODO:
 
 Change ColorSorter into a normal class with distinct instances.
@@ -187,7 +190,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         return self._transform_id
 
-    def has_nonempty_DLs(self): #bruce 090225
+    def has_nonempty_DLs(self): #bruce 090225 [090312: maybe inline all uses and remove from API]
         """
         Are any of our toplevel OpenGL display lists nonempty
         (i.e. do they have any drawing effect)?
@@ -198,6 +201,14 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
             will be common.
         """
         return bool( self._per_color_dls)
+
+    def has_nonshader_drawing(self): #bruce 090312
+        """
+        Do we have any drawing to do other than shader primitives?
+        """
+        # soon: we might also have other kinds of non-shader drawing
+        # see comments in GLPrimitiveSet for how this might evolve.
+        return self.has_nonempty_DLs()
         
     # ==
 
@@ -285,8 +296,10 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # toplevel display lists, though they are noops. This may be needed
         # by some client code which uses those dls directly. Client code
         # wanting to know if it needs to draw our dls should test
-        # self.has_nonempty_DLs(), which tests self._per_color_dls.
-        # [bruce 090225 comment]
+        # self.has_nonempty_DLs(), which tests self._per_color_dls,
+        # or self.has_nonshader_drawing(), which reports on that or any
+        # other kind of nonshader (immediate mode opengl) drawing we might
+        # have. [bruce 090225/090312 comment]
 
         # First build the lower level per-color sublists of primitives.
         
@@ -592,8 +605,9 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
              selected = False,
              patterning = True, 
              highlight_color = None,
-             draw_primitives = True,
-             transform_DLs = True ):
+             draw_shader_primitives = True, #bruce 090312 renamed from draw_primitives
+             transform_nonshaders = True, #bruce 090312 renamed from transform_DLs
+         ):
         """
         Simple all-in-one interface to CSDL drawing.
 
@@ -617,11 +631,11 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         @param highlight_color: Option to over-ride the highlight color set in
           the color scheme preferences.
 
-        @param draw_primitives: Whether to draw shader primitives in the CSDL.
-          Defaults to True.
+        @param draw_shader_primitives: Whether to draw our shader primitives.
+            Defaults to True.
 
-        @param transform_DLs: Whether to apply self.transformControl to our DLs.
-          Defaults to True.
+        @param transform_nonshaders: Whether to apply self.transformControl to
+            our non-shader drawing (such as DLs). Defaults to True.
         """
 
         patterned_highlighting = (patterning and
@@ -645,10 +659,15 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         
 
         # Russ 081128 (clarified, bruce 090218):
-        # GLPrimitiveSet.draw() calls this method (CSDL.draw) on CSDLs_with_DLs,
-        # passing draw_primitives = False to only draw the DLs.
-        # It gathers the primitives in a set of CSDLs into one big drawIndex
-        # per primitive type, and draws each drawIndex in a big batch.
+        #
+        # GLPrimitiveSet.draw() calls this method (CSDL.draw) on the CSDLs
+        # in its _CSDLs_with_nonshader_drawing attribute (a list of CSDLs),
+        # passing draw_shader_primitives = False to only draw the DLs, and
+        # transform_nonshaders = False to avoid redundantly applying their
+        # TransformControls.
+        #
+        # It gathers the shader primitives in a set of CSDLs into one big
+        # drawIndex per primitive type, and draws each drawIndex in a big batch.
         #
         # This method (CSDL.draw) is also called to
         # draw *both* DLs and primitives in a CSDL, e.g. for hover-highlighting.
@@ -657,7 +676,8 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         #
         # Bruce 090218: support cylinders too.
         prims_to_do = (drawing_phase != "glselect" and
-                       draw_primitives and (self.spheres or self.cylinders))
+                       draw_shader_primitives and
+                       (self.spheres or self.cylinders))
         if prims_to_do:
             # Cache drawing indices for just the primitives in this CSDL,
             # in self.drawIndices, used in self.draw_shader_primitives below.
@@ -676,7 +696,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # obscured by halo highlighting.  [russ 080610]
         # Russ 081208: Skip DLs when drawing shader-prims with glnames-as-color.
         DLs_to_do = (drawing_phase != "glselect_glname_color"
-                     and self.has_nonempty_DLs())
+                     and self.has_nonempty_DLs()) #### todo: has_nonshader_drawing
 
         # the following might be changed, then are used repeatedly below;
         # this simplifies the various ways we can handle transforms [bruce 090224]
@@ -684,7 +704,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         transform_once = False # whether to transform exactly once around the
             # following code (as opposed to not at all, or once per callList)
 
-        if self.transformControl and transform_DLs:
+        if self.transformControl and transform_nonshaders:
             if prims_to_do and DLs_to_do:
                 # shader primitives have transform built in, but DLs don't,
                 # so we need to get in and out of local coords repeatedly
