@@ -261,9 +261,29 @@ class GLPane_highlighting_methods(object):
                         # one alone; for strand bonds it also happens on the bonds alone
                         # (tested in Build DNA, in or not in Insert DNA).
                         # [bruce 090218]
-                        print "bug: object_for_glselect_name returns None for glname %r (color %r)" % (glname, bytes)
+                        #
+                        # Update: Since it's so common, I need to turn it off by default.
+                        # Q: is the situation safe?
+                        # A: if a color looks like a real glname by accident,
+                        # we'll get some random candidate object -- perhaps a killed one
+                        # or from a different Part or even a closed assy --
+                        # and try to draw it. That doesn't sound very safe. Unfortunately
+                        # there is no perfect way to filter selobjs for safety, in the
+                        # current still-informal Selobj_API. The best approximation is
+                        # selobj_still_ok, and it should always say yes for the usual kinds,
+                        # so I'll add it as a check in the 'else' clause below.
+                        # [bruce 090311]
+                        if debug_flags.atom_debug:
+                            print "bug: object_for_glselect_name returns None for glname %r (color %r)" % (glname, bytes)
                     else:
-                        self.glselect_dict[id(obj)] = obj
+                        if self.graphicsMode.selobj_still_ok(obj):
+                            #bruce 090311 added condition, explained above
+                            self.glselect_dict[id(obj)] = obj
+                        else:
+                            # This should be rare but possible. Leave it on briefly and see
+                            # if it's ever common. If possible, gate it by atom_debug before
+                            # the release. [bruce 090311]
+                            print "fyi: glname-color selobj %r rejected since not selobj_still_ok" % obj
                         pass
                     pass
                 pass
