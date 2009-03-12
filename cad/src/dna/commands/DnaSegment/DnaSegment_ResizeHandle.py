@@ -1,38 +1,37 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Ninad
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 
 TODO: 
 Attributes such as height_ref need to be renamed. But this should really be done
 in the superclass exprs.DraggableHandle_AlongLine. 
 """
+
+from geometry.VQT import V
+
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.constants import olive
+
+import foundation.env as env
+
 from exprs.attr_decl_macros import Option
 from exprs.attr_decl_macros import State
 from exprs.Set              import Action
 from exprs.__Symbols__      import _self
-
 from exprs.Overlay          import Overlay
 from exprs.ExprsConstants   import Drawable
 from exprs.ExprsConstants   import Color
 from exprs.ExprsConstants   import Point
 from exprs.ExprsConstants   import ORIGIN
-
+from exprs.ExprsConstants   import StateRef
 from exprs.Rect             import Sphere
-
-from exprs.Arrow import Arrow
-   
-import foundation.env as env
-from utilities.prefs_constants import hoverHighlightingColor_prefs_key
-from utilities.prefs_constants import selectionColor_prefs_key
-from utilities.constants import olive
-
-from geometry.VQT import V
-from exprs.DraggableHandle import DraggableHandle_AlongLine
-from exprs.ExprsConstants import StateRef
-from exprs.dna_ribbon_view import Cylinder
+from exprs.Arrow            import Arrow
+from exprs.DraggableHandle  import DraggableHandle_AlongLine
+from exprs.dna_ribbon_view  import Cylinder
 
 
 class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
@@ -69,7 +68,7 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     #This variable is used in self.command.graphicsMode to draw a rubberband 
     #line  and also to specify the endPoint2 of the structure while modifying 
     #it. See DnaSegment_EditCommand.modifyStructure for details. 
-    currentPosition = _self.origin + _self.direction*_self.height_ref.value
+    currentPosition = _self.origin + _self.direction * _self.height_ref.value
         
     
     #Fixed end of the structure (self.command.struct) ..meaning that end won't 
@@ -86,7 +85,7 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     should_draw = State(bool, True) 
     
     
-    pt = _self.direction*_self.discThickness
+    pt = _self.direction * _self.discThickness
     appearance = Overlay(
         Sphere(_self.sphereRadius, 
                handleColor, 
@@ -99,9 +98,9 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
             
         Arrow( 
             color = handleColor, 
-            arrowBasePoint = ORIGIN + _self.direction*2.0*_self.sphereRadius,
+            arrowBasePoint = ORIGIN + _self.direction * 2.0 * _self.sphereRadius,
             tailPoint = ORIGIN, 
-            tailRadius = _self.sphereRadius*0.3,
+            tailRadius = _self.sphereRadius * 0.3,
             tailRadiusLimits = (0.36, 3.0),
             scale = _self.command.glpane.scale, 
             glpane = _self.command.glpane,
@@ -122,9 +121,9 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
                    
             Arrow( 
                 color = HHColor, 
-                arrowBasePoint = ORIGIN + _self.direction*2.0*_self.sphereRadius, 
+                arrowBasePoint = ORIGIN + _self.direction * 2.0 * _self.sphereRadius, 
                 tailPoint = ORIGIN, 
-                tailRadius = _self.sphereRadius*0.3,
+                tailRadius = _self.sphereRadius * 0.3,
                 tailRadiusLimits = (0.36, 3.0),
                 scale = _self.command.glpane.scale,
                 glpane = _self.command.glpane, 
