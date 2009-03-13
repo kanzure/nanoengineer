@@ -73,7 +73,6 @@ from graphics.drawing.ColorSorter import ColorSorter
 
 ##from drawer import drawlinelist
 
-from graphics.drawing.gl_lighting import apply_material
 
 from graphics.model_drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
 from graphics.model_drawing.special_drawing import SpecialDrawing_ExtraChunkDisplayList
@@ -399,6 +398,10 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
             #  is any). [bruce 090224 comment])
             glPushMatrix()
 
+            self.begin_collecting_drawing_funcs()
+                # call this sometime before the first possible
+                # call of collect_drawing_func
+
             try: # do our popMatrix no matter what
                 self._chunk.applyMatrix(glpane)
                 
@@ -592,12 +595,14 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 #@@ninad 070219 disabling the following--
                 ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
 
-                # piotr 080320
+                # piotr 080320; bruce 090312 revised
                 if hd:
-                    hd._f_drawchunk_realtime(glpane,
-                                             self._chunk,
-                                             highlighted = highlighted )
-
+                    self.collect_drawing_func( hd._f_drawchunk_realtime,
+                                               glpane,
+                                               self._chunk,
+                                               highlighted = highlighted )
+                    pass
+                
                 if self._chunk.hotspot is not None: 
                     # note: accessing self._chunk.hotspot can have side effects in getattr
                     self.overdraw_hotspot(glpane, disp) ### REVIEW args when highlighted 
@@ -642,6 +647,8 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
                 glpane.draw_csdl(csdl,
                                  selected = self._chunk.picked,
                                  highlight_color = highlight_color)
+
+            self.end_collecting_drawing_funcs(glpane) # before glPopName
 
             glPopName() # pops self._chunk.glname
 

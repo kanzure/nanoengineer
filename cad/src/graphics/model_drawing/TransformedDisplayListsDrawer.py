@@ -360,6 +360,41 @@ class TransformedDisplayListsDrawer(object,
             # this, see my 090114 comments in ColorSorter.py (summary: it is
             # almost but not quite possible to remove it now).
         return
+
+    # =====
+
+    # support for collect_drawing_func [bruce 090312]
+
+    # note: this is only for local drawing (in self's local coords);
+    # if we also need absolute model coord drawing
+    # we should add another persistent CSDL for that,
+    # and another collector (or an option to this one)
+    # to add funcs to it.
+
+    _csdl_for_funcs = None # once allocated, never changed and always drawn
+
+    def begin_collecting_drawing_funcs(self):
+        if self._csdl_for_funcs:
+            self._csdl_for_funcs.clear_drawing_funcs()
+
+    def collect_drawing_func(self, func, *args, **kws):
+        if not self._csdl_for_funcs:
+            tc = self.getTransformControl()
+            csdl = self._csdl_for_funcs = ColorSortedDisplayList( tc)
+                # review: I think we needn't explicitly deallocate this csdl
+                # since it contains no DLs. Am I right? [bruce 090312 Q]
+        else:
+            csdl = self._csdl_for_funcs
+        if args or kws:
+            func = (lambda _args = args, _kws = kws, _func = func:
+                           _func(*_args, **_kws) )
+        csdl.add_drawing_func( func )
+        return
+
+    def end_collecting_drawing_funcs(self, glpane):
+        if self._csdl_for_funcs:
+            glpane.draw_csdl( self._csdl_for_funcs )
+        return
     
     # =====
 

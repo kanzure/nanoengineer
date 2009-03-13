@@ -104,6 +104,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     _untransformed_data = None #bruce 090223
     spheres = () #bruce 090224
     cylinders = () #bruce 090224
+    _drawing_funcs = () #bruce 090312
     
     def __init__(self, transformControl = None, reentrant = False):
         """
@@ -206,9 +207,8 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         Do we have any drawing to do other than shader primitives?
         """
-        # soon: we might also have other kinds of non-shader drawing
-        # see comments in GLPrimitiveSet for how this might evolve.
-        return self.has_nonempty_DLs()
+        # (see comments in GLPrimitiveSet for how this might evolve further)
+        return self.has_nonempty_DLs() or self._drawing_funcs
         
     # ==
 
@@ -490,6 +490,16 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     # ==
 
+    def clear_drawing_funcs(self):
+        self._drawing_funcs = ()
+
+    def add_drawing_func(self, func):
+        if not self._drawing_funcs:
+            self._drawing_funcs = []
+        self._drawing_funcs += [func]
+
+    # ==
+
 #### NOTE: the methods draw_in_abs_coords and nodes_containing_selobj
 # don't make sense in this class in the long run, since it is not meant
 # to be directly used as a "selobj" or as a Node. I presume they are
@@ -688,6 +698,29 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 pass
             pass
 
+        if self._drawing_funcs and drawing_phase != "glselect_glname_color": #bruce 090312
+            # These ignore our drawing-style args;
+            # they also are cleared independently of start/finish,
+            # and changing them doesn't set our last-changed timestamp.
+            # All this is intentional. (Though we might decide to add a kind
+            # which does participate in patterned drawing; this might require
+            # supplying more than one func, or a dict of colors and nocolor
+            # funcs....)
+            if self.transformControl and transform_nonshaders:
+                glPushMatrix()
+                self.transformControl.applyTransform()
+            for func in self._drawing_funcs:
+                try:
+                    func()
+                except:
+                    msg = "bug: exception in drawing_func %r in %r, skipping it" % (func, self)
+                    print_compact_traceback(msg + ": ")
+                    pass
+                continue
+            if self.transformControl and transform_nonshaders:
+                glPopMatrix()
+            pass
+
         # Normal or selected drawing are done before a patterned highlight
         # overlay, and also when not highlighting at all.  You'd think that when
         # we're drawing a solid highlight appearance, there'd be no need to draw
@@ -696,7 +729,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # obscured by halo highlighting.  [russ 080610]
         # Russ 081208: Skip DLs when drawing shader-prims with glnames-as-color.
         DLs_to_do = (drawing_phase != "glselect_glname_color"
-                     and self.has_nonempty_DLs()) #### todo: has_nonshader_drawing
+                     and self.has_nonempty_DLs())
 
         # the following might be changed, then are used repeatedly below;
         # this simplifies the various ways we can handle transforms [bruce 090224]
