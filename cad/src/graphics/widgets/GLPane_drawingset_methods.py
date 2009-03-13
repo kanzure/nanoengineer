@@ -22,31 +22,12 @@ import foundation.env as env
 
 
 from graphics.drawing.DrawingSet import DrawingSet
+from graphics.drawing.DrawingSetCache import DrawingSetCache
 
 from graphics.widgets.GLPane_csdl_collector import GLPane_csdl_collector
 from graphics.widgets.GLPane_csdl_collector import fake_GLPane_csdl_collector
 
 _DEBUG_DSETS = False
-
-# ==
-
-class DrawingSetCache(object): #bruce 090227
-    """
-    A persistent cache of DrawingSets, one for each "drawing intent"
-    passed to draw_csdl.
-    """
-    saved_change_indicator = None #bruce 090309
-    def __init__(self, cachename, temporary):
-        self.cachename = cachename
-        self.temporary = temporary
-        self.dsets = {} # maps drawing intent to DrawingSet
-    def destroy(self):
-        for dset in self.dsets.values():
-            dset.destroy()
-        self.dsets = {}
-        self.saved_change_indicator = None
-        return
-    pass
 
 # ==
 
