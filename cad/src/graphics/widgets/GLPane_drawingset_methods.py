@@ -535,49 +535,6 @@ class GLPane_drawingset_methods(object):
 ##                dset_change_indicator = dset_change_indicator
              )
 
-##        persistent_dsets = dset_cache.dsets
-##            # review: consider refactoring to turn code around all uses of this
-##            # into methods in DrawingSetCache
-##        
-##        # handle existing dsets/intents
-##        if incremental and not reuse_cached_dsets_unchanged:
-##            # - if any prior DrawingSets are completely unused, get rid of them
-##            #   (note: this defeats optimizations based on intents which are
-##            #    "turned on and off", such as per-Part or per-graphicsMode
-##            #    intents)
-##            # - for the other prior DrawingSets, figure out csdls to remove and
-##            #   add; try to optimize for no change; try to do removals first,
-##            #   to save RAM in case cache updates during add are immediate
-##            for intent, dset in persistent_dsets.items(): # not iteritems!
-##                if intent not in intent_to_csdls:
-##                    # this intent is not needed at all for this frame
-##                    dset.destroy()
-##                    del persistent_dsets[intent]
-##                else:
-##                    # this intent is used this frame; update dset.CSDLs
-##                    # (using a method which optimizes that into the
-##                    #  minimal number of inlined removes and adds)
-##                    csdls_wanted = intent_to_csdls.pop(intent)
-##                    dset.set_CSDLs( csdls_wanted)
-##                    del csdls_wanted # junk now, since set_CSDLs owns it
-##                continue
-##            # - for completely new intents, make new DrawingSets in a quick way;
-##            #   we do this simply by running the non-incremental code outside
-##            #   this 'if' statement, but also persisting the new dsets.
-##            pass
-##
-##        # handle new intents (incremental) or all intents (non-incremental):
-##        # make new DrawingSets for whatever intents remain in intent_to_csdls
-##        for intent, csdls in intent_to_csdls.items():
-##            del intent_to_csdls[intent]
-##                # (this might save temporary ram, depending on python optims)
-##            dset = DrawingSet(csdls.itervalues())
-##            persistent_dsets[intent] = dset
-##                # always store them here; remove them later if non-incremental
-##            del intent, csdls, dset
-##                # notice bug of reusing these below (it happened)
-##            continue
-
         del intent_to_csdls
 
         # draw all current DrawingSets
@@ -590,28 +547,6 @@ class GLPane_drawingset_methods(object):
                              # dset_cache.temporary and incremental?
                        )
         
-##        if _DEBUG_DSETS:
-##            print
-##            print env.redraw_counter ,
-##            print "  cache %r%s" % (dset_cache.cachename,
-##                                     dset_cache.temporary and " (temporary)" or "") ,
-##            print "  (for phase %r)" % self.drawing_phase
-##            pass
-##        for intent, dset in persistent_dsets.items():
-##            if _DEBUG_DSETS:
-##                print "drawing dset, intent %r, %d items" % \
-##                      (intent, len(dset.CSDLs), )
-##                pass
-##            options = self._draw_options(intent)
-##            dset.draw(**options)
-##            if not incremental:
-##                # don't save them any longer than needed, to save RAM
-##                # (without this, we'd destroy them all at once near start
-##                #  of next frame, using code above, or later in this frame)
-##                dset.destroy()
-##                del persistent_dsets[intent]
-##            continue
-
         if dset_cache.temporary:
             #### REVIEW: do this in dset_cache.draw when destroy_as_drawn is true,
             # or when some other option is passed?

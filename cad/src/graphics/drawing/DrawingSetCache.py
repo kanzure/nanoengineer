@@ -35,6 +35,7 @@ class DrawingSetCache(object,
 
     Some attributes and methods are public.
     """
+    
     # default values of instance variables
     
     saved_change_indicator = None #bruce 090309
@@ -54,16 +55,6 @@ class DrawingSetCache(object,
         self._dsets = {}
         self.saved_change_indicator = None
         return
-
-##    # subset of dict interface on self._dsets (untested, not yet needed)
-##    
-##    def items(self):
-##        return self._dsets.items()
-##    
-##    def __delitem__(self, intent):
-##        self._dsets[intent].destroy()
-##        del self._dsets[intent]
-##        return
 
     def incrementally_set_contents_to(self,
                                       intent_to_csdls,
@@ -150,7 +141,7 @@ class DrawingSetCache(object,
 
         @param debug: if true, print debugging info.
         """
-        # 
+        
         if debug:
             print
             print env.redraw_counter ,
@@ -158,6 +149,7 @@ class DrawingSetCache(object,
                                      self.temporary and " (temporary)" or "") ,
             print "  (for phase %r)" % glpane.drawing_phase
             pass
+        
         for intent, dset in self._dsets.items():
             if debug:
                 print "drawing dset, intent %r, %d items" % \
@@ -173,6 +165,8 @@ class DrawingSetCache(object,
                 dset.destroy()
                 del self._dsets[intent]
             continue
-    pass
+        return
+    
+    pass # end of class DrawingSetCache
 
 # end
