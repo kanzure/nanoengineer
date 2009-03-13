@@ -296,7 +296,14 @@ class ChunkDrawer(TransformedDisplayListsDrawer):
         
         if indicate_overlapping_atoms and is_chunk_visible:
             self.draw_overlap_indicators_if_needed()
-                # todo: pass highlight_color
+                # todo: pass highlight_color.
+                
+                # todo: make this work with 'reuse cached drawingsets' debug_pref.
+                # That will require calling a variant of collect_drawing_function
+                # which works in absolute model coordinates. (Adding that is
+                # straightforward -- see comment in our superclass which defines
+                # that method.) [bruce 090312 comment]
+            pass
 
         if hidden:
             # catch the case where indicate_overlapping_atoms skipped this test earlier
