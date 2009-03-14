@@ -26,6 +26,7 @@ from OpenGL.GL import glEnd
 from OpenGL.GL import GL_EXTENSIONS
 from OpenGL.GL import glFinish
 from OpenGL.GL import glGenTextures
+from OpenGL.GL import glGetInteger
 from OpenGL.GL import glGetString
 from OpenGL.GL import GL_QUADS
 from OpenGL.GL import GL_RENDERER
@@ -40,6 +41,9 @@ from OpenGL.GL import glVertex2f
 from OpenGL.GLU import gluBuild2DMipmaps
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
+
+from utilities import debug_flags
+from utilities.debug import print_compact_traceback
 
 # ==
 
@@ -64,7 +68,7 @@ def get_gl_info_string(glpane): # grantham 20051129
     gl_extensions = gl_extensions.replace(" ", "\n* ")
     gl_info_string += 'GL_EXTENSIONS : \n* %s\n' % gl_extensions
 
-    if debug_pref("get_gl_info_string call glAreTexturesResident?",
+    if debug_pref("Graphics Card Info: call glAreTexturesResident?",
                   Choice_boolean_False):
         # Give a practical indication of how much video memory is available.
         # Should also do this with VBOs.
@@ -104,6 +108,37 @@ def get_gl_info_string(glpane): # grantham 20051129
 
         gl_info_string += "Could create %d 512x512 RGBA resident textures\n" \
                           % tex_count
+        pass
+
+    if True: ## or could be a debug_pref("Graphics Card Info: get all GL_MAX symbols?")
+        #bruce 090314 new feature
+        import OpenGL.GL
+        symbols = [x for x in dir(OpenGL.GL) if x.startswith('GL_MAX_')]
+        symbols.sort()
+        gl_info_string += '\n'
+        for symbol in symbols:
+            try:
+                numeric_symbol = getattr(OpenGL.GL, symbol)
+                intval = glGetInteger(numeric_symbol)
+            except:
+                # this happens to most symbols, not sure why
+                if debug_flags.atom_debug:
+                    print_compact_traceback( "%s = ??: " % symbol )
+                        # overkill, only the exception itself matters
+                    # typical output (on Bruce's MacBookPro, 090314):
+                    ## GL_MAX_4D_TEXTURE_SIZE_SGIS = ??:
+                    ## <type 'exceptions.KeyError'>:
+                    ## ('Unknown specifier GL_MAX_4D_TEXTURE_SIZE_SGIS (33080)',
+                    ##  'Failure in cConverter <OpenGL.converters.SizedOutput object at 0x1457fab0>',
+                    ##  [GL_MAX_4D_TEXTURE_SIZE_SGIS], 1, <OpenGL.wrapper.glGetIntegerv object at 0x1458aa30>)
+                    ## [graphics_card_info.py:122] [wrapper.py:676] [converters.py:195] [converters.py:234]
+                    pass
+                pass ## gl_info_string += "%s = ??\n" % symbol
+            else:
+                gl_info_string += "%s = %r\n" % (symbol, intval)
+            continue
+        pass
+
     return gl_info_string
 
 # end
