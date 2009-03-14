@@ -330,7 +330,7 @@ class GLPrefs:
         Note that any env.prefs value accessed directly (via env.prefs[key] or
         debug_pref()) when making a DL needn't be included in our output, since
         those accesses are usage-tracked and anything making a DL can
-        independently subscribe to changes in them (see begin_usage_tracking).
+        independently subscribe to changes in them (see begin_tracking_usage).
         The only prefs values that doesn't work for are the ones cached in self,
         so only those values need to be included in this method's output.
 
