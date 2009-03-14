@@ -36,7 +36,7 @@ from PyQt4.Qt import QStatusBar
 
 from model.elements import PeriodicTable
 from model.assembly import Assembly
-from graphics.drawing.gl_lighting import get_gl_info_string ## grantham 20051201
+from graphics.drawing.graphics_card_info import get_gl_info_string ## grantham 20051201
 import os, sys
 import time
 
