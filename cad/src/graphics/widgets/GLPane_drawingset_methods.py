@@ -110,15 +110,18 @@ class GLPane_drawingset_methods(object):
                              bare_primitives = False,
                              dset_change_indicator = None ):
         """
-        Whenever some CSDLs are going to be drawn by self.draw_csdl,
-        call this first, draw them, and then call self.after_drawing_csdls.
+        Whenever some CSDLs are going to be drawn (or more precisely,
+        collected for drawing, since they might be redrawn again later
+        due to reuse_cached_drawingsets) by self.draw_csdl,
+        call this first, draw them (I mean pass them to self.draw_csdl),
+        and then call self.after_drawing_csdls.
 
         @param bare_primitives: when True, also open up a new CSDL
-        and collect all "bare primitives" (not drawn into other CSDLs)
-        into it, and draw it at the end. The new CSDL will be marked to
-        permit reentrancy of ColorSorter.start, and will not be allowed
-        to open up a "catchall display list" (an nfr for CSDL) since that
-        might lead to nested display list compiles, not allowed by OpenGL.
+            and collect all "bare primitives" (not drawn into other CSDLs)
+            into it, and draw it at the end. The new CSDL will be marked to
+            permit reentrancy of ColorSorter.start, and will not be allowed
+            to open up a "catchall display list" (an nfr for CSDL) since that
+            might lead to nested display list compiles, not allowed by OpenGL.
 
         @param dset_change_indicator: if provided and not false,
             and if a certain debug_pref is enabled, then if after_drawing_csdls
@@ -126,8 +129,10 @@ class GLPane_drawingset_methods(object):
             exists and has the same value of dset_change_indicator
             saved from our last use of that cache, we assume there
             is no need for the caller to remake the drawingsets in
-            that cache, which we tell it by returning True.
-            (This is never fully correct -- for details see caller docstring.)
+            that cache, which we tell it (the caller) by returning True.
+            (This is never fully correct -- for details see caller docstring.
+             Soon [090313] we intend to add usage_tracking to make it much
+             closer to being correct.)
 
         @return: usually False; True in special cases explained in the
             docstring for our dset_change_indicator parameter.
@@ -160,6 +165,7 @@ class GLPane_drawingset_methods(object):
                               ):
                     if dset_change_indicator:
                         policy = self._current_drawingset_cache_policy
+                            # policy is None or a tuple of (temporary, cachename) [misnamed?]
                         cache = self._find_or_make_dset_cache_to_use(policy, make = False)
                         if cache:
                             if cache.saved_change_indicator == dset_change_indicator:
