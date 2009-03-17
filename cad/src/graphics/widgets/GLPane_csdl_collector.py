@@ -33,14 +33,14 @@ class _GLPane_csdl_collector_superclass:
 class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
     """
     One of these is created whenever drawing a model,
-    provided GLPane.before_drawing_csdls is called.
+    provided GLPane._before_drawing_csdls is called.
 
     It holds attributes needed for GLPane.draw_csdl to work
     (and helper methods for that as well).
 
     See superclass code comments for documentation of attributes.
 
-    For more info, see docstring of GLPane.before_drawing_csdls.
+    For more info, see docstring of GLPane._before_drawing_csdls.
     """
     def __init__(self, glpane):
         ## print "\ninit GLPane_csdl_collector", glpane, glpane.drawing_phase

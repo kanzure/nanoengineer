@@ -1183,7 +1183,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # self.drawing_frame.repeated_bonds_dict, and using its
             # "full version" will help permit future draw methods that
             # work for either OpenGL or POV-Ray.
-            # (It might also be desirable to use GLPane.before_drawing_csdls
+            # (It might also be desirable to use GLPane._before_drawing_csdls
             #  at that time.)
         error = True
         try:

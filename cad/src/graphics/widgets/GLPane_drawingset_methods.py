@@ -45,11 +45,11 @@ class GLPane_drawingset_methods(object):
     _csdl_collector_class = fake_GLPane_csdl_collector
         # Note: this attribute is modified dynamically.
         # This default value is appropriate for drawing which does not
-        # occur between matched calls of before/after_drawing_csdls, since
+        # occur between matched calls of _before/_after_drawing_csdls, since
         # drawing then is deprecated but needs to work,
         # so this class will work, but warn when created.
         # Its "normal" value is used between matched calls
-        # of before/after_drawing_csdls.
+        # of _before/_after_drawing_csdls.
 
     _always_remake_during_movies = False # True in some subclasses
 
@@ -95,8 +95,9 @@ class GLPane_drawingset_methods(object):
         self._csdl_collector = None
 
     csdl_collector = property(__get_csdl_collector, __set_csdl_collector, __del_csdl_collector)
+        # accessed only in this class (as of 090317)
 
-    def _has_csdl_collector(self):
+    def _has_csdl_collector(self): # not used as of 090317
         """
         @return: whether we presently have an allocated csdl_collector
                  (which would be returned by self.csdl_collector).
@@ -106,15 +107,17 @@ class GLPane_drawingset_methods(object):
 
     _current_drawingset_cache_policy = None # or a tuple of (temporary, cachename)
     
-    def before_drawing_csdls(self,
+    def _before_drawing_csdls(self,
                              bare_primitives = False,
                              dset_change_indicator = None ):
         """
+        [private submethod of _call_func_that_draws_model]
+        
         Whenever some CSDLs are going to be drawn (or more precisely,
         collected for drawing, since they might be redrawn again later
         due to reuse_cached_drawingsets) by self.draw_csdl,
         call this first, draw them (I mean pass them to self.draw_csdl),
-        and then call self.after_drawing_csdls.
+        and then call self._after_drawing_csdls.
 
         @param bare_primitives: when True, also open up a new CSDL
             and collect all "bare primitives" (not drawn into other CSDLs)
@@ -124,7 +127,7 @@ class GLPane_drawingset_methods(object):
             might lead to nested display list compiles, not allowed by OpenGL.
 
         @param dset_change_indicator: if provided and not false,
-            and if a certain debug_pref is enabled, then if after_drawing_csdls
+            and if a certain debug_pref is enabled, then if _after_drawing_csdls
             would use a drawingset_cache and one already
             exists and has the same value of dset_change_indicator
             saved from our last use of that cache, we assume there
@@ -135,8 +138,15 @@ class GLPane_drawingset_methods(object):
              closer to being correct.)
 
         @return: usually False; True in special cases explained in the
-            docstring for our dset_change_indicator parameter.
+            docstring for our dset_change_indicator parameter. WARNING:
+            when we return true, our caller is REQUIRED (not just permitted)
+            to immediately call _after_drawing_csdls (with certain options,
+            see current calling code) without doing anything to its cached
+            drawingsets/csdls -- i.e. to skip its usual "drawing".
         """
+        # as of 090317, defined and used only in this class; will be refactored;
+        # some other files have comments about it which will need revision then
+
         # someday we might take other args, e.g. an "intent map"
         del self.csdl_collector 
         self._csdl_collector_class = GLPane_csdl_collector
@@ -146,7 +156,12 @@ class GLPane_drawingset_methods(object):
         self._remake_display_lists = self._compute_remake_display_lists_now()
             # note: this affects how we use both debug_prefs, below.
 
-        res = False
+        res = False # return value, modified below
+
+        cache = None # set to actual DrawingSetCache if we find or make one
+        
+        cache_began_usage_tracking = False # modified if it did that
+            # [not yet fully implemented or used as of 090317, but should cause no harm]
         
         if debug_pref("GLPane: use DrawingSets to draw model?",
                       Choice_boolean_True, #bruce 090225 revised
@@ -170,6 +185,45 @@ class GLPane_drawingset_methods(object):
                         if cache:
                             if cache.saved_change_indicator == dset_change_indicator:
                                 res = True
+                        # NOTE: the following debug_pref is not yet implemented,
+                        # and this method plus a few others will be heavily refactored
+                        # before it is, since keeping track of (planned) usage tracking
+                        # is getting too messy without that.
+                        # So I if 0'd it (sort of) but left it in for illustration.
+                        # [bruce 090317 comment]
+                        if 0 and debug_pref("GLPane: usage-track cached DrawingSets?", #bruce 090313
+                                      Choice_boolean_False, #####True,
+                                      non_debug = True, # for now -- remove when works
+                                      prefs_key = True
+                                      ):
+                            if not res:
+                                # if we're reusing dset_cache, i.e. not remaking it,
+                                # then no need to track usage "while remaking it";
+                                # this must be synchronized with _after_drawing_csdls
+                                # calling end_tracking_usage -- thus the requirements
+                                # (new as of 090313) about caller honoring return value res
+                                # (see our docstring); for robustness (since _after can't
+                                # deduce this perfectly, at least not clearly) we also
+                                # set a flag about whether we're doing this in the cache.
+                                cache = self._find_or_make_dset_cache_to_use(policy, make = True)
+                                    # (note make = True, different than earlier call)
+                                cache.begin_tracking_usage() #### args?
+                                #}
+                                cache_began_usage_tracking = True
+                                #} # fix word order (or just refactor this mess)
+                                cache.track_use() ###### WRONG, do this when we draw it! (in _after I think)
+                                #}
+                                pass
+                            pass
+                        pass
+                    pass
+                pass
+            pass
+# following will be done in a better way when we refactor [bruce 090317 comment]:
+##        if cache:
+##            cache.is_usage_tracking = cache_began_usage_tracking ####### how do we know it's false if it's not?
+##            #}
+##            pass
 
         if debug_pref("GLPane: highlight atoms in CSDLs?",
                       Choice_boolean_True, #bruce 090225 revised
@@ -182,6 +236,10 @@ class GLPane_drawingset_methods(object):
         return res
 
     def _compute_remake_display_lists_now(self): #bruce 090224
+        """
+        [can be overridden in subclasses, but isn't so far]
+        """
+        # as of 090317, defined and used only in this class
         remake_during_movies = debug_pref(
             "GLPane: remake display lists during movies?",
             Choice_boolean_True,
@@ -212,6 +270,10 @@ class GLPane_drawingset_methods(object):
         return remake_now
 
     def _movie_is_playing(self): #bruce 090224 split this out of ChunkDrawer
+        """
+        [can be overridden in subclasses, but isn't so far]
+        """
+        # as of 090317, defined and used only in this class
         return env.mainwindow().movie_is_playing #bruce 051209
             # warning: use of env.mainwindow is a KLUGE;
             # could probably be fixed, but needs review for thumbviews
@@ -222,6 +284,10 @@ class GLPane_drawingset_methods(object):
         or make sure it will be in a DrawingSet which will be drawn later
         with those options.
         """
+        # as of 090317, called in many drawing methods elsewhere (and one here),
+        # defined only here; calls and API won't change in planned upcoming
+        # refactoring, but implem might.
+        
         # future: to optimize rigid drag, options (aka "drawing intent")
         # will also include which dynamic transform (if any) to draw it inside.
         csdl_collector = self.csdl_collector
@@ -244,6 +310,10 @@ class GLPane_drawingset_methods(object):
         return suitable options (as a dict) to be passed to either
         CSDL.draw or DrawingSet.draw.
         """
+        # as of 090317, defined and used only in this class,
+        # but logically, could be overridden in subclasses;
+        # will probably not be changed during planned upcoming refactoring
+        
         selected, highlight_color = intent # must match the code in draw_csdl
         if highlight_color is None:
             return dict(selected = selected)
@@ -253,12 +323,14 @@ class GLPane_drawingset_methods(object):
                         highlight_color = highlight_color )
         pass
     
-    def after_drawing_csdls(self,
+    def _after_drawing_csdls(self,
                             error = False,
                             reuse_cached_dsets_unchanged = False,
                             dset_change_indicator = None ):
         """
-        @see: before_drawing_csdls
+        [private submethod of _call_func_that_draws_model]
+
+        @see: _before_drawing_csdls
 
         @param error: if the caller knows, it can pass an error flag
                       to indicate whether drawing succeeded or failed.
@@ -268,13 +340,15 @@ class GLPane_drawingset_methods(object):
 
         @param reuse_cached_dsets_unchanged: whether to do what it says.
             Typically equal to the return value of the preceding call
-            of before_drawing_csdls.
+            of _before_drawing_csdls.
 
         @param dset_change_indicator: if true, store in the dset cache
             (whether found or made, modified or not) as .saved_change_indicator.
         """
+        # as of 090317, defined and used only in this class; will be refactored
+        
         self._remake_display_lists = self._compute_remake_display_lists_now()
-
+        
         if not error:
             if self.csdl_collector.bare_primitives:
                 # this must come before the _draw_drawingsets below
@@ -298,7 +372,12 @@ class GLPane_drawingset_methods(object):
 
     def _whole_model_drawingset_change_indicator(self):
         """
+        [should be overridden in subclasses which want to cache drawingsets]
         """
+        # as of 090317, overridden in one subclass, called only in this class
+        # (in _call_func_that_draws_model); might remain unchanged after
+        # planned upcoming refactoring
+        
         return None # disable this optim by default
     
     def _call_func_that_draws_model(self,
@@ -312,10 +391,10 @@ class GLPane_drawingset_methods(object):
         """
         If whole_model is False (*not* the default):
         
-        Call func() between calls of self.before_drawing_csdls(**kws)
-        and self.after_drawing_csdls(). Return whatever func() returns
+        Call func() between calls of self._before_drawing_csdls(**kws)
+        and self._after_drawing_csdls(). Return whatever func() returns
         (or raise whatever exception it raises, but call
-         after_drawing_csdls even when raising an exception).
+         _after_drawing_csdls even when raising an exception).
 
         func should usually be something which calls before/after_drawing_model
         inside it, e.g. one of the standard functions for drawing the
@@ -337,14 +416,14 @@ class GLPane_drawingset_methods(object):
         related optimizations (so they are called even if func is not).
         
         @warning: prefunc and postfunc are not called between
-        before_drawing_csdls and after_drawing_csdls, so they
+        _before_drawing_csdls and _after_drawing_csdls, so they
         should not use csdls for drawing. (If we need to revise this,
         we might want to pass a list of funcs rather than a single func,
         with each one optimized separately for sometimes not being
         called; or more likely, refactor this entirely to make each
         func and its redraw-vs-reuse conditions a GraphicsRule object.)
 
-        @param bare_primitives: passed to before_drawing_csdls.
+        @param bare_primitives: passed to _before_drawing_csdls.
 
         @param drawing_phase: if provided, drawing_phase must be '?'
             on entry; we'll set it as specified only during this call.
@@ -359,6 +438,12 @@ class GLPane_drawingset_methods(object):
             Default True. Permits optimizations when the model appearance
             doesn't change since it was last drawn.
         """
+        # as of 090317, defined only here, called here and elsewhere
+        # (in many places); likely to remain unchanged in our API for other
+        # methods and client objects, even after planned upcoming refactoring,
+        # though we may replace *some* of its calls with something modified,
+        # as if inlining the refactored form.
+
         # todo: convert some older callers to pass drawing_phase
         # rather than implementing their own similar behavior.
         if drawing_phase is not None:
@@ -388,10 +473,25 @@ class GLPane_drawingset_methods(object):
             # of similar optimizations. [bruce 090309]
         else:
             dset_change_indicator = None
-        skip_dset_remake = self.before_drawing_csdls(
+        skip_dset_remake = self._before_drawing_csdls(
                         bare_primitives = bare_primitives,
                         dset_change_indicator = dset_change_indicator
          )
+        # WARNING: if skip_dset_remake, we are REQUIRED (as of 090313)
+        # (not just permitted, as before)
+        # [or at least we would have been if I had finished implementing
+        #  usage tracking -- see comment elsewhere for status -- bruce 090317]
+        # to do nothing to any of our cached dsets or csdl collectors
+        # (i.e. to do no drawing) before calling _after_drawing_csdls.
+        # Fortunately we call it just below, so it's easy to verify
+        # this requirement -- just don't forget to think about this
+        # if you modify the following code. (### Todo: refactor this to
+        # make it more failsafe, e.g. pass func to a single method
+        # which encapsulates _before_drawing_csdls and _after_drawing_csdls...
+        # but wait, isn't *this* method that single method? Ok, just make
+        # them private [done] and document them as only for use by this
+        # method [done]. Or maybe a smaller part of this really *should* be
+        # a single method.... [yes, or worse -- 090317])
         error = True
         res = None
         try:
@@ -401,7 +501,7 @@ class GLPane_drawingset_methods(object):
         finally:
             # (note: this is usually what does much of the actual drawing
             #  requested by func())
-            self.after_drawing_csdls(
+            self._after_drawing_csdls(
                 error,
                 reuse_cached_dsets_unchanged = skip_dset_remake,
                 dset_change_indicator = dset_change_indicator
@@ -423,6 +523,8 @@ class GLPane_drawingset_methods(object):
         [overridden in subclasses of the class we mix into;
          see those for doc]
         """
+        # as of 090317, called in many places, overridden in some;
+        # this will remain true after planned upcoming refactoring
         return
 
     def _call_func_that_draws_objects(self, func, part, bare_primitives = None):
@@ -440,6 +542,9 @@ class GLPane_drawingset_methods(object):
         with the Part methods before/after_drawing_model,
         like the standard functions for drawing the entire model do.
         """
+        # as of 090317, defined only here, called only elsewhere;
+        # likely to remain unchanged in our API for other methods,
+        # even after planned upcoming refactoring
         def func2():
             part.before_drawing_model()
             error = True
@@ -477,6 +582,8 @@ class GLPane_drawingset_methods(object):
         ### REVIEW: move inside csdl_collector?
         # or into some new cooperating object, which keeps the DrawingSets?
 
+        # as of 090317, defined and used only in this class (in _after_drawing_csdls)
+
         incremental = debug_pref("GLPane: use incremental DrawingSets?",
                           Choice_boolean_True, #bruce 090226, since it works
                           non_debug = True,
@@ -504,7 +611,7 @@ class GLPane_drawingset_methods(object):
         # if it's temporary, make sure not to store it in any dict
         if incremental:
             # figure out (temporary, cachename)
-            cache_before = self._current_drawingset_cache_policy # chosen during before_drawing_csdls
+            cache_before = self._current_drawingset_cache_policy # chosen during _before_drawing_csdls
             cache_after = self._choose_drawingset_cache_policy() # chosen now
             ## assert cache_after == cache_before
             if not (cache_after == cache_before):
@@ -571,7 +678,9 @@ class GLPane_drawingset_methods(object):
         @return: existing or new DrawingSetCache, or None if not make and
             no existing one is found.
         """
-        # split out, bruce 090309
+        # as of 090317, called only in this class, in _before_drawing_csdls and
+        # (during _after_drawing_csdls) in _draw_drawingsets;
+        # defined only in this class
         if not make and not policy:
             return None
         temporary, cachename = policy
@@ -602,8 +711,12 @@ class GLPane_drawingset_methods(object):
         @return: (temporary, cachename)
         @rtype: (bool, string)
 
-        [overridden in subclasses of the class we mix into]
+        [overridden in subclasses of the class we mix into;
+         for calling, private to this mixin class]
         """
+        # as of 090317, called only in this class, in _before_drawing_csdls and
+        # (during _after_drawing_csdls) in _draw_drawingsets;
+        # defined here and overridden in one other class
         return False, None
 
     pass # end of mixin class GLPane_drawingset_methods

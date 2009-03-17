@@ -120,8 +120,8 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
     # bruce 090219 added GLPane_drawingset_methods mixin superclass
     # (for draw_csdl method; ok to ignore pylint warning about not
     #  calling its __init__ method (it doesn't have one);
-    #  requires calling before_drawing_csdls and
-    #  after_drawing_csdls in all our subclass draw-like methods;
+    #  requires calling _before_drawing_csdls and
+    #  _after_drawing_csdls in all our subclass draw-like methods;
     #  to help with this the mixin provides methods
     #  _call_func_that_draws_model and
     #  _call_func_that_draws_objects)
