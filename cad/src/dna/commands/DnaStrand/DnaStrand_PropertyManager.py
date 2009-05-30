@@ -109,8 +109,6 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
                         minimum       =  2,
                         maximum       =  10000 )
         
-                
-               
         self.disableStructHighlightingCheckbox = \
             PM_CheckBox( pmGroupBox,
                          text         = "Don't highlight while editing DNA",
@@ -299,6 +297,20 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         @see: DnaStrand_EditCommand.command_update_UI()
         @see: DnaStrand_EditCommand.hasResizableStructure()
         """
+        if not self.command.hasValidStructure():
+            print "DnaStrand not a valid structure."
+            self._pmGroupBox1.setEnabled(False)
+            self._displayOptionsGroupBox.setEnabled(False)
+            self.sequenceEditor.updateSequence(strand = " ")
+            self.sequenceEditor.setEnabled(False)
+            self.nameLineEdit.setText("")
+            self.numberOfBasesSpinBox.setValue(0)
+            return
+        else:
+            self._pmGroupBox1.setEnabled(True)
+            self._displayOptionsGroupBox.setEnabled(True)
+            self.sequenceEditor.setEnabled(True)
+            
         isStructResizable, why_not = self.command.hasResizableStructure()
         if not isStructResizable:
             #disable all widgets
