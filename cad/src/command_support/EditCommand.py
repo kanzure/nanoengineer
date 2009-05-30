@@ -242,8 +242,7 @@ class EditCommand(Select_Command):
    
     def _modifyStructure(self, params):
         """
-        Abstract method that modifies the structure (i.e. the object created 
-        by this editCommand) using the parameters provided.
+        Abstract method that modifies the current object being edited.
         @param params: The parameters used as an input to modify the structure
                        (object created using this editCommand) 
         @type  params: tuple
@@ -253,11 +252,10 @@ class EditCommand(Select_Command):
 
     def _gatherParameters(self):
         """
-        Return all the parameters from the Plane Property Manager.
-        Abstract method. 
+        Abstract method to be overridden by subclasses to return all 
+        the parameters needed to modify or (re)create the current structure.
         """
         raise AbstractMethod()
-
 
     def preview_or_finalize_structure(self, previewing = False):
         """
