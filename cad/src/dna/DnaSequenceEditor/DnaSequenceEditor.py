@@ -234,6 +234,9 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         textedit.  Other methods...
         """ 
         
+        if not self.current_strand: # Precaution
+            return
+        
         if self._suppress_textChanged_signal:
             return
         
@@ -482,8 +485,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         # Qt can get confused between HTML and Plain Text.        
         self.sequenceTextEdit.insertHtml( htmlSequence ) #@@@ Generates signal???
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
-        self.setCursorPosition(cursorPos)
-
+        self.setCursorPosition(inCursorPos = cursorPos)
         return
         
     def _determine_complementSequence(self, inSequence):
@@ -676,6 +678,16 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         self.setCursorPosition(0)
         return
     
+    def clear(self):
+        """
+        Clear the sequence and mate fields.
+        """
+        if 0:
+            print "Cleared"
+        self.sequenceTextEdit.insertHtml("<font color=gray></font>")
+        self.sequenceTextEdit_mate.insertHtml("<font color=gray></font>")
+        return
+    
     def _colorExtraSequenceCharacters(self, inSequence):
         """
         Returns I{inSequence} with html tags that color any extra overhang 
@@ -733,7 +745,11 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                           is placed at the end of the sequence (default).
         @type  cursorPos: int
         """
-        
+        if strand == " ":
+            self.current_strand = None
+            self.clear()
+            return
+            
         if strand:
             assert isinstance(strand, self.win.assy.DnaStrand)
             self.current_strand = strand
