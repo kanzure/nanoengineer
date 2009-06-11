@@ -469,7 +469,7 @@ class Tests(unittest.TestCase):
 
     def test_getEquilibriumDistance(self):
         # try C-C single bond; prints 154.88
-        assert (getEquilibriumDistanceForBond(6, 6, '1') - 154.88) ** 2 < 0.1
+        assert (theSimulator().getEquilibriumDistanceForBond(6, 6, '1') - 154.88) ** 2 < 0.1
 
     def test_framecallback(self):
         func = _testsetup(2)

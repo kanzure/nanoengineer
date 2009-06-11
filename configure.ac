@@ -8,9 +8,12 @@ AC_PREREQ(2.61)
 # looks strange but gets us what we want.
 AC_INIT(NanoEngineer, 1_0.9.2, support@nanorex.com, NanoEngineer)
 
+# FIXME: add configure check for libgle.so: GLE Tubing and Extrusion
+# library.
+
 AM_INIT_AUTOMAKE
 AC_COPYRIGHT([Copyright 2007 Nanorex, Inc.  See LICENSE file for details.])
-AC_CONFIG_SRCDIR([cad/src/NE1ToolBar.py])
+AC_CONFIG_SRCDIR([cad/src/widgets/NE1ToolBar.py])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.

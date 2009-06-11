@@ -27,6 +27,7 @@ from OpenGL.GLU import gluUnProject
 from geometry.VQT import norm, A
 from Numeric import dot
 
+from array import array
 # ==
 
 def mymousepoints(glpane, x, y): #bruce 071017 moved this here from testdraw.py
@@ -87,8 +88,8 @@ def draw_textured_rect_subtriangle(origin, dx, dy, tex_origin, tex_dx, tex_dy, p
     for px, py in points:
         px = float(px)
         py = float(py)        
-        glTexCoord2fv(tex_origin + px * tex_dx + py * tex_dy)
-        glVertex3fv(origin + px * dx + py * dy)
+        glTexCoord2fv((tex_origin + px * tex_dx + py * tex_dy).tolist())
+        # glVertex3fv(origin + px * dx + py * dy)
     glEnd()
     glDisable(GL_TEXTURE_2D)
  
