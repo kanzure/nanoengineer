@@ -924,10 +924,10 @@ class _readmmp_state:
         list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
         list1 = map((lambda n: self.ndix[n]), list1)
         
-        as = AtomSet(self.assy, list1) # create atom set and set props
-        as.name = name
-        as.color = col
-        self.addmember(as)
+        atomset = AtomSet(self.assy, list1) # create atom set and set props
+        atomset.name = name
+        atomset.color = col
+        self.addmember(atomset)
         
     def _read_espimage(self, card):
         """
