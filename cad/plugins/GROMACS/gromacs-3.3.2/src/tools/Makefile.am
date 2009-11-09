@@ -69,7 +69,7 @@ LDADD = $(lib_LTLIBRARIES) ../mdlib/libmd@LIBSUFFIX@.la \
 install-exec-hook:
 	libname="libgmxana@LIBSUFFIX@"; \
 	nompi="`echo $$libname | sed -e 's,_mpi,,'`"; \
-	libdir="$(libdir)"; \
+	libdir="$(DESTDIR)/$(libdir)"; \
 	if echo $$libname | grep mpi >/dev/null ; then \
 	  (cd $$libdir && test -e $$libname.a -a ! -e $$nompi.a && $(LN_S) $$libname.a $$nompi.a ; exit 0); \
 	  (cd $$libdir && test -e $$libname.so -a ! -e $$nompi.so && $(LN_S) $$libname.so $$nompi.so ; exit 0); \

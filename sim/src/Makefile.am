@@ -14,6 +14,7 @@ sim_la_LDFLAGS = -module
 
 sim_la_SOURCES = \
 	allocate.c allocate.h \
+	amber_patterns.c amber_patterns.h \
 	debug.h \
 	dynamics.c dynamics.h \
 	globals.c globals.h \
@@ -24,9 +25,13 @@ sim_la_SOURCES = \
 	minimize.c minimize.h \
 	minstructure.c minstructure.h \
 	newtables.c newtables.h \
+	pam5_patterns.c pam5_patterns.h \
+	pattern.c pattern.h \
 	part.c part.h \
 	potential.c potential.h \
+	printGromacsTopology.c printGromacsTopology.h \
 	printers.c printers.h \
+	read_amber_itp.c read_amber_itp.h \
 	readmmp.c readmmp.h \
 	readxyz.c readxyz.h \
 	rigid.c rigid.h \
@@ -49,7 +54,7 @@ version.h:
 	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" "@UNAME_A@" \
 		| grep -v "^running " > version.h
 sim.c: sim.pyx simhelp.c
-	@PYREXC@ sim.pyx
+	pyrexc sim.pyx
 
 EXTRA_DIST = \
 	stretch.py stretch.parms bend.py bending.parms makehelp.py sim.pyx \

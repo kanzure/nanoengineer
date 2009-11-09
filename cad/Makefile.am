@@ -3,7 +3,7 @@ SUBDIRS = src doc partlib plugins
 
 install-exec-hook:
 	@echo Installing license files...
-	cp -R Licenses $(pkgdatadir)-$(PACKAGE_VERSION)/
+#	cp -R Licenses $(pkgdatadir)-$(PACKAGE_VERSION)/
 
 dist-hook:
 	mkdir $(distdir)/Licenses
