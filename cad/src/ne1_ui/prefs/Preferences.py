@@ -2912,7 +2912,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                 env.prefs[gromacs_path_prefs_key] = get_default_plugin_path( \
                     "C:\\GROMACS_3.3.3\\bin\\mdrun.exe", \
                     "/Applications/GROMACS_3.3.3/bin/mdrun",
-                    "/usr/local/GROMCAS_3.3.3/bin/mdrun")
+                    "/usr/bin/g_mdrun")
 
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
 
@@ -2965,7 +2965,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                 env.prefs[cpp_path_prefs_key] = get_default_plugin_path( \
                     "C:\\GROMACS_3.3.3\\MCPP\\bin\\mcpp.exe", \
                     "/Applications/GROMACS_3.3.3/mcpp/bin/mcpp", \
-                    "/usr/local/GROMACS_3.3.3/mcpp/bin/mcpp")
+                    "/usr/bin/cpp")
 
             self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
 

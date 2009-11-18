@@ -1004,7 +1004,7 @@ prefs_table = (
     ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
     ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
     ('gromacs_exe_path', 'string', gromacs_path_prefs_key, "" ),
-    ('gromacs_enabled', 'boolean', gromacs_enabled_prefs_key, False ),
+    ('gromacs_enabled', 'boolean', gromacs_enabled_prefs_key, True ),
     #Urmi 20080709: since this is not in the pref dialog as yet, we'll hard code
     # for testing purposes
     ('rosetta_exe_path', 'string', rosetta_path_prefs_key, "" ),
@@ -1013,7 +1013,7 @@ prefs_table = (
     ('rosetta_database_enabled', 'boolean', rosetta_database_enabled_prefs_key, False ),
     ('rosetta_backrub_enabled', 'boolean', rosetta_backrub_enabled_prefs_key, False ),
     ('cpp_exe_path', 'string', cpp_path_prefs_key, "" ),
-    ('cpp_enabled', 'boolean', cpp_enabled_prefs_key, False ),
+    ('cpp_enabled', 'boolean', cpp_enabled_prefs_key, True ),
     ('nv1_exe_path', 'string', nv1_path_prefs_key, "" ),
     ('nv1_enabled', 'boolean', nv1_enabled_prefs_key, False ),
 

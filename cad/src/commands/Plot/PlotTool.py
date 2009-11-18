@@ -262,7 +262,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         if sys.platform == 'win32': 
             program = os.path.normpath(filePath + '/../bin/wgnuplot.exe')
         else:
-            program = os.path.normpath(filePath + '/../bin/gnuplot')
+            program = os.path.normpath('/usr/bin/gnuplot')
 
         # Set environment variables to make gnuplot use a specific AquaTerm on
         # Mac. Originally "Huaicai 3/18", fixed by Brian Helfrich May 23, 2007.

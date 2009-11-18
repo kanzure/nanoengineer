@@ -674,7 +674,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if sys.platform == 'win32': 
             program = os.path.normpath(filePath + '/../bin/babel.exe')
         else:
-            program = os.path.normpath(filePath + '/../bin/babel')
+            program = os.path.normpath('/usr/bin/babel')
             
         if not os.path.exists(program):
             print "Babel program not found here: ", program
