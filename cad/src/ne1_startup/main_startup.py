@@ -250,25 +250,6 @@ def startup_script( main_globals):
     
     foo.show() 
 
-
-    # set up the sponsors system and perhaps show the permission dialog
-    
-    if sys.platform != 'darwin':
-        #bruce 070515 added condition to disable this on Mac, until Brian fixes the hang on Mac.
-        # Note: this is enabled in the Mac released version, due to a patch during the release
-        # building process, at least in A9.1.
-        from sponsors.Sponsors import PermissionDialog
-##        print "start sponsors startup code"
-        # Show the dialog that asks permission to download the sponsor logos, then
-        # launch it as a thread to download and process the logos.
-        #
-        permdialog = PermissionDialog(foo)
-        if permdialog.needToAsk:
-            permdialog.exec_()
-        permdialog.start()
-##        print "end sponsors startup code"
-
-
     # for developers: run a hook function that .atom-debug-rc might have defined
     # in this module's global namespace, for doing things *after* showing the
     # main window.
