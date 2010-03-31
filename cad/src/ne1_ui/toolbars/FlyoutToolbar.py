@@ -79,9 +79,10 @@ class FlyoutToolBar(QToolBar_WikiHelp):
         btn = None
         clist = self.children()
         
-        if len(clist) > 2:
-            if isinstance(clist[2], QToolButton):
-                btn = clist[2]
+        for c in range(0, len(clist)):
+            if isinstance(clist[c], QToolButton):
+                btn = clist[c]
+                break
                 
         
         return btn
